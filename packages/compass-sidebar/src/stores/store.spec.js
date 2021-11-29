@@ -62,6 +62,7 @@ describe('SidebarStore [Store]', () => {
         expect(store.getState()).to.have.property('instance').deep.equal(instance.toJSON());
         expect(store.getState()).to.have.property('databases').deep.equal({
           databases: instance.databases.toJSON(),
+          filteredDatabases: instance.databases.toJSON(),
           activeNamespace: '',
           expandedDbList: {},
           filterRegex: null,

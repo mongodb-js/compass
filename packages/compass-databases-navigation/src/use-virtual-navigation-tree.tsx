@@ -124,7 +124,7 @@ export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   items: NavigationTreeData;
   activeItemId: string;
   onExpandedChange(item: TreeItem, isExpanded: boolean): void;
-  onFocusMove(item: TreeItem): void;
+  onFocusMove?: (item: TreeItem) => void;
 }): [React.HTMLProps<T>, string | undefined] {
   const rootRef = useRef<T | null>(null);
   const activeId = activeItemId || findFirstItem(items)?.id;
@@ -172,7 +172,7 @@ export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
     if (focusState === FocusState.NoFocus) {
       setTabIndex(0);
     }
-  }, [focusState, currentTabbable, onFocusMove, focusItemById, items]);
+  }, [currentTabbable, focusItemById, focusState, items, onFocusMove]);
 
   useEffect(() => {
     setCurrentTabbable(activeId);
@@ -241,7 +241,7 @@ export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
 
         if (isExpandable(currentItem) && currentItem.isExpanded === true) {
           const maybeNextItem = findNext(currentItemIndex, items);
-          if (nextItem?.level === currentItem.level + 1) {
+          if (maybeNextItem?.level === currentItem.level + 1) {
             nextItem = maybeNextItem;
           }
         }

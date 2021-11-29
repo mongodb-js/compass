@@ -1,68 +1,49 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable react/prop-types */
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { useTree, useTreeItem } from './use-navigation-tree';
-import Sinon from 'sinon';
-
-const ExpandedContext = React.createContext([]);
-
-function useIsExpanded(id) {
-  const context = useContext(ExpandedContext);
-  return context.includes(id);
-}
+import {
+  NavigationTreeData,
+  useRovingTabIndex,
+} from './use-virtual-navigation-tree';
 
 function NavigationTreeItem({
   id,
+  name,
   level,
   setSize,
   posInSet,
-  onDefaultAction,
-  items,
+  isExpanded,
+  isTabbable,
 }: {
   id: string;
+  name: string;
   level: number;
   setSize: number;
   posInSet: number;
-  onDefaultAction: Function;
-  items?: any[];
+  isExpanded?: boolean;
+  isTabbable?: boolean;
 }) {
-  const isExpanded = useIsExpanded(id);
-  const hasChildren = items && items.length > 0;
-  const treeItemProps = useTreeItem({
-    level,
-    setSize,
-    posInSet,
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    onDefaultAction,
-    ...(hasChildren && { isExpanded }),
-  });
-
   return (
-    <li data-id={id} data-testid={id} {...treeItemProps}>
-      {id}
-      {hasChildren && isExpanded && (
-        <ul role="group">
-          {items.map(({ id, items: childItems }, index) => (
-            <NavigationTreeItem
-              key={id}
-              id={id}
-              level={level + 1}
-              setSize={items.length}
-              posInSet={index + 1}
-              onDefaultAction={onDefaultAction}
-              items={childItems}
-            ></NavigationTreeItem>
-          ))}
-        </ul>
-      )}
+    <li
+      data-id={id}
+      data-testid={id}
+      role="treeitem"
+      aria-level={level}
+      aria-setsize={setSize}
+      aria-posinset={posInSet}
+      aria-expanded={isExpanded}
+      tabIndex={isTabbable ? 0 : -1}
+    >
+      {name}
     </li>
   );
 }
+
+type MockItem = { id: string; items?: MockItem[] };
 
 const items = [
   {
@@ -86,62 +67,96 @@ const items = [
   },
 ];
 
+function normalizeItems(
+  items: MockItem[],
+  level = 1,
+  expanded = []
+): NavigationTreeData {
+  return items
+    .map((item, index) =>
+      [
+        {
+          id: item.id,
+          name: item.id,
+          level,
+          setSize: items.length,
+          posInSet: index + 1,
+          ...(item.items && { isExpanded: expanded.includes(item.id) }),
+        },
+      ].concat(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        item.items && expanded.includes(item.id)
+          ? normalizeItems(item.items, level + 1, expanded)
+          : []
+      )
+    )
+    .flat();
+}
+
 function NavigationTree({
-  tabbableItem,
+  activeItemId,
   defaultExpanded = [],
-  onDefaultAction = () => {},
+  onFocusMove = () => {},
 }: {
-  tabbableItem?: string;
+  activeItemId?: string;
   defaultExpanded?: string[];
-  onDefaultAction?: Function;
+  onFocusMove?: (item: NavigationTreeData[number]) => void;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const onExpandedChange = useCallback((id, isExpanded) => {
+
+  const onExpandedChange = useCallback(({ id }, isExpanded) => {
     setExpanded((expanded) =>
       isExpanded ? expanded.concat(id) : expanded.filter((_id) => _id !== id)
     );
   }, []);
-  const treeProps = useTree({
-    ...(tabbableItem && { tabbableSelector: `[data-id="${tabbableItem}"]` }),
+
+  const listItems = useMemo(() => {
+    return normalizeItems(items, 1, expanded);
+  }, [expanded]);
+
+  const [rootProps, currentTabbable] = useRovingTabIndex<HTMLUListElement>({
+    items: listItems,
+    activeItemId,
     onExpandedChange,
+    onFocusMove,
   });
+
   return (
-    <ExpandedContext.Provider value={expanded}>
-      <ul {...treeProps}>
-        {items.map(({ id, items: childItems }, index) => (
+    <ul role="tree" {...rootProps}>
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-expect-error */}
+      {listItems.map(({ id, name, level, setSize, posInSet, isExpanded }) => {
+        return (
           <NavigationTreeItem
-            key={id}
             id={id}
-            level={1}
-            setSize={items.length}
-            posInSet={index + 1}
-            onDefaultAction={onDefaultAction}
-            items={childItems}
+            key={id}
+            name={name}
+            level={level}
+            setSize={setSize}
+            posInSet={posInSet}
+            isExpanded={isExpanded}
+            isTabbable={currentTabbable === id}
           ></NavigationTreeItem>
-        ))}
-      </ul>
-    </ExpandedContext.Provider>
+        );
+      })}
+    </ul>
   );
 }
 
-describe('useTree / useTreeItem', function () {
+describe('useRovingTabIndex', function () {
+  let originalRequestAnimationFrame;
+
+  before(function () {
+    originalRequestAnimationFrame = globalThis.requestAnimationFrame;
+    (globalThis as any).requestAnimationFrame = (fn) => fn();
+  });
+
+  after(function () {
+    (globalThis as any).requestAnimationFrame = originalRequestAnimationFrame;
+  });
+
   afterEach(cleanup);
-
-  it('should render root tree', function () {
-    render(<NavigationTree></NavigationTree>);
-    expect(screen.getByRole('tree')).to.exist;
-  });
-
-  it('should render tree items with required attributes', function () {
-    render(<NavigationTree></NavigationTree>);
-    const fruits = screen.getByText('Fruits');
-    expect(fruits).to.exist;
-    expect(fruits).to.have.attr('role', 'treeitem');
-    expect(fruits).to.have.attr('aria-level', '1');
-    expect(fruits).to.have.attr('aria-setsize', '2');
-    expect(fruits).to.have.attr('aria-posinset', '1');
-    expect(fruits).to.have.attr('aria-expanded', 'false');
-  });
 
   it('should make first element tabbable when no tabbableSelector provided', function () {
     render(<NavigationTree></NavigationTree>);
@@ -155,6 +170,7 @@ describe('useTree / useTreeItem', function () {
       .filter((el) => el.tabIndex === 0);
     expect(tabbableElements).to.have.lengthOf(1);
   });
+
   describe('keyboard list navigation', function () {
     it('should move focus to the next element on ArrowDown', function () {
       render(<NavigationTree></NavigationTree>);
@@ -164,7 +180,7 @@ describe('useTree / useTreeItem', function () {
     });
 
     it('should move focus to the previous element on ArrowUp', function () {
-      render(<NavigationTree tabbableItem="Vegetables"></NavigationTree>);
+      render(<NavigationTree activeItemId="Vegetables"></NavigationTree>);
       userEvent.tab();
       userEvent.keyboard('{arrowup}');
       expect(screen.getByText('Fruits')).to.eq(document.activeElement);
@@ -178,7 +194,7 @@ describe('useTree / useTreeItem', function () {
     });
 
     it('should move focus to the first element on Home', function () {
-      render(<NavigationTree tabbableItem="Vegetables"></NavigationTree>);
+      render(<NavigationTree activeItemId="Vegetables"></NavigationTree>);
       userEvent.tab();
       userEvent.keyboard('{home}');
       expect(screen.getByText('Fruits')).to.eq(document.activeElement);
@@ -194,7 +210,7 @@ describe('useTree / useTreeItem', function () {
     it('should move focus to the parent treeitem on ArrowLeft when expandable treeitem is collapsed', function () {
       render(
         <NavigationTree
-          tabbableItem="Bananas"
+          activeItemId="Bananas"
           defaultExpanded={['Fruits']}
         ></NavigationTree>
       );
@@ -241,7 +257,7 @@ describe('useTree / useTreeItem', function () {
     it('should expand all set siblings of a focused element on * press', function () {
       render(
         <NavigationTree
-          tabbableItem="Podded Vegetables"
+          activeItemId="Podded Vegetables"
           defaultExpanded={['Fruits', 'Vegetables']}
         ></NavigationTree>
       );
@@ -269,32 +285,10 @@ describe('useTree / useTreeItem', function () {
   });
 
   describe('tabbableSelector', function () {
-    it('should make element that matches selector tabbable when `tabbableSelector` provided', function () {
-      render(<NavigationTree tabbableItem="Vegetables"></NavigationTree>);
+    it('should make element that matches selector tabbable when `activeItemId` provided', function () {
+      render(<NavigationTree activeItemId="Vegetables"></NavigationTree>);
       expect(screen.getByText('Fruits')).to.have.attr('tabindex', '-1');
       expect(screen.getByText('Vegetables')).to.have.attr('tabindex', '0');
-    });
-  });
-
-  describe('onDefaultAction', function () {
-    it('should trigger the callback when Enter is pressed on the focused treeitem', function () {
-      const onDefaultAction = Sinon.spy();
-      render(
-        <NavigationTree onDefaultAction={onDefaultAction}></NavigationTree>
-      );
-      userEvent.tab();
-      userEvent.keyboard('{enter}');
-      expect(onDefaultAction).to.be.calledOnce;
-    });
-
-    it('should trigger the callback when Space is pressed on the focused treeitem', function () {
-      const onDefaultAction = Sinon.spy();
-      render(
-        <NavigationTree onDefaultAction={onDefaultAction}></NavigationTree>
-      );
-      userEvent.tab();
-      userEvent.keyboard('{space}');
-      expect(onDefaultAction).to.be.calledOnce;
     });
   });
 });

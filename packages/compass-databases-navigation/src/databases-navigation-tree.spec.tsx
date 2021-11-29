@@ -95,8 +95,8 @@ describe('DatabasesNavigationTree', function () {
 
     await waitFor(() => {
       // Virtual list will be the one to grab the focus first, but will
-      // immediately forward it to the element, waitFor is to accomodate for
-      // that
+      // immediately forward it to the element and mocking raf here breaks
+      // virtual list implementatin, waitFor is to accomodate for that
       expect(document.querySelector('[data-id="bar"]')).to.eq(
         document.activeElement
       );

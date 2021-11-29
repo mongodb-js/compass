@@ -65,5 +65,4 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
-export { useTree, useTreeItem } from './hooks/use-navigation-tree';
 export { ContentWithFallback } from './components/content-with-fallback';
