@@ -89,6 +89,10 @@ describe('instance-detail-helper', function () {
             null
           );
         });
+
+        it('should not be identified as atlas', function () {
+          expect(instanceDetails).to.have.property('isAtlas', false);
+        });
       });
     });
 
@@ -240,6 +244,53 @@ describe('instance-detail-helper', function () {
           'genuineMongoDB.dbType',
           'documentdb'
         );
+      });
+      it(`should be identified as atlas with hostname correct hostnames`, function () {
+        ['myserver.mongodb.net', 'myserver.mongodb-dev.net'].map(
+          async (hostname) => {
+            const client = createMongoClientMock({
+              hosts: [{ host: hostname, port: 9999 }],
+              commands: {
+                buildInfo: {},
+                getCmdLineOpts: fixtures.CMD_LINE_OPTS,
+              },
+            });
+
+            const instanceDetails = await getInstance(client);
+
+            expect(instanceDetails).to.have.property('isAtlas', true);
+          }
+        );
+      });
+
+      it(`should be identified as atlas when atlasVersion command is present`, async function () {
+        const client = createMongoClientMock({
+          hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
+          commands: {
+            atlasVersion: { version: '1.1.1', gitVersion: '1.2.3' },
+            buildInfo: {},
+            getCmdLineOpts: fixtures.CMD_LINE_OPTS,
+          },
+        });
+
+        const instanceDetails = await getInstance(client);
+
+        expect(instanceDetails).to.have.property('isAtlas', true);
+      });
+
+      it(`should not be identified as atlas when atlasVersion command is missing`, async function () {
+        const client = createMongoClientMock({
+          hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
+          commands: {
+            atlasVersion: new Error('command not found'),
+            buildInfo: {},
+            getCmdLineOpts: fixtures.CMD_LINE_OPTS,
+          },
+        });
+
+        const instanceDetails = await getInstance(client);
+
+        expect(instanceDetails).to.have.property('isAtlas', false);
       });
     });
   });

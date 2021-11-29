@@ -17,7 +17,8 @@ class CollectionStats extends Component {
     totalIndexSize: PropTypes.string,
     avgIndexSize: PropTypes.string,
     isReadonly: PropTypes.bool,
-    isTimeSeries: PropTypes.bool
+    isTimeSeries: PropTypes.bool,
+    isEditing: PropTypes.bool
   };
 
   /**
@@ -26,7 +27,7 @@ class CollectionStats extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    if (this.props.isReadonly === true) {
+    if (this.props.isReadonly === true || this.props.isEditing === true) {
       return <div className={styles['collection-stats-empty']} />;
     }
 

@@ -134,6 +134,11 @@ interface RunDiagnosticsCommand {
     spec: { dbStats: 1; scale?: number },
     options?: RunCommandOptions
   ): Promise<DbStats>;
+  (
+    db: Db,
+    spec: { atlasVersion: 1 },
+    options?: RunCommandOptions
+  ): Promise<AtlasVersionInfo>;
 }
 
 export type ListDatabasesOptions = {
@@ -194,6 +199,11 @@ export type ListCollectionsOptionsNamesOnly = Omit<
   'nameOnly'
 > & {
   nameOnly: true;
+};
+
+export type AtlasVersionInfo = {
+  version: string;
+  gitVersion: string;
 };
 
 export type ListCollectionsResult<CollectionType> = {
