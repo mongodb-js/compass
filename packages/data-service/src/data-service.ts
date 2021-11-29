@@ -308,6 +308,20 @@ class DataService extends EventEmitter {
     }
   }
 
+  private async _getPrivilegesOrFallback(
+    privileges:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null = null
+  ) {
+    if (privileges) {
+      return privileges;
+    }
+    const {
+      authInfo: { authenticatedUserPrivileges },
+    } = await this.connectionStatus();
+    return authenticatedUserPrivileges;
+  }
+
   /**
    * List all collections for a database.
    */
@@ -353,12 +367,7 @@ class DataService extends EventEmitter {
             );
             return [] as { name: string }[];
           }),
-        (privileges
-          ? Promise.resolve(privileges)
-          : this.connectionStatus().then(
-              (status) => status.authInfo.authenticatedUserPrivileges
-            )
-        ).then((privileges) => {
+        this._getPrivilegesOrFallback(privileges).then((privileges) => {
           const databases = getPrivilegesByDatabaseAndCollection(privileges, [
             'find',
           ]);
@@ -433,16 +442,7 @@ class DataService extends EventEmitter {
           );
           return { databases: [] };
         }),
-        (privileges
-          ? Promise.resolve(privileges)
-          : // If we somehow failed to get user privileges to get a fallback for the
-            // databases/collections, we do want to hard fail, there is no good
-            // reason this command will ever fail, unless server is in a bad shape
-            // or we messed something up
-            this.connectionStatus().then(
-              (status) => status.authInfo.authenticatedUserPrivileges
-            )
-        ).then((privileges) => {
+        this._getPrivilegesOrFallback(privileges).then((privileges) => {
           const databases = getPrivilegesByDatabaseAndCollection(privileges, [
             'find',
           ]);
