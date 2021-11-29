@@ -338,51 +338,59 @@ class DataService extends EventEmitter {
         | null;
     } = {}
   ): Promise<ReturnType<typeof adaptCollectionInfo>[]> {
-    const db = this._initializedClient.db(databaseName);
     const logop = this._startLogOp(
       mongoLogId(1_001_000_032),
       'Running listCollections',
       { db: databaseName, nameOnly: nameOnly ?? false }
     );
+
+    const db = this._initializedClient.db(databaseName);
+
+    const listCollections = async () => {
+      try {
+        return db.listCollections(filter, { nameOnly }).toArray();
+      } catch (err) {
+        // Currently Compass should not fail if listCollections failed for
+        // any possible reason to preserve current behavior. We probably
+        // want this to check at least that what we got back is a server
+        // error and not a weird runtime issue on our side that can be
+        // swallowed in this case, ideally we know exactly what server
+        // errors we want to handle here and only avoid throwing in these
+        // cases
+        //
+        // TODO: https://jira.mongodb.org/browse/COMPASS-5275
+        log.warn(
+          mongoLogId(1_001_000_099),
+          this._logCtx(),
+          'Failed to run listCollections',
+          { message: (err as Error).message }
+        );
+        return [] as { name: string }[];
+      }
+    };
+
+    const getCollectionsFromPrivileges = async () => {
+      const databases = getPrivilegesByDatabaseAndCollection(
+        await this._getPrivilegesOrFallback(privileges),
+        ['find']
+      );
+      return Object.keys(
+        // Privileges might not have a database we are looking for
+        databases[databaseName] || {}
+      )
+        .filter(
+          // Privileges can have collection name '' that indicates
+          // privileges on all collections in the database, we don't want
+          // those registered as "real" collection names
+          Boolean
+        )
+        .map((name) => ({ name }));
+    };
+
     try {
       const [listedCollections, collectionsFromPrivileges] = await Promise.all([
-        db
-          .listCollections(filter, { nameOnly })
-          .toArray()
-          .catch((err) => {
-            // Currently Compass should not fail if listCollections failed for
-            // any possible reason to preserve current behavior. We probably
-            // want this to check at least that what we got back is a server
-            // error and not a weird runtime issue on our side that can be
-            // swallowed in this case, ideally we know exactly what server
-            // errors we want to handle here and only avoid throwing in these
-            // cases
-            //
-            // TODO: https://jira.mongodb.org/browse/COMPASS-5275
-            log.warn(
-              mongoLogId(1_001_000_099),
-              this._logCtx(),
-              'Failed to run listCollections',
-              { message: err.message }
-            );
-            return [] as { name: string }[];
-          }),
-        this._getPrivilegesOrFallback(privileges).then((privileges) => {
-          const databases = getPrivilegesByDatabaseAndCollection(privileges, [
-            'find',
-          ]);
-          return Object.keys(
-            // Privileges might not have a database we are looking for
-            databases[databaseName] || {}
-          )
-            .filter(
-              // Privileges can have collection name '' that indicates
-              // privileges on all collections in the database, we don't want
-              // those registered as "real" collection names
-              Boolean
-            )
-            .map((name) => ({ name }));
-        }),
+        listCollections(),
+        getCollectionsFromPrivileges(),
       ]);
 
       const collections = uniqueBy(
@@ -421,49 +429,60 @@ class DataService extends EventEmitter {
 
     const adminDb = this._initializedClient.db('admin');
 
+    const listDatabases = async () => {
+      try {
+        const { databases } = await runCommand(adminDb, {
+          listDatabases: 1,
+          nameOnly,
+        } as {
+          listDatabases: 1;
+        });
+        return databases;
+      } catch (err) {
+        // Currently Compass should not fail if listDatabase failed for any
+        // possible reason to preserve current behavior. We probably want this
+        // to check at least that what we got back is a server error and not a
+        // weird runtime issue on our side that can be swallowed in this case,
+        // ideally we know exactly what server errors we want to handle here
+        // and only avoid throwing in these cases
+        //
+        // TODO: https://jira.mongodb.org/browse/COMPASS-5275
+        log.warn(
+          mongoLogId(1_001_000_098),
+          this._logCtx(),
+          'Failed to run listDatabases',
+          { message: (err as Error).message }
+        );
+        return [];
+      }
+    };
+
+    const getDatabasesFromPrivileges = async () => {
+      const databases = getPrivilegesByDatabaseAndCollection(
+        await this._getPrivilegesOrFallback(privileges),
+        ['find']
+      );
+      return Object.keys(databases)
+        .filter(
+          // For the roles created in admin database, the database name
+          // can be '' meaning that it applies to all databases. We can't
+          // meaningfully handle this in the UI so we are filtering these
+          // out
+          Boolean
+        )
+        .map((name) => ({ name }));
+    };
+
     try {
       const [listedDatabases, databasesFromPrivileges] = await Promise.all([
-        runCommand(adminDb, { listDatabases: 1, nameOnly } as {
-          listDatabases: 1;
-        }).catch((err) => {
-          // Currently Compass should not fail if listDatabase failed for any
-          // possible reason to preserve current behavior. We probably want this
-          // to check at least that what we got back is a server error and not a
-          // weird runtime issue on our side that can be swallowed in this case,
-          // ideally we know exactly what server errors we want to handle here
-          // and only avoid throwing in these cases
-          //
-          // TODO: https://jira.mongodb.org/browse/COMPASS-5275
-          log.warn(
-            mongoLogId(1_001_000_098),
-            this._logCtx(),
-            'Failed to run listDatabases',
-            { message: err.message }
-          );
-          return { databases: [] };
-        }),
-        this._getPrivilegesOrFallback(privileges).then((privileges) => {
-          const databases = getPrivilegesByDatabaseAndCollection(privileges, [
-            'find',
-          ]);
-          return {
-            databases: Object.keys(databases)
-              .filter(
-                // For the roles created in admin database, the database name
-                // can be '' meaning that it applies to all databases. We can't
-                // meaningfully handle this in the UI so we are filtering these
-                // out
-                Boolean
-              )
-              .map((name) => ({ name })),
-          };
-        }),
+        listDatabases(),
+        getDatabasesFromPrivileges(),
       ]);
 
       const databases = uniqueBy(
         // NB: Order is important, we want listed collections to take precedence
         // if they were fetched successfully
-        [...databasesFromPrivileges.databases, ...listedDatabases.databases],
+        [...databasesFromPrivileges, ...listedDatabases],
         'name'
       ).map((db) => adaptDatabaseInfo({ db: db.name, ...db }));
 
