@@ -252,7 +252,7 @@ describe('instance-detail-helper', function () {
               hosts: [{ host: hostname, port: 9999 }],
               commands: {
                 buildInfo: {},
-                getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
+                getCmdLineOpts: fixtures.CMD_LINE_OPTS,
               },
             });
 
@@ -269,7 +269,7 @@ describe('instance-detail-helper', function () {
           commands: {
             atlasVersion: { version: '1.1.1', gitVersion: '1.2.3' },
             buildInfo: {},
-            getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
+            getCmdLineOpts: fixtures.CMD_LINE_OPTS,
           },
         });
 
@@ -284,7 +284,7 @@ describe('instance-detail-helper', function () {
           commands: {
             atlasVersion: new Error('command not found'),
             buildInfo: {},
-            getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
+            getCmdLineOpts: fixtures.CMD_LINE_OPTS,
           },
         });
 
