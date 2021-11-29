@@ -15,14 +15,28 @@ import Connection from './connection';
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  padding: spacing[1],
+  justifyContent: 'space-evenly',
+  alignItems: 'stretch',
   background: uiColors.gray.dark3,
   position: 'relative',
   fontWeight: 'bold',
+  color: uiColors.white,
+  height: '75px',
 });
 
 const newConnectionButtonStyles = css({
+  fontSize: '16px',
+  border: 'none',
+  height: 'inherit',
   borderRadius: 0,
+  ':hover': {
+    border: 'none',
+    boxShadow: 'none',
+  }
+});
+
+const newConnectionButtonGlyph = css({
+  color: uiColors.white,
 });
 
 const sectionHeaderStyles = css({
@@ -105,7 +119,10 @@ function ConnectionList({
           className={newConnectionButtonStyles}
           darkMode
           onClick={createNewConnection}
-          leftGlyph={<Icon glyph="Plus" />}
+          rightGlyph={<Icon
+            className={newConnectionButtonGlyph}
+            glyph="Plus" />
+          }
         >
           New Connection
         </Button>

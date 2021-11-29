@@ -64,17 +64,17 @@ const connectionButtonContainerStyles = css({
 
 const connectionButtonStyles = css({
   margin: 0,
-  padding: 0,
-  paddingLeft: spacing[4],
+  padding: `${spacing[1]}px 0 0 ${spacing[4]}px`,
   position: 'relative',
   width: '100%',
   overflow: 'hidden',
   border: 'none',
   borderRadius: 0,
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'row',
   textAlign: 'left',
   background: 'none',
+  marginTop: spacing[1],
   '&:hover': {
     border: 'none',
     background: uiColors.blue.dark3,
@@ -89,10 +89,9 @@ const activeConnectionStyles = css({
   background: uiColors.gray.dark2,
 });
 
-const connectionTitleContainerStyles = css({
+const connectionDetailsContainerStyles = css({
   display: 'flex',
-  flexDirection: 'row',
-  marginTop: spacing[1],
+  flexDirection: 'column',
   position: 'relative',
   width: '100%',
 });
@@ -160,18 +159,21 @@ function Connection({
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
       >
-        <div className={connectionTitleContainerStyles}>
-          {!!(connectionInfo.favorite && connectionInfo.favorite.color) && (
-            <div
-              data-testid="connection-favorite-indicator"
-              className={cx(
-                connectionFavoriteStyles,
-                css({
-                  backgroundColor: connectionInfo.favorite.color,
-                })
-              )}
-            />
-          )}
+        {/* Icon */}
+        {!!(connectionInfo.favorite && connectionInfo.favorite.color) && (
+          <div
+            data-testid="connection-favorite-indicator"
+            className={cx(
+              connectionFavoriteStyles,
+              css({
+                backgroundColor: connectionInfo.favorite.color,
+              })
+            )}
+          />
+        )}
+        {/* Title and Last Used */}
+        <div className={connectionDetailsContainerStyles}>
+          {/* Title */}
           <Subtitle
             className={cx(
               connectionTitleStyles,
@@ -188,17 +190,18 @@ function Connection({
           >
             {connectionTitle}
           </Subtitle>
+          {/* Last Used */}
+          {connectionInfo.lastUsed && (
+            <Description
+              className={connectionDescriptionStyles}
+              data-testid={`${
+                connectionInfo.favorite ? 'favorite' : 'recent'
+              }-connection-description`}
+            >
+              {connectionInfo.lastUsed.toLocaleString('default', dateConfig)}
+            </Description>
+          )}
         </div>
-        {connectionInfo.lastUsed && (
-          <Description
-            className={connectionDescriptionStyles}
-            data-testid={`${
-              connectionInfo.favorite ? 'favorite' : 'recent'
-            }-connection-description`}
-          >
-            {connectionInfo.lastUsed.toLocaleString('default', dateConfig)}
-          </Description>
-        )}
       </button>
       <div
         className={
