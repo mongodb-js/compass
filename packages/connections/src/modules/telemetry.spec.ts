@@ -1,6 +1,6 @@
+import { once } from 'events';
 import { expect } from 'chai';
-import { SinonSpy, spy } from 'sinon';
-import { ConnectionInfo, DataService } from 'mongodb-data-service';
+import { DataService } from 'mongodb-data-service';
 
 import {
   trackConnectionAttemptEvent,
@@ -8,7 +8,7 @@ import {
   trackConnectionFailedEvent,
 } from './telemetry';
 
-let track: SinonSpy<any[], any>;
+const initialHadronApp = (global as any).hadronApp;
 
 const dataService: Pick<DataService, 'instance'> = {
   instance: () => {
@@ -32,53 +32,62 @@ const dataService: Pick<DataService, 'instance'> = {
   },
 };
 
-describe('connection tracking', function () {
+describe.only('connection tracking', function () {
   beforeEach(function () {
-    track = spy();
+    (global as any).hadronApp = { isFeatureEnabled: () => true };
   });
 
-  it('tracks a new connection attempt event - favorite', function () {
+  afterEach(function() {
+    (global as any).hadronApp = initialHadronApp;
+  });
+
+  it('tracks a new connection attempt event - favorite', async function () {
+    const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
-      { favorite: { name: 'example' }, lastUsed: null } as ConnectionInfo,
-      track
+      { favorite: { name: 'example' }, lastUsed: null }
     );
-    expect(track).to.have.been.calledWith('Connection Attempt', {
+    const [ { properties } ] = await trackEvent;
+
+    expect(properties).to.deep.equal({
       is_favorite: true,
       is_recent: false,
       is_new: true,
     });
   });
 
-  it('tracks a new connection attempt event - recent', function () {
+  it('tracks a new connection attempt event - recent', async function () {
+    const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
-      { favorite: undefined, lastUsed: new Date() } as ConnectionInfo,
-      track
+      { favorite: undefined, lastUsed: new Date() }
     );
-    expect(track).to.have.been.calledWith('Connection Attempt', {
+    const [ { properties } ] = await trackEvent;
+    expect(properties).to.deep.equal({
       is_favorite: false,
       is_recent: true,
       is_new: false,
     });
   });
 
-  it('tracks a new connection attempt event - new', function () {
+  it('tracks a new connection attempt event - new', async function () {
+    const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
-      { favorite: undefined, lastUsed: undefined } as ConnectionInfo,
-      track
+      { favorite: undefined, lastUsed: undefined }
     );
-    expect(track).to.have.been.calledWith('Connection Attempt', {
+    const [ { properties } ] = await trackEvent;
+    expect(properties).to.deep.equal({
       is_favorite: false,
       is_recent: false,
       is_new: true,
     });
   });
 
-  it('tracks a new connection attempt event - favorite and recent', function () {
+  it('tracks a new connection attempt event - favorite and recent', async function () {
+    const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
-      { favorite: { name: 'example' }, lastUsed: new Date() } as ConnectionInfo,
-      track
+      { favorite: { name: 'example' }, lastUsed: new Date() },
     );
-    expect(track).to.have.been.calledWith('Connection Attempt', {
+    const [ { properties } ] = await trackEvent;
+    expect(properties).to.deep.equal({
       is_favorite: true,
       is_recent: false,
       is_new: false,
@@ -86,17 +95,15 @@ describe('connection tracking', function () {
   });
 
   it('tracks a new connection event - localhost', async function () {
+    const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
       connectionOptions: {
         connectionString: 'mongodb://localhost:27017',
       },
-    } as ConnectionInfo;
+    };
 
-    trackNewConnectionEvent(connectionInfo, dataService, track);
-
-    expect(track).to.have.been.calledOnce;
-    const callback = track.getCall(0).args[1];
-    const response = await callback();
+    trackNewConnectionEvent(connectionInfo, dataService);
+    const [ { properties } ] = await trackEvent;
     const expected = {
       is_localhost: true,
       is_public_cloud: false,
@@ -116,21 +123,20 @@ describe('connection tracking', function () {
       server_os_family: undefined,
     };
 
-    expect(expected).to.deep.equal(response);
+    expect(properties).to.deep.equal(expected);
   });
 
   it('tracks a new connection event - digital ocean', async function () {
+    const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
       connectionOptions: {
         connectionString: 'mongodb://example.mongo.ondigitalocean.com:27017',
       },
-    } as ConnectionInfo;
+    };
 
-    trackNewConnectionEvent(connectionInfo, dataService, track);
+    trackNewConnectionEvent(connectionInfo, dataService);
+    const [ { properties } ] = await trackEvent;
 
-    expect(track).to.have.been.calledOnce;
-    const callback = track.getCall(0).args[1];
-    const response = await callback();
     const expected = {
       is_localhost: false,
       is_public_cloud: false,
@@ -150,21 +156,21 @@ describe('connection tracking', function () {
       server_os_family: undefined,
     };
 
-    expect(expected).to.deep.equal(response);
+    expect(properties).to.deep.equal(expected);
   });
 
   it('tracks a new connection event - public cloud', async function () {
+    const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
       connectionOptions: {
         connectionString: 'mongodb://13.248.118.1',
       },
-    } as ConnectionInfo;
+    };
 
-    trackNewConnectionEvent(connectionInfo, dataService, track);
+    trackNewConnectionEvent(connectionInfo, dataService);
+    const [ { properties } ] = await trackEvent;
 
-    expect(track).to.have.been.calledOnce;
-    const callback = track.getCall(0).args[1];
-    const response = await callback();
+
     const expected = {
       is_localhost: false,
       is_public_cloud: true,
@@ -184,23 +190,22 @@ describe('connection tracking', function () {
       server_os_family: undefined,
     };
 
-    expect(expected).to.deep.equal(response);
+    expect(properties).to.deep.equal(expected);
   });
 
   it('tracks connection error event', async function () {
+    const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
       connectionOptions: {
         connectionString: 'mongodb://localhost:27017',
       },
-    } as ConnectionInfo;
+    };
 
-    const connectionError = new Error('Error');
+    const connectionError = new Error();
 
-    trackConnectionFailedEvent(connectionInfo, connectionError, track);
+    trackConnectionFailedEvent(connectionInfo, connectionError);
+    const [ { properties } ] = await trackEvent;
 
-    expect(track).to.have.been.calledOnce;
-    const callback = track.getCall(0).args[1];
-    const response = await callback();
     const expected = {
       is_localhost: true,
       is_public_cloud: false,
@@ -214,6 +219,6 @@ describe('connection tracking', function () {
       error_name: 'Error',
     };
 
-    expect(expected).to.deep.equal(response);
+    expect(properties).to.deep.equal(expected);
   });
 });

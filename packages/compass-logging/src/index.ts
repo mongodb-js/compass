@@ -5,7 +5,7 @@ import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
-export type TrackFunction = (event: string, properties?: TrackProps) => void;
+type TrackFunction = (event: string, properties?: TrackProps) => void;
 
 function emit(
   ipc: HadronIpcRenderer | null,

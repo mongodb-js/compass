@@ -1,14 +1,12 @@
 import { ConnectionInfo, DataService } from 'mongodb-data-service';
 import {
   createLoggerAndTelemetry,
-  TrackFunction,
 } from '@mongodb-js/compass-logging';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 
-const { track: telemetryTrack, debug } =
-  createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 async function getHostInformation(host: string) {
   const defaultValues = {
@@ -59,7 +57,7 @@ async function getHostInformation(host: string) {
 
 async function getConnectionData({
   connectionOptions: { connectionString, sshTunnel },
-}: ConnectionInfo): Promise<Record<string, unknown>> {
+}: Pick<ConnectionInfo, 'connectionOptions'>): Promise<Record<string, unknown>> {
   const connectionStringData = new ConnectionString(connectionString);
   const hostName = connectionStringData.hosts[0];
 
@@ -79,8 +77,7 @@ async function getConnectionData({
 }
 
 export function trackConnectionAttemptEvent(
-  { favorite, lastUsed }: ConnectionInfo,
-  track: TrackFunction = telemetryTrack
+  { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>
 ): void {
   try {
     const trackEvent = {
@@ -95,9 +92,8 @@ export function trackConnectionAttemptEvent(
 }
 
 export function trackNewConnectionEvent(
-  connectionInfo: ConnectionInfo,
-  dataService: Pick<DataService, 'instance'>,
-  track: TrackFunction = telemetryTrack
+  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
+  dataService: Pick<DataService, 'instance'>
 ): void {
   try {
     const callback = async () => {
@@ -129,9 +125,8 @@ export function trackNewConnectionEvent(
 }
 
 export function trackConnectionFailedEvent(
-  connectionInfo: ConnectionInfo,
-  connectionError: any,
-  track: TrackFunction = telemetryTrack
+  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
+  connectionError: any
 ): void {
   try {
     const callback = async () => {
