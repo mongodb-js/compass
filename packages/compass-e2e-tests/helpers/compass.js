@@ -142,6 +142,11 @@ async function startCompass(
   await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
 
+  // See https://github.com/microsoft/playwright/issues/9351#issuecomment-945314768
+  process.env.APP_ENV = 'playwright';
+  process.env.DEBUG = process.env.DEBUG || `${process.env.DEBUG || ''},mongodb-compass:main:logging`;
+  process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
+
   const appOptions = {
     ...opts,
     ...applicationStartOptions,
@@ -157,11 +162,14 @@ async function startCompass(
       '--no-sandbox',
     ],
     */
+    // See https://github.com/microsoft/playwright/issues/9351#issuecomment-945314768
+    /*
     env: {
       APP_ENV: 'playwright',
       DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
       MONGODB_COMPASS_TEST_LOG_DIR: path.join(LOG_PATH, 'app'),
     },
+    */
     // TODO
     /*
     chromeDriverLogPath,
