@@ -23,7 +23,7 @@ const debug = createDebug('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
 class ThemeState {
-  theme: THEMES = THEMES.OS_THEME;
+  theme: THEMES = THEMES.LIGHT;
 }
 
 function updateTheme({
@@ -80,7 +80,59 @@ function networkOptInDialogItem(): MenuItemConstructorOptions {
   };
 }
 
-function darwinCompassSubMenu(): MenuItemConstructorOptions {
+function themeSubmenuItems(
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
+): MenuItemConstructorOptions[] {
+  return [{
+      label: 'Use OS Theme (Preview)',
+      click: function() {
+        themeState.theme = THEMES.OS_THEME;
+        updateTheme(themeState);
+        saveThemeAndRefreshMenu(themeState);
+      },
+      type: 'checkbox',
+      checked: themeState.theme === THEMES.OS_THEME
+    },
+    {
+      label: 'Dark Theme (Preview)',
+      click: function() {
+        themeState.theme = THEMES.DARK;
+
+        updateTheme(themeState);
+        saveThemeAndRefreshMenu(themeState);
+      },
+      type: 'checkbox',
+      checked: themeState.theme === THEMES.DARK
+    },
+    {
+      label: 'Light Theme',
+      click: function() {
+        themeState.theme = THEMES.LIGHT;
+
+        updateTheme(themeState);
+        saveThemeAndRefreshMenu(themeState);
+      },
+      type: 'checkbox',
+      checked: themeState.theme === THEMES.LIGHT
+    },
+  ];
+}
+
+function themeMenuItem(
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
+): MenuItemConstructorOptions {
+  return {
+    label: 'Theme',
+    submenu: themeSubmenuItems(themeState, saveThemeAndRefreshMenu)
+  };
+}
+
+function darwinCompassSubMenu(
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
+): MenuItemConstructorOptions {
   return {
     label: app.getName(),
     submenu: [
@@ -88,6 +140,8 @@ function darwinCompassSubMenu(): MenuItemConstructorOptions {
         label: `About ${app.getName()}`,
         role: 'about',
       },
+      separator(),
+      themeMenuItem(themeState, saveThemeAndRefreshMenu),
       separator(),
       {
         label: 'Hide',
@@ -254,7 +308,9 @@ function logFile(app: typeof CompassApplication): MenuItemConstructorOptions {
 }
 
 function helpSubMenu(
-  app: typeof CompassApplication
+  app: typeof CompassApplication,
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
 ): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push(helpWindowItem());
@@ -270,6 +326,8 @@ function helpSubMenu(
   subMenu.push(logFile(app));
 
   if (process.platform !== 'darwin') {
+    subMenu.push(separator());
+    subMenu.push(themeMenuItem(themeState, saveThemeAndRefreshMenu));
     subMenu.push(separator());
     subMenu.push(nonDarwinAboutItem());
   }
@@ -310,10 +368,7 @@ function collectionSubMenu(): MenuItemConstructorOptions {
   };
 }
 
-function viewSubMenu(
-  themeState: ThemeState,
-  saveThemeAndRefreshMenu: (theme: ThemeState) => void
-): MenuItemConstructorOptions {
+function viewSubMenu(): MenuItemConstructorOptions {
   return {
     label: '&View',
     submenu: [
@@ -352,39 +407,6 @@ function viewSubMenu(
         click() {
           ipcMain.broadcast('window:zoom-out');
         },
-      },
-      separator(),
-      {
-        label: 'Use OS Theme (Preview)',
-        click: function() {
-          themeState.theme = THEMES.OS_THEME;
-          updateTheme(themeState);
-          saveThemeAndRefreshMenu(themeState);
-        },
-        type: 'checkbox',
-        checked: themeState.theme === THEMES.OS_THEME
-      },
-      {
-        label: 'Dark Theme (Preview)',
-        click: function() {
-          themeState.theme = THEMES.DARK;
-
-          updateTheme(themeState);
-          saveThemeAndRefreshMenu(themeState);
-        },
-        type: 'checkbox',
-        checked: themeState.theme === THEMES.DARK
-      },
-      {
-        label: 'Light Theme',
-        click: function() {
-          themeState.theme = THEMES.LIGHT;
-
-          updateTheme(themeState);
-          saveThemeAndRefreshMenu(themeState);
-        },
-        type: 'checkbox',
-        checked: themeState.theme === THEMES.LIGHT
       },
       separator(),
       {
@@ -428,18 +450,18 @@ function darwinMenu(
   saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu: MenuTemplate = [darwinCompassSubMenu()];
+  const menu: MenuTemplate = [darwinCompassSubMenu(themeState, saveThemeAndRefreshMenu)];
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());
-  menu.push(viewSubMenu(themeState, saveThemeAndRefreshMenu));
+  menu.push(viewSubMenu());
 
   if (menuState.showCollection) {
     menu.push(collectionSubMenu());
   }
 
   menu.push(windowSubMenu());
-  menu.push(helpSubMenu(app));
+  menu.push(helpSubMenu(app, themeState, saveThemeAndRefreshMenu));
 
   return menu;
 }
@@ -450,13 +472,13 @@ function nonDarwinMenu(
   saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu = [connectSubMenu(true, app), viewSubMenu(themeState, saveThemeAndRefreshMenu)];
+  const menu = [connectSubMenu(true, app), viewSubMenu()];
 
   if (menuState.showCollection) {
     menu.push(collectionSubMenu());
   }
 
-  menu.push(helpSubMenu(app));
+  menu.push(helpSubMenu(app, themeState, saveThemeAndRefreshMenu));
 
   return menu;
 }

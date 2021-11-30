@@ -1,6 +1,9 @@
 import EventEmitter from 'events';
-import { BrowserWindow, ipcMain, Menu } from 'electron';
+import { BrowserWindow, ipcMain, Menu, app } from 'electron';
 import { expect } from 'chai';
+import sinon from 'sinon';
+import type processType from 'process';
+
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
 
@@ -83,6 +86,10 @@ describe('CompassMenu', function () {
   });
 
   describe('getTemplate', function () {
+    afterEach(function() {
+      sinon.restore();
+    });
+
     it('should generate a menu template that can be passed to the Electron Menu without errors', function () {
       expect(() => {
         const template = CompassMenu.getTemplate(0);
@@ -128,28 +135,133 @@ describe('CompassMenu', function () {
             type: 'separator',
           },
           {
-            checked: true,
-            label: 'Use OS Theme (Preview)',
-            type: 'checkbox',
+            accelerator: 'Alt+CmdOrCtrl+I',
+            label: '&Toggle DevTools',
           },
+        ],
+      });
+    });
+
+    it('should generate the about and theme options on darwin', function () {
+      sinon.stub(process, 'platform').value('darwin');
+
+      expect(
+        serializable(
+          // Contains functions, so we can't easily deep equal it without
+          // converting to serializable format
+          CompassMenu.getTemplate(0).find((item) => item.label === app.getName())
+        )
+      ).to.deep.eq({
+        label: app.getName(),
+        submenu: [
           {
-            checked: false,
-            label: 'Dark Theme (Preview)',
-            type: 'checkbox',
-          },
-          {
-            checked: false,
-            label: 'Light Theme',
-            type: 'checkbox',
+            label: `About ${app.getName()}`,
+            role: 'about',
           },
           {
             type: 'separator',
           },
           {
-            accelerator: 'Alt+CmdOrCtrl+I',
-            label: '&Toggle DevTools',
+            label: 'Theme',
+            submenu: [{
+              checked: false,
+              label: 'Use OS Theme (Preview)',
+              type: 'checkbox',
+            }, {
+              checked: false,
+              label: 'Dark Theme (Preview)',
+              type: 'checkbox',
+            }, {
+              checked: true,
+              label: 'Light Theme',
+              type: 'checkbox',
+            }]
           },
+          {
+            type: 'separator',
+          },
+          {
+            label: 'Hide',
+            accelerator: 'Command+H',
+            role: 'hide',
+          },
+          {
+            label: 'Hide Others',
+            accelerator: 'Command+Shift+H',
+            role: 'hideOthers',
+          },
+          {
+            label: 'Show All',
+            role: 'unhide',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            label: 'Quit',
+            accelerator: 'CmdOrCtrl+Q'
+          }
         ],
+      });
+    });
+
+    it('should generate the about and theme options on non darwin', function () {
+      sinon.stub(process, 'platform').value('linux');
+
+      expect(
+        serializable(
+          // Contains functions, so we can't easily deep equal it without
+          // converting to serializable format
+          CompassMenu.getTemplate(0).find((item) => item.label === '&Help')
+        )
+      ).to.deep.eq({
+        label: '&Help',
+        submenu: [
+          {
+            label: `&Online ${app.getName()} Help`,
+            accelerator: 'F1',
+          },
+          {
+            label: `${app.getName()} &Overview`
+          },
+          {
+            label: '&Privacy Settings'
+          },
+          {
+            label: '&Plugins'
+          },
+          {
+            label: '&License'
+          },
+          {
+            label: '&Open Log File'
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Theme',
+            submenu: [{
+              checked: false,
+              label: 'Use OS Theme (Preview)',
+              type: 'checkbox',
+            }, {
+              checked: false,
+              label: 'Dark Theme (Preview)',
+              type: 'checkbox',
+            }, {
+              checked: true,
+              label: 'Light Theme',
+              type: 'checkbox',
+            }]
+          },
+          {
+            type: 'separator',
+          },
+          {
+            label: `&About ${app.getName()}`,
+          }
+        ]
       });
     });
 
