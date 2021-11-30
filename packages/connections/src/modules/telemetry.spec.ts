@@ -336,6 +336,94 @@ describe('connection tracking', function () {
     expect(properties.is_srv).to.equal(true);
   });
 
+  it('tracks the instance data - case 1', async function () {
+    const mockDataService: Pick<DataService, 'instance'> = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: true,
+            version: '1.2.3',
+          },
+          genuineMongoDB: {
+            dbType: 'mongo',
+            isGenuine: false,
+          },
+          host: {
+            arch: 'darwin',
+            os_family: 'mac',
+          },
+          build: {
+            isEnterprise: true,
+            version: '4.3.2',
+          },
+          isAtlas: true,
+          featureCompatibilityVersion: null,
+        });
+      },
+    };
+    const trackEvent = once(process, 'compass:track');
+    const connectionInfo = {
+      connectionOptions: {
+        connectionString: 'mongodb://127.0.0.1',
+      },
+    };
+    trackNewConnectionEvent(connectionInfo, mockDataService);
+    const [ { properties } ] = await trackEvent;
+
+    expect(properties.is_atlas).to.equal(true);
+    expect(properties.is_dataLake).to.equal(true);
+    expect(properties.is_enterprise).to.equal(true);
+    expect(properties.is_genuine).to.equal(false);
+    expect(properties.non_genuine_server_name).to.equal('mongo');
+    expect(properties.server_version).to.equal('4.3.2');
+    expect(properties.server_arch).to.equal('darwin');
+    expect(properties.server_os_family).to.equal('mac');
+  });
+
+  it('tracks the instance data - case 2', async function () {
+    const mockDataService: Pick<DataService, 'instance'> = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: false,
+            version: '1.2.3',
+          },
+          genuineMongoDB: {
+            dbType: 'mongo_2',
+            isGenuine: true,
+          },
+          host: {
+            arch: 'debian',
+            os_family: 'ubuntu',
+          },
+          build: {
+            isEnterprise: false,
+            version: '4.3.9',
+          },
+          isAtlas: false,
+          featureCompatibilityVersion: null,
+        });
+      },
+    };
+    const trackEvent = once(process, 'compass:track');
+    const connectionInfo = {
+      connectionOptions: {
+        connectionString: 'mongodb://127.0.0.1',
+      },
+    };
+    trackNewConnectionEvent(connectionInfo, mockDataService);
+    const [ { properties } ] = await trackEvent;
+
+    expect(properties.is_atlas).to.equal(false);
+    expect(properties.is_dataLake).to.equal(false);
+    expect(properties.is_enterprise).to.equal(false);
+    expect(properties.is_genuine).to.equal(true);
+    expect(properties.non_genuine_server_name).to.equal('mongo_2');
+    expect(properties.server_version).to.equal('4.3.9');
+    expect(properties.server_arch).to.equal('debian');
+    expect(properties.server_os_family).to.equal('ubuntu');
+  });
+
   it('tracks connection error event', async function () {
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
