@@ -523,7 +523,6 @@ export const selectOrCreateTab = ({
         sourceViewOn,
         sourcePipeline
       }));
-      showCollectionSubmenu({ isReadOnly: isReadonly });
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
@@ -542,7 +541,6 @@ export const selectOrCreateTab = ({
             sourcePipeline
           })
         );
-        showCollectionSubmenu({ isReadOnly: isReadonly });
       }
     }
   };
@@ -589,6 +587,7 @@ export const createNewTab = ({
         sourceViewOn
       })
     );
+    showCollectionSubmenu({ isReadOnly: isReadonly });
   };
 };
 
@@ -634,6 +633,7 @@ export const replaceTabContent = ({
         sourceViewOn
       })
     );
+    showCollectionSubmenu({ isReadOnly: isReadonly });
   };
 };
 
