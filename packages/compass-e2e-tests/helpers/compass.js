@@ -482,8 +482,8 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
  * @param {string} imgPathName
  */
 async function capturePage() {
-//app,
-//imgPathName = `screenshot-${formattedDate()}-${++j}.png`
+  //app,
+  //imgPathName = `screenshot-${formattedDate()}-${++j}.png`
   // TODO
   /*
   try {
@@ -504,8 +504,8 @@ async function capturePage() {
  * @param {string} htmlPathName
  */
 async function savePage() {
-//app,
-//htmlPathName = `page-${formattedDate()}-${++k}.html`
+  //app,
+  //htmlPathName = `page-${formattedDate()}-${++k}.html`
   // TODO
   /*
   try {
