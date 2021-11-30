@@ -39,7 +39,7 @@ const Selectors = require('./selectors');
  *
  * @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured']} ExtendedApplication
  */
- //* @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured'], client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
+//* @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured'], client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
 
 const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
@@ -79,9 +79,9 @@ function getAtlasConnectionOptions() {
 // For the tmpdirs
 let i = 0;
 // For the screenshots
-let j = 0;
+//let j = 0;
 // For the html
-let k = 0;
+//let k = 0;
 
 /**
  *
@@ -120,8 +120,8 @@ async function startCompass(
         args: [COMPASS_PATH],
         cwd: COMPASS_PATH,
       }
-    //: { path: getCompassBinPath(await getCompassBuildMetadata()) };
-    : { executablePath: getCompassBinPath(await getCompassBuildMetadata()) };
+    : //: { path: getCompassBinPath(await getCompassBuildMetadata()) };
+      { executablePath: getCompassBinPath(await getCompassBuildMetadata()) };
 
   const nowFormatted = formattedDate();
 
@@ -481,10 +481,9 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
  * @param {ExtendedApplication} app
  * @param {string} imgPathName
  */
-async function capturePage(
-  app,
-  imgPathName = `screenshot-${formattedDate()}-${++j}.png`
-) {
+async function capturePage() {
+//app,
+//imgPathName = `screenshot-${formattedDate()}-${++j}.png`
   // TODO
   /*
   try {
@@ -504,10 +503,9 @@ async function capturePage(
  * @param {ExtendedApplication} app
  * @param {string} htmlPathName
  */
-async function savePage(
-  app,
-  htmlPathName = `page-${formattedDate()}-${++k}.html`
-) {
+async function savePage() {
+//app,
+//htmlPathName = `page-${formattedDate()}-${++k}.html`
   // TODO
   /*
   try {

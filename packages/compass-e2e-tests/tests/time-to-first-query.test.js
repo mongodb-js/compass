@@ -1,7 +1,5 @@
 // @ts-check
-const { expect } = require('chai');
 const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
-const { delay } = require('../helpers/delay');
 const Selectors = require('../helpers/selectors');
 
 describe('Time to first query', function () {
@@ -27,7 +25,9 @@ describe('Time to first query', function () {
 
         await privacyModal.waitFor();
 
-        const closePrivacyModal = page.locator(Selectors.ClosePrivacySettingsButton);
+        const closePrivacyModal = page.locator(
+          Selectors.ClosePrivacySettingsButton
+        );
         await closePrivacyModal.click();
 
         await connectButton.waitFor();
@@ -38,11 +38,10 @@ describe('Time to first query', function () {
         await connectButton.waitFor();
         await tourModal.waitFor({ state: 'hidden' });
         await privacyModal.waitFor({ state: 'hidden' });
-      })()
+      })(),
     ]);
 
     // TODO: connect
-
 
     // TODO: navigate to 'test', 'numbers', 'Documents'
     // TODO: search, check,
