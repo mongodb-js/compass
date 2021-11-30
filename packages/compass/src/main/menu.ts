@@ -13,9 +13,11 @@ import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
+import { THEMES } from 'compass-preferences-model';
+
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
-import { THEMES } from 'compass-preferences-model';
+import { CompassTelemetry } from './telemetry';
 
 type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 
@@ -80,6 +82,17 @@ function networkOptInDialogItem(): MenuItemConstructorOptions {
   };
 }
 
+function trackThemeChanged(
+  newTheme: THEMES
+) {
+  CompassTelemetry.track({
+    event: 'Theme Changed',
+    properties: {
+      theme: newTheme
+    }
+  });
+}
+
 function themeSubmenuItems(
   themeState: ThemeState,
   saveThemeAndRefreshMenu: (theme: ThemeState) => void
@@ -88,6 +101,7 @@ function themeSubmenuItems(
       label: 'Use OS Theme (Preview)',
       click: function() {
         themeState.theme = THEMES.OS_THEME;
+        trackThemeChanged(themeState.theme);
         updateTheme(themeState);
         saveThemeAndRefreshMenu(themeState);
       },
@@ -98,7 +112,7 @@ function themeSubmenuItems(
       label: 'Dark Theme (Preview)',
       click: function() {
         themeState.theme = THEMES.DARK;
-
+        trackThemeChanged(themeState.theme);
         updateTheme(themeState);
         saveThemeAndRefreshMenu(themeState);
       },
@@ -109,7 +123,7 @@ function themeSubmenuItems(
       label: 'Light Theme',
       click: function() {
         themeState.theme = THEMES.LIGHT;
-
+        trackThemeChanged(themeState.theme);
         updateTheme(themeState);
         saveThemeAndRefreshMenu(themeState);
       },
