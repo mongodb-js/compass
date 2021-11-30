@@ -43,7 +43,7 @@ describe('GeneralTab', function () {
       expect(screen.getByText('Schema')).to.be.visible;
     });
 
-    it('should render the host input', function () {
+    it('should render the hostname input', function () {
       expect(screen.getByText('Hostname')).to.be.visible;
     });
   });
@@ -89,6 +89,28 @@ describe('GeneralTab', function () {
 
     it('should not render the direct connection input', function () {
       expect(screen.queryByText('Direct Connection')).to.not.exist;
+    });
+  });
+
+  describe('standard schema (mongodb://) with multiple hosts and directConnection=true', function () {
+    beforeEach(function () {
+      const connectionStringUrl = new ConnectionStringUrl(
+        'mongodb://0ranges:p!neapp1es@localhost:27017,localhost:27019/?ssl=true&directConnection=true'
+      );
+      const fields =
+        parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
+      render(
+        <GeneralTab
+          connectionStringUrl={connectionStringUrl}
+          fields={fields}
+          setConnectionField={setConnectionFieldSpy}
+          setConnectionStringUrl={setConnectionStringUrlSpy}
+        />
+      );
+    });
+
+    it('should not render the direct connection input', function () {
+      expect(screen.queryByText('Direct Connection')).to.be.visible;
     });
   });
 });

@@ -1,6 +1,10 @@
 import { css } from '@emotion/css';
 import React from 'react';
-import { Accordion, spacing } from '@mongodb-js/compass-components';
+import {
+  Accordion,
+  compassUIColors,
+  spacing,
+} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
@@ -16,7 +20,7 @@ const disabledOverlayStyles = css({
   bottom: -spacing[1],
   left: -spacing[1],
   right: -spacing[1],
-  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  backgroundColor: compassUIColors.transparentWhite,
   zIndex: 1,
   cursor: 'not-allowed',
 });

@@ -43,6 +43,7 @@ function updateConnectionStringToStandard(
   );
 
   newConnectionStringUrl.hosts = [`${newConnectionStringUrl.hosts[0]}:27017`];
+  newConnectionStringUrl.searchParams.set('directConnection', 'true');
 
   return newConnectionStringUrl;
 }

@@ -23,6 +23,10 @@ function GeneralTab({
 }): React.ReactElement {
   const { hosts } = fields;
 
+  const showDirectConnectionInput =
+    connectionStringUrl.searchParams.get('directConnection') === 'true' ||
+    (!connectionStringUrl.isSRV && hosts.value.length === 1);
+
   return (
     <div>
       <FormFieldContainer>
@@ -41,8 +45,7 @@ function GeneralTab({
           setConnectionStringUrl={setConnectionStringUrl}
         />
       </FormFieldContainer>
-
-      {!connectionStringUrl.isSRV && hosts.value.length === 1 && (
+      {showDirectConnectionInput && (
         <FormFieldContainer>
           <DirectConnectionInput
             connectionStringUrl={connectionStringUrl}
