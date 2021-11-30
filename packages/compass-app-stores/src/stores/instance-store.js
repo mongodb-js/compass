@@ -58,53 +58,53 @@ store.refreshInstance = async(globalAppRegistry, refreshOptions) => {
 
 store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   const { instance, dataService } = store.getState();
-  const db = instance.databases.get(dbName);
 
-  if (
-    db.collectionsStatus === 'initial' ||
-    db.collectionsStatus === 'fetching'
-  ) {
-    await db.fetchCollections({ dataService, fetchInfo: !nameOnly });
-  }
-
-  if (nameOnly) {
+  if (!instance || !dataService) {
+    debug(
+      'Trying to fetch database details without the model or dataService in the state'
+    );
     return;
   }
 
-  await Promise.all(
-    db.collections.map((coll) => {
-      if (coll.status === 'initial') {
-        return coll.fetch({ dataService, fetchInfo: false }).catch(() => {
-          /* we don't care if this fails, it just means less stats in the UI */
-        });
-      }
-    })
-  );
+  const db = instance.databases.get(dbName);
+  await db.fetchCollectionsDetails({ dataService, nameOnly });
 };
 
 store.fetchCollectionDetails = async(ns) => {
   const { instance, dataService } = store.getState();
+
+  if (!instance || !dataService) {
+    debug(
+      'Trying to fetch collection details without the model or dataService in the state'
+    );
+    return;
+  }
+
   const { database } = toNS(ns);
   const coll = instance.databases.get(database).collections.get(ns);
-  if (coll.status === 'initial' || coll.status === 'fetching') {
-    await coll.fetch({ dataService }).catch((err) => {
-      // Ignoring this error means that we might open a tab without enough
-      // collection metadata to correctly display it and even though maybe it's
-      // not how we might want to handle this, this just preserves current
-      // Compass behavior
-      debug('failed to fetch collection details', err);
-    });
-  }
+  await coll.fetch({ dataService }).catch((err) => {
+    // Ignoring this error means that we might open a tab without enough
+    // collection metadata to correctly display it and even though maybe it's
+    // not how we might want to handle this, this just preserves current
+    // Compass behavior
+    debug('failed to fetch collection details', err);
+  });
   return coll;
 };
 
 store.fetchAllCollections = async() => {
   const { instance, dataService } = store.getState();
+
+  if (!instance || !dataService) {
+    debug(
+      'Trying to fetch collections without the model or dataService in the state'
+    );
+    return;
+  }
+
   await Promise.all(
     instance.databases.map((db) => {
-      if (db.collectionsStatus === 'initial') {
-        return db.fetchCollections({ dataService });
-      }
+      return db.fetchCollections({ dataService });
     })
   );
 };
@@ -137,13 +137,10 @@ store.refreshNamespaceStats = async(ns) => {
   const { database } = toNS(ns);
   const db = instance.databases.get(database);
   const coll = db.collections.get(ns);
-  await Promise.all([
-    db.fetch({ dataService }).catch(() => {
-      /* we don't care if this fails */
-    }),
-    coll.fetch({ dataService }).catch(() => {
-      /* we don't care if this fails */
-    }),
+  // We don't care if this fails
+  await Promise.allSettled([
+    db.fetch({ dataService, force: true }),
+    coll.fetch({ dataService, force: true }),
   ]);
 };
 

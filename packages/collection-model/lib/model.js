@@ -102,6 +102,14 @@ function pickCollectionInfo({
   return { readonly, view_on, collation, pipeline, validation };
 }
 
+/**
+ * Returns true if model is not ready (was fetched before and is not updating at
+ * the moment) or force fetch is requested
+ */
+ function shouldFetch(status, force) {
+  return force || status !== 'ready';
+}
+
 const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   modelType: 'Collection',
   idAttribute: '_id',
@@ -226,7 +234,10 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
    * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
    * @returns
    */
-  async fetch({ dataService, fetchInfo = true }) {
+  async fetch({ dataService, fetchInfo = true, force = false }) {
+    if (!shouldFetch(this.status, force)) {
+      return;
+    }
     const collectionStatsAsync = promisify(
       dataService.collectionStats.bind(dataService)
     );
