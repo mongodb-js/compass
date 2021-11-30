@@ -1,5 +1,12 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -8,7 +15,14 @@ import ConnectionStringInput, {
 } from './connection-string-input';
 
 describe('ConnectionStringInput Component', function () {
-  let setConnectionStringSpy: sinon.SinonSpy;
+  let setConnectionStringErrorSpy: sinon.SinonSpy;
+  let setConnectionStringUrlSpy: sinon.SinonSpy;
+
+  beforeEach(function () {
+    setConnectionStringErrorSpy = sinon.spy();
+    setConnectionStringUrlSpy = sinon.spy();
+  });
+  afterEach(cleanup);
 
   describe('#hidePasswordInConnectionString', function () {
     it('returns the connection string when it cannot be parsed', function () {
@@ -49,18 +63,13 @@ describe('ConnectionStringInput Component', function () {
 
   describe('with an empty connection string', function () {
     beforeEach(function () {
-      setConnectionStringSpy = sinon.spy();
-
       render(
         <ConnectionStringInput
           connectionString=""
-          setConnectionString={setConnectionStringSpy}
+          setConnectionStringError={setConnectionStringErrorSpy}
+          setConnectionStringUrl={setConnectionStringUrlSpy}
         />
       );
-    });
-
-    afterEach(function () {
-      setConnectionStringSpy = null;
     });
 
     it('should show the connection string in the text area', function () {
@@ -72,16 +81,53 @@ describe('ConnectionStringInput Component', function () {
       const textArea = screen.getByRole('textbox');
       expect(textArea).to.not.match('[disabled]');
     });
+
+    describe('when an invalid connection string is inputted', function () {
+      beforeEach(function () {
+        // Focus the input.
+        userEvent.tab();
+        userEvent.tab();
+        userEvent.tab();
+        userEvent.keyboard('z');
+      });
+
+      it('should call setConnectionStringError', function () {
+        expect(setConnectionStringErrorSpy.callCount).to.equal(1);
+        expect(setConnectionStringErrorSpy.firstCall.args[0]).to.equal(
+          'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://`'
+        );
+      });
+
+      it('should not call setConnectionStringUrl', function () {
+        expect(setConnectionStringUrlSpy.callCount).to.equal(0);
+      });
+    });
+
+    describe('when a valid connection string is inputted', function () {
+      beforeEach(function () {
+        // Focus the input.
+        userEvent.tab();
+        userEvent.tab();
+        userEvent.tab();
+        userEvent.keyboard('mongodb://localhost');
+      });
+
+      it('should call setConnectionStringUrl with the connection string', function () {
+        expect(setConnectionStringUrlSpy.callCount).to.equal(9);
+        expect(setConnectionStringUrlSpy.lastCall.args[0].toString()).to.equal(
+          'mongodb://localhost/'
+        );
+      });
+    });
   });
 
   describe('the info button', function () {
     beforeEach(function () {
-      setConnectionStringSpy = sinon.spy();
-
       render(
         <ConnectionStringInput
           connectionString="mongodb+srv://turtles:pineapples@localhost/"
-          setConnectionString={setConnectionStringSpy}
+          setConnectionStringError={setConnectionStringErrorSpy}
+          setConnectionStringUrl={setConnectionStringUrlSpy}
         />
       );
     });
@@ -103,18 +149,13 @@ describe('ConnectionStringInput Component', function () {
 
   describe('with a connection string', function () {
     beforeEach(function () {
-      setConnectionStringSpy = sinon.spy();
-
       render(
         <ConnectionStringInput
           connectionString="mongodb+srv://turtles:pineapples@localhost/"
-          setConnectionString={setConnectionStringSpy}
+          setConnectionStringError={setConnectionStringErrorSpy}
+          setConnectionStringUrl={setConnectionStringUrlSpy}
         />
       );
-    });
-
-    afterEach(function () {
-      setConnectionStringSpy = null;
     });
 
     it('shows the connection string in the text area', function () {
@@ -155,6 +196,27 @@ describe('ConnectionStringInput Component', function () {
         expect(textArea).to.have.text(
           'mongodb+srv://turtles:pineapples@localhost/'
         );
+      });
+
+      describe('when a valid connection string is inputted', function () {
+        beforeEach(function () {
+          // Focus the input.
+          userEvent.tab();
+          userEvent.tab();
+          userEvent.tab();
+          userEvent.keyboard('?ssl=true');
+        });
+
+        it('should call setConnectionStringUrl with the new connection string', function () {
+          expect(setConnectionStringUrlSpy.callCount).to.equal(9);
+          expect(
+            setConnectionStringUrlSpy.lastCall.args[0].toString()
+          ).to.equal('mongodb+srv://turtles:pineapples@localhost/?ssl=true');
+        });
+
+        it('should not call setConnectionStringError', function () {
+          expect(setConnectionStringErrorSpy.callCount).to.equal(0);
+        });
       });
 
       describe('clicking on edit connection string toggle again', function () {

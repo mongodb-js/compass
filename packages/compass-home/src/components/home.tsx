@@ -123,6 +123,14 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+function hideCollectionSubMenu() {
+  void import('hadron-ipc').then(({ ipcRenderer }) => {
+    if (ipcRenderer) {
+      ipcRenderer.call('window:hide-collection-submenu');
+    }
+  });
+}
+
 function Home({ appName }: { appName: string }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
@@ -220,6 +228,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }
 
   function onSelectDatabase(ns: string) {
+    hideCollectionSubMenu();
     dispatch({
       type: 'update-namespace',
       namespace: toNS(ns),
@@ -234,6 +243,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }
 
   function onSelectInstance() {
+    hideCollectionSubMenu();
     dispatch({
       type: 'update-namespace',
       namespace: toNS(''),
