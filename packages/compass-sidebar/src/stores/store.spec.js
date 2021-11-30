@@ -51,6 +51,7 @@ describe('SidebarStore [Store]', () => {
         expect(store.getState().instance).to.deep.equal(null); // initial state
         expect(store.getState().databases).to.deep.equal({
           databases: [],
+          filteredDatabases: [],
           expandedDbList: {},
           filterRegex: null,
           activeNamespace: ''
