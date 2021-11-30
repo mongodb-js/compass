@@ -1,3 +1,4 @@
+import { css } from '@emotion/css';
 import React from 'react';
 import {
   Banner,
@@ -6,6 +7,7 @@ import {
   Label,
   RadioBox,
   RadioBoxGroup,
+  spacing,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
@@ -16,6 +18,10 @@ enum MONGODB_SCHEMA {
   MONGODB = 'MONGODB',
   MONGODB_SRV = 'MONGODB_SRV',
 }
+
+const descriptionStyles = css({
+  marginTop: spacing[1],
+});
 
 const regularSchemaDescription =
   'Standard Connection String Format. The standard format of the MongoDB connection URI is used to connect to a MongoDB deployment: standalone, replica set, or a sharded cluster.';
@@ -144,7 +150,7 @@ function SchemaInput({
         <RadioBox value={MONGODB_SCHEMA.MONGODB}>mongodb</RadioBox>
         <RadioBox value={MONGODB_SCHEMA.MONGODB_SRV}>mongodb+srv</RadioBox>
       </RadioBoxGroup>
-      <Description>
+      <Description className={descriptionStyles}>
         {isSRV ? srvSchemaDescription : regularSchemaDescription}
       </Description>
       {schemaConversionError && (

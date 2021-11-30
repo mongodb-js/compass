@@ -170,13 +170,6 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
       },
       setConnectionField: (action: SetConnectionFieldAction) => {
         dispatch(action);
-        /*
-        {
-          type: 'set-connection-string-field',
-          fieldName: action.fieldName,
-          value: action.value,
-        }
-        */
       },
     },
   ];
