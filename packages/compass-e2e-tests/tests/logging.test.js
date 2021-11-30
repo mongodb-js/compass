@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 const { startTelemetryServer } = require('../helpers/telemetry');
 
-describe('Logging and Telemetry integration', function () {
+describe.skip('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
     let compassLog;
     let telemetry;

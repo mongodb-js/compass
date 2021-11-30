@@ -19,7 +19,7 @@ async function disconnect(client) {
 /**
  * Connection tests
  */
-describe('Connection screen', function () {
+describe.skip('Connection screen', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
   let client;

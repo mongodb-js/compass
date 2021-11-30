@@ -1,15 +1,55 @@
 // @ts-check
 const { expect } = require('chai');
 const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
+const { delay } = require('../helpers/delay');
 const Selectors = require('../helpers/selectors');
 
-describe.only('Time to first query', function () {
+describe('Time to first query', function () {
   let compass;
 
   it('can open compass, connect to a database and run a query on a collection', async function () {
     // start compass inside the test so that the time is measured together
     compass = await beforeTests();
 
+    const page = await compass.firstWindow();
+
+    //try {
+    // TODO: move this somewhere we can reuse
+    const connectButton = page.locator(Selectors.ConnectButton);
+    const tourModal = page.locator(Selectors.FeatureTourModal);
+    const privacyModal = page.locator(Selectors.PrivacySettingsModal);
+    await Promise.race([
+      (async () => {
+        await tourModal.waitFor();
+
+        const closeTourModal = page.locator(Selectors.CloseFeatureTourModal);
+        await closeTourModal.click();
+
+        await privacyModal.waitFor();
+
+        const closePrivacyModal = page.locator(Selectors.ClosePrivacySettingsButton);
+        await closePrivacyModal.click();
+
+        await connectButton.waitFor();
+      })(),
+      // if the tour modal and/or privacy modal never pops up, then the
+      // connect screen becomes interactive first
+      (async () => {
+        await connectButton.waitFor();
+        await tourModal.waitFor({ state: 'hidden' });
+        await privacyModal.waitFor({ state: 'hidden' });
+      })()
+    ]);
+
+    // TODO: connect
+
+
+    // TODO: navigate to 'test', 'numbers', 'Documents'
+    // TODO: search, check,
+
+    //} finally {
+    //  await page.screenshot({path: 'screenshot.png'});
+    //}
     /*
     const { client } = compass;
 

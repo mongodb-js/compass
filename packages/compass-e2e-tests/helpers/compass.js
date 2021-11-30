@@ -112,14 +112,16 @@ async function startCompass(
   // @ts-expect-error
   const electronPath = require('electron');
 
-  /** @type {import('spectron').AppConstructorOptions} */
+  ///** @type {import('spectron').AppConstructorOptions} */
   const applicationStartOptions = !testPackagedApp
     ? {
-        path: electronPath,
+        //path: electronPath,
+        executablePath: electronPath,
         args: [COMPASS_PATH],
         cwd: COMPASS_PATH,
       }
-    : { path: getCompassBinPath(await getCompassBuildMetadata()) };
+    //: { path: getCompassBinPath(await getCompassBuildMetadata()) };
+    : { executablePath: getCompassBinPath(await getCompassBuildMetadata()) };
 
   const nowFormatted = formattedDate();
 
@@ -143,6 +145,8 @@ async function startCompass(
   const appOptions = {
     ...opts,
     ...applicationStartOptions,
+    // TODO
+    /*
     chromeDriverArgs: [
       `--user-data-dir=${userDataDir}`,
       // Chromecast feature that is enabled by default in some chrome versions
@@ -152,20 +156,28 @@ async function startCompass(
       // root without this flag
       '--no-sandbox',
     ],
+    */
     env: {
       APP_ENV: 'playwright',
       DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
       MONGODB_COMPASS_TEST_LOG_DIR: path.join(LOG_PATH, 'app'),
     },
+    // TODO
+    /*
     chromeDriverLogPath,
     webdriverLogPath,
+    */
     // It's usually not required when running tests in Evergreen or locally, but
     // GitHub CI machines are pretty slow sometimes, especially the macOS one
-    startTimeout: 20_000,
+    //startTimeout: 20_000,
+    timeout: 20_000,
+    // TODO
+    /*
     waitTimeout: 0, // https://github.com/electron-userland/spectron/issues/763
     webdriverOptions: {
       waitforInterval: 100, // default is 500ms
     },
+    */
   };
 
   debug('Starting Playwright Electron with the following configuration:');
