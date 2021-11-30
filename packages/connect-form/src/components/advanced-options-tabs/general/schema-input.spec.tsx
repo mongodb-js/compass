@@ -54,13 +54,13 @@ describe('SchemaInput', function () {
         fireEvent.click(standardSchemaRadioBox);
       });
 
-      it('should call to update the connection string with standard schema and directConnection=true', function () {
+      it('should call to update the connection string with standard schema', function () {
         expect(setConnectionStringUrlSpy.callCount).to.equal(1);
         expect(setConnectionStringUrlSpy.firstCall.args[0].isSRV).to.equal(
           false
         );
         expect(setConnectionStringUrlSpy.firstCall.args[0].toString()).to.equal(
-          'mongodb://0ranges:p!neapp1es@localhost:27017/?ssl=true&directConnection=true'
+          'mongodb://0ranges:p!neapp1es@localhost:27017/?ssl=true'
         );
       });
     });
