@@ -17,6 +17,7 @@ export const NO_ACTIVE_NAMESPACE = '';
  */
 export const INITIAL_STATE = {
   databases: [],
+  filteredDatabases: [],
   expandedDbList: {},
   activeNamespace: NO_ACTIVE_NAMESPACE,
   filterRegex: NO_REGEX
