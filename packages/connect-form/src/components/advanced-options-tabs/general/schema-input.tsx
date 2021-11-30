@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  Banner,
+  BannerVariant,
   Description,
   Label,
   RadioBox,
@@ -8,6 +10,7 @@ import {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { defaultHostname } from '../../../constants/default-connection';
+import { SetConnectionField } from '../../../hooks/use-connect-form';
 
 enum MONGODB_SCHEMA {
   MONGODB = 'MONGODB',
@@ -86,12 +89,49 @@ function updateConnectionStringSchema(
 
 function SchemaInput({
   connectionStringUrl,
+  schemaConversionError,
+  setConnectionField,
   setConnectionStringUrl,
 }: {
   connectionStringUrl: ConnectionStringUrl;
+  schemaConversionError: string | null;
+  setConnectionField: SetConnectionField;
   setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
 }): React.ReactElement {
   const { isSRV } = connectionStringUrl;
+
+  function onChangeConnectionSchema(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    try {
+      const newConnectionStringUrl = updateConnectionStringSchema(
+        connectionStringUrl,
+        event.target.value as MONGODB_SCHEMA
+      );
+
+      setConnectionStringUrl(newConnectionStringUrl);
+    } catch (err) {
+      setConnectionField({
+        type: 'set-connection-string-field',
+        fieldName: 'isSRV',
+        value: {
+          conversionError: `Error updating connection schema: ${
+            (err as Error).message
+          }`,
+        },
+      });
+    }
+  }
+
+  function onCloseSchemaConversionError() {
+    setConnectionField({
+      type: 'set-connection-string-field',
+      fieldName: 'isSRV',
+      value: {
+        conversionError: null,
+      },
+    });
+  }
 
   return (
     <>
@@ -99,19 +139,7 @@ function SchemaInput({
       <RadioBoxGroup
         id="connection-schema-radio-box-group"
         value={isSRV ? MONGODB_SCHEMA.MONGODB_SRV : MONGODB_SCHEMA.MONGODB}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          try {
-            const newConnectionStringUrl = updateConnectionStringSchema(
-              connectionStringUrl,
-              event.target.value as MONGODB_SCHEMA
-            );
-
-            setConnectionStringUrl(newConnectionStringUrl);
-          } catch (e) {
-            // TODO: show a targeted error/warning why we can't convert.
-            //
-          }
-        }}
+        onChange={onChangeConnectionSchema}
       >
         <RadioBox value={MONGODB_SCHEMA.MONGODB}>mongodb</RadioBox>
         <RadioBox value={MONGODB_SCHEMA.MONGODB_SRV}>mongodb+srv</RadioBox>
@@ -119,6 +147,15 @@ function SchemaInput({
       <Description>
         {isSRV ? srvSchemaDescription : regularSchemaDescription}
       </Description>
+      {schemaConversionError && (
+        <Banner
+          variant={BannerVariant.Danger}
+          dismissible
+          onClose={onCloseSchemaConversionError}
+        >
+          {schemaConversionError}
+        </Banner>
+      )}
     </>
   );
 }

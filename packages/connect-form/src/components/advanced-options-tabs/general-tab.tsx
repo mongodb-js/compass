@@ -21,14 +21,15 @@ function GeneralTab({
   setConnectionField: SetConnectionField;
   setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
 }): React.ReactElement {
-  const { isSRV } = connectionStringUrl;
   const { hosts } = fields;
 
   return (
     <div>
       <FormFieldContainer>
         <SchemaInput
+          schemaConversionError={fields.isSRV.conversionError}
           connectionStringUrl={connectionStringUrl}
+          setConnectionField={setConnectionField}
           setConnectionStringUrl={setConnectionStringUrl}
         />
       </FormFieldContainer>
@@ -41,7 +42,7 @@ function GeneralTab({
         />
       </FormFieldContainer>
 
-      {!isSRV && hosts.value.length === 1 && (
+      {!connectionStringUrl.isSRV && hosts.value.length === 1 && (
         <FormFieldContainer>
           <DirectConnectionInput
             connectionStringUrl={connectionStringUrl}

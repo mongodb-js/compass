@@ -124,10 +124,13 @@ function HostInput({
       // connection string url.
       const updatedHosts = [...hosts.value];
       updatedHosts[index] = event.target.value;
-      setConnectionField('hosts', {
-        value: updatedHosts,
-        error: (err as Error).message,
-        warning: null,
+      setConnectionField({
+        type: 'set-connection-string-field',
+        fieldName: 'hosts',
+        value: {
+          value: updatedHosts,
+          error: (err as Error).message,
+        },
       });
     }
   }

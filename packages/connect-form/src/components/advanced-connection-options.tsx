@@ -11,8 +11,8 @@ import {
 
 const disabledOverlayStyles = css({
   position: 'absolute',
-  // Space around it to ensure added borders are covered.
-  top: -spacing[1],
+  top: 0,
+  // Space around it to ensure added focus borders are covered.
   bottom: -spacing[1],
   left: -spacing[1],
   right: -spacing[1],
@@ -44,7 +44,7 @@ function AdvancedConnectionOptions({
         {disabled && (
           <div
             className={disabledOverlayStyles}
-            title="Connection form disabled while connection string cannot be parsed."
+            title="The connection form is disabled when the connection string cannot be parsed."
           />
         )}
         <AdvancedOptionsTabs

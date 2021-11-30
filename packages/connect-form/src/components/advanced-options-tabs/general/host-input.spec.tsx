@@ -79,11 +79,13 @@ describe('HostInput', function () {
 
       it('should call to update the connection string url', function () {
         expect(setConnectionFieldSpy.callCount).to.equal(1);
-        expect(setConnectionFieldSpy.firstCall.args[0]).to.equal('hosts');
-        expect(setConnectionFieldSpy.firstCall.args[1]).to.deep.equal({
-          value: ['outerspace@'],
-          error: "Invalid character in host: '@'",
-          warning: null,
+        expect(setConnectionFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'set-connection-string-field',
+          fieldName: 'hosts',
+          value: {
+            value: ['outerspace@'],
+            error: "Invalid character in host: '@'",
+          },
         });
       });
 
@@ -255,16 +257,18 @@ describe('HostInput', function () {
 
         it('should update the host fields with the invalid value and an error', function () {
           expect(setConnectionFieldSpy.callCount).to.equal(1);
-          expect(setConnectionFieldSpy.firstCall.args[0]).to.equal('hosts');
-          expect(setConnectionFieldSpy.firstCall.args[1]).to.deep.equal({
-            value: [
-              'outerspace:27017',
-              'outerspace:27098@',
-              'outerspace:27099',
-              'localhost:27098',
-            ],
-            error: "Invalid character in host: '@'",
-            warning: null,
+          expect(setConnectionFieldSpy.firstCall.args[0]).to.deep.equal({
+            type: 'set-connection-string-field',
+            fieldName: 'hosts',
+            value: {
+              value: [
+                'outerspace:27017',
+                'outerspace:27098@',
+                'outerspace:27099',
+                'localhost:27098',
+              ],
+              error: "Invalid character in host: '@'",
+            },
           });
         });
       });
@@ -329,11 +333,14 @@ describe('HostInput', function () {
 
       it('should update the host fields with the invalid value and an error', function () {
         expect(setConnectionFieldSpy.callCount).to.equal(1);
-        expect(setConnectionFieldSpy.firstCall.args[0]).to.equal('hosts');
-        expect(setConnectionFieldSpy.firstCall.args[1]).to.deep.equal({
-          value: [''],
-          error: 'Invalid URL: mongodb://__this_is_a_placeholder__@/?ssl=true',
-          warning: null,
+        expect(setConnectionFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'set-connection-string-field',
+          fieldName: 'hosts',
+          value: {
+            value: [''],
+            error:
+              'Invalid URL: mongodb://__this_is_a_placeholder__@/?ssl=true',
+          },
         });
       });
     });
@@ -350,7 +357,6 @@ describe('HostInput', function () {
           hosts={{
             value: ['1', '2'],
             error: null,
-            warning: null,
           }}
           setConnectionField={setConnectionFieldSpy}
           setConnectionStringUrl={setConnectionStringUrlSpy}
@@ -360,6 +366,46 @@ describe('HostInput', function () {
 
     it('should render the host in the fields', function () {
       expect(screen.getAllByRole('textbox').length).to.equal(2);
+    });
+  });
+
+  describe('when a host is added when directConnection = true', function () {
+    beforeEach(function () {
+      const connectionStringUrl = new ConnectionStringUrl(
+        'mongodb://0ranges:p!neapp1es@outerspace:27777/?ssl=true&directConnection=true'
+      );
+      const { hosts } =
+        parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
+      render(
+        <HostInput
+          connectionStringUrl={connectionStringUrl}
+          hosts={hosts}
+          setConnectionField={setConnectionFieldSpy}
+          setConnectionStringUrl={setConnectionStringUrlSpy}
+        />
+      );
+
+      const addHostButton = screen.getByLabelText('Add new host');
+      fireEvent.click(addHostButton);
+    });
+
+    it('the updated connection string should not have directConnection set', function () {
+      expect(
+        setConnectionStringUrlSpy.firstCall.args[0].searchParams.get(
+          'directConnection'
+        )
+      ).to.equal(null);
+    });
+
+    it('should call to update the connection string url with a new host', function () {
+      expect(setConnectionStringUrlSpy.callCount).to.equal(1);
+      expect(setConnectionStringUrlSpy.firstCall.args[0].toString()).to.equal(
+        'mongodb://0ranges:p!neapp1es@outerspace:27777,outerspace:27778/?ssl=true'
+      );
+    });
+
+    it('should not call to update the host fields', function () {
+      expect(setConnectionFieldSpy.callCount).to.equal(0);
     });
   });
 });

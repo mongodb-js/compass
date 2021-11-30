@@ -6,14 +6,11 @@ import { defaultConnectionString } from '../constants/default-connection';
 export interface ConnectFormFields {
   hosts: {
     value: string[];
-    warning: null | string;
     error: null | string;
   };
-  // isSRV: {
-  //   value: boolean;
-  //   // warning: null | string,
-  //   // error: null | string
-  // };
+  isSRV: {
+    conversionError: null | string;
+  };
 }
 export interface ConnectFormState {
   connectionStringInvalidError: string | null;
@@ -22,12 +19,22 @@ export interface ConnectFormState {
   fields: ConnectFormFields;
 }
 
-export type SetConnectionField = (
-  fieldName: 'hosts',
-  value: ConnectFormFields['hosts']
-) => void;
+export type SetConnectionFieldAction =
+  | {
+      type: 'set-connection-string-field';
+      fieldName: 'hosts';
+      value: ConnectFormFields['hosts'];
+    }
+  | {
+      type: 'set-connection-string-field';
+      fieldName: 'isSRV';
+      value: ConnectFormFields['isSRV'];
+    };
+
+export type SetConnectionField = (action: SetConnectionFieldAction) => void;
 
 type Action =
+  | SetConnectionFieldAction
   | {
       type: 'set-connection-string-error';
       errorMessage: string | null;
@@ -42,11 +49,6 @@ type Action =
       connectionStringInvalidError: string | null;
       connectionStringUrl: ConnectionStringUrl;
       fields: ConnectFormFields;
-    }
-  | {
-      type: 'set-connection-string-field';
-      value: ConnectFormFields['hosts'];
-      fieldName: keyof ConnectFormFields;
     };
 
 function connectFormReducer(
@@ -90,14 +92,11 @@ export function parseConnectFormFieldStateFromConnectionUrl(
   return {
     hosts: {
       value: connectionStringUrl.hosts,
-      warning: null,
       error: null,
     },
-    // isSRV: {
-    //   value: connectionStringUrl.isSRV,
-    //   // warning: null,
-    //   // error: null
-    // },
+    isSRV: {
+      conversionError: null,
+    },
   };
 }
 
@@ -169,15 +168,15 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
           fields,
         });
       },
-      setConnectionField: (
-        fieldName: keyof ConnectFormFields,
-        value: ConnectFormFields['hosts']
-      ) => {
-        dispatch({
+      setConnectionField: (action: SetConnectionFieldAction) => {
+        dispatch(action);
+        /*
+        {
           type: 'set-connection-string-field',
-          fieldName,
-          value,
-        });
+          fieldName: action.fieldName,
+          value: action.value,
+        }
+        */
       },
     },
   ];

@@ -7,9 +7,11 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import SchemaInput from './schema-input';
 
 describe('SchemaInput', function () {
+  let setConnectionFieldSpy: sinon.SinonSpy;
   let setConnectionStringUrlSpy: sinon.SinonSpy;
 
   beforeEach(function () {
+    setConnectionFieldSpy = sinon.spy();
     setConnectionStringUrlSpy = sinon.spy();
   });
 
@@ -22,7 +24,9 @@ describe('SchemaInput', function () {
       );
       render(
         <SchemaInput
+          schemaConversionError={null}
           connectionStringUrl={connectionStringUrl}
+          setConnectionField={setConnectionFieldSpy}
           setConnectionStringUrl={setConnectionStringUrlSpy}
         />
       );
@@ -81,7 +85,9 @@ describe('SchemaInput', function () {
         );
         render(
           <SchemaInput
+            schemaConversionError={null}
             connectionStringUrl={connectionStringUrl}
+            setConnectionField={setConnectionFieldSpy}
             setConnectionStringUrl={setConnectionStringUrlSpy}
           />
         );
@@ -124,7 +130,9 @@ describe('SchemaInput', function () {
         );
         render(
           <SchemaInput
+            schemaConversionError={null}
             connectionStringUrl={connectionStringUrl}
+            setConnectionField={setConnectionFieldSpy}
             setConnectionStringUrl={setConnectionStringUrlSpy}
           />
         );
@@ -155,7 +163,9 @@ describe('SchemaInput', function () {
         );
         render(
           <SchemaInput
+            schemaConversionError={null}
             connectionStringUrl={connectionStringUrl}
+            setConnectionField={setConnectionFieldSpy}
             setConnectionStringUrl={setConnectionStringUrlSpy}
           />
         );
@@ -186,6 +196,44 @@ describe('SchemaInput', function () {
 
         it('should not call to update the connection string', function () {
           expect(setConnectionStringUrlSpy.callCount).to.equal(0);
+        });
+      });
+    });
+  });
+
+  describe('when there is a conversion error', function () {
+    beforeEach(function () {
+      const connectionStringUrl = new ConnectionStringUrl(
+        'mongodb://0ranges:p!neapp1es@outerspace:27017/?ssl=true'
+      );
+      render(
+        <SchemaInput
+          schemaConversionError={'aaaa!!!1!'}
+          connectionStringUrl={connectionStringUrl}
+          setConnectionField={setConnectionFieldSpy}
+          setConnectionStringUrl={setConnectionStringUrlSpy}
+        />
+      );
+    });
+
+    it('should render the schema conversion error', function () {
+      expect(screen.getByText('aaaa!!!1!')).to.be.visible;
+    });
+
+    describe('when the x button is clicked', function () {
+      beforeEach(function () {
+        const hideErrorButton = screen.getByLabelText('X Icon');
+        fireEvent.click(hideErrorButton);
+      });
+
+      it('should call to hide the error on the fields', function () {
+        expect(setConnectionFieldSpy.callCount).to.equal(1);
+        expect(setConnectionFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'set-connection-string-field',
+          fieldName: 'isSRV',
+          value: {
+            conversionError: null,
+          },
         });
       });
     });
