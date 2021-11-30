@@ -223,6 +223,15 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   onDatabaseExpand,
   onNamespaceAction,
   isReadOnly = false,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error ignoring test props so they are not part of the interface
+  __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH = null,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error ignoring test props so they are not part of the interface
+  __TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT = null,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error ignoring test props so they are not part of the interface
+  __TEST_REACT_WINDOW_OVERSCAN = null,
 }) => {
   const listRef = useRef<List | null>(null);
 
@@ -339,16 +348,6 @@ const DatabasesNavigationTree: React.FunctionComponent<{
     onDatabaseExpand,
   ]);
 
-  // TODO: See comment about row size in constants
-  // const getItemSize = useCallback(
-  //   (index) => {
-  //     return items[index].type === 'database'
-  //       ? DATABASE_ROW_HEIGHT
-  //       : COLLECTION_ROW_HEIGHT;
-  //   },
-  //   [items]
-  // );
-
   const getItemKey = useCallback((index: number, data: typeof itemData) => {
     return data.items[index].key;
   }, []);
@@ -363,12 +362,12 @@ const DatabasesNavigationTree: React.FunctionComponent<{
         {...rootProps}
       >
         <AutoSizer
-          disableWidth={Boolean(process.env.TEST_AUTOSIZER_DEFAULT_WIDTH)}
-          disableHeight={Boolean(process.env.TEST_AUTOSIZER_DEFAULT_HEIGHT)}
+          disableWidth={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_WIDTH)}
+          disableHeight={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT)}
         >
           {({
-            width = Number(process.env.TEST_AUTOSIZER_DEFAULT_WIDTH ?? 0),
-            height = Number(process.env.TEST_AUTOSIZER_DEFAULT_HEIGHT ?? 0),
+            width = __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH,
+            height = __TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT,
           }) => (
             <List
               ref={listRef}
@@ -378,9 +377,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
               itemCount={items.length}
               itemSize={DATABASE_ROW_HEIGHT}
               itemKey={getItemKey}
-              overscanCount={Number(
-                process.env.TEST_REACT_WINDOW_OVERSCAN ?? 5
-              )}
+              overscanCount={__TEST_REACT_WINDOW_OVERSCAN ?? 5}
             >
               {NavigationItem}
             </List>

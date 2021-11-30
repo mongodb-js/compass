@@ -33,9 +33,11 @@ const databases = [
   },
 ];
 
-process.env.TEST_AUTOSIZER_DEFAULT_WIDTH = '1024';
-process.env.TEST_AUTOSIZER_DEFAULT_HEIGHT = '768';
-process.env.TEST_REACT_WINDOW_OVERSCAN = 'Infinity';
+const TEST_VIRTUAL_PROPS = {
+  __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH: 1024,
+  __TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT: 768,
+  __TEST_REACT_WINDOW_OVERSCAN: Infinity,
+};
 
 describe('DatabasesNavigationTree', function () {
   afterEach(cleanup);
@@ -46,6 +48,7 @@ describe('DatabasesNavigationTree', function () {
         databases={databases}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
+        {...TEST_VIRTUAL_PROPS}
       ></DatabasesNavigationTree>
     );
 
@@ -60,6 +63,7 @@ describe('DatabasesNavigationTree', function () {
         expanded={{ bar: true }}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
+        {...TEST_VIRTUAL_PROPS}
       ></DatabasesNavigationTree>
     );
 
@@ -75,6 +79,7 @@ describe('DatabasesNavigationTree', function () {
         expanded={{ foo: true }}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
+        {...TEST_VIRTUAL_PROPS}
       ></DatabasesNavigationTree>
     );
 
@@ -88,6 +93,7 @@ describe('DatabasesNavigationTree', function () {
         activeNamespace="bar"
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
+        {...TEST_VIRTUAL_PROPS}
       ></DatabasesNavigationTree>
     );
 
@@ -111,6 +117,7 @@ describe('DatabasesNavigationTree', function () {
           databases={databases}
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
+          {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
 
@@ -129,6 +136,7 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
+          {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
 
@@ -146,6 +154,7 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar.meow"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
+          {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
 
@@ -168,6 +177,7 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
+          {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
 
@@ -194,6 +204,7 @@ describe('DatabasesNavigationTree', function () {
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           isReadOnly
+          {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
 
@@ -212,6 +223,7 @@ describe('DatabasesNavigationTree', function () {
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           isReadOnly
+          {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
 
@@ -229,6 +241,7 @@ describe('DatabasesNavigationTree', function () {
           databases={databases}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
+          {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
 
@@ -245,6 +258,7 @@ describe('DatabasesNavigationTree', function () {
           expanded={{ bar: true }}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
+          {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
 
@@ -262,6 +276,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
 
@@ -278,6 +293,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
 
@@ -297,6 +313,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
 
@@ -317,6 +334,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
 
@@ -340,6 +358,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
 
@@ -361,6 +380,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
 
