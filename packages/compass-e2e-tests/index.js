@@ -54,6 +54,7 @@ function cleanup() {
 }
 
 async function main() {
+  /*
   if (process.platform === 'win32') {
     // These tests are not working well on windows machines and we will
     // skip them for now.
@@ -61,6 +62,7 @@ async function main() {
     console.warn('⚠️ Skipping e2e tests on windows machine');
     return;
   }
+  */
 
   if (process.env.EVERGREEN && process.platform === 'darwin') {
     // TODO: https://jira.mongodb.org/browse/COMPASS-5214
