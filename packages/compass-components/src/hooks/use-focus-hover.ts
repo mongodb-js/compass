@@ -36,7 +36,6 @@ export function useFocusState(): [
       focusWithinProps.onBlur?.(evt);
     },
   };
-  // console.log({ isFocused, isFocusWithin, isFocusVisible });
   return [
     mergedProps,
     isFocused && isFocusVisible
