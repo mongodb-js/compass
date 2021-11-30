@@ -37,7 +37,10 @@ const hostActionButtonStyles = css({
 const invalidHostCharacterRegex = /[@]/;
 const invalidSrvHostnameCharacterRegex = /[:@,]/;
 
-function checkForInvalidCharacterInHost(host: string, isSRV: boolean): void {
+export function checkForInvalidCharacterInHost(
+  host: string,
+  isSRV: boolean
+): void {
   const hostRegex = isSRV
     ? invalidSrvHostnameCharacterRegex
     : invalidHostCharacterRegex;
@@ -64,7 +67,7 @@ function getPortFromHostOrDefault(host: string): number {
   return defaultPort;
 }
 
-function getNextHostname(
+export function getNextHostname(
   hosts: ConnectFormFields['hosts'],
   addAfterIndex: number
 ): string {
@@ -81,7 +84,7 @@ function getNextHostname(
   const port = getPortFromHostOrDefault(hostToAddAfter) + 1;
 
   // Return the last hosts' hostname and port + 1.
-  return `${hostname}:${port}`;
+  return `${hostname || defaultHostname}:${port}`;
 }
 
 function HostInput({

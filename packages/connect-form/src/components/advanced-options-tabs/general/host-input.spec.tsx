@@ -5,7 +5,10 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import HostInput from './host-input';
+import HostInput, {
+  checkForInvalidCharacterInHost,
+  getNextHostname,
+} from './host-input';
 import { parseConnectFormFieldStateFromConnectionUrl } from '../../../hooks/use-connect-form';
 
 describe('HostInput', function () {
@@ -406,6 +409,138 @@ describe('HostInput', function () {
 
     it('should not call to update the host fields', function () {
       expect(setConnectionFieldSpy.callCount).to.equal(0);
+    });
+  });
+
+  describe('#getNextHostname', function () {
+    it('should give the next one with one port increased', function () {
+      const nextHostname = getNextHostname(
+        {
+          value: ['localhost:27019'],
+          error: null,
+        },
+        0
+      );
+      expect(nextHostname).to.equal('localhost:27020');
+    });
+
+    it('should give port 27018 when the hostname has no port', function () {
+      const nextHostname = getNextHostname(
+        {
+          value: ['space'],
+          error: null,
+        },
+        0
+      );
+      expect(nextHostname).to.equal('space:27018');
+    });
+
+    it('should give the default port when there are no hosts', function () {
+      const nextHostname = getNextHostname(
+        {
+          value: [],
+          error: null,
+        },
+        0
+      );
+      expect(nextHostname).to.equal('localhost:27017');
+    });
+
+    it('should give the hostname of the index before it', function () {
+      const nextHostname = getNextHostname(
+        {
+          value: ['aaa:27011', 'bbb:28001', 'cccc:28008'],
+          error: null,
+        },
+        1
+      );
+      expect(nextHostname).to.equal('bbb:28002');
+    });
+
+    it('should give the default hostname when the host is empty', function () {
+      const nextHostname = getNextHostname(
+        {
+          value: [''],
+          error: null,
+        },
+        0
+      );
+      expect(nextHostname).to.equal('localhost:27018');
+    });
+
+    it('should give a default port when the port is not a number', function () {
+      const nextHostname = getNextHostname(
+        {
+          value: ['pineapple:27abc014'],
+          error: null,
+        },
+        0
+      );
+      expect(nextHostname).to.equal('pineapple:27018');
+    });
+
+    it('should give a default port when the port has different characters', function () {
+      const nextHostname = getNextHostname(
+        {
+          value: ['pineapple:28:!019'],
+          error: null,
+        },
+        0
+      );
+      expect(nextHostname).to.equal('pineapple:27018');
+    });
+
+    it('should give a default port when there is no port', function () {
+      const nextHostname = getNextHostname(
+        {
+          value: ['pineapple:'],
+          error: null,
+        },
+        0
+      );
+      expect(nextHostname).to.equal('pineapple:27018');
+    });
+  });
+
+  describe('#checkForInvalidCharacterInHost', function () {
+    it('should return if there is no invalid character in host', function () {
+      checkForInvalidCharacterInHost('localhost:27017,', false);
+    });
+
+    it('should throw if there is an @ character in a host', function () {
+      let errorThrown;
+      try {
+        checkForInvalidCharacterInHost('aaAA@@aa', false);
+      } catch (e) {
+        // Expected to throw.
+        errorThrown = e.message;
+      }
+
+      expect(errorThrown).to.equal("Invalid character in host: '@'");
+    });
+
+    it('should throw if there is an , character in an srv hostname', function () {
+      let errorThrown;
+      try {
+        checkForInvalidCharacterInHost('localhost,,', true);
+      } catch (e) {
+        // Expected to throw.
+        errorThrown = e.message;
+      }
+
+      expect(errorThrown).to.equal("Invalid character in host: ','");
+    });
+
+    it('should throw if there is an : character in an srv hostname', function () {
+      let errorThrown;
+      try {
+        checkForInvalidCharacterInHost('localhost:222', true);
+      } catch (e) {
+        // Expected to throw.
+        errorThrown = e.message;
+      }
+
+      expect(errorThrown).to.equal("Invalid character in host: ':'");
     });
   });
 });
