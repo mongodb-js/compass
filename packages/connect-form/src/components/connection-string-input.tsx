@@ -164,7 +164,6 @@ function ConnectStringInput({
     dispatch,
   ] = useReducer(reducer, {
     // If there is a connection string default it to protected.
-    // TODO: Should we default to not protected if there is nothing to hide?
     enableEditingConnectionString:
       !connectionString || connectionString === 'mongodb://localhost:27017/',
     showConfirmEditConnectionStringPrompt: false,
@@ -191,6 +190,31 @@ function ConnectStringInput({
     enableEditingConnectionString,
     editingConnectionString,
   ]);
+
+  function onChangeConnectionString(event: ChangeEvent<HTMLTextAreaElement>) {
+    const newConnectionString = event.target.value;
+
+    dispatch({
+      type: 'set-editing-connection-string',
+      editingConnectionString: newConnectionString,
+    });
+
+    try {
+      // Ensure it's parsable connection string.
+      const connectionStringUrl = new ConnectionStringUrl(newConnectionString);
+      setConnectionStringUrl(connectionStringUrl);
+    } catch (error) {
+      // Check if starts with url scheme.
+      if (!connectionStringHasValidScheme(newConnectionString)) {
+        setConnectionStringError(
+          'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://`'
+        );
+        return;
+      }
+
+      setConnectionStringError((error as Error).message);
+    }
+  }
 
   const displayedConnectionString = enableEditingConnectionString
     ? editingConnectionString
@@ -239,32 +263,7 @@ function ConnectStringInput({
       </div>
       <div className={textAreaContainerStyle}>
         <TextArea
-          onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
-            const newConnectionString = event.target.value;
-
-            dispatch({
-              type: 'set-editing-connection-string',
-              editingConnectionString: newConnectionString,
-            });
-
-            // Test if valid connection string - if is:
-            try {
-              const connectionStringUrl = new ConnectionStringUrl(
-                newConnectionString
-              );
-              setConnectionStringUrl(connectionStringUrl);
-            } catch (error) {
-              // Check if starts with url scheme. setConnectionStringError
-              if (!connectionStringHasValidScheme(newConnectionString)) {
-                setConnectionStringError(
-                  'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://`'
-                );
-                return;
-              }
-
-              setConnectionStringError((error as Error).message);
-            }
-          }}
+          onChange={onChangeConnectionString}
           value={displayedConnectionString}
           className={connectionStringStyles}
           disabled={!enableEditingConnectionString}
