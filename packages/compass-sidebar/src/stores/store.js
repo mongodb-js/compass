@@ -94,16 +94,20 @@ store.onActivated = (appRegistry) => {
     store.dispatch(changeDescription(state.description));
   });
 
-  appRegistry.on('select-namespace', (metadata) => {
-    store.dispatch(changeActiveNamespace(metadata.namespace || ''));
+  appRegistry.on('select-namespace', ({ namespace }) => {
+    store.dispatch(changeActiveNamespace(namespace));
   });
 
-  appRegistry.on('open-namespace-in-new-tab', (metadata) => {
-    store.dispatch(changeActiveNamespace(metadata.namespace || ''));
+  appRegistry.on('open-namespace-in-new-tab', ({ namespace }) => {
+    store.dispatch(changeActiveNamespace(namespace));
   });
 
-  appRegistry.on('select-database', (ns) => {
-    store.dispatch(changeActiveNamespace(ns || ''));
+  appRegistry.on('select-database', (dbName) => {
+    store.dispatch(changeActiveNamespace(dbName));
+  });
+
+  appRegistry.on('select-instance', () => {
+    store.dispatch(changeActiveNamespace(''));
   });
 
   appRegistry.on('data-service-disconnected', () => {
