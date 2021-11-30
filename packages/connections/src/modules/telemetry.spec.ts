@@ -159,38 +159,46 @@ describe('connection tracking', function () {
     expect(properties).to.deep.equal(expected);
   });
 
-  it('tracks a new connection event - is atlas url', async function () {
-    const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
-      connectionOptions: {
-        connectionString: 'mongodb://compass-data-sets.e06dc.mongodb.net/',
-      },
-    };
-
-    trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
-
-    const expected = {
-      is_localhost: false,
-      is_public_cloud: false,
-      is_do_url: false,
-      is_atlas_url: true,
-      public_cloud_name: '',
-      auth_type: 'NONE',
-      tunnel: 'none',
-      is_srv: false,
-      is_atlas: false,
-      is_dataLake: false,
-      is_enterprise: false,
-      is_genuine: true,
-      non_genuine_server_name: 'na',
-      server_version: 'na',
-      server_arch: undefined,
-      server_os_family: undefined,
-    };
-
-    expect(properties).to.deep.equal(expected);
-  });
+  // eslint-disable-next-line mocha/no-setup-in-describe
+  [
+    {url: 'mongodb://compass-data-sets.e06dc.mongodb.net', is_srv: false, title: 'is atlas, no srv'},
+    {url: 'mongodb://compass-data-sets.e06dc.mongodb-dev.net', is_srv: false, title: 'is dev atlas, no srv'},
+    {url: 'mongodb+srv://compass-data-sets.e06dc.mongodb.net', is_srv: true, title: 'is atlas, is srv'},
+    {url: 'mongodb+srv://compass-data-sets.e06dc.mongodb-dev.net', is_srv: true, title: 'is dev atlas, is srv'},
+  ].forEach(({url, is_srv, title}) => {
+      it(`tracks a new connection event - ${title}`, async function () {
+        const trackEvent = once(process, 'compass:track');
+        const connectionInfo = {
+          connectionOptions: {
+            connectionString: url
+          },
+        };
+    
+        trackNewConnectionEvent(connectionInfo, dataService);
+        const [ { properties } ] = await trackEvent;
+    
+        const expected = {
+          is_localhost: false,
+          is_public_cloud: false,
+          is_do_url: false,
+          is_atlas_url: true,
+          public_cloud_name: '',
+          auth_type: 'NONE',
+          tunnel: 'none',
+          is_srv: is_srv,
+          is_atlas: false,
+          is_dataLake: false,
+          is_enterprise: false,
+          is_genuine: true,
+          non_genuine_server_name: 'na',
+          server_version: 'na',
+          server_arch: undefined,
+          server_os_family: undefined,
+        };
+    
+        expect(properties).to.deep.equal(expected);
+      });
+    });
 
   it('tracks a new connection event - public cloud', async function () {
     const trackEvent = once(process, 'compass:track');
