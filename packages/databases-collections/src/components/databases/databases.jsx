@@ -9,6 +9,7 @@ import { showDatabase } from '../../modules/show-database';
 import { sortDatabases } from '../../modules/databases/databases';
 import { open as openCreate } from '../../modules/create-database';
 import { open as openDrop } from '../../modules/drop-database';
+import { DatabasesList } from '@mongodb-js/databases-collections-list';
 
 import styles from './databases.module.less';
 
@@ -77,15 +78,13 @@ class Databases extends PureComponent {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const {databases, isReadonly, isDataLake} = this.props;
     return (
-      <div className={styles.databases} data-test-id="databases-table">
-        <DatabasesToolbar
-          isReadonly={this.props.isReadonly}
-          open={openCreate}
-          isDataLake={this.props.isDataLake}
-        />
-        {this.renderDatabases()}
-      </div>
+      <DatabasesList
+        databases={databases}
+        isReadOnly={isReadonly}
+        isDataLake={isDataLake}
+      />
     );
   }
 }
@@ -98,12 +97,12 @@ class Databases extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  columns: state.columns,
+  // columns: state.columns,
   databases: state.databases,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
-  sortColumn: state.sortColumn,
-  sortOrder: state.sortOrder,
+  // sortColumn: state.sortColumn,
+  // sortOrder: state.sortOrder,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isDataLake: state.isDataLake
 });

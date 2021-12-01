@@ -130,24 +130,25 @@ function getProperties(coll) {
  * @return {Array} The mapped collections for the UI.
  */
 export const load = (collections) => {
-  return collections
-    .map((coll) => {
-      return zipObject(EXTRA_COLUMNS, [
-        coll.name, // Collection Name
-        coll.document_count, // Documents
-        coll.size / coll.document_count, // Avg. Document Size
-        coll.size, // Total Document Size
-        coll.index_count, // Num. Indexes
-        coll.index_size, // Total Index Size
-        getProperties(coll), // Properties
-        coll.ns || coll._id, // _id
-        coll.readonly, // readonly
-        coll.is_capped || coll.capped, // capped
-        coll.view_on, // view_on
-        coll.type, // type
-        coll.pipeline // pipeline
-      ]);
-    });
+  return collections;
+  // return collections
+  //   .map((coll) => {
+  //     return zipObject(EXTRA_COLUMNS, [
+  //       coll.name, // Collection Name
+  //       coll.document_count, // Documents
+  //       coll.size / coll.document_count, // Avg. Document Size
+  //       coll.size, // Total Document Size
+  //       coll.index_count, // Num. Indexes
+  //       coll.index_size, // Total Index Size
+  //       getProperties(coll), // Properties
+  //       coll.ns || coll._id, // _id
+  //       coll.readonly, // readonly
+  //       coll.is_capped || coll.capped, // capped
+  //       coll.view_on, // view_on
+  //       coll.type, // type
+  //       coll.pipeline // pipeline
+  //     ]);
+  //   });
 };
 
 /**

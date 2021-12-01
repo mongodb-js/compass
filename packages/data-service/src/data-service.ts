@@ -1750,7 +1750,9 @@ class DataService extends EventEmitter {
       index_sizes: data.indexSizes,
       document_count: data.count ?? 0,
       document_size: data.size,
-      storage_size: data.storageSize,
+      avg_document_size: data.avgObjSize ?? 0,
+      storage_size: data.storageSize ?? 0,
+      free_storage_size: data.freeStorageSize ?? 0,
       index_count: data.nindexes,
       index_size: data.totalIndexSize,
       padding_factor: data.paddingFactor,
@@ -1759,7 +1761,6 @@ class DataService extends EventEmitter {
       flags_user: data.userFlags,
       max_document_size: data.maxSize,
       size: data.size,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       index_details: data.indexDetails || {},
       wired_tiger: data.wiredTiger || {},
     };

@@ -45,11 +45,12 @@ const sort = (databases, column, order) => {
  * @return {Array} The mapped databases for the UI.
  */
 export const load = (databases) => {
-  return databases.map((db) => {
-    return zipObject(COLUMNS, [
-      db._id, db.storage_size, db.collectionsLength ?? 0, db.index_count
-    ]);
-  });
+  return databases;
+  // return databases.map((db) => {
+  //   return zipObject(COLUMNS, [
+  //     db._id, db.storage_size, db.collectionsLength ?? 0, db.index_count
+  //   ]);
+  // });
 };
 
 /**

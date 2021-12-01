@@ -8,6 +8,7 @@ import { sortCollections } from '../../modules/collections/collections';
 import { openLink } from '../../modules/link';
 import { open as openCreate } from '../../modules/create-collection';
 import { open as openDrop } from '../../modules/drop-collection';
+import { CollectionsList } from '@mongodb-js/databases-collections-list';
 
 import styles from './collections.module.less';
 
@@ -25,8 +26,8 @@ class Collections extends PureComponent {
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortCollections: PropTypes.func.isRequired,
-    isDataLake: PropTypes.bool.isRequired
-  }
+    isDataLake: PropTypes.bool.isRequired,
+  };
 
   /**
    * Render Collections component.
@@ -34,29 +35,38 @@ class Collections extends PureComponent {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const {collections, isReadonly, isDataLake} = this.props;
+
     return (
-      <div className={styles.collections} data-test-id="collections-table">
-        <CollectionsToolbar
-          isReadonly={this.props.isReadonly}
-          databaseName={this.props.databaseName}
-          open={openCreate}
-          isDataLake={this.props.isDataLake}
-        />
-        <CollectionsTable
-          columns={this.props.columns}
-          collections={this.props.collections}
-          isWritable={this.props.isWritable}
-          isReadonly={this.props.isReadonly}
-          databaseName={this.props.databaseName}
-          openLink={this.props.openLink}
-          sortOrder={this.props.sortOrder}
-          sortColumn={this.props.sortColumn}
-          sortCollections={this.props.sortCollections}
-          showCollection={this.props.showCollection}
-          open={openDrop}
-        />
-      </div>
+      <CollectionsList
+        collections={collections}
+        isReadOnly={isReadonly}
+        isDataLake={isDataLake}
+      />
     );
+    // return (
+    //   <div className={styles.collections} data-test-id="collections-table">
+    //     <CollectionsToolbar
+    //       isReadonly={this.props.isReadonly}
+    //       databaseName={this.props.databaseName}
+    //       open={openCreate}
+    //       isDataLake={this.props.isDataLake}
+    //     />
+    //     <CollectionsTable
+    //       columns={this.props.columns}
+    //       collections={this.props.collections}
+    //       isWritable={this.props.isWritable}
+    //       isReadonly={this.props.isReadonly}
+    //       databaseName={this.props.databaseName}
+    //       openLink={this.props.openLink}
+    //       sortOrder={this.props.sortOrder}
+    //       sortColumn={this.props.sortColumn}
+    //       sortCollections={this.props.sortCollections}
+    //       showCollection={this.props.showCollection}
+    //       open={openDrop}
+    //     />
+    //   </div>
+    // );
   }
 }
 
@@ -75,21 +85,18 @@ const mapStateToProps = (state) => ({
   isWritable: state.isWritable,
   sortColumn: state.sortColumn,
   sortOrder: state.sortOrder,
-  isDataLake: state.isDataLake
+  isDataLake: state.isDataLake,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const ConnectedCollections = connect(
-  mapStateToProps,
-  {
-    showCollection,
-    sortCollections,
-    openLink
-  },
-)(Collections);
+const ConnectedCollections = connect(mapStateToProps, {
+  showCollection,
+  sortCollections,
+  openLink,
+})(Collections);
 
 export default ConnectedCollections;
 export { Collections };
