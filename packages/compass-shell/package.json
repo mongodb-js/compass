@@ -48,7 +48,7 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.4.0",
     "@mongodb-js/mongodb-redux-common": "^1.5.0",
-    "@mongosh/browser-repl": "^1.1.2",
+    "@mongosh/browser-repl": "^1.1.5",
     "@mongosh/logging": "^1.1.2",
     "@mongosh/node-runtime-worker-thread": "^1.1.2",
     "@mongosh/service-provider-core": "^1.1.2",
@@ -60,7 +60,8 @@
     "hadron-react-components": "*",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
-    "react-ace": "^6.6.0",
+    "react-ace": "^9.5.0",
+    "ace-builds": "^1.4.3",
     "react-dom": "^16.14.0"
   },
   "devDependencies": {
@@ -121,7 +122,8 @@
     "postcss-loader": "^2.1.6",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
-    "react-ace": "^6.6.0",
+    "react-ace": "^9.5.0",
+    "ace-builds": "^1.4.3",
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
