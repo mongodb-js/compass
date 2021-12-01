@@ -62,7 +62,7 @@ const Selectors = {
   SidebarTitle: '[data-test-id="sidebar-title"]',
 
   sidebarCollection: (dbName, collectionName) => {
-    return `${Selectors.SidebarCollection}[title="${dbName}.${collectionName}"]`;
+    return `[data-testid="sidebar-collection-${dbName}.${collectionName}"]`;
   },
 
   // Shell

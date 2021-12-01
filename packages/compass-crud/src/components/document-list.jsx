@@ -184,7 +184,7 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The query bar.
    */
   renderZeroState() {
-    if (this.props.docs.length > 0 || (this.props.status === DOCUMENTS_STATUS_FETCHING && !this.props.debouncingLoad)) {
+    if (this.props.docs.length > 0 || this.props.status === DOCUMENTS_STATUS_FETCHING) {
       return null;
     }
 

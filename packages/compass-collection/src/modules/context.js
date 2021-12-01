@@ -75,7 +75,7 @@ const setupStore = ({
 /**
  * Setup a scoped plugin to the tab.
  *
- * @param options - The plugin options.
+ * @param {Object} options - The plugin options.
  * @property {Object} options.role - The role.
  * @property {Object} options.globalAppRegistry - The global app registry.
  * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
@@ -98,6 +98,7 @@ const setupPlugin = ({
   serverVersion,
   isReadonly,
   isTimeSeries,
+  sourceName,
   allowWrites,
   key
 }) => {
@@ -111,6 +112,7 @@ const setupPlugin = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    sourceName,
     actions,
     allowWrites
   });
@@ -126,7 +128,7 @@ const setupPlugin = ({
 /**
  * Setup every scoped modal role.
  *
- * @param options - The scope modal plugin options.
+ * @param {Object} options - The scope modal plugin options.
  * @property {Object} options.globalAppRegistry - The global app registry.
  * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
  * @property {Object} options.dataService - The data service.
@@ -146,6 +148,7 @@ const setupScopedModals = ({
   serverVersion,
   isReadonly,
   isTimeSeries,
+  sourceName,
   allowWrites
 }) => {
   const roles = globalAppRegistry.getRole('Collection.ScopedModal');
@@ -160,6 +163,7 @@ const setupScopedModals = ({
         serverVersion,
         isReadonly,
         isTimeSeries,
+        sourceName,
         allowWrites,
         key: i
       });
@@ -263,7 +267,6 @@ const createContext = ({
     views.push(<UnsafeComponent component={role.component} key={i} store={store} actions={actions} />);
   });
 
-  // Setup the stats in the collection HUD
   const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
   const statsPlugin = statsRole.component;
   const statsStore = setupStore({
@@ -275,8 +278,10 @@ const createContext = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    sourceName,
     actions: {},
-    allowWrites: !isDataLake
+    allowWrites: !isDataLake,
+    isEditing: Boolean(editViewName)
   });
 
   // Setup the scoped modals
@@ -288,6 +293,7 @@ const createContext = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    sourceName,
     allowWrites: !isDataLake
   });
 

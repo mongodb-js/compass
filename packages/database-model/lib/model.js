@@ -75,6 +75,23 @@ function propagateCollectionEvents(namespace) {
   };
 }
 
+function getParentByType(model, type) {
+  const parent = getParent(model);
+  return parent
+    ? parent.modelType === type
+      ? parent
+      : getParentByType(parent, type)
+    : null;
+}
+
+/**
+ * Returns true if model is not ready (was fetched before and is not updating at
+ * the moment) or force fetch is requested
+ */
+function shouldFetch(status, force) {
+  return force || status !== 'ready';
+}
+
 const DatabaseModel = AmpersandModel.extend(
   debounceActions(['fetch', 'fetchCollections']),
   {
@@ -115,7 +132,11 @@ const DatabaseModel = AmpersandModel.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetch({ dataService }) {
+    async fetch({ dataService, force = false }) {
+      if (!shouldFetch(this.status, force)) {
+        return;
+      }
+
       try {
         const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
         this.set({ status: newStatus });
@@ -131,11 +152,16 @@ const DatabaseModel = AmpersandModel.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetchCollections({ dataService, fetchInfo = false }) {
+    async fetchCollections({ dataService, fetchInfo = false, force = false }) {
+      if (!shouldFetch(this.collectionsStatus, force)) {
+        return;
+      }
+
       try {
-        const newStatus = this.collectionsStatus === 'initial' ? 'fetching' : 'refreshing';
+        const newStatus =
+          this.collectionsStatus === 'initial' ? 'fetching' : 'refreshing';
         this.set({ collectionsStatus: newStatus });
-        await this.collections.fetch({ dataService, fetchInfo });
+        await this.collections.fetch({ dataService, fetchInfo, force });
         this.set({ collectionsStatus: 'ready', collectionsStatusError: null });
       } catch (err) {
         this.set({
@@ -144,6 +170,30 @@ const DatabaseModel = AmpersandModel.extend(
         });
         throw err;
       }
+    },
+
+    async fetchCollectionsDetails({
+      dataService,
+      nameOnly = false,
+      force = false,
+    }) {
+      await this.fetchCollections({
+        dataService,
+        fetchInfo: !nameOnly,
+        force,
+      });
+
+      if (nameOnly) {
+        return;
+      }
+
+      // We don't care if this fails, it just means less stats in the UI, hence
+      // the allSettled call here
+      await Promise.allSettled(
+        this.collections.map((coll) => {
+          return coll.fetch({ dataService, fetchInfo: false, force });
+        })
+      );
     },
 
     toJSON(opts = { derived: true }) {
@@ -169,7 +219,19 @@ const DatabaseCollection = AmpersandCollection.extend(
      * @returns {Promise<void>}
      */
     async fetch({ dataService }) {
-      const dbs = await dataService.listDatabases({ nameOnly: true });
+      const instanceModel = getParentByType(this, 'Instance');
+
+      if (!instanceModel) {
+        throw new Error(
+          `Trying to fetch ${this.modelType} that doesn't have the Instance parent model`
+        );
+      }
+
+      const dbs = await dataService.listDatabases({
+        nameOnly: true,
+        privileges: instanceModel.auth.privileges,
+      });
+
       this.set(dbs.map(({ _id, name }) => ({ _id, name })));
     },
 
