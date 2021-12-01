@@ -37,16 +37,17 @@ describe('connection tracking', function () {
     (global as any).hadronApp = { isFeatureEnabled: () => true };
   });
 
-  afterEach(function() {
+  afterEach(function () {
     (global as any).hadronApp = initialHadronApp;
   });
 
   it('tracks a new connection attempt event - favorite', async function () {
     const trackEvent = once(process, 'compass:track');
-    trackConnectionAttemptEvent(
-      { favorite: { name: 'example' }, lastUsed: null }
-    );
-    const [ { properties } ] = await trackEvent;
+    trackConnectionAttemptEvent({
+      favorite: { name: 'example' },
+      lastUsed: null,
+    });
+    const [{ properties }] = await trackEvent;
 
     expect(properties).to.deep.equal({
       is_favorite: true,
@@ -57,10 +58,8 @@ describe('connection tracking', function () {
 
   it('tracks a new connection attempt event - recent', async function () {
     const trackEvent = once(process, 'compass:track');
-    trackConnectionAttemptEvent(
-      { favorite: undefined, lastUsed: new Date() }
-    );
-    const [ { properties } ] = await trackEvent;
+    trackConnectionAttemptEvent({ favorite: undefined, lastUsed: new Date() });
+    const [{ properties }] = await trackEvent;
     expect(properties).to.deep.equal({
       is_favorite: false,
       is_recent: true,
@@ -70,10 +69,8 @@ describe('connection tracking', function () {
 
   it('tracks a new connection attempt event - new', async function () {
     const trackEvent = once(process, 'compass:track');
-    trackConnectionAttemptEvent(
-      { favorite: undefined, lastUsed: undefined }
-    );
-    const [ { properties } ] = await trackEvent;
+    trackConnectionAttemptEvent({ favorite: undefined, lastUsed: undefined });
+    const [{ properties }] = await trackEvent;
     expect(properties).to.deep.equal({
       is_favorite: false,
       is_recent: false,
@@ -83,10 +80,11 @@ describe('connection tracking', function () {
 
   it('tracks a new connection attempt event - favorite and recent', async function () {
     const trackEvent = once(process, 'compass:track');
-    trackConnectionAttemptEvent(
-      { favorite: { name: 'example' }, lastUsed: new Date() },
-    );
-    const [ { properties } ] = await trackEvent;
+    trackConnectionAttemptEvent({
+      favorite: { name: 'example' },
+      lastUsed: new Date(),
+    });
+    const [{ properties }] = await trackEvent;
     expect(properties).to.deep.equal({
       is_favorite: true,
       is_recent: false,
@@ -103,7 +101,7 @@ describe('connection tracking', function () {
     };
 
     trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
     const expected = {
       is_localhost: true,
       is_public_cloud: false,
@@ -135,7 +133,7 @@ describe('connection tracking', function () {
     };
 
     trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
 
     const expected = {
       is_localhost: false,
@@ -161,44 +159,60 @@ describe('connection tracking', function () {
 
   // eslint-disable-next-line mocha/no-setup-in-describe
   [
-    {url: 'mongodb://compass-data-sets.e06dc.mongodb.net', is_srv: false, title: 'is atlas, no srv'},
-    {url: 'mongodb://compass-data-sets.e06dc.mongodb-dev.net', is_srv: false, title: 'is dev atlas, no srv'},
-    {url: 'mongodb+srv://compass-data-sets.e06dc.mongodb.net', is_srv: true, title: 'is atlas, is srv'},
-    {url: 'mongodb+srv://compass-data-sets.e06dc.mongodb-dev.net', is_srv: true, title: 'is dev atlas, is srv'},
-  ].forEach(({url, is_srv, title}) => {
-      it(`tracks a new connection event - ${title}`, async function () {
-        const trackEvent = once(process, 'compass:track');
-        const connectionInfo = {
-          connectionOptions: {
-            connectionString: url
-          },
-        };
-    
-        trackNewConnectionEvent(connectionInfo, dataService);
-        const [ { properties } ] = await trackEvent;
-    
-        const expected = {
-          is_localhost: false,
-          is_public_cloud: false,
-          is_do_url: false,
-          is_atlas_url: true,
-          public_cloud_name: '',
-          auth_type: 'NONE',
-          tunnel: 'none',
-          is_srv: is_srv,
-          is_atlas: false,
-          is_dataLake: false,
-          is_enterprise: false,
-          is_genuine: true,
-          non_genuine_server_name: 'na',
-          server_version: 'na',
-          server_arch: undefined,
-          server_os_family: undefined,
-        };
-    
-        expect(properties).to.deep.equal(expected);
-      });
+    {
+      url: 'mongodb://compass-data-sets.e06dc.mongodb.net',
+      is_srv: false,
+      title: 'is atlas, no srv',
+    },
+    {
+      url: 'mongodb://compass-data-sets.e06dc.mongodb-dev.net',
+      is_srv: false,
+      title: 'is dev atlas, no srv',
+    },
+    {
+      url: 'mongodb+srv://compass-data-sets.e06dc.mongodb.net',
+      is_srv: true,
+      title: 'is atlas, is srv',
+    },
+    {
+      url: 'mongodb+srv://compass-data-sets.e06dc.mongodb-dev.net',
+      is_srv: true,
+      title: 'is dev atlas, is srv',
+    },
+  ].forEach(({ url, is_srv, title }) => {
+    it(`tracks a new connection event - ${title}`, async function () {
+      const trackEvent = once(process, 'compass:track');
+      const connectionInfo = {
+        connectionOptions: {
+          connectionString: url,
+        },
+      };
+
+      trackNewConnectionEvent(connectionInfo, dataService);
+      const [{ properties }] = await trackEvent;
+
+      const expected = {
+        is_localhost: false,
+        is_public_cloud: false,
+        is_do_url: false,
+        is_atlas_url: true,
+        public_cloud_name: '',
+        auth_type: 'NONE',
+        tunnel: 'none',
+        is_srv: is_srv,
+        is_atlas: false,
+        is_dataLake: false,
+        is_enterprise: false,
+        is_genuine: true,
+        non_genuine_server_name: 'na',
+        server_version: 'na',
+        server_arch: undefined,
+        server_os_family: undefined,
+      };
+
+      expect(properties).to.deep.equal(expected);
     });
+  });
 
   it('tracks a new connection event - public cloud', async function () {
     const trackEvent = once(process, 'compass:track');
@@ -209,8 +223,7 @@ describe('connection tracking', function () {
     };
 
     trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
-
+    const [{ properties }] = await trackEvent;
 
     const expected = {
       is_localhost: false,
@@ -243,8 +256,7 @@ describe('connection tracking', function () {
     };
 
     trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
-
+    const [{ properties }] = await trackEvent;
 
     const expected = {
       is_localhost: false,
@@ -269,19 +281,23 @@ describe('connection tracking', function () {
   });
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  ['', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach((authMechanism) => {
-    it(`tracks a new connection event - ${authMechanism || 'DEFAULT'} auth`, async function () {
-      const trackEvent = once(process, 'compass:track');
-      const connectionInfo = {
-        connectionOptions: {
-          connectionString: `mongodb://root@example:127.0.0.1?authMechanism=${authMechanism}`,
-        },
-      };
-      trackNewConnectionEvent(connectionInfo, dataService);
-      const [ { properties } ] = await trackEvent;
-      expect(properties.auth_type).to.equal(authMechanism || 'DEFAULT');
-    });
-  });
+  ['', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach(
+    (authMechanism) => {
+      it(`tracks a new connection event - ${
+        authMechanism || 'DEFAULT'
+      } auth`, async function () {
+        const trackEvent = once(process, 'compass:track');
+        const connectionInfo = {
+          connectionOptions: {
+            connectionString: `mongodb://root@example:127.0.0.1?authMechanism=${authMechanism}`,
+          },
+        };
+        trackNewConnectionEvent(connectionInfo, dataService);
+        const [{ properties }] = await trackEvent;
+        expect(properties.auth_type).to.equal(authMechanism || 'DEFAULT');
+      });
+    }
+  );
 
   it('tracks a new connection event - no auth', async function () {
     const trackEvent = once(process, 'compass:track');
@@ -291,7 +307,7 @@ describe('connection tracking', function () {
       },
     };
     trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
     expect(properties.auth_type).to.equal('NONE');
   });
 
@@ -303,7 +319,7 @@ describe('connection tracking', function () {
       },
     };
     trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('none');
   });
 
@@ -320,7 +336,7 @@ describe('connection tracking', function () {
       },
     };
     trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('ssh');
   });
 
@@ -332,7 +348,7 @@ describe('connection tracking', function () {
       },
     };
     trackNewConnectionEvent(connectionInfo, dataService);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
     expect(properties.is_srv).to.equal(true);
   });
 
@@ -368,7 +384,7 @@ describe('connection tracking', function () {
       },
     };
     trackNewConnectionEvent(connectionInfo, mockDataService);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(true);
     expect(properties.is_dataLake).to.equal(true);
@@ -412,7 +428,7 @@ describe('connection tracking', function () {
       },
     };
     trackNewConnectionEvent(connectionInfo, mockDataService);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(false);
     expect(properties.is_dataLake).to.equal(false);
@@ -435,7 +451,7 @@ describe('connection tracking', function () {
     const connectionError = new Error();
 
     trackConnectionFailedEvent(connectionInfo, connectionError);
-    const [ { properties } ] = await trackEvent;
+    const [{ properties }] = await trackEvent;
 
     const expected = {
       is_localhost: true,

@@ -1,7 +1,5 @@
 import { ConnectionInfo, DataService } from 'mongodb-data-service';
-import {
-  createLoggerAndTelemetry,
-} from '@mongodb-js/compass-logging';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -57,7 +55,9 @@ async function getHostInformation(host: string) {
 
 async function getConnectionData({
   connectionOptions: { connectionString, sshTunnel },
-}: Pick<ConnectionInfo, 'connectionOptions'>): Promise<Record<string, unknown>> {
+}: Pick<ConnectionInfo, 'connectionOptions'>): Promise<
+  Record<string, unknown>
+> {
   const connectionStringData = new ConnectionString(connectionString);
   const hostName = connectionStringData.hosts[0];
 
@@ -76,9 +76,10 @@ async function getConnectionData({
   };
 }
 
-export function trackConnectionAttemptEvent(
-  { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>
-): void {
+export function trackConnectionAttemptEvent({
+  favorite,
+  lastUsed,
+}: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>): void {
   try {
     const trackEvent = {
       is_favorite: Boolean(favorite),
