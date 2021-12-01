@@ -9,6 +9,7 @@ import {
 import { ConnectionInfo, getConnectionTitle } from 'mongodb-data-service';
 
 import ConnectionMenu from './connection-menu';
+import ConnectionIcon from './connection-icon';
 
 const connectionMenuHiddenStyles = css({
   visibility: 'hidden',
@@ -20,23 +21,8 @@ const connectionMenuVisibleStyles = css({
 
 const connectionButtonContainerStyles = css({
   position: 'relative',
-  marginTop: spacing[1],
   padding: 0,
   width: '100%',
-  '&::after': {
-    position: 'absolute',
-    content: '""',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 0,
-    backgroundColor: uiColors.white,
-    zIndex: 1,
-    opacity: 0,
-    transition: '150ms all',
-    borderTopRightRadius: spacing[1],
-    borderBottomRightRadius: spacing[1],
-  },
   '&:hover': {
     '&::after': {
       opacity: 1,
@@ -57,14 +43,14 @@ const connectionButtonContainerStyles = css({
     '&::after': {
       opacity: 1,
       width: spacing[1],
-      backgroundColor: uiColors.focus,
+      backgroundColor: uiColors.gray.dark3,
     },
   },
 });
 
 const connectionButtonStyles = css({
   margin: 0,
-  padding: `${spacing[1]}px 0 0 ${spacing[4]}px`,
+  padding: `${spacing[1]}px 0 ${spacing[1]}px ${spacing[3]}px`,
   position: 'relative',
   width: '100%',
   overflow: 'hidden',
@@ -96,19 +82,11 @@ const connectionDetailsContainerStyles = css({
   width: '100%',
 });
 
-const connectionFavoriteStyles = css({
-  borderRadius: '50%',
-  width: 14,
-  height: 14,
-  flexShrink: 0,
-  marginTop: spacing[1],
-  marginRight: spacing[2],
-});
-
 const connectionTitleStyles = css({
   color: 'white',
   fontWeight: 'bold',
-  fontSize: 16,
+  fontSize: '14px',
+  lineHeight: '20px',
   margin: 0,
   flexGrow: 1,
   marginRight: spacing[4],
@@ -121,12 +99,12 @@ const connectionTitleStyles = css({
 const connectionDescriptionStyles = css({
   color: uiColors.gray.base,
   fontWeight: 'bold',
-  fontSize: 12,
+  fontSize: '12px',
+  lineHeight: '20px',
   margin: 0,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  marginBottom: spacing[1],
 });
 
 // Creates a date string formatted as `Oct 27, 3000, 2:06 PM`.
@@ -159,18 +137,7 @@ function Connection({
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
       >
-        {/* Icon */}
-        {!!(connectionInfo.favorite && connectionInfo.favorite.color) && (
-          <div
-            data-testid="connection-favorite-indicator"
-            className={cx(
-              connectionFavoriteStyles,
-              css({
-                backgroundColor: connectionInfo.favorite.color,
-              })
-            )}
-          />
-        )}
+        <ConnectionIcon {...connectionInfo} />
         {/* Title and Last Used */}
         <div className={connectionDetailsContainerStyles}>
           {/* Title */}
