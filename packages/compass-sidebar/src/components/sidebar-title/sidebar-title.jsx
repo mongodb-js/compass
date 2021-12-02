@@ -6,10 +6,7 @@ import {
   MongoDBLogoMark
 } from '@mongodb-js/compass-components';
 
-import {
-  NO_ACTIVE_NAMESPACE,
-  changeActiveNamespace
-} from '../../modules/databases';
+import { NO_ACTIVE_NAMESPACE } from '../../modules/databases';
 import styles from './sidebar-title.module.less';
 
 /**
@@ -19,7 +16,6 @@ class SidebarTitle extends PureComponent {
   static displayName = 'SidebarTitleComponent';
   static propTypes = {
     activeNamespace: PropTypes.string.isRequired,
-    changeActiveNamespace: PropTypes.func.isRequired,
     connectionModel: PropTypes.object.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
     isSidebarExpanded: PropTypes.bool.isRequired
@@ -30,10 +26,6 @@ class SidebarTitle extends PureComponent {
    */
   clickName = () => {
     this.props.globalAppRegistryEmit('select-instance');
-
-    require('hadron-ipc').call('window:hide-collection-submenu');
-
-    this.props.changeActiveNamespace(NO_ACTIVE_NAMESPACE);
   }
 
   renderTitle() {
@@ -85,10 +77,5 @@ const mapStateToProps = (state) => ({
   activeNamespace: state.databases.activeNamespace
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    changeActiveNamespace
-  },
-)(SidebarTitle);
+export default connect(mapStateToProps)(SidebarTitle);
 export { SidebarTitle };

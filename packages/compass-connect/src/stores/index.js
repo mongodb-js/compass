@@ -7,8 +7,6 @@ const StateMixin = require('reflux-state-mixin');
 const { promisify } = require('util');
 const { getConnectionTitle, convertConnectionModelToInfo } = require('mongodb-data-service');
 const debug = require('debug')('compass-connect:store');
-const { isLocalhost, isDigitalOcean } = require('mongodb-build-info');
-const { getCloudInfo } = require('mongodb-cloud-info');
 
 const Actions = require('../actions');
 const {
@@ -16,12 +14,17 @@ const {
   CONNECTION_STRING_VIEW
 } = require('../constants/connection-views');
 const { createConnectionAttempt } = require('../modules/connection-attempt');
+const {
+  trackConnectionAttemptEvent,
+  trackNewConnectionEvent,
+  trackConnectionFailedEvent
+} = require('../modules/telemetry');
 
 const ConnectionCollection = Connection.ConnectionCollection;
 const userAgent = navigator.userAgent.toLowerCase();
 
 const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
-const { log, track, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 /**
  * A default driverUrl.
@@ -311,14 +314,8 @@ const Store = Reflux.createStore({
     if (this.state.currentConnectionAttempt) {
       return;
     }
-
-    const { connectionModel } = this.state;
-    const trackEvent = {
-      is_favorite: connectionModel.isFavorite,
-      is_recent: Boolean(connectionModel.lastUsed && !connectionModel.isFavorite),
-      is_new: !connectionModel.lastUsed,
-    };
-    track('Connection Attempt', trackEvent);
+    const connectionInfo = convertConnectionModelToInfo(this.state.connectionModel);
+    trackConnectionAttemptEvent(connectionInfo);
 
     this.setState({
       currentConnectionAttempt: createConnectionAttempt(),
@@ -970,46 +967,6 @@ const Store = Reflux.createStore({
     }
   },
 
-  async _trackConnectionInfo() {
-    const { dataService } = this;
-    const {
-      dataLake,
-      genuineMongoDB,
-      host,
-      build,
-      isAtlas
-    } = await dataService.instance();
-    const {
-      hostname,
-      authMechanism,
-    } = this.state.connectionModel;
-    const { isAws, isAzure, isGcp } = await getCloudInfo(hostname)
-      .catch((err) => {
-        debug('getCloudInfo failed', err);
-        return {};
-      });
-
-    const isPublicCloud = isAws || isAzure || isGcp;
-    const publicCloudName = isAws ? 'AWS' : isAzure ? 'Azure' : isGcp ? 'GCP' : '';
-
-    const trackEvent = {
-      is_localhost: isLocalhost(hostname),
-      is_atlas: isAtlas,
-      is_dataLake: dataLake.isDataLake,
-      is_enterprise: build.isEnterprise,
-      is_public_cloud: isPublicCloud,
-      is_do: isDigitalOcean(hostname),
-      public_cloud_name: publicCloudName,
-      is_genuine: genuineMongoDB.isGenuine,
-      non_genuine_server_name: genuineMongoDB.dbType,
-      server_version: build.version,
-      server_arch: host.arch,
-      server_os_family: host.os_family,
-      auth_type: authMechanism ?? '',
-    };
-    track('New Connection', trackEvent);
-  },
-
   _onConnectSuccess(dataService, connectionInfo) {
     const connectionModel = this.state.connectionModel;
     const currentSaved = this.state.connections[connectionModel._id];
@@ -1042,9 +999,7 @@ const Store = Reflux.createStore({
       connectionModel // TODO: remove
     );
 
-    void this._trackConnectionInfo().catch((err) => {
-      debug('_trackConnectionInfo failed', err);
-    });
+    trackNewConnectionEvent(connectionInfo, this.dataService);
   },
 
   /**
@@ -1070,9 +1025,11 @@ const Store = Reflux.createStore({
       connectionModel.appname = electron.remote.app.getName();
     }
 
+    let connectionInfo;
+
     try {
       debug('connecting with connection model', connectionModel);
-      const connectionInfo = convertConnectionModelToInfo(connectionModel);
+      connectionInfo = convertConnectionModelToInfo(connectionModel);
       const connectedDataService = await this.state.currentConnectionAttempt.connect(connectionInfo.connectionOptions);
 
       if (!connectedDataService || !this.state.currentConnectionAttempt) {
@@ -1081,6 +1038,7 @@ const Store = Reflux.createStore({
 
       this._onConnectSuccess(connectedDataService, connectionInfo);
     } catch (error) {
+      trackConnectionFailedEvent(connectionInfo, error);
       debug('_connect error', error);
       this.setState({
         isValid: false,

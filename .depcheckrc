@@ -1,3 +1,4 @@
 ignores:
-  # TODO: See package.json. Remove when all packages using the same webpack version
+  # TODO: See package.json. Remove when all packages use the same version
   - '@webpack-cli/serve'
+  - '@testing-library/dom'

@@ -117,7 +117,9 @@ describe('root [ module ]', () => {
         namespace: 'test.test',
         fields: 'test-fields',
         serverVersion: '3.6.0',
-        inputDocuments: ['test']
+        inputDocuments: {
+          documents: []
+        }
       };
 
       let state;
@@ -143,7 +145,7 @@ describe('root [ module ]', () => {
       });
 
       it('keeps the input documents', () => {
-        expect(state.inputDocuments).to.deep.equal(['test']);
+        expect(state.inputDocuments).to.deep.equal({ documents: [] });
       });
 
       it('sets id to null', () => {
@@ -239,7 +241,8 @@ describe('root [ module ]', () => {
         const prevState = {
           isOverviewOn: false,
           inputDocuments: {
-            isExpanded: true
+            isExpanded: true,
+            documents: []
           }
         };
 

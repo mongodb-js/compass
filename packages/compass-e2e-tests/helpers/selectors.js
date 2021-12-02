@@ -62,7 +62,7 @@ const Selectors = {
   SidebarTitle: '[data-test-id="sidebar-title"]',
 
   sidebarCollection: (dbName, collectionName) => {
-    return `${Selectors.SidebarCollection}[title="${dbName}.${collectionName}"]`;
+    return `[data-testid="sidebar-collection-${dbName}.${collectionName}"]`;
   },
 
   // Shell
@@ -162,7 +162,7 @@ const Selectors = {
   InsertDialog: '.insert-document-dialog',
   InsertDocumentOption: '[data-test-id="insert-data-dropdown-insert-document"]',
   ImportFileOption: '[data-test-id="insert-data-dropdown-import-file"]',
-  InsertJSONEditor: '#brace-editor',
+  InsertJSONEditor: '.insert-document-dialog #ace-editor',
   InsertConfirm:
     '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child',
   ImportModal: '[data-test-id="import-modal"]',

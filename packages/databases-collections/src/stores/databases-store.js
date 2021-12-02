@@ -36,17 +36,23 @@ store.onActivated = (appRegistry) => {
       store.dispatch(toggleIsDataLake(newVal));
     });
 
-    instance.on('change:databasesStatus', () => {
-      onDatabasesChange(instance.databases);
-    });
+    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
+      instance.on('change:isRefreshing', () => {
+        onDatabasesChange(instance.databases);
+      });
+    } else {
+      instance.on('change:databasesStatus', () => {
+        onDatabasesChange(instance.databases);
+      });
 
-    instance.on('change:databases.status', () => {
-      onDatabasesChange(instance.databases);
-    });
+      instance.on('change:databases.status', () => {
+        onDatabasesChange(instance.databases);
+      });
 
-    instance.on('change:databases.collectionsLength', () => {
-      onDatabasesChange(instance.databases);
-    });
+      instance.on('change:databases.collectionsLength', () => {
+        onDatabasesChange(instance.databases);
+      });
+    }
   });
 
   /**
