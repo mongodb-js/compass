@@ -4,7 +4,6 @@ import FileInput from './components/file-input';
 import SpinLoader from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import Accordion from './components/accordion';
-import Icon from './components/icon';
 export {
   default as Badge,
   Variant as BadgeVariant,
@@ -20,6 +19,7 @@ export {
 } from '@leafygreen-ui/button';
 export { default as Card } from '@leafygreen-ui/card';
 export { default as Checkbox } from '@leafygreen-ui/checkbox';
+export { default as Icon } from '@leafygreen-ui/icon';
 export { default as IconButton } from '@leafygreen-ui/icon-button';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 export {
@@ -56,7 +56,6 @@ export {
   CancelLoader,
   ConfirmationModal,
   FileInput,
-  Icon,
   SpinLoader,
   ResizeHandle,
   ResizeDirection,

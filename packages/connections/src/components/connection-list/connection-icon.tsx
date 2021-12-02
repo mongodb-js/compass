@@ -1,8 +1,9 @@
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 import React from 'react';
 import {
   Icon,
   spacing,
+  MongoDBLogoMark,
 } from '@mongodb-js/compass-components';
 import { isLocalhost, isAtlas } from 'mongodb-build-info';
 import { ConnectionInfo } from 'mongodb-data-service';
@@ -17,9 +18,21 @@ const connectionFavoriteStyles = css({
 });
 
 function ConnectionIcon({ favorite, connectionOptions: {connectionString} }: ConnectionInfo): React.ReactElement {
-  const fill = favorite ? favorite.color : '#FFF';
-  const testId = 'connection-favorite-indicator';
-  const glyph = isLocalhost(connectionString) ? 'Laptop' : isAtlas(connectionString) ? 'Mongo' : 'Cloud';
+  const fill = favorite?.color ?? '#FFF';
+  const testId = 'connection-icon';
+
+  if (isAtlas(connectionString)) {
+    return <MongoDBLogoMark className={cx(
+      connectionFavoriteStyles,
+      css({
+        'path': {
+          fill,
+        }
+      }),
+    )} data-testid={testId}/>
+  }
+
+  const glyph = isLocalhost(connectionString) ? 'Laptop' : 'Cloud';
   return <Icon glyph={glyph} className={connectionFavoriteStyles} fill={fill} data-testid={testId}/>;
 }
 
