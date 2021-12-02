@@ -101,10 +101,6 @@ function printCompassEnv() {
 
   console.log('echo "PATH at the end: $PATH";');
   console.log('echo "pwd at the end : $PWD";');
-  console.log('echo "node -v";');
-  console.log('node -v;');
-  console.log('echo "npm -v";');
-  console.log('npm -v;');
 }
 
 printCompassEnv();

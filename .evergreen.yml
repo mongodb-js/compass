@@ -81,8 +81,17 @@ functions:
         shell: bash
         script: |
           set -e
+
           eval $(node scripts/print-compass-env.js);
+          echo "NODE_JS_VERSION: $NODE_JS_VERSION";
+          echo "NPM_VERSION: $NPM_VERSION";
+
           bash .evergreen/preinstall.sh
+
+          echo "node -v";
+          node -v;
+          echo "npm -v";
+          npm -v;
 
   install:
     - command: shell.exec
