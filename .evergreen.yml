@@ -46,84 +46,29 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          EVERGREEN_AUTHOR: ${author}
+          EVERGREEN_BRANCH_NAME: ${branch_name}
+          EVERGREEN_BUILD_ID: ${build_id}
+          EVERGREEN_BUILD_VARIANT: ${build_variant}
+          EVERGREEN_EXECUTION: ${execution}
+          EVERGREEN_IS_PATCH: ${is_patch}
+          EVERGREEN_PROJECT: ${project}
+          EVERGREEN_REVISION: ${revision}
+          EVERGREEN_TASK_ID: ${task_id}
+          EVERGREEN_TASK_NAME: ${task_name}
+          EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
+          EVERGREEN_VERSION_ID: ${version_id}
+          EVERGREEN_WORKDIR: ${workdir}
+          HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
+          HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
+          HADRON_METRICS_STITCH_APP_ID: ${metrics_stitch_app_id}
+          HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
+          NODE_JS_VERSION: "14.17.5"
+          NPM_VERSION: "7"
+
         script: |
-          echo "Setting up ~/compass_env.sh"
-
-          cat <<EOF_BUILD_SH > ~/compass_env.sh
-          export CI=1
-          export EVERGREEN=1
-
-          # XXX: This is a workaround for the issues we are getting in Evergreen
-          # ci with the way cygwin drives are set up and linked and the Node.js
-          # bug that we can't really do anything about.
-          #
-          # For more context, see:
-          # - https://github.com/nodejs/node/issues/34866
-          # - https://github.com/mongodb-js/compass/pull/2403
-          # - https://github.com/mongodb-js/compass/pull/2410
-          if [[ "\$OSTYPE" == "cygwin" ]]; then
-            # Change cygdrive from c to z without chanding rest of the path
-            CHANGE_DIR_TO="\$(pwd | sed 's/^\/cygdrive\/c/\/cygdrive\/z/')"
-            cd \$CHANGE_DIR_TO;
-            echo "Changed cwd on cygwin. Current working dir: \$(pwd)"
-          fi
-
-          # Make default evergreen expansions accessible to hadron-build
-          export EVERGREEN_AUTHOR="${author}";
-          export EVERGREEN_BRANCH_NAME="${branch_name}";
-          export EVERGREEN_BUILD_ID="${build_id}";
-          export EVERGREEN_BUILD_VARIANT="${build_variant}";
-          export EVERGREEN_EXECUTION="${execution}";
-          export EVERGREEN_IS_PATCH=${is_patch};
-          export EVERGREEN_PROJECT="${project}";
-          export EVERGREEN_REVISION="${revision}";
-          export EVERGREEN_TASK_ID="${task_id}";
-          export EVERGREEN_TASK_NAME="${task_name}";
-          export EVERGREEN_TASK_URL="https://evergreen.mongodb.com/task/${task_id}";
-          export EVERGREEN_VERSION_ID="${version_id}";
-          export EVERGREEN_WORKDIR="${workdir}";
-
-          export HADRON_METRICS_BUGSNAG_KEY="${metrics_bugsnag_key}";
-          export HADRON_METRICS_INTERCOM_APP_ID="${metrics_intercom_app_id}";
-          export HADRON_METRICS_STITCH_APP_ID="${metrics_stitch_app_id}";
-          export HADRON_METRICS_SEGMENT_API_KEY="${metrics_segment_api_key}";
-
-          # Directories used to install node, npm, and store artifacts
-          export ARTIFACTS_PATH="$(pwd)/.deps"
-          export NPM_CACHE_DIR="$(pwd)/.deps/.npm"
-          export NPM_TMP_DIR="$(pwd)/.deps/tmp"
-
-          export NODE_JS_VERSION="14.17.5"
-          export NPM_VERSION="7"
-
-          # npm configuration
-          # all var names need to be lowercase
-          # see: https://docs.npmjs.com/cli/v7/using-npm/config#environment-variables
-          export npm_config_cache="\$NPM_CACHE_DIR"
-          # npm tmp is deprecated, but let's keep it around just in case
-          export npm_config_tmp="\$NPM_TMP_DIR"
-
-          if [[ "\$OSTYPE" == "cygwin" ]]; then
-            # NOTE lucas: for git-core addition, See
-            # https://jira.mongodb.org/browse/COMPASS-4122
-            export PATH="/cygdrive/c/Program Files/Git/mingw32/libexec/git-core/:$(pwd)/.deps:/cygdrive/c/wixtools/bin/:\$PATH"
-            export APPDATA=Z:\\\;
-          fi
-
-          if [[ "\$OSTYPE" != "cygwin" ]]; then
-            export PATH="$(pwd)/.deps/bin:\$PATH"
-          fi
-
-          if [ "\$EVERGREEN_BUILD_VARIANT" = rhel ]; then
-            # To build node modules on RHEL post electron 13 we need
-            # a newer c++ compiler version, this adds it.
-            # https://jira.mongodb.org/browse/COMPASS-5150
-            export PATH="/opt/mongodbtoolchain/v3/bin:\$PATH"
-          fi
-
-          EOF_BUILD_SH
-
-          source ~/compass_env.sh
+          eval $(node scripts/print-compass-env.js);
 
           # Make all the dirs
           mkdir -p $ARTIFACTS_PATH
@@ -136,7 +81,7 @@ functions:
         shell: bash
         script: |
           set -e
-          source ~/compass_env.sh
+          eval $(node scripts/print-compass-env.js);
           bash .evergreen/preinstall.sh
 
   install:
@@ -146,7 +91,7 @@ functions:
         shell: bash
         script: |
           set -e
-          source ~/compass_env.sh
+          eval $(node scripts/print-compass-env.js);
 
           echo "Installing Compass dependencies with the following npm configuration"
           npm config ls -l
@@ -162,7 +107,7 @@ functions:
       shell: bash
       script: |
         set -e
-        source ~/compass_env.sh
+        eval $(node scripts/print-compass-env.js);
 
         echo "Run static analysis..."
         npm run check-ci
@@ -176,7 +121,8 @@ functions:
           set -e
 
           # Load environment variables
-          source ~/compass_env.sh
+          eval $(node scripts/print-compass-env.js);
+
           echo "Running tests"
 
           bash .evergreen/pretest.sh
@@ -207,8 +153,8 @@ functions:
         shell: bash
         script: |
           set -e
-          # Load environment variables generated by `prepare`
-          source ~/compass_env.sh
+          # Load environment variables
+          eval $(node scripts/print-compass-env.js);
 
           echo "Synchronizing evergreen environment from Compass build tools..."
 
@@ -225,14 +171,14 @@ functions:
         shell: bash
         script: |
           set -e
-          source ~/compass_env.sh
+          eval $(node scripts/print-compass-env.js);
 
           cat <<EOF_BUILD_SH > ~/compass_package.sh
           #! /usr/bin/env bash
           cd $(pwd)
 
           # Load environment variables
-          source ~/compass_env.sh
+          eval $(node scripts/print-compass-env.js);
 
           # For debugging any problems when the notary service fails.
           # @see https://github.com/mongodb-js/notary-service-client For details on what notary service is.
@@ -303,7 +249,7 @@ functions:
       script: |
         set -e
         # Load environment variables
-        source ~/compass_env.sh
+        eval $(node scripts/print-compass-env.js);
 
         # Required to upload release assets to GitHub
         export GITHUB_TOKEN=${devtoolsbot_github_token}
