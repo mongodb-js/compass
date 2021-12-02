@@ -174,12 +174,7 @@ const writeLicenseFile = (CONFIG, done) => {
 // Remove a malicious link from chromium license
 // See: COMPASS-5333
 const fixCompass5333 = (CONFIG, done) => {
-  const appPackagePath = CONFIG.resourcesAppDir;
-
-  const chromiumLicensePath = path.join(
-    appPackagePath, 'node_modules',
-    'electron', 'dist', 'LICENSES.chromium.html'
-  );
+  const chromiumLicensePath = path.join(CONFIG.distRoot(), 'LICENSES.chromium.html');
 
   const chromiumLicense = fs.readFileSync(chromiumLicensePath, 'utf8');
 
