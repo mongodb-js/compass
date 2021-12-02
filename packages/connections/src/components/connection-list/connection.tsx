@@ -82,7 +82,6 @@ const connectionTitleStyles = css({
   margin: 0,
   flexGrow: 1,
   marginRight: spacing[4],
-  width: '100%',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
