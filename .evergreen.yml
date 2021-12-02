@@ -14,6 +14,26 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
+  - &compass-env
+      EVERGREEN_AUTHOR: ${author}
+      EVERGREEN_BRANCH_NAME: ${branch_name}
+      EVERGREEN_BUILD_ID: ${build_id}
+      EVERGREEN_BUILD_VARIANT: ${build_variant}
+      EVERGREEN_EXECUTION: ${execution}
+      EVERGREEN_IS_PATCH: ${is_patch}
+      EVERGREEN_PROJECT: ${project}
+      EVERGREEN_REVISION: ${revision}
+      EVERGREEN_TASK_ID: ${task_id}
+      EVERGREEN_TASK_NAME: ${task_name}
+      EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
+      EVERGREEN_VERSION_ID: ${version_id}
+      EVERGREEN_WORKDIR: ${workdir}
+      HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
+      HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
+      HADRON_METRICS_STITCH_APP_ID: ${metrics_stitch_app_id}
+      HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
+      NODE_JS_VERSION: "14.17.5"
+      NPM_VERSION: "7"
 
 post:
   - &save-diagnostic-file
@@ -47,26 +67,7 @@ functions:
         working_dir: src
         shell: bash
         env:
-          EVERGREEN_AUTHOR: ${author}
-          EVERGREEN_BRANCH_NAME: ${branch_name}
-          EVERGREEN_BUILD_ID: ${build_id}
-          EVERGREEN_BUILD_VARIANT: ${build_variant}
-          EVERGREEN_EXECUTION: ${execution}
-          EVERGREEN_IS_PATCH: ${is_patch}
-          EVERGREEN_PROJECT: ${project}
-          EVERGREEN_REVISION: ${revision}
-          EVERGREEN_TASK_ID: ${task_id}
-          EVERGREEN_TASK_NAME: ${task_name}
-          EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
-          EVERGREEN_VERSION_ID: ${version_id}
-          EVERGREEN_WORKDIR: ${workdir}
-          HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
-          HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
-          HADRON_METRICS_STITCH_APP_ID: ${metrics_stitch_app_id}
-          HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
-          NODE_JS_VERSION: "14.17.5"
-          NPM_VERSION: "7"
-
+          <<: *compass-env
         script: |
           eval $(node scripts/print-compass-env.js);
 
@@ -79,12 +80,14 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
 
           eval $(node scripts/print-compass-env.js);
-          echo "NODE_JS_VERSION: $NODE_JS_VERSION";
-          echo "NPM_VERSION: $NPM_VERSION";
+          echo "NODE_JS_VERSION: ${NODE_JS_VERSION}";
+          echo "NPM_VERSION: ${NPM_VERSION}";
 
           bash .evergreen/preinstall.sh
 
@@ -98,6 +101,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
           eval $(node scripts/print-compass-env.js);
@@ -114,6 +119,8 @@ functions:
     params:
       working_dir: src
       shell: bash
+      env:
+        <<: *compass-env
       script: |
         set -e
         eval $(node scripts/print-compass-env.js);
@@ -126,6 +133,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
 
@@ -160,6 +169,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
           # Load environment variables
@@ -178,6 +189,8 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
           eval $(node scripts/print-compass-env.js);
@@ -255,6 +268,8 @@ functions:
     params:
       working_dir: src
       shell: bash
+      env:
+        <<: *compass-env
       script: |
         set -e
         # Load environment variables

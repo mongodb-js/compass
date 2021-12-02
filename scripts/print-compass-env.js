@@ -60,7 +60,7 @@ if (pwd.startsWith('\/cygdrive\/c')) {
   pwd = pwd.replace('\/cygdrive\/c', '\/cygdrive\/z');
   // we have to change the directory in the shell script we're outputting, not in this node process
   console.log(`cd ${pwd};`);
-  console.log('echo "Changed cwd on cygwin. Current working dir: \\$(pwd)";');
+  console.log('echo "Changed cwd on cygwin. Current working dir: $pwd";');
 }
 
 if (process.env.OSTYPE === 'cygwin') {
