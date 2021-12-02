@@ -181,7 +181,7 @@ const fixCompass5333 = (CONFIG, done) => {
     'electron', 'dist', 'LICENSES.chromium.html'
   );
 
-  const chromiumLicense = fs.readFileSync(chromiumLicensePath).toString();
+  const chromiumLicense = fs.readFileSync(chromiumLicensePath, 'utf8');
 
   fs.writeFileSync(
     chromiumLicensePath,
