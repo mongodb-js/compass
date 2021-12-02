@@ -31,8 +31,6 @@ async function main(argv) {
     return dirs.includes(packageNameToDir(pkgName)) || names.includes(pkgName);
   };
 
-  console.log();
-
   if (nameExists(workspaceNameFromArgs)) {
     console.warn(
       `⚠️  Workspace with the name "%s" already exists, please choose another name`,
