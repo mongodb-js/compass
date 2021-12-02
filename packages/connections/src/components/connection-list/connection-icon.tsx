@@ -1,12 +1,7 @@
 import { css, cx } from '@emotion/css';
 import React from 'react';
-import {
-  Icon,
-  spacing,
-  MongoDBLogoMark,
-} from '@mongodb-js/compass-components';
+import { Icon, spacing, MongoDBLogoMark } from '@mongodb-js/compass-components';
 import { isLocalhost, isAtlas } from 'mongodb-build-info';
-import { ConnectionInfo } from 'mongodb-data-service';
 
 const connectionFavoriteStyles = css({
   borderRadius: '50%',
@@ -17,23 +12,40 @@ const connectionFavoriteStyles = css({
   marginRight: spacing[2],
 });
 
-function ConnectionIcon({ favorite, connectionOptions: {connectionString} }: ConnectionInfo): React.ReactElement {
-  const fill = favorite?.color ?? '#FFF';
+function ConnectionIcon({
+  connectionString,
+  color,
+}: {
+  connectionString: string;
+  color: string;
+}): React.ReactElement {
   const testId = 'connection-icon';
 
   if (isAtlas(connectionString)) {
-    return <MongoDBLogoMark className={cx(
-      connectionFavoriteStyles,
-      css({
-        'path': {
-          fill,
-        }
-      }),
-    )} data-testid={testId}/>
+    return (
+      <MongoDBLogoMark
+        className={cx(
+          connectionFavoriteStyles,
+          css({
+            path: {
+              fill: color,
+            },
+          })
+        )}
+        data-testid={testId}
+      />
+    );
   }
 
   const glyph = isLocalhost(connectionString) ? 'Laptop' : 'Cloud';
-  return <Icon glyph={glyph} className={connectionFavoriteStyles} fill={fill} data-testid={testId}/>;
+  return (
+    <Icon
+      glyph={glyph}
+      className={connectionFavoriteStyles}
+      fill={color}
+      data-testid={testId}
+    />
+  );
 }
 
 export default ConnectionIcon;

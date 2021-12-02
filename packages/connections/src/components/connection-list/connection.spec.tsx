@@ -78,9 +78,7 @@ describe('Connection Component', function () {
       });
 
       it('there is no favorite color', function () {
-        const favoriteIndicator = screen.queryByTestId(
-          'connection-icon'
-        );
+        const favoriteIndicator = screen.queryByTestId('connection-icon');
         expect(favoriteIndicator).to.equal(null);
       });
     });
@@ -105,9 +103,7 @@ describe('Connection Component', function () {
       });
 
       it('has a favorite indicator with the favorite color', function () {
-        const favoriteIndicator = screen.getByTestId(
-          'connection-icon'
-        );
+        const favoriteIndicator = screen.getByTestId('connection-icon');
 
         expect(
           getComputedStyle(favoriteIndicator).getPropertyValue(
@@ -134,9 +130,7 @@ describe('Connection Component', function () {
     });
 
     it('there is no favorite name', function () {
-      const favoriteIndicator = screen.queryByTestId(
-        'connection-icon'
-      );
+      const favoriteIndicator = screen.queryByTestId('connection-icon');
       expect(favoriteIndicator).to.equal(null);
     });
 
