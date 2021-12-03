@@ -79,7 +79,7 @@ post:
       file_location: src/packages/compass-e2e-tests/.log/report.json
 
 functions:
-  'prepare':
+  prepare:
     - command: git.get_project
       params:
         directory: src
@@ -175,7 +175,7 @@ functions:
           # "mongo*" for some helpful output from the test tooling we are using
           DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run test-ci --unsafe-perm -- --stream
 
-  'package':
+  package:
     - command: shell.exec
       params:
         working_dir: src
@@ -214,13 +214,13 @@ functions:
           if [ `uname` == Darwin ]; then
             echo "Signing via ssh tunnel..."
             # TODO: will this even start in the right path?
-            ssh -v -p 2222 localhost "echo 'PWD in ssh $PWD'"
+            ssh -v -p 2222 localhost "pwd"
             ssh -v -p 2222 localhost ".evergreen/package_mac.sh"
           else
             .evergreen/package_notmac.sh
           fi
 
-  'publish':
+  publish:
     command: shell.exec
     params:
       working_dir: src
@@ -313,12 +313,15 @@ tasks:
 
       - func: install
 
-      - func: verify
-        variants: [windows, macos, ubuntu, rhel]
+      # TODO: uncomment
+      #- func: verify
+      # TODO: doesn't this just mean all variants?
+      #  variants: [windows, macos, ubuntu, rhel]
 
-      - func: test
-        vars:
-          debug: 'hadron*,mongo*,compass-e2e-tests*'
+      # TODO: uncomment
+      #- func: test
+      #  vars:
+      #    debug: 'hadron*,mongo*,compass-e2e-tests*'
 
       - func: package
         vars:
@@ -337,39 +340,40 @@ tasks:
       - func: 'save rhel artifacts'
         variants: [rhel]
 
-      - func: package
-        vars:
-          npm_loglevel: http
-          debug: 'hadron*,mongo*,compass*'
-          compass_distribution: compass-isolated
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
-
-      - func: package
-        vars:
-          npm_loglevel: http
-          debug: 'hadron*,mongo*,compass*'
-          compass_distribution: compass-readonly
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
+      # TODO: uncomment
+#      - func: package
+#        vars:
+#          npm_loglevel: http
+#          debug: 'hadron*,mongo*,compass*'
+#          compass_distribution: compass-isolated
+#      - func: publish
+#        vars:
+#          compass_distribution: compass-isolated
+#      - func: 'save windows artifacts'
+#        variants: [windows]
+#      - func: 'save osx artifacts'
+#        variants: [macos]
+#      - func: 'save linux artifacts'
+#        variants: [ubuntu]
+#      - func: 'save rhel artifacts'
+#        variants: [rhel]
+#
+#      - func: package
+#        vars:
+#          npm_loglevel: http
+#          debug: 'hadron*,mongo*,compass*'
+#          compass_distribution: compass-readonly
+#      - func: publish
+#        vars:
+#          compass_distribution: compass-readonly
+#      - func: 'save windows artifacts'
+#        variants: [windows]
+#      - func: 'save osx artifacts'
+#        variants: [macos]
+#      - func: 'save linux artifacts'
+#        variants: [ubuntu]
+#      - func: 'save rhel artifacts'
+#        variants: [rhel]
 
 # TODO (@imlucas) determine OS/version deprecation policy, following server, so we don't fall behind
 # what maximal resources we're using.
