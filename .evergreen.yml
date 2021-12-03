@@ -91,13 +91,6 @@ functions:
         env:
           <<: *compass-env
         script: |
-          # TODO: does this work?
-          echo "WORKDIR: $WORKDIR"
-          echo "workdir expansion: ${workdir}"
-          echo "PWD: $PWD"
-          echo "pwd: $pwd"
-          echo "pwd expansion: ${pwd}"
-
           eval $(node .evergreen/print-compass-env.js)
 
           # Make all the dirs
@@ -209,17 +202,12 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          # TODO: can we move these to compass-env?
+          DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
-          DEFAULT_DEBUG: ${debug} # this is so we can restore it after overriding it later
           COMPASS_DISTRIBUTION: ${compass_distribution}
         script: |
           set -e
-
-          # TODO: does this work?
-          echo "npm_config_loglevel: $npm_config_loglevel"
-          echo "DEBUG: $DEBUG"
-          echo "DEFAULT_DEBUG: $DEFAULT_DEBUG"
-          echo "COMPASS_DISTRUBUTION: $COMPASS_DISTRIBUTION"
 
           eval $(node .evergreen/print-compass-env.js)
 

@@ -6,9 +6,6 @@
 echo $APPLE_CREDENTIALS > /tmp/compass-apple-cred.json
 export APPLE_CREDENTIALS_FILE="/tmp/compass-apple-cred.json"
 
-echo "Starting Installer Service..."
-net start MSIServer
-
 .evergreen/compass_package.sh
 
 rm -f /tmp/compass-apple-cred.json

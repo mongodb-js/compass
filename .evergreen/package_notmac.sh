@@ -8,7 +8,6 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
   # TODO: https://jira.mongodb.org/browse/COMPASS-4888
 
   echo "Fetching signtool -> notary-service hack..."
-
   curl -fs \
     -o "signtool.exe" \
     --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
@@ -17,6 +16,9 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
   chmod +x signtool.exe
   cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
   cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
+
+  echo "Starting Installer Service..."
+  net start MSIServer
 fi
 
 .evergreen/compass_package.sh
