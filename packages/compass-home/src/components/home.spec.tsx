@@ -3,6 +3,8 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import InstanceModel from 'mongodb-instance-model';
+import ipc from 'hadron-ipc';
+import sinon from 'sinon';
 
 import AppRegistryContext from '../contexts/app-registry-context';
 import Home from '.';
@@ -178,9 +180,14 @@ describe('Home [Component]', function () {
     });
 
     describe('UI status is complete', function () {
+      let dataServiceDisconnectedSpy: sinon.SinonSpy;
       beforeEach(async function () {
         const instance = createInstance();
-        await renderHome(createDataService(), instance);
+        dataServiceDisconnectedSpy = sinon.fake.resolves(true);
+        const dataService = {
+          disconnect: dataServiceDisconnectedSpy,
+        };
+        await renderHome(dataService, instance);
         instance.set({ status: 'ready', refreshingStatus: 'ready' });
         await waitFor(() => screen.getByTestId('test-Instance.Workspace'));
       });
@@ -295,6 +302,72 @@ describe('Home [Component]', function () {
 
         it('does not render the sidebar', function () {
           expect(screen.queryByTestId('test-Sidebar.Component')).to.not.exist;
+        });
+      });
+    });
+
+    describe('with the new connect form (USE_NEW_CONNECT_FORM=true) and UI status is complete', function () {
+      let dataServiceDisconnectedSpy: sinon.SinonSpy;
+      let listenForDisconnectFake: sinon.SinonSpy;
+
+      beforeEach(async function () {
+        process.env.USE_NEW_CONNECT_FORM = 'true';
+
+        const instance = createInstance();
+        listenForDisconnectFake = sinon.fake();
+        testAppRegistry.on(
+          'data-service-disconnected',
+          listenForDisconnectFake
+        );
+        dataServiceDisconnectedSpy = sinon.fake.resolves(true);
+        const dataService = {
+          disconnect: dataServiceDisconnectedSpy,
+        };
+        await renderHome(dataService, instance);
+        instance.set({ status: 'ready', refreshingStatus: 'ready' });
+        await waitFor(() => screen.getByTestId('test-Instance.Workspace'));
+      });
+
+      afterEach(function () {
+        delete process.env.USE_NEW_CONNECT_FORM;
+        testAppRegistry.removeListener(
+          'data-service-disconnected',
+          listenForDisconnectFake
+        );
+        sinon.restore();
+      });
+
+      describe('on `app:disconnect`', function () {
+        // Skip disconnect testing when we're not running in a renderer instance.
+        // eslint-disable-next-line mocha/no-setup-in-describe
+        if (!ipc.ipcRenderer) {
+          // eslint-disable-next-line mocha/no-setup-in-describe
+          console.warn(
+            'Skipping "app:disconnect" ipc event tests on non-renderer environment.'
+          );
+          return;
+        }
+
+        beforeEach(function () {
+          ipc.ipcRenderer.emit('app:disconnect');
+        });
+
+        it('calls `data-service-disconnected`', async function () {
+          await waitFor(() =>
+            expect(listenForDisconnectFake.callCount).to.equal(1)
+          );
+        });
+
+        it('renders the new connect form', async function () {
+          await waitFor(
+            () => expect(screen.queryByTestId('new-connect-form')).to.be.visible
+          );
+        });
+
+        it('calls to disconnect the data service', async function () {
+          await waitFor(() =>
+            expect(dataServiceDisconnectedSpy.callCount).to.equal(1)
+          );
         });
       });
     });
