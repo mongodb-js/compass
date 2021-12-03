@@ -1,8 +1,11 @@
 ignores: [
-  "jsdom-global",
-  "ts-node",
-  "@mongodb-js/prettier-config-compass",
-  "@mongodb-js/tsconfig-compass",
-  "@types/chai-dom",
-  "mongodb-compass"
-]
+    'jsdom-global',
+    'ts-node',
+    '@mongodb-js/prettier-config-compass',
+    '@mongodb-js/tsconfig-compass',
+    '@types/chai-dom',
+    'mongodb-compass',
+    # To keep versions same across packages
+    '@testing-library/dom',
+    '@testing-library/user-event',
+  ]

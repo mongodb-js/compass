@@ -94,8 +94,20 @@ const DataLake = AmpersandModel.extend({
   },
 });
 
+/**
+ * Returns true if model was fetched before (or is currently being fetched) or
+ * force fetch is requested
+ */
 function shouldRefresh(status, force) {
   return force || status !== 'initial';
+}
+
+/**
+ * Returns true if model is not ready (was fetched before and is not updating at
+ * the moment) or force fetch is requested
+ */
+function shouldFetch(status, force) {
+  return force || status !== 'ready';
 }
 
 const InstanceModel = AmpersandModel.extend(
@@ -138,10 +150,13 @@ const InstanceModel = AmpersandModel.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetch({ dataService }) {
-      const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
-      this.set({ status: newStatus });
+    async fetch({ dataService, force = false }) {
+      if (!shouldFetch(this.status, force)) {
+        return;
+      }
       try {
+        const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
+        this.set({ status: newStatus });
         const instanceInfo = await dataService.instance();
         this.set({ status: 'ready', statusError: null, ...instanceInfo });
       } catch (err) {
@@ -154,11 +169,14 @@ const InstanceModel = AmpersandModel.extend(
      * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
-    async fetchDatabases({ dataService }) {
-      const newStatus =
-        this.databasesStatus === 'initial' ? 'fetching' : 'refreshing';
-      this.set({ databasesStatus: newStatus });
+    async fetchDatabases({ dataService, force = false }) {
+      if (!shouldFetch(this.databasesStatus, force)) {
+        return;
+      }
       try {
+        const newStatus =
+          this.databasesStatus === 'initial' ? 'fetching' : 'refreshing';
+        this.set({ databasesStatus: newStatus });
         await this.databases.fetch({ dataService });
         this.set({ databasesStatus: 'ready', databasesStatusError: null });
       } catch (err) {
@@ -185,12 +203,12 @@ const InstanceModel = AmpersandModel.extend(
 
       try {
         // First fetch instance info ...
-        await this.fetch({ dataService });
+        await this.fetch({ dataService, force: true });
 
         // ... and databases list. These are the essentials that we need to make
         // Compass somewhat usable
         if (shouldRefresh(this.databasesStatus, fetchDatabases)) {
-          await this.fetchDatabases({ dataService })
+          await this.fetchDatabases({ dataService, force: true });
         }
 
         // Then collection list for every database, namespace is the main thing
@@ -201,34 +219,31 @@ const InstanceModel = AmpersandModel.extend(
               return db.fetchCollections({
                 dataService,
                 fetchInfo: fetchCollInfo,
+                force: true,
               });
             }
           })
         );
 
         // Then all the stats. They are super low prio and we generally don't
-        // really care if any of those requests failed
-        await Promise.all(
+        // really care if any of those requests failed. We don't care if this
+        // fails, it just means less stats in the UI
+        await Promise.allSettled(
           this.databases
             .map((db) => {
               return [
                 shouldRefresh(db.status, fetchDbStats) &&
-                  db.fetch({ dataService }).catch(() => {
-                    /* we don't care if this fails, it just means less stats in the UI */
-                  }),
+                  db.fetch({ dataService, force: true }),
                 ...db.collections.map((coll) => {
                   if (shouldRefresh(coll.status, fetchCollStats)) {
-                    return coll
-                      .fetch({
-                        dataService,
-                        // When fetchCollInfo is true, we skip fetching collection
-                        // info returned by listCollections command as we already
-                        // did that in the previous step
-                        fetchInfo: !fetchCollInfo,
-                      })
-                      .catch(() => {
-                        /* we don't care if this fails, it just means less stats in the UI */
-                      });
+                    return coll.fetch({
+                      dataService,
+                      // When fetchCollInfo is true, we skip fetching collection
+                      // info returned by listCollections command as we already
+                      // did that in the previous step
+                      fetchInfo: !fetchCollInfo,
+                      force: true,
+                    });
                   }
                 }),
               ];

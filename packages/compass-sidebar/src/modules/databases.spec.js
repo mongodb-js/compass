@@ -10,7 +10,8 @@ import { createInstance } from '../../test/helpers';
 function createGetState(dbs) {
   return function() {
     return {
-      instance: createInstance(dbs).toJSON()
+      instance: createInstance(dbs).toJSON(),
+      appRegistry: {}
     };
   };
 }
@@ -47,6 +48,10 @@ describe('sidebar databases', () => {
               { _id: 'foo', collections: [] },
               { _id: 'bar', collections: [] },
             ],
+            filteredDatabases: [
+              { _id: 'foo', collections: [] },
+              { _id: 'bar', collections: [] },
+            ],
           }
         );
       });
@@ -65,7 +70,8 @@ describe('sidebar databases', () => {
           databasesReducer(initialState, changeDatabases(dbs))
         ).to.deep.equal({
           ...initialState,
-          databases: [{ _id: 'foo', collections: [] }],
+          filteredDatabases: [{ _id: 'foo', collections: [] }],
+          databases: dbs,
         });
       });
     });
@@ -86,20 +92,25 @@ describe('sidebar databases', () => {
 
     context('when filter changed', () => {
       it('filters and updates the databases and collections', () => {
-        const getState = createGetState([
+        const getState = createGetState();
+
+        const dbs = createDatabases([
           { _id: 'foo' },
           { _id: 'bar', collections: ['foo'] },
           { _id: 'bla', collections: ['123'] },
         ]);
 
-        const slice = createMockStoreSlice();
+        const slice = createMockStoreSlice({
+          databases: dbs
+        });
 
         changeFilterRegex(/^foo$/)(slice.dispatch, getState);
 
         expect(slice.state).to.deep.eq({
           ...INITIAL_STATE,
           filterRegex: /^foo$/,
-          databases: [
+          databases: dbs,
+          filteredDatabases: [
             {
               _id: 'foo',
               collections: [],

@@ -132,7 +132,7 @@ async function main(argv) {
             return null;
           }
 
-          return 'confirm';
+          return 'autocompleteMultiselect';
         },
         name: 'dependants',
         message: 'Will any of the packages in the monorepo depend on this one?',
@@ -266,6 +266,7 @@ async function main(argv) {
       sinon: '*',
       ...(isReact && {
         '@testing-library/react': '*',
+        '@testing-library/user-event': '*',
         '@types/chai-dom': '*',
         '@types/react': '*',
         '@types/react-dom': '*'

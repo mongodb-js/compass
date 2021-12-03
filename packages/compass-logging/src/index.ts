@@ -4,6 +4,9 @@ import createDebug from 'debug';
 import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
+type TrackProps = Record<string, any> | (() => Record<string, any>);
+type TrackFunction = (event: string, properties?: TrackProps) => void;
+
 function emit(
   ipc: HadronIpcRenderer | null,
   event: string,
@@ -21,7 +24,7 @@ export function createLoggerAndTelemetry(component: string): {
   log: ReturnType<MongoLogWriter['bindComponent']>;
   mongoLogId: typeof mongoLogId;
   debug: ReturnType<typeof createDebug>;
-  track: (event: string, properties?: Record<string, any>) => void;
+  track: TrackFunction;
 } {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null = isElectronRenderer
@@ -43,8 +46,30 @@ export function createLoggerAndTelemetry(component: string): {
   } as Writable;
   const writer = new MongoLogWriter('', null, target);
 
-  const track = (event: string, properties: Record<string, any> = {}): void => {
-    emit(ipc, 'compass:track', { event, properties });
+  const track = (...args: [string, TrackProps?]) => {
+    void Promise.resolve()
+      .then(() => trackAsync(...args))
+      .catch((error) => debug('track failed', error));
+  };
+
+  const trackAsync = async (
+    event: string,
+    properties: TrackProps = {}
+  ): Promise<void> => {
+    const isTrackingEnabled = (global as any)?.hadronApp?.isFeatureEnabled(
+      'trackUsageStatistics'
+    );
+    if (!isTrackingEnabled) {
+      return;
+    }
+    const data = {
+      event,
+      properties,
+    };
+    if (typeof properties === 'function') {
+      data.properties = await properties();
+    }
+    emit(ipc, 'compass:track', data);
   };
 
   const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);

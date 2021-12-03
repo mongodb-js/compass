@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import jsBeautify from 'js-beautify';
 import PropTypes from 'prop-types';
-import Ace from 'react-ace';
 
-import 'brace/ext/language_tools';
+import 'ace-builds';
+import Ace from 'react-ace';
+import 'ace-builds/src-noconflict/ext-language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
 
-import 'brace/mode/json';
+import 'ace-builds/src-noconflict/mode-json';
 
 import styles from './insert-json-document.module.less';
 
