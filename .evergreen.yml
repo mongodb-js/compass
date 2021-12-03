@@ -93,8 +93,10 @@ functions:
         script: |
           # TODO: does this work?
           echo "WORKDIR: $WORKDIR"
+          echo "workdir expansion: ${workdir}"
           echo "PWD: $PWD"
           echo "pwd: $pwd"
+          echo "pwd expansion: ${pwd}"
 
           eval $(node .evergreen/print-compass-env.js)
 
