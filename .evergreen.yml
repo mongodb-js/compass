@@ -15,6 +15,7 @@ variables:
       permissions: public-read
       content_type: application/octet-stream
   - &compass-env
+      WORKDIR: ${workdir}
       CI: "1"
       EVERGREEN: "1"
       EVERGREEN_AUTHOR: ${author}
@@ -90,7 +91,12 @@ functions:
         env:
           <<: *compass-env
         script: |
-          eval $(node scripts/print-compass-env.js)
+          # TODO: does this work?
+          echo "WORKDIR: $WORKDIR"
+          echo "PWD: $PWD"
+          echo "pwd: $pwd"
+
+          eval $(node .evergreen/print-compass-env.js)
 
           # Make all the dirs
           mkdir -p $ARTIFACTS_PATH
@@ -106,10 +112,11 @@ functions:
         script: |
           set -e
 
-          eval $(node scripts/print-compass-env.js)
+          eval $(node .evergreen/print-compass-env.js)
 
-          bash .evergreen/preinstall.sh
+          .evergreen/preinstall.sh
 
+          # Make sure install worked
           echo "node -v";
           node -v;
           echo "npm -v";
@@ -124,7 +131,7 @@ functions:
           <<: *compass-env
         script: |
           set -e
-          eval $(node scripts/print-compass-env.js)
+          eval $(node .evergreen/print-compass-env.js)
 
           echo "Installing Compass dependencies with the following npm configuration"
           npm config ls -l
@@ -142,7 +149,7 @@ functions:
         <<: *compass-env
       script: |
         set -e
-        eval $(node scripts/print-compass-env.js)
+        eval $(node .evergreen/print-compass-env.js)
 
         echo "Run static analysis..."
         npm run check-ci
@@ -158,11 +165,11 @@ functions:
           set -e
 
           # Load environment variables
-          eval $(node scripts/print-compass-env.js)
+          eval $(node .evergreen/print-compass-env.js)
 
           echo "Running tests"
 
-          bash .evergreen/pretest.sh
+          .evergreen/pretest.sh
 
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside
@@ -183,7 +190,7 @@ functions:
         script: |
           set -e
           # Load environment variables
-          eval $(node scripts/print-compass-env.js)
+          eval $(node .evergreen/print-compass-env.js)
 
           echo "Synchronizing evergreen environment from Compass build tools..."
 
@@ -200,76 +207,27 @@ functions:
         shell: bash
         env:
           <<: *compass-env
-          # TODO: npm_loglevel, debug, compass_distribution
+          npm_config_loglevel: ${npm_loglevel}
+          DEFAULT_DEBUG: ${debug} # this is so we can restore it after overriding it later
+          COMPASS_DISTRIBUTION: ${compass_distribution}
         script: |
           set -e
-          eval $(node scripts/print-compass-env.js)
 
-          # TODO: move
-          cat <<EOF_BUILD_SH > ~/compass_package.sh
-          #! /usr/bin/env bash
-          # TODO: why?
-          cd $(pwd)
+          # TODO: does this work?
+          echo "npm_config_loglevel: $npm_config_loglevel"
+          echo "DEBUG: $DEBUG"
+          echo "DEFAULT_DEBUG: $DEFAULT_DEBUG"
+          echo "COMPASS_DISTRUBUTION: $COMPASS_DISTRIBUTION"
 
-          # Load environment variables
-          # TODO: won't be needed once it is a script
-          eval $(node scripts/print-compass-env.js)
-
-          # For debugging any problems when the notary service fails.
-          # @see https://github.com/mongodb-js/notary-service-client For details on what notary service is.
-          export DEBUG=mongodb-notary*
-
-          # Required to sign release assets
-
-          if [ `uname` == Darwin ]; then
-            # We do print the environment during the build process in a few places
-            # but we probably should stop doing that. After that, we can go back
-            # to using plain APPLE_USERNAME and APPLE_PASSWORD environment variables.
-            echo $APPLE_CREDENTIALS > /tmp/compass-apple-cred.json
-            export APPLE_CREDENTIALS_FILE="/tmp/compass-apple-cred.json"
-          fi
-
-          echo "Creating signed release build..."
-
-          if [[ "$OSTYPE" == "cygwin" ]]; then
-            echo "Starting Installer Service..."
-            net start MSIServer
-          fi
-
-          # Provide a verbose logging for the release process
-          export npm_config_loglevel="${npm_loglevel}"
-          export DEBUG="${debug}"
-
-          npm run package-compass ${compass_distribution};
-
-          rm -f /tmp/compass-apple-cred.json
-          EOF_BUILD_SH
+          eval $(node .evergreen/print-compass-env.js)
 
           if [ `uname` == Darwin ]; then
             echo "Signing via ssh tunnel..."
-            ssh -v -p 2222 localhost "bash ~/compass_package.sh"
+            # TODO: will this even start in the right path?
+            ssh -v -p 2222 localhost "echo 'PWD in ssh $PWD'"
+            ssh -v -p 2222 localhost ".evergreen/package_mac.sh"
           else
-            if [[ "$OSTYPE" == "cygwin" ]]; then
-              # If not possible to remove this hack, we should find a better way
-              # to do this instead of directly referencing node_module paths,
-              # but first figure out what exactly was changed in our fork of
-              # electron-wix-msi
-              #
-              # TODO: https://jira.mongodb.org/browse/COMPASS-4888
-
-              echo "Fetching signtool -> notary-service hack..."
-
-              curl -fs \
-                -o "signtool.exe" \
-                --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-              rm -f node_modules/electron-winstaller/vendor/signtool.exe
-              rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-              chmod +x signtool.exe
-              cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-              cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
-            fi
-            bash ~/compass_package.sh
-            ls -la packages/compass/dist
+            .evergreen/package_notmac.sh
           fi
 
   'publish':
@@ -282,7 +240,7 @@ functions:
       script: |
         set -e
         # Load environment variables
-        eval $(node scripts/print-compass-env.js)
+        eval $(node .evergreen/print-compass-env.js)
 
         echo "Uploading release assets to S3 and GitHub if needed..."
         npm run upload ${compass_distribution} --workspace mongodb-compass
