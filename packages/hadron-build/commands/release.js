@@ -171,6 +171,22 @@ const writeLicenseFile = (CONFIG, done) => {
   });
 };
 
+// Remove a malicious link from chromium license
+// See: COMPASS-5333
+const fixCompass5333 = (CONFIG, done) => {
+  const chromiumLicensePath = path.join(CONFIG.distRoot(), 'LICENSES.chromium.html');
+
+  const chromiumLicense = fs.readFileSync(chromiumLicensePath, 'utf8');
+
+  fs.writeFileSync(
+    chromiumLicensePath,
+    chromiumLicense.replace(/www\.opsycon\.(se|com)/g, '')
+  );
+
+  done();
+};
+
+
 /**
  * Replace the version file `electron-packager` creates w/ a version
  * file specific to the project.
@@ -417,6 +433,7 @@ exports.builder = {
 
 _.assign(exports.builder, ui.builder, verify.builder);
 
+
 /**
  * @param {any} argv Parsed command arguments
  * @param {Function} done Callback
@@ -463,6 +480,7 @@ exports.run = (argv, done) => {
     task('write version file', writeVersionFile),
     task('transform package.json', transformPackageJson),
     task('install dependencies', installDependencies),
+    task('fix COMPASS-5333', fixCompass5333),
     task('write license file', writeLicenseFile),
     task('remove development files', removeDevelopmentFiles),
     !noAsar && task('create application asar', createApplicationAsar),
