@@ -274,6 +274,12 @@ const selectStageOperator = (state, action) => {
     newState[action.index].isExpanded = true;
     newState[action.index].isComplete = false;
     newState[action.index].fromStageOperators = true;
+    newState[action.index].previewDocuments = [];
+    if (checkIsMissingAtlasOnlyStageSupport(newState, action.index, action.error)) {
+      newState[action.index].isMissingAtlasOnlyStageSupport = true;
+    } else {
+      newState[action.index].isMissingAtlasOnlyStageSupport = false;
+    }
     return newState;
   }
   return state;
@@ -307,6 +313,18 @@ const toggleStageCollapse = (state, action) => {
   return newState;
 };
 
+const checkIsMissingAtlasOnlyStageSupport = (newState, index, error) => (
+  newState.env !== ADL &&
+  newState.env !== ATLAS &&
+  ([SEARCH, SEARCH_META, DOCUMENTS].includes(newState[index].stageOperator)) ||
+  (
+    error && (
+      error.code === 40324 /* Unrecognized pipeline stage name */ ||
+      error.code === 31082 /* The full-text search stage is not enabled */
+    )
+  )
+);
+
 /**
  * Update the stage preview.
  *
@@ -317,18 +335,14 @@ const toggleStageCollapse = (state, action) => {
  */
 const updateStagePreview = (state, action) => {
   const newState = copyState(state);
-  if (newState.env !== ADL &&
-      newState.env !== ATLAS &&
-      ([SEARCH, SEARCH_META, DOCUMENTS].includes(newState[action.index].stageOperator)) &&
-      action.error &&
-      (action.error.code === 40324 /* Unrecognized pipeline stage name */ ||
-       action.error.code === 31082 /* The full-text search stage is not enabled */)) {
+  if (checkIsMissingAtlasOnlyStageSupport(newState, action.index, action.error)) {
     newState[action.index].previewDocuments = [];
     newState[action.index].error = null;
     newState[action.index].isMissingAtlasOnlyStageSupport = true;
   } else {
     newState[action.index].previewDocuments =
-      action.error === null || action.error === undefined ? action.documents : [];
+      action.error === null ||
+      action.error === undefined ? action.documents : [];
     newState[action.index].error = action.error ? action.error.message : null;
     newState[action.index].isMissingAtlasOnlyStageSupport = false;
   }

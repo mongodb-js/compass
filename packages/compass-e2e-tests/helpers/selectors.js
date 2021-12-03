@@ -183,6 +183,12 @@ const Selectors = {
   stagePreviewToolbarTooltip: (stageIndex) => {
     return `[data-stage-index="${stageIndex}"] [data-test-id="stage-preview-toolbar-tooltip"]`;
   },
+  atlasOnlyStagePreviewSection: (stageIndex) => {
+    return `[data-stage-index="${stageIndex}"] [data-test-id="stage-preview-missing-search-support"]`;
+  },
+  stagePreviewEmpty: (stageIndex) => {
+    return `[data-stage-index="${stageIndex}"] [data-test-id="stage-preview-empty"]`;
+  },
   stageCollapseButton: (stageIndex) => {
     return `[data-stage-index="${stageIndex}"] button[title="Collapse"]`;
   },

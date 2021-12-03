@@ -335,6 +335,32 @@ describe('Smoke tests', function () {
       });
     });
 
+    it('shows atlas only stage preview', async function () {
+      await client.focusStageOperator(0);
+      await client.selectStageOperator(0, '$search');
+
+      await client.waitUntil(async function () {
+        const textElement = await client.$(
+          Selectors.atlasOnlyStagePreviewSection(0)
+        );
+        const text = await textElement.getText();
+        return text.includes('This stage is only available with MongoDB Atlas.');
+      });
+    });
+
+    it('shows empty preview', async function () {
+      await client.focusStageOperator(0);
+      await client.selectStageOperator(0, '$addFields');
+
+      await client.waitUntil(async function () {
+        const textElement = await client.$(
+          Selectors.stagePreviewEmpty(0)
+        );
+        const text = await textElement.getText();
+        return text === 'No Preview Documents';
+      });
+    });
+
     // comment mode
     // number of preview documents
     // max time
