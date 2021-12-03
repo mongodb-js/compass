@@ -8,8 +8,15 @@ import {
 import { useEffect, useReducer, useRef } from 'react';
 import debugModule from 'debug';
 
-import { createConnectionAttempt } from '../modules/connection-attempt';
-import { ConnectionAttempt } from '../modules/connection-attempt';
+import {
+  createConnectionAttempt,
+  ConnectionAttempt,
+} from '../modules/connection-attempt';
+import {
+  trackConnectionAttemptEvent,
+  trackNewConnectionEvent,
+  trackConnectionFailedEvent,
+} from '../modules/telemetry';
 
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
@@ -296,6 +303,7 @@ export function useConnections(
           connectionAttempt: newConnectionAttempt,
         });
 
+        trackConnectionAttemptEvent(connectionInfo);
         debug('connecting with connectionInfo', connectionInfo);
 
         try {
@@ -316,12 +324,14 @@ export function useConnections(
           dispatch({
             type: 'connection-attempt-succeeded',
           });
+          trackNewConnectionEvent(connectionInfo, newConnectionDataService);
           debug(
             'connection attempt succeeded with connection info',
             connectionInfo
           );
         } catch (error) {
           connectingConnectionAttempt.current = undefined;
+          trackConnectionFailedEvent(connectionInfo, error);
           debug('connect error', error);
 
           dispatch({
