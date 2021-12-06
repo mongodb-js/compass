@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 import { spacing } from '@mongodb-js/compass-components';
 import React, { Fragment } from 'react';
 import {
@@ -17,7 +17,7 @@ const newConnectionButtonContainerStyles = css({
   flexDirection: 'column',
   justifyContent: 'space-evenly',
   alignItems: 'stretch',
-  background: uiColors.gray.dark3,
+  background: uiColors.gray.dark2,
   position: 'relative',
   fontWeight: 'bold',
   color: uiColors.white,
@@ -46,10 +46,14 @@ const newConnectionButtonContent = css({
 const sectionHeaderStyles = css({
   marginTop: spacing[3],
   marginBottom: spacing[2],
-  paddingLeft: spacing[3],
+  paddingLeft: spacing[2],
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
+});
+
+const recentHeaderStyles = css({
+  marginTop: spacing[4],
 });
 
 const sectionHeaderTitleStyles = css({
@@ -60,9 +64,8 @@ const sectionHeaderTitleStyles = css({
   fontWeight: 700,
 });
 
-const sectionHeaderIconSize = spacing[3];
 const sectionHeaderIconStyles = css({
-  fontSize: sectionHeaderIconSize,
+  fontSize: spacing[3],
   margin: 0,
   marginRight: spacing[2],
   padding: 0,
@@ -86,8 +89,8 @@ const connectionListStyles = css({
 
 const favoriteIcon = (
   <svg
-    width={spacing[3]}
-    height={spacing[3]}
+    width={spacing[4]}
+    height={spacing[4]}
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -107,8 +110,8 @@ const favoriteIcon = (
 
 const recentIcon = (
   <svg
-    width={spacing[3]}
-    height={spacing[3]}
+    width={spacing[4]}
+    height={spacing[4]}
     viewBox="0 0 24 20"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +203,7 @@ function ConnectionList({
             </li>
           ))}
         </ul>
-        <div className={sectionHeaderStyles}>
+        <div className={cx(sectionHeaderStyles, recentHeaderStyles)}>
           <div className={sectionHeaderIconStyles}>{recentIcon}</div>
           <Subtitle className={sectionHeaderTitleStyles}>Recents</Subtitle>
         </div>

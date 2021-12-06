@@ -48,7 +48,7 @@ const connectionButtonContainerStyles = css({
 
 const connectionButtonStyles = css({
   margin: 0,
-  padding: `${spacing[1]}px 0 ${spacing[1]}px ${spacing[3]}px`,
+  padding: `${spacing[1]}px 0 ${spacing[1]}px ${spacing[1] * 3}px`,
   position: 'relative',
   width: '100%',
   overflow: 'hidden',
@@ -60,7 +60,7 @@ const connectionButtonStyles = css({
   background: 'none',
   '&:hover': {
     border: 'none',
-    background: uiColors.gray.dark3,
+    background: uiColors.gray.dark2,
   },
   '&:focus': {
     border: 'none',
@@ -71,7 +71,7 @@ const connectionDetailsContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   position: 'relative',
-  width: '100%',
+  width: '85%',
 });
 
 const connectionTitleStyles = css({
@@ -109,11 +109,11 @@ const dateConfig: Intl.DateTimeFormatOptions = {
 };
 
 function getActiveConnectionStyles({ favorite }: ConnectionInfo) {
-  const background = favorite?.color ?? uiColors.gray.dark3;
+  const background = favorite?.color ?? uiColors.gray.dark2;
   return css({
     background,
     '&:hover': {
-      background: uiColors.gray.dark3,
+      background: uiColors.gray.dark2,
     },
     '&:focus': {
       background,
@@ -132,6 +132,7 @@ function Connection({
   onClick: () => void;
 }): React.ReactElement {
   const connectionTitle = getConnectionTitle(connectionInfo);
+  const { connectionString } = connectionInfo.connectionOptions;
   const color =
     isActive && connectionInfo.favorite
       ? uiColors.black
@@ -147,10 +148,7 @@ function Connection({
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
       >
-        <ConnectionIcon
-          color={color}
-          connectionString={connectionInfo.connectionOptions.connectionString}
-        />
+        <ConnectionIcon color={color} connectionString={connectionString} />
         {/* Title and Last Used */}
         <div className={connectionDetailsContainerStyles}>
           {/* Title */}
@@ -186,11 +184,7 @@ function Connection({
           isActive ? connectionMenuVisibleStyles : connectionMenuHiddenStyles
         }
       >
-        {!isActive && (
-          <ConnectionMenu
-            connectionString={connectionInfo.connectionOptions.connectionString}
-          />
-        )}
+        <ConnectionMenu connectionString={connectionString} />
       </div>
     </div>
   );

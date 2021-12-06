@@ -5,10 +5,10 @@ import { isLocalhost, isAtlas } from 'mongodb-build-info';
 
 const connectionFavoriteStyles = css({
   borderRadius: '50%',
-  width: 14,
-  height: 14,
+  width: spacing[3],
+  height: spacing[3],
   flexShrink: 0,
-  marginTop: spacing[1],
+  marginTop: spacing[1] / 2,
   marginRight: spacing[2],
 });
 
