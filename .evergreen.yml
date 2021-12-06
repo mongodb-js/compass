@@ -91,6 +91,7 @@ functions:
         env:
           <<: *compass-env
         script: |
+          .evergreen/print-compass-env.js
           eval $(.evergreen/print-compass-env.js)
 
           # Make all the dirs
@@ -318,7 +319,7 @@ tasks:
 
       # TODO: uncomment
       #- func: verify
-      # TODO: doesn't this just mean all variants?
+      #  # TODO: doesn't this just mean all variants?
       #  variants: [windows, macos, ubuntu, rhel]
 
       # TODO: uncomment

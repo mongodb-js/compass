@@ -21,6 +21,7 @@ function printCompassEnv() {
 
   let { PATH } = process.env;
   let pwd = process.cwd();
+  console.log('echo "PWD: $PWD";');
 
   /*
   # XXX: This is a workaround for the issues we are getting in Evergreen
@@ -37,7 +38,7 @@ function printCompassEnv() {
     pwd = pwd.replace('\/cygdrive\/c', '\/cygdrive\/z');
     // we have to change the directory in the shell script we're outputting, not in this node process
     console.log(`cd "${pwd}";`);
-    console.log('echo "Changed cwd on cygwin. Current working dir: $pwd";');
+    console.log('echo "Changed cwd on cygwin. Current working dir: $PWD";');
   }
 
   const pathsToPrepend = []
@@ -75,6 +76,9 @@ function printCompassEnv() {
   printVar('npm_config_cache', npmCacheDir);
   // npm tmp is deprecated, but let's keep it around just in case
   printVar('npm_config_tmp', npmTmpDir);
+
+  console.log('echo PATH is now "$PATH";');
+  console.log('echo "All done";');
 }
 
 printCompassEnv();
