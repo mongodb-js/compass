@@ -212,10 +212,9 @@ functions:
           eval $(node .evergreen/print-compass-env.js)
 
           if [ `uname` == Darwin ]; then
-            echo "Signing via ssh tunnel..."
-            # TODO: will this even start in the right path?
-            ssh -v -p 2222 localhost "pwd"
-            ssh -v -p 2222 localhost ".evergreen/package_mac.sh"
+            #echo "Signing via ssh tunnel..."
+            #ssh -v -p 2222 localhost "cd ${workdir}/src/; .evergreen/package_mac.sh"
+            .evergreen/package_mac.sh
           else
             .evergreen/package_notmac.sh
           fi
