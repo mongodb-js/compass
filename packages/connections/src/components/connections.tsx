@@ -69,6 +69,8 @@ function Connections({
       connections,
       isConnected,
       storeConnectionError,
+      formErrors,
+      formWarnings,
     },
     {
       cancelConnectionAttempt,
