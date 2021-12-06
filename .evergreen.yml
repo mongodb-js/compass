@@ -51,7 +51,7 @@ variables:
       NOTARY_AUTH_TOKEN: ${signing_auth_token}
       NOTARY_SIGNING_KEY: ${signing_key_name}
       NOTARY_SIGNING_COMMENT: Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}
-      APPLE_CREDENTIALS: '{"appleUsername": "${apple_username}", "applePassword": "${apple_password}"}'
+      APPLE_CREDENTIALS: '{\"appleUsername\": \"${apple_username}\", \"applePassword\": \"${apple_password}\"}'
       GITHUB_TOKEN: ${devtoolsbot_github_token}
       DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
       DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
