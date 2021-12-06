@@ -1,12 +1,12 @@
-#! /usr/bin/env bash
+#! /usr/bin/env node
 'use strict';
 
-function maybePrependPath(path, part) {
-  const substring = `${part}:`;
-  if (path.includes(substring)) {
+function maybePrependPaths(path, paths) {
+  const prefix = `${paths.join(':')}:`;
+  if (path.startsWith(prefix)) {
     return path;
   }
-  return `${substring}${path}`;
+  return `${prefix}${path}`;
 }
 
 function printVar(name, value) {
@@ -40,24 +40,27 @@ function printCompassEnv() {
     console.log('echo "Changed cwd on cygwin. Current working dir: $pwd";');
   }
 
+  const pathsToPrepend = []
+
   if (OSTYPE === 'cygwin') {
     // NOTE lucas: for git-core addition, See
     // https://jira.mongodb.org/browse/COMPASS-4122
-    PATH = maybePrependPath(PATH, '/cygdrive/c/wixtools/bin');
-    PATH = maybePrependPath(PATH, `$(pwd)/.deps`);
-    PATH = maybePrependPath(PATH, '/cygdrive/c/Program Files/Git/mingw32/libexec/git-core');
+    pathsToPrepend.unshift('/cygdrive/c/wixtools/bin');
+    pathsToPrepend.unshift(`${pwd}/.deps`);
+    pathsToPrepend.unshift('/cygdrive/c/Program Files/Git/mingw32/libexec/git-core');
     printVar('APPDATA', 'Z:\\\;');
   } else {
-    PATH = maybePrependPath(PATH, `${pwd}/.deps/bin`);
+    pathsToPrepend.unshift(`${pwd}/.deps/bin`);
   }
 
   if (EVERGREEN_BUILD_VARIANT === 'rhel') {
     // To build node modules on RHEL post electron 13 we need
     // a newer c++ compiler version, this adds it.
     // https://jira.mongodb.org/browse/COMPASS-5150
-    PATH = maybePrependPath(PATH, '/opt/mongodbtoolchain/v3/bin');
+    pathsToPrepend.unshift('/opt/mongodbtoolchain/v3/bin');
   }
 
+  PATH = maybePrependPaths(PATH, pathsToPrepend);
   printVar('PATH', PATH);
 
   const npmCacheDir = `${pwd}/.deps/.npm`;
