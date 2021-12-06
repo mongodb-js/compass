@@ -1,3 +1,4 @@
+#! /usr/bin/env bash
 'use strict';
 
 function maybePrependPath(path, part) {
@@ -35,7 +36,7 @@ function printCompassEnv() {
     // Change cygdrive from c to z without chanding rest of the path
     pwd = pwd.replace('\/cygdrive\/c', '\/cygdrive\/z');
     // we have to change the directory in the shell script we're outputting, not in this node process
-    console.log(`cd ${pwd};`);
+    console.log(`cd "${pwd}";`);
     console.log('echo "Changed cwd on cygwin. Current working dir: $pwd";');
   }
 
