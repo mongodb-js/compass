@@ -19,6 +19,8 @@ function printCompassEnv() {
     EVERGREEN_BUILD_VARIANT
   } = process.env;
 
+  console.log('echo "OSTYPE: ${OSTYPE}";');
+
   let { PATH } = process.env;
   let pwd = process.cwd();
   console.log('echo "PWD: $PWD";');
