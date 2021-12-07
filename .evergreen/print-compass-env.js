@@ -19,10 +19,9 @@ function printCompassEnv() {
   } = process.env;
 
   let {
+    PWD,
     PATH
   } = process.env;
-
-  const originalPWD = process.env.PWD;
 
   /*
   # XXX: This is a workaround for the issues we are getting in Evergreen
@@ -34,11 +33,11 @@ function printCompassEnv() {
   # - https://github.com/mongodb-js/compass/pull/2403
   # - https://github.com/mongodb-js/compass/pull/2410
   */
-  if (originalPWD.startsWith('\/cygdrive\/c')) {
+  if (PWD.startsWith('\/cygdrive\/c')) {
     // Change cygdrive from c to z without chanding rest of the path
-    const newPWD = originalPWD.replace('\/cygdrive\/c', '\/cygdrive\/z');
+    PWD = PWD.replace('\/cygdrive\/c', '\/cygdrive\/z');
     // we have to change the directory in the shell script we're outputting, not in this node process
-    console.log(`cd "${newPWD}";`);
+    console.log(`cd "${PWD}";`);
     console.log('echo "Changed cwd on cygwin. Current working dir: $PWD";');
   }
 
@@ -49,11 +48,11 @@ function printCompassEnv() {
     // NOTE lucas: for git-core addition, See
     // https://jira.mongodb.org/browse/COMPASS-4122
     pathsToPrepend.unshift('/cygdrive/c/wixtools/bin');
-    pathsToPrepend.unshift(`${originalPWD}/.deps`);
+    pathsToPrepend.unshift(`${PWD}/.deps`);
     pathsToPrepend.unshift('/cygdrive/c/Program Files/Git/mingw32/libexec/git-core');
     printVar('APPDATA', 'Z:\\\;');
   } else {
-    pathsToPrepend.unshift(`${originalPWD}/.deps/bin`);
+    pathsToPrepend.unshift(`${PWD}/.deps/bin`);
   }
 
   if (EVERGREEN_BUILD_VARIANT === 'rhel') {
@@ -66,10 +65,10 @@ function printCompassEnv() {
   PATH = maybePrependPaths(PATH, pathsToPrepend);
   printVar('PATH', PATH);
 
-  const npmCacheDir = `${originalPWD}/.deps/.npm`;
-  const npmTmpDir = `${originalPWD}/.deps/tmp`;
+  const npmCacheDir = `${PWD}/.deps/.npm`;
+  const npmTmpDir = `${PWD}/.deps/tmp`;
 
-  printVar('ARTIFACTS_PATH', `${originalPWD}/.deps`);
+  printVar('ARTIFACTS_PATH', `${PWD}/.deps`);
   printVar('NPM_CACHE_DIR', npmCacheDir);
   printVar('NPM_TMP_DIR', npmTmpDir);
 
