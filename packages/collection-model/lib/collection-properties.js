@@ -2,7 +2,7 @@ const PROPERTIES_COLLATION = 'collation';
 const PROPERTIES_TIME_SERIES = 'timeseries';
 const PROPERTIES_CAPPED = 'capped';
 const PROPERTIES_VIEW = 'view';
-const PROPERTIES_READ_ONLY = 'readonly';
+const PROPERTIES_READ_ONLY = 'read-only';
 
 function getProperties(coll) {
   const properties = [];
