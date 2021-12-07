@@ -18,6 +18,8 @@ function printCompassEnv() {
     EVERGREEN_BUILD_VARIANT
   } = process.env;
 
+  console.log(`echo "available env vars: ${Object.keys(process.env).join(',')}"`);
+
   let {
     PATH
   } = process.env;
