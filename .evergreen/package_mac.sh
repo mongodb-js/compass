@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 # This is running in a new shell after ssh, so we have to load the env vars again
+set -e
 source ./env-vars.sh
 eval $(node .evergreen/print-compass-env.js)
 
