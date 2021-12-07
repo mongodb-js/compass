@@ -1,32 +1,20 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import CollectionsToolbar from './collections-toolbar';
-import CollectionsTable from './collections-table';
-import { showCollection } from '../../modules/show-collection';
-import { sortCollections } from '../../modules/collections/collections';
-import { openLink } from '../../modules/link';
-import { open as openCreate } from '../../modules/create-collection';
-import { open as openDrop } from '../../modules/drop-collection';
-
-import styles from './collections.module.less';
+import { CollectionsList } from '@mongodb-js/databases-collections-list';
+import toNS from 'mongodb-ns';
 
 class Collections extends PureComponent {
-  static displayName = 'CollectionsComponent';
-
   static propTypes = {
-    columns: PropTypes.array.isRequired,
     collections: PropTypes.array.isRequired,
-    databaseName: PropTypes.string,
+    databaseName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    openLink: PropTypes.func.isRequired,
-    showCollection: PropTypes.func.isRequired,
-    sortColumn: PropTypes.string.isRequired,
-    sortOrder: PropTypes.string.isRequired,
-    sortCollections: PropTypes.func.isRequired,
-    isDataLake: PropTypes.bool.isRequired
-  }
+    isDataLake: PropTypes.bool.isRequired,
+    onCollectionClick: PropTypes.func.isRequired,
+    onDeleteCollectionClick: PropTypes.func.isRequired,
+    onCreateCollectionClick: PropTypes.func.isRequired,
+  };
 
   /**
    * Render Collections component.
@@ -34,28 +22,30 @@ class Collections extends PureComponent {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const {
+      collections,
+      databaseName,
+      isReadonly,
+      isWritable,
+      isDataLake,
+      onCollectionClick,
+      onDeleteCollectionClick,
+      onCreateCollectionClick,
+    } = this.props;
+
+    const actions = Object.assign(
+      { onCollectionClick },
+      !isReadonly && isWritable && !isDataLake
+        ? { onDeleteCollectionClick, onCreateCollectionClick }
+        : {}
+    );
+
     return (
-      <div className={styles.collections} data-test-id="collections-table">
-        <CollectionsToolbar
-          isReadonly={this.props.isReadonly}
-          databaseName={this.props.databaseName}
-          open={openCreate}
-          isDataLake={this.props.isDataLake}
-        />
-        <CollectionsTable
-          columns={this.props.columns}
-          collections={this.props.collections}
-          isWritable={this.props.isWritable}
-          isReadonly={this.props.isReadonly}
-          databaseName={this.props.databaseName}
-          openLink={this.props.openLink}
-          sortOrder={this.props.sortOrder}
-          sortColumn={this.props.sortColumn}
-          sortCollections={this.props.sortCollections}
-          showCollection={this.props.showCollection}
-          open={openDrop}
-        />
-      </div>
+      <CollectionsList
+        key={databaseName}
+        collections={collections}
+        {...actions}
+      />
     );
   }
 }
@@ -68,15 +58,41 @@ class Collections extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  columns: state.columns,
-  collections: state.collections,
+  collections: (state.collections || []).map((coll) => {
+    if (coll.type === 'view') {
+      return {
+        _id: coll._id,
+        name: coll.name,
+        type: coll.type,
+        status: coll.status,
+        source: coll.source,
+        properties: coll.properties,
+      };
+    }
+    return coll;
+  }),
   databaseName: state.databaseName,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
-  sortColumn: state.sortColumn,
-  sortOrder: state.sortOrder,
-  isDataLake: state.isDataLake
+  isDataLake: state.isDataLake,
+  isGenuineMongoDB: state.isGenuineMongoDB,
 });
+
+function createEmit(evtName) {
+  return function(ns) {
+    return function(_dispatch, getState) {
+      const { appRegistry, databaseName } = getState();
+      // eslint-disable-next-line chai-friendly/no-unused-expressions
+      appRegistry?.emit(evtName, toNS(ns ?? databaseName));
+    };
+  };
+}
+
+const mapDispatchToProps = {
+  onCollectionClick: createEmit('collections-list-select-collection'),
+  onDeleteCollectionClick: createEmit('open-drop-collection'),
+  onCreateCollectionClick: createEmit('open-create-collection'),
+};
 
 /**
  * Connect the redux store to the component.
@@ -84,11 +100,7 @@ const mapStateToProps = (state) => ({
  */
 const ConnectedCollections = connect(
   mapStateToProps,
-  {
-    showCollection,
-    sortCollections,
-    openLink
-  },
+  mapDispatchToProps
 )(Collections);
 
 export default ConnectedCollections;
