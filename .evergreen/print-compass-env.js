@@ -18,11 +18,11 @@ function printCompassEnv() {
     EVERGREEN_BUILD_VARIANT
   } = process.env;
 
-  console.log(`echo "available env vars: ${Object.keys(process.env).join(',')}"`);
-
   let {
-    PATH
+    OSTYPE,
   } = process.env;
+
+  let PATH = process.env.BASHPATH || process.env.PATH;
 
   const originalPWD = process.env.PWD;
   let newPWD = originalPWD;
@@ -47,8 +47,7 @@ function printCompassEnv() {
 
   const pathsToPrepend = []
 
-  // bash sets OSTYPE that we can check if it is 'cygwin'. But we're not in bash.
-  if (process.platform === 'win32') {
+  if (OSTYPE === 'cygwin') {
     // NOTE lucas: for git-core addition, See
     // https://jira.mongodb.org/browse/COMPASS-4122
     pathsToPrepend.unshift('/cygdrive/c/wixtools/bin');
@@ -82,7 +81,7 @@ function printCompassEnv() {
   // npm tmp is deprecated, but let's keep it around just in case
   printVar('npm_config_tmp', npmTmpDir);
 
-  console.log('echo PATH is now "$PATH";');
+  console.log('echo "PATH is now $PATH";');
   console.log('echo "All done";');
 }
 

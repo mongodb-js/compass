@@ -91,8 +91,8 @@ functions:
         env:
           <<: *compass-env
         script: |
-          .evergreen/print-compass-env.js
-          eval $(.evergreen/print-compass-env.js)
+          set -e
+          eval $(.evergreen/print-compass-env.sh)
 
           # Make all the dirs
           mkdir -p $ARTIFACTS_PATH
@@ -107,8 +107,7 @@ functions:
           <<: *compass-env
         script: |
           set -e
-
-          eval $(.evergreen/print-compass-env.js)
+          eval $(.evergreen/print-compass-env.sh)
 
           .evergreen/preinstall.sh
 
@@ -127,7 +126,7 @@ functions:
           <<: *compass-env
         script: |
           set -e
-          eval $(.evergreen/print-compass-env.js)
+          eval $(.evergreen/print-compass-env.sh)
 
           echo "Installing Compass dependencies with the following npm configuration"
           npm config ls -l
@@ -145,7 +144,7 @@ functions:
         <<: *compass-env
       script: |
         set -e
-        eval $(.evergreen/print-compass-env.js)
+        eval $(.evergreen/print-compass-env.sh)
 
         echo "Run static analysis..."
         npm run check-ci
@@ -161,7 +160,7 @@ functions:
           set -e
 
           # Load environment variables
-          eval $(.evergreen/print-compass-env.js)
+          eval $(.evergreen/print-compass-env.sh)
 
           echo "Running tests"
 
@@ -186,7 +185,7 @@ functions:
         script: |
           set -e
           # Load environment variables
-          eval $(.evergreen/print-compass-env.js)
+          eval $(.evergreen/print-compass-env.sh)
 
           echo "Synchronizing evergreen environment from Compass build tools..."
 
@@ -210,7 +209,7 @@ functions:
         script: |
           set -e
 
-          eval $(.evergreen/print-compass-env.js)
+          eval $(.evergreen/print-compass-env.sh)
 
           if [ `uname` == Darwin ]; then
             # write env vars (including secrets) to a script so we can restore them after running ssh
@@ -234,7 +233,7 @@ functions:
       script: |
         set -e
         # Load environment variables
-        eval $(.evergreen/print-compass-env.js)
+        eval $(.evergreen/print-compass-env.sh)
 
         echo "Uploading release assets to S3 and GitHub if needed..."
         npm run upload ${compass_distribution} --workspace mongodb-compass
