@@ -242,6 +242,14 @@ class Target {
     return path.join.apply(path, args);
   }
 
+  distRoot() {
+    if (this.platform === 'darwin') {
+      return path.join(this.appPath, '..');
+    }
+
+    return path.join(this.appPath);
+  }
+
   write(filename, contents) {
     return new Promise((resolve, reject) => {
       let dest = '';

@@ -79,6 +79,7 @@
     "react-dom": "^16.14.0",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.2",
+    "sinon": "^8.1.1",
     "xvfb-maybe": "^0.2.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
