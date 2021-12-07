@@ -318,15 +318,13 @@ tasks:
 
       - func: install
 
-      # TODO: uncomment
-      #- func: verify
-      #  # TODO: doesn't this just mean all variants?
-      #  variants: [windows, macos, ubuntu, rhel]
+      - func: verify
+        # TODO: doesn't this just mean all variants?
+        variants: [windows, macos, ubuntu, rhel]
 
-      # TODO: uncomment
-      #- func: test
-      #  vars:
-      #    debug: 'hadron*,mongo*,compass-e2e-tests*'
+      - func: test
+        vars:
+          debug: 'hadron*,mongo*,compass-e2e-tests*'
 
       - func: package
         vars:
@@ -345,40 +343,39 @@ tasks:
       - func: 'save rhel artifacts'
         variants: [rhel]
 
-      # TODO: uncomment
-#      - func: package
-#        vars:
-#          npm_loglevel: http
-#          debug: 'hadron*,mongo*,compass*'
-#          compass_distribution: compass-isolated
-#      - func: publish
-#        vars:
-#          compass_distribution: compass-isolated
-#      - func: 'save windows artifacts'
-#        variants: [windows]
-#      - func: 'save osx artifacts'
-#        variants: [macos]
-#      - func: 'save linux artifacts'
-#        variants: [ubuntu]
-#      - func: 'save rhel artifacts'
-#        variants: [rhel]
-#
-#      - func: package
-#        vars:
-#          npm_loglevel: http
-#          debug: 'hadron*,mongo*,compass*'
-#          compass_distribution: compass-readonly
-#      - func: publish
-#        vars:
-#          compass_distribution: compass-readonly
-#      - func: 'save windows artifacts'
-#        variants: [windows]
-#      - func: 'save osx artifacts'
-#        variants: [macos]
-#      - func: 'save linux artifacts'
-#        variants: [ubuntu]
-#      - func: 'save rhel artifacts'
-#        variants: [rhel]
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-isolated
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
+
+      - func: package
+        vars:
+          npm_loglevel: http
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-readonly
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+      - func: 'save windows artifacts'
+        variants: [windows]
+      - func: 'save osx artifacts'
+        variants: [macos]
+      - func: 'save linux artifacts'
+        variants: [ubuntu]
+      - func: 'save rhel artifacts'
+        variants: [rhel]
 
 # TODO (@imlucas) determine OS/version deprecation policy, following server, so we don't fall behind
 # what maximal resources we're using.
