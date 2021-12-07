@@ -15,6 +15,8 @@ variables:
       permissions: public-read
       content_type: application/octet-stream
   - &compass-env
+      # NOTE: anything added here should probably also be added to the whitelist
+      # in .evergreen/export-compass-env.js
       WORKDIR: ${workdir}
       CI: "1"
       EVERGREEN: "1"
