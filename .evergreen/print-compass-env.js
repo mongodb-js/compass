@@ -19,9 +19,11 @@ function printCompassEnv() {
   } = process.env;
 
   let {
-    PWD,
     PATH
   } = process.env;
+
+  const originalPWD = process.env.PWD;
+  let newPWD = originalPWD;
 
   /*
   # XXX: This is a workaround for the issues we are getting in Evergreen
@@ -33,11 +35,11 @@ function printCompassEnv() {
   # - https://github.com/mongodb-js/compass/pull/2403
   # - https://github.com/mongodb-js/compass/pull/2410
   */
-  if (PWD.startsWith('\/cygdrive\/c')) {
+  if (originalPWD.startsWith('\/cygdrive\/c')) {
     // Change cygdrive from c to z without chanding rest of the path
-    PWD = PWD.replace('\/cygdrive\/c', '\/cygdrive\/z');
+    newPWD = originalPWD.replace('\/cygdrive\/c', '\/cygdrive\/z');
     // we have to change the directory in the shell script we're outputting, not in this node process
-    console.log(`cd "${PWD}";`);
+    console.log(`cd "${newPWD}";`);
     console.log('echo "Changed cwd on cygwin. Current working dir: $PWD";');
   }
 
@@ -48,11 +50,11 @@ function printCompassEnv() {
     // NOTE lucas: for git-core addition, See
     // https://jira.mongodb.org/browse/COMPASS-4122
     pathsToPrepend.unshift('/cygdrive/c/wixtools/bin');
-    pathsToPrepend.unshift(`${PWD}/.deps`);
+    pathsToPrepend.unshift(`${newPWD}/.deps`);
     pathsToPrepend.unshift('/cygdrive/c/Program Files/Git/mingw32/libexec/git-core');
     printVar('APPDATA', 'Z:\\\;');
   } else {
-    pathsToPrepend.unshift(`${PWD}/.deps/bin`);
+    pathsToPrepend.unshift(`${newPWD}/.deps/bin`);
   }
 
   if (EVERGREEN_BUILD_VARIANT === 'rhel') {
@@ -65,10 +67,10 @@ function printCompassEnv() {
   PATH = maybePrependPaths(PATH, pathsToPrepend);
   printVar('PATH', PATH);
 
-  const npmCacheDir = `${PWD}/.deps/.npm`;
-  const npmTmpDir = `${PWD}/.deps/tmp`;
+  const npmCacheDir = `${newPWD}/.deps/.npm`;
+  const npmTmpDir = `${newPWD}/.deps/tmp`;
 
-  printVar('ARTIFACTS_PATH', `${PWD}/.deps`);
+  printVar('ARTIFACTS_PATH', `${newPWD}/.deps`);
   printVar('NPM_CACHE_DIR', npmCacheDir);
   printVar('NPM_TMP_DIR', npmTmpDir);
 
