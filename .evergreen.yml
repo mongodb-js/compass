@@ -124,6 +124,8 @@ functions:
             export PATH="/opt/mongodbtoolchain/v3/bin:\$PATH"
           fi
 
+          echo "PATH IS NOW \$PATH"
+
           EOF_BUILD_SH
 
           source ~/compass_env.sh
