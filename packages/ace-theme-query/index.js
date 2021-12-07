@@ -12,6 +12,12 @@ color: #999999;\
 background: #ffffff;\
 color: #000;\
 }\
+.ace-mongodb-query .ace_placeholder {\
+font-family: inherit;\
+transform: none;\
+opacity: 1;\
+margin: 0;\
+}\
 .ace-mongodb-query .ace_keyword {\
 color: #999999;\
 font-weight: normal;\
