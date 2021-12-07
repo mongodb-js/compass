@@ -67,7 +67,12 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   }
 
   const db = instance.databases.get(dbName);
-  await db.fetchCollectionsDetails({ dataService, nameOnly });
+
+  if (nameOnly) {
+    await db.fetchCollections({ dataService });
+  } else {
+    await db.fetchCollectionsDetails({ dataService });
+  }
 };
 
 store.fetchCollectionDetails = async(ns) => {
@@ -234,6 +239,11 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('sidebar-select-collection', async({ ns }) => {
+    const metadata = await store.fetchCollectionMetadata(ns);
+    appRegistry.emit('select-namespace', metadata);
+  });
+
+  appRegistry.on('collections-list-select-collection', async({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
