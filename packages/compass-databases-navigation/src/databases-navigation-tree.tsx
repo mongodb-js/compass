@@ -21,7 +21,7 @@ import { DatabaseItem } from './database-item';
 import { CollectionItem } from './collection-item';
 import type { Actions } from './constants';
 import {
-  useRovingTabIndex,
+  useVirtualNavigationTree,
   NavigationTreeData,
 } from './use-virtual-navigation-tree';
 
@@ -323,12 +323,14 @@ const DatabasesNavigationTree: React.FunctionComponent<{
     [items]
   );
 
-  const [rootProps, currentTabbable] = useRovingTabIndex<HTMLDivElement>({
-    items: items as NavigationTreeData,
-    activeItemId: activeNamespace,
-    onExpandedChange,
-    onFocusMove,
-  });
+  const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
+    {
+      items: items as NavigationTreeData,
+      activeItemId: activeNamespace,
+      onExpandedChange,
+      onFocusMove,
+    }
+  );
 
   const itemData: ListItemData = useMemo(() => {
     return {
