@@ -42,8 +42,8 @@ const DEFAULT_HEIGHT = (() => {
   return height;
 })();
 
-const MIN_WIDTH = 1024;
-const MIN_HEIGHT = 640;
+const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1024;
+const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
 
 /**
  * The app's HTML shell which is the output of `./src/index.html`
