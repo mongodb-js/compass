@@ -23,6 +23,7 @@ function printCompassEnv() {
 
   let { PATH } = process.env;
   let pwd = process.cwd();
+  console.log(`echo "pwd: ${pwd}";`);
   console.log('echo "PWD: $PWD";');
 
   /*
