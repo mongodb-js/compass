@@ -15,10 +15,8 @@ function printVar(name, value) {
 
 function printCompassEnv() {
   const {
-    OSTYPE,
     EVERGREEN_BUILD_VARIANT
   } = process.env;
-
 
   let {
     PATH
@@ -46,7 +44,8 @@ function printCompassEnv() {
 
   const pathsToPrepend = []
 
-  if (OSTYPE === 'cygwin') {
+  // bash sets OSTYPE that we can check if it is 'cygwin'. But we're not in bash.
+  if (process.platform === 'win32') {
     // NOTE lucas: for git-core addition, See
     // https://jira.mongodb.org/browse/COMPASS-4122
     pathsToPrepend.unshift('/cygdrive/c/wixtools/bin');
@@ -85,8 +84,3 @@ function printCompassEnv() {
 }
 
 printCompassEnv();
-
-// maybe PATH has to be separated with ; and not : ?
-// maybe \ has to be \\ ?
-// double-check OSTYPE?
-//[2021/12/06 18:06:20.314] PATH is now C:\data\mci\d9be3f7e69135298a80e9843673bea54\src/.deps/bin:C:\cygwin\usr\local\bin;C:\cygwin\bin;C:\Python27;C:\Python27\Scripts;C:\Python310\Scripts;C:\Python310;C:\Users\Administrator\AppData\Roaming\ActiveState\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\Amazon\cfn-bootstrap;C:\ProgramData\chocolatey\bin;C:\ProgramData\chocolatey\bin;C:\Program Files\dotnet;C:\Program Files\Git\cmd;C:\Python27;C:\Python27\Scripts;C:\openssl\bin;C:\sasl\bin;C:\snmp\bin;C:\go\bin;C:\Program Files\Git\bin;C:\Program Files\nodejs;C:\Perl64\bin;C:\curl\dlls;C:\Program Files\nodejs;C:\Users\mci-exec\AppData\Local\Microsoft\WindowsApps;C:\Users\mci-exec\.dotnet\tools;C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;C:\Users\Administrator\AppData\Roaming\npm;C:\go\bin;C:\Windows\Sysnative;C:\mingw-w64\x86_64-4.9.1-posix-seh-rt_v3-rev1\mingw64\bin
