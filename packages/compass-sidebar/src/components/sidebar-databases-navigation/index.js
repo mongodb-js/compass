@@ -43,10 +43,10 @@ const onNamespaceAction = (namespace, action) => {
         emit('open-drop-database', ns.database);
         return;
       case 'drop-collection':
-        emit('open-drop-collection', ns.database, ns.collection);
+        emit('open-drop-collection', ns);
         return;
       case 'create-collection':
-        emit('open-create-collection', ns.database);
+        emit('open-create-collection', ns);
         return;
       case 'open-in-new-tab':
         emit('sidebar-open-collection-in-new-tab', ns);
