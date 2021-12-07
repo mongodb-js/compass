@@ -1,6 +1,11 @@
 #! /usr/bin/env node
 'use strict';
 
+/*
+This script writes a bash script that can be eval()'d in evergreen to modify the
+environment with some calculated env vars.
+*/
+
 function maybePrependPaths(path, paths) {
   const prefix = `${paths.join(':')}:`;
   if (path.startsWith(prefix)) {
@@ -19,9 +24,15 @@ function printCompassEnv() {
   } = process.env;
 
   let {
-    OSTYPE,
+    // This is an env var set in bash that we exported in print-compass-env.sh
+    OSTYPE
   } = process.env;
 
+  // We have to operate on bash's PATH env var where the c:\ style paths have
+  // been converted to /cygdrive/c style. BUT bash passes unaltered paths to
+  // subprocesses as PATH even if we export the modified PATH in bash. And
+  // that's why there's a hack in print-compass-env.sh to alias bash's altered
+  // PATH to BASHPATH.
   let PATH = process.env.BASHPATH || process.env.PATH;
 
   const originalPWD = process.env.PWD;
@@ -80,9 +91,6 @@ function printCompassEnv() {
   printVar('npm_config_cache', npmCacheDir);
   // npm tmp is deprecated, but let's keep it around just in case
   printVar('npm_config_tmp', npmTmpDir);
-
-  console.log('echo "PATH is now $PATH";');
-  console.log('echo "All done";');
 }
 
 printCompassEnv();
