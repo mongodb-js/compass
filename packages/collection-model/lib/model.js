@@ -2,6 +2,7 @@ const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
 const { promisify } = require('util');
 const toNs = require('mongodb-ns');
+const { getProperties } = require('./collection-properties');
 
 const NamespaceCache = new Map();
 
@@ -106,7 +107,7 @@ function pickCollectionInfo({
  * Returns true if model is not ready (was fetched before and is not updating at
  * the moment) or force fetch is requested
  */
- function shouldFetch(status, force) {
+function shouldFetch(status, force) {
   return force || status !== 'ready';
 }
 
@@ -133,7 +134,9 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     index_sizes: 'object',
     document_count: 'number',
     document_size: 'number',
+    avg_document_size: 'number',
     storage_size: 'number',
+    free_storage_size: 'number',
     index_count: 'number',
     index_size: 'number',
     padding_factor: 'number',
@@ -226,6 +229,13 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       deps: ['sourceId'],
       fn() {
         return this.collection.get(this.sourceId) ?? null;
+      },
+    },
+
+    properties: {
+      deps: ['collation', 'type', 'capped', 'readonly'],
+      fn() {
+        return getProperties(this);
       },
     },
   },
