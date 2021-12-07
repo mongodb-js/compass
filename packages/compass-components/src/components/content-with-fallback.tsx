@@ -57,8 +57,8 @@ export const ContentWithFallback: React.FunctionComponent<{
   content(
     shouldRender: boolean,
     shouldAnimate: boolean
-  ): React.ReactElement | boolean;
-  fallback(shouldRender: boolean): React.ReactElement | boolean;
+  ): React.ReactElement | boolean | null;
+  fallback(shouldRender: boolean): React.ReactElement | boolean | null;
   isContentReady: boolean;
   contentAfterFallbackTimeout?: number;
   fallbackTimeout?: number;
