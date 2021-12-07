@@ -108,6 +108,7 @@ const DatabaseModel = AmpersandModel.extend(
       collection_count: 'number',
       document_count: 'number',
       storage_size: 'number',
+      data_size: 'number',
       index_count: 'number',
       index_size: 'number',
     },
