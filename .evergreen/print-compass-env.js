@@ -19,12 +19,11 @@ function printCompassEnv() {
     EVERGREEN_BUILD_VARIANT
   } = process.env;
 
-  console.log('echo "OSTYPE: ${OSTYPE}";');
 
-  let { PATH } = process.env;
-  let pwd = process.cwd();
-  console.log(`echo "pwd: ${pwd}";`);
-  console.log('echo "PWD: $PWD";');
+  let {
+    PWD,
+    PATH
+  } = process.env;
 
   /*
   # XXX: This is a workaround for the issues we are getting in Evergreen
@@ -36,11 +35,11 @@ function printCompassEnv() {
   # - https://github.com/mongodb-js/compass/pull/2403
   # - https://github.com/mongodb-js/compass/pull/2410
   */
-  if (pwd.startsWith('\/cygdrive\/c')) {
+  if (PWD.startsWith('\/cygdrive\/c')) {
     // Change cygdrive from c to z without chanding rest of the path
-    pwd = pwd.replace('\/cygdrive\/c', '\/cygdrive\/z');
+    PWD = PWD.replace('\/cygdrive\/c', '\/cygdrive\/z');
     // we have to change the directory in the shell script we're outputting, not in this node process
-    console.log(`cd "${pwd}";`);
+    console.log(`cd "${PWD}";`);
     console.log('echo "Changed cwd on cygwin. Current working dir: $PWD";');
   }
 
@@ -50,11 +49,11 @@ function printCompassEnv() {
     // NOTE lucas: for git-core addition, See
     // https://jira.mongodb.org/browse/COMPASS-4122
     pathsToPrepend.unshift('/cygdrive/c/wixtools/bin');
-    pathsToPrepend.unshift(`${pwd}/.deps`);
+    pathsToPrepend.unshift(`${PWD}/.deps`);
     pathsToPrepend.unshift('/cygdrive/c/Program Files/Git/mingw32/libexec/git-core');
     printVar('APPDATA', 'Z:\\\;');
   } else {
-    pathsToPrepend.unshift(`${pwd}/.deps/bin`);
+    pathsToPrepend.unshift(`${PWD}/.deps/bin`);
   }
 
   if (EVERGREEN_BUILD_VARIANT === 'rhel') {
@@ -67,10 +66,10 @@ function printCompassEnv() {
   PATH = maybePrependPaths(PATH, pathsToPrepend);
   printVar('PATH', PATH);
 
-  const npmCacheDir = `${pwd}/.deps/.npm`;
-  const npmTmpDir = `${pwd}/.deps/tmp`;
+  const npmCacheDir = `${PWD}/.deps/.npm`;
+  const npmTmpDir = `${PWD}/.deps/tmp`;
 
-  printVar('ARTIFACTS_PATH', `${pwd}/.deps`);
+  printVar('ARTIFACTS_PATH', `${PWD}/.deps`);
   printVar('NPM_CACHE_DIR', npmCacheDir);
   printVar('NPM_TMP_DIR', npmTmpDir);
 
