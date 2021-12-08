@@ -204,7 +204,6 @@ functions:
         shell: bash
         env:
           <<: *compass-env
-          # TODO: can we move these to compass-env?
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
           COMPASS_DISTRIBUTION: ${compass_distribution}
@@ -319,7 +318,6 @@ tasks:
       - func: install
 
       - func: verify
-        # TODO: doesn't this just mean all variants?
         variants: [windows, macos, ubuntu, rhel]
 
       - func: test
