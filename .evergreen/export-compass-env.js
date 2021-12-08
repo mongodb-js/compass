@@ -46,6 +46,6 @@ const ENV_VARS = [
   'COMPASS_DISTRIBUTION'
 ];
 
-for (const name of WHITELIST) {
+for (const name of ENV_VARS) {
   console.log(`export ${name}="${process.env[name] || ''}"`);
 }
