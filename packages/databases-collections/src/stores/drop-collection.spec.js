@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import store from './drop-collection';
 import { reset } from '../modules/reset';

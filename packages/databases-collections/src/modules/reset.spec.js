@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import { reset, RESET } from './reset';
 
 describe('reset module', () => {

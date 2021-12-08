@@ -112,7 +112,7 @@ export function useSortControls(
 }
 
 function sortUnknown(a: unknown, b: unknown, order: SortOrder): number {
-  return (a === b ? 0 : a < b ? -1 : 1) * order;
+  return (a === b ? 0 : (a as number) < (b as number) ? -1 : 1) * order;
 }
 
 function sortString(a: string, b: string, order: SortOrder): number {

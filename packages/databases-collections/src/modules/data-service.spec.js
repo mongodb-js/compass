@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import reducer, {
   dataServiceConnected,
   DATA_SERVICE_CONNECTED

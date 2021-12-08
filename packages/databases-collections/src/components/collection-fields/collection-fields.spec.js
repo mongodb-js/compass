@@ -1,5 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import { Select, TextInput } from '@mongodb-js/compass-components';
 
 import CollectionFields from '.';

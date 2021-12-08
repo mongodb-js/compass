@@ -128,6 +128,13 @@ const cardBadge = css({
 
 const cardBadgeLabel = css({});
 
+export type BadgeProp = {
+  name: string;
+  variant?: BadgeVariant;
+  icon?: IconGlyph;
+  hint?: React.ReactNode;
+};
+
 const CardBadge: React.FunctionComponent<BadgeProp> = ({
   name,
   icon,
@@ -151,13 +158,6 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
 const card = css({
   padding: spacing[3],
 });
-
-export type BadgeProp = {
-  name: string;
-  variant?: BadgeVariant;
-  icon?: IconGlyph;
-  hint?: React.ReactNode;
-};
 
 export type DataProp = {
   label: React.ReactNode;
@@ -249,9 +249,8 @@ export const NamespaceItemCard: React.FunctionComponent<
 
   return (
     // @ts-expect-error the error here is caused by passing children to Card
-    // component, even though it's allowed on the implementation level (why
-    // would you have a card without children?), the types are super confused
-    // and don't allow that
+    // component, even though it's allowed on the implementation level the types
+    // are super confused and don't allow that
     <Card contentStyle="clickable" {...cardProps}>
       <CardTitleGroup>
         <CardName>{name}</CardName>

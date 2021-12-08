@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CollectionsList } from '@mongodb-js/databases-collections-list';
 import toNS from 'mongodb-ns';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
 
 class Collections extends PureComponent {
   static propTypes = {
@@ -15,6 +18,10 @@ class Collections extends PureComponent {
     onDeleteCollectionClick: PropTypes.func.isRequired,
     onCreateCollectionClick: PropTypes.func.isRequired,
   };
+
+  componentDidMount() {
+    track('Screen', { name: 'collections' });
+  }
 
   /**
    * Render Collections component.

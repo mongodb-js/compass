@@ -46,12 +46,15 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "react": "*",
-    "react-dom": "*"
-  },
-  "dependencies": {
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
+  },
+  "dependencies": {
+    "@mongodb-js/compass-components": "^0.7.0",
+    "@react-aria/utils": "^3.10.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-window": "^1.8.6"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.4.0",

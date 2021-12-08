@@ -45,16 +45,16 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "react": "*",
-    "react-dom": "*"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "dependencies": {
     "@leafygreen-ui/emotion": "^4.0.0",
     "@mongodb-js/compass-components": "^0.7.0",
     "@react-aria/utils": "^3.9.0",
     "@react-aria/visually-hidden": "^3.2.3",
-    "react": "*",
-    "react-dom": "*",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6"
   },

@@ -13,11 +13,8 @@ export function mergeProps<T extends HTMLElement = HTMLElement>(
         propsWithRefs.forEach(({ ref }) => {
           if (typeof ref === 'function') {
             ref(val);
-          } else {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error struggling to convince typescript that this is a
-            // mutable ref, not a readonly one
-            ref.current = val;
+          } else if (ref && typeof ref === 'object') {
+            (ref as React.MutableRefObject<T>).current = val;
           }
         });
       },

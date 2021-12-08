@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import reducer from './is-readonly';
 
 describe('is readonly module', () => {

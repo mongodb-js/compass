@@ -14,9 +14,9 @@ import { useViewTypeControls, ViewType } from './use-view-type';
 import { useCreateControls } from './use-create';
 import { mergeProps } from './merge-props';
 import {
-  useVirtualListArrowNavigation,
-  useVirtualRovingIndex,
-} from './use-virtual-list';
+  useVirtualGridArrowNavigation,
+  useVirtualRovingTabIndex,
+} from './use-virtual-grid';
 
 type Item = Record<string, unknown>;
 
@@ -71,7 +71,7 @@ const ItemRow = <T extends Item>({
   const placeholderCellsCount = columnsCount - cells.length;
   const emptyCells = useMemo(() => {
     return Array.from({ length: placeholderCellsCount }, (_, idx) => (
-      <div className={cell} key={idx}></div>
+      <div className={cell} key={`empty${idx}`}></div>
     ));
   }, [placeholderCellsCount]);
   return (
@@ -83,6 +83,7 @@ const ItemRow = <T extends Item>({
           onItemClick,
           onDeleteItemClick,
           viewType,
+          key: `cell${index}`,
           className: cell,
           tabIndex: idx === currentTabbable ? 0 : -1,
           role: 'gridcell',
@@ -240,7 +241,7 @@ export const ItemsGrid = <T extends Item>({
   const rowCount = Math.ceil(items.length / colCount);
 
   const [listProps, currentTabbable] =
-    useVirtualListArrowNavigation<HTMLDivElement>({
+    useVirtualGridArrowNavigation<HTMLDivElement>({
       colCount,
       rowCount,
       itemsCount: sortedItems.length,
@@ -254,7 +255,7 @@ export const ItemsGrid = <T extends Item>({
     [listRef, colCount]
   );
 
-  const rovingFocusProps = useVirtualRovingIndex<HTMLDivElement>({
+  const rovingFocusProps = useVirtualRovingTabIndex<HTMLDivElement>({
     currentTabbable,
     onFocusMove,
   });
@@ -274,7 +275,11 @@ export const ItemsGrid = <T extends Item>({
         ),
       }}
     >
-      <div className={container} {...rectProps}>
+      <div
+        className={container}
+        {...rectProps}
+        data-testid={`${itemType}-grid`}
+      >
         <FixedSizeList
           ref={listRef}
           width={Math.max(width, itemWidth)}

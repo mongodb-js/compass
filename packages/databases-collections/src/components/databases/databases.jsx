@@ -20,7 +20,7 @@ function NonGenuineZeroState() {
   return (
     <div className="column-container">
       <div className="column main">
-        <div className={styles['databases-non-genuine-warning']}>
+        <div data-testid="databases-non-genuine-warning" className={styles['databases-non-genuine-warning']}>
           <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
           <ZeroState header={HEADER} subtext={SUBTEXT}>
             <a className="zero-state-link" href={DOCUMENTATION_LINK}>
