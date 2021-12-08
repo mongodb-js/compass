@@ -206,9 +206,12 @@ functions:
           <<: *compass-env
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
-          COMPASS_DISTRIBUTION: ${compass_distribution}
         script: |
           set -e
+
+          export COMPASS_DISTRIBUTION="${compass_distribution}"
+
+          echo "COMPASS_DISTRIBUTION: $COMPASS_DISTRIBUTION"
 
           eval $(.evergreen/print-compass-env.sh)
 
