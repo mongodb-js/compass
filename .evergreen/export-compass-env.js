@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 'use strict';
 
-const WHITELIST = [
+const ENV_VARS = [
   'WORKDIR',
   'CI',
   'EVERGREEN',
