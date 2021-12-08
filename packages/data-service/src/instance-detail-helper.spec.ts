@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { ConnectionOptions } from './connection-options';
 import {
-  extractPrivilegesByDatabaseAndCollection,
+  getPrivilegesByDatabaseAndCollection,
   getInstance,
   InstanceDetails,
 } from './instance-detail-helper';
@@ -40,6 +40,16 @@ describe('instance-detail-helper', function () {
 
         before(async function () {
           instanceDetails = await getInstance(mongoClient);
+        });
+
+        it('should have auth info', function () {
+          expect(instanceDetails).to.have.nested.property('auth.user', null);
+          expect(instanceDetails)
+            .to.have.nested.property('auth.roles')
+            .deep.eq([]);
+          expect(instanceDetails)
+            .to.have.nested.property('auth.privileges')
+            .deep.eq([]);
         });
 
         it('should have build info', function () {
@@ -88,6 +98,10 @@ describe('instance-detail-helper', function () {
             'dataLake.version',
             null
           );
+        });
+
+        it('should not be identified as atlas', function () {
+          expect(instanceDetails).to.have.property('isAtlas', false);
         });
       });
     });
@@ -241,12 +255,59 @@ describe('instance-detail-helper', function () {
           'documentdb'
         );
       });
+      it(`should be identified as atlas with hostname correct hostnames`, function () {
+        ['myserver.mongodb.net', 'myserver.mongodb-dev.net'].map(
+          async (hostname) => {
+            const client = createMongoClientMock({
+              hosts: [{ host: hostname, port: 9999 }],
+              commands: {
+                buildInfo: {},
+                getCmdLineOpts: fixtures.CMD_LINE_OPTS,
+              },
+            });
+
+            const instanceDetails = await getInstance(client);
+
+            expect(instanceDetails).to.have.property('isAtlas', true);
+          }
+        );
+      });
+
+      it(`should be identified as atlas when atlasVersion command is present`, async function () {
+        const client = createMongoClientMock({
+          hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
+          commands: {
+            atlasVersion: { version: '1.1.1', gitVersion: '1.2.3' },
+            buildInfo: {},
+            getCmdLineOpts: fixtures.CMD_LINE_OPTS,
+          },
+        });
+
+        const instanceDetails = await getInstance(client);
+
+        expect(instanceDetails).to.have.property('isAtlas', true);
+      });
+
+      it(`should not be identified as atlas when atlasVersion command is missing`, async function () {
+        const client = createMongoClientMock({
+          hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
+          commands: {
+            atlasVersion: new Error('command not found'),
+            buildInfo: {},
+            getCmdLineOpts: fixtures.CMD_LINE_OPTS,
+          },
+        });
+
+        const instanceDetails = await getInstance(client);
+
+        expect(instanceDetails).to.have.property('isAtlas', false);
+      });
     });
   });
 
   describe('#extractPrivilegesByDatabaseAndCollection', function () {
     it('returns a tree of databases and collections from privileges', function () {
-      const dbs = extractPrivilegesByDatabaseAndCollection([
+      const dbs = getPrivilegesByDatabaseAndCollection([
         { resource: { db: 'foo', collection: 'bar' }, actions: [] },
       ]);
 
@@ -255,7 +316,7 @@ describe('instance-detail-helper', function () {
 
     context('with known resources', function () {
       it('ignores cluster privileges', function () {
-        const dbs = extractPrivilegesByDatabaseAndCollection([
+        const dbs = getPrivilegesByDatabaseAndCollection([
           { resource: { db: 'foo', collection: 'bar' }, actions: [] },
           { resource: { db: 'buz', collection: 'bla' }, actions: [] },
           { resource: { cluster: true }, actions: [] },
@@ -272,7 +333,7 @@ describe('instance-detail-helper', function () {
       });
 
       it('ignores anyResource privileges', function () {
-        const dbs = extractPrivilegesByDatabaseAndCollection([
+        const dbs = getPrivilegesByDatabaseAndCollection([
           { resource: { db: 'foo', collection: 'bar' }, actions: [] },
           { resource: { db: 'buz', collection: 'bla' }, actions: [] },
           { resource: { anyResource: true }, actions: [] },
@@ -291,7 +352,7 @@ describe('instance-detail-helper', function () {
 
     context('with unknown resources', function () {
       it("ignores everything that doesn't have database and collection in resource", function () {
-        const dbs = extractPrivilegesByDatabaseAndCollection([
+        const dbs = getPrivilegesByDatabaseAndCollection([
           { resource: { db: 'foo', collection: 'bar' }, actions: [] },
           { resource: { db: 'buz', collection: 'bla' }, actions: [] },
           { resource: { this: true }, actions: [] },
@@ -313,7 +374,7 @@ describe('instance-detail-helper', function () {
     });
 
     it('keeps records for all collections in a database', function () {
-      const dbs = extractPrivilegesByDatabaseAndCollection([
+      const dbs = getPrivilegesByDatabaseAndCollection([
         { resource: { db: 'foo', collection: 'bar' }, actions: [] },
         { resource: { db: 'foo', collection: 'buz' }, actions: [] },
         { resource: { db: 'foo', collection: 'barbar' }, actions: [] },
@@ -322,14 +383,14 @@ describe('instance-detail-helper', function () {
     });
 
     it('returns database actions indicated by empty collection name', function () {
-      const dbs = extractPrivilegesByDatabaseAndCollection([
+      const dbs = getPrivilegesByDatabaseAndCollection([
         { resource: { db: 'foo', collection: '' }, actions: ['find'] },
       ]);
       expect(dbs.foo).to.have.property('').deep.eq(['find']);
     });
 
     it('returns multiple databases and collections and their actions', function () {
-      const dbs = extractPrivilegesByDatabaseAndCollection([
+      const dbs = getPrivilegesByDatabaseAndCollection([
         { resource: { db: 'foo', collection: 'bar' }, actions: ['find'] },
         { resource: { db: 'foo', collection: 'barbar' }, actions: ['find'] },
         { resource: { db: 'buz', collection: 'foo' }, actions: ['insert'] },

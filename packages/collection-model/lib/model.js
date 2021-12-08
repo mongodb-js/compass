@@ -83,15 +83,31 @@ function propagateCollectionEvents(namespace) {
   };
 }
 
+function getParentByType(model, type) {
+  const parent = getParent(model);
+  return parent
+    ? parent.modelType === type
+      ? parent
+      : getParentByType(parent, type)
+    : null;
+}
+
 function pickCollectionInfo({
-  type,
   readonly,
   view_on,
   collation,
   pipeline,
   validation,
 }) {
-  return { type, readonly, view_on, collation, pipeline, validation };
+  return { readonly, view_on, collation, pipeline, validation };
+}
+
+/**
+ * Returns true if model is not ready (was fetched before and is not updating at
+ * the moment) or force fetch is requested
+ */
+ function shouldFetch(status, force) {
+  return force || status !== 'ready';
 }
 
 const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
@@ -184,13 +200,44 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         return getNamespaceInfo(this._id).normal;
       },
     },
+
+    isTimeSeries: {
+      deps: ['type'],
+      fn() {
+        return this.type === 'timeseries';
+      },
+    },
+
+    isView: {
+      deps: ['type'],
+      fn() {
+        return this.type === 'view';
+      },
+    },
+
+    sourceId: {
+      deps: ['view_on'],
+      fn() {
+        return this.view_on ? `${this.database}.${this.view_on}` : null;
+      },
+    },
+
+    source: {
+      deps: ['sourceId'],
+      fn() {
+        return this.collection.get(this.sourceId) ?? null;
+      },
+    },
   },
 
   /**
    * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
    * @returns
    */
-  async fetch({ dataService, fetchInfo = true }) {
+  async fetch({ dataService, fetchInfo = true, force = false }) {
+    if (!shouldFetch(this.status, force)) {
+      return;
+    }
     const collectionStatsAsync = promisify(
       dataService.collectionStats.bind(dataService)
     );
@@ -214,7 +261,11 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   },
 
   toJSON(opts = { derived: true }) {
-    return this.serialize(opts);
+    const serialized = this.serialize(opts);
+    if (serialized.source) {
+      serialized.source = serialized.source.toJSON();
+    }
+    return serialized;
   },
 });
 
@@ -235,18 +286,26 @@ const CollectionCollection = AmpersandCollection.extend(
      * @returns {Promise<void>}
      */
     async fetch({ dataService, fetchInfo = true }) {
-      const databaseName = this.parent && this.parent.getId();
+      const databaseName = getParentByType(this, 'Database')?.getId();
 
       if (!databaseName) {
         throw new Error(
-          "Trying to fetch MongoDBCollectionCollection that doesn't have the parent model"
+          `Trying to fetch ${this.modelType} that doesn't have the Database parent model`
+        );
+      }
+
+      const instanceModel = getParentByType(this, 'Instance');
+
+      if (!instanceModel) {
+        throw new Error(
+          `Trying to fetch ${this.modelType} that doesn't have the Instance parent model`
         );
       }
 
       const collections = await dataService.listCollections(
         databaseName,
         {},
-        { nameOnly: !fetchInfo }
+        { nameOnly: !fetchInfo, privileges: instanceModel.auth.privileges }
       );
 
       this.set(
@@ -258,9 +317,10 @@ const CollectionCollection = AmpersandCollection.extend(
             // refactor significantly. We can address this in COMPASS-5211
             return getNamespaceInfo(coll._id).system === false;
           })
-          .map(({ _id, ...rest }) => {
+          .map(({ _id, type, ...rest }) => {
             return {
               _id,
+              type,
               ...(fetchInfo && pickCollectionInfo(rest)),
             };
           })

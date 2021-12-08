@@ -13,18 +13,25 @@ import { collectionsReducer } from '../modules';
 const store = createStore(collectionsReducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
-  const onCollectionsChange = throttle(
-    (collections, databases, dbName = store.getState().databaseName) => {
-      collections = collections ?? databases.get(dbName)?.collections;
-      if (collections && collections.parent.getId() === dbName) {
+  const onCollectionsChange = throttle((collections, force = false) => {
+    const { databaseName } = store.getState();
+    if (collections.parent.getId() === databaseName) {
+      if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
+        const shouldUpdate = force || !collections.some((coll) =>
+          ['fetching', 'refreshing'].includes(coll.status)
+        );
+        if (shouldUpdate) {
+          store.dispatch(loadCollections(collections.toJSON()));
+        }
+      } else {
         store.dispatch(loadCollections(collections.toJSON()));
       }
-    },
-    100
-  );
+    }
+  }, 100);
 
   appRegistry.on('instance-destroyed', () => {
     onCollectionsChange.cancel();
+    store.instance = null;
   });
 
   /**
@@ -33,14 +40,10 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.on('instance-created', ({ instance }) => {
-    onCollectionsChange(null, instance.databases);
-
-    instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
-      store.dispatch(toggleIsDataLake(isDataLake));
-    });
+    store.instance = instance;
 
     instance.on('change:databases.collectionsStatus', (model) => {
-      onCollectionsChange(model.collections, instance.databases);
+      onCollectionsChange(model.collections);
     });
 
     instance.on('change:collections.status', (model) => {
@@ -48,21 +51,28 @@ store.onActivated = (appRegistry) => {
       // collection that holds references to all collection models on the
       // database. Above `collections` is a reference the collections property
       // on the database model
-      onCollectionsChange(model.collection, instance.databases);
+      onCollectionsChange(model.collection);
     });
 
-    /**
-     * When the database changes load the collections.
-     *
-     * @param {String} ns - The namespace.
-     */
-    appRegistry.on('select-database', (ns) => {
-      const { databaseName } = store.getState();
-      if (ns && !ns.includes('.') && ns !== databaseName) {
-        store.dispatch(changeDatabaseName(ns));
-        onCollectionsChange(null, instance.databases, ns);
-      }
+    instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
+      store.dispatch(toggleIsDataLake(isDataLake));
     });
+  });
+
+  /**
+   * When the database changes load the collections.
+   *
+   * @param {String} ns - The namespace.
+   */
+  appRegistry.on('select-database', (ns) => {
+    const { databaseName } = store.getState();
+    if (ns !== databaseName) {
+      store.dispatch(changeDatabaseName(ns));
+      onCollectionsChange(
+        store.instance?.databases.get(ns)?.collections ?? [],
+        true
+      );
+    }
   });
 
   /**

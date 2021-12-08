@@ -41,6 +41,7 @@ describe('CompassMenu', function () {
     expect(CompassMenu['windowState']).to.have.property('size', 1);
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
       showCollection: false,
+      isReadOnly: false,
     });
   });
 
@@ -72,13 +73,28 @@ describe('CompassMenu', function () {
     const bw = new BrowserWindow({ show: false });
     CompassMenu.init(App);
     App.emit('new-window', bw);
-    ipcMain.emit('window:show-collection-submenu', { sender: bw.webContents });
+    ipcMain.emit(
+      'window:show-collection-submenu',
+      { sender: bw.webContents },
+      { isReadOnly: false }
+    );
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
       showCollection: true,
+      isReadOnly: false,
     });
     ipcMain.emit('window:hide-collection-submenu', { sender: bw.webContents });
     expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
       showCollection: false,
+      isReadOnly: false,
+    });
+    ipcMain.emit(
+      'window:show-collection-submenu',
+      { sender: bw.webContents },
+      { isReadOnly: true }
+    );
+    expect(CompassMenu['windowState'].get(bw.id)).to.deep.eq({
+      showCollection: true,
+      isReadOnly: true,
     });
   });
 
@@ -142,7 +158,10 @@ describe('CompassMenu', function () {
     });
 
     it('should generate a menu template with collection submenu if `showCollection` is `true`', function () {
-      CompassMenu['windowState'].set(0, { showCollection: true });
+      CompassMenu['windowState'].set(0, {
+        showCollection: true,
+        isReadOnly: false,
+      });
       expect(
         // Contains functions, so we can't easily deep equal it without
         // converting to serializable format
@@ -163,6 +182,36 @@ describe('CompassMenu', function () {
           },
           {
             label: '&Import Data',
+          },
+          {
+            label: '&Export Collection',
+          },
+        ],
+      });
+    });
+
+    it('should generate a menu template with import collection action hidden if `isReadOnly` is `true`', function () {
+      CompassMenu['windowState'].set(0, {
+        showCollection: true,
+        isReadOnly: true,
+      });
+      expect(
+        // Contains functions, so we can't easily deep equal it without
+        // converting to serializable format
+        serializable(
+          CompassMenu.getTemplate(0).find(
+            (item) => item.label === '&Collection'
+          )
+        )
+      ).to.deep.eq({
+        label: '&Collection',
+        submenu: [
+          {
+            accelerator: 'Alt+CmdOrCtrl+S',
+            label: '&Share Schema as JSON',
+          },
+          {
+            type: 'separator',
           },
           {
             label: '&Export Collection',

@@ -42,7 +42,7 @@
     "hadron-build": "^24.9.0",
     "lodash": "^4.17.21",
     "mocha": "*",
-    "mongodb": "^4.1.0",
+    "mongodb": "^4.2.1",
     "mongodb-runner": "^4.8.3",
     "playwright": "^1.16.3",
     "prettier": "*",

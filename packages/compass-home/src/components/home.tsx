@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   ConnectionInfo,
   DataService,
@@ -19,6 +19,7 @@ import {
   useAppRegistryRole,
 } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
+import ipc from 'hadron-ipc';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -123,9 +124,15 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+function hideCollectionSubMenu() {
+  void ipc.ipcRenderer?.call('window:hide-collection-submenu');
+}
+
 function Home({ appName }: { appName: string }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
+  const connectedDataService = useRef<DataService>();
+  const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
 
   const [
     {
@@ -144,6 +151,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     ds: DataService,
     connectionInfo: ConnectionInfo
   ) {
+    connectedDataService.current = ds;
     dispatch({
       type: 'connected',
       connectionTitle: getConnectionTitle(connectionInfo) || '',
@@ -220,6 +228,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }
 
   function onSelectDatabase(ns: string) {
+    hideCollectionSubMenu();
     dispatch({
       type: 'update-namespace',
       namespace: toNS(ns),
@@ -234,6 +243,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }
 
   function onSelectInstance() {
+    hideCollectionSubMenu();
     dispatch({
       type: 'update-namespace',
       namespace: toNS(''),
@@ -272,7 +282,37 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }, [isConnected, appName, connectionTitle, namespace]);
 
   useEffect(() => {
-    // Setup listeners.
+    async function handleDisconnectClicked() {
+      if (!connectedDataService.current) {
+        // We aren't connected.
+        return;
+      }
+
+      await connectedDataService.current.disconnect();
+      connectedDataService.current = undefined;
+
+      appRegistry.emit('data-service-disconnected');
+    }
+
+    function onDisconnect() {
+      void handleDisconnectClicked();
+    }
+
+    // TODO: Once we merge https://jira.mongodb.org/browse/COMPASS-5302
+    // we can remove this check and handle the disconnect event here by default.
+    if (showNewConnectForm) {
+      // Setup ipc listener.
+      ipc.ipcRenderer?.on('app:disconnect', onDisconnect);
+
+      return () => {
+        // Clean up the ipc listener.
+        ipc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
+      };
+    }
+  }, [appRegistry, showNewConnectForm, onDataServiceDisconnected]);
+
+  useEffect(() => {
+    // Setup app registry listeners.
     appRegistry.on('instance-created', onInstanceCreated);
     appRegistry.on('data-service-connected', onDataServiceConnected);
     appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
@@ -283,7 +323,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     appRegistry.on('all-collection-tabs-closed', onAllTabsClosed);
 
     return () => {
-      // Clean up the listeners.
+      // Clean up the app registry listeners.
       appRegistry.removeListener('instance-created', onInstanceCreated);
       appRegistry.removeListener(
         'data-service-connected',
@@ -314,8 +354,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       />
     );
   }
-
-  const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
 
   if (showNewConnectForm) {
     return (

@@ -1,17 +1,20 @@
 import { Db, MongoClient } from 'mongodb';
 
 type ClientMockOptions = {
+  hosts: [{ host: string; port: number }];
   commands: Partial<{
     connectionStatus: unknown;
     getCmdLineOpts: unknown;
     hostInfo: unknown;
     buildInfo: unknown;
     getParameter: unknown;
+    atlasVersion: unknown;
   }>;
   collections: Record<string, string[]>;
 };
 
 export function createMongoClientMock({
+  hosts = [{ host: 'localhost', port: 9999 }],
   commands = {},
   collections = {},
 }: Partial<ClientMockOptions> = {}): MongoClient {
@@ -25,6 +28,7 @@ export function createMongoClientMock({
           'hostInfo',
           'buildInfo',
           'getParameter',
+          'atlasVersion',
         ].includes(key)
       );
 
@@ -66,6 +70,9 @@ export function createMongoClientMock({
           };
         },
       };
+    },
+    options: {
+      hosts,
     },
   };
 

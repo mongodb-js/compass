@@ -94,15 +94,16 @@ describe.skip('Logging and Telemetry integration', function () {
           .events()
           .find((entry) => entry.event === 'New Connection');
         expect(connectionAttempt.properties.is_localhost).to.equal(true);
-        expect(connectionAttempt.properties.is_atlas).to.equal(false);
+        expect(connectionAttempt.properties.is_atlas_url).to.equal(false);
         expect(connectionAttempt.properties.is_dataLake).to.equal(false);
         expect(connectionAttempt.properties.is_enterprise).to.equal(false);
         expect(connectionAttempt.properties.is_public_cloud).to.equal(false);
-        expect(connectionAttempt.properties.is_do).to.equal(false);
+        expect(connectionAttempt.properties.is_do_url).to.equal(false);
 
         expect(connectionAttempt.properties.public_cloud_name).to.be.a(
           'string'
         );
+        expect(connectionAttempt.properties.is_atlas).to.be.a('boolean');
         expect(connectionAttempt.properties.is_genuine).to.be.a('boolean');
         expect(connectionAttempt.properties.non_genuine_server_name).to.be.a(
           'string'

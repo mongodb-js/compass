@@ -43,26 +43,33 @@ store.onActivated = (appRegistry) => {
     onInstanceChange(instance);
     onDatabasesChange(instance.databases);
 
-    instance.on('change:isRefreshing', () => {
-      onInstanceChange(instance);
-    });
+    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
+      instance.on('change:isRefreshing', () => {
+        onInstanceChange(instance);
+        onDatabasesChange(instance.databases);
+      });
+    } else {
+      instance.on('change:isRefreshing', () => {
+        onInstanceChange(instance);
+      });
 
-    instance.on('change:status', () => {
-      onInstanceChange(instance);
-    });
+      instance.on('change:status', () => {
+        onInstanceChange(instance);
+      });
 
-    instance.on('change:databasesStatus', () => {
-      onInstanceChange(instance);
-      onDatabasesChange(instance.databases);
-    });
+      instance.on('change:databases.collectionsLength', () => {
+        onInstanceChange(instance);
+      });
 
-    instance.on('change:databases.collectionsLength', () => {
-      onInstanceChange(instance);
-    });
+      instance.on('change:databasesStatus', () => {
+        onInstanceChange(instance);
+        onDatabasesChange(instance.databases);
+      });
 
-    instance.on('change:databases.collectionsStatus', () => {
-      onDatabasesChange(instance.databases);
-    });
+      instance.on('change:databases.collectionsStatus', () => {
+        onDatabasesChange(instance.databases);
+      });
+    }
 
     function onIsGenuineChange(isGenuine) {
       store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
@@ -87,16 +94,20 @@ store.onActivated = (appRegistry) => {
     store.dispatch(changeDescription(state.description));
   });
 
-  appRegistry.on('select-namespace', (metadata) => {
-    store.dispatch(changeActiveNamespace(metadata.namespace || ''));
+  appRegistry.on('select-namespace', ({ namespace }) => {
+    store.dispatch(changeActiveNamespace(namespace));
   });
 
-  appRegistry.on('open-namespace-in-new-tab', (metadata) => {
-    store.dispatch(changeActiveNamespace(metadata.namespace || ''));
+  appRegistry.on('open-namespace-in-new-tab', ({ namespace }) => {
+    store.dispatch(changeActiveNamespace(namespace));
   });
 
-  appRegistry.on('select-database', (ns) => {
-    store.dispatch(changeActiveNamespace(ns || ''));
+  appRegistry.on('select-database', (dbName) => {
+    store.dispatch(changeActiveNamespace(dbName));
+  });
+
+  appRegistry.on('select-instance', () => {
+    store.dispatch(changeActiveNamespace(''));
   });
 
   appRegistry.on('data-service-disconnected', () => {

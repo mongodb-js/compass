@@ -23,6 +23,8 @@ const getSource = (collection, collections) => {
  * Show the collection.
  *
  * @param {String} name - The collection name.
+ *
+ * @returns {Function} The show collection function.
  */
 export const showCollection = (name) => {
   return (dispatch, getState) => {
@@ -51,11 +53,6 @@ export const showCollection = (name) => {
       ));
 
       dispatch(appRegistryEmit('collection-selected', { view: 'table' }));
-
-      if (!state.isDataLake) {
-        const ipc = require('hadron-ipc');
-        ipc.call('window:show-collection-submenu');
-      }
     }
   };
 };

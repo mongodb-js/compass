@@ -59,6 +59,15 @@ export const DATABASE_DROPPED = `${PREFIX}/tabs/DATABASE_DROPPED`;
  */
 export const INITIAL_STATE = [];
 
+const showCollectionSubmenu = ({ isReadOnly }) => {
+  const { ipcRenderer } = require('hadron-ipc');
+  if (ipcRenderer) {
+    ipcRenderer.call('window:show-collection-submenu', {
+      isReadOnly,
+    });
+  }
+};
+
 /**
  * Clear all the tabs.
  */
@@ -578,6 +587,7 @@ export const createNewTab = ({
         sourceViewOn
       })
     );
+    showCollectionSubmenu({ isReadOnly: isReadonly });
   };
 };
 
@@ -623,6 +633,7 @@ export const replaceTabContent = ({
         sourceViewOn
       })
     );
+    showCollectionSubmenu({ isReadOnly: isReadonly });
   };
 };
 

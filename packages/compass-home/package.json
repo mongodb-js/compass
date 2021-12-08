@@ -66,6 +66,7 @@
     "eslint": "^7.25.0",
     "eventemitter3": "^4.0.0",
     "hadron-app-registry": "^8.5.0",
+    "hadron-ipc": "^2.6.0",
     "hadron-react-buttons": "^5.5.0",
     "hadron-react-components": "^5.7.0",
     "mocha": "^8.4.0",
@@ -78,6 +79,7 @@
     "react-dom": "^16.14.0",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.2",
+    "sinon": "^8.1.1",
     "xvfb-maybe": "^0.2.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
