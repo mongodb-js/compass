@@ -344,7 +344,9 @@ describe('Smoke tests', function () {
           Selectors.atlasOnlyStagePreviewSection(0)
         );
         const text = await textElement.getText();
-        return text.includes('This stage is only available with MongoDB Atlas.');
+        return text.includes(
+          'This stage is only available with MongoDB Atlas.'
+        );
       });
     });
 
@@ -353,9 +355,7 @@ describe('Smoke tests', function () {
       await client.selectStageOperator(0, '$addFields');
 
       await client.waitUntil(async function () {
-        const textElement = await client.$(
-          Selectors.stagePreviewEmpty(0)
-        );
+        const textElement = await client.$(Selectors.stagePreviewEmpty(0));
         const text = await textElement.getText();
         return text === 'No Preview Documents';
       });
