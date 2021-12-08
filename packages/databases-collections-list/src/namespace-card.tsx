@@ -251,7 +251,7 @@ export const NamespaceItemCard: React.FunctionComponent<
     // @ts-expect-error the error here is caused by passing children to Card
     // component, even though it's allowed on the implementation level the types
     // are super confused and don't allow that
-    <Card contentStyle="clickable" {...cardProps}>
+    <Card contentStyle="clickable" data-testid={`${type}-grid-item-${id}`} {...cardProps}>
       <CardTitleGroup>
         <CardName>{name}</CardName>
 

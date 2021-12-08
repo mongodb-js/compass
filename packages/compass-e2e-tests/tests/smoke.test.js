@@ -87,7 +87,7 @@ describe('Smoke tests', function () {
 
     it('contains a list of databases', async function () {
       const dbSelectors = ['admin', 'config', 'local', 'test'].map(
-        Selectors.databaseTableLink
+        Selectors.databaseCard
       );
 
       for (const dbSelector of dbSelectors) {
@@ -108,7 +108,7 @@ describe('Smoke tests', function () {
 
     it('contains a list of collections', async function () {
       expect(
-        await client.existsEventually(Selectors.CollectionsTableLinkNumbers)
+        await client.existsEventually(Selectors.CollectionsGrid)
       ).to.eq(true);
     });
 
