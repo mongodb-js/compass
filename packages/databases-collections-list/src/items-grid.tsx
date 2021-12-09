@@ -277,8 +277,8 @@ export const ItemsGrid = <T extends Item>({
     >
       <div
         className={container}
-        {...rectProps}
         data-testid={`${itemType}-grid`}
+        {...rectProps}
       >
         <FixedSizeList
           ref={listRef}

@@ -30,11 +30,11 @@ class SidebarInstanceStats extends PureComponent {
   render() {
     const { instance, databases } = this.props;
 
-    let numDbs = databases.length ?? 0;
+    let numDbs = databases.length;
     let numCollections =
       databases
         .map((db) => db.collectionsLength)
-        .reduce((acc, n) => acc + n, 0) ?? 0;
+        .reduce((acc, n) => acc + n, 0);
 
     let refreshClassName = 'fa fa-repeat';
 
