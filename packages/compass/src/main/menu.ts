@@ -37,6 +37,16 @@ function quitItem(label: string): MenuItemConstructorOptions {
   };
 }
 
+function exportFavoritesItem(label: string): MenuItemConstructorOptions {
+  return {
+    label,
+    accelerator: 'CmdOrCtrl+E',
+    click() {
+      ipcMain.broadcastFocused('window:show-export-panel');
+    },
+  };
+}
+
 function compassOverviewItem(): MenuItemConstructorOptions {
   return {
     label: `${app.getName()} &Overview`,
@@ -110,6 +120,7 @@ function connectSubMenu(
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
   const subMenu: MenuTemplate = [connectItem(app), disconnectItem()];
+  subMenu.push(exportFavoritesItem('&Export Favorites'));
 
   if (nonDarwin) {
     subMenu.push(separator());
@@ -528,7 +539,10 @@ class CompassMenu {
     return nonDarwinMenu(menuState, this.app);
   }
 
-  private static showCollection(_bw: BrowserWindow, { isReadOnly }: { isReadOnly: boolean }) {
+  private static showCollection(
+    _bw: BrowserWindow,
+    { isReadOnly }: { isReadOnly: boolean }
+  ) {
     this.updateMenu({ showCollection: true, isReadOnly });
   }
 

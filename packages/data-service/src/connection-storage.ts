@@ -7,6 +7,14 @@ import {
   convertConnectionModelToInfo,
 } from './legacy/legacy-connection-model';
 
+type ExportOptions = {
+  encryptionPassword?: string;
+};
+
+type ImportOptions = {
+  sourcePath: string;
+  encryptionPassword?: string;
+};
 export class ConnectionStorage {
   /**
    * Loads all the ConnectionInfo currently stored.
@@ -66,6 +74,20 @@ export class ConnectionStorage {
 
     const model = await convertConnectionInfoToModel(connectionOptions);
     model.destroy();
+  }
+
+  async export(
+    connections: ConnectionInfo[],
+    targetFile: string,
+    options: ExportOptions
+  ): Promise<void> {
+    return await Promise.resolve();
+  }
+  async import(
+    sourceFile: string,
+    options: ImportOptions
+  ): Promise<ConnectionInfo[]> {
+    return await Promise.resolve();
   }
 }
 

@@ -1,6 +1,7 @@
 require('./index.less');
 require('../setup-hadron-distribution');
 
+import showExportFavoritesDialog from './favorites-exporter';
 const marky = require('marky');
 const EventEmitter = require('events');
 marky.mark('Time to Connect rendered');
@@ -120,7 +121,7 @@ var Application = View.extend({
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
     ipc.on('window:show-security-panel', this.showSecurity.bind(this));
-
+    ipc.on('window:show-export-panel', this.showExportFavorites.bind(this));
     function trackPerfEvent({ name, value }) {
       const fullName = {
         'FCP': 'First Contentful Paint',
@@ -250,6 +251,9 @@ var Application = View.extend({
       const networkOptInView = new NetworkOptInView();
       this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
     }
+  },
+  showExportFavorites: function() {
+    showExportFavoritesDialog();
   },
   showSecurity: function() {
     app.appRegistry.getAction('Security.Actions').show();
