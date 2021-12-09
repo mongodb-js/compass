@@ -116,7 +116,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   idAttribute: '_id',
   props: {
     _id: { type: 'string', required: true },
-    type: { type: 'string', required: true },
+    type: { type: 'string', default: 'collection' },
     status: { type: 'string', default: 'initial' },
     statusError: { type: 'string', default: null },
 
@@ -342,6 +342,12 @@ const CollectionCollection = AmpersandCollection.extend(
     },
   }
 );
+
+CollectionCollection.prototype[Symbol.iterator] = function* () {
+  for (let i = 0, len = this.length; i < len; i++) {
+    yield this.at(i);
+  }
+};
 
 module.exports = CollectionModel;
 module.exports.Collection = CollectionCollection;
