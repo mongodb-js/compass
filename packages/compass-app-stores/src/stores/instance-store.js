@@ -137,6 +137,18 @@ store.fetchCollectionMetadata = async(ns) => {
   return collectionMetadata;
 };
 
+store.refreshNamespace = async({ ns, database }) => {
+  const { instance, dataService } = store.getState();
+  if (!instance.databases.get(database)) {
+    await instance.fetchDatabases({ dataService, force: true });
+  }
+  const db = instance.databases.get(database);
+  if (!db.collections.get(ns)) {
+    await db.fetchCollections({ dataService, force: true });
+  }
+  await store.refreshNamespaceStats(ns);
+};
+
 store.refreshNamespaceStats = async(ns) => {
   const { instance, dataService } = store.getState();
   const { database } = toNS(ns);
@@ -236,6 +248,19 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('import-finished', ({ ns }) => {
     store.refreshNamespaceStats(ns);
+  });
+
+  appRegistry.on('collection-created', (ns) => {
+    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
+      store.refreshInstance(appRegistry, {
+        fetchDatabases: true,
+        fetchDbStats: true,
+        fetchCollections: true,
+        fetchCollInfo: true,
+      });
+    } else {
+      store.refreshNamespace(ns);
+    }
   });
 
   appRegistry.on('sidebar-select-collection', async({ ns }) => {

@@ -252,6 +252,7 @@ export const NamespaceItemCard: React.FunctionComponent<
     // component, even though it's allowed on the implementation level the types
     // are super confused and don't allow that
     <Card
+      key={id}
       contentStyle="clickable"
       data-testid={`${type}-grid-item-${id}`}
       {...cardProps}

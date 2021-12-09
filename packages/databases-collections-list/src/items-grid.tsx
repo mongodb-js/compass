@@ -83,7 +83,6 @@ const ItemRow = <T extends Item>({
           onItemClick,
           onDeleteItemClick,
           viewType,
-          key: `cell${index}`,
           className: cell,
           tabIndex: idx === currentTabbable ? 0 : -1,
           role: 'gridcell',
