@@ -77,16 +77,20 @@ store.onActivated = (appRegistry) => {
         onInstanceChange(instance);
       });
 
-      instance.on('change:status', () => {
+      instance.on('change:refreshingStatus', () => {
         onInstanceChange(instance);
       });
 
-      instance.on('change:databases.collectionsLength', () => {
+      instance.on('change:status', () => {
         onInstanceChange(instance);
       });
 
       instance.on('change:databasesStatus', () => {
         onInstanceChange(instance);
+        onDatabasesChange(instance.databases);
+      });
+
+      instance.on('change:databases.status', () => {
         onDatabasesChange(instance.databases);
       });
 

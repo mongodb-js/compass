@@ -49,7 +49,7 @@ store.onActivated = (appRegistry) => {
         onDatabasesChange(instance.databases);
       });
 
-      instance.on('change:databases.collectionsLength', () => {
+      instance.on('change:databases.collectionsStatus', () => {
         onDatabasesChange(instance.databases);
       });
     }
