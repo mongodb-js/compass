@@ -102,8 +102,7 @@ const Selectors = {
   // Database screen
   DatabaseTabs: '[data-test-id="database-tabs"]',
   DatabaseTab: '.test-tab-nav-bar-tab',
-  CollectionsGrid:
-    '[data-testid="collection-grid"]',
+  CollectionsGrid: '[data-testid="collection-grid"]',
 
   databaseTab: (tabName, selected) => {
     const selector = `${Selectors.DatabaseTab}[name="${tabName}"]`;

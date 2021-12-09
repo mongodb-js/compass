@@ -14,6 +14,24 @@ const WriteStateStore = Reflux.createStore({
 
 const instance = createInstance();
 
+function getDatabases(_instance) {
+  return _instance.databases.map((db) => {
+    return {
+      _id: db._id,
+      name: db.name,
+      collectionsStatus: db.collectionsStatus,
+      collectionsLength: db.collectionsLength,
+      collections: db.collections.map((coll) => {
+        return {
+          _id: coll._id,
+          name: coll.name,
+          type: coll.type,
+        };
+      }),
+    };
+  });
+}
+
 describe('SidebarStore [Store]', () => {
   beforeEach(() => {
     store.dispatch(reset());
@@ -60,10 +78,16 @@ describe('SidebarStore [Store]', () => {
       });
 
       it('updates the instance and databases state', () => {
-        expect(store.getState()).to.have.property('instance').deep.equal(instance.toJSON());
+        expect(store.getState())
+          .to.have.property('instance')
+          .deep.equal({
+            isRefreshing: instance.isRefreshing,
+            databasesStatus: instance.databasesStatus,
+            refreshingStatus: instance.refreshingStatus,
+          });
         expect(store.getState()).to.have.property('databases').deep.equal({
-          databases: instance.databases.toJSON(),
-          filteredDatabases: instance.databases.toJSON(),
+          databases: getDatabases(instance),
+          filteredDatabases: getDatabases(instance),
           activeNamespace: '',
           expandedDbList: {},
           filterRegex: null,
