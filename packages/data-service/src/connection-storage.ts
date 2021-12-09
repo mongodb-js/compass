@@ -1,3 +1,6 @@
+import { promises as fs } from 'fs';
+import crypto from 'crypto';
+
 import { ConnectionInfo } from './connection-info';
 
 import { validate as uuidValidate } from 'uuid';
@@ -7,14 +10,13 @@ import {
   convertConnectionModelToInfo,
 } from './legacy/legacy-connection-model';
 
-type ExportOptions = {
+type ImportExportOptions = {
   encryptionPassword?: string;
 };
 
-type ImportOptions = {
-  sourcePath: string;
-  encryptionPassword?: string;
-};
+const IMPORT_EXPORT_CIPHER_ALGORITHM = 'aes-256-ecb';
+const IMPORT_EXPORT_PASSWORD_HASH_ALGORITHM = 'sha256';
+const IMPORT_EXPORT_ENCRYPTED_ENCODING = 'base64';
 export class ConnectionStorage {
   /**
    * Loads all the ConnectionInfo currently stored.
@@ -76,18 +78,119 @@ export class ConnectionStorage {
     model.destroy();
   }
 
+  private _passwordToCypherKey(password: string): Buffer {
+    return crypto
+      .createHash(IMPORT_EXPORT_PASSWORD_HASH_ALGORITHM)
+      .update(password)
+      .digest();
+  }
+
+  private _encrypt(text: string, password: string) {
+    const key = this._passwordToCypherKey(password);
+
+    const cipher = crypto.createCipheriv(
+      IMPORT_EXPORT_CIPHER_ALGORITHM,
+      key,
+      Buffer.from('')
+    );
+    const encrypted = Buffer.concat([
+      cipher.update(Buffer.from(text)),
+      cipher.final(),
+    ]);
+
+    return encrypted.toString(IMPORT_EXPORT_ENCRYPTED_ENCODING);
+  }
+
+  private _decrypt(text: string, password: string) {
+    try {
+      const key = this._passwordToCypherKey(password);
+
+      const decipher = crypto.createDecipheriv(
+        IMPORT_EXPORT_CIPHER_ALGORITHM,
+        key,
+        Buffer.from('')
+      );
+
+      const decrypted = Buffer.concat([
+        decipher.update(Buffer.from(text, IMPORT_EXPORT_ENCRYPTED_ENCODING)),
+        decipher.final(),
+      ]);
+
+      return decrypted.toString();
+    } catch (err) {
+      throw new Error('Error decrypting connection data.');
+    }
+  }
+
   async export(
     connections: ConnectionInfo[],
     targetFile: string,
-    options: ExportOptions
+    options?: ImportExportOptions
   ): Promise<void> {
-    return await Promise.resolve();
+    const encrypted = !!options?.encryptionPassword;
+
+    await fs.writeFile(
+      targetFile,
+      JSON.stringify({
+        version: 1,
+        encrypted: encrypted,
+        connections: encrypted
+          ? this._encrypt(
+              JSON.stringify(connections),
+              options?.encryptionPassword ?? ''
+            )
+          : connections,
+      })
+    );
   }
+
+  private _deserializeImportedConnections(
+    connections: ConnectionInfo[]
+  ): ConnectionInfo[] {
+    if (!Array.isArray(connections)) {
+      return [];
+    }
+
+    return connections.map((connectionInfo) => {
+      if (connectionInfo.lastUsed) {
+        return {
+          ...connectionInfo,
+          lastUsed: new Date(connectionInfo.lastUsed),
+        };
+      }
+
+      return connectionInfo;
+    });
+  }
+
   async import(
     sourceFile: string,
-    options: ImportOptions
+    options?: ImportExportOptions
   ): Promise<ConnectionInfo[]> {
-    return await Promise.resolve();
+    const rawContents = JSON.parse(await fs.readFile(sourceFile, 'utf-8'));
+    if (!options?.encryptionPassword) {
+      if (
+        rawContents.encrypted ||
+        typeof rawContents.connections === 'string'
+      ) {
+        throw new Error(
+          'A password is required to read connections from an encrypted file.'
+        );
+      }
+
+      return this._deserializeImportedConnections(
+        rawContents.connections as ConnectionInfo[]
+      );
+    }
+
+    const decrypted = this._decrypt(
+      rawContents.connections,
+      options.encryptionPassword
+    );
+
+    const parsed = JSON.parse(decrypted);
+
+    return this._deserializeImportedConnections(parsed);
   }
 }
 

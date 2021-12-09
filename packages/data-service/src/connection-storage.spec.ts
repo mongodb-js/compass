@@ -183,4 +183,173 @@ describe('ConnectionStorage', function () {
       });
     });
   });
+
+  describe('import/export', function () {
+    it('does not encrypt connections if without password', async function () {
+      const id = uuid();
+      const connectionStorage = new ConnectionStorage();
+      const targetPath = path.join(tmpDir, `export-${id}.json`);
+      await connectionStorage.export(
+        [
+          {
+            id,
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+        ],
+        targetPath,
+        {}
+      );
+
+      const raw = JSON.parse(fs.readFileSync(targetPath, 'utf-8'));
+      expect(raw.version).to.equal(1);
+      expect(raw.encrypted).to.equal(false);
+      expect(raw.connections).to.deep.equal([
+        {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
+        },
+      ]);
+    });
+
+    it('encrypts connections with password', async function () {
+      const id = uuid();
+      const connectionStorage = new ConnectionStorage();
+      const targetPath = path.join(tmpDir, `export-${id}.json`);
+      await connectionStorage.export(
+        [
+          {
+            id,
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+        ],
+        targetPath,
+        { encryptionPassword: 'mypassword' }
+      );
+
+      const raw = JSON.parse(fs.readFileSync(targetPath, 'utf-8'));
+      expect(raw.version).to.equal(1);
+      expect(raw.encrypted).to.equal(true);
+      expect(typeof raw.connections).to.equal('string');
+    });
+
+    it('imports a non encrypted file', async function () {
+      const id = uuid();
+      const connectionStorage = new ConnectionStorage();
+      const targetPath = path.join(tmpDir, `export-${id}.json`);
+      await connectionStorage.export(
+        [
+          {
+            id,
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+        ],
+        targetPath,
+        {}
+      );
+
+      expect(await connectionStorage.import(targetPath, {})).to.deep.equal([
+        {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
+        },
+      ]);
+    });
+
+    it('imports an encrypted file', async function () {
+      const id = uuid();
+      const connectionStorage = new ConnectionStorage();
+      const targetPath = path.join(tmpDir, `export-${id}.json`);
+      await connectionStorage.export(
+        [
+          {
+            id,
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            lastUsed: new Date('2021-12-09T17:55:06.442Z'),
+          },
+        ],
+        targetPath,
+        { encryptionPassword: 'mypassword' }
+      );
+
+      expect(
+        await connectionStorage.import(targetPath, {
+          encryptionPassword: 'mypassword',
+        })
+      ).to.deep.equal([
+        {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
+          lastUsed: new Date('2021-12-09T17:55:06.442Z'),
+        },
+      ]);
+    });
+
+    it('throws importing an encrypted file without password', async function () {
+      const id = uuid();
+      const connectionStorage = new ConnectionStorage();
+      const targetPath = path.join(tmpDir, `export-${id}.json`);
+      await connectionStorage.export(
+        [
+          {
+            id,
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+        ],
+        targetPath,
+        { encryptionPassword: 'mypassword' }
+      );
+
+      const error = await connectionStorage
+        .import(targetPath, {
+          encryptionPassword: '',
+        })
+        .catch((err) => err);
+
+      expect(error.message).to.equal(
+        'A password is required to read connections from an encrypted file.'
+      );
+    });
+
+    it('throws with wrong password', async function () {
+      const id = uuid();
+      const connectionStorage = new ConnectionStorage();
+      const targetPath = path.join(tmpDir, `export-${id}.json`);
+      await connectionStorage.export(
+        [
+          {
+            id,
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+        ],
+        targetPath,
+        { encryptionPassword: 'mypassword' }
+      );
+
+      const error = await connectionStorage
+        .import(targetPath, {
+          encryptionPassword: 'wrongpassword',
+        })
+        .catch((err) => err);
+
+      expect(error.message).to.equal('Error decrypting connection data.');
+    });
+  });
 });
