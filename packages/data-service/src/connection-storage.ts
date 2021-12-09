@@ -14,6 +14,7 @@ type ImportExportOptions = {
   encryptionPassword?: string;
 };
 
+const IMPORT_EXPORT_SCHEMA_VERSION = 1;
 const IMPORT_EXPORT_CIPHER_ALGORITHM = 'aes-256-ecb';
 const IMPORT_EXPORT_PASSWORD_HASH_ALGORITHM = 'sha256';
 const IMPORT_EXPORT_ENCRYPTED_ENCODING = 'base64';
@@ -132,7 +133,7 @@ export class ConnectionStorage {
     await fs.writeFile(
       targetFile,
       JSON.stringify({
-        version: 1,
+        version: IMPORT_EXPORT_SCHEMA_VERSION,
         encrypted: encrypted,
         connections: encrypted
           ? this._encrypt(
