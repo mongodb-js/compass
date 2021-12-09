@@ -8,6 +8,7 @@ class SidebarInstanceStats extends PureComponent {
   static displayName = 'SidebarInstanceStats';
   static propTypes = {
     instance: PropTypes.object,
+    databases: PropTypes.object,
     isExpanded: PropTypes.bool.isRequired,
     toggleIsExpanded: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired
@@ -27,11 +28,11 @@ class SidebarInstanceStats extends PureComponent {
   }
 
   render() {
-    const { instance } = this.props;
+    const { instance, databases } = this.props;
 
-    let numDbs = instance?.databases.length ?? 0;
+    let numDbs = databases.length ?? 0;
     let numCollections =
-      instance?.databases
+      databases
         .map((db) => db.collectionsLength)
         .reduce((acc, n) => acc + n, 0) ?? 0;
 

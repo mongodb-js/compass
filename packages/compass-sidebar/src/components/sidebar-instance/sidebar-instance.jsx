@@ -12,6 +12,7 @@ class SidebarInstance extends PureComponent {
   static displayName = 'SidebarInstance';
   static propTypes = {
     instance: PropTypes.object,
+    databases: PropTypes.object,
     isExpanded: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
@@ -68,6 +69,7 @@ class SidebarInstance extends PureComponent {
       <div className={styles['sidebar-instance']}>
         <SidebarInstanceStats
           instance={this.props.instance}
+          databases={this.props.databases}
           isExpanded={this.props.isExpanded}
           toggleIsExpanded={this.props.toggleIsDetailsExpanded}
           globalAppRegistryEmit={this.props.globalAppRegistryEmit}

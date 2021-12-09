@@ -18,12 +18,36 @@ import { changeConnection } from '../modules/connection-model';
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
-  const onInstanceChange = throttle((newInstance) => {
-    store.dispatch(changeInstance(newInstance.toJSON()));
+  const onInstanceChange = throttle((instance) => {
+    store.dispatch(
+      changeInstance({
+        refreshingStatus: instance.refreshingStatus,
+        databasesStatus: instance.databasesStatus,
+        isRefreshing: instance.isRefreshing,
+      })
+    );
   }, 100);
 
   const onDatabasesChange = throttle((databases) => {
-    store.dispatch(changeDatabases(databases.toJSON()));
+    store.dispatch(
+      changeDatabases(
+        databases.map((db) => {
+          return {
+            _id: db._id,
+            name: db.name,
+            collectionsStatus: db.collectionsStatus,
+            collectionsLength: db.collectionsLength,
+            collections: db.collections.map((coll) => {
+              return {
+                _id: coll._id,
+                name: coll.name,
+                type: coll.type,
+              };
+            }),
+          };
+        })
+      )
+    );
   }, 100);
 
   store.dispatch(globalAppRegistryActivated(appRegistry));

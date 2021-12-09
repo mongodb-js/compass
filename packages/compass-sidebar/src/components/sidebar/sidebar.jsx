@@ -40,6 +40,7 @@ class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
   static propTypes = {
     instance: PropTypes.object.isRequired,
+    databases: PropTypes.object.isRequired,
     isDetailsExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
@@ -182,6 +183,7 @@ class Sidebar extends PureComponent {
         {isExpanded && (
           <SidebarInstance
             instance={this.props.instance}
+            databases={this.props.databases}
             isExpanded={this.props.isDetailsExpanded}
             detailsPlugins={this.props.detailsPlugins}
             isGenuineMongoDB={this.props.isGenuineMongoDB}
@@ -231,6 +233,7 @@ class Sidebar extends PureComponent {
  */
 const mapStateToProps = (state) => ({
   instance: state.instance,
+  databases: state.databases.databases,
   isDetailsExpanded: state.isDetailsExpanded,
   isWritable: state.isWritable,
   detailsPlugins: state.detailsPlugins,
