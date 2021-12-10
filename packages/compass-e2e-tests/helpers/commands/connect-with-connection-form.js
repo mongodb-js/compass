@@ -2,7 +2,7 @@ const Selectors = require('../selectors');
 
 const defaultTimeoutMS = 30_000;
 
-module.exports = function (app) {
+module.exports = function (app, page, commands) {
   return async function connectWithConnectionForm(
     {
       host,
@@ -25,28 +25,25 @@ module.exports = function (app) {
     },
     timeout = defaultTimeoutMS
   ) {
-    const { client } = app;
-    const connectionFormButtonElement = await client.$(
+    const connectionFormButton = page.locator(
       Selectors.ShowConnectionFormButton
     );
-    if (await connectionFormButtonElement.isDisplayed()) {
-      await client.clickVisible(Selectors.ShowConnectionFormButton);
+    if (await connectionFormButton.isVisible()) {
+      await connectionFormButton.click();
     }
 
-    await client.clickVisible(Selectors.ConnectionFormHostnameTabButton);
+    await page.click(Selectors.ConnectionFormHostnameTabButton);
 
     if (typeof host !== 'undefined') {
-      const element = await client.$(Selectors.ConnectionFormInputHostname);
-      await element.setValue(host);
+      await page.fill(Selectors.ConnectionFormInputHostname, host);
     }
 
     if (typeof port !== 'undefined') {
-      const element = await client.$(Selectors.ConnectionFormInputPort);
-      await element.setValue(port);
+      await page.fill(Selectors.ConnectionFormInputPort, port);
     }
 
     if (srvRecord === true) {
-      await client.clickVisible(Selectors.ConnectionFormInputSrvRecord);
+      await page.click(Selectors.ConnectionFormInputSrvRecord);
     }
 
     const authStrategy =
@@ -60,65 +57,47 @@ module.exports = function (app) {
         ? 'MONGODB'
         : 'NONE';
 
-    const authStrategyInputComponent = await client.$(
-      Selectors.ConnectionFormInputAuthStrategy
-    );
-    await authStrategyInputComponent.selectByAttribute('value', authStrategy);
+    await page.selectOption(Selectors.ConnectionFormInputAuthStrategy, authStrategy);
 
     if (typeof username !== 'undefined') {
-      const kerberosPrincipalInputElement = await app.client.$(
+      const kerberosPrincipalInput = page.locator(
         Selectors.ConnectionFormInputKerberosPrincipal
       );
-      const ldapUsernameInputElement = await app.client.$(
+      const ldapUsernameInput = page.locator(
         Selectors.ConnectionFormInputLDAPUsername
       );
       // TODO: No point in having different `name`s in UI, they are not used for
       // anything and all those map to `username` in driver options anyway
-      if (await kerberosPrincipalInputElement.isDisplayed()) {
-        const element = await client.$(
-          Selectors.ConnectionFormInputKerberosPrincipal
-        );
-        await element.setValue(username);
-      } else if (await ldapUsernameInputElement.isDisplayed()) {
-        const element = await client.$(
-          Selectors.ConnectionFormInputLDAPUsername
-        );
-        await element.setValue(username);
+      if (await kerberosPrincipalInput.isVisible()) {
+        await page.fill(Selectors.ConnectionFormInputKerberosPrincipal, username);
+      } else if (await ldapUsernameInput.isVisible()) {
+        await page.fill(Selectors.ConnectionFormInputLDAPUsername, username);
       } else {
-        const element = await client.$(Selectors.ConnectionFormInputUsername);
-        await element.setValue(username);
+        await page.fill(Selectors.ConnectionFormInputUsername, username);
       }
     }
 
     if (typeof password !== 'undefined') {
-      const ldapPasswordInputElement = await client.$(
+      const ldapPasswordInput = page.locator(
         Selectors.ConnectionFormInputLDAPPassword
       );
-      if (await ldapPasswordInputElement.isDisplayed()) {
-        const element = await client.$(
-          Selectors.ConnectionFormInputLDAPPassword
-        );
-        await element.setValue(password);
+      if (await ldapPasswordInput.isVisible()) {
+        await page.fill(Selectors.ConnectionFormInputLDAPPassword, password);
       } else {
-        const element = await client.$(Selectors.ConnectionFormInputPassword);
-        await element.setValue(password);
+        await page.fill(Selectors.ConnectionFormInputPassword, password);
       }
     }
 
     if (typeof gssapiServiceName !== 'undefined') {
-      await client.setValue(
-        '[name="kerberos-service-name"]',
-        gssapiServiceName
-      );
+      // TODO: this should be a Selector.*
+      await page.fill('[name="kerberos-service-name"]', gssapiServiceName);
     }
 
-    await client.clickVisible('#More_Options');
+    // TODO: this should be a Selector.*
+    await page.click('#More_Options');
 
     if (typeof replicaSet !== 'undefined') {
-      await client.setValue(
-        Selectors.ConnectionFormInputReplicaSet,
-        replicaSet
-      );
+      await page.fill(Selectors.ConnectionFormInputReplicaSet, replicaSet);
     }
 
     const sslMethod =
@@ -133,10 +112,7 @@ module.exports = function (app) {
         ? 'SYSTEMCA'
         : 'NONE';
 
-    const sslMethodInputComponent = await client.$(
-      Selectors.ConnectionFormInputSSLMethod
-    );
-    await sslMethodInputComponent.selectByAttribute('value', sslMethod);
+    await page.selectOption(Selectors.ConnectionFormInputSSLMethod, sslMethod);
 
     if (['ALL', 'SERVER'].includes(sslMethod)) {
       // TODO: Can be implemented after https://github.com/mongodb-js/compass/pull/2380
@@ -157,31 +133,28 @@ module.exports = function (app) {
       );
     }
 
-    const sshTunnelTypeInputComponent = await client.$(
-      Selectors.ConnectionFormInputSSHTunnel
-    );
-    await sshTunnelTypeInputComponent.selectByAttribute('value', sshTunnel);
+    await page.selectOption(Selectors.ConnectionFormInputSSHTunnel, sshTunnel);
 
     if (typeof sshTunnelHostname !== 'undefined') {
-      const element = await client.$('[name="sshTunnelHostname"]');
-      await element.setValue(sshTunnelHostname);
+      // TODO: this should be a Selectors.*
+      await page.fill('[name="sshTunnelHostname"]', sshTunnelHostname);
     }
 
     if (typeof sshTunnelPort !== 'undefined') {
-      const element = await client.$('[name="sshTunnelPort"]');
-      await element.setValue(sshTunnelPort);
+      // TODO: this should be a Selectors.*
+      await page.fill('[name="sshTunnelPort"]', sshTunnelPort);
     }
 
     if (typeof sshTunnelUsername !== 'undefined') {
-      const element = await client.$('[name="sshTunnelUsername"]');
-      await element.setValue(sshTunnelUsername);
+      // TODO: this should be a Selectors.*
+      await page.fill('[name="sshTunnelUsername"]', sshTunnelUsername);
     }
 
     if (typeof sshTunnelPassword !== 'undefined') {
-      const element = await client.$('[name="sshTunnelPassword"]');
-      await element.setValue(sshTunnelPassword);
+      // TODO: this should be a Selectors.*
+      await page.fill('[name="sshTunnelPassword"]', sshTunnelPassword);
     }
 
-    await client.doConnect(timeout);
+    await commands.doConnect(timeout);
   };
 };

@@ -30,6 +30,8 @@ async function setup() {
   } catch (e) {
     debug('.log dir already removed');
   }
+
+  fs.mkdirSync(LOG_PATH, { recursive: true });
 }
 
 function cleanup() {
@@ -108,6 +110,7 @@ async function main() {
 
   const mocha = new Mocha({
     timeout: 120_000,
+    bail: true // TODO
   });
 
   tests.forEach((testPath) => {

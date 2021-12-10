@@ -21,21 +21,21 @@ async function disconnect(client) {
  */
 describe.skip('Connection screen', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
-  let compass;
-  let client;
+  let app;
+  let page;
+  let commands;
 
   before(async function () {
-    compass = await beforeTests();
-    client = compass.client;
+    ({ app, page, commands } = await beforeTests());
   });
 
   after(function () {
-    return afterTests(compass);
+    return afterTests(app, page);
   });
 
   afterEach(async function () {
     await disconnect(client);
-    await afterTest(compass, this.currentTest);
+    await afterTest(app, page, this.currentTest);
   });
 
   it('can connect using connection string', async function () {

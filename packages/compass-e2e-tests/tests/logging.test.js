@@ -10,25 +10,26 @@ describe.skip('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      const compass = await beforeTests();
+      const { app, page, commands } = await beforeTests();
+
       try {
-        await compass.client.connectWithConnectionString(
+        await app.client.connectWithConnectionString(
           'mongodb://localhost:27018/test'
         );
 
-        await compass.client.shellEval('use test');
-        await compass.client.shellEval(
+        await app.client.shellEval('use test');
+        await app.client.shellEval(
           'db.runCommand({ connectionStatus: 1 })'
         );
 
-        await compass.client.openTourModal();
-        await compass.client.closeTourModal();
+        await app.client.openTourModal();
+        await app.client.closeTourModal();
       } finally {
-        await afterTests(compass);
+        await afterTests(app, page);
         await telemetry.stop();
       }
 
-      compassLog = compass.compassLog;
+      compassLog = app.compassLog;
       expect(compassLog).not.to.be.undefined;
     });
 
@@ -394,29 +395,31 @@ describe.skip('Logging and Telemetry integration', function () {
   });
 
   describe('Uncaught exceptions', function () {
-    let compass;
+    let app;
+    let page;
+    let commands;
 
     before(async function () {
       try {
         process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION = '1';
-        compass = await beforeTests();
+        ({ app, page, commands } = await beforeTests());
       } finally {
         delete process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION;
       }
 
-      await afterTests(compass);
+      await afterTests(app);
     });
 
     after(async function () {
-      if (compass) {
+      if (app) {
         // cleanup outside of the test so that the time it takes to run does not
         // get added to the time it took to run the first query
-        await afterTests(compass);
+        await afterTests(app);
       }
     });
 
     it('provides logging information for uncaught exceptions', async function () {
-      const uncaughtEntry = compass.compassLog.find(
+      const uncaughtEntry = app.compassLog.find(
         (entry) => entry.id === 1_001_000_002
       );
 

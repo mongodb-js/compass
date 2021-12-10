@@ -1,14 +1,15 @@
-module.exports = function (app) {
+module.exports = function (app, page) {
   return async function existsEventually(selector, timeout = 10000) {
-    const { client } = app;
     try {
       // return true if it exists before the timeout expires
-      const element = await client.$(selector);
-      return await element.waitForDisplayed({
+      const element = page.locator(selector);
+      await element.waitFor({
         timeout,
       });
+      return true;
     } catch (err) {
       // return false if not
+      console.log(`${selector} did not exist after ${timeout}ms`);
       return false;
     }
   };

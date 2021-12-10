@@ -78,7 +78,7 @@ function githubWorkflowRunUrl() {
 class ResultLogger {
   constructor(client, runner) {
     if (client) {
-      debug(`Logging E2E test metrics to ${DB_NAME}.${COLLECTION_NAME}`);
+      //debug(`Logging E2E test metrics to ${DB_NAME}.${COLLECTION_NAME}`);
       // client can be undefined if we don't want to write to the db
       this.client = client;
       const db = this.client.db(DB_NAME);
@@ -169,7 +169,7 @@ class ResultLogger {
   }
 
   async init() {
-    debug('init');
+    //debug('init');
 
     this.start = Date.now() / 1000;
     if (this.collection) {
@@ -179,13 +179,13 @@ class ResultLogger {
         status: 'start',
       });
       this._id = insertedId;
-      debug('resultId', this._id);
+      //debug('resultId', this._id);
     }
   }
 
   startResult(hookOrTest) {
     const test_file = joinPath(hookOrTest.titlePath());
-    debug('start', test_file);
+    //debug('start', test_file);
 
     const result = {
       test_file,
@@ -199,7 +199,7 @@ class ResultLogger {
 
   passResult(hookOrTest) {
     const test_file = joinPath(hookOrTest.titlePath());
-    debug('pass', test_file);
+    //debug('pass', test_file);
     const result = this.findResult(test_file);
 
     assert.ok(result);
@@ -211,7 +211,7 @@ class ResultLogger {
 
   failResult(hookOrTest, error) {
     const test_file = joinPath(hookOrTest.titlePath());
-    debug('fail', test_file);
+    //debug('fail', test_file);
     const result = this.findResult(test_file);
 
     assert.ok(result);
@@ -223,7 +223,7 @@ class ResultLogger {
   }
 
   async done(failures) {
-    debug('done');
+    //debug('done');
 
     this.end = Date.now() / 1000;
     this.elapsed = this.end - this.start;

@@ -3,16 +3,15 @@
 /**
  * @param {ExtendedApplication} app
  */
-exports.addCommands = function (app) {
+exports.bindCommands = function (app, page) {
+  const commands = {};
+
   const add = (name, path) => {
-    const f = require(path)(app);
-    app.client.addCommand(name, f);
+    const f = require(path);
+    commands[name] = f(app, page, commands);
   };
 
   add('existsEventually', './exists-eventually');
-  add('clickVisible', './click-visible');
-  add('setValueVisible', './set-value-visible');
-  add('waitForConnectionScreen', './wait-for-connection-screen');
   add('openTourModal', './open-tour-modal');
   add('closeTourModal', './close-tour-modal');
   add('closePrivacySettingsModal', './close-privacy-settings-modal');
@@ -30,8 +29,9 @@ exports.addCommands = function (app) {
   add('selectStageOperator', './select-stage-operator');
   add('closeCollectionTabs', './close-collection-tabs');
   add('setValidation', './set-validation');
-  add('waitForAnimations', './wait-for-animations');
-  add('setOrClearValue', './set-or-clear-value');
   add('listenForTelemetryEvents', './listen-for-telemetry-events');
   add('selectFile', './select-file');
+  add('waitUntil', './wait-until');
+
+  return commands;
 };

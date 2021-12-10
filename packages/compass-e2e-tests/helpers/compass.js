@@ -17,7 +17,7 @@ const {
   compileAssets,
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
-//const { addCommands } = require('./commands');
+const { bindCommands } = require('./commands');
 
 /**
  * @typedef {Object} ExtendedClient
@@ -39,7 +39,6 @@ const Selectors = require('./selectors');
  *
  * @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured']} ExtendedApplication
  */
-//* @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured'], client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
 
 const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
@@ -79,9 +78,9 @@ function getAtlasConnectionOptions() {
 // For the tmpdirs
 let i = 0;
 // For the screenshots
-//let j = 0;
+let j = 0;
 // For the html
-//let k = 0;
+let k = 0;
 
 /**
  *
@@ -112,16 +111,6 @@ async function startCompass(
   // @ts-expect-error
   const electronPath = require('electron');
 
-  ///** @type {import('spectron').AppConstructorOptions} */
-  const applicationStartOptions = !testPackagedApp
-    ? {
-        //path: electronPath,
-        executablePath: electronPath,
-        args: [COMPASS_PATH],
-        cwd: COMPASS_PATH,
-      }
-    : //: { path: getCompassBinPath(await getCompassBuildMetadata()) };
-      { executablePath: getCompassBinPath(await getCompassBuildMetadata()) };
 
   const nowFormatted = formattedDate();
 
@@ -147,29 +136,28 @@ async function startCompass(
   process.env.DEBUG = process.env.DEBUG || `${process.env.DEBUG || ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
 
+  const args = [
+    COMPASS_PATH,
+    `--user-data-dir=${userDataDir}`,
+    // Chromecast feature that is enabled by default in some chrome versions
+    // and breaks the app on Ubuntu
+    '--media-router=0',
+    // Evergren RHEL ci runs everything as root, and chrome will not start as
+    // root without this flag
+    '--no-sandbox',
+  ];
+
+  const applicationStartOptions = testPackagedApp
+    ? { executablePath: getCompassBinPath(await getCompassBuildMetadata()) }
+    : {
+        executablePath: electronPath,
+        args,
+        cwd: COMPASS_PATH,
+      };
+
   const appOptions = {
     ...opts,
     ...applicationStartOptions,
-    // TODO
-    /*
-    chromeDriverArgs: [
-      `--user-data-dir=${userDataDir}`,
-      // Chromecast feature that is enabled by default in some chrome versions
-      // and breaks the app on Ubuntu
-      '--media-router=0',
-      // Evergren RHEL ci runs everything as root, and chrome will not start as
-      // root without this flag
-      '--no-sandbox',
-    ],
-    */
-    // See https://github.com/microsoft/playwright/issues/9351#issuecomment-945314768
-    /*
-    env: {
-      APP_ENV: 'playwright',
-      DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
-      MONGODB_COMPASS_TEST_LOG_DIR: path.join(LOG_PATH, 'app'),
-    },
-    */
     // TODO
     /*
     chromeDriverLogPath,
@@ -177,7 +165,6 @@ async function startCompass(
     */
     // It's usually not required when running tests in Evergreen or locally, but
     // GitHub CI machines are pretty slow sometimes, especially the macOS one
-    //startTimeout: 20_000,
     timeout: 20_000,
     // TODO
     /*
@@ -486,73 +473,61 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
 //}
 
 /**
- * @param {ExtendedApplication} app
+ * @param {import('playwright').Page} page
  * @param {string} imgPathName
  */
-async function capturePage() {
-  //app,
-  //imgPathName = `screenshot-${formattedDate()}-${++j}.png`
-  // TODO
-  /*
+async function capturePage(page, imgPathName=`screenshot-${formattedDate()}-${++j}.png`) {
   try {
-    const buffer = await app.browserWindow.capturePage();
-    await fs.mkdir(LOG_PATH, { recursive: true });
-    // @ts-expect-error buffer is Electron.NativeImage not a real buffer, but it
-    //                  can be used as a buffer when storing an image
-    await fs.writeFile(path.join(LOG_PATH, imgPathName), buffer);
+    await page.screenshot({ path: path.join(LOG_PATH, imgPathName) });
     return true;
-  } catch (_) {
+  } catch (err) {
+    console.warn(err.stack);
     return false;
   }
-  */
 }
 
 /**
- * @param {ExtendedApplication} app
+ * @param {import('playwright').Page} page
  * @param {string} htmlPathName
  */
-async function savePage() {
-  //app,
-  //htmlPathName = `page-${formattedDate()}-${++k}.html`
-  // TODO
-  /*
+async function savePage(page, htmlPathName = `page-${formattedDate()}-${++k}.html`) {
   try {
-    await app.webContents.savePage(
-      path.join(LOG_PATH, htmlPathName),
-      'HTMLComplete'
-    );
+    const contents = await page.content();
+    await fs.writeFile(path.join(LOG_PATH, htmlPathName), contents);
     return true;
   } catch (err) {
+    console.warn(err.stack);
     return false;
   }
-  */
 }
 
 async function beforeTests() {
-  const compass = await startCompass();
+  const app = await startCompass();
+  const page = await app.firstWindow();
+  const commands = bindCommands(app, page);
 
-  // TODO: there is no client
-  //const { client } = compass;
+  await commands.closeTourModal();
+  await commands.closePrivacySettingsModal();
 
-  //await client.waitForConnectionScreen();
-  //await client.closeTourModal();
-  //await client.closePrivacySettingsModal();
-
-  return compass;
+  return { app, page, commands };
 }
 
-async function afterTests(compass) {
-  if (compass) {
-    await capturePage(compass);
-    await savePage(compass);
+async function afterTests(app, page) {
+  if (!app) {
+    console.log('no app');
+    return;
+  }
 
-    try {
-      await compass.close();
-    } catch (err) {
-      debug('An error occurred while stopping compass:');
-      debug(err);
-    }
-    compass = null;
+  // TODO: do we really need this given that we have afterTest()?
+  await capturePage(page);
+  await savePage(page);
+
+  try {
+    console.log('stopping compass');
+    await app.close();
+  } catch (err) {
+    debug('An error occurred while stopping compass:');
+    debug(err);
   }
 }
 
@@ -577,12 +552,14 @@ function outputFilename(filename) {
   return path.join(OUTPUT_PATH, filename);
 }
 
-async function afterTest(compass, test) {
-  if (process.env.CI) {
-    if (test.state == 'failed') {
-      await capturePage(compass, screenshotPathName(test.fullTitle()));
-      await savePage(compass, pagePathName(test.fullTitle()));
-    }
+async function afterTest(app, page, test) {
+  if (!page) {
+    return;
+  }
+
+  if (test.state == 'failed') {
+    await capturePage(page, screenshotPathName(test.fullTitle()));
+    await savePage(page, pagePathName(test.fullTitle()));
   }
 }
 
@@ -606,4 +583,5 @@ module.exports = {
   pagePathName,
   outputFilename,
   afterTest,
+  bindCommands,
 };

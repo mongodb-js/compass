@@ -1,20 +1,18 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (app, page, commands) {
   return async function closeCollectionTabs() {
-    const { client } = app;
-
     const closeSelector = Selectors.CloseCollectionTab;
 
     const countTabs = async () => {
-      return (await client.$$(closeSelector)).length;
+      return (await page.$$(closeSelector)).length;
     };
 
     let numTabs = await countTabs();
     while (numTabs > 0) {
-      await client.clickVisible(closeSelector);
+      await page.click(closeSelector);
 
-      await client.waitUntil(async () => {
+      await commands.waitUntil(async () => {
         return (await countTabs()) < numTabs;
       });
 

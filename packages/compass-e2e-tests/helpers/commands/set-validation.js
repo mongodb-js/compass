@@ -1,31 +1,26 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (app, page, commands) {
   return async function setValidation(value) {
-    const { client } = app;
-
-    await client.setAceValue(Selectors.ValidationEditor, value);
+    await commands.setAceValue(Selectors.ValidationEditor, value);
 
     // it should eventually detect that the text changed
-    const validationActionMessageElement = await client.$(
+    const validationActionMessage = page.locator(
       Selectors.ValidationActionMessage
     );
-    await validationActionMessageElement.waitForDisplayed();
+    await validationActionMessage.waitFor();
 
-    await client.clickVisible(Selectors.UpdateValidationButton);
+    await page.click(Selectors.UpdateValidationButton);
 
     // both buttons should become hidden if it succeeds
-    await validationActionMessageElement.waitForDisplayed({
+    await validationActionMessage.waitFor({
       // since this is a db query the default timeout might not be long enough
       timeout: 30_000,
-      reverse: true,
+      state: 'hidden',
     });
 
-    const updateValidationButtonElement = await client.$(
-      Selectors.UpdateValidationButton
-    );
-    await updateValidationButtonElement.waitForDisplayed({
-      reverse: true,
+    await page.waitForSelector(Selectors.UpdateValidationButton, {
+        state: 'hidden'
     });
   };
 };

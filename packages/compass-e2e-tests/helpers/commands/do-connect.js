@@ -1,14 +1,10 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (app, page) {
   return async function doConnect(timeout) {
-    const { client } = app;
-    await client.clickVisible(Selectors.ConnectButton);
+    await page.click(Selectors.ConnectButton);
     // First meaningful thing on the screen after being connected, good enough
     // indicator that we are connected to the server
-    const element = await client.$(Selectors.DatabasesTable);
-    await element.waitForDisplayed({
-      timeout,
-    });
+    await page.waitForSelector(Selectors.DatabasesTable, { timeout });
   };
 };

@@ -1,21 +1,20 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (app, page, commands) {
   return async function closePrivacySettingsModal() {
-    const { client } = app;
-
-    if (!(await client.existsEventually(Selectors.PrivacySettingsModal))) {
+    if (!(await commands.existsEventually(Selectors.PrivacySettingsModal))) {
+      console.log('privacy settings modal never became visible');
       return;
     }
 
-    const privateSettingsModalElement = await client.$(
+    const privateSettingsModal = page.locator(
       Selectors.PrivacySettingsModal
     );
 
-    await privateSettingsModalElement.waitForDisplayed();
-    await client.clickVisible(Selectors.ClosePrivacySettingsButton);
-    await privateSettingsModalElement.waitForDisplayed({
-      reverse: true,
+    await privateSettingsModal.waitFor();
+    await page.click(Selectors.ClosePrivacySettingsButton);
+    await privateSettingsModal.waitFor({
+      state: 'hidden'
     });
   };
 };

@@ -1,26 +1,26 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (app, page, commands) {
   return async function selectStageOperator(index, stageOperator) {
-    const { client } = app;
-
     const inputSelector = Selectors.stageSelectControlInput(index);
     const textareaSelector = Selectors.stageTextarea(index);
 
     // it should become focused straight after focusStageSelector()
-    await client.waitUntil(async () => {
-      const inputElement = await client.$(inputSelector);
-      const isFocused = await inputElement.isFocused();
+    await commands.waitUntil(async () => {
+      // eslint-disable-next-line no-undef
+      // TODO: command
+      const isFocused = await page.$eval(inputSelector, (el) => el === document.activeElement);
       return isFocused === true;
     });
 
-    await client.setValueVisible(inputSelector, stageOperator);
-    await client.keys(['Enter']);
+    await page.fill(inputSelector, stageOperator);
+    await page.keyboard.press('Enter');
 
     // the "select" should now blur and the ace textarea become focused
-    await client.waitUntil(async () => {
-      const textareaElement = await client.$(textareaSelector);
-      const isFocused = await textareaElement.isFocused();
+    await commands.waitUntil(async () => {
+      // eslint-disable-next-line no-undef
+      // TODO: command
+      const isFocused = await page.$eval(textareaSelector, (el) => el === document.activeElement);
       return isFocused === true;
     });
   };

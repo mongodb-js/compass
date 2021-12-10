@@ -1,7 +1,6 @@
-module.exports = function (app) {
+module.exports = function (app, page, commands) {
   return async function (telemetry) {
     const existingEventCount = telemetry.events().length;
-    const { client } = app;
 
     function lookupNewEvent(eventName) {
       const newEvents = telemetry.events().slice(existingEventCount);
@@ -9,9 +8,9 @@ module.exports = function (app) {
     }
 
     return async (eventName) => {
-      await client.waitUntil(
+      await commands.waitUntil(
         async () => {
-          await client.execute(() => {
+          await page.evaluate(() => {
             const { ipcRenderer } = require('electron');
             ipcRenderer.send('compass:usage:flush');
           });

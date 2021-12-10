@@ -2,15 +2,12 @@ const Selectors = require('../selectors');
 
 const MINUTE = 60_000;
 
-module.exports = function (app) {
+module.exports = function (app, page) {
   return async function () {
-    const { client } = app;
-
-    await client.execute(() => {
+    await page.evaluate(() => {
       require('electron').ipcRenderer.emit('window:show-compass-tour');
     });
 
-    const featureTourModalElement = await client.$(Selectors.FeatureTourModal);
-    await featureTourModalElement.waitForExist({ timeout: MINUTE });
+    await page.waitForSelector(Selectors.FeatureTourModal, { timeout: MINUTE });
   };
 };

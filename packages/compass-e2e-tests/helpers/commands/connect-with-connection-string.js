@@ -2,16 +2,16 @@ const Selectors = require('../selectors');
 
 const defaultTimeoutMS = 30_000;
 
-module.exports = function (app) {
+module.exports = function (app, page, commands) {
   return async function connectWithConnectionString(
     connectionString,
     timeout = defaultTimeoutMS
   ) {
-    const { client } = app;
-    await client.setValueVisible(
+    await page.fill(
       Selectors.ConnectionStringInput,
       connectionString
     );
-    await client.doConnect(timeout);
+    console.log('connecting with string');
+    await commands.doConnect(timeout);
   };
 };
