@@ -1,12 +1,13 @@
 const createTestEnvs = require('@mongodb-js/devtools-docker-test-envs').default;
 const ConnectionStringUrl = require('mongodb-connection-string-url').default;
 const { convertConnectionInfoToModel } = require('mongodb-data-service');
-const { v4: uuid } = require('uuid');
+const uuidV5 = require('uuid/v5');
 const { app } = require('electron');
 const _ = require('lodash');
 const fs = require('fs').promises;
 const keytar = require('keytar');
 const path = require('path');
+const prompts = require('prompts');
 
 const {
   E2E_TESTS_ATLAS_USERNAME,
@@ -19,13 +20,7 @@ const {
   E2E_TESTS_ATLAS_X509_PEM_PATH,
 } = process.env;
 
-const buildConnectionString = (
-  scheme,
-  username,
-  password,
-  host,
-  params,
-) => {
+const buildConnectionString = (scheme, username, password, host, params) => {
   if (!username || !password || !host) {
     return '';
   }
@@ -107,50 +102,48 @@ const connections = [];
 if (COMPASS_TEST_ATLAS_URL) {
   connections.push({
     favorite: {
-      name: 'Atlas'
+      name: 'Atlas',
     },
     connectionOptions: {
       connectionString: COMPASS_TEST_ATLAS_URL,
-    }
-  })
+    },
+  });
 }
-
 
 if (COMPASS_TEST_FREE_TIER_URL) {
   connections.push({
     favorite: {
-      name: 'Atlas (free tier)'
+      name: 'Atlas (free tier)',
     },
     connectionOptions: {
       connectionString: COMPASS_TEST_FREE_TIER_URL,
-    }
-  })
+    },
+  });
 }
 
 if (COMPASS_TEST_SECONDARY_NODE_URL) {
   connections.push({
     favorite: {
-      name: 'Atlas (ReadPreference=Secondary)'
+      name: 'Atlas (ReadPreference=Secondary)',
     },
     connectionOptions: {
       connectionString: COMPASS_TEST_SECONDARY_NODE_URL,
-    }
-  })
+    },
+  });
 }
 
 if (COMPASS_TEST_ANALYTICS_NODE_URL) {
   connections.push({
     favorite: {
-      name: 'Atlas (nodeType:ANALYTICS)'
+      name: 'Atlas (nodeType:ANALYTICS)',
     },
     connectionOptions: {
       connectionString: COMPASS_TEST_ANALYTICS_NODE_URL,
-    }
-  })
+    },
+  });
 }
 
 if (E2E_TESTS_ATLAS_HOST && E2E_TESTS_ATLAS_X509_PEM_PATH) {
-
   const url = new ConnectionStringUrl(
     `mongodb+srv://${E2E_TESTS_ATLAS_HOST || ''}/admin`
   );
@@ -162,34 +155,34 @@ if (E2E_TESTS_ATLAS_HOST && E2E_TESTS_ATLAS_X509_PEM_PATH) {
 
   connections.push({
     favorite: {
-      name: 'Atlas (X509)'
+      name: 'Atlas (X509)',
     },
     connectionOptions: {
       connectionString: url.href,
-    }
-  })
+    },
+  });
 }
 
 if (COMPASS_TEST_DATA_LAKE_URL) {
   connections.push({
     favorite: {
-      name: 'Atlas Data Lake'
+      name: 'Atlas Data Lake',
     },
     connectionOptions: {
       connectionString: COMPASS_TEST_DATA_LAKE_URL,
-    }
-  })
+    },
+  });
 }
 
 if (COMPASS_TEST_SERVERLESS_URL) {
   connections.push({
     favorite: {
-      name: 'Atlas Serverless'
+      name: 'Atlas Serverless',
     },
     connectionOptions: {
       connectionString: COMPASS_TEST_SERVERLESS_URL,
-    }
-  })
+    },
+  });
 }
 
 [
@@ -217,33 +210,59 @@ if (COMPASS_TEST_SERVERLESS_URL) {
   'kerberos',
   'kerberosAlternate',
   'kerberosCrossRealm',
-].forEach(envName => connections.push({
-  favorite: {
-    name: envName,
-  },
-  connectionOptions: envs.getConnectionOptions(envName)
-}));
+].forEach((envName) =>
+  connections.push({
+    favorite: {
+      name: envName,
+    },
+    connectionOptions: envs.getConnectionOptions(envName),
+  })
+);
 
 async function main() {
   const channels = {
     dev: 'MongoDB Compass Dev',
     beta: 'MongoDB Compass Beta',
-    stable: 'MongoDB Compass'
+    stable: 'MongoDB Compass',
   };
 
-  const channel = process.argv[2];
+  const channel = process.argv[2] || 'dev';
+
   if (!Object.keys(channels).includes(channel)) {
-    throw new Error(`USAGE: electron scripts/import-test-connections.js ${Object.keys(channels).join("|")}`);
+    throw new Error(
+      `USAGE: electron scripts/import-test-connections.js ${Object.keys(
+        channels
+      ).join('|')}`
+    );
   }
 
   const appName = channels[channel];
+
+  const { shouldContinue } = await prompts([
+    {
+      type: 'confirm',
+      name: 'shouldContinue',
+      message: `You are about to import ${connections.length} connections in ${appName}, you will be prompted to unlock the keychain multiple times on the next startup, do you want to continue?`,
+      initial: false,
+    },
+  ]);
+
+  if (!shouldContinue) {
+    process.exit(0);
+  }
+
   const userData = path.dirname(app.getPath('userData'));
   const destDir = path.join(userData, appName, 'Connections');
 
   for (const connectionInfo of connections) {
     try {
-      const connectionInfoWithId = { ...connectionInfo, id: uuid() };
-      const secureCondition = (val, key) => key.match(/(password|passphrase|secrets)/i);
+      const uuidNamespace = '35facdc4-d338-4015-b8f8-38e5d9ebeca4';
+      const connectionInfoWithId = {
+        ...connectionInfo,
+        id: uuidV5(JSON.stringify(connectionInfo), uuidNamespace),
+      };
+      const secureCondition = (val, key) =>
+        key.match(/(password|passphrase|secrets)/i);
       const serviceName = `${appName}/Connections`;
       const accountName = connectionInfoWithId.id;
       const model = await convertConnectionInfoToModel(connectionInfoWithId);
@@ -251,14 +270,13 @@ async function main() {
       const modelWithoutSecrets = _.omitBy(jsonModel, secureCondition);
       const secrets = _.pickBy(jsonModel, secureCondition);
 
-      // console.log({
-      //   keytarContent: JSON.stringify(secrets),
-      //   fileContent: JSON.stringify(modelWithoutSecrets)
-      // });
-
-      await keytar.setPassword(serviceName, accountName, JSON.stringify(secrets));
+      await keytar.setPassword(
+        serviceName,
+        accountName,
+        JSON.stringify(secrets)
+      );
       await fs.writeFile(
-        path.join(destDir,`${connectionInfoWithId.id}.json`),
+        path.join(destDir, `${connectionInfoWithId.id}.json`),
         JSON.stringify(modelWithoutSecrets)
       );
 
@@ -271,7 +289,7 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(e => {
+main().catch((e) => {
   console.error(e);
   process.exit(1);
 });

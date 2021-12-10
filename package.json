@@ -20,7 +20,7 @@
     "compile-changed": "lerna run compile --stream --since origin/HEAD",
     "depalign": "node scripts/depalign.js",
     "predepcheck": "npm run depalign",
-    "depcheck": "depcheck && lerna run depcheck --stream",
+    "depcheck": "depcheck",
     "check-logids": "node scripts/check-logids.js",
     "electron-rebuild": "npm run electron-rebuild --workspace mongodb-compass",
     "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",

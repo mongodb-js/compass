@@ -19,7 +19,7 @@ async function runCommandForPackages(command, packages) {
       {
         cwd: process.cwd(),
         stdio: 'inherit',
-        timeout: 1000 * 60 * 20
+        timeout: 1000 * 60 * 20,
       }
     );
 
@@ -46,15 +46,15 @@ async function runCommandForPackages(command, packages) {
           message: `Running ${command} for the package ${pkg.name} failed`,
           choices: [
             { title: 'Re-run', value: 'rerun' },
-            { title: 'Skip', value: 'skip' }
+            { title: 'Skip', value: 'skip' },
           ],
-          initial: 0
-        }
+          initial: 0,
+        },
       ],
       {
         onCancel() {
           canceled = true;
-        }
+        },
       }
     );
 
@@ -108,7 +108,7 @@ async function runUntilDone(command, packages) {
       type: 'confirm',
       name: 'shouldRerun',
       message: 'Do you want to rerun failed scripts?',
-      initial: true
+      initial: true,
     });
 
     if (shouldRerun === false) {
@@ -162,7 +162,7 @@ async function main() {
       'run',
       '--stream',
       command,
-      ...changedPackages.map((pkg) => ['--scope', pkg.name]).flat()
+      ...changedPackages.map((pkg) => ['--scope', pkg.name]).flat(),
     ],
     { cwd: process.cwd(), stdio: 'inherit' }
   );

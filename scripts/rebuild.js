@@ -11,7 +11,7 @@ const { withProgress } = require('./monorepo/with-progress');
 async function getBinPath(pkgName, resolveFrom = process.cwd()) {
   try {
     const pkgJsonFile = await pkgUp({
-      cwd: require.resolve(pkgName, { paths: [resolveFrom] })
+      cwd: require.resolve(pkgName, { paths: [resolveFrom] }),
     });
     const { bin } = require(pkgJsonFile);
     const binPath =
@@ -40,14 +40,14 @@ async function getDependenciesFromPackageJson(packagePath = process.cwd()) {
   const {
     dependencies = {},
     devDependencies = {},
-    optionalDependencies = {}
+    optionalDependencies = {},
   } = require(await pkgUp({ cwd: packagePath }));
 
   return Array.from(
     new Set([
       ...Object.keys(dependencies),
       ...Object.keys(devDependencies),
-      ...Object.keys(optionalDependencies)
+      ...Object.keys(optionalDependencies),
     ])
   );
 }
