@@ -235,7 +235,7 @@ describe('ConnectionStorage', function () {
       const raw = JSON.parse(fs.readFileSync(targetPath, 'utf-8'));
       expect(raw.version).to.equal(1);
       expect(raw.encrypted).to.equal(true);
-      expect(typeof raw.connections).to.equal('string');
+      expect(Array.isArray(raw.connections)).to.be.false;
     });
 
     it('imports a non encrypted file', async function () {

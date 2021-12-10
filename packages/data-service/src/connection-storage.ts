@@ -1,5 +1,11 @@
 import { promises as fs } from 'fs';
 import crypto from 'crypto';
+import util from 'util';
+
+const scrypt: (password: Buffer, salt: Buffer, len: number) => Promise<Buffer> =
+  util.promisify(crypto.scrypt);
+
+const randomBytes = util.promisify(crypto.randomBytes);
 
 import { ConnectionInfo } from './connection-info';
 
@@ -14,10 +20,25 @@ type ImportExportOptions = {
   encryptionPassword?: string;
 };
 
+type ClearExportedFileContent = {
+  version: number;
+  encrypted: false;
+  connections: ConnectionInfo[];
+};
+
+type EncryptedExportedFileContent = {
+  version: number;
+  encrypted: true;
+  connections: { text: string; salt: string };
+};
+
+type ExportedFileContent =
+  | ClearExportedFileContent
+  | EncryptedExportedFileContent;
+
 const IMPORT_EXPORT_SCHEMA_VERSION = 1;
 const IMPORT_EXPORT_CIPHER_ALGORITHM = 'aes-256-ecb';
-const IMPORT_EXPORT_PASSWORD_HASH_ALGORITHM = 'sha256';
-const IMPORT_EXPORT_ENCRYPTED_ENCODING = 'base64';
+
 export class ConnectionStorage {
   /**
    * Loads all the ConnectionInfo currently stored.
@@ -79,19 +100,33 @@ export class ConnectionStorage {
     model.destroy();
   }
 
-  private _passwordToCypherKey(password: string): Buffer {
-    return crypto
-      .createHash(IMPORT_EXPORT_PASSWORD_HASH_ALGORITHM)
-      .update(password)
-      .digest();
+  private async _passwordToCypherKey(
+    password: string,
+    salt: Buffer
+  ): Promise<Buffer> {
+    const key: Buffer = await scrypt(
+      Buffer.from(password),
+      salt,
+      32 /* bytes = 256 bit */
+    );
+
+    return key;
   }
 
-  private _encrypt(text: string, password: string) {
-    const key = this._passwordToCypherKey(password);
+  private async _encrypt(
+    text: string,
+    password: string
+  ): Promise<{ salt: string; text: string }> {
+    const salt = await randomBytes(32);
+    const key = await this._passwordToCypherKey(password, salt);
 
     const cipher = crypto.createCipheriv(
       IMPORT_EXPORT_CIPHER_ALGORITHM,
       key,
+      // empty iv,
+      // the password salt already makes 2 exports of the same connections
+      // with the same password to have a different key and different
+      // encrypted text
       Buffer.from('')
     );
     const encrypted = Buffer.concat([
@@ -99,12 +134,18 @@ export class ConnectionStorage {
       cipher.final(),
     ]);
 
-    return encrypted.toString(IMPORT_EXPORT_ENCRYPTED_ENCODING);
+    return {
+      text: encrypted.toString('base64'),
+      salt: salt.toString('base64'),
+    };
   }
 
-  private _decrypt(text: string, password: string) {
+  private async _decrypt(text: string, salt: string, password: string) {
     try {
-      const key = this._passwordToCypherKey(password);
+      const key = await this._passwordToCypherKey(
+        password,
+        Buffer.from(salt, 'base64')
+      );
 
       const decipher = crypto.createDecipheriv(
         IMPORT_EXPORT_CIPHER_ALGORITHM,
@@ -113,7 +154,7 @@ export class ConnectionStorage {
       );
 
       const decrypted = Buffer.concat([
-        decipher.update(Buffer.from(text, IMPORT_EXPORT_ENCRYPTED_ENCODING)),
+        decipher.update(Buffer.from(text, 'base64')),
         decipher.final(),
       ]);
 
@@ -130,19 +171,22 @@ export class ConnectionStorage {
   ): Promise<void> {
     const encrypted = !!options?.encryptionPassword;
 
-    await fs.writeFile(
-      targetFile,
-      JSON.stringify({
-        version: IMPORT_EXPORT_SCHEMA_VERSION,
-        encrypted: encrypted,
-        connections: encrypted
-          ? this._encrypt(
-              JSON.stringify(connections),
-              options?.encryptionPassword ?? ''
-            )
-          : connections,
-      })
-    );
+    const rawContent: ExportedFileContent = encrypted
+      ? {
+          version: IMPORT_EXPORT_SCHEMA_VERSION,
+          encrypted: true,
+          connections: await this._encrypt(
+            JSON.stringify(connections),
+            options?.encryptionPassword ?? ''
+          ),
+        }
+      : {
+          version: IMPORT_EXPORT_SCHEMA_VERSION,
+          encrypted: false,
+          connections,
+        };
+
+    await fs.writeFile(targetFile, JSON.stringify(rawContent));
   }
 
   private _deserializeImportedConnections(
@@ -168,24 +212,27 @@ export class ConnectionStorage {
     sourceFile: string,
     options?: ImportExportOptions
   ): Promise<ConnectionInfo[]> {
-    const rawContents = JSON.parse(await fs.readFile(sourceFile, 'utf-8'));
-    if (!options?.encryptionPassword) {
-      if (
-        rawContents.encrypted ||
-        typeof rawContents.connections === 'string'
-      ) {
-        throw new Error(
-          'A password is required to read connections from an encrypted file.'
-        );
-      }
+    const rawContents: ExportedFileContent = JSON.parse(
+      await fs.readFile(sourceFile, 'utf-8')
+    );
 
-      return this._deserializeImportedConnections(
-        rawContents.connections as ConnectionInfo[]
+    if (IMPORT_EXPORT_SCHEMA_VERSION !== 1) {
+      throw new Error('Unsupported file format version');
+    }
+
+    if (!rawContents.encrypted) {
+      return this._deserializeImportedConnections(rawContents.connections);
+    }
+
+    if (!options?.encryptionPassword) {
+      throw new Error(
+        'A password is required to read connections from an encrypted file.'
       );
     }
 
-    const decrypted = this._decrypt(
-      rawContents.connections,
+    const decrypted = await this._decrypt(
+      rawContents.connections.text,
+      rawContents.connections.salt,
       options.encryptionPassword
     );
 
