@@ -28,7 +28,9 @@ class PipelinePreviewToolbar extends PureComponent {
     isAutoPreviewing: PropTypes.bool.isRequired,
     toggleSettingsIsExpanded: PropTypes.func.isRequired,
     isFullscreenOn: PropTypes.bool.isRequired,
-    toggleFullscreen: PropTypes.func.isRequired
+    toggleFullscreen: PropTypes.func.isRequired,
+    isAggregationView: PropTypes.bool.isRequired,
+    toggleAggregationView: PropTypes.func.isRequired,
   };
 
   renderAutoPreviewToggle() {
@@ -73,28 +75,6 @@ class PipelinePreviewToolbar extends PureComponent {
     }
   }
 
-  renderFullscreenButton() {
-    const { isFullscreenOn } = this.props;
-
-    const iconClassName = isFullscreenOn ? 'fa fa-compress' : 'fa fa-expand';
-    const title = isFullscreenOn ? 'Exit Fullscreen' : 'Enter Fullscreen';
-    /**
-     * NOTE: Not using `<IconButton />` here because it assumes no need to re-render,
-     * but in this case, we do.
-     */
-    return (
-      <div className={styles.fullscreen}>
-        <button
-          type="button"
-          title={title}
-          className="btn btn-xs btn-default"
-          onClick={this.props.toggleFullscreen}>
-          <i className={iconClassName} aria-hidden />
-        </button>
-      </div>
-    );
-  }
-
   renderSettingsToggle() {
     return (
       <div className={styles.settings}>
@@ -108,16 +88,39 @@ class PipelinePreviewToolbar extends PureComponent {
     );
   }
 
+  renderToggleAggregationView() {
+    return (
+      <div
+        className={styles['toggle-aggregation-view']}
+        data-for="aggregation-view"
+        data-tip={<>Write full aggregation without stages</>}
+        data-place="top"
+        data-html="true">
+        <Switch
+          checked={this.props.isAggregationView}
+          onChange={this.props.toggleAggregationView}
+          {...SHARED_SWITCH_PROPS}
+        />
+        <span className={styles['toggle-aggregation-view-label']}>
+          Aggregation
+        </span>
+        <Tooltip id="preview-mode" />
+      </div>
+    );
+  }
+
   /**
    * Renders the pipeline preview toolbar.
    *
    * @returns {React.Component} The component.
    */
   render() {
+    const { isAggregationView } = this.props;
     return (
       <div className={styles['container-right']}>
-        {this.renderSampleToggle()}
-        {this.renderAutoPreviewToggle()}
+        {!isAggregationView && this.renderSampleToggle()}
+        {!isAggregationView && this.renderAutoPreviewToggle()}
+        {this.renderToggleAggregationView()}
         {this.renderSettingsToggle()}
       </div>
     );

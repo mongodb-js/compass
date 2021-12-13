@@ -110,7 +110,9 @@ import { gatherProjections, generateStage } from './stage';
 import updateViewError, {
   INITIAL_STATE as UPDATE_VIEW_ERROR_INITIAL_STATE
 } from './update-view';
-
+import noStageAggregation, {
+  INITIAL_STATE as AGGREGATION_INITIAL_STATE
+} from './aggregation';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -154,7 +156,8 @@ export const INITIAL_STATE = {
   editViewName: EDIT_VIEW_NAME_INITIAL_STATE,
   sourceName: SOURCE_NAME_INITIAL_STATE,
   isNewPipelineConfirm: IS_NEW_PIPELINE_CONFIRM_STATE,
-  updateViewError: UPDATE_VIEW_ERROR_INITIAL_STATE
+  updateViewError: UPDATE_VIEW_ERROR_INITIAL_STATE,
+  noStageAggregation: AGGREGATION_INITIAL_STATE,
 };
 
 /**
@@ -230,7 +233,8 @@ const appReducer = combineReducers({
   sourceName,
   outResultsFn,
   isNewPipelineConfirm,
-  updateViewError
+  updateViewError,
+  noStageAggregation,
 });
 
 /**

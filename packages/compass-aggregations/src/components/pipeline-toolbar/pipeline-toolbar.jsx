@@ -43,7 +43,9 @@ class PipelineToolbar extends PureComponent {
     toggleFullscreen: PropTypes.func.isRequired,
     savingPipelineOpen: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
-    openCreateView: PropTypes.func.isRequired
+    openCreateView: PropTypes.func.isRequired,
+    isAggregationView: PropTypes.bool.isRequired,
+    toggleAggregationView: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -100,6 +102,8 @@ class PipelineToolbar extends PureComponent {
           toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
           isFullscreenOn={this.props.isFullscreenOn}
           toggleFullscreen={this.props.toggleFullscreen}
+          isAggregationView={this.props.isAggregationView}
+          toggleAggregationView={this.props.toggleAggregationView}
         />
       </div>
     );

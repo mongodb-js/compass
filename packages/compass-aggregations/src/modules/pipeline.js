@@ -24,6 +24,11 @@ const PREFIX = 'aggregations/pipeline';
 export const STAGE_ADDED = `${PREFIX}/STAGE_ADDED`;
 
 /**
+ * Stages added action name.
+ */
+export const STAGES_ADDED = `${PREFIX}/STAGES_ADDED`;
+
+/**
  * Stage added after action name.
  */
 export const STAGE_ADDED_AFTER = `${PREFIX}/STAGE_ADDED_AFTER`;
@@ -195,6 +200,18 @@ const changeStage = (state, action) => {
 };
 
 /**
+ * Add new stages.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
+const addStages = (state, action) => {
+  return [...action.stages];
+};
+
+/**
  * Add a stage.
  *
  * @param {Object} state - The state.
@@ -358,6 +375,7 @@ const MAPPINGS = {};
 
 MAPPINGS[STAGE_CHANGED] = changeStage;
 MAPPINGS[STAGE_ADDED] = addStage;
+MAPPINGS[STAGES_ADDED] = addStages;
 MAPPINGS[STAGE_ADDED_AFTER] = addAfterStage;
 MAPPINGS[STAGE_DELETED] = deleteStage;
 MAPPINGS[STAGE_MOVED] = moveStage;
@@ -380,6 +398,17 @@ export default function reducer(state, action) {
   const fn = MAPPINGS[action.type];
   return fn ? fn(defaultState, action) : defaultState;
 }
+
+/**
+ * Action creator for adding multiple stages.
+ * @param {Array} stages - The pipeline state.
+ *
+ * @returns {Object} the stage added action.
+ */
+export const stagesAdded = (stages) => ({
+  type: STAGES_ADDED,
+  stages
+});
 
 /**
  * Action creator for adding a stage.

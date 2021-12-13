@@ -115,7 +115,10 @@ class Pipeline extends PureComponent {
     openCreateView: PropTypes.func.isRequired,
     isNewPipelineConfirm: PropTypes.bool.isRequired,
     setIsNewPipelineConfirm: PropTypes.func.isRequired,
-    inputDocuments: PropTypes.object.isRequired
+    inputDocuments: PropTypes.object.isRequired,
+    runAggregation: PropTypes.func.isRequired,
+    toggleAggregationView: PropTypes.func.isRequired,
+    noStageAggregation: PropTypes.object.isRequired,
   };
 
   static defaultProps = {
@@ -276,6 +279,9 @@ class Pipeline extends PureComponent {
           serverVersion={this.props.serverVersion}
           openCreateView={this.props.openCreateView}
           setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
+          isAggregationView={this.props.noStageAggregation.isEnabled}
+          toggleAggregationView={this.props.toggleAggregationView}
+          runAggregation={this.props.runAggregation}
         />
         {this.renderCollationToolbar()}
         {this.renderModifyingViewSourceError()}

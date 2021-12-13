@@ -6,6 +6,7 @@ import Input from '../input';
 import AddStage from '../add-stage';
 import SortableStageList from './sortable-stage-list';
 import ModifySourceBanner from '../modify-source-banner';
+import FullScreenAggregation from './full-screen-aggregation';
 
 import styles from './pipeline-workspace.module.less';
 
@@ -47,7 +48,10 @@ class PipelineWorkspace extends PureComponent {
     isOverviewOn: PropTypes.bool.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
+    newPipelineFromPaste: PropTypes.func.isRequired,
+    noStageAggregation: PropTypes.object.isRequired,
+    toggleAggregationView: PropTypes.func.isRequired,
+    runAggregation: PropTypes.func.isRequired,
   };
 
   /**
@@ -151,7 +155,7 @@ class PipelineWorkspace extends PureComponent {
     return (
       <div className={styles['pipeline-workspace-container-container']}>
         <div className={styles['pipeline-workspace-container']}>
-          <div className={styles['pipeline-workspace']}>
+          {!this.props.noStageAggregation.isEnabled && <div className={styles['pipeline-workspace']}>
             {this.renderModifyingViewSourceBanner()}
             <Input
               toggleInputDocumentsCollapsed={
@@ -170,7 +174,16 @@ class PipelineWorkspace extends PureComponent {
               stageAdded={this.props.stageAdded}
               setIsModified={this.props.setIsModified}
             />
-          </div>
+          </div>}
+          {this.props.noStageAggregation.isEnabled && <FullScreenAggregation
+            serverVersion={this.props.serverVersion}
+            fields={this.props.fields}
+            runAggregation={this.props.runAggregation}
+            errorMessage={this.props.noStageAggregation.errorMessage}
+            loading={this.props.noStageAggregation.loading}
+            documents={this.props.noStageAggregation.documents}
+            query={this.props.noStageAggregation.query}
+          />}
         </div>
       </div>
     );

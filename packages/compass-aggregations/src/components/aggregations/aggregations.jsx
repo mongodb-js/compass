@@ -83,6 +83,7 @@ import {
   dismissViewError,
   updateView
 } from '../../modules/update-view';
+import { toggleAggregationView, runAggregation } from '../../modules/aggregation';
 
 import styles from './aggregations.module.less';
 
@@ -150,7 +151,8 @@ const mapStateToProps = (state) => ({
   editViewName: state.editViewName,
   isNewPipelineConfirm: state.isNewPipelineConfirm,
   setIsNewPipelineConfirm: state.setIsNewPipelineConfirm,
-  updateViewError: state.updateViewError
+  updateViewError: state.updateViewError,
+  noStageAggregation: state.noStageAggregation,
 });
 
 /**
@@ -221,7 +223,9 @@ const MappedAggregations = connect(
     updateView,
     openCreateView,
     setIsNewPipelineConfirm,
-    dismissViewError
+    dismissViewError,
+    toggleAggregationView,
+    runAggregation,
   }
 )(Aggregations);
 
