@@ -16,7 +16,7 @@ export const QUERY_UPDATED = `${PREFIX}/QUERY_UPDATED`;
   * The initial state.
   */
 export const INITIAL_STATE = {
-  isEnabled: true,
+  isEnabled: false,
   query: JSON.stringify([], null, 2),
   documents: [],
   loading: false,
