@@ -43,13 +43,13 @@ class FullScreenAggregation extends PureComponent {
     const { loading, documents } = this.props;
     if (loading) {
       return (
-        <p>Fetching results ... </p>
+        <p className={styles['aggregation-result-message']}>Fetching results ... </p>
       );
     }
 
     if (documents.length === 0) {
       return (
-        <p>No documents ... </p>
+        <p className={styles['aggregation-result-message']}>No documents ... </p>
       );
     }
 
