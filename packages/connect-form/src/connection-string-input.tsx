@@ -9,7 +9,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 
 const uriLabelStyles = css({
   padding: 0,
@@ -97,27 +97,10 @@ function reducer(state: State, action: Action): State {
 export function hidePasswordInConnectionString(
   connectionString: string
 ): string {
-  try {
-    const passwordHiddenConnectionString = new ConnectionStringUrl(
-      connectionString
-    );
-
-    if (passwordHiddenConnectionString.password) {
-      passwordHiddenConnectionString.password = '*****';
-    }
-    if (passwordHiddenConnectionString.searchParams.get('AWS_SESSION_TOKEN')) {
-      passwordHiddenConnectionString.searchParams.set(
-        'AWS_SESSION_TOKEN',
-        '*****'
-      );
-    }
-
-    return passwordHiddenConnectionString.toString();
-  } catch (e) {
-    // If we cannot parse the connection string we'll return it
-    // as could be misformed.
-    return connectionString;
-  }
+  return redactConnectionString(connectionString).replace(
+    /<credentials>/g,
+    '*****'
+  );
 }
 
 function ConnectStringInput({
