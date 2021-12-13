@@ -99,7 +99,7 @@ export function hidePasswordInConnectionString(
 ): string {
   return redactConnectionString(connectionString, {
     redactUsernames: false,
-    replacementString: '*****'
+    replacementString: '*****',
   });
 }
 
