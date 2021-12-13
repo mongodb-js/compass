@@ -53,7 +53,7 @@
     "react-dom": "*"
   },
   "dependencies": {
-    "mongodb-connection-string-url": "^2.3.0",
+    "mongodb-connection-string-url": "^2.3.1",
     "react": "*",
     "react-dom": "*"
   },

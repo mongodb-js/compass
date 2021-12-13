@@ -97,10 +97,10 @@ function reducer(state: State, action: Action): State {
 export function hidePasswordInConnectionString(
   connectionString: string
 ): string {
-  return redactConnectionString(connectionString).replace(
-    /<credentials>/g,
-    '*****'
-  );
+  return redactConnectionString(connectionString, {
+    redactUsernames: false,
+    replacementString: '*****'
+  });
 }
 
 function ConnectStringInput({
