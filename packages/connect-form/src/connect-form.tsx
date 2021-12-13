@@ -59,7 +59,7 @@ function ConnectForm({
   );
 
   return (
-    <div className={formContainerStyles}>
+    <div className={formContainerStyles} data-testid="new-connect-form">
       <Card className={formCardStyles}>
         <div className={formContentContainerStyles}>
           <H3>New Connection</H3>
