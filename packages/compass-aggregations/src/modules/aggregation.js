@@ -152,7 +152,7 @@ const convertAggregationQueryToStages = (aggregation) => {
   return parsedAggregation.map((stage) => ({
     id: new ObjectId().toHexString(),
     stageOperator: Object.keys(stage)[0],
-    stage: JSON.stringify(Object.values(stage)[0]),
+    stage: JSON.stringify(Object.values(stage)[0], null, 2),
     isValid: true,
     isEnabled: true,
     isExpanded: true,
