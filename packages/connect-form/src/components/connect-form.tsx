@@ -51,7 +51,7 @@ function ConnectForm({
 }): React.ReactElement {
   const [
     { errors, invalidFields, connectionStringUrl, connectionStringInvalidError },
-    { updateConnectionFormField, setConnectionStringUrl, setConnectionStringError },
+    { updateConnectionFormField, setConnectionStringUrl, setConnectionStringError, hideError },
   ] = useConnectForm(initialConnectionOptions);
 
   const editingConnectionStringUrl = connectionStringUrl;
@@ -77,6 +77,7 @@ function ConnectForm({
           <AdvancedConnectionOptions
             errors={errors}
             invalidFields={invalidFields}
+            hideError={hideError}
             disabled={!!connectionStringInvalidError}
             connectionStringUrl={editingConnectionStringUrl}
             updateConnectionFormField={updateConnectionFormField}
