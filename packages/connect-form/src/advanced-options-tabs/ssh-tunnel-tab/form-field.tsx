@@ -10,25 +10,35 @@ const inputFieldStyles = css({
   marginBottom: spacing[3],
 });
 
+export type FormFieldValues = string | string[];
 export interface IFormField {
   label: string;
   placeholder: string;
   type: 'password' | 'text' | 'number' | 'file';
   key: string;
   optional?: boolean;
-  helpText?: React.FC;
+  defaultValue?: FormFieldValues;
+  helpText?: React.ReactElement;
 }
-
-export type FormFieldValues = string | string[];
+interface IFormFieldState {
+  [key: string]: FormFieldValues
+};
+interface IFormFieldProps {
+  fields: IFormField[];
+  onFieldChanged: (key: string, value: FormFieldValues) => void;
+}
 
 function FormField({
   fields,
   onFieldChanged,
-}: {
-  fields: IFormField[];
-  onFieldChanged: (key: string, value: FormFieldValues) => void;
-}): React.ReactElement {
-  const [formFields, setFormFields] = useState<{[key: string]: FormFieldValues}>({});
+}: IFormFieldProps): React.ReactElement {
+  const defaultValues: IFormFieldState = {};
+  fields.forEach(({key, defaultValue}) => {
+    if (defaultValue) {
+      defaultValues[key] = defaultValue;
+    }
+  });
+  const [formFields, setFormFields] = useState<IFormFieldState>(defaultValues);
   const formFieldChanged = (key: string, value: FormFieldValues) => {
     setFormFields({
       ...formFields,

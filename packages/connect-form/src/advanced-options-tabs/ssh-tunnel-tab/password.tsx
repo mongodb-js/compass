@@ -1,30 +1,8 @@
-import React, { useState, ChangeEvent } from 'react';
-import { css } from '@emotion/css';
-import { TextInput, spacing } from '@mongodb-js/compass-components';
+import React from 'react';
 
-const containerStyles = css({
-  marginTop: spacing[4]
-});
+import FormField, { IFormField, FormFieldValues } from './form-field';
 
-const inputFieldStyles = css({
-  width: '50%',
-  marginBottom: spacing[3],
-});
-
-
-type FormKey = 'hostname' | 'port' | 'username' | 'password';
-interface Field {
-  label: string;
-  placeholder: string;
-  type: 'password' | 'text' | 'number';
-  key: FormKey;
-}
-type FormState = {
-  [key in FormKey]: string;
-};
-
-
-const fields: Field[] = [
+const fields: IFormField[] = [
   {
     key: 'hostname',
     label: 'SSH Hostname',
@@ -52,35 +30,10 @@ const fields: Field[] = [
 ];
 
 function Password(): React.ReactElement {
-  const [formFields, setFormFields] = useState<FormState>({
-    hostname: '',
-    username: '',
-    password: '',
-    port: '',
-  });
-  const formFieldChanged = (key: FormKey, value: string) => {
-    setFormFields({
-      ...formFields,
-      [key]: value,
-    });
+  const formFieldChanged = (key: string, value: FormFieldValues) => {
+    console.log({key, value, component: 'Password'});
   };
-  return (
-    <div className={containerStyles}>
-      {fields.map(({placeholder, key, label, type}) => {
-        return <TextInput
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            formFieldChanged(key, event.target.value);
-          }}
-          className={inputFieldStyles}
-          key={key}
-          label={label}
-          type={type}
-          placeholder={placeholder}
-          value={formFields[key]}
-        />
-      })}
-    </div>
-  );
+  return <FormField fields={fields} onFieldChanged={formFieldChanged} />;
 }
 
 export default Password;

@@ -1,31 +1,8 @@
-import React, { useState, ChangeEvent } from 'react';
-import { css } from '@emotion/css';
-import { TextInput, spacing } from '@mongodb-js/compass-components';
+import React from 'react';
 
-const containerStyles = css({
-  marginTop: spacing[4]
-});
+import FormField, { IFormField, FormFieldValues } from './form-field';
 
-const inputFieldStyles = css({
-  width: '50%',
-  marginBottom: spacing[3],
-});
-
-
-type FormKey = 'hostname' | 'port' | 'username' | 'password';
-interface Field {
-  label: string;
-  placeholder: string;
-  type: 'password' | 'text' | 'number';
-  key: FormKey;
-  optional: boolean;
-}
-type FormState = {
-  [key in FormKey]: string;
-};
-
-
-const fields: Field[] = [
+const fields: IFormField[] = [
   {
     key: 'hostname',
     label: 'Proxy Hostname',
@@ -39,6 +16,7 @@ const fields: Field[] = [
     type: 'number',
     placeholder: 'Proxy Tunnel Port',
     optional: true,
+    defaultValue: '1080',
   },
   {
     key: 'username',
@@ -57,36 +35,10 @@ const fields: Field[] = [
 ];
 
 function Socks(): React.ReactElement {
-  const [formFields, setFormFields] = useState<FormState>({
-    hostname: '',
-    username: '',
-    password: '',
-    port: '1080',
-  });
-  const formFieldChanged = (key: FormKey, value: string) => {
-    setFormFields({
-      ...formFields,
-      [key]: value,
-    });
+  const formFieldChanged = (key: string, value: FormFieldValues) => {
+    console.log({key, value, component: 'Socks'});
   };
-  return (
-    <div className={containerStyles}>
-      {fields.map(({placeholder, key, label, type, optional}) => {
-        return <TextInput
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            formFieldChanged(key, event.target.value);
-          }}
-          className={inputFieldStyles}
-          key={key}
-          label={label}
-          type={type}
-          optional={optional}
-          placeholder={placeholder}
-          value={formFields[key]}
-        />
-      })}
-    </div>
-  );
+  return <FormField fields={fields} onFieldChanged={formFieldChanged} />;
 }
 
 export default Socks;
