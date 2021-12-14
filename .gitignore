@@ -23,3 +23,4 @@ storage
 .nyc_output
 coverage
 .ackrc
+env-vars.sh

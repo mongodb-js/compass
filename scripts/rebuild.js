@@ -11,7 +11,7 @@ const { withProgress } = require('./monorepo/with-progress');
 async function getBinPath(pkgName, resolveFrom = process.cwd()) {
   try {
     const pkgJsonFile = await pkgUp({
-      cwd: require.resolve(pkgName, { paths: [resolveFrom] })
+      cwd: require.resolve(pkgName, { paths: [resolveFrom] }),
     });
     const { bin } = require(pkgJsonFile);
     const binPath =
@@ -40,14 +40,14 @@ async function getDependenciesFromPackageJson(packagePath = process.cwd()) {
   const {
     dependencies = {},
     devDependencies = {},
-    optionalDependencies = {}
+    optionalDependencies = {},
   } = require(await pkgUp({ cwd: packagePath }));
 
   return Array.from(
     new Set([
       ...Object.keys(dependencies),
       ...Object.keys(devDependencies),
-      ...Object.keys(optionalDependencies)
+      ...Object.keys(optionalDependencies),
     ])
   );
 }
@@ -71,7 +71,9 @@ async function main() {
 
     try {
       resolvedPath = await fs.realpath(require.resolve(pkgName));
-    } catch (e) {}
+    } catch (e) {
+      //
+    }
 
     if (!resolvedPath) {
       continue;
@@ -113,7 +115,9 @@ async function main() {
 
           await runInDir(`npm run ${maybeRebuildScript}`, packagePath);
           total++;
-        } catch (e) {}
+        } catch (e) {
+          //
+        }
       }
 
       if (hasPrebuildInstall) {
@@ -126,7 +130,9 @@ async function main() {
 
           await runInDir(`node ${bin}`, packagePath);
           total++;
-        } catch (e) {}
+        } catch (e) {
+          //
+        }
       }
 
       const bin = nodeGypBin || (await getBinPath('node-gyp', packagePath));

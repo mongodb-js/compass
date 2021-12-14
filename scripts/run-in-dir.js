@@ -7,7 +7,7 @@ async function runInDir(command, cwd = process.cwd(), timeout = ONE_HOUR) {
   const execPromise = promisify(exec)(command, {
     stdio: 'pipe',
     cwd,
-    timeout
+    timeout,
   });
   return await execPromise;
 }

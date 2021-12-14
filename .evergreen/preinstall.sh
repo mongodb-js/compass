@@ -32,7 +32,6 @@ echo "IS_WINDOWS: $IS_WINDOWS"
 echo "IS_RHEL: $IS_RHEL"
 echo "IS_UBUNTU: $IS_UBUNTU"
 
-
 if [ -n "$IS_WINDOWS" ]; then
     echo "Installing nodejs v$NODE_JS_VERSION for windows..."
     curl -fs \
@@ -48,7 +47,7 @@ if [ -n "$IS_WINDOWS" ]; then
     rm -rf npm npx npm.cmd npx.cmd
     mv node_modules/npm node_modules/npm2
     chmod +x ./node.exe
-    
+
     ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@$NPM_VERSION
     rm -rf node_modules/npm2/
     chmod +x npm.cmd npm
@@ -66,7 +65,7 @@ else
 
     chmod +x ./bin/node
 
-    ./bin/node lib/node_modules/npm2/bin/npm-cli.js version 
+    ./bin/node lib/node_modules/npm2/bin/npm-cli.js version
 
     ./bin/node lib/node_modules/npm2/bin/npm-cli.js i -g npm@$NPM_VERSION
     rm -rf lib/node_modules/npm2/

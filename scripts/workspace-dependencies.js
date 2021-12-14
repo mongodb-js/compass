@@ -15,7 +15,7 @@ async function collectWorkspacesMeta() {
       .concat({ location: ROOT_DIR })
       .map(({ location }) => [
         location,
-        { ...require(path.join(location, 'package.json')), location }
+        { ...require(path.join(location, 'package.json')), location },
       ])
   );
 }
@@ -24,7 +24,7 @@ const DepTypes = {
   Prod: 'prod',
   Dev: 'dev',
   Optional: 'optional',
-  Peer: 'peer'
+  Peer: 'peer',
 };
 
 function getDepType(dependency, version, pkgJson) {
@@ -55,12 +55,12 @@ function collectWorkspacesDependencies(workspaces) {
       ...Object.entries(pkgJson.dependencies || {}),
       ...Object.entries(pkgJson.devDependencies || {}),
       ...filterOutStarDeps(Object.entries(pkgJson.peerDependencies || {})),
-      ...filterOutStarDeps(Object.entries(pkgJson.optionalDependencies || {}))
+      ...filterOutStarDeps(Object.entries(pkgJson.optionalDependencies || {})),
     ]) {
       const item = {
         version: versionRange,
         from: location,
-        type: getDepType(dependency, versionRange, pkgJson)
+        type: getDepType(dependency, versionRange, pkgJson),
       };
 
       if (dependencies.has(dependency)) {
@@ -81,5 +81,5 @@ function filterOutStarDeps(entries) {
 module.exports = {
   DepTypes,
   collectWorkspacesMeta,
-  collectWorkspacesDependencies
+  collectWorkspacesDependencies,
 };

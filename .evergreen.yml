@@ -14,6 +14,50 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
+  - &compass-env
+      # NOTE: anything added here should probably also be added to the list
+      # in .evergreen/export-compass-env.js
+      WORKDIR: ${workdir}
+      CI: "1"
+      EVERGREEN: "1"
+      EVERGREEN_AUTHOR: ${author}
+      EVERGREEN_BRANCH_NAME: ${branch_name}
+      EVERGREEN_BUILD_ID: ${build_id}
+      EVERGREEN_BUILD_VARIANT: ${build_variant}
+      EVERGREEN_EXECUTION: ${execution}
+      EVERGREEN_IS_PATCH: ${is_patch}
+      EVERGREEN_PROJECT: ${project}
+      EVERGREEN_REVISION: ${revision}
+      EVERGREEN_TASK_ID: ${task_id}
+      EVERGREEN_TASK_NAME: ${task_name}
+      EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
+      EVERGREEN_VERSION_ID: ${version_id}
+      EVERGREEN_WORKDIR: ${workdir}
+      NODE_JS_VERSION: "14.17.5"
+      NPM_VERSION: "7"
+      # secrets
+      HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
+      HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
+      HADRON_METRICS_STITCH_APP_ID: ${metrics_stitch_app_id}
+      HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
+      E2E_TESTS_METRICS_URI: ${e2e_tests_metrics_string}
+      E2E_TESTS_ATLAS_HOST: ${e2e_tests_atlas_host}
+      E2E_TESTS_DATA_LAKE_HOST: ${e2e_tests_data_lake_host}
+      E2E_TESTS_SERVERLESS_HOST: ${e2e_tests_serverless_host}
+      E2E_TESTS_ANALYTICS_NODE_HOST: ${e2e_tests_analytics_node_host}
+      E2E_TESTS_FREE_TIER_HOST: ${e2e_tests_free_tier_host}
+      E2E_TESTS_ATLAS_USERNAME: ${e2e_tests_atlas_username}
+      E2E_TESTS_ATLAS_PASSWORD: ${e2e_tests_atlas_password}
+      E2E_TESTS_ATLAS_X509_PEM: ${e2e_tests_atlas_x509_pem}
+      NOTARY_URL: http://notary-service.build.10gen.cc:5000
+      NOTARY_AUTH_TOKEN: ${signing_auth_token}
+      NOTARY_SIGNING_KEY: ${signing_key_name}
+      NOTARY_SIGNING_COMMENT: Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}
+      APPLE_CREDENTIALS: '{\"appleUsername\": \"${apple_username}\", \"applePassword\": \"${apple_password}\"}'
+      GITHUB_TOKEN: ${devtoolsbot_github_token}
+      DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
+      DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
+
 
 post:
   - &save-diagnostic-file
@@ -37,7 +81,7 @@ post:
       file_location: src/packages/compass-e2e-tests/.log/report.json
 
 functions:
-  'prepare':
+  prepare:
     - command: git.get_project
       params:
         directory: src
@@ -46,87 +90,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
-          echo "Setting up ~/compass_env.sh"
-
-          cat <<EOF_BUILD_SH > ~/compass_env.sh
-          export CI=1
-          export EVERGREEN=1
-
-          # XXX: This is a workaround for the issues we are getting in Evergreen
-          # ci with the way cygwin drives are set up and linked and the Node.js
-          # bug that we can't really do anything about.
-          #
-          # For more context, see:
-          # - https://github.com/nodejs/node/issues/34866
-          # - https://github.com/mongodb-js/compass/pull/2403
-          # - https://github.com/mongodb-js/compass/pull/2410
-          if [[ "\$OSTYPE" == "cygwin" ]]; then
-            # Change cygdrive from c to z without chanding rest of the path
-            CHANGE_DIR_TO="\$(pwd | sed 's/^\/cygdrive\/c/\/cygdrive\/z/')"
-            cd \$CHANGE_DIR_TO;
-            echo "Changed cwd on cygwin. Current working dir: \$(pwd)"
-          fi
-
-          # Make default evergreen expansions accessible to hadron-build
-          export EVERGREEN_ASSET_PREFIX="s3://mciuploads/${project}/${revision}";
-          export EVERGREEN_AUTHOR="${author}";
-          export EVERGREEN_AWS_ACCESS_KEY_ID="${aws_key}";
-          export EVERGREEN_AWS_SECRET_ACCESS_KEY="${aws_secret}";
-          export EVERGREEN_BRANCH_NAME="${branch_name}";
-          export EVERGREEN_BUILD_ID="${build_id}";
-          export EVERGREEN_BUILD_VARIANT="${build_variant}";
-          export EVERGREEN_EXECUTION="${execution}";
-          export EVERGREEN_IS_PATCH=${is_patch};
-          export EVERGREEN_PROJECT="${project}";
-          export EVERGREEN_REVISION="${revision}";
-          export EVERGREEN_TASK_ID="${task_id}";
-          export EVERGREEN_TASK_NAME="${task_name}";
-          export EVERGREEN_TASK_URL="https://evergreen.mongodb.com/task/${task_id}";
-          export EVERGREEN_VERSION_ID="${version_id}";
-          export EVERGREEN_WORKDIR="${workdir}";
-
-          export HADRON_METRICS_BUGSNAG_KEY="${metrics_bugsnag_key}";
-          export HADRON_METRICS_INTERCOM_APP_ID="${metrics_intercom_app_id}";
-          export HADRON_METRICS_STITCH_APP_ID="${metrics_stitch_app_id}";
-          export HADRON_METRICS_SEGMENT_API_KEY="${metrics_segment_api_key}";
-
-          # Directories used to install node, npm, and store artifacts
-          export ARTIFACTS_PATH="$(pwd)/.deps"
-          export NPM_CACHE_DIR="$(pwd)/.deps/.npm"
-          export NPM_TMP_DIR="$(pwd)/.deps/tmp"
-
-          export NODE_JS_VERSION="14.17.5"
-          export NPM_VERSION="7"
-
-          # npm configuration
-          # all var names need to be lowercase
-          # see: https://docs.npmjs.com/cli/v7/using-npm/config#environment-variables
-          export npm_config_cache="\$NPM_CACHE_DIR"
-          # npm tmp is deprecated, but let's keep it around just in case
-          export npm_config_tmp="\$NPM_TMP_DIR"
-
-          if [[ "\$OSTYPE" == "cygwin" ]]; then
-            # NOTE lucas: for git-core addition, See
-            # https://jira.mongodb.org/browse/COMPASS-4122
-            export PATH="/cygdrive/c/Program Files/Git/mingw32/libexec/git-core/:$(pwd)/.deps:/cygdrive/c/wixtools/bin/:\$PATH"
-            export APPDATA=Z:\\\;
-          fi
-
-          if [[ "\$OSTYPE" != "cygwin" ]]; then
-            export PATH="$(pwd)/.deps/bin:\$PATH"
-          fi
-
-          if [ "\$EVERGREEN_BUILD_VARIANT" = rhel ]; then
-            # To build node modules on RHEL post electron 13 we need
-            # a newer c++ compiler version, this adds it.
-            # https://jira.mongodb.org/browse/COMPASS-5150
-            export PATH="/opt/mongodbtoolchain/v3/bin:\$PATH"
-          fi
-
-          EOF_BUILD_SH
-
-          source ~/compass_env.sh
+          set -e
+          eval $(.evergreen/print-compass-env.sh)
 
           # Make all the dirs
           mkdir -p $ARTIFACTS_PATH
@@ -137,26 +105,30 @@ functions:
       params:
         working_dir: src
         shell: bash
-        script: |
-          source ~/compass_env.sh
-
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
-          source ~/compass_env.sh
-          bash .evergreen/preinstall.sh
+          eval $(.evergreen/print-compass-env.sh)
+
+          .evergreen/preinstall.sh
+
+          # Make sure install worked
+          echo "node -v";
+          node -v;
+          echo "npm -v";
+          npm -v;
 
   install:
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
-          source ~/compass_env.sh
+          eval $(.evergreen/print-compass-env.sh)
 
           echo "Installing Compass dependencies with the following npm configuration"
           npm config ls -l
@@ -170,9 +142,11 @@ functions:
     params:
       working_dir: src
       shell: bash
+      env:
+        <<: *compass-env
       script: |
         set -e
-        source ~/compass_env.sh
+        eval $(.evergreen/print-compass-env.sh)
 
         echo "Run static analysis..."
         npm run check-ci
@@ -182,24 +156,17 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
 
           # Load environment variables
-          source ~/compass_env.sh
+          eval $(.evergreen/print-compass-env.sh)
+
           echo "Running tests"
 
-          bash .evergreen/pretest.sh
-
-          export E2E_TESTS_METRICS_URI="${e2e_tests_metrics_string}"
-          export E2E_TESTS_ATLAS_HOST="${e2e_tests_atlas_host}"
-          export E2E_TESTS_DATA_LAKE_HOST="${e2e_tests_data_lake_host}"
-          export E2E_TESTS_SERVERLESS_HOST="${e2e_tests_serverless_host}"
-          export E2E_TESTS_ANALYTICS_NODE_HOST="${e2e_tests_analytics_node_host}"
-          export E2E_TESTS_FREE_TIER_HOST="${e2e_tests_free_tier_host}"
-          export E2E_TESTS_ATLAS_USERNAME="${e2e_tests_atlas_username}"
-          export E2E_TESTS_ATLAS_PASSWORD="${e2e_tests_atlas_password}"
-          export E2E_TESTS_ATLAS_X509_PEM="${e2e_tests_atlas_x509_pem}"
+          .evergreen/pretest.sh
 
           # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
           # have dropped support for macOS 10.10 because it is now outside
@@ -210,23 +177,17 @@ functions:
           # "mongo*" for some helpful output from the test tooling we are using
           DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run test-ci --unsafe-perm -- --stream
 
-  'package':
+  package:
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
         script: |
           set -e
-          # Load environment variables generated by `prepare`
-          source ~/compass_env.sh
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          # Load environment variables generated by `prepare`
-          source ~/compass_env.sh
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
 
           echo "Synchronizing evergreen environment from Compass build tools..."
 
@@ -241,94 +202,40 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          <<: *compass-env
+          # NOTE: anything added here should also be added to export-compass-env.js
+          DEBUG: ${debug}
+          npm_config_loglevel: ${npm_loglevel}
+          COMPASS_DISTRIBUTION: ${compass_distribution}
         script: |
           set -e
-          source ~/compass_env.sh
 
-          cat <<EOF_BUILD_SH > ~/compass_package.sh
-          #! /usr/bin/env bash
-          cd $(pwd)
-
-          # Load environment variables
-          source ~/compass_env.sh
-
-          # For debugging any problems when the notary service fails.
-          # @see https://github.com/mongodb-js/notary-service-client For details on what notary service is.
-          export DEBUG=mongodb-notary*
-
-          # Required to sign release assets
-          export NOTARY_URL="http://notary-service.build.10gen.cc:5000"
-          export NOTARY_AUTH_TOKEN="${signing_auth_token}"
-          export NOTARY_SIGNING_KEY="${signing_key_name}"
-          export NOTARY_SIGNING_COMMENT="Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}"
+          eval $(.evergreen/print-compass-env.sh)
 
           if [ `uname` == Darwin ]; then
-            # We do print the environment during the build process in a few places
-            # but we probably should stop doing that. After that, we can go back
-            # to using plain APPLE_USERNAME and APPLE_PASSWORD environment variables.
-            echo '{"appleUsername": "${apple_username}", "applePassword": "${apple_password}"}' > /tmp/compass-apple-cred.json
-            export APPLE_CREDENTIALS_FILE="/tmp/compass-apple-cred.json"
-          fi
+            # write env vars (including secrets) to a script so we can restore them after running ssh
+            .evergreen/export-compass-env.js >> env-vars.sh
 
-          echo "Creating signed release build..."
-
-          if [[ "$OSTYPE" == "cygwin" ]]; then
-            echo "Starting Installer Service..."
-            net start MSIServer
-          fi
-
-          # Provide a verbose logging for the release process
-          export npm_config_loglevel="${npm_loglevel}"
-          export DEBUG="${debug}"
-
-          npm run package-compass ${compass_distribution};
-
-          rm -f /tmp/compass-apple-cred.json
-          EOF_BUILD_SH
-
-          if [ `uname` == Darwin ]; then
             echo "Signing via ssh tunnel..."
-            ssh -v -p 2222 localhost "bash ~/compass_package.sh"
+            ssh -v -p 2222 localhost "cd ${workdir}/src/; .evergreen/package_mac.sh"
+
+            rm env-vars.sh
           else
-            if [[ "$OSTYPE" == "cygwin" ]]; then
-              # If not possible to remove this hack, we should find a better way
-              # to do this instead of directly referencing node_module paths,
-              # but first figure out what exactly was changed in our fork of
-              # electron-wix-msi
-              #
-              # TODO: https://jira.mongodb.org/browse/COMPASS-4888
-
-              echo "Fetching signtool -> notary-service hack..."
-
-              curl -fs \
-                -o "signtool.exe" \
-                --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-              rm -f node_modules/electron-winstaller/vendor/signtool.exe
-              rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-              chmod +x signtool.exe
-              cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-              cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
-            fi
-            bash ~/compass_package.sh
-            ls -la packages/compass/dist
+            .evergreen/package_notmac.sh
           fi
 
-  'publish':
+  publish:
     command: shell.exec
     params:
       working_dir: src
       shell: bash
+      env:
+        <<: *compass-env
       script: |
         set -e
         # Load environment variables
-        source ~/compass_env.sh
-
-        # Required to upload release assets to GitHub
-        export GITHUB_TOKEN=${devtoolsbot_github_token}
-
-        # Required to upload release assets to s3 for download center
-        export DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID=${aws_key_evergreen_integrations}
-        export DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY=${aws_secret_evergreen_integrations}
+        eval $(.evergreen/print-compass-env.sh)
 
         echo "Uploading release assets to S3 and GitHub if needed..."
         npm run upload ${compass_distribution} --workspace mongodb-compass
