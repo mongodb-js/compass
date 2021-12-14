@@ -94,7 +94,7 @@ export async function forceCloseTunnel(
 
 export async function waitForTunnelError(
   tunnel: SSHTunnel | void
-): Promise<void> {
+): Promise<never> {
   const [error] = await once(tunnel || new EventEmitter(), 'error');
   throw error;
 }
