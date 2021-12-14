@@ -25,7 +25,7 @@ function AdvancedOptionsTabs(): React.ReactElement {
   const tabs: TabObject[] = [
     { name: 'General', component: GeneralTab },
     { name: 'SSL', component: SSLTab },
-    { name: 'SSH Tunnel', component: SSHTunnelTab },
+    { name: 'Proxy/SSH Tunnel', component: SSHTunnelTab },
     { name: 'Advanced', component: AdvancedTab },
   ];
   return (
