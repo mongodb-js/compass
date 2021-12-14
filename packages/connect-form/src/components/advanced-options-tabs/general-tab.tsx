@@ -3,53 +3,54 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import SchemaInput from './general/schema-input';
 import {
-  ConnectFormFields,
-  SetConnectionField,
+  UpdateConnectionFormField
 } from '../../hooks/use-connect-form';
+import { ConnectionFormError, InvalidFormFieldsState } from '../../utils/connect-form-errors';
 import FormFieldContainer from '../form-field-container';
 import HostInput from './general/host-input';
 import DirectConnectionInput from './general/direct-connection-input';
 
 function GeneralTab({
-  fields,
+  errors,
+  invalidFields,
   connectionStringUrl,
-  setConnectionField,
-  setConnectionStringUrl,
+  updateConnectionFormField
 }: {
+  errors: ConnectionFormError[],
+  invalidFields: InvalidFormFieldsState | null;
   connectionStringUrl: ConnectionStringUrl;
-  fields: ConnectFormFields;
-  setConnectionField: SetConnectionField;
-  setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
-  const { hosts } = fields;
+  const hosts = (invalidFields !== null && invalidFields.hosts)
+    ? invalidFields.hosts
+    : connectionStringUrl.hosts;
 
   const showDirectConnectionInput =
     connectionStringUrl.searchParams.get('directConnection') === 'true' ||
-    (!connectionStringUrl.isSRV && hosts.value.length === 1);
+    (!connectionStringUrl.isSRV && hosts.length === 1);
 
   return (
     <div>
       <FormFieldContainer>
         <SchemaInput
-          schemaConversionError={fields.isSRV.conversionError}
+          errors={errors}
           connectionStringUrl={connectionStringUrl}
-          setConnectionField={setConnectionField}
-          setConnectionStringUrl={setConnectionStringUrl}
+          updateConnectionFormField={updateConnectionFormField}
         />
       </FormFieldContainer>
       <FormFieldContainer>
         <HostInput
+          errors={errors}
           hosts={hosts}
           connectionStringUrl={connectionStringUrl}
-          setConnectionField={setConnectionField}
-          setConnectionStringUrl={setConnectionStringUrl}
+          updateConnectionFormField={updateConnectionFormField}
         />
       </FormFieldContainer>
       {showDirectConnectionInput && (
         <FormFieldContainer>
           <DirectConnectionInput
             connectionStringUrl={connectionStringUrl}
-            setConnectionStringUrl={setConnectionStringUrl}
+            updateConnectionFormField={updateConnectionFormField}
           />
         </FormFieldContainer>
       )}

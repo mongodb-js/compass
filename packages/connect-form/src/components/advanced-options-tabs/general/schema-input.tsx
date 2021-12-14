@@ -12,7 +12,8 @@ import {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { defaultHostname } from '../../../constants/default-connection';
-import { SetConnectionField } from '../../../hooks/use-connect-form';
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import { ConnectionFormError } from '../../../utils/connect-form-errors';
 
 enum MONGODB_SCHEMA {
   MONGODB = 'MONGODB',
@@ -95,14 +96,12 @@ function updateConnectionStringSchema(
 
 function SchemaInput({
   connectionStringUrl,
-  schemaConversionError,
-  setConnectionField,
-  setConnectionStringUrl,
+  errors,
+  updateConnectionFormField
 }: {
   connectionStringUrl: ConnectionStringUrl;
-  schemaConversionError: string | null;
-  setConnectionField: SetConnectionField;
-  setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+  errors: ConnectionFormError[],
+  updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const { isSRV } = connectionStringUrl;
 
@@ -121,7 +120,7 @@ function SchemaInput({
         type: 'set-connection-string-field',
         fieldName: 'isSRV',
         value: {
-          conversionError: `Error updating connection schema: ${
+          error: `Error updating connection schema: ${
             (err as Error).message
           }`,
         },
@@ -134,7 +133,7 @@ function SchemaInput({
       type: 'set-connection-string-field',
       fieldName: 'isSRV',
       value: {
-        conversionError: null,
+        error: null,
       },
     });
   }
@@ -153,13 +152,13 @@ function SchemaInput({
       <Description className={descriptionStyles}>
         {isSRV ? srvSchemaDescription : regularSchemaDescription}
       </Description>
-      {schemaConversionError && (
+      {error && (
         <Banner
           variant={BannerVariant.Danger}
           dismissible
           onClose={onCloseSchemaConversionError}
         >
-          {schemaConversionError}
+          {error}
         </Banner>
       )}
     </>

@@ -9,9 +9,12 @@ import SSLTab from './ssl-tab';
 import SSHTunnelTab from './ssh-tunnel-tab';
 import AdvancedTab from './advanced-tab';
 import {
-  ConnectFormFields,
-  SetConnectionField,
+  UpdateConnectionFormField,
 } from '../../hooks/use-connect-form';
+import {
+  ConnectionFormError,
+  InvalidFormFieldsState
+} from '../../utils/connect-form-errors';
 
 const tabsStyles = css({
   marginTop: spacing[1],
@@ -19,23 +22,23 @@ const tabsStyles = css({
 interface TabObject {
   name: string;
   component: React.FunctionComponent<{
-    fields: ConnectFormFields;
+    errors: ConnectionFormError[],
+    invalidFields: InvalidFormFieldsState | null;
     connectionStringUrl: ConnectionStringUrl;
-    setConnectionField: SetConnectionField;
-    setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+    updateConnectionFormField: UpdateConnectionFormField;
   }>;
 }
 
 function AdvancedOptionsTabs({
-  fields,
+  errors,
+  invalidFields,
   connectionStringUrl,
-  setConnectionField,
-  setConnectionStringUrl,
+  updateConnectionFormField
 }: {
-  fields: ConnectFormFields;
+  errors: ConnectionFormError[],
+  invalidFields: InvalidFormFieldsState | null;
   connectionStringUrl: ConnectionStringUrl;
-  setConnectionField: SetConnectionField;
-  setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -60,10 +63,10 @@ function AdvancedOptionsTabs({
         return (
           <Tab key={idx} name={tabObject.name} aria-label={tabObject.name}>
             <TabComponent
-              fields={fields}
+              errors={errors}
+              invalidFields={invalidFields}
               connectionStringUrl={connectionStringUrl}
-              setConnectionField={setConnectionField}
-              setConnectionStringUrl={setConnectionStringUrl}
+              updateConnectionFormField={updateConnectionFormField}
             />
           </Tab>
         );

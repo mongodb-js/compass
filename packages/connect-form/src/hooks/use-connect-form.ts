@@ -3,38 +3,35 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
 import { defaultConnectionString } from '../constants/default-connection';
-export interface ConnectFormFields {
-  hosts: {
-    value: string[];
-    error: null | string;
-  };
-  isSRV: {
-    conversionError: null | string;
-  };
-}
+import {
+  ConnectionFormWarning,
+  getConnectFormWarnings
+} from '../utils/connect-form-warnings';
+import {
+  ConnectionFormError,
+  InvalidFormFieldsState,
+  getConnectFormErrors
+} from '../utils/connect-form-errors';
+import { getNextHost } from '../utils/get-next-host';
+import {
+  defaultHostname,
+  defaultPort,
+} from '../constants/default-connection';
+import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
+import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
+
 export interface ConnectFormState {
   connectionStringInvalidError: string | null;
+  connectionOptions: ConnectionOptions;
   connectionStringUrl: ConnectionStringUrl;
 
-  fields: ConnectFormFields;
+  errors: ConnectionFormError[];
+  warnings: ConnectionFormWarning[];
+
+  invalidFields: InvalidFormFieldsState | null;
 }
 
-export type SetConnectionFieldAction =
-  | {
-      type: 'set-connection-string-field';
-      fieldName: 'hosts';
-      value: ConnectFormFields['hosts'];
-    }
-  | {
-      type: 'set-connection-string-field';
-      fieldName: 'isSRV';
-      value: ConnectFormFields['isSRV'];
-    };
-
-export type SetConnectionField = (action: SetConnectionFieldAction) => void;
-
 type Action =
-  | SetConnectionFieldAction
   | {
       type: 'set-connection-string-error';
       errorMessage: string | null;
@@ -42,14 +39,19 @@ type Action =
   | {
       type: 'set-connection-string-url';
       connectionStringUrl: ConnectionStringUrl;
-      fields: ConnectFormFields;
     }
   | {
       type: 'set-connection-string-state';
-      connectionStringInvalidError: string | null;
-      connectionStringUrl: ConnectionStringUrl;
-      fields: ConnectFormFields;
-    };
+      newState: ConnectFormState
+    }
+  | {
+    type: 'hide-error';
+    errorIndex: number;
+  }
+  | {
+    type: 'hide-warning';
+    warningIndex: number;
+  };
 
 function connectFormReducer(
   state: ConnectFormState,
@@ -66,41 +68,47 @@ function connectFormReducer(
         ...state,
         connectionStringUrl: action.connectionStringUrl,
         connectionStringInvalidError: null,
-        fields: action.fields,
+        invalidFields: null
       };
     case 'set-connection-string-state':
       return {
         ...state,
-        fields: action.fields,
-        connectionStringUrl: action.connectionStringUrl,
-        connectionStringInvalidError: action.connectionStringInvalidError,
+        ...action.newState
       };
-    case 'set-connection-string-field':
+    case 'hide-error':
       return {
         ...state,
-        fields: {
-          ...state.fields,
-          [action.fieldName]: action.value,
-        },
+        errors: [...state.errors].splice(action.errorIndex, 1),
+      };
+    case 'hide-warning':
+      return {
+        ...state,
+        warnings: [...state.warnings].splice(action.warningIndex, 1),
       };
   }
 }
 
-export function parseConnectFormFieldStateFromConnectionUrl(
-  connectionStringUrl: ConnectionStringUrl
-): ConnectFormFields {
-  return {
-    hosts: {
-      value: connectionStringUrl.hosts,
-      error: null,
-    },
-    isSRV: {
-      conversionError: null,
-    },
-  };
+type ConnectionFormFieldActions = {
+  type: 'add-new-host',
+  hostIndexToAddAfter: number
+} | {
+  type: 'remove-host',
+  hostIndexToRemove: number
+} | {
+  type: 'update-host',
+  hostIndex: number,
+  newHostValue: string
+} | {
+  type: 'update-direct-connection',
+  isDirectConnection: boolean
+} | {
+  type: 'update-connection-schema',
+  isSrv: boolean
 }
 
-function parseConnectFormStateFromOptions(
+export type UpdateConnectionFormField = (action: ConnectionFormFieldActions) => void;
+
+function buildStateFromConnectionOptions(
   initialConnectionOptions: ConnectionOptions
 ): ConnectFormState {
   let connectionStringInvalidError = null;
@@ -113,11 +121,158 @@ function parseConnectFormStateFromOptions(
     connectionStringInvalidError = (error as Error).message;
   }
 
+  const connectionOptions = {
+    ...initialConnectionOptions
+  };
+
   return {
+    errors: getConnectFormErrors(connectionOptions),
+    warnings: getConnectFormWarnings(connectionOptions),
+
     connectionStringInvalidError,
     connectionStringUrl,
-    fields: parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl),
+    connectionOptions,
+    invalidFields: null
   };
+}
+
+function handleConnectionFormFieldUpdate({
+  action,
+  connectionStringUrl,
+  connectionOptions,
+  invalidFields
+}: {
+  action: ConnectionFormFieldActions,
+  connectionStringUrl: ConnectionStringUrl,
+  connectionOptions: ConnectionOptions,
+  invalidFields: InvalidFormFieldsState | null
+}): {
+  connectionStringUrl: ConnectionStringUrl,
+  connectionOptions: ConnectionOptions,
+  invalidFields: InvalidFormFieldsState | null,
+  errors: ConnectionFormError[]
+} {
+  const updatedConnectionStringUrl = connectionStringUrl.clone();
+
+  switch(action.type) {
+    case 'add-new-host': {
+      const { hostIndexToAddAfter } = action;
+
+      const newHost = getNextHost(updatedConnectionStringUrl.hosts, hostIndexToAddAfter);
+      updatedConnectionStringUrl.hosts.splice(hostIndexToAddAfter + 1, 0, newHost);
+      if (updatedConnectionStringUrl.searchParams.get('directConnection')) {
+        updatedConnectionStringUrl.searchParams.delete('directConnection');
+      }
+
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString()
+        },
+        invalidFields: null,
+        errors: []
+      }
+    }
+    case 'remove-host': {
+      const { hostIndexToRemove } = action;
+
+      updatedConnectionStringUrl.hosts.splice(hostIndexToRemove, 1);
+  
+      if (
+        updatedConnectionStringUrl.hosts.length === 1 &&
+        !updatedConnectionStringUrl.hosts[0]
+      ) {
+        // If the user removes a host, leaving a single empty host, it will
+        // create an invalid connection string. Here we default the value.
+        updatedConnectionStringUrl.hosts[0] = `${defaultHostname}:${defaultPort}`;
+      }
+  
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString(),
+        },
+        invalidFields: null,
+        errors: []
+      }
+    }
+    case 'update-host': {
+      const { newHostValue, hostIndex } = action;
+      try {
+        checkForInvalidCharacterInHost(newHostValue, connectionStringUrl.isSRV);
+  
+        const updatedConnectionString = connectionStringUrl.clone();
+  
+        updatedConnectionString.hosts[hostIndex] = newHostValue || '';
+  
+        // Build a new connection string url to ensure the
+        // validity of the update.
+        const newConnectionStringUrl = new ConnectionStringUrl(
+          updatedConnectionString.toString()
+        );
+
+        return {
+          connectionStringUrl: newConnectionStringUrl,
+          connectionOptions: {
+            ...connectionOptions,
+            connectionString: newConnectionStringUrl.toString()
+          },
+          invalidFields: null,
+          errors: []
+        }
+      } catch (err) {
+        // The host value is invalid, so we show the error and allow
+        // the user to update it until we can update the
+        // connection string url.
+        const updatedHosts = 
+          (invalidFields !== null && invalidFields.hosts !== null)
+            ? [...invalidFields.hosts]
+            : [...updatedConnectionStringUrl.hosts];
+        updatedHosts[hostIndex] = newHostValue;
+
+        return {
+          connectionStringUrl,
+          connectionOptions: {
+            ...connectionOptions,
+            connectionString: connectionStringUrl.toString()
+          },
+          invalidFields: invalidFields !== null
+            ? {
+              ...invalidFields,
+              hosts: updatedHosts
+            }
+            : {
+              hosts: updatedHosts
+            },
+
+          errors: [{
+            fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+            message: (err as Error).message,
+          }]
+        }
+      }
+    }
+    case 'update-direct-connection': {
+      const { isDirectConnection } = action;
+      if (isDirectConnection) {
+        updatedConnectionStringUrl.searchParams.set('directConnection', 'true');
+      } else if (updatedConnectionStringUrl.searchParams.get('directConnection')) {
+        updatedConnectionStringUrl.searchParams.delete('directConnection');
+      }
+
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString()
+        },
+        invalidFields: null,
+        errors: []
+      }
+    }
+  }
 }
 
 export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
@@ -125,12 +280,14 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
   {
     setConnectionStringError: (errorMessage: string | null) => void;
     setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
-    setConnectionField: SetConnectionField;
+    updateConnectionFormField: UpdateConnectionFormField;
+    hideConnectionFormError: (index: number) => void;
+    hideConnectionFormWarning: (index: number) => void;
   }
 ] {
   const [state, dispatch] = useReducer(
     connectFormReducer,
-    parseConnectFormStateFromOptions(initialConnectionOptions)
+    buildStateFromConnectionOptions(initialConnectionOptions)
   );
 
   useEffect(() => {
@@ -138,16 +295,59 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
     // connection is clicked in the compass-sidebar, we
     // refresh the current connection string being edited.
     // We do this here to retain the tabs/expanded accordion states.
-    const { connectionStringInvalidError, connectionStringUrl, fields } =
-      parseConnectFormStateFromOptions(initialConnectionOptions);
+    const {
+      errors,
+      warnings,
+      connectionStringInvalidError,
+      connectionStringUrl,
+      connectionOptions,
+      invalidFields,
+    } = buildStateFromConnectionOptions(initialConnectionOptions);
 
     dispatch({
       type: 'set-connection-string-state',
-      connectionStringInvalidError,
-      connectionStringUrl,
-      fields,
+      newState: {
+        errors,
+        warnings,
+        connectionStringInvalidError,
+        connectionStringUrl,
+        connectionOptions,
+        invalidFields
+      }
     });
   }, [initialConnectionOptions]);
+
+  function setConnectionStringUrl(connectionStringUrl: ConnectionStringUrl) {
+    dispatch({
+      type: 'set-connection-string-url',
+      connectionStringUrl
+    });
+  }
+
+  function updateConnectionFormField(action: ConnectionFormFieldActions) {
+    const {
+      connectionOptions,
+      connectionStringUrl
+    } = handleConnectionFormFieldUpdate({
+      action,
+      connectionOptions: state.connectionOptions,
+      connectionStringUrl: state.connectionStringUrl,
+      invalidFields: state.invalidFields
+    });
+
+    dispatch({
+      type: 'set-connection-string-state',
+      newState: {
+        connectionStringInvalidError: null,
+        errors: getConnectFormErrors(connectionOptions),
+        warnings: getConnectFormWarnings(connectionOptions),
+    
+        connectionStringUrl,
+        connectionOptions,
+        invalidFields: null
+      }
+    });
+  }
 
   return [
     state,
@@ -158,19 +358,26 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
           errorMessage,
         });
       },
-      setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => {
-        const fields =
-          parseConnectFormFieldStateFromConnectionUrl(connectionStringUrl);
-
+      // setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => {
+      //   dispatch({
+      //     type: 'set-connection-string-url',
+      //     connectionStringUrl
+      //   });
+      // },
+      setConnectionStringUrl,
+      hideConnectionFormError: (errorIndex: number) => {
         dispatch({
-          type: 'set-connection-string-url',
-          connectionStringUrl,
-          fields,
+          type: 'hide-error',
+          errorIndex
         });
       },
-      setConnectionField: (action: SetConnectionFieldAction) => {
-        dispatch(action);
+      hideConnectionFormWarning: (warningIndex: number) => {
+        dispatch({
+          type: 'hide-warning',
+          warningIndex
+        });
       },
+      updateConnectionFormField
     },
   ];
 }

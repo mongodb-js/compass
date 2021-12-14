@@ -2,25 +2,23 @@ import React from 'react';
 import { Checkbox, Description } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+
 function DirectConnectionInput({
   connectionStringUrl,
-  setConnectionStringUrl,
+  updateConnectionFormField,
 }: {
   connectionStringUrl: ConnectionStringUrl;
-  setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const isDirectConnection =
     connectionStringUrl.searchParams.get('directConnection') === 'true';
 
   function updateDirectConnection(newIsDirectConnection: boolean) {
-    const updatedConnectionString = connectionStringUrl.clone();
-    if (newIsDirectConnection) {
-      updatedConnectionString.searchParams.set('directConnection', 'true');
-    } else if (updatedConnectionString.searchParams.get('directConnection')) {
-      updatedConnectionString.searchParams.delete('directConnection');
-    }
-
-    setConnectionStringUrl(updatedConnectionString);
+    updateConnectionFormField({
+      type: 'update-direct-connection',
+      isDirectConnection: newIsDirectConnection
+    })
   }
 
   return (
