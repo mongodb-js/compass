@@ -7,19 +7,22 @@ async function main() {
 
   for (const line of stdout.split('\n').filter(Boolean)) {
     // git grep -H gives us `${filename}:${source}`
-    const { filename, source } = line.match(/^(?<filename>[^:]+):(?<source>.+)$/).groups;
-    if (filename.match(/\.(spec|test)\.(js|jsx|ts|tsx)$/))
-      continue;
+    const { filename, source } = line.match(
+      /^(?<filename>[^:]+):(?<source>.+)$/
+    ).groups;
+    if (filename.match(/\.(spec|test)\.(js|jsx|ts|tsx)$/)) continue;
 
     if (source.match(/mongoLogId\([^)]*$/)) {
-        process.exitCode = 1;
-        console.error(`Unmatched mongoLogId() parentheses:`);
-        console.error(`${filename}: ${source}`);
+      process.exitCode = 1;
+      console.error(`Unmatched mongoLogId() parentheses:`);
+      console.error(`${filename}: ${source}`);
     }
 
     // match all mongoLogId() calls, possibly containing _ as a numeric separator
     const logIdMatches = source.matchAll(/mongoLogId\((?<rawId>[^)]+)\)/g);
-    for (const { groups: { rawId } } of logIdMatches) {
+    for (const {
+      groups: { rawId },
+    } of logIdMatches) {
       if (!rawId.match(/^ *[0-9_]+ *$/)) {
         process.exitCode = 1;
         console.error(`Log id ${rawId} does not match the expected format:`);

@@ -62,5 +62,5 @@ function getHighestRange(ranges) {
 module.exports = {
   intersects,
   calculateReplacements,
-  getHighestRange
+  getHighestRange,
 };
