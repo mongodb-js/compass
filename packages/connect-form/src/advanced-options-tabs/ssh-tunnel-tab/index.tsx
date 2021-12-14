@@ -59,7 +59,7 @@ function SSHTunnel(): React.ReactElement {
       <RadioBoxGroup onChange={optionSelected} className="radio-box-group-style">
         {options.map(({title, id}) => {
           return (
-            <RadioBox value={id} key={id}>{title}</RadioBox>
+            <RadioBox checked={selectedOption.id === id} value={id} key={id}>{title}</RadioBox>
           );
         })}
       </RadioBoxGroup>
