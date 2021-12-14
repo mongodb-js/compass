@@ -17,8 +17,8 @@ function DirectConnectionInput({
   function updateDirectConnection(newIsDirectConnection: boolean) {
     updateConnectionFormField({
       type: 'update-direct-connection',
-      isDirectConnection: newIsDirectConnection
-    })
+      isDirectConnection: newIsDirectConnection,
+    });
   }
 
   return (

@@ -20,10 +20,7 @@ function ConnectFormActions({
 }): React.ReactElement {
   return (
     <div className={formActionStyles}>
-      <Button
-        variant={ButtonVariant.Primary}
-        onClick={() => onConnectClicked()}
-      >
+      <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
         Connect
       </Button>
     </div>

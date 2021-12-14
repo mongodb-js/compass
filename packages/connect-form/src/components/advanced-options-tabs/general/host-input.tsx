@@ -9,9 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import {
-  UpdateConnectionFormField
-} from '../../../hooks/use-connect-form';
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../../utils/connect-form-errors';
 import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
 
@@ -35,9 +33,9 @@ function HostInput({
   errors,
   connectionStringUrl,
   hosts,
-  updateConnectionFormField
+  updateConnectionFormField,
 }: {
-  errors: ConnectionFormError[],
+  errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
   hosts: string[];
   updateConnectionFormField: UpdateConnectionFormField;
@@ -51,12 +49,12 @@ function HostInput({
     updateConnectionFormField({
       type: 'update-host',
       hostIndex: index,
-      newHostValue: event.target.value
+      newHostValue: event.target.value,
     });
   }
 
   const hostsErrorIndex = errors.findIndex(
-    error => error.fieldName === MARKABLE_FORM_FIELD_NAMES.HOSTS
+    (error) => error.fieldName === MARKABLE_FORM_FIELD_NAMES.HOSTS
   );
   const hostsError = errors[hostsErrorIndex];
 
@@ -86,10 +84,12 @@ function HostInput({
             <IconButton
               className={hostActionButtonStyles}
               aria-label="Add new host"
-              onClick={() => updateConnectionFormField({
-                type: 'add-new-host',
-                hostIndexToAddAfter: index
-              })}
+              onClick={() =>
+                updateConnectionFormField({
+                  type: 'add-new-host',
+                  hostIndexToAddAfter: index,
+                })
+              }
             >
               <Icon glyph="Plus" />
             </IconButton>
@@ -98,10 +98,12 @@ function HostInput({
             <IconButton
               className={hostActionButtonStyles}
               aria-label="Remove host"
-              onClick={() => updateConnectionFormField({
-                type: 'remove-host',
-                hostIndexToRemove: index
-              })}
+              onClick={() =>
+                updateConnectionFormField({
+                  type: 'remove-host',
+                  hostIndexToRemove: index,
+                })
+              }
             >
               <Icon glyph="Minus" />
             </IconButton>

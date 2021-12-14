@@ -33,10 +33,10 @@ function SchemaInput({
   connectionStringUrl,
   errors,
   hideError,
-  updateConnectionFormField
+  updateConnectionFormField,
 }: {
   connectionStringUrl: ConnectionStringUrl;
-  errors: ConnectionFormError[],
+  errors: ConnectionFormError[];
   hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
@@ -47,12 +47,12 @@ function SchemaInput({
   ) {
     updateConnectionFormField({
       type: 'update-connection-schema',
-      isSrv: event.target.value === MONGODB_SCHEMA.MONGODB_SRV
+      isSrv: event.target.value === MONGODB_SCHEMA.MONGODB_SRV,
     });
   }
 
   const schemaUpdateErrorIndex = errors.findIndex(
-    error => error.fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SRV
+    (error) => error.fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SRV
   );
   const schemaUpdateError = errors[schemaUpdateErrorIndex];
 

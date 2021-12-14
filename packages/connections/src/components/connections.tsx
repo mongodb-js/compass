@@ -44,24 +44,14 @@ const connectItemContainerStyles = css({
   overflow: 'auto',
 });
 
-const showHelpBelowFormBreakpoint = 1200;
 const formContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
   display: 'flex',
-  flexDirection: 'row',
   padding: spacing[4],
-  '> :first-child': {
-    margin: 0,
-    marginRight: spacing[4],
-  },
-  [`@media only screen and (max-width: ${showHelpBelowFormBreakpoint}px)`]: {
-    flexDirection: 'column',
-    '> :first-child': {
-      margin: 0,
-      marginBottom: spacing[4],
-    },
-  },
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: spacing[4],
 });
 
 function Connections({

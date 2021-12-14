@@ -2,10 +2,11 @@ import React from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import SchemaInput from './general/schema-input';
+import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import {
-  UpdateConnectionFormField
-} from '../../hooks/use-connect-form';
-import { ConnectionFormError, InvalidFormFieldsState } from '../../utils/connect-form-errors';
+  ConnectionFormError,
+  InvalidFormFieldsState,
+} from '../../utils/connect-form-errors';
 import FormFieldContainer from '../form-field-container';
 import HostInput from './general/host-input';
 import DirectConnectionInput from './general/direct-connection-input';
@@ -15,17 +16,18 @@ function GeneralTab({
   invalidFields,
   connectionStringUrl,
   hideError,
-  updateConnectionFormField
+  updateConnectionFormField,
 }: {
-  errors: ConnectionFormError[],
+  errors: ConnectionFormError[];
   invalidFields: InvalidFormFieldsState | null;
   connectionStringUrl: ConnectionStringUrl;
   hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
-  const hosts = (invalidFields !== null && invalidFields.hosts)
-    ? invalidFields.hosts
-    : connectionStringUrl.hosts;
+  const hosts =
+    invalidFields !== null && invalidFields.hosts
+      ? invalidFields.hosts
+      : connectionStringUrl.hosts;
 
   const showDirectConnectionInput =
     connectionStringUrl.searchParams.get('directConnection') === 'true' ||

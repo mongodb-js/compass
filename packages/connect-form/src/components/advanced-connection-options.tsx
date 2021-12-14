@@ -8,10 +8,11 @@ import {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
+import { UpdateConnectionFormField } from '../hooks/use-connect-form';
 import {
-  UpdateConnectionFormField,
-} from '../hooks/use-connect-form';
-import { ConnectionFormError, InvalidFormFieldsState } from '../utils/connect-form-errors';
+  ConnectionFormError,
+  InvalidFormFieldsState,
+} from '../utils/connect-form-errors';
 
 const disabledOverlayStyles = css({
   position: 'absolute',
@@ -35,10 +36,10 @@ function AdvancedConnectionOptions({
   invalidFields,
   connectionStringUrl,
   hideError,
-  updateConnectionFormField
+  updateConnectionFormField,
 }: {
-  errors: ConnectionFormError[],
-  disabled: boolean,
+  errors: ConnectionFormError[];
+  disabled: boolean;
   invalidFields: InvalidFormFieldsState | null;
   connectionStringUrl: ConnectionStringUrl;
   hideError: (errorIndex: number) => void;

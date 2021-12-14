@@ -16,7 +16,9 @@ function updateConnectionStringToStandard(
     newConnectionString.replace('mongodb+srv://', 'mongodb://')
   );
 
-  newConnectionStringUrl.hosts = [`${newConnectionStringUrl.hosts[0]}:${defaultPort}`];
+  newConnectionStringUrl.hosts = [
+    `${newConnectionStringUrl.hosts[0]}:${defaultPort}`,
+  ];
 
   return newConnectionStringUrl;
 }
@@ -59,7 +61,7 @@ function updateConnectionStringToSRV(
 // Note: This method can throw when it cannot be changed.
 export function tryUpdateConnectionStringSchema(
   connectionStringUrl: ConnectionStringUrl,
-  setIsSrv: boolean 
+  setIsSrv: boolean
 ): ConnectionStringUrl {
   if (!setIsSrv) {
     return updateConnectionStringToStandard(connectionStringUrl);

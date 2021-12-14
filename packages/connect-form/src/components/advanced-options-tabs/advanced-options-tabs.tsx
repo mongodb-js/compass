@@ -8,12 +8,10 @@ import AuthenticationTab from './authentication-tab';
 import SSLTab from './ssl-tab';
 import SSHTunnelTab from './ssh-tunnel-tab';
 import AdvancedTab from './advanced-tab';
-import {
-  UpdateConnectionFormField,
-} from '../../hooks/use-connect-form';
+import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import {
   ConnectionFormError,
-  InvalidFormFieldsState
+  InvalidFormFieldsState,
 } from '../../utils/connect-form-errors';
 
 const tabsStyles = css({
@@ -22,7 +20,7 @@ const tabsStyles = css({
 interface TabObject {
   name: string;
   component: React.FunctionComponent<{
-    errors: ConnectionFormError[],
+    errors: ConnectionFormError[];
     invalidFields: InvalidFormFieldsState | null;
     connectionStringUrl: ConnectionStringUrl;
     hideError: (errorIndex: number) => void;
@@ -35,9 +33,9 @@ function AdvancedOptionsTabs({
   invalidFields,
   connectionStringUrl,
   hideError,
-  updateConnectionFormField
+  updateConnectionFormField,
 }: {
-  errors: ConnectionFormError[],
+  errors: ConnectionFormError[];
   invalidFields: InvalidFormFieldsState | null;
   connectionStringUrl: ConnectionStringUrl;
   hideError: (errorIndex: number) => void;

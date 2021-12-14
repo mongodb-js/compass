@@ -1,7 +1,4 @@
-import {
-  defaultHostname,
-  defaultPort,
-} from '../constants/default-connection';
+import { defaultHostname, defaultPort } from '../constants/default-connection';
 
 function hostHasPortNumber(host: string): boolean {
   return (
@@ -17,10 +14,7 @@ function getPortFromHostOrDefault(host: string): number {
   return defaultPort;
 }
 
-export function getNextHost(
-  hosts: string[],
-  addAfterIndex: number
-): string {
+export function getNextHost(hosts: string[], addAfterIndex: number): string {
   if (hosts.length < 1) {
     // Use the default host if we have no reference.
     return `${defaultHostname}:${defaultPort}`;
@@ -36,4 +30,3 @@ export function getNextHost(
   // Return the last hosts' hostname and port + 1.
   return `${hostname || defaultHostname}:${port}`;
 }
-

@@ -1,8 +1,6 @@
 import { ConnectionOptions } from 'mongodb-data-service';
 
-import {
-  MARKABLE_FORM_FIELD_NAMES
-} from '../constants/markable-form-fields';
+import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 
 // When a field in the connection form is updated to a value that cannot be
 // represented in `ConnectionOptions`, like a host name with `@`, it stores the
