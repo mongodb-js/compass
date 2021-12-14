@@ -53,7 +53,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "mongodb": "^4.2.1",
+    "mongodb": "^4.2.2",
     "mongodb-connection-model": "*"
   },
   "dependencies": {
