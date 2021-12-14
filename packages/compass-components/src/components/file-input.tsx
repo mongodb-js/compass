@@ -88,6 +88,7 @@ function FileInput({
   error = false,
   variant = Variant.Horizontal,
   link,
+  helpText,
   values,
 }: {
   id: string;
@@ -97,12 +98,13 @@ function FileInput({
   error?: boolean;
   variant?: Variant;
   link?: string;
+  helpText?: React.FC;
   values?: string[];
 }): React.ReactElement {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const buttonText = React.useMemo(() => {
-    if (Array.isArray(values) && values.length > 0) {
+    if (Array.isArray(values) && values.filter(x => x).length > 0) {
       return values.map((file) => path.basename(file)).join(', ');
     }
 
@@ -136,7 +138,7 @@ function FileInput({
         )}
       >
         <span>{label}</span>
-        {link && (
+        {link && !helpText && (
           <a
             href={link}
             target="_blank"
@@ -147,6 +149,7 @@ function FileInput({
             
           </a>
         )}
+        {!link && helpText}
       </label>
       <input
         ref={inputRef}

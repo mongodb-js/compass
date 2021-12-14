@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent } from 'react';
 import { css } from '@emotion/css';
-import { TextInput, FileInput, spacing } from '@mongodb-js/compass-components';
+import { TextInput, FileInput, spacing, Icon } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   marginTop: spacing[4]
@@ -11,6 +11,12 @@ const inputFieldStyles = css({
   marginBottom: spacing[3],
 });
 
+const fileHelpStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'start',
+  alignItems: 'center',
+});
 
 type FormKey = 'hostname' | 'port' | 'username' | 'file' | 'passphrase';
 interface Field {
@@ -76,17 +82,23 @@ function Identity(): React.ReactElement {
       {fields.map(({placeholder, key, label, type}) => {
         if (type === 'file') {
           return (
-            <FileInput 
-              // className={inputFieldStyles}
-              onChange={(files: string[]) => {
-                formFieldChanged(key, files[0] ?? '');
-              }}
-              id={key}
-              key={key}
-              label={label}
-              values={[formFields[key]]}
-              link={'https://mongodb.com'}
-            />
+            <div className={inputFieldStyles}>
+              <FileInput 
+                onChange={(files: string[]) => {
+                  formFieldChanged(key, files[0] ?? '');
+                }}
+                id={key}
+                key={key}
+                label={label}
+                values={[formFields[key]]}
+                helpText={
+                  <div className={fileHelpStyles}>
+                    <a href="https://mongodb.com">Learn More</a>
+                    <Icon glyph="OpenNewTab" />
+                  </div>
+                }
+              />
+            </div>
           );
         }
         return (
