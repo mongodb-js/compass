@@ -19,6 +19,7 @@ import {
 } from '../constants/default-connection';
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
+import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
 
 export interface ConnectFormState {
   connectionStringInvalidError: string | null;
@@ -204,7 +205,6 @@ function handleConnectionFormFieldUpdate({
         checkForInvalidCharacterInHost(newHostValue, connectionStringUrl.isSRV);
   
         const updatedConnectionString = connectionStringUrl.clone();
-  
         updatedConnectionString.hosts[hostIndex] = newHostValue || '';
   
         // Build a new connection string url to ensure the
@@ -272,6 +272,41 @@ function handleConnectionFormFieldUpdate({
         errors: []
       }
     }
+    case 'update-connection-schema': {
+      const { isSrv } = action;
+      
+      try {
+        const newConnectionStringUrl = tryUpdateConnectionStringSchema(
+          connectionStringUrl,
+          isSrv
+        );
+  
+        return {
+          connectionStringUrl: newConnectionStringUrl,
+          connectionOptions: {
+            ...connectionOptions,
+            connectionString: updatedConnectionStringUrl.toString()
+          },
+          invalidFields: null,
+          errors: []
+        }
+      } catch (err) {
+        return {
+          connectionStringUrl,
+          connectionOptions: {
+            ...connectionOptions,
+            connectionString: connectionStringUrl.toString()
+          },
+          invalidFields,
+          errors: [{
+            fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SRV,
+            message: `Error updating connection schema: ${
+              (err as Error).message
+            }`
+          }]
+        }
+      }
+    }
   }
 }
 
@@ -281,8 +316,8 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
     setConnectionStringError: (errorMessage: string | null) => void;
     setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
     updateConnectionFormField: UpdateConnectionFormField;
-    hideConnectionFormError: (index: number) => void;
-    hideConnectionFormWarning: (index: number) => void;
+    hideError: (index: number) => void;
+    hideWarning: (index: number) => void;
   }
 ] {
   const [state, dispatch] = useReducer(
@@ -365,13 +400,13 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
       //   });
       // },
       setConnectionStringUrl,
-      hideConnectionFormError: (errorIndex: number) => {
+      hideError: (errorIndex: number) => {
         dispatch({
           type: 'hide-error',
           errorIndex
         });
       },
-      hideConnectionFormWarning: (warningIndex: number) => {
+      hideWarning: (warningIndex: number) => {
         dispatch({
           type: 'hide-warning',
           warningIndex

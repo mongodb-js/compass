@@ -34,12 +34,14 @@ function AdvancedConnectionOptions({
   errors,
   invalidFields,
   connectionStringUrl,
+  hideError,
   updateConnectionFormField
 }: {
-  disabled: boolean;
   errors: ConnectionFormError[],
+  disabled: boolean,
   invalidFields: InvalidFormFieldsState | null;
   connectionStringUrl: ConnectionStringUrl;
+  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   return (
@@ -53,6 +55,7 @@ function AdvancedConnectionOptions({
         )}
         <AdvancedOptionsTabs
           errors={errors}
+          hideError={hideError}
           invalidFields={invalidFields}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}

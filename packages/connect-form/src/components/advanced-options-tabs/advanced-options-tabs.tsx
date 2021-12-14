@@ -25,6 +25,7 @@ interface TabObject {
     errors: ConnectionFormError[],
     invalidFields: InvalidFormFieldsState | null;
     connectionStringUrl: ConnectionStringUrl;
+    hideError: (errorIndex: number) => void;
     updateConnectionFormField: UpdateConnectionFormField;
   }>;
 }
@@ -33,11 +34,13 @@ function AdvancedOptionsTabs({
   errors,
   invalidFields,
   connectionStringUrl,
+  hideError,
   updateConnectionFormField
 }: {
   errors: ConnectionFormError[],
   invalidFields: InvalidFormFieldsState | null;
   connectionStringUrl: ConnectionStringUrl;
+  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
@@ -64,6 +67,7 @@ function AdvancedOptionsTabs({
           <Tab key={idx} name={tabObject.name} aria-label={tabObject.name}>
             <TabComponent
               errors={errors}
+              hideError={hideError}
               invalidFields={invalidFields}
               connectionStringUrl={connectionStringUrl}
               updateConnectionFormField={updateConnectionFormField}

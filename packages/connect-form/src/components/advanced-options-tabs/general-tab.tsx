@@ -14,11 +14,13 @@ function GeneralTab({
   errors,
   invalidFields,
   connectionStringUrl,
+  hideError,
   updateConnectionFormField
 }: {
   errors: ConnectionFormError[],
   invalidFields: InvalidFormFieldsState | null;
   connectionStringUrl: ConnectionStringUrl;
+  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const hosts = (invalidFields !== null && invalidFields.hosts)
@@ -34,6 +36,7 @@ function GeneralTab({
       <FormFieldContainer>
         <SchemaInput
           errors={errors}
+          hideError={hideError}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}
         />

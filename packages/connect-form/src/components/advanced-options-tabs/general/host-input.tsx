@@ -55,9 +55,10 @@ function HostInput({
     });
   }
 
-  const hostsError = errors.find(
+  const hostsErrorIndex = errors.findIndex(
     error => error.fieldName === MARKABLE_FORM_FIELD_NAMES.HOSTS
   );
+  const hostsError = errors[hostsErrorIndex];
 
   return (
     <>
