@@ -80,7 +80,7 @@ export function useViewTypeControls({
           id={controlId}
           aria-labelledby={labelId}
           value={viewType}
-          onChange={onViewTypeChange}
+          onChange={onViewTypeChange as (newValue: string) => void}
         >
           <SegmentedControlOption value="list">
             <Icon glyph="Menu"></Icon>
@@ -91,6 +91,6 @@ export function useViewTypeControls({
         </SegmentedControl>
       </div>
     );
-  }, [labelId, controlId, viewType]);
+  }, [labelId, controlId, viewType, onViewTypeChange]);
   return [viewControls, viewType];
 }
