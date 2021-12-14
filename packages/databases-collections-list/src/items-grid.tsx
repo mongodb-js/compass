@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { FixedSizeList } from 'react-window';
 import { css, cx, spacing, useDOMRect } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { useSortControls, useSortedItems } from './use-sort';
 import type { NamespaceItemCardProps } from './namespace-card';
 import { useViewTypeControls, ViewType } from './use-view-type';
@@ -17,6 +18,10 @@ import {
   useVirtualGridArrowNavigation,
   useVirtualRovingTabIndex,
 } from './use-virtual-grid';
+
+const { track } = createLoggerAndTelemetry(
+  'COMPASS-DATABASES-COLLECTIONS-LIST-UI'
+);
 
 type Item = Record<string, unknown>;
 
@@ -226,10 +231,18 @@ export const ItemsGrid = <T extends Item>({
   onCreateItemClick,
   renderItem,
 }: ItemsGridProps<T>): React.ReactElement => {
+  const onViewTypeChange = useCallback(
+    (newType) => {
+      track('Switch View Type', { view_type: newType, item_type: itemType });
+    },
+    [itemType]
+  );
   const listRef = useRef<FixedSizeList | null>(null);
   const createControls = useCreateControls(itemType, onCreateItemClick);
   const [sortControls, sortState] = useSortControls(sortBy);
-  const [viewTypeControls, viewType] = useViewTypeControls();
+  const [viewTypeControls, viewType] = useViewTypeControls({
+    onChange: onViewTypeChange,
+  });
   const sortedItems = useSortedItems(items, sortState);
   const [rectProps, { width, height }] = useDOMRect();
 

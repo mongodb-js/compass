@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useId } from '@react-aria/utils';
 import {
   SegmentedControl,
@@ -46,15 +46,28 @@ const label = css({
   padding: '0 !important',
 });
 
-export function useViewTypeControls(
-  defaultViewType: ViewType = 'grid'
-): [React.ReactElement, ViewType] {
+export function useViewTypeControls({
+  defaultViewType = 'list',
+  onChange = () => {
+    // noop
+  },
+}: {
+  defaultViewType?: ViewType;
+  onChange?: (newType: ViewType) => void;
+}): [React.ReactElement, ViewType] {
   const [viewType, setViewType] = useState<ViewType>(() =>
     getViewTypeSettingsFromSessionStorage(defaultViewType)
   );
   useEffect(() => {
     setViewTypeSettingsFromSessionStorage(viewType);
   }, [viewType]);
+  const onViewTypeChange = useCallback(
+    (val: ViewType) => {
+      onChange(val);
+      setViewType(val);
+    },
+    [onChange]
+  );
   const labelId = useId();
   const controlId = useId();
   const viewControls = useMemo(() => {
@@ -67,15 +80,13 @@ export function useViewTypeControls(
           id={controlId}
           aria-labelledby={labelId}
           value={viewType}
-          onChange={(val) => {
-            setViewType(val as ViewType);
-          }}
+          onChange={onViewTypeChange}
         >
-          <SegmentedControlOption value="grid">
-            <Icon glyph="Apps"></Icon>
-          </SegmentedControlOption>
           <SegmentedControlOption value="list">
             <Icon glyph="Menu"></Icon>
+          </SegmentedControlOption>
+          <SegmentedControlOption value="grid">
+            <Icon glyph="Apps"></Icon>
           </SegmentedControlOption>
         </SegmentedControl>
       </div>

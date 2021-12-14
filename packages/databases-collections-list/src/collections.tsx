@@ -131,10 +131,8 @@ const CollectionsList: React.FunctionComponent<{
                   value: compactBytes(coll.avg_document_size),
                 },
                 {
-                  label: 'Total document size',
-                  value: compactBytes(
-                    coll.storage_size - coll.free_storage_size
-                  ),
+                  label: 'Storage Size',
+                  value: compactBytes(coll.storage_size),
                   hint: `Uncompressed data size: ${compactBytes(coll.size)}`,
                 },
                 {
