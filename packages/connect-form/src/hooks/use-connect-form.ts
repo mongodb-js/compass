@@ -362,7 +362,9 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
   function updateConnectionFormField(action: ConnectionFormFieldActions) {
     const {
       connectionOptions,
-      connectionStringUrl
+      connectionStringUrl,
+      errors: formFieldErrors,
+      invalidFields
     } = handleConnectionFormFieldUpdate({
       action,
       connectionOptions: state.connectionOptions,
@@ -374,12 +376,12 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
       type: 'set-connection-string-state',
       newState: {
         connectionStringInvalidError: null,
-        errors: getConnectFormErrors(connectionOptions),
+        errors: [...formFieldErrors, ...getConnectFormErrors(connectionOptions)],
         warnings: getConnectFormWarnings(connectionOptions),
     
         connectionStringUrl,
         connectionOptions,
-        invalidFields: null
+        invalidFields: invalidFields
       }
     });
   }
