@@ -24,9 +24,7 @@ describe('SchemaInput', function () {
       render(
         <SchemaInput
           errors={[]}
-          hideError={() => {
-            /* */
-          }}
+          hideError={sinon.fake()}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
@@ -85,9 +83,7 @@ describe('SchemaInput', function () {
         render(
           <SchemaInput
             errors={[]}
-            hideError={() => {
-              /* */
-            }}
+            hideError={sinon.fake()}
             connectionStringUrl={connectionStringUrl}
             updateConnectionFormField={updateConnectionFormFieldSpy}
           />

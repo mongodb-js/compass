@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 
 import { handleConnectionFormFieldUpdate } from './use-connect-form';
 
@@ -332,12 +333,282 @@ describe('use-connect-form hook', function () {
       });
     });
 
-    // TODO: Update host tests
-    // Single host, srv host, multi hosts
-    // Add invalid character
-    // Make empty (backspace)
+    describe('update-host action', function () {
+      describe('updating one host in many', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://outerspace:123,backyard,cruiseship:1234,catch:22'
+        );
 
-    // describe('update-host action', function () {
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-host',
+              hostIndex: 2,
+              newHostValue: 'cruiseships:1234',
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
+
+        it('updates the host on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'outerspace:123',
+            'backyard',
+            'cruiseships:1234',
+            'catch:22',
+          ]);
+        });
+
+        it('updates the connection string with the updated host', function () {
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb://outerspace:123,backyard,cruiseships:1234,catch:22/'
+          );
+        });
+
+        it('returns no errors', function () {
+          expect(updateResult.errors.length).to.equal(0);
+        });
+      });
+
+      describe('updating a single host', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://cats:123/?bacon=true'
+        );
+
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-host',
+              hostIndex: 0,
+              newHostValue: 'dogs:1234',
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
+
+        it('updates the host on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'dogs:1234',
+          ]);
+        });
+
+        it('updates the connection string with the updated host', function () {
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb://dogs:1234/?bacon=true'
+          );
+        });
+
+        it('returns no errors', function () {
+          expect(updateResult.errors.length).to.equal(0);
+        });
+      });
+
+      describe('updating an srv host', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb+srv://backyard'
+        );
+
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-host',
+              hostIndex: 0,
+              newHostValue: 'backyards',
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
+
+        it('updates the host on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'backyards',
+          ]);
+        });
+
+        it('updates the connection string with the updated host', function () {
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb+srv://backyards/'
+          );
+        });
+
+        it('returns no errors', function () {
+          expect(updateResult.errors.length).to.equal(0);
+        });
+      });
+
+      describe('making a single host empty', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+        );
+
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-host',
+              hostIndex: 0,
+              newHostValue: '',
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
+
+        it('adds an error to the errors with a message and the host field name', function () {
+          expect(updateResult.errors).to.deep.equal([
+            {
+              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              message:
+                'Host cannot be empty. The host is the address hostname, IP address, or UNIX domain socket where the mongodb instance is running.',
+            },
+          ]);
+        });
+
+        it('keeps the connection string and url the same', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'outerspace:27019',
+          ]);
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+          );
+        });
+      });
+
+      describe('updating a host to have an @', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+        );
+
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-host',
+              hostIndex: 0,
+              newHostValue: 'outerspace:27019@',
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
+
+        it('adds an error to the errors with a message and the host field name', function () {
+          expect(updateResult.errors).to.deep.equal([
+            {
+              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              message: "Invalid character in host: '@'",
+            },
+          ]);
+        });
+
+        it('keeps the connection string and url the same', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'outerspace:27019',
+          ]);
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+          );
+        });
+      });
+
+      describe('updating a host to have an /', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+        );
+
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-host',
+              hostIndex: 0,
+              newHostValue: 'outerspace:27019/',
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
+
+        it('adds an error to the errors with a message and the host field name', function () {
+          expect(updateResult.errors).to.deep.equal([
+            {
+              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              message: "Invalid character in host: '/'",
+            },
+          ]);
+        });
+
+        it('keeps the connection string and url the same', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'outerspace:27019',
+          ]);
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+          );
+        });
+      });
+
+      describe('updating an srv host to have a :', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb+srv://outerspace/?ssl=true'
+        );
+
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-host',
+              hostIndex: 0,
+              newHostValue: 'outerspace:',
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
+
+        it('adds an error to the errors with a message and the host field name', function () {
+          expect(updateResult.errors).to.deep.equal([
+            {
+              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              message: "Invalid character in host: ':'",
+            },
+          ]);
+        });
+
+        it('keeps the connection string and url the same', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'outerspace',
+          ]);
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb+srv://outerspace/?ssl=true'
+          );
+        });
+      });
+    });
+
+    // TODO: Update schema action.
+
+    // describe('update-schema action', function () {
     //   describe('with multiple hosts and a host without port', function () {
     //     const connectionStringUrl = new ConnectionStringUrl(
     //       'mongodb://outerspace:123,backyard,cruiseship:1234,catch:22'

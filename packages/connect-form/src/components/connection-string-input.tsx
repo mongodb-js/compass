@@ -82,7 +82,7 @@ type Action =
     }
   | { type: 'show-edit-connection-string-confirmation' }
   | { type: 'hide-edit-connection-string-confirmation' }
-  | { type: 'hide-connection-string' };
+  | { type: 'disable-editing-connection-string' };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -102,7 +102,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         showConfirmEditConnectionStringPrompt: true,
       };
-    case 'hide-connection-string':
+    case 'disable-editing-connection-string':
       return {
         ...state,
         showConfirmEditConnectionStringPrompt: false,
@@ -182,7 +182,7 @@ function ConnectStringInput({
         editingConnectionString: connectionString || '',
       });
       dispatch({
-        type: 'hide-connection-string',
+        type: 'disable-editing-connection-string',
       });
     }
   }, [
@@ -251,7 +251,7 @@ function ConnectStringInput({
           onClick={() => {
             if (enableEditingConnectionString) {
               dispatch({
-                type: 'hide-connection-string',
+                type: 'disable-editing-connection-string',
               });
               return;
             }
