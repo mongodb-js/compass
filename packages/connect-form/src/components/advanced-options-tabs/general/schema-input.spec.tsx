@@ -5,14 +5,13 @@ import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import SchemaInput from './schema-input';
+import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
 
 describe('SchemaInput', function () {
-  let setConnectionFieldSpy: sinon.SinonSpy;
-  let setConnectionStringUrlSpy: sinon.SinonSpy;
+  let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   beforeEach(function () {
-    setConnectionFieldSpy = sinon.spy();
-    setConnectionStringUrlSpy = sinon.spy();
+    updateConnectionFormFieldSpy = sinon.spy();
   });
 
   afterEach(cleanup);
@@ -24,10 +23,12 @@ describe('SchemaInput', function () {
       );
       render(
         <SchemaInput
-          schemaConversionError={null}
+          errors={[]}
+          hideError={() => {
+            /* */
+          }}
           connectionStringUrl={connectionStringUrl}
-          setConnectionField={setConnectionFieldSpy}
-          setConnectionStringUrl={setConnectionStringUrlSpy}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
     });
@@ -55,13 +56,11 @@ describe('SchemaInput', function () {
       });
 
       it('should call to update the connection string with standard schema', function () {
-        expect(setConnectionStringUrlSpy.callCount).to.equal(1);
-        expect(setConnectionStringUrlSpy.firstCall.args[0].isSRV).to.equal(
-          false
-        );
-        expect(setConnectionStringUrlSpy.firstCall.args[0].toString()).to.equal(
-          'mongodb://0ranges:p!neapp1es@localhost:27017/?ssl=true'
-        );
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-connection-schema',
+          isSrv: false,
+        });
       });
     });
 
@@ -71,8 +70,8 @@ describe('SchemaInput', function () {
         fireEvent.click(srvRadioBox);
       });
 
-      it('should not call to update the connection string', function () {
-        expect(setConnectionStringUrlSpy.callCount).to.equal(0);
+      it('should not call to update the field string', function () {
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
       });
     });
   });
@@ -85,10 +84,12 @@ describe('SchemaInput', function () {
         );
         render(
           <SchemaInput
-            schemaConversionError={null}
+            errors={[]}
+            hideError={() => {
+              /* */
+            }}
             connectionStringUrl={connectionStringUrl}
-            setConnectionField={setConnectionFieldSpy}
-            setConnectionStringUrl={setConnectionStringUrlSpy}
+            updateConnectionFormField={updateConnectionFormFieldSpy}
           />
         );
       });
@@ -112,106 +113,38 @@ describe('SchemaInput', function () {
         });
 
         it('should call to update the connection string with srv schema', function () {
-          expect(setConnectionStringUrlSpy.callCount).to.equal(1);
-          expect(setConnectionStringUrlSpy.firstCall.args[0].isSRV).to.equal(
-            true
-          );
-          expect(
-            setConnectionStringUrlSpy.firstCall.args[0].toString()
-          ).to.equal('mongodb+srv://0ranges:p!neapp1es@outerspace/?ssl=true');
-        });
-      });
-    });
-
-    describe('with direct connection set', function () {
-      beforeEach(function () {
-        const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://0ranges:p!neapp1es@localhost:27017/?directConnection=true&ssl=true'
-        );
-        render(
-          <SchemaInput
-            schemaConversionError={null}
-            connectionStringUrl={connectionStringUrl}
-            setConnectionField={setConnectionFieldSpy}
-            setConnectionStringUrl={setConnectionStringUrlSpy}
-          />
-        );
-      });
-
-      describe('when the srv schema radio box is clicked', function () {
-        beforeEach(function () {
-          const srvSchemaRadioBox = screen.getAllByRole('radio')[1];
-          fireEvent.click(srvSchemaRadioBox);
-        });
-
-        it('should call to update the connection string with srv schema and directConnection unset', function () {
-          expect(setConnectionStringUrlSpy.callCount).to.equal(1);
-          expect(setConnectionStringUrlSpy.firstCall.args[0].isSRV).to.equal(
-            true
-          );
-          expect(
-            setConnectionStringUrlSpy.firstCall.args[0].toString()
-          ).to.equal('mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true');
-        });
-      });
-    });
-
-    describe('with multiple hosts', function () {
-      beforeEach(function () {
-        const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://0ranges:p!neapp1es@outerspace:27017,outerspace:27099,outerspace:27098,localhost:27098/?ssl=true'
-        );
-        render(
-          <SchemaInput
-            schemaConversionError={null}
-            connectionStringUrl={connectionStringUrl}
-            setConnectionField={setConnectionFieldSpy}
-            setConnectionStringUrl={setConnectionStringUrlSpy}
-          />
-        );
-      });
-
-      describe('when the srv schema radio box is clicked', function () {
-        beforeEach(function () {
-          const srvSchemaRadioBox = screen.getAllByRole('radio')[1];
-          fireEvent.click(srvSchemaRadioBox);
-        });
-
-        it('should call to update the connection string with srv schema', function () {
-          expect(setConnectionStringUrlSpy.callCount).to.equal(1);
-          expect(setConnectionStringUrlSpy.firstCall.args[0].isSRV).to.equal(
-            true
-          );
-          expect(
-            setConnectionStringUrlSpy.firstCall.args[0].toString()
-          ).to.equal('mongodb+srv://0ranges:p!neapp1es@outerspace/?ssl=true');
-        });
-      });
-
-      describe('when the standard schema radio box is clicked again', function () {
-        beforeEach(function () {
-          const standardRadioBox = screen.getAllByRole('radio')[0];
-          fireEvent.click(standardRadioBox);
-        });
-
-        it('should not call to update the connection string', function () {
-          expect(setConnectionStringUrlSpy.callCount).to.equal(0);
+          expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+          expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+            type: 'update-connection-schema',
+            isSrv: true,
+          });
         });
       });
     });
   });
 
-  describe('when there is a conversion error', function () {
+  describe('when there is a schema error', function () {
+    let hideErrorSpy: sinon.SinonSpy;
+
     beforeEach(function () {
+      hideErrorSpy = sinon.spy();
       const connectionStringUrl = new ConnectionStringUrl(
         'mongodb://0ranges:p!neapp1es@outerspace:27017/?ssl=true'
       );
       render(
         <SchemaInput
-          schemaConversionError={'aaaa!!!1!'}
+          errors={[
+            {
+              message: 'unrelated error',
+            },
+            {
+              fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SRV,
+              message: 'aaaa!!!1!',
+            },
+          ]}
           connectionStringUrl={connectionStringUrl}
-          setConnectionField={setConnectionFieldSpy}
-          setConnectionStringUrl={setConnectionStringUrlSpy}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
+          hideError={hideErrorSpy}
         />
       );
     });
@@ -226,15 +159,9 @@ describe('SchemaInput', function () {
         fireEvent.click(hideErrorButton);
       });
 
-      it('should call to hide the error on the fields', function () {
-        expect(setConnectionFieldSpy.callCount).to.equal(1);
-        expect(setConnectionFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'set-connection-string-field',
-          fieldName: 'isSRV',
-          value: {
-            conversionError: null,
-          },
-        });
+      it('should call to hide the error with the correct index', function () {
+        expect(hideErrorSpy.callCount).to.equal(1);
+        expect(hideErrorSpy.firstCall.args[0]).to.equal(1);
       });
     });
   });

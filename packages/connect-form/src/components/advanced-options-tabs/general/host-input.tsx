@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Label,
   Icon,
@@ -12,6 +12,8 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../../utils/connect-form-errors';
 import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
+import DirectConnectionInput from './direct-connection-input';
+import FormFieldContainer from '../../form-field-container';
 
 const hostInputContainerStyles = css({
   display: 'flex',
@@ -32,20 +34,37 @@ const hostActionButtonStyles = css({
 function HostInput({
   errors,
   connectionStringUrl,
-  hosts,
   updateConnectionFormField,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
-  hosts: string[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const [hosts, setHosts] = useState([...connectionStringUrl.hosts]);
   const { isSRV } = connectionStringUrl;
+
+  const showDirectConnectionInput =
+    connectionStringUrl.searchParams.get('directConnection') === 'true' ||
+    (!connectionStringUrl.isSRV && hosts.length === 1);
+
+  useEffect(() => {
+    // Update the hosts in the state when the underlying connection string hosts
+    // change. This can be when a user changes connections, pastes in a new
+    // connection string, or changes a setting which also updates the hosts.
+    if (connectionStringUrl.hosts !== hosts) {
+      setHosts([...connectionStringUrl.hosts]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectionStringUrl]);
 
   function onHostChange(
     event: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) {
+    const newHosts = [...hosts];
+    newHosts[index] = event.target.value || '';
+
+    setHosts(newHosts);
     updateConnectionFormField({
       type: 'update-host',
       hostIndex: index,
@@ -60,56 +79,66 @@ function HostInput({
 
   return (
     <>
-      <Label htmlFor="connection-host-input" id="connection-host-input-label">
-        {isSRV ? 'Hostname' : 'Host'}
-      </Label>
-      {hosts.map((host, index) => (
-        <div className={hostInputContainerStyles} key={`host-${index}`}>
-          <TextInput
-            className={hostInputStyles}
-            type="text"
-            id="connection-host-input"
-            aria-labelledby="connection-host-input-label"
-            state={hostsError ? 'error' : undefined}
-            // Only show the error message on the last host.
-            errorMessage={
-              hostsError && index === hosts.length - 1
-                ? hostsError.message
-                : undefined
-            }
-            value={`${host}`}
-            onChange={(e) => onHostChange(e, index)}
+      <FormFieldContainer>
+        <Label htmlFor="connection-host-input" id="connection-host-input-label">
+          {isSRV ? 'Hostname' : 'Host'}
+        </Label>
+        {hosts.map((host, index) => (
+          <div className={hostInputContainerStyles} key={`host-${index}`}>
+            <TextInput
+              className={hostInputStyles}
+              type="text"
+              id="connection-host-input"
+              aria-labelledby="connection-host-input-label"
+              state={hostsError ? 'error' : undefined}
+              // Only show the error message on the last host.
+              errorMessage={
+                hostsError && index === hosts.length - 1
+                  ? hostsError.message
+                  : undefined
+              }
+              value={`${host}`}
+              onChange={(e) => onHostChange(e, index)}
+            />
+            {!isSRV && (
+              <IconButton
+                className={hostActionButtonStyles}
+                aria-label="Add new host"
+                onClick={() =>
+                  updateConnectionFormField({
+                    type: 'add-new-host',
+                    hostIndexToAddAfter: index,
+                  })
+                }
+              >
+                <Icon glyph="Plus" />
+              </IconButton>
+            )}
+            {!isSRV && hosts.length > 1 && (
+              <IconButton
+                className={hostActionButtonStyles}
+                aria-label="Remove host"
+                onClick={() =>
+                  updateConnectionFormField({
+                    type: 'remove-host',
+                    hostIndexToRemove: index,
+                  })
+                }
+              >
+                <Icon glyph="Minus" />
+              </IconButton>
+            )}
+          </div>
+        ))}
+      </FormFieldContainer>
+      {showDirectConnectionInput && (
+        <FormFieldContainer>
+          <DirectConnectionInput
+            connectionStringUrl={connectionStringUrl}
+            updateConnectionFormField={updateConnectionFormField}
           />
-          {!isSRV && (
-            <IconButton
-              className={hostActionButtonStyles}
-              aria-label="Add new host"
-              onClick={() =>
-                updateConnectionFormField({
-                  type: 'add-new-host',
-                  hostIndexToAddAfter: index,
-                })
-              }
-            >
-              <Icon glyph="Plus" />
-            </IconButton>
-          )}
-          {!isSRV && hosts.length > 1 && (
-            <IconButton
-              className={hostActionButtonStyles}
-              aria-label="Remove host"
-              onClick={() =>
-                updateConnectionFormField({
-                  type: 'remove-host',
-                  hostIndexToRemove: index,
-                })
-              }
-            >
-              <Icon glyph="Minus" />
-            </IconButton>
-          )}
-        </div>
-      ))}
+        </FormFieldContainer>
+      )}
     </>
   );
 }

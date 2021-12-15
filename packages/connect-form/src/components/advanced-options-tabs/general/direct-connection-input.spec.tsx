@@ -7,10 +7,10 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import DirectConnectionInput from './direct-connection-input';
 
 describe('DirectConnectionInput', function () {
-  let setConnectionStringUrlSpy: sinon.SinonSpy;
+  let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   beforeEach(function () {
-    setConnectionStringUrlSpy = sinon.spy();
+    updateConnectionFormFieldSpy = sinon.spy();
   });
 
   afterEach(cleanup);
@@ -23,7 +23,7 @@ describe('DirectConnectionInput', function () {
       render(
         <DirectConnectionInput
           connectionStringUrl={connectionStringUrl}
-          setConnectionStringUrl={setConnectionStringUrlSpy}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
     });
@@ -39,11 +39,12 @@ describe('DirectConnectionInput', function () {
         fireEvent.click(checkbox);
       });
 
-      it('should call to update the connection string without direct connection set', function () {
-        expect(setConnectionStringUrlSpy.callCount).to.equal(1);
-        expect(setConnectionStringUrlSpy.firstCall.args[0].toString()).to.equal(
-          'mongodb://localhost:27019/?ssl=false'
-        );
+      it('should call to update with direct connection = false', function () {
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-direct-connection',
+          isDirectConnection: false,
+        });
       });
     });
   });
@@ -56,7 +57,7 @@ describe('DirectConnectionInput', function () {
       render(
         <DirectConnectionInput
           connectionStringUrl={connectionStringUrl}
-          setConnectionStringUrl={setConnectionStringUrlSpy}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
     });
@@ -72,11 +73,12 @@ describe('DirectConnectionInput', function () {
         fireEvent.click(checkbox);
       });
 
-      it('should call to update the connection string with direct connection = true', function () {
-        expect(setConnectionStringUrlSpy.callCount).to.equal(1);
-        expect(setConnectionStringUrlSpy.firstCall.args[0].toString()).to.equal(
-          'mongodb://localhost:27019/?ssl=true&directConnection=true'
-        );
+      it('should call to update with direct connection = true', function () {
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-direct-connection',
+          isDirectConnection: true,
+        });
       });
     });
   });
@@ -89,7 +91,7 @@ describe('DirectConnectionInput', function () {
       render(
         <DirectConnectionInput
           connectionStringUrl={connectionStringUrl}
-          setConnectionStringUrl={setConnectionStringUrlSpy}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
     });
@@ -105,11 +107,12 @@ describe('DirectConnectionInput', function () {
         fireEvent.click(checkbox);
       });
 
-      it('should call to update the connection string with direct connection = true', function () {
-        expect(setConnectionStringUrlSpy.callCount).to.equal(1);
-        expect(setConnectionStringUrlSpy.firstCall.args[0].toString()).to.equal(
-          'mongodb://localhost:27019/?directConnection=true&ssl=false'
-        );
+      it('should call to update with direct connection = true', function () {
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-direct-connection',
+          isDirectConnection: true,
+        });
       });
     });
   });

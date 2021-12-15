@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { ConnectionOptions } from 'mongodb-data-service';
+import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 
 import { defaultConnectionString } from '../constants/default-connection';
 import {
@@ -9,7 +9,6 @@ import {
 } from '../utils/connect-form-warnings';
 import {
   ConnectionFormError,
-  InvalidFormFieldsState,
   getConnectFormErrors,
 } from '../utils/connect-form-errors';
 import { getNextHost } from '../utils/get-next-host';
@@ -25,8 +24,6 @@ export interface ConnectFormState {
 
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
-
-  invalidFields: InvalidFormFieldsState | null;
 }
 
 type Action =
@@ -66,7 +63,6 @@ function connectFormReducer(
         ...state,
         connectionStringUrl: action.connectionStringUrl,
         connectionStringInvalidError: null,
-        invalidFields: null,
       };
     case 'set-connection-string-state':
       return {
@@ -115,21 +111,21 @@ export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
 ) => void;
 
-function buildStateFromConnectionOptions(
-  initialConnectionOptions: ConnectionOptions
+function buildStateFromConnectionInfo(
+  initialConnectionInfo: ConnectionInfo
 ): ConnectFormState {
   let connectionStringInvalidError = null;
   let connectionStringUrl = new ConnectionStringUrl(defaultConnectionString);
   try {
     connectionStringUrl = new ConnectionStringUrl(
-      initialConnectionOptions.connectionString
+      initialConnectionInfo.connectionOptions.connectionString
     );
   } catch (error) {
     connectionStringInvalidError = (error as Error).message;
   }
 
   const connectionOptions = {
-    ...initialConnectionOptions,
+    ...initialConnectionInfo.connectionOptions,
   };
 
   return {
@@ -139,7 +135,6 @@ function buildStateFromConnectionOptions(
     connectionStringInvalidError,
     connectionStringUrl,
     connectionOptions,
-    invalidFields: null,
   };
 }
 
@@ -147,21 +142,24 @@ function handleUpdateHost({
   action,
   connectionStringUrl,
   connectionOptions,
-  invalidFields,
 }: {
   action: UpdateHostAction;
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
-  invalidFields: InvalidFormFieldsState | null;
 }): {
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
-  invalidFields: InvalidFormFieldsState | null;
   errors: ConnectionFormError[];
 } {
   const { newHostValue, hostIndex } = action;
   try {
     checkForInvalidCharacterInHost(newHostValue, connectionStringUrl.isSRV);
+
+    if (connectionStringUrl.hosts.length === 1 && newHostValue === '') {
+      throw new Error(
+        'Host cannot be empty. The host is the address hostname, IP address, or UNIX domain socket where the mongodb instance is running.'
+      );
+    }
 
     const updatedConnectionString = connectionStringUrl.clone();
     updatedConnectionString.hosts[hostIndex] = newHostValue || '';
@@ -178,35 +176,18 @@ function handleUpdateHost({
         ...connectionOptions,
         connectionString: newConnectionStringUrl.toString(),
       },
-      invalidFields: null,
       errors: [],
     };
   } catch (err) {
     // The host value is invalid, so we show the error and allow
     // the user to update it until we can update the
     // connection string url.
-    const updatedHosts =
-      invalidFields !== null && invalidFields.hosts !== null
-        ? [...invalidFields.hosts]
-        : [...connectionStringUrl.hosts];
-    updatedHosts[hostIndex] = newHostValue;
-
     return {
       connectionStringUrl,
       connectionOptions: {
         ...connectionOptions,
         connectionString: connectionStringUrl.toString(),
       },
-      invalidFields:
-        invalidFields !== null
-          ? {
-              ...invalidFields,
-              hosts: updatedHosts,
-            }
-          : {
-              hosts: updatedHosts,
-            },
-
       errors: [
         {
           fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
@@ -217,20 +198,19 @@ function handleUpdateHost({
   }
 }
 
-function handleConnectionFormFieldUpdate({
+// This function handles field updates from the connection form.
+// It performs validity checks and downstream effects. Exported for testing.
+export function handleConnectionFormFieldUpdate({
   action,
   connectionStringUrl,
   connectionOptions,
-  invalidFields,
 }: {
   action: ConnectionFormFieldActions;
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
-  invalidFields: InvalidFormFieldsState | null;
 }): {
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
-  invalidFields: InvalidFormFieldsState | null;
   errors: ConnectionFormError[];
 } {
   const updatedConnectionStringUrl = connectionStringUrl.clone();
@@ -258,7 +238,6 @@ function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        invalidFields: null,
         errors: [],
       };
     }
@@ -282,7 +261,6 @@ function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        invalidFields: null,
         errors: [],
       };
     }
@@ -291,7 +269,6 @@ function handleConnectionFormFieldUpdate({
         action,
         connectionStringUrl,
         connectionOptions,
-        invalidFields,
       });
     }
     case 'update-direct-connection': {
@@ -310,7 +287,6 @@ function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        invalidFields: null,
         errors: [],
       };
     }
@@ -329,7 +305,6 @@ function handleConnectionFormFieldUpdate({
             ...connectionOptions,
             connectionString: updatedConnectionStringUrl.toString(),
           },
-          invalidFields: null,
           errors: [],
         };
       } catch (err) {
@@ -339,7 +314,6 @@ function handleConnectionFormFieldUpdate({
             ...connectionOptions,
             connectionString: connectionStringUrl.toString(),
           },
-          invalidFields,
           errors: [
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SRV,
@@ -354,7 +328,7 @@ function handleConnectionFormFieldUpdate({
   }
 }
 
-export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
+export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
   ConnectFormState,
   {
     setConnectionStringError: (errorMessage: string | null) => void;
@@ -366,7 +340,7 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
 ] {
   const [state, dispatch] = useReducer(
     connectFormReducer,
-    buildStateFromConnectionOptions(initialConnectionOptions)
+    buildStateFromConnectionInfo(initialConnectionInfo)
   );
 
   useEffect(() => {
@@ -380,8 +354,7 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
       connectionStringInvalidError,
       connectionStringUrl,
       connectionOptions,
-      invalidFields,
-    } = buildStateFromConnectionOptions(initialConnectionOptions);
+    } = buildStateFromConnectionInfo(initialConnectionInfo);
 
     dispatch({
       type: 'set-connection-string-state',
@@ -391,10 +364,9 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
         connectionStringInvalidError,
         connectionStringUrl,
         connectionOptions,
-        invalidFields,
       },
     });
-  }, [initialConnectionOptions]);
+  }, [initialConnectionInfo]);
 
   function setConnectionStringUrl(connectionStringUrl: ConnectionStringUrl) {
     dispatch({
@@ -408,12 +380,10 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
       connectionOptions,
       connectionStringUrl,
       errors: formFieldErrors,
-      invalidFields,
     } = handleConnectionFormFieldUpdate({
       action,
       connectionOptions: state.connectionOptions,
       connectionStringUrl: state.connectionStringUrl,
-      invalidFields: state.invalidFields,
     });
 
     dispatch({
@@ -428,7 +398,6 @@ export function useConnectForm(initialConnectionOptions: ConnectionOptions): [
 
         connectionStringUrl,
         connectionOptions,
-        invalidFields: invalidFields,
       },
     });
   }

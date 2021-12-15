@@ -10,8 +10,11 @@ function renderForm() {
       onConnectClicked={() => {
         /* */
       }}
-      initialConnectionOptions={{
-        connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
+      initialConnectionInfo={{
+        id: 'test',
+        connectionOptions: {
+          connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
+        },
       }}
     />
   );

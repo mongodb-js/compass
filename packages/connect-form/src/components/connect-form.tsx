@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import React from 'react';
-import { ConnectionOptions } from 'mongodb-data-service';
+import { ConnectionInfo } from 'mongodb-data-service';
 import {
   Banner,
   BannerVariant,
@@ -43,26 +43,21 @@ const formContentContainerStyles = css({
 });
 
 function ConnectForm({
-  initialConnectionOptions,
+  initialConnectionInfo,
   onConnectClicked,
 }: {
-  initialConnectionOptions: ConnectionOptions;
-  onConnectClicked: (connectionOptions: ConnectionOptions) => void;
+  initialConnectionInfo: ConnectionInfo;
+  onConnectClicked: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const [
-    {
-      errors,
-      invalidFields,
-      connectionStringUrl,
-      connectionStringInvalidError,
-    },
+    { errors, connectionStringUrl, connectionStringInvalidError },
     {
       updateConnectionFormField,
       setConnectionStringUrl,
       setConnectionStringError,
       hideError,
     },
-  ] = useConnectForm(initialConnectionOptions);
+  ] = useConnectForm(initialConnectionInfo);
 
   const editingConnectionStringUrl = connectionStringUrl;
 
@@ -86,7 +81,6 @@ function ConnectForm({
           )}
           <AdvancedConnectionOptions
             errors={errors}
-            invalidFields={invalidFields}
             hideError={hideError}
             disabled={!!connectionStringInvalidError}
             connectionStringUrl={editingConnectionStringUrl}
@@ -96,8 +90,11 @@ function ConnectForm({
         <ConnectFormActions
           onConnectClicked={() =>
             onConnectClicked({
-              ...initialConnectionOptions,
-              connectionString: editingConnectionStringUrl.toString(),
+              ...initialConnectionInfo,
+              connectionOptions: {
+                ...initialConnectionInfo.connectionOptions,
+                connectionString: editingConnectionStringUrl.toString(),
+              },
             })
           }
         />

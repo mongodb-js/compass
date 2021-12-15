@@ -1,5 +1,5 @@
-const invalidHostCharacterRegex = /[@]/;
-const invalidSrvHostnameCharacterRegex = /[:@,]/;
+const invalidHostCharacterRegex = /[@/]/;
+const invalidSrvHostnameCharacterRegex = /[:@,/]/;
 
 export function checkForInvalidCharacterInHost(
   host: string,
