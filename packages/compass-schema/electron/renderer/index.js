@@ -10,7 +10,6 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import CompassSchemaPlugin, { activate } from '../../src/index.js';
 import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
-import StatusPlugin, { activate as activateStatus } from '@mongodb-js/compass-status';
 import configureStore, { setDataProvider, setNamespace } from '../../src/stores';
 import configureActions from '../../src/actions';
 
@@ -22,7 +21,6 @@ global.hadronApp.isFeatureEnabled = () => { return true; };
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-activateStatus(appRegistry);
 appRegistry.onActivated();
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,

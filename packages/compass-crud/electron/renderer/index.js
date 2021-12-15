@@ -10,7 +10,6 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import { activate } from '../../src/index.js';
 import ConnectedDocumentList from '../../src/components/connected-document-list';
-import { activate as statusActivate } from '@mongodb-js/compass-status';
 import { activate as activateQueryBar } from '@mongodb-js/compass-query-bar';
 import configureStore, { setDataProvider } from '../../src/stores';
 import configureActions from '../../src/actions';
@@ -69,10 +68,6 @@ const store = configureStore({
 
 // Create a HMR enabled render function
 const render = Component => {
-  // if needing to debug the Status Plugin within this component, uncomment
-  // this line and a <Status/> div to the below render function.
-  // const Status = global.hadronApp.appRegistry.getRole('Application.Status')[0].component;
-
   ReactDOM.render(
     <AppContainer>
       <Component store={store} actions={actions} />

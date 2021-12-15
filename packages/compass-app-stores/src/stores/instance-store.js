@@ -21,19 +21,6 @@ store.refreshInstance = async(globalAppRegistry, refreshOptions) => {
     return;
   }
 
-  if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
-    globalAppRegistry
-      .getAction('Status.Actions')
-      ?.showIndeterminateProgressBar();
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
-    globalAppRegistry.getAction('Status.Actions')?.configure({
-      animation: true,
-      message: 'Loading databases',
-      visible: true,
-    });
-  }
-
   try {
     await instance.refresh({ dataService, ...refreshOptions });
 
@@ -48,11 +35,6 @@ store.refreshInstance = async(globalAppRegistry, refreshOptions) => {
       ...store.getState(),
       errorMessage: err.message,
     });
-  } finally {
-    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
-      // eslint-disable-next-line chai-friendly/no-unused-expressions
-      globalAppRegistry.getAction('Status.Actions')?.hide();
-    }
   }
 };
 
@@ -197,16 +179,9 @@ store.onActivated = (appRegistry) => {
     store.dispatch(changeDataService(dataService));
     store.dispatch(changeInstance(instance));
 
-    // Preserving the "greedy" fetch of db and collection stats if global
-    // overlay will be shown
-    const fetchCollectionsInfo =
-      process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true';
-
     store.refreshInstance(appRegistry, {
       fetchDatabases: true,
       fetchDbStats: true,
-      fetchCollections: fetchCollectionsInfo,
-      fetchCollInfo: fetchCollectionsInfo,
     });
   });
 
@@ -251,16 +226,7 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('collection-created', (ns) => {
-    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
-      store.refreshInstance(appRegistry, {
-        fetchDatabases: true,
-        fetchDbStats: true,
-        fetchCollections: true,
-        fetchCollInfo: true,
-      });
-    } else {
-      store.refreshNamespace(ns);
-    }
+    store.refreshNamespace(ns);
   });
 
   appRegistry.on('sidebar-select-collection', async({ ns }) => {

@@ -71,7 +71,10 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
-export { ContentWithFallback } from './components/content-with-fallback';
+export {
+  ContentWithFallback,
+  FadeInPlaceholder,
+} from './components/content-with-fallback';
 export {
   default as emotion,
   flush,

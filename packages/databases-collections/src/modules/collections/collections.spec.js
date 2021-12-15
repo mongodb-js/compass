@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import reducer, { loadCollections } from './collections';
+import reducer, { setCollections } from './collections';
 
 const SPOTIFY = {
   name: 'spotify',
@@ -34,7 +34,7 @@ describe('collections module', () => {
 
         it('returns the mapped databases list', () => {
           expect(
-            reducer(undefined, loadCollections(collections))
+            reducer(undefined, setCollections(collections))
           ).to.deep.equal(collections);
         });
       });

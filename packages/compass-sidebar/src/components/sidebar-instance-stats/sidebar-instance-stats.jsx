@@ -5,7 +5,6 @@ import classnames from 'classnames';
 import styles from './sidebar-instance-stats.module.less';
 
 class SidebarInstanceStats extends PureComponent {
-  static displayName = 'SidebarInstanceStats';
   static propTypes = {
     instance: PropTypes.object,
     databases: PropTypes.object,
@@ -38,10 +37,13 @@ class SidebarInstanceStats extends PureComponent {
 
     let refreshClassName = 'fa fa-repeat';
 
-    const isRefreshing = instance?.isRefreshing ?? false;
+    const isRefreshing = ['initial', 'fetching', 'refreshing'].includes(
+      instance?.refreshingStatus
+    );
 
-    const isInitialOrInitialFetching =
-      !instance || ['initial', 'fetching'].includes(instance.refreshingStatus);
+    const isInitialOrInitialFetching = ['initial', 'fetching'].includes(
+      instance?.refreshingStatus
+    );
 
     if (isRefreshing) {
       refreshClassName = 'fa fa-refresh fa-spin';

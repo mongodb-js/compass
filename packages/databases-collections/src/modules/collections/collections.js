@@ -1,3 +1,5 @@
+import { CHANGE_DATABASE_NAME } from '../database-name';
+
 /**
  * The module prefix.
  */
@@ -6,7 +8,7 @@ const PREFIX = 'databases-collections/collections';
 /**
  * The load collections action name.
  */
-export const LOAD_COLLECTIONS = `${PREFIX}/LOAD_COLLECTIONS`;
+export const SET_COLLECTIONS = `${PREFIX}/SET_COLLECTIONS`;
 
 /**
  * The initial state of the collections attribute.
@@ -22,10 +24,13 @@ export const INITIAL_STATE = [];
  * @returns {Array} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === LOAD_COLLECTIONS) {
-    return action.collections;
+  switch (action.type) {
+    case SET_COLLECTIONS:
+    case CHANGE_DATABASE_NAME:
+      return action.collections;
+    default:
+      return state;
   }
-  return state;
 }
 
 /**
@@ -35,7 +40,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The load collections action.
  */
-export const loadCollections = (collections) => ({
-  type: LOAD_COLLECTIONS,
+export const setCollections = (collections) => ({
+  type: SET_COLLECTIONS,
   collections: collections
 });

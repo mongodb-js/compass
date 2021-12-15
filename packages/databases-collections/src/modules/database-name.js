@@ -26,11 +26,13 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The change name action creator.
  *
- * @param {String} name - The database name.
+ * @param {string} name - The database name.
+ * @param {object[]} collections - Collections.
  *
- * @returns {Object} The action.
+ * @returns {object} The action.
  */
-export const changeDatabaseName = (name) => ({
+export const changeDatabaseName = (name, collections) => ({
   type: CHANGE_DATABASE_NAME,
-  name: name
+  name,
+  collections
 });

@@ -73,7 +73,6 @@ var Application = View.extend({
     return [
       '<div id="application">',
       '  <div data-hook="auto-update"></div>',
-      '  <div data-hook="statusbar" data-test-id="status-bar"></div>',
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="tour-container"></div>',
@@ -193,14 +192,6 @@ var Application = View.extend({
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
-    debug('rendering statusbar...');
-    this.statusComponent = app.appRegistry.getRole(
-      'Application.Status'
-    )[0].component;
-    ReactDOM.render(
-      React.createElement(this.statusComponent),
-      this.queryByHook('statusbar')
-    );
 
     this.securityComponent = app.appRegistry.getRole(
       'Application.Security'

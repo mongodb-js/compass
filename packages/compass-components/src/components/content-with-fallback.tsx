@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
+import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 
 enum RenderStatus {
   Nothing = 'Nothing',
@@ -82,5 +83,98 @@ export const ContentWithFallback: React.FunctionComponent<{
       )}
       {fallback(renderStatus === RenderStatus.Fallback)}
     </>
+  );
+};
+
+const contentWithFallbackContainer = css({
+  position: 'relative',
+});
+
+const fadeInAnimation = keyframes({
+  from: {
+    opacity: 0,
+  },
+  to: {
+    opacity: 1,
+  },
+});
+
+const contentContainer = css({
+  position: 'relative',
+});
+
+const contentContainerFadeIn = css({
+  animation: `${fadeInAnimation} .16s ease-out`,
+});
+
+const fallbackContainer = css({
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  opacity: 0,
+  transition: 'opacity .16s ease-out',
+  pointerEvents: 'none',
+});
+
+const fallbackContainerVisible = css({
+  opacity: 1,
+  transitionTimingFunction: 'ease-in',
+});
+
+export const FadeInPlaceholder: React.FunctionComponent<
+  {
+    isContentReady: boolean;
+    content(): React.ReactElement | boolean | null;
+    fallback(): React.ReactElement | boolean | null;
+    contentContainerProps?: React.HTMLProps<HTMLDivElement>;
+    fallbackContainerProps?: React.HTMLProps<HTMLDivElement>;
+  } & React.HTMLProps<HTMLDivElement>
+> = ({
+  content,
+  fallback,
+  isContentReady,
+  contentContainerProps = {},
+  fallbackContainerProps = {},
+  className,
+  ...props
+}) => {
+  return (
+    <div className={cx(contentWithFallbackContainer, className)} {...props}>
+      <ContentWithFallback
+        isContentReady={isContentReady}
+        content={(shouldRender, shouldAnimate) => {
+          return (
+            shouldRender && (
+              <div
+                {...contentContainerProps}
+                className={cx(
+                  contentContainer,
+                  shouldAnimate && contentContainerFadeIn,
+                  contentContainerProps.className
+                )}
+              >
+                {content()}
+              </div>
+            )
+          );
+        }}
+        fallback={(shouldRender) => {
+          return (
+            <div
+              {...fallbackContainerProps}
+              className={cx(
+                fallbackContainer,
+                shouldRender && fallbackContainerVisible,
+                fallbackContainerProps.className
+              )}
+            >
+              {fallback()}
+            </div>
+          );
+        }}
+      ></ContentWithFallback>
+    </div>
   );
 };
