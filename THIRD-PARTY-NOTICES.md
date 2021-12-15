@@ -1,11 +1,11 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Tue Dec 14 2021.
+This document was automatically generated on Wed Dec 15 2021.
 
 ## List of dependencies
 
 Package|Version|License
 -------|-------|-------
-**[@mongosh/node-runtime-worker-thread](#886bbce25640791962012f9ad4ea48f88eda9ee9cbc289efa46f093ed6f1455f)**|1.1.6|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#b7767ae4bb03501b78cefd70efcdb4c70507118444990e7bdb7393c5049b37b7)**|1.1.7|Apache-2.0
 **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
 **[ansi-regex](#f4a8a360dfe3cdd0cbb8fcfa0cff23bb22eafa4225343577912ddf831d670411)**|3.0.0|MIT
 **[aproba](#b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e)**|1.2.0|ISC
@@ -75,8 +75,8 @@ Package|Version|License
 
 ## Package details
 
-<a id="886bbce25640791962012f9ad4ea48f88eda9ee9cbc289efa46f093ed6f1455f"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.1.6)
+<a id="b7767ae4bb03501b78cefd70efcdb4c70507118444990e7bdb7393c5049b37b7"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.1.7)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
