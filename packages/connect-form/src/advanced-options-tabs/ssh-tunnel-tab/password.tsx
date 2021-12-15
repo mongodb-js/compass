@@ -26,6 +26,7 @@ const fields: IFormField[] = [
     label: 'SSH Password',
     type: 'text',
     placeholder: 'SSH Password',
+    optional: true,
   },
 ];
 

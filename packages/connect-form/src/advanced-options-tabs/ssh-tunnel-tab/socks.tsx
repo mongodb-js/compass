@@ -30,7 +30,6 @@ const fields: IFormField[] = [
     label: 'Proxy Password',
     type: 'text',
     placeholder: 'Proxy Password',
-    optional: false,
   },
 ];
 

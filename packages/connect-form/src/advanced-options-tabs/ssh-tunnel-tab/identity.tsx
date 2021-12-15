@@ -45,6 +45,7 @@ const fields: IFormField[] = [
     label: 'SSH Passphrase',
     type: 'text',
     placeholder: 'SSH Passphrase',
+    optional: true,
   },
 ];
 
