@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Checkbox, Description } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
@@ -14,17 +14,20 @@ function DirectConnectionInput({
   const isDirectConnection =
     connectionStringUrl.searchParams.get('directConnection') === 'true';
 
-  function updateDirectConnection(newIsDirectConnection: boolean) {
-    updateConnectionFormField({
-      type: 'update-direct-connection',
-      isDirectConnection: newIsDirectConnection,
-    });
-  }
+  const updateDirectConnection = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      updateConnectionFormField({
+        type: 'update-direct-connection',
+        isDirectConnection: event.target.checked,
+      });
+    },
+    [updateConnectionFormField]
+  );
 
   return (
     <>
       <Checkbox
-        onChange={(event) => updateDirectConnection(event.target.checked)}
+        onChange={updateDirectConnection}
         label="Direct Connection"
         checked={isDirectConnection}
         bold={false}

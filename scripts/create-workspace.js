@@ -4,7 +4,7 @@ const prompts = require('prompts');
 const pacote = require('pacote');
 const {
   collectWorkspacesDependencies,
-  collectWorkspacesMeta
+  collectWorkspacesMeta,
 } = require('./workspace-dependencies');
 const { getHighestRange } = require('./semver-helpers');
 const { runInDir } = require('./run-in-dir');
@@ -57,7 +57,7 @@ async function main(argv) {
     isPublic = true,
     isReact = true,
     dependants = [],
-    depType
+    depType,
   } = await prompts(
     [
       {
@@ -75,18 +75,18 @@ async function main(argv) {
           }
 
           return true;
-        }
+        },
       },
       {
         type: 'text',
         name: 'description',
-        message: 'Provide a one-line description of the workspace'
+        message: 'Provide a one-line description of the workspace',
       },
       {
         type: 'confirm',
         name: 'isPlugin',
         message: 'Are you creating a new Compass plugin?',
-        initial: true
+        initial: true,
       },
       {
         type(_, { name, description, isPlugin }) {
@@ -100,7 +100,7 @@ async function main(argv) {
         name: 'isConfig',
         message: 'Is it a shared configuration package?',
         hint: '(answering yes will create the package in the ./configs/<package-name> directory)',
-        initial: true
+        initial: true,
       },
       {
         type(_, { isPlugin }) {
@@ -112,7 +112,7 @@ async function main(argv) {
         },
         name: 'isPublic',
         message: 'Is it a public package?',
-        initial: true
+        initial: true,
       },
       {
         type(_, { isPlugin }) {
@@ -124,7 +124,7 @@ async function main(argv) {
         },
         name: 'isReact',
         message: 'Will the package use React?',
-        initial: true
+        initial: true,
       },
       {
         type(_, { isPlugin }) {
@@ -147,7 +147,7 @@ async function main(argv) {
  · Type text to filter choices
  · Enter to complete the answer
 `,
-        initial: []
+        initial: [],
       },
       {
         type(prev) {
@@ -157,14 +157,14 @@ async function main(argv) {
         message: 'What type of dependency is it?',
         choices: [
           { title: 'Production', value: 'dependencies' },
-          { title: 'Development', value: 'devDependencies' }
-        ]
-      }
+          { title: 'Development', value: 'devDependencies' },
+        ],
+      },
     ],
     {
       onCancel() {
         canceled = true;
-      }
+      },
     }
   );
 
@@ -177,7 +177,7 @@ async function main(argv) {
     dependants = [
       Array.from(workspacesMeta.values()).find(
         (ws) => ws.name === 'mongodb-compass'
-      ).location
+      ).location,
     ];
     depType = 'devDependencies';
   }
@@ -189,18 +189,18 @@ async function main(argv) {
     ...(description && { description }),
     author: {
       name: 'MongoDB Inc',
-      email: 'compass@mongodb.com'
+      email: 'compass@mongodb.com',
     },
     ...(isPublic ? { publishConfig: { access: 'public' } } : { private: true }),
     bugs: {
       url: 'https://jira.mongodb.org/projects/COMPASS/issues',
-      email: 'compass@mongodb.com'
+      email: 'compass@mongodb.com',
     },
     homepage: 'https://github.com/mongodb-js/compass',
     version: '0.1.0',
     repository: {
       type: 'git',
-      url: 'https://github.com/mongodb-js/compass.git'
+      url: 'https://github.com/mongodb-js/compass.git',
     },
     files: ['dist'],
     license: 'SSPL',
@@ -209,15 +209,15 @@ async function main(argv) {
       webpack: './src/index.ts',
       require: './dist/index.js',
       ...(!isPlugin && {
-        import: './dist/.esm-wrapper.mjs'
-      })
+        import: './dist/.esm-wrapper.mjs',
+      }),
     },
     types: './dist/index.d.ts',
     scripts: {
       // Plugins are bundled by webpack from source and tested with ts-node
       // runtime processor, no need to bootstrap them
       ...(!isPlugin && {
-        bootstrap: 'npm run compile'
+        bootstrap: 'npm run compile',
       }),
       prepublishOnly: 'npm run compile',
       // For normal packages we are just compiling code with typescript, for
@@ -230,7 +230,7 @@ async function main(argv) {
         prewebpack: 'rimraf ./lib',
         webpack: 'webpack-compass',
         start: 'npm run webpack serve -- --mode development',
-        analyze: 'npm run webpack -- --mode production --analyze'
+        analyze: 'npm run webpack -- --mode production --analyze',
       }),
       eslint: 'eslint',
       prettier: 'prettier',
@@ -245,7 +245,7 @@ async function main(argv) {
       'test-ci': isPlugin
         ? 'npm run test-electron && npm run test-cov'
         : 'npm run test-cov',
-      reformat: 'npm run prettier -- --write .'
+      reformat: 'npm run prettier -- --write .',
     },
     ...(isReact && { peerDependencies: { react: '*', 'react-dom': '*' } }),
     ...(isReact && { dependencies: { react: '*', 'react-dom': '*' } }),
@@ -269,19 +269,19 @@ async function main(argv) {
         '@testing-library/user-event': '*',
         '@types/chai-dom': '*',
         '@types/react': '*',
-        '@types/react-dom': '*'
+        '@types/react-dom': '*',
       }),
       ...(!isPlugin && {
         typescript: '*',
-        'gen-esm-wrapper': '*'
+        'gen-esm-wrapper': '*',
       }),
       ...(isPlugin && {
         '@mongodb-js/webpack-config-compass': '*',
         'hadron-app-registry': '*',
         rimraf: '*',
-        'xvfb-maybe': '*'
-      })
-    }
+        'xvfb-maybe': '*',
+      }),
+    },
   };
 
   await applyBestVersionMatch(pkgJson, workspacesMeta);
@@ -304,7 +304,7 @@ async function main(argv) {
     '@mongodb-js/tsconfig-compass',
     '@types/chai',
     '@types/sinon-chai',
-    'sinon'
+    'sinon',
   ]
     .concat(
       isReact ? ['@types/chai-dom', '@types/react', '@types/react-dom'] : []
@@ -328,10 +328,10 @@ async function main(argv) {
         isReact ? 'react' : 'common'
       }.json`,
       compilerOptions: {
-        outDir: 'dist'
+        outDir: 'dist',
       },
       include: ['src/**/*'],
-      exclude: ['./src/**/*.spec.*']
+      exclude: ['./src/**/*.spec.*'],
     },
     null,
     2
@@ -342,7 +342,7 @@ async function main(argv) {
     {
       extends: './tsconfig.json',
       include: ['**/*'],
-      exclude: ['node_modules', 'dist']
+      exclude: ['node_modules', 'dist'],
     },
     null,
     2

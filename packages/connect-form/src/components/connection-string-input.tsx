@@ -2,9 +2,10 @@ import { css } from '@emotion/css';
 import React, {
   ChangeEvent,
   Fragment,
-  useRef,
-  useReducer,
+  useCallback,
   useEffect,
+  useReducer,
+  useRef,
 } from 'react';
 import {
   Icon,
@@ -15,7 +16,9 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import ConnectionStringUrl, {
+  redactConnectionString,
+} from 'mongodb-connection-string-url';
 
 const uriLabelStyles = css({
   padding: 0,
@@ -121,27 +124,10 @@ function reducer(state: State, action: Action): State {
 export function hidePasswordInConnectionString(
   connectionString: string
 ): string {
-  try {
-    const passwordHiddenConnectionString = new ConnectionStringUrl(
-      connectionString
-    );
-
-    if (passwordHiddenConnectionString.password) {
-      passwordHiddenConnectionString.password = '*****';
-    }
-    if (passwordHiddenConnectionString.searchParams.get('AWS_SESSION_TOKEN')) {
-      passwordHiddenConnectionString.searchParams.set(
-        'AWS_SESSION_TOKEN',
-        '*****'
-      );
-    }
-
-    return passwordHiddenConnectionString.toString();
-  } catch (e) {
-    // If we cannot parse the connection string we'll return it
-    // as could be misformed.
-    return connectionString;
-  }
+  return redactConnectionString(connectionString, {
+    redactUsernames: false,
+    replacementString: '*****',
+  });
 }
 
 function ConnectStringInput({
@@ -191,30 +177,35 @@ function ConnectStringInput({
     editingConnectionString,
   ]);
 
-  function onChangeConnectionString(event: ChangeEvent<HTMLTextAreaElement>) {
-    const newConnectionString = event.target.value;
+  const onChangeConnectionString = useCallback(
+    (event: ChangeEvent<HTMLTextAreaElement>) => {
+      const newConnectionString = event.target.value;
 
-    dispatch({
-      type: 'set-editing-connection-string',
-      editingConnectionString: newConnectionString,
-    });
+      dispatch({
+        type: 'set-editing-connection-string',
+        editingConnectionString: newConnectionString,
+      });
 
-    try {
-      // Ensure it's parsable connection string.
-      const connectionStringUrl = new ConnectionStringUrl(newConnectionString);
-      setConnectionStringUrl(connectionStringUrl);
-    } catch (error) {
-      // Check if starts with url scheme.
-      if (!connectionStringHasValidScheme(newConnectionString)) {
-        setConnectionStringError(
-          'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://`'
+      try {
+        // Ensure it's parsable connection string.
+        const connectionStringUrl = new ConnectionStringUrl(
+          newConnectionString
         );
-        return;
-      }
+        setConnectionStringUrl(connectionStringUrl);
+      } catch (error) {
+        // Check if starts with url scheme.
+        if (!connectionStringHasValidScheme(newConnectionString)) {
+          setConnectionStringError(
+            'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://`'
+          );
+          return;
+        }
 
-      setConnectionStringError((error as Error).message);
-    }
-  }
+        setConnectionStringError((error as Error).message);
+      }
+    },
+    [setConnectionStringUrl, setConnectionStringError]
+  );
 
   const displayedConnectionString = enableEditingConnectionString
     ? editingConnectionString

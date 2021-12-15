@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Label,
   Icon,
@@ -57,20 +57,20 @@ function HostInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectionStringUrl]);
 
-  function onHostChange(
-    event: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) {
-    const newHosts = [...hosts];
-    newHosts[index] = event.target.value || '';
+  const onHostChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+      const newHosts = [...hosts];
+      newHosts[index] = event.target.value || '';
 
-    setHosts(newHosts);
-    updateConnectionFormField({
-      type: 'update-host',
-      hostIndex: index,
-      newHostValue: event.target.value,
-    });
-  }
+      setHosts(newHosts);
+      updateConnectionFormField({
+        type: 'update-host',
+        hostIndex: index,
+        newHostValue: event.target.value,
+      });
+    },
+    [hosts, setHosts, updateConnectionFormField]
+  );
 
   const hostsErrorIndex = errors.findIndex(
     (error) => error.fieldName === MARKABLE_FORM_FIELD_NAMES.HOSTS

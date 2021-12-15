@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Banner,
   BannerVariant,
@@ -42,23 +42,20 @@ function SchemaInput({
 }): React.ReactElement {
   const { isSRV } = connectionStringUrl;
 
-  function onChangeConnectionSchema(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    updateConnectionFormField({
-      type: 'update-connection-schema',
-      isSrv: event.target.value === MONGODB_SCHEMA.MONGODB_SRV,
-    });
-  }
+  const onChangeConnectionSchema = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      updateConnectionFormField({
+        type: 'update-connection-schema',
+        isSrv: event.target.value === MONGODB_SCHEMA.MONGODB_SRV,
+      });
+    },
+    [updateConnectionFormField]
+  );
 
   const schemaUpdateErrorIndex = errors.findIndex(
     (error) => error.fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SRV
   );
   const schemaUpdateError = errors[schemaUpdateErrorIndex];
-
-  function onCloseSchemaConversionError() {
-    hideError(schemaUpdateErrorIndex);
-  }
 
   return (
     <>
@@ -78,7 +75,7 @@ function SchemaInput({
         <Banner
           variant={BannerVariant.Danger}
           dismissible
-          onClose={onCloseSchemaConversionError}
+          onClose={() => hideError(schemaUpdateErrorIndex)}
         >
           {schemaUpdateError.message}
         </Banner>
