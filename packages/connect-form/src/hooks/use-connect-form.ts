@@ -303,7 +303,7 @@ export function handleConnectionFormFieldUpdate({
           connectionStringUrl: newConnectionStringUrl,
           connectionOptions: {
             ...connectionOptions,
-            connectionString: updatedConnectionStringUrl.toString(),
+            connectionString: newConnectionStringUrl.toString(),
           },
           errors: [],
         };

@@ -606,74 +606,122 @@ describe('use-connect-form hook', function () {
       });
     });
 
-    // TODO: Update schema action.
+    describe('update-connection-schema action', function () {
+      describe('setting standard to srv', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://a:b@cruiseship:123,backyard,cruiseship:1234,catch:22/?ssl=true'
+        );
 
-    // describe('update-schema action', function () {
-    //   describe('with multiple hosts and a host without port', function () {
-    //     const connectionStringUrl = new ConnectionStringUrl(
-    //       'mongodb://outerspace:123,backyard,cruiseship:1234,catch:22'
-    //     );
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-connection-schema',
+              isSrv: true,
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
 
-    //     let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-    //     beforeEach(function () {
-    //       updateResult = handleConnectionFormFieldUpdate({
-    //         action: {
-    //           type: 'update-host',
-    //           hostIndexToRemove: 1,
-    //         },
-    //         connectionStringUrl,
-    //         connectionOptions: {
-    //           connectionString: connectionStringUrl.toString(),
-    //         },
-    //       });
-    //     });
+        it('updates the host on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'cruiseship',
+          ]);
+        });
 
-    //     it('removes the host on the connectionStringUrl', function () {
-    //       expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-    //         'outerspace:123',
-    //         'cruiseship:1234',
-    //         'catch:22',
-    //       ]);
-    //     });
+        it('updates the schema on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.isSRV).to.equal(true);
+        });
 
-    //     it('updates the connection string to not have the host', function () {
-    //       expect(updateResult.connectionOptions.connectionString).to.equal(
-    //         'mongodb://outerspace:123,cruiseship:1234,catch:22/'
-    //       );
-    //     });
-    //   });
+        it('updates the connection string', function () {
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb+srv://a:b@cruiseship/?ssl=true'
+          );
+        });
 
-    //   describe('removing a host leaving only an empty host', function () {
-    //     const connectionStringUrl = new ConnectionStringUrl(
-    //       'mongodb://outerspace:27019,/?ssl=true&directConnection=true'
-    //     );
+        it('returns no errors', function () {
+          expect(updateResult.errors.length).to.equal(0);
+        });
+      });
 
-    //     let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-    //     beforeEach(function () {
-    //       updateResult = handleConnectionFormFieldUpdate({
-    //         action: {
-    //           type: 'update-host',
-    //           hostIndexToRemove: 0,
-    //         },
-    //         connectionStringUrl,
-    //         connectionOptions: {
-    //           connectionString: connectionStringUrl.toString(),
-    //         },
-    //       });
-    //     });
+      describe('setting standard with directConnection to srv', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://outerspace:123/?directConnection=true'
+        );
 
-    //     it('removes the host on the connectionStringUrl, but sets the last host to default', function () {
-    //       expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-    //         'localhost:27017',
-    //       ]);
-    //     });
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-connection-schema',
+              isSrv: true,
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
 
-    //     it('updates the connection string to have one default host', function () {
-    //       expect(updateResult.connectionOptions.connectionString).to.equal(
-    //         'mongodb://localhost:27017/'
-    //       );
-    //     });
-    //   });
-    // });
+        it('removes the host on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'outerspace',
+          ]);
+        });
+
+        it('updates the schema on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.isSRV).to.equal(true);
+        });
+
+        it('updates the connection string', function () {
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb+srv://outerspace/'
+          );
+        });
+      });
+
+      describe('setting srv to standard', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb+srv://aa:bb@outerspace/?ssl=true'
+        );
+
+        let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
+        beforeEach(function () {
+          updateResult = handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-connection-schema',
+              isSrv: false,
+            },
+            connectionStringUrl,
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+          });
+        });
+
+        it('updates the host on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+            'outerspace:27017',
+          ]);
+        });
+
+        it('updates the schema on the connectionStringUrl', function () {
+          expect(updateResult.connectionStringUrl.isSRV).to.equal(false);
+        });
+
+        it('updates the connection string', function () {
+          expect(updateResult.connectionOptions.connectionString).to.equal(
+            'mongodb://aa:bb@outerspace:27017/?ssl=true'
+          );
+        });
+
+        it('returns no errors', function () {
+          expect(updateResult.errors.length).to.equal(0);
+        });
+      });
+    });
   });
 });

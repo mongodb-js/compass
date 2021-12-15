@@ -5,6 +5,10 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import GeneralTab from './general-tab';
 
+const noop = () => {
+  /* */
+};
+
 describe('GeneralTab', function () {
   describe('with a srv connection string schema (mongodb+srv://)', function () {
     beforeEach(function () {
@@ -14,13 +18,9 @@ describe('GeneralTab', function () {
       render(
         <GeneralTab
           errors={[]}
-          hideError={() => {
-            /* */
-          }}
+          hideError={noop}
           connectionStringUrl={connectionStringUrl}
-          updateConnectionFormField={() => {
-            /* */
-          }}
+          updateConnectionFormField={noop}
         />
       );
     });
@@ -46,13 +46,9 @@ describe('GeneralTab', function () {
       render(
         <GeneralTab
           errors={[]}
-          hideError={() => {
-            /* */
-          }}
+          hideError={noop}
           connectionStringUrl={connectionStringUrl}
-          updateConnectionFormField={() => {
-            /* */
-          }}
+          updateConnectionFormField={noop}
         />
       );
     });
@@ -70,13 +66,9 @@ describe('GeneralTab', function () {
       render(
         <GeneralTab
           errors={[]}
-          hideError={() => {
-            /* */
-          }}
+          hideError={noop}
           connectionStringUrl={connectionStringUrl}
-          updateConnectionFormField={() => {
-            /* */
-          }}
+          updateConnectionFormField={noop}
         />
       );
     });
@@ -94,13 +86,9 @@ describe('GeneralTab', function () {
       render(
         <GeneralTab
           errors={[]}
-          hideError={() => {
-            /* */
-          }}
+          hideError={noop}
           connectionStringUrl={connectionStringUrl}
-          updateConnectionFormField={() => {
-            /* */
-          }}
+          updateConnectionFormField={noop}
         />
       );
     });
