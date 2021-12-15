@@ -191,6 +191,7 @@ function handleUpdateHost({
       errors: [
         {
           fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+          hostIndex,
           message: (err as Error).message,
         },
       ],
@@ -340,7 +341,8 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
 ] {
   const [state, dispatch] = useReducer(
     connectFormReducer,
-    buildStateFromConnectionInfo(initialConnectionInfo)
+    initialConnectionInfo,
+    buildStateFromConnectionInfo
   );
 
   useEffect(() => {

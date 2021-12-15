@@ -472,6 +472,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              hostIndex: 0,
               message:
                 'Host cannot be empty. The host is the address hostname, IP address, or UNIX domain socket where the mongodb instance is running.',
             },
@@ -490,7 +491,7 @@ describe('use-connect-form hook', function () {
 
       describe('updating a host to have an @', function () {
         const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+          'mongodb://outerspace:27019,spaces:123/?ssl=true&directConnection=true'
         );
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
@@ -498,8 +499,8 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'update-host',
-              hostIndex: 0,
-              newHostValue: 'outerspace:27019@',
+              hostIndex: 1,
+              newHostValue: 'spaces:123@',
             },
             connectionStringUrl,
             connectionOptions: {
@@ -512,6 +513,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              hostIndex: 1,
               message: "Invalid character in host: '@'",
             },
           ]);
@@ -520,9 +522,10 @@ describe('use-connect-form hook', function () {
         it('keeps the connection string and url the same', function () {
           expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
             'outerspace:27019',
+            'spaces:123',
           ]);
           expect(updateResult.connectionOptions.connectionString).to.equal(
-            'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+            'mongodb://outerspace:27019,spaces:123/?ssl=true&directConnection=true'
           );
         });
       });
@@ -551,6 +554,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              hostIndex: 0,
               message: "Invalid character in host: '/'",
             },
           ]);
@@ -590,6 +594,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              hostIndex: 0,
               message: "Invalid character in host: ':'",
             },
           ]);

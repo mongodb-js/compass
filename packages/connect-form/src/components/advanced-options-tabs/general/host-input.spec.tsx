@@ -89,6 +89,7 @@ describe('HostInput', function () {
           errors={[
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              hostIndex: 1,
               message: 'Eeeee!!!',
             },
           ]}

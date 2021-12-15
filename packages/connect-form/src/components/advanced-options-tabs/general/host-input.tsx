@@ -19,7 +19,6 @@ const hostInputContainerStyles = css({
   display: 'flex',
   flexDirection: 'row',
   width: '100%',
-  alignItems: 'center',
   marginBottom: spacing[2],
 });
 
@@ -29,6 +28,7 @@ const hostInputStyles = css({
 
 const hostActionButtonStyles = css({
   marginLeft: spacing[1],
+  marginTop: spacing[1],
 });
 
 function HostInput({
@@ -93,7 +93,9 @@ function HostInput({
               state={hostsError ? 'error' : undefined}
               // Only show the error message on the last host.
               errorMessage={
-                hostsError && index === hosts.length - 1
+                hostsError &&
+                hostsError.fieldName === MARKABLE_FORM_FIELD_NAMES.HOSTS &&
+                index === hostsError.hostIndex
                   ? hostsError.message
                   : undefined
               }

@@ -131,6 +131,7 @@ describe('SchemaInput', function () {
         <SchemaInput
           errors={[
             {
+              fieldName: undefined,
               message: 'unrelated error',
             },
             {
