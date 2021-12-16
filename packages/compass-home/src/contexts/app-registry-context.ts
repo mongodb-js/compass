@@ -8,10 +8,7 @@ const AppRegistryContext = createContext(new AppRegistry());
 export default AppRegistryContext;
 
 export enum AppRegistryRoles {
-  COLLECTION_WORKSPACE = 'Collection.Workspace',
   APPLICATION_CONNECT = 'Application.Connect',
-  INSTANCE_WORKSPACE = 'Instance.Workspace',
-  DATABASE_WORKSPACE = 'Database.Workspace',
   FIND_IN_PAGE = 'Find',
   GLOBAL_MODAL = 'Global.Modal',
 }
@@ -19,10 +16,9 @@ export enum AppRegistryRoles {
 export enum AppRegistryComponents {
   SIDEBAR_COMPONENT = 'Sidebar.Component',
   SHELL_COMPONENT = 'Global.Shell',
-}
-
-export enum AppRegistryActions {
-  STATUS_ACTIONS = 'Status.Actions',
+  COLLECTION_WORKSPACE = 'Collection.Workspace',
+  DATABASE_WORKSPACE = 'Database.Workspace',
+  INSTANCE_WORKSPACE = 'Instance.Workspace',
 }
 
 export const useAppRegistryContext = (): AppRegistry =>
@@ -47,18 +43,6 @@ export const useAppRegistryComponent = (
 
 export function useAppRegistryRole(
   roleName:
-    | AppRegistryRoles.COLLECTION_WORKSPACE
-    | AppRegistryRoles.INSTANCE_WORKSPACE
-):
-  | {
-      component: React.JSXElementConstructor<{
-        isDataLake?: boolean;
-      }>;
-    }[]
-  | null;
-export function useAppRegistryRole(
-  roleName:
-    | AppRegistryRoles.DATABASE_WORKSPACE
     | AppRegistryRoles.APPLICATION_CONNECT
     | AppRegistryRoles.FIND_IN_PAGE
     | AppRegistryRoles.GLOBAL_MODAL

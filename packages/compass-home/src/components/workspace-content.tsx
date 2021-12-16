@@ -1,77 +1,35 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
-import { Banner, BannerVariant } from '@mongodb-js/compass-components';
-
-import Namespace from '../types/namespace';
-import InstanceLoadedStatus from '../constants/instance-loaded-status';
 import {
-  AppRegistryRoles,
-  useAppRegistryRole,
+  AppRegistryComponents,
+  useAppRegistryComponent,
 } from '../contexts/app-registry-context';
+import type Namespace from '../types/namespace';
 
-const ERROR_WARNING = 'An error occurred while loading navigation';
+const EmptyComponent: React.FunctionComponent = () => null;
 
-const NOT_MASTER_ERROR = 'not master and slaveOk=false';
-
-// We recommend in the connection dialog to switch to these read preferences.
-const RECOMMEND_READ_PREF_MSG = `It is recommended to change your read
- preference in the connection dialog to Primary Preferred or Secondary Preferred
- or provide a replica set name for a full topology connection.`;
-
-export default function WorkspaceContent({
-  instanceLoadingStatus,
-  errorLoadingInstanceMessage,
-  isDataLake,
+const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
   namespace,
-}: {
-  instanceLoadingStatus: InstanceLoadedStatus;
-  errorLoadingInstanceMessage: string | null;
-  isDataLake: boolean;
-  namespace: Namespace;
-}): React.ReactElement | null {
-  const collectionRole = useAppRegistryRole(
-    AppRegistryRoles.COLLECTION_WORKSPACE
-  );
-  const databaseRole = useAppRegistryRole(AppRegistryRoles.DATABASE_WORKSPACE);
-  const instanceRole = useAppRegistryRole(AppRegistryRoles.INSTANCE_WORKSPACE);
+}) => {
+  const Collection =
+    useAppRegistryComponent(AppRegistryComponents.COLLECTION_WORKSPACE) ??
+    EmptyComponent;
+  const Database =
+    useAppRegistryComponent(AppRegistryComponents.DATABASE_WORKSPACE) ??
+    EmptyComponent;
+  const Instance =
+    useAppRegistryComponent(AppRegistryComponents.INSTANCE_WORKSPACE) ??
+    EmptyComponent;
 
-  if (instanceLoadingStatus === InstanceLoadedStatus.ERROR) {
-    let message = errorLoadingInstanceMessage || '';
-    if (message.includes(NOT_MASTER_ERROR)) {
-      message = `'${message}': ${RECOMMEND_READ_PREF_MSG}`;
-    }
-
-    return (
-      <Banner variant={BannerVariant.Danger}>
-        {ERROR_WARNING}: {message}
-      </Banner>
-    );
+  if (namespace.collection) {
+    return <Collection></Collection>;
   }
 
-  if (instanceLoadingStatus === InstanceLoadedStatus.LOADING) {
-    // Currently handled by compass-status.
-    return null;
+  if (namespace.database) {
+    return <Database></Database>;
   }
 
-  if (namespace.database === '') {
-    // Render databases list & performance tabs.
-    if (!instanceRole) {
-      return null;
-    }
-    const Instance = instanceRole[0].component;
-    return <Instance isDataLake={isDataLake} />;
-  } else if (namespace.collection === '') {
-    // Render collections table.
-    if (!databaseRole) {
-      return null;
-    }
-    const Database = databaseRole[0].component;
-    return <Database />;
-  }
+  return <Instance></Instance>;
+};
 
-  // Render collection workspace.
-  if (!collectionRole) {
-    return null;
-  }
-  const Collection = collectionRole[0].component;
-  return <Collection isDataLake={isDataLake} />;
-}
+export default WorkspaceContent;
