@@ -44,10 +44,6 @@ describe('CreateCollectionModal [Component]', () => {
       expect(component.find(ConfirmationModal)).to.be.present();
     });
 
-    it('renders the correct root classname', () => {
-      expect(component.find(`.${styles['create-collection-modal']}`)).to.be.present();
-    });
-
     it('renders the header text', () => {
       expect(component.text()).to.include('Create Collection');
     });

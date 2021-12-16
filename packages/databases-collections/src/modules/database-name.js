@@ -31,7 +31,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {object} The action.
  */
-export const changeDatabaseName = (name, collections) => ({
+export const changeDatabaseName = (name, collections = []) => ({
   type: CHANGE_DATABASE_NAME,
   name,
   collections

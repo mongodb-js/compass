@@ -8,6 +8,7 @@ describe('Databases [Component]', () => {
   describe('genuine with dbs', () => {
     beforeEach(() => {
       component = mount(<Databases
+        databasesStatus={{ status: 'ready' }}
         databases={[{ name: 'db1' }]}
         isGenuineMongoDB
       />);
@@ -18,9 +19,6 @@ describe('Databases [Component]', () => {
       component = null;
     });
 
-    it('renders the correct root classname', () => {
-      expect(component.find('[data-testid="database-grid"]')).to.be.present();
-    });
     it('does not render warning zero state', () => {
       expect(component.find('[data-testid="databases-non-genuine-warning"]')).to.not.be.present();
     });
@@ -28,6 +26,7 @@ describe('Databases [Component]', () => {
   describe('genuine without dbs', () => {
     beforeEach(() => {
       component = mount(<Databases
+        databasesStatus={{ status: 'ready' }}
         databases={[]}
         isGenuineMongoDB
       />);
@@ -38,9 +37,6 @@ describe('Databases [Component]', () => {
       component = null;
     });
 
-    it('renders the correct root classname', () => {
-      expect(component.find('[data-testid="database-grid"]')).to.be.present();
-    });
     it('does not render warning zero state', () => {
       expect(component.find('[data-testid="databases-non-genuine-warning"]')).to.not.be.present();
     });
@@ -49,6 +45,7 @@ describe('Databases [Component]', () => {
   describe('non-genuine with dbs', () => {
     beforeEach(() => {
       component = mount(<Databases
+        databasesStatus={{ status: 'ready' }}
         databases={[{ name: 'db1' }]}
         isGenuineMongoDB={false}
       />);
@@ -59,9 +56,6 @@ describe('Databases [Component]', () => {
       component = null;
     });
 
-    it('renders the correct root classname', () => {
-      expect(component.find('[data-testid="database-grid"]')).to.be.present();
-    });
     it('does not render warning zero state', () => {
       expect(component.find('[data-testid="databases-non-genuine-warning"]')).to.not.be.present();
     });
@@ -69,6 +63,7 @@ describe('Databases [Component]', () => {
   describe('non-genuine without dbs', () => {
     beforeEach(() => {
       component = mount(<Databases
+        databasesStatus={{ status: 'ready' }}
         databases={[]}
         isGenuineMongoDB={false}
       />);

@@ -3,6 +3,9 @@ import appRegistry from '../app-registry';
 import databases, {
   INITIAL_STATE as DATABASES_INITIAL_STATE
 } from './databases';
+import databasesStatus, {
+  INITIAL_STATE as DATABASES_STATUS_STATE
+} from './status';
 import isReadonly, {
   INITIAL_STATE as READONLY_INITIAL_STATE
 } from '../is-readonly';
@@ -23,6 +26,7 @@ import { RESET } from '../reset';
 const reducer = combineReducers({
   appRegistry,
   databases,
+  databasesStatus,
   isReadonly,
   isWritable,
   isGenuineMongoDB,
@@ -42,6 +46,7 @@ const rootReducer = (state, action) => {
     return {
       ...state,
       databases: DATABASES_INITIAL_STATE,
+      databasesStatus: DATABASES_STATUS_STATE,
       isReadonly: READONLY_INITIAL_STATE,
       isWritable: WRITABLE_INITIAL_STATE,
       isGenuineMongoDB: GENUINE_INITIAL_STATE,

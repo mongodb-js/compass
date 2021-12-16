@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 
 import { appRegistryActivated } from '../modules/app-registry';
 import { setDatabases } from '../modules/databases/databases';
+import { databasesStatusChanged } from '../modules/databases/status';
 import { writeStateChanged } from '../modules/is-writable';
 import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
 import { toggleIsDataLake } from '../modules/is-data-lake';
@@ -28,6 +29,9 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.on('instance-created', ({ instance }) => {
+    store.dispatch(databasesStatusChanged(instance));
+    onDatabasesChange(instance.databases);
+
     instance.genuineMongoDB.on('change:isGenuine', (model, newVal) => {
       store.dispatch(toggleIsGenuineMongoDB(newVal));
     });
@@ -37,6 +41,7 @@ store.onActivated = (appRegistry) => {
     });
 
     instance.on('change:databasesStatus', () => {
+      store.dispatch(databasesStatusChanged(instance));
       onDatabasesChange(instance.databases);
     });
 

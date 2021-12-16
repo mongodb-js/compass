@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { ZeroState } from 'hadron-react-components';
+import { Banner, BannerVariant } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
 
 import styles from './databases.module.less';
@@ -15,6 +16,8 @@ const SUBTEXT =
   ' performance characteristics than would be found when connecting to a' +
   ' real MongoDB server or service.';
 const DOCUMENTATION_LINK = 'https://www.mongodb.com/cloud/atlas';
+
+const ERROR_WARNING = 'An error occurred while loading databases';
 
 function NonGenuineZeroState() {
   return (
@@ -36,6 +39,7 @@ function NonGenuineZeroState() {
 class Databases extends PureComponent {
   static propTypes = {
     databases: PropTypes.array.isRequired,
+    databasesStatus: PropTypes.object.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
@@ -53,6 +57,7 @@ class Databases extends PureComponent {
   render() {
     const {
       databases,
+      databasesStatus,
       isReadonly,
       isWritable,
       isDataLake,
@@ -61,6 +66,16 @@ class Databases extends PureComponent {
       onDeleteDatabaseClick,
       onCreateDatabaseClick,
     } = this.props;
+
+    if (databasesStatus.status === 'error') {
+      return (
+        <div className={styles['databases-error']}>
+          <Banner variant={BannerVariant.Danger}>
+            {ERROR_WARNING}: {databasesStatus.error}
+          </Banner>
+        </div>
+      );
+    }
 
     if (databases.length === 0 && !isGenuineMongoDB) {
       return <NonGenuineZeroState />;
@@ -86,6 +101,7 @@ class Databases extends PureComponent {
  */
 const mapStateToProps = (state) => ({
   databases: state.databases,
+  databasesStatus: state.databasesStatus,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
   isGenuineMongoDB: state.isGenuineMongoDB,

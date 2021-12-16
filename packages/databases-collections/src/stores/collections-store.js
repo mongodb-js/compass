@@ -1,11 +1,11 @@
 import throttle from 'lodash/throttle';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-
 import { appRegistryActivated } from '../modules/app-registry';
 import { changeDatabaseName } from '../modules/database-name';
 import { dataServiceConnected } from '../modules/data-service';
 import { setCollections } from '../modules/collections/collections';
+import { collectionsStatusChanged } from '../modules/collections/status';
 import { writeStateChanged } from '../modules/is-writable';
 import { toggleIsDataLake } from '../modules/is-data-lake';
 import { reset } from '../modules/reset';
@@ -36,6 +36,7 @@ store.onActivated = (appRegistry) => {
     store.instance = instance;
 
     instance.on('change:databases.collectionsStatus', (model) => {
+      collectionsStatusChanged(model);
       onCollectionsChange(model.collections);
     });
 
