@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css';
 import React from 'react';
 import {
-  Subtitle,
+  H3,
   Description,
   spacing,
   uiColors,
@@ -48,7 +48,10 @@ const connectionButtonContainerStyles = css({
 
 const connectionButtonStyles = css({
   margin: 0,
-  padding: `${spacing[1]}px 0 ${spacing[1]}px ${spacing[1] * 3}px`,
+  paddingTop: spacing[1],
+  paddingRight: 0,
+  paddingBottom: spacing[1],
+  paddingLeft: spacing[1] * 3,
   position: 'relative',
   width: '100%',
   overflow: 'hidden',
@@ -71,7 +74,7 @@ const connectionDetailsContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   position: 'relative',
-  width: '85%',
+  width: 'calc(100% - 20px)',
 });
 
 const connectionTitleStyles = css({
@@ -156,7 +159,7 @@ function Connection({
         {/* Title and Last Used */}
         <div className={connectionDetailsContainerStyles}>
           {/* Title */}
-          <Subtitle
+          <H3
             className={cx(
               connectionTitleStyles,
               css({
@@ -169,7 +172,7 @@ function Connection({
             title={connectionTitle}
           >
             {connectionTitle}
-          </Subtitle>
+          </H3>
           {/* Last Used */}
           {connectionInfo.lastUsed && (
             <Description
