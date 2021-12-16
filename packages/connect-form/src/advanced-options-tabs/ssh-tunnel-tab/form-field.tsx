@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useState, useCallback } from 'react';
 import { css } from '@emotion/css';
 import { TextInput, FileInput, spacing } from '@mongodb-js/compass-components';
 
@@ -19,6 +19,8 @@ export interface IFormField {
   optional?: boolean;
   defaultValue?: FormFieldValues;
   helpText?: React.ReactElement;
+  errorMessage?: string;
+  validation?: string | CallableFunction;
 }
 interface IFormFieldState {
   [key: string]: FormFieldValues
@@ -39,13 +41,17 @@ function FormField({
     }
   });
   const [formFields, setFormFields] = useState<IFormFieldState>(defaultValues);
-  const formFieldChanged = (key: string, value: FormFieldValues) => {
+  const formFieldChanged = useCallback((key: string, value: FormFieldValues) => {
     setFormFields({
       ...formFields,
       [key]: value,
     });
+    const field = fields.find((x) => x.key === key);
+    if (field && field.validation) {
+      console.log(field);
+    }
     onFieldChanged(key, value);
-  };
+  }, [onFieldChanged, formFields, fields]);
 
   const renderFileInput = ({key, label, helpText}: IFormField) => {
     const value = formFields[key];
@@ -58,8 +64,13 @@ function FormField({
           id={key}
           key={key}
           label={label}
-          values={Array.isArray(value) ? value : [value]}
+          values={(value as string[])}
           helpText={helpText}
+          className={css({
+            'label': {
+              textAlign: 'left',
+            }
+          })}
         />
       </div>
     );
@@ -77,7 +88,7 @@ function FormField({
         type={type}
         optional={optional}
         placeholder={placeholder}
-        value={formFields[key]}
+        value={(formFields[key] as string)}
       />
     );
   }

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useState, useCallback } from 'react';
 import { css } from '@emotion/css';
 
 import { RadioBox, RadioBoxGroup, spacing } from '@mongodb-js/compass-components';
@@ -44,13 +44,13 @@ const containerStyles = css({
 function SSHTunnel(): React.ReactElement {
   const [selectedOption, setSelectedOption] = useState(options[0]);
 
-  const optionSelected = (event: ChangeEvent<HTMLInputElement>) => {
+  const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     const item = options.find(({id}) => id === event.target.value);
     if (item) {
       setSelectedOption(item);
     }
-  }
+  }, []);
 
   const SSLOptionContent = selectedOption.component;
 

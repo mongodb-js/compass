@@ -90,6 +90,7 @@ function FileInput({
   link,
   helpText,
   values,
+  className,
 }: {
   id: string;
   label: string;
@@ -100,6 +101,7 @@ function FileInput({
   link?: string;
   helpText?: React.FC;
   values?: string[];
+  className?: string;
 }): React.ReactElement {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -127,7 +129,8 @@ function FileInput({
       className={cx(
         { [formItemHorizontalStyles]: variant === Variant.Horizontal },
         { [formItemVerticalStyles]: variant === Variant.Vertical },
-        { [formItemErrorStyles]: error }
+        { [formItemErrorStyles]: error },
+        className
       )}
     >
       <label
