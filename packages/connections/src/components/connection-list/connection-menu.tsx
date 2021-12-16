@@ -8,7 +8,6 @@ import {
   Toast,
   ToastVariant,
   spacing,
-  uiColors
 } from '@mongodb-js/compass-components';
 
 const dropdownButtonStyles = css({
@@ -157,7 +156,7 @@ function ConnectionMenu({
               dropdownButtonStyles,
               css({
                 color: iconColor,
-              }),
+              })
             )}
             aria-label="Connection Options Menu"
           >

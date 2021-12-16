@@ -123,9 +123,9 @@ function getActiveConnectionStyles({ favorite }: ConnectionInfo) {
       background,
     },
     color: uiColors.white,
-    'p': {
+    p: {
       color: labelColor,
-    }
+    },
   });
 }
 
@@ -139,7 +139,11 @@ function Connection({
   onClick: () => void;
 }): React.ReactElement {
   const connectionTitle = getConnectionTitle(connectionInfo);
-  const { connectionOptions: {connectionString}, favorite, lastUsed } = connectionInfo;
+  const {
+    connectionOptions: { connectionString },
+    favorite,
+    lastUsed,
+  } = connectionInfo;
   const color =
     isActive && favorite && favorite.color
       ? uiColors.black
@@ -166,9 +170,7 @@ function Connection({
                 color,
               })
             )}
-            data-testid={`${
-              favorite ? 'favorite' : 'recent'
-            }-connection-title`}
+            data-testid={`${favorite ? 'favorite' : 'recent'}-connection-title`}
             title={connectionTitle}
           >
             {connectionTitle}
@@ -192,7 +194,11 @@ function Connection({
         }
       >
         <ConnectionMenu
-          iconColor={isActive && favorite && favorite.color ? uiColors.gray.dark3 : uiColors.white}
+          iconColor={
+            isActive && favorite && favorite.color
+              ? uiColors.gray.dark3
+              : uiColors.white
+          }
           connectionString={connectionString}
         />
       </div>
