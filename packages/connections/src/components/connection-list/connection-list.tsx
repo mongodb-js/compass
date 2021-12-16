@@ -137,11 +137,13 @@ function ConnectionList({
   connections,
   createNewConnection,
   setActiveConnectionId,
+  onDoubleClick,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];
   createNewConnection: () => void;
   setActiveConnectionId: (connectionId?: string) => void;
+  onDoubleClick: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const favoriteConnections = connections
     .filter(
@@ -199,6 +201,7 @@ function ConnectionList({
                 }
                 connectionInfo={connectionInfo}
                 onClick={() => setActiveConnectionId(connectionInfo.id)}
+                onDoubleClick={onDoubleClick}
               />
             </li>
           ))}
@@ -220,6 +223,7 @@ function ConnectionList({
                 }
                 connectionInfo={connectionInfo}
                 onClick={() => setActiveConnectionId(connectionInfo.id)}
+                onDoubleClick={onDoubleClick}
               />
             </li>
           ))}

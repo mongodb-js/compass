@@ -127,10 +127,12 @@ function Connection({
   isActive,
   connectionInfo,
   onClick,
+  onDoubleClick,
 }: {
   isActive: boolean;
   connectionInfo: ConnectionInfo;
   onClick: () => void;
+  onDoubleClick: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const connectionTitle = getConnectionTitle(connectionInfo);
   const {
@@ -152,6 +154,7 @@ function Connection({
         )}
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
+        onDoubleClick={() => onDoubleClick(connectionInfo)}
       >
         <ConnectionIcon color={color} connectionString={connectionString} />
         {/* Title and Last Used */}

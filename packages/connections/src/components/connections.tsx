@@ -100,6 +100,7 @@ function Connections({
         connections={connections}
         createNewConnection={createNewConnection}
         setActiveConnectionId={setActiveConnectionById}
+        onConnectionDoubleClicked={connect}
       />
       <div className={connectItemContainerStyles}>
         {storeConnectionError && (
