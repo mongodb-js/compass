@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 import React, { useEffect, useRef, useReducer } from 'react';
 import {
   IconButton,
@@ -8,10 +8,10 @@ import {
   Toast,
   ToastVariant,
   spacing,
+  uiColors
 } from '@mongodb-js/compass-components';
 
 const dropdownButtonStyles = css({
-  color: 'white',
   position: 'absolute',
   right: spacing[1],
   top: 0,
@@ -73,8 +73,10 @@ function reducer(state: State, action: Action): State {
 
 function ConnectionMenu({
   connectionString,
+  isActive,
 }: {
   connectionString: string;
+  isActive: boolean;
 }): React.ReactElement {
   const [{ error, toastOpen, toastVariant }, dispatch] = useReducer(reducer, {
     ...defaultToastState,
@@ -132,6 +134,10 @@ function ConnectionMenu({
     };
   }, []);
 
+  const iconStyles = css({
+    color: isActive ? uiColors.gray.dark3 : uiColors.white,
+  });
+
   return (
     <>
       <Toast
@@ -151,10 +157,13 @@ function ConnectionMenu({
         justify="start"
         trigger={
           <IconButton
-            className={dropdownButtonStyles}
+            className={cx(
+              dropdownButtonStyles,
+              iconStyles,
+            )}
             aria-label="Connection Options Menu"
           >
-            <Icon glyph="VerticalEllipsis" />
+            <Icon glyph="Ellipsis" />
           </IconButton>
         }
       >

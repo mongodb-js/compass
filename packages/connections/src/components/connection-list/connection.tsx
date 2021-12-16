@@ -191,7 +191,10 @@ function Connection({
           isActive ? connectionMenuVisibleStyles : connectionMenuHiddenStyles
         }
       >
-        <ConnectionMenu connectionString={connectionString} />
+        <ConnectionMenu
+          isActive={isActive}
+          connectionString={connectionString}
+        />
       </div>
     </div>
   );
