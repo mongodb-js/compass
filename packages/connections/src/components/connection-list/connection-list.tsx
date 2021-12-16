@@ -173,10 +173,10 @@ function ConnectionList({
           darkMode
           onClick={createNewConnection}
         >
-          <section className={newConnectionButtonContent}>
+          <div className={newConnectionButtonContent}>
             <span>New Connection</span>
             <Icon fill={uiColors.white} glyph="Plus" />
-          </section>
+          </div>
         </Button>
       </div>
       <div className={connectionListSectionStyles}>
