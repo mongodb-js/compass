@@ -73,10 +73,10 @@ function reducer(state: State, action: Action): State {
 
 function ConnectionMenu({
   connectionString,
-  isActive,
+  iconColor,
 }: {
   connectionString: string;
-  isActive: boolean;
+  iconColor: string;
 }): React.ReactElement {
   const [{ error, toastOpen, toastVariant }, dispatch] = useReducer(reducer, {
     ...defaultToastState,
@@ -134,10 +134,6 @@ function ConnectionMenu({
     };
   }, []);
 
-  const iconStyles = css({
-    color: isActive ? uiColors.gray.dark3 : uiColors.white,
-  });
-
   return (
     <>
       <Toast
@@ -159,7 +155,9 @@ function ConnectionMenu({
           <IconButton
             className={cx(
               dropdownButtonStyles,
-              iconStyles,
+              css({
+                color: iconColor,
+              }),
             )}
             aria-label="Connection Options Menu"
           >

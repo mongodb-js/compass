@@ -139,11 +139,11 @@ function Connection({
   onClick: () => void;
 }): React.ReactElement {
   const connectionTitle = getConnectionTitle(connectionInfo);
-  const { connectionString } = connectionInfo.connectionOptions;
+  const { connectionOptions: {connectionString}, favorite, lastUsed } = connectionInfo;
   const color =
-    isActive && connectionInfo.favorite && connectionInfo.favorite.color
+    isActive && favorite && favorite.color
       ? uiColors.black
-      : connectionInfo.favorite?.color ?? uiColors.white;
+      : favorite?.color ?? uiColors.white;
 
   return (
     <div className={connectionButtonContainerStyles}>
@@ -167,21 +167,21 @@ function Connection({
               })
             )}
             data-testid={`${
-              connectionInfo.favorite ? 'favorite' : 'recent'
+              favorite ? 'favorite' : 'recent'
             }-connection-title`}
             title={connectionTitle}
           >
             {connectionTitle}
           </H3>
           {/* Last Used */}
-          {connectionInfo.lastUsed && (
+          {lastUsed && (
             <Description
               className={connectionDescriptionStyles}
               data-testid={`${
-                connectionInfo.favorite ? 'favorite' : 'recent'
+                favorite ? 'favorite' : 'recent'
               }-connection-description`}
             >
-              {connectionInfo.lastUsed.toLocaleString('default', dateConfig)}
+              {lastUsed.toLocaleString('default', dateConfig)}
             </Description>
           )}
         </div>
@@ -192,7 +192,7 @@ function Connection({
         }
       >
         <ConnectionMenu
-          isActive={isActive}
+          iconColor={isActive && favorite && favorite.color ? uiColors.gray.dark3 : uiColors.white}
           connectionString={connectionString}
         />
       </div>
