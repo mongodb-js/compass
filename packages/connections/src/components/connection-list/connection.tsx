@@ -115,13 +115,7 @@ function getActiveConnectionStyles({ favorite }: ConnectionInfo) {
   const background = favorite?.color ?? uiColors.gray.dark2;
   const labelColor = favorite?.color ? uiColors.gray.dark3 : uiColors.gray.base;
   return css({
-    background,
-    '&:hover': {
-      background: uiColors.gray.dark2,
-    },
-    '&:focus': {
-      background,
-    },
+    background: `${background} !important`,
     color: uiColors.white,
     p: {
       color: labelColor,
