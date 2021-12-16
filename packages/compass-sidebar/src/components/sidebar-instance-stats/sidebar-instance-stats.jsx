@@ -37,12 +37,12 @@ class SidebarInstanceStats extends PureComponent {
 
     let refreshClassName = 'fa fa-repeat';
 
-    const isRefreshing = ['initial', 'fetching', 'refreshing'].includes(
-      instance?.refreshingStatus
+    const isRefreshing = !instance || ['initial', 'fetching', 'refreshing'].includes(
+      instance.refreshingStatus
     );
 
-    const isInitialOrInitialFetching = ['initial', 'fetching'].includes(
-      instance?.refreshingStatus
+    const isInitialOrInitialFetching = !instance || ['initial', 'fetching'].includes(
+      instance.refreshingStatus
     );
 
     if (isRefreshing) {

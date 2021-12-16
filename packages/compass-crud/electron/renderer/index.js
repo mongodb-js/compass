@@ -32,7 +32,6 @@ appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
 appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 appRegistry.registerComponent('DeploymentAwareness.OptionWriteSelector', OptionWriteSelector);
 
-statusActivate(appRegistry);
 activate(appRegistry);
 appRegistry.onActivated();
 
