@@ -67,17 +67,24 @@ export default async function connectMongoClient(
 
   try {
     debug('waiting for MongoClient to connect ...');
-    const client = (await Promise.race([
-      mongoClient.connect(),
+    await Promise.race([
+      (async () => {
+        await mongoClient.connect();
+        await mongoClient.db('admin').command({ ping: 1 });
+      })(),
       waitForTunnelError(tunnel),
-    ])) as MongoClient; // waitForTunnel always throws, never resolves
+    ]); // waitForTunnel always throws, never resolves
 
     log.info(mongoLogId(1_001_000_012), 'Connect', 'Connection established', {
       driver: mongoClient.options?.metadata?.driver,
       url: redactConnectionString(urlWithSshTunnel),
     });
 
-    return [client, tunnel, { url: urlWithSshTunnel, options: driverOptions }];
+    return [
+      mongoClient,
+      tunnel,
+      { url: urlWithSshTunnel, options: driverOptions },
+    ];
   } catch (err: any) {
     log.error(
       mongoLogId(1_001_000_013),
@@ -87,7 +94,11 @@ export default async function connectMongoClient(
     );
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
-    await forceCloseTunnel(tunnel);
+    await Promise.all([forceCloseTunnel(tunnel), mongoClient.close()]).catch(
+      () => {
+        /* ignore errors */
+      }
+    );
     throw err;
   }
 }
