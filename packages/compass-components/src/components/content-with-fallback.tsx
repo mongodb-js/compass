@@ -123,14 +123,17 @@ const fallbackContainerVisible = css({
   transitionTimingFunction: 'ease-in',
 });
 
+type FadeInPlaceholderProps = {
+  isContentReady: boolean;
+  content(): React.ReactElement | boolean | null;
+  fallback(): React.ReactElement | boolean | null;
+  contentContainerProps?: React.HTMLProps<HTMLDivElement>;
+  fallbackContainerProps?: React.HTMLProps<HTMLDivElement>;
+};
+
 export const FadeInPlaceholder: React.FunctionComponent<
-  {
-    isContentReady: boolean;
-    content(): React.ReactElement | boolean | null;
-    fallback(): React.ReactElement | boolean | null;
-    contentContainerProps?: React.HTMLProps<HTMLDivElement>;
-    fallbackContainerProps?: React.HTMLProps<HTMLDivElement>;
-  } & React.HTMLProps<HTMLDivElement>
+  FadeInPlaceholderProps &
+    Omit<React.HTMLProps<HTMLDivElement>, keyof FadeInPlaceholderProps>
 > = ({
   content,
   fallback,
