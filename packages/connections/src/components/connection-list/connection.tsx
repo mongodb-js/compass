@@ -110,6 +110,7 @@ const dateConfig: Intl.DateTimeFormatOptions = {
 
 function getActiveConnectionStyles({ favorite }: ConnectionInfo) {
   const background = favorite?.color ?? uiColors.gray.dark2;
+  const labelColor = favorite?.color ? uiColors.gray.dark3 : uiColors.gray.base;
   return css({
     background,
     '&:hover': {
@@ -119,6 +120,9 @@ function getActiveConnectionStyles({ favorite }: ConnectionInfo) {
       background,
     },
     color: uiColors.white,
+    'p': {
+      color: labelColor,
+    }
   });
 }
 
@@ -134,7 +138,7 @@ function Connection({
   const connectionTitle = getConnectionTitle(connectionInfo);
   const { connectionString } = connectionInfo.connectionOptions;
   const color =
-    isActive && connectionInfo.favorite
+    isActive && connectionInfo.favorite && connectionInfo.favorite.color
       ? uiColors.black
       : connectionInfo.favorite?.color ?? uiColors.white;
 
