@@ -20,41 +20,88 @@ export interface IFormField {
   defaultValue?: FormFieldValues;
   helpText?: React.ReactElement;
   errorMessage?: string;
-  validation?: string | CallableFunction;
+  validation?: RegExp | ((value: FormFieldValues) => boolean);
+  validationMessage?: string;
 }
-interface IFormFieldState {
+interface IFormFieldValueState {
   [key: string]: FormFieldValues
+};
+interface IFormFieldErrorState {
+  [key: string]: string
 };
 interface IFormFieldProps {
   fields: IFormField[];
   onFieldChanged: (key: string, value: FormFieldValues) => void;
 }
 
+const fieldPassesValidation = ({ validation, optional }: IFormField, value: FormFieldValues) => {
+  if (!validation) {
+    return true;
+  }
+  if (optional && value === '') {
+    return true;
+  }
+
+  if (typeof validation === 'function') {
+    return validation(value);
+  }
+
+  const values = typeof value === 'string' ? [value] : value;
+  let isValid = true;
+  values.forEach((v: string) => {
+    if (!validation.exec(v)) {
+      isValid = false;
+    }
+  });
+
+  return isValid;
+}
+
 function FormField({
   fields,
   onFieldChanged,
 }: IFormFieldProps): React.ReactElement {
-  const defaultValues: IFormFieldState = {};
+  const defaultValues: IFormFieldValueState = {};
   fields.forEach(({key, defaultValue}) => {
     if (defaultValue) {
       defaultValues[key] = defaultValue;
     }
   });
-  const [formFields, setFormFields] = useState<IFormFieldState>(defaultValues);
+
+  const [formValues, setFormValues] = useState<IFormFieldValueState>(defaultValues);
+  const [formErrors, setFormErrors] = useState<IFormFieldErrorState>({});
+
   const formFieldChanged = useCallback((key: string, value: FormFieldValues) => {
-    setFormFields({
-      ...formFields,
+    setFormValues({
+      ...formValues,
       [key]: value,
     });
-    const field = fields.find((x) => x.key === key);
-    if (field && field.validation) {
-      console.log(field);
+    const fieldIndex = fields.findIndex((x) => x.key === key);
+    const field = fields[fieldIndex];
+    if (!field) {
+      return;
     }
-    onFieldChanged(key, value);
-  }, [onFieldChanged, formFields, fields]);
+    if(fieldPassesValidation(field, value)) {
+      delete formErrors[key];
+      onFieldChanged(key, value);
+    } else {
+      formErrors[key] = field.validationMessage ?? 'Invalid value';
+    }
+    setFormErrors(formErrors);
+  }, [onFieldChanged, setFormValues, formValues, setFormErrors, formErrors, fields]);
 
-  const renderFileInput = ({key, label, helpText}: IFormField) => {
-    const value = formFields[key];
+  const getFormInputState = useCallback(({errorMessage, key}: Pick<IFormField, 'errorMessage' | 'key'>) => {
+    if (formErrors[key] || errorMessage) {
+      return 'error';
+    }
+    if (formValues[key]) {
+      return 'valid';
+    }
+    return 'none';
+  }, [formErrors, formValues]);
+
+  const renderFileInput = ({key, label, helpText, errorMessage}: IFormField) => {
+    const value = formValues[key];
     return (
       <div className={inputFieldStyles}>
         <FileInput 
@@ -64,6 +111,7 @@ function FormField({
           id={key}
           key={key}
           label={label}
+          error={Boolean(formErrors[key] || errorMessage)}
           values={(value as string[])}
           helpText={helpText}
           className={css({
@@ -76,7 +124,7 @@ function FormField({
     );
   }
 
-  const renderGeneralInput = ({key, label, type, optional, placeholder}: IFormField) => {
+  const renderGeneralInput = ({key, label, type, optional, placeholder, errorMessage}: IFormField) => {
     return (
       <TextInput
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +136,9 @@ function FormField({
         type={type}
         optional={optional}
         placeholder={placeholder}
-        value={(formFields[key] as string)}
+        value={(formValues[key] as string)}
+        errorMessage={formErrors[key] ?? errorMessage}
+        state={getFormInputState({errorMessage, key})}
       />
     );
   }

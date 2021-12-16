@@ -8,12 +8,16 @@ const fields: IFormField[] = [
     label: 'SSH Hostname',
     type: 'text',
     placeholder: 'SSH Hostname',
+    validation: /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+    validationMessage: 'Hostname must be a valid host',
   },
   {
     key: 'port',
     label: 'SSH Tunnel Port',
     type: 'number',
     placeholder: 'SSH Tunnel Port',
+    validation: /^[0-9]+$/,
+    validationMessage: 'Port must be a valid',
   },
   {
     key: 'username',
