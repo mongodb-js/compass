@@ -52,7 +52,7 @@ async function main() {
           for (const depType of [
             'dependencies',
             'devDependencies',
-            'peerDependencies'
+            'peerDependencies',
           ]) {
             if (!packageJson[depType]) {
               continue;

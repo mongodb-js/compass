@@ -32,7 +32,7 @@ async function filterPackagesByExpression(expression) {
   return (
     await forEachPackage(({ packageJson }) => {
       try {
-        return Boolean(runInContext(expression, createContext(packageJson)))
+        return runInContext(expression, createContext(packageJson))
           ? packageJson.name
           : false;
       } catch (e) {
@@ -53,7 +53,7 @@ async function lernaExec(packages) {
   const lernaBin = path.resolve(process.cwd(), 'node_modules', '.bin', 'lerna');
 
   execFileSync(lernaBin, ['exec', ...scope, ...execCommandArgs], {
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
 }
 
@@ -83,7 +83,7 @@ async function npmWorkspaces(packages) {
   console.log();
 
   execFileSync('npm', [...workspaces, ...execCommandArgs], {
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
 }
 

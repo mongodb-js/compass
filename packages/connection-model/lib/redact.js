@@ -1,15 +1,4 @@
-function redactConnectionString(uri) {
-  const regexes = [
-    // Username and password
-    /(?<=\/\/)(.*)(?=\@)/g,
-    // AWS IAM Session Token as part of query parameter
-    /(?<=AWS_SESSION_TOKEN(:|%3A))([^,&]+)/
-  ];
-  regexes.forEach(r => {
-    uri = uri.replace(r, '<credentials>');
-  });
-  return uri;
-}
+const { redactConnectionString } = require('mongodb-connection-string-url');
 
 function redactSshTunnelOptions(options) {
   const redacted = { ...options };

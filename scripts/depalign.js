@@ -9,11 +9,15 @@ const { withProgress } = require('./monorepo/with-progress');
 const {
   collectWorkspacesMeta,
   collectWorkspacesDependencies,
-  DepTypes
+  DepTypes,
 } = require('./workspace-dependencies');
 const { calculateReplacements, intersects } = require('./semver-helpers');
 
-const DEPENDENCY_GROUPS = ['peerDependencies', 'dependencies', 'devDependencies'];
+const DEPENDENCY_GROUPS = [
+  'peerDependencies',
+  'dependencies',
+  'devDependencies',
+];
 
 const USAGE = `Check for dependency alignment issues.
 
@@ -95,7 +99,7 @@ async function main(args) {
     ...depalignrc,
     // We want a full report with ignore option "disabled" so that we can check
     // config against all existing mismatches
-    ...(shouldCheckConfig && { ignore: {} })
+    ...(shouldCheckConfig && { ignore: {} }),
   });
 
   if (shouldCheckConfig) {
@@ -201,10 +205,11 @@ async function main(args) {
 }
 
 async function alignPackageToRange(packageName, range) {
-  range = range === 'latest'
-    // resolve in registry so we don't update package.json to literally "latest"
-    ? `^${(await pacote.manifest(`${packageName}@${range}`)).version}`
-    : range
+  range =
+    range === 'latest'
+      ? // resolve in registry so we don't update package.json to literally "latest"
+        `^${(await pacote.manifest(`${packageName}@${range}`)).version}`
+      : range;
 
   await forEachPackage(async ({ location, packageJson }) => {
     if (!hasDep(packageJson, packageName)) {
@@ -270,7 +275,7 @@ function generateReport(
 
     const reportItem = {
       versions: notIgnoredVersions,
-      fixes: calculateReplacements(notIgnoredUniqueVersionsOnly)
+      fixes: calculateReplacements(notIgnoredUniqueVersionsOnly),
     };
 
     if (!intersects(notIgnoredUniqueVersionsOnly)) {
@@ -324,14 +329,14 @@ async function applyFixes(
 
   const updates = new Map([
     ...deduped,
-    ...(includeMismatched ? mismatched : [])
+    ...(includeMismatched ? mismatched : []),
   ]);
 
   if (updates.size === 0) {
     return updates.size;
   }
 
-  const totalToUpdate = fixAll ? updates.size : fixOnly.size
+  const totalToUpdate = fixAll ? updates.size : fixOnly.size;
 
   spinner.text = `${spinnerText} for ${totalToUpdate} dependencies (collecting info)`;
 
@@ -368,7 +373,7 @@ async function applyFixes(
           'dependencies',
           'devDependencies',
           'peerDependencies',
-          'optionalDependencies'
+          'optionalDependencies',
         ]) {
           if ((pkgJson[depType] || {})[name]) {
             pkgJson[depType][name] = version;
@@ -444,7 +449,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 function parseOptions() {
-  args = require('minimist')(process.argv.slice(2));
+  const args = require('minimist')(process.argv.slice(2));
 
   if (typeof args.type === 'string') {
     args.type = args.type.split(',');
@@ -463,7 +468,7 @@ function parseOptions() {
     ['autofix-only']: [],
     ['dangerously-include-mismatched']: false,
     ['validate-config']: false,
-    ...args
+    ...args,
   };
 }
 

@@ -1,18 +1,7 @@
 import { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import { ConnectionOptions } from './connection-options';
-
-export function redactConnectionString(uri: string): string {
-  const regexes = [
-    // Username and password
-    /(?<=\/\/)(.*)(?=@)/g,
-    // AWS IAM Session Token as part of query parameter
-    /(?<=AWS_SESSION_TOKEN(:|%3A))([^,&]+)/,
-  ];
-  regexes.forEach((r) => {
-    uri = uri.replace(r, '<credentials>');
-  });
-  return uri;
-}
+import { redactConnectionString } from 'mongodb-connection-string-url';
+export { redactConnectionString };
 
 export function redactConnectionOptions(
   options: ConnectionOptions
