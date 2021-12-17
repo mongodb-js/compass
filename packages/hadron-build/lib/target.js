@@ -218,10 +218,20 @@ class Target {
       this.configureForLinux();
     }
 
+    this.setArchiveName();
+
     this.resourcesAppDir = path.join(this.resources, 'app');
 
     debug('target ready', this);
   }
+
+  setArchiveName() {
+    this.app_archive_name =
+      this.osx_zip_filename ||
+      this.windows_zip_filename ||
+      this.linux_tar_filename;
+  }
+
   /**
    * Get an absolute path to a source file.
    * @return {String}
@@ -335,7 +345,7 @@ class Target {
       },
       {
         name: `${this.slug}-RELEASES`,
-        path: this.dest('RELEASES')
+        path: this.dest(`${this.distribution}-RELEASES`)
       },
       {
         name: 'LICENSE',
@@ -347,9 +357,7 @@ class Target {
       },
       {
         name: `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`,
-        path: this.dest(
-          `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`
-        )
+        path: this.dest(this.windows_nupkg_full_label)
       }
     ];
 
@@ -463,11 +471,11 @@ class Target {
     this.assets = [
       {
         name: `${this.id}-${this.version}-${this.platform}-${this.arch}.dmg`,
-        path: this.dest(`${this.productName}.dmg`)
+        path: this.dest(this.osx_dmg_label)
       },
       {
         name: `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`,
-        path: this.dest(`${this.productName}.zip`)
+        path: this.dest(this.osx_zip_label)
       }
     ];
 
