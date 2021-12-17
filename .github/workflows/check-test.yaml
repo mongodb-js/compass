@@ -50,11 +50,20 @@ jobs:
         run: npm install -g npm@7
 
       - name: Install Dependencies
+        if: ${{ runner.os != 'Windows' }}
         run: |
           npm ci
-          # Dependencies are included when installing as npm workspaces will
-          # hoist every package in the repo and it's important that the
-          # dependencies of packages we are planning to test are also prepared
+        shell: bash
+
+      - name: Install Dependencies (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          # Not using ci because there is some weird cacache flake on Windows
+          npm install --force
+        shell: bash
+
+      - name: Bootstrap
+        run: |
           npx lerna run bootstrap --stream --since $MAIN_BRANCH_NAME --include-dependencies
         shell: bash
 

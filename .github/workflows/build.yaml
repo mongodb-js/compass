@@ -54,10 +54,23 @@ jobs:
         run: npm install -g npm@7.20.2
 
       - name: Install Dependencies
+        if: ${{ runner.os != 'Windows' }}
         run: |
           npm ci
+        shell: bash
+
+      - name: Install Dependencies (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          # Not using ci because there is some weird cacache flake on Windows
+          npm install --force
+        shell: bash
+
+      - name: Bootstrap
+        run: |
           # We don't need to bootstrap anything else before running the e2e tests
           npx lerna run bootstrap -- --stream --scope @mongodb/webpack-config-compass
+        shell: bash
 
       # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
       - name: Set path for candle.exe and light.exe
