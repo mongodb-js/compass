@@ -64,6 +64,9 @@ jobs:
 
       - name: Bootstrap
         run: |
+          # Dependencies are included when installing as npm workspaces will
+          # hoist every package in the repo and it's important that the
+          # dependencies of packages we are planning to test are also prepared
           npx lerna run bootstrap --stream --since $MAIN_BRANCH_NAME --include-dependencies
         shell: bash
 
