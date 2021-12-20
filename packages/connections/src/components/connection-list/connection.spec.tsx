@@ -31,7 +31,8 @@ describe('Connection Component', function () {
     });
 
     it('shows the date as a string', function () {
-      const dateTime = screen.getAllByTestId('recent-connection-description')[0].textContent;
+      const dateTime = screen.getAllByTestId('recent-connection-description')[0]
+        .textContent;
       expect(dateTime).to.equal('17 Dec 1995, 00:00');
     });
   });
@@ -82,9 +83,7 @@ describe('Connection Component', function () {
       it('it uses white by default', function () {
         const favoriteIndicator = screen.getByTestId('connection-icon');
         expect(
-          getComputedStyle(favoriteIndicator).getPropertyValue(
-            'color'
-          )
+          getComputedStyle(favoriteIndicator).getPropertyValue('color')
         ).to.equal('rgb(255, 255, 255)');
       });
     });
@@ -111,9 +110,7 @@ describe('Connection Component', function () {
       it('it uses favorite color', function () {
         const favoriteIndicator = screen.getByTestId('connection-icon');
         expect(
-          getComputedStyle(favoriteIndicator).getPropertyValue(
-            'color'
-          )
+          getComputedStyle(favoriteIndicator).getPropertyValue('color')
         ).to.equal('rgb(95, 200, 110)');
       });
     });
@@ -138,9 +135,7 @@ describe('Connection Component', function () {
       const favoriteIndicator = screen.queryByTestId('connection-icon');
       expect(favoriteIndicator).to.not.equal(null);
       expect(
-        getComputedStyle(favoriteIndicator).getPropertyValue(
-          'color'
-        )
+        getComputedStyle(favoriteIndicator).getPropertyValue('color')
       ).to.equal('rgb(255, 255, 255)');
     });
 
@@ -272,9 +267,9 @@ describe('Connection Component', function () {
     });
   });
 
-  describe('when connection is active', function() {
-    describe('and is favorite', function() {
-      describe('and has a favorite color', function() {
+  describe('when connection is active', function () {
+    describe('and is favorite', function () {
+      describe('and has a favorite color', function () {
         beforeEach(function () {
           render(
             <Connection
@@ -292,23 +287,19 @@ describe('Connection Component', function () {
             />
           );
         });
-        it('uses favorite color as background color and white as text color', function() {
+        it('uses favorite color as background color and white as text color', function () {
           const connection = screen.getByTestId('saved-connection-button-1234');
           expect(connection).to.not.equal(null);
           const styles = getComputedStyle(connection);
-          expect(
-            styles.getPropertyValue(
-              'color'
-            )
-          ).to.equal('rgb(255, 255, 255)');
-          expect(
-            styles.getPropertyValue(
-              'background-color'
-            )
-          ).to.equal('rgb(95, 200, 110)');
+          expect(styles.getPropertyValue('color')).to.equal(
+            'rgb(255, 255, 255)'
+          );
+          expect(styles.getPropertyValue('background-color')).to.equal(
+            'rgb(95, 200, 110)'
+          );
         });
       });
-      describe('and does not have a favorite color', function() {
+      describe('and does not have a favorite color', function () {
         beforeEach(function () {
           render(
             <Connection
@@ -325,24 +316,20 @@ describe('Connection Component', function () {
             />
           );
         });
-        it('uses dark gray as background color and white as text color', function() {
+        it('uses dark gray as background color and white as text color', function () {
           const connection = screen.getByTestId('saved-connection-button-1234');
           expect(connection).to.not.equal(null);
           const styles = getComputedStyle(connection);
-          expect(
-            styles.getPropertyValue(
-              'color'
-            )
-          ).to.equal('rgb(255, 255, 255)');
-          expect(
-            styles.getPropertyValue(
-              'background-color'
-            )
-          ).to.equal('rgb(61, 79, 88)');
+          expect(styles.getPropertyValue('color')).to.equal(
+            'rgb(255, 255, 255)'
+          );
+          expect(styles.getPropertyValue('background-color')).to.equal(
+            'rgb(61, 79, 88)'
+          );
         });
       });
     });
-    describe('and is not favorite', function() {
+    describe('and is not favorite', function () {
       beforeEach(function () {
         render(
           <Connection
@@ -356,20 +343,14 @@ describe('Connection Component', function () {
           />
         );
       });
-      it('uses dark gray as background color and white as text color', function() {
+      it('uses dark gray as background color and white as text color', function () {
         const connection = screen.getByTestId('saved-connection-button-1234');
         expect(connection).to.not.equal(null);
         const styles = getComputedStyle(connection);
-        expect(
-          styles.getPropertyValue(
-            'color'
-          )
-        ).to.equal('rgb(255, 255, 255)');
-        expect(
-          styles.getPropertyValue(
-            'background-color'
-          )
-        ).to.equal('rgb(61, 79, 88)');
+        expect(styles.getPropertyValue('color')).to.equal('rgb(255, 255, 255)');
+        expect(styles.getPropertyValue('background-color')).to.equal(
+          'rgb(61, 79, 88)'
+        );
       });
     });
   });
