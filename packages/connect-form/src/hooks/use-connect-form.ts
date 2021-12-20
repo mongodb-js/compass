@@ -16,6 +16,8 @@ import { defaultHostname, defaultPort } from '../constants/default-connection';
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
 import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
+import { handleUpdateTlsOption } from '../utils/tls-options';
+import { TLS_OPTIONS } from '../constants/ssl-tls-options';
 
 export interface ConnectFormState {
   connectionStringInvalidError: string | null;
@@ -88,6 +90,11 @@ interface UpdateHostAction {
   newHostValue: string;
 }
 
+interface UpdateTlsOptionAction {
+  type: 'update-tls-option';
+  tlsOption: TLS_OPTIONS;
+}
+
 type ConnectionFormFieldActions =
   | {
       type: 'add-new-host';
@@ -105,7 +112,8 @@ type ConnectionFormFieldActions =
   | {
       type: 'update-connection-schema';
       isSrv: boolean;
-    };
+    }
+  | UpdateTlsOptionAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -264,6 +272,13 @@ export function handleConnectionFormFieldUpdate({
         },
         errors: [],
       };
+    }
+    case 'update-tls-option': {
+      return handleUpdateTlsOption({
+        tlsOption: action.tlsOption,
+        connectionStringUrl,
+        connectionOptions,
+      });
     }
     case 'update-host': {
       return handleUpdateHost({
