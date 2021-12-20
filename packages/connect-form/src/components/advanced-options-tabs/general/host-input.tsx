@@ -51,10 +51,7 @@ function HostInput({
     // Update the hosts in the state when the underlying connection string hosts
     // change. This can be when a user changes connections, pastes in a new
     // connection string, or changes a setting which also updates the hosts.
-    if (connectionStringUrl.hosts !== hosts) {
-      setHosts([...connectionStringUrl.hosts]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setHosts([...connectionStringUrl.hosts]);
   }, [connectionStringUrl]);
 
   const onHostChange = useCallback(
