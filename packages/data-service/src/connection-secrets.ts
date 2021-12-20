@@ -9,6 +9,7 @@ export interface ConnectionSecrets {
   sshTunnelPassphrase?: string;
   awsSessionToken?: string;
   tlsCertificateKeyFilePassword?: string;
+  proxyPassword?: string;
 }
 
 export function mergeSecrets(
@@ -41,15 +42,16 @@ export function mergeSecrets(
     );
   }
 
+  if (secrets.proxyPassword) {
+    uri.searchParams.set('proxyPassword', secrets.proxyPassword);
+  }
+
   if (secrets.awsSessionToken) {
     const authMechanismProperties = new CommaAndColonSeparatedRecord(
       uri.searchParams.get('authMechanismProperties')
     );
 
-    authMechanismProperties.set(
-      'AWS_SESSION_TOKEN',
-      secrets.awsSessionToken
-    );
+    authMechanismProperties.set('AWS_SESSION_TOKEN', secrets.awsSessionToken);
 
     uri.searchParams.set(
       'authMechanismProperties',
@@ -85,9 +87,13 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
 
   if (uri.searchParams.has('tlsCertificateKeyFilePassword')) {
     secrets.tlsCertificateKeyFilePassword =
-      uri.searchParams.get('tlsCertificateKeyFilePassword') ||
-      undefined;
+      uri.searchParams.get('tlsCertificateKeyFilePassword') || undefined;
     uri.searchParams.delete('tlsCertificateKeyFilePassword');
+  }
+
+  if (uri.searchParams.has('proxyPassword')) {
+    secrets.proxyPassword = uri.searchParams.get('proxyPassword') || undefined;
+    uri.searchParams.delete('proxyPassword');
   }
 
   const authMechanismProperties = new CommaAndColonSeparatedRecord(
@@ -95,9 +101,7 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
   );
 
   if (authMechanismProperties.has('AWS_SESSION_TOKEN')) {
-    secrets.awsSessionToken = authMechanismProperties.get(
-      'AWS_SESSION_TOKEN'
-    );
+    secrets.awsSessionToken = authMechanismProperties.get('AWS_SESSION_TOKEN');
     authMechanismProperties.delete('AWS_SESSION_TOKEN');
 
     if (authMechanismProperties.toString()) {
