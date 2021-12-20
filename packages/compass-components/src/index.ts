@@ -43,7 +43,7 @@ export {
 } from '@leafygreen-ui/toast';
 export { default as Toggle } from '@leafygreen-ui/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-export { default as Tooltip } from '@leafygreen-ui/tooltip';
+export { Tooltip } from './components/tooltip';
 export {
   H1,
   H2,
@@ -86,7 +86,7 @@ export {
   sheet,
   cache,
 } from '@leafygreen-ui/emotion';
-export { default as InlineDefinition } from '@leafygreen-ui/inline-definition';
+export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;
 export {
