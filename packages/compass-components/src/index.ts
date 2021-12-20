@@ -67,4 +67,3 @@ export {
   FocusState,
 } from './hooks/use-focus-hover';
 export { ContentWithFallback } from './components/content-with-fallback';
-export { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
