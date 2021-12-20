@@ -116,8 +116,9 @@ function connectionOptionsToMongoClientParams(
   const isLoadBalanced = url.searchParams.get('loadBalanced') === 'true';
   const isReplicaSet =
     url.isSRV || url.hosts.length > 1 || url.searchParams.has('replicaSet');
+  const hasDirectConnection = url.searchParams.has('directConnection');
 
-  if (!isReplicaSet && !isLoadBalanced) {
+  if (!isReplicaSet && !isLoadBalanced && !hasDirectConnection) {
     url.searchParams.set('directConnection', 'true');
   }
 
