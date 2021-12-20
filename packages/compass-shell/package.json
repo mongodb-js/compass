@@ -48,10 +48,10 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.4.0",
     "@mongodb-js/mongodb-redux-common": "^1.5.0",
-    "@mongosh/browser-repl": "^1.1.6",
-    "@mongosh/logging": "^1.1.6",
-    "@mongosh/node-runtime-worker-thread": "^1.1.6",
-    "@mongosh/service-provider-core": "^1.1.6",
+    "@mongosh/browser-repl": "^1.1.7",
+    "@mongosh/logging": "^1.1.7",
+    "@mongosh/node-runtime-worker-thread": "^1.1.7",
+    "@mongosh/service-provider-core": "^1.1.7",
     "hadron-react-buttons": "^5.5.0"
   },
   "peerDependencies": {
@@ -114,7 +114,7 @@
     "mini-css-extract-plugin": "^0.8.0",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "^4.2.1",
+    "mongodb": "^4.2.2",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^13.1.0",

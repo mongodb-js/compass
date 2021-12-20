@@ -514,7 +514,9 @@ class DataService extends EventEmitter {
     });
 
     try {
-      const tunnelLocalPort = await getPort();
+      const tunnelLocalPort = this._connectionOptions.sshTunnel
+        ? await getPort()
+        : 0;
       const [client, tunnel, connectionOptions] = await connectMongoClient(
         this._connectionOptions,
         this.setupListeners.bind(this),
