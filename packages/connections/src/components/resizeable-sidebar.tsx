@@ -48,6 +48,7 @@ function ResizableSidebar({
     <div
       className={listContainerStyles}
       style={{
+        minWidth: width,
         width: width,
       }}
     >
