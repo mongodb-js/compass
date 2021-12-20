@@ -44,7 +44,6 @@
     "@leafygreen-ui/emotion": "^4.0.0",
     "@leafygreen-ui/icon": "^11.4.0",
     "@leafygreen-ui/icon-button": "^9.1.6",
-    "@leafygreen-ui/inline-definition": "^2.0.6",
     "@leafygreen-ui/leafygreen-provider": "^2.1.2",
     "@leafygreen-ui/logo": "^6.1.0",
     "@leafygreen-ui/menu": "^11.0.1",
