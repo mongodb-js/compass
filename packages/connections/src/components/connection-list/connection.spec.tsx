@@ -15,12 +15,16 @@ describe('Connection Component', function () {
   });
 
   describe('when it has a lastUsed date', function () {
-    beforeEach(function () {
+    it('shows the date as a string', function () {
+      
+      const lastUsed = new Date('Dec 17, 1995, 12:00 AM');
+      const stub = sinon.stub(lastUsed, 'toLocaleString').returns('Dec, 17')
+  
       render(
         <Connection
           isActive={false}
           connectionInfo={{
-            lastUsed: new Date('Dec 17, 1995, 12:00 AM'),
+            lastUsed: lastUsed,
             connectionOptions: {
               connectionString: '',
             },
@@ -28,12 +32,19 @@ describe('Connection Component', function () {
           onClick={onClickSpy}
         />
       );
-    });
 
-    it('shows the date as a string', function () {
-      const dateTime = screen.getAllByTestId('recent-connection-description')[0]
-        .textContent;
-      expect(dateTime).to.equal('17 Dec 1995, 00:00');
+      const dateStringElement = screen.getByText('Dec, 17');
+      expect(dateStringElement).to.not.equal(null);
+      expect(stub.getCall(0).args).to.deep.equal([
+        'default',
+        {
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }
+      ]);
     });
   });
 
