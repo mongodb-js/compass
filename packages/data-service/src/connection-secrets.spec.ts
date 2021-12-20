@@ -30,6 +30,7 @@ describe('connection secrets', function () {
         awsSessionToken: 'xxx',
         sshTunnelPassphrase: 'xxx',
         tlsCertificateKeyFilePassword: 'xxx',
+        proxyPassword: 'xxx',
       });
 
       expect(newConnectionInfo).to.not.equal(originalConnectionInfo);
@@ -54,7 +55,8 @@ describe('connection secrets', function () {
     it('merges secrets', function () {
       const originalConnectionInfo: ConnectionInfo = {
         connectionOptions: {
-          connectionString: 'mongodb://username@localhost:27017/',
+          connectionString:
+            'mongodb://username@localhost:27017/?proxyHost=localhost&proxyUsername=foo',
           sshTunnel: {
             host: 'localhost',
             username: 'user',
@@ -68,12 +70,17 @@ describe('connection secrets', function () {
         password: 'userPassword',
         sshTunnelPassphrase: 'passphrase',
         tlsCertificateKeyFilePassword: 'tlsCertPassword',
+        proxyPassword: 'bar',
       });
 
       expect(newConnectionInfo).to.be.deep.equal({
         connectionOptions: {
           connectionString:
-            'mongodb://username:userPassword@localhost:27017/?tlsCertificateKeyFilePassword=tlsCertPassword&authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
+            'mongodb://username:userPassword@localhost:27017/?' +
+            'proxyHost=localhost&proxyUsername=foo&' +
+            'tlsCertificateKeyFilePassword=tlsCertPassword&' +
+            'proxyPassword=bar&' +
+            'authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
           sshTunnel: {
             host: 'localhost',
             username: 'user',
@@ -130,7 +137,10 @@ describe('connection secrets', function () {
       const originalConnectionInfo: ConnectionInfo = {
         connectionOptions: {
           connectionString:
-            'mongodb://username:userPassword@localhost:27017/?tlsCertificateKeyFilePassword=tlsCertPassword&authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',
+            'mongodb://username:userPassword@localhost:27017/?' +
+            'tlsCertificateKeyFilePassword=tlsCertPassword&' +
+            'authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken&' +
+            'proxyHost=localhost&proxyUsername=foo&proxyPassword=bar',
           sshTunnel: {
             host: 'localhost',
             username: 'user',
@@ -146,7 +156,8 @@ describe('connection secrets', function () {
 
       expect(newConnectionInfo).to.be.deep.equal({
         connectionOptions: {
-          connectionString: 'mongodb://username@localhost:27017/',
+          connectionString:
+            'mongodb://username@localhost:27017/?proxyHost=localhost&proxyUsername=foo',
           sshTunnel: {
             host: 'localhost',
             username: 'user',
@@ -160,6 +171,7 @@ describe('connection secrets', function () {
         password: 'userPassword',
         sshTunnelPassphrase: 'passphrase',
         tlsCertificateKeyFilePassword: 'tlsCertPassword',
+        proxyPassword: 'bar',
       } as ConnectionSecrets);
     });
   });

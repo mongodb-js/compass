@@ -9,11 +9,8 @@ export interface ConnectionSecrets {
   sshTunnelPassphrase?: string;
   awsSessionToken?: string;
   tlsCertificateKeyFilePassword?: string;
+  proxyPassword?: string;
 }
-
-const AWS_SESSION_TOKEN_PROPERTY = 'AWS_SESSION_TOKEN';
-const AUTH_MECHANISM_PROPERTIES_PARAM = 'authMechanismProperties';
-const TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM = 'tlsCertificateKeyFilePassword';
 
 export function mergeSecrets(
   connectionInfo: Readonly<ConnectionInfo>,
@@ -40,23 +37,24 @@ export function mergeSecrets(
 
   if (secrets.tlsCertificateKeyFilePassword) {
     uri.searchParams.set(
-      TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM,
+      'tlsCertificateKeyFilePassword',
       secrets.tlsCertificateKeyFilePassword
     );
   }
 
+  if (secrets.proxyPassword) {
+    uri.searchParams.set('proxyPassword', secrets.proxyPassword);
+  }
+
   if (secrets.awsSessionToken) {
     const authMechanismProperties = new CommaAndColonSeparatedRecord(
-      uri.searchParams.get(AUTH_MECHANISM_PROPERTIES_PARAM)
+      uri.searchParams.get('authMechanismProperties')
     );
 
-    authMechanismProperties.set(
-      AWS_SESSION_TOKEN_PROPERTY,
-      secrets.awsSessionToken
-    );
+    authMechanismProperties.set('AWS_SESSION_TOKEN', secrets.awsSessionToken);
 
     uri.searchParams.set(
-      AUTH_MECHANISM_PROPERTIES_PARAM,
+      'authMechanismProperties',
       authMechanismProperties.toString()
     );
   }
@@ -87,30 +85,32 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
     delete connectionOptions.sshTunnel.identityKeyPassphrase;
   }
 
-  if (uri.searchParams.has(TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM)) {
+  if (uri.searchParams.has('tlsCertificateKeyFilePassword')) {
     secrets.tlsCertificateKeyFilePassword =
-      uri.searchParams.get(TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM) ||
-      undefined;
-    uri.searchParams.delete(TLS_CERTIFICATE_KEY_FILE_PASSWORD_PARAM);
+      uri.searchParams.get('tlsCertificateKeyFilePassword') || undefined;
+    uri.searchParams.delete('tlsCertificateKeyFilePassword');
+  }
+
+  if (uri.searchParams.has('proxyPassword')) {
+    secrets.proxyPassword = uri.searchParams.get('proxyPassword') || undefined;
+    uri.searchParams.delete('proxyPassword');
   }
 
   const authMechanismProperties = new CommaAndColonSeparatedRecord(
-    uri.searchParams.get(AUTH_MECHANISM_PROPERTIES_PARAM)
+    uri.searchParams.get('authMechanismProperties')
   );
 
-  if (authMechanismProperties.has(AWS_SESSION_TOKEN_PROPERTY)) {
-    secrets.awsSessionToken = authMechanismProperties.get(
-      AWS_SESSION_TOKEN_PROPERTY
-    );
-    authMechanismProperties.delete(AWS_SESSION_TOKEN_PROPERTY);
+  if (authMechanismProperties.has('AWS_SESSION_TOKEN')) {
+    secrets.awsSessionToken = authMechanismProperties.get('AWS_SESSION_TOKEN');
+    authMechanismProperties.delete('AWS_SESSION_TOKEN');
 
     if (authMechanismProperties.toString()) {
       uri.searchParams.set(
-        AUTH_MECHANISM_PROPERTIES_PARAM,
+        'authMechanismProperties',
         authMechanismProperties.toString()
       );
     } else {
-      uri.searchParams.delete(AUTH_MECHANISM_PROPERTIES_PARAM);
+      uri.searchParams.delete('authMechanismProperties');
     }
   }
 
