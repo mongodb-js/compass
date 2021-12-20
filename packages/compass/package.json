@@ -203,6 +203,7 @@
     "compass-preferences-model": "^1.15.0",
     "compass-user-model": "^1.15.0",
     "cross-env": "^7.0.3",
+    "darkreader": "^4.9.40",
     "debug": "4.3.0",
     "debug-menu": "^0.3.0",
     "depcheck": "^1.4.1",
