@@ -73,6 +73,27 @@ describe('connectMongoClient', function () {
       });
     });
 
+    it('should not override a user-specified directConnection option', async function () {
+      const [client, tunnel, { url, options }] = await connectMongoClient(
+        {
+          connectionString: 'mongodb://localhost:27018/?directConnection=false',
+        },
+        setupListeners,
+        tunnelLocalPort
+      );
+
+      toBeClosed.push(client, tunnel);
+
+      assert.strictEqual(
+        url,
+        'mongodb://localhost:27018/?directConnection=false'
+      );
+
+      assert.deepStrictEqual(options, {
+        monitorCommands: true,
+      });
+    });
+
     it('should at least try to run a ping command to verify connectivity', async function () {
       try {
         await connectMongoClient(
