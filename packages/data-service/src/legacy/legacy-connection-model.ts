@@ -155,13 +155,16 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
 }
 
 export function convertConnectionModelToInfo(
-  model: LegacyConnectionModel
+  model: LegacyConnectionModelProperties
 ): ConnectionInfo {
+  const legacyModel: LegacyConnectionModel =
+    model instanceof ConnectionModel ? model : new ConnectionModel(model);
+
   // Already migrated
-  if (model.connectionInfo) {
+  if (legacyModel.connectionInfo) {
     const connectionInfo = mergeSecrets(
-      model.connectionInfo,
-      model.secrets ?? {}
+      legacyModel.connectionInfo,
+      legacyModel.secrets ?? {}
     );
 
     if (connectionInfo.lastUsed) {
@@ -174,49 +177,49 @@ export function convertConnectionModelToInfo(
 
   // Not migrated yet, has to be converted
   const info: ConnectionInfo = {
-    id: model._id,
+    id: legacyModel._id,
     connectionOptions: {
-      connectionString: model.driverUrl,
+      connectionString: legacyModel.driverUrl,
     },
   };
 
   modelSslPropertiesToConnectionOptions(
-    model.driverOptions,
+    legacyModel.driverOptions,
     info.connectionOptions
   );
 
-  const sshTunnel = modelTunnelToConnectionOptions(model);
+  const sshTunnel = modelTunnelToConnectionOptions(legacyModel);
   if (sshTunnel) {
     info.connectionOptions.sshTunnel = sshTunnel;
   }
 
-  if (model.driverOptions.directConnection !== undefined) {
+  if (legacyModel.driverOptions.directConnection !== undefined) {
     setConnectionStringParam(
       info.connectionOptions,
       'directConnection',
-      model.driverOptions.directConnection ? 'true' : 'false'
+      legacyModel.driverOptions.directConnection ? 'true' : 'false'
     );
   }
 
-  if (model.driverOptions.readPreference !== undefined) {
+  if (legacyModel.driverOptions.readPreference !== undefined) {
     setConnectionStringParam(
       info.connectionOptions,
       'readPreference',
-      typeof model.driverOptions.readPreference === 'string'
-        ? model.driverOptions.readPreference
-        : model.driverOptions.readPreference.preference
+      typeof legacyModel.driverOptions.readPreference === 'string'
+        ? legacyModel.driverOptions.readPreference
+        : legacyModel.driverOptions.readPreference.preference
     );
   }
 
-  if (model.isFavorite) {
+  if (legacyModel.isFavorite) {
     info.favorite = {
-      name: model.name,
-      color: model.color,
+      name: legacyModel.name,
+      color: legacyModel.color,
     };
   }
 
-  if (model.lastUsed) {
-    info.lastUsed = model.lastUsed;
+  if (legacyModel.lastUsed) {
+    info.lastUsed = legacyModel.lastUsed;
   }
 
   return info;
