@@ -211,11 +211,11 @@ function handleUpdateConnectionOptions({
   connectionStringUrl,
   connectionOptions,
 }: {
-  action: UpdateConnectionOptions
+  action: UpdateConnectionOptions;
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
 }) {
-  const {key, value} = action;
+  const { key, value } = action;
 
   if (!connectionOptions.sshTunnel) {
     connectionOptions.sshTunnel = {
@@ -225,7 +225,7 @@ function handleUpdateConnectionOptions({
     };
   }
 
-  connectionOptions.sshTunnel[key] = (value as any); // todo ts fix
+  connectionOptions.sshTunnel[key] = value as any; // todo ts fix
 
   console.log({
     ...connectionOptions,

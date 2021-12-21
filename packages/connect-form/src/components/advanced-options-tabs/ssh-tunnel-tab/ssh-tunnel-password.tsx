@@ -4,7 +4,7 @@ import { css } from '@emotion/css';
 import { TextInput, spacing } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
-  marginTop: spacing[4]
+  marginTop: spacing[4],
 });
 const inputFieldStyles = css({
   width: '50%',
@@ -18,9 +18,8 @@ function Password({
 }: {
   sshTunnelOptions: ConnectionOptions['sshTunnel'];
   onConnectionOptionChanged: (key: string, value: string | number) => void;
-  errors?: {[key: string]: string};
+  errors?: { [key: string]: string };
 }): React.ReactElement {
-
   const formFieldChanged = (key: string, value: string | number) => {
     onConnectionOptionChanged(key, value);
   };

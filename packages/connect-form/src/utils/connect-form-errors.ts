@@ -27,7 +27,7 @@ interface SSHTunnelFieldErrors {
     password?: string;
     identityKeyFile?: string;
     identityKeyPassphrase?: string;
-  }
+  };
 }
 
 export type ConnectionFormError =

@@ -35,10 +35,12 @@ const fields: IFormField[] = [
     label: 'SSH Identity File',
     type: 'file',
     placeholder: 'SSH Identity File',
-    helpText: <div className={fileHelpStyles}>
-      <a href="https://mongodb.com">Learn More</a>
-      <Icon glyph="OpenNewTab" />
-    </div>,
+    helpText: (
+      <div className={fileHelpStyles}>
+        <a href="https://mongodb.com">Learn More</a>
+        <Icon glyph="OpenNewTab" />
+      </div>
+    ),
   },
   {
     key: 'passphrase',
@@ -51,7 +53,7 @@ const fields: IFormField[] = [
 
 function Identity(): React.ReactElement {
   const formFieldChanged = (key: string, value: FormFieldValues) => {
-    console.log({key, value, component: 'Identity'});
+    console.log({ key, value, component: 'Identity' });
   };
   return <FormField fields={fields} onFieldChanged={formFieldChanged} />;
 }

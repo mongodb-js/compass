@@ -1,7 +1,11 @@
 import React, { ChangeEvent, useState, useCallback } from 'react';
 import { css } from '@emotion/css';
 import { ConnectionOptions } from 'mongodb-data-service';
-import { RadioBox, RadioBoxGroup, spacing } from '@mongodb-js/compass-components';
+import {
+  RadioBox,
+  RadioBoxGroup,
+  spacing,
+} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -18,7 +22,7 @@ interface TabOption {
   component: React.FC<{
     sshTunnelOptions: ConnectionOptions['sshTunnel'];
     onConnectionOptionChanged: (key: string, value: string | number) => void;
-    errors?: {[key: string]: string};
+    errors?: { [key: string]: string };
   }>;
 }
 
@@ -46,7 +50,7 @@ const options: TabOption[] = [
 ];
 
 const containerStyles = css({
-  marginTop: spacing[4]
+  marginTop: spacing[4],
 });
 
 function SSHTunnel({
@@ -64,19 +68,22 @@ function SSHTunnel({
 
   const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    const item = options.find(({id}) => id === event.target.value);
+    const item = options.find(({ id }) => id === event.target.value);
     if (item) {
       setSelectedOption(item);
     }
   }, []);
 
-  const onConnectionOptionChanged = useCallback((key: string, value: string | number) => {
-    return updateConnectionFormField({
-      type: 'update-connection-options',
-      key,
-      value,
-    });
-  }, [updateConnectionFormField]);
+  const onConnectionOptionChanged = useCallback(
+    (key: string, value: string | number) => {
+      return updateConnectionFormField({
+        type: 'update-connection-options',
+        key,
+        value,
+      });
+    },
+    [updateConnectionFormField]
+  );
 
   const sshTunnelErrors = errors.find((x) => x.fieldName === 'SSH_TUNNEL');
 
@@ -84,14 +91,25 @@ function SSHTunnel({
 
   return (
     <div className={containerStyles}>
-      <RadioBoxGroup onChange={optionSelected} className="radio-box-group-style">
-        {options.map(({title, id}) => {
+      <RadioBoxGroup
+        onChange={optionSelected}
+        className="radio-box-group-style"
+      >
+        {options.map(({ title, id }) => {
           return (
-            <RadioBox checked={selectedOption.id === id} value={id} key={id}>{title}</RadioBox>
+            <RadioBox checked={selectedOption.id === id} value={id} key={id}>
+              {title}
+            </RadioBox>
           );
         })}
       </RadioBoxGroup>
-      {connectionOptions && <SSLOptionContent errors={sshTunnelErrors?.errors} sshTunnelOptions={connectionOptions.sshTunnel} onConnectionOptionChanged={onConnectionOptionChanged}/>}
+      {connectionOptions && (
+        <SSLOptionContent
+          errors={sshTunnelErrors?.errors}
+          sshTunnelOptions={connectionOptions.sshTunnel}
+          onConnectionOptionChanged={onConnectionOptionChanged}
+        />
+      )}
     </div>
   );
 }

@@ -35,7 +35,7 @@ const fields: IFormField[] = [
 
 function Socks(): React.ReactElement {
   const formFieldChanged = (key: string, value: FormFieldValues) => {
-    console.log({key, value, component: 'Socks'});
+    console.log({ key, value, component: 'Socks' });
   };
   return <FormField fields={fields} onFieldChanged={formFieldChanged} />;
 }
