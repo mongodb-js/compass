@@ -1,5 +1,4 @@
 import SSHTunnel, { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
-import { EJSON } from 'bson';
 import type {
   MongoClient,
   MongoClientOptions,
@@ -156,7 +155,7 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
 }
 
 export function convertConnectionModelToInfo(
-  model: EJSON.SerializableTypes
+  model: LegacyConnectionModelProperties
 ): ConnectionInfo {
   const legacyModel: LegacyConnectionModel = (model instanceof ConnectionModel)
     ? model
