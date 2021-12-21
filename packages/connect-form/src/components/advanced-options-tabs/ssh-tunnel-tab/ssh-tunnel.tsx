@@ -18,6 +18,7 @@ interface TabOption {
   component: React.FC<{
     sshTunnelOptions: ConnectionOptions['sshTunnel'];
     onConnectionOptionChanged: (key: string, value: string | number) => void;
+    errors?: {[key: string]: string};
   }>;
 }
 
@@ -51,6 +52,7 @@ const containerStyles = css({
 function SSHTunnel({
   connectionOptions,
   updateConnectionFormField,
+  errors,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
@@ -69,12 +71,14 @@ function SSHTunnel({
   }, []);
 
   const onConnectionOptionChanged = useCallback((key: string, value: string | number) => {
-    updateConnectionFormField({
-      action: 'update-connection-option',
+    return updateConnectionFormField({
+      type: 'update-connection-options',
       key,
       value,
-    })
+    });
   }, [updateConnectionFormField]);
+
+  const sshTunnelErrors = errors.find((x) => x.fieldName === 'SSH_TUNNEL');
 
   const SSLOptionContent = selectedOption.component;
 
@@ -87,7 +91,7 @@ function SSHTunnel({
           );
         })}
       </RadioBoxGroup>
-      {connectionOptions && <SSLOptionContent sshTunnelOptions={connectionOptions.sshTunnel} onConnectionOptionChanged={onConnectionOptionChanged}/>}
+      {connectionOptions && <SSLOptionContent errors={sshTunnelErrors?.errors} sshTunnelOptions={connectionOptions.sshTunnel} onConnectionOptionChanged={onConnectionOptionChanged}/>}
     </div>
   );
 }

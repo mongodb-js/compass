@@ -88,6 +88,12 @@ interface UpdateHostAction {
   newHostValue: string;
 }
 
+interface UpdateConnectionOptions {
+  type: 'update-connection-options';
+  key: keyof NonNullable<ConnectionOptions['sshTunnel']>;
+  value: string | number;
+}
+
 type ConnectionFormFieldActions =
   | {
       type: 'add-new-host';
@@ -106,11 +112,7 @@ type ConnectionFormFieldActions =
       type: 'update-connection-schema';
       isSrv: boolean;
     }
-  | {
-      type: 'update-connection-option';
-      key: string;
-      value: string | number;
-    };
+  | UpdateConnectionOptions;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -204,6 +206,42 @@ function handleUpdateHost({
   }
 }
 
+function handleUpdateConnectionOptions({
+  action,
+  connectionStringUrl,
+  connectionOptions,
+}: {
+  action: UpdateConnectionOptions
+  connectionStringUrl: ConnectionStringUrl;
+  connectionOptions: ConnectionOptions;
+}) {
+  const {key, value} = action;
+
+  if (!connectionOptions.sshTunnel) {
+    connectionOptions.sshTunnel = {
+      host: '',
+      username: '',
+      port: 22,
+    };
+  }
+
+  connectionOptions.sshTunnel[key] = (value as any); // todo ts fix
+
+  console.log({
+    ...connectionOptions,
+    connectionString: connectionStringUrl.toString(),
+  });
+
+  return {
+    connectionStringUrl,
+    connectionOptions: {
+      ...connectionOptions,
+      connectionString: connectionStringUrl.toString(),
+    },
+    errors: [],
+  };
+}
+
 // This function handles field updates from the connection form.
 // It performs validity checks and downstream effects. Exported for testing.
 export function handleConnectionFormFieldUpdate({
@@ -220,8 +258,6 @@ export function handleConnectionFormFieldUpdate({
   errors: ConnectionFormError[];
 } {
   const updatedConnectionStringUrl = connectionStringUrl.clone();
-
-  console.log({...action, connectionOptions});
 
   switch (action.type) {
     case 'add-new-host': {
@@ -333,16 +369,12 @@ export function handleConnectionFormFieldUpdate({
         };
       }
     }
-    case 'update-connection-option': {
-      console.log(action);
-      const _connectionOptions = connectionOptions ?? {};
-      return {
+    case 'update-connection-options': {
+      return handleUpdateConnectionOptions({
+        action,
         connectionStringUrl,
-        connectionOptions: {
-          ..._connectionOptions,
-        },
-        errors: [],
-      };
+        connectionOptions,
+      });
     }
   }
 }

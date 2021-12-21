@@ -10,22 +10,28 @@ const inputFieldStyles = css({
   marginBottom: spacing[3],
 });
 
-export type FormFieldValues = string | number | string[];
+type FormFieldType = 'password' | 'text' | 'number' | 'file';
+export type FormFieldValues = string | number;
+// export type FormFieldValues<Type> = 
+// | (Type extends null ? never : string)
+// | (string[] extends null ? never : string[])
+// // | (Type is number ? never : number);
+
 export interface IFormField {
   label: string;
   placeholder: string;
-  type: 'password' | 'text' | 'number' | 'file';
+  type: FormFieldType;
   key: string;
   optional?: boolean;
-  defaultValue?: FormFieldValues;
+  defaultValue?: FormFieldValues; //<ThisType<'type'>>;
   helpText?: React.ReactElement;
   errorMessage?: string;
-  value?: FormFieldValues;
+  value?: FormFieldValues; //<ThisType<'type'>>;
 }
 
 interface IFormFieldProps {
   fields: IFormField[];
-  onFieldChanged: (key: string, value: any) => void;
+  onFieldChanged: (key: string, value: FormFieldValues) => void;
 }
 
 function FormField({
@@ -33,18 +39,18 @@ function FormField({
   onFieldChanged,
 }: IFormFieldProps): React.ReactElement {
 
-  const renderFileInput = ({key, label, helpText, errorMessage}: IFormField) => {
+  const renderFileInput = ({key, label, helpText, errorMessage, value}: IFormField) => {
     // const value = formValues[key];
     return (
       <div className={inputFieldStyles} key={key}>
         <FileInput 
           onChange={(files: string[]) => {
-            onFieldChanged(key, files);
+            onFieldChanged(key, files[0]); // todo: fix
           }}
           id={key}
           label={label}
           error={!!errorMessage}
-          // values={(value as string[])}
+          values={value}
           helpText={helpText}
           className={css({
             'label': {
@@ -56,7 +62,7 @@ function FormField({
     );
   }
 
-  const renderGeneralInput = ({key, label, type, optional, placeholder, errorMessage}: IFormField) => {
+  const renderGeneralInput = ({key, label, type, optional, placeholder, errorMessage, value}: IFormField) => {
     return (
       <TextInput
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +74,7 @@ function FormField({
         type={type}
         optional={optional}
         placeholder={placeholder}
-        // value={(formValues[key] as string)}
+        value={value}
         errorMessage={errorMessage}
         // state={getFormInputState({errorMessage, key})}
       />

@@ -18,10 +18,23 @@ interface SchemaFieldError {
   message: string;
 }
 
+interface SSHTunnelFieldErrors {
+  fieldName: 'SSH_TUNNEL';
+  errors: {
+    host?: string;
+    port?: string;
+    username?: string;
+    password?: string;
+    identityKeyFile?: string;
+    identityKeyPassphrase?: string;
+  }
+}
+
 export type ConnectionFormError =
   | GenericConnectionError
   | HostFieldError
-  | SchemaFieldError;
+  | SchemaFieldError
+  | SSHTunnelFieldErrors;
 
 export function getConnectFormErrors(
   connectionOptions: ConnectionOptions
