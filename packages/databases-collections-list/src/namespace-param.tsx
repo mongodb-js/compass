@@ -84,7 +84,7 @@ const fadeIn = css({
 export const NamespaceParam: React.FunctionComponent<{
   label: React.ReactNode;
   value: React.ReactNode;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   hint?: React.ReactNode;
   viewType: ViewType;
 }> = ({ label, value, status, hint, viewType }) => {
@@ -131,7 +131,14 @@ export const NamespaceParam: React.FunctionComponent<{
     <div className={cx(namespaceParam, viewType === 'list' && multiline)}>
       <span className={namespaceParamLabel}>
         {hint ? (
-          <InlineDefinition align="top" justify="start" definition={hint}>
+          <InlineDefinition
+            tooltipProps={{
+              align: 'top',
+              justify: 'start',
+              delay: 500,
+            }}
+            definition={hint}
+          >
             {label}:
           </InlineDefinition>
         ) : (

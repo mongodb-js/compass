@@ -32,6 +32,7 @@ export { default as Modal } from '@leafygreen-ui/modal';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
+export { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';
 export { default as TextArea } from '@leafygreen-ui/text-area';
@@ -42,7 +43,7 @@ export {
 } from '@leafygreen-ui/toast';
 export { default as Toggle } from '@leafygreen-ui/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-export { default as Tooltip } from '@leafygreen-ui/tooltip';
+export { Tooltip } from './components/tooltip';
 export {
   H1,
   H2,
@@ -88,7 +89,7 @@ export {
   sheet,
   cache,
 } from '@leafygreen-ui/emotion';
-export { default as InlineDefinition } from '@leafygreen-ui/inline-definition';
+export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;
 export {

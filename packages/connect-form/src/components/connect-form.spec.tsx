@@ -11,6 +11,7 @@ function renderForm() {
         /* */
       }}
       initialConnectionInfo={{
+        id: 'test',
         connectionOptions: {
           connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
         },

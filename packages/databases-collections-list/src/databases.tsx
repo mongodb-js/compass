@@ -8,7 +8,7 @@ import { ItemsGrid } from './items-grid';
 type Database = {
   _id: string;
   name: string;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   statusError: string | null;
   collectionsStatus: string;
   collectionsStatusError: string | null;

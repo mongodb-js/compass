@@ -141,18 +141,33 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
   variant,
   hint,
 }) => {
-  const badge = (
-    <Badge className={cardBadge} variant={variant}>
-      {icon && <Icon size="small" glyph={icon}></Icon>}
-      <span className={cardBadgeLabel}>{name}</span>
-    </Badge>
+  const badge = useCallback(
+    ({ className, children, ...props } = {}) => {
+      return (
+        <Badge
+          className={cx(cardBadge, className)}
+          variant={variant}
+          {...props}
+        >
+          {icon && <Icon size="small" glyph={icon}></Icon>}
+          <span className={cardBadgeLabel}>{name}</span>
+          {/* Tooltip will be rendered here */}
+          {children}
+        </Badge>
+      );
+    },
+    [icon, name, variant]
   );
 
   if (hint) {
-    return <Tooltip trigger={badge}>{hint}</Tooltip>;
+    return (
+      <Tooltip delay={500} trigger={badge}>
+        {hint}
+      </Tooltip>
+    );
   }
 
-  return badge;
+  return badge();
 };
 
 const card = css({
@@ -170,7 +185,7 @@ export type NamespaceItemCardProps = {
   type: ItemType;
   viewType: ViewType;
   name: string;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   data: DataProp[];
   badges?: BadgeProp[] | null;
   onItemClick(id: string): void;

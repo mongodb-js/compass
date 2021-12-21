@@ -27,9 +27,9 @@ const containerStyles = css({
   marginTop: spacing[3],
   display: 'flex',
   alignItems: 'center',
-  '&:hover': {
-    cursor: 'pointer',
-  },
+});
+const buttonIconStyles = css({
+  marginRight: spacing[1],
 });
 interface AccordionProps {
   dataTestId?: string;
@@ -54,7 +54,10 @@ function Accordion(
               setOpen((currentOpen) => !currentOpen);
             }}
           >
-            <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
+            <Icon
+              className={buttonIconStyles}
+              glyph={open ? 'ChevronDown' : 'ChevronRight'}
+            />
             {props.text}
           </button>
         </p>
