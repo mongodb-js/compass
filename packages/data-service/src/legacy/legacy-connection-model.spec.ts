@@ -23,6 +23,21 @@ async function createAndConvertModel(
 
 describe('LegacyConnectionModel', function () {
   describe('convertConnectionModelToInfo', function () {
+    it('converts a raw model to the connection model instance', function () {
+      const rawModel = {
+        _id: '1234-1234-1234-1234',
+        hostname: 'localhost',
+        port: 27018,
+        authStrategy: 'NONE',
+        readPreference: 'primary',
+        sslMethod: 'ALL',
+        sshTunnelPort: 22
+      };
+      const { id } = convertConnectionModelToInfo(rawModel);
+
+      expect(id).to.deep.equal('1234-1234-1234-1234');
+    });
+
     it('converts _id', async function () {
       const { id } = await createAndConvertModel(
         'mongodb://localhost:27017/admin',
@@ -331,6 +346,7 @@ describe('LegacyConnectionModel', function () {
   describe('convertConnectionInfoToModel', function () {
     it('stores connectionInfo and secrets', async function () {
       const connectionInfo = {
+        id: '1',
         connectionOptions: {
           connectionString: 'mongodb://user:password@localhost:27017',
         },
@@ -341,6 +357,7 @@ describe('LegacyConnectionModel', function () {
       );
 
       expect(connectionModel.connectionInfo).to.deep.equal({
+        id: '1',
         connectionOptions: {
           connectionString: 'mongodb://user@localhost:27017/',
         },
@@ -379,6 +396,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts authSource', async function () {
       const connectionInfo = {
+        id: '2',
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017/test123?authSource=db1',
         },
@@ -394,6 +412,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts replicaSet', async function () {
       const connectionInfo = {
+        id: '3',
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017/?replicaSet=rs1',
         },
@@ -408,6 +427,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts readPreference', async function () {
       const connectionInfo = {
+        id: '4',
         connectionOptions: {
           connectionString: 'mongodb://example.com/?readPreference=secondary',
         },
@@ -422,6 +442,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts readPreferenceTags', async function () {
       const connectionInfo = {
+        id: '5',
         connectionOptions: {
           connectionString:
             'mongodb://example.com/?readPreferenceTags=tag1:a,tag2:b',
@@ -439,6 +460,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts no auth', async function () {
       const connectionInfo: ConnectionInfo = {
+        id: '6',
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017',
         },
@@ -457,6 +479,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts username and password', async function () {
       const connectionInfo = {
+        id: '7',
         connectionOptions: {
           connectionString: 'mongodb://user:password@localhost:27017',
         },
@@ -475,6 +498,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts kerberos', async function () {
       const connectionInfo = {
+        id: '8',
         connectionOptions: {
           connectionString:
             'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-1.example.com:29017/?authMechanism=GSSAPI',
@@ -501,6 +525,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts kerberos (alternate service name)', async function () {
       const connectionInfo = {
+        id: '9',
         connectionOptions: {
           connectionString:
             'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-2.example.com:29018/?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME%3Aalternate',
@@ -527,6 +552,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts kerberos (canonicalize hostname)', async function () {
       const connectionInfo = {
+        id: '10',
         connectionOptions: {
           connectionString:
             'mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-2.example.com:29018/?authMechanism=GSSAPI&authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue',
@@ -553,6 +579,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts LDAP', async function () {
       const connectionInfo = {
+        id: '11',
         connectionOptions: {
           connectionString:
             'mongodb://writer%40EXAMPLE.COM:Password1!@localhost:30017/?authMechanism=PLAIN',
@@ -570,6 +597,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts SCRAM-SHA-1', async function () {
       const connectionInfo = {
+        id: '12',
         connectionOptions: {
           connectionString:
             'mongodb://user:password@localhost:27017/?authMechanism=SCRAM-SHA-1',
@@ -588,6 +616,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts SCRAM-SHA-256', async function () {
       const connectionInfo = {
+        id: '13',
         connectionOptions: {
           connectionString:
             'mongodb://user:password@localhost:27017/?authMechanism=SCRAM-SHA-256',
@@ -606,6 +635,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts X509', async function () {
       const connectionInfo = {
+        id: '14',
         connectionOptions: {
           connectionString:
             'mongodb://user@localhost:27017/?authMechanism=MONGODB-X509&tls=true&tlsCertificateKeyFile=file.pem&authSource=$external',
@@ -624,6 +654,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts tls=false', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '15',
         connectionOptions: {
           connectionString: 'mongodb://user@localhost:27017/?tls=false',
         },
@@ -634,6 +665,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts ssl=false', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '16',
         connectionOptions: {
           connectionString: 'mongodb://user@localhost:27017/?ssl=false',
         },
@@ -644,6 +676,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts tls=true', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '17',
         connectionOptions: {
           connectionString: 'mongodb://user@localhost:27017/?tls=true',
         },
@@ -654,6 +687,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts ssl=true', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '18',
         connectionOptions: {
           connectionString: 'mongodb://user@localhost:27017/?ssl=true',
         },
@@ -664,6 +698,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts tlsCAFile', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '19',
         connectionOptions: {
           connectionString:
             'mongodb://user@localhost:27017/?ssl=true&tlsCAFile=file.pem',
@@ -676,6 +711,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts tlsCertificateKeyFile and tlsCertificateFile', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '20',
         connectionOptions: {
           connectionString:
             'mongodb://user@localhost:27017/?ssl=true&tlsCAFile=tlsCAFilePath&tlsCertificateKeyFile=sslKeyPath&tlsCertificateFile=sslCertPath',
@@ -690,6 +726,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts tlsAllowInvalidCertificates and tlsAllowInvalidHostnames', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '21',
         connectionOptions: {
           connectionString:
             'mongodb://user@localhost:27017/?ssl=true&tlsAllowInvalidCertificates=true&tlsAllowInvalidHostnames=true',
@@ -701,6 +738,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts ssh (USER_PASSWORD)', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '22',
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017',
           sshTunnel: {
@@ -721,6 +759,7 @@ describe('LegacyConnectionModel', function () {
 
     it('converts ssh (IDENTITY_FILE)', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '23',
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017',
           sshTunnel: {
@@ -743,6 +782,7 @@ describe('LegacyConnectionModel', function () {
 
     it('strips out MONGODB-AWS but keeps it in connectionInfo and secrets', async function () {
       const connectionModel = await convertConnectionInfoToModel({
+        id: '24',
         connectionOptions: {
           connectionString:
             'mongodb://username@localhost:27017/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN%3AsessionToken',

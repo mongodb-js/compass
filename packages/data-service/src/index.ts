@@ -8,6 +8,11 @@ import {
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,
 } from './legacy/legacy-connection-model';
+import {
+  ConnectionSecrets,
+  extractSecrets,
+  mergeSecrets,
+} from './connection-secrets';
 
 export {
   ConnectionInfo,
@@ -18,4 +23,7 @@ export {
   getConnectionTitle,
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,
+  ConnectionSecrets,
+  extractSecrets,
+  mergeSecrets
 };
