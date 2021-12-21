@@ -3,21 +3,24 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
 import { appRegistryActivated } from '../modules/app-registry';
-import { loadDatabases } from '../modules/databases/databases';
+import { setDatabases } from '../modules/databases/databases';
+import { databasesStatusChanged } from '../modules/databases/status';
 import { writeStateChanged } from '../modules/is-writable';
 import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
 import { toggleIsDataLake } from '../modules/is-data-lake';
+import { reset } from '../modules/reset';
 import { databasesReducer } from '../modules';
 
 const store = createStore(databasesReducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
   const onDatabasesChange = throttle((dbs) => {
-    store.dispatch(loadDatabases(dbs.toJSON()));
-  }, 100);
+    store.dispatch(setDatabases(dbs.toJSON()));
+  }, 300);
 
   appRegistry.on('instance-destroyed', () => {
     onDatabasesChange.cancel();
+    store.dispatch(reset());
   });
 
   /**
@@ -26,6 +29,7 @@ store.onActivated = (appRegistry) => {
    * @param {Object} state - The instance store state.
    */
   appRegistry.on('instance-created', ({ instance }) => {
+    store.dispatch(databasesStatusChanged(instance));
     onDatabasesChange(instance.databases);
 
     instance.genuineMongoDB.on('change:isGenuine', (model, newVal) => {
@@ -36,23 +40,14 @@ store.onActivated = (appRegistry) => {
       store.dispatch(toggleIsDataLake(newVal));
     });
 
-    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
-      instance.on('change:isRefreshing', () => {
-        onDatabasesChange(instance.databases);
-      });
-    } else {
-      instance.on('change:databasesStatus', () => {
-        onDatabasesChange(instance.databases);
-      });
+    instance.on('change:databasesStatus', () => {
+      store.dispatch(databasesStatusChanged(instance));
+      onDatabasesChange(instance.databases);
+    });
 
-      instance.on('change:databases.status', () => {
-        onDatabasesChange(instance.databases);
-      });
-
-      instance.on('change:databases.collectionsLength', () => {
-        onDatabasesChange(instance.databases);
-      });
-    }
+    instance.on('change:databases.status', () => {
+      onDatabasesChange(instance.databases);
+    });
   });
 
   /**

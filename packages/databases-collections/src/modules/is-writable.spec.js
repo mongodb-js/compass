@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import reducer, { INITIAL_STATE, writeStateChanged } from './is-writable';
 
 describe('is writable module', () => {

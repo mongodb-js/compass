@@ -5,9 +5,9 @@ import classnames from 'classnames';
 import styles from './sidebar-instance-stats.module.less';
 
 class SidebarInstanceStats extends PureComponent {
-  static displayName = 'SidebarInstanceStats';
   static propTypes = {
     instance: PropTypes.object,
+    databases: PropTypes.object,
     isExpanded: PropTypes.bool.isRequired,
     toggleIsExpanded: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired
@@ -27,20 +27,23 @@ class SidebarInstanceStats extends PureComponent {
   }
 
   render() {
-    const { instance } = this.props;
+    const { instance, databases } = this.props;
 
-    let numDbs = instance?.databases.length ?? 0;
+    let numDbs = databases.length;
     let numCollections =
-      instance?.databases
+      databases
         .map((db) => db.collectionsLength)
-        .reduce((acc, n) => acc + n, 0) ?? 0;
+        .reduce((acc, n) => acc + n, 0);
 
     let refreshClassName = 'fa fa-repeat';
 
-    const isRefreshing = instance?.isRefreshing ?? false;
+    const isRefreshing = !instance || ['initial', 'fetching', 'refreshing'].includes(
+      instance.refreshingStatus
+    );
 
-    const isInitialOrInitialFetching =
-      !instance || ['initial', 'fetching'].includes(instance.refreshingStatus);
+    const isInitialOrInitialFetching = !instance || ['initial', 'fetching'].includes(
+      instance.refreshingStatus
+    );
 
     if (isRefreshing) {
       refreshClassName = 'fa fa-refresh fa-spin';

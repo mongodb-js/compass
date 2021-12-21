@@ -41,20 +41,13 @@
     "react-dom": "^16.14.0"
   },
   "dependencies": {
-    "lodash.fill": "^3.4.0",
-    "lodash.get": "^4.4.2",
-    "lodash.isarray": "^4.0.0",
     "lodash.isfunction": "^3.0.8",
-    "lodash.isnumber": "^3.0.3",
-    "lodash.isplainobject": "^4.0.6",
-    "lodash.isstring": "^4.0.1",
     "lodash.keys": "^4.2.0",
     "lodash.map": "^4.6.0",
     "lodash.omit": "^4.5.0",
     "react-bootstrap": "^0.32.0",
     "react-dnd": "^7.3.2",
     "react-dnd-html5-backend": "^7.2.0",
-    "react-fontawesome": "^1.6.1",
     "react-tooltip": "^3.11.1"
   },
   "devDependencies": {

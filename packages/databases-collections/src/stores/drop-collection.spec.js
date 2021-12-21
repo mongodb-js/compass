@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import store from './drop-collection';
 import { reset } from '../modules/reset';
@@ -32,7 +33,10 @@ describe('DropCollectionStore [Store]', () => {
 
     context('when open drop collection is emitted', () => {
       beforeEach(() => {
-        appRegistry.emit('open-drop-collection', 'testing', 'test');
+        appRegistry.emit('open-drop-collection', {
+          database: 'testing',
+          collection: 'test',
+        });
       });
 
       it('dispatches the toggle action', () => {

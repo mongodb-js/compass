@@ -78,6 +78,7 @@ type DatabaseDetails = {
   collection_count: number;
   document_count: number;
   storage_size: number;
+  data_size: number;
   index_count: number;
   index_size: number;
   collections: CollectionDetails[];
@@ -310,8 +311,9 @@ export function adaptDatabaseInfo(
     name: databaseStats.db,
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
-    storage_size: databaseStats.storageSize ?? 0,
     index_count: databaseStats.indexes ?? 0,
+    storage_size: databaseStats.storageSize ?? 0,
+    data_size: databaseStats.dataSize ?? 0,
     index_size: databaseStats.indexSize ?? 0,
   };
 }

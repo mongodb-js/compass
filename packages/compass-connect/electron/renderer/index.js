@@ -8,7 +8,6 @@ import ReactDOM from 'react-dom';
 import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
-import { activate as activateCompassStatus } from '@mongodb-js/compass-status';
 
 import CompassConnectPlugin, { activate } from '../../src';
 
@@ -19,14 +18,7 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
-activateCompassStatus(appRegistry);
 appRegistry.onActivated();
-
-appRegistry.on('data-service-connected', (err) => {
-  if (!err) {
-    appRegistry.getAction('Status.Actions').done();
-  }
-});
 
 // Since we are using HtmlWebpackPlugin WITHOUT a template,
 // we should create our own root node in the body element before rendering into it.

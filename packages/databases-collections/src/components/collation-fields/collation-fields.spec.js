@@ -1,5 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import { Select } from '@mongodb-js/compass-components';
 
 import Collation from '.';

@@ -71,7 +71,6 @@
     "hadron-react-components": "^5.8.0",
     "mocha": "^8.4.0",
     "mongodb-data-service": "^21.14.0",
-    "mongodb-instance-model": "^11.16.0",
     "mongodb-ns": "^2.2.0",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",

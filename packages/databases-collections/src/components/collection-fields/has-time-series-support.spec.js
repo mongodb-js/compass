@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import hasTimeSeriesSupport from './has-time-series-support';
 
 describe('hasTimeSeriesSupport', () => {
