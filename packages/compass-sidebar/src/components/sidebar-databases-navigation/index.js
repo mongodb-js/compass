@@ -6,8 +6,15 @@ import { toggleDatabaseExpanded } from '../../modules/databases';
 
 function mapStateToProps(state) {
   const {
-    databases: { filterRegex, filteredDatabases, expandedDbList, activeNamespace },
+    databases: {
+      filterRegex,
+      filteredDatabases,
+      expandedDbList,
+      activeNamespace,
+    },
+    instance,
   } = state;
+  const isReady = !['initial', 'fetching'].includes(instance?.databasesStatus);
   const defaultExpanded = Boolean(filterRegex);
   const expanded = Object.fromEntries(
     filteredDatabases.map(({ name }) => [
@@ -19,8 +26,8 @@ function mapStateToProps(state) {
     process.env.HADRON_READONLY === 'true' ||
     state.isDataLake ||
     !state.isWritable;
-
   return {
+    isReady,
     isReadOnly,
     activeNamespace,
     databases: filteredDatabases,

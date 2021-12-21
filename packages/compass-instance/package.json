@@ -47,7 +47,9 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
+    "@mongodb-js/compass-components": "^0.7.0",
     "@mongodb-js/compass-database": "^2.15.0",
+    "@mongodb-js/compass-logging": "^0.4.0",
     "@mongodb-js/compass-serverstats": "^15.15.0",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
@@ -101,6 +103,8 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
+    "react-redux": "^7.2.6",
+    "redux": "^4.1.2",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "resolve": "^1.15.1",
@@ -117,10 +121,6 @@
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0",
     "xvfb-maybe": "^0.2.1"
-  },
-  "dependencies": {
-    "@mongodb-js/compass-logging": "^0.4.0",
-    "lodash.filter": "^4.6.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

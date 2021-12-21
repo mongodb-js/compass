@@ -178,7 +178,6 @@
     "@mongodb-js/compass-shell": "^2.16.0",
     "@mongodb-js/compass-sidebar": "^4.16.0",
     "@mongodb-js/compass-ssh-tunnel-status": "^6.15.0",
-    "@mongodb-js/compass-status": "^5.15.0",
     "@mongodb-js/dl-center": "^1.0.1",
     "@mongodb-js/eslint-config-compass": "^0.4.0",
     "@mongodb-js/hadron-plugin-manager": "^6.6.0",

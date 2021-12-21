@@ -35,6 +35,8 @@ const namespaceParamLabel = css({
 const namespaceParamValueContainer = css({
   position: 'relative',
   width: '100%',
+  // Keeping container height for the placeholder to appear
+  minHeight: 20,
 });
 
 const namespaceParamValue = css({
@@ -46,7 +48,7 @@ const namespaceParamValueRefreshing = css({
   opacity: 0.3,
 });
 
-const namespaceParamValueError = css({
+const namespaceParamValueMissing = css({
   opacity: 0.3,
 });
 
@@ -54,6 +56,9 @@ const namespaceParamValuePlaceholder = css({
   position: 'absolute',
   top: 0,
   left: 0,
+  bottom: 0,
+  right: 0,
+  display: 'flex',
   opacity: 0,
   transition: 'opacity .16s ease-out',
 });
@@ -93,27 +98,30 @@ export const NamespaceParam: React.FunctionComponent<{
             return null;
           }
 
+          const missingValue = value == null || status === 'error';
+
           return (
             <span
               className={cx(
                 namespaceParamValue,
-                status === 'error' && namespaceParamValueError,
+                missingValue && namespaceParamValueMissing,
                 status === 'refreshing' && namespaceParamValueRefreshing,
                 shouldAnimate && fadeIn
               )}
             >
-              {status === 'error' ? '—' : value}
+              {missingValue ? '—' : value}
             </span>
           );
         }}
         fallback={(shouldRender) => (
-          <Placeholder
-            maxChar={10}
+          <span
             className={cx(
               namespaceParamValuePlaceholder,
               shouldRender && visible
             )}
-          ></Placeholder>
+          >
+            <Placeholder maxChar={10}></Placeholder>
+          </span>
         )}
       ></ContentWithFallback>
     );

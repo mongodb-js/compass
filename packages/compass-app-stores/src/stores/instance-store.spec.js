@@ -82,10 +82,6 @@ describe('InstanceStore [Store]', () => {
         expect(global.hadronApp.instance).to.equal(instance);
       });
 
-      it('calls StatusAction hide', () => {
-        expect(hideSpy.called).to.equal(true);
-      });
-
       it('emits instance-refreshed event', () => {
         const events = emitSpy.args.map(([evtName]) => evtName);
         expect(events).to.eql([
@@ -141,13 +137,6 @@ describe('InstanceStore [Store]', () => {
         await once(global.hadronApp.appRegistry, 'instance-refreshed');
       });
 
-      it('calls statusAction configure', () => {
-        expect(configureSpy.called).to.equal(true);
-        expect(configureSpy.args[0]).to.deep.equal([
-          { animation: true, message: 'Loading databases', visible: true }
-        ]);
-      });
-
       it('calls instance model fetch', () => {
         expect(store.getState().instance).to.have.nested.property(
           'build.version',
@@ -178,13 +167,6 @@ describe('InstanceStore [Store]', () => {
         );
         global.hadronApp.appRegistry.emit('agg-pipeline-out-executed');
         await once(global.hadronApp.appRegistry, 'instance-refreshed');
-      });
-
-      it('calls statusAction configure', () => {
-        expect(configureSpy.called).to.equal(true);
-        expect(configureSpy.args[0]).to.deep.equal([
-          { animation: true, message: 'Loading databases', visible: true }
-        ]);
       });
 
       it('calls instance model fetch', () => {

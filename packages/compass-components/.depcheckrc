@@ -1,6 +1,4 @@
 ignores: [
-    'jsdom-global',
-    'ts-node',
     '@mongodb-js/prettier-config-compass',
     '@mongodb-js/tsconfig-compass',
     '@types/chai-dom',

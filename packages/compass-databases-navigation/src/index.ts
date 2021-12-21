@@ -1,1 +1,1 @@
-export { DatabasesNavigationTree as default } from './databases-navigation-tree';
+export { NavigationWithPlaceholder as default } from './databases-navigation-tree';

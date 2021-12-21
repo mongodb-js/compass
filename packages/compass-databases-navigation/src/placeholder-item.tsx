@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { CSSProperties } from 'react';
-import { css } from '@leafygreen-ui/emotion';
-import { spacing, Placeholder } from '@mongodb-js/compass-components';
+import { spacing, Placeholder, css, cx } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
 
 const placeholderItem = css({
@@ -11,11 +10,23 @@ const placeholderItem = css({
   paddingLeft: spacing[5],
 });
 
+const padding = {
+  database: css({
+    // Because we are aligning this with non-leafygreen items on the screen we
+    // have to use custom sizes
+    paddingLeft: spacing[1] + spacing[2],
+  }),
+  collection: css({
+    paddingLeft: spacing[5],
+  }),
+} as const;
+
 export const PlaceholderItem: React.FunctionComponent<{
+  type?: 'database' | 'collection';
   style?: CSSProperties;
-}> = ({ style }) => {
+}> = ({ type = 'collection', style }) => {
   return (
-    <div className={placeholderItem} style={style}>
+    <div className={cx(placeholderItem, padding[type])} style={style}>
       <Placeholder darkMode></Placeholder>
     </div>
   );

@@ -6,20 +6,9 @@ const PREFIX = 'compass-databases-collections/databases';
  */
 export const INITIAL_STATE = [];
 
-// The load databases action name.
-export const LOAD_DATABASES = `${PREFIX}/LOAD_DATABASES`;
+export const SET_DATABASES = `${PREFIX}/SET_DATABASES`;
 
-/**
- * Action creator for load databases events.
- *
- * @param {Array} databases - The raw database list.
- *
- * @returns {Object} The load databases action.
- */
-export const loadDatabases = (databases) => ({
-  type: LOAD_DATABASES,
-  databases: databases,
-});
+export const setDatabases = (databases) => ({ type: SET_DATABASES, databases });
 
 /**
  * Reducer function for handle state changes to databases.
@@ -30,8 +19,10 @@ export const loadDatabases = (databases) => ({
  * @returns {Array} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === LOAD_DATABASES) {
-    return action.databases;
+  switch (action.type) {
+    case SET_DATABASES:
+      return action.databases;
+    default:
+      return state;
   }
-  return state;
 }

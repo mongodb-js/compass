@@ -3,6 +3,9 @@ import appRegistry from '../app-registry';
 import collections, {
   INITIAL_STATE as COLLECTIONS_INITIAL_STATE
 } from './collections';
+import collectionsStatus, {
+  INITIAL_STATE as COLLECTIONS_STATUS_STATE
+} from './status';
 import databaseName, {
   INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
 } from '../database-name';
@@ -24,6 +27,7 @@ const reducer = combineReducers({
   appRegistry,
   databaseName,
   collections,
+  collectionsStatus,
   isReadonly,
   isWritable,
   isDataLake,
@@ -43,6 +47,7 @@ const rootReducer = (state, action) => {
       ...state,
       databaseName: DATABASE_NAME_INITIAL_STATE,
       collections: COLLECTIONS_INITIAL_STATE,
+      collectionsStatus: COLLECTIONS_STATUS_STATE,
       isReadonly: READONLY_INITIAL_STATE,
       isWritable: WRITABLE_INITIAL_STATE,
       isDataLake: DATA_LAKE_INITIAL_STATE

@@ -12,7 +12,7 @@ class SidebarInstance extends PureComponent {
   static displayName = 'SidebarInstance';
   static propTypes = {
     instance: PropTypes.object,
-    databases: PropTypes.object,
+    databases: PropTypes.array,
     isExpanded: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,

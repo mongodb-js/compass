@@ -3,13 +3,19 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CollectionsList } from '@mongodb-js/databases-collections-list';
 import toNS from 'mongodb-ns';
+import { Banner, BannerVariant } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+import styles from './collections.module.less';
+
+const ERROR_WARNING = 'An error occurred while loading collections';
 
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
 
 class Collections extends PureComponent {
   static propTypes = {
     collections: PropTypes.array.isRequired,
+    collectionsStatus: PropTypes.object.isRequired,
     databaseName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
@@ -31,6 +37,7 @@ class Collections extends PureComponent {
   render() {
     const {
       collections,
+      collectionsStatus,
       databaseName,
       isReadonly,
       isWritable,
@@ -39,6 +46,16 @@ class Collections extends PureComponent {
       onDeleteCollectionClick,
       onCreateCollectionClick,
     } = this.props;
+
+    if (collectionsStatus.status === 'error') {
+      return (
+        <div className={styles['collections-error']}>
+          <Banner variant={BannerVariant.Danger}>
+            {ERROR_WARNING}: {collectionsStatus.error}
+          </Banner>
+        </div>
+      );
+    }
 
     const actions = Object.assign(
       { onCollectionClick },
@@ -78,6 +95,7 @@ const mapStateToProps = (state) => ({
     }
     return coll;
   }),
+  collectionsStatus: state.collectionsStatus,
   databaseName: state.databaseName,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
