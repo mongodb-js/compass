@@ -9,7 +9,7 @@ type Collection = {
   _id: string;
   name: string;
   type: string;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   statusError: string | null;
   readonly: boolean;
   view_on: string;

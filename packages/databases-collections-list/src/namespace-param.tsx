@@ -79,7 +79,7 @@ const fadeIn = css({
 export const NamespaceParam: React.FunctionComponent<{
   label: React.ReactNode;
   value: React.ReactNode;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   hint?: React.ReactNode;
   viewType: ViewType;
 }> = ({ label, value, status, hint, viewType }) => {

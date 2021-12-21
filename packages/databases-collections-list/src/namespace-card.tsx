@@ -185,7 +185,7 @@ export type NamespaceItemCardProps = {
   type: ItemType;
   viewType: ViewType;
   name: string;
-  status: string;
+  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   data: DataProp[];
   badges?: BadgeProp[] | null;
   onItemClick(id: string): void;
