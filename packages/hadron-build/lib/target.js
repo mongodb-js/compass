@@ -218,10 +218,20 @@ class Target {
       this.configureForLinux();
     }
 
+    this.setArchiveName();
+
     this.resourcesAppDir = path.join(this.resources, 'app');
 
     debug('target ready', this);
   }
+
+  setArchiveName() {
+    this.app_archive_name =
+      this.osx_zip_filename ||
+      this.windows_zip_filename ||
+      this.linux_tar_filename;
+  }
+
   /**
    * Get an absolute path to a source file.
    * @return {String}
@@ -347,9 +357,7 @@ class Target {
       },
       {
         name: `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`,
-        path: this.dest(
-          `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`
-        )
+        path: this.dest(this.windows_nupkg_full_label)
       }
     ];
 
@@ -384,41 +392,44 @@ class Target {
       this.installerOptions.setupIcon = this.src(platformSettings.setup_icon);
     }
 
-    this.createInstaller = () => {
+    this.createInstaller = async() => {
       const electronWinstaller = require('electron-winstaller');
-      return electronWinstaller
-        .createWindowsInstaller(this.installerOptions)
-        .then(() => {
-          const { MSICreator } = require('@mongodb-js/electron-wix-msi');
-          const msiCreator = new MSICreator({
-            appDirectory: this.appPath,
-            outputDirectory: this.packagerOptions.out,
-            exe: this.packagerOptions.name,
-            name: this.productName,
-            description: this.description,
-            manufacturer: this.author,
-            version: windowsInstallerVersion(this.installerVersion || this.version),
-            signWithParams: signWithParams,
-            shortcutFolderName: this.shortcutFolderName || this.author,
-            programFilesFolderName:
-              this.programFilesFolderName || this.productName,
-            appUserModelId: this.bundleId,
-            upgradeCode: this.upgradeCode,
-            arch: 'x64',
-            extensions: ['WixUtilExtension'],
-            ui: {
-              chooseDirectory: true,
-              images: {
-                background: this.src(platformSettings.background),
-                banner: this.src(platformSettings.banner)
-              }
-            }
-          });
 
-          return msiCreator.create().then(() => {
-            return msiCreator.compile();
-          });
-        });
+      await electronWinstaller.createWindowsInstaller(this.installerOptions);
+
+      await fs.promises.rename(
+        this.dest('RELEASES'),
+        this.dest(`${this.distribution}-RELEASES`),
+      );
+
+      const { MSICreator } = require('@mongodb-js/electron-wix-msi');
+
+      const msiCreator = new MSICreator({
+        appDirectory: this.appPath,
+        outputDirectory: this.packagerOptions.out,
+        exe: this.packagerOptions.name,
+        name: this.productName,
+        description: this.description,
+        manufacturer: this.author,
+        version: windowsInstallerVersion(this.installerVersion || this.version),
+        signWithParams: signWithParams,
+        shortcutFolderName: this.shortcutFolderName || this.author,
+        programFilesFolderName: this.programFilesFolderName || this.productName,
+        appUserModelId: this.bundleId,
+        upgradeCode: this.upgradeCode,
+        arch: 'x64',
+        extensions: ['WixUtilExtension'],
+        ui: {
+          chooseDirectory: true,
+          images: {
+            background: this.src(platformSettings.background),
+            banner: this.src(platformSettings.banner)
+          }
+        }
+      });
+
+      await msiCreator.create();
+      await msiCreator.compile();
     };
   }
 
@@ -463,11 +474,11 @@ class Target {
     this.assets = [
       {
         name: `${this.id}-${this.version}-${this.platform}-${this.arch}.dmg`,
-        path: this.dest(`${this.productName}.dmg`)
+        path: this.dest(this.osx_dmg_label)
       },
       {
         name: `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`,
-        path: this.dest(`${this.productName}.zip`)
+        path: this.dest(this.osx_zip_label)
       }
     ];
 
