@@ -19,13 +19,13 @@ export function handleUpdateTlsOption({
 } {
   const updatedConnectionString = connectionStringUrl.clone();
 
-  if (tlsOption === TLS_OPTIONS.ON) {
+  if (tlsOption === 'ON') {
     updatedConnectionString.searchParams.delete('ssl');
     updatedConnectionString.searchParams.set('tls', 'true');
-  } else if (tlsOption === TLS_OPTIONS.OFF) {
+  } else if (tlsOption === 'OFF') {
     updatedConnectionString.searchParams.delete('ssl');
     updatedConnectionString.searchParams.set('tls', 'false');
-  } else if (tlsOption === TLS_OPTIONS.DEFAULT) {
+  } else if (tlsOption === 'DEFAULT') {
     updatedConnectionString.searchParams.delete('ssl');
     updatedConnectionString.searchParams.delete('tls');
   }

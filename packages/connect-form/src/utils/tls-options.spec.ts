@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { TLS_OPTIONS } from '../constants/ssl-tls-options';
 
 import { handleUpdateTlsOption } from './tls-options';
 
@@ -12,7 +11,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.ON,
+        tlsOption: 'ON',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -30,7 +29,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.ON,
+        tlsOption: 'ON',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -47,7 +46,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.ON,
+        tlsOption: 'ON',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -64,7 +63,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.OFF,
+        tlsOption: 'OFF',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -82,7 +81,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.OFF,
+        tlsOption: 'OFF',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -99,7 +98,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.OFF,
+        tlsOption: 'OFF',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -114,7 +113,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.OFF,
+        tlsOption: 'OFF',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -131,7 +130,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.DEFAULT,
+        tlsOption: 'DEFAULT',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -149,7 +148,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.DEFAULT,
+        tlsOption: 'DEFAULT',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -166,7 +165,7 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: TLS_OPTIONS.DEFAULT,
+        tlsOption: 'DEFAULT',
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),

@@ -17,22 +17,26 @@ const descriptionStyles = css({
   marginTop: spacing[1],
 });
 
-const TLS_TYPES = [
+const TLS_TYPES: {
+  value: TLS_OPTIONS;
+  label: string;
+  description: string;
+}[] = [
   {
-    value: TLS_OPTIONS.DEFAULT,
+    value: 'DEFAULT',
     label: 'Default',
     description:
-      'Default (unset) - TLS/SSL will be used when connecting using a DNS Seed List Connection Format (mongodb+srv://) and it will not be used when connecting using a standard connection string schema format (mongodb://).',
+      'Default (unset) – TLS/SSL will be used when connecting using a DNS Seed List Connection Format (mongodb+srv://) and it will not be used when connecting using a standard connection string schema format (mongodb://).',
   },
   {
-    value: TLS_OPTIONS.ON,
+    value: 'ON',
     label: 'On',
-    description: 'On - TLS/SSL is enabled for this connection.',
+    description: 'On – TLS/SSL is enabled for this connection.',
   },
   {
-    value: TLS_OPTIONS.OFF,
+    value: 'OFF',
     label: 'Off',
-    description: 'Off - TLS/SSL is disabled for this connection.',
+    description: 'Off – TLS/SSL is disabled for this connection.',
   },
 ];
 
@@ -43,7 +47,7 @@ export function getTLSOptionForConnectionString(
     connectionStringUrl.searchParams.get('ssl') === null &&
     connectionStringUrl.searchParams.get('tls') === null
   ) {
-    return TLS_OPTIONS.DEFAULT;
+    return 'DEFAULT';
   }
 
   if (
@@ -51,7 +55,7 @@ export function getTLSOptionForConnectionString(
     (connectionStringUrl.searchParams.get('ssl') === null ||
       connectionStringUrl.searchParams.get('ssl') === 'true')
   ) {
-    return TLS_OPTIONS.ON;
+    return 'ON';
   }
 
   if (
@@ -59,21 +63,21 @@ export function getTLSOptionForConnectionString(
     (connectionStringUrl.searchParams.get('ssl') === null ||
       connectionStringUrl.searchParams.get('ssl') === 'false')
   ) {
-    return TLS_OPTIONS.OFF;
+    return 'OFF';
   }
 
   if (
     connectionStringUrl.searchParams.get('ssl') === 'true' &&
     connectionStringUrl.searchParams.get('tls') === null
   ) {
-    return TLS_OPTIONS.ON;
+    return 'ON';
   }
 
   if (
     connectionStringUrl.searchParams.get('ssl') === 'false' &&
     connectionStringUrl.searchParams.get('tls') === null
   ) {
-    return TLS_OPTIONS.OFF;
+    return 'OFF';
   }
 
   // When the TLS/SSL options are a mismatching pair or not `true` or `false`

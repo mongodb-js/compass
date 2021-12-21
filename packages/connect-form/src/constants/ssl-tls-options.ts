@@ -1,5 +1,1 @@
-export enum TLS_OPTIONS {
-  DEFAULT = 'DEFAULT',
-  ON = 'ON',
-  OFF = 'OFF',
-}
+export type TLS_OPTIONS = 'DEFAULT' | 'ON' | 'OFF';
