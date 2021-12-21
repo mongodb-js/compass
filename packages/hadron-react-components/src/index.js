@@ -5,7 +5,6 @@ import InfoSprinkle from './info-sprinkle';
 import ModalStatusMessage from './modal-status-message';
 import StatusRow from './status-row';
 import OptionSelector from './option-selector';
-import SortableTable from './sortable-table';
 import TabNavBar from './tab-nav-bar';
 import StoreConnector from './store-connector';
 import Tooltip from './tooltip';
@@ -22,7 +21,6 @@ export {
   ModalStatusMessage,
   StatusRow,
   OptionSelector,
-  SortableTable,
   TabNavBar,
   StoreConnector,
   Tooltip,

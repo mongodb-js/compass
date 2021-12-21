@@ -24,7 +24,6 @@ module.exports = [
   require('@mongodb-js/compass-shell'),
   require('@mongodb-js/compass-sidebar'),
   require('@mongodb-js/compass-ssh-tunnel-status'),
-  require('@mongodb-js/compass-status'),
   require('@mongodb-js/compass-indexes'),
   require('@mongodb-js/compass-explain-plan')
 ];

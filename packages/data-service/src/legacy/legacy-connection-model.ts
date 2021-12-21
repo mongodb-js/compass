@@ -155,13 +155,16 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
 }
 
 export function convertConnectionModelToInfo(
-  model: LegacyConnectionModel
+  model: LegacyConnectionModelProperties
 ): ConnectionInfo {
+  const legacyModel: LegacyConnectionModel =
+    model instanceof ConnectionModel ? model : new ConnectionModel(model);
+
   // Already migrated
-  if (model.connectionInfo) {
+  if (legacyModel.connectionInfo) {
     const connectionInfo = mergeSecrets(
-      model.connectionInfo,
-      model.secrets ?? {}
+      legacyModel.connectionInfo,
+      legacyModel.secrets ?? {}
     );
 
     if (connectionInfo.lastUsed) {
@@ -174,61 +177,61 @@ export function convertConnectionModelToInfo(
 
   // Not migrated yet, has to be converted
   const info: ConnectionInfo = {
-    id: model._id,
+    id: legacyModel._id,
     connectionOptions: {
-      connectionString: model.driverUrl,
+      connectionString: legacyModel.driverUrl,
     },
   };
 
   modelSslPropertiesToConnectionOptions(
-    model.driverOptions,
+    legacyModel.driverOptions,
     info.connectionOptions
   );
 
-  const sshTunnel = modelTunnelToConnectionOptions(model);
+  const sshTunnel = modelTunnelToConnectionOptions(legacyModel);
   if (sshTunnel) {
     info.connectionOptions.sshTunnel = sshTunnel;
   }
 
-  if (model.driverOptions.directConnection !== undefined) {
+  if (legacyModel.driverOptions.directConnection !== undefined) {
     setConnectionStringParam(
       info.connectionOptions,
       'directConnection',
-      model.driverOptions.directConnection ? 'true' : 'false'
+      legacyModel.driverOptions.directConnection ? 'true' : 'false'
     );
   }
 
-  if (model.driverOptions.readPreference !== undefined) {
+  if (legacyModel.driverOptions.readPreference !== undefined) {
     setConnectionStringParam(
       info.connectionOptions,
       'readPreference',
-      typeof model.driverOptions.readPreference === 'string'
-        ? model.driverOptions.readPreference
-        : model.driverOptions.readPreference.preference
+      typeof legacyModel.driverOptions.readPreference === 'string'
+        ? legacyModel.driverOptions.readPreference
+        : legacyModel.driverOptions.readPreference.preference
     );
   }
 
-  if (model.isFavorite) {
+  if (legacyModel.isFavorite) {
     info.favorite = {
-      name: model.name,
-      color: model.color,
+      name: legacyModel.name,
+      color: legacyModel.color,
     };
   }
 
-  if (model.lastUsed) {
-    info.lastUsed = model.lastUsed;
+  if (legacyModel.lastUsed) {
+    info.lastUsed = legacyModel.lastUsed;
   }
 
   return info;
 }
 
-function setConnectionStringParam(
+function setConnectionStringParam<K extends keyof MongoClientOptions>(
   connectionOptions: ConnectionOptions,
-  param: string,
+  param: K,
   value: string
 ) {
   const url = new ConnectionString(connectionOptions.connectionString);
-  url.searchParams.set(param, value);
+  url.typedSearchParams<MongoClientOptions>().set(param, value);
   connectionOptions.connectionString = url.toString();
 }
 
@@ -237,13 +240,14 @@ function modelSslPropertiesToConnectionOptions(
   connectionOptions: ConnectionOptions
 ): void {
   const url = new ConnectionString(connectionOptions.connectionString);
+  const searchParams = url.typedSearchParams<MongoClientOptions>();
 
   if (driverOptions.sslValidate === false) {
-    url.searchParams.set('tlsAllowInvalidCertificates', 'true');
+    searchParams.set('tlsAllowInvalidCertificates', 'true');
   }
 
   if (driverOptions.tlsAllowInvalidHostnames) {
-    url.searchParams.set('tlsAllowInvalidHostnames', 'true');
+    searchParams.set('tlsAllowInvalidHostnames', 'true');
   }
 
   const sslCA = getSslDriverOptionsFile(driverOptions.sslCA);
@@ -251,31 +255,28 @@ function modelSslPropertiesToConnectionOptions(
   const sslKey = getSslDriverOptionsFile(driverOptions.sslKey);
 
   if (sslCA) {
-    url.searchParams.set('tlsCAFile', sslCA);
+    searchParams.set('tlsCAFile', sslCA);
   }
 
   // See https://jira.mongodb.org/browse/NODE-3591 and
   // https://jira.mongodb.org/browse/COMPASS-5058
   if (sslCert && sslCert !== sslKey) {
-    url.searchParams.set('tlsCertificateFile', sslCert);
+    searchParams.set('tlsCertificateFile', sslCert);
   }
 
   if (sslKey) {
-    url.searchParams.set('tlsCertificateKeyFile', sslKey);
+    searchParams.set('tlsCertificateKeyFile', sslKey);
   }
 
   if (driverOptions.sslPass) {
-    url.searchParams.set(
-      'tlsCertificateKeyFilePassword',
-      driverOptions.sslPass
-    );
+    searchParams.set('tlsCertificateKeyFilePassword', driverOptions.sslPass);
   }
 
   if (
-    url.searchParams.get('ssl') === 'true' &&
-    url.searchParams.get('tls') === 'true'
+    searchParams.get('ssl') === 'true' &&
+    searchParams.get('tls') === 'true'
   ) {
-    url.searchParams.delete('ssl');
+    searchParams.delete('ssl');
   }
 
   connectionOptions.connectionString = url.toString();
@@ -379,13 +380,14 @@ function convertSslOptionsToLegacyProperties(
   properties: Partial<LegacyConnectionModelProperties>
 ): void {
   const url = new ConnectionString(options.connectionString);
-  const tlsCAFile = url.searchParams.get('tlsCAFile');
-  const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
-  const tlsCertificateKeyFilePassword = url.searchParams.get(
+  const searchParams = url.typedSearchParams<MongoClientOptions>();
+  const tlsCAFile = searchParams.get('tlsCAFile');
+  const tlsCertificateKeyFile = searchParams.get('tlsCertificateKeyFile');
+  const tlsCertificateKeyFilePassword = searchParams.get(
     'tlsCertificateKeyFilePassword'
   );
 
-  const tlsCertificateFile = url.searchParams.get('tlsCertificateFile');
+  const tlsCertificateFile = searchParams.get('tlsCertificateFile');
 
   if (tlsCAFile) {
     properties.sslCA = [tlsCAFile];
@@ -408,18 +410,17 @@ function convertSslOptionsToLegacyProperties(
 
 function optionsToSslMethod(options: ConnectionOptions): SslMethod {
   const url = new ConnectionString(options.connectionString);
-  const tls = url.searchParams.get('tls') || url.searchParams.get('ssl');
+  const searchParams = url.typedSearchParams<MongoClientOptions>();
+  const tls = searchParams.get('tls') || searchParams.get('ssl');
 
-  const tlsAllowInvalidCertificates = url.searchParams.get(
+  const tlsAllowInvalidCertificates = searchParams.get(
     'tlsAllowInvalidCertificates'
   );
-  const tlsAllowInvalidHostnames = url.searchParams.get(
-    'tlsAllowInvalidHostnames'
-  );
+  const tlsAllowInvalidHostnames = searchParams.get('tlsAllowInvalidHostnames');
 
-  const tlsInsecure = url.searchParams.get('tlsInsecure');
-  const tlsCAFile = url.searchParams.get('tlsCAFile');
-  const tlsCertificateKeyFile = url.searchParams.get('tlsCertificateKeyFile');
+  const tlsInsecure = searchParams.get('tlsInsecure');
+  const tlsCAFile = searchParams.get('tlsCAFile');
+  const tlsCertificateKeyFile = searchParams.get('tlsCertificateKeyFile');
 
   if (tls === 'false') {
     return 'NONE';
@@ -450,10 +451,11 @@ function optionsToSslMethod(options: ConnectionOptions): SslMethod {
 // as unauthenticated.
 function removeAWSParams(connectionString: string): string {
   const url = new ConnectionString(connectionString);
+  const searchParams = url.typedSearchParams<MongoClientOptions>();
 
-  if (url.searchParams.get('authMechanism') === 'MONGODB-AWS') {
-    url.searchParams.delete('authMechanism');
-    url.searchParams.delete('authMechanismProperties');
+  if (searchParams.get('authMechanism') === 'MONGODB-AWS') {
+    searchParams.delete('authMechanism');
+    searchParams.delete('authMechanismProperties');
   }
 
   return url.href;

@@ -1,17 +1,13 @@
 import InstancePlugin from './plugin';
-
-const ROLE = {
-  name: 'Instance',
-  component: InstancePlugin
-};
+import InstanceStore from './stores';
 
 function activate(appRegistry) {
-  appRegistry.registerRole('Instance.Workspace', ROLE);
+  appRegistry.registerComponent('Instance.Workspace', InstancePlugin);
+  appRegistry.registerStore('Instance.Store', InstanceStore);
 }
 
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Instance.Workspace', ROLE);
-  appRegistry.deregisterAction('Instance.Actions');
+  appRegistry.deregisterComponent('Instance.Workspace');
   appRegistry.deregisterStore('Instance.Store');
 }
 

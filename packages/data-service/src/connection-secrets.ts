@@ -3,6 +3,7 @@ import ConnectionString, {
   CommaAndColonSeparatedRecord,
 } from 'mongodb-connection-string-url';
 import { ConnectionInfo } from './connection-info';
+import type { MongoClientOptions, AuthMechanismProperties } from 'mongodb';
 
 export interface ConnectionSecrets {
   password?: string;
@@ -25,6 +26,10 @@ export function mergeSecrets(
   const connectionOptions = connectionInfoWithSecrets.connectionOptions;
 
   const uri = new ConnectionString(connectionOptions.connectionString);
+  // can remove the proxyPassword addition once we have NODE-3633
+  const searchParams = uri.typedSearchParams<
+    MongoClientOptions & { proxyPassword?: string }
+  >();
 
   if (secrets.password) {
     uri.password = secrets.password;
@@ -36,24 +41,25 @@ export function mergeSecrets(
   }
 
   if (secrets.tlsCertificateKeyFilePassword) {
-    uri.searchParams.set(
+    searchParams.set(
       'tlsCertificateKeyFilePassword',
       secrets.tlsCertificateKeyFilePassword
     );
   }
 
   if (secrets.proxyPassword) {
-    uri.searchParams.set('proxyPassword', secrets.proxyPassword);
+    searchParams.set('proxyPassword', secrets.proxyPassword);
   }
 
   if (secrets.awsSessionToken) {
-    const authMechanismProperties = new CommaAndColonSeparatedRecord(
-      uri.searchParams.get('authMechanismProperties')
-    );
+    const authMechanismProperties =
+      new CommaAndColonSeparatedRecord<AuthMechanismProperties>(
+        searchParams.get('authMechanismProperties')
+      );
 
     authMechanismProperties.set('AWS_SESSION_TOKEN', secrets.awsSessionToken);
 
-    uri.searchParams.set(
+    searchParams.set(
       'authMechanismProperties',
       authMechanismProperties.toString()
     );
@@ -73,6 +79,10 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
 
   const connectionOptions = connectionInfoWithoutSecrets.connectionOptions;
   const uri = new ConnectionString(connectionOptions.connectionString);
+  // can remove the proxyPassword addition once we have NODE-3633
+  const searchParams = uri.typedSearchParams<
+    MongoClientOptions & { proxyPassword?: string }
+  >();
 
   if (uri.password) {
     secrets.password = uri.password;
@@ -85,32 +95,33 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
     delete connectionOptions.sshTunnel.identityKeyPassphrase;
   }
 
-  if (uri.searchParams.has('tlsCertificateKeyFilePassword')) {
+  if (searchParams.has('tlsCertificateKeyFilePassword')) {
     secrets.tlsCertificateKeyFilePassword =
-      uri.searchParams.get('tlsCertificateKeyFilePassword') || undefined;
-    uri.searchParams.delete('tlsCertificateKeyFilePassword');
+      searchParams.get('tlsCertificateKeyFilePassword') || undefined;
+    searchParams.delete('tlsCertificateKeyFilePassword');
   }
 
-  if (uri.searchParams.has('proxyPassword')) {
-    secrets.proxyPassword = uri.searchParams.get('proxyPassword') || undefined;
-    uri.searchParams.delete('proxyPassword');
+  if (searchParams.has('proxyPassword')) {
+    secrets.proxyPassword = searchParams.get('proxyPassword') || undefined;
+    searchParams.delete('proxyPassword');
   }
 
-  const authMechanismProperties = new CommaAndColonSeparatedRecord(
-    uri.searchParams.get('authMechanismProperties')
-  );
+  const authMechanismProperties =
+    new CommaAndColonSeparatedRecord<AuthMechanismProperties>(
+      searchParams.get('authMechanismProperties')
+    );
 
   if (authMechanismProperties.has('AWS_SESSION_TOKEN')) {
     secrets.awsSessionToken = authMechanismProperties.get('AWS_SESSION_TOKEN');
     authMechanismProperties.delete('AWS_SESSION_TOKEN');
 
     if (authMechanismProperties.toString()) {
-      uri.searchParams.set(
+      searchParams.set(
         'authMechanismProperties',
         authMechanismProperties.toString()
       );
     } else {
-      uri.searchParams.delete('authMechanismProperties');
+      searchParams.delete('authMechanismProperties');
     }
   }
 

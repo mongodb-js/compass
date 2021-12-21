@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   changeDatabaseName,
@@ -23,7 +24,8 @@ describe('create database name module', () => {
     it('returns the action', () => {
       expect(changeDatabaseName('test')).to.deep.equal({
         type: CHANGE_DATABASE_NAME,
-        name: 'test'
+        name: 'test',
+        collections: []
       });
     });
   });

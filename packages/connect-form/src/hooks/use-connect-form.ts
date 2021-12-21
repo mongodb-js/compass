@@ -1,6 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
+import type { MongoClientOptions } from 'mongodb';
 
 import { defaultConnectionString } from '../constants/default-connection';
 import {
@@ -215,6 +216,8 @@ export function handleConnectionFormFieldUpdate({
   errors: ConnectionFormError[];
 } {
   const updatedConnectionStringUrl = connectionStringUrl.clone();
+  const updatedSearchParams =
+    updatedConnectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   switch (action.type) {
     case 'add-new-host': {
@@ -229,8 +232,8 @@ export function handleConnectionFormFieldUpdate({
         0,
         newHost
       );
-      if (updatedConnectionStringUrl.searchParams.get('directConnection')) {
-        updatedConnectionStringUrl.searchParams.delete('directConnection');
+      if (updatedSearchParams.get('directConnection')) {
+        updatedSearchParams.delete('directConnection');
       }
 
       return {
@@ -275,11 +278,9 @@ export function handleConnectionFormFieldUpdate({
     case 'update-direct-connection': {
       const { isDirectConnection } = action;
       if (isDirectConnection) {
-        updatedConnectionStringUrl.searchParams.set('directConnection', 'true');
-      } else if (
-        updatedConnectionStringUrl.searchParams.get('directConnection')
-      ) {
-        updatedConnectionStringUrl.searchParams.delete('directConnection');
+        updatedSearchParams.set('directConnection', 'true');
+      } else if (updatedSearchParams.get('directConnection')) {
+        updatedSearchParams.delete('directConnection');
       }
 
       return {

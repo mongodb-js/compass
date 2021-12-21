@@ -37,14 +37,8 @@ const homePageContentStyles = css({
 });
 
 export default function Workspace({
-  instanceLoadingStatus,
-  errorLoadingInstanceMessage,
-  isDataLake,
   namespace,
 }: {
-  instanceLoadingStatus: InstanceLoadedStatus;
-  errorLoadingInstanceMessage: string | null;
-  isDataLake: boolean;
   namespace: Namespace;
 }): React.ReactElement {
   const SidebarComponent = useAppRegistryComponent(
@@ -61,12 +55,7 @@ export default function Workspace({
     <div data-test-id="home-view" className={homeViewStyles}>
       <div className={homePageStyles}>
         <div className={homePageContentStyles}>
-          <WorkspaceContent
-            namespace={namespace}
-            instanceLoadingStatus={instanceLoadingStatus}
-            errorLoadingInstanceMessage={errorLoadingInstanceMessage}
-            isDataLake={isDataLake}
-          />
+          <WorkspaceContent namespace={namespace} />
         </div>
         {SidebarComponent && <SidebarComponent />}
         {FindInPage && <FindInPage />}

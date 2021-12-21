@@ -1,5 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
 import { Banner } from '@mongodb-js/compass-components';
 
@@ -44,10 +46,6 @@ describe('CreateDatabaseModal [Component]', () => {
 
     it('displays the modal', () => {
       expect(component.find(ConfirmationModal)).to.be.present();
-    });
-
-    it('renders the correct root classname', () => {
-      expect(component.find(`.${styles['create-database-modal']}`)).to.be.present();
     });
 
     it('renders the header text', () => {

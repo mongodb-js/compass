@@ -43,12 +43,18 @@ export {
 } from '@leafygreen-ui/toast';
 export { default as Toggle } from '@leafygreen-ui/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-export { default as Tooltip } from '@leafygreen-ui/tooltip';
+export { Tooltip } from './components/tooltip';
 export {
+  H1,
   H2,
   H3,
-  Link,
   Subtitle,
+  Body,
+  InlineCode,
+  InlineKeyCode,
+  Disclaimer,
+  Overline,
+  Link,
   Label,
   Description,
 } from '@leafygreen-ui/typography';
@@ -66,4 +72,29 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
-export { ContentWithFallback } from './components/content-with-fallback';
+export {
+  ContentWithFallback,
+  FadeInPlaceholder,
+} from './components/content-with-fallback';
+export {
+  default as emotion,
+  flush,
+  hydrate,
+  cx,
+  merge,
+  getRegisteredStyles,
+  injectGlobal,
+  keyframes,
+  css,
+  sheet,
+  cache,
+} from '@leafygreen-ui/emotion';
+export { InlineDefinition } from './components/inline-definition';
+import type { glyphs } from '@leafygreen-ui/icon';
+export type IconGlyph = Extract<keyof typeof glyphs, string>;
+export {
+  SegmentedControl,
+  SegmentedControlOption,
+} from '@leafygreen-ui/segmented-control';
+export { Placeholder } from './components/placeholder';
+export { useDOMRect } from './hooks/use-dom-rect';

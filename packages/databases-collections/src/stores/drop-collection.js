@@ -20,11 +20,10 @@ store.onActivated = (appRegistry) => {
    * When needing to drop a collection from elsewhere, the app registry
    * event is emitted.
    *
-   * @param {String} databaseName - The database name.
-   * @param {String} name - The collection name.
+   * @param {{ database: string, collection: string }} ns Parsed namespace
    */
-  appRegistry.on('open-drop-collection', (databaseName, name) => {
-    store.dispatch(open(name, databaseName));
+  appRegistry.on('open-drop-collection', ({ database, collection }) => {
+    store.dispatch(open(collection, database));
   });
 };
 
