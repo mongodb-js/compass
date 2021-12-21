@@ -9,8 +9,6 @@ const fields: IFormField[] = [
     type: 'text',
     placeholder: 'Proxy Hostname',
     optional: true,
-    validation: /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-    validationMessage: 'Hostname must be a valid host',
   },
   {
     key: 'port',
@@ -19,8 +17,6 @@ const fields: IFormField[] = [
     placeholder: 'Proxy Tunnel Port',
     optional: true,
     defaultValue: '1080',
-    validation: /^[0-9]+$/,
-    validationMessage: 'Port must be a valid',
   },
   {
     key: 'username',

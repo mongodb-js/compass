@@ -85,6 +85,7 @@ function ConnectForm({
             disabled={!!connectionStringInvalidError}
             connectionStringUrl={editingConnectionStringUrl}
             updateConnectionFormField={updateConnectionFormField}
+            connectionOptions={initialConnectionInfo.connectionOptions}
           />
         </div>
         <ConnectFormActions

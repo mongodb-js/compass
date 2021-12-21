@@ -1,17 +1,24 @@
 import React, { ChangeEvent, useState, useCallback } from 'react';
 import { css } from '@emotion/css';
-
+import { ConnectionOptions } from 'mongodb-data-service';
 import { RadioBox, RadioBoxGroup, spacing } from '@mongodb-js/compass-components';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import Identity from './identity';
-import None from './none';
-import Password from './password';
-import Socks from './socks';
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import { ConnectionFormError } from '../../../utils/connect-form-errors';
+
+import Identity from './ssh-tunnel-identity';
+import None from './ssh-tunnel-none';
+import Password from './ssh-tunnel-password';
+import Socks from './ssh-tunnel-socks';
 
 interface TabOption {
   id: string;
   title: string;
-  component: React.FC;
+  component: React.FC<{
+    sshTunnelOptions: ConnectionOptions['sshTunnel'];
+    onConnectionOptionChanged: (key: string, value: string | number) => void;
+  }>;
 }
 
 const options: TabOption[] = [
@@ -41,7 +48,16 @@ const containerStyles = css({
   marginTop: spacing[4]
 });
 
-function SSHTunnel(): React.ReactElement {
+function SSHTunnel({
+  connectionOptions,
+  updateConnectionFormField,
+}: {
+  errors: ConnectionFormError[];
+  connectionStringUrl: ConnectionStringUrl;
+  hideError: (errorIndex: number) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
+  connectionOptions?: ConnectionOptions;
+}): React.ReactElement {
   const [selectedOption, setSelectedOption] = useState(options[0]);
 
   const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +67,14 @@ function SSHTunnel(): React.ReactElement {
       setSelectedOption(item);
     }
   }, []);
+
+  const onConnectionOptionChanged = useCallback((key: string, value: string | number) => {
+    updateConnectionFormField({
+      action: 'update-connection-option',
+      key,
+      value,
+    })
+  }, [updateConnectionFormField]);
 
   const SSLOptionContent = selectedOption.component;
 
@@ -63,7 +87,7 @@ function SSHTunnel(): React.ReactElement {
           );
         })}
       </RadioBoxGroup>
-      <SSLOptionContent />
+      {connectionOptions && <SSLOptionContent sshTunnelOptions={connectionOptions.sshTunnel} onConnectionOptionChanged={onConnectionOptionChanged}/>}
     </div>
   );
 }

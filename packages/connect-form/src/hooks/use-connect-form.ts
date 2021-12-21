@@ -105,6 +105,11 @@ type ConnectionFormFieldActions =
   | {
       type: 'update-connection-schema';
       isSrv: boolean;
+    }
+  | {
+      type: 'update-connection-option';
+      key: string;
+      value: string | number;
     };
 
 export type UpdateConnectionFormField = (
@@ -216,6 +221,8 @@ export function handleConnectionFormFieldUpdate({
 } {
   const updatedConnectionStringUrl = connectionStringUrl.clone();
 
+  console.log({...action, connectionOptions});
+
   switch (action.type) {
     case 'add-new-host': {
       const { hostIndexToAddAfter } = action;
@@ -325,6 +332,17 @@ export function handleConnectionFormFieldUpdate({
           ],
         };
       }
+    }
+    case 'update-connection-option': {
+      console.log(action);
+      const _connectionOptions = connectionOptions ?? {};
+      return {
+        connectionStringUrl,
+        connectionOptions: {
+          ..._connectionOptions,
+        },
+        errors: [],
+      };
     }
   }
 }

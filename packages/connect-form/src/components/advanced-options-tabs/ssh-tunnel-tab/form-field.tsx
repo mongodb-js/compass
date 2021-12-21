@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState, useCallback } from 'react';
+import React, { ChangeEvent } from 'react';
 import { css } from '@emotion/css';
 import { TextInput, FileInput, spacing } from '@mongodb-js/compass-components';
 
@@ -10,7 +10,7 @@ const inputFieldStyles = css({
   marginBottom: spacing[3],
 });
 
-export type FormFieldValues = string | string[];
+export type FormFieldValues = string | number | string[];
 export interface IFormField {
   label: string;
   placeholder: string;
@@ -20,99 +20,31 @@ export interface IFormField {
   defaultValue?: FormFieldValues;
   helpText?: React.ReactElement;
   errorMessage?: string;
-  validation?: RegExp | ((value: FormFieldValues) => boolean);
-  validationMessage?: string;
+  value?: FormFieldValues;
 }
-interface IFormFieldValueState {
-  [key: string]: FormFieldValues
-};
-interface IFormFieldErrorState {
-  [key: string]: string
-};
+
 interface IFormFieldProps {
   fields: IFormField[];
-  onFieldChanged: (key: string, value: FormFieldValues) => void;
-}
-
-const fieldPassesValidation = ({ validation, optional }: IFormField, value: FormFieldValues) => {
-  if (!validation) {
-    return true;
-  }
-  if (optional && value === '') {
-    return true;
-  }
-
-  if (typeof validation === 'function') {
-    return validation(value);
-  }
-
-  const values = typeof value === 'string' ? [value] : value;
-  let isValid = true;
-  values.forEach((v: string) => {
-    if (!validation.exec(v)) {
-      isValid = false;
-    }
-  });
-
-  return isValid;
+  onFieldChanged: (key: string, value: any) => void;
 }
 
 function FormField({
   fields,
   onFieldChanged,
 }: IFormFieldProps): React.ReactElement {
-  const defaultValues: IFormFieldValueState = {};
-  fields.forEach(({key, defaultValue}) => {
-    if (defaultValue) {
-      defaultValues[key] = defaultValue;
-    }
-  });
-
-  const [formValues, setFormValues] = useState<IFormFieldValueState>(defaultValues);
-  const [formErrors, setFormErrors] = useState<IFormFieldErrorState>({});
-
-  const formFieldChanged = useCallback((key: string, value: FormFieldValues) => {
-    setFormValues({
-      ...formValues,
-      [key]: value,
-    });
-    const fieldIndex = fields.findIndex((x) => x.key === key);
-    const field = fields[fieldIndex];
-    if (!field) {
-      return;
-    }
-    if(fieldPassesValidation(field, value)) {
-      delete formErrors[key];
-      onFieldChanged(key, value);
-    } else {
-      formErrors[key] = field.validationMessage ?? 'Invalid value';
-    }
-    setFormErrors(formErrors);
-  }, [onFieldChanged, setFormValues, formValues, setFormErrors, formErrors, fields]);
-
-  const getFormInputState = useCallback(({errorMessage, key}: Pick<IFormField, 'errorMessage' | 'key'>) => {
-    if (formErrors[key] || errorMessage) {
-      return 'error';
-    }
-    if (formValues[key]) {
-      return 'valid';
-    }
-    return 'none';
-  }, [formErrors, formValues]);
 
   const renderFileInput = ({key, label, helpText, errorMessage}: IFormField) => {
-    const value = formValues[key];
+    // const value = formValues[key];
     return (
-      <div className={inputFieldStyles}>
+      <div className={inputFieldStyles} key={key}>
         <FileInput 
           onChange={(files: string[]) => {
-            formFieldChanged(key, files);
+            onFieldChanged(key, files);
           }}
           id={key}
-          key={key}
           label={label}
-          error={Boolean(formErrors[key] || errorMessage)}
-          values={(value as string[])}
+          error={!!errorMessage}
+          // values={(value as string[])}
           helpText={helpText}
           className={css({
             'label': {
@@ -128,7 +60,7 @@ function FormField({
     return (
       <TextInput
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
-          formFieldChanged(key, event.target.value);
+          onFieldChanged(key, event.target.value);
         }}
         className={inputFieldStyles}
         key={key}
@@ -136,9 +68,9 @@ function FormField({
         type={type}
         optional={optional}
         placeholder={placeholder}
-        value={(formValues[key] as string)}
-        errorMessage={formErrors[key] ?? errorMessage}
-        state={getFormInputState({errorMessage, key})}
+        // value={(formValues[key] as string)}
+        errorMessage={errorMessage}
+        // state={getFormInputState({errorMessage, key})}
       />
     );
   }
