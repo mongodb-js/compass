@@ -16,10 +16,9 @@ describe('Connection Component', function () {
 
   describe('when it has a lastUsed date', function () {
     it('shows the date as a string', function () {
-      
       const lastUsed = new Date('Dec 17, 1995, 12:00 AM');
-      const stub = sinon.stub(lastUsed, 'toLocaleString').returns('Dec, 17')
-  
+      const stub = sinon.stub(lastUsed, 'toLocaleString').returns('Dec, 17');
+
       render(
         <Connection
           isActive={false}
@@ -43,7 +42,7 @@ describe('Connection Component', function () {
           minute: 'numeric',
           month: 'short',
           year: 'numeric',
-        }
+        },
       ]);
     });
   });
