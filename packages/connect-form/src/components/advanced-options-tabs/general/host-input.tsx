@@ -8,6 +8,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../../utils/connect-form-errors';
@@ -44,7 +45,9 @@ function HostInput({
   const { isSRV } = connectionStringUrl;
 
   const showDirectConnectionInput =
-    connectionStringUrl.searchParams.get('directConnection') === 'true' ||
+    connectionStringUrl
+      .typedSearchParams<MongoClientOptions>()
+      .get('directConnection') === 'true' ||
     (!connectionStringUrl.isSRV && hosts.length === 1);
 
   useEffect(() => {
