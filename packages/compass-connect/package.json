@@ -28,7 +28,6 @@
     "test:karma": "npm run rebuild-keytar && cross-env NODE_ENV=test xvfb-maybe karma start",
     "test:mocha": "cross-env NODE_ENV=test mocha-webpack \"./src/**/*.spec.js\"",
     "cover": "nyc npm run test:mocha",
-    "precheck": "npm run compile",
     "check": "npm run lint && npm run depcheck",
     "prepublishOnly": "npm run compile",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
