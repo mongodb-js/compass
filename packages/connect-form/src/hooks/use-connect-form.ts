@@ -2,7 +2,7 @@ import { useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 
-import { defaultConnectionString } from '../constants/default-connection';
+import { defaultConnectionString, defaultSSHPort } from '../constants/default-connection';
 import {
   ConnectionFormWarning,
   getConnectFormWarnings,
@@ -16,6 +16,7 @@ import { defaultHostname, defaultPort } from '../constants/default-connection';
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
 import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
+import { validateSshOptions } from '../utils/validate-ssh-options';
 
 export interface ConnectFormState {
   connectionStringInvalidError: string | null;
@@ -88,9 +89,11 @@ interface UpdateHostAction {
   newHostValue: string;
 }
 
+export type SSHConnectionOptions = NonNullable<ConnectionOptions['sshTunnel']>;
+
 interface UpdateConnectionOptions {
   type: 'update-connection-options';
-  key: keyof NonNullable<ConnectionOptions['sshTunnel']>;
+  key: keyof SSHConnectionOptions;
   value: string | number;
 }
 
@@ -217,19 +220,30 @@ function handleUpdateConnectionOptions({
 }) {
   const { key, value } = action;
 
+  const {isInvalid, errors} = validateSshOptions(key, value, connectionStringUrl.isSRV, connectionOptions.sshTunnel);
+
   if (!connectionOptions.sshTunnel) {
     connectionOptions.sshTunnel = {
       host: '',
       username: '',
-      port: 22,
+      port: defaultSSHPort,
     };
   }
 
   connectionOptions.sshTunnel[key] = value as any; // todo ts fix
 
   console.log({
-    ...connectionOptions,
-    connectionString: connectionStringUrl.toString(),
+    connectionStringUrl,
+    connectionOptions: {
+      ...connectionOptions,
+      connectionString: connectionStringUrl.toString(),
+    },
+    errors: [
+      {
+        fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH,
+        errors,
+      },
+    ],
   });
 
   return {
@@ -238,7 +252,12 @@ function handleUpdateConnectionOptions({
       ...connectionOptions,
       connectionString: connectionStringUrl.toString(),
     },
-    errors: [],
+    errors: [
+      {
+        fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH,
+        errors,
+      },
+    ],
   };
 }
 

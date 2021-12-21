@@ -8,21 +8,22 @@ import {
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../../utils/connect-form-errors';
+import { SSHConnectionOptions, UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import { ConnectionFormError, SSHTunnelFieldError, SSHFormErrors } from '../../../utils/connect-form-errors';
 
 import Identity from './ssh-tunnel-identity';
 import None from './ssh-tunnel-none';
 import Password from './ssh-tunnel-password';
 import Socks from './ssh-tunnel-socks';
+import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
 
 interface TabOption {
   id: string;
   title: string;
   component: React.FC<{
-    sshTunnelOptions: ConnectionOptions['sshTunnel'];
-    onConnectionOptionChanged: (key: string, value: string | number) => void;
-    errors?: { [key: string]: string };
+    sshTunnelOptions?: SSHConnectionOptions;
+    onConnectionOptionChanged: (key: keyof SSHConnectionOptions, value: string | number) => void;
+    errors?: SSHFormErrors;
   }>;
 }
 
@@ -75,7 +76,7 @@ function SSHTunnel({
   }, []);
 
   const onConnectionOptionChanged = useCallback(
-    (key: string, value: string | number) => {
+    (key: keyof SSHConnectionOptions, value: string | number) => {
       return updateConnectionFormField({
         type: 'update-connection-options',
         key,
@@ -85,7 +86,7 @@ function SSHTunnel({
     [updateConnectionFormField]
   );
 
-  const sshTunnelErrors = errors.find((x) => x.fieldName === 'SSH_TUNNEL');
+  const sshTunnelErrors: SSHTunnelFieldError | undefined = errors.find(({fieldName}) => fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SSH);
 
   const SSLOptionContent = selectedOption.component;
 
@@ -104,11 +105,13 @@ function SSHTunnel({
         })}
       </RadioBoxGroup>
       {connectionOptions && (
-        <SSLOptionContent
-          errors={sshTunnelErrors?.errors}
-          sshTunnelOptions={connectionOptions.sshTunnel}
-          onConnectionOptionChanged={onConnectionOptionChanged}
-        />
+        <div className={containerStyles}>
+          <SSLOptionContent
+            errors={sshTunnelErrors?.errors}
+            sshTunnelOptions={connectionOptions.sshTunnel}
+            onConnectionOptionChanged={onConnectionOptionChanged}
+          />
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 import { ConnectionOptions } from 'mongodb-data-service';
 
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
+import { SSHConnectionOptions } from '../hooks/use-connect-form';
 
 interface GenericConnectionError {
   fieldName: undefined;
@@ -18,23 +19,20 @@ interface SchemaFieldError {
   message: string;
 }
 
-interface SSHTunnelFieldErrors {
-  fieldName: 'SSH_TUNNEL';
-  errors: {
-    host?: string;
-    port?: string;
-    username?: string;
-    password?: string;
-    identityKeyFile?: string;
-    identityKeyPassphrase?: string;
-  };
+export interface SSHTunnelFieldError {
+  fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH;
+  errors: SSHFormErrors;
+}
+
+export type SSHFormErrors = {
+  [key in keyof SSHConnectionOptions]?: string;
 }
 
 export type ConnectionFormError =
   | GenericConnectionError
   | HostFieldError
   | SchemaFieldError
-  | SSHTunnelFieldErrors;
+  | SSHTunnelFieldError;
 
 export function getConnectFormErrors(
   connectionOptions: ConnectionOptions

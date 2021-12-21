@@ -2,30 +2,34 @@ import { ConnectionOptions } from 'mongodb-data-service';
 import React, { ChangeEvent } from 'react';
 import { css } from '@emotion/css';
 import { TextInput, spacing } from '@mongodb-js/compass-components';
+import { SSHConnectionOptions } from '../../../hooks/use-connect-form';
+import { defaultSSHPort } from '../../../constants/default-connection';
 
-const containerStyles = css({
-  marginTop: spacing[4],
-});
 const inputFieldStyles = css({
   width: '50%',
   marginBottom: spacing[3],
 });
 
+type PasswordFormKeys = keyof Omit<SSHConnectionOptions, 'identityKeyFile' | 'identityKeyPassphrase'>;
+type PasswordFormErrors = {
+  [key in PasswordFormKeys]?: string;
+};
+
 function Password({
   sshTunnelOptions,
   onConnectionOptionChanged,
-  errors = {},
+  errors,
 }: {
   sshTunnelOptions: ConnectionOptions['sshTunnel'];
-  onConnectionOptionChanged: (key: string, value: string | number) => void;
-  errors?: { [key: string]: string };
+  onConnectionOptionChanged: (key: PasswordFormKeys, value: string | number) => void;
+  errors?: PasswordFormErrors;
 }): React.ReactElement {
-  const formFieldChanged = (key: string, value: string | number) => {
+  const formFieldChanged = (key: PasswordFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
   };
 
   return (
-    <div className={containerStyles}>
+    <>
       <TextInput
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
           formFieldChanged('host', event.target.value);
@@ -50,7 +54,7 @@ function Password({
         type={'number'}
         optional={false}
         placeholder={'SSH Port'}
-        value={(sshTunnelOptions?.port ?? 22).toString()}
+        value={(sshTunnelOptions?.port ?? defaultSSHPort).toString()}
         errorMessage={errors?.port}
         state={errors?.port ? 'error' : 'none'}
       />
@@ -82,7 +86,7 @@ function Password({
         errorMessage={errors?.password}
         state={errors?.password ? 'error' : 'none'}
       />
-    </div>
+    </>
   );
 }
 

@@ -99,7 +99,7 @@ function FileInput({
   error?: boolean;
   variant?: Variant;
   link?: string;
-  helpText?: React.FC;
+  helpText?: React.Component;
   values?: string[];
   className?: string;
 }): React.ReactElement {
