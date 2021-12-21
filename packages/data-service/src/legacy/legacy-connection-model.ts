@@ -157,9 +157,8 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
 export function convertConnectionModelToInfo(
   model: LegacyConnectionModelProperties
 ): ConnectionInfo {
-  const legacyModel: LegacyConnectionModel = (model instanceof ConnectionModel)
-    ? model
-    : new ConnectionModel(model);
+  const legacyModel: LegacyConnectionModel =
+    model instanceof ConnectionModel ? model : new ConnectionModel(model);
 
   // Already migrated
   if (legacyModel.connectionInfo) {

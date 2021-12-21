@@ -31,7 +31,7 @@ describe('LegacyConnectionModel', function () {
         authStrategy: 'NONE',
         readPreference: 'primary',
         sslMethod: 'ALL',
-        sshTunnelPort: 22
+        sshTunnelPort: 22,
       };
       const { id } = convertConnectionModelToInfo(rawModel);
 

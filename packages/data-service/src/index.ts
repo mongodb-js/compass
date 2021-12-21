@@ -25,5 +25,5 @@ export {
   convertConnectionInfoToModel,
   ConnectionSecrets,
   extractSecrets,
-  mergeSecrets
+  mergeSecrets,
 };
