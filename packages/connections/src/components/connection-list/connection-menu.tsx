@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useReducer } from 'react';
+import React, { useEffect, useRef, useReducer, useState } from 'react';
 import {
   IconButton,
   Icon,
@@ -10,7 +10,7 @@ import {
   css,
   cx,
 } from '@mongodb-js/compass-components';
-
+import { ConnectionInfo } from 'mongodb-data-service';
 const dropdownButtonStyles = css({
   position: 'absolute',
   right: spacing[1],
@@ -74,15 +74,22 @@ function reducer(state: State, action: Action): State {
 function ConnectionMenu({
   connectionString,
   iconColor,
+  connectionInfo,
+  duplicateConnection,
+  removeConnection
 }: {
   connectionString: string;
   iconColor: string;
+  connectionInfo: ConnectionInfo;
+  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
+  removeConnection: (connectionInfo: ConnectionInfo) => void;
+
 }): React.ReactElement {
   const [{ error, toastOpen, toastVariant }, dispatch] = useReducer(reducer, {
     ...defaultToastState,
   });
   const toastHideTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
   function startToastHideTimeout() {
     if (toastHideTimeout.current) {
       // If we're currently showing a toast, cancel that previous timeout.
@@ -164,9 +171,19 @@ function ConnectionMenu({
             <Icon glyph="Ellipsis" />
           </IconButton>
         }
+        open={menuIsOpen}
+        setOpen={setMenuIsOpen}
       >
-        <MenuItem onClick={() => copyConnectionString(connectionString)}>
+        <MenuItem onClick={async () => { await copyConnectionString(connectionString); setMenuIsOpen(false)} }>
           Copy Connection String
+        </MenuItem>
+        { connectionInfo.favorite && 
+          <MenuItem onClick={() => { duplicateConnection(connectionInfo); setMenuIsOpen(false )} }>
+            Duplicate
+          </MenuItem>
+        }
+        <MenuItem onClick={() => removeConnection(connectionInfo)}>
+          Remove
         </MenuItem>
       </Menu>
     </>

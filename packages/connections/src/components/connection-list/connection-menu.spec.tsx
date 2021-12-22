@@ -4,11 +4,18 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import ConnectionMenu from './connection-menu';
+import { ConnectionInfo } from 'mongodb-data-service'
 
 describe('ConnectionMenu Component', function () {
-  describe('when rendered', function () {
+  describe('on non-favorite item', function() {
     beforeEach(function () {
-      render(<ConnectionMenu connectionString={'mongodb://kaleesi'} />);
+      const connectionInfo: ConnectionInfo = {
+        id: 'test-id',
+        connectionOptions: {
+          connectionString: 'mongodb://kaleesi',
+        }
+      }
+      render(<ConnectionMenu connectionString={'mongodb://kaleesi'} duplicateConnection={() => true} removeConnection={() => true} connectionInfo={connectionInfo} iconColor='#EAEAEA'/>);
     });
 
     it('shows a button', function () {
@@ -17,6 +24,55 @@ describe('ConnectionMenu Component', function () {
 
     it('does not show the menu items', function () {
       expect(screen.queryByText('Copy Connection String')).to.not.exist;
+      expect(screen.queryByText('Duplicate')).to.not.exist;
+      expect(screen.queryByText('Remove')).to.not.exist;
+    });
+
+    describe('when clicked', function () {
+      beforeEach(function () {
+        const button = screen.getByRole('button');
+
+        fireEvent(
+          button,
+          new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+          })
+        );
+      });
+
+      it('shows the menu items without the "Duplicate" option', function () {
+        expect(screen.getByText('Copy Connection String')).to.be.visible;
+        expect(screen.queryByText('Duplicate')).to.throw;
+        expect(screen.getByText('Remove')).to.be.visible;
+      });
+    });
+  })
+  describe('on favorite item', function () {
+    beforeEach(function () {
+      const connectionInfo: ConnectionInfo = {
+        id: 'test-id',
+        favorite: {
+          name: 'First Server'
+        },
+        connectionOptions: {
+          connectionString: 'mongodb://kaleesi',
+        }
+        
+      }
+      render(<ConnectionMenu connectionString={'mongodb://kaleesi'} duplicateConnection={() => true} removeConnection={() => true} connectionInfo={connectionInfo} iconColor='#EAEAEA'/>);
+      
+
+    });
+
+    it('shows a button', function () {
+      expect(screen.getByRole('button')).to.be.visible;
+    });
+
+    it('does not show the menu items', function () {
+      expect(screen.queryByText('Copy Connection String')).to.not.exist;
+      expect(screen.queryByText('Duplicate')).to.not.exist;
+      expect(screen.queryByText('Remove')).to.not.exist;
     });
 
     describe('when clicked', function () {
@@ -34,6 +90,8 @@ describe('ConnectionMenu Component', function () {
 
       it('shows the menu items', function () {
         expect(screen.getByText('Copy Connection String')).to.be.visible;
+        expect(screen.getByText('Duplicate')).to.be.visible;
+        expect(screen.getByText('Remove')).to.be.visible;
       });
 
       describe('when copy connection is clicked', function () {
@@ -174,4 +232,46 @@ describe('ConnectionMenu Component', function () {
       });
     });
   });
+  describe('function calls', function() {
+    it('should call the removeConnection function', function() {
+      const connectionInfo: ConnectionInfo = {
+        id: 'test-id',
+        favorite: {
+          name: 'First Server'
+        },
+        connectionOptions: {
+          connectionString: 'mongodb://kaleesi',
+        }
+      }
+      const mockDuplicateConnection = sinon.fake.resolves(null);
+      const mockRemoveConnection = sinon.fake.resolves(null);
+      render(<ConnectionMenu connectionString={'mongodb://kaleesi'} duplicateConnection={mockDuplicateConnection} removeConnection={mockRemoveConnection} connectionInfo={connectionInfo} iconColor='#EAEAEA'/>);
+      
+      fireEvent(
+        screen.getByRole('button'),
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+      const duplicateConnectionButton = screen.getByText('Duplicate');
+      fireEvent(
+        duplicateConnectionButton,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+      const removeConnectionButton = screen.getByText('Remove');
+      fireEvent(
+        removeConnectionButton,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+      expect(mockDuplicateConnection.called).to.equal(true);      
+      expect(mockRemoveConnection.called).to.equal(true);
+    })
+  })
 });

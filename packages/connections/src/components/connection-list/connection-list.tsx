@@ -142,6 +142,8 @@ function ConnectionList({
   setActiveConnectionId,
   onDoubleClick,
   removeAllRecentsConnections,
+  duplicateConnection,
+  removeConnection
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];
@@ -149,6 +151,8 @@ function ConnectionList({
   setActiveConnectionId: (connectionId?: string) => void;
   onDoubleClick: (connectionInfo: ConnectionInfo) => void;
   removeAllRecentsConnections: () => void;
+  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
+  removeConnection: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const [recentHeaderHover, setRecentHover] = useState(false);
   const favoriteConnections = connections
@@ -208,6 +212,8 @@ function ConnectionList({
                 connectionInfo={connectionInfo}
                 onClick={() => setActiveConnectionId(connectionInfo.id)}
                 onDoubleClick={onDoubleClick}
+                removeConnection={removeConnection}
+                duplicateConnection={duplicateConnection}
               />
             </li>
           ))}
@@ -243,6 +249,8 @@ function ConnectionList({
                 connectionInfo={connectionInfo}
                 onClick={() => setActiveConnectionId(connectionInfo.id)}
                 onDoubleClick={onDoubleClick}
+                removeConnection={removeConnection}
+                duplicateConnection={duplicateConnection}
               />
             </li>
           ))}
