@@ -109,7 +109,11 @@ export const createDatabase = (data) => {
         prepareMetrics(collection).then((metrics) => {
           global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
         });
-        global.hadronApp.appRegistry.emit('refresh-data');
+        global.hadronApp.appRegistry.emit('collection-created', {
+          ns: `${dbName}.${collName}`,
+          database: dbName,
+          collection: collName,
+        });
         dispatch(reset());
       });
     } catch (e) {

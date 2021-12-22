@@ -1,30 +1,4 @@
-import zipObject from 'lodash.zipobject';
-import sortByOrder from 'lodash.sortbyorder';
-import { isEmpty } from 'lodash';
-
-import { INITIAL_STATE as COLUMNS } from './columns';
-import { UPDATE_SORT } from '../sort';
-
-export const TIME_SERIES_COLLECTION_TYPE = 'timeseries';
-export const VIEW_COLLECTION_TYPE = 'view';
-
-/**
- * Need extra columns to map.
- */
-const EXTRA_COLUMNS = COLUMNS.concat([
-  '_id',
-  'readonly',
-  'capped',
-  'view_on',
-  'type',
-  'pipeline'
-]);
-
-export const PROPERTIES_COLLATION = 'collation';
-export const PROPERTIES_TIME_SERIES = 'time-series';
-export const PROPERTIES_CAPPED = 'capped';
-export const PROPERTIES_VIEW = 'view';
-export const PROPERTIES_READ_ONLY = 'readonly';
+import { CHANGE_DATABASE_NAME } from '../database-name';
 
 /**
  * The module prefix.
@@ -34,17 +8,7 @@ const PREFIX = 'databases-collections/collections';
 /**
  * The load collections action name.
  */
-export const LOAD_COLLECTIONS = `${PREFIX}/LOAD_COLLECTIONS`;
-
-/**
- * Default column.
- */
-const NAME = 'Collection Name';
-
-/**
- * Default sort.
- */
-const ASC = 'asc';
+export const SET_COLLECTIONS = `${PREFIX}/SET_COLLECTIONS`;
 
 /**
  * The initial state of the collections attribute.
@@ -60,95 +24,14 @@ export const INITIAL_STATE = [];
  * @returns {Array} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === UPDATE_SORT) {
-    return sort(state, action.column, action.order);
-  } else if (action.type === LOAD_COLLECTIONS) {
-    return load(action.collections);
+  switch (action.type) {
+    case SET_COLLECTIONS:
+    case CHANGE_DATABASE_NAME:
+      return action.collections;
+    default:
+      return state;
   }
-  return state;
 }
-
-/**
- * Sort the collection list by column and order.
- *
- * @param {Array} collections - The unsorted collection list.
- * @param {String} column - The column to sort by.
- * @param {String} order - The order to sort by.
- *
- * @returns {Array} The sorted list.
- */
-const sort = (collections, column, order) => {
-  return sortByOrder(collections, column || NAME, order || ASC);
-};
-
-function getProperties(coll) {
-  const properties = [];
-
-  if (!isEmpty(coll.collation)) {
-    properties.push({
-      name: PROPERTIES_COLLATION,
-      options: coll.collation
-    });
-  }
-
-  if (coll.type === 'timeseries') {
-    properties.push({
-      name: PROPERTIES_TIME_SERIES,
-      options: {}
-    });
-  }
-
-  if (coll.type === 'view') {
-    properties.push({
-      name: PROPERTIES_VIEW,
-      options: {}
-    });
-  }
-
-  if (coll.capped) {
-    properties.push({
-      name: PROPERTIES_CAPPED,
-      options: {}
-    });
-  }
-
-  if (coll.readonly) {
-    properties.push({
-      name: PROPERTIES_READ_ONLY,
-      options: {}
-    });
-  }
-
-  return properties;
-}
-
-/**
- * Load collections to the UI friendly form.
- *
- * @param {Array} collections - The collections info.
- *
- * @return {Array} The mapped collections for the UI.
- */
-export const load = (collections) => {
-  return collections
-    .map((coll) => {
-      return zipObject(EXTRA_COLUMNS, [
-        coll.name, // Collection Name
-        coll.document_count, // Documents
-        coll.size / coll.document_count, // Avg. Document Size
-        coll.size, // Total Document Size
-        coll.index_count, // Num. Indexes
-        coll.index_size, // Total Index Size
-        getProperties(coll), // Properties
-        coll.ns || coll._id, // _id
-        coll.readonly, // readonly
-        coll.is_capped || coll.capped, // capped
-        coll.view_on, // view_on
-        coll.type, // type
-        coll.pipeline // pipeline
-      ]);
-    });
-};
 
 /**
  * Action creator for load collections events.
@@ -157,21 +40,7 @@ export const load = (collections) => {
  *
  * @returns {Object} The load collections action.
  */
-export const loadCollections = (collections) => ({
-  type: LOAD_COLLECTIONS,
+export const setCollections = (collections) => ({
+  type: SET_COLLECTIONS,
   collections: collections
-});
-
-/**
- * Action creator for sort collections events.
- *
- * @param {String} column - The column.
- * @param {String} order - The order.
- *
- * @returns {Object} The sort collections action.
- */
-export const sortCollections = (column, order) => ({
-  type: UPDATE_SORT,
-  column: column,
-  order: order
 });

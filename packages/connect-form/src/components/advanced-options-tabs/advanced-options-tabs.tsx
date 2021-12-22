@@ -5,8 +5,8 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import GeneralTab from './general-tab';
 import AuthenticationTab from './authentication-tab';
-import SSLTab from './ssl-tab';
 import SSHTunnelTab from './ssh-tunnel-tab/ssh-tunnel';
+import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../utils/connect-form-errors';
@@ -44,8 +44,9 @@ function AdvancedOptionsTabs({
   const tabs: TabObject[] = [
     { name: 'General', component: GeneralTab },
     { name: 'Authentication', component: AuthenticationTab },
-    { name: 'TLS/SSL', component: SSLTab },
+    { name: 'TLS/SSL', component: TLSTab },
     { name: 'Proxy/SSH Tunnel', component: SSHTunnelTab },
+    { name: 'SSH Tunnel', component: SSHTunnelTab },
     { name: 'Advanced', component: AdvancedTab },
   ];
 

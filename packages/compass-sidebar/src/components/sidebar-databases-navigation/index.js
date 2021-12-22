@@ -6,8 +6,15 @@ import { toggleDatabaseExpanded } from '../../modules/databases';
 
 function mapStateToProps(state) {
   const {
-    databases: { filterRegex, filteredDatabases, expandedDbList, activeNamespace },
+    databases: {
+      filterRegex,
+      filteredDatabases,
+      expandedDbList,
+      activeNamespace,
+    },
+    instance,
   } = state;
+  const isReady = !['initial', 'fetching'].includes(instance?.databasesStatus);
   const defaultExpanded = Boolean(filterRegex);
   const expanded = Object.fromEntries(
     filteredDatabases.map(({ name }) => [
@@ -19,8 +26,8 @@ function mapStateToProps(state) {
     process.env.HADRON_READONLY === 'true' ||
     state.isDataLake ||
     !state.isWritable;
-
   return {
+    isReady,
     isReadOnly,
     activeNamespace,
     databases: filteredDatabases,
@@ -43,10 +50,10 @@ const onNamespaceAction = (namespace, action) => {
         emit('open-drop-database', ns.database);
         return;
       case 'drop-collection':
-        emit('open-drop-collection', ns.database, ns.collection);
+        emit('open-drop-collection', ns);
         return;
       case 'create-collection':
-        emit('open-create-collection', ns.database);
+        emit('open-create-collection', ns);
         return;
       case 'open-in-new-tab':
         emit('sidebar-open-collection-in-new-tab', ns);

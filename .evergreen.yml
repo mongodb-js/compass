@@ -14,50 +14,56 @@ variables:
       bucket: mciuploads
       permissions: public-read
       content_type: application/octet-stream
+  - &get-artifact
+    command: s3.get
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      bucket: mciuploads
+      content_type: application/octet-stream
   - &compass-env
-      # NOTE: anything added here should probably also be added to the list
-      # in .evergreen/export-compass-env.js
-      WORKDIR: ${workdir}
-      CI: "1"
-      EVERGREEN: "1"
-      EVERGREEN_AUTHOR: ${author}
-      EVERGREEN_BRANCH_NAME: ${branch_name}
-      EVERGREEN_BUILD_ID: ${build_id}
-      EVERGREEN_BUILD_VARIANT: ${build_variant}
-      EVERGREEN_EXECUTION: ${execution}
-      EVERGREEN_IS_PATCH: ${is_patch}
-      EVERGREEN_PROJECT: ${project}
-      EVERGREEN_REVISION: ${revision}
-      EVERGREEN_TASK_ID: ${task_id}
-      EVERGREEN_TASK_NAME: ${task_name}
-      EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
-      EVERGREEN_VERSION_ID: ${version_id}
-      EVERGREEN_WORKDIR: ${workdir}
-      NODE_JS_VERSION: "14.17.5"
-      NPM_VERSION: "7"
-      # secrets
-      HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
-      HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
-      HADRON_METRICS_STITCH_APP_ID: ${metrics_stitch_app_id}
-      HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
-      E2E_TESTS_METRICS_URI: ${e2e_tests_metrics_string}
-      E2E_TESTS_ATLAS_HOST: ${e2e_tests_atlas_host}
-      E2E_TESTS_DATA_LAKE_HOST: ${e2e_tests_data_lake_host}
-      E2E_TESTS_SERVERLESS_HOST: ${e2e_tests_serverless_host}
-      E2E_TESTS_ANALYTICS_NODE_HOST: ${e2e_tests_analytics_node_host}
-      E2E_TESTS_FREE_TIER_HOST: ${e2e_tests_free_tier_host}
-      E2E_TESTS_ATLAS_USERNAME: ${e2e_tests_atlas_username}
-      E2E_TESTS_ATLAS_PASSWORD: ${e2e_tests_atlas_password}
-      E2E_TESTS_ATLAS_X509_PEM: ${e2e_tests_atlas_x509_pem}
-      NOTARY_URL: http://notary-service.build.10gen.cc:5000
-      NOTARY_AUTH_TOKEN: ${signing_auth_token}
-      NOTARY_SIGNING_KEY: ${signing_key_name}
-      NOTARY_SIGNING_COMMENT: Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}
-      APPLE_CREDENTIALS: '{\"appleUsername\": \"${apple_username}\", \"applePassword\": \"${apple_password}\"}'
-      GITHUB_TOKEN: ${devtoolsbot_github_token}
-      DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
-      DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
-
+    # NOTE: anything added here should probably also be added to the list
+    # in .evergreen/export-compass-env.js
+    WORKDIR: ${workdir}
+    CI: '1'
+    EVERGREEN: '1'
+    EVERGREEN_AUTHOR: ${author}
+    EVERGREEN_BRANCH_NAME: ${branch_name}
+    EVERGREEN_BUILD_ID: ${build_id}
+    EVERGREEN_BUILD_VARIANT: ${build_variant}
+    EVERGREEN_EXECUTION: ${execution}
+    EVERGREEN_IS_PATCH: ${is_patch}
+    EVERGREEN_PROJECT: ${project}
+    EVERGREEN_REVISION: ${revision}
+    EVERGREEN_TASK_ID: ${task_id}
+    EVERGREEN_TASK_NAME: ${task_name}
+    EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
+    EVERGREEN_VERSION_ID: ${version_id}
+    EVERGREEN_WORKDIR: ${workdir}
+    NODE_JS_VERSION: '14.17.5'
+    NPM_VERSION: '7'
+    # secrets
+    HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
+    HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
+    HADRON_METRICS_STITCH_APP_ID: ${metrics_stitch_app_id}
+    HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
+    E2E_TESTS_METRICS_URI: ${e2e_tests_metrics_string}
+    E2E_TESTS_ATLAS_HOST: ${e2e_tests_atlas_host}
+    E2E_TESTS_DATA_LAKE_HOST: ${e2e_tests_data_lake_host}
+    E2E_TESTS_SERVERLESS_HOST: ${e2e_tests_serverless_host}
+    E2E_TESTS_ANALYTICS_NODE_HOST: ${e2e_tests_analytics_node_host}
+    E2E_TESTS_FREE_TIER_HOST: ${e2e_tests_free_tier_host}
+    E2E_TESTS_ATLAS_USERNAME: ${e2e_tests_atlas_username}
+    E2E_TESTS_ATLAS_PASSWORD: ${e2e_tests_atlas_password}
+    E2E_TESTS_ATLAS_X509_PEM: ${e2e_tests_atlas_x509_pem}
+    NOTARY_URL: http://notary-service.build.10gen.cc:5000
+    NOTARY_AUTH_TOKEN: ${signing_auth_token}
+    NOTARY_SIGNING_KEY: ${signing_key_name}
+    NOTARY_SIGNING_COMMENT: Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}
+    APPLE_CREDENTIALS: '{\"appleUsername\": \"${apple_username}\", \"applePassword\": \"${apple_password}\"}'
+    GITHUB_TOKEN: ${devtoolsbot_github_token}
+    DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
+    DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
 
 post:
   - &save-diagnostic-file
@@ -134,10 +140,24 @@ functions:
           npm config ls -l
           echo "(if npm fails, debug.log will be uploaded to S3)"
 
-          # Install dependencies and prepare all workspaces
-          npm run bootstrap-ci --unsafe-perm -- --stream
+          # Install dependencies
+          npm ci --unsafe-perm
 
-  verify:
+  bootstrap:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+          eval $(.evergreen/print-compass-env.sh)
+
+          # Prepare workspaces in provided scope
+          npx lerna run bootstrap --stream --scope "${scope}"
+
+  check:
     command: shell.exec
     params:
       working_dir: src
@@ -153,6 +173,8 @@ functions:
 
   test:
     - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
       params:
         working_dir: src
         shell: bash
@@ -166,18 +188,15 @@ functions:
 
           echo "Running tests"
 
-          .evergreen/pretest.sh
-
-          # NOTE (@imlucas) Starting with MongoDB 4.0.4, the Server binaries
-          # have dropped support for macOS 10.10 because it is now outside
-          # of the supported version range.
-          # https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run test-ci --unsafe-perm -- --stream
+          # 
+          # compass-e2e-tests are ignored as we are running this test suite
+          # separately in the test-packaged-app task
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm test-ci -- --stream --ignore compass-e2e-tests
 
-  package:
+  apply-compass-target-expansion:
     - command: shell.exec
       params:
         working_dir: src
@@ -192,12 +211,16 @@ functions:
           echo "Synchronizing evergreen environment from Compass build tools..."
 
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
-          npm run evergreen-expansions ${compass_distribution} --workspace mongodb-compass
+          npm run --workspace mongodb-compass build-info -- ${target_platform} ${target_arch} --format=yaml --flatten ${compass_distribution} --out expansions.yml
     - command: expansions.update
       params:
-        # The only variables used from hadron-build generated expansions seems
-        # to be all the `*_filename` vars and nothing else
+        # packaging and publishing is using all the *_filename variables
+        #
+        # e2e tests are using appPath / appName to extract packaged application
+        # and be able to find the binary that is used for the tests
         file: src/packages/compass/expansions.yml
+
+  package:
     - command: shell.exec
       params:
         working_dir: src
@@ -226,182 +249,449 @@ functions:
           fi
 
   publish:
-    command: shell.exec
-    params:
-      working_dir: src
-      shell: bash
-      env:
-        <<: *compass-env
-      script: |
-        set -e
-        # Load environment variables
-        eval $(.evergreen/print-compass-env.sh)
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
 
-        echo "Uploading release assets to S3 and GitHub if needed..."
-        npm run upload ${compass_distribution} --workspace mongodb-compass
+          echo "Uploading release assets to S3 and GitHub if needed..."
+          npm run --workspace mongodb-compass upload -- ${target_platform} ${target_arch} ${compass_distribution}
 
-  'save windows artifacts':
-    # setup
+  get-packaged-app:
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${app_archive_name}
+        remote_file: ${project}/${revision}/${app_archive_name}
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          COMPASS_APP_PATH: ${appPath}
+          COMPASS_APP_NAME: ${packagerOptions.name}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          echo "Unpacking ${app_archive_name} ..."
+
+          # Unpack the app archive
+          if [[ "${app_archive_name}" == *.zip ]]; then
+            mkdir -p "$COMPASS_APP_PATH"
+            unzip "packages/compass/dist/${app_archive_name}" -d "$COMPASS_APP_PATH"
+          else
+            mkdir -p "packages/compass/dist"
+            tar -xzf "packages/compass/dist/${app_archive_name}" -C "packages/compass/dist"
+          fi
+
+          # Print folder content to confirm that it worked
+          ls -la packages/compass/dist
+
+  test-packaged-app:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          COMPASS_APP_PATH: ${appPath}
+          COMPASS_APP_NAME: ${packagerOptions.name}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          echo "Running tests against packaged app at $COMPASS_APP_PATH..."
+
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+
+  save-windows-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_setup_filename}
         remote_file: ${project}/${revision}/${windows_setup_filename}
-    # MSI
-    - <<: *save-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_msi_filename}
-        remote_file: ${project}/${revision}/${windows_msi_filename}
-    # ZIP
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_zip_filename}
         remote_file: ${project}/${revision}/${windows_zip_filename}
         content_type: application/zip
-    # RELEASES file
-    - <<: *save-artifact
-      params:
-        local_file: src/packages/compass/dist/RELEASES
-        remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
-    # nupkg full
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
         remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
+    - <<: *save-artifact
+      params:
+        local_file: src/packages/compass/dist/${compass_distribution}-RELEASES
+        remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
 
-  'save osx artifacts':
-    # .dmg
+  save-macos-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${osx_dmg_filename}
         remote_file: ${project}/${revision}/${osx_dmg_filename}
-        content_type: 'application/x-apple-diskimage'
-    # .zip
+        content_type: application/x-apple-diskimage
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
         content_type: application/zip
 
-  'save linux artifacts':
-    # .deb
-    - <<: *save-artifact
-      params:
-        local_file: src/packages/compass/dist/${linux_deb_filename}
-        remote_file: ${project}/${revision}/${linux_deb_filename}
-        content_type: 'application/vnd.debian.binary-package'
-    # .tar.gz
-    - <<: *save-artifact
-      params:
-        local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}/${linux_tar_filename}
-        content_type: application/x-gzip
-
-  'save rhel artifacts':
-    # .rpm
+  save-rhel-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_rpm_filename}
         remote_file: ${project}/${revision}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
-    # .tar.gz
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
         content_type: application/x-gzip
 
+  save-ubuntu-artifacts:
+    - <<: *save-artifact
+      params:
+        local_file: src/packages/compass/dist/${linux_deb_filename}
+        remote_file: ${project}/${revision}/${linux_deb_filename}
+        content_type: application/vnd.debian.binary-package
+    - <<: *save-artifact
+      params:
+        local_file: src/packages/compass/dist/${linux_tar_filename}
+        remote_file: ${project}/${revision}/${linux_tar_filename}
+        content_type: application/x-gzip
+
+  get-artifacts:
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${windows_setup_filename}
+        remote_file: ${project}/${revision}/${windows_setup_filename}
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${windows_zip_filename}
+        remote_file: ${project}/${revision}/${windows_zip_filename}
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
+        remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${compass_distribution}-RELEASES
+        remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
+
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${osx_dmg_filename}
+        remote_file: ${project}/${revision}/${osx_dmg_filename}
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${osx_zip_filename}
+        remote_file: ${project}/${revision}/${osx_zip_filename}
+
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${linux_rpm_filename}
+        remote_file: ${project}/${revision}/${linux_rpm_filename}
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${linux_deb_filename}
+        remote_file: ${project}/${revision}/${linux_deb_filename}
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${linux_tar_filename}
+        remote_file: ${project}/${revision}/${linux_tar_filename}
+
 # Tasks
 tasks:
-  - name: oneshot-compile-test-package-publish
+  - name: check
+    tags: ['required-for-publish']
     commands:
       - func: prepare
-
       - func: install
+      - func: bootstrap
+      - func: check
 
-      - func: verify
-        variants: [windows, macos, ubuntu, rhel]
-
+  - name: test
+    tags: ['required-for-publish']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
       - func: test
         vars:
-          debug: 'hadron*,mongo*,compass-e2e-tests*'
+          debug: 'hadron*,mongo*'
 
+  - name: package
+    tags: ['required-for-publish']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
       - func: package
         vars:
-          npm_loglevel: http
           debug: 'hadron*,mongo*,compass*'
           compass_distribution: compass
+      - func: save-windows-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [windows]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [macos]
+      - func: save-rhel-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [rhel]
+      - func: save-ubuntu-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [ubuntu]
+
+  - name: package-isolated
+    tags: ['required-for-publish']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+      - func: package
+        vars:
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-isolated
+      - func: save-windows-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [windows]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [macos]
+      - func: save-rhel-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [rhel]
+      - func: save-ubuntu-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [ubuntu]
+
+  - name: package-readonly
+    tags: ['required-for-publish']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+      - func: package
+        vars:
+          debug: 'hadron*,mongo*,compass*'
+          compass_distribution: compass-readonly
+      - func: save-windows-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [windows]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [macos]
+      - func: save-rhel-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [rhel]
+      - func: save-ubuntu-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [ubuntu]
+
+  - name: test-packaged-app
+    tags: ['required-for-publish']
+    depends_on:
+      - name: package
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars:
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+  # Publish happens in one go to make sure we are not creating multiple github
+  # releases in parallel
+  - name: publish
+    depends_on:
+      - name: '.required-for-publish'
+        variant: '*'
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: mongodb-compass
+
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=darwin'
+      - func: get-artifacts
+        vars:
+          compass_distribution: compass
+
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=darwin'
+      - func: get-artifacts
+        vars:
+          compass_distribution: compass-isolated
+
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=darwin'
+      - func: get-artifacts
+        vars:
+          compass_distribution: compass-readonly
+
       - func: publish
         vars:
           compass_distribution: compass
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
-
-      - func: package
+          target_platform: '--platform=win32'
+      - func: publish
         vars:
-          npm_loglevel: http
-          debug: 'hadron*,mongo*,compass*'
-          compass_distribution: compass-isolated
+          compass_distribution: compass
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=darwin'
+
       - func: publish
         vars:
           compass_distribution: compass-isolated
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
-
-      - func: package
+          target_platform: '--platform=win32'
+      - func: publish
         vars:
-          npm_loglevel: http
-          debug: 'hadron*,mongo*,compass*'
-          compass_distribution: compass-readonly
+          compass_distribution: compass-isolated
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=darwin'
+
       - func: publish
         vars:
           compass_distribution: compass-readonly
-      - func: 'save windows artifacts'
-        variants: [windows]
-      - func: 'save osx artifacts'
-        variants: [macos]
-      - func: 'save linux artifacts'
-        variants: [ubuntu]
-      - func: 'save rhel artifacts'
-        variants: [rhel]
+          target_platform: '--platform=win32'
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=darwin'
 
-# TODO (@imlucas) determine OS/version deprecation policy, following server, so we don't fall behind
-# what maximal resources we're using.
-# See https://docs.google.com/document/d/1IfQGC7wTtrlsc2SqURirvt_4uMuU606nXNbu-stw6bQ/edit
 buildvariants:
   - name: macos
-    display_name: MacOS
+    display_name: MacOS (GUI Session)
+    # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
     run_on: macos-1014-codesign
     tasks:
-      - name: oneshot-compile-test-package-publish
+      - name: test
+      - name: check
+      - name: package
+      - name: package-readonly
+      - name: package-isolated
+      - name: test-packaged-app
 
   - name: windows
     display_name: Windows
     run_on: windows-vsCurrent-large
-    expansions:
-      compass_distribution: compass
     tasks:
-      - name: oneshot-compile-test-package-publish
+      - name: test
+      - name: check
+      - name: package
+      - name: package-readonly
+      - name: package-isolated
+      - name: test-packaged-app
 
   - name: ubuntu
     display_name: Ubuntu
     run_on: ubuntu1604-large
     tasks:
-      - name: oneshot-compile-test-package-publish
+      - name: test
+      - name: check
+      - name: package
+      - name: package-readonly
+      - name: package-isolated
+      - name: test-packaged-app
+      # Doesn't really matter what machine type does this step, we publish
+      # everything in one go
+      - name: publish
 
   - name: rhel
     display_name: RHEL
     run_on: rhel76-large
     tasks:
-      - name: oneshot-compile-test-package-publish
+      - name: test
+      - name: check
+      - name: package
+      - name: package-readonly
+      - name: package-isolated
+      - name: test-packaged-app

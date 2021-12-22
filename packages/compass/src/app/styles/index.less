@@ -29,8 +29,8 @@
 
 html,
 body {
-  height: 100%;
-  width: 100%;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: @gray1;
@@ -80,8 +80,15 @@ body {
 }
 
 #application {
-  // This animatin will happen when #application container is populated
-  & > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  // Becomes not empty when the first render happens and the app is "ready"
+  &:not(:empty) {
+    background-color: @gray8;
     animation-name: fadein;
     animation-duration: 0.2s;
     animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
@@ -116,7 +123,7 @@ body {
 * {
   user-select: text;
   -webkit-user-select: text;
-  outline-color: #019EE2;
+  outline-color: #019ee2;
 }
 
 // make all help buttons consistent

@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import {
   NavigationTreeData,
-  useRovingTabIndex,
+  useVirtualNavigationTree,
 } from './use-virtual-navigation-tree';
 
 function NavigationTreeItem({
@@ -115,31 +115,32 @@ function NavigationTree({
     return normalizeItems(items, 1, expanded);
   }, [expanded]);
 
-  const [rootProps, currentTabbable] = useRovingTabIndex<HTMLUListElement>({
-    items: listItems,
-    activeItemId,
-    onExpandedChange,
-    onFocusMove,
-  });
+  const [rootProps, currentTabbable] =
+    useVirtualNavigationTree<HTMLUListElement>({
+      items: listItems,
+      activeItemId,
+      onExpandedChange,
+      onFocusMove,
+    });
 
   return (
     <ul role="tree" {...rootProps}>
-      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-      {/* @ts-expect-error */}
-      {listItems.map(({ id, name, level, setSize, posInSet, isExpanded }) => {
-        return (
-          <NavigationTreeItem
-            id={id}
-            key={id}
-            name={name}
-            level={level}
-            setSize={setSize}
-            posInSet={posInSet}
-            isExpanded={isExpanded}
-            isTabbable={currentTabbable === id}
-          ></NavigationTreeItem>
-        );
-      })}
+      {(listItems as any[]).map(
+        ({ id, name, level, setSize, posInSet, isExpanded }) => {
+          return (
+            <NavigationTreeItem
+              id={id}
+              key={id}
+              name={name}
+              level={level}
+              setSize={setSize}
+              posInSet={posInSet}
+              isExpanded={isExpanded}
+              isTabbable={currentTabbable === id}
+            ></NavigationTreeItem>
+          );
+        }
+      )}
     </ul>
   );
 }

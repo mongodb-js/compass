@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
+import { expect } from 'chai';
 import DatabasesPlugin from './databases-plugin';
 
 describe('Databasees [Plugin]', () => {

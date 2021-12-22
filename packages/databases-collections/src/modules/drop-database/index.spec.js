@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import reducer from '../drop-database';
 import { reset } from '../reset';
 

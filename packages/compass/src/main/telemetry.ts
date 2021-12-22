@@ -33,7 +33,7 @@ class CompassTelemetry {
 
   private static initPromise: Promise<void> | null = null;
 
-  private static track(info: EventInfo) {
+  private static _track(info: EventInfo) {
     const commonProperties = {
       compass_version: app.getVersion().split('.').slice(0, 2).join('.'), // only major.minor
       compass_distribution: process.env.HADRON_DISTRIBUTION,
@@ -91,13 +91,13 @@ class CompassTelemetry {
 
     let event: EventInfo | undefined;
     while ((event = this.queuedEvents.shift()) !== undefined) {
-      this.track(event);
+      this._track(event);
     }
   }
 
   private static async _init(app: typeof CompassApplication) {
     process.on('compass:track', (meta: EventInfo) => {
-      this.track(meta);
+      this._track(meta);
     });
 
     ipcMain.respondTo('compass:track', (evt, meta: EventInfo) => {
@@ -121,7 +121,7 @@ class CompassTelemetry {
     ipcMain.respondTo('compass:usage:disabled', () => {
       log.info(mongoLogId(1_001_000_095), 'Telemetry', 'Disabling Telemetry reporting');
       if (this.state === 'enabled') {
-        this.track({
+        this._track({
           event: 'Telemetry Disabled',
           properties: {}
         });
@@ -146,6 +146,10 @@ class CompassTelemetry {
 
   static init(app: typeof CompassApplication): Promise<void> {
     return this.initPromise ??= this._init(app);
+  }
+
+  static track(info: EventInfo): void {
+    this._track(info);
   }
 }
 

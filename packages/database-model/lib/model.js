@@ -108,6 +108,7 @@ const DatabaseModel = AmpersandModel.extend(
       collection_count: 'number',
       document_count: 'number',
       storage_size: 'number',
+      data_size: 'number',
       index_count: 'number',
       index_size: 'number',
     },
@@ -197,10 +198,7 @@ const DatabaseModel = AmpersandModel.extend(
     },
 
     toJSON(opts = { derived: true }) {
-      return {
-        ...this.serialize(opts),
-        collections: this.collections.map((coll) => coll.toJSON(opts)),
-      };
+      return this.serialize(opts);
     },
   }
 );
@@ -240,6 +238,12 @@ const DatabaseCollection = AmpersandCollection.extend(
     },
   }
 );
+
+DatabaseCollection.prototype[Symbol.iterator] = function* () {
+  for (let i = 0, len = this.length; i < len; i++) {
+    yield this.at(i);
+  }
+};
 
 module.exports = DatabaseModel;
 module.exports.Collection = DatabaseCollection;

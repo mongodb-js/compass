@@ -1,4 +1,5 @@
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 import { defaultHostname, defaultPort } from '../constants/default-connection';
 
@@ -10,11 +11,8 @@ function updateConnectionStringToStandard(
     return connectionStringUrl;
   }
 
-  const newConnectionString = connectionStringUrl.toString();
-
-  const newConnectionStringUrl = new ConnectionStringUrl(
-    newConnectionString.replace('mongodb+srv://', 'mongodb://')
-  );
+  const newConnectionStringUrl = connectionStringUrl.clone();
+  newConnectionStringUrl.protocol = 'mongodb:';
 
   newConnectionStringUrl.hosts = [
     `${newConnectionStringUrl.hosts[0]}:${defaultPort}`,
@@ -31,7 +29,7 @@ function updateConnectionStringToSRV(
     return connectionStringUrl;
   }
 
-  let newConnectionStringUrl = connectionStringUrl.clone();
+  const newConnectionStringUrl = connectionStringUrl.clone();
 
   // Only include one host without port.
   const newHost =
@@ -45,14 +43,13 @@ function updateConnectionStringToSRV(
       : defaultHostname;
   newConnectionStringUrl.hosts = [newHost];
 
-  const newConnectionString = newConnectionStringUrl.toString();
-  newConnectionStringUrl = new ConnectionStringUrl(
-    newConnectionString.replace('mongodb://', 'mongodb+srv://')
-  );
+  newConnectionStringUrl.protocol = 'mongodb+srv:';
+  const searchParams =
+    newConnectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   // SRV connections can't have directConnection set.
-  if (newConnectionStringUrl.searchParams.get('directConnection')) {
-    newConnectionStringUrl.searchParams.delete('directConnection');
+  if (searchParams.get('directConnection')) {
+    searchParams.delete('directConnection');
   }
 
   return newConnectionStringUrl;

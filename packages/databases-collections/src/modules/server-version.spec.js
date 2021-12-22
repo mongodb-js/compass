@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import reducer, {
   serverVersionChanged,
   SERVER_VERSION_CHANGED

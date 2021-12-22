@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import { prepareMetrics } from './metrics';
 
 describe('metrics module', () => {

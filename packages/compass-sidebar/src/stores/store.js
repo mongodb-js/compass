@@ -18,13 +18,43 @@ import { changeConnection } from '../modules/connection-model';
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
-  const onInstanceChange = throttle((newInstance) => {
-    store.dispatch(changeInstance(newInstance.toJSON()));
-  }, 100);
+  const onInstanceChange = throttle((instance) => {
+    store.dispatch(
+      changeInstance({
+        refreshingStatus: instance.refreshingStatus,
+        databasesStatus: instance.databasesStatus,
+      })
+    );
+  }, 300);
+
+  function getDatabaseInfo(db) {
+    return {
+      _id: db._id,
+      name: db.name,
+      collectionsStatus: db.collectionsStatus,
+      collectionsLength: db.collectionsLength,
+    };
+  }
+
+  function getCollectionInfo(coll) {
+    return {
+      _id: coll._id,
+      name: coll.name,
+      type: coll.type,
+    };
+  }
 
   const onDatabasesChange = throttle((databases) => {
-    store.dispatch(changeDatabases(databases.toJSON()));
-  }, 100);
+    const dbs = databases.map((db) => {
+      return {
+        ...getDatabaseInfo(db),
+        collections: db.collections.map((coll) => {
+          return getCollectionInfo(coll);
+        }),
+      };
+    });
+    store.dispatch(changeDatabases(dbs));
+  }, 300);
 
   store.dispatch(globalAppRegistryActivated(appRegistry));
 
@@ -43,33 +73,22 @@ store.onActivated = (appRegistry) => {
     onInstanceChange(instance);
     onDatabasesChange(instance.databases);
 
-    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
-      instance.on('change:isRefreshing', () => {
-        onInstanceChange(instance);
-        onDatabasesChange(instance.databases);
-      });
-    } else {
-      instance.on('change:isRefreshing', () => {
-        onInstanceChange(instance);
-      });
+    instance.on('change:refreshingStatus', () => {
+      onInstanceChange(instance);
+    });
 
-      instance.on('change:status', () => {
-        onInstanceChange(instance);
-      });
+    instance.on('change:databasesStatus', () => {
+      onInstanceChange(instance);
+      onDatabasesChange(instance.databases);
+    });
 
-      instance.on('change:databases.collectionsLength', () => {
-        onInstanceChange(instance);
-      });
+    instance.on('change:databases.status', () => {
+      onDatabasesChange(instance.databases);
+    });
 
-      instance.on('change:databasesStatus', () => {
-        onInstanceChange(instance);
-        onDatabasesChange(instance.databases);
-      });
-
-      instance.on('change:databases.collectionsStatus', () => {
-        onDatabasesChange(instance.databases);
-      });
-    }
+    instance.on('change:databases.collectionsStatus', () => {
+      onDatabasesChange(instance.databases);
+    });
 
     function onIsGenuineChange(isGenuine) {
       store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));

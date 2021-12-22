@@ -1,14 +1,12 @@
 /* eslint-disable react/prop-types */
-import { css, cx, keyframes } from '@leafygreen-ui/emotion';
+import { css } from '@leafygreen-ui/emotion';
 import React, { useCallback, useMemo, memo, useRef } from 'react';
 import { VisuallyHidden } from '@react-aria/visually-hidden';
-// TODO: See comment in constants about row size
-// import { VariableSizeList as List, areEqual } from 'react-window';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { useId } from '@react-aria/utils';
 import {
-  ContentWithFallback,
+  FadeInPlaceholder,
   spacing,
   uiColors,
 } from '@mongodb-js/compass-components';
@@ -21,9 +19,10 @@ import { DatabaseItem } from './database-item';
 import { CollectionItem } from './collection-item';
 import type { Actions } from './constants';
 import {
-  useRovingTabIndex,
+  useVirtualNavigationTree,
   NavigationTreeData,
 } from './use-virtual-navigation-tree';
+import { DatabasesPlaceholder } from './databases-placeholder';
 
 type Collection = {
   _id: string;
@@ -105,35 +104,6 @@ const collectionItemContainer = css({
   position: 'relative',
 });
 
-const fadeInAnimation = keyframes({
-  from: {
-    opacity: 0,
-  },
-  to: {
-    opacity: 1,
-  },
-});
-
-const fadeIn = css({
-  animation: `${fadeInAnimation} .16s ease-out`,
-});
-
-const placeholderContainer = css({
-  position: 'absolute',
-  pointerEvents: 'none',
-  top: 0,
-  right: 0,
-  bottom: 0,
-  left: 0,
-  opacity: 0,
-  transition: 'opacity .16s ease-out',
-});
-
-const placeholderContainerVisible = css({
-  opacity: 1,
-  transitionTimingFunction: 'ease-in',
-});
-
 const NavigationItem = memo<{
   index: number;
   style: React.CSSProperties;
@@ -167,40 +137,25 @@ const NavigationItem = memo<{
 
   return (
     <div className={collectionItemContainer}>
-      <ContentWithFallback
+      <FadeInPlaceholder
         isContentReady={itemData.type !== 'placeholder'}
-        content={(shouldRender, shouldAnimate) => {
+        contentContainerProps={{ style }}
+        fallbackContainerProps={{ style }}
+        content={() => {
           return (
-            // This will always be true at that point, but TS needs some
-            // additional convincing so it can figure out the types
-            itemData.type !== 'placeholder' &&
-            shouldRender && (
-              <div style={style} className={cx(shouldAnimate && fadeIn)}>
-                <CollectionItem
-                  isReadOnly={isReadOnly}
-                  isActive={itemData.id === activeNamespace}
-                  isTabbable={itemData.id === currentTabbable}
-                  onNamespaceAction={onNamespaceAction}
-                  {...itemData}
-                ></CollectionItem>
-              </div>
+            itemData.type !== 'placeholder' && (
+              <CollectionItem
+                isReadOnly={isReadOnly}
+                isActive={itemData.id === activeNamespace}
+                isTabbable={itemData.id === currentTabbable}
+                onNamespaceAction={onNamespaceAction}
+                {...itemData}
+              ></CollectionItem>
             )
           );
         }}
-        fallback={(shouldRender) => {
-          return (
-            <div
-              style={style}
-              className={css(
-                placeholderContainer,
-                shouldRender && placeholderContainerVisible
-              )}
-            >
-              <PlaceholderItem></PlaceholderItem>
-            </div>
-          );
-        }}
-      ></ContentWithFallback>
+        fallback={() => <PlaceholderItem></PlaceholderItem>}
+      ></FadeInPlaceholder>
     </div>
   );
 }, areEqual);
@@ -323,12 +278,14 @@ const DatabasesNavigationTree: React.FunctionComponent<{
     [items]
   );
 
-  const [rootProps, currentTabbable] = useRovingTabIndex<HTMLDivElement>({
-    items: items as NavigationTreeData,
-    activeItemId: activeNamespace,
-    onExpandedChange,
-    onFocusMove,
-  });
+  const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
+    {
+      items: items as NavigationTreeData,
+      activeItemId: activeNamespace,
+      onExpandedChange,
+      onFocusMove,
+    }
+  );
 
   const itemData: ListItemData = useMemo(() => {
     return {
@@ -388,4 +345,32 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   );
 };
 
-export { DatabasesNavigationTree };
+const container = css({
+  display: 'flex',
+  flex: '1 0 auto',
+});
+
+const contentContainer = css({
+  display: 'flex',
+  flex: '1 0 auto',
+});
+
+const NavigationWithPlaceholder: React.FunctionComponent<
+  { isReady: boolean } & React.ComponentProps<typeof DatabasesNavigationTree>
+> = ({ isReady, ...props }) => {
+  return (
+    <FadeInPlaceholder
+      className={container}
+      contentContainerProps={{ className: contentContainer }}
+      isContentReady={isReady}
+      content={() => {
+        return <DatabasesNavigationTree {...props}></DatabasesNavigationTree>;
+      }}
+      fallback={() => {
+        return <DatabasesPlaceholder></DatabasesPlaceholder>;
+      }}
+    ></FadeInPlaceholder>
+  );
+};
+
+export { NavigationWithPlaceholder, DatabasesNavigationTree };

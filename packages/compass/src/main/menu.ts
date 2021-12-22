@@ -6,20 +6,47 @@ import {
   app,
   dialog,
   shell,
+  nativeTheme,
   MenuItemConstructorOptions,
 } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
+import { THEMES } from 'compass-preferences-model';
+
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
+import { CompassTelemetry } from './telemetry';
 
 type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 
 const debug = createDebug('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
+class ThemeState {
+  theme: THEMES = THEMES.LIGHT;
+}
+
+function updateTheme({
+  theme
+}: ThemeState) {
+  if (theme === THEMES.OS_THEME) {
+    if (nativeTheme.shouldUseDarkColors) {
+      ipcMain.broadcast('app:darkreader-enable');
+    } else {
+      ipcMain.broadcast('app:darkreader-disable');
+    }
+    return;
+  }
+  
+  if (theme === THEMES.DARK) {
+    ipcMain.broadcast('app:darkreader-enable');
+    return;
+  }
+  
+  ipcMain.broadcast('app:darkreader-disable');
+}
 
 function separator(): MenuItemConstructorOptions {
   return {
@@ -55,7 +82,71 @@ function networkOptInDialogItem(): MenuItemConstructorOptions {
   };
 }
 
-function darwinCompassSubMenu(): MenuItemConstructorOptions {
+function trackThemeChanged(
+  newTheme: THEMES
+) {
+  CompassTelemetry.track({
+    event: 'Theme Changed',
+    properties: {
+      theme: newTheme
+    }
+  });
+}
+
+function themeSubmenuItems(
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
+): MenuItemConstructorOptions[] {
+  return [{
+      label: 'Use OS Theme (Preview)',
+      click: function() {
+        themeState.theme = THEMES.OS_THEME;
+        trackThemeChanged(themeState.theme);
+        updateTheme(themeState);
+        saveThemeAndRefreshMenu(themeState);
+      },
+      type: 'checkbox',
+      checked: themeState.theme === THEMES.OS_THEME
+    },
+    {
+      label: 'Dark Theme (Preview)',
+      click: function() {
+        themeState.theme = THEMES.DARK;
+        trackThemeChanged(themeState.theme);
+        updateTheme(themeState);
+        saveThemeAndRefreshMenu(themeState);
+      },
+      type: 'checkbox',
+      checked: themeState.theme === THEMES.DARK
+    },
+    {
+      label: 'Light Theme',
+      click: function() {
+        themeState.theme = THEMES.LIGHT;
+        trackThemeChanged(themeState.theme);
+        updateTheme(themeState);
+        saveThemeAndRefreshMenu(themeState);
+      },
+      type: 'checkbox',
+      checked: themeState.theme === THEMES.LIGHT
+    },
+  ];
+}
+
+function themeMenuItem(
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
+): MenuItemConstructorOptions {
+  return {
+    label: 'Theme',
+    submenu: themeSubmenuItems(themeState, saveThemeAndRefreshMenu)
+  };
+}
+
+function darwinCompassSubMenu(
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
+): MenuItemConstructorOptions {
   return {
     label: app.getName(),
     submenu: [
@@ -63,6 +154,8 @@ function darwinCompassSubMenu(): MenuItemConstructorOptions {
         label: `About ${app.getName()}`,
         role: 'about',
       },
+      separator(),
+      themeMenuItem(themeState, saveThemeAndRefreshMenu),
       separator(),
       {
         label: 'Hide',
@@ -229,7 +322,9 @@ function logFile(app: typeof CompassApplication): MenuItemConstructorOptions {
 }
 
 function helpSubMenu(
-  app: typeof CompassApplication
+  app: typeof CompassApplication,
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
 ): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push(helpWindowItem());
@@ -245,6 +340,8 @@ function helpSubMenu(
   subMenu.push(logFile(app));
 
   if (process.platform !== 'darwin') {
+    subMenu.push(separator());
+    subMenu.push(themeMenuItem(themeState, saveThemeAndRefreshMenu));
     subMenu.push(separator());
     subMenu.push(nonDarwinAboutItem());
   }
@@ -363,9 +460,11 @@ function windowSubMenu(): MenuItemConstructorOptions {
 // menus
 function darwinMenu(
   menuState: WindowMenuState,
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu: MenuTemplate = [darwinCompassSubMenu()];
+  const menu: MenuTemplate = [darwinCompassSubMenu(themeState, saveThemeAndRefreshMenu)];
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());
@@ -376,13 +475,15 @@ function darwinMenu(
   }
 
   menu.push(windowSubMenu());
-  menu.push(helpSubMenu(app));
+  menu.push(helpSubMenu(app, themeState, saveThemeAndRefreshMenu));
 
   return menu;
 }
 
 function nonDarwinMenu(
   menuState: WindowMenuState,
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
   const menu = [connectSubMenu(true, app), viewSubMenu()];
@@ -391,7 +492,7 @@ function nonDarwinMenu(
     menu.push(collectionSubMenu(menuState.isReadOnly));
   }
 
-  menu.push(helpSubMenu(app));
+  menu.push(helpSubMenu(app, themeState, saveThemeAndRefreshMenu));
 
   return menu;
 }
@@ -416,6 +517,8 @@ class CompassMenu {
 
   private static initCalled = false;
 
+  private static themeState = new ThemeState();
+
   private static _init(app: typeof CompassApplication): void {
     this.app = app;
 
@@ -426,6 +529,21 @@ class CompassMenu {
     ipcMain.respondTo({
       'window:show-collection-submenu': this.showCollection.bind(this),
       'window:hide-collection-submenu': this.hideCollection.bind(this),
+    });
+
+    ipcMain.respondTo({
+      'window:theme-loaded': (_, theme) => {
+        if (this.themeState.theme !== theme) {
+          this.themeState.theme = theme;
+          this.saveThemeAndRefreshMenu({
+            theme
+          });
+        }
+      },
+    });
+
+    nativeTheme.on('updated', () => {
+      updateTheme(this.themeState);
     });
 
     void this.setupDockMenu();
@@ -523,9 +641,28 @@ class CompassMenu {
     }
 
     if (process.platform === 'darwin') {
-      return darwinMenu(menuState, this.app);
+      return darwinMenu(menuState, this.themeState, this.saveThemeAndRefreshMenu, this.app);
     }
-    return nonDarwinMenu(menuState, this.app);
+    return nonDarwinMenu(menuState, this.themeState, this.saveThemeAndRefreshMenu, this.app);
+  }
+
+  private static saveThemeAndRefreshMenu = (themeState: ThemeState) => {
+    const currentWindowMenuId = this.currentWindowMenuLoaded;
+    if (!currentWindowMenuId) {
+      // Nothing to refresh.
+      debug(`Cannot refresh WINDOW menu`);
+
+      return;
+    }
+
+    // Tell the active window to save the chosen theme.
+    ipcMain.broadcastFocused('app:save-theme', themeState.theme);
+
+    debug(`WINDOW ${currentWindowMenuId} refreshing menu`);
+
+    const template = this.getTemplate(currentWindowMenuId);
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
   }
 
   private static showCollection(_bw: BrowserWindow, { isReadOnly }: { isReadOnly: boolean }) {

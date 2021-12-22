@@ -34,7 +34,8 @@ var webvitals = require('web-vitals');
 
 var semver = require('semver');
 
-var Preferences = require('compass-preferences-model');
+const Preferences = require('compass-preferences-model');
+const { THEMES } = Preferences;
 var User = require('compass-user-model');
 
 require('./menu-renderer');
@@ -46,6 +47,7 @@ marky.stop('Migrations');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var { Action } = require('@mongodb-js/hadron-plugin-manager');
+const darkreader = require('darkreader');
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
@@ -65,6 +67,35 @@ window.addEventListener('error', (event) => {
       { message: event.message, stack: '<no stack available>' });
 });
 
+const darkreaderOptions = { brightness: 100, contrast: 90, sepia: 10 };
+function enableDarkTheme() {
+  darkreader.enable(darkreaderOptions);
+}
+
+function disableDarkTheme() {
+  darkreader.disable();
+}
+
+function loadTheme(theme) {
+  // Update main Compass when we've loaded the theme for setting app menus.
+  ipc.call('window:theme-loaded', theme);
+
+  if (theme === THEMES.OS_THEME
+    && electron.remote.nativeTheme.shouldUseDarkColors
+  ) {
+    enableDarkTheme();
+    return;
+  }
+
+  // Update our view based on the provided theme.
+  if (theme === THEMES.DARK) {
+    enableDarkTheme();
+    return;
+  }
+
+  disableDarkTheme();
+}
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -73,7 +104,6 @@ var Application = View.extend({
     return [
       '<div id="application">',
       '  <div data-hook="auto-update"></div>',
-      '  <div data-hook="statusbar" data-test-id="status-bar"></div>',
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="tour-container"></div>',
@@ -193,14 +223,6 @@ var Application = View.extend({
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
-    debug('rendering statusbar...');
-    this.statusComponent = app.appRegistry.getRole(
-      'Application.Status'
-    )[0].component;
-    ReactDOM.render(
-      React.createElement(this.statusComponent),
-      this.queryByHook('statusbar')
-    );
 
     this.securityComponent = app.appRegistry.getRole(
       'Application.Security'
@@ -356,6 +378,22 @@ app.extend({
         if (err) {
           throw err;
         }
+
+        // Get theme from the preferences and set accordingly.
+        loadTheme(app.preferences.theme);
+        ipc.on('app:darkreader-enable', () => {
+          enableDarkTheme();
+        });
+        ipc.on('app:darkreader-disable', () => {
+          disableDarkTheme();
+        });
+        ipc.on('app:save-theme', (_, theme) => {
+          // Save the new theme on the user's preferences.
+          app.preferences.save({
+            theme
+          });
+        });
+
         Action.pluginActivationCompleted.listen(() => {
           ipc.call('compass:loading:change-status', {
             status: 'activating plugins'

@@ -40,6 +40,7 @@ class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
   static propTypes = {
     instance: PropTypes.object.isRequired,
+    databases: PropTypes.object.isRequired,
     isDetailsExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
@@ -131,19 +132,10 @@ class Sidebar extends PureComponent {
   }
 
   render() {
-    const { instance } = this.props;
     const { width, prevWidth } = this.state;
 
     const isExpanded = width > sidebarMinWidthOpened;
     const renderedWidth = isExpanded ? boundSidebarWidth(width) : sidebarWidthCollapsed;
-
-    const isInitialOrInitialFetching = ['initial', 'fetching'].includes(
-      process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true'
-        ? instance?.refreshingStatus
-        : instance?.databasesStatus
-    );
-
-    const isDatabasesListVisible = !isInitialOrInitialFetching;
 
     const collapsedButton = 'fa' +
       (isExpanded ? ' fa-caret-left' : ' fa-caret-right');
@@ -182,6 +174,7 @@ class Sidebar extends PureComponent {
         {isExpanded && (
           <SidebarInstance
             instance={this.props.instance}
+            databases={this.props.databases}
             isExpanded={this.props.isDetailsExpanded}
             detailsPlugins={this.props.detailsPlugins}
             isGenuineMongoDB={this.props.isGenuineMongoDB}
@@ -206,12 +199,10 @@ class Sidebar extends PureComponent {
             onChange={this.handleFilter.bind(this)}
           />
         </div>
-        {isDatabasesListVisible && (
-          <div className={styles['compass-sidebar-content']}>
-            {isExpanded && <SidebarDatabasesNavigation />}
-            {this.renderCreateDatabaseButton()}
-          </div>
-        )}
+        <div className={styles['compass-sidebar-content']}>
+          {isExpanded && <SidebarDatabasesNavigation />}
+          {this.renderCreateDatabaseButton()}
+        </div>
         <NonGenuineWarningModal
           isVisible={this.props.isGenuineMongoDBVisible}
           toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
@@ -231,6 +222,7 @@ class Sidebar extends PureComponent {
  */
 const mapStateToProps = (state) => ({
   instance: state.instance,
+  databases: state.databases.databases,
   isDetailsExpanded: state.isDetailsExpanded,
   isWritable: state.isWritable,
   detailsPlugins: state.detailsPlugins,
