@@ -3,7 +3,7 @@ import { spacing } from '@mongodb-js/compass-components';
 import React, { Fragment } from 'react';
 import {
   Button,
-  Subtitle,
+  H2,
   Icon,
   uiColors,
   compassUIColors,
@@ -184,7 +184,7 @@ function ConnectionList({
       <div className={connectionListSectionStyles}>
         <div className={sectionHeaderStyles}>
           <div className={sectionHeaderIconStyles}>{favoriteIcon}</div>
-          <Subtitle className={sectionHeaderTitleStyles}>Favorites</Subtitle>
+          <H2 className={sectionHeaderTitleStyles}>Favorites</H2>
         </div>
         <ul className={connectionListStyles}>
           {favoriteConnections.map((connectionInfo, index) => (
@@ -208,7 +208,7 @@ function ConnectionList({
         </ul>
         <div className={cx(sectionHeaderStyles, recentHeaderStyles)}>
           <div className={sectionHeaderIconStyles}>{recentIcon}</div>
-          <Subtitle className={sectionHeaderTitleStyles}>Recents</Subtitle>
+          <H2 className={sectionHeaderTitleStyles}>Recents</H2>
         </div>
         <ul className={connectionListStyles}>
           {recentConnections.map((connectionInfo, index) => (
