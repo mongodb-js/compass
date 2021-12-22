@@ -191,7 +191,10 @@ functions:
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm test-ci -- --stream
+          # 
+          # compass-e2e-tests are ignored as we are running this test suite
+          # separately in the test-packaged-app task
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm test-ci -- --stream --ignore compass-e2e-tests
 
   apply-compass-target-expansion:
     - command: shell.exec
@@ -208,11 +211,13 @@ functions:
           echo "Synchronizing evergreen environment from Compass build tools..."
 
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
-          npm run --workspace mongodb-compass evergreen-expansions ${compass_distribution}
+          npm run --workspace mongodb-compass build-info -- ${target_platform} ${target_arch} --format=yaml --flatten ${compass_distribution} --out expansions.yml
     - command: expansions.update
       params:
-        # The only variables used from hadron-build generated expansions seems
-        # to be all the `*_filename` vars and nothing else
+        # packaging and publishing is using all the *_filename variables
+        #
+        # e2e tests are using appPath / appName to extract packaged application
+        # and be able to find the binary that is used for the tests
         file: src/packages/compass/expansions.yml
 
   package:
@@ -256,7 +261,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
 
           echo "Uploading release assets to S3 and GitHub if needed..."
-          npm run upload ${compass_distribution} --workspace mongodb-compass
+          npm run --workspace mongodb-compass upload -- ${target_platform} ${target_arch} ${compass_distribution}
 
   get-packaged-app:
     - <<: *get-artifact
@@ -370,65 +375,45 @@ functions:
       params:
         local_file: src/packages/compass/dist/${windows_setup_filename}
         remote_file: ${project}/${revision}/${windows_setup_filename}
-        build_variants:
-          - windows
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_zip_filename}
         remote_file: ${project}/${revision}/${windows_zip_filename}
-        build_variants:
-          - windows
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
         remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
-        build_variants:
-          - windows
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${compass_distribution}-RELEASES
         remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
-        build_variants:
-          - windows
 
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${osx_dmg_filename}
         remote_file: ${project}/${revision}/${osx_dmg_filename}
-        build_variants:
-          - macos
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}/${osx_zip_filename}
-        build_variants:
-          - macos
 
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_rpm_filename}
         remote_file: ${project}/${revision}/${linux_rpm_filename}
-        build_variants:
-          - rhel
-
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_deb_filename}
         remote_file: ${project}/${revision}/${linux_deb_filename}
-        build_variants:
-          - ubuntu
-
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}/${linux_tar_filename}
-        build_variants:
-          - rhel
-          - ubuntu
 
 # Tasks
 tasks:
   - name: check
+    tags: ['required-for-publish']
     commands:
       - func: prepare
       - func: install
@@ -436,6 +421,7 @@ tasks:
       - func: check
 
   - name: test
+    tags: ['required-for-publish']
     commands:
       - func: prepare
       - func: install
@@ -445,6 +431,7 @@ tasks:
           debug: 'hadron*,mongo*'
 
   - name: package
+    tags: ['required-for-publish']
     commands:
       - func: prepare
       - func: install
@@ -476,6 +463,7 @@ tasks:
         variants: [ubuntu]
 
   - name: package-isolated
+    tags: ['required-for-publish']
     commands:
       - func: prepare
       - func: install
@@ -507,6 +495,7 @@ tasks:
         variants: [ubuntu]
 
   - name: package-readonly
+    tags: ['required-for-publish']
     commands:
       - func: prepare
       - func: install
@@ -538,6 +527,7 @@ tasks:
         variants: [ubuntu]
 
   - name: test-packaged-app
+    tags: ['required-for-publish']
     depends_on:
       - name: package
     commands:
@@ -557,68 +547,105 @@ tasks:
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
+  # Publish happens in one go to make sure we are not creating multiple github
+  # releases in parallel
   - name: publish
     depends_on:
-      - name: test
-      - name: check
-      - name: test-packaged-app
+      - name: '.required-for-publish'
+        variant: '*'
     commands:
       - func: prepare
       - func: install
       - func: bootstrap
         vars:
           scope: mongodb-compass
+
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass
-      - func: get-artifacts
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass
-      - func: publish
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=darwin'
+      - func: get-artifacts
         vars:
           compass_distribution: compass
 
-  - name: publish-isolated
-    depends_on:
-      - name: test
-      - name: check
-      - name: test-packaged-app
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: mongodb-compass
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-isolated
-      - func: get-artifacts
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-isolated
-      - func: publish
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=darwin'
+      - func: get-artifacts
         vars:
           compass_distribution: compass-isolated
 
-  - name: publish-readonly
-    depends_on:
-      - name: test
-      - name: check
-      - name: test-packaged-app
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: mongodb-compass
       - func: apply-compass-target-expansion
         vars:
           compass_distribution: compass-readonly
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=darwin'
       - func: get-artifacts
         vars:
           compass_distribution: compass-readonly
+
+      - func: publish
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=win32'
+      - func: publish
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=darwin'
+
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=win32'
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=darwin'
+
       - func: publish
         vars:
           compass_distribution: compass-readonly
+          target_platform: '--platform=win32'
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=darwin'
 
 buildvariants:
   - name: macos
@@ -632,9 +659,6 @@ buildvariants:
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app
-      - name: publish
-      - name: publish-readonly
-      - name: publish-isolated
 
   - name: windows
     display_name: Windows
@@ -646,9 +670,6 @@ buildvariants:
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app
-      - name: publish
-      - name: publish-readonly
-      - name: publish-isolated
 
   - name: ubuntu
     display_name: Ubuntu
@@ -660,9 +681,9 @@ buildvariants:
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app
+      # Doesn't really matter what machine type does this step, we publish
+      # everything in one go
       - name: publish
-      - name: publish-readonly
-      - name: publish-isolated
 
   - name: rhel
     display_name: RHEL
@@ -674,6 +695,3 @@ buildvariants:
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app
-      - name: publish
-      - name: publish-readonly
-      - name: publish-isolated

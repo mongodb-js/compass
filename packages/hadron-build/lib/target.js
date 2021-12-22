@@ -96,19 +96,14 @@ function getPkg(directory) {
 }
 
 class Target {
-  constructor(
-    dir,
-    opts = {
-      version: process.env.HADRON_APP_VERSION
-    }
-  ) {
+  constructor(dir, opts = {}) {
     this.dir = dir || process.cwd();
     this.out = path.join(this.dir, 'dist');
 
     const pkg = getPkg(dir);
     this.pkg = pkg;
 
-    _.defaults(opts, pkg, {
+    _.defaults(opts, { version: process.env.HADRON_APP_VERSION }, pkg, {
       platform: process.platform,
       arch: process.arch,
       sign: true
