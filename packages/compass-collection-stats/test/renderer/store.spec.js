@@ -12,7 +12,7 @@ describe('CollectionStatsStore [Store]', () => {
   });
 
   it('defaults document count to invalid', () => {
-    expect(store.state.totalDocumentSize).to.be.equal('N/A');
+    expect(store.state.storageSize).to.be.equal('N/A');
   });
 
   it('defaults document count to invalid', () => {

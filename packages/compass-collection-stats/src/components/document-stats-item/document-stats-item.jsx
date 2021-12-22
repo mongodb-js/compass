@@ -17,7 +17,7 @@ const DOCUMENTS = 'Documents';
 /**
  * Total size constant.
  */
-const TOTAL_SIZE = 'total size';
+const STORAGE_SIZE = 'storage size';
 
 /**
  * Average size constant.
@@ -33,7 +33,7 @@ class DocumentStatsItem extends Component {
   static propTypes = {
     documentCount: PropTypes.string.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
-    totalDocumentSize: PropTypes.string.isRequired,
+    storageSize: PropTypes.string.isRequired,
     avgDocumentSize: PropTypes.string.isRequired
   };
 
@@ -55,9 +55,9 @@ class DocumentStatsItem extends Component {
           primary
         />}
         <CollectionStatsItem
-          dataTestId="total-document-size"
-          label={TOTAL_SIZE}
-          value={this.props.totalDocumentSize}
+          dataTestId="storage-size"
+          label={STORAGE_SIZE}
+          value={this.props.storageSize}
         />
         {!isTimeSeries && <CollectionStatsItem
           dataTestId="avg-document-size"

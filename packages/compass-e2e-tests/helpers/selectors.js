@@ -122,7 +122,7 @@ const Selectors = {
   CollectionTab: '.test-tab-nav-bar-tab',
   CollectionHeaderTitle: '[data-test-id="collection-header-title"]',
   DocumentCountValue: '[data-test-id="document-count-value"]',
-  TotalDocumentSizeValue: '[data-test-id="total-document-size-value"]',
+  StorageSizeValue: '[data-test-id="storage-size-value"]',
   AvgDocumentSizeValue: '[data-test-id="avg-document-size-value"]',
   IndexCountValue: '[data-test-id="index-count-value"]',
   TotalIndexSizeValue: '[data-test-id="total-index-size-value"]',
