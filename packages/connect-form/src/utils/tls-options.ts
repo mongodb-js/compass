@@ -1,5 +1,6 @@
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
+import type { MongoClientOptions } from 'mongodb';
 
 import { TLS_OPTIONS } from '../constants/ssl-tls-options';
 import { ConnectionFormError } from '../utils/connect-form-errors';
@@ -18,16 +19,18 @@ export function handleUpdateTlsOption({
   errors: ConnectionFormError[];
 } {
   const updatedConnectionString = connectionStringUrl.clone();
+  const updatedSearchParams =
+    updatedConnectionString.typedSearchParams<MongoClientOptions>();
 
   if (tlsOption === 'ON') {
-    updatedConnectionString.searchParams.delete('ssl');
-    updatedConnectionString.searchParams.set('tls', 'true');
+    updatedSearchParams.delete('ssl');
+    updatedSearchParams.set('tls', 'true');
   } else if (tlsOption === 'OFF') {
-    updatedConnectionString.searchParams.delete('ssl');
-    updatedConnectionString.searchParams.set('tls', 'false');
+    updatedSearchParams.delete('ssl');
+    updatedSearchParams.set('tls', 'false');
   } else if (tlsOption === 'DEFAULT') {
-    updatedConnectionString.searchParams.delete('ssl');
-    updatedConnectionString.searchParams.delete('tls');
+    updatedSearchParams.delete('ssl');
+    updatedSearchParams.delete('tls');
   }
 
   return {

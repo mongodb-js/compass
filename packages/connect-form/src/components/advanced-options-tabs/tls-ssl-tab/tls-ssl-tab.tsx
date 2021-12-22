@@ -8,6 +8,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
@@ -43,40 +44,31 @@ const TLS_TYPES: {
 export function getTLSOptionForConnectionString(
   connectionStringUrl: ConnectionStringUrl
 ): TLS_OPTIONS | undefined {
-  if (
-    connectionStringUrl.searchParams.get('ssl') === null &&
-    connectionStringUrl.searchParams.get('tls') === null
-  ) {
+  const searchParams =
+    connectionStringUrl.typedSearchParams<MongoClientOptions>();
+  if (searchParams.get('ssl') === null && searchParams.get('tls') === null) {
     return 'DEFAULT';
   }
 
   if (
-    connectionStringUrl.searchParams.get('tls') === 'true' &&
-    (connectionStringUrl.searchParams.get('ssl') === null ||
-      connectionStringUrl.searchParams.get('ssl') === 'true')
+    searchParams.get('tls') === 'true' &&
+    (searchParams.get('ssl') === null || searchParams.get('ssl') === 'true')
   ) {
     return 'ON';
   }
 
   if (
-    connectionStringUrl.searchParams.get('tls') === 'false' &&
-    (connectionStringUrl.searchParams.get('ssl') === null ||
-      connectionStringUrl.searchParams.get('ssl') === 'false')
+    searchParams.get('tls') === 'false' &&
+    (searchParams.get('ssl') === null || searchParams.get('ssl') === 'false')
   ) {
     return 'OFF';
   }
 
-  if (
-    connectionStringUrl.searchParams.get('ssl') === 'true' &&
-    connectionStringUrl.searchParams.get('tls') === null
-  ) {
+  if (searchParams.get('ssl') === 'true' && searchParams.get('tls') === null) {
     return 'ON';
   }
 
-  if (
-    connectionStringUrl.searchParams.get('ssl') === 'false' &&
-    connectionStringUrl.searchParams.get('tls') === null
-  ) {
+  if (searchParams.get('ssl') === 'false' && searchParams.get('tls') === null) {
     return 'OFF';
   }
 
