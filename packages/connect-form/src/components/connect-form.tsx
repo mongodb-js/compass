@@ -98,7 +98,7 @@ function ConnectForm({
             onConnectClicked({
               ...initialConnectionInfo,
               connectionOptions: {
-                ...initialConnectionInfo.connectionOptions,
+                ...connectionOptions,
                 connectionString: editingConnectionStringUrl.toString(),
               },
             })
