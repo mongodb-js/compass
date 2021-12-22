@@ -20,7 +20,6 @@ export function validateSshOptions(
       }
       break;
     case 'username': {
-      console.log({value});
       if (!value && sshOptions?.password) {
         isInvalid = true;
         errors['username'] = 'Username is required along with password.';
@@ -31,6 +30,13 @@ export function validateSshOptions(
       if (value && !sshOptions?.username) {
         isInvalid = true;
         errors['username'] = 'Username is required along with password.';
+      }
+      break;
+    }
+    case 'identityKeyPassphrase': {
+      if (value && !sshOptions?.identityKeyFile) {
+        isInvalid = true;
+        errors['identityKeyFile'] = 'File is required along with passphrase.';
       }
       break;
     }
