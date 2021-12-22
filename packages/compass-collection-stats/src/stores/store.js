@@ -48,7 +48,7 @@ const store = Reflux.createStore({
       isReadonly: false,
       isTimeSeries: false,
       documentCount: INVALID,
-      totalDocumentSize: INVALID,
+      storageSize: INVALID,
       avgDocumentSize: INVALID,
       indexCount: INVALID,
       totalIndexSize: INVALID,
@@ -57,13 +57,20 @@ const store = Reflux.createStore({
   },
 
   _formatCollectionStats(collectionModel) {
-    const { document_count, document_size, index_count, index_size, status } =
-      collectionModel;
+    const {
+      document_count,
+      index_count,
+      index_size,
+      status,
+      avg_document_size,
+      storage_size,
+      free_storage_size,
+    } = collectionModel;
 
     if (['initial', 'fetching', 'error'].includes(status)) {
       return {
         documentCount: INVALID,
-        totalDocumentSize: INVALID,
+        storageSize: INVALID,
         avgDocumentSize: INVALID,
         indexCount: INVALID,
         totalIndexSize: INVALID,
@@ -73,11 +80,8 @@ const store = Reflux.createStore({
 
     return {
       documentCount: this._format(document_count),
-      totalDocumentSize: this._format(document_size, 'b'),
-      avgDocumentSize: this._format(
-        this._avg(document_size, document_count),
-        'b'
-      ),
+      storageSize: this._format(storage_size - free_storage_size, 'b'),
+      avgDocumentSize: this._format(avg_document_size, 'b'),
       indexCount: this._format(index_count),
       totalIndexSize: this._format(index_size, 'b'),
       avgIndexSize: this._format(this._avg(index_size, index_count), 'b'),

@@ -105,7 +105,7 @@ const CollectionsList: React.FunctionComponent<{
         { name: 'name', label: 'Collection Name' },
         { name: 'document_count', label: 'Documents' },
         { name: 'avg_document_size', label: 'Avg. document size' },
-        { name: 'storage_size', label: 'Total document size' },
+        { name: 'storage_size', label: 'Storage size' },
         { name: 'index_count', label: 'Indexes' },
         { name: 'index_size', label: 'Total index size' },
       ]}

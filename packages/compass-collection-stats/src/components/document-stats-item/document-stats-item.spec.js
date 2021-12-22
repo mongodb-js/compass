@@ -13,7 +13,7 @@ describe('DocumentStatsItem [Component]', () => {
       component = mount(
         <DocumentStatsItem
           documentCount="10"
-          totalDocumentSize="5kb"
+          storageSize="5kb"
           avgDocumentSize="1k"
           isTimeSeries={false}
         />
@@ -39,9 +39,9 @@ describe('DocumentStatsItem [Component]', () => {
         to.have.text('10');
     });
 
-    it('renders total document size as non primary label', () => {
+    it('renders storage size as non primary label', () => {
       expect(component.find(`.${statsStyles['collection-stats-item-label']}`).at(0)).
-        to.have.text('total size');
+        to.have.text('storage size');
     });
 
     it('renders avg document size as a non primary value', () => {
@@ -67,7 +67,7 @@ describe('DocumentStatsItem [Component]', () => {
       component = mount(
         <DocumentStatsItem
           documentCount="10"
-          totalDocumentSize="5kb"
+          storageSize="5kb"
           avgDocumentSize="1k"
           isTimeSeries
         />

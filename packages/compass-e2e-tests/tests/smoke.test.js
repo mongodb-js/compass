@@ -147,7 +147,7 @@ describe('Smoke tests', function () {
 
       // all of these unfortunately differ slightly between different versions of mongodb
       const totalDocumentSizeValueElement = await client.$(
-        Selectors.TotalDocumentSizeValue
+        Selectors.StorageSizeValue
       );
       expect(await totalDocumentSizeValueElement.getText()).to.include('KB');
       const avgDocumentSizeValueElement = await client.$(
