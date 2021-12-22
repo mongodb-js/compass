@@ -2,7 +2,7 @@ import React, { ChangeEvent } from 'react';
 import { ConnectionOptions } from 'mongodb-data-service';
 import { css } from '@emotion/css';
 import { TextInput, spacing } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../hooks/use-connect-form';
+import { SSHConnectionOptions } from '../../../hooks/connection-options-handler';
 import { defaultSocksPort } from '../../../constants/default-connection';
 
 const inputFieldStyles = css({

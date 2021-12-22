@@ -2,8 +2,7 @@ import { ConnectionOptions } from 'mongodb-data-service';
 import React, { ChangeEvent } from 'react';
 import { css } from '@emotion/css';
 import { TextInput, spacing } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../hooks/use-connect-form';
-import { defaultSSHPort } from '../../../constants/default-connection';
+import { SSHConnectionOptions } from '../../../hooks/connection-options-handler';
 
 const inputFieldStyles = css({
   width: '50%',
@@ -54,7 +53,7 @@ function Password({
         type={'number'}
         optional={false}
         placeholder={'SSH Port'}
-        value={(sshTunnelOptions?.port ?? defaultSSHPort).toString()}
+        value={(sshTunnelOptions?.port ?? '').toString()}
         errorMessage={errors?.port}
         state={errors?.port ? 'error' : 'none'}
       />

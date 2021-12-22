@@ -2,10 +2,10 @@ import React from 'react';
 import path from 'path';
 import { css, cx } from '@emotion/css';
 
-import { Button, Icon } from '..';
+import { Button, Icon, Label } from '..';
 
 const formItemHorizontalStyles = css`
-  margin: 15px auto 15px;
+  margin: 8px auto 8px;
   display: flex;
   justify-content: flex-end;
 `;
@@ -15,10 +15,10 @@ const formItemVerticalStyles = css`
 `;
 
 const formItemErrorStyles = css`
-  border: 1px solid red;
-
+  border: 1px solid #CF4A22;
+  border-radius: 5px;
   &:focus {
-    border: 1px solid red;
+    border: 1px solid #CF4A22;
   }
 `;
 
@@ -26,9 +26,9 @@ const buttonStyles = css`
   width: 100%;
 `;
 
-const buttonErrorStyles = css`
-  border: 1px solid red;
-`;
+const errorMessageStyles = css({
+  color: '#CF4A22',
+});
 
 const labelHorizontalStyles = css`
   width: 70%;
@@ -37,10 +37,6 @@ const labelHorizontalStyles = css`
   padding-right: 15px;
   margin: auto;
   margin-bottom: 0;
-`;
-
-const labelErrorStyles = css`
-  color: red;
 `;
 
 const labelIconStyles = css`
@@ -96,7 +92,7 @@ function FileInput({
   label: string;
   onChange: (files: string[]) => void;
   multi?: boolean;
-  error?: boolean;
+  error?: boolean | string;
   variant?: Variant;
   link?: string;
   helpText?: React.Component;
@@ -125,58 +121,59 @@ function FileInput({
   );
 
   return (
-    <div
-      className={cx(
-        { [formItemHorizontalStyles]: variant === Variant.Horizontal },
-        { [formItemVerticalStyles]: variant === Variant.Vertical },
-        { [formItemErrorStyles]: error },
-        className
-      )}
-    >
-      <label
-        htmlFor={id}
+    <div className={className}>
+      <div
         className={cx(
-          { [labelHorizontalStyles]: variant === Variant.Horizontal },
-          { [labelErrorStyles]: error }
+          { [formItemHorizontalStyles]: variant === Variant.Horizontal },
+          { [formItemVerticalStyles]: variant === Variant.Vertical },
+          { [formItemErrorStyles]: Boolean(error) },
         )}
       >
-        <span>{label}</span>
-        {link && !helpText && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noreferrer"
-            className={labelIconStyles}
-            data-testid="file-input-link"
-          >
-            
-          </a>
-        )}
-        {!link && helpText}
-      </label>
-      <input
-        ref={inputRef}
-        id={`${id}_file_input`}
-        name={id}
-        type="file"
-        multiple={multi}
-        onChange={onFilesChanged}
-        style={{ display: 'none' }}
-      />
-      <Button
-        id={id}
-        data-testid="file-input-button"
-        className={cx({ [buttonStyles]: true }, { [buttonErrorStyles]: error })}
-        onClick={() => {
-          if (inputRef.current) {
-            inputRef.current.click();
-          }
-        }}
-        title="Select a file"
-        leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
-      >
-        {buttonText}
-      </Button>
+        <label
+          htmlFor={id}
+          className={cx(
+            { [labelHorizontalStyles]: variant === Variant.Horizontal },
+          )}
+        >
+          <span>{label}</span>
+          {link && !helpText && (
+            <a
+              href={link}
+              target="_blank"
+              rel="noreferrer"
+              className={labelIconStyles}
+              data-testid="file-input-link"
+            >
+              
+            </a>
+          )}
+          {!link && helpText}
+        </label>
+        <input
+          ref={inputRef}
+          id={`${id}_file_input`}
+          name={id}
+          type="file"
+          multiple={multi}
+          onChange={onFilesChanged}
+          style={{ display: 'none' }}
+        />
+        <Button
+          id={id}
+          data-testid="file-input-button"
+          className={cx({ [buttonStyles]: true })}
+          onClick={() => {
+            if (inputRef.current) {
+              inputRef.current.click();
+            }
+          }}
+          title="Select a file"
+          leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
+        >
+          {buttonText}
+        </Button>
+      </div>
+      {error && typeof error === 'string' && <Label className={errorMessageStyles} htmlFor={''}>{error}</Label>}
     </div>
   );
 }

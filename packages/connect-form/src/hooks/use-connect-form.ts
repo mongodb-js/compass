@@ -2,7 +2,7 @@ import { useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 
-import { defaultConnectionString, defaultSSHPort } from '../constants/default-connection';
+import { defaultConnectionString } from '../constants/default-connection';
 import {
   ConnectionFormWarning,
   getConnectFormWarnings,
@@ -16,7 +16,7 @@ import { defaultHostname, defaultPort } from '../constants/default-connection';
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
 import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
-import { validateSshOptions } from '../utils/validate-ssh-options';
+import { handleUpdateConnectionOptions, UpdateConnectionOptions } from './connection-options-handler';
 
 export interface ConnectFormState {
   connectionStringInvalidError: string | null;
@@ -87,14 +87,6 @@ interface UpdateHostAction {
   type: 'update-host';
   hostIndex: number;
   newHostValue: string;
-}
-
-export type SSHConnectionOptions = NonNullable<ConnectionOptions['sshTunnel']>;
-
-interface UpdateConnectionOptions {
-  type: 'update-connection-options';
-  key: keyof SSHConnectionOptions;
-  value: string | number;
 }
 
 type ConnectionFormFieldActions =
@@ -209,68 +201,18 @@ function handleUpdateHost({
   }
 }
 
-function handleUpdateConnectionOptions({
-  action,
-  connectionStringUrl,
-  connectionOptions,
-}: {
-  action: UpdateConnectionOptions;
-  connectionStringUrl: ConnectionStringUrl;
-  connectionOptions: ConnectionOptions;
-}) {
-  const { key, value } = action;
-
-  const {isInvalid, errors} = validateSshOptions(key, value, connectionStringUrl.isSRV, connectionOptions.sshTunnel);
-
-  if (!connectionOptions.sshTunnel) {
-    connectionOptions.sshTunnel = {
-      host: '',
-      username: '',
-      port: defaultSSHPort,
-    };
-  }
-
-  connectionOptions.sshTunnel[key] = value as any; // todo ts fix
-
-  console.log({
-    connectionStringUrl,
-    connectionOptions: {
-      ...connectionOptions,
-      connectionString: connectionStringUrl.toString(),
-    },
-    errors: [
-      {
-        fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH,
-        errors,
-      },
-    ],
-  });
-
-  return {
-    connectionStringUrl,
-    connectionOptions: {
-      ...connectionOptions,
-      connectionString: connectionStringUrl.toString(),
-    },
-    errors: [
-      {
-        fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH,
-        errors,
-      },
-    ],
-  };
-}
-
 // This function handles field updates from the connection form.
 // It performs validity checks and downstream effects. Exported for testing.
 export function handleConnectionFormFieldUpdate({
   action,
   connectionStringUrl,
   connectionOptions,
+  initialErrors,
 }: {
   action: ConnectionFormFieldActions;
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
+  initialErrors: ConnectionFormError[];
 }): {
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
@@ -389,10 +331,12 @@ export function handleConnectionFormFieldUpdate({
       }
     }
     case 'update-connection-options': {
-      return handleUpdateConnectionOptions({
-        action,
-        connectionStringUrl,
+      return handleUpdateConnectionOptions(action, {
         connectionOptions,
+        connectionStringUrl,
+        errors: initialErrors,
+        warnings: [],
+        connectionStringInvalidError: null,
       });
     }
   }
@@ -455,6 +399,7 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
       action,
       connectionOptions: state.connectionOptions,
       connectionStringUrl: state.connectionStringUrl,
+      initialErrors: state.errors,
     });
 
     dispatch({
