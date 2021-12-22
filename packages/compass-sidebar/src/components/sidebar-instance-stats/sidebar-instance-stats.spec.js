@@ -15,6 +15,7 @@ describe('SidebarInstanceStats [Component]', () => {
       emitSpy = sinon.spy();
       component = mount(<SidebarInstanceStats
         instance={null}
+        databases={[]}
         isExpanded
         toggleIsExpanded={toggleSpy}
         globalAppRegistryEmit={emitSpy}
@@ -44,12 +45,12 @@ describe('SidebarInstanceStats [Component]', () => {
         <SidebarInstanceStats
           instance={{
             status: 'ready',
-            databases: [
-              { collectionsLength: 2 },
-              { collectionsLength: 2 },
-              { collectionsLength: 1 },
-            ],
           }}
+          databases={[
+            { collectionsLength: 2 },
+            { collectionsLength: 2 },
+            { collectionsLength: 1 },
+          ]}
           isExpanded
           toggleIsExpanded={toggleSpy}
           globalAppRegistryEmit={emitSpy}
@@ -78,8 +79,8 @@ describe('SidebarInstanceStats [Component]', () => {
         <SidebarInstanceStats
           instance={{
             status: 'ready',
-            databases: [],
           }}
+          databases={[]}
           isExpanded
           toggleIsExpanded={toggleSpy}
           globalAppRegistryEmit={emitSpy}

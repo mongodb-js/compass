@@ -135,14 +135,10 @@ class Connect extends React.Component {
   }
 
   render() {
-    const Status =
-      global.hadronApp.appRegistry.getRole('Application.Status')[0].component;
-
     const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
 
     return (
       <div>
-        <Status />
         <div
           data-test-id="connect-section"
           className={classnames(styles.page, styles.connect)}

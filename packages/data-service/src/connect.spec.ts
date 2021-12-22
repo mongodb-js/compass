@@ -6,6 +6,7 @@ import util from 'util';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import path from 'path';
 import os from 'os';
+import type { MongoClientOptions } from 'mongodb';
 
 import connect from './connect';
 import { ConnectionOptions } from './connection-options';
@@ -32,7 +33,7 @@ const buildConnectionString = (
   username: string | undefined,
   password: string | undefined,
   host: string | undefined,
-  params?: Record<string, string>
+  params?: MongoClientOptions
 ): string => {
   if (!username || !password || !host) {
     return '';
@@ -213,11 +214,12 @@ describe('connect', function () {
         const url = new ConnectionStringUrl(
           `mongodb+srv://${E2E_TESTS_ATLAS_HOST || ''}/admin`
         );
+        const searchParams = url.typedSearchParams<MongoClientOptions>();
 
-        url.searchParams.set('authMechanism', 'MONGODB-X509');
-        url.searchParams.set('tls', 'true');
-        url.searchParams.set('tlsCertificateKeyFile', certPath);
-        url.searchParams.set('authSource', '$external');
+        searchParams.set('authMechanism', 'MONGODB-X509');
+        searchParams.set('tls', 'true');
+        searchParams.set('tlsCertificateKeyFile', certPath);
+        searchParams.set('authSource', '$external');
 
         await connectAndGetAuthInfo({
           connectionString: url.href,

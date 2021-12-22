@@ -107,29 +107,30 @@ function connectionOptionsToMongoClientParams(
   connectionOptions: ConnectionOptions
 ): [string, MongoClientOptions] {
   const url = new ConnectionStringUrl(connectionOptions.connectionString);
+  const searchParams = url.typedSearchParams<MongoClientOptions>();
 
   const options: MongoClientOptions = {
     monitorCommands: true,
   };
 
   // adds directConnection=true unless is explicitly a replica set
-  const isLoadBalanced = url.searchParams.get('loadBalanced') === 'true';
+  const isLoadBalanced = searchParams.get('loadBalanced') === 'true';
   const isReplicaSet =
-    url.isSRV || url.hosts.length > 1 || url.searchParams.has('replicaSet');
-  const hasDirectConnection = url.searchParams.has('directConnection');
+    url.isSRV || url.hosts.length > 1 || searchParams.has('replicaSet');
+  const hasDirectConnection = searchParams.has('directConnection');
 
   if (!isReplicaSet && !isLoadBalanced && !hasDirectConnection) {
-    url.searchParams.set('directConnection', 'true');
+    searchParams.set('directConnection', 'true');
   }
 
   // See https://jira.mongodb.org/browse/NODE-3591
   if (
-    !url.searchParams.has('tlsCertificateFile') &&
-    url.searchParams.has('tlsCertificateKeyFile')
+    !searchParams.has('tlsCertificateFile') &&
+    searchParams.has('tlsCertificateKeyFile')
   ) {
-    url.searchParams.set(
+    searchParams.set(
       'tlsCertificateFile',
-      url.searchParams.get('tlsCertificateKeyFile') as string
+      searchParams.get('tlsCertificateKeyFile') as string
     );
   }
 

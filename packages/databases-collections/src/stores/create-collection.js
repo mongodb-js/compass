@@ -26,10 +26,10 @@ store.onActivated = (appRegistry) => {
    * When needing to create a collection from elsewhere, the app registry
    * event is emitted.
    *
-   * @param {String} databaseName - The database name.
+   * @param {{ database: string }} ns Parsed namespace
    */
-  appRegistry.on('open-create-collection', (databaseName) => {
-    store.dispatch(open(databaseName));
+  appRegistry.on('open-create-collection', ({ database }) => {
+    store.dispatch(open(database));
   });
 };
 

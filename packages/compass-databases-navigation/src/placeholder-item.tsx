@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
-import React, { CSSProperties, useMemo } from 'react';
-import { css } from '@leafygreen-ui/emotion';
-import { uiColors, spacing } from '@mongodb-js/compass-components';
+import React, { CSSProperties } from 'react';
+import { spacing, Placeholder, css, cx } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
 
 const placeholderItem = css({
@@ -11,32 +10,24 @@ const placeholderItem = css({
   paddingLeft: spacing[5],
 });
 
-const placeholderItemContent = css({
-  display: 'block',
-  height: spacing[3],
-  backgroundColor: uiColors.gray.dark1,
-  borderRadius: 3,
-});
-
-function getBoundRandom(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
+const padding = {
+  database: css({
+    // Because we are aligning this with non-leafygreen items on the screen we
+    // have to use custom sizes
+    paddingLeft: spacing[1] + spacing[2],
+  }),
+  collection: css({
+    paddingLeft: spacing[5],
+  }),
+} as const;
 
 export const PlaceholderItem: React.FunctionComponent<{
+  type?: 'database' | 'collection';
   style?: CSSProperties;
-}> = ({ style }) => {
-  const width = useMemo(() => {
-    return `${getBoundRandom(30, 80)}%`;
-  }, []);
-
+}> = ({ type = 'collection', style }) => {
   return (
-    <div
-      role="presentation"
-      data-testid="placeholder"
-      className={placeholderItem}
-      style={style}
-    >
-      <span className={placeholderItemContent} style={{ width }} />
+    <div className={cx(placeholderItem, padding[type])} style={style}>
+      <Placeholder darkMode></Placeholder>
     </div>
   );
 };

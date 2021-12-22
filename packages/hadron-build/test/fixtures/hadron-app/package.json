@@ -49,16 +49,12 @@
   },
   "scripts": {
     "start": "hadron-build develop",
-    "test": "xvfb-maybe hadron-build test",
     "prepublish": "hadron-build release",
     "postuninstall": "hadron-build clean",
     "test-check-ci": "npm run test",
     "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
     "release": "hadron-build release",
-    "test-functional": "npm test -- --functional",
-    "test-unit": "npm test -- --unit",
-    "test-release": "npm test -- --release",
     "upload": "hadron-build upload"
   },
   "repository": {
