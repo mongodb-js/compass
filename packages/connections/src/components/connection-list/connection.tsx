@@ -52,14 +52,14 @@ const connectionButtonStyles = css({
   paddingRight: 0,
   paddingBottom: spacing[1],
   paddingLeft: spacing[1] * 3,
-  position: 'relative',
   width: '100%',
-  overflow: 'hidden',
+  display: 'grid',
+  gridTemplateAreas: `'icon title' '. description'`,
+  gridTemplateColumns: 'auto 1fr',
+  alignItems: 'center',
+  justifyItems: 'start',
   border: 'none',
   borderRadius: 0,
-  display: 'flex',
-  flexDirection: 'row',
-  textAlign: 'left',
   background: 'none',
   '&:hover': {
     border: 'none',
@@ -68,13 +68,6 @@ const connectionButtonStyles = css({
   '&:focus': {
     border: 'none',
   },
-});
-
-const connectionDetailsContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-  width: 'calc(100% - 20px)',
 });
 
 const connectionTitleStyles = css({
@@ -88,6 +81,9 @@ const connectionTitleStyles = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  gridArea: 'title',
+  width: 'calc(100% - 20px)',
+  textAlign: 'left',
 });
 
 const connectionDescriptionStyles = css({
@@ -100,6 +96,7 @@ const connectionDescriptionStyles = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  gridArea: 'description',
 });
 
 // Creates a date string formatted as `Oct 27, 3000, 2:06 PM`.
@@ -157,33 +154,28 @@ function Connection({
         onDoubleClick={() => onDoubleClick(connectionInfo)}
       >
         <ConnectionIcon color={color} connectionString={connectionString} />
-        {/* Title and Last Used */}
-        <div className={connectionDetailsContainerStyles}>
-          {/* Title */}
-          <H3
-            className={cx(
-              connectionTitleStyles,
-              css({
-                color,
-              })
-            )}
-            data-testid={`${favorite ? 'favorite' : 'recent'}-connection-title`}
-            title={connectionTitle}
-          >
-            {connectionTitle}
-          </H3>
-          {/* Last Used */}
-          {lastUsed && (
-            <Description
-              className={connectionDescriptionStyles}
-              data-testid={`${
-                favorite ? 'favorite' : 'recent'
-              }-connection-description`}
-            >
-              {lastUsed.toLocaleString('default', dateConfig)}
-            </Description>
+        <H3
+          className={cx(
+            connectionTitleStyles,
+            css({
+              color,
+            })
           )}
-        </div>
+          data-testid={`${favorite ? 'favorite' : 'recent'}-connection-title`}
+          title={connectionTitle}
+        >
+          {connectionTitle}
+        </H3>
+        {lastUsed && (
+          <Description
+            className={connectionDescriptionStyles}
+            data-testid={`${
+              favorite ? 'favorite' : 'recent'
+            }-connection-description`}
+          >
+            {lastUsed.toLocaleString('default', dateConfig)}
+          </Description>
+        )}
       </button>
       <div
         className={

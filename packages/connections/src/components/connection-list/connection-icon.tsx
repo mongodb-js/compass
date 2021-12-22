@@ -3,13 +3,14 @@ import React from 'react';
 import { Icon, spacing, MongoDBLogoMark } from '@mongodb-js/compass-components';
 import { isLocalhost, isAtlas } from 'mongodb-build-info';
 
-const connectionFavoriteStyles = css({
+const connectionIconStyles = css({
   borderRadius: '50%',
   width: spacing[3],
   height: spacing[3],
   flexShrink: 0,
   marginTop: spacing[1] / 2,
   marginRight: spacing[2],
+  gridArea: 'icon',
 });
 
 function ConnectionIcon({
@@ -25,7 +26,7 @@ function ConnectionIcon({
     return (
       <MongoDBLogoMark
         className={cx(
-          connectionFavoriteStyles,
+          connectionIconStyles,
           css({
             path: {
               fill: color,
@@ -41,7 +42,7 @@ function ConnectionIcon({
   return (
     <Icon
       glyph={glyph}
-      className={connectionFavoriteStyles}
+      className={connectionIconStyles}
       fill={color}
       data-testid={testId}
     />
