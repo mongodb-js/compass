@@ -128,6 +128,7 @@
     "test-release-tasks": "cross-env MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID='' mocha \"./release/*.spec.js\"",
     "upload": "hadron-build upload",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
+    "build-info": "hadron-build info",
     "jsx": "babel ./src --out-dir ./lib",
     "lint": "eslint",
     "depcheck": "depcheck",

@@ -66,6 +66,18 @@ exports.builder = {
   dir: {
     description: 'Project root directory',
     default: process.cwd()
+  },
+  version: {
+    description: 'Target version',
+    default: undefined
+  },
+  platform: {
+    description: 'Target platform',
+    default: undefined
+  },
+  arch: {
+    description: 'Target arch',
+    default: undefined
   }
 };
 
@@ -76,7 +88,11 @@ exports.handler = function(argv) {
     process.env.HADRON_DISTRIBUTION = argv.options;
   }
 
-  var target = new Target(argv.dir);
+  const target = new Target(argv.dir, {
+    version: argv.version,
+    platform: argv.platform,
+    arch: argv.arch
+  });
 
   if (target.channel === 'dev') {
     cli.info('Skipping publish GitHub release for dev channel.');
