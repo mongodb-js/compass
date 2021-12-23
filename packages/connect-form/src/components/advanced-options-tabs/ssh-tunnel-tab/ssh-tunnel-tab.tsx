@@ -123,14 +123,22 @@ function SSHTunnel({
       >
         {options.map(({ title, id, type }) => {
           return (
-            <RadioBox data-testid={`${type}-tab-button`} checked={selectedOption.id === id} value={id} key={id}>
+            <RadioBox
+              data-testid={`${type}-tab-button`}
+              checked={selectedOption.id === id}
+              value={id}
+              key={id}
+            >
               {title}
             </RadioBox>
           );
         })}
       </RadioBoxGroup>
       {connectionOptions && (
-        <div className={contentStyles} data-testid={`${selectedOption.type}-tab-content`}>
+        <div
+          className={contentStyles}
+          data-testid={`${selectedOption.type}-tab-content`}
+        >
           <SSLOptionContent
             errors={sshTunnelErrors?.errors}
             sshTunnelOptions={connectionOptions.sshTunnel}

@@ -61,8 +61,8 @@ function Identity({
       label: 'SSH Identity File',
       type: 'file',
       errorMessage: errors?.identityKeyFile,
-      value: 
-      sshTunnelOptions?.identityKeyFile && sshTunnelOptions.identityKeyFile
+      value:
+        sshTunnelOptions?.identityKeyFile && sshTunnelOptions.identityKeyFile
           ? [sshTunnelOptions.identityKeyFile]
           : undefined,
     },
@@ -80,45 +80,61 @@ function Identity({
 
   return (
     <>
-      {fields.map(({name, label, type, optional, placeholder, value, errorMessage, state}) => {
-        if (type === 'file') {
+      {fields.map(
+        ({
+          name,
+          label,
+          type,
+          optional,
+          placeholder,
+          value,
+          errorMessage,
+          state,
+        }) => {
+          if (type === 'file') {
+            return (
+              <FormFieldContainer key={name}>
+                <FileInput
+                  id={name}
+                  dataTestId={name}
+                  onChange={(files: string[]) => {
+                    formFieldChanged(name as IdentityFormKeys, files[0]);
+                  }}
+                  label={label}
+                  error={Boolean(errorMessage)}
+                  errorMessage={errorMessage}
+                  values={value as string[] | undefined}
+                  description={'Learn More'}
+                  link={'https://mongodb.com'}
+                />
+              </FormFieldContainer>
+            );
+          }
           return (
             <FormFieldContainer key={name}>
-              <FileInput
-                id={name}
-                dataTestId={name}
-                onChange={(files: string[]) => {
-                  formFieldChanged(name as IdentityFormKeys, files[0]);
+              <TextInput
+                onChange={({
+                  target: { value },
+                }: ChangeEvent<HTMLInputElement>) => {
+                  formFieldChanged(
+                    name as IdentityFormKeys,
+                    name === 'port' ? Number(value) : value
+                  );
                 }}
+                name={name}
+                data-testid={name}
                 label={label}
-                error={Boolean(errorMessage)}
+                type={type}
+                optional={optional}
+                placeholder={placeholder}
+                value={value as string | undefined}
                 errorMessage={errorMessage}
-                values={value as string[] | undefined}
-                description={'Learn More'}
-                link={'https://mongodb.com'}
+                state={state as 'error' | 'none'}
               />
             </FormFieldContainer>
           );
         }
-        return (
-          <FormFieldContainer key={name}>
-            <TextInput
-              onChange={({target: { value}}: ChangeEvent<HTMLInputElement>) => {
-                formFieldChanged(name as IdentityFormKeys, name === 'port' ? Number(value) : value);
-              }}
-              name={name}
-              data-testid={name}
-              label={label}
-              type={type}
-              optional={optional}
-              placeholder={placeholder}
-              value={value as string | undefined}
-              errorMessage={errorMessage}
-              state={state as 'error' | 'none'}
-            />
-          </FormFieldContainer>
-        );
-      })}
+      )}
     </>
   );
 }

@@ -36,7 +36,7 @@ describe('SSHTunnelTab', function () {
   });
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  ['none', 'password', 'identity', 'socks'].forEach(function(type) {
+  ['none', 'password', 'identity', 'socks'].forEach(function (type) {
     it(`renders ${type} tab when selected`, function () {
       const tabButton = screen.getByTestId(`${type}-tab-button`);
       fireEvent.click(tabButton);
@@ -45,12 +45,12 @@ describe('SSHTunnelTab', function () {
     });
   });
 
-  describe('calls updateConnectionFormField on password tab', function() {
+  describe('calls updateConnectionFormField on password tab', function () {
     beforeEach(function () {
       const tabButton = screen.getByTestId('password-tab-button');
       fireEvent.click(tabButton);
     });
-  
+
     // eslint-disable-next-line mocha/no-setup-in-describe
     [
       {
@@ -68,26 +68,26 @@ describe('SSHTunnelTab', function () {
       {
         key: 'password',
         value: 'password',
-      }
-    ].forEach(function({key, value}){
-      it(`when ${key} field on password form changes`, function() {
-        fireEvent.change(screen.getByTestId(key), {target: { value }});
+      },
+    ].forEach(function ({ key, value }) {
+      it(`when ${key} field on password form changes`, function () {
+        fireEvent.change(screen.getByTestId(key), { target: { value } });
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-connection-options',
           currentTab: 'password',
           key,
-          value
+          value,
         });
-      })
+      });
     });
   });
 
-  describe('calls updateConnectionFormField on identity tab', function() {
+  describe('calls updateConnectionFormField on identity tab', function () {
     beforeEach(function () {
       const tabButton = screen.getByTestId('identity-tab-button');
       fireEvent.click(tabButton);
     });
-  
+
     // eslint-disable-next-line mocha/no-setup-in-describe
     [
       {
@@ -110,26 +110,26 @@ describe('SSHTunnelTab', function () {
       {
         key: 'identityKeyPassphrase',
         value: 'passphrase',
-      }
-    ].forEach(function({key, value}){
-      it(`when ${key} field on identity form changes`, function() {
-        fireEvent.change(screen.getByTestId(key), {target: { value }});
+      },
+    ].forEach(function ({ key, value }) {
+      it(`when ${key} field on identity form changes`, function () {
+        fireEvent.change(screen.getByTestId(key), { target: { value } });
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-connection-options',
           currentTab: 'identity',
           key,
-          value
+          value,
         });
-      })
+      });
     });
   });
 
-  describe('calls updateConnectionFormField on socks tab', function() {
+  describe('calls updateConnectionFormField on socks tab', function () {
     beforeEach(function () {
       const tabButton = screen.getByTestId('socks-tab-button');
       fireEvent.click(tabButton);
     });
-  
+
     // eslint-disable-next-line mocha/no-setup-in-describe
     [
       {
@@ -147,17 +147,17 @@ describe('SSHTunnelTab', function () {
       {
         key: 'password',
         value: 'password',
-      }
-    ].forEach(function({key, value}){
-      it(`when ${key} field on socks form changes`, function() {
-        fireEvent.change(screen.getByTestId(key), {target: { value }});
+      },
+    ].forEach(function ({ key, value }) {
+      it(`when ${key} field on socks form changes`, function () {
+        fireEvent.change(screen.getByTestId(key), { target: { value } });
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-connection-options',
           currentTab: 'socks',
           key,
-          value
+          value,
         });
-      })
+      });
     });
   });
 });

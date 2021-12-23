@@ -72,24 +72,40 @@ function Password({
 
   return (
     <>
-      {fields.map(({name, label, type, optional, placeholder, value, errorMessage, state}) => (
-        <FormFieldContainer key={name}>
-          <TextInput
-            onChange={({target: { value}}: ChangeEvent<HTMLInputElement>) => {
-              formFieldChanged(name as PasswordFormKeys, name === 'port' ? Number(value) : value);
-            }}
-            name={name}
-            data-testid={name}
-            label={label}
-            type={type}
-            optional={optional}
-            placeholder={placeholder}
-            value={value}
-            errorMessage={errorMessage}
-            state={state as 'error' | 'none'}
-          />
-        </FormFieldContainer>
-      ))}
+      {fields.map(
+        ({
+          name,
+          label,
+          type,
+          optional,
+          placeholder,
+          value,
+          errorMessage,
+          state,
+        }) => (
+          <FormFieldContainer key={name}>
+            <TextInput
+              onChange={({
+                target: { value },
+              }: ChangeEvent<HTMLInputElement>) => {
+                formFieldChanged(
+                  name as PasswordFormKeys,
+                  name === 'port' ? Number(value) : value
+                );
+              }}
+              name={name}
+              data-testid={name}
+              label={label}
+              type={type}
+              optional={optional}
+              placeholder={placeholder}
+              value={value}
+              errorMessage={errorMessage}
+              state={state as 'error' | 'none'}
+            />
+          </FormFieldContainer>
+        )
+      )}
     </>
   );
 }
