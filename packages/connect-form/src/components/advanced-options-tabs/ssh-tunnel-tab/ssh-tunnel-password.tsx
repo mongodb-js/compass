@@ -2,14 +2,17 @@ import { ConnectionOptions } from 'mongodb-data-service';
 import React, { ChangeEvent } from 'react';
 import { css } from '@emotion/css';
 import { TextInput, spacing } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../hooks/connection-options-handler';
+import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
 
 const inputFieldStyles = css({
   width: '50%',
   marginBottom: spacing[3],
 });
 
-type PasswordFormKeys = keyof Omit<SSHConnectionOptions, 'identityKeyFile' | 'identityKeyPassphrase'>;
+type PasswordFormKeys = keyof Omit<
+  SSHConnectionOptions,
+  'identityKeyFile' | 'identityKeyPassphrase'
+>;
 type PasswordFormErrors = {
   [key in PasswordFormKeys]?: string;
 };
@@ -20,7 +23,10 @@ function Password({
   errors,
 }: {
   sshTunnelOptions: ConnectionOptions['sshTunnel'];
-  onConnectionOptionChanged: (key: PasswordFormKeys, value: string | number) => void;
+  onConnectionOptionChanged: (
+    key: PasswordFormKeys,
+    value: string | number
+  ) => void;
   errors?: PasswordFormErrors;
 }): React.ReactElement {
   const formFieldChanged = (key: PasswordFormKeys, value: string | number) => {

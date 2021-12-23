@@ -2,7 +2,7 @@ import React, { ChangeEvent } from 'react';
 import { ConnectionOptions } from 'mongodb-data-service';
 import { css } from '@emotion/css';
 import { TextInput, spacing } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../hooks/connection-options-handler';
+import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
 import { defaultSocksPort } from '../../../constants/default-connection';
 
 const inputFieldStyles = css({
@@ -10,10 +10,13 @@ const inputFieldStyles = css({
   marginBottom: spacing[3],
 });
 
-type SocksFormKeys = keyof Omit<SSHConnectionOptions, 'identityKeyFile' | 'identityKeyPassphrase'>;
+type SocksFormKeys = keyof Omit<
+  SSHConnectionOptions,
+  'identityKeyFile' | 'identityKeyPassphrase'
+>;
 type SocksFormErrors = {
   [key in SocksFormKeys]?: string;
-}
+};
 
 function Socks({
   sshTunnelOptions,
@@ -21,12 +24,15 @@ function Socks({
   errors,
 }: {
   sshTunnelOptions: ConnectionOptions['sshTunnel'];
-  onConnectionOptionChanged: (key: SocksFormKeys, value: string | number) => void;
+  onConnectionOptionChanged: (
+    key: SocksFormKeys,
+    value: string | number
+  ) => void;
   errors?: SocksFormErrors;
 }): React.ReactElement {
   const formFieldChanged = (key: SocksFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
-  }
+  };
   return (
     <>
       <TextInput

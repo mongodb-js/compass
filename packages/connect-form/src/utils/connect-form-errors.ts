@@ -1,7 +1,7 @@
 import { ConnectionOptions } from 'mongodb-data-service';
 
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
-import { SSHConnectionOptions } from '../hooks/connection-options-handler';
+import { SSHConnectionOptions } from './connection-options-handler';
 
 interface GenericConnectionError {
   fieldName: undefined;
@@ -26,7 +26,7 @@ export interface SSHTunnelFieldError {
 
 export type SSHFormErrors = {
   [key in keyof SSHConnectionOptions]?: string;
-}
+};
 
 export type ConnectionFormError =
   | GenericConnectionError

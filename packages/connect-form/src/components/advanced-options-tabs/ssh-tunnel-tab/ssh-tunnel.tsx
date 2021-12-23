@@ -9,8 +9,15 @@ import {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { SSHConnectionOptions, SSHType } from '../../../hooks/connection-options-handler';
-import { ConnectionFormError, SSHTunnelFieldError, SSHFormErrors } from '../../../utils/connect-form-errors';
+import {
+  SSHConnectionOptions,
+  SSHType,
+} from '../../../utils/connection-options-handler';
+import {
+  ConnectionFormError,
+  SSHTunnelFieldError,
+  SSHFormErrors,
+} from '../../../utils/connect-form-errors';
 
 import Identity from './ssh-tunnel-identity';
 import None from './ssh-tunnel-none';
@@ -21,10 +28,13 @@ import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fiel
 interface TabOption {
   id: string;
   title: string;
-  type: SSHType,
+  type: SSHType;
   component: React.FC<{
     sshTunnelOptions?: SSHConnectionOptions;
-    onConnectionOptionChanged: (key: keyof SSHConnectionOptions, value: string | number) => void;
+    onConnectionOptionChanged: (
+      key: keyof SSHConnectionOptions,
+      value: string | number
+    ) => void;
     errors?: SSHFormErrors;
   }>;
 }
@@ -93,7 +103,9 @@ function SSHTunnel({
     [updateConnectionFormField, selectedOption]
   );
 
-  const sshTunnelErrors: SSHTunnelFieldError | undefined = errors.find(({fieldName}) => fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SSH);
+  const sshTunnelErrors: SSHTunnelFieldError | undefined = errors.find(
+    ({ fieldName }) => fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SSH
+  );
 
   const SSLOptionContent = selectedOption.component;
 

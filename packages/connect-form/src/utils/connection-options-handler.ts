@@ -1,8 +1,8 @@
-import { ConnectionOptions } from "mongodb-data-service";
-import { MARKABLE_FORM_FIELD_NAMES } from "../constants/markable-form-fields";
-import { SSHFormErrors } from "../utils/connect-form-errors";
-import { ConnectFormState } from "./use-connect-form";
-import { checkForInvalidCharacterInHost } from "../utils/check-for-invalid-character-in-host";
+import { ConnectionOptions } from 'mongodb-data-service';
+import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
+import { SSHFormErrors } from './connect-form-errors';
+import { ConnectFormState } from '../hooks/use-connect-form';
+import { checkForInvalidCharacterInHost } from './check-for-invalid-character-in-host';
 
 export type SSHConnectionOptions = NonNullable<ConnectionOptions['sshTunnel']>;
 
@@ -15,13 +15,16 @@ export interface UpdateConnectionOptions {
   value: string | number;
 }
 
-export function handleUpdateConnectionOptions(action: UpdateConnectionOptions, {
-  errors: initialErrors,
-  connectionStringUrl,
-  connectionOptions,
-  connectionStringInvalidError,
-  warnings,
-}: ConnectFormState): ConnectFormState {
+export function handleUpdateConnectionOptions(
+  action: UpdateConnectionOptions,
+  {
+    errors: initialErrors,
+    connectionStringUrl,
+    connectionOptions,
+    connectionStringInvalidError,
+    warnings,
+  }: ConnectFormState
+): ConnectFormState {
   const { key, value, currentTab } = action;
 
   if (currentTab === 'none') {
@@ -58,7 +61,9 @@ export function handleUpdateConnectionOptions(action: UpdateConnectionOptions, {
       connectionString: connectionStringUrl.toString(),
     },
     errors: [
-      ...initialErrors.filter(({fieldName}) => fieldName !== MARKABLE_FORM_FIELD_NAMES.IS_SSH),
+      ...initialErrors.filter(
+        ({ fieldName }) => fieldName !== MARKABLE_FORM_FIELD_NAMES.IS_SSH
+      ),
       {
         fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH,
         errors,
@@ -76,11 +81,12 @@ const validateSshOptions = (
   key: keyof SSHConnectionOptions,
   value: string | number,
   isSRV: boolean,
-  sshOptions?: SSHConnectionOptions,
+  sshOptions?: SSHConnectionOptions
 ): SSHFormErrors => {
-  const errors: SSHFormErrors = currentTab === 'identity'
-    ? validateIdentityForm(key, value, isSRV, sshOptions)
-    : validatePasswordOrSocksForm(key, value, isSRV, sshOptions);
+  const errors: SSHFormErrors =
+    currentTab === 'identity'
+      ? validateIdentityForm(key, value, isSRV, sshOptions)
+      : validatePasswordOrSocksForm(key, value, isSRV, sshOptions);
 
   // filter falsy values
   for (const key in errors) {
@@ -90,16 +96,16 @@ const validateSshOptions = (
   }
 
   return errors;
-}
+};
 
 const validatePasswordOrSocksForm = (
   key: keyof SSHConnectionOptions,
   value: string | number,
   isSRV: boolean,
-  sshOptions?: SSHConnectionOptions,
+  sshOptions?: SSHConnectionOptions
 ) => {
   const errors: SSHFormErrors = {};
-  switch(key) {
+  switch (key) {
     case 'host':
       errors['host'] = getHostValidationError(value as string, isSRV);
       break;
@@ -120,16 +126,16 @@ const validatePasswordOrSocksForm = (
     }
   }
   return errors;
-}
+};
 
 const validateIdentityForm = (
   key: keyof SSHConnectionOptions,
   value: string | number,
   isSRV: boolean,
-  sshOptions?: SSHConnectionOptions,
+  sshOptions?: SSHConnectionOptions
 ) => {
   const errors: SSHFormErrors = {};
-  switch(key) {
+  switch (key) {
     case 'host':
       errors['host'] = getHostValidationError(value as string, isSRV);
       break;
@@ -155,21 +161,24 @@ const validateIdentityForm = (
   }
 
   return errors;
-}
+};
 
-const getHostValidationError = (value: string, isSRV: boolean): string | undefined => {
+const getHostValidationError = (
+  value: string,
+  isSRV: boolean
+): string | undefined => {
   if (!value) {
-    return 'Host is required.';  
+    return 'Host is required.';
   }
   try {
     checkForInvalidCharacterInHost(value, isSRV);
   } catch (e) {
     return (e as Error).message;
   }
-}
+};
 
 const getPortValidationError = (value: number): string | undefined => {
   if (value < 1) {
     return 'Port must be a valid port number.';
   }
-}
+};

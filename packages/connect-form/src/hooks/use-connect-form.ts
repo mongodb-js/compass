@@ -17,7 +17,10 @@ import { defaultHostname, defaultPort } from '../constants/default-connection';
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
 import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
-import { handleUpdateConnectionOptions, UpdateConnectionOptions } from './connection-options-handler';
+import {
+  handleUpdateConnectionOptions,
+  UpdateConnectionOptions,
+} from '../utils/connection-options-handler';
 import { handleUpdateTlsOption } from '../utils/tls-options';
 import { TLS_OPTIONS } from '../constants/ssl-tls-options';
 

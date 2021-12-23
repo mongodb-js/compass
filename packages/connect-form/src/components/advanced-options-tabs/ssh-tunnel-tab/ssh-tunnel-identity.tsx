@@ -1,8 +1,13 @@
 import { ConnectionOptions } from 'mongodb-data-service';
 import React, { ChangeEvent } from 'react';
 import { css, cx } from '@emotion/css';
-import { TextInput, FileInput, spacing, Icon } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../hooks/connection-options-handler';
+import {
+  TextInput,
+  FileInput,
+  spacing,
+  Icon,
+} from '@mongodb-js/compass-components';
+import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
 
 const inputFieldStyles = css({
   width: '50%',
@@ -18,7 +23,7 @@ const fileHelpStyles = css({
 type IdentityFormKeys = keyof SSHConnectionOptions;
 type IdentityFormErrors = {
   [key in IdentityFormKeys]?: string;
-}
+};
 
 function Identity({
   sshTunnelOptions,
@@ -26,12 +31,15 @@ function Identity({
   errors,
 }: {
   sshTunnelOptions: ConnectionOptions['sshTunnel'];
-  onConnectionOptionChanged: (key: IdentityFormKeys, value: string | number) => void;
+  onConnectionOptionChanged: (
+    key: IdentityFormKeys,
+    value: string | number
+  ) => void;
   errors?: IdentityFormErrors;
 }): React.ReactElement {
   const formFieldChanged = (key: IdentityFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
-  }
+  };
   return (
     <>
       <TextInput
@@ -84,15 +92,15 @@ function Identity({
         error={errors?.identityKeyFile}
         values={
           sshTunnelOptions?.identityKeyFile && sshTunnelOptions.identityKeyFile
-          ? [sshTunnelOptions.identityKeyFile]
-          : undefined
+            ? [sshTunnelOptions.identityKeyFile]
+            : undefined
         }
-        helpText={(
+        helpText={
           <div className={fileHelpStyles}>
             <a href="https://mongodb.com">Learn More</a>
             <Icon glyph="OpenNewTab" />
           </div>
-        )}
+        }
         className={cx(
           css({
             margin: 0,
@@ -100,7 +108,7 @@ function Identity({
               textAlign: 'left',
             },
           }),
-          inputFieldStyles,
+          inputFieldStyles
         )}
       />
       <TextInput
