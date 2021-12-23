@@ -87,9 +87,6 @@ function SSHTunnel({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
-  const selectedOptionIndex = !connectionOptions?.sshTunnel 
-    ? 0
-    : connectionOptions.sshTunnel.identityKeyFile || connectionOptions.sshTunnel.identityKeyPassphrase ? 2 : 1;
   const [selectedOption, setSelectedOption] = useState(options[0]);
 
   const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -112,9 +109,9 @@ function SSHTunnel({
     [updateConnectionFormField, selectedOption]
   );
 
-  const sshTunnelErrors: SSHTunnelFieldError | undefined = errors.find(
+  const sshTunnelErrors = errors.find(
     ({ fieldName }) => fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SSH
-  );
+  ) as SSHTunnelFieldError | undefined;
 
   const SSLOptionContent = selectedOption.component;
 

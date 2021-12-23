@@ -85,7 +85,7 @@ const validateSshOptions = (
   isSRV: boolean,
   sshOptions?: SSHConnectionOptions
 ): SSHFormErrors => {
-  const errors: SSHFormErrors =
+  const errors: {[key: string]: string | undefined} =
     currentTab === 'identity'
       ? validateIdentityForm(key, value, isSRV, sshOptions)
       : validatePasswordOrSocksForm(key, value, isSRV, sshOptions);

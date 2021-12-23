@@ -14,7 +14,7 @@ interface HostFieldError {
   message: string;
 }
 
-interface SchemaFieldError {
+export interface SchemaFieldError {
   fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SRV;
   message: string;
 }
