@@ -5,7 +5,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import GeneralTab from './general-tab';
 import AuthenticationTab from './authentication-tab';
-import SSHTunnelTab from './ssh-tunnel-tab/ssh-tunnel';
+import SSHTunnelTab from './ssh-tunnel-tab/ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';

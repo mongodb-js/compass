@@ -116,13 +116,13 @@ const validatePasswordOrSocksForm = (
       break;
     case 'username': {
       if (!value && sshOptions?.password) {
-        errors['username'] = 'Username is required along with password.';
+        errors['username'] = 'Username is required.';
       }
       break;
     }
     case 'password': {
       if (value && !sshOptions?.username) {
-        errors['username'] = 'Username is required along with password.';
+        errors['username'] = 'Username is required.';
       }
       break;
     }
@@ -146,13 +146,17 @@ const validateIdentityForm = (
       break;
     case 'username':
       if (!value && sshOptions?.identityKeyFile) {
-        errors['username'] = 'Username is required along with identity file.';
+        errors['username'] = 'Username is required.';
       }
       break;
     case 'identityKeyPassphrase':
       if (value && !sshOptions?.identityKeyFile) {
-        errors['identityKeyFile'] = 'File is required along with passphrase.';
-        errors['username'] = 'Username is required along with passphrase.';
+        if (!sshOptions?.identityKeyFile) {
+          errors['identityKeyFile'] = 'File is required along with passphrase.';
+        }
+        if (value && !sshOptions?.username) {
+          errors['username'] = 'Username is required.';
+        }
       }
       break;
     case 'identityKeyFile':
