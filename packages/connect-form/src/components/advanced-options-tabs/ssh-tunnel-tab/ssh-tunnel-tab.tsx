@@ -121,16 +121,16 @@ function SSHTunnel({
         onChange={optionSelected}
         className="radio-box-group-style"
       >
-        {options.map(({ title, id }) => {
+        {options.map(({ title, id, type }) => {
           return (
-            <RadioBox checked={selectedOption.id === id} value={id} key={id}>
+            <RadioBox data-testid={`${type}-tab-button`} checked={selectedOption.id === id} value={id} key={id}>
               {title}
             </RadioBox>
           );
         })}
       </RadioBoxGroup>
       {connectionOptions && (
-        <div className={contentStyles}>
+        <div className={contentStyles} data-testid={`${selectedOption.type}-tab-content`}>
           <SSLOptionContent
             errors={sshTunnelErrors?.errors}
             sshTunnelOptions={connectionOptions.sshTunnel}

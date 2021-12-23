@@ -87,6 +87,7 @@ type FileWithPath = File & {
 function FileInput({
   id,
   label,
+  dataTestId,
   onChange,
   multi = false,
   error = false,
@@ -95,11 +96,11 @@ function FileInput({
   link,
   description,
   values,
-  className,
   labelAlignment = 'left',
 }: {
   id: string;
   label: string;
+  dataTestId: string;
   onChange: (files: string[]) => void;
   multi?: boolean;
   error?: boolean;
@@ -108,7 +109,6 @@ function FileInput({
   link?: string;
   description?: string;
   values?: string[];
-  className?: string;
   labelAlignment?: 'right' | 'left' | 'center';
 }): React.ReactElement {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -166,7 +166,7 @@ function FileInput({
   };
 
   return (
-    <div className={className}>
+    <div>
       <div
         className={cx(
           { [formItemHorizontalStyles]: variant === Variant.Horizontal },
@@ -187,6 +187,7 @@ function FileInput({
           {renderDescription()}
         </label>
         <input
+          data-testid={dataTestId ?? 'file-input'}
           ref={inputRef}
           id={`${id}_file_input`}
           name={id}

@@ -24,95 +24,101 @@ function Identity({
   const formFieldChanged = (key: IdentityFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
   };
+
+  const fields = [
+    {
+      name: 'host',
+      label: 'SSH Hostname',
+      type: 'text',
+      optional: false,
+      placeholder: 'SSH Hostname',
+      value: sshTunnelOptions?.host,
+      errorMessage: errors?.host,
+      state: errors?.host ? 'error' : 'none',
+    },
+    {
+      name: 'port',
+      label: 'SSH Tunnel Port',
+      type: 'number',
+      optional: false,
+      placeholder: 'SSH Tunnel Port',
+      value: (sshTunnelOptions?.port ?? '').toString(),
+      errorMessage: errors?.port,
+      state: errors?.port ? 'error' : 'none',
+    },
+    {
+      name: 'username',
+      label: 'SSH Username',
+      type: 'text',
+      optional: false,
+      placeholder: 'SSH Username',
+      value: sshTunnelOptions?.username,
+      errorMessage: errors?.username,
+      state: errors?.username ? 'error' : 'none',
+    },
+    {
+      name: 'identityKeyFile',
+      label: 'SSH Identity File',
+      type: 'file',
+      errorMessage: errors?.identityKeyFile,
+      value: 
+      sshTunnelOptions?.identityKeyFile && sshTunnelOptions.identityKeyFile
+          ? [sshTunnelOptions.identityKeyFile]
+          : undefined,
+    },
+    {
+      name: 'identityKeyPassphrase',
+      label: 'SSH Passphrase',
+      type: 'password',
+      optional: true,
+      placeholder: 'SSH Passphrase',
+      value: sshTunnelOptions?.identityKeyPassphrase,
+      errorMessage: errors?.identityKeyPassphrase,
+      state: errors?.identityKeyPassphrase ? 'error' : 'none',
+    },
+  ];
+
   return (
     <>
-      <FormFieldContainer>
-        <TextInput
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            formFieldChanged('host', event.target.value);
-          }}
-          key={'host'}
-          label={'SSH Hostname'}
-          type={'text'}
-          optional={false}
-          placeholder={'SSH Hostname'}
-          value={sshTunnelOptions?.host}
-          errorMessage={errors?.host}
-          state={errors?.host ? 'error' : 'none'}
-        />
-      </FormFieldContainer>
-      <FormFieldContainer>
-        <TextInput
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            formFieldChanged('port', Number(event.target.value));
-          }}
-          key={'port'}
-          label={'SSH Tunnel Port'}
-          type={'number'}
-          optional={false}
-          placeholder={'SSH Tunnel Port'}
-          value={(sshTunnelOptions?.port ?? '').toString()}
-          errorMessage={errors?.port}
-          state={errors?.port ? 'error' : 'none'}
-        />
-      </FormFieldContainer>
-      <FormFieldContainer>
-        <TextInput
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            formFieldChanged('username', event.target.value);
-          }}
-          key={'username'}
-          label={'SSH Username'}
-          type={'text'}
-          optional={false}
-          placeholder={'SSH Username'}
-          value={sshTunnelOptions?.username}
-          errorMessage={errors?.username}
-          state={errors?.username ? 'error' : 'none'}
-        />
-      </FormFieldContainer>
-      <FormFieldContainer>
-        <FileInput
-          id={'identity-file'}
-          onChange={(files: string[]) => {
-            formFieldChanged('identityKeyFile', files[0]);
-          }}
-          label={'SSH Identity File'}
-          error={Boolean(errors?.identityKeyFile)}
-          errorMessage={errors?.identityKeyFile}
-          values={
-            sshTunnelOptions?.identityKeyFile &&
-            sshTunnelOptions.identityKeyFile
-              ? [sshTunnelOptions.identityKeyFile]
-              : undefined
-          }
-          description={'Learn More'}
-          link={'https://mongodb.com'}
-          className={cx(
-            css({
-              margin: 0,
-              label: {
-                textAlign: 'left',
-              },
-            })
-          )}
-        />
-      </FormFieldContainer>
-      <FormFieldContainer>
-        <TextInput
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            formFieldChanged('identityKeyPassphrase', event.target.value);
-          }}
-          key={'identityKeyPassphrase'}
-          label={'SSH Passphrase'}
-          type={'text'}
-          optional={true}
-          placeholder={'SSH Passphrase'}
-          value={sshTunnelOptions?.identityKeyPassphrase}
-          errorMessage={errors?.identityKeyPassphrase}
-          state={errors?.identityKeyPassphrase ? 'error' : 'none'}
-        />
-      </FormFieldContainer>
+      {fields.map(({name, label, type, optional, placeholder, value, errorMessage, state}) => {
+        if (type === 'file') {
+          return (
+            <FormFieldContainer key={name}>
+              <FileInput
+                id={name}
+                dataTestId={name}
+                onChange={(files: string[]) => {
+                  formFieldChanged(name as IdentityFormKeys, files[0]);
+                }}
+                label={label}
+                error={Boolean(errorMessage)}
+                errorMessage={errorMessage}
+                values={value as string[] | undefined}
+                description={'Learn More'}
+                link={'https://mongodb.com'}
+              />
+            </FormFieldContainer>
+          );
+        }
+        return (
+          <FormFieldContainer key={name}>
+            <TextInput
+              onChange={({target: { value}}: ChangeEvent<HTMLInputElement>) => {
+                formFieldChanged(name as IdentityFormKeys, name === 'port' ? Number(value) : value);
+              }}
+              name={name}
+              data-testid={name}
+              label={label}
+              type={type}
+              optional={optional}
+              placeholder={placeholder}
+              value={value as string | undefined}
+              errorMessage={errorMessage}
+              state={state as 'error' | 'none'}
+            />
+          </FormFieldContainer>
+        );
+      })}
     </>
   );
 }
