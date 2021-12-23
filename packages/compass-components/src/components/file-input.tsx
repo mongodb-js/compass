@@ -44,6 +44,7 @@ const labelHorizontalStyles = css({
   gridTemplateColumns: '1fr auto',
   alignItems: 'center',
   columnGap: spacing[1],
+  paddingRight: spacing[3],
 });
 
 const labelIconStyles = css`
@@ -95,6 +96,7 @@ function FileInput({
   description,
   values,
   className,
+  labelAlignment = 'left',
 }: {
   id: string;
   label: string;
@@ -107,11 +109,12 @@ function FileInput({
   description?: string;
   values?: string[];
   className?: string;
+  labelAlignment?: 'right' | 'left' | 'center';
 }): React.ReactElement {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const buttonText = React.useMemo(() => {
-    if (Array.isArray(values) && values.filter(x => x).length > 0) {
+    if (Array.isArray(values) && values.length > 0) {
       return values.map((file) => path.basename(file)).join(', ');
     }
 
@@ -167,6 +170,9 @@ function FileInput({
           htmlFor={`${id}_file_input`}
           className={cx(
             { [labelHorizontalStyles]: variant === Variant.Horizontal },
+            css({
+              textAlign: labelAlignment,
+            }),
           )}
         >
           <span style={{gridArea: 'label'}}>{label}</span>

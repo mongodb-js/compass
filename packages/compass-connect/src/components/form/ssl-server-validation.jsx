@@ -46,6 +46,7 @@ class SSLServerValidation extends React.Component {
         className={classnames(styles['form-group'])}>
         <FileInput
           label="Certificate Authority"
+          labelAlignment="right"
           onChange={this.onSSLCAChanged.bind(this)}
           values={this.props.connectionModel.sslCA}
           error={this.getError()}
