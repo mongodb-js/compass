@@ -1,6 +1,6 @@
 import React from 'react';
 import path from 'path';
-import { css, cx } from '@leafygreen-ui/emotion'
+import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
@@ -34,7 +34,7 @@ const buttonStyles = css`
 `;
 
 const errorMessageStyles = css({
-  color: `${redBaseColor} !important`
+  color: `${redBaseColor} !important`,
 });
 
 const labelHorizontalStyles = css({
@@ -137,25 +137,33 @@ function FileInput({
       return <></>;
     }
     if (!link) {
-      return <Description style={{gridArea: 'description'}}>{description}</Description>
+      return (
+        <Description
+          data-testid={'file-input-description'}
+          style={{ gridArea: 'description' }}
+        >
+          {description}
+        </Description>
+      );
     }
     return (
       <Link
+        data-testid={'file-input-link'}
         href={link}
         className={cx(
           {
-            [labelIconStyles]: !description
+            [labelIconStyles]: !description,
           },
           css({
             gridArea: description ? 'description' : 'icon',
-          }),
+          })
         )}
         hideExternalIcon={!description}
       >
         {description ?? ''}
       </Link>
     );
-  }
+  };
 
   return (
     <div className={className}>
@@ -163,7 +171,7 @@ function FileInput({
         className={cx(
           { [formItemHorizontalStyles]: variant === Variant.Horizontal },
           { [formItemVerticalStyles]: variant === Variant.Vertical },
-          { [formItemErrorStyles]: error },
+          { [formItemErrorStyles]: error }
         )}
       >
         <label
@@ -172,10 +180,10 @@ function FileInput({
             { [labelHorizontalStyles]: variant === Variant.Horizontal },
             css({
               textAlign: labelAlignment,
-            }),
+            })
           )}
         >
-          <span style={{gridArea: 'label'}}>{label}</span>
+          <span style={{ gridArea: 'label' }}>{label}</span>
           {renderDescription()}
         </label>
         <input
@@ -202,7 +210,15 @@ function FileInput({
           {buttonText}
         </Button>
       </div>
-      {error && errorMessage && <Label className={errorMessageStyles} htmlFor={''}>{errorMessage}</Label>}
+      {error && errorMessage && (
+        <Label
+          data-testid={'file-input-error'}
+          className={errorMessageStyles}
+          htmlFor={''}
+        >
+          {errorMessage}
+        </Label>
+      )}
     </div>
   );
 }
