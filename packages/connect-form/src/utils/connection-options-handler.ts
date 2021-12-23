@@ -58,7 +58,7 @@ export function handleUpdateConnectionOptions(
       ...connectionOptions,
       sshTunnel: {
         ...connectionOptions.sshTunnel,
-        [`${key}`]: value
+        [key]: value,
       },
       connectionString: connectionStringUrl.toString(),
     },
