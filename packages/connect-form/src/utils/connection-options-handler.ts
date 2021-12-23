@@ -52,12 +52,14 @@ export function handleUpdateConnectionOptions(
     connectionOptions.sshTunnel = {} as SSHConnectionOptions;
   }
 
-  connectionOptions.sshTunnel[key] = value;
-
   const response: ConnectFormState = {
     connectionStringUrl,
     connectionOptions: {
       ...connectionOptions,
+      sshTunnel: {
+        ...connectionOptions.sshTunnel,
+        [`${key}`]: value
+      },
       connectionString: connectionStringUrl.toString(),
     },
     errors: [

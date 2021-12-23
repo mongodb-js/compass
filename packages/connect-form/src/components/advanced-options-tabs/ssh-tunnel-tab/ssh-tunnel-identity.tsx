@@ -1,24 +1,11 @@
-import { ConnectionOptions } from 'mongodb-data-service';
 import React, { ChangeEvent } from 'react';
 import { css, cx } from '@emotion/css';
 import {
   TextInput,
   FileInput,
-  spacing,
-  Icon,
 } from '@mongodb-js/compass-components';
 import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
-
-const inputFieldStyles = css({
-  width: '50%',
-  marginBottom: spacing[3],
-});
-const fileHelpStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'start',
-  alignItems: 'center',
-});
+import FormFieldContainer from '../../form-field-container';
 
 type IdentityFormKeys = keyof SSHConnectionOptions;
 type IdentityFormErrors = {
@@ -30,7 +17,7 @@ function Identity({
   onConnectionOptionChanged,
   errors,
 }: {
-  sshTunnelOptions: ConnectionOptions['sshTunnel'];
+  sshTunnelOptions?: SSHConnectionOptions;
   onConnectionOptionChanged: (
     key: IdentityFormKeys,
     value: string | number
@@ -42,89 +29,92 @@ function Identity({
   };
   return (
     <>
-      <TextInput
-        onChange={(event: ChangeEvent<HTMLInputElement>) => {
-          formFieldChanged('host', event.target.value);
-        }}
-        className={inputFieldStyles}
-        key={'host'}
-        label={'SSH Hostname'}
-        type={'text'}
-        optional={false}
-        placeholder={'SSH Hostname'}
-        value={sshTunnelOptions?.host}
-        errorMessage={errors?.host}
-        state={errors?.host ? 'error' : 'none'}
-      />
-      <TextInput
-        onChange={(event: ChangeEvent<HTMLInputElement>) => {
-          formFieldChanged('port', Number(event.target.value));
-        }}
-        className={inputFieldStyles}
-        key={'port'}
-        label={'SSH Tunnel Port'}
-        type={'number'}
-        optional={false}
-        placeholder={'SSH Tunnel Port'}
-        value={(sshTunnelOptions?.port ?? '').toString()}
-        errorMessage={errors?.port}
-        state={errors?.port ? 'error' : 'none'}
-      />
-      <TextInput
-        onChange={(event: ChangeEvent<HTMLInputElement>) => {
-          formFieldChanged('username', event.target.value);
-        }}
-        className={inputFieldStyles}
-        key={'username'}
-        label={'SSH Username'}
-        type={'text'}
-        optional={false}
-        placeholder={'SSH Username'}
-        value={sshTunnelOptions?.username}
-        errorMessage={errors?.username}
-        state={errors?.username ? 'error' : 'none'}
-      />
-      <FileInput
-        onChange={(files: string[]) => {
-          formFieldChanged('identityKeyFile', files[0]);
-        }}
-        label={'SSH Identity File'}
-        error={errors?.identityKeyFile}
-        values={
-          sshTunnelOptions?.identityKeyFile && sshTunnelOptions.identityKeyFile
-            ? [sshTunnelOptions.identityKeyFile]
-            : undefined
-        }
-        helpText={
-          <div className={fileHelpStyles}>
-            <a href="https://mongodb.com">Learn More</a>
-            <Icon glyph="OpenNewTab" />
-          </div>
-        }
-        className={cx(
-          css({
-            margin: 0,
-            label: {
-              textAlign: 'left',
-            },
-          }),
-          inputFieldStyles
-        )}
-      />
-      <TextInput
-        onChange={(event: ChangeEvent<HTMLInputElement>) => {
-          formFieldChanged('identityKeyPassphrase', event.target.value);
-        }}
-        className={inputFieldStyles}
-        key={'identityKeyPassphrase'}
-        label={'SSH Passphrase'}
-        type={'text'}
-        optional={true}
-        placeholder={'SSH Passphrase'}
-        value={sshTunnelOptions?.identityKeyPassphrase}
-        errorMessage={errors?.identityKeyPassphrase}
-        state={errors?.identityKeyPassphrase ? 'error' : 'none'}
-      />
+      <FormFieldContainer>
+        <TextInput
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            formFieldChanged('host', event.target.value);
+          }}
+          key={'host'}
+          label={'SSH Hostname'}
+          type={'text'}
+          optional={false}
+          placeholder={'SSH Hostname'}
+          value={sshTunnelOptions?.host}
+          errorMessage={errors?.host}
+          state={errors?.host ? 'error' : 'none'}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer>
+        <TextInput
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            formFieldChanged('port', Number(event.target.value));
+          }}
+          key={'port'}
+          label={'SSH Tunnel Port'}
+          type={'number'}
+          optional={false}
+          placeholder={'SSH Tunnel Port'}
+          value={(sshTunnelOptions?.port ?? '').toString()}
+          errorMessage={errors?.port}
+          state={errors?.port ? 'error' : 'none'}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer>
+        <TextInput
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            formFieldChanged('username', event.target.value);
+          }}
+          key={'username'}
+          label={'SSH Username'}
+          type={'text'}
+          optional={false}
+          placeholder={'SSH Username'}
+          value={sshTunnelOptions?.username}
+          errorMessage={errors?.username}
+          state={errors?.username ? 'error' : 'none'}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer>
+        <FileInput
+          id={'identity-file'}
+          onChange={(files: string[]) => {
+            formFieldChanged('identityKeyFile', files[0]);
+          }}
+          label={'SSH Identity File'}
+          error={Boolean(errors?.identityKeyFile)}
+          errorMessage={errors?.identityKeyFile}
+          values={
+            sshTunnelOptions?.identityKeyFile && sshTunnelOptions.identityKeyFile
+              ? [sshTunnelOptions.identityKeyFile]
+              : undefined
+          }
+          description={'Learn More'}
+          link={'https://mongodb.com'}
+          className={cx(
+            css({
+              margin: 0,
+              label: {
+                textAlign: 'left',
+              },
+            }),
+          )}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer>
+        <TextInput
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            formFieldChanged('identityKeyPassphrase', event.target.value);
+          }}
+          key={'identityKeyPassphrase'}
+          label={'SSH Passphrase'}
+          type={'text'}
+          optional={true}
+          placeholder={'SSH Passphrase'}
+          value={sshTunnelOptions?.identityKeyPassphrase}
+          errorMessage={errors?.identityKeyPassphrase}
+          state={errors?.identityKeyPassphrase ? 'error' : 'none'}
+        />
+      </FormFieldContainer>
     </>
   );
 }

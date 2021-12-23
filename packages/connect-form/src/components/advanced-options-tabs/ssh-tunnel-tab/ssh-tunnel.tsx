@@ -18,12 +18,11 @@ import {
   SSHTunnelFieldError,
   SSHFormErrors,
 } from '../../../utils/connect-form-errors';
+import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
 
 import Identity from './ssh-tunnel-identity';
-import None from './ssh-tunnel-none';
 import Password from './ssh-tunnel-password';
 import Socks from './ssh-tunnel-socks';
-import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
 
 interface TabOption {
   id: string;
@@ -44,7 +43,9 @@ const options: TabOption[] = [
     title: 'None',
     id: 'none',
     type: 'none',
-    component: None,
+    component: function None() {
+      return <></>;
+    },
   },
   {
     title: 'Use Password',
@@ -67,7 +68,12 @@ const options: TabOption[] = [
 ];
 
 const containerStyles = css({
-  marginTop: spacing[4],
+  marginTop: spacing[3],
+});
+
+const contentStyles = css({
+  marginTop: spacing[3],
+  width: '50%',
 });
 
 function SSHTunnel({
@@ -124,7 +130,7 @@ function SSHTunnel({
         })}
       </RadioBoxGroup>
       {connectionOptions && (
-        <div className={containerStyles}>
+        <div className={contentStyles}>
           <SSLOptionContent
             errors={sshTunnelErrors?.errors}
             sshTunnelOptions={connectionOptions.sshTunnel}

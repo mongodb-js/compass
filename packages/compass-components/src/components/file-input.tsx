@@ -1,24 +1,31 @@
 import React from 'react';
 import path from 'path';
-import { css, cx } from '@emotion/css';
+import { css, cx } from '@leafygreen-ui/emotion'
+import { uiColors } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
 
-import { Button, Icon, Label } from '..';
+import { Button, Icon, Label, Link, Description } from '..';
 
-const formItemHorizontalStyles = css`
-  margin: 8px auto 8px;
-  display: flex;
-  justify-content: flex-end;
-`;
+const { base: redBaseColor } = uiColors.red;
+
+const formItemHorizontalStyles = css({
+  marginTop: spacing[2],
+  marginBottom: spacing[2],
+  marginRight: 'auto',
+  marginLeft: 'auto',
+  display: 'flex',
+  alignItems: 'center',
+});
 
 const formItemVerticalStyles = css`
   margin: 5px auto 20px;
 `;
 
 const formItemErrorStyles = css`
-  border: 1px solid #CF4A22;
+  border: 1px solid ${redBaseColor};
   border-radius: 5px;
   &:focus {
-    border: 1px solid #CF4A22;
+    border: 1px solid ${redBaseColor};
   }
 `;
 
@@ -27,17 +34,17 @@ const buttonStyles = css`
 `;
 
 const errorMessageStyles = css({
-  color: '#CF4A22',
+  color: `${redBaseColor} !important`
 });
 
-const labelHorizontalStyles = css`
-  width: 70%;
-  text-align: right;
-  vertical-align: middle;
-  padding-right: 15px;
-  margin: auto;
-  margin-bottom: 0;
-`;
+const labelHorizontalStyles = css({
+  width: '70%',
+  display: 'grid',
+  gridTemplateAreas: `'label icon' 'description .'`,
+  gridTemplateColumns: '1fr auto',
+  alignItems: 'center',
+  columnGap: spacing[1],
+});
 
 const labelIconStyles = css`
   display: inline-block;
@@ -82,9 +89,10 @@ function FileInput({
   onChange,
   multi = false,
   error = false,
+  errorMessage,
   variant = Variant.Horizontal,
   link,
-  helpText,
+  description,
   values,
   className,
 }: {
@@ -92,10 +100,11 @@ function FileInput({
   label: string;
   onChange: (files: string[]) => void;
   multi?: boolean;
-  error?: boolean | string;
+  error?: boolean;
+  errorMessage?: string;
   variant?: Variant;
   link?: string;
-  helpText?: React.Component;
+  description?: string;
   values?: string[];
   className?: string;
 }): React.ReactElement {
@@ -120,34 +129,48 @@ function FileInput({
     [onChange]
   );
 
+  const renderDescription = () => {
+    if (!link && !description) {
+      return <></>;
+    }
+    if (!link) {
+      return <Description style={{gridArea: 'description'}}>{description}</Description>
+    }
+    return (
+      <Link
+        href={link}
+        className={cx(
+          {
+            [labelIconStyles]: !description
+          },
+          css({
+            gridArea: description ? 'description' : 'icon',
+          }),
+        )}
+        hideExternalIcon={!description}
+      >
+        {description ?? ''}
+      </Link>
+    );
+  }
+
   return (
     <div className={className}>
       <div
         className={cx(
           { [formItemHorizontalStyles]: variant === Variant.Horizontal },
           { [formItemVerticalStyles]: variant === Variant.Vertical },
-          { [formItemErrorStyles]: Boolean(error) },
+          { [formItemErrorStyles]: error },
         )}
       >
         <label
-          htmlFor={id}
+          htmlFor={`${id}_file_input`}
           className={cx(
             { [labelHorizontalStyles]: variant === Variant.Horizontal },
           )}
         >
-          <span>{label}</span>
-          {link && !helpText && (
-            <a
-              href={link}
-              target="_blank"
-              rel="noreferrer"
-              className={labelIconStyles}
-              data-testid="file-input-link"
-            >
-              
-            </a>
-          )}
-          {!link && helpText}
+          <span style={{gridArea: 'label'}}>{label}</span>
+          {renderDescription()}
         </label>
         <input
           ref={inputRef}
@@ -173,7 +196,7 @@ function FileInput({
           {buttonText}
         </Button>
       </div>
-      {error && typeof error === 'string' && <Label className={errorMessageStyles} htmlFor={''}>{error}</Label>}
+      {error && errorMessage && <Label className={errorMessageStyles} htmlFor={''}>{errorMessage}</Label>}
     </div>
   );
 }
