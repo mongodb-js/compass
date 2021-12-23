@@ -109,7 +109,6 @@ function Connections({
             {storeConnectionError}
           </Banner>
         )}
-        <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm
             onConnectClicked={(connectionInfo) =>

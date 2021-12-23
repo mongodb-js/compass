@@ -1,6 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
+import type { MongoClientOptions } from 'mongodb';
 
 import { defaultConnectionString } from '../constants/default-connection';
 import {
@@ -16,6 +17,8 @@ import { defaultHostname, defaultPort } from '../constants/default-connection';
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
 import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
+import { handleUpdateTlsOption } from '../utils/tls-options';
+import { TLS_OPTIONS } from '../constants/ssl-tls-options';
 
 export interface ConnectFormState {
   connectionStringInvalidError: string | null;
@@ -88,6 +91,11 @@ interface UpdateHostAction {
   newHostValue: string;
 }
 
+interface UpdateTlsOptionAction {
+  type: 'update-tls-option';
+  tlsOption: TLS_OPTIONS;
+}
+
 type ConnectionFormFieldActions =
   | {
       type: 'add-new-host';
@@ -105,7 +113,8 @@ type ConnectionFormFieldActions =
   | {
       type: 'update-connection-schema';
       isSrv: boolean;
-    };
+    }
+  | UpdateTlsOptionAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -215,6 +224,8 @@ export function handleConnectionFormFieldUpdate({
   errors: ConnectionFormError[];
 } {
   const updatedConnectionStringUrl = connectionStringUrl.clone();
+  const updatedSearchParams =
+    updatedConnectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   switch (action.type) {
     case 'add-new-host': {
@@ -229,8 +240,8 @@ export function handleConnectionFormFieldUpdate({
         0,
         newHost
       );
-      if (updatedConnectionStringUrl.searchParams.get('directConnection')) {
-        updatedConnectionStringUrl.searchParams.delete('directConnection');
+      if (updatedSearchParams.get('directConnection')) {
+        updatedSearchParams.delete('directConnection');
       }
 
       return {
@@ -265,6 +276,13 @@ export function handleConnectionFormFieldUpdate({
         errors: [],
       };
     }
+    case 'update-tls-option': {
+      return handleUpdateTlsOption({
+        tlsOption: action.tlsOption,
+        connectionStringUrl,
+        connectionOptions,
+      });
+    }
     case 'update-host': {
       return handleUpdateHost({
         action,
@@ -275,11 +293,9 @@ export function handleConnectionFormFieldUpdate({
     case 'update-direct-connection': {
       const { isDirectConnection } = action;
       if (isDirectConnection) {
-        updatedConnectionStringUrl.searchParams.set('directConnection', 'true');
-      } else if (
-        updatedConnectionStringUrl.searchParams.get('directConnection')
-      ) {
-        updatedConnectionStringUrl.searchParams.delete('directConnection');
+        updatedSearchParams.set('directConnection', 'true');
+      } else if (updatedSearchParams.get('directConnection')) {
+        updatedSearchParams.delete('directConnection');
       }
 
       return {

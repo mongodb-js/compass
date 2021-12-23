@@ -1,36 +1,29 @@
 import throttle from 'lodash/throttle';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-
 import { appRegistryActivated } from '../modules/app-registry';
 import { changeDatabaseName } from '../modules/database-name';
 import { dataServiceConnected } from '../modules/data-service';
-import { loadCollections } from '../modules/collections/collections';
+import { setCollections } from '../modules/collections/collections';
+import { collectionsStatusChanged } from '../modules/collections/status';
 import { writeStateChanged } from '../modules/is-writable';
 import { toggleIsDataLake } from '../modules/is-data-lake';
+import { reset } from '../modules/reset';
 import { collectionsReducer } from '../modules';
 
 const store = createStore(collectionsReducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
-  const onCollectionsChange = throttle((collections, force = false) => {
+  const onCollectionsChange = throttle((collections) => {
     const { databaseName } = store.getState();
     if (collections.parent.getId() === databaseName) {
-      if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
-        const shouldUpdate = force || !collections.some((coll) =>
-          ['fetching', 'refreshing'].includes(coll.status)
-        );
-        if (shouldUpdate) {
-          store.dispatch(loadCollections(collections.toJSON()));
-        }
-      } else {
-        store.dispatch(loadCollections(collections.toJSON()));
-      }
+      store.dispatch(setCollections(collections.toJSON()));
     }
-  }, 100);
+  }, 300);
 
   appRegistry.on('instance-destroyed', () => {
     onCollectionsChange.cancel();
+    store.dispatch(reset());
     store.instance = null;
   });
 
@@ -43,6 +36,7 @@ store.onActivated = (appRegistry) => {
     store.instance = instance;
 
     instance.on('change:databases.collectionsStatus', (model) => {
+      collectionsStatusChanged(model);
       onCollectionsChange(model.collections);
     });
 
@@ -67,10 +61,11 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('select-database', (ns) => {
     const { databaseName } = store.getState();
     if (ns !== databaseName) {
-      store.dispatch(changeDatabaseName(ns));
-      onCollectionsChange(
-        store.instance?.databases.get(ns)?.collections ?? [],
-        true
+      store.dispatch(
+        changeDatabaseName(
+          ns,
+          store.instance?.databases.get(ns)?.collections.toJSON() ?? []
+        )
       );
     }
   });

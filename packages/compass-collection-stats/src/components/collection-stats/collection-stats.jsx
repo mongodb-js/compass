@@ -11,7 +11,7 @@ class CollectionStats extends Component {
 
   static propTypes = {
     documentCount: PropTypes.string,
-    totalDocumentSize: PropTypes.string,
+    storageSize: PropTypes.string,
     avgDocumentSize: PropTypes.string,
     indexCount: PropTypes.string,
     totalIndexSize: PropTypes.string,
@@ -36,7 +36,7 @@ class CollectionStats extends Component {
         <DocumentStatsItem
           isTimeSeries={this.props.isTimeSeries}
           documentCount={this.props.documentCount}
-          totalDocumentSize={this.props.totalDocumentSize}
+          storageSize={this.props.storageSize}
           avgDocumentSize={this.props.avgDocumentSize}
         />
         {!this.props.isTimeSeries && (

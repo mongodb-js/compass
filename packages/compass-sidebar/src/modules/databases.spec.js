@@ -17,7 +17,12 @@ function createGetState(dbs) {
 }
 
 function createDatabases(dbs) {
-  return createInstance(dbs).toJSON().databases;
+  return createInstance(dbs).databases.map((db) => {
+    return {
+      ...db.toJSON(),
+      collections: db.collections.toJSON()
+    };
+  });
 }
 
 function createMockStoreSlice(
@@ -44,14 +49,8 @@ describe('sidebar databases', () => {
         expect(databasesReducer(undefined, changeDatabases(dbs))).to.deep.equal(
           {
             ...INITIAL_STATE,
-            databases: [
-              { _id: 'foo', collections: [] },
-              { _id: 'bar', collections: [] },
-            ],
-            filteredDatabases: [
-              { _id: 'foo', collections: [] },
-              { _id: 'bar', collections: [] },
-            ],
+            databases: dbs,
+            filteredDatabases: dbs,
           }
         );
       });
@@ -70,7 +69,7 @@ describe('sidebar databases', () => {
           databasesReducer(initialState, changeDatabases(dbs))
         ).to.deep.equal({
           ...initialState,
-          filteredDatabases: [{ _id: 'foo', collections: [] }],
+          filteredDatabases: dbs.filter(db => db._id === 'foo'),
           databases: dbs,
         });
       });
@@ -110,24 +109,11 @@ describe('sidebar databases', () => {
           ...INITIAL_STATE,
           filterRegex: /^foo$/,
           databases: dbs,
-          filteredDatabases: [
-            {
-              _id: 'foo',
-              collections: [],
-            },
-            {
-              _id: 'bar',
-              collections: [
-                {
-                  _id: 'bar.foo',
-                  name: 'foo',
-                  database: 'bar',
-                  capped: false,
-                  readonly: false,
-                },
-              ],
-            },
-          ],
+          filteredDatabases: dbs.filter(
+            (db) =>
+              db._id === 'foo' ||
+              db.collections.find((coll) => coll._id === 'bar.foo')
+          ),
         });
       });
     });

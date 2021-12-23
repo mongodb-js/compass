@@ -11,9 +11,7 @@ import Connections from '@mongodb-js/compass-connections';
 
 import Workspace from './workspace';
 import Namespace from '../types/namespace';
-import InstanceLoadedStatus from '../constants/instance-loaded-status';
 import {
-  AppRegistryActions,
   AppRegistryRoles,
   useAppRegistryContext,
   useAppRegistryRole,
@@ -45,19 +43,13 @@ const defaultNS: Namespace = {
 
 type State = {
   connectionTitle: string;
-  errorLoadingInstanceMessage: string | null;
-  instanceLoadingStatus: InstanceLoadedStatus;
   isConnected: boolean;
-  isDataLake: boolean;
   namespace: Namespace;
 };
 
 const initialState = {
   connectionTitle: '',
-  errorLoadingInstanceMessage: null,
-  instanceLoadingStatus: InstanceLoadedStatus.INITIAL,
   isConnected: false,
-  isDataLake: false,
   namespace: defaultNS,
 };
 
@@ -67,18 +59,7 @@ type Action =
       connectionTitle: string;
     }
   | { type: 'disconnected' }
-  | { type: 'instance-loaded'; isDataLake: boolean }
-  | { type: 'instance-loaded-error'; errorMessage: string }
   | { type: 'update-namespace'; namespace: Namespace };
-
-type StatusActionType = {
-  configure: (opts: {
-    animation: boolean;
-    message: string;
-    visible: boolean;
-  }) => void;
-  done: () => void;
-};
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -88,27 +69,7 @@ function reducer(state: State, action: Action): State {
         namespace: { ...defaultNS },
         isConnected: true,
         connectionTitle: action.connectionTitle,
-        instanceLoadingStatus: InstanceLoadedStatus.LOADING,
       };
-    case 'instance-loaded':
-      // We only want to progress to the LOADED state on the initial load
-      if (state.instanceLoadingStatus === InstanceLoadedStatus.LOADING) {
-        return {
-          ...state,
-          isDataLake: action.isDataLake,
-          instanceLoadingStatus: InstanceLoadedStatus.LOADED,
-        };
-      }
-      return state;
-    case 'instance-loaded-error':
-      if (state.instanceLoadingStatus === InstanceLoadedStatus.LOADING) {
-        return {
-          ...state,
-          errorLoadingInstanceMessage: action.errorMessage,
-          instanceLoadingStatus: InstanceLoadedStatus.ERROR,
-        };
-      }
-      return state;
     case 'update-namespace':
       return {
         ...state,
@@ -134,17 +95,10 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   const connectedDataService = useRef<DataService>();
   const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
 
-  const [
-    {
-      connectionTitle,
-      isConnected,
-      isDataLake,
-      namespace,
-      errorLoadingInstanceMessage,
-      instanceLoadingStatus,
-    },
-    dispatch,
-  ] = useReducer(reducer, { ...initialState });
+  const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
+    reducer,
+    { ...initialState }
+  );
 
   function onDataServiceConnected(
     err: Error | undefined | null,
@@ -177,54 +131,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       connectionInfo,
       legacyConnectionModel // TODO: Remove this once we remove the dependency in compass-sidebar.
     );
-  }
-
-  function onInstanceCreated({
-    instance,
-  }: {
-    instance: {
-      dataLake: { isDataLake: boolean };
-      statusError: string;
-      databasesStatusError: string;
-      refreshingStatusError: string;
-      on(evt: string, fn: (...args: any[]) => void): void;
-    };
-  }) {
-    function onStatusChange(status: string, errorMessage: string): void {
-      if (status === 'ready') {
-        dispatch({
-          type: 'instance-loaded',
-          isDataLake: instance.dataLake.isDataLake,
-        });
-      }
-      if (status === 'error') {
-        dispatch({
-          type: 'instance-loaded-error',
-          errorMessage,
-        });
-      }
-    }
-
-    if (process.env.COMPASS_NO_GLOBAL_OVERLAY !== 'true') {
-      instance.on(
-        'change:refreshingStatus',
-        (_model: unknown, status: string) => {
-          onStatusChange(status, instance.refreshingStatusError);
-        }
-      );
-    } else {
-      instance.on('change:status', (_model: unknown, status: string) => {
-        if (status === 'error') {
-          onStatusChange(status, instance.statusError);
-        }
-      });
-      instance.on(
-        'change:databasesStatus',
-        (_model: unknown, status: string) => {
-          onStatusChange(status, instance.databasesStatusError);
-        }
-      );
-    }
   }
 
   function onSelectDatabase(ns: string) {
@@ -265,15 +171,11 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }
 
   const onDataServiceDisconnected = useCallback(() => {
-    const StatusAction = appRegistry.getAction(
-      AppRegistryActions.STATUS_ACTIONS
-    ) as StatusActionType | undefined;
     dispatch({
       type: 'disconnected',
     });
     updateTitle(appName);
-    StatusAction?.done();
-  }, [appRegistry, appName]);
+  }, [appName]);
 
   useEffect(() => {
     if (isConnected) {
@@ -313,7 +215,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
   useEffect(() => {
     // Setup app registry listeners.
-    appRegistry.on('instance-created', onInstanceCreated);
     appRegistry.on('data-service-connected', onDataServiceConnected);
     appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
     appRegistry.on('select-database', onSelectDatabase);
@@ -324,7 +225,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
     return () => {
       // Clean up the app registry listeners.
-      appRegistry.removeListener('instance-created', onInstanceCreated);
       appRegistry.removeListener(
         'data-service-connected',
         onDataServiceConnected
@@ -345,14 +245,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }, [appRegistry, onDataServiceDisconnected]);
 
   if (isConnected) {
-    return (
-      <Workspace
-        namespace={namespace}
-        instanceLoadingStatus={instanceLoadingStatus}
-        errorLoadingInstanceMessage={errorLoadingInstanceMessage}
-        isDataLake={isDataLake}
-      />
-    );
+    return <Workspace namespace={namespace} />;
   }
 
   if (showNewConnectForm) {

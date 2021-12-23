@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import store from './create-collection';
 import { reset } from '../modules/reset';
@@ -32,7 +33,7 @@ describe('CreateCollectionStore [Store]', () => {
 
     context('when open create collection is emitted', () => {
       beforeEach(() => {
-        appRegistry.emit('open-create-collection');
+        appRegistry.emit('open-create-collection', { database: 'db1' });
       });
 
       it('dispatches the toggle action', () => {

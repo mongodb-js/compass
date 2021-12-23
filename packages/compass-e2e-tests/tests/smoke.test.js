@@ -87,7 +87,7 @@ describe('Smoke tests', function () {
 
     it('contains a list of databases', async function () {
       const dbSelectors = ['admin', 'config', 'local', 'test'].map(
-        Selectors.databaseTableLink
+        Selectors.databaseCard
       );
 
       for (const dbSelector of dbSelectors) {
@@ -107,9 +107,9 @@ describe('Smoke tests', function () {
     });
 
     it('contains a list of collections', async function () {
-      expect(
-        await client.existsEventually(Selectors.CollectionsTableLinkNumbers)
-      ).to.eq(true);
+      expect(await client.existsEventually(Selectors.CollectionsGrid)).to.eq(
+        true
+      );
     });
 
     // capped and not capped
@@ -147,7 +147,7 @@ describe('Smoke tests', function () {
 
       // all of these unfortunately differ slightly between different versions of mongodb
       const totalDocumentSizeValueElement = await client.$(
-        Selectors.TotalDocumentSizeValue
+        Selectors.StorageSizeValue
       );
       expect(await totalDocumentSizeValueElement.getText()).to.include('KB');
       const avgDocumentSizeValueElement = await client.$(

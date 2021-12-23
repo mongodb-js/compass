@@ -7,6 +7,12 @@ var electronApp = electron.remote ? electron.remote.app : undefined;
 
 var debug = require('debug')('mongodb-compass:models:preferences');
 
+var THEMES = {
+  DARK: 'DARK',
+  LIGHT: 'LIGHT',
+  OS_THEME: 'OS_THEME'
+};
+
 var preferencesProps = {
   /**
    * String identifier for this set of preferences. Default is `General`.
@@ -44,6 +50,15 @@ var preferencesProps = {
     type: 'boolean',
     required: true,
     default: false
+  },
+  /**
+   * Stores the theme preference for the user.
+   * @type {String}
+   */
+  theme: {
+    type: 'string',
+    required: true,
+    default: THEMES.LIGHT
   },
   /**
    * Stores a unique anonymous user ID (uuid) for the current user
@@ -296,3 +311,4 @@ var Preferences = Model.extend(storageMixin, {
 });
 
 module.exports = Preferences;
+module.exports.THEMES = THEMES;

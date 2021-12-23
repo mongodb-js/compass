@@ -267,10 +267,7 @@ const InstanceModel = AmpersandModel.extend(
     },
 
     toJSON(opts = { derived: true }) {
-      return {
-        ...this.serialize(opts),
-        databases: this.databases.toJSON(opts),
-      };
+      return this.serialize(opts);
     },
   }
 );

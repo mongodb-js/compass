@@ -17,9 +17,11 @@ export interface CollectionStats {
   index_sizes?: CollStats['indexSizes'];
   document_count: CollStats['count'];
   document_size?: CollStats['size'];
-  storage_size?: CollStats['storageSize'];
-  index_count?: CollStats['nindexes'];
-  index_size?: CollStats['totalIndexSize'];
+  avg_document_size: number;
+  storage_size: number;
+  free_storage_size: number;
+  index_count: number;
+  index_size: number;
   padding_factor?: CollStats['paddingFactor'];
   extent_count?: CollStats['numExtents'];
   extent_last_size?: CollStats['lastExtentSize'];

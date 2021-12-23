@@ -1,5 +1,4 @@
 ignores: [
-  "lodash.isempty",
   "@babel/cli",
   "@babel/register",
   "core-js",

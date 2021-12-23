@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { Checkbox, Description } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
@@ -12,7 +13,9 @@ function DirectConnectionInput({
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const isDirectConnection =
-    connectionStringUrl.searchParams.get('directConnection') === 'true';
+    connectionStringUrl
+      .typedSearchParams<MongoClientOptions>()
+      .get('directConnection') === 'true';
 
   const updateDirectConnection = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
