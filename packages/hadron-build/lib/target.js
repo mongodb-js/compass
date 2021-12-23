@@ -324,6 +324,7 @@ class Target {
     this.windows_setup_label = this.windows_setup_filename = `${this.productName}Setup.exe`;
     this.windows_zip_label = this.windows_zip_filename = `${this.productName}-windows.zip`;
     this.windows_nupkg_full_label = this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
+    this.windows_releases_label = this.windows_releases_filename = `${this.distribution}-RELEASES`;
 
     this.assets = [
       {
@@ -340,7 +341,7 @@ class Target {
       },
       {
         name: `${this.slug}-RELEASES`,
-        path: this.dest('RELEASES')
+        path: this.dest(this.windows_releases_label)
       },
       {
         name: 'LICENSE',

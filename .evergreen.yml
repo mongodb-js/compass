@@ -322,6 +322,10 @@ functions:
         remote_file: ${project}/${revision}/${windows_setup_filename}
     - <<: *save-artifact
       params:
+        local_file: src/packages/compass/dist/${windows_msi_filename}
+        remote_file: ${project}/${revision}/${windows_msi_filename}
+    - <<: *save-artifact
+      params:
         local_file: src/packages/compass/dist/${windows_zip_filename}
         remote_file: ${project}/${revision}/${windows_zip_filename}
         content_type: application/zip
@@ -331,8 +335,8 @@ functions:
         remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
     - <<: *save-artifact
       params:
-        local_file: src/packages/compass/dist/${compass_distribution}-RELEASES
-        remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
+        local_file: src/packages/compass/dist/${windows_releases_filename}
+        remote_file: ${project}/${revision}/${windows_releases_filename}
 
   save-macos-artifacts:
     - <<: *save-artifact
@@ -377,6 +381,10 @@ functions:
         remote_file: ${project}/${revision}/${windows_setup_filename}
     - <<: *get-artifact
       params:
+        local_file: src/packages/compass/dist/${windows_msi_filename}
+        remote_file: ${project}/${revision}/${windows_msi_filename}
+    - <<: *get-artifact
+      params:
         local_file: src/packages/compass/dist/${windows_zip_filename}
         remote_file: ${project}/${revision}/${windows_zip_filename}
     - <<: *get-artifact
@@ -385,8 +393,8 @@ functions:
         remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
     - <<: *get-artifact
       params:
-        local_file: src/packages/compass/dist/${compass_distribution}-RELEASES
-        remote_file: ${project}/${revision}/${compass_distribution}-RELEASES
+        local_file: src/packages/compass/dist/${windows_releases_filename}
+        remote_file: ${project}/${revision}/${windows_releases_filename}
 
     - <<: *get-artifact
       params:
