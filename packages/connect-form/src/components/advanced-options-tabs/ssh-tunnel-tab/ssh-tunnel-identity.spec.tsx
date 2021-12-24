@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
 
-import SSHTunnelSocks from './ssh-tunnel-socks';
+import SSHTunnelIdentity from './ssh-tunnel-identity';
 import { SSHFormErrors } from '../../../utils/connect-form-errors';
 
 const formFields = [
@@ -20,9 +20,13 @@ const formFields = [
     key: 'username',
     value: 'username',
   },
+  // {
+  //   key: 'identityKeyFile',
+  //   value: 'file',
+  // },
   {
-    key: 'password',
-    value: 'password',
+    key: 'identityKeyPassphrase',
+    value: 'passphrase',
   },
 ];
 
@@ -30,24 +34,26 @@ const sshTunnelOptions: SSHConnectionOptions = {
   host: 'old host',
   port: 22,
   username: 'old username',
-  password: 'old password',
+  // identityKeyFile: 'file',
+  identityKeyPassphrase: 'old passphrase',
 };
 
 const errors: SSHFormErrors = {
   host: 'Invalid host',
   port: 'Invalid port',
   username: 'Invalid username',
-  password: 'Invalid password',
+  // identityKeyFile: 'Invalid file',
+  identityKeyPassphrase: 'Invalid passphrase',
 };
 
-describe('SSHTunnelSocks', function () {
+describe('SSHTunnelIdentity', function () {
   let onConnectionOptionChangedSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onConnectionOptionChangedSpy = sinon.spy();
 
     render(
-      <SSHTunnelSocks
+      <SSHTunnelIdentity
         errors={{} as SSHFormErrors}
         sshTunnelOptions={sshTunnelOptions}
         onConnectionOptionChanged={onConnectionOptionChangedSpy}
@@ -81,7 +87,7 @@ describe('SSHTunnelSocks', function () {
 
   it('renders form field error on form when passed', function() {
     render(
-      <SSHTunnelSocks
+      <SSHTunnelIdentity
         errors={errors}
         sshTunnelOptions={{} as SSHConnectionOptions}
         onConnectionOptionChanged={onConnectionOptionChangedSpy}
