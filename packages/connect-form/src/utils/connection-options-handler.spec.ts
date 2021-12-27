@@ -39,7 +39,7 @@ describe('#handleUpdateConnectionOptions', function () {
     expect(response.connectionOptions.sshTunnel).to.be.undefined;
   });
 
-  it('should handle tab update', function() {
+  it('should handle tab update with no initial options', function() {
     const response = handleUpdateConnectionOptions({
       currentTab: 'password',
       type: 'update-connection-options',
@@ -63,6 +63,40 @@ describe('#handleUpdateConnectionOptions', function () {
     expect(response.connectionOptions.sshTunnel.host).to.equal('localhost');
     expect(response.connectionOptions.sshTunnel.port).to.equal(undefined);
     expect(response.connectionOptions.sshTunnel.username).to.equal(undefined);
+    expect(response.connectionOptions.sshTunnel.password).to.equal(undefined);
+    expect(response.connectionOptions.sshTunnel.identityKeyFile).to.equal(undefined);
+    expect(response.connectionOptions.sshTunnel.identityKeyPassphrase).to.equal(undefined);
+  });
+
+  it('should handle tab update with initial options', function() {
+    const response = handleUpdateConnectionOptions({
+      currentTab: 'password',
+      type: 'update-connection-options',
+      key: 'host',
+      value: 'localhosted',
+    }, {
+      connectionOptions: {
+        connectionString,
+        sshTunnel: {
+          host: 'locahost',
+          port: 22,
+          username: 'root',
+        }
+      },
+      connectionStringInvalidError: null,
+      connectionStringUrl: new ConnectionStringUrl(connectionString),
+      errors: [],
+      warnings: [],
+    });
+
+    expect(response.errors).to.deep.equal([]);
+    expect(response.warnings).to.deep.equal([]);
+    expect(response.connectionStringInvalidError).to.be.null;
+    expect(response.connectionStringUrl.toString()).to.equal(new ConnectionStringUrl(connectionString).toString());
+    expect(response.connectionOptions.connectionString).to.equal(connectionString);
+    expect(response.connectionOptions.sshTunnel.host).to.equal('localhosted');
+    expect(response.connectionOptions.sshTunnel.port).to.equal(22);
+    expect(response.connectionOptions.sshTunnel.username).to.equal('root');
     expect(response.connectionOptions.sshTunnel.password).to.equal(undefined);
     expect(response.connectionOptions.sshTunnel.identityKeyFile).to.equal(undefined);
     expect(response.connectionOptions.sshTunnel.identityKeyPassphrase).to.equal(undefined);
