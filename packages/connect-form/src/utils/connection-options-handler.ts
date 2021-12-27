@@ -32,7 +32,6 @@ export function handleUpdateConnectionOptions(
       connectionStringUrl,
       connectionOptions: {
         connectionString: connectionStringUrl.toString(),
-        sshTunnel: undefined,
       },
       errors: initialErrors,
       warnings,
@@ -66,14 +65,17 @@ export function handleUpdateConnectionOptions(
       ...initialErrors.filter(
         ({ fieldName }) => fieldName !== MARKABLE_FORM_FIELD_NAMES.IS_SSH
       ),
-      {
-        fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH,
-        errors,
-      },
     ],
     warnings,
     connectionStringInvalidError,
   };
+
+  if (Object.values(errors).length > 0) {
+    response.errors.push({
+      fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH,
+      errors,
+    });
+  }
 
   return response;
 }
