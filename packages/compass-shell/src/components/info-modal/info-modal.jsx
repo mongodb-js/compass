@@ -13,6 +13,10 @@ import styles from './info-modal.module.less';
 
 const hotkeys = [
   {
+    key: 'Ctrl+`',
+    description: 'Toggle shell.'
+  },
+  {
     key: 'Ctrl+A',
     description: 'Moves the cursor to the beginning of the line.'
   },
@@ -79,7 +83,7 @@ export class InfoModal extends PureComponent {
     } = this.props;
 
     return (
-      <Modal show={show} onShow={this.showHandler}>
+      <Modal restoreFocus={false} onEscapeKeyDown={hideInfoModal} show={show} onShow={this.showHandler}>
         <Modal.Header closeButton onHide={hideInfoModal}>
           <h4>mongosh {mongoshVersion}</h4>
         </Modal.Header>
