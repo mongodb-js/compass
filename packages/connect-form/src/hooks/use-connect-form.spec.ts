@@ -730,11 +730,13 @@ describe('use-connect-form hook', function () {
     });
 
     describe('update-connection-options action', function () {
-      it('should handleUpdateConnectionOptions', function() {
+      it('should handleUpdateConnectionOptions', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/?ssl=true&directConnection=false'
         );
-        const {connectionOptions: { sshTunnel }} = handleConnectionFormFieldUpdate({
+        const {
+          connectionOptions: { sshTunnel },
+        } = handleConnectionFormFieldUpdate({
           action: {
             type: 'update-connection-options',
             currentTab: 'password',

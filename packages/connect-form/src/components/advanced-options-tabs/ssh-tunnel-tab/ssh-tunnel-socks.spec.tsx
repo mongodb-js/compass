@@ -60,14 +60,16 @@ describe('SSHTunnelSocks', function () {
     it(`renders ${key} field`, function () {
       const el = screen.getByTestId(key);
       expect(el).to.exist;
-    })
+    });
   });
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  formFields.forEach(function({key}) {
-    it(`renders ${key} field value`, function() {
+  formFields.forEach(function ({ key }) {
+    it(`renders ${key} field value`, function () {
       const el = screen.getByTestId(key);
-      expect(el.getAttribute('value')).to.equal(sshTunnelOptions[key].toString());
+      expect(el.getAttribute('value')).to.equal(
+        sshTunnelOptions[key].toString()
+      );
     });
   });
 
@@ -79,7 +81,7 @@ describe('SSHTunnelSocks', function () {
     });
   });
 
-  it('renders form field error on form when passed', function() {
+  it('renders form field error on form when passed', function () {
     render(
       <SSHTunnelSocks
         errors={errors}
@@ -89,7 +91,10 @@ describe('SSHTunnelSocks', function () {
     );
 
     formFields.forEach(function ({ key }) {
-      expect(screen.getByText(errors[key]), `renders ${key} field error`).to.exist;
+      expect(
+        screen.getByText(errors[key]),
+        `renders ${key} field error`
+      ).to.exist;
     });
-  })
+  });
 });

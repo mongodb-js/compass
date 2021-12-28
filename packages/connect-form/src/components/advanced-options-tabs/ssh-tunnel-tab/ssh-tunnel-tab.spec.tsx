@@ -102,18 +102,24 @@ describe('SSHTunnelTab', function () {
         key: 'username',
         value: 'username',
       },
-      // todo: @mabaasit test this
-      // {
-      //   key: 'identityKeyFile',
-      //   value: ['passphrase'],
-      // },
+      {
+        key: 'identityKeyFile',
+        value: 'passphrase file',
+      },
       {
         key: 'identityKeyPassphrase',
         value: 'passphrase',
       },
     ].forEach(function ({ key, value }) {
       it(`when ${key} field on identity form changes`, function () {
-        fireEvent.change(screen.getByTestId(key), { target: { value } });
+        const target = key === 'identityKeyFile' ? {
+          files: [
+            {
+              path: value,
+            },
+          ],
+        } : {value};
+        fireEvent.change(screen.getByTestId(key), { target });
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-connection-options',
           currentTab: 'identity',

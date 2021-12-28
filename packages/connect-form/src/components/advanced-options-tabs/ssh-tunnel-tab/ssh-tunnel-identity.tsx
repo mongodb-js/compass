@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from 'react';
-import { css, cx } from '@emotion/css';
 import { TextInput, FileInput } from '@mongodb-js/compass-components';
 import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
 import FormFieldContainer from '../../form-field-container';
