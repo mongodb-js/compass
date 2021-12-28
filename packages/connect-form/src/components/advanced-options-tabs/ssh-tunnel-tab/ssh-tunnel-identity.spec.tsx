@@ -84,19 +84,19 @@ describe('SSHTunnelIdentity', function () {
 
   // eslint-disable-next-line mocha/no-setup-in-describe
   formFields.forEach(function ({ key, value }) {
-    const target = key === 'identityKeyFile' ? {
-      files: [
-        {
-          path: value,
-        },
-      ],
-    } : {value};
+    const target =
+      key === 'identityKeyFile'
+        ? {
+            files: [
+              {
+                path: value,
+              },
+            ],
+          }
+        : { value };
     it(`calls onConnectionOptionChanged when ${key} field on form changes`, function () {
       fireEvent.change(screen.getByTestId(key), { target });
-      expect(onConnectionOptionChangedSpy.args[0]).to.deep.equal([
-        key,
-        value,
-      ]);
+      expect(onConnectionOptionChangedSpy.args[0]).to.deep.equal([key, value]);
     });
   });
 

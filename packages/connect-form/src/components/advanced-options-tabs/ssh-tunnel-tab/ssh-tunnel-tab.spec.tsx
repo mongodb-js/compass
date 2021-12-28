@@ -112,13 +112,16 @@ describe('SSHTunnelTab', function () {
       },
     ].forEach(function ({ key, value }) {
       it(`when ${key} field on identity form changes`, function () {
-        const target = key === 'identityKeyFile' ? {
-          files: [
-            {
-              path: value,
-            },
-          ],
-        } : {value};
+        const target =
+          key === 'identityKeyFile'
+            ? {
+                files: [
+                  {
+                    path: value,
+                  },
+                ],
+              }
+            : { value };
         fireEvent.change(screen.getByTestId(key), { target });
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-connection-options',
