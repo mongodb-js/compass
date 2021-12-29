@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
@@ -35,18 +36,18 @@ describe('Databases [Store]', () => {
 
     context('when the instance store triggers', () => {
       const dbs = [{ _id: 'db1', storage_size: 10, collections: [], index_count: 2 }];
-      const mappedDbs = [
-        { 'Database Name': 'db1', 'Storage Size': 10, 'Collections': 0, 'Indexes': 2 }
-      ];
+      const instance = new InstanceModel({ _id: '123', databases: dbs });
 
       beforeEach(() => {
         appRegistry.emit('instance-created', {
-          instance: new InstanceModel({ _id: '123', databases: dbs }),
+          instance,
         });
       });
 
       it('dispatches the load database action', () => {
-        expect(store.getState().databases).to.deep.equal(mappedDbs);
+        expect(store.getState().databases).to.deep.equal(
+          instance.databases.toJSON()
+        );
       });
     });
 

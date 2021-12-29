@@ -4,7 +4,6 @@ import {
   Banner,
   BannerVariant,
   MongoDBLogo,
-  breakpoints,
   compassUIColors,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -49,12 +48,10 @@ const formContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
   display: 'flex',
-  flexDirection: 'column',
-  padding: 0,
-  paddingBottom: spacing[4],
-  [`@media only screen and (min-width: ${breakpoints.Desktop}px)`]: {
-    flexDirection: 'row',
-  },
+  padding: spacing[4],
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: spacing[4],
 });
 
 function Connections({
@@ -111,12 +108,14 @@ function Connections({
             {storeConnectionError}
           </Banner>
         )}
-        <MongoDBLogo className={logoStyles} color={'green-dark-2'} />
         <div className={formContainerStyles}>
           <ConnectForm
-            onConnectClicked={(connectionInfo) => connect(connectionInfo)}
+            onConnectClicked={(connectionInfo) =>
+              connect({
+                ...connectionInfo,
+              })
+            }
             initialConnectionInfo={activeConnectionInfo}
-            key={activeConnectionId}
           />
           <FormHelp />
         </div>

@@ -80,7 +80,7 @@ const Selectors = {
   // Instance screen
   InstanceTabs: '[data-test-id="instance-tabs"]',
   InstanceTab: '.test-tab-nav-bar-tab',
-  DatabasesTable: '[data-test-id="databases-table"]',
+  DatabasesTable: '[data-testid="database-grid"]',
 
   instanceTab: (tabName, selected) => {
     const selector = `${Selectors.InstanceTab}[name="${tabName}"]`;
@@ -95,15 +95,14 @@ const Selectors = {
 
     return selector;
   },
-  databaseTableLink: (dbName) => {
-    return `[data-test-id="databases-table-link-${dbName}"]`;
+  databaseCard: (dbName) => {
+    return `[data-testid="database-grid-item-${dbName}"]`;
   },
 
   // Database screen
   DatabaseTabs: '[data-test-id="database-tabs"]',
   DatabaseTab: '.test-tab-nav-bar-tab',
-  CollectionsTableLinkNumbers:
-    '[data-test-id="collections-table-link-numbers"]',
+  CollectionsGrid: '[data-testid="collection-grid"]',
 
   databaseTab: (tabName, selected) => {
     const selector = `${Selectors.DatabaseTab}[name="${tabName}"]`;
@@ -123,7 +122,7 @@ const Selectors = {
   CollectionTab: '.test-tab-nav-bar-tab',
   CollectionHeaderTitle: '[data-test-id="collection-header-title"]',
   DocumentCountValue: '[data-test-id="document-count-value"]',
-  TotalDocumentSizeValue: '[data-test-id="total-document-size-value"]',
+  StorageSizeValue: '[data-test-id="storage-size-value"]',
   AvgDocumentSizeValue: '[data-test-id="avg-document-size-value"]',
   IndexCountValue: '[data-test-id="index-count-value"]',
   TotalIndexSizeValue: '[data-test-id="total-index-size-value"]',

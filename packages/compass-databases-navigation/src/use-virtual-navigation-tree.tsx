@@ -113,7 +113,7 @@ function findSiblings(
   return result;
 }
 
-export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
+export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
   items,
   activeItemId,
   onExpandedChange,

@@ -345,7 +345,15 @@ async function compileCompassAssets(compassPath = COMPASS_PATH) {
 
 async function getCompassBuildMetadata() {
   try {
-    const metadata = require('mongodb-compass/dist/target.json');
+    let metadata;
+    if (process.env.COMPASS_APP_PATH && process.env.COMPASS_APP_NAME) {
+      metadata = {
+        appPath: process.env.COMPASS_APP_PATH,
+        packagerOptions: { name: process.env.COMPASS_APP_NAME },
+      };
+    } else {
+      metadata = require('mongodb-compass/dist/target.json');
+    }
     // Double-checking that Compass app path exists, not only the metadata
     fs.stat(metadata.appPath);
     return metadata;

@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "5.6.0",
+  "version": "5.7.0",
   "main": "lib/index.js",
   "exports": {
     "webpack": "./src/index.js",

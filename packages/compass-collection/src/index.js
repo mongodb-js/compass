@@ -2,19 +2,11 @@ import CollectionPlugin from './plugin';
 import CollectionStore from './stores';
 
 /**
- * A sample role for the component.
- */
-const ROLE = {
-  name: 'Collection',
-  component: CollectionPlugin
-};
-
-/**
  * Activate all the components in the Collection package.
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerRole('Collection.Workspace', ROLE);
+  appRegistry.registerComponent('Collection.Workspace', CollectionPlugin);
   appRegistry.registerStore('Collection.Store', CollectionStore);
 }
 
@@ -23,7 +15,7 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Collection.Workspace', ROLE);
+  appRegistry.deregisterComponent('Collection.Workspace');
   appRegistry.deregisterStore('Collection.Store');
 }
 

@@ -67,17 +67,24 @@ export default async function connectMongoClient(
 
   try {
     debug('waiting for MongoClient to connect ...');
-    const client = (await Promise.race([
-      mongoClient.connect(),
+    await Promise.race([
+      (async () => {
+        await mongoClient.connect();
+        await mongoClient.db('admin').command({ ping: 1 });
+      })(),
       waitForTunnelError(tunnel),
-    ])) as MongoClient; // waitForTunnel always throws, never resolves
+    ]); // waitForTunnel always throws, never resolves
 
     log.info(mongoLogId(1_001_000_012), 'Connect', 'Connection established', {
       driver: mongoClient.options?.metadata?.driver,
       url: redactConnectionString(urlWithSshTunnel),
     });
 
-    return [client, tunnel, { url: urlWithSshTunnel, options: driverOptions }];
+    return [
+      mongoClient,
+      tunnel,
+      { url: urlWithSshTunnel, options: driverOptions },
+    ];
   } catch (err: any) {
     log.error(
       mongoLogId(1_001_000_013),
@@ -87,7 +94,11 @@ export default async function connectMongoClient(
     );
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
-    await forceCloseTunnel(tunnel);
+    await Promise.all([forceCloseTunnel(tunnel), mongoClient.close()]).catch(
+      () => {
+        /* ignore errors */
+      }
+    );
     throw err;
   }
 }
@@ -96,28 +107,30 @@ function connectionOptionsToMongoClientParams(
   connectionOptions: ConnectionOptions
 ): [string, MongoClientOptions] {
   const url = new ConnectionStringUrl(connectionOptions.connectionString);
+  const searchParams = url.typedSearchParams<MongoClientOptions>();
 
   const options: MongoClientOptions = {
     monitorCommands: true,
   };
 
   // adds directConnection=true unless is explicitly a replica set
-  const isLoadBalanced = url.searchParams.get('loadBalanced') === 'true';
+  const isLoadBalanced = searchParams.get('loadBalanced') === 'true';
   const isReplicaSet =
-    url.isSRV || url.hosts.length > 1 || url.searchParams.has('replicaSet');
+    url.isSRV || url.hosts.length > 1 || searchParams.has('replicaSet');
+  const hasDirectConnection = searchParams.has('directConnection');
 
-  if (!isReplicaSet && !isLoadBalanced) {
-    url.searchParams.set('directConnection', 'true');
+  if (!isReplicaSet && !isLoadBalanced && !hasDirectConnection) {
+    searchParams.set('directConnection', 'true');
   }
 
   // See https://jira.mongodb.org/browse/NODE-3591
   if (
-    !url.searchParams.has('tlsCertificateFile') &&
-    url.searchParams.has('tlsCertificateKeyFile')
+    !searchParams.has('tlsCertificateFile') &&
+    searchParams.has('tlsCertificateKeyFile')
   ) {
-    url.searchParams.set(
+    searchParams.set(
       'tlsCertificateFile',
-      url.searchParams.get('tlsCertificateKeyFile') as string
+      searchParams.get('tlsCertificateKeyFile') as string
     );
   }
 

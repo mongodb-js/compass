@@ -99,7 +99,8 @@ export const createCollection = (data) => {
     const state = getState();
     const ds = state.dataService.dataService;
     const dbName = state.databaseName;
-    const namespace = `${dbName}.${data.collection}`;
+    const collName = data.collection;
+    const namespace = `${dbName}.${collName}`;
 
     dispatch(clearError());
 
@@ -113,7 +114,11 @@ export const createCollection = (data) => {
         prepareMetrics(collection).then((metrics) => {
           global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
         });
-        global.hadronApp.appRegistry.emit('refresh-data');
+        global.hadronApp.appRegistry.emit('collection-created', {
+          ns: namespace,
+          database: dbName,
+          collection: collName,
+        });
         dispatch(reset());
       });
     } catch (e) {

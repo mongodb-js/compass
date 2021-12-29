@@ -73,6 +73,42 @@ describe('connectMongoClient', function () {
       });
     });
 
+    it('should not override a user-specified directConnection option', async function () {
+      const [client, tunnel, { url, options }] = await connectMongoClient(
+        {
+          connectionString: 'mongodb://localhost:27018/?directConnection=false',
+        },
+        setupListeners,
+        tunnelLocalPort
+      );
+
+      toBeClosed.push(client, tunnel);
+
+      assert.strictEqual(
+        url,
+        'mongodb://localhost:27018/?directConnection=false'
+      );
+
+      assert.deepStrictEqual(options, {
+        monitorCommands: true,
+      });
+    });
+
+    it('should at least try to run a ping command to verify connectivity', async function () {
+      try {
+        await connectMongoClient(
+          {
+            connectionString: 'mongodb://localhost:1/?loadBalanced=true',
+          },
+          setupListeners,
+          tunnelLocalPort
+        );
+        expect.fail('missed exception');
+      } catch (err: any) {
+        expect(err.name).to.equal('MongoNetworkError');
+      }
+    });
+
     describe('ssh tunnel failures', function () {
       it('should refuse to open the tunnel with a replica set', async function () {
         const connectionOptions: ConnectionOptions = {

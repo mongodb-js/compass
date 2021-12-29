@@ -1,5 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import { Checkbox, Select } from '@mongodb-js/compass-components';
 
 import TimeSeriesFields from './time-series-fields';

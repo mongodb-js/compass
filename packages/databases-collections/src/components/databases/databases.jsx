@@ -1,75 +1,53 @@
+/* eslint-disable react/no-multi-comp */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { ZeroState } from 'hadron-react-components';
-
-import DatabasesToolbar from './databases-toolbar';
-import DatabasesTable from './databases-table';
-import { showDatabase } from '../../modules/show-database';
-import { sortDatabases } from '../../modules/databases/databases';
-import { open as openCreate } from '../../modules/create-database';
-import { open as openDrop } from '../../modules/drop-database';
+import { Banner, BannerVariant } from '@mongodb-js/compass-components';
+import { DatabasesList } from '@mongodb-js/databases-collections-list';
 
 import styles from './databases.module.less';
 
 const HEADER = 'Unable to display databases and collections';
-const SUBTEXT = 'This server or service appears to be emulating'
-  + ' MongoDB. Some documented MongoDB features may work differently, may be'
-  + ' entirely missing or incomplete, or may have unexpectedly different'
-  + ' performance characteristics than would be found when connecting to a'
-  + ' real MongoDB server or service.';
+const SUBTEXT =
+  'This server or service appears to be emulating' +
+  ' MongoDB. Some documented MongoDB features may work differently, may be' +
+  ' entirely missing or incomplete, or may have unexpectedly different' +
+  ' performance characteristics than would be found when connecting to a' +
+  ' real MongoDB server or service.';
 const DOCUMENTATION_LINK = 'https://www.mongodb.com/cloud/atlas';
 
-class Databases extends PureComponent {
-  static displayName = 'DatabasesComponent';
+const ERROR_WARNING = 'An error occurred while loading databases';
 
+function NonGenuineZeroState() {
+  return (
+    <div className="column-container">
+      <div className="column main">
+        <div data-testid="databases-non-genuine-warning" className={styles['databases-non-genuine-warning']}>
+          <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
+          <ZeroState header={HEADER} subtext={SUBTEXT}>
+            <a className="zero-state-link" href={DOCUMENTATION_LINK}>
+              Try MongoDB Atlas
+            </a>
+          </ZeroState>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+class Databases extends PureComponent {
   static propTypes = {
-    columns: PropTypes.array.isRequired,
     databases: PropTypes.array.isRequired,
+    databasesStatus: PropTypes.object.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    showDatabase: PropTypes.func.isRequired,
-    sortColumn: PropTypes.string.isRequired,
-    sortOrder: PropTypes.string.isRequired,
-    sortDatabases: PropTypes.func.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
-    isDataLake: PropTypes.bool.isRequired
-  }
-
-  renderDatabases() {
-    if (!this.props.isGenuineMongoDB && this.props.databases.length === 0) {
-      return (
-        <div className="column-container">
-          <div className="column main">
-            <div className={styles['databases-non-genuine-warning']}>
-              <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
-              <ZeroState
-                header={HEADER}
-                subtext={SUBTEXT}
-              >
-                <a className="zero-state-link" href={DOCUMENTATION_LINK}>
-                  Try MongoDB Atlas
-                </a>
-              </ZeroState>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    return (
-      <DatabasesTable
-        columns={this.props.columns}
-        databases={this.props.databases}
-        isWritable={this.props.isWritable}
-        isReadonly={this.props.isReadonly}
-        sortOrder={this.props.sortOrder}
-        sortColumn={this.props.sortColumn}
-        sortDatabases={this.props.sortDatabases}
-        showDatabase={this.props.showDatabase}
-        open={openDrop}
-      />
-    );
-  }
+    isDataLake: PropTypes.bool.isRequired,
+    onDatabaseClick: PropTypes.func.isRequired,
+    onDeleteDatabaseClick: PropTypes.func.isRequired,
+    onCreateDatabaseClick: PropTypes.func.isRequired,
+  };
 
   /**
    * Render Databases component.
@@ -77,16 +55,40 @@ class Databases extends PureComponent {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return (
-      <div className={styles.databases} data-test-id="databases-table">
-        <DatabasesToolbar
-          isReadonly={this.props.isReadonly}
-          open={openCreate}
-          isDataLake={this.props.isDataLake}
-        />
-        {this.renderDatabases()}
-      </div>
+    const {
+      databases,
+      databasesStatus,
+      isReadonly,
+      isWritable,
+      isDataLake,
+      isGenuineMongoDB,
+      onDatabaseClick,
+      onDeleteDatabaseClick,
+      onCreateDatabaseClick,
+    } = this.props;
+
+    if (databasesStatus.status === 'error') {
+      return (
+        <div className={styles['databases-error']}>
+          <Banner variant={BannerVariant.Danger}>
+            {ERROR_WARNING}: {databasesStatus.error}
+          </Banner>
+        </div>
+      );
+    }
+
+    if (databases.length === 0 && !isGenuineMongoDB) {
+      return <NonGenuineZeroState />;
+    }
+
+    const actions = Object.assign(
+      { onDatabaseClick },
+      !isReadonly && isWritable && !isDataLake
+        ? { onDeleteDatabaseClick, onCreateDatabaseClick }
+        : {}
     );
+
+    return <DatabasesList databases={databases} {...actions} />;
   }
 }
 
@@ -98,15 +100,29 @@ class Databases extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  columns: state.columns,
   databases: state.databases,
+  databasesStatus: state.databasesStatus,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
-  sortColumn: state.sortColumn,
-  sortOrder: state.sortOrder,
   isGenuineMongoDB: state.isGenuineMongoDB,
-  isDataLake: state.isDataLake
+  isDataLake: state.isDataLake,
 });
+
+function createEmit(evtName) {
+  return function(...args) {
+    return function(_dispatch, getState) {
+      const { appRegistry } = getState();
+      // eslint-disable-next-line chai-friendly/no-unused-expressions
+      appRegistry?.emit(evtName, ...args);
+    };
+  };
+}
+
+const mapDispatchToProps = {
+  onDatabaseClick: createEmit('select-database'),
+  onDeleteDatabaseClick: createEmit('open-drop-database'),
+  onCreateDatabaseClick: createEmit('open-create-database'),
+};
 
 /**
  * Connect the redux store to the component.
@@ -114,10 +130,7 @@ const mapStateToProps = (state) => ({
  */
 const ConnectedDatabases = connect(
   mapStateToProps,
-  {
-    showDatabase,
-    sortDatabases
-  },
+  mapDispatchToProps
 )(Databases);
 
 export default ConnectedDatabases;

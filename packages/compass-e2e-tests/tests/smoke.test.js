@@ -83,7 +83,7 @@ describe('Smoke tests', function () {
 
     it('contains a list of databases', async function () {
       const dbSelectors = ['admin', 'config', 'local', 'test'].map(
-        Selectors.databaseTableLink
+        Selectors.databaseCard
       );
 
       for (const dbSelector of dbSelectors) {
@@ -103,7 +103,7 @@ describe('Smoke tests', function () {
 
     it('contains a list of collections', async function () {
       expect(
-        await commands.existsEventually(Selectors.CollectionsTableLinkNumbers)
+        await commands.existsEventually(Selectors.CollectionsGrid)
       ).to.eq(true);
     });
 
@@ -139,7 +139,7 @@ describe('Smoke tests', function () {
 
       // all of these unfortunately differ slightly between different versions of mongodb
       const totalDocuments = await page.textContent(
-        Selectors.TotalDocumentSizeValue
+        Selectors.StorageSizeValue
       );
       expect(totalDocuments).to.include('KB');
       const avgDocumentSize = await page.textContent(
