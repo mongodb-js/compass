@@ -7,9 +7,9 @@ const {
   afterTest,
 } = require('../helpers/compass');
 
-async function disconnect(client) {
+async function disconnect(commands) {
   try {
-    await client.disconnect();
+    await commands.disconnect();
   } catch (err) {
     console.error('Error during disconnect:');
     console.error(err);
@@ -19,7 +19,7 @@ async function disconnect(client) {
 /**
  * Connection tests
  */
-describe.skip('Connection screen', function () {
+describe.only('Connection screen', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let app;
   let page;
@@ -34,13 +34,13 @@ describe.skip('Connection screen', function () {
   });
 
   afterEach(async function () {
-    await disconnect(client);
+    await disconnect(commands);
     await afterTest(app, page, this.currentTest);
   });
 
   it('can connect using connection string', async function () {
-    await client.connectWithConnectionString('mongodb://localhost:27018/test');
-    const result = await client.shellEval(
+    await commands.connectWithConnectionString('mongodb://localhost:27018/test');
+    const result = await commands.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -48,11 +48,11 @@ describe.skip('Connection screen', function () {
   });
 
   it('can connect using connection form', async function () {
-    await client.connectWithConnectionForm({
+    await commands.connectWithConnectionForm({
       host: 'localhost',
       port: 27018,
     });
-    const result = await client.shellEval(
+    const result = await commands.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -64,8 +64,8 @@ describe.skip('Connection screen', function () {
     if (!atlasConnectionOptions) {
       return this.skip();
     }
-    await client.connectWithConnectionForm(atlasConnectionOptions);
-    const result = await client.shellEval(
+    await commands.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await commands.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );

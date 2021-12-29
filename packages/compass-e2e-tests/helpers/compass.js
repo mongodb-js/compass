@@ -37,7 +37,7 @@ const { bindCommands } = require('./commands');
  * @property {any[]} structured
  *
  *
- * @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured']} ExtendedApplication
+ * @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured']}} ExtendedApplication
  */
 
 const compileAssetsAsync = promisify(compileAssets);
@@ -82,11 +82,7 @@ let j = 0;
 // For the html
 let k = 0;
 
-/**
- *
- * @param {import('webdriverio').LogEntry} logEntry
- * @returns {string}
- */
+/*
 function formatLogToErrorWithStack(logEntry) {
   const [file, lineCol, ...rest] = logEntry.message.split(' ');
   const message = rest
@@ -95,6 +91,7 @@ function formatLogToErrorWithStack(logEntry) {
     .replace(/(^"|"$)/g, '');
   return `${message}\n  at ${file}:${lineCol}`;
 }
+*/
 
 /**
  * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
@@ -241,6 +238,8 @@ async function startCompass(
       debug(e);
     }
 
+    // TODO
+    /*
     // ERROR, CRITICAL and whatever unknown things might end up in the logs
     const errors = renderLogs.filter((log) => {
       if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
@@ -259,7 +258,7 @@ async function startCompass(
     });
 
     if (errors.length) {
-      /** @type { Error & { errors?: any[] } } */
+      // @type { Error & { errors?: any[] } }
       const error = new Error(
         `Errors encountered in render process during testing:\n\n${errors
           .map(formatLogToErrorWithStack)
@@ -276,6 +275,7 @@ async function startCompass(
       // application was running
       throw error;
     }
+    */
 
     //return app;
   };

@@ -39,7 +39,7 @@ module.exports = function (app, page, commands) {
     }
 
     if (typeof port !== 'undefined') {
-      await page.fill(Selectors.ConnectionFormInputPort, port);
+      await page.fill(Selectors.ConnectionFormInputPort, port.toString());
     }
 
     if (srvRecord === true) {

@@ -68,7 +68,7 @@ const Selectors = {
   // Shell
   ShellContent: '[data-test-id="shell-content"]',
   ShellExpandButton: '[data-test-id="shell-expand-button"]',
-  ShellInput: '[data-test-id="shell-content"] .ace_content',
+  ShellInput: '[data-test-id="shell-content"] .ace_scroller',
   ShellOutput:
     '[data-test-id="shell-content"] [class^=mongosh-shell-output-line] pre',
   ShellLoader:

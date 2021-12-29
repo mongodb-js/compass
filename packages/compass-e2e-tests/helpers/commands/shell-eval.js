@@ -19,14 +19,11 @@ module.exports = function (app, page, commands) {
     const numLines = (await getOutputText()).length;
 
     await page.click(Selectors.ShellInput);
-    // Might be marked with a deprecation warning, but can be used
-    // https://github.com/webdriverio/webdriverio/issues/2076
 
     const command = parse === true ? `JSON.stringify(${str})` : str;
 
-    // TODO: this has to be replaced with something on an element, I think
-    await client.keys(command);
-    await client.keys('\uE007');
+    await page.keyboard.type(command);
+    await page.keyboard.press('Enter');
 
     // wait until more output appears
     await commands.waitUntil(async () => {
