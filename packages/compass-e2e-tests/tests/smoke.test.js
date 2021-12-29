@@ -23,7 +23,7 @@ const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 /**
  * This test suite is based on compass smoke test matrix
  */
-describe('Smoke tests', function () {
+describe.only('Smoke tests', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let app;
   let page;
@@ -271,8 +271,6 @@ describe('Smoke tests', function () {
       const options = await page.textContent(
         Selectors.stageOperatorOptions
       );
-      // TODO: we need an array of bits of text
-      console.log({ options });
       expect(_.without(options, '$setWindowFields')).to.deep.equal([
         '$addFields',
         '$bucket',
@@ -576,7 +574,7 @@ describe('Smoke tests', function () {
     it('supports malformed CSV file');
   });
 
-  describe.only('Export', function () {
+  describe('Export', function () {
     before(async function () {
       await commands.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
