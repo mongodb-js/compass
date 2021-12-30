@@ -119,7 +119,12 @@ type ConnectionFormFieldActions =
       isSrv: boolean;
     }
   | UpdateConnectionOptions
-  | UpdateTlsOptionAction;
+  | UpdateTlsOptionAction
+  | {
+      type: 'update-search-param',
+      key: keyof MongoClientOptions;
+      value: unknown;
+    };
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -357,6 +362,17 @@ export function handleConnectionFormFieldUpdate({
         warnings: [],
         connectionStringInvalidError: null,
       });
+    }
+    case 'update-search-param': {
+      updatedSearchParams.set(action.key, action.value);
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString(),
+        },
+        errors: initialErrors,
+      };
     }
   }
 }
