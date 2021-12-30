@@ -1,24 +1,31 @@
 import React from 'react';
 import path from 'path';
-import { css, cx } from '@emotion/css';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { uiColors } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
 
-import { Button, Icon } from '..';
+import { Button, Icon, Label, Link, Description } from '..';
 
-const formItemHorizontalStyles = css`
-  margin: 15px auto 15px;
-  display: flex;
-  justify-content: flex-end;
-`;
+const { base: redBaseColor } = uiColors.red;
+
+const formItemHorizontalStyles = css({
+  marginTop: spacing[2],
+  marginBottom: spacing[2],
+  marginRight: 'auto',
+  marginLeft: 'auto',
+  display: 'flex',
+  alignItems: 'center',
+});
 
 const formItemVerticalStyles = css`
   margin: 5px auto 20px;
 `;
 
 const formItemErrorStyles = css`
-  border: 1px solid red;
-
+  border: 1px solid ${redBaseColor};
+  border-radius: 5px;
   &:focus {
-    border: 1px solid red;
+    border: 1px solid ${redBaseColor};
   }
 `;
 
@@ -26,22 +33,19 @@ const buttonStyles = css`
   width: 100%;
 `;
 
-const buttonErrorStyles = css`
-  border: 1px solid red;
-`;
+const errorMessageStyles = css({
+  color: `${redBaseColor} !important`,
+});
 
-const labelHorizontalStyles = css`
-  width: 70%;
-  text-align: right;
-  vertical-align: middle;
-  padding-right: 15px;
-  margin: auto;
-  margin-bottom: 0;
-`;
-
-const labelErrorStyles = css`
-  color: red;
-`;
+const labelHorizontalStyles = css({
+  width: '70%',
+  display: 'grid',
+  gridTemplateAreas: `'label icon' 'description .'`,
+  gridTemplateColumns: '1fr auto',
+  alignItems: 'center',
+  columnGap: spacing[1],
+  paddingRight: spacing[3],
+});
 
 const labelIconStyles = css`
   display: inline-block;
@@ -83,21 +87,29 @@ type FileWithPath = File & {
 function FileInput({
   id,
   label,
+  dataTestId,
   onChange,
   multi = false,
   error = false,
+  errorMessage,
   variant = Variant.Horizontal,
   link,
+  description,
   values,
+  labelAlignment = 'left',
 }: {
   id: string;
   label: string;
+  dataTestId: string;
   onChange: (files: string[]) => void;
   multi?: boolean;
   error?: boolean;
+  errorMessage?: string;
   variant?: Variant;
   link?: string;
+  description?: string;
   values?: string[];
+  labelAlignment?: 'right' | 'left' | 'center';
 }): React.ReactElement {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -120,57 +132,94 @@ function FileInput({
     [onChange]
   );
 
-  return (
-    <div
-      className={cx(
-        { [formItemHorizontalStyles]: variant === Variant.Horizontal },
-        { [formItemVerticalStyles]: variant === Variant.Vertical },
-        { [formItemErrorStyles]: error }
-      )}
-    >
-      <label
-        htmlFor={id}
+  const renderDescription = () => {
+    if (!link && !description) {
+      return <></>;
+    }
+    if (!link) {
+      return (
+        <Description
+          data-testid={'file-input-description'}
+          style={{ gridArea: 'description' }}
+        >
+          {description}
+        </Description>
+      );
+    }
+    return (
+      <Link
+        data-testid={'file-input-link'}
+        href={link}
         className={cx(
-          { [labelHorizontalStyles]: variant === Variant.Horizontal },
-          { [labelErrorStyles]: error }
+          {
+            [labelIconStyles]: !description,
+          },
+          css({
+            gridArea: description ? 'description' : 'icon',
+          })
+        )}
+        hideExternalIcon={!description}
+      >
+        {description ?? ''}
+      </Link>
+    );
+  };
+
+  return (
+    <div>
+      <div
+        className={cx(
+          { [formItemHorizontalStyles]: variant === Variant.Horizontal },
+          { [formItemVerticalStyles]: variant === Variant.Vertical },
+          { [formItemErrorStyles]: error }
         )}
       >
-        <span>{label}</span>
-        {link && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noreferrer"
-            className={labelIconStyles}
-            data-testid="file-input-link"
-          >
-            
-          </a>
-        )}
-      </label>
-      <input
-        ref={inputRef}
-        id={`${id}_file_input`}
-        name={id}
-        type="file"
-        multiple={multi}
-        onChange={onFilesChanged}
-        style={{ display: 'none' }}
-      />
-      <Button
-        id={id}
-        data-testid="file-input-button"
-        className={cx({ [buttonStyles]: true }, { [buttonErrorStyles]: error })}
-        onClick={() => {
-          if (inputRef.current) {
-            inputRef.current.click();
-          }
-        }}
-        title="Select a file"
-        leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
-      >
-        {buttonText}
-      </Button>
+        <label
+          htmlFor={`${id}_file_input`}
+          className={cx(
+            { [labelHorizontalStyles]: variant === Variant.Horizontal },
+            css({
+              textAlign: labelAlignment,
+            })
+          )}
+        >
+          <span style={{ gridArea: 'label' }}>{label}</span>
+          {renderDescription()}
+        </label>
+        <input
+          data-testid={dataTestId ?? 'file-input'}
+          ref={inputRef}
+          id={`${id}_file_input`}
+          name={id}
+          type="file"
+          multiple={multi}
+          onChange={onFilesChanged}
+          style={{ display: 'none' }}
+        />
+        <Button
+          id={id}
+          data-testid="file-input-button"
+          className={cx({ [buttonStyles]: true })}
+          onClick={() => {
+            if (inputRef.current) {
+              inputRef.current.click();
+            }
+          }}
+          title="Select a file"
+          leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
+        >
+          {buttonText}
+        </Button>
+      </div>
+      {error && errorMessage && (
+        <Label
+          data-testid={'file-input-error'}
+          className={errorMessageStyles}
+          htmlFor={''}
+        >
+          {errorMessage}
+        </Label>
+      )}
     </div>
   );
 }

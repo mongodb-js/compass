@@ -116,6 +116,7 @@ class SSLServerClientValidation extends React.Component {
       >
         <FileInput
           label="Certificate Authority"
+          labelAlignment="right"
           id="sslCA"
           error={this.getCertAuthError()}
           onChange={this.onCertificateAuthorityChanged.bind(this)}
@@ -124,6 +125,7 @@ class SSLServerClientValidation extends React.Component {
         />
         <FileInput
           label="Client Certificate"
+          labelAlignment="right"
           id="sslCert"
           error={this.getClientCertError()}
           onChange={this.onClientCertificateChanged.bind(this)}
@@ -132,6 +134,7 @@ class SSLServerClientValidation extends React.Component {
         />
         <FileInput
           label="Client Private Key"
+          labelAlignment="right"
           id="sslKey"
           error={this.getClientKeyError()}
           onChange={this.onClientPrivateKeyChanged.bind(this)}

@@ -3,4 +3,5 @@
 export enum MARKABLE_FORM_FIELD_NAMES {
   HOSTS = 'HOSTS',
   IS_SRV = 'IS_SRV',
+  IS_SSH = 'IS_SSH_TUNNEL',
 }

@@ -6,6 +6,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import { ConnectionOptions } from 'mongodb-data-service';
 
 import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
 import { UpdateConnectionFormField } from '../hooks/use-connect-form';
@@ -33,12 +34,14 @@ function AdvancedConnectionOptions({
   connectionStringUrl,
   hideError,
   updateConnectionFormField,
+  connectionOptions,
 }: {
   errors: ConnectionFormError[];
   disabled: boolean;
   connectionStringUrl: ConnectionStringUrl;
   hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
+  connectionOptions: ConnectionOptions;
 }): React.ReactElement {
   return (
     <Accordion text="Advanced Connection Options">
@@ -54,6 +57,7 @@ function AdvancedConnectionOptions({
           hideError={hideError}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}
+          connectionOptions={connectionOptions}
         />
       </div>
     </Accordion>
