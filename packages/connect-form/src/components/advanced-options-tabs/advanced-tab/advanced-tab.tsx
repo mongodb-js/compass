@@ -6,6 +6,10 @@ import {
   RadioBoxGroup,
   spacing,
   TextInput,
+  Label,
+  Description,
+  Link,
+  Table, TableHeader, Row, Cell,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ReadPreferenceMode, ReadPreference as MongoReadPreference, MongoClientOptions } from 'mongodb';
@@ -24,9 +28,21 @@ const fieldStyles = css({
   width: '50%',
 });
 
+const urlOptionsContainer = css({
+  marginTop: spacing[3],
+})
+
+const urlOptionsTable = css({
+  width: '70%',
+});
 interface ReadPreference {
   title: string;
   id: ReadPreferenceMode;
+}
+
+interface UrlOption {
+  key: string;
+  value: string;
 }
 
 const readPreferences: ReadPreference[] = [
@@ -52,6 +68,35 @@ const readPreferences: ReadPreference[] = [
   },
 ];
 
+const editableUrlOptions = [
+  'connectiTimeoutMS',
+  'socketTimeoutMS',
+  'compressors',
+  'zlibCompressionLevel',
+  'maxPoolSize',
+  'minPoolSize',
+  'maxIdleTimeMS',
+  'waitQueueMultiple',
+  'waitQueueTimeoutMS',
+  'w',
+  'wtimeoutMS',
+  'journal',
+  'readConcernLevel',
+  'maxStalenessSeconds',
+  'readPreferenceTags',
+  // 'authSource',
+  'authMechanismProperties',
+  'gssapiServiceName',
+  'localThresholdMS',
+  'serverSelectionTimeoutMS',
+  'serverSelectionTryOnce',
+  'heartbeatFrequencyMS',
+  'appName',
+  'retryReads',
+  'retryWrites',
+  'uuidRepresentation',
+];
+
 function AdvancedTab({
   updateConnectionFormField,
   connectionStringUrl,
@@ -74,9 +119,19 @@ function AdvancedTab({
     [updateConnectionFormField],
   );
 
-  const selectedReadPreference = connectionStringUrl.searchParams.get('readPreference');
+  const readPreference = connectionStringUrl.searchParams.get('readPreference');
   const replicaSet = connectionStringUrl.searchParams.get('replicaSet');
   const authSource = connectionStringUrl.searchParams.get('authSource');
+
+  const urlOptions: UrlOption[] = [];
+  editableUrlOptions.forEach((key: string) => {
+    if (connectionStringUrl.searchParams.has(key)) {
+      urlOptions.push({
+        key,
+        value: connectionStringUrl.searchParams.get(key) as string,
+      });
+    }
+  });
 
   return (
     <div className={containerStyles}>
@@ -91,7 +146,7 @@ function AdvancedTab({
           return (
             <RadioBox
               data-testid={`${id}-preference-button`}
-              checked={selectedReadPreference === id}
+              checked={readPreference === id}
               value={id}
               key={id}
             >
@@ -138,6 +193,28 @@ function AdvancedTab({
         />
       </FormFieldContainer>
       {/* URI Options */}
+      <div className={urlOptionsContainer}>
+        <Label htmlFor={''}>Url Options</Label>
+        <Description>
+          Add other MongoDB url options to customize your connection.&nbsp;
+          <Link href={'https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options'}>Learn More</Link>
+        </Description>
+        <Table
+          data={urlOptions}
+          className={urlOptionsTable}
+          columns={[
+            <TableHeader key={'key'} label="Key" sortBy={(datum: UrlOption) => datum.key} />,
+            <TableHeader key={'value'} label="Value" sortBy={(datum: UrlOption) => datum.value} />,
+          ]}
+        >
+          {({ datum }: {datum: UrlOption}) => (
+            <Row key={datum.key}>
+              <Cell>{datum.key}</Cell>
+              <Cell>{datum.value}</Cell>
+            </Row>
+          )}
+        </Table>
+      </div>
     </div>
   );
 }

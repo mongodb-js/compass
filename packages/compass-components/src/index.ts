@@ -98,3 +98,4 @@ export {
 } from '@leafygreen-ui/segmented-control';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
+export { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';
