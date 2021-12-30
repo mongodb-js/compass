@@ -29,13 +29,13 @@ describe('InfoModal [Component]', () => {
   });
 
   it('renders the hotkeys key', () => {
-    expect(component.find(`.${styles['info-modal-shortcuts-hotkey-key']}`).at(5)).to.have.text(
+    expect(component.find(`.${styles['info-modal-shortcuts-hotkey-key']}`).at(6)).to.have.text(
       'Ctrl+F'
     );
   });
 
   it('renders the hotkeys description', () => {
-    expect(component.find(`.${styles['info-modal-shortcuts-hotkey']}`).at(5)).to.have.text(
+    expect(component.find(`.${styles['info-modal-shortcuts-hotkey']}`).at(6)).to.have.text(
       'Ctrl+FMoves the cursor Forward one character.'
     );
   });
