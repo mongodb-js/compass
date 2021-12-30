@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 const { startTelemetryServer } = require('../helpers/telemetry');
 
-describe.skip('Logging and Telemetry integration', function () {
+describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
     let compassLog;
     let telemetry;
@@ -13,17 +13,17 @@ describe.skip('Logging and Telemetry integration', function () {
       const { app, page, commands } = await beforeTests();
 
       try {
-        await app.client.connectWithConnectionString(
+        await commands.connectWithConnectionString(
           'mongodb://localhost:27018/test'
         );
 
-        await app.client.shellEval('use test');
-        await app.client.shellEval(
+        await commands.shellEval('use test');
+        await commands.shellEval(
           'db.runCommand({ connectionStatus: 1 })'
         );
 
-        await app.client.openTourModal();
-        await app.client.closeTourModal();
+        await commands.openTourModal();
+        await commands.closeTourModal();
       } finally {
         await afterTests(app, page);
         await telemetry.stop();
@@ -397,24 +397,23 @@ describe.skip('Logging and Telemetry integration', function () {
   describe('Uncaught exceptions', function () {
     let app;
     let page;
-    let commands;
 
     before(async function () {
       try {
         process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION = '1';
-        ({ app, page, commands } = await beforeTests());
+        ({ app, page } = await beforeTests());
       } finally {
         delete process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION;
       }
 
-      await afterTests(app);
+      await afterTests(app, page);
     });
 
     after(async function () {
       if (app) {
         // cleanup outside of the test so that the time it takes to run does not
         // get added to the time it took to run the first query
-        await afterTests(app);
+        await afterTests(app, page);
       }
     });
 

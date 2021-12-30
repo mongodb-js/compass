@@ -25,9 +25,13 @@
   "dependencies": {
     "mongodb-compass": "^0.0.0-dev.0"
   },
+  "peerDependencies": {
+    "bson": "*"
+  },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.5.0",
     "@mongodb-js/prettier-config-compass": "^0.4.0",
+    "bson": "*",
     "chalk": "^4.1.2",
     "chai": "*",
     "chai-as-promised": "*",

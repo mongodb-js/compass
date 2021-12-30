@@ -19,7 +19,7 @@ async function disconnect(commands) {
 /**
  * Connection tests
  */
-describe.only('Connection screen', function () {
+describe('Connection screen', function () {
   /** @type {import('../helpers/compass').ExtendedApplication} */
   let app;
   let page;

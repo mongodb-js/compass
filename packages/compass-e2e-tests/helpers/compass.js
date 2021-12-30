@@ -1,5 +1,6 @@
 // @ts-check
 //const { inspect } = require('util');
+const { ObjectId } = require('bson');
 const { promises: fs } = require('fs');
 const path = require('path');
 const os = require('os');
@@ -21,21 +22,10 @@ const { bindCommands } = require('./commands');
 
 /**
  * @typedef {Object} ExtendedClient
- * @property {(selector: string, timeout?: number) => Promise<void>} clickVisible
- * @property {(selector: string, value: any, timeout?: number) => Promise<void>} setValueVisible
- * @property {() => Promise<void>} waitForConnectionScreen
- * @property {() => Promise<void>} closeTourModal
- * @property {() => Promise<void>} closePrivacySettingsModal
- * @property {(timeout?: number) => Promise<void>} doConnect
- * @property {(connectionString: string, timeout?: number) => Promise<void>} connectWithConnectionString
- * @property {(connectionOptions: any, timeout?: number) => Promise<void>} connectWithConnectionForm
- * @property {() => Promise<void>} disconnect
- * @property {(str: string, parse?: boolean, timeout?: number) => Promise<any>} shellEval
  *
  * @typedef {Object} CompassLog
  * @property {Buffer} raw
  * @property {any[]} structured
- *
  *
  * @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured']}} ExtendedApplication
  */
@@ -115,17 +105,17 @@ async function startCompass(
     os.tmpdir(),
     `user-data-dir-${Date.now().toString(32)}-${++i}`
   );
-  const chromeDriverLogPath = path.join(
-    LOG_PATH,
-    `chromedriver.${nowFormatted}.log`
-  );
-  const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
+  //const chromeDriverLogPath = path.join(
+  //  LOG_PATH,
+  //  `chromedriver.${nowFormatted}.log`
+  //);
+  //const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
   await fs.mkdir(userDataDir, { recursive: true });
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
   // for consistency let's mkdir for both of them just in case
-  await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
-  await fs.mkdir(webdriverLogPath, { recursive: true });
+  //await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
+  //await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
 
   // See https://github.com/microsoft/playwright/issues/9351#issuecomment-945314768
@@ -155,21 +145,9 @@ async function startCompass(
   const appOptions = {
     ...opts,
     ...applicationStartOptions,
-    // TODO
-    /*
-    chromeDriverLogPath,
-    webdriverLogPath,
-    */
     // It's usually not required when running tests in Evergreen or locally, but
     // GitHub CI machines are pretty slow sometimes, especially the macOS one
     timeout: 20_000,
-    // TODO
-    /*
-    waitTimeout: 0, // https://github.com/electron-userland/spectron/issues/763
-    webdriverOptions: {
-      waitforInterval: 100, // default is 500ms
-    },
-    */
   };
 
   debug('Starting Playwright Electron with the following configuration:');
@@ -178,16 +156,15 @@ async function startCompass(
   /** @type {ExtendedApplication} */
   // It's missing methods that we will add in a moment
   // @ts-expect-error
-  //const app = new Application(appOptions);
   const app = await electron.launch(appOptions);
 
-  //await app.start();
-
-  //TODO
-  //app.client.setTimeout({ implicit: 0 });
+  // get the app logPath out of electron early in case the app crashes before we
+  // close it and load the logs
+  const logPath = await app.evaluate(async ({ app: _app }) => {
+    return _app.getPath('logs');
+  });
 
   // TODO
-  //addCommands(app);
   //addDebugger(app);
 
   //const _stop = app.stop.bind(app);
@@ -195,18 +172,18 @@ async function startCompass(
 
   //app.stop = async () => {
   app.close = async () => {
+
     // TODO
     //const mainLogs = await app.client.getMainProcessLogs();
-    const mainLogs = [];
     //const renderLogs = await app.client.getRenderProcessLogs();
     const renderLogs = [];
 
-    const mainLogPath = path.join(
-      LOG_PATH,
-      `electron-main.${nowFormatted}.log`
-    );
-    debug(`Writing application main process log to ${mainLogPath}`);
-    await fs.writeFile(mainLogPath, mainLogs.join('\n'));
+    //const mainLogPath = path.join(
+    //  LOG_PATH,
+    //  `electron-main.${nowFormatted}.log`
+    //);
+    //debug(`Writing application main process log to ${mainLogPath}`);
+    //await fs.writeFile(mainLogPath, mainLogs.join('\n'));
 
     const renderLogPath = path.join(
       LOG_PATH,
@@ -219,7 +196,7 @@ async function startCompass(
     //await _stop();
     await _close();
 
-    const compassLog = await getCompassLog(mainLogs);
+    const compassLog = await getCompassLog(logPath);
     const compassLogPath = path.join(
       LOG_PATH,
       `compass-log.${nowFormatted}.log`
@@ -284,10 +261,32 @@ async function startCompass(
 }
 
 /**
- * @param {string[]} logs The main process console logs
+ * @param {string} logPath The compass application log path
  * @returns {Promise<CompassLog>}
  */
-async function getCompassLog(logs) {
+async function getCompassLog(logPath) {
+  const names = await fs.readdir(logPath);
+  const logNames = names.filter((name) => name.endsWith('_log.gz'));
+
+  if (!logNames.length) {
+    debug('no log output indicator found!');
+    return { raw: Buffer.from(''), structured: [] };
+  }
+
+  // find the latest log file
+  let latest = 0;
+  let lastName;
+  for (const name of logNames) {
+    const id = name.slice(0, name.indexOf('_'));
+    const time = new ObjectId(id).generationTime;
+    if (time > latest) {
+      latest = time;
+      lastName = name;
+    }
+  }
+
+  const filename = path.join(logPath, lastName);
+  /*
   const logOutputIndicatorMatch = logs
     .map((line) => line.match(/Writing log output to (?<filename>.+)$/))
     .find((match) => match);
@@ -297,6 +296,7 @@ async function getCompassLog(logs) {
   }
 
   const { filename } = logOutputIndicatorMatch.groups;
+  */
   debug('reading Compass application logs from', filename);
   const contents = await promisify(gunzip)(await fs.readFile(filename), {
     finishFlush: Z_SYNC_FLUSH,
@@ -527,8 +527,8 @@ async function afterTests(app, page) {
   }
 
   // TODO: do we really need this given that we have afterTest()?
-  await capturePage(page);
-  await savePage(page);
+  //await capturePage(page);
+  //await savePage(page);
 
   try {
     console.log('stopping compass');
