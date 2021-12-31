@@ -20,8 +20,15 @@ let metricsClient;
 
 async function setup() {
   await keychain.activate();
-  debug('Starting MongoDB server and importing fixtures');
-  spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
+
+  // When working on the tests it is faster to just keep the server running.
+  // insert-data is idempotent anyway.
+  if (!process.env.DISABLE_START_STOP) {
+    debug('Starting MongoDB server');
+    spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
+  }
+
+  debug('Importing test fixtures');
   spawnSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
 
   try {
@@ -36,22 +43,25 @@ async function setup() {
 
 function cleanup() {
   keychain.reset();
-  debug('Stopping MongoDB server and cleaning up server data');
-  try {
-    spawnSync('npm', ['run', 'stop-server'], {
-      // If it's taking too long we might as well kill the process and move on,
-      // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
-      // take care of additional clean up anyway
-      timeout: 30_000,
-      stdio: 'inherit',
-    });
-  } catch (e) {
-    debug('Failed to stop MongoDB Server', e);
-  }
-  try {
-    fs.rmdirSync('.mongodb', { recursive: true });
-  } catch (e) {
-    debug('Failed to clean up server data', e);
+
+  if (!process.env.DISABLE_START_STOP) {
+    debug('Stopping MongoDB server and cleaning up server data');
+    try {
+      spawnSync('npm', ['run', 'stop-server'], {
+        // If it's taking too long we might as well kill the process and move on,
+        // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
+        // take care of additional clean up anyway
+        timeout: 30_000,
+        stdio: 'inherit',
+      });
+    } catch (e) {
+      debug('Failed to stop MongoDB Server', e);
+    }
+    try {
+      fs.rmdirSync('.mongodb', { recursive: true });
+    } catch (e) {
+      debug('Failed to clean up server data', e);
+    }
   }
 }
 

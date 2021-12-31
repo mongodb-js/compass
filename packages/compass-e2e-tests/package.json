@@ -20,7 +20,8 @@
     "start-server": "mongodb-runner start --port 27018 --dbpath ./.mongodb",
     "stop-server": "mongodb-runner stop --port 27018",
     "insert-data": "node ./scripts/insert-data.js",
-    "unzip-fixtures": "node ./scripts/gunzip.js fixtures/*.gz"
+    "unzip-fixtures": "node ./scripts/gunzip.js fixtures/*.gz",
+    "testfast": "DISABLE_START_STOP=true DEBUG=*compass-e2e-tests* npm run test -- --no-native-modules --no-compile"
   },
   "dependencies": {
     "mongodb-compass": "^0.0.0-dev.0"

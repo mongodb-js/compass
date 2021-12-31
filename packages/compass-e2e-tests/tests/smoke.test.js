@@ -479,12 +479,12 @@ describe('Smoke tests', function () {
 
   // TODO: we need to find a new way to paste in the json to import because
   // "typing" it into the ace editor doesn't work.
-  describe.skip('Import', function () {
+  describe('Import', function () {
     it('supports JSON arrays', async function () {
       await commands.navigateToCollectionTab('test', 'json-array', 'Documents');
 
       const array = [];
-      for (let i = 0; i < 1000; ++i) {
+      for (let i = 0; i < 1; ++i) {
         array.push({ n: i, n_square: i * i });
       }
       const json = JSON.stringify(array);
@@ -494,7 +494,9 @@ describe('Smoke tests', function () {
       await page.click(Selectors.InsertDocumentOption);
 
       await page.waitForSelector(Selectors.InsertDialog);
-      await commands.setAceValue(Selectors.InsertJSONEditor, json);
+      await commands.setAceValue(Selectors.InsertJSONEditor, json, {
+        fightAutocomplete: true,
+      });
 
       const insertConfirm = page.locator(Selectors.InsertConfirm);
       // this selector is very brittle, so just make sure it works
@@ -509,11 +511,15 @@ describe('Smoke tests', function () {
       );
       await commands.waitUntil(async () => {
         const text = await messageElement.textContent();
-        return text === 'Displaying documents 1 - 20 of 1000';
+        return text === 'Displaying documents 1 - 1 of 1';
       });
     });
 
-    it('supports JSON files', async function () {
+    // TODO: playwright doesn't support electron's extension to the file object
+    // so we'll have to figure out another way to test file uploads.
+    // https://github.com/microsoft/playwright/issues/10527
+    // https://www.electronjs.org/docs/latest/api/file-object
+    it.skip('supports JSON files', async function () {
       const jsonPath = path.resolve(
         __dirname,
         '..',

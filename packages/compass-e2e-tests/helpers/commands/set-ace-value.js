@@ -1,19 +1,20 @@
 //const _ = require('lodash');
 const debug = require('debug')('compass-e2e-tests').extend('set-ace-value');
-//const { delay } = require('../delay');
+const { delay } = require('../delay');
 
 const FOCUS_TAG = 'textarea';
 const FOCUS_CLASS = 'ace_text-input';
 
 const META = process.platform === 'darwin' ? 'Meta' : 'Control';
 
+const AUTOCLOSED_CHARS = ['[', '"', "'"];
+
 module.exports = function (app, page, commands) {
-  return async function setAceValue(selector, value) {
+  async function focus(selector) {
     // make sure the right element is focused before we continue
     await commands.waitUntil(async () => {
       await page.click(`${selector} .ace_scroller`);
 
-      // TODO: command
       const focused = await page.$eval(
         `${selector} .ace_text-input`,
         // eslint-disable-next-line no-undef
@@ -28,6 +29,13 @@ module.exports = function (app, page, commands) {
 
       return focused;
     });
+  }
+  return async function setAceValue(
+    selector,
+    value,
+    { fightAutocomplete = false } = {}
+  ) {
+    await focus(selector);
 
     /*
     await page.evaluate((v) => {
@@ -44,8 +52,48 @@ module.exports = function (app, page, commands) {
     // Unfortunately paste doesn't work in playwright.
     //await page.keyboard.press(`${META}+V`);
 
-    // This gets messed up by long lines and confused by things like
-    // auto-indent, auto-complete and so on.
-    await page.keyboard.type(value);
+    //console.log({ value });
+
+    if (fightAutocomplete) {
+      // ace auto-completes [, " and ' which complicates typing things like JSON
+      const steps = [];
+      let letters = [];
+      const levels = {};
+      for (const char of AUTOCLOSED_CHARS) {
+        levels[char] = 0;
+      }
+      for (const char of value) {
+        letters.push(char);
+        if (AUTOCLOSED_CHARS.includes(char)) {
+          steps.push(['type', letters.join(''), { delay: 50 }]);
+          letters = [];
+
+          ++levels[char];
+
+          // only backspace when we open a new nesting level
+          if (levels[char] % 2 == 0) {
+            continue;
+          }
+
+          // [ places the cursor to the left of the opening bracket
+          // (maybe only the initial one?)
+          if (char === '[') {
+            steps.push(['press', 'ArrowRight']);
+          }
+
+          steps.push(['press', 'ArrowRight']);
+          steps.push(['press', 'Backspace']);
+        }
+      }
+      steps.push(['type', letters.join(''), { delay: 50 }]);
+
+      for (const [method, value, options] of steps) {
+        //console.log(method, value, options);
+        await page.keyboard[method](value, options);
+        await delay(50);
+      }
+    } else {
+      await page.keyboard.type(value);
+    }
   };
 };
