@@ -57,7 +57,10 @@ module.exports = function (app, page, commands) {
         ? 'MONGODB'
         : 'NONE';
 
-    await page.selectOption(Selectors.ConnectionFormInputAuthStrategy, authStrategy);
+    await page.selectOption(
+      Selectors.ConnectionFormInputAuthStrategy,
+      authStrategy
+    );
 
     if (typeof username !== 'undefined') {
       const kerberosPrincipalInput = page.locator(
@@ -69,7 +72,10 @@ module.exports = function (app, page, commands) {
       // TODO: No point in having different `name`s in UI, they are not used for
       // anything and all those map to `username` in driver options anyway
       if (await kerberosPrincipalInput.isVisible()) {
-        await page.fill(Selectors.ConnectionFormInputKerberosPrincipal, username);
+        await page.fill(
+          Selectors.ConnectionFormInputKerberosPrincipal,
+          username
+        );
       } else if (await ldapUsernameInput.isVisible()) {
         await page.fill(Selectors.ConnectionFormInputLDAPUsername, username);
       } else {

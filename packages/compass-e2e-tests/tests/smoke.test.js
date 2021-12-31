@@ -34,7 +34,9 @@ describe('Smoke tests', function () {
     telemetry = await startTelemetryServer();
     ({ app, page, commands } = await beforeTests());
 
-    await commands.connectWithConnectionString('mongodb://localhost:27018/test');
+    await commands.connectWithConnectionString(
+      'mongodb://localhost:27018/test'
+    );
   });
 
   after(async function () {
@@ -102,9 +104,9 @@ describe('Smoke tests', function () {
     });
 
     it('contains a list of collections', async function () {
-      expect(
-        await commands.existsEventually(Selectors.CollectionsGrid)
-      ).to.eq(true);
+      expect(await commands.existsEventually(Selectors.CollectionsGrid)).to.eq(
+        true
+      );
     });
 
     // capped and not capped
@@ -132,15 +134,15 @@ describe('Smoke tests', function () {
     });
 
     it('contains the collection stats', async function () {
-      const documentCount = await page.textContent(Selectors.DocumentCountValue);
+      const documentCount = await page.textContent(
+        Selectors.DocumentCountValue
+      );
       expect(documentCount).to.equal('1k');
       const indexCount = await page.textContent(Selectors.IndexCountValue);
       expect(indexCount).to.equal('1');
 
       // all of these unfortunately differ slightly between different versions of mongodb
-      const totalDocuments = await page.textContent(
-        Selectors.StorageSizeValue
-      );
+      const totalDocuments = await page.textContent(Selectors.StorageSizeValue);
       expect(totalDocuments).to.include('KB');
       const avgDocumentSize = await page.textContent(
         Selectors.AvgDocumentSizeValue
@@ -150,9 +152,7 @@ describe('Smoke tests', function () {
         Selectors.TotalIndexSizeValue
       );
       expect(totalIndexSize).to.include('KB');
-      const avgIndexSize = await page.textContent(
-        Selectors.AvgIndexSizeValue
-      );
+      const avgIndexSize = await page.textContent(Selectors.AvgIndexSizeValue);
       expect(avgIndexSize).to.include('KB');
     });
   });
@@ -216,15 +216,11 @@ describe('Smoke tests', function () {
       );
 
       // stop it
-      await page.waitForSelector(
-        Selectors.DocumentListFetching
-      );
+      await page.waitForSelector(Selectors.DocumentListFetching);
 
       await page.click(Selectors.DocumentListFetchingStopButton);
 
-      await page.waitForSelector(
-        Selectors.DocumentListError
-      );
+      await page.waitForSelector(Selectors.DocumentListError);
 
       const errorText = await page.textContent(Selectors.DocumentListError);
       expect(errorText).to.equal('The operation was cancelled.');
@@ -268,9 +264,7 @@ describe('Smoke tests', function () {
 
       await commands.focusStageOperator(0);
 
-      const options = await page.textContent(
-        Selectors.stageOperatorOptions
-      );
+      const options = await page.textContent(Selectors.stageOperatorOptions);
       expect(_.without(options, '$setWindowFields')).to.deep.equal([
         '$addFields',
         '$bucket',
@@ -496,9 +490,7 @@ describe('Smoke tests', function () {
       const json = JSON.stringify(array);
 
       await page.click(Selectors.AddDataButton);
-      await page.waitForSelector(
-        Selectors.InsertDocumentOption
-      );
+      await page.waitForSelector(Selectors.InsertDocumentOption);
       await page.click(Selectors.InsertDocumentOption);
 
       await page.waitForSelector(Selectors.InsertDialog);
@@ -533,7 +525,7 @@ describe('Smoke tests', function () {
 
       // open the import modal
       await page.click(Selectors.AddDataButton);
-       await page.waitForSelector(Selectors.ImportFileOption);
+      await page.waitForSelector(Selectors.ImportFileOption);
       await page.click(Selectors.ImportFileOption);
 
       // wait for the modal to appear and select the file
@@ -585,9 +577,7 @@ describe('Smoke tests', function () {
       await page.click(Selectors.ExportCollectionButton);
       await page.waitForSelector(Selectors.ExportModal);
 
-      const queryText = await page.textContent(
-        Selectors.ExportModalQueryText
-      );
+      const queryText = await page.textContent(Selectors.ExportModalQueryText);
       expect(queryText).to.equal(`db.numbers.find(  {i: 5})`);
 
       await page.click(Selectors.ExportModalSelectFieldsButton);
@@ -596,9 +586,7 @@ describe('Smoke tests', function () {
       await page.click(Selectors.ExportModalSelectOutputButton);
 
       // select csv (unselected at first, selected by the end)
-      await page.click(
-        Selectors.selectExportFileTypeButton('csv', false)
-      );
+      await page.click(Selectors.selectExportFileTypeButton('csv', false));
       await page.waitForSelector(
         Selectors.selectExportFileTypeButton('csv', true)
       );
@@ -628,9 +616,7 @@ describe('Smoke tests', function () {
 
       await page.click(Selectors.ExportModalExportButton);
 
-      await page.waitForSelector(
-        Selectors.ExportModalShowFileButton
-      );
+      await page.waitForSelector(Selectors.ExportModalShowFileButton);
 
       // clicking the button would open the file in finder/explorer/whatever
       // which is probably not something we can check with webdriver. But we can

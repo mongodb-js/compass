@@ -1,7 +1,10 @@
 const Selectors = require('../selectors');
 
 async function setFilter(app, page, commands, tabName, value) {
-  await commands.setAceValue(Selectors.queryBarOptionInputFilter(tabName), value);
+  await commands.setAceValue(
+    Selectors.queryBarOptionInputFilter(tabName),
+    value
+  );
 }
 
 async function setProject(app, page, commands, tabName, value) {
@@ -57,7 +60,7 @@ async function isOptionsExpanded(app, page, commands, tabName) {
 
 async function waitUntilCollapsed(app, page, commands, tabName) {
   await page.waitForSelector(Selectors.queryBarOptionInputProject(tabName), {
-    state: 'hidden'
+    state: 'hidden',
   });
 }
 
@@ -114,9 +117,7 @@ module.exports = function (app, page, commands) {
 
     // look up the current resultId
     const queryBar = page.locator(queryBarSelector);
-    const initialResultId = await queryBar.getAttribute(
-      'data-result-id'
-    );
+    const initialResultId = await queryBar.getAttribute('data-result-id');
 
     if (project || sort || maxTimeMS || collation || skip || limit) {
       await expandOptions(app, page, commands, tabName);
@@ -137,9 +138,7 @@ module.exports = function (app, page, commands) {
     if (waitForResult) {
       // now we can easily see if we get a new resultId
       await commands.waitUntil(async () => {
-        const resultId = await queryBar.getAttribute(
-          'data-result-id'
-        );
+        const resultId = await queryBar.getAttribute('data-result-id');
         return resultId !== initialResultId;
       });
     }

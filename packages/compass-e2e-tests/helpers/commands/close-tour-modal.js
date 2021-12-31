@@ -7,7 +7,9 @@ module.exports = function (app, page, commands) {
       return;
     }
 
-    const featureTourModalElement = await page.locator(Selectors.FeatureTourModal);
+    const featureTourModalElement = await page.locator(
+      Selectors.FeatureTourModal
+    );
 
     await featureTourModalElement.waitFor();
     await page.click(Selectors.CloseFeatureTourModal);

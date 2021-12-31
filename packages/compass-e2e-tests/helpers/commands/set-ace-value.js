@@ -9,14 +9,16 @@ const META = process.platform === 'darwin' ? 'Meta' : 'Control';
 
 module.exports = function (app, page, commands) {
   return async function setAceValue(selector, value) {
-
     // make sure the right element is focused before we continue
     await commands.waitUntil(async () => {
       await page.click(`${selector} .ace_scroller`);
 
       // TODO: command
       // eslint-disable-next-line no-undef
-      const focused = await page.$eval(`${selector} .ace_text-input`, (el) => el === document.activeElement);
+      const focused = await page.$eval(
+        `${selector} .ace_text-input`,
+        (el) => el === document.activeElement
+      );
 
       if (!focused) {
         debug(

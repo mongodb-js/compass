@@ -1,7 +1,12 @@
 // @ts-check
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const { beforeTests, afterTests, afterTest, bindCommands } = require('../helpers/compass');
+const {
+  beforeTests,
+  afterTests,
+  afterTest,
+  bindCommands,
+} = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
 const { expect } = chai;
@@ -17,19 +22,17 @@ describe.skip('Time to first query', function () {
     // start compass inside the test so that the time is measured together
     ({ app, page, commands } = await beforeTests());
 
-    await commands.connectWithConnectionString('mongodb://localhost:27018/test');
+    await commands.connectWithConnectionString(
+      'mongodb://localhost:27018/test'
+    );
 
     await commands.navigateToCollectionTab('test', 'numbers', 'Documents');
 
     // search for the document with id == 42 and wait for just one result to appear
-    await page.click(
-      '#query-bar-option-input-filter .ace_scroller'
-    );
+    await page.click('#query-bar-option-input-filter .ace_scroller');
 
     await page.keyboard.type('{ i: 42 }');
-    await page.click(
-      Selectors.QueryBarApplyFilterButton
-    );
+    await page.click(Selectors.QueryBarApplyFilterButton);
     await commands.waitUntil(async () => {
       // we start off with 20 results (assuming no filter) and we expect to
       // have just one once the filter finishes

@@ -9,7 +9,10 @@ module.exports = function (app, page, commands) {
     await commands.waitUntil(async () => {
       // eslint-disable-next-line no-undef
       // TODO: command
-      const isFocused = await page.$eval(inputSelector, (el) => el === document.activeElement);
+      const isFocused = await page.$eval(
+        inputSelector,
+        (el) => el === document.activeElement
+      );
       return isFocused === true;
     });
 
@@ -20,7 +23,10 @@ module.exports = function (app, page, commands) {
     await commands.waitUntil(async () => {
       // eslint-disable-next-line no-undef
       // TODO: command
-      const isFocused = await page.$eval(textareaSelector, (el) => el === document.activeElement);
+      const isFocused = await page.$eval(
+        textareaSelector,
+        (el) => el === document.activeElement
+      );
       return isFocused === true;
     });
   };

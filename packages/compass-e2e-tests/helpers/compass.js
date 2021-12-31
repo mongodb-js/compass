@@ -98,7 +98,6 @@ async function startCompass(
   // @ts-expect-error
   const electronPath = require('electron');
 
-
   const nowFormatted = formattedDate();
 
   const userDataDir = path.join(
@@ -120,7 +119,9 @@ async function startCompass(
 
   // See https://github.com/microsoft/playwright/issues/9351#issuecomment-945314768
   process.env.APP_ENV = 'playwright';
-  process.env.DEBUG = process.env.DEBUG || `${process.env.DEBUG || ''},mongodb-compass:main:logging`;
+  process.env.DEBUG =
+    process.env.DEBUG ||
+    `${process.env.DEBUG || ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
 
   const args = [
@@ -167,12 +168,9 @@ async function startCompass(
   // TODO
   //addDebugger(app);
 
-  //const _stop = app.stop.bind(app);
   const _close = app.close.bind(app);
 
-  //app.stop = async () => {
   app.close = async () => {
-
     // TODO
     //const mainLogs = await app.client.getMainProcessLogs();
     //const renderLogs = await app.client.getRenderProcessLogs();
@@ -193,7 +191,6 @@ async function startCompass(
     await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
 
     debug('Stopping Compass application');
-    //await _stop();
     await _close();
 
     const compassLog = await getCompassLog(logPath);
@@ -286,17 +283,6 @@ async function getCompassLog(logPath) {
   }
 
   const filename = path.join(logPath, lastName);
-  /*
-  const logOutputIndicatorMatch = logs
-    .map((line) => line.match(/Writing log output to (?<filename>.+)$/))
-    .find((match) => match);
-  if (!logOutputIndicatorMatch) {
-    debug('no log output indicator found!');
-    return { raw: Buffer.from(''), structured: [] };
-  }
-
-  const { filename } = logOutputIndicatorMatch.groups;
-  */
   debug('reading Compass application logs from', filename);
   const contents = await promisify(gunzip)(await fs.readFile(filename), {
     finishFlush: Z_SYNC_FLUSH,
@@ -484,7 +470,10 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
  * @param {import('playwright').Page} page
  * @param {string} imgPathName
  */
-async function capturePage(page, imgPathName=`screenshot-${formattedDate()}-${++j}.png`) {
+async function capturePage(
+  page,
+  imgPathName = `screenshot-${formattedDate()}-${++j}.png`
+) {
   try {
     await page.screenshot({ path: path.join(LOG_PATH, imgPathName) });
     return true;
@@ -498,7 +487,10 @@ async function capturePage(page, imgPathName=`screenshot-${formattedDate()}-${++
  * @param {import('playwright').Page} page
  * @param {string} htmlPathName
  */
-async function savePage(page, htmlPathName = `page-${formattedDate()}-${++k}.html`) {
+async function savePage(
+  page,
+  htmlPathName = `page-${formattedDate()}-${++k}.html`
+) {
   try {
     const contents = await page.content();
     await fs.writeFile(path.join(LOG_PATH, htmlPathName), contents);

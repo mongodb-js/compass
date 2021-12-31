@@ -7,14 +7,12 @@ module.exports = function (app, page, commands) {
       return;
     }
 
-    const privateSettingsModal = page.locator(
-      Selectors.PrivacySettingsModal
-    );
+    const privateSettingsModal = page.locator(Selectors.PrivacySettingsModal);
 
     await privateSettingsModal.waitFor();
     await page.click(Selectors.ClosePrivacySettingsButton);
     await privateSettingsModal.waitFor({
-      state: 'hidden'
+      state: 'hidden',
     });
   };
 };

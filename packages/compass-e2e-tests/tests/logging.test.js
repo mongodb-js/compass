@@ -18,9 +18,7 @@ describe('Logging and Telemetry integration', function () {
         );
 
         await commands.shellEval('use test');
-        await commands.shellEval(
-          'db.runCommand({ connectionStatus: 1 })'
-        );
+        await commands.shellEval('db.runCommand({ connectionStatus: 1 })');
 
         await commands.openTourModal();
         await commands.closeTourModal();

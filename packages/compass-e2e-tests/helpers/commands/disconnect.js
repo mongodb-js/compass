@@ -2,7 +2,9 @@ const Selectors = require('../selectors');
 
 async function closeConnectionModal(app, page) {
   await page.click(Selectors.CancelConnectionButton);
-  await page.waitForSelector(Selectors.ConnectionStatusModalContent, { state: 'detached' });
+  await page.waitForSelector(Selectors.ConnectionStatusModalContent, {
+    state: 'detached',
+  });
 }
 
 module.exports = function (app, page) {

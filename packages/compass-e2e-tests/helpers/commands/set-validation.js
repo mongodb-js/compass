@@ -20,7 +20,7 @@ module.exports = function (app, page, commands) {
     });
 
     await page.waitForSelector(Selectors.UpdateValidationButton, {
-        state: 'hidden'
+      state: 'hidden',
     });
   };
 };

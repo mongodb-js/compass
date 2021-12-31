@@ -16,9 +16,6 @@ module.exports = function () {
       }, timeout);
     });
 
-    return Promise.race([
-      succeedPromise,
-      timeoutPromise
-    ]);
+    return Promise.race([succeedPromise, timeoutPromise]);
   };
 };

@@ -110,7 +110,7 @@ async function main() {
 
   const mocha = new Mocha({
     timeout: 120_000,
-    bail: true // TODO
+    bail: true, // TODO
   });
 
   tests.forEach((testPath) => {

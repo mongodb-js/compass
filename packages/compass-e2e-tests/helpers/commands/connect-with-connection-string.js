@@ -7,10 +7,7 @@ module.exports = function (app, page, commands) {
     connectionString,
     timeout = defaultTimeoutMS
   ) {
-    await page.fill(
-      Selectors.ConnectionStringInput,
-      connectionString
-    );
+    await page.fill(Selectors.ConnectionStringInput, connectionString);
     console.log('connecting with string');
     await commands.doConnect(timeout);
   };
