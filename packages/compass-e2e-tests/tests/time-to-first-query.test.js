@@ -1,12 +1,7 @@
 // @ts-check
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const {
-  beforeTests,
-  afterTests,
-  afterTest,
-  bindCommands,
-} = require('../helpers/compass');
+const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
 const { expect } = chai;

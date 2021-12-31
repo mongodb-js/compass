@@ -1,6 +1,6 @@
-const _ = require('lodash');
+//const _ = require('lodash');
 const debug = require('debug')('compass-e2e-tests').extend('set-ace-value');
-const { delay } = require('../delay');
+//const { delay } = require('../delay');
 
 const FOCUS_TAG = 'textarea';
 const FOCUS_CLASS = 'ace_text-input';
@@ -14,9 +14,9 @@ module.exports = function (app, page, commands) {
       await page.click(`${selector} .ace_scroller`);
 
       // TODO: command
-      // eslint-disable-next-line no-undef
       const focused = await page.$eval(
         `${selector} .ace_text-input`,
+        // eslint-disable-next-line no-undef
         (el) => el === document.activeElement
       );
 

@@ -7,10 +7,9 @@ module.exports = function (app, page, commands) {
 
     // it should become focused straight after focusStageSelector()
     await commands.waitUntil(async () => {
-      // eslint-disable-next-line no-undef
-      // TODO: command
       const isFocused = await page.$eval(
         inputSelector,
+        // eslint-disable-next-line no-undef
         (el) => el === document.activeElement
       );
       return isFocused === true;
@@ -21,10 +20,9 @@ module.exports = function (app, page, commands) {
 
     // the "select" should now blur and the ace textarea become focused
     await commands.waitUntil(async () => {
-      // eslint-disable-next-line no-undef
-      // TODO: command
       const isFocused = await page.$eval(
         textareaSelector,
+        // eslint-disable-next-line no-undef
         (el) => el === document.activeElement
       );
       return isFocused === true;
