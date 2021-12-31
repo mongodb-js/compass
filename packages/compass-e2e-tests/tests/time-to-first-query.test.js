@@ -8,7 +8,7 @@ const { expect } = chai;
 
 chai.use(chaiAsPromised);
 
-describe.skip('Time to first query', function () {
+describe('Time to first query', function () {
   let app;
   let page;
   let commands;
