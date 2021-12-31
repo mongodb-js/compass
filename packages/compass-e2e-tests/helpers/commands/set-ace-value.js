@@ -50,6 +50,8 @@ module.exports = function (app, page, commands) {
     await page.keyboard.press('Backspace');
 
     // Unfortunately paste doesn't work in playwright.
+    // https://github.com/microsoft/playwright/issues/2511
+    // https://github.com/microsoft/playwright/issues/1067
     //await page.keyboard.press(`${META}+V`);
 
     //console.log({ value });

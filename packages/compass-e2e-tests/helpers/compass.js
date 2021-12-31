@@ -172,6 +172,7 @@ async function startCompass(
 
   app.close = async () => {
     // TODO
+    // https://github.com/microsoft/playwright/issues/5905
     //const mainLogs = await app.client.getMainProcessLogs();
     //const renderLogs = await app.client.getRenderProcessLogs();
     const renderLogs = [];
