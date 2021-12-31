@@ -16,7 +16,7 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js",
     "test-packaged": "npm run test -- -- --test-packaged-app",
     "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app",
-    "reformat": "npm run prettier -- --write .",
+    "reformat": "rm fixtures/*.json && npm run prettier -- --write .",
     "start-server": "mongodb-runner start --port 27018 --dbpath ./.mongodb",
     "stop-server": "mongodb-runner stop --port 27018",
     "insert-data": "node ./scripts/insert-data.js",
