@@ -30,13 +30,13 @@ const addUrlOptionsButtonStyles = css({
 });
 
 const optionValueStyles = css({
-  'span': {
+  span: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-  }
+  },
 });
 
 function UrlOptions({
@@ -64,21 +64,18 @@ function UrlOptions({
   const addUrlOption = () => {
     setOption(undefined);
     setIsModalOpen(true);
-  }
+  };
 
   const saveUrlOption = (option: UrlOption) => {
-    handleFieldChanged(
-      option.key,
-      option.value
-    );
+    handleFieldChanged(option.key, option.value);
     setOption(undefined);
     setIsModalOpen(false);
-  }
+  };
 
   const editUrlOption = (option: UrlOption) => {
     setOption(option);
     setIsModalOpen(true);
-  }
+  };
 
   return (
     <div className={urlOptionsContainerStyles}>
@@ -113,7 +110,10 @@ function UrlOptions({
             <Cell>{datum.key}</Cell>
             <Cell className={optionValueStyles}>
               {datum.value ?? ''}
-              <IconButton aria-label="Edit option" onClick={() => editUrlOption(datum)}>
+              <IconButton
+                aria-label="Edit option"
+                onClick={() => editUrlOption(datum)}
+              >
                 <Icon glyph="Edit" />
               </IconButton>
             </Cell>
@@ -129,7 +129,13 @@ function UrlOptions({
           Add url options
         </Button>
       </div>
-      {isModalOpen && <UrlOptionsModal onClose={setIsModalOpen} selectedOption={option} onUpdateOption={saveUrlOption}/>}
+      {isModalOpen && (
+        <UrlOptionsModal
+          onClose={setIsModalOpen}
+          selectedOption={option}
+          onUpdateOption={saveUrlOption}
+        />
+      )}
     </div>
   );
 }

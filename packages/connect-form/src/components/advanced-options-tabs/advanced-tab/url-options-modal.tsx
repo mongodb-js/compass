@@ -42,7 +42,9 @@ function UrlOptionsModal({
   selectedOption?: UrlOption;
 }): React.ReactElement {
   const [errorMessage, setErrorMessage] = React.useState('');
-  const [option, setOption] = React.useState(selectedOption ?? {key: '', value: ''});
+  const [option, setOption] = React.useState(
+    selectedOption ?? { key: '', value: '' }
+  );
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === 'Enter') {

@@ -1,9 +1,9 @@
-import { MongoClientOptions } from "mongodb";
+import { MongoClientOptions } from 'mongodb';
 
 export interface UrlOption {
   key: keyof MongoClientOptions;
   value: string;
-};
+}
 
 export const editableUrlOptions = [
   {
