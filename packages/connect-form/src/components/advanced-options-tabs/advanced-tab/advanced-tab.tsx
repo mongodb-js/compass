@@ -8,12 +8,14 @@ import {
   TextInput,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { ReadPreferenceMode, ReadPreference as MongoReadPreference, MongoClientOptions } from 'mongodb';
-
-import {UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import {
-  ConnectionFormError,
-} from '../../../utils/connect-form-errors';
+  ReadPreferenceMode,
+  ReadPreference as MongoReadPreference,
+  MongoClientOptions,
+} from 'mongodb';
+
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import { ConnectionFormError } from '../../../utils/connect-form-errors';
 import FormFieldContainer from '../../form-field-container';
 import UrlOptions from './url-options';
 
@@ -97,7 +99,6 @@ function AdvancedTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
-
   const handleFieldChanged = useCallback(
     (key: keyof MongoClientOptions, value: unknown) => {
       updateConnectionFormField({
@@ -106,7 +107,7 @@ function AdvancedTab({
         value,
       });
     },
-    [updateConnectionFormField],
+    [updateConnectionFormField]
   );
 
   const readPreference = connectionStringUrl.searchParams.get('readPreference');
@@ -127,7 +128,7 @@ function AdvancedTab({
     <div className={containerStyles}>
       {/* Read Preferences */}
       <RadioBoxGroup
-        onChange={({target: {value}}: ChangeEvent<HTMLInputElement>) => {
+        onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
           handleFieldChanged('readPreference', value);
         }}
         className="radio-box-group-style"
@@ -149,9 +150,7 @@ function AdvancedTab({
       <FormFieldContainer>
         <TextInput
           className={fieldStyles}
-          onChange={({
-            target: { value },
-          }: ChangeEvent<HTMLInputElement>) => {
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
             handleFieldChanged('replicaSet', value);
           }}
           name={'replica-set'}
@@ -167,9 +166,7 @@ function AdvancedTab({
       <FormFieldContainer>
         <TextInput
           className={fieldStyles}
-          onChange={({
-            target: { value },
-          }: ChangeEvent<HTMLInputElement>) => {
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
             handleFieldChanged('authSource', value);
           }}
           name={'default-database'}
@@ -179,12 +176,15 @@ function AdvancedTab({
           optional={true}
           placeholder={'Default Database'}
           value={authSource ?? undefined}
-          description={'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'}
+          description={
+            'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'
+          }
         />
       </FormFieldContainer>
       <UrlOptions
         connectionStringUrl={connectionStringUrl}
-        handleFieldChanged={handleFieldChanged} />
+        handleFieldChanged={handleFieldChanged}
+      />
     </div>
   );
 }

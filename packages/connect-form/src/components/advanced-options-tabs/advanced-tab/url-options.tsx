@@ -23,7 +23,6 @@ import {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import FormFieldContainer from '../../form-field-container';
 
-
 const urlOptionsContainerStyles = css({
   marginTop: spacing[3],
   width: '70%',
@@ -33,7 +32,7 @@ const modalContainerStyles = css({
   padding: 0,
   'button[aria-label="Close modal"]': {
     position: 'absolute',
-  }
+  },
 });
 
 const modalContentStyles = css({
@@ -49,7 +48,7 @@ const modalFooterStyles = css({
   boxShadow: 'none',
   border: 'none',
   borderTop: `1px solid ${uiColors.gray.light2}`,
-})
+});
 
 interface UrlOption {
   key: string;
@@ -57,77 +56,57 @@ interface UrlOption {
 }
 
 const editableUrlOptions = [
-	{
-		title: 'Connection Timeout',
-		values: [
-			'connectiTimeoutMS',
-			'socketTimeoutMS',
-		],
-	},
-	{
-		title: 'Compression Options',
-		values: [
-			'compressors',
-			'zlibCompressionLevel',
-		],
-	},
-	{
-		title: 'Connection Pool Options',
-		values: [
-			'maxPoolSize',
-			'minPoolSize',
-			'maxIdleTimeMS',
-			'waitQueueMultiple',
-			'waitQueueTimeoutMS',
-		],
-	},
-	{
-		title: 'Write Concern Options',
-		values: [
-			'w',
-			'wtimeoutMS',
-			'journal',
-		],
-	},
-	{
-		title: 'Read Concern Options',
-		values: [
-			'readConcernLevel',
-		],
-	},
-	{
-		title: 'Read Preferences Options',
-		values: [
-			'maxStalenessSeconds',
-			'readPreferenceTags',
-		],
-	},
-	{
-		title: 'Authentication Options',
-		values: [
-			// 'authSource',
-			'authMechanismProperties',
-			'gssapiServiceName',
-		],
-	},
-	{
-		title: 'Server Options',
-		values: [
-			'localThresholdMS',
-			'serverSelectionTimeoutMS',
-			'serverSelectionTryOnce',
-			'heartbeatFrequencyMS',
-		],
-	},
-	{
-		title: 'Miscellaneous Configuration',
-		values: [
-			'appName',
-			'retryReads',
-			'retryWrites',
-			'uuidRepresentation',
-		],
-	},
+  {
+    title: 'Connection Timeout',
+    values: ['connectiTimeoutMS', 'socketTimeoutMS'],
+  },
+  {
+    title: 'Compression Options',
+    values: ['compressors', 'zlibCompressionLevel'],
+  },
+  {
+    title: 'Connection Pool Options',
+    values: [
+      'maxPoolSize',
+      'minPoolSize',
+      'maxIdleTimeMS',
+      'waitQueueMultiple',
+      'waitQueueTimeoutMS',
+    ],
+  },
+  {
+    title: 'Write Concern Options',
+    values: ['w', 'wtimeoutMS', 'journal'],
+  },
+  {
+    title: 'Read Concern Options',
+    values: ['readConcernLevel'],
+  },
+  {
+    title: 'Read Preferences Options',
+    values: ['maxStalenessSeconds', 'readPreferenceTags'],
+  },
+  {
+    title: 'Authentication Options',
+    values: [
+      // 'authSource',
+      'authMechanismProperties',
+      'gssapiServiceName',
+    ],
+  },
+  {
+    title: 'Server Options',
+    values: [
+      'localThresholdMS',
+      'serverSelectionTimeoutMS',
+      'serverSelectionTryOnce',
+      'heartbeatFrequencyMS',
+    ],
+  },
+  {
+    title: 'Miscellaneous Configuration',
+    values: ['appName', 'retryReads', 'retryWrites', 'uuidRepresentation'],
+  },
 ];
 
 function UrlOptions({
@@ -137,10 +116,9 @@ function UrlOptions({
   handleFieldChanged: (key: keyof MongoClientOptions, value: unknown) => void;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
-
   const [isModalOpen, setModalOpen] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
-  const [option, setOption] = React.useState({key: '', value: ''});
+  const [option, setOption] = React.useState({ key: '', value: '' });
 
   const urlOptions: UrlOption[] = [];
   editableUrlOptions.forEach(({ values }) => {
@@ -159,24 +137,41 @@ function UrlOptions({
     if (!option.key) {
       return setErrorMessage('Please select the options key.');
     }
-    return handleFieldChanged(option.key as keyof MongoClientOptions, option.value);
-  }
+    return handleFieldChanged(
+      option.key as keyof MongoClientOptions,
+      option.value
+    );
+  };
 
   return (
     <div className={urlOptionsContainerStyles}>
       <Label htmlFor={''}>Url Options</Label>
       <Description>
         Add other MongoDB url options to customize your connection.&nbsp;
-        <Link href={'https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options'}>Learn More</Link>
+        <Link
+          href={
+            'https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options'
+          }
+        >
+          Learn More
+        </Link>
       </Description>
       <Table
         data={urlOptions}
         columns={[
-          <TableHeader key={'key'} label="Key" sortBy={(datum: UrlOption) => datum.key} />,
-          <TableHeader key={'value'} label="Value" sortBy={(datum: UrlOption) => datum.value} />,
+          <TableHeader
+            key={'key'}
+            label="Key"
+            sortBy={(datum: UrlOption) => datum.key}
+          />,
+          <TableHeader
+            key={'value'}
+            label="Value"
+            sortBy={(datum: UrlOption) => datum.value}
+          />,
         ]}
       >
-        {({ datum }: {datum: UrlOption}) => (
+        {({ datum }: { datum: UrlOption }) => (
           <Row key={datum.key}>
             <Cell>{datum.key}</Cell>
             <Cell>{datum.value}</Cell>
@@ -185,13 +180,18 @@ function UrlOptions({
       </Table>
       <div className={addUrlOptionsButtonStyles}>
         <Button
-          onClick={() => setModalOpen(isModalOpen => !isModalOpen)}
+          onClick={() => setModalOpen((isModalOpen) => !isModalOpen)}
           variant={'primaryOutline'}
-          size={'xsmall'}>
-            Add url options
+          size={'xsmall'}
+        >
+          Add url options
         </Button>
       </div>
-      <Modal contentClassName={modalContainerStyles} open={isModalOpen} setOpen={setModalOpen}>
+      <Modal
+        contentClassName={modalContainerStyles}
+        open={isModalOpen}
+        setOpen={setModalOpen}
+      >
         <div className={modalContentStyles}>
           <H3>Add custom url option</H3>
           <FormFieldContainer>
@@ -199,11 +199,14 @@ function UrlOptions({
               label="Key"
               placeholder="Select key"
               name="key"
-              onChange={key => {
-                console.log({type: 'select', value: {
-                  key,
-                  value: option.value,
-                }});
+              onChange={(key) => {
+                console.log({
+                  type: 'select',
+                  value: {
+                    key,
+                    value: option.value,
+                  },
+                });
                 setOption({
                   key,
                   value: option.value,
@@ -212,9 +215,13 @@ function UrlOptions({
               allowDeselect={false}
               value={option.key}
             >
-              {editableUrlOptions.map(({title, values}) => (
+              {editableUrlOptions.map(({ title, values }) => (
                 <OptionGroup key={title} label={title}>
-                  {values.map(value => <Option key={value} value={value}>{value}</Option>)}
+                  {values.map((value) => (
+                    <Option key={value} value={value}>
+                      {value}
+                    </Option>
+                  ))}
                 </OptionGroup>
               ))}
             </Select>
@@ -240,8 +247,12 @@ function UrlOptions({
         <FormFooter
           className={modalFooterStyles}
           errorMessage={errorMessage}
-          primaryButton={<Button variant={'primary'} onClick={addUrlOption}>Save</Button>}
-          onCancel={() => setModalOpen(isModalOpen => !isModalOpen)}
+          primaryButton={
+            <Button variant={'primary'} onClick={addUrlOption}>
+              Save
+            </Button>
+          }
+          onCancel={() => setModalOpen((isModalOpen) => !isModalOpen)}
         />
       </Modal>
     </div>

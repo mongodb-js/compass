@@ -121,7 +121,7 @@ type ConnectionFormFieldActions =
   | UpdateConnectionOptions
   | UpdateTlsOptionAction
   | {
-      type: 'update-search-param',
+      type: 'update-search-param';
       key: keyof MongoClientOptions;
       value: unknown;
     };
