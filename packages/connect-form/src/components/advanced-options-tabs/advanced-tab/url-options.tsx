@@ -1,9 +1,8 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
 import { css } from '@emotion/css';
 import type { MongoClientOptions } from 'mongodb';
 import {
   spacing,
-  uiColors,
   Label,
   Description,
   Link,
@@ -12,31 +11,17 @@ import {
   Row,
   Cell,
   Button,
-  Modal,
-  H3,
-  TextInput,
-  FormFooter,
-  Select,
-  Option,
-  OptionGroup,
+  IconButton,
+  Icon,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import FormFieldContainer from '../../form-field-container';
+import { editableUrlOptions, UrlOption } from '../../../utils/url-options';
+
+import UrlOptionsModal from './url-options-modal';
 
 const urlOptionsContainerStyles = css({
   marginTop: spacing[3],
   width: '70%',
-});
-
-const modalContainerStyles = css({
-  padding: 0,
-  'button[aria-label="Close modal"]': {
-    position: 'absolute',
-  },
-});
-
-const modalContentStyles = css({
-  padding: spacing[5],
 });
 
 const addUrlOptionsButtonStyles = css({
@@ -44,70 +29,15 @@ const addUrlOptionsButtonStyles = css({
   marginTop: spacing[3],
 });
 
-const modalFooterStyles = css({
-  boxShadow: 'none',
-  border: 'none',
-  borderTop: `1px solid ${uiColors.gray.light2}`,
+const optionValueStyles = css({
+  'span': {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  }
 });
-
-interface UrlOption {
-  key: string;
-  value: string;
-}
-
-const editableUrlOptions = [
-  {
-    title: 'Connection Timeout',
-    values: ['connectiTimeoutMS', 'socketTimeoutMS'],
-  },
-  {
-    title: 'Compression Options',
-    values: ['compressors', 'zlibCompressionLevel'],
-  },
-  {
-    title: 'Connection Pool Options',
-    values: [
-      'maxPoolSize',
-      'minPoolSize',
-      'maxIdleTimeMS',
-      'waitQueueMultiple',
-      'waitQueueTimeoutMS',
-    ],
-  },
-  {
-    title: 'Write Concern Options',
-    values: ['w', 'wtimeoutMS', 'journal'],
-  },
-  {
-    title: 'Read Concern Options',
-    values: ['readConcernLevel'],
-  },
-  {
-    title: 'Read Preferences Options',
-    values: ['maxStalenessSeconds', 'readPreferenceTags'],
-  },
-  {
-    title: 'Authentication Options',
-    values: [
-      // 'authSource',
-      'authMechanismProperties',
-      'gssapiServiceName',
-    ],
-  },
-  {
-    title: 'Server Options',
-    values: [
-      'localThresholdMS',
-      'serverSelectionTimeoutMS',
-      'serverSelectionTryOnce',
-      'heartbeatFrequencyMS',
-    ],
-  },
-  {
-    title: 'Miscellaneous Configuration',
-    values: ['appName', 'retryReads', 'retryWrites', 'uuidRepresentation'],
-  },
-];
 
 function UrlOptions({
   handleFieldChanged,
@@ -116,9 +46,8 @@ function UrlOptions({
   handleFieldChanged: (key: keyof MongoClientOptions, value: unknown) => void;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
-  const [isModalOpen, setModalOpen] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState('');
-  const [option, setOption] = React.useState({ key: '', value: '' });
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [option, setOption] = React.useState<UrlOption | undefined>(undefined);
 
   const urlOptions: UrlOption[] = [];
   editableUrlOptions.forEach(({ values }) => {
@@ -132,16 +61,24 @@ function UrlOptions({
     });
   });
 
-  const addUrlOption = (event: React.MouseEventHandler<HTMLButtonElement>) => {
-    event.preventDefault();
-    if (!option.key) {
-      return setErrorMessage('Please select the options key.');
-    }
-    return handleFieldChanged(
-      option.key as keyof MongoClientOptions,
+  const addUrlOption = () => {
+    setOption(undefined);
+    setIsModalOpen(true);
+  }
+
+  const saveUrlOption = (option: UrlOption) => {
+    handleFieldChanged(
+      option.key,
       option.value
     );
-  };
+    setOption(undefined);
+    setIsModalOpen(false);
+  }
+
+  const editUrlOption = (option: UrlOption) => {
+    setOption(option);
+    setIsModalOpen(true);
+  }
 
   return (
     <div className={urlOptionsContainerStyles}>
@@ -174,87 +111,25 @@ function UrlOptions({
         {({ datum }: { datum: UrlOption }) => (
           <Row key={datum.key}>
             <Cell>{datum.key}</Cell>
-            <Cell>{datum.value}</Cell>
+            <Cell className={optionValueStyles}>
+              {datum.value ?? ''}
+              <IconButton aria-label="Edit option" onClick={() => editUrlOption(datum)}>
+                <Icon glyph="Edit" />
+              </IconButton>
+            </Cell>
           </Row>
         )}
       </Table>
       <div className={addUrlOptionsButtonStyles}>
         <Button
-          onClick={() => setModalOpen((isModalOpen) => !isModalOpen)}
+          onClick={() => addUrlOption()}
           variant={'primaryOutline'}
           size={'xsmall'}
         >
           Add url options
         </Button>
       </div>
-      <Modal
-        contentClassName={modalContainerStyles}
-        open={isModalOpen}
-        setOpen={setModalOpen}
-      >
-        <div className={modalContentStyles}>
-          <H3>Add custom url option</H3>
-          <FormFieldContainer>
-            <Select
-              label="Key"
-              placeholder="Select key"
-              name="key"
-              onChange={(key) => {
-                console.log({
-                  type: 'select',
-                  value: {
-                    key,
-                    value: option.value,
-                  },
-                });
-                setOption({
-                  key,
-                  value: option.value,
-                });
-              }}
-              allowDeselect={false}
-              value={option.key}
-            >
-              {editableUrlOptions.map(({ title, values }) => (
-                <OptionGroup key={title} label={title}>
-                  {values.map((value) => (
-                    <Option key={value} value={value}>
-                      {value}
-                    </Option>
-                  ))}
-                </OptionGroup>
-              ))}
-            </Select>
-          </FormFieldContainer>
-          <FormFieldContainer>
-            <TextInput
-              onChange={({
-                target: { value },
-              }: ChangeEvent<HTMLInputElement>) => {
-                setOption({
-                  key: option.key,
-                  value,
-                });
-              }}
-              name={'value'}
-              data-testid={'value'}
-              label={'Value'}
-              type={'text'}
-              placeholder={'Value'}
-            />
-          </FormFieldContainer>
-        </div>
-        <FormFooter
-          className={modalFooterStyles}
-          errorMessage={errorMessage}
-          primaryButton={
-            <Button variant={'primary'} onClick={addUrlOption}>
-              Save
-            </Button>
-          }
-          onCancel={() => setModalOpen((isModalOpen) => !isModalOpen)}
-        />
-      </Modal>
+      {isModalOpen && <UrlOptionsModal onClose={setIsModalOpen} selectedOption={option} onUpdateOption={saveUrlOption}/>}
     </div>
   );
 }
