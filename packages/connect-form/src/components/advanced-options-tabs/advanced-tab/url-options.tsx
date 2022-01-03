@@ -15,6 +15,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+
 import { editableUrlOptions, UrlOption } from '../../../utils/url-options';
 
 import UrlOptionsModal from './url-options-modal';
@@ -54,7 +55,7 @@ function UrlOptions({
     values.forEach((key: string) => {
       if (connectionStringUrl.searchParams.has(key)) {
         urlOptions.push({
-          key,
+          key: key as UrlOption['key'],
           value: connectionStringUrl.searchParams.get(key) as string,
         });
       }
