@@ -6,10 +6,6 @@ import {
   RadioBoxGroup,
   spacing,
   TextInput,
-  Label,
-  Description,
-  Link,
-  Table, TableHeader, Row, Cell,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ReadPreferenceMode, ReadPreference as MongoReadPreference, MongoClientOptions } from 'mongodb';
@@ -19,6 +15,7 @@ import {
   ConnectionFormError,
 } from '../../../utils/connect-form-errors';
 import FormFieldContainer from '../../form-field-container';
+import UrlOptions from './url-options';
 
 const containerStyles = css({
   marginTop: spacing[3],
@@ -28,13 +25,6 @@ const fieldStyles = css({
   width: '50%',
 });
 
-const urlOptionsContainer = css({
-  marginTop: spacing[3],
-})
-
-const urlOptionsTable = css({
-  width: '70%',
-});
 interface ReadPreference {
   title: string;
   id: ReadPreferenceMode;
@@ -192,29 +182,9 @@ function AdvancedTab({
           description={'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'}
         />
       </FormFieldContainer>
-      {/* URI Options */}
-      <div className={urlOptionsContainer}>
-        <Label htmlFor={''}>Url Options</Label>
-        <Description>
-          Add other MongoDB url options to customize your connection.&nbsp;
-          <Link href={'https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options'}>Learn More</Link>
-        </Description>
-        <Table
-          data={urlOptions}
-          className={urlOptionsTable}
-          columns={[
-            <TableHeader key={'key'} label="Key" sortBy={(datum: UrlOption) => datum.key} />,
-            <TableHeader key={'value'} label="Value" sortBy={(datum: UrlOption) => datum.value} />,
-          ]}
-        >
-          {({ datum }: {datum: UrlOption}) => (
-            <Row key={datum.key}>
-              <Cell>{datum.key}</Cell>
-              <Cell>{datum.value}</Cell>
-            </Row>
-          )}
-        </Table>
-      </div>
+      <UrlOptions
+        connectionStringUrl={connectionStringUrl}
+        handleFieldChanged={handleFieldChanged} />
     </div>
   );
 }

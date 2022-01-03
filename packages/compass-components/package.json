@@ -42,6 +42,7 @@
     "@leafygreen-ui/checkbox": "^6.0.5",
     "@leafygreen-ui/confirmation-modal": "^2.2.1",
     "@leafygreen-ui/emotion": "^4.0.0",
+    "@leafygreen-ui/form-footer": "^0.9.0",
     "@leafygreen-ui/icon": "^11.4.0",
     "@leafygreen-ui/icon-button": "^9.1.6",
     "@leafygreen-ui/leafygreen-provider": "^2.1.2",

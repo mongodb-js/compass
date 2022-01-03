@@ -33,7 +33,7 @@ export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
-export { Select, Option, Size as SelectSize } from '@leafygreen-ui/select';
+export { Select, Option, OptionGroup, Size as SelectSize } from '@leafygreen-ui/select';
 export { Tabs, Tab } from '@leafygreen-ui/tabs';
 export { default as TextArea } from '@leafygreen-ui/text-area';
 export { default as TextInput } from '@leafygreen-ui/text-input';
@@ -99,3 +99,4 @@ export {
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';
+export { default as FormFooter } from '@leafygreen-ui/form-footer';
