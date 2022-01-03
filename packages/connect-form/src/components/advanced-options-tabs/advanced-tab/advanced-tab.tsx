@@ -32,11 +32,6 @@ interface ReadPreference {
   id: ReadPreferenceMode;
 }
 
-interface UrlOption {
-  key: string;
-  value: string;
-}
-
 const readPreferences: ReadPreference[] = [
   {
     title: 'Primary',
@@ -58,35 +53,6 @@ const readPreferences: ReadPreference[] = [
     title: 'Nearest',
     id: MongoReadPreference.NEAREST,
   },
-];
-
-const editableUrlOptions = [
-  'connectiTimeoutMS',
-  'socketTimeoutMS',
-  'compressors',
-  'zlibCompressionLevel',
-  'maxPoolSize',
-  'minPoolSize',
-  'maxIdleTimeMS',
-  'waitQueueMultiple',
-  'waitQueueTimeoutMS',
-  'w',
-  'wtimeoutMS',
-  'journal',
-  'readConcernLevel',
-  'maxStalenessSeconds',
-  'readPreferenceTags',
-  // 'authSource',
-  'authMechanismProperties',
-  'gssapiServiceName',
-  'localThresholdMS',
-  'serverSelectionTimeoutMS',
-  'serverSelectionTryOnce',
-  'heartbeatFrequencyMS',
-  'appName',
-  'retryReads',
-  'retryWrites',
-  'uuidRepresentation',
 ];
 
 function AdvancedTab({
@@ -113,16 +79,6 @@ function AdvancedTab({
   const readPreference = connectionStringUrl.searchParams.get('readPreference');
   const replicaSet = connectionStringUrl.searchParams.get('replicaSet');
   const authSource = connectionStringUrl.searchParams.get('authSource');
-
-  const urlOptions: UrlOption[] = [];
-  editableUrlOptions.forEach((key: string) => {
-    if (connectionStringUrl.searchParams.has(key)) {
-      urlOptions.push({
-        key,
-        value: connectionStringUrl.searchParams.get(key) as string,
-      });
-    }
-  });
 
   return (
     <div className={containerStyles}>
