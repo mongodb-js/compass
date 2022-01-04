@@ -89,7 +89,7 @@ describe('Smoke tests', function () {
       );
 
       for (const dbSelector of dbSelectors) {
-        expect(await page.isVisible(dbSelector)).to.be.true;
+        expect(await page.waitForSelector(dbSelector));
         // TODO: Storage Size, Collections, Indexes, Drop button
       }
     });
@@ -129,7 +129,7 @@ describe('Smoke tests', function () {
       ].map(Selectors.collectionTab);
 
       for (const tabSelector of tabSelectors) {
-        expect(await page.isVisible(tabSelector)).to.be.true;
+        expect(await page.waitForSelector(tabSelector));
       }
     });
 
@@ -500,7 +500,7 @@ describe('Smoke tests', function () {
 
       const insertConfirm = page.locator(Selectors.InsertConfirm);
       // this selector is very brittle, so just make sure it works
-      expect(await insertConfirm.isVisible()).to.be.true;
+      expect(await insertConfirm.waitFor());
       expect(await insertConfirm.textContent()).to.equal('Insert');
       commands.waitUntil(() => insertConfirm.isEnabled());
       await page.click(Selectors.InsertConfirm);

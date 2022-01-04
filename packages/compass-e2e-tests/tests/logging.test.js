@@ -146,8 +146,14 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Telemetry',
           msg: 'Loading telemetry config',
           attr: (actual) => {
-            expect(actual.telemetryCapableEnvironment).to.equal(true);
-            expect(actual.hasAnalytics).to.equal(true);
+            expect(actual.telemetryCapableEnvironment).to.equal(
+              true,
+              'telemetryCapableEnvironment must be true'
+            );
+            expect(actual.hasAnalytics).to.equal(
+              true,
+              'hasAnalytics must be true'
+            );
             expect(actual.currentUserId).to.be.a('string');
             expect(actual.state).to.equal('disabled');
           },
@@ -357,7 +363,9 @@ describe('Logging and Telemetry integration', function () {
           );
           if (actualLogIndex < 0) {
             throw new Error(
-              `No actual log found for expected ${JSON.stringify(expected)}`
+              `No actual log found for expected ${JSON.stringify(expected)}\n
+Instead found:
+${JSON.stringify(criticalPathActualLogs, null, 4)}`
             );
           }
 

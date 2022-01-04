@@ -166,6 +166,8 @@ async function main() {
   const reportPath = path.join(LOG_PATH, 'report.json');
   const jsonReport = JSON.stringify(result, null, 2);
   await fs.promises.writeFile(reportPath, jsonReport);
+
+  debug('done');
 }
 
 process.once('SIGINT', () => {

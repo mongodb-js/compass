@@ -513,7 +513,8 @@ async function beforeTests() {
   return { app, page, commands };
 }
 
-async function afterTests(app /*, page*/) {
+// eslint-disable-next-line no-unused-vars
+async function afterTests(app, page) {
   if (!app) {
     console.log('no app');
     return;
