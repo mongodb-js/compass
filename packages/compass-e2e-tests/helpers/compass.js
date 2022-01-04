@@ -125,7 +125,6 @@ async function startCompass(
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
 
   const args = [
-    COMPASS_PATH,
     `--user-data-dir=${userDataDir}`,
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
@@ -136,10 +135,13 @@ async function startCompass(
   ];
 
   const applicationStartOptions = testPackagedApp
-    ? { executablePath: getCompassBinPath(await getCompassBuildMetadata()) }
+    ? {
+        executablePath: getCompassBinPath(await getCompassBuildMetadata()),
+        args,
+      }
     : {
         executablePath: electronPath,
-        args,
+        args: [COMPASS_PATH, ...args],
         cwd: COMPASS_PATH,
       };
 
