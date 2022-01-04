@@ -79,7 +79,7 @@ function UrlOptions({
   };
 
   return (
-    <div className={urlOptionsContainerStyles}>
+    <div className={urlOptionsContainerStyles} data-testid="url-options">
       <Label htmlFor={''}>Url Options</Label>
       <Description>
         Add other MongoDB url options to customize your connection.&nbsp;
@@ -92,7 +92,7 @@ function UrlOptions({
         </Link>
       </Description>
       <Table
-        data-testid='url-options-table'
+        data-testid="url-options-table"
         data={urlOptions}
         columns={[
           <TableHeader
@@ -124,7 +124,7 @@ function UrlOptions({
       </Table>
       <div className={addUrlOptionsButtonStyles}>
         <Button
-          data-testid='add-url-options-button'
+          data-testid="add-url-options-button"
           onClick={() => addUrlOption()}
           variant={'primaryOutline'}
           size={'xsmall'}
