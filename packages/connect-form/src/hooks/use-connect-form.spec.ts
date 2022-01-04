@@ -760,20 +760,19 @@ describe('use-connect-form hook', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/'
         );
-        const {
-          connectionStringUrl: connectionUrl,
-        } = handleConnectionFormFieldUpdate({
-          action: {
-            type: 'update-search-param',
-            key: 'w',
-            value: 'localhost',
-          },
-          connectionOptions: {
-            connectionString: connectionStringUrl.toString(),
-          },
-          connectionStringUrl: connectionStringUrl,
-          initialErrors: [],
-        });
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-search-param',
+              key: 'w',
+              value: 'localhost',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
 
         expect(connectionUrl.searchParams.get('w')).to.equal('localhost');
       });

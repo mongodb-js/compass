@@ -28,7 +28,7 @@ const formFields = [
 let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
 describe('AdvancedTab', function () {
-  describe('no searchParam', function() {
+  describe('no searchParam', function () {
     beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();
       render(
@@ -41,14 +41,14 @@ describe('AdvancedTab', function () {
         />
       );
     });
-  
+
     it('renders view correctly', function () {
       expect(screen.getByTestId('read-preferences')).to.exist;
       expect(screen.getByTestId('replica-set')).to.exist;
       expect(screen.getByTestId('default-database')).to.exist;
       expect(screen.getByTestId('url-options')).to.exist;
     });
-  
+
     // eslint-disable-next-line mocha/no-setup-in-describe
     readPreferences.forEach(({ id }) => {
       it(`handles changes on readPreference radio button - ${id}`, function () {
@@ -61,7 +61,7 @@ describe('AdvancedTab', function () {
         });
       });
     });
-  
+
     // eslint-disable-next-line mocha/no-setup-in-describe
     formFields.forEach(({ key, testId, changeValue: value }) => {
       it(`handles changes on ${key} field`, function () {
@@ -76,7 +76,7 @@ describe('AdvancedTab', function () {
     });
   });
 
-  describe('renders selected values from connectionStringUrl', function() {
+  describe('renders selected values from connectionStringUrl', function () {
     beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();
       connectionStringUrl.searchParams.set('readPreference', 'nearest');
@@ -93,9 +93,17 @@ describe('AdvancedTab', function () {
       );
     });
     it('renders selected values', function () {
-      expect(screen.getByTestId('nearest-preference-button').getAttribute('aria-checked')).to.equal('true');
-      expect(screen.getByTestId('replica-set').getAttribute('value')).to.equal('hello-rs');
-      expect(screen.getByTestId('default-database').getAttribute('value')).to.equal('hello-db');
+      expect(
+        screen
+          .getByTestId('nearest-preference-button')
+          .getAttribute('aria-checked')
+      ).to.equal('true');
+      expect(screen.getByTestId('replica-set').getAttribute('value')).to.equal(
+        'hello-rs'
+      );
+      expect(
+        screen.getByTestId('default-database').getAttribute('value')
+      ).to.equal('hello-db');
     });
-  })
+  });
 });
