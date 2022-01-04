@@ -8,15 +8,12 @@ import {
   TextInput,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import {
-  ReadPreferenceMode,
-  ReadPreference as MongoReadPreference,
-  MongoClientOptions,
-} from 'mongodb';
+import { MongoClientOptions } from 'mongodb';
 
+import FormFieldContainer from '../../form-field-container';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../../utils/connect-form-errors';
-import FormFieldContainer from '../../form-field-container';
+import { readPreferences } from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
 
@@ -27,34 +24,6 @@ const containerStyles = css({
 const fieldStyles = css({
   width: '50%',
 });
-
-interface ReadPreference {
-  title: string;
-  id: ReadPreferenceMode;
-}
-
-const readPreferences: ReadPreference[] = [
-  {
-    title: 'Primary',
-    id: MongoReadPreference.PRIMARY,
-  },
-  {
-    title: 'Primary Preferred',
-    id: MongoReadPreference.PRIMARY_PREFERRED,
-  },
-  {
-    title: 'Secondary',
-    id: MongoReadPreference.SECONDARY,
-  },
-  {
-    title: 'Secondary Preferred',
-    id: MongoReadPreference.SECONDARY_PREFERRED,
-  },
-  {
-    title: 'Nearest',
-    id: MongoReadPreference.NEAREST,
-  },
-];
 
 function AdvancedTab({
   updateConnectionFormField,
@@ -88,7 +57,7 @@ function AdvancedTab({
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
           handleFieldChanged('readPreference', value);
         }}
-        className="radio-box-group-style"
+        data-testid="read-preferences"
       >
         {readPreferences.map(({ title, id }) => {
           return (
