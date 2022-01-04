@@ -57,7 +57,7 @@ function UrlOptionsModal({
   const addUrlOption = () => {
     setErrorMessage('');
     if (!option.key) {
-      return setErrorMessage('Please select the options key.');
+      return setErrorMessage('Please select an options key.');
     }
     onUpdateOption(option as UrlOption);
   };
@@ -67,11 +67,13 @@ function UrlOptionsModal({
       contentClassName={modalContainerStyles}
       open={true}
       setOpen={onClose}
+      data-testid='uri-options-modal'
     >
       <div className={modalContentStyles}>
         <H3>Add custom url option</H3>
         <FormFieldContainer>
           <Select
+            data-testid="uri-options-key-field"
             label="Key"
             placeholder="Select key"
             name="key"
@@ -106,7 +108,7 @@ function UrlOptionsModal({
               });
             }}
             name={'value'}
-            data-testid={'value'}
+            data-testid="uri-options-value-field"
             label={'Value'}
             type={'text'}
             placeholder={'Value'}
@@ -119,7 +121,7 @@ function UrlOptionsModal({
         className={modalFooterStyles}
         errorMessage={errorMessage}
         primaryButton={
-          <Button variant={'primary'} onClick={() => addUrlOption()}>
+          <Button data-testid="uri-options-save-button" variant={'primary'} onClick={() => addUrlOption()}>
             Save
           </Button>
         }

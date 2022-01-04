@@ -92,6 +92,7 @@ function UrlOptions({
         </Link>
       </Description>
       <Table
+        data-testid='url-options-table'
         data={urlOptions}
         columns={[
           <TableHeader
@@ -112,7 +113,7 @@ function UrlOptions({
             <Cell className={optionValueStyles}>
               {datum.value ?? ''}
               <IconButton
-                aria-label="Edit option"
+                aria-label={`Edit option: ${datum.key}`}
                 onClick={() => editUrlOption(datum)}
               >
                 <Icon glyph="Edit" />
@@ -123,6 +124,7 @@ function UrlOptions({
       </Table>
       <div className={addUrlOptionsButtonStyles}>
         <Button
+          data-testid='add-url-options-button'
           onClick={() => addUrlOption()}
           variant={'primaryOutline'}
           size={'xsmall'}
