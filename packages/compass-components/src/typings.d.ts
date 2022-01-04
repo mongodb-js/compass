@@ -1,0 +1,1 @@
+declare module '@leafygreen-ui/form-footer';
