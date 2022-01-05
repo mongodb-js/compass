@@ -13,6 +13,7 @@ const {
 const { _electron: electron } = require('playwright');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
+const debugPage = debug.extend('page');
 const {
   run: packageCompass,
   compileAssets,
@@ -27,7 +28,7 @@ const { bindCommands } = require('./commands');
  * @property {Buffer} raw
  * @property {any[]} structured
  *
- * @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured']}} ExtendedApplication
+ * @typedef {import('playwright').ElectronApplication & { compassLog: CompassLog['structured'], renderLog: any[] }} ExtendedApplication
  */
 
 const compileAssetsAsync = promisify(compileAssets);
@@ -177,7 +178,6 @@ async function startCompass(
     // https://github.com/microsoft/playwright/issues/5905
     //const mainLogs = await app.client.getMainProcessLogs();
     //const renderLogs = await app.client.getRenderProcessLogs();
-    const renderLogs = [];
 
     //const mainLogPath = path.join(
     //  LOG_PATH,
@@ -191,7 +191,7 @@ async function startCompass(
       `electron-render.${nowFormatted}.json`
     );
     debug(`Writing application render process log to ${renderLogPath}`);
-    await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
+    await fs.writeFile(renderLogPath, JSON.stringify(app.renderLog, null, 2));
 
     debug('Stopping Compass application');
     await _close();
@@ -218,7 +218,7 @@ async function startCompass(
     // TODO
     /*
     // ERROR, CRITICAL and whatever unknown things might end up in the logs
-    const errors = renderLogs.filter((log) => {
+    const errors = app.renderLog.filter((log) => {
       if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
         return false;
       }
@@ -511,6 +511,13 @@ async function beforeTests() {
 
   await commands.closeTourModal();
   await commands.closePrivacySettingsModal();
+
+  app.renderLog = [];
+
+  page.on('console', (...args) => {
+    debugPage(...args);
+    app.renderLog.push(args);
+  });
 
   return { app, page, commands };
 }
