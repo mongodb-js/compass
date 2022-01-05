@@ -103,7 +103,7 @@ describe('UrlOptionsModal', function () {
       render(
         <UrlOptionsModal
           onClose={onCloseSpy}
-          selectedOption={{ key: 'w', value: 'abc' }}
+          selectedOption={{ name: 'w', value: 'abc' }}
           onUpdateOption={onUpdateOptionSpy}
         />
       );

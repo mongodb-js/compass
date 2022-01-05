@@ -104,4 +104,10 @@ describe('UrlOptions', function () {
       screen.getByText('uri-options-modal');
     }).to.throw;
   });
+
+  it('delete url option', function () {
+    fireEvent.click(screen.getByLabelText(`Delete option: w`));
+    expect(handleFieldChangedSpy.callCount).to.equal(1);
+    expect(handleFieldChangedSpy.args[0]).to.deep.equal(['w', '']);
+  });
 });
