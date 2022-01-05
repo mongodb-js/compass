@@ -78,6 +78,10 @@ function UrlOptions({
     setIsModalOpen(true);
   };
 
+  const deleteUrlOption = (name: UrlOption['name']) => {
+    handleFieldChanged(name, '');
+  };
+
   return (
     <div className={urlOptionsContainerStyles} data-testid="url-options">
       <Label htmlFor={''}>Url Options</Label>
@@ -112,12 +116,20 @@ function UrlOptions({
             <Cell>{datum.name}</Cell>
             <Cell className={optionValueStyles}>
               {datum.value ?? ''}
-              <IconButton
-                aria-label={`Edit option: ${datum.name}`}
-                onClick={() => editUrlOption(datum)}
-              >
-                <Icon glyph="Edit" />
-              </IconButton>
+              <div>
+                <IconButton
+                  aria-label={`Edit option: ${datum.name}`}
+                  onClick={() => editUrlOption(datum)}
+                >
+                  <Icon glyph="Edit" />
+                </IconButton>
+                <IconButton
+                  aria-label={`Delete option: ${datum.name}`}
+                  onClick={() => deleteUrlOption(datum.name)}
+                >
+                  <Icon glyph="Trash" />
+                </IconButton>
+              </div>
             </Cell>
           </Row>
         )}
