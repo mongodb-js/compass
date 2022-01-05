@@ -31,6 +31,7 @@ const OPTIONS = {
   highlightActiveLine: false,
   showGutter: true,
   useWorker: false,
+  mode: 'ace/mode/mongodb',
   showPrintMargin: false
 };
 
@@ -305,7 +306,7 @@ class ValidationEditor extends Component {
           <hr />
           <div className={classnames(styles['brace-editor-container'])}>
             <AceEditor
-              mode="mongodb"
+              mode="javascript" // will be set to mongodb as part of OPTIONS
               theme="mongodb"
               width="100%"
               height="100%"
