@@ -1,14 +1,14 @@
 import { MongoClientOptions } from 'mongodb';
 
 export interface UrlOption {
-  key: keyof MongoClientOptions;
+  name: keyof MongoClientOptions;
   value: string;
 }
 
 export const editableUrlOptions = [
   {
-    title: 'Connection Timeout',
-    values: ['connectiTimeoutMS', 'socketTimeoutMS'],
+    title: 'Connection Timeout Options',
+    values: ['connectTimeoutMS', 'socketTimeoutMS'],
   },
   {
     title: 'Compression Options',

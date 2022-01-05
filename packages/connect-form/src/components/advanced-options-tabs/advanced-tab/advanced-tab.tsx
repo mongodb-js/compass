@@ -6,6 +6,7 @@ import {
   RadioBoxGroup,
   spacing,
   TextInput,
+  Label,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { MongoClientOptions } from 'mongodb';
@@ -53,11 +54,15 @@ function AdvancedTab({
   return (
     <div className={containerStyles}>
       {/* Read Preferences */}
+      <Label htmlFor="read-preferences">
+        Read Preference
+      </Label>
       <RadioBoxGroup
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
           handleFieldChanged('readPreference', value);
         }}
         data-testid="read-preferences"
+        id="read-preferences"
       >
         {readPreferences.map(({ title, id }) => {
           return (

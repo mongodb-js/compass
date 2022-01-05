@@ -52,11 +52,11 @@ function UrlOptions({
 
   const urlOptions: UrlOption[] = [];
   editableUrlOptions.forEach(({ values }) => {
-    values.forEach((key: string) => {
-      if (connectionStringUrl.searchParams.has(key)) {
+    values.forEach((name: string) => {
+      if (connectionStringUrl.searchParams.has(name)) {
         urlOptions.push({
-          key: key as UrlOption['key'],
-          value: connectionStringUrl.searchParams.get(key) as string,
+          name: name as UrlOption['name'],
+          value: connectionStringUrl.searchParams.get(name) as string,
         });
       }
     });
@@ -68,7 +68,7 @@ function UrlOptions({
   };
 
   const saveUrlOption = (option: UrlOption) => {
-    handleFieldChanged(option.key, option.value);
+    handleFieldChanged(option.name, option.value);
     setOption(undefined);
     setIsModalOpen(false);
   };
@@ -82,7 +82,7 @@ function UrlOptions({
     <div className={urlOptionsContainerStyles} data-testid="url-options">
       <Label htmlFor={''}>Url Options</Label>
       <Description>
-        Add other MongoDB url options to customize your connection.&nbsp;
+        Add additional MongoDB url options to customize your connection.&nbsp;
         <Link
           href={
             'https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options'
@@ -91,14 +91,14 @@ function UrlOptions({
           Learn More
         </Link>
       </Description>
-      <Table
+      {urlOptions.length > 0 && <Table
         data-testid="url-options-table"
         data={urlOptions}
         columns={[
           <TableHeader
-            key={'key'}
+            key={'name'}
             label="Key"
-            sortBy={(datum: UrlOption) => datum.key}
+            sortBy={(datum: UrlOption) => datum.name}
           />,
           <TableHeader
             key={'value'}
@@ -108,12 +108,12 @@ function UrlOptions({
         ]}
       >
         {({ datum }: { datum: UrlOption }) => (
-          <Row key={datum.key}>
-            <Cell>{datum.key}</Cell>
+          <Row key={datum.name}>
+            <Cell>{datum.name}</Cell>
             <Cell className={optionValueStyles}>
               {datum.value ?? ''}
               <IconButton
-                aria-label={`Edit option: ${datum.key}`}
+                aria-label={`Edit option: ${datum.name}`}
                 onClick={() => editUrlOption(datum)}
               >
                 <Icon glyph="Edit" />
@@ -121,7 +121,7 @@ function UrlOptions({
             </Cell>
           </Row>
         )}
-      </Table>
+      </Table>}
       <div className={addUrlOptionsButtonStyles}>
         <Button
           data-testid="add-url-options-button"
@@ -129,7 +129,7 @@ function UrlOptions({
           variant={'primaryOutline'}
           size={'xsmall'}
         >
-          Add url options
+          Add url option
         </Button>
       </div>
       {isModalOpen && (

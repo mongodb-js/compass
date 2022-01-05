@@ -27,6 +27,17 @@ const modalContentStyles = css({
   padding: spacing[5],
 });
 
+// copied from collection-fields/time-series-fields.module.less
+const selectStyles = css({
+  zIndex: 1,
+  'button:focus': {
+    zIndex: 20,
+  },
+  'button:focus-within': {
+    zIndex: 20,
+  },
+});
+
 const modalFooterStyles = css({
   boxShadow: 'none',
   border: 'none',
@@ -44,7 +55,7 @@ function UrlOptionsModal({
 }): React.ReactElement {
   const [errorMessage, setErrorMessage] = React.useState('');
   const [option, setOption] = React.useState(
-    selectedOption ?? { key: '', value: '' }
+    selectedOption ?? { name: '', value: '' }
   );
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>): void => {
@@ -56,7 +67,7 @@ function UrlOptionsModal({
 
   const addUrlOption = () => {
     setErrorMessage('');
-    if (!option.key) {
+    if (!option.name) {
       return setErrorMessage('Please select an options key.');
     }
     onUpdateOption(option as UrlOption);
@@ -73,18 +84,19 @@ function UrlOptionsModal({
         <H3>Add custom url option</H3>
         <FormFieldContainer>
           <Select
-            data-testid="uri-options-key-field"
             label="Key"
             placeholder="Select key"
-            name="key"
-            onChange={(key) => {
+            name="name"
+            onChange={(name) => {
               setOption({
-                key: key as UrlOption['key'],
+                name: name as UrlOption['name'],
                 value: option.value,
               });
             }}
             allowDeselect={false}
-            value={option.key}
+            value={option.name}
+            usePortal={false}
+            className={selectStyles}
           >
             {editableUrlOptions.map(({ title, values }) => (
               <OptionGroup key={title} label={title}>
@@ -103,7 +115,7 @@ function UrlOptionsModal({
               target: { value },
             }: ChangeEvent<HTMLInputElement>) => {
               setOption({
-                key: option.key,
+                name: option.name,
                 value,
               });
             }}
