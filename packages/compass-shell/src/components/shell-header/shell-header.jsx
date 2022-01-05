@@ -15,6 +15,20 @@ export class ShellHeader extends Component {
     showInfoModal: PropTypes.func.isRequired
   };
 
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyboardToggle.bind(this));
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyboardToggle.bind(this));
+  }
+
+  handleKeyboardToggle({ ctrlKey, key }) {
+    if (ctrlKey && key === '`') {
+      this.props.onShellToggleClicked();
+    }
+  }
+
   /**
    * Render ShellHeader component.
    *

@@ -124,7 +124,9 @@ const CollectionsList: React.FunctionComponent<{
             : [
                 {
                   label: 'Storage size',
-                  value: compactBytes(coll.storage_size),
+                  value: compactBytes(
+                    coll.storage_size - coll.free_storage_size
+                  ),
                   hint: `Uncompressed data size: ${compactBytes(coll.size)}`,
                 },
                 {

@@ -1,5 +1,9 @@
 import { css } from '@emotion/css';
-import { ResizeHandle, ResizeDirection } from '@mongodb-js/compass-components';
+import {
+  ResizeHandle,
+  ResizeDirection,
+  uiColors,
+} from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 
@@ -7,8 +11,6 @@ import ConnectionList from './connection-list/connection-list';
 
 const initialSidebarWidth = 250;
 const minSidebarWidth = 164;
-
-const slateBlueColor = '#001E2B';
 
 const listContainerStyles = css({
   display: 'flex',
@@ -19,7 +21,7 @@ const listContainerStyles = css({
   minWidth: minSidebarWidth,
   height: '100%',
   position: 'relative',
-  background: slateBlueColor,
+  background: uiColors.gray.dark3,
   color: 'white',
 });
 
@@ -32,11 +34,13 @@ function ResizableSidebar({
   connections,
   createNewConnection,
   setActiveConnectionId,
+  onConnectionDoubleClicked,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];
   createNewConnection: () => void;
   setActiveConnectionId: (newConnectionId?: string) => void;
+  onConnectionDoubleClicked: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const [width, setWidth] = useState(initialSidebarWidth);
 
@@ -53,6 +57,7 @@ function ResizableSidebar({
         connections={connections}
         createNewConnection={createNewConnection}
         setActiveConnectionId={setActiveConnectionId}
+        onDoubleClick={onConnectionDoubleClicked}
       />
       <ResizeHandle
         onChange={(newWidth) => setWidth(newWidth)}

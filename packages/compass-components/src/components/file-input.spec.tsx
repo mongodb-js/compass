@@ -136,4 +136,50 @@ describe('FileInput', function () {
     const link = screen.getByTestId('file-input-link');
     expect(link).to.exist;
   });
+
+  it('adds description if description is specified', function () {
+    render(
+      <FileInput
+        id="file-input"
+        label="Select something"
+        onChange={spy}
+        variant={Variant.Horizontal}
+        description={'Learn more'}
+      />
+    );
+
+    const description = screen.getByTestId('file-input-description');
+    expect(description).to.exist;
+  });
+
+  it('adds link and description if specified', function () {
+    render(
+      <FileInput
+        id="file-input"
+        label="Select something"
+        onChange={spy}
+        variant={Variant.Horizontal}
+        link="http://google.com/"
+        description={'Learn more'}
+      />
+    );
+
+    const linkDescription = screen.getByTestId('file-input-link');
+    expect(linkDescription).to.exist;
+  });
+
+  it('adds error message if specified', function () {
+    render(
+      <FileInput
+        id="file-input"
+        label="Select something"
+        onChange={spy}
+        error={true}
+        errorMessage={'Error'}
+      />
+    );
+
+    const errorMessage = screen.getByTestId('file-input-error');
+    expect(errorMessage).to.exist;
+  });
 });

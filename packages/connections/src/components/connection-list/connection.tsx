@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css';
 import React from 'react';
 import {
-  Subtitle,
+  H3,
   Description,
   spacing,
   uiColors,
@@ -9,6 +9,7 @@ import {
 import { ConnectionInfo, getConnectionTitle } from 'mongodb-data-service';
 
 import ConnectionMenu from './connection-menu';
+import ConnectionIcon from './connection-icon';
 
 const connectionMenuHiddenStyles = css({
   visibility: 'hidden',
@@ -20,23 +21,8 @@ const connectionMenuVisibleStyles = css({
 
 const connectionButtonContainerStyles = css({
   position: 'relative',
-  marginTop: spacing[1],
   padding: 0,
   width: '100%',
-  '&::after': {
-    position: 'absolute',
-    content: '""',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 0,
-    backgroundColor: uiColors.white,
-    zIndex: 1,
-    opacity: 0,
-    transition: '150ms all',
-    borderTopRightRadius: spacing[1],
-    borderBottomRightRadius: spacing[1],
-  },
   '&:hover': {
     '&::after': {
       opacity: 1,
@@ -48,7 +34,6 @@ const connectionButtonContainerStyles = css({
     '&::after': {
       opacity: 1,
       width: spacing[1],
-      backgroundColor: uiColors.focus,
     },
   },
   [`&:focus-within .${connectionMenuHiddenStyles}`]:
@@ -57,77 +42,61 @@ const connectionButtonContainerStyles = css({
     '&::after': {
       opacity: 1,
       width: spacing[1],
-      backgroundColor: uiColors.focus,
     },
   },
 });
 
 const connectionButtonStyles = css({
   margin: 0,
-  padding: 0,
-  paddingLeft: spacing[4],
-  position: 'relative',
+  paddingTop: spacing[1],
+  paddingRight: 0,
+  paddingBottom: spacing[1],
+  paddingLeft: spacing[1] * 3,
   width: '100%',
-  overflow: 'hidden',
+  display: 'grid',
+  gridTemplateAreas: `'icon title' '. description'`,
+  gridTemplateColumns: 'auto 1fr',
+  alignItems: 'center',
+  justifyItems: 'start',
   border: 'none',
   borderRadius: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  textAlign: 'left',
   background: 'none',
   '&:hover': {
     border: 'none',
-    background: uiColors.blue.dark3,
+    background: uiColors.gray.dark2,
   },
   '&:focus': {
     border: 'none',
-    background: uiColors.blue.dark3,
   },
 });
 
-const activeConnectionStyles = css({
-  background: uiColors.gray.dark2,
-});
-
-const connectionTitleContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  marginTop: spacing[1],
-  position: 'relative',
-  width: '100%',
-});
-
-const connectionFavoriteStyles = css({
-  borderRadius: '50%',
-  width: 14,
-  height: 14,
-  flexShrink: 0,
-  marginTop: spacing[1],
-  marginRight: spacing[2],
-});
-
 const connectionTitleStyles = css({
-  color: 'white',
+  color: uiColors.white,
   fontWeight: 'bold',
-  fontSize: 16,
+  fontSize: '14px',
+  lineHeight: '20px',
   margin: 0,
   flexGrow: 1,
   marginRight: spacing[4],
-  width: '100%',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  gridArea: 'title',
+  width: 'calc(100% - 20px)',
+  textAlign: 'left',
 });
 
 const connectionDescriptionStyles = css({
   color: uiColors.gray.base,
   fontWeight: 'bold',
-  fontSize: 12,
+  fontSize: '12px',
+  lineHeight: '20px',
   margin: 0,
+  padding: 0,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  marginBottom: spacing[1],
+  gridArea: 'description',
 });
 
 // Creates a date string formatted as `Oct 27, 3000, 2:06 PM`.
@@ -139,64 +108,72 @@ const dateConfig: Intl.DateTimeFormatOptions = {
   minute: 'numeric',
 };
 
+function getActiveConnectionStyles({ favorite }: ConnectionInfo) {
+  const background = favorite?.color ?? uiColors.gray.dark2;
+  const labelColor = favorite?.color ? uiColors.gray.dark3 : uiColors.gray.base;
+  return css({
+    background: `${background} !important`,
+    color: uiColors.white,
+    p: {
+      color: labelColor,
+    },
+  });
+}
+
 function Connection({
   isActive,
   connectionInfo,
   onClick,
+  onDoubleClick,
 }: {
   isActive: boolean;
   connectionInfo: ConnectionInfo;
   onClick: () => void;
+  onDoubleClick: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const connectionTitle = getConnectionTitle(connectionInfo);
+  const {
+    connectionOptions: { connectionString },
+    favorite,
+    lastUsed,
+  } = connectionInfo;
+  const color =
+    isActive && favorite && favorite.color
+      ? uiColors.black
+      : favorite?.color ?? uiColors.white;
 
   return (
     <div className={connectionButtonContainerStyles}>
       <button
         className={cx(
           connectionButtonStyles,
-          isActive ? activeConnectionStyles : null
+          isActive ? getActiveConnectionStyles(connectionInfo) : null
         )}
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
+        onDoubleClick={() => onDoubleClick(connectionInfo)}
       >
-        <div className={connectionTitleContainerStyles}>
-          {!!(connectionInfo.favorite && connectionInfo.favorite.color) && (
-            <div
-              data-testid="connection-favorite-indicator"
-              className={cx(
-                connectionFavoriteStyles,
-                css({
-                  backgroundColor: connectionInfo.favorite.color,
-                })
-              )}
-            />
+        <ConnectionIcon color={color} connectionString={connectionString} />
+        <H3
+          className={cx(
+            connectionTitleStyles,
+            css({
+              color,
+            })
           )}
-          <Subtitle
-            className={cx(
-              connectionTitleStyles,
-              connectionInfo.favorite && connectionInfo.favorite.color
-                ? css({
-                    color: connectionInfo.favorite.color,
-                  })
-                : null
-            )}
-            data-testid={`${
-              connectionInfo.favorite ? 'favorite' : 'recent'
-            }-connection-title`}
-            title={connectionTitle}
-          >
-            {connectionTitle}
-          </Subtitle>
-        </div>
-        {connectionInfo.lastUsed && (
+          data-testid={`${favorite ? 'favorite' : 'recent'}-connection-title`}
+          title={connectionTitle}
+        >
+          {connectionTitle}
+        </H3>
+        {lastUsed && (
           <Description
             className={connectionDescriptionStyles}
             data-testid={`${
-              connectionInfo.favorite ? 'favorite' : 'recent'
+              favorite ? 'favorite' : 'recent'
             }-connection-description`}
           >
-            {connectionInfo.lastUsed.toLocaleString('default', dateConfig)}
+            {lastUsed.toLocaleString('default', dateConfig)}
           </Description>
         )}
       </button>
@@ -206,7 +183,12 @@ function Connection({
         }
       >
         <ConnectionMenu
-          connectionString={connectionInfo.connectionOptions.connectionString}
+          iconColor={
+            isActive && favorite && favorite.color
+              ? uiColors.gray.dark3
+              : uiColors.white
+          }
+          connectionString={connectionString}
         />
       </div>
     </div>
