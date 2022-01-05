@@ -54,9 +54,7 @@ function AdvancedTab({
   return (
     <div className={containerStyles}>
       {/* Read Preferences */}
-      <Label htmlFor="read-preferences">
-        Read Preference
-      </Label>
+      <Label htmlFor="read-preferences">Read Preference</Label>
       <RadioBoxGroup
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
           handleFieldChanged('readPreference', value);

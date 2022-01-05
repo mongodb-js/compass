@@ -365,7 +365,7 @@ export function handleConnectionFormFieldUpdate({
     }
     case 'update-search-param': {
       if (!action.value) {
-        updatedSearchParams.delete(action.key);  
+        updatedSearchParams.delete(action.key);
       } else {
         updatedSearchParams.set(action.key, action.value);
       }

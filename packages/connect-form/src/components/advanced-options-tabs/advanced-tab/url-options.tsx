@@ -95,45 +95,47 @@ function UrlOptions({
           Learn More
         </Link>
       </Description>
-      {urlOptions.length > 0 && <Table
-        data-testid="url-options-table"
-        data={urlOptions}
-        columns={[
-          <TableHeader
-            key={'name'}
-            label="Key"
-            sortBy={(datum: UrlOption) => datum.name}
-          />,
-          <TableHeader
-            key={'value'}
-            label="Value"
-            sortBy={(datum: UrlOption) => datum.value}
-          />,
-        ]}
-      >
-        {({ datum }: { datum: UrlOption }) => (
-          <Row key={datum.name}>
-            <Cell>{datum.name}</Cell>
-            <Cell className={optionValueStyles}>
-              {datum.value ?? ''}
-              <div>
-                <IconButton
-                  aria-label={`Edit option: ${datum.name}`}
-                  onClick={() => editUrlOption(datum)}
-                >
-                  <Icon glyph="Edit" />
-                </IconButton>
-                <IconButton
-                  aria-label={`Delete option: ${datum.name}`}
-                  onClick={() => deleteUrlOption(datum.name)}
-                >
-                  <Icon glyph="Trash" />
-                </IconButton>
-              </div>
-            </Cell>
-          </Row>
-        )}
-      </Table>}
+      {urlOptions.length > 0 && (
+        <Table
+          data-testid="url-options-table"
+          data={urlOptions}
+          columns={[
+            <TableHeader
+              key={'name'}
+              label="Key"
+              sortBy={(datum: UrlOption) => datum.name}
+            />,
+            <TableHeader
+              key={'value'}
+              label="Value"
+              sortBy={(datum: UrlOption) => datum.value}
+            />,
+          ]}
+        >
+          {({ datum }: { datum: UrlOption }) => (
+            <Row key={datum.name}>
+              <Cell>{datum.name}</Cell>
+              <Cell className={optionValueStyles}>
+                {datum.value ?? ''}
+                <div>
+                  <IconButton
+                    aria-label={`Edit option: ${datum.name}`}
+                    onClick={() => editUrlOption(datum)}
+                  >
+                    <Icon glyph="Edit" />
+                  </IconButton>
+                  <IconButton
+                    aria-label={`Delete option: ${datum.name}`}
+                    onClick={() => deleteUrlOption(datum.name)}
+                  >
+                    <Icon glyph="Trash" />
+                  </IconButton>
+                </div>
+              </Cell>
+            </Row>
+          )}
+        </Table>
+      )}
       <div className={addUrlOptionsButtonStyles}>
         <Button
           data-testid="add-url-options-button"
