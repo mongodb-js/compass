@@ -364,7 +364,11 @@ export function handleConnectionFormFieldUpdate({
       });
     }
     case 'update-search-param': {
-      updatedSearchParams.set(action.key, action.value);
+      if (!action.value) {
+        updatedSearchParams.delete(action.key);  
+      } else {
+        updatedSearchParams.set(action.key, action.value);
+      }
       return {
         connectionStringUrl: updatedConnectionStringUrl,
         connectionOptions: {
