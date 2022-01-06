@@ -777,7 +777,7 @@ describe('use-connect-form hook', function () {
       });
       it('should handle update of search param key - with existing value', function () {
         const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://localhost:27019/w=w-value'
+          'mongodb://localhost:27019/?w=w-value'
         );
         const { connectionStringUrl: connectionUrl } =
           handleConnectionFormFieldUpdate({
@@ -792,8 +792,8 @@ describe('use-connect-form hook', function () {
             connectionStringUrl: connectionStringUrl,
             initialErrors: [],
           });
-        // todo: (mabaasit) fix this
-        // expect(connectionUrl.searchParams.get('journal')).to.equal('w-value');
+        expect(connectionUrl.searchParams.get('journal')).to.equal('w-value');
+        expect(connectionUrl.searchParams.get('w')).to.not.be.true;
       });
       it('should handle update of search param key - with new value', function () {
         const connectionStringUrl = new ConnectionStringUrl(
@@ -805,7 +805,7 @@ describe('use-connect-form hook', function () {
               type: 'update-search-param',
               currentKey: 'w',
               newKey: 'journal',
-              value: 'j-value',
+              value: 'j-value'
             },
             connectionOptions: {
               connectionString: connectionStringUrl.toString(),
@@ -820,7 +820,7 @@ describe('use-connect-form hook', function () {
     describe('delete-search-param action', function () {
       it('should handle delete of search param', function () {
         const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://localhost:27019/w=hello&journal=hi'
+          'mongodb://localhost:27019/?w=hello&journal=hi'
         );
         const { connectionStringUrl: connectionUrl } =
           handleConnectionFormFieldUpdate({
@@ -835,6 +835,7 @@ describe('use-connect-form hook', function () {
             initialErrors: [],
           });
         expect(connectionUrl.searchParams.get('w')).to.not.be.true;
+        expect(connectionUrl.searchParams.get('journal')).to.equal('hi');
       });
     });
   });
