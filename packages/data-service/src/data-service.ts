@@ -420,7 +420,7 @@ class DataService extends EventEmitter {
     privileges?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
       | null;
-  } = {}): Promise<ReturnType<typeof adaptDatabaseInfo>[]> {
+  } = {}): Promise<{ _id: string; name: string }[]> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_033),
       'Running listDatabases',
@@ -484,7 +484,9 @@ class DataService extends EventEmitter {
         // if they were fetched successfully
         [...databasesFromPrivileges, ...listedDatabases],
         'name'
-      ).map((db) => adaptDatabaseInfo({ db: db.name, ...db }));
+      ).map((db) => {
+        return { _id: db.name, name: db.name, ...adaptDatabaseInfo(db) };
+      });
 
       logop(null, { databasesCount: databases.length });
 
@@ -1696,7 +1698,7 @@ class DataService extends EventEmitter {
    */
   async databaseStats(
     name: string
-  ): Promise<Omit<ReturnType<typeof adaptDatabaseInfo>, '_id'>> {
+  ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_057),
       'Running databaseStats',
@@ -1705,8 +1707,8 @@ class DataService extends EventEmitter {
     try {
       const db = this._initializedClient.db(name);
       const stats = await runCommand(db, { dbStats: 1 });
-      const { _id, ...normalized } = adaptDatabaseInfo(stats);
-      return normalized;
+      const normalized = adaptDatabaseInfo(stats);
+      return { name, ...normalized };
     } catch (err) {
       logop(err);
       throw this._translateMessage(err);

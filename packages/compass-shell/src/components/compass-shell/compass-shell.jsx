@@ -41,6 +41,8 @@ export class CompassShell extends Component {
   constructor(props) {
     super(props);
 
+    this.shellRef = React.createRef();
+
     this.shellOutput = this.props.shellOutput || [];
 
     this.state = {
@@ -136,6 +138,13 @@ export class CompassShell extends Component {
     );
   }
 
+  hideInfoModal() {
+    this.setState({ showInfoModal: false });
+    if (this.shellRef.current) {
+      this.shellRef.current.focusEditor();
+    }
+  }
+
   /**
    * Render CompassShell component.
    *
@@ -160,7 +169,7 @@ export class CompassShell extends Component {
       <Fragment>
         <InfoModal
           show={showInfoModal}
-          hideInfoModal={() => this.setState({ showInfoModal: false })}
+          hideInfoModal={this.hideInfoModal.bind(this)}
         />
         <div
           data-test-id="shell-section"
@@ -194,6 +203,7 @@ export class CompassShell extends Component {
             )}
           >
             <Shell
+              ref={this.shellRef}
               runtime={this.props.runtime}
               initialHistory={this.state.initialHistory}
               initialOutput={this.shellOutput}

@@ -5,11 +5,12 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import GeneralTab from './general-tab';
 import AuthenticationTab from './authentication-tab';
+import SSHTunnelTab from './ssh-tunnel-tab/ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
-import SSHTunnelTab from './ssh-tunnel-tab';
 import AdvancedTab from './advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../utils/connect-form-errors';
+import { ConnectionOptions } from 'mongodb-data-service';
 
 const tabsStyles = css({
   marginTop: spacing[1],
@@ -21,6 +22,7 @@ interface TabObject {
     connectionStringUrl: ConnectionStringUrl;
     hideError: (errorIndex: number) => void;
     updateConnectionFormField: UpdateConnectionFormField;
+    connectionOptions?: ConnectionOptions;
   }>;
 }
 
@@ -29,11 +31,13 @@ function AdvancedOptionsTabs({
   connectionStringUrl,
   hideError,
   updateConnectionFormField,
+  connectionOptions,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
   hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
+  connectionOptions: ConnectionOptions;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -41,7 +45,7 @@ function AdvancedOptionsTabs({
     { name: 'General', component: GeneralTab },
     { name: 'Authentication', component: AuthenticationTab },
     { name: 'TLS/SSL', component: TLSTab },
-    { name: 'SSH Tunnel', component: SSHTunnelTab },
+    { name: 'Proxy/SSH Tunnel', component: SSHTunnelTab },
     { name: 'Advanced', component: AdvancedTab },
   ];
 
@@ -62,6 +66,7 @@ function AdvancedOptionsTabs({
               hideError={hideError}
               connectionStringUrl={connectionStringUrl}
               updateConnectionFormField={updateConnectionFormField}
+              connectionOptions={connectionOptions}
             />
           </Tab>
         );
