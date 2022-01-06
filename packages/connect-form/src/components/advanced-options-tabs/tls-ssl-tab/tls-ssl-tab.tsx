@@ -1,7 +1,10 @@
 import { css } from '@emotion/css';
 import React, { useCallback } from 'react';
 import {
+  Checkbox,
   Description,
+  Icon,
+  IconButton,
   Label,
   RadioBox,
   RadioBoxGroup,
@@ -13,9 +16,17 @@ import type { MongoClientOptions } from 'mongodb';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
 import { TLS_OPTIONS } from '../../../constants/ssl-tls-options';
+import TLSClientCertificate from './tls-client-certificate';
+import TLSCertificateAuthority from './tls-certificate-authority';
 
-const descriptionStyles = css({
+const tlsDescriptionStyles = css({
   marginTop: spacing[1],
+});
+
+const infoButtonStyles = css({
+  verticalAlign: 'middle',
+  marginTop: -spacing[1],
+  marginBottom: -spacing[1],
 });
 
 const TLS_TYPES: {
@@ -96,11 +107,37 @@ function TLSTab({
     [updateConnectionFormField]
   );
 
+  const tlsOptionFields = [
+    {
+      name: 'tlsInsecure',
+      description: 'This includes tlsAllowInvalidHostnames and tlsAllowInvalidCertificates. This is not recommended as disabling certificate validation creates a vulnerability.',
+      checked: connectionStringUrl.searchParams.get('tlsInsecure') === 'true'
+    }, {
+      name: 'tlsAllowInvalidHostnames',
+      description: 'Disables the validation of the hostnames in the certificate presented by the mongod/mongos instance',
+      checked: connectionStringUrl.searchParams.get('tlsAllowInvalidHostnames') === 'true'
+    }, {
+      name: 'tlsAllowInvalidCertificates',
+      description: 'This disables validating the server certificates. This is not recommended as it creates a vulnerability to expired mongod and mongos certificates as well as to foreign processes posing as valid mongod or mongos instances.',
+      checked: connectionStringUrl.searchParams.get('tlsAllowInvalidCertificates') === 'true'
+    }
+  ];
+
+  const tlsOptionsDisabled = tlsOption !== 'ON';
+
   return (
     <div>
       <FormFieldContainer>
         <Label htmlFor="connection-schema-radio-box-group">
           SSL/TLS Connection
+          <IconButton
+            className={infoButtonStyles}
+            aria-label="TLS/SSL Option Documentation"
+            href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
+            target="_blank"
+          >
+            <Icon glyph="InfoWithCircle" size="small" />
+          </IconButton>
         </Label>
         <RadioBoxGroup value={tlsOption || ''} onChange={onChangeTLSOption}>
           {TLS_TYPES.map((tlsType) => (
@@ -109,11 +146,35 @@ function TLSTab({
             </RadioBox>
           ))}
         </RadioBoxGroup>
-        <Description className={descriptionStyles}>
+        <Description className={tlsDescriptionStyles}>
           {TLS_TYPES.find((tlsType) => tlsType.value === tlsOption)
             ?.description || ''}
         </Description>
       </FormFieldContainer>
+      <TLSCertificateAuthority
+        connectionStringUrl={connectionStringUrl}
+        disabled={tlsOptionsDisabled}
+        updateConnectionFormField={updateConnectionFormField}
+      />
+      <TLSClientCertificate
+        connectionStringUrl={connectionStringUrl}
+        disabled={tlsOptionsDisabled}
+        updateConnectionFormField={updateConnectionFormField}
+      />
+      {tlsOptionFields.map(tlsOptionField => (
+        <FormFieldContainer key={tlsOptionField.name}>
+          <Checkbox
+            onChange={() => alert(`update ${tlsOptionField.name}`)}
+            label={tlsOptionField.name}
+            disabled={tlsOptionsDisabled}
+            checked={tlsOptionField.checked}
+            bold={false}
+          />
+          <Description>
+            {tlsOptionField.description}
+          </Description>
+        </FormFieldContainer>
+      ))}
     </div>
   );
 }
