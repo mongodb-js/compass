@@ -1,5 +1,4 @@
 // @ts-check
-//const { inspect } = require('util');
 const { ObjectId } = require('bson');
 const { promises: fs } = require('fs');
 const path = require('path');
@@ -9,7 +8,6 @@ const {
   gunzip,
   constants: { Z_SYNC_FLUSH },
 } = require('zlib');
-//const { Application } = require('spectron');
 const { _electron: electron } = require('playwright');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
@@ -73,17 +71,6 @@ let j = 0;
 // For the html
 let k = 0;
 
-/*
-function formatLogToErrorWithStack(logEntry) {
-  const [file, lineCol, ...rest] = logEntry.message.split(' ');
-  const message = rest
-    .join(' ')
-    .replace(/\\n/g, '\n')
-    .replace(/(^"|"$)/g, '');
-  return `${message}\n  at ${file}:${lineCol}`;
-}
-*/
-
 /**
  * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
  * @returns {Promise<ExtendedApplication>}
@@ -105,11 +92,6 @@ async function startCompass(
     os.tmpdir(),
     `user-data-dir-${Date.now().toString(32)}-${++i}`
   );
-  //const chromeDriverLogPath = path.join(
-  //  LOG_PATH,
-  //  `chromedriver.${nowFormatted}.log`
-  //);
-  //const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
   await fs.mkdir(userDataDir, { recursive: true });
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
@@ -168,24 +150,9 @@ async function startCompass(
     return _app.getPath('logs');
   });
 
-  // TODO
-  //addDebugger(app);
-
   const _close = app.close.bind(app);
 
   app.close = async () => {
-    // TODO
-    // https://github.com/microsoft/playwright/issues/5905
-    //const mainLogs = await app.client.getMainProcessLogs();
-    //const renderLogs = await app.client.getRenderProcessLogs();
-
-    //const mainLogPath = path.join(
-    //  LOG_PATH,
-    //  `electron-main.${nowFormatted}.log`
-    //);
-    //debug(`Writing application main process log to ${mainLogPath}`);
-    //await fs.writeFile(mainLogPath, mainLogs.join('\n'));
-
     const renderLogPath = path.join(
       LOG_PATH,
       `electron-render.${nowFormatted}.json`
@@ -214,47 +181,6 @@ async function startCompass(
       );
       debug(e);
     }
-
-    // TODO
-    /*
-    // ERROR, CRITICAL and whatever unknown things might end up in the logs
-    const errors = app.renderLog.filter((log) => {
-      if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
-        return false;
-      }
-
-      // TODO: remove this once we fixed these warnings
-      if (
-        log.level === 'SEVERE' &&
-        log.message.includes('"Warning: Failed prop type: ')
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-
-    if (errors.length) {
-      // @type { Error & { errors?: any[] } }
-      const error = new Error(
-        `Errors encountered in render process during testing:\n\n${errors
-          .map(formatLogToErrorWithStack)
-          .map((msg) =>
-            msg
-              .split('\n')
-              .map((line) => `  ${line}`)
-              .join('\n')
-          )
-          .join('\n\n')}`
-      );
-      error.errors = errors;
-      // Fail the tests if we encountered some severe errors while the
-      // application was running
-      throw error;
-    }
-    */
-
-    //return app;
   };
 
   return app;
@@ -385,91 +311,6 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
 }
 
 /**
- * @param {ExtendedApplication} app
- */
-//function addDebugger(app) {
-//  const debugClient = debug.extend('webdriver:client');
-//  const clientProto = Object.getPrototypeOf(app.client);
-//
-//  for (const prop of Object.getOwnPropertyNames(clientProto)) {
-//    // disable emit logging for now because it is very noisy
-//    if (prop.includes('.') || prop === 'emit') {
-//      continue;
-//    }
-//    const descriptor = Object.getOwnPropertyDescriptor(clientProto, prop);
-//    if (typeof descriptor.value !== 'function') {
-//      continue;
-//    }
-//    const origFn = descriptor.value;
-//    /**
-//     * @param  {any[]} args
-//     */
-//    descriptor.value = function (...args) {
-//      debugClient(
-//        `${prop}(${args
-//          .map((arg) => inspect(arg, { breakLength: Infinity }))
-//          .join(', ')})`
-//      );
-//
-//      const stack = new Error(prop).stack;
-//
-//      let result;
-//      try {
-//        result = origFn.call(this, ...args);
-//      } catch (error) {
-//        // In this case the method threw synchronously
-//        augmentError(error, stack);
-//        throw error;
-//      }
-//
-//      if (result && result.then) {
-//        // If the result looks like a promise, resolve it and look for errors
-//        return result.catch((error) => {
-//          augmentError(error, stack);
-//          throw error;
-//        });
-//      }
-//
-//      // return the synchronous result
-//      return result;
-//    };
-//    Object.defineProperty(clientProto, prop, descriptor);
-//  }
-//}
-//
-//function augmentError(error, stack) {
-//  const lines = stack.split('\n');
-//  const strippedLines = lines.filter((line, index) => {
-//    // try to only contain lines that originated in this workspace
-//    if (index === 0) {
-//      return true;
-//    }
-//    if (line.startsWith('    at augmentError')) {
-//      return false;
-//    }
-//    if (line.startsWith('    at Object.descriptor.value [as')) {
-//      return false;
-//    }
-//    if (line.includes('node_modules')) {
-//      return false;
-//    }
-//    if (line.includes('helpers/')) {
-//      return true;
-//    }
-//    if (line.includes('tests/')) {
-//      return true;
-//    }
-//    return false;
-//  });
-//
-//  if (strippedLines.length === 1) {
-//    return;
-//  }
-//
-//  error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
-//}
-
-/**
  * @param {import('playwright').Page} page
  * @param {string} imgPathName
  */
@@ -533,10 +374,6 @@ async function afterTests(app, page) {
     console.log('no app');
     return;
   }
-
-  // TODO: do we really need this given that we have afterTest()?
-  //await capturePage(page);
-  //await savePage(page);
 
   try {
     console.log('stopping compass');
