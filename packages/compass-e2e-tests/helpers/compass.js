@@ -514,9 +514,14 @@ async function beforeTests() {
 
   app.renderLog = [];
 
-  page.on('console', (...args) => {
-    debugPage(...args);
-    app.renderLog.push(args);
+  page.on('console', async (message) => {
+    const type = message.type();
+    const args = [];
+    for (const arg of message.args()) {
+      args.push(await arg.jsonValue());
+    }
+    debugPage({ type, args });
+    app.renderLog.push({ type, args });
   });
 
   return { app, page, commands };
