@@ -15,12 +15,10 @@ const connectionStringUrl = new ConnectionStringUrl(
 const formFields = [
   {
     testId: 'replica-set',
-    changeValue: 'hello-rs',
     key: 'replicaSet',
   },
   {
     testId: 'default-database',
-    changeValue: 'hello-db',
     key: 'authSource',
   },
 ];
@@ -56,22 +54,30 @@ describe('AdvancedTab', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-search-param',
-          key: 'readPreference',
+          currentKey: 'readPreference',
           value: id,
         });
       });
     });
 
     // eslint-disable-next-line mocha/no-setup-in-describe
-    formFields.forEach(({ key, testId, changeValue: value }) => {
+    formFields.forEach(({ key, testId }) => {
       it(`handles changes on ${key} field`, function () {
-        fireEvent.change(screen.getByTestId(testId), { target: { value } });
+        fireEvent.change(screen.getByTestId(testId), { target: { value: 'hello' } });
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-search-param',
-          key,
-          value,
+          currentKey: key,
+          value: 'hello',
         });
+
+        // todo: fix delete
+        // fireEvent.change(screen.getByTestId(testId), { target: { value: '' } });
+        // expect(updateConnectionFormFieldSpy.callCount).to.equal(2);
+        // expect(updateConnectionFormFieldSpy.args[1][0]).to.deep.equal({
+        //   type: 'delete-search-param',
+        //   key,
+        // });
       });
     });
   });
