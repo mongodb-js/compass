@@ -23,7 +23,8 @@ const OPTIONS = {
   minLines: 5,
   maxLines: Infinity,
   showGutter: true,
-  useWorker: false
+  useWorker: false,
+  mode: 'ace/mode/mongodb'
 };
 
 /**
@@ -204,7 +205,7 @@ class StageEditor extends Component {
       <div className={styles['stage-editor-container']}>
         <div className={styles['stage-editor']}>
           <AceEditor
-            mode="mongodb"
+            mode="javascript" // will be set to mongodb as part of OPTIONS
             theme="mongodb"
             width="100%"
             // readOnly={this.props.stageOperator === null}
