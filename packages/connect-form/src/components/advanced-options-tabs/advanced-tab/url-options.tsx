@@ -37,7 +37,10 @@ function UrlOptions({
           Learn More
         </Link>
       </Description>
-      <UrlOptionsTable connectionStringUrl={connectionStringUrl} updateConnectionFormField={updateConnectionFormField}/>
+      <UrlOptionsTable
+        connectionStringUrl={connectionStringUrl}
+        updateConnectionFormField={updateConnectionFormField}
+      />
     </div>
   );
 }
