@@ -805,7 +805,7 @@ describe('use-connect-form hook', function () {
               type: 'update-search-param',
               currentKey: 'w',
               newKey: 'journal',
-              value: 'j-value'
+              value: 'j-value',
             },
             connectionOptions: {
               connectionString: connectionStringUrl.toString(),

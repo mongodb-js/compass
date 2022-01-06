@@ -63,7 +63,9 @@ describe('AdvancedTab', function () {
     // eslint-disable-next-line mocha/no-setup-in-describe
     formFields.forEach(({ key, testId }) => {
       it(`handles changes on ${key} field`, function () {
-        fireEvent.change(screen.getByTestId(testId), { target: { value: 'hello' } });
+        fireEvent.change(screen.getByTestId(testId), {
+          target: { value: 'hello' },
+        });
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-search-param',

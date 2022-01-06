@@ -133,7 +133,11 @@ function UrlOptionsTable({
           data-testid="url-options-table"
           data={options}
           columns={[
-            <TableHeader key={'name'} label="Key" className={tableHeaderStyles} />,
+            <TableHeader
+              key={'name'}
+              label="Key"
+              className={tableHeaderStyles}
+            />,
             <TableHeader
               key={'value'}
               label="Value"
@@ -142,7 +146,12 @@ function UrlOptionsTable({
           ]}
         >
           {({ datum }: { datum: Partial<UrlOption> }) => (
-            <Row key={datum.name} data-testid={datum.name ? `${datum.name}-table-row` : 'new-option-table-row'}>
+            <Row
+              key={datum.name}
+              data-testid={
+                datum.name ? `${datum.name}-table-row` : 'new-option-table-row'
+              }
+            >
               <Cell>
                 <Select
                   placeholder="Select key"
@@ -189,7 +198,11 @@ function UrlOptionsTable({
                         event.target.value
                       );
                     }}
-                    data-testid={datum.name ? `${datum.name}-input-field` : 'new-option-input-field'}
+                    data-testid={
+                      datum.name
+                        ? `${datum.name}-input-field`
+                        : 'new-option-input-field'
+                    }
                     spellCheck={false}
                     type={'text'}
                     placeholder={'Value'}
@@ -197,7 +210,11 @@ function UrlOptionsTable({
                     value={datum.value}
                   />
                   <IconButton
-                    data-testid={datum.name ? `${datum.name}-delete-button` : 'new-option-delete-button'}
+                    data-testid={
+                      datum.name
+                        ? `${datum.name}-delete-button`
+                        : 'new-option-delete-button'
+                    }
                     aria-label={`Delete option: ${datum.name ?? ''}`}
                     onClick={() => deleteUrlOption(datum.name)}
                   >
