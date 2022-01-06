@@ -42,15 +42,11 @@ describe('UrlOptionsTable', function () {
     });
 
     it('renders view correctly', function () {
-      expect(
-        screen.getByTestId('url-options-table'),
-        'options table when CS has search params'
-      ).to.exist;
-      expect(screen.getByTestId('add-url-options-button'), 'add new button').to
-        .exist;
+      expect(screen.getByTestId('add-url-options-button')).to.exist;
+      expect(screen.getByTestId('url-options-table')).to.exist;
     });
 
-    it('should not render options that are not editable, but in CS', function () {
+    it('should not render options that are not editable, but are in CS', function () {
       expect(() => {
         screen.getByTestId('readPreferences-table-row');
       }).to.throw;
@@ -163,16 +159,15 @@ describe('UrlOptionsTable', function () {
     });
 
     it('renders view correctly', function () {
-      expect(() => {
-        screen.getByTestId('url-options-table');
-      }).to.throw;
-      expect(screen.getByTestId('add-url-options-button'), 'add new button').to
-        .exist;
+      expect(screen.getByTestId('url-options-table')).to.exist;
+      expect(screen.getByTestId('add-url-options-button')).to.exist;
     });
 
-    it('renders tables when user clicks on add url options', function () {
-      fireEvent.click(screen.getByTestId('add-url-options-button'));
-      expect(screen.getByTestId('url-options-table')).to.exist;
+    it('renders new option row and fields', function () {
+      expect(screen.getByTestId('new-option-table-row')).to.exist;
+      expect(
+        screen.getByTestId('new-option-input-field').getAttribute('value')
+      ).to.equal('');
     });
   });
 });

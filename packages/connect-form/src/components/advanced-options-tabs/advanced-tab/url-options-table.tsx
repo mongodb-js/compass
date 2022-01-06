@@ -158,8 +158,9 @@ function UrlOptionsTable({
               <Select
                 placeholder="Select key"
                 name="name"
-                data-testid={''}
-                aria-labelledby="Select key"
+                aria-labelledby={
+                  datum.name ? `${datum.name} select` : 'new option select'
+                }
                 onChange={(name, event): void => {
                   event.preventDefault();
                   updateUrlOption(
@@ -195,11 +196,7 @@ function UrlOptionsTable({
                 <TextInput
                   onChange={(event: ChangeEvent<HTMLInputElement>) => {
                     event.preventDefault();
-                    updateUrlOption(
-                      datum.name,
-                      datum.name,
-                      event.target.value
-                    );
+                    updateUrlOption(datum.name, datum.name, event.target.value);
                   }}
                   data-testid={
                     datum.name
