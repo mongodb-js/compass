@@ -38,7 +38,13 @@ function AdvancedTab({
 }): React.ReactElement {
   const handleFieldChanged = useCallback(
     (key: keyof MongoClientOptions, value: unknown) => {
-      updateConnectionFormField({
+      if (!value) {
+        return updateConnectionFormField({
+          type: 'delete-search-param',
+          key,
+        });
+      }
+      return updateConnectionFormField({
         type: 'update-search-param',
         currentKey: key,
         value,

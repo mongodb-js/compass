@@ -125,7 +125,11 @@ type ConnectionFormFieldActions =
       currentKey: keyof MongoClientOptions;
       newKey?: keyof MongoClientOptions;
       value?: unknown;
-    };
+    }
+  | {
+    type: 'delete-search-param';
+    key: keyof MongoClientOptions;
+  };
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -371,15 +375,20 @@ export function handleConnectionFormFieldUpdate({
         updatedSearchParams.delete(action.currentKey);
         updatedSearchParams.set(action.newKey, newValue);
       } else {
-        // User is simply trying to update the value of searchParam
-        if (!action.value) {
-            updatedSearchParams.delete(action.currentKey);
-          } else {
-            updatedSearchParams.set(action.currentKey, action.value);
-          }
-        }
+        updatedSearchParams.set(action.currentKey, action.value);
       }
       
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString(),
+        },
+        errors: initialErrors,
+      };
+    }
+    case 'delete-search-param': {
+      updatedSearchParams.delete(action.key);
       return {
         connectionStringUrl: updatedConnectionStringUrl,
         connectionOptions: {

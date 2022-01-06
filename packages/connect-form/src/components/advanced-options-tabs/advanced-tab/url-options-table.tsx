@@ -47,16 +47,17 @@ const addUrlOptionsButtonStyles = css({
 });
 
 function getUrlOptions(connectionStringUrl: ConnectionStringUrl): UrlOption[] {
+  let opts: string[] = [];
   const urlOptions: UrlOption[] = [];
-  editableUrlOptions.forEach(({ values }) => {
-    values.forEach((name: string) => {
-      if (connectionStringUrl.searchParams.has(name)) {
-        urlOptions.push({
-          name: name as UrlOption['name'],
-          value: connectionStringUrl.searchParams.get(name) as string,
-        });
-      }
-    });
+
+  editableUrlOptions.forEach(({ values }) => opts = opts.concat(values));
+  connectionStringUrl.searchParams.forEach((value, name) => {
+    if (opts.includes(name)) {
+      urlOptions.push({
+        value: value,
+        name: name as UrlOption['name']
+      });
+    }
   });
   return urlOptions;
 }
@@ -102,14 +103,14 @@ function UrlOptionsTable({
     newOptions[indexOfUpdatedOption] = option;
     setOptions(newOptions);
 
-    if (name && value !== undefined) {
+    if (name) {
       updateConnectionFormField({
         type: 'update-search-param',
         // If the user is selecting key for the first time, currentName is undefined and we choose the selected value.
         currentKey: currentName ?? name,
         // If the keys are same, then user is changing value. So we set newKey to undefined.
         newKey: currentName === name ? undefined : name,
-        value,
+        value: value ?? '',
       });
     }
   };
@@ -121,7 +122,10 @@ function UrlOptionsTable({
     newOptions.splice(indexOfDeletedOption, 1);
     setOptions(newOptions);
     if (name) {
-      handleFieldChanged(name, '');
+      updateConnectionFormField({
+        type: 'delete-search-param',
+        key: name,
+      });
     }
   };
 
