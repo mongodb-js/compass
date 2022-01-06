@@ -1,87 +1,29 @@
 import React from 'react';
 import { css } from '@emotion/css';
-import type { MongoClientOptions } from 'mongodb';
 import {
   spacing,
   Label,
   Description,
   Link,
-  Table,
-  TableHeader,
-  Row,
-  Cell,
-  Button,
-  IconButton,
-  Icon,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import { editableUrlOptions, UrlOption } from '../../../utils/url-options';
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-import UrlOptionsModal from './url-options-modal';
+import UrlOptionsTable from './url-options-table';
 
 const urlOptionsContainerStyles = css({
   marginTop: spacing[3],
   width: '70%',
 });
 
-const addUrlOptionsButtonStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[3],
-});
-
-const optionValueStyles = css({
-  span: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-});
-
 function UrlOptions({
-  handleFieldChanged,
+  updateConnectionFormField,
   connectionStringUrl,
 }: {
-  handleFieldChanged: (key: keyof MongoClientOptions, value: unknown) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [option, setOption] = React.useState<UrlOption | undefined>(undefined);
-
-  const urlOptions: UrlOption[] = [];
-  editableUrlOptions.forEach(({ values }) => {
-    values.forEach((name: string) => {
-      if (connectionStringUrl.searchParams.has(name)) {
-        urlOptions.push({
-          name: name as UrlOption['name'],
-          value: connectionStringUrl.searchParams.get(name) as string,
-        });
-      }
-    });
-  });
-
-  const addUrlOption = () => {
-    setOption(undefined);
-    setIsModalOpen(true);
-  };
-
-  const saveUrlOption = (option: UrlOption) => {
-    handleFieldChanged(option.name, option.value);
-    setOption(undefined);
-    setIsModalOpen(false);
-  };
-
-  const editUrlOption = (option: UrlOption) => {
-    setOption(option);
-    setIsModalOpen(true);
-  };
-
-  const deleteUrlOption = (name: UrlOption['name']) => {
-    handleFieldChanged(name, '');
-  };
-
   return (
     <div className={urlOptionsContainerStyles} data-testid="url-options">
       <Label htmlFor={''}>Url Options</Label>
@@ -95,64 +37,7 @@ function UrlOptions({
           Learn More
         </Link>
       </Description>
-      {urlOptions.length > 0 && (
-        <Table
-          data-testid="url-options-table"
-          data={urlOptions}
-          columns={[
-            <TableHeader
-              key={'name'}
-              label="Key"
-              sortBy={(datum: UrlOption) => datum.name}
-            />,
-            <TableHeader
-              key={'value'}
-              label="Value"
-              sortBy={(datum: UrlOption) => datum.value}
-            />,
-          ]}
-        >
-          {({ datum }: { datum: UrlOption }) => (
-            <Row key={datum.name}>
-              <Cell>{datum.name}</Cell>
-              <Cell className={optionValueStyles}>
-                {datum.value ?? ''}
-                <div>
-                  <IconButton
-                    aria-label={`Edit option: ${datum.name}`}
-                    onClick={() => editUrlOption(datum)}
-                  >
-                    <Icon glyph="Edit" />
-                  </IconButton>
-                  <IconButton
-                    aria-label={`Delete option: ${datum.name}`}
-                    onClick={() => deleteUrlOption(datum.name)}
-                  >
-                    <Icon glyph="Trash" />
-                  </IconButton>
-                </div>
-              </Cell>
-            </Row>
-          )}
-        </Table>
-      )}
-      <div className={addUrlOptionsButtonStyles}>
-        <Button
-          data-testid="add-url-options-button"
-          onClick={() => addUrlOption()}
-          variant={'primaryOutline'}
-          size={'xsmall'}
-        >
-          Add url option
-        </Button>
-      </div>
-      {isModalOpen && (
-        <UrlOptionsModal
-          onClose={setIsModalOpen}
-          selectedOption={option}
-          onUpdateOption={saveUrlOption}
-        />
-      )}
+      <UrlOptionsTable connectionStringUrl={connectionStringUrl} updateConnectionFormField={updateConnectionFormField}/>
     </div>
   );
 }

@@ -40,7 +40,7 @@ function AdvancedTab({
     (key: keyof MongoClientOptions, value: unknown) => {
       updateConnectionFormField({
         type: 'update-search-param',
-        key,
+        currentKey: key,
         value,
       });
     },
@@ -112,7 +112,7 @@ function AdvancedTab({
       </FormFieldContainer>
       <UrlOptions
         connectionStringUrl={connectionStringUrl}
-        handleFieldChanged={handleFieldChanged}
+        updateConnectionFormField={updateConnectionFormField}
       />
     </div>
   );

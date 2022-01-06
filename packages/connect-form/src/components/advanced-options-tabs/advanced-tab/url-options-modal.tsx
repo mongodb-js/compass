@@ -36,6 +36,10 @@ const selectStyles = css({
   'button:focus-within': {
     zIndex: 20,
   },
+  // Leafy label for select has different styles than FormElements.Label.
+  'label': {
+    paddingBottom: spacing[2],
+  }
 });
 
 const modalFooterStyles = css({
@@ -87,7 +91,8 @@ function UrlOptionsModal({
             label="Key"
             placeholder="Select key"
             name="name"
-            onChange={(name) => {
+            onChange={(name, event): void => {
+              event.preventDefault();
               setOption({
                 name: name as UrlOption['name'],
                 value: option.value,

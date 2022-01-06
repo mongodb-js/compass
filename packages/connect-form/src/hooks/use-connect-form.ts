@@ -122,8 +122,9 @@ type ConnectionFormFieldActions =
   | UpdateTlsOptionAction
   | {
       type: 'update-search-param';
-      key: keyof MongoClientOptions;
-      value: unknown;
+      currentKey: keyof MongoClientOptions;
+      newKey?: keyof MongoClientOptions;
+      value?: unknown;
     };
 
 export type UpdateConnectionFormField = (
@@ -364,11 +365,21 @@ export function handleConnectionFormFieldUpdate({
       });
     }
     case 'update-search-param': {
-      if (!action.value) {
-        updatedSearchParams.delete(action.key);
+      // User is trying to change the key of searchParam (w => journal)
+      if (action.newKey) {
+        const newValue = action.value ?? updatedSearchParams.get(action.currentKey);
+        updatedSearchParams.delete(action.currentKey);
+        updatedSearchParams.set(action.newKey, newValue);
       } else {
-        updatedSearchParams.set(action.key, action.value);
+        // User is simply trying to update the value of searchParam
+        if (!action.value) {
+            updatedSearchParams.delete(action.currentKey);
+          } else {
+            updatedSearchParams.set(action.currentKey, action.value);
+          }
+        }
       }
+      
       return {
         connectionStringUrl: updatedConnectionStringUrl,
         connectionOptions: {
