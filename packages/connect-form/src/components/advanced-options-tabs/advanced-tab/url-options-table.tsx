@@ -170,7 +170,12 @@ function UrlOptionsTable({
                   {editableUrlOptions.map(({ title, values }) => (
                     <OptionGroup key={title} label={title}>
                       {values.map((value) => (
-                        <Option key={value} value={value}>
+                        <Option
+                          key={value}
+                          value={value}
+                          // Disable if this option already exists in search params
+                          disabled={connectionStringUrl.searchParams.has(value) && datum.name !== value}
+                        >
                           {value}
                         </Option>
                       ))}
