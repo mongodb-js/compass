@@ -20,8 +20,8 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { editableUrlOptions, UrlOption } from '../../../utils/url-options';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-const optionNameCellStyles = css({
-  width: '100%',
+const tableHeaderStyles = css({
+  width: '50%',
 });
 
 const optionValueCellStyles = css({
@@ -30,14 +30,6 @@ const optionValueCellStyles = css({
   justifyContent: 'space-between',
   alignItems: 'center',
   width: '100%',
-});
-
-const optionSelectStyles = css({
-  width: '100%',
-});
-
-const optionInputStyles = css({
-  width: `calc(100% - ${spacing[5]}px)`,
 });
 
 const addUrlOptionsButtonStyles = css({
@@ -141,58 +133,54 @@ function UrlOptionsTable({
           data-testid="url-options-table"
           data={options}
           columns={[
-            <TableHeader key={'name'} label="Key" style={{ width: '50%' }} />,
+            <TableHeader key={'name'} label="Key" className={tableHeaderStyles} />,
             <TableHeader
               key={'value'}
               label="Value"
-              style={{ width: '50%' }}
+              className={tableHeaderStyles}
             />,
           ]}
         >
           {({ datum }: { datum: Partial<UrlOption> }) => (
             <Row key={datum.name}>
               <Cell>
-                <div className={optionNameCellStyles}>
-                  <Select
-                    placeholder="Select key"
-                    name="name"
-                    aria-labelledby="Select key"
-                    onChange={(name, event): void => {
-                      event.preventDefault();
-                      updateUrlOption(
-                        datum.name,
-                        name as UrlOption['name'],
-                        datum.value
-                      );
-                    }}
-                    allowDeselect={false}
-                    value={datum.name ?? ''}
-                    className={optionSelectStyles}
-                  >
-                    {editableUrlOptions.map(({ title, values }) => (
-                      <OptionGroup key={title} label={title}>
-                        {values.map((value) => (
-                          <Option
-                            key={value}
-                            value={value}
-                            // Disable if this option already exists in search params
-                            disabled={
-                              connectionStringUrl.searchParams.has(value) &&
-                              datum.name !== value
-                            }
-                          >
-                            {value}
-                          </Option>
-                        ))}
-                      </OptionGroup>
-                    ))}
-                  </Select>
-                </div>
+                <Select
+                  placeholder="Select key"
+                  name="name"
+                  aria-labelledby="Select key"
+                  onChange={(name, event): void => {
+                    event.preventDefault();
+                    updateUrlOption(
+                      datum.name,
+                      name as UrlOption['name'],
+                      datum.value
+                    );
+                  }}
+                  allowDeselect={false}
+                  value={datum.name ?? ''}
+                >
+                  {editableUrlOptions.map(({ title, values }) => (
+                    <OptionGroup key={title} label={title}>
+                      {values.map((value) => (
+                        <Option
+                          key={value}
+                          value={value}
+                          // Disable if this option already exists in search params
+                          disabled={
+                            connectionStringUrl.searchParams.has(value) &&
+                            datum.name !== value
+                          }
+                        >
+                          {value}
+                        </Option>
+                      ))}
+                    </OptionGroup>
+                  ))}
+                </Select>
               </Cell>
               <Cell>
                 <div className={optionValueCellStyles}>
                   <TextInput
-                    className={optionInputStyles}
                     onChange={(event: ChangeEvent<HTMLInputElement>) => {
                       event.preventDefault();
                       updateUrlOption(
