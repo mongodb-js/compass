@@ -2,6 +2,7 @@ import React, { ChangeEvent, useState, useCallback } from 'react';
 import { css } from '@emotion/css';
 import { ConnectionOptions } from 'mongodb-data-service';
 import {
+  Label,
   RadioBox,
   RadioBoxGroup,
   spacing,
@@ -117,6 +118,9 @@ function SSHTunnel({
 
   return (
     <div className={containerStyles}>
+      <Label htmlFor="ssh-options-radio-box-group">
+        SSH Tunnel/Proxy Method
+      </Label>
       <RadioBoxGroup
         onChange={optionSelected}
         className="radio-box-group-style"
