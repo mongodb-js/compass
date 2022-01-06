@@ -65,8 +65,11 @@ function UrlOptionsTable({
   const [errorMessge, setErrorMessge] = React.useState('');
 
   useEffect(() => {
-    const newOptions = getUrlOptions(connectionStringUrl);
-    setOptions(newOptions);
+    const options: Partial<UrlOption>[] = getUrlOptions(connectionStringUrl);
+    if (!options.length) {
+      options.push({ name: undefined, value: undefined });
+    }
+    setOptions(options);
   }, [connectionStringUrl]);
 
   const addUrlOption = () => {
@@ -128,104 +131,103 @@ function UrlOptionsTable({
 
   return (
     <>
-      {options.length > 0 && (
-        <Table
-          data-testid="url-options-table"
-          data={options}
-          columns={[
-            <TableHeader
-              key={'name'}
-              label="Key"
-              className={tableHeaderStyles}
-            />,
-            <TableHeader
-              key={'value'}
-              label="Value"
-              className={tableHeaderStyles}
-            />,
-          ]}
-        >
-          {({ datum }: { datum: Partial<UrlOption> }) => (
-            <Row
-              key={datum.name}
-              data-testid={
-                datum.name ? `${datum.name}-table-row` : 'new-option-table-row'
-              }
-            >
-              <Cell>
-                <Select
-                  placeholder="Select key"
-                  name="name"
-                  aria-labelledby="Select key"
-                  onChange={(name, event): void => {
+      <Table
+        data-testid="url-options-table"
+        data={options}
+        columns={[
+          <TableHeader
+            key={'name'}
+            label="Key"
+            className={tableHeaderStyles}
+          />,
+          <TableHeader
+            key={'value'}
+            label="Value"
+            className={tableHeaderStyles}
+          />,
+        ]}
+      >
+        {({ datum }: { datum: Partial<UrlOption> }) => (
+          <Row
+            key={datum.name}
+            data-testid={
+              datum.name ? `${datum.name}-table-row` : 'new-option-table-row'
+            }
+          >
+            <Cell>
+              <Select
+                placeholder="Select key"
+                name="name"
+                data-testid={''}
+                aria-labelledby="Select key"
+                onChange={(name, event): void => {
+                  event.preventDefault();
+                  updateUrlOption(
+                    datum.name,
+                    name as UrlOption['name'],
+                    datum.value
+                  );
+                }}
+                allowDeselect={false}
+                value={datum.name ?? ''}
+              >
+                {editableUrlOptions.map(({ title, values }) => (
+                  <OptionGroup key={title} label={title}>
+                    {values.map((value) => (
+                      <Option
+                        key={value}
+                        value={value}
+                        // Disable if this option already exists in search params
+                        disabled={
+                          connectionStringUrl.searchParams.has(value) &&
+                          datum.name !== value
+                        }
+                      >
+                        {value}
+                      </Option>
+                    ))}
+                  </OptionGroup>
+                ))}
+              </Select>
+            </Cell>
+            <Cell>
+              <div className={optionValueCellStyles}>
+                <TextInput
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
                     event.preventDefault();
                     updateUrlOption(
                       datum.name,
-                      name as UrlOption['name'],
-                      datum.value
+                      datum.name,
+                      event.target.value
                     );
                   }}
-                  allowDeselect={false}
-                  value={datum.name ?? ''}
+                  data-testid={
+                    datum.name
+                      ? `${datum.name}-input-field`
+                      : 'new-option-input-field'
+                  }
+                  spellCheck={false}
+                  type={'text'}
+                  placeholder={'Value'}
+                  aria-labelledby="Enter value"
+                  value={datum.value}
+                />
+                <IconButton
+                  data-testid={
+                    datum.name
+                      ? `${datum.name}-delete-button`
+                      : 'new-option-delete-button'
+                  }
+                  aria-label={`Delete option: ${datum.name ?? ''}`}
+                  onClick={() => deleteUrlOption(datum.name)}
                 >
-                  {editableUrlOptions.map(({ title, values }) => (
-                    <OptionGroup key={title} label={title}>
-                      {values.map((value) => (
-                        <Option
-                          key={value}
-                          value={value}
-                          // Disable if this option already exists in search params
-                          disabled={
-                            connectionStringUrl.searchParams.has(value) &&
-                            datum.name !== value
-                          }
-                        >
-                          {value}
-                        </Option>
-                      ))}
-                    </OptionGroup>
-                  ))}
-                </Select>
-              </Cell>
-              <Cell>
-                <div className={optionValueCellStyles}>
-                  <TextInput
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                      event.preventDefault();
-                      updateUrlOption(
-                        datum.name,
-                        datum.name,
-                        event.target.value
-                      );
-                    }}
-                    data-testid={
-                      datum.name
-                        ? `${datum.name}-input-field`
-                        : 'new-option-input-field'
-                    }
-                    spellCheck={false}
-                    type={'text'}
-                    placeholder={'Value'}
-                    aria-labelledby="Enter value"
-                    value={datum.value}
-                  />
-                  <IconButton
-                    data-testid={
-                      datum.name
-                        ? `${datum.name}-delete-button`
-                        : 'new-option-delete-button'
-                    }
-                    aria-label={`Delete option: ${datum.name ?? ''}`}
-                    onClick={() => deleteUrlOption(datum.name)}
-                  >
-                    <Icon glyph="Trash" />
-                  </IconButton>
-                </div>
-              </Cell>
-            </Row>
-          )}
-        </Table>
-      )}
+                  <Icon glyph="Trash" />
+                </IconButton>
+              </div>
+            </Cell>
+          </Row>
+        )}
+      </Table>
       <div className={addUrlOptionsButtonStyles}>
         <Button
           data-testid="add-url-options-button"
