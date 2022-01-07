@@ -30,7 +30,8 @@ const OPTIONS = {
   minLines: 10,
   maxLines: Infinity,
   showGutter: true,
-  useWorker: false
+  useWorker: false,
+  mode: 'ace/mode/mongodb'
 };
 
 /**
@@ -84,7 +85,7 @@ class ImportPipeline extends PureComponent {
         </div>
         <div className={styles['import-pipeline-editor']}>
           <AceEditor
-            mode="mongodb"
+            mode="javascript" // will be set to mongodb as part of OPTIONS
             theme="mongodb"
             width="100%"
             value={this.props.text}

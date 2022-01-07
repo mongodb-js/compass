@@ -304,11 +304,9 @@ function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
 }
 
 export function adaptDatabaseInfo(
-  databaseStats: { db: string } & Partial<DbStats> & Partial<DatabaseInfo>
-): Omit<DatabaseDetails, 'collections'> {
+  databaseStats: Partial<DbStats> & Partial<DatabaseInfo>
+): Omit<DatabaseDetails, '_id' | 'collections' | 'name'> {
   return {
-    _id: databaseStats.db,
-    name: databaseStats.db,
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
     index_count: databaseStats.indexes ?? 0,

@@ -23,8 +23,8 @@ export class ShellHeader extends Component {
     document.removeEventListener('keydown', this.handleKeyboardToggle.bind(this));
   }
 
-  handleKeyboardToggle({ ctrlKey, keyCode }) {
-    if (ctrlKey && keyCode === 192) {
+  handleKeyboardToggle({ ctrlKey, key }) {
+    if (ctrlKey && key === '`') {
       this.props.onShellToggleClicked();
     }
   }
