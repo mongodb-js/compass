@@ -8,10 +8,6 @@ import { readPreferences } from './../../../utils/read-preferences';
 
 import AdvancedTab from './advanced-tab';
 
-const connectionStringUrl = new ConnectionStringUrl(
-  'mongodb+srv://0ranges:p!neapp1es@localhost/'
-);
-
 const formFields = [
   {
     testId: 'replica-set',
@@ -27,6 +23,9 @@ let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
 describe('AdvancedTab', function () {
   describe('no searchParam', function () {
+    const connectionStringUrl = new ConnectionStringUrl(
+      'mongodb+srv://0ranges:p!neapp1es@localhost/'
+    );
     beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();
       render(
@@ -62,7 +61,7 @@ describe('AdvancedTab', function () {
 
     // eslint-disable-next-line mocha/no-setup-in-describe
     formFields.forEach(({ key, testId }) => {
-      it(`handles changes on ${key} field`, function () {
+      it(`handles changes on ${key} field when user changes input`, function () {
         fireEvent.change(screen.getByTestId(testId), {
           target: { value: 'hello' },
         });
@@ -72,19 +71,14 @@ describe('AdvancedTab', function () {
           currentKey: key,
           value: 'hello',
         });
-
-        // todo: fix delete
-        // fireEvent.change(screen.getByTestId(testId), { target: { value: '' } });
-        // expect(updateConnectionFormFieldSpy.callCount).to.equal(2);
-        // expect(updateConnectionFormFieldSpy.args[1][0]).to.deep.equal({
-        //   type: 'delete-search-param',
-        //   key,
-        // });
       });
     });
   });
 
   describe('renders selected values from connectionStringUrl', function () {
+    const connectionStringUrl = new ConnectionStringUrl(
+      'mongodb+srv://0ranges:p!neapp1es@localhost/'
+    );
     beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();
       connectionStringUrl.searchParams.set('readPreference', 'nearest');
@@ -112,6 +106,36 @@ describe('AdvancedTab', function () {
       expect(
         screen.getByTestId('default-database').getAttribute('value')
       ).to.equal('hello-db');
+    });
+  });
+
+  describe('handles delete', function () {
+    const connectionStringUrl = new ConnectionStringUrl(
+      'mongodb+srv://0ranges:p!neapp1es@localhost/?authSource=1&replicaSet=2'
+    );
+    beforeEach(function () {
+      updateConnectionFormFieldSpy = sinon.spy();
+      render(
+        <AdvancedTab
+          errors={[]}
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          hideError={() => {}}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
+          connectionStringUrl={connectionStringUrl}
+        />
+      );
+    });
+
+    // eslint-disable-next-line mocha/no-setup-in-describe
+    formFields.forEach(({ key, testId }) => {
+      it(`delete ${key} field when user sets input to empty`, function () {
+        fireEvent.change(screen.getByTestId(testId), { target: { value: '' } });
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
+          type: 'delete-search-param',
+          key,
+        });
+      });
     });
   });
 });
