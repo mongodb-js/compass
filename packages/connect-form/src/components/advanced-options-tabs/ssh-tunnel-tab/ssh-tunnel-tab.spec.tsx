@@ -36,7 +36,7 @@ describe('SSHTunnelTab', function () {
   });
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  ['none', 'password', 'identity', 'socks'].forEach(function (type) {
+  ['none', 'password', 'identity'].forEach(function (type) {
     it(`renders ${type} tab when selected`, function () {
       const tabButton = screen.getByTestId(`${type}-tab-button`);
       fireEvent.click(tabButton);
@@ -126,43 +126,6 @@ describe('SSHTunnelTab', function () {
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'update-connection-options',
           currentTab: 'identity',
-          key,
-          value,
-        });
-      });
-    });
-  });
-
-  describe('calls updateConnectionFormField on socks tab', function () {
-    beforeEach(function () {
-      const tabButton = screen.getByTestId('socks-tab-button');
-      fireEvent.click(tabButton);
-    });
-
-    // eslint-disable-next-line mocha/no-setup-in-describe
-    [
-      {
-        key: 'host',
-        value: 'host',
-      },
-      {
-        key: 'port',
-        value: 2222,
-      },
-      {
-        key: 'username',
-        value: 'username',
-      },
-      {
-        key: 'password',
-        value: 'password',
-      },
-    ].forEach(function ({ key, value }) {
-      it(`when ${key} field on socks form changes`, function () {
-        fireEvent.change(screen.getByTestId(key), { target: { value } });
-        expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-          type: 'update-connection-options',
-          currentTab: 'socks',
           key,
           value,
         });
