@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { css } from '@emotion/css';
 import { ConnectionOptions } from 'mongodb-data-service';
 import {
@@ -53,9 +53,18 @@ function AdvancedTab({
     [updateConnectionFormField]
   );
 
-  const readPreference = connectionStringUrl.searchParams.get('readPreference');
+  const connectionReadPreference =
+    connectionStringUrl.searchParams.get('readPreference');
   const replicaSet = connectionStringUrl.searchParams.get('replicaSet');
   const authSource = connectionStringUrl.searchParams.get('authSource');
+
+  // Changes from ConnectionStringUrl for readPreference do not reflect in UI (due to radio input).
+  const [readPreference, setReadPreference] = useState(
+    connectionReadPreference
+  );
+  useEffect(() => {
+    setReadPreference(connectionReadPreference);
+  }, [connectionReadPreference]);
 
   return (
     <div className={containerStyles}>
