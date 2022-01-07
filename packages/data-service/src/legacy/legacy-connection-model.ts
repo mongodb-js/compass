@@ -91,7 +91,7 @@ export interface LegacyConnectionModelProperties {
   kerberosServiceName?: string;
   kerberosPrincipal?: string;
   kerberosServiceRealm?: string;
-  kerberosCanonicalizeHostname?: string;
+  kerberosCanonicalizeHostname: boolean;
 
   ldapUsername?: string;
   ldapPassword?: string;
