@@ -89,7 +89,10 @@ describe('UrlOptionsTable', function () {
       fireEvent.click(screen.getByRole('option', { name: /appname/i })); // Select the option
       expect(screen.getByText(/appname/i)).to.exist;
 
-      expect(updateConnectionFormFieldSpy.callCount, 'it calls update when name is selected').to.equal(1);
+      expect(
+        updateConnectionFormFieldSpy.callCount,
+        'it calls update when name is selected'
+      ).to.equal(1);
       expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
         type: 'update-search-param',
         currentKey: 'appName',
@@ -118,15 +121,20 @@ describe('UrlOptionsTable', function () {
       fireEvent.click(screen.getByRole('option', { name: /appname/i })); // Select the option
 
       const cell = screen.getByRole('cell', {
-        name: /appname/i
+        name: /appname/i,
       });
-      fireEvent.click(within(cell).getByRole('button', {
-        name: /appname/i
-      })); // Click select button
+      fireEvent.click(
+        within(cell).getByRole('button', {
+          name: /appname/i,
+        })
+      ); // Click select button
 
       fireEvent.click(screen.getByRole('option', { name: /compressors/i })); // Select the new option
       expect(screen.getByText(/compressors/i)).to.exist;
-      expect(updateConnectionFormFieldSpy.callCount, 'it calls update when name is selected').to.equal(2);
+      expect(
+        updateConnectionFormFieldSpy.callCount,
+        'it calls update when name is selected'
+      ).to.equal(2);
       expect(updateConnectionFormFieldSpy.args[1][0]).to.deep.equal({
         type: 'update-search-param',
         currentKey: 'appName',
