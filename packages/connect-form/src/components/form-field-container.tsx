@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 import { spacing } from '@mongodb-js/compass-components';
 import React from 'react';
 
@@ -7,11 +7,15 @@ const formFieldContainerStyles = css({
 });
 
 function FormFieldContainer({
+  className = '',
   children,
 }: {
+  className?: string;
   children: React.ReactNode;
 }): React.ReactElement {
-  return <div className={formFieldContainerStyles}>{children}</div>;
+  return (
+    <div className={cx(formFieldContainerStyles, className)}>{children}</div>
+  );
 }
 
 export default FormFieldContainer;

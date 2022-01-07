@@ -32,6 +32,10 @@ const hostActionButtonStyles = css({
   marginTop: spacing[1],
 });
 
+const inputFieldStyles = css({
+  width: '50%',
+});
+
 function HostInput({
   errors,
   connectionStringUrl,
@@ -79,7 +83,7 @@ function HostInput({
 
   return (
     <>
-      <FormFieldContainer>
+      <FormFieldContainer className={inputFieldStyles}>
         <Label htmlFor="connection-host-input" id="connection-host-input-label">
           {isSRV ? 'Hostname' : 'Host'}
         </Label>

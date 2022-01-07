@@ -22,13 +22,20 @@ import FormFieldContainer from '../../form-field-container';
 import { TLS_OPTIONS } from '../../../constants/ssl-tls-options';
 
 const caFieldsContainer = css({
-  marginLeft: spacing[3],
+  // display: 'flex',
+  // flexDirection: 'row',
+  // alignItems: 'center',
+  width: '50%',
 });
 
-enum TLS_CA_OPTIONS {
-  DEFAULT = 'DEFAULT',
-  CUSTOM = 'CUSTOM'
-}
+// const caFileInputContainer = css({
+//   flexGrow: 1
+// });
+
+// const removeFileButtonStyles = css({
+//   marginLeft: spacing[1],
+//   marginTop: spacing[1],
+// });
 
 function TLSCertificateAuthority({
   connectionStringUrl,
@@ -39,7 +46,8 @@ function TLSCertificateAuthority({
   disabled: boolean;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
-  const [ useCustomCA, setUseCustomCA ] = useState(
+  const [caFile, setCAFile] = useState<string[] | undefined>(undefined);
+  const [useCustomCA, setUseCustomCA] = useState(
     connectionStringUrl.searchParams.get('tlsCAFile') !== null
   );
 
@@ -53,55 +61,38 @@ function TLSCertificateAuthority({
     [updateConnectionFormField]
   );
 
-  const caFileOptionsDisabled = useMemo(
-    () => disabled || !useCustomCA, [disabled, useCustomCA]
-  );
-
   return (
-    <FormFieldContainer>
-      <RadioGroup
-        // variant="default"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          setUseCustomCA(event.target.value === TLS_CA_OPTIONS.CUSTOM)
-        }}
-        value={useCustomCA ? TLS_CA_OPTIONS.CUSTOM : TLS_CA_OPTIONS.DEFAULT}
-      >
-        <Radio
-          value={TLS_CA_OPTIONS.DEFAULT}
-          disabled={disabled}
-        >
-          Accept any server TLS/SSL certificates
-        </Radio>
-        <Radio
-          value={TLS_CA_OPTIONS.CUSTOM}
-          disabled={disabled}
-        >
-          Use own root certificate from the Certificate Authority
-        </Radio>
-      </RadioGroup>
-      <div
+    <FormFieldContainer className={caFieldsContainer}>
+      {/* <div
         className={caFieldsContainer}
-      >
-        <FileInput
-          description={'Learn More'}
-          disabled={caFileOptionsDisabled}
-          id="tlsCAFile"
-          label="Certificate Authority (.pem)"
-          link={'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'}
-          // id={name}
-          // dataTestId={name}
-          onChange={(files: string[]) => {
-            alert(`selected ${files.join(',')}`);
-            // formFieldChanged(name as IdentityFormKeys, files[0]);
-          }}
-          // label={label}
-          // error={Boolean(errorMessage)}
-          // errorMessage={errorMessage}
-          // values={value as string[] | undefined}
-          // description={'Learn More'}
-          // link={'https://mongodb.com'}
-        />
-      </div>
+      > */}
+      <FileInput
+        description={'Learn More'}
+        disabled={disabled}
+        id="tlsCAFile"
+        label="Certificate Authority (.pem)"
+        link={
+          'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
+        }
+        // id={name}
+        // dataTestId={name}
+        onChange={(files: string[]) => {
+          setCAFile(files);
+          // formFieldChanged(name as IdentityFormKeys, files[0]);
+        }}
+        values={caFile}
+      />
+      {/* </div> */}
+      {/* {caFile && (
+          <IconButton
+            className={removeFileButtonStyles}
+            aria-label="Remove CA file"
+            onClick={() => setCAFile(undefined)  }
+          >
+            <Icon glyph="Minus" />
+          </IconButton>
+        )} */}
+      {/* </div> */}
     </FormFieldContainer>
   );
 }

@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 import React, { useCallback } from 'react';
 import {
   Checkbox,
@@ -9,6 +9,7 @@ import {
   RadioBox,
   RadioBoxGroup,
   spacing,
+  uiColors,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -27,6 +28,10 @@ const infoButtonStyles = css({
   verticalAlign: 'middle',
   marginTop: -spacing[1],
   marginBottom: -spacing[1],
+});
+
+const disabledCheckboxDescriptionStyles = css({
+  color: uiColors.gray.light1,
 });
 
 const TLS_TYPES: {
@@ -110,17 +115,26 @@ function TLSTab({
   const tlsOptionFields = [
     {
       name: 'tlsInsecure',
-      description: 'This includes tlsAllowInvalidHostnames and tlsAllowInvalidCertificates. This is not recommended as disabling certificate validation creates a vulnerability.',
-      checked: connectionStringUrl.searchParams.get('tlsInsecure') === 'true'
-    }, {
+      description:
+        'This includes tlsAllowInvalidHostnames and tlsAllowInvalidCertificates. This is not recommended as disabling certificate validation creates a vulnerability.',
+      checked: connectionStringUrl.searchParams.get('tlsInsecure') === 'true',
+    },
+    {
       name: 'tlsAllowInvalidHostnames',
-      description: 'Disables the validation of the hostnames in the certificate presented by the mongod/mongos instance',
-      checked: connectionStringUrl.searchParams.get('tlsAllowInvalidHostnames') === 'true'
-    }, {
+      description:
+        'Disables the validation of the hostnames in the certificate presented by the mongod/mongos instance',
+      checked:
+        connectionStringUrl.searchParams.get('tlsAllowInvalidHostnames') ===
+        'true',
+    },
+    {
       name: 'tlsAllowInvalidCertificates',
-      description: 'This disables validating the server certificates. This is not recommended as it creates a vulnerability to expired mongod and mongos certificates as well as to foreign processes posing as valid mongod or mongos instances.',
-      checked: connectionStringUrl.searchParams.get('tlsAllowInvalidCertificates') === 'true'
-    }
+      description:
+        'This disables validating the server certificates. This is not recommended as it creates a vulnerability to expired mongod and mongos certificates as well as to foreign processes posing as valid mongod or mongos instances.',
+      checked:
+        connectionStringUrl.searchParams.get('tlsAllowInvalidCertificates') ===
+        'true',
+    },
   ];
 
   const tlsOptionsDisabled = tlsOption !== 'ON';
@@ -161,16 +175,21 @@ function TLSTab({
         disabled={tlsOptionsDisabled}
         updateConnectionFormField={updateConnectionFormField}
       />
-      {tlsOptionFields.map(tlsOptionField => (
+      {tlsOptionFields.map((tlsOptionField) => (
         <FormFieldContainer key={tlsOptionField.name}>
           <Checkbox
+            // className={inputFieldStyles}
             onChange={() => alert(`update ${tlsOptionField.name}`)}
             label={tlsOptionField.name}
             disabled={tlsOptionsDisabled}
             checked={tlsOptionField.checked}
             bold={false}
           />
-          <Description>
+          <Description
+            className={cx({
+              [disabledCheckboxDescriptionStyles]: tlsOptionsDisabled,
+            })}
+          >
             {tlsOptionField.description}
           </Description>
         </FormFieldContainer>
