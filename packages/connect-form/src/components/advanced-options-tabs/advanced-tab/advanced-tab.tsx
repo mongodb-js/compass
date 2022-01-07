@@ -65,7 +65,7 @@ function AdvancedTab({
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
           handleFieldChanged('readPreference', value);
         }}
-        value={readPreference}
+        value={readPreference ?? ''}
         data-testid="read-preferences"
         id="read-preferences"
       >
