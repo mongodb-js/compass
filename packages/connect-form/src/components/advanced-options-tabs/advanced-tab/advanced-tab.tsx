@@ -36,6 +36,19 @@ function AdvancedTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
+  const connectionReadPreference =
+    connectionStringUrl.searchParams.get('readPreference');
+  const replicaSet = connectionStringUrl.searchParams.get('replicaSet');
+  const authSource = connectionStringUrl.searchParams.get('authSource');
+
+  // Changes from ConnectionStringUrl for readPreference do not reflect in UI (due to radio input).
+  const [readPreference, setReadPreference] = useState(
+    connectionReadPreference
+  );
+  useEffect(() => {
+    setReadPreference(connectionReadPreference);
+  }, [connectionReadPreference]);
+
   const handleFieldChanged = useCallback(
     (key: keyof MongoClientOptions, value: unknown) => {
       if (!value) {
@@ -52,19 +65,6 @@ function AdvancedTab({
     },
     [updateConnectionFormField]
   );
-
-  const connectionReadPreference =
-    connectionStringUrl.searchParams.get('readPreference');
-  const replicaSet = connectionStringUrl.searchParams.get('replicaSet');
-  const authSource = connectionStringUrl.searchParams.get('authSource');
-
-  // Changes from ConnectionStringUrl for readPreference do not reflect in UI (due to radio input).
-  const [readPreference, setReadPreference] = useState(
-    connectionReadPreference
-  );
-  useEffect(() => {
-    setReadPreference(connectionReadPreference);
-  }, [connectionReadPreference]);
 
   return (
     <div className={containerStyles}>
