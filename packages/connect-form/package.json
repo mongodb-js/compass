@@ -54,7 +54,6 @@
   },
   "dependencies": {
     "mongodb-connection-string-url": "^2.4.1",
-    "@mongodb-js/compass-components": "^0.8.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
