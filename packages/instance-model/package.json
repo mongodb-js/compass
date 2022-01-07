@@ -2,7 +2,7 @@
   "name": "mongodb-instance-model",
   "description": "MongoDB instance model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "11.16.0",
+  "version": "11.17.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "ampersand-model": "^8.0.1",
-    "mongodb-database-model": "^1.5.0"
+    "mongodb-database-model": "^1.6.0"
   },
   "peerDependencies": {
     "mongodb-data-service": "*"
