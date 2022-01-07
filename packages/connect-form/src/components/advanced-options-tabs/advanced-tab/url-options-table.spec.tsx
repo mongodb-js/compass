@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -46,7 +46,7 @@ describe('UrlOptionsTable', function () {
       expect(screen.getByTestId('url-options-table')).to.exist;
     });
 
-    it('should not render options that are not editable, but are in CS', function () {
+    it('should not render options that are not editable, but are in ConnectionString', function () {
       expect(() => {
         screen.getByTestId('readPreferences-table-row');
       }).to.throw;
@@ -84,7 +84,18 @@ describe('UrlOptionsTable', function () {
     });
 
     it('renders selected key when user select a key', function () {
-      // todo: how to test Leafy Select?
+      fireEvent.click(screen.getByTestId('add-url-options-button')); // Add new entry
+      fireEvent.click(screen.getByRole('button', { name: /select key/i })); // Click select button
+      fireEvent.click(screen.getByRole('option', { name: /appname/i })); // Select the option
+      expect(screen.getByText(/appname/i)).to.exist;
+
+      expect(updateConnectionFormFieldSpy.callCount, 'it calls update when name is selected').to.equal(1);
+      expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
+        type: 'update-search-param',
+        currentKey: 'appName',
+        newKey: 'appName',
+        value: '',
+      });
     });
 
     it('renders input value when user changes value', function () {
@@ -102,10 +113,29 @@ describe('UrlOptionsTable', function () {
     });
 
     it('should update an option - when name changes', function () {
-      // todo: how to test Leafy Select?
+      fireEvent.click(screen.getByTestId('add-url-options-button')); // Add new entry
+      fireEvent.click(screen.getByRole('button', { name: /select key/i })); // Click select button
+      fireEvent.click(screen.getByRole('option', { name: /appname/i })); // Select the option
+
+      const cell = screen.getByRole('cell', {
+        name: /appname/i
+      });
+      fireEvent.click(within(cell).getByRole('button', {
+        name: /appname/i
+      })); // Click select button
+
+      fireEvent.click(screen.getByRole('option', { name: /compressors/i })); // Select the new option
+      expect(screen.getByText(/compressors/i)).to.exist;
+      expect(updateConnectionFormFieldSpy.callCount, 'it calls update when name is selected').to.equal(2);
+      expect(updateConnectionFormFieldSpy.args[1][0]).to.deep.equal({
+        type: 'update-search-param',
+        currentKey: 'appName',
+        newKey: 'compressors',
+        value: '',
+      });
     });
 
-    it('should update an option and call updateConnectionFormFieldSpy - when value changes', function () {
+    it('should update an option - when value changes', function () {
       fireEvent.change(screen.getByTestId('w-input-field'), {
         target: { value: 'hello' },
       });
