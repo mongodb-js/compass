@@ -38,11 +38,7 @@ export const editableUrlOptions = [
   },
   {
     title: 'Authentication Options',
-    values: [
-      // 'authSource',
-      'authMechanismProperties',
-      'gssapiServiceName',
-    ],
+    values: ['authMechanismProperties', 'gssapiServiceName'],
   },
   {
     title: 'Server Options',

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect } from 'react';
+import React, { ChangeEvent, useEffect, useCallback } from 'react';
 import { css } from '@emotion/css';
 import {
   spacing,
@@ -16,12 +16,13 @@ import {
   Banner,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 import { editableUrlOptions, UrlOption } from '../../../utils/url-options';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-const tableHeaderStyles = css({
-  width: '50%',
+const optionSelectStyles = css({
+  width: 300,
 });
 
 const optionValueCellStyles = css({
@@ -41,9 +42,11 @@ const addUrlOptionsButtonStyles = css({
 function getUrlOptions(connectionStringUrl: ConnectionStringUrl): UrlOption[] {
   let opts: string[] = [];
   const urlOptions: UrlOption[] = [];
+  const searchParams =
+    connectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   editableUrlOptions.forEach(({ values }) => (opts = opts.concat(values)));
-  connectionStringUrl.searchParams.forEach((value, name) => {
+  searchParams.forEach((value, name) => {
     if (opts.includes(name)) {
       urlOptions.push({
         value: value,
@@ -62,7 +65,7 @@ function UrlOptionsTable({
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
   const [options, setOptions] = React.useState<Partial<UrlOption>[]>([]);
-  const [errorMessge, setErrorMessge] = React.useState('');
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   useEffect(() => {
     const options: Partial<UrlOption>[] = getUrlOptions(connectionStringUrl);
@@ -72,24 +75,24 @@ function UrlOptionsTable({
     setOptions(options);
   }, [connectionStringUrl]);
 
-  const addUrlOption = () => {
-    setErrorMessge('');
+  const addUrlOption = useCallback(() => {
+    setErrorMessage('');
     // Use case: User clicks on `Add url option` button and then clicked again without completing existing entry.
     // Don't add another option in such case
     if (options.find(({ name }) => !name)) {
-      setErrorMessge('Please complete existing option.');
+      setErrorMessage('Please complete existing option.');
       return;
     }
     const newOptions = [...options, { name: undefined, value: undefined }];
     setOptions(newOptions);
-  };
+  }, [options]);
 
   const updateUrlOption = (
     currentName?: UrlOption['name'],
     name?: UrlOption['name'],
     value?: string
   ) => {
-    setErrorMessge('');
+    setErrorMessage('');
     const indexOfUpdatedOption = options.findIndex(
       (option) => option.name === currentName
     );
@@ -114,12 +117,15 @@ function UrlOptionsTable({
   };
 
   const deleteUrlOption = (name?: UrlOption['name']) => {
-    setErrorMessge('');
+    setErrorMessage('');
     const indexOfDeletedOption = options.findIndex(
       (option) => option.name === name
     );
     const newOptions = [...options];
     newOptions.splice(indexOfDeletedOption, 1);
+    if (newOptions.length === 0) {
+      newOptions.push({ name: undefined, value: undefined });
+    }
     setOptions(newOptions);
     if (name) {
       updateConnectionFormField({
@@ -135,16 +141,8 @@ function UrlOptionsTable({
         data-testid="url-options-table"
         data={options}
         columns={[
-          <TableHeader
-            key={'name'}
-            label="Key"
-            className={tableHeaderStyles}
-          />,
-          <TableHeader
-            key={'value'}
-            label="Value"
-            className={tableHeaderStyles}
-          />,
+          <TableHeader key={'name'} label="Key" />,
+          <TableHeader key={'value'} label="Value" />,
         ]}
       >
         {({ datum }: { datum: Partial<UrlOption> }) => (
@@ -156,6 +154,7 @@ function UrlOptionsTable({
           >
             <Cell>
               <Select
+                className={optionSelectStyles}
                 placeholder="Select key"
                 name="name"
                 aria-labelledby={
@@ -235,13 +234,13 @@ function UrlOptionsTable({
           Add url option
         </Button>
       </div>
-      {errorMessge && (
+      {errorMessage && (
         <Banner
           variant={'warning'}
           dismissible={true}
-          onClose={() => setErrorMessge('')}
+          onClose={() => setErrorMessage('')}
         >
-          {errorMessge}
+          {errorMessage}
         </Banner>
       )}
     </>
