@@ -67,13 +67,17 @@ function UrlOptionsTable({
   const [options, setOptions] = React.useState<Partial<UrlOption>[]>([]);
   const [errorMessage, setErrorMessage] = React.useState('');
 
+  // To fix UI issue that removes empty option(name -> undefined) when user
+  // removes an existing option (name -> defined) [because of the state update]
+  const [containsEmptyOption, setContainsEmptyOption] = React.useState(false);
+
   useEffect(() => {
     const options: Partial<UrlOption>[] = getUrlOptions(connectionStringUrl);
-    if (!options.length) {
+    if (!options.length || containsEmptyOption) {
       options.push({ name: undefined, value: undefined });
     }
     setOptions(options);
-  }, [connectionStringUrl]);
+  }, [connectionStringUrl, containsEmptyOption]);
 
   const addUrlOption = useCallback(() => {
     setErrorMessage('');
@@ -85,6 +89,7 @@ function UrlOptionsTable({
     }
     const newOptions = [...options, { name: undefined, value: undefined }];
     setOptions(newOptions);
+    setContainsEmptyOption(true);
   }, [options]);
 
   const updateUrlOption = (
@@ -127,12 +132,19 @@ function UrlOptionsTable({
       newOptions.push({ name: undefined, value: undefined });
     }
     setOptions(newOptions);
-    if (name) {
-      updateConnectionFormField({
-        type: 'delete-search-param',
-        key: name,
-      });
+
+    if (!name) {
+      return;
     }
+
+    if (newOptions.filter((x) => !x.name).length > 0) {
+      setContainsEmptyOption(true);
+    }
+
+    updateConnectionFormField({
+      type: 'delete-search-param',
+      key: name,
+    });
   };
 
   return (

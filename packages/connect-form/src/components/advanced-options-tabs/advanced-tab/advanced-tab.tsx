@@ -7,6 +7,8 @@ import {
   spacing,
   TextInput,
   Label,
+  IconButton,
+  Icon,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { MongoClientOptions } from 'mongodb';
@@ -17,6 +19,11 @@ import { ConnectionFormError } from '../../../utils/connect-form-errors';
 import { readPreferences } from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
+
+const infoButtonStyles = css({
+  verticalAlign: 'middle',
+  marginTop: -spacing[1],
+});
 
 const containerStyles = css({
   marginTop: spacing[3],
@@ -36,9 +43,12 @@ function AdvancedTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
-  const readPreference = connectionStringUrl.searchParams.get('readPreference');
-  const replicaSet = connectionStringUrl.searchParams.get('replicaSet');
-  const authSource = connectionStringUrl.searchParams.get('authSource');
+  const { searchParams, pathname } = connectionStringUrl;
+  const readPreference = searchParams.get('readPreference');
+  const replicaSet = searchParams.get('replicaSet');
+  const defaultDatabase = pathname.startsWith('/')
+    ? pathname.substr(1)
+    : pathname;
 
   const handleFieldChanged = useCallback(
     (key: keyof MongoClientOptions, value: unknown) => {
@@ -57,10 +67,30 @@ function AdvancedTab({
     [updateConnectionFormField]
   );
 
+  const handlePathChanged = useCallback(
+    (value: string) => {
+      return updateConnectionFormField({
+        type: 'update-connection-path',
+        value,
+      });
+    },
+    [updateConnectionFormField]
+  );
+
   return (
     <div className={containerStyles}>
       {/* Read Preferences */}
-      <Label htmlFor="read-preferences">Read Preference</Label>
+      <Label htmlFor="read-preferences">
+        Read Preference
+        <IconButton
+          className={infoButtonStyles}
+          aria-label="Read Preference Documentation"
+          href="https://docs.mongodb.com/manual/reference/connection-string/#read-preference-options"
+          target="_blank"
+        >
+          <Icon glyph="InfoWithCircle" size="small" />
+        </IconButton>
+      </Label>
       <RadioBoxGroup
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
           handleFieldChanged('readPreference', value);
@@ -103,7 +133,7 @@ function AdvancedTab({
         <TextInput
           className={fieldStyles}
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-            handleFieldChanged('authSource', value);
+            handlePathChanged(value);
           }}
           name={'default-database'}
           data-testid={'default-database'}
@@ -111,7 +141,7 @@ function AdvancedTab({
           type={'text'}
           optional={true}
           placeholder={'Default Database'}
-          value={authSource ?? ''}
+          value={defaultDatabase ?? ''}
           description={
             'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'
           }

@@ -838,5 +838,45 @@ describe('use-connect-form hook', function () {
         expect(connectionUrl.searchParams.get('journal')).to.equal('hi');
       });
     });
+
+    describe('update-connection-path action', function () {
+      it('should udpate connection path - to input value', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019/admin'
+        );
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-connection-path',
+              value: 'awesome',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
+        expect(connectionUrl.pathname).to.equal('/awesome');
+      });
+
+      it('should udpate connection path - to empty value', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019/admin'
+        );
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-connection-path',
+              value: '',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
+        expect(connectionUrl.pathname).to.equal('');
+      });
+    });
   });
 });

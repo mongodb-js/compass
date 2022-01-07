@@ -129,6 +129,10 @@ type ConnectionFormFieldActions =
   | {
       type: 'delete-search-param';
       key: keyof MongoClientOptions;
+    }
+  | {
+      type: 'update-connection-path';
+      value: string;
     };
 
 export type UpdateConnectionFormField = (
@@ -390,6 +394,17 @@ export function handleConnectionFormFieldUpdate({
     }
     case 'delete-search-param': {
       updatedSearchParams.delete(action.key);
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString(),
+        },
+        errors: initialErrors,
+      };
+    }
+    case 'update-connection-path': {
+      updatedConnectionStringUrl.pathname = action.value;
       return {
         connectionStringUrl: updatedConnectionStringUrl,
         connectionOptions: {
