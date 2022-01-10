@@ -1,21 +1,9 @@
 import { css } from '@emotion/css';
-import React, { useCallback, useMemo, useState } from 'react';
-import {
-  Checkbox,
-  Description,
-  FileInput,
-  Icon,
-  IconButton,
-  Label,
-  RadioBox,
-  RadioBoxGroup,
-  TextInput,
-  spacing,
-} from '@mongodb-js/compass-components';
+import React from 'react';
+import { FileInput, TextInput } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import type { MongoClientOptions } from 'mongodb';
+import { MongoClientOptions } from 'mongodb';
 
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
 
 const inputFieldStyles = css({
@@ -25,16 +13,24 @@ const inputFieldStyles = css({
 function TLSClientCertificate({
   connectionStringUrl,
   disabled,
-  updateConnectionFormField,
+  updateTLSClientCertificate,
+  updateTLSClientCertificatePassword,
 }: {
   connectionStringUrl: ConnectionStringUrl;
   disabled: boolean;
-  updateConnectionFormField: UpdateConnectionFormField;
+  updateTLSClientCertificate: (
+    newClientCertificateKeyFile: string | null
+  ) => void;
+  updateTLSClientCertificatePassword: (newPassword: string | null) => void;
 }): React.ReactElement {
-  const [useClientCert, setUseClientCert] = useState(
-    connectionStringUrl.searchParams.get('tlsCertificateKeyFile') !== null
-  );
   // TODO: Override when underlying connection changes?
+
+  const typedParams =
+    connectionStringUrl.typedSearchParams<MongoClientOptions>();
+  const clientCertificateKeyFile = typedParams.get('tlsCertificateKeyFile');
+  const tlsCertificateKeyFilePassword = typedParams.get(
+    'tlsCertificateKeyFilePassword'
+  );
 
   return (
     <>
@@ -47,34 +43,30 @@ function TLSClientCertificate({
           link={
             'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile'
           }
+          values={clientCertificateKeyFile ? [clientCertificateKeyFile] : []}
           // id={name}
           // dataTestId={name}
           onChange={(files: string[]) => {
-            alert(`client cert change ${files.join(',')}`);
-            // formFieldChanged(name as IdentityFormKeys, files[0]);
+            updateTLSClientCertificate(
+              files && files.length > 0 ? files[0] : null
+            );
           }}
         />
       </FormFieldContainer>
       <FormFieldContainer>
         <TextInput
           className={inputFieldStyles}
-          // onChange={({
-          //   target: { value },
-          // }: React.ChangeEvent<HTMLInputElement>) => {
-          //   formFieldChanged(
-          //     name as IdentityFormKeys,
-          //     name === 'port' ? Number(value) : value
-          //   );
-          // }}
+          onChange={({
+            target: { value },
+          }: React.ChangeEvent<HTMLInputElement>) => {
+            updateTLSClientCertificatePassword(value);
+          }}
           disabled={disabled}
+          id="tlsCertificateKeyFilePassword"
           label="Client Key Password"
           // https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFilePassword
           type="password"
-          value={
-            connectionStringUrl.searchParams.get(
-              'tlsCertificateKeyFilePassword'
-            ) || ''
-          }
+          value={tlsCertificateKeyFilePassword || ''}
         />
       </FormFieldContainer>
     </>

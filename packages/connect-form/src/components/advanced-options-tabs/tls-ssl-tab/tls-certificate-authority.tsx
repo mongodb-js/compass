@@ -1,25 +1,15 @@
 import { css } from '@emotion/css';
-import React, { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 import {
-  Checkbox,
-  Description,
   FileInput,
   Icon,
   IconButton,
-  Label,
-  RadioBox,
-  RadioBoxGroup,
-  Radio,
-  RadioGroup,
-  TextInput,
   spacing,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import type { MongoClientOptions } from 'mongodb';
+import { MongoClientOptions } from 'mongodb';
 
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
-import { TLS_OPTIONS } from '../../../constants/ssl-tls-options';
 
 const caFieldsContainer = css({
   width: '70%',
@@ -32,23 +22,15 @@ const removeFileButtonStyles = css({
 function TLSCertificateAuthority({
   connectionStringUrl,
   disabled,
-  updateConnectionFormField,
+  updateCAFile,
 }: {
   connectionStringUrl: ConnectionStringUrl;
   disabled: boolean;
-  updateConnectionFormField: UpdateConnectionFormField;
+  updateCAFile: (newCAFile: string | null) => void;
 }): React.ReactElement {
-  const [caFile, setCAFile] = useState<string | undefined>(undefined);
-
-  const onChangeTLSOption = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      updateConnectionFormField({
-        type: 'update-tls-option',
-        tlsOption: event.target.value as TLS_OPTIONS,
-      });
-    },
-    [updateConnectionFormField]
-  );
+  const caFile = connectionStringUrl
+    .typedSearchParams<MongoClientOptions>()
+    .get('tlsCAFile');
 
   return (
     <FormFieldContainer className={caFieldsContainer}>
@@ -60,11 +42,8 @@ function TLSCertificateAuthority({
         link={
           'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
         }
-        // id={name}
-        // dataTestId={name}
         onChange={(files: string[] | null) => {
-          setCAFile(files && files.length > 0 ? files[0] : undefined);
-          // formFieldChanged(name as IdentityFormKeys, files[0]);
+          updateCAFile(files && files.length > 0 ? files[0] : null);
         }}
         // values={caFile}
       />
@@ -74,7 +53,9 @@ function TLSCertificateAuthority({
           <IconButton
             className={removeFileButtonStyles}
             aria-label="Remove CA file"
-            onClick={() => setCAFile(undefined)}
+            onClick={() => {
+              updateCAFile(null);
+            }}
           >
             <Icon glyph="X" />
           </IconButton>
