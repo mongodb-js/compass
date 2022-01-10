@@ -229,7 +229,7 @@ function UrlOptionsTable({
                   aria-label={`Delete option: ${datum.name ?? ''}`}
                   onClick={() => deleteUrlOption(datum.name)}
                 >
-                  <Icon glyph="Trash" />
+                  <Icon glyph="X" />
                 </IconButton>
               </div>
             </Cell>
