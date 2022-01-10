@@ -22,7 +22,7 @@ import AuthenticationAWS from './authentication-aws';
 interface TabOption {
   id: string;
   title: string;
-  component: React.FC<{}>;
+  component: React.FC;
 }
 
 const options: TabOption[] = [
