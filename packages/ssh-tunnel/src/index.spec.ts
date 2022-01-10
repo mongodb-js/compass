@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { Server as SSHServer, ServerConfig } from 'ssh2';
-import { createServer, Server as HttpServer } from 'http';
+import { createServer, Server as HttpServer, Agent as HttpAgent } from 'http';
 import { promisify } from 'util';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { AddressInfo, Socket } from 'net';
 import fetch from 'node-fetch';
 import { expect } from 'chai';
+import { SocksClient } from 'socks';
 
 import SSHTunnel, { SshTunnelConfig } from './index';
 
@@ -86,7 +88,6 @@ async function createTestSshTunnel(config: Partial<SshTunnelConfig> = {}) {
   sshTunnel = new SSHTunnel({
     username: 'user',
     port: sshServer.address().port,
-    dstPort: (httpServer.address() as AddressInfo).port,
     localPort: 0,
     ...config,
   });
@@ -102,9 +103,54 @@ async function stopTestSshTunnel() {
   }
 }
 
-function getLocalServerHost() {
-  const { localAddr, localPort } = sshTunnel.config;
-  return `http://${localAddr}:${localPort}`;
+interface Socks5ProxyOptions {
+  proxyHost: string;
+  proxyPort: number;
+  proxyUsername?: string;
+  proxyPassword?: string;
+}
+
+class Socks5HttpAgent extends HttpAgent {
+  options: Socks5ProxyOptions;
+
+  constructor(options: Socks5ProxyOptions) {
+    super();
+    this.options = options;
+  }
+
+  createConnection(options, callback) {
+    void SocksClient.createConnection(
+      {
+        destination: {
+          host: options.host,
+          port: +options.port,
+        },
+        proxy: {
+          host: this.options.proxyHost,
+          port: this.options.proxyPort,
+          type: 5,
+          userId: this.options.proxyUsername,
+          password: this.options.proxyPassword,
+        },
+        command: 'connect',
+      },
+      (err, info) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, info.socket);
+        }
+      }
+    );
+  }
+}
+
+async function httpFetchWithSocks5(
+  httpUrl: string,
+  options: Socks5ProxyOptions
+): ReturnType<typeof fetch> {
+  const agent = new Socks5HttpAgent(options);
+  return await fetch(httpUrl, { agent });
 }
 
 describe('SSHTunnel', function () {
@@ -126,8 +172,54 @@ describe('SSHTunnel', function () {
   it('creates a tunnel that allows to request remote server through an ssh server', async function () {
     await createTestSshTunnel();
 
-    const res = await fetch(getLocalServerHost());
+    const res = await httpFetchWithSocks5(
+      `http://localhost:${httpServer.address().port}/`,
+      {
+        proxyHost: sshTunnel.config.localAddr,
+        proxyPort: sshTunnel.config.localPort,
+      }
+    );
     expect(await res.text()).to.equal('Hello from http server');
+  });
+
+  it('creates a tunnel that passes through requests when auth matches', async function () {
+    await createTestSshTunnel({
+      socks5Username: 'cat',
+      socks5Password: 'meow',
+    });
+
+    const res = await httpFetchWithSocks5(
+      `http://localhost:${httpServer.address().port}/`,
+      {
+        proxyHost: sshTunnel.config.localAddr,
+        proxyPort: sshTunnel.config.localPort,
+        proxyUsername: 'cat',
+        proxyPassword: 'meow',
+      }
+    );
+    expect(await res.text()).to.equal('Hello from http server');
+  });
+
+  it('creates a tunnel that rejects requests when auth mismatches', async function () {
+    await createTestSshTunnel({
+      socks5Username: 'cat',
+      socks5Password: 'meow',
+    });
+
+    try {
+      await httpFetchWithSocks5(
+        `http://localhost:${httpServer.address().port}/`,
+        {
+          proxyHost: sshTunnel.config.localAddr,
+          proxyPort: sshTunnel.config.localPort,
+          proxyUsername: 'cow',
+          proxyPassword: 'moo',
+        }
+      );
+      expect.fail('missed exception');
+    } catch (err) {
+      expect(err.message).to.match(/Socks5 Authentication failed/);
+    }
   });
 
   it('closes any connections on tunnel close', async function () {
@@ -135,7 +227,13 @@ describe('SSHTunnel', function () {
 
     try {
       await Promise.all([
-        fetch(`${getLocalServerHost()}/wait`),
+        httpFetchWithSocks5(
+          `http://localhost:${httpServer.address().port}/wait`,
+          {
+            proxyHost: sshTunnel.config.localAddr,
+            proxyPort: sshTunnel.config.localPort,
+          }
+        ),
         (async () => {
           await sleep(50);
           await sshTunnel.close();
@@ -169,7 +267,7 @@ describe('SSHTunnel', function () {
       });
       expect.fail('missed exception');
     } catch {
-      expect(sshTunnel['server'].listening).to.equal(false);
+      expect(sshTunnel.server.address()).to.equal(null);
     }
   });
 });
