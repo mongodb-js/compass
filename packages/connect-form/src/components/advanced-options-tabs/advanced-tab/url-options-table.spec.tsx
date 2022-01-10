@@ -85,8 +85,14 @@ describe('UrlOptionsTable', function () {
 
     it('renders selected key when user select a key', function () {
       fireEvent.click(screen.getByTestId('add-url-options-button')); // Add new entry
-      fireEvent.click(screen.getByRole('button', { name: /select key/i })); // Click select button
-      fireEvent.click(screen.getByRole('option', { name: /appname/i })); // Select the option
+      fireEvent.click(screen.getByText(/select key/i)); // Click select button
+      fireEvent.click(screen.getByText(/appname/i)); // Select the option
+
+      // After click, the options list should disappear
+      expect(() => {
+        screen.getByRole('listbox')
+      }).to.throw;
+
       expect(screen.getByText(/appname/i)).to.exist;
 
       expect(
@@ -117,19 +123,11 @@ describe('UrlOptionsTable', function () {
 
     it('should update an option - when name changes', function () {
       fireEvent.click(screen.getByTestId('add-url-options-button')); // Add new entry
-      fireEvent.click(screen.getByRole('button', { name: /select key/i })); // Click select button
-      fireEvent.click(screen.getByRole('option', { name: /appname/i })); // Select the option
+      fireEvent.click(screen.getByText(/select key/i)); // Click select button
+      fireEvent.click(screen.getByText(/appname/i)); // Select the option
 
-      const cell = screen.getByRole('cell', {
-        name: /appname/i,
-      });
-      fireEvent.click(
-        within(cell).getByRole('button', {
-          name: /appname/i,
-        })
-      ); // Click select button
-
-      fireEvent.click(screen.getByRole('option', { name: /compressors/i })); // Select the new option
+      fireEvent.click(screen.getByText(/appname/i)); // Click select button with appName option
+      fireEvent.click(screen.getByText(/compressors/i)); // Select the new option
       expect(screen.getByText(/compressors/i)).to.exist;
       expect(
         updateConnectionFormFieldSpy.callCount,
