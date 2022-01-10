@@ -34,7 +34,7 @@
     "mongodb-database-model": "^1.6.0"
   },
   "peerDependencies": {
-    "mongodb-data-service": "*"
+    "mongodb-data-service": "^21.15.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.5.0",

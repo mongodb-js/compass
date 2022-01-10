@@ -30,8 +30,8 @@
   "license": "SSPL",
   "peerDependencies": {
     "debug": "*",
-    "hadron-ipc": "*",
-    "mongodb-js-metrics": "*",
+    "hadron-ipc": "^2.7.0",
+    "mongodb-js-metrics": "^7.6.0",
     "mongodb-schema": "^8.2.5",
     "redux": "^3.7.2"
   },

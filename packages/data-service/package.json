@@ -54,7 +54,7 @@
   },
   "peerDependencies": {
     "mongodb": "^4.2.2",
-    "mongodb-connection-model": "*"
+    "mongodb-connection-model": "^21.11.0"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.6.0",

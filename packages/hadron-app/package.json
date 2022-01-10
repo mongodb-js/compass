@@ -45,9 +45,9 @@
   },
   "peerDependencies": {
     "babel-register": "^6.26.0",
-    "hadron-app-registry": "*",
+    "hadron-app-registry": "^8.7.0",
     "less": "^3.11.1",
-    "mongodb-data-service": "*",
+    "mongodb-data-service": "^21.15.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
