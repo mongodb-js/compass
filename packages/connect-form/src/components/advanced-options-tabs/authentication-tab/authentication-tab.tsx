@@ -9,11 +9,8 @@ import {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
 
-
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import {
-  ConnectionFormError,
-} from '../../../utils/connect-form-errors';
+import { ConnectionFormError } from '../../../utils/connect-form-errors';
 import { ConnectionOptions } from 'mongodb-data-service';
 
 import AuthenticationDefault from './authentication-default';
@@ -25,8 +22,7 @@ import AuthenticationAWS from './authentication-aws';
 interface TabOption {
   id: string;
   title: string;
-  component: React.FC<{
-  }>;
+  component: React.FC<{}>;
 }
 
 const options: TabOption[] = [
@@ -83,17 +79,22 @@ function AuthenticationTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
-  const selectedAuthMechanism = connectionStringUrl.searchParams.get('authMechanism') ?? '';
-  const selectedAuthTab = options.find(({id}) => id === selectedAuthMechanism) ?? options[0];
+  const selectedAuthMechanism =
+    connectionStringUrl.searchParams.get('authMechanism') ?? '';
+  const selectedAuthTab =
+    options.find(({ id }) => id === selectedAuthMechanism) ?? options[0];
 
-  const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    updateConnectionFormField({
-      type: 'update-search-param',
-      currentKey: 'authMechanism',
-      value: event.target.value,
-    });
-  }, [updateConnectionFormField]);
+  const optionSelected = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      event.preventDefault();
+      updateConnectionFormField({
+        type: 'update-search-param',
+        currentKey: 'authMechanism',
+        value: event.target.value,
+      });
+    },
+    [updateConnectionFormField]
+  );
 
   const AuthOptionContent = selectedAuthTab.component;
 
@@ -120,11 +121,11 @@ function AuthenticationTab({
         })}
       </RadioBoxGroup>
       <div
-          className={contentStyles}
-          data-testid={`${selectedAuthTab.id}-tab-content`}
-        >
-          <AuthOptionContent/>
-        </div>
+        className={contentStyles}
+        data-testid={`${selectedAuthTab.id}-tab-content`}
+      >
+        <AuthOptionContent />
+      </div>
     </div>
   );
 }
