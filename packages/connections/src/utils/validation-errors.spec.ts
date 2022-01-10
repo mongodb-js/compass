@@ -264,7 +264,7 @@ describe('Form Validation Errors', function () {
       expect(result).to.be.empty;
     });
   });
-  describe('Default', function () {
+  describe('Default Auth Method', function () {
     it('should return errors if username and password are missing', function () {
       const connectionInfo: ConnectionInfo = {
         id: 'connection-test',
