@@ -33,9 +33,9 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "hadron-react-bson": "*",
-    "hadron-react-components": "*",
-    "mongodb-data-service": "*",
+    "hadron-react-bson": "^5.7.0",
+    "hadron-react-components": "^5.9.0",
+    "mongodb-data-service": "^21.15.0",
     "mongodb-ns": "^2.2.0",
     "numeral": "*",
     "prop-types": "^15.7.2",
