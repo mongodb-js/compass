@@ -38,7 +38,7 @@ export async function openSshTunnel(
     forwardTimeout: 20000,
     keepaliveInterval: 20000,
     srcAddr: '127.0.0.1', // OS should figure out an ephemeral srcPort.
-    dstPort: dstPort,
+    dstPort: +dstPort,
     dstAddr: dstHost,
     localPort: localPort,
     localAddr: '127.0.0.1',
