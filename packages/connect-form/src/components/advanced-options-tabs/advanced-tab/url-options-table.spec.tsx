@@ -90,7 +90,7 @@ describe('UrlOptionsTable', function () {
 
       // After click, the options list should disappear
       expect(() => {
-        screen.getByRole('listbox')
+        screen.getByRole('listbox');
       }).to.throw;
 
       expect(screen.getByText(/appname/i)).to.exist;
