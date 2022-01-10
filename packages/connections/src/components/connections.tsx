@@ -78,7 +78,7 @@ function Connections({
       setActiveConnectionById,
       removeAllRecentsConnections,
       removeConnection,
-      duplicateConnection
+      duplicateConnection,
     },
   ] = useConnections(onConnected, connectionStorage, connectFn);
 

@@ -143,7 +143,7 @@ function ConnectionList({
   onDoubleClick,
   removeAllRecentsConnections,
   duplicateConnection,
-  removeConnection
+  removeConnection,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];

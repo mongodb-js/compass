@@ -37,7 +37,7 @@ function ResizableSidebar({
   onConnectionDoubleClicked,
   removeAllRecentsConnections,
   duplicateConnection,
-  removeConnection
+  removeConnection,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];

@@ -76,14 +76,13 @@ function ConnectionMenu({
   iconColor,
   connectionInfo,
   duplicateConnection,
-  removeConnection
+  removeConnection,
 }: {
   connectionString: string;
   iconColor: string;
   connectionInfo: ConnectionInfo;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
-
 }): React.ReactElement {
   const [{ error, toastOpen, toastVariant }, dispatch] = useReducer(reducer, {
     ...defaultToastState,
@@ -174,14 +173,24 @@ function ConnectionMenu({
         open={menuIsOpen}
         setOpen={setMenuIsOpen}
       >
-        <MenuItem onClick={async () => { await copyConnectionString(connectionString); setMenuIsOpen(false)} }>
+        <MenuItem
+          onClick={async () => {
+            await copyConnectionString(connectionString);
+            setMenuIsOpen(false);
+          }}
+        >
           Copy Connection String
         </MenuItem>
-        { connectionInfo.favorite && 
-          <MenuItem onClick={() => { duplicateConnection(connectionInfo); setMenuIsOpen(false )} }>
+        {connectionInfo.favorite && (
+          <MenuItem
+            onClick={() => {
+              duplicateConnection(connectionInfo);
+              setMenuIsOpen(false);
+            }}
+          >
             Duplicate
           </MenuItem>
-        }
+        )}
         <MenuItem onClick={() => removeConnection(connectionInfo)}>
           Remove
         </MenuItem>

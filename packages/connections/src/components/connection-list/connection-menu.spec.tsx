@@ -4,18 +4,26 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import ConnectionMenu from './connection-menu';
-import { ConnectionInfo } from 'mongodb-data-service'
+import { ConnectionInfo } from 'mongodb-data-service';
 
 describe('ConnectionMenu Component', function () {
-  describe('on non-favorite item', function() {
+  describe('on non-favorite item', function () {
     beforeEach(function () {
       const connectionInfo: ConnectionInfo = {
         id: 'test-id',
         connectionOptions: {
           connectionString: 'mongodb://kaleesi',
-        }
-      }
-      render(<ConnectionMenu connectionString={'mongodb://kaleesi'} duplicateConnection={() => true} removeConnection={() => true} connectionInfo={connectionInfo} iconColor='#EAEAEA'/>);
+        },
+      };
+      render(
+        <ConnectionMenu
+          connectionString={'mongodb://kaleesi'}
+          duplicateConnection={() => true}
+          removeConnection={() => true}
+          connectionInfo={connectionInfo}
+          iconColor="#EAEAEA"
+        />
+      );
     });
 
     it('shows a button', function () {
@@ -47,22 +55,27 @@ describe('ConnectionMenu Component', function () {
         expect(screen.getByText('Remove')).to.be.visible;
       });
     });
-  })
+  });
   describe('on favorite item', function () {
     beforeEach(function () {
       const connectionInfo: ConnectionInfo = {
         id: 'test-id',
         favorite: {
-          name: 'First Server'
+          name: 'First Server',
         },
         connectionOptions: {
           connectionString: 'mongodb://kaleesi',
-        }
-        
-      }
-      render(<ConnectionMenu connectionString={'mongodb://kaleesi'} duplicateConnection={() => true} removeConnection={() => true} connectionInfo={connectionInfo} iconColor='#EAEAEA'/>);
-      
-
+        },
+      };
+      render(
+        <ConnectionMenu
+          connectionString={'mongodb://kaleesi'}
+          duplicateConnection={() => true}
+          removeConnection={() => true}
+          connectionInfo={connectionInfo}
+          iconColor="#EAEAEA"
+        />
+      );
     });
 
     it('shows a button', function () {
@@ -232,21 +245,29 @@ describe('ConnectionMenu Component', function () {
       });
     });
   });
-  describe('function calls', function() {
-    it('should call the removeConnection function', function() {
+  describe('function calls', function () {
+    it('should call the removeConnection function', function () {
       const connectionInfo: ConnectionInfo = {
         id: 'test-id',
         favorite: {
-          name: 'First Server'
+          name: 'First Server',
         },
         connectionOptions: {
           connectionString: 'mongodb://kaleesi',
-        }
-      }
+        },
+      };
       const mockDuplicateConnection = sinon.fake.resolves(null);
       const mockRemoveConnection = sinon.fake.resolves(null);
-      render(<ConnectionMenu connectionString={'mongodb://kaleesi'} duplicateConnection={mockDuplicateConnection} removeConnection={mockRemoveConnection} connectionInfo={connectionInfo} iconColor='#EAEAEA'/>);
-      
+      render(
+        <ConnectionMenu
+          connectionString={'mongodb://kaleesi'}
+          duplicateConnection={mockDuplicateConnection}
+          removeConnection={mockRemoveConnection}
+          connectionInfo={connectionInfo}
+          iconColor="#EAEAEA"
+        />
+      );
+
       fireEvent(
         screen.getByRole('button'),
         new MouseEvent('click', {
@@ -270,8 +291,8 @@ describe('ConnectionMenu Component', function () {
           cancelable: true,
         })
       );
-      expect(mockDuplicateConnection.called).to.equal(true);      
+      expect(mockDuplicateConnection.called).to.equal(true);
       expect(mockRemoveConnection.called).to.equal(true);
-    })
-  })
+    });
+  });
 });
