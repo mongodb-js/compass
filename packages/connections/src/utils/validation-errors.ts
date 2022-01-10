@@ -26,6 +26,8 @@ function validateAuthMechanism(
     .typedSearchParams<MongoClientOptions>()
     .get('authMechanism');
   switch ((authMechanism || '').toUpperCase()) {
+    case '':
+      return [];
     case 'MONGODB-X509':
       return validateX509(connectionString);
     case 'GSSAPI':
@@ -43,7 +45,23 @@ function validateAuthMechanism(
 function validateScramSha(
   connectionString: ConnectionString
 ): FormValidationError[] {
-  return validateUsernameAndPassword(connectionString);
+  const errors: FormValidationError[] = [];
+
+  const { username, password } = connectionString;
+  if (!username) {
+    errors.push({
+      field: 'username',
+      message: 'Username is missing.',
+    });
+  }
+
+  if (!password) {
+    errors.push({
+      field: 'password',
+      message: 'Password is missing.',
+    });
+  }
+  return errors;
 }
 
 function validateX509(
@@ -117,31 +135,6 @@ function validateSSHTunnel(
     errors.push({
       message:
         'When connecting via SSH tunnel either password or identity file is required',
-    });
-  }
-  return errors;
-}
-
-export function validateUsernameAndPassword(
-  connectionString: ConnectionString
-): FormValidationError[] {
-  const errors: FormValidationError[] = [];
-  const { username, password } = connectionString;
-  if (!username && !password) {
-    // this is not necessarily an error.
-    return [];
-  }
-  if (!username) {
-    errors.push({
-      field: 'username',
-      message: 'Username is missing',
-    });
-  }
-
-  if (!password) {
-    errors.push({
-      field: 'password',
-      message: 'Password is missing',
     });
   }
   return errors;

@@ -217,4 +217,50 @@ describe('Form Validation Errors', function () {
       expect(result).to.be.empty;
     });
   });
+  describe('SCRAM-SHA', function () {
+    it('should return errors if username and password are missing', function () {
+      const connectionInfo: ConnectionInfo = {
+        id: 'connection-test',
+        connectionOptions: {
+          connectionString: `mongodb://myserver.com?authMechanism=SCRAM-SHA-1`,
+        },
+      };
+      const result = validateConnectionInfoErrors(connectionInfo);
+      expect(result).to.deep.equal([
+        {
+          field: 'username',
+          message: 'Username is missing.',
+        },
+        {
+          field: 'password',
+          message: 'Password is missing.',
+        },
+      ]);
+    });
+    it('should return errors if password is missing', function () {
+      const connectionInfo: ConnectionInfo = {
+        id: 'connection-test',
+        connectionOptions: {
+          connectionString: `mongodb://username@myserver.com?authMechanism=SCRAM-SHA-1`,
+        },
+      };
+      const result = validateConnectionInfoErrors(connectionInfo);
+      expect(result).to.deep.equal([
+        {
+          field: 'password',
+          message: 'Password is missing.',
+        },
+      ]);
+    });
+    it('should not return errors if username and password are provided', function () {
+      const connectionInfo: ConnectionInfo = {
+        id: 'connection-test',
+        connectionOptions: {
+          connectionString: `mongodb://username:password@myserver.com?authMechanism=SCRAM-SHA-1`,
+        },
+      };
+      const result = validateConnectionInfoErrors(connectionInfo);
+      expect(result).to.be.empty;
+    });
+  });
 });
