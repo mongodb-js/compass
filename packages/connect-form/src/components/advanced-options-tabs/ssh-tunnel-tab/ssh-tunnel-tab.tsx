@@ -2,6 +2,7 @@ import React, { ChangeEvent, useState, useCallback } from 'react';
 import { css } from '@emotion/css';
 import { ConnectionOptions } from 'mongodb-data-service';
 import {
+  Label,
   RadioBox,
   RadioBoxGroup,
   spacing,
@@ -22,7 +23,6 @@ import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fiel
 
 import Identity from './ssh-tunnel-identity';
 import Password from './ssh-tunnel-password';
-import Socks from './ssh-tunnel-socks';
 
 interface TabOption {
   id: string;
@@ -58,12 +58,6 @@ const options: TabOption[] = [
     id: 'identity',
     type: 'identity',
     component: Identity,
-  },
-  {
-    title: 'Socks5',
-    id: 'socks',
-    type: 'socks',
-    component: Socks,
   },
 ];
 
@@ -117,6 +111,9 @@ function SSHTunnel({
 
   return (
     <div className={containerStyles}>
+      <Label htmlFor="ssh-options-radio-box-group">
+        SSH Tunnel/Proxy Method
+      </Label>
       <RadioBoxGroup
         onChange={optionSelected}
         className="radio-box-group-style"

@@ -96,6 +96,10 @@ export const STAGE_SPRINKLE_MAPPINGS = {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/facet/#pipe._S_facet',
     tooltip: 'Allows for multiple parellel aggregations to be specified.'
   },
+  $documents: {
+    link: 'https://docs.mongodb.com/v5.1/reference/operator/aggregation/documents/#mongodb-pipeline-pipe.-documents',
+    tooltip: 'Returns literal documents from input values.'
+  },
   $geoNear: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/geoNear/#pipe._S_geoNear',
     tooltip: 'Returns documents based on proximity to a geospatial point.'
