@@ -119,7 +119,21 @@ type ConnectionFormFieldActions =
       isSrv: boolean;
     }
   | UpdateConnectionOptions
-  | UpdateTlsOptionAction;
+  | UpdateTlsOptionAction
+  | {
+      type: 'update-search-param';
+      currentKey: keyof MongoClientOptions;
+      newKey?: keyof MongoClientOptions;
+      value?: unknown;
+    }
+  | {
+      type: 'delete-search-param';
+      key: keyof MongoClientOptions;
+    }
+  | {
+      type: 'update-connection-path';
+      value: string;
+    };
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -357,6 +371,48 @@ export function handleConnectionFormFieldUpdate({
         warnings: [],
         connectionStringInvalidError: null,
       });
+    }
+    case 'update-search-param': {
+      // User is trying to change the key of searchParam (w => journal)
+      if (action.newKey) {
+        const newValue =
+          action.value ?? updatedSearchParams.get(action.currentKey);
+        updatedSearchParams.delete(action.currentKey);
+        updatedSearchParams.set(action.newKey, newValue);
+      } else {
+        updatedSearchParams.set(action.currentKey, action.value);
+      }
+
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString(),
+        },
+        errors: initialErrors,
+      };
+    }
+    case 'delete-search-param': {
+      updatedSearchParams.delete(action.key);
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString(),
+        },
+        errors: initialErrors,
+      };
+    }
+    case 'update-connection-path': {
+      updatedConnectionStringUrl.pathname = action.value;
+      return {
+        connectionStringUrl: updatedConnectionStringUrl,
+        connectionOptions: {
+          ...connectionOptions,
+          connectionString: updatedConnectionStringUrl.toString(),
+        },
+        errors: initialErrors,
+      };
     }
   }
 }
