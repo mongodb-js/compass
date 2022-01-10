@@ -178,7 +178,6 @@ function TLSTab({
       {tlsOptionFields.map((tlsOptionField) => (
         <FormFieldContainer key={tlsOptionField.name}>
           <Checkbox
-            // className={inputFieldStyles}
             onChange={() => alert(`update ${tlsOptionField.name}`)}
             label={tlsOptionField.name}
             disabled={tlsOptionsDisabled}

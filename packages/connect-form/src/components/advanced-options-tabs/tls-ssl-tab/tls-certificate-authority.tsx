@@ -22,20 +22,12 @@ import FormFieldContainer from '../../form-field-container';
 import { TLS_OPTIONS } from '../../../constants/ssl-tls-options';
 
 const caFieldsContainer = css({
-  // display: 'flex',
-  // flexDirection: 'row',
-  // alignItems: 'center',
   width: '50%',
 });
 
-// const caFileInputContainer = css({
-//   flexGrow: 1
-// });
-
-// const removeFileButtonStyles = css({
-//   marginLeft: spacing[1],
-//   marginTop: spacing[1],
-// });
+const removeFileButtonStyles = css({
+  marginLeft: spacing[1],
+});
 
 function TLSCertificateAuthority({
   connectionStringUrl,
@@ -46,10 +38,7 @@ function TLSCertificateAuthority({
   disabled: boolean;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
-  const [caFile, setCAFile] = useState<string[] | undefined>(undefined);
-  const [useCustomCA, setUseCustomCA] = useState(
-    connectionStringUrl.searchParams.get('tlsCAFile') !== null
-  );
+  const [caFile, setCAFile] = useState<string | undefined>(undefined);
 
   const onChangeTLSOption = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,9 +52,6 @@ function TLSCertificateAuthority({
 
   return (
     <FormFieldContainer className={caFieldsContainer}>
-      {/* <div
-        className={caFieldsContainer}
-      > */}
       <FileInput
         description={'Learn More'}
         disabled={disabled}
@@ -76,23 +62,28 @@ function TLSCertificateAuthority({
         }
         // id={name}
         // dataTestId={name}
-        onChange={(files: string[]) => {
-          setCAFile(files);
+        onChange={(files: string[] | null) => {
+          setCAFile(
+            (files && files.length > 0)
+              ? files[0]
+              : undefined
+          );
           // formFieldChanged(name as IdentityFormKeys, files[0]);
         }}
-        values={caFile}
+        // values={caFile}
       />
-      {/* </div> */}
-      {/* {caFile && (
+      {caFile && (
+        <div>
+          {caFile}
           <IconButton
             className={removeFileButtonStyles}
             aria-label="Remove CA file"
             onClick={() => setCAFile(undefined)  }
           >
-            <Icon glyph="Minus" />
+            <Icon glyph="X" />
           </IconButton>
-        )} */}
-      {/* </div> */}
+        </div>
+      )}
     </FormFieldContainer>
   );
 }
