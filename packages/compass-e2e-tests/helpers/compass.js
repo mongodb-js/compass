@@ -112,9 +112,6 @@ async function startCompass(
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
     '--media-router=0',
-    // Evergren RHEL ci runs everything as root, and chrome will not start as
-    // root without this flag
-    '--no-sandbox',
   ];
 
   const applicationStartOptions = testPackagedApp
@@ -348,10 +345,6 @@ async function savePage(
 async function beforeTests() {
   const app = await startCompass();
   const page = await app.firstWindow();
-  const commands = bindCommands(app, page);
-
-  await commands.closeTourModal();
-  await commands.closePrivacySettingsModal();
 
   app.renderLog = [];
 
@@ -364,6 +357,11 @@ async function beforeTests() {
     debugPage({ type, args });
     app.renderLog.push({ type, args });
   });
+
+  const commands = bindCommands(app, page);
+
+  await commands.closeTourModal();
+  await commands.closePrivacySettingsModal();
 
   return { app, page, commands };
 }
