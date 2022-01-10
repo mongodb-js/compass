@@ -23,7 +23,8 @@ const OPTIONS = {
   highlightActiveLine: false,
   showPrintMargin: false,
   showGutter: false,
-  useWorker: false
+  useWorker: false,
+  mode: 'ace/mode/mongodb'
 };
 
 class OptionEditor extends Component {
@@ -114,7 +115,7 @@ class OptionEditor extends Component {
     return (
       <AceEditor
         className={styles['option-editor']}
-        mode="mongodb"
+        mode="javascript" // will be set to mongodb as part of OPTIONS
         theme="mongodb-query"
         width="100%"
         value={this.props.value}

@@ -19,7 +19,7 @@ import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
 
 const inputFieldStyles = css({
-  width: '50%',
+  width: '70%',
 });
 
 function TLSClientCertificate({

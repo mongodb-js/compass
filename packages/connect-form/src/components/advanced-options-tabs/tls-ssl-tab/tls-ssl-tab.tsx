@@ -139,6 +139,23 @@ function TLSTab({
 
   const tlsOptionsDisabled = tlsOption !== 'ON';
 
+  const handleFieldChanged = useCallback(
+    (key: keyof MongoClientOptions, value: unknown) => {
+      if (!value) {
+        return updateConnectionFormField({
+          type: 'delete-search-param',
+          key,
+        });
+      }
+      return updateConnectionFormField({
+        type: 'update-search-param',
+        currentKey: key,
+        value,
+      });
+    },
+    [updateConnectionFormField]
+  );
+
   return (
     <div>
       <FormFieldContainer>
@@ -178,7 +195,9 @@ function TLSTab({
       {tlsOptionFields.map((tlsOptionField) => (
         <FormFieldContainer key={tlsOptionField.name}>
           <Checkbox
-            onChange={() => alert(`update ${tlsOptionField.name}`)}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              handleFieldChanged(tlsOptionField.name, event.target.value);
+            }}
             label={tlsOptionField.name}
             disabled={tlsOptionsDisabled}
             checked={tlsOptionField.checked}

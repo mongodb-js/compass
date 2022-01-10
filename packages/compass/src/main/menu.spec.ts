@@ -2,7 +2,6 @@ import EventEmitter from 'events';
 import { BrowserWindow, ipcMain, Menu, app } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type processType from 'process';
 
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
@@ -114,7 +113,9 @@ describe('CompassMenu', function () {
       }).not.to.throw();
     });
 
-    it('should generate a view menu template', function () {
+    it('should generate a view menu template without theme on darwin', function () {
+      sinon.stub(process, 'platform').value('darwin');
+
       expect(
         serializable(
           // Contains functions, so we can't easily deep equal it without
@@ -146,6 +147,71 @@ describe('CompassMenu', function () {
           {
             accelerator: 'CmdOrCtrl+-',
             label: 'Zoom Out',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            accelerator: 'Alt+CmdOrCtrl+I',
+            label: '&Toggle DevTools',
+          },
+        ],
+      });
+    });
+
+    it('should generate a view menu template with theme on non darwin', function () {
+      sinon.stub(process, 'platform').value('linux');
+
+      expect(
+        serializable(
+          // Contains functions, so we can't easily deep equal it without
+          // converting to serializable format
+          CompassMenu.getTemplate(0).find((item) => item.label === '&View')
+        )
+      ).to.deep.eq({
+        label: '&View',
+        submenu: [
+          {
+            accelerator: 'CmdOrCtrl+Shift+R',
+            label: '&Reload',
+          },
+          {
+            accelerator: 'CmdOrCtrl+R',
+            label: '&Reload Data',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            accelerator: 'CmdOrCtrl+0',
+            label: 'Actual Size',
+          },
+          {
+            accelerator: 'CmdOrCtrl+=',
+            label: 'Zoom In',
+          },
+          {
+            accelerator: 'CmdOrCtrl+-',
+            label: 'Zoom Out',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            label: 'Theme',
+            submenu: [{
+              checked: false,
+              label: 'Use OS Theme (Preview)',
+              type: 'checkbox',
+            }, {
+              checked: false,
+              label: 'Dark Theme (Preview)',
+              type: 'checkbox',
+            }, {
+              checked: true,
+              label: 'Light Theme',
+              type: 'checkbox',
+            }]
           },
           {
             type: 'separator',
@@ -221,7 +287,7 @@ describe('CompassMenu', function () {
       });
     });
 
-    it('should generate the about and theme options on non darwin', function () {
+    it('should generate the help options on non darwin', function () {
       sinon.stub(process, 'platform').value('linux');
 
       expect(
@@ -254,25 +320,6 @@ describe('CompassMenu', function () {
           },
           {
             type: 'separator'
-          },
-          {
-            label: 'Theme',
-            submenu: [{
-              checked: false,
-              label: 'Use OS Theme (Preview)',
-              type: 'checkbox',
-            }, {
-              checked: false,
-              label: 'Dark Theme (Preview)',
-              type: 'checkbox',
-            }, {
-              checked: true,
-              label: 'Light Theme',
-              type: 'checkbox',
-            }]
-          },
-          {
-            type: 'separator',
           },
           {
             label: `&About ${app.getName()}`,

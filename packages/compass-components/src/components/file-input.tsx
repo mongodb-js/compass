@@ -18,24 +18,24 @@ const formItemHorizontalStyles = css({
 });
 
 const formItemVerticalStyles = css({
-  margin: '5px auto 20px'
+  margin: '5px auto 20px',
 });
 
 const formItemErrorStyles = css({
   border: `1px solid ${redBaseColor}`,
   borderRadius: '5px',
   ['&:focus']: {
-    border: `1px solid ${redBaseColor}`
-  }
+    border: `1px solid ${redBaseColor}`,
+  },
 });
 
 const buttonStyles = css({
-  width: '100%'
+  width: '100%',
 });
 
 const disabledButtonStyles = css({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pointerEvents: 'auto !important' as any // !important to override leafygreen styles misordering.
+  pointerEvents: 'auto !important' as any, // !important to override leafygreen styles misordering.
 });
 
 const errorMessageStyles = css({
@@ -67,23 +67,23 @@ const labelIconStyles = css({
   },
 
   '&:link, &:active, &:hover': {
-    textDecoration: 'none'
+    textDecoration: 'none',
   },
 
   '&:hover': {
     color: '#fbb129',
-  }
+  },
 });
 
 const disabledLabelStyles = css({
   '&:first-child': {
-    pointerEvents: 'none'
-  }
+    pointerEvents: 'none',
+  },
 });
 
 const disabledDescriptionStyles = css({
-  color: uiColors.gray.dark1
-})
+  color: uiColors.gray.dark1,
+});
 
 export enum Variant {
   Horizontal = 'HORIZONTAL',
@@ -191,7 +191,7 @@ function FileInput({
         <div
           className={cx(
             {
-              [labelHorizontalStyles]: variant === Variant.Horizontal
+              [labelHorizontalStyles]: variant === Variant.Horizontal,
             },
             css({
               textAlign: labelAlignment,
@@ -204,20 +204,20 @@ function FileInput({
               {
                 [disabledLabelStyles]: disabled,
                 // [labelHorizontalStyles]: variant === Variant.Horizontal
-              },
+              }
               // css({
               //   textAlign: labelAlignment,
               // })
             )}
           >
             <span
-              className={
-                cx({
-                  [disabledDescriptionStyles]: disabled
-                })
-              }
+              className={cx({
+                [disabledDescriptionStyles]: disabled,
+              })}
               style={{ gridArea: 'label' }}
-            >{label}</span>
+            >
+              {label}
+            </span>
           </label>
           {renderDescription()}
         </div>
@@ -236,7 +236,7 @@ function FileInput({
           data-testid="file-input-button"
           className={cx({
             [buttonStyles]: true,
-            [disabledButtonStyles]: disabled
+            [disabledButtonStyles]: disabled,
           })}
           disabled={disabled}
           onClick={() => {

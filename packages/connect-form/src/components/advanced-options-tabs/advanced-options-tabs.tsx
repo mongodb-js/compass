@@ -7,7 +7,7 @@ import GeneralTab from './general-tab';
 import AuthenticationTab from './authentication-tab';
 import SSHTunnelTab from './ssh-tunnel-tab/ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
-import AdvancedTab from './advanced-tab';
+import AdvancedTab from './advanced-tab/advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../utils/connect-form-errors';
 import { ConnectionOptions } from 'mongodb-data-service';

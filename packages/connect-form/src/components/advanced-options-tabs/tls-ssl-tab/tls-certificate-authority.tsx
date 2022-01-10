@@ -22,7 +22,7 @@ import FormFieldContainer from '../../form-field-container';
 import { TLS_OPTIONS } from '../../../constants/ssl-tls-options';
 
 const caFieldsContainer = css({
-  width: '50%',
+  width: '70%',
 });
 
 const removeFileButtonStyles = css({
@@ -63,11 +63,7 @@ function TLSCertificateAuthority({
         // id={name}
         // dataTestId={name}
         onChange={(files: string[] | null) => {
-          setCAFile(
-            (files && files.length > 0)
-              ? files[0]
-              : undefined
-          );
+          setCAFile(files && files.length > 0 ? files[0] : undefined);
           // formFieldChanged(name as IdentityFormKeys, files[0]);
         }}
         // values={caFile}
@@ -78,7 +74,7 @@ function TLSCertificateAuthority({
           <IconButton
             className={removeFileButtonStyles}
             aria-label="Remove CA file"
-            onClick={() => setCAFile(undefined)  }
+            onClick={() => setCAFile(undefined)}
           >
             <Icon glyph="X" />
           </IconButton>
