@@ -87,7 +87,7 @@ describe('Form Validation Errors', function () {
       const connectionInfo: ConnectionInfo = {
         id: 'connection-test',
         connectionOptions: {
-          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tlsCertificateFile=/path/to/file.pem`,
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
       const result = validateConnectionInfoErrors(connectionInfo);
@@ -101,7 +101,7 @@ describe('Form Validation Errors', function () {
       const connectionInfo: ConnectionInfo = {
         id: 'connection-test',
         connectionOptions: {
-          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=false&tlsCertificateFile=/path/to/file.pem`,
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=false&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
       const result = validateConnectionInfoErrors(connectionInfo);
@@ -116,7 +116,7 @@ describe('Form Validation Errors', function () {
       const connectionInfo: ConnectionInfo = {
         id: 'connection-test',
         connectionOptions: {
-          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=false&tlsCertificateFile=/path/to/file.pem`,
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=false&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
       const result = validateConnectionInfoErrors(connectionInfo);
@@ -130,7 +130,7 @@ describe('Form Validation Errors', function () {
       const connectionInfo: ConnectionInfo = {
         id: 'connection-test',
         connectionOptions: {
-          connectionString: `mongodb+srv://myserver.com?authMechanism=MONGODB-X509&tlsCertificateFile=/path/to/file.pem`,
+          connectionString: `mongodb+srv://myserver.com?authMechanism=MONGODB-X509&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
       const result = validateConnectionInfoErrors(connectionInfo);
@@ -141,7 +141,7 @@ describe('Form Validation Errors', function () {
       const connectionInfo: ConnectionInfo = {
         id: 'connection-test',
         connectionOptions: {
-          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=true&tlsCertificateFile=/path/to/file.pem`,
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=true&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
       const result = validateConnectionInfoErrors(connectionInfo);
@@ -152,7 +152,7 @@ describe('Form Validation Errors', function () {
       const connectionInfo: ConnectionInfo = {
         id: 'connection-test',
         connectionOptions: {
-          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=true&tlsCertificateFile=/path/to/file.pem`,
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=true&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
       const result = validateConnectionInfoErrors(connectionInfo);
@@ -185,7 +185,8 @@ describe('Form Validation Errors', function () {
       const result = validateConnectionInfoErrors(connectionInfo);
       expect(result).to.deep.equal([
         {
-          message: 'Username and password are required.',
+          field: 'password',
+          message: 'Password is missing.',
         },
       ]);
     });
@@ -257,6 +258,43 @@ describe('Form Validation Errors', function () {
         id: 'connection-test',
         connectionOptions: {
           connectionString: `mongodb://username:password@myserver.com?authMechanism=SCRAM-SHA-1`,
+        },
+      };
+      const result = validateConnectionInfoErrors(connectionInfo);
+      expect(result).to.be.empty;
+    });
+  });
+  describe('Default', function () {
+    it('should return errors if username and password are missing', function () {
+      const connectionInfo: ConnectionInfo = {
+        id: 'connection-test',
+        connectionOptions: {
+          connectionString: `mongodb://myserver.com`,
+        },
+      };
+      const result = validateConnectionInfoErrors(connectionInfo);
+      expect(result).to.be.empty;
+    });
+    it('should return errors if password is missing', function () {
+      const connectionInfo: ConnectionInfo = {
+        id: 'connection-test',
+        connectionOptions: {
+          connectionString: `mongodb://username@myserver.com`,
+        },
+      };
+      const result = validateConnectionInfoErrors(connectionInfo);
+      expect(result).to.deep.equal([
+        {
+          field: 'password',
+          message: 'Password is missing.',
+        },
+      ]);
+    });
+    it('should not return errors if username and password are provided', function () {
+      const connectionInfo: ConnectionInfo = {
+        id: 'connection-test',
+        connectionOptions: {
+          connectionString: `mongodb://username:password@myserver.com`,
         },
       };
       const result = validateConnectionInfoErrors(connectionInfo);

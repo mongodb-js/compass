@@ -21,33 +21,46 @@ function validateConnectionInfoErrors(
 function validateAuthMechanism(
   connectionString: ConnectionString
 ): FormValidationError[] {
-  const errors: FormValidationError[] = [];
   const authMechanism = connectionString
     .typedSearchParams<MongoClientOptions>()
     .get('authMechanism');
   switch ((authMechanism || '').toUpperCase()) {
     case '':
-      return [];
+      return validateDefaultAuthMechanism(connectionString);
     case 'MONGODB-X509':
       return validateX509(connectionString);
     case 'GSSAPI':
-      return validateKerberosPrincipal(connectionString);
+      return validateKerberos(connectionString);
     case 'PLAIN':
       return validateLDAP(connectionString);
     case 'SCRAM-SHA-1':
     case 'SCRAM-SHA-256':
       return validateScramSha(connectionString);
     default:
-      return errors;
+      return [];
   }
 }
 
 function validateScramSha(
   connectionString: ConnectionString
 ): FormValidationError[] {
-  const errors: FormValidationError[] = [];
+  return validateUsernameAndPassword(connectionString);
+}
 
+function validateDefaultAuthMechanism(
+  connectionString: ConnectionString
+): FormValidationError[] {
   const { username, password } = connectionString;
+  if (!username && !password) {
+    return [];
+  }
+  return validateUsernameAndPassword(connectionString);
+}
+function validateUsernameAndPassword(
+  connectionString: ConnectionString
+): FormValidationError[] {
+  const { username, password } = connectionString;
+  const errors: FormValidationError[] = [];
   if (!username) {
     errors.push({
       field: 'username',
@@ -63,7 +76,6 @@ function validateScramSha(
   }
   return errors;
 }
-
 function validateX509(
   connectionString: ConnectionString
 ): FormValidationError[] {
@@ -73,7 +85,7 @@ function validateX509(
       message: 'TLS must be enabled in order to use x509 authentication.',
     });
   }
-  if (!connectionString.searchParams.has('tlsCertificateFile')) {
+  if (!connectionString.searchParams.has('tlsCertificateKeyFile')) {
     errors.push({
       message: 'A Client Certificate is required with x509 authentication.',
     });
@@ -84,24 +96,9 @@ function validateX509(
 function validateLDAP(
   connectionString: ConnectionString
 ): FormValidationError[] {
-  const errors: FormValidationError[] = [];
-  if (connectionString.searchParams.get('authMechanism') === 'PLAIN') {
-    if (!connectionString.username) {
-      errors.push({
-        field: 'ldapUsername',
-        message: 'LDAP username is required.',
-      });
-    }
-
-    if (!connectionString.password) {
-      errors.push({
-        message: 'Username and password are required.',
-      });
-    }
-  }
-  return errors;
+  return validateUsernameAndPassword(connectionString);
 }
-function validateKerberosPrincipal(
+function validateKerberos(
   connectionString: ConnectionString
 ): FormValidationError[] {
   const errors: FormValidationError[] = [];
