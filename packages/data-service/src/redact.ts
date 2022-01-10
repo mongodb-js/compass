@@ -30,9 +30,9 @@ export function redactConnectionOptions(
   return redacted;
 }
 
-export function redactSshTunnelOptions(
-  options: SshTunnelConfig
-): SshTunnelConfig {
+export function redactSshTunnelOptions<T extends Partial<SshTunnelConfig>>(
+  options: T
+): T {
   const redacted = { ...options };
 
   if (redacted.password) {

@@ -754,5 +754,129 @@ describe('use-connect-form hook', function () {
         expect(sshTunnel.host).to.equal('localhost');
       });
     });
+
+    describe('update-search-param action', function () {
+      it('should handle update of search param value', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019/'
+        );
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-search-param',
+              currentKey: 'w',
+              value: 'localhost',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
+        expect(connectionUrl.searchParams.get('w')).to.equal('localhost');
+      });
+      it('should handle update of search param key - with existing value', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019/?w=w-value'
+        );
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-search-param',
+              currentKey: 'w',
+              newKey: 'journal',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
+        expect(connectionUrl.searchParams.get('journal')).to.equal('w-value');
+        expect(connectionUrl.searchParams.get('w')).to.not.be.true;
+      });
+      it('should handle update of search param key - with new value', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019/w=w-value'
+        );
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-search-param',
+              currentKey: 'w',
+              newKey: 'journal',
+              value: 'j-value',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
+        expect(connectionUrl.searchParams.get('journal')).to.equal('j-value');
+      });
+    });
+
+    describe('delete-search-param action', function () {
+      it('should handle delete of search param', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019/?w=hello&journal=hi'
+        );
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'delete-search-param',
+              key: 'w',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
+        expect(connectionUrl.searchParams.get('w')).to.not.be.true;
+        expect(connectionUrl.searchParams.get('journal')).to.equal('hi');
+      });
+    });
+
+    describe('update-connection-path action', function () {
+      it('should udpate connection path - to input value', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019/admin'
+        );
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-connection-path',
+              value: 'awesome',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
+        expect(connectionUrl.pathname).to.equal('/awesome');
+      });
+
+      it('should udpate connection path - to empty value', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019/admin'
+        );
+        const { connectionStringUrl: connectionUrl } =
+          handleConnectionFormFieldUpdate({
+            action: {
+              type: 'update-connection-path',
+              value: '',
+            },
+            connectionOptions: {
+              connectionString: connectionStringUrl.toString(),
+            },
+            connectionStringUrl: connectionStringUrl,
+            initialErrors: [],
+          });
+        expect(connectionUrl.pathname).to.equal('');
+      });
+    });
   });
 });
