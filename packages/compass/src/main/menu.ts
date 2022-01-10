@@ -322,9 +322,7 @@ function logFile(app: typeof CompassApplication): MenuItemConstructorOptions {
 }
 
 function helpSubMenu(
-  app: typeof CompassApplication,
-  themeState: ThemeState,
-  saveThemeAndRefreshMenu: (theme: ThemeState) => void
+  app: typeof CompassApplication
 ): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push(helpWindowItem());
@@ -340,8 +338,6 @@ function helpSubMenu(
   subMenu.push(logFile(app));
 
   if (process.platform !== 'darwin') {
-    subMenu.push(separator());
-    subMenu.push(themeMenuItem(themeState, saveThemeAndRefreshMenu));
     subMenu.push(separator());
     subMenu.push(nonDarwinAboutItem());
   }
@@ -382,7 +378,10 @@ function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
   };
 }
 
-function viewSubMenu(): MenuItemConstructorOptions {
+function viewSubMenu(
+  themeState: ThemeState,
+  saveThemeAndRefreshMenu: (theme: ThemeState) => void
+): MenuItemConstructorOptions {
   return {
     label: '&View',
     submenu: [
@@ -423,6 +422,14 @@ function viewSubMenu(): MenuItemConstructorOptions {
         },
       },
       separator(),
+      ...(
+        process.platform === 'darwin'
+          ? []
+          : [
+            themeMenuItem(themeState, saveThemeAndRefreshMenu),
+            separator()
+          ]
+      ),
       {
         label: '&Toggle DevTools',
         accelerator: 'Alt+CmdOrCtrl+I',
@@ -468,14 +475,14 @@ function darwinMenu(
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());
-  menu.push(viewSubMenu());
+  menu.push(viewSubMenu(themeState, saveThemeAndRefreshMenu));
 
   if (menuState.showCollection) {
     menu.push(collectionSubMenu(menuState.isReadOnly));
   }
 
   menu.push(windowSubMenu());
-  menu.push(helpSubMenu(app, themeState, saveThemeAndRefreshMenu));
+  menu.push(helpSubMenu(app));
 
   return menu;
 }
@@ -486,13 +493,13 @@ function nonDarwinMenu(
   saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu = [connectSubMenu(true, app), viewSubMenu()];
+  const menu = [connectSubMenu(true, app), viewSubMenu(themeState, saveThemeAndRefreshMenu)];
 
   if (menuState.showCollection) {
     menu.push(collectionSubMenu(menuState.isReadOnly));
   }
 
-  menu.push(helpSubMenu(app, themeState, saveThemeAndRefreshMenu));
+  menu.push(helpSubMenu(app));
 
   return menu;
 }
