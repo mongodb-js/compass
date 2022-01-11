@@ -232,7 +232,7 @@
     "mongodb-connection-model": "^21.11.0",
     "mongodb-data-service": "^21.15.0",
     "mongodb-instance-model": "^11.17.0",
-    "mongodb-log-writer": "^1.1.2",
+    "mongodb-log-writer": "^1.1.4",
     "mongodb-url": "^3.0.3",
     "nock": "^13.0.11",
     "node-notifier": "^9.0.1",
