@@ -54,6 +54,13 @@ class CompassTelemetry {
     if (this.state === 'disabled' || !this.analytics) {
       return;
     }
+    if (info.event === 'Screen') {
+      const name = info.properties.name;
+      if (name === this.lastReportedScreen) {
+        return;
+      }
+      this.lastReportedScreen = name;
+    }
 
     this.analytics.track({
       userId: this.currentUserId,
