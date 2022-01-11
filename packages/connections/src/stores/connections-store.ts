@@ -17,11 +17,7 @@ import {
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
 } from '../modules/telemetry';
-import {
-  FormValidationError,
-  FormValidationWarning,
-  validateConnectionInfoErrors,
-} from '../utils/validation';
+
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
 export function createNewConnectionInfo(): ConnectionInfo {
@@ -47,8 +43,6 @@ type State = {
   connections: ConnectionInfo[];
   isConnected: boolean;
   storeConnectionError: string | null;
-  formErrors: FormValidationError[];
-  formWarnings: FormValidationWarning[];
 };
 
 export function defaultConnectionsState(): State {
@@ -61,8 +55,6 @@ export function defaultConnectionsState(): State {
     connectionErrorMessage: null,
     isConnected: false,
     storeConnectionError: null,
-    formErrors: [],
-    formWarnings: [],
   };
 }
 
@@ -101,9 +93,7 @@ type Action =
   | {
       type: 'set-connections';
       connections: ConnectionInfo[];
-    }
-  | { type: 'set-form-errors'; errors: FormValidationError[] }
-  | { type: 'set-form-warnings'; warnings: FormValidationWarning[] };
+    };
 
 export function connectionsReducer(state: State, action: Action): State {
   switch (action.type) {
@@ -159,17 +149,6 @@ export function connectionsReducer(state: State, action: Action): State {
       return {
         ...state,
         connections: action.connections,
-      };
-    case 'set-form-errors':
-      return {
-        ...state,
-        formErrors: action.errors,
-      };
-
-    case 'set-form-warnings':
-      return {
-        ...state,
-        formWarnings: action.warnings,
       };
     default:
       return state;
@@ -312,14 +291,7 @@ export function useConnections(
           // Ensure we aren't currently connecting.
           return;
         }
-        const errors = validateConnectionInfoErrors(connectionInfo);
-        if (errors.length) {
-          dispatch({
-            type: 'set-form-errors',
-            errors,
-          });
-          return;
-        }
+
         const newConnectionAttempt = createConnectionAttempt(connectFn);
         connectingConnectionAttempt.current = newConnectionAttempt;
 
