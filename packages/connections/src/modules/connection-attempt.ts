@@ -1,12 +1,11 @@
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { MongoError } from 'mongodb';
 import { connect, ConnectionOptions, DataService } from 'mongodb-data-service';
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
 );
 
-function isConnectionAttemptTerminatedError(err?: Error | MongoError) {
+function isConnectionAttemptTerminatedError(err: any) {
   return err?.name === 'MongoError' && err?.message === 'Topology closed';
 }
 

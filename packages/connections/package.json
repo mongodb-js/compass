@@ -58,7 +58,6 @@
     "@mongodb-js/compass-logging": "^0.6.1",
     "@mongodb-js/connect-form": "^0.4.1",
     "debug": "^4.2.0",
-    "mongodb": "^4.3.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "uuid": "^8.2.0"
