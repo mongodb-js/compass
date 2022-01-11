@@ -45,11 +45,28 @@ Templates:
     #############################################
 
     DriverTemplate: &DriverTemplate null
-    EqualitySyntaxTemplate: &EqualitySyntaxTemplate null # Args: lhs, operation, rhs
+    EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            if (op.includes('!') || op.includes('not')) {
+                return `${lhs} != ${rhs}`;
+            } else if (op === '==' || op === '===' || op === 'is') {
+                return `${lhs} == ${rhs}`;
+            }
+            return `${lhs} ${op} ${rhs}`;
+        }
     InSyntaxTemplate: &InSyntaxTemplate null # Args: lhs, operation, rhs
-    AndSyntaxTemplate: &AndSyntaxTemplate null # Args: items to compare as an array
-    OrSyntaxTemplate: &OrSyntaxTemplate  null # Args: items to compare as an array
-    NotSyntaxTemplate: &NotSyntaxTemplate null # Args: item to negate
+    AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
+        (args) => {
+            return args.join(' && ');
+        }
+    OrSyntaxTemplate: &OrSyntaxTemplate !!js/function >
+        (args) => {
+            return args.join(' || ');
+        }
+    NotSyntaxTemplate: &NotSyntaxTemplate !!js/function >
+        (arg) => {
+            return `!${arg}`;
+        }
     UnarySyntaxTemplate: &UnarySyntaxTemplate null
     BinarySyntaxTemplate: &BinarySyntaxTemplate null
     ParensSyntaxTemplate: &ParensSyntaxTemplate null

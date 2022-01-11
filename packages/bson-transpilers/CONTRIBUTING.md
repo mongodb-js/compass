@@ -16,6 +16,11 @@ _I strongly suggest using an IDE that will help you visualize ANTLR trees (JetBr
  `javac <Language>*.java && grun <Language> <StartRule> -gui`.
  [This might be helpful](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md)._
 
+Make sure you have run the following from the root directory:
+```shell
+$ npm run bootstrap
+```
+
 Then compile and run tests locally with:
 ```shell
 $ npm run compile && npm run test
