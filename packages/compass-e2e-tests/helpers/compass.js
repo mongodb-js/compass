@@ -112,6 +112,7 @@ async function startCompass(
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
     '--media-router=0',
+    '--no-sandbox'
   ];
 
   const applicationStartOptions = testPackagedApp
@@ -345,6 +346,8 @@ async function savePage(
 async function beforeTests() {
   const app = await startCompass();
   const page = await app.firstWindow();
+
+  console.log('TITLE', await page.title(), 'URL', await page.url());
 
   app.renderLog = [];
 
