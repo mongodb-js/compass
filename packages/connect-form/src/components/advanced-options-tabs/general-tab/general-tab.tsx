@@ -1,11 +1,11 @@
 import React from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import SchemaInput from './general/schema-input';
-import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../utils/connect-form-errors';
-import FormFieldContainer from '../form-field-container';
-import HostInput from './general/host-input';
+import SchemaInput from './schema-input';
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import { ConnectionFormError } from '../../../utils/connect-form-errors';
+import FormFieldContainer from '../../form-field-container';
+import HostInput from './host-input';
 
 function GeneralTab({
   errors,

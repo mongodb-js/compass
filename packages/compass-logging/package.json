@@ -23,7 +23,7 @@
   ],
   "license": "SSPL",
   "peerDependencies": {
-    "hadron-ipc": "*"
+    "hadron-ipc": "^2.7.0"
   },
   "main": "dist/index.js",
   "exports": {

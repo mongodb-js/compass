@@ -30,7 +30,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "debug": "*",
-    "mongodb-instance-model": "*",
+    "mongodb-instance-model": "^11.17.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-bootstrap": "^0.32.1",

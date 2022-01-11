@@ -1,6 +1,6 @@
-// align internal dependencies in packages/compass/package.json
-// since mongodb-compass is skipped in `lerna version` so to keep
-// its own version to 0.0.0-dev.
+// Manually align internal dependencies in packages/compass/package.json due to
+// private packages and peer dependencies being ignored by `lerna version`
+// command (see https://github.com/lerna/lerna/issues/1575)
 const path = require('path');
 const { runInDir } = require('./run-in-dir');
 const { updatePackageJson } = require('./monorepo/update-package-json');
@@ -40,13 +40,13 @@ async function main() {
     (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
   );
 
-  const packagesMap = new Map(packages.map((pkg) => [pkg.name, pkg]));
+  const packageToVersionMap = new Map(
+    packages.map((pkg) => [pkg.name, `^${pkg.version}`])
+  );
 
-  const privatePackages = packages.filter((pkg) => pkg.private);
-
-  for (const pkg of privatePackages) {
+  for (const pkg of packages) {
     await withProgress(
-      `Updating dependencies versions for private package ${pkg.name}`,
+      `Aligning monorepo dependencies versions for package ${pkg.name}`,
       async () => {
         await updatePackageJson(pkg.location, (packageJson) => {
           for (const depType of [
@@ -59,8 +59,8 @@ async function main() {
             }
 
             for (const depName of Object.keys(packageJson[depType])) {
-              if (packagesMap.has(depName)) {
-                const version = `^${packagesMap.get(depName).version}`;
+              if (packageToVersionMap.has(depName)) {
+                const version = packageToVersionMap.get(depName);
                 packageJson[depType][depName] = version;
               }
             }
@@ -85,7 +85,7 @@ async function main() {
 
   if (!NO_STAGE) {
     await withProgress('Staging changes for commit', async () => {
-      const updatedPackageLockFiles = privatePackages
+      const updatedPackageLockFiles = packages
         .map((pkg) => `${pkg.location}/package.json`)
         .join(' ');
 
@@ -96,7 +96,7 @@ async function main() {
   if (!NO_COMMIT) {
     await withProgress('Committing changes', async () => {
       await runInDir(
-        `git commit -m "chore(release): Update private packages dependencies versions"`
+        `git commit -m "chore(release): Update packages dependencies versions"`
       );
     });
   }
