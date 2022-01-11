@@ -157,7 +157,7 @@ function buildStateFromConnectionInfo(
   };
 
   return {
-    errors: getConnectFormErrors(connectionOptions),
+    errors: [],
     warnings: getConnectFormWarnings(connectionOptions),
 
     connectionStringInvalidError,
@@ -481,10 +481,7 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
       type: 'set-connection-string-state',
       newState: {
         connectionStringInvalidError: null,
-        errors: [
-          ...formFieldErrors,
-          ...getConnectFormErrors(connectionOptions),
-        ],
+        errors: [...formFieldErrors],
         warnings: getConnectFormWarnings(connectionOptions),
 
         connectionStringUrl,
