@@ -1,28 +1,23 @@
 import React, { ChangeEvent } from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
+import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import { defaultSocksPort } from '../../../constants/default-connection';
 import FormFieldContainer from '../../form-field-container';
+import { ConnectionFormError } from '../../../utils/validation';
 
 type SocksFormKeys = keyof Omit<
   SSHConnectionOptions,
   'identityKeyFile' | 'identityKeyPassphrase'
 >;
-type SocksFormErrors = {
-  [key in SocksFormKeys]?: string;
-};
 
 function Socks({
-  sshTunnelOptions,
   onConnectionOptionChanged,
-  errors,
 }: {
-  sshTunnelOptions?: SSHConnectionOptions;
   onConnectionOptionChanged: (
     key: SocksFormKeys,
     value: string | number
   ) => void;
-  errors?: SocksFormErrors;
+  errors: ConnectionFormError[];
 }): React.ReactElement {
   const formFieldChanged = (key: SocksFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
@@ -35,9 +30,9 @@ function Socks({
       type: 'text',
       optional: false,
       placeholder: 'Proxy Hostname',
-      value: sshTunnelOptions?.host,
-      errorMessage: errors?.host,
-      state: errors?.host ? 'error' : 'none',
+      value: '',
+      errorMessage: undefined,
+      state: 'none',
     },
     {
       name: 'port',
@@ -45,9 +40,9 @@ function Socks({
       type: 'number',
       optional: false,
       placeholder: 'Proxy Tunnel Port',
-      value: (sshTunnelOptions?.port ?? defaultSocksPort).toString(),
-      errorMessage: errors?.port,
-      state: errors?.port ? 'error' : 'none',
+      value: `${defaultSocksPort}`,
+      errorMessage: undefined,
+      state: 'none',
     },
     {
       name: 'username',
@@ -55,9 +50,9 @@ function Socks({
       type: 'text',
       optional: false,
       placeholder: 'Proxy Username',
-      value: sshTunnelOptions?.username,
-      errorMessage: errors?.username,
-      state: errors?.username ? 'error' : 'none',
+      value: '',
+      errorMessage: undefined,
+      state: 'none',
     },
     {
       name: 'password',
@@ -65,9 +60,9 @@ function Socks({
       type: 'password',
       optional: true,
       placeholder: 'Proxy Password',
-      value: sshTunnelOptions?.password,
-      errorMessage: errors?.password,
-      state: errors?.password ? 'error' : 'none',
+      value: '',
+      errorMessage: '',
+      state: 'none',
     },
   ];
 

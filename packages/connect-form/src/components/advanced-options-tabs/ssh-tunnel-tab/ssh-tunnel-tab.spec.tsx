@@ -20,9 +20,6 @@ describe('SSHTunnelTab', function () {
     render(
       <SSHTunnelTab
         errors={[]}
-        hideError={(errorIndex: number) => {
-          console.log(errorIndex);
-        }}
         connectionOptions={{} as ConnectionOptions}
         connectionStringUrl={connectionStringUrl}
         updateConnectionFormField={updateConnectionFormFieldSpy}
@@ -73,7 +70,7 @@ describe('SSHTunnelTab', function () {
       it(`when ${key} field on password form changes`, function () {
         fireEvent.change(screen.getByTestId(key), { target: { value } });
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-          type: 'update-connection-options',
+          type: 'update-ssh-options',
           currentTab: 'password',
           key,
           value,
@@ -124,7 +121,7 @@ describe('SSHTunnelTab', function () {
             : { value };
         fireEvent.change(screen.getByTestId(key), { target });
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-          type: 'update-connection-options',
+          type: 'update-ssh-options',
           currentTab: 'identity',
           key,
           value,

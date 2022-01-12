@@ -61,7 +61,6 @@ function ConnectForm({
       updateConnectionFormField,
       setConnectionStringUrl,
       setConnectionStringError,
-      hideError,
       setErrors
     },
   ] = useConnectForm(initialConnectionInfo);
@@ -88,7 +87,6 @@ function ConnectForm({
           )}
           <AdvancedConnectionOptions
             errors={errors}
-            hideError={hideError}
             disabled={!!connectionStringInvalidError}
             connectionStringUrl={editingConnectionStringUrl}
             updateConnectionFormField={updateConnectionFormField}

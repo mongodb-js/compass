@@ -6,7 +6,6 @@ import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import HostInput from './host-input';
-import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
 
 describe('HostInput', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
@@ -55,7 +54,7 @@ describe('HostInput', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
           type: 'update-host',
-          hostIndex: 0,
+          fieldIndex: 0,
           newHostValue: 'outerspaces',
         });
       });
@@ -71,7 +70,7 @@ describe('HostInput', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
           type: 'update-host',
-          hostIndex: 0,
+          fieldIndex: 0,
           newHostValue: 'outerspace@',
         });
       });
@@ -88,8 +87,8 @@ describe('HostInput', function () {
           connectionStringUrl={connectionStringUrl}
           errors={[
             {
-              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
-              hostIndex: 1,
+              fieldName: 'hosts',
+              fieldIndex: 1,
               message: 'Eeeee!!!',
             },
           ]}
@@ -133,7 +132,7 @@ describe('HostInput', function () {
           expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
           expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
             type: 'update-host',
-            hostIndex: 0,
+            fieldIndex: 0,
             newHostValue: 'outerspace:270197',
           });
         });
@@ -168,7 +167,7 @@ describe('HostInput', function () {
           expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
           expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
             type: 'remove-host',
-            hostIndexToRemove: 2,
+            fieldIndexToRemove: 2,
           });
         });
       });
@@ -183,7 +182,7 @@ describe('HostInput', function () {
           expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
           expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
             type: 'add-new-host',
-            hostIndexToAddAfter: 2,
+            fieldIndexToAddAfter: 2,
           });
         });
       });
@@ -198,7 +197,7 @@ describe('HostInput', function () {
         it('should call to update the connection string url with the updated host', function () {
           expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
             type: 'update-host',
-            hostIndex: 2,
+            fieldIndex: 2,
             newHostValue: 'outerspace:270998',
           });
         });

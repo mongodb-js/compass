@@ -1,15 +1,17 @@
 import React, { ChangeEvent } from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
+import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
+import {
+  ConnectionFormError,
+  errorMessageByFieldName,
+  fieldNameHasError
+} from '../../../utils/validation';
 
 type PasswordFormKeys = keyof Omit<
   SSHConnectionOptions,
   'identityKeyFile' | 'identityKeyPassphrase'
 >;
-type PasswordFormErrors = {
-  [key in PasswordFormKeys]?: string;
-};
 
 function Password({
   sshTunnelOptions,
@@ -21,7 +23,7 @@ function Password({
     key: PasswordFormKeys,
     value: string | number
   ) => void;
-  errors?: PasswordFormErrors;
+  errors: ConnectionFormError[];
 }): React.ReactElement {
   const formFieldChanged = (key: PasswordFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
@@ -35,8 +37,8 @@ function Password({
       optional: false,
       placeholder: 'SSH Hostname',
       value: sshTunnelOptions?.host,
-      errorMessage: errors?.host,
-      state: errors?.host ? 'error' : 'none',
+      errorMessage: errorMessageByFieldName(errors, 'sshHostname'),
+      state: fieldNameHasError(errors, 'sshHostname') ? 'error' : 'none',
     },
     {
       name: 'port',
@@ -45,8 +47,8 @@ function Password({
       optional: false,
       placeholder: 'SSH Port',
       value: (sshTunnelOptions?.port ?? '').toString(),
-      errorMessage: errors?.port,
-      state: errors?.port ? 'error' : 'none',
+      errorMessage: undefined,
+      state: 'none',
     },
     {
       name: 'username',
@@ -55,8 +57,8 @@ function Password({
       optional: false,
       placeholder: 'SSH Username',
       value: sshTunnelOptions?.username,
-      errorMessage: errors?.username,
-      state: errors?.username ? 'error' : 'none',
+      errorMessage: errorMessageByFieldName(errors, 'sshUsername'),
+      state: fieldNameHasError(errors, 'sshUsername') ? 'error' : 'none',
     },
     {
       name: 'password',
@@ -65,8 +67,8 @@ function Password({
       optional: true,
       placeholder: 'SSH Password',
       value: sshTunnelOptions?.password,
-      errorMessage: errors?.password,
-      state: errors?.password ? 'error' : 'none',
+      errorMessage: errorMessageByFieldName(errors, 'sshPassword'),
+      state: fieldNameHasError(errors, 'sshPassword') ? 'error' : 'none',
     },
   ];
 

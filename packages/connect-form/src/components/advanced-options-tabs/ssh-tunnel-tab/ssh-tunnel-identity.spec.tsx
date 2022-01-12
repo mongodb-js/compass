@@ -2,10 +2,10 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
+import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 
 import SSHTunnelIdentity from './ssh-tunnel-identity';
-import { SSHFormErrors } from '../../../utils/connect-form-errors';
+import { ConnectionFormError, errorMessageByFieldName } from '../../../utils/validation';
 
 const formFields = [
   {
@@ -38,14 +38,6 @@ const sshTunnelOptions: SSHConnectionOptions = {
   identityKeyPassphrase: 'old passphrase',
 };
 
-const errors: SSHFormErrors = {
-  host: 'Invalid host',
-  port: 'Invalid port',
-  username: 'Invalid username',
-  identityKeyFile: 'Invalid file',
-  identityKeyPassphrase: 'Invalid passphrase',
-};
-
 describe('SSHTunnelIdentity', function () {
   let onConnectionOptionChangedSpy: sinon.SinonSpy;
 
@@ -54,7 +46,7 @@ describe('SSHTunnelIdentity', function () {
 
     render(
       <SSHTunnelIdentity
-        errors={{} as SSHFormErrors}
+        errors={[]}
         sshTunnelOptions={sshTunnelOptions}
         onConnectionOptionChanged={onConnectionOptionChangedSpy}
       />
@@ -101,6 +93,19 @@ describe('SSHTunnelIdentity', function () {
   });
 
   it('renders form field error on form when passed', function () {
+    const errors: ConnectionFormError[] = [{
+      fieldName: 'sshHostname',
+      message: 'Invalid host',
+    },
+    {
+      fieldName: 'sshUsername',
+      message: 'Invalid username'
+    },
+    {
+      fieldName: 'sshIdentityKeyFile',
+      message: 'Invalid file'
+    }];
+
     render(
       <SSHTunnelIdentity
         errors={errors}
@@ -109,11 +114,19 @@ describe('SSHTunnelIdentity', function () {
       />
     );
 
-    formFields.forEach(function ({ key }) {
-      expect(
-        screen.getByText(errors[key]),
-        `renders ${key} field error`
-      ).to.exist;
-    });
+    expect(
+      screen.getByText(errorMessageByFieldName(errors, 'sshHostname')),
+      `renders sshHostname field error`
+    ).to.exist;
+
+    expect(
+      screen.getByText(errorMessageByFieldName(errors, 'sshUsername')),
+      `renders sshUsername field error`
+    ).to.exist;
+
+    expect(
+      screen.getByText(errorMessageByFieldName(errors, 'sshIdentityKeyFile')),
+      `renders sshIdentityKeyFile field error`
+    ).to.exist;
   });
 });

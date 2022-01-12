@@ -1,12 +1,10 @@
 import React, { ChangeEvent } from 'react';
 import { TextInput, FileInput } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
+import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
+import { ConnectionFormError, errorMessageByFieldName, fieldNameHasError } from '../../../utils/validation';
 
 type IdentityFormKeys = keyof SSHConnectionOptions;
-type IdentityFormErrors = {
-  [key in IdentityFormKeys]?: string;
-};
 
 function Identity({
   sshTunnelOptions,
@@ -18,7 +16,7 @@ function Identity({
     key: IdentityFormKeys,
     value: string | number
   ) => void;
-  errors?: IdentityFormErrors;
+  errors: ConnectionFormError[];
 }): React.ReactElement {
   const formFieldChanged = (key: IdentityFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
@@ -32,8 +30,8 @@ function Identity({
       optional: false,
       placeholder: 'SSH Hostname',
       value: sshTunnelOptions?.host,
-      errorMessage: errors?.host,
-      state: errors?.host ? 'error' : 'none',
+      errorMessage: errorMessageByFieldName(errors, 'sshHostname'),
+      state: fieldNameHasError(errors, 'sshHostname') ? 'error' : 'none',
     },
     {
       name: 'port',
@@ -42,8 +40,8 @@ function Identity({
       optional: false,
       placeholder: 'SSH Tunnel Port',
       value: (sshTunnelOptions?.port ?? '').toString(),
-      errorMessage: errors?.port,
-      state: errors?.port ? 'error' : 'none',
+      errorMessage: '',
+      state: 'none',
     },
     {
       name: 'username',
@@ -52,14 +50,15 @@ function Identity({
       optional: false,
       placeholder: 'SSH Username',
       value: sshTunnelOptions?.username,
-      errorMessage: errors?.username,
-      state: errors?.username ? 'error' : 'none',
+      errorMessage: errorMessageByFieldName(errors, 'sshUsername'),
+      state: fieldNameHasError(errors, 'sshUsername') ? 'error' : 'none',
     },
     {
       name: 'identityKeyFile',
       label: 'SSH Identity File',
       type: 'file',
-      errorMessage: errors?.identityKeyFile,
+      errorMessage: errorMessageByFieldName(errors, 'sshIdentityKeyFile'),
+      state: fieldNameHasError(errors, 'sshIdentityKeyFile') ? 'error' : 'none',
       value:
         sshTunnelOptions?.identityKeyFile && sshTunnelOptions.identityKeyFile
           ? [sshTunnelOptions.identityKeyFile]
@@ -72,8 +71,8 @@ function Identity({
       optional: true,
       placeholder: 'SSH Passphrase',
       value: sshTunnelOptions?.identityKeyPassphrase,
-      errorMessage: errors?.identityKeyPassphrase,
-      state: errors?.identityKeyPassphrase ? 'error' : 'none',
+      errorMessage: undefined,
+      state: 'none',
     },
   ];
 
