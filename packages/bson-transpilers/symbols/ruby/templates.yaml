@@ -138,7 +138,17 @@ Templates:
     HexTypeTemplate: &HexTypeTemplate null # args: literal, argType
     OctalTypeTemplate: &OctalTypeTemplate null # args: literal, argType
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
-    ArrayTypeTemplate: &ArrayTypeTemplate null # Args: the interior of the array (i.e. '1, 2'), nestedness#
+    ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
+        (literal, depth) => {
+            depth++;
+            if (literal === '') {
+                return '[]'
+            }
+            const indent = '\n' + '  '.repeat(depth);
+            const closingIndent = '\n' + '  '.repeat(depth - 1);
+
+            return `[${indent}${literal}${closingIndent}]`;
+        }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate !!js/function >
         () => {
@@ -148,8 +158,36 @@ Templates:
         () => {
             return 'nil'; // TODO: N, not technically correct, but python does the same thing
         }
-    ObjectTypeTemplate: &ObjectTypeTemplate null # Args: literal (for empty array, is empty string. Otherwise all set)
-    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null # Args: single object element [2] (i.e. array with [key, value]), nestedness#
+    ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
+        (literal) => {
+            if (literal === '') {
+                return '{}';
+            }
+            return literal;
+        }
+    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
+        (args, depth) => {
+            if (args.length === 0) {
+                return '{}';
+            }
+            depth++;
+            const indent = '\n' + '  '.repeat(depth);
+            const closingIndent = '\n' + '  '.repeat(depth - 1);
+            const singleStringify = (str) => {
+                let newStr = str;
+                if (
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
+            }
+            const pairs = args.map((arg) => {
+                return `${indent}${singleStringify(arg[0])} => ${arg[1]}`;
+            }).join(', ');
+
+            return `{${pairs}${closingIndent}}`
+        }
 
     #############################################
     #               Symbols                     #
