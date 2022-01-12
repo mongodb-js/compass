@@ -34,7 +34,7 @@
     "prettier": "2.3.2"
   },
   "dependencies": {
-    "@mongodb-js/devtools-docker-test-envs": "^1.2.2",
+    "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
     "chalk": "^4.1.1",
     "electron": "^13.5.1",
     "find-up": "^5.0.0",

@@ -1,47 +1,47 @@
 import { EventEmitter, once } from 'events';
 import createDebug from 'debug';
 import fs from 'fs';
+import crypto from 'crypto';
+import { promisify } from 'util';
 
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import type { MongoClientOptions } from 'mongodb';
 
 import { ConnectionSshOptions } from './connection-options';
 import { redactSshTunnelOptions } from './redact';
 
 const debug = createDebug('mongodb-data-service:connect');
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT');
+const randomBytes = promisify(crypto.randomBytes);
+
+type Socks5Options = Pick<
+  MongoClientOptions,
+  'proxyHost' | 'proxyPort' | 'proxyUsername' | 'proxyPassword'
+>;
 
 export async function openSshTunnel(
   srvResolvedConnectionString: string,
   sshTunnelOptions: ConnectionSshOptions | undefined,
   localPort: number
-): Promise<[SSHTunnel | undefined, string]> {
+): Promise<[SSHTunnel | undefined, Socks5Options | undefined]> {
   if (!sshTunnelOptions) {
-    return [undefined, srvResolvedConnectionString];
+    return [undefined, undefined];
   }
 
-  const connectionStringUrl = new ConnectionStringUrl(
-    srvResolvedConnectionString
-  );
-
-  if (connectionStringUrl.hosts.length !== 1) {
-    throw new Error(
-      'It is currently not possible to open an SSH tunnel to a replica set'
-    );
-  }
-
-  const [dstHost, dstPort = 27017] = connectionStringUrl.hosts[0].split(':');
+  const credentialsSource = await randomBytes(64);
+  const socks5Username = credentialsSource.slice(0, 32).toString('base64');
+  const socks5Password = credentialsSource.slice(32).toString('base64');
 
   const tunnelConstructorOptions = {
     readyTimeout: 20000,
     forwardTimeout: 20000,
     keepaliveInterval: 20000,
-    srcAddr: '127.0.0.1', // OS should figure out an ephemeral srcPort.
-    dstPort: +dstPort,
-    dstAddr: dstHost,
     localPort: localPort,
     localAddr: '127.0.0.1',
+    socks5Username: socks5Username,
+    socks5Password: socks5Password,
     host: sshTunnelOptions.host,
     port: sshTunnelOptions.port,
     username: sshTunnelOptions.username,
@@ -73,9 +73,15 @@ export async function openSshTunnel(
 
   log.info(mongoLogId(1_001_000_007), 'SSHTunnel', 'SSH tunnel opened');
 
-  connectionStringUrl.hosts = [`127.0.0.1:${localPort}`];
-
-  return [tunnel, connectionStringUrl.href];
+  return [
+    tunnel,
+    {
+      proxyHost: 'localhost',
+      proxyPort: localPort,
+      proxyUsername: socks5Username,
+      proxyPassword: socks5Password,
+    },
+  ];
 }
 
 export async function forceCloseTunnel(

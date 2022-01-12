@@ -110,31 +110,6 @@ describe('connectMongoClient', function () {
     });
 
     describe('ssh tunnel failures', function () {
-      it('should refuse to open the tunnel with a replica set', async function () {
-        const connectionOptions: ConnectionOptions = {
-          connectionString:
-            'mongodb://localhost:27018,localhost:27019,localhost:27020?serverSelectionTimeoutMS=100',
-          sshTunnel: {
-            host: 'localhost',
-            port: 22,
-            username: 'my-user',
-            password: 'password',
-          },
-        };
-
-        const error = await connectMongoClient(
-          connectionOptions,
-          setupListeners,
-          tunnelLocalPort
-        ).catch((err) => err);
-
-        expect(error).to.be.instanceOf(Error);
-
-        expect(error.message).to.match(
-          /It is currently not possible to open an SSH tunnel to a replica set/
-        );
-      });
-
       it('should close ssh tunnel if the connection fails', async function () {
         const connectionOptions: ConnectionOptions = {
           connectionString:
