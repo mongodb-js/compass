@@ -35,6 +35,7 @@ export type ConnectionFormError =
   | SSHTunnelFieldError;
 
 export function getConnectFormErrors(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connectionOptions: ConnectionOptions
 ): ConnectionFormError[] {
   return [];

@@ -10,7 +10,6 @@ import {
   BulkWriteOptions,
   ClientSession,
   Collection,
-  CollectionInfo,
   CollStats,
   CommandFailedEvent,
   CommandSucceededEvent,
@@ -32,7 +31,6 @@ import {
   InsertManyResult,
   InsertOneOptions,
   InsertOneResult,
-  ListCollectionsOptions,
   MongoClient,
   MongoClientOptions,
   ServerClosedEvent,
@@ -907,11 +905,6 @@ class DataService extends EventEmitter {
     filter: Filter<Document>,
     options: FindOptions
   ): FindCursor {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_043),
-      'Running raw find',
-      { ns }
-    );
     return this._collection(ns).find(filter, options);
   }
 
