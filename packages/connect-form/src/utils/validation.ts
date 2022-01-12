@@ -1,35 +1,10 @@
-import { ConnectionInfo } from 'mongodb-data-service';
-import { validateConnectionInfoErrors } from './validation-errors';
-import { validateConnectionInfoWarnings } from './validation-warnings';
+import { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 
-export type FormFieldName =
-  | 'username'
-  | 'password'
-  | 'hostname'
-  | 'kerberosPrincipal'
-  | 'ldapUsername'
-  | 'ldapPassword'
-  | 'schema'
-  | 'sshHostname'
-  | 'sshUsername'
-  | 'sshPassword';
-
-export type FormValidationError = {
-  message: string;
-  field?: FormFieldName;
-};
-
-export type FormValidationWarning = FormValidationError;
-
-export { validateConnectionInfoErrors, validateConnectionInfoWarnings };
-
 export function getConnectionString(
-  connectionInfo: ConnectionInfo
+  connectionOptions: ConnectionOptions
 ): ConnectionString {
-  return new ConnectionString(
-    connectionInfo.connectionOptions.connectionString
-  );
+  return new ConnectionString(connectionOptions.connectionString);
 }
 
 export function isSecure(connectionString: ConnectionString): boolean {

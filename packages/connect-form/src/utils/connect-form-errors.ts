@@ -22,6 +22,7 @@ export interface SchemaFieldError {
 export interface SSHTunnelFieldError {
   fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SSH;
   errors: SSHFormErrors;
+  message?: string;
 }
 
 export type SSHFormErrors = {
@@ -32,11 +33,22 @@ export type ConnectionFormError =
   | GenericConnectionError
   | HostFieldError
   | SchemaFieldError
-  | SSHTunnelFieldError;
+  | SSHTunnelFieldError
+  | FormValidationError;
 
-export function getConnectFormErrors(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  connectionOptions: ConnectionOptions
-): ConnectionFormError[] {
-  return [];
-}
+export type FormValidationError = {
+  message: string;
+  fieldName?: FormFieldName;
+};
+
+export type FormFieldName =
+  | 'username'
+  | 'password'
+  | 'hostname'
+  | 'kerberosPrincipal'
+  | 'ldapUsername'
+  | 'ldapPassword'
+  | 'schema'
+  | 'sshHostname'
+  | 'sshUsername'
+  | 'sshPassword';

@@ -4,14 +4,8 @@ import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 
 import { defaultConnectionString } from '../constants/default-connection';
-import {
-  ConnectionFormWarning,
-  getConnectFormWarnings,
-} from '../utils/connect-form-warnings';
-import {
-  ConnectionFormError,
-  getConnectFormErrors,
-} from '../utils/connect-form-errors';
+import { ConnectionFormWarning } from '../utils/connect-form-warnings';
+import { ConnectionFormError } from '../utils/connect-form-errors';
 import { getNextHost } from '../utils/get-next-host';
 import { defaultHostname, defaultPort } from '../constants/default-connection';
 import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
@@ -23,6 +17,7 @@ import {
 } from '../utils/connection-options-handler';
 import { handleUpdateTlsOption } from '../utils/tls-options';
 import { TLS_OPTIONS } from '../constants/ssl-tls-options';
+import { validateConnectionOptionsWarnings } from '../utils/validation-warnings';
 
 export interface ConnectFormState {
   connectionStringInvalidError: string | null;
@@ -53,6 +48,10 @@ type Action =
   | {
       type: 'hide-warning';
       warningIndex: number;
+    }
+  | {
+      type: 'set-form-errors';
+      errors: ConnectionFormError[];
     };
 
 function connectFormReducer(
@@ -85,6 +84,11 @@ function connectFormReducer(
       return {
         ...state,
         warnings: [...state.warnings].splice(action.warningIndex, 1),
+      };
+    case 'set-form-errors':
+      return {
+        ...state,
+        errors: action.errors,
       };
   }
 }
@@ -158,7 +162,7 @@ function buildStateFromConnectionInfo(
 
   return {
     errors: [],
-    warnings: getConnectFormWarnings(connectionOptions),
+    warnings: validateConnectionOptionsWarnings(connectionOptions),
 
     connectionStringInvalidError,
     connectionStringUrl,
@@ -425,6 +429,7 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
     updateConnectionFormField: UpdateConnectionFormField;
     hideError: (index: number) => void;
     hideWarning: (index: number) => void;
+    setErrors: (errors: ConnectionFormError[]) => void;
   }
 ] {
   const [state, dispatch] = useReducer(
@@ -482,7 +487,7 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
       newState: {
         connectionStringInvalidError: null,
         errors: [...formFieldErrors],
-        warnings: getConnectFormWarnings(connectionOptions),
+        warnings: validateConnectionOptionsWarnings(connectionOptions),
 
         connectionStringUrl,
         connectionOptions,
@@ -513,6 +518,12 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
         });
       },
       updateConnectionFormField,
+      setErrors: (errors: ConnectionFormError[]) => {
+        dispatch({
+          type: 'set-form-errors',
+          errors,
+        });
+      },
     },
   ];
 }
