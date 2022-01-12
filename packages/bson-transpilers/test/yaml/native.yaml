@@ -338,7 +338,7 @@ tests:
           java: floor(10L) % 3L
           csharp: Math.floor(10, 2) % 3
           object: Math.floor(10, 2)%3
-          ruby: 10.div(2)%3
+          ruby: 10.div(2) % 3
     - input:
           python: 6 ** 7
       output:
@@ -421,7 +421,7 @@ tests:
           java: 2d
           csharp: (int) 2
           object: Number(2)
-          ruby: 2.to_f # TODO: N, this is just a float, ruby doesn't have a double type
+          ruby: '2'
     - input:
           javascript: Number(2)
           shell: Number(2)
@@ -432,7 +432,7 @@ tests:
           java: 2d
           csharp: (int) 2
           object: Number(2)
-          ruby: 2.to_f
+          ruby: '2'
     - input:
           javascript: Number('2')
           shell: Number('2')
@@ -453,7 +453,7 @@ tests:
           java: 0d
           csharp: (int) 0
           object: '0'
-          ruby: 0.to_f
+          ruby: '0'
     numeric_literals:
     - input:
           javascript: '2'
@@ -804,7 +804,7 @@ tests:
           java: '3d'
           csharp: '3.0'
           object: new Double(3)
-          ruby: 3.to_d
+          ruby: 3.to_f
     - input:
           python: float('3')
       output:
@@ -814,7 +814,7 @@ tests:
           java: Double.parseDouble("3")
           csharp: Convert.ToDouble("3")
           object: new Double('3')
-          ruby: "'3'.to_d"
+          ruby: "'3'.to_f"
     - input:
           python: float(3.001)
       output:
@@ -824,7 +824,7 @@ tests:
           java: 3.001d
           csharp: '3.001'
           object: new Double(3.001)
-          ruby: 3.001.to_d
+          ruby: 3.001.to_f
     - input:
           python: float(0x3)
       output:
@@ -834,7 +834,7 @@ tests:
           java: (double) 0x3
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
-          ruby: 0x3.to_d
+          ruby: 0x3.to_f
     - input:
           python: float(0o3)
       output:
@@ -844,7 +844,7 @@ tests:
           java: (double) 03
           csharp: '3.0'
           object: new Double(0o3)
-          ruby: 0o3.to_d
+          ruby: 0o3.to_f
     Date:
     - description: now date
       input:
