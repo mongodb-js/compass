@@ -48,18 +48,22 @@ export default async function connectMongoClient(
   // If connectionOptions.sshTunnel is not defined the tunnel
   // will also be undefined and the connectionString will be the
   // same as the one passed as argument.
-  const [tunnel, urlWithSshTunnel] = await openSshTunnel(
+  const [tunnel, socks5Options] = await openSshTunnel(
     srvResolvedUrl,
     connectionOptions.sshTunnel,
     tunnelLocalPort
   );
 
+  if (socks5Options) {
+    Object.assign(driverOptions, socks5Options);
+  }
+
   log.info(mongoLogId(1_001_000_009), 'Connect', 'Initiating connection', {
-    url: redactConnectionString(urlWithSshTunnel),
+    url: redactConnectionString(srvResolvedUrl),
     options: driverOptions,
   });
 
-  const mongoClient = new MongoClient(urlWithSshTunnel, driverOptions);
+  const mongoClient = new MongoClient(srvResolvedUrl, driverOptions);
 
   if (setupListeners) {
     setupListeners(mongoClient);
@@ -77,13 +81,13 @@ export default async function connectMongoClient(
 
     log.info(mongoLogId(1_001_000_012), 'Connect', 'Connection established', {
       driver: mongoClient.options?.metadata?.driver,
-      url: redactConnectionString(urlWithSshTunnel),
+      url: redactConnectionString(srvResolvedUrl),
     });
 
     return [
       mongoClient,
       tunnel,
-      { url: urlWithSshTunnel, options: driverOptions },
+      { url: srvResolvedUrl, options: driverOptions },
     ];
   } catch (err: any) {
     log.error(

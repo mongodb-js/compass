@@ -10,7 +10,6 @@ import {
   BulkWriteOptions,
   ClientSession,
   Collection,
-  CollectionInfo,
   CollStats,
   CommandFailedEvent,
   CommandSucceededEvent,
@@ -32,7 +31,6 @@ import {
   InsertManyResult,
   InsertOneOptions,
   InsertOneResult,
-  ListCollectionsOptions,
   MongoClient,
   MongoClientOptions,
   ServerClosedEvent,
@@ -912,6 +910,9 @@ class DataService extends EventEmitter {
       'Running raw find',
       { ns }
     );
+
+    logop(null);
+
     return this._collection(ns).find(filter, options);
   }
 

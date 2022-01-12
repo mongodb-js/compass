@@ -40,7 +40,7 @@
     "glob": "^7.1.6",
     "hadron-build": "^24.11.0",
     "mocha": "*",
-    "mongodb": "^4.2.2",
+    "mongodb": "^4.3.0",
     "mongodb-runner": "^4.8.3",
     "prettier": "*",
     "spectron": "^15.0.0",
