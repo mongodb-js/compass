@@ -1,7 +1,5 @@
 import { expect } from 'chai';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
-
 import { handleConnectionFormFieldUpdate } from './use-connect-form';
 
 describe('use-connect-form hook', function () {
@@ -471,7 +469,7 @@ describe('use-connect-form hook', function () {
         it('adds an error to the errors with a message and the host field name', function () {
           expect(updateResult.errors).to.deep.equal([
             {
-              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              fieldName: 'hosts',
               fieldIndex: 0,
               message:
                 'Host cannot be empty. The host is the address hostname, IP address, or UNIX domain socket where the mongodb instance is running.',
@@ -512,7 +510,7 @@ describe('use-connect-form hook', function () {
         it('adds an error to the errors with a message and the host field name', function () {
           expect(updateResult.errors).to.deep.equal([
             {
-              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              fieldName: 'hosts',
               fieldIndex: 1,
               message: "Invalid character in host: '@'",
             },
@@ -553,7 +551,7 @@ describe('use-connect-form hook', function () {
         it('adds an error to the errors with a message and the host field name', function () {
           expect(updateResult.errors).to.deep.equal([
             {
-              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              fieldName: 'hosts',
               fieldIndex: 0,
               message: "Invalid character in host: '/'",
             },
@@ -593,7 +591,7 @@ describe('use-connect-form hook', function () {
         it('adds an error to the errors with a message and the host field name', function () {
           expect(updateResult.errors).to.deep.equal([
             {
-              fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
+              fieldName: 'hosts',
               fieldIndex: 0,
               message: "Invalid character in host: ':'",
             },

@@ -30,12 +30,7 @@ describe('#handleUpdateSshOptions', function () {
       }
     );
 
-    expect(response.errors).to.deep.equal([
-      {
-        fieldName: undefined,
-        message: 'message',
-      },
-    ]);
+    expect(response.errors).to.deep.equal([]);
     expect(response.warnings).to.deep.equal([]);
     expect(response.connectionStringInvalidError).to.be.null;
     expect(response.connectionStringUrl.toString()).to.equal(
