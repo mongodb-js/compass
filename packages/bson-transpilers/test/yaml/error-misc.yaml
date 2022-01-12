@@ -218,7 +218,7 @@ tests:
       errorCode: E_BSONTRANSPILERS_ATTRIBUTE
     - description: Decimal128 with invalidMethod
       input:
-          javascript: new Decimal128(Buffer.from('5')).invalidMethod()
+          javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).invalidMethod()
           python: Decimal128('1').invalidMethod()
       errorCode: E_BSONTRANSPILERS_ATTRIBUTE
     - description: Timestamp with invalidMethod
