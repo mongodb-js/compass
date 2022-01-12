@@ -21,7 +21,7 @@
     "stop-server": "mongodb-runner stop --port 27018",
     "insert-data": "node ./scripts/insert-data.js",
     "unzip-fixtures": "node ./scripts/gunzip.js fixtures/*.gz",
-    "testfast": "DISABLE_START_STOP=true BAIL=true DEBUG=*compass-e2e-tests* npm run test -- --no-native-modules --no-compile"
+    "testfast": "env DISABLE_START_STOP=true env BAIL=true env DEBUG=hadron*,mongo*,compass*,pw:browser* npm run test -- --no-native-modules --no-compile"
   },
   "dependencies": {
     "mongodb-compass": "^0.0.0-dev.0"
