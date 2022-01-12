@@ -331,7 +331,7 @@ export function useConnections(
           );
         } catch (error) {
           connectingConnectionAttempt.current = undefined;
-          trackConnectionFailedEvent(connectionInfo, error);
+          trackConnectionFailedEvent(connectionInfo, error as Error);
           debug('connect error', error);
 
           dispatch({
