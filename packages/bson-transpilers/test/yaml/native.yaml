@@ -19,6 +19,7 @@ tests:
           csharp: "new BsonDocument(\"x\", \"1\")"
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
+          ruby: "{\n  'x' => '1'\n}"
     - input:
           javascript: "{x: '1',}"
           shell: "{x: '1',}"
@@ -30,6 +31,7 @@ tests:
           csharp: "new BsonDocument(\"x\", \"1\")"
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
+          ruby: "{\n  'x' => '1'\n}"
     - input:
           javascript: "{x: ['1', '2']}"
           shell: "{x: ['1', '2']}"
@@ -41,6 +43,7 @@ tests:
           csharp: "new BsonDocument(\"x\", new BsonArray\n    {\n        \"1\",\n        \"2\"\n    })"
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
+          ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
     - input:
           javascript: "{x: {y: 2}}"
           shell: "{x: {y: 2}}"
@@ -52,6 +55,7 @@ tests:
           csharp: "new BsonDocument(\"x\", new BsonDocument(\"y\", 2))"
           shell: "{\n  'x': {\n    'y': 2\n  }\n}"
           object: "{x: {y: 2}}"
+          ruby: "{\n  'x' => {\n    'y' => 2\n  }\n}"
     - input:
           javascript: "{}"
           shell: "{}"
@@ -63,6 +67,7 @@ tests:
           java: "new Document()"
           csharp: "new BsonDocument()"
           object: "{}"
+          ruby: "{}"
     - input:
           javascript: "{x: '1', n: '4'}"
           shell: "{x: '1', n: '4'}"
@@ -74,6 +79,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"x\", \"1\" }, \n    { \"n\", \"4\" }\n}"
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
+          ruby: "{\n  'x' => '1', \n  'n' => '4'\n}"
     - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
@@ -85,6 +91,7 @@ tests:
           csharp: "new BsonDocument(\"graphLookup\", new BsonDocument\n    {\n        { \"from\", \"raw_data\" }, \n        { \"startWith\", \"$_id\" }, \n        { \"connectFromField\", \"_id\" }, \n        { \"connectToField\", \"manager\" }, \n        { \"as\", \"reports\" }\n    })"
           shell: "{\n  'graphLookup': {\n    'from': 'raw_data', \n    'startWith': '$_id', \n    'connectFromField': '_id', \n    'connectToField': 'manager', \n    'as': 'reports'\n  }\n}"
           object: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
+          ruby: "{\n  'graphLookup' => {\n    'from' => 'raw_data', \n    'startWith' => '$_id', \n    'connectFromField' => '_id', \n    'connectToField' => 'manager', \n    'as' => 'reports'\n  }\n}"
     - input:
           javascript: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
           shell: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
@@ -96,6 +103,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}"
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
+          ruby: "{\n  'status' => 'A', \n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
     - input:
           python: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
       output:
@@ -105,6 +113,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}"
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
+          ruby: "{\n  'status' => 'A', \n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
     Array:
     - input:
           python: "['1', '2']"
@@ -117,6 +126,7 @@ tests:
           shell: "[\n  '1', '2'\n]"
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
+          ruby: "[\n  '1', '2'\n]"
     - input:
           python: "['1', '2',]"
           javascript: "['1', '2',]"
@@ -128,6 +138,7 @@ tests:
           shell: "[\n  '1', '2'\n]"
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
+          ruby: "[\n  '1', '2'\n]"
     - input:
           python: "['1', { 'settings': 'http2' }]"
           javascript: "['1', { settings: 'http2' }]"
@@ -139,6 +150,7 @@ tests:
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           python: "[\n    '1', {\n        'settings': 'http2'\n    }\n]"
           object: "['1', { settings: 'http2' }]"
+          ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
     - input:
           python: "{ 'pipeline': [{'$match': {'$expr': { '$eq': [ '$manager', '$$me' ] } } }, { '$project': { 'managers': 0}}, {'$sort': { 'startQuarter': 1, 'notes': 1, 'job_code': 1}}]}"
           javascript: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
@@ -150,6 +162,7 @@ tests:
           shell: "{\n  'pipeline': [\n    {\n      '$match': {\n        '$expr': {\n          '$eq': [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project': {\n        'managers': 0\n      }\n    }, {\n      '$sort': {\n        'startQuarter': 1, \n        'notes': 1, \n        'job_code': 1\n      }\n    }\n  ]\n}"
           python: "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}"
           object: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
+          ruby: "{\n  'pipeline' => [\n    {\n      '$match' => {\n        '$expr' => {\n          '$eq' => [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project' => {\n        'managers' => 0\n      }\n    }, {\n      '$sort' => {\n        'startQuarter' => 1, \n        'notes' => 1, \n        'job_code' => 1\n      }\n    }\n  ]\n}"
     - input:
           python: "['1', ['2', '3']]"
           javascript: "['1', ['2', '3']]"
@@ -161,6 +174,7 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           python: "[\n    '1', [\n        '2', '3'\n    ]\n]"
           object: "['1', ['2', '3']]"
+          ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
     - input:
           python: "[]"
           javascript: "[]"
@@ -172,6 +186,7 @@ tests:
           shell: "[]"
           python: "[]"
           object: "[]"
+          ruby: "[]"
     - input:
           python: "['1', ('2', '3')]"
       output:
@@ -181,6 +196,7 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           python: "[\n    '1', [\n        '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
+          ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
     ArrayElision:
     - input:
           javascript: "[,'1', '2',]"
@@ -192,6 +208,7 @@ tests:
           shell: "[\n  undefined, '1', '2'\n]"
           javascript: "[\n  undefined, '1', '2'\n]"
           object: "[undefined, '1', '2']"
+          ruby: "[\n  nil, '1', '2'\n]"
     - input:
           javascript: "[,]"
           shell: "[,]"
@@ -202,6 +219,7 @@ tests:
           shell: "[\n  undefined\n]"
           javascript: "[\n  undefined\n]"
           object: "[undefined]"
+          ruby: "[\n  nil\n]"
     - input:
           javascript: "[,,]"
           shell: "[,,]"
@@ -212,6 +230,7 @@ tests:
           shell: "[\n  undefined, undefined\n]"
           javascript: "[\n  undefined, undefined\n]"
           object: "[undefined, undefined]"
+          ruby: "[\n  nil, nil\n]"
     - input:
           javascript: "['1',,,,'2']"
           shell: "['1',,,,'2']"
@@ -222,6 +241,7 @@ tests:
           shell: "[\n  '1', undefined, undefined, undefined, '2'\n]"
           javascript: "[\n  '1', undefined, undefined, undefined, '2'\n]"
           object: "['1', undefined, undefined, undefined, '2']"
+          ruby: "[\n  '1', nil, nil, nil, '2'\n]"
     Tuple:
     - input:
           python: "()"
@@ -232,6 +252,7 @@ tests:
           csharp: "new BsonArray()"
           shell: "[]"
           object: "[]"
+          ruby: "[]"
     - input:
           python: "(1,)"
       output:
@@ -241,6 +262,7 @@ tests:
           csharp: "new BsonArray\n{\n    1\n}"
           shell: "[\n  1\n]"
           object: "[1]"
+          ruby: "[\n  1\n]"
     - input:
           python: "(1)"
       output:
@@ -250,6 +272,7 @@ tests:
           csharp: "(1)"
           shell: "(1)"
           object: "(1)"
+          ruby: "(1)"
     - input:
           python: "('1', { 'settings': 'http2' })"
       output:
@@ -259,6 +282,7 @@ tests:
           csharp: "new BsonArray\n{\n    \"1\",\n    new BsonDocument(\"settings\", \"http2\")\n}"
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           object: "['1', { 'settings': 'http2' }]"
+          ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
     - input:
           python: "('1', ['2', '3'])"
       output:
@@ -268,6 +292,7 @@ tests:
           csharp: "new BsonArray\n{\n    \"1\",\n    new BsonArray\n    {\n        \"2\",\n        \"3\"\n    }\n}"
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
+          ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
     - input:
           python: "['1', ('2', '3')]"
       output:
@@ -277,6 +302,7 @@ tests:
           csharp: "new BsonArray\n{\n    \"1\",\n    new BsonArray\n    {\n        \"2\",\n        \"3\"\n    }\n}"
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
+          ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
     binops:
     - input:
           javascript: 2 + 5 - 1
@@ -289,6 +315,7 @@ tests:
           java: 2L + 5L - 1L
           csharp: 2 + 5 - 1
           object: 2 + 5 - 1
+          ruby: 2 + 5 - 1
     - input:
           javascript: 2 + (4 * 36) / 3
           shell: 2 + (4 * 36) / 3
@@ -301,6 +328,7 @@ tests:
           java: 2L + (4L * 36L) / 3L
           csharp: 2 + (4 * 36) / 3
           object: 2 + (4 * 36) / 3
+          ruby: 2 + (4 * 36) / 3
     - input:
           python: 10 // 2 % 3
       output:
@@ -310,6 +338,7 @@ tests:
           java: floor(10L) % 3L
           csharp: Math.floor(10, 2) % 3
           object: Math.floor(10, 2)%3
+          ruby: 10.div(2)%3
     - input:
           python: 6 ** 7
       output:
@@ -319,6 +348,7 @@ tests:
           java: pow(6L, 7L)
           csharp: Math.pow(6, 7)
           object: Math.pow(6, 7)
+          ruby: 6 ** 7
     - input:
           javascript: 1 | 2 ^ 3 & 4 << 6 >> 7
           shell: 1 | 2 ^ 3 & 4 << 6 >> 7
@@ -330,6 +360,7 @@ tests:
           java: 1L | 2L ^ 3L & 4L << 6L >> 7L
           csharp: 1 | 2 ^ 3 & 4 << 6 >> 7
           object: 1 | 2 ^ 3 & 4 << 6 >> 7
+          ruby: 1 | 2 ^ 3 & 4 << 6 >> 7
     - input:
           javascript: 2 + +5- -6
           shell: 2 + +5- -6
@@ -341,6 +372,7 @@ tests:
           java: 2L + +5L - -6L
           csharp: 2 + +5 - -6
           object: 2 + +5 - -6
+          ruby: 2 + +5 - -6
     unaryops:
     - input:
           javascript: '+1'
@@ -353,6 +385,7 @@ tests:
           java: '+1L'
           csharp: '+1'
           object: '+1'
+          ruby: '+1'
     - input:
           javascript: '-1'
           shell: '-1'
@@ -364,6 +397,7 @@ tests:
           java: '-1L'
           csharp: '-1'
           object: '-1'
+          ruby: '-1'
     - input:
           javascript: '~1'
           shell: '~1'
@@ -375,6 +409,7 @@ tests:
           java: '~1L'
           csharp: '~1'
           object: '~1'
+          ruby: '~1'
     Number:
     - input:
           javascript: new Number(2)
@@ -386,6 +421,7 @@ tests:
           java: 2d
           csharp: (int) 2
           object: Number(2)
+          ruby: 2.to_f # TODO: N, this is just a float, ruby doesn't have a double type
     - input:
           javascript: Number(2)
           shell: Number(2)
@@ -396,6 +432,7 @@ tests:
           java: 2d
           csharp: (int) 2
           object: Number(2)
+          ruby: 2.to_f
     - input:
           javascript: Number('2')
           shell: Number('2')
@@ -406,6 +443,7 @@ tests:
           java: Double.parseDouble("2")
           csharp: int.Parse("2")
           object: Number(2)
+          ruby: "'2'.to_f"
     - input:
           shell: Number()
       output:
@@ -415,6 +453,7 @@ tests:
           java: 0d
           csharp: (int) 0
           object: '0'
+          ruby: 0.to_f
     numeric_literals:
     - input:
           javascript: '2'
@@ -427,6 +466,7 @@ tests:
           java: '2L'
           csharp: '2'
           object: '2'
+          ruby: '2'
     - input:
           javascript: '429496729601'
           shell: '429496729601'
@@ -438,6 +478,7 @@ tests:
           java: '429496729601L'
           csharp: '429496729601'
           object: '429496729601'
+          ruby: '429496729601'
     - input:
           javascript: '2.001'
           shell: '2.001'
@@ -449,6 +490,7 @@ tests:
           java: '2.001d'
           csharp: '2.001'
           object: '2.001'
+          ruby: '2.001'
     - input:
           javascript: '0X123ABC'
           shell: '0X123ABC'
@@ -460,6 +502,7 @@ tests:
           java: '0X123ABC'
           csharp: '0X123ABC'
           object: '0X123ABC'
+          ruby: '0X123ABC'
     - input:
           javascript: '0x123abc'
           shell: '0x123abc'
@@ -471,6 +514,7 @@ tests:
           java: '0x123abc'
           csharp: '0x123abc'
           object: '0x123abc'
+          ruby: '0x123abc'
     - input:
           javascript: '0o1234567'
           shell: '0o1234567'
@@ -482,6 +526,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '0o1234567'
+          ruby: '0o1234567'
     - input:
           javascript: '01234567'
           shell: '01234567'
@@ -492,6 +537,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '01234567'
+          ruby: '01234567'
     - input:
           javascript: '001234567'
           shell: '001234567'
@@ -502,6 +548,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '001234567'
+          ruby: '001234567'
     - input:
           javascript: '0O1234567'
           shell: '0O1234567'
@@ -513,6 +560,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '0O1234567'
+          ruby: '0O1234567'
     misc_literals:
     - input:
           javascript: 'true'
@@ -525,6 +573,7 @@ tests:
           java: 'true'
           csharp: 'true'
           object: 'true'
+          ruby: 'true'
     - input:
           javascript: 'false'
           shell: 'false'
@@ -536,6 +585,7 @@ tests:
           java: 'false'
           csharp: 'false'
           object: 'false'
+          ruby: 'false'
     - input:
           javascript: 'null'
           shell: 'null'
@@ -547,6 +597,7 @@ tests:
           java: 'new BsonNull()'
           csharp: 'BsonNull.Value'
           object: 'null'
+          ruby: 'nil'
     - input:
           javascript: 'undefined'
           shell: 'undefined'
@@ -557,6 +608,7 @@ tests:
           java: 'new BsonUndefined()'
           csharp: 'BsonUndefined.Value'
           object: 'undefined'
+          ruby: 'nil'
     string_literals:
     - input:
           javascript: "'string'"
@@ -569,6 +621,7 @@ tests:
           java: "\"string\""
           csharp: "\"string\""
           object: "'string'"
+          ruby: "'string'"
     - input:
           javascript: "\"string\""
           shell: "\"string\""
@@ -580,6 +633,7 @@ tests:
           java: "\"string\""
           csharp: "\"string\""
           object: "\"string\""
+          ruby: "'string'"
     python_strings:
     - input:
           python: "'''string'''"
@@ -589,6 +643,7 @@ tests:
           csharp": "\"string\""
           shell": "'string'"
           object: "\"string\""
+          ruby: "'string'"
     - input:
           python: "\"\"\"string\"\"\""
       output:
@@ -597,6 +652,7 @@ tests:
           csharp: "\"string\""
           shell: "'string'"
           object: "\"string\""
+          ruby: "'string'"
     - input:
         python: "b'abc'"
       output:
@@ -605,6 +661,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "'abc'"
+          ruby: "'abc'"
     - input:
         python: "B'abc'"
       output:
@@ -613,6 +670,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     - input:
         python: "b\"abc\""
       output:
@@ -621,6 +679,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     - input:
           python: "B'abc'"
       output:
@@ -629,6 +688,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     - input:
           python: "u'abc'"
       output:
@@ -637,6 +697,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     - input:
           python: "U'abc'"
       output:
@@ -645,6 +706,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     - input:
           python: "u\"abc\""
       output:
@@ -653,6 +715,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     - input:
           python: "U'abc'"
       output:
@@ -661,6 +724,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     - input:
           python: "fR'abc'"
       output:
@@ -669,6 +733,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     - input:
           python: "rB'abc'"
       output:
@@ -677,6 +742,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          ruby: "'abc'"
     # TODO: unescape escaped quotes
     number_methods:
     - input:
@@ -688,6 +754,7 @@ tests:
           java: '3'
           csharp: '3'
           object: 'new Int32(3)'
+          ruby: '3.to_i'
     - input:
           python: int('3')
       output:
@@ -697,6 +764,7 @@ tests:
           java: Integer.parseInt("3")
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
+          ruby: "'3'.to_i"
     - input:
           python: int(3.001)
       output:
@@ -706,6 +774,7 @@ tests:
           java: (int) 3.001d
           csharp: Convert.ToInt32(3.001)
           object: 'new Int32(3.001)'
+          ruby: '3.001.to_i'
     - input:
           python: int(0x3)
       output:
@@ -715,6 +784,7 @@ tests:
           java: (int) 0x3
           csharp: Convert.ToInt32(0x3)
           object: 'new Int32(0x3)'
+          ruby: '0x3.to_i'
     - input:
           python: int(0o3)
       output:
@@ -724,6 +794,7 @@ tests:
           java: (int) 03
           csharp: '3'
           object: 'new Int32(0o3)'
+          ruby: '0o3.to_i'
     - input:
           python: float(3)
       output:
@@ -733,6 +804,7 @@ tests:
           java: '3d'
           csharp: '3.0'
           object: new Double(3)
+          ruby: 3.to_d
     - input:
           python: float('3')
       output:
@@ -742,6 +814,7 @@ tests:
           java: Double.parseDouble("3")
           csharp: Convert.ToDouble("3")
           object: new Double('3')
+          ruby: "'3'.to_d"
     - input:
           python: float(3.001)
       output:
@@ -751,6 +824,7 @@ tests:
           java: 3.001d
           csharp: '3.001'
           object: new Double(3.001)
+          ruby: 3.001.to_d
     - input:
           python: float(0x3)
       output:
@@ -760,6 +834,7 @@ tests:
           java: (double) 0x3
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
+          ruby: 0x3.to_d
     - input:
           python: float(0o3)
       output:
@@ -769,6 +844,7 @@ tests:
           java: (double) 03
           csharp: '3.0'
           object: new Double(0o3)
+          ruby: 0o3.to_d
     Date:
     - description: now date
       input:
@@ -782,6 +858,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: "new Date()"
+          ruby: Time.new.utc
     - description: date.now
       input:
           javascript: Date.now()
@@ -793,6 +870,7 @@ tests:
           java: new java.util.Date().getTime()
           csharp: DateTime.Now
           object: "1" # just checks type and not value
+          ruby: Time.now
     - input:
           javascript: new Date(1995, 11, 17)
           shell: new Date(1995, 11, 17)
@@ -804,6 +882,7 @@ tests:
           java: new java.util.Date(819158400000L)
           csharp: new DateTime(1995, 12, 17, 0, 0, 0)
           object: new Date(1995, 11, 17)
+          ruby: Time.new(1995, 12, 17).utc
     - input:
           javascript: new Date(1995, 11, 17, 3, 24)
           shell: new Date(1995, 11, 17, 3, 24)
@@ -815,6 +894,7 @@ tests:
           java: new java.util.Date(819170640000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           object: new Date(1995, 11, 17, 3, 24)
+          ruby: Time.new(1995, 11, 17, 3, 24).utc
     - input:
           javascript: new Date(1995, 11, 17, 3, 24, 55)
           shell: new Date(1995, 11, 17, 3, 24, 55)
@@ -826,6 +906,7 @@ tests:
           java: new java.util.Date(819170695000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 55)
           object: new Date('Sun, 17 Dec 1995 03:24:55 GMT')
+          ruby: Time.new(1995, 12, 17, 3, 24, 55).utc
     - input:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -836,6 +917,7 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
+          ruby: "'Sun, 17 Dec 1995 03:24:00 GMT'.to_time.utc"
     - input:
           javascript: new Date(819167040000)
           shell: new Date(819167040000)
@@ -846,6 +928,7 @@ tests:
           java: new java.util.Date(819167040000L)
           csharp: new DateTime(1995, 12, 17, 2, 24, 0)
           object: new Date(819167040000)
+          ruby: Time.at(0, 819167040000, :millisecond).utc
     date_string:
     - input:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -857,6 +940,7 @@ tests:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
+          ruby: "'Sun, 17 Dec 1995 03:24:00 GMT'.to_time.utc"
     - input:
           javascript: Date(819167040000)
           shell: Date(819167040000)
@@ -867,6 +951,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819167040000L))
           csharp: new DateTime(1995, 12, 17, 2, 24, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(819167040000)
+          ruby: Time.at(0, 819167040000, :millisecond).utc
     - input:
           javascript: Date(1995, 11, 17)
           shell: Date(1995, 11, 17)
@@ -877,6 +962,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819158400000L))
           csharp: new DateTime(1995, 12, 17, 0, 0, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(1995, 11, 17)
+          ruby: Time.new(1995, 11, 17).utc
     ISODate:
     - input:
           shell: new ISODate('1995-12-17T03:24:00.000Z')
@@ -886,6 +972,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
+          ruby: "'1995-12-17T03:24:00.000Z'.to_time.utc"
     - input:
           shell: ISODate('1995-12-17T03:24:00.000Z')
       output:
@@ -894,6 +981,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
+          ruby: "'1995-12-17T03:24:00.000Z'.to_time.utc"
     - description: now date
       input:
           shell: ISODate()
@@ -903,6 +991,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: new Date()
+          ruby: Time.new.utc
     - description: now date
       input:
           shell: new ISODate()
@@ -912,6 +1001,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: "new Date()"
+          ruby: Time.new.utc
     regular_expressions:
     - description: "empty RegExp"
       input:
@@ -925,6 +1015,7 @@ tests:
           java: "Pattern.compile(\"(?:)\")"
           csharp: "new Regex(\"(?:)\")"
           object: "RegExp('')"
+          ruby: "//"
     - description: "RegExp without options"
       input:
           javascript: "new RegExp('abc')"
@@ -937,6 +1028,7 @@ tests:
           csharp: "new Regex(\"abc\")"
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
+          ruby: "/abc/"
     - description: "RegExp with named but only A flag"
       input:
           python: "re.compile('abc', flags=re.A)"
@@ -946,6 +1038,7 @@ tests:
           csharp: "new Regex(\"abc\")"
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
+          ruby: "/abc/"
     - description: "regex object with im flags as args"
       input:
           javascript: "new RegExp('ab+c', 'im')"
@@ -958,6 +1051,7 @@ tests:
           csharp: "new Regex(\"(?im)ab+c\")"
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
+          ruby: "/ab+c/im"
     - description: "regex object with named flags as args"
       input:
           python: "re.compile('ab+c', flags=re.I | re.M | re.A)"
@@ -967,6 +1061,7 @@ tests:
           csharp: "new Regex(\"(?im)ab+c\")"
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
+          ruby: "/ab+c/im"
     - description: "regex object with ig flags as args"
       input:
           javascript: "new RegExp('ab+c', 'ig')"
@@ -978,6 +1073,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
+          ruby: "/ab+c/gi"
     - description: "regex object with forward slash"
       input:
           javascript: "new RegExp('ab/cd')"
@@ -990,6 +1086,7 @@ tests:
           csharp: "new Regex(\"ab\\/cd\")"
           shell: "new RegExp('ab\\/cd')"
           object: "new RegExp('ab\\/cd')"
+          ruby: "/ab\\/cd/"
     - description: "regex object with escaped double quote"
       input:
           javascript: "new RegExp('ab\\\"ab')"
@@ -1002,6 +1099,7 @@ tests:
           csharp: "new Regex(\"ab\\\"ab\")"
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
+          ruby: "/ab\"ab/"
     - description: "regex object with nonescaped double quote"
       input:
           javascript: "new RegExp('ab\"ab')"
@@ -1014,6 +1112,7 @@ tests:
           csharp: "new Regex(\"ab\\\"ab\")"
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
+          ruby: "/ab\"ab/"
     - description: "regex object with escaped single quote"
       input:
           javascript: "new RegExp('ab\\'ab')"
@@ -1026,6 +1125,7 @@ tests:
           csharp: "new Regex(\"ab'ab\")"
           shell: "new RegExp('ab\\'ab')"
           object: "new RegExp('ab\\'ab')"
+          ruby: "/ab\\'ab/"
     - description: "regex object with nonescaped single quote"
       input:
           javascript: "new RegExp(\"ab'ab\")"
@@ -1038,6 +1138,7 @@ tests:
           java: "Pattern.compile(\"ab'ab\")"
           csharp: "new Regex(\"ab'ab\")"
           object: "new RegExp('ab\\'ab')"
+          ruby: "/ab'ab/"
     - description: "regex object with newline"
       input:
           javascript: "new RegExp(\"\\\\n\")"
@@ -1050,6 +1151,7 @@ tests:
           java: "Pattern.compile(\"\\\\n\")"
           csharp: "new Regex(\"\\n\")"
           object: /\n/
+          ruby: /\n/
     - description: "regex literal with ig flags"
       input:
           javascript: "/ab+c/ig"
@@ -1061,6 +1163,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
+          ruby: "/ab+c/gi"
     - description: "regex object with regex literal arg"
       input:
           javascript: "new RegExp(/ab+c/, 'i')"
@@ -1073,6 +1176,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'i')"
           object: "new RegExp('ab+c', 'i')"
+          ruby: "/ab+c/i"
     - description: "python regex without ascii flag defaults to unicode"
       input:
           python: "re.compile('ab+c')"
@@ -1083,4 +1187,5 @@ tests:
           csharp: "new Regex(\"ab+c\")"
           shell: "new RegExp('ab+c', 'u')"
           object: "new RegExp('ab+c', 'u')"
+          ruby: "/ab+c'/u"
 

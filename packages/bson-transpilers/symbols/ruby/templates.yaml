@@ -446,7 +446,7 @@ Templates:
         }
     LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
         (lhs) => {
-            return `${lhs}.to_f`; // TODO: N, can we guarantee that this will be a long?
+            return `${lhs}.to_f`;
         }
     LongTopTemplate: &LongTopTemplate !!js/function >
         (lhs) => {

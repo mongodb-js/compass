@@ -126,7 +126,7 @@ Templates:
                 const rhs = arr[i + 1];
                 switch(op) {
                     case '//':
-                        return `floor(${s})`; // TODO: N, this should be division, no?
+                        return `floor(${s})`;
                     case '**':
                         return `pow(${s}, ${rhs})`;
                     default:
