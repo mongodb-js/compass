@@ -116,7 +116,7 @@ Templates:
           }
           return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
         }
-    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function > # TODO: N, ruby does not accept the l flag and doesnt recognize u,s
         (pattern, flags) => {
             const str = pattern;
             let newStr = str;

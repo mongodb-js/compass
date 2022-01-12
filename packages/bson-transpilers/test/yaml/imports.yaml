@@ -53,6 +53,8 @@ tests:
                 Double,
                 BSONRegExp
               } = require('bson');
+          ruby: |-
+              require 'bson'
     all:
     - description: Single import Code
       input:
