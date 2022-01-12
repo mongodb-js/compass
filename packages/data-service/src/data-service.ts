@@ -905,6 +905,14 @@ class DataService extends EventEmitter {
     filter: Filter<Document>,
     options: FindOptions
   ): FindCursor {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_043),
+      'Running raw find',
+      { ns }
+    );
+
+    logop(null);
+
     return this._collection(ns).find(filter, options);
   }
 
