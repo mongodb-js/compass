@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { ConnectionInfo } from 'mongodb-data-service';
-import { validateConnectionInfoWarnings } from './validation-warnings';
+import { validateConnectionOptionsWarnings } from './validation-warnings';
 
 describe('Form Validation Warnings', function () {
   it('should return warnings when disabling certificate validation', function () {
@@ -15,7 +15,9 @@ describe('Form Validation Warnings', function () {
           connectionString: `mongodb+srv://myserver.com?${option}=true`,
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result[0]).to.deep.equal({
         message:
           'Disabling certificate validation is not recommended as it may create a security vulnerability',
@@ -29,7 +31,9 @@ describe('Form Validation Warnings', function () {
         connectionString: `mongodb://myserver.com?authMechanism=fakeAuth`,
       },
     };
-    const result = validateConnectionInfoWarnings(connectionInfo);
+    const result = validateConnectionOptionsWarnings(
+      connectionInfo.connectionOptions
+    );
     expect(result[0]).to.deep.equal({
       message: 'Unknown authentication mechanism fakeAuth',
     });
@@ -42,7 +46,9 @@ describe('Form Validation Warnings', function () {
         connectionString: `mongodb://myserver.com?readPreference=invalidReadPreference`,
       },
     };
-    const result = validateConnectionInfoWarnings(connectionInfo);
+    const result = validateConnectionOptionsWarnings(
+      connectionInfo.connectionOptions
+    );
     expect(result[0]).to.deep.equal({
       message: 'Unknown read preference invalidReadPreference',
     });
@@ -55,7 +61,9 @@ describe('Form Validation Warnings', function () {
         connectionString: `mongodb://myserver.com?tlsCertificateFile=/path/to/file.pem`,
       },
     };
-    const result = validateConnectionInfoWarnings(connectionInfo);
+    const result = validateConnectionOptionsWarnings(
+      connectionInfo.connectionOptions
+    );
     expect(result[0]).to.deep.equal({
       message:
         'tlsCertificateFile is deprecated and will be removed in future versions of Compass, please embed the client key and certificate chain in a single .pem bundle and use tlsCertificateKeyFile instead.',
@@ -70,7 +78,9 @@ describe('Form Validation Warnings', function () {
           connectionString: `mongodb://user:password@myserver.com?tls=true&authMechanism=GSSAPI`,
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message: 'The password is ignored with Kerberos.',
@@ -86,7 +96,9 @@ describe('Form Validation Warnings', function () {
           connectionString: `mongodb+srv://myserver.com?tls=true&directConnection=true`,
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message: 'directConnection not supported with SRV URI.',
@@ -101,7 +113,9 @@ describe('Form Validation Warnings', function () {
           connectionString: `mongodb+srv://myserver.com?tls=true&directConnection=false`,
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
     it('should not return warnings if mongo+srv and directConnection is not defined', function () {
@@ -111,7 +125,9 @@ describe('Form Validation Warnings', function () {
           connectionString: `mongodb+srv://myserver.com?tls=true`,
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
 
@@ -122,7 +138,9 @@ describe('Form Validation Warnings', function () {
           connectionString: `mongodb://myserver.com?tls=true&directConnection=true&replicaSet=myReplicaSet`,
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message: 'directConnection is not supported with replicaSet.',
@@ -137,7 +155,9 @@ describe('Form Validation Warnings', function () {
           connectionString: `mongodb://myserver.com,myserver2.com?tls=true&directConnection=true`,
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message: 'directConnection is not supported with multiple hosts.',
@@ -160,7 +180,9 @@ describe('Form Validation Warnings', function () {
           },
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message:
@@ -178,7 +200,9 @@ describe('Form Validation Warnings', function () {
           connectionString: 'mongodb+srv://myserver.com&tls=false',
         },
       };
-      const result = validateConnectionInfoWarnings(connectionInfo);
+      const result = validateConnectionOptionsWarnings(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
   });
@@ -190,7 +214,9 @@ describe('Form Validation Warnings', function () {
         connectionString: 'mongodb://myserver.com',
       },
     };
-    const result = validateConnectionInfoWarnings(connectionInfo);
+    const result = validateConnectionOptionsWarnings(
+      connectionInfo.connectionOptions
+    );
     expect(result).to.deep.equal([
       {
         message:

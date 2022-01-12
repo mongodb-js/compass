@@ -1,20 +1,17 @@
-import { ConnectionInfo } from 'mongodb-data-service';
+import { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
-import {
-  FormValidationError,
-  getConnectionString,
-  isSecure,
-} from './validation';
+import { getConnectionString, isSecure } from './validation';
 
 import type { MongoClientOptions } from 'mongodb';
-function validateConnectionInfoErrors(
-  connectionInfo: ConnectionInfo
+import { FormValidationError } from './connect-form-errors';
+export function validateConnectionOptionsErrors(
+  connectionOptions: ConnectionOptions
 ): FormValidationError[] {
-  const connectionString = getConnectionString(connectionInfo);
+  const connectionString = getConnectionString(connectionOptions);
 
   return [
     ...validateAuthMechanism(connectionString),
-    ...validateSSHTunnel(connectionInfo),
+    ...validateSSHTunnel(connectionOptions),
   ];
 }
 
@@ -63,14 +60,14 @@ function validateUsernameAndPassword(
   const errors: FormValidationError[] = [];
   if (!username) {
     errors.push({
-      field: 'username',
+      fieldName: 'username',
       message: 'Username is missing.',
     });
   }
 
   if (!password) {
     errors.push({
-      field: 'password',
+      fieldName: 'password',
       message: 'Password is missing.',
     });
   }
@@ -104,23 +101,22 @@ function validateKerberos(
   const errors: FormValidationError[] = [];
   if (!connectionString.username) {
     errors.push({
-      field: 'kerberosPrincipal',
+      fieldName: 'kerberosPrincipal',
       message: 'Principal name is required with Kerberos.',
     });
   }
   return errors;
 }
 function validateSSHTunnel(
-  connectionInfo: ConnectionInfo
+  connectionOptions: ConnectionOptions
 ): FormValidationError[] {
-  const connectionOptions = connectionInfo.connectionOptions;
   if (!connectionOptions.sshTunnel) {
     return [];
   }
   const errors: FormValidationError[] = [];
   if (!connectionOptions.sshTunnel.host) {
     errors.push({
-      field: 'sshHostname',
+      fieldName: 'sshHostname',
       message: 'A hostname is required to connect with an SSH tunnel',
     });
   }
@@ -136,5 +132,3 @@ function validateSSHTunnel(
   }
   return errors;
 }
-
-export { validateConnectionInfoErrors };

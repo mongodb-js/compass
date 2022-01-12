@@ -1,14 +1,11 @@
 import ConnectionString from 'mongodb-connection-string-url';
-import { ConnectionInfo } from 'mongodb-data-service';
-import {
-  FormValidationWarning,
-  getConnectionString,
-  isSecure,
-} from './validation';
-function validateConnectionInfoWarnings(
-  connectionInfo: ConnectionInfo
+import { ConnectionOptions } from 'mongodb-data-service';
+import { FormValidationWarning } from './connect-form-warnings';
+import { getConnectionString, isSecure } from './validation';
+export function validateConnectionOptionsWarnings(
+  connectionOptions: ConnectionOptions
 ): FormValidationWarning[] {
-  const connectionString = getConnectionString(connectionInfo);
+  const connectionString = getConnectionString(connectionOptions);
   return [
     ...validateAuthMechanism(connectionString),
     ...validateReadPreference(connectionString),
@@ -17,8 +14,8 @@ function validateConnectionInfoWarnings(
     ...validateDirectConnectionAndSrv(connectionString),
     ...validateDirectConnectionAndReplicaSet(connectionString),
     ...validateDirectConnectionAndMultiHost(connectionString),
-    ...validateSSH(connectionInfo),
-    ...validateTLSAndHost(connectionInfo),
+    ...validateSSH(connectionOptions),
+    ...validateTLSAndHost(connectionOptions),
   ];
 }
 
@@ -147,11 +144,13 @@ function validateDirectConnectionAndMultiHost(
   return warnings;
 }
 
-function validateSSH(connectionInfo: ConnectionInfo): FormValidationWarning[] {
+function validateSSH(
+  connectionOptions: ConnectionOptions
+): FormValidationWarning[] {
   const warnings: FormValidationWarning[] = [];
-  const connectionString = getConnectionString(connectionInfo);
+  const connectionString = getConnectionString(connectionOptions);
   if (
-    connectionInfo.connectionOptions.sshTunnel &&
+    connectionOptions.sshTunnel &&
     connectionString.searchParams.get('directConnection') !== 'true'
   ) {
     warnings.push({
@@ -163,10 +162,10 @@ function validateSSH(connectionInfo: ConnectionInfo): FormValidationWarning[] {
 }
 
 function validateTLSAndHost(
-  connectionInfo: ConnectionInfo
+  connectionOptions: ConnectionOptions
 ): FormValidationWarning[] {
   const warnings: FormValidationWarning[] = [];
-  const connectionString = getConnectionString(connectionInfo);
+  const connectionString = getConnectionString(connectionOptions);
   if (connectionString.host !== 'localhost' && !isSecure(connectionString)) {
     warnings.push({
       message:
@@ -175,5 +174,3 @@ function validateTLSAndHost(
   }
   return warnings;
 }
-
-export { validateConnectionInfoWarnings };

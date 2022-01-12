@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { validateConnectionInfoErrors } from './validation';
+import { validateConnectionOptionsErrors } from './validation-errors';
 import { ConnectionInfo } from 'mongodb-data-service';
 
 describe('Form Validation Errors', function () {
@@ -18,7 +18,9 @@ describe('Form Validation Errors', function () {
           },
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
 
@@ -35,7 +37,9 @@ describe('Form Validation Errors', function () {
           },
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
 
@@ -52,10 +56,12 @@ describe('Form Validation Errors', function () {
           },
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
-          field: 'sshHostname',
+          fieldName: 'sshHostname',
           message: 'A hostname is required to connect with an SSH tunnel',
         },
       ]);
@@ -72,7 +78,9 @@ describe('Form Validation Errors', function () {
           },
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message:
@@ -90,7 +98,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message: 'TLS must be enabled in order to use x509 authentication.',
@@ -104,7 +114,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=false&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message: 'TLS must be enabled in order to use x509 authentication.',
@@ -119,7 +131,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=false&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message: 'TLS must be enabled in order to use x509 authentication.',
@@ -133,7 +147,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb+srv://myserver.com?authMechanism=MONGODB-X509&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
 
@@ -144,7 +160,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=true&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
 
@@ -155,7 +173,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=true&tlsCertificateKeyFile=/path/to/file.pem`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
 
@@ -166,7 +186,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=true`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
           message: 'A Client Certificate is required with x509 authentication.',
@@ -182,10 +204,12 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://username:@myserver.com?authMechanism=PLAIN`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
-          field: 'password',
+          fieldName: 'password',
           message: 'Password is missing.',
         },
       ]);
@@ -199,10 +223,12 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com?authMechanism=GSSAPI`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
-          field: 'kerberosPrincipal',
+          fieldName: 'kerberosPrincipal',
           message: 'Principal name is required with Kerberos.',
         },
       ]);
@@ -214,7 +240,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://principal@myserver.com?authMechanism=GSSAPI`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
   });
@@ -226,14 +254,16 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com?authMechanism=SCRAM-SHA-1`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
-          field: 'username',
+          fieldName: 'username',
           message: 'Username is missing.',
         },
         {
-          field: 'password',
+          fieldName: 'password',
           message: 'Password is missing.',
         },
       ]);
@@ -245,10 +275,12 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://username@myserver.com?authMechanism=SCRAM-SHA-1`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
-          field: 'password',
+          fieldName: 'password',
           message: 'Password is missing.',
         },
       ]);
@@ -260,7 +292,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://username:password@myserver.com?authMechanism=SCRAM-SHA-1`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
   });
@@ -272,7 +306,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://myserver.com`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
     it('should return errors if password is missing', function () {
@@ -282,10 +318,12 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://username@myserver.com`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.deep.equal([
         {
-          field: 'password',
+          fieldName: 'password',
           message: 'Password is missing.',
         },
       ]);
@@ -297,7 +335,9 @@ describe('Form Validation Errors', function () {
           connectionString: `mongodb://username:password@myserver.com`,
         },
       };
-      const result = validateConnectionInfoErrors(connectionInfo);
+      const result = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions
+      );
       expect(result).to.be.empty;
     });
   });

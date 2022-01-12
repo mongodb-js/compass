@@ -1,12 +1,20 @@
-import { ConnectionOptions } from 'mongodb-data-service';
-
 export interface ConnectionFormWarning {
   message: string;
 }
 
-export function getConnectFormWarnings(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  connectionOptions: ConnectionOptions
-): ConnectionFormWarning[] {
-  return [];
-}
+export type FormValidationWarning = {
+  message: string;
+  fieldName?: FormFieldName;
+};
+
+export type FormFieldName =
+  | 'username'
+  | 'password'
+  | 'hostname'
+  | 'kerberosPrincipal'
+  | 'ldapUsername'
+  | 'ldapPassword'
+  | 'schema'
+  | 'sshHostname'
+  | 'sshUsername'
+  | 'sshPassword';
