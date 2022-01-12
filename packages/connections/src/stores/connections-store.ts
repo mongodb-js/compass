@@ -95,9 +95,6 @@ type Action =
   | {
       type: 'set-connections';
       connections: ConnectionInfo[];
-    }
-  | {
-      type: 'refresh-connections';
     };
 
 export function connectionsReducer(state: State, action: Action): State {
@@ -154,10 +151,6 @@ export function connectionsReducer(state: State, action: Action): State {
       return {
         ...state,
         connections: action.connections,
-      };
-    case 'refresh-connections':
-      return {
-        ...state,
       };
     default:
       return state;
