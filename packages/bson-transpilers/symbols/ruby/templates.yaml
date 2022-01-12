@@ -131,11 +131,11 @@ Templates:
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate !!js/function >
         () => {
-            return 'null';
+            return 'nil';
         }
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
         () => {
-            return 'null'; // TODO: N, not technically correct, but python does the same thing
+            return 'nil'; // TODO: N, not technically correct, but python does the same thing
         }
     ObjectTypeTemplate: &ObjectTypeTemplate null # Args: literal (for empty array, is empty string. Otherwise all set)
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null # Args: single object element [2] (i.e. array with [key, value]), nestedness#
