@@ -296,7 +296,7 @@ tests:
     - description: Single import NumberDecimal
       input:
           shell: "{x: NumberDecimal(1)}"
-          javascript: "{x: Decimal128(1)}"
+          javascript: "{x: Decimal128.fromString('1')}"
           python: "{'x': Decimal128('1')}"
       output:
           java: |-
@@ -368,7 +368,7 @@ tests:
         12: undefined, 100: Code('1', {x: 1}), '100a': Code('!'), 101: ObjectId(),
         103: DBRef('c', ObjectId()), 104: Double(1), 105: Int32(1), 106: Long(1, 100),
         107: MinKey(), 108: MaxKey(), 110: Timestamp(1, 100), 111: BSONSymbol('1'), 112:
-        Decimal128([1]), '201a': new Date()}"
+        Decimal128('1'), '201a': new Date()}"
       output:
           java: |-
               import java.util.regex.Pattern;

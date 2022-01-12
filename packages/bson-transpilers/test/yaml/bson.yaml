@@ -363,7 +363,7 @@ tests:
     Decimal128:
     - description: 'buffer arg'
       input:
-          javascript: Decimal128(Buffer.from('5'))
+          javascript: Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'))
       output:
           shell: new NumberDecimal(5.3E-6175)
           python: Decimal128('5.3E-6175')
@@ -383,14 +383,14 @@ tests:
           object: Decimal128.fromString('5')
     - description: 'NEW'
       input:
-          javascript: new Decimal128(Buffer.from('5'))
+          javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'))
           shell: new NumberDecimal('5.3E-6175')
       output:
           shell: new NumberDecimal(5.3E-6175)
           python: Decimal128('5.3E-6175')
           java: Decimal128.parse("5.3E-6175")
           csharp: Decimal128.Parse("5.3E-6175")
-          object: new Decimal128(Buffer.from('5'))
+          object: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'))
     - description: 'number arg'
       input:
           shell: NumberDecimal(5)
