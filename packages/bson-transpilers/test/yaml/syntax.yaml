@@ -19,6 +19,7 @@ tests:
           java: "1L + 2L"
           csharp: "1 + 2"
           object: "3"
+          ruby: "1 + 2"
     - input:
           javascript: "1 \n +2"
           shell: "1 \t\t +2"
@@ -30,6 +31,7 @@ tests:
           java: "1L + 2L"
           csharp: "1 + 2"
           object: "3"
+          ruby: "1 + 2"
     compare:
     - input:
           javascript: "1 === 2"
@@ -42,6 +44,7 @@ tests:
           java: "1L == 2L"
           csharp: "1 == 2"
           object: "false"
+          ruby: "1 == 2"
     - input:
           javascript: "1 !== 2"
           shell: "1 !== 2"
@@ -53,6 +56,7 @@ tests:
           java: "1L != 2L"
           csharp: "1 != 2"
           object: "true"
+          ruby: "1 != 2"
     - input:
           javascript: "true || false"
           shell: "true || false"
@@ -64,6 +68,7 @@ tests:
           java: "true || false"
           csharp: "true || false"
           object: "true"
+          ruby: "true || false"
     - input:
           javascript: "true || false || true"
           shell: "true || false || true"
@@ -75,6 +80,7 @@ tests:
           java: "true || false || true"
           csharp: "true || false || true"
           object: "true"
+          ruby: "true || false || true"
     - input:
           javascript: "true && false"
           shell: "true && false"
@@ -86,6 +92,7 @@ tests:
           java: "true && false"
           csharp: "true && false"
           object: "false"
+          ruby: "true && false"
     - input:
           javascript: "true && false && true"
           shell: "true && false && true"
@@ -97,6 +104,7 @@ tests:
           java: "true && false && true"
           csharp: "true && false && true"
           object: "false"
+          ruby: "true && false && true"
     - input:
           javascript: "!true"
           shell: "!true"
@@ -108,6 +116,7 @@ tests:
           java: "!true"
           csharp: "!true"
           object: "false"
+          ruby: "!true"
     - input:
           javascript: "1 > 2 < 3 >= 4 <= 6"
           shell: "1 > 2 < 3 >= 4 <= 6"
@@ -119,6 +128,7 @@ tests:
           java: "1L > 2L < 3L >= 4L <= 6L" # TODO: this is wrong
           csharp: "1 > 2 < 3 >= 4 <= 6"
           object: "true"
+          # TODO: N, this is invalid syntax in ruby, throw an error?
     - input:
           python: "4 is 5"
       output:
@@ -128,6 +138,8 @@ tests:
           java: "4L == 5L"
           csharp: "4 == 5"
           object: "false"
+          ruby: "4 == 5" # TODO: N, This is not strictly true. Same with python.
+                         # in python: [] is [] -> false, [] == [] -> true
     - input:
           python: "4 is not 5"
       output:
@@ -137,6 +149,7 @@ tests:
           java: "4L != 5L"
           csharp: "4 != 5"
           object: "true"
+          ruby: "4 != 5"
     - input:
           python: "4 in [1, 2]"
       output:
@@ -146,6 +159,7 @@ tests:
           java: "Arrays.asList(1L, 2L).contains(4L)"
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) != -1"
           object: "false"
+          ruby: "[1, 2].include?(4)"
     - input:
           python: "4 not in [1, 2]"
       output:
@@ -155,6 +169,7 @@ tests:
           java: "!Arrays.asList(1L, 2L).contains(4L)"
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) == -1"
           object: "true"
+          ruby: "![1, 2].include?(4)"
     comments:
     - input:
           javascript: "1 // a comment"
@@ -167,6 +182,7 @@ tests:
           java: "1L"
           csharp: "1"
           object: "1"
+          ruby: "1"
     - input:
           javascript: "1 /* a comment*/"
           shell: "1 /* a comment*/"
@@ -177,6 +193,7 @@ tests:
           java: "1L"
           csharp: "1"
           object: "1"
+          ruby: "1"
     - input:
           javascript: "1 /* a \ncom\nmen\nt*/+2"
           shell: "1 /* a \ncom\nmen\nt*/+2"
@@ -187,6 +204,7 @@ tests:
           java: "1L + 2L"
           csharp: "1 + 2"
           object: "3"
+          ruby: "1 + 2"
     - input:
           javascript: "1 /* a \ncom\nmen\nt*/"
           shell: "1 /* a \ncom\nmen\nt*/"
@@ -197,6 +215,7 @@ tests:
           java: "1L"
           csharp: "1"
           object: "1"
+          ruby: "1"
     - input:
           javascript: "1 /* a comment*/+2"
           shell: "1 /* a comment*/+2"
@@ -207,6 +226,7 @@ tests:
           java: "1L + 2L"
           csharp: "1 + 2"
           object: "3"
+          ruby: "1 + 2"
     parens:
     - input:
           javascript: "(1 === 1)"
@@ -219,6 +239,7 @@ tests:
           java: "(1L == 1L)"
           csharp: "(1 == 1)"
           object: "true"
+          ruby: "(1 == 1)"
     - input:
           javascript: "((1 === (1)))"
           shell: "((1 === (1)))"
@@ -230,3 +251,4 @@ tests:
           java: "((1L == (1L)))"
           csharp: "((1 == (1)))"
           object: "true"
+          ruby: "((1 == (1)))"

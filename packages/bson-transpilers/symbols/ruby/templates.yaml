@@ -54,7 +54,14 @@ Templates:
             }
             return `${lhs} ${op} ${rhs}`;
         }
-    InSyntaxTemplate: &InSyntaxTemplate null # Args: lhs, operation, rhs
+    InSyntaxTemplate: &InSyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            let str = '';
+            if (op.includes('!') || op.includes('not')) {
+                str = '!';
+            }
+            return `${str}${rhs}.include?(${lhs})`
+        }
     AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
         (args) => {
             return args.join(' && ');
@@ -68,7 +75,23 @@ Templates:
             return `!${arg}`;
         }
     UnarySyntaxTemplate: &UnarySyntaxTemplate null
-    BinarySyntaxTemplate: &BinarySyntaxTemplate null
+    BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((s, op, i, arr) => {
+                if (i % 2 === 0) {
+                    return s;
+                }
+                const rhs = arr[i + 1];
+                switch(op) {
+                    case '//':
+                        return `${s}.div(${rhs})`;
+                    case '**':
+                        return `${s} ** ${rhs}`;
+                    default:
+                        return `${s} ${op} ${rhs}`;
+                }
+            }, args[0]);
+        }
     ParensSyntaxTemplate: &ParensSyntaxTemplate null
     EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
     EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
@@ -83,9 +106,21 @@ Templates:
     # get passed the literal itself as an arg.  #
     #                                           #
     #############################################
-    StringTypeTemplate: &StringTypeTemplate null # Args: literal (can be w/w/out quotes and unescaped interior quotes.)
+    StringTypeTemplate: &StringTypeTemplate  !!js/function >
+        (str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
+        }
     RegexTypeTemplate: &RegexTypeTemplate null # Args: pattern, flag
-    BoolTypeTemplate: &BoolTypeTemplate null # Args: literal
+    BoolTypeTemplate: &BoolTypeTemplate !!js/function >
+        (literal) => {
+            return literal.toLowerCase();
+        }
     IntegerTypeTemplate: &IntegerTypeTemplate null # args: literal, argType (i.e. '_string', '_decimal' etc)
     DecimalTypeTemplate: &DecimalTypeTemplate null # args: literal, argType
     LongBasicTypeTemplate: &LongBasicTypeTemplate null # args: literal, argType
@@ -94,8 +129,14 @@ Templates:
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
     ArrayTypeTemplate: &ArrayTypeTemplate null # Args: the interior of the array (i.e. '1, 2'), nestedness#
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
-    NullTypeTemplate: &NullTypeTemplate null # No args
-    UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => {
+            return 'null';
+        }
+    UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
+        () => {
+            return 'null'; // TODO: N, not technically correct, but python does the same thing
+        }
     ObjectTypeTemplate: &ObjectTypeTemplate null # Args: literal (for empty array, is empty string. Otherwise all set)
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null # Args: single object element [2] (i.e. array with [key, value]), nestedness#
 
@@ -203,61 +244,218 @@ Templates:
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
     Int32ToStringTemplate: &Int32ToStringTemplate null
     Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
-    LongEqualsTemplate: &LongEqualsTemplate null
-    LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
-    LongToStringTemplate: &LongToStringTemplate null
-    LongToStringArgsTemplate: &LongToStringArgsTemplate null
-    LongToIntTemplate: &LongToIntTemplate null
-    LongToIntArgsTemplate: &LongToIntArgsTemplate null
-    LongValueOfTemplate: &LongValueOfTemplate null
-    LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
-    LongToNumberTemplate: &LongToNumberTemplate null
-    LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
-    LongAddTemplate: &LongAddTemplate null
-    LongAddArgsTemplate: &LongAddArgsTemplate null
-    LongSubtractTemplate: &LongSubtractTemplate null
-    LongSubtractArgsTemplate: &LongSubtractArgsTemplate null
-    LongMultiplyTemplate: &LongMultiplyTemplate null
-    LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate null
-    LongDivTemplate: &LongDivTemplate null
-    LongDivArgsTemplate: &LongDivArgsTemplate null
-    LongModuloTemplate: &LongModuloTemplate null
-    LongModuloArgsTemplate: &LongModuloArgsTemplate null
-    LongAndTemplate: &LongAndTemplate null
-    LongAndArgsTemplate: &LongAndArgsTemplate null
-    LongOrTemplate: &LongOrTemplate null
-    LongOrArgsTemplate: &LongOrArgsTemplate null
-    LongXorTemplate: &LongXorTemplate null
-    LongXorArgsTemplate: &LongXorArgsTemplate null
-    LongShiftLeftTemplate: &LongShiftLeftTemplate null
-    LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate null
-    LongShiftRightTemplate: &LongShiftRightTemplate null
-    LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate null
-    LongCompareTemplate: &LongCompareTemplate null
-    LongCompareArgsTemplate: &LongCompareArgsTemplate null
-    LongIsOddTemplate: &LongIsOddTemplate null
-    LongIsOddArgsTemplate: &LongIsOddArgsTemplate null
-    LongIsZeroTemplate: &LongIsZeroTemplate null
-    LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate null
-    LongIsNegativeTemplate: &LongIsNegativeTemplate null
-    LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate null
-    LongNegateTemplate: &LongNegateTemplate null
-    LongNegateArgsTemplate: &LongNegateArgsTemplate null
-    LongNotTemplate: &LongNotTemplate null
-    LongNotArgsTemplate: &LongNotArgsTemplate null
-    LongNotEqualsTemplate: &LongNotEqualsTemplate null
-    LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate null
-    LongGreaterThanTemplate: &LongGreaterThanTemplate null
-    LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate null
-    LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate null
-    LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate null
-    LongLessThanTemplate: &LongLessThanTemplate null
-    LongLessThanArgsTemplate: &LongLessThanArgsTemplate null
-    LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate null
-    LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate null
-    LongFloatApproxTemplate: &LongFloatApproxTemplate null
-    LongTopTemplate: &LongTopTemplate null
-    LongBottomTemplate: &LongBottomTemplate null
+    LongEqualsTemplate: &LongEqualsTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} ==`;
+        }
+    LongEqualsArgsTemplate: &LongEqualsArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongToIntTemplate: &LongToIntTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.to_i`;
+        }
+    LongToIntArgsTemplate: &LongToIntArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongToStringTemplate: &LongToStringTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.to_s`;
+        }
+    LongToNumberTemplate: &LongToNumberTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.to_f`;
+        }
+    LongToNumberArgsTemplate: &LongToNumberArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongAddTemplate: &LongAddTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} +`;
+        }
+    LongAddArgsTemplate: &LongAddArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongSubtractTemplate: &LongSubtractTemplate !!js/function >
+        (arg) => {
+            return `${arg} -`;
+        }
+    LongSubtractArgsTemplate: &LongSubtractArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongMultiplyTemplate: &LongMultiplyTemplate !!js/function >
+        (arg) => {
+            return `${arg} *`;
+        }
+    LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongDivTemplate: &LongDivTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} /`;
+        }
+    LongDivArgsTemplate: &LongDivArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongModuloTemplate: &LongModuloTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} %`;
+        }
+    LongModuloArgsTemplate: &LongModuloArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongAndTemplate: &LongAndTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} &`;
+        }
+    LongAndArgsTemplate: &LongAndArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongOrTemplate: &LongOrTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} |`;
+        }
+    LongOrArgsTemplate: &LongOrArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongXorTemplate: &LongXorTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} ^`;
+        }
+    LongXorArgsTemplate: &LongXorArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongShiftLeftTemplate: &LongShiftLeftTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} <<`;
+        }
+    LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongShiftRightTemplate: &LongShiftRightTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} >>`;
+        }
+    LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongCompareTemplate: &LongCompareTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} -`;
+        }
+    LongCompareArgsTemplate: &LongCompareArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongIsOddTemplate: &LongIsOddTemplate !!js/function >
+        (lhs) => {
+            return `(${lhs} % 2) == 1`;
+        }
+    LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongIsZeroTemplate: &LongIsZeroTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} == 0`;
+        }
+    LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongIsNegativeTemplate: &LongIsNegativeTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} < 0`;
+        }
+    LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongNegateTemplate: &LongNegateTemplate !!js/function >
+        () => {
+            return '-';
+        }
+    LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
+        (lhs) => {
+            return lhs;
+        }
+    LongNotTemplate: &LongNotTemplate !!js/function >
+        () => {
+            return '~';
+        }
+    LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
+        (lhs) => {
+            return lhs;
+        }
+    LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} !=`;
+        }
+    LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongGreaterThanTemplate: &LongGreaterThanTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} >`;
+        }
+    LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} >=`;
+        }
+    LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongLessThanTemplate: &LongLessThanTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} <`;
+        }
+    LongLessThanArgsTemplate: &LongLessThanArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} <=`;
+        }
+    LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return ` ${arg}`;
+        }
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
+        (lhs) => {
+            return `${lhs}.to_f`; // TODO: N, can we guarantee that this will be a long?
+        }
+    LongTopTemplate: &LongTopTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} >> 32`;
+        }
+    LongBottomTemplate: &LongBottomTemplate !!js/function >
+        (lhs) => {
+            return `${lhs} & 0x0000ffff`;
+        }
     TimestampToStringTemplate: &TimestampToStringTemplate null
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
     TimestampEqualsTemplate: &TimestampEqualsTemplate null
