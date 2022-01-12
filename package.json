@@ -28,6 +28,7 @@
     "postpackages-publish": "git push && git push --tags",
     "packages-version": "lerna version --allow-branch main --no-push --no-private -m \"chore(release): Bump package versions\"",
     "release": "npm run release --workspace mongodb-compass --",
+    "reformat": "lerna run reformat --stream",
     "package-compass": "npm run package-compass --workspace=mongodb-compass --",
     "start": "npm run start --workspace=mongodb-compass",
     "test": "lerna run test --concurrency 1 --stream",

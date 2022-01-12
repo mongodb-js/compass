@@ -5,6 +5,7 @@ export interface ConnectionFormWarning {
 }
 
 export function getConnectFormWarnings(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connectionOptions: ConnectionOptions
 ): ConnectionFormWarning[] {
   return [];

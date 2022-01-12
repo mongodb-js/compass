@@ -139,7 +139,7 @@ export async function getInstance(
       featureCompatibilityVersion: 1,
     }).catch(() => null),
 
-    runCommand(adminDb, { atlasVersion: 1 }).catch((err) => {
+    runCommand(adminDb, { atlasVersion: 1 }).catch(() => {
       return { version: '', gitVersion: '' };
     }),
   ]);
