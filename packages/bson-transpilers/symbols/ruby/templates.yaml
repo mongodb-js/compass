@@ -116,7 +116,18 @@ Templates:
           }
           return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
         }
-    RegexTypeTemplate: &RegexTypeTemplate null # Args: pattern, flag
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+        (pattern, flags) => {
+            const str = pattern;
+            let newStr = str;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                newStr = str.substr(1, str.length - 2);
+            }
+            pattern = `${newStr.replace(/\\([\s\S])/g, '\\$1')}`;
+            return `/${pattern}/${flags ? flags : ''}`;
+        }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
             return literal.toLowerCase();
@@ -177,7 +188,10 @@ Templates:
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Args: lhs, arg, argType
     LongSymbolTemplate: &LongSymbolTemplate null # No args
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Args: lhs, arg, argType
-    RegExpSymbolTemplate: &RegExpSymbolTemplate null # No args
+    RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
+        () => {
+            return 'Regexp';
+        }
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate null # No args
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null # Args: lhs, arg
@@ -194,8 +208,38 @@ Templates:
     # non bson-specific
     NumberSymbolTemplate: &NumberSymbolTemplate null # No args
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null # Args: lhs, arg, argType
-    DateSymbolTemplate: &DateSymbolTemplate null # No args
-    DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Args: lhs, date (Date object), isString? (if the result needs to be a date string instead of a date instance)
+    DateSymbolTemplate: &DateSymbolTemplate !!js/function >
+        () => {
+            return 'Time';
+        }
+    DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
+        (lhs, date, isString) => {
+            const toStr = isString ? '.strftime(\'%a %b %d %Y %H:%M:%S %Z\')' : '';
+
+            if (date === null) {
+                return `${lhs}.new.utc${toStr}`;
+            }
+
+            const dateStr = [
+                date.getUTCFullYear(),
+                date.getUTCMonth() + 1,
+                date.getUTCDate(),
+                date.getUTCHours(),
+                date.getUTCMinutes(),
+                date.getUTCSeconds()
+            ].join(', ');
+
+            return `${lhs}.new(${dateStr}).utc${toStr}`;
+        }
+
+    DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
+        () => {
+            return 'Time.now.utc';
+        }
+    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate !!js/function >
+        (args) => {
+            return '';
+        }
 
     #############################################
     #         Object Attributes/Methods         #
@@ -488,9 +532,6 @@ Templates:
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
-    # non bson-specific
-    DateSymbolNowTemplate: &DateSymbolNowTemplate null
-    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
 
     #############################################
     #         Symbol Attributes/Methods         #

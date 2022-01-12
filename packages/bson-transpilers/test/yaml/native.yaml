@@ -870,7 +870,7 @@ tests:
           java: new java.util.Date().getTime()
           csharp: DateTime.Now
           object: "1" # just checks type and not value
-          ruby: Time.now
+          ruby: Time.now.utc
     - input:
           javascript: new Date(1995, 11, 17)
           shell: new Date(1995, 11, 17)
@@ -882,7 +882,7 @@ tests:
           java: new java.util.Date(819158400000L)
           csharp: new DateTime(1995, 12, 17, 0, 0, 0)
           object: new Date(1995, 11, 17)
-          ruby: Time.new(1995, 12, 17).utc
+          ruby: Time.new(1995, 12, 17, 0, 0, 0).utc
     - input:
           javascript: new Date(1995, 11, 17, 3, 24)
           shell: new Date(1995, 11, 17, 3, 24)
@@ -894,7 +894,7 @@ tests:
           java: new java.util.Date(819170640000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           object: new Date(1995, 11, 17, 3, 24)
-          ruby: Time.new(1995, 11, 17, 3, 24).utc
+          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc
     - input:
           javascript: new Date(1995, 11, 17, 3, 24, 55)
           shell: new Date(1995, 11, 17, 3, 24, 55)
@@ -917,7 +917,7 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          ruby: "'Sun, 17 Dec 1995 03:24:00 GMT'.to_time.utc"
+          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc
     - input:
           javascript: new Date(819167040000)
           shell: new Date(819167040000)
@@ -928,7 +928,7 @@ tests:
           java: new java.util.Date(819167040000L)
           csharp: new DateTime(1995, 12, 17, 2, 24, 0)
           object: new Date(819167040000)
-          ruby: Time.at(0, 819167040000, :millisecond).utc
+          ruby: Time.new(1995, 12, 17, 2, 24, 0).utc
     date_string:
     - input:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -940,7 +940,7 @@ tests:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          ruby: "'Sun, 17 Dec 1995 03:24:00 GMT'.to_time.utc"
+          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc.strftime('%a %b %d %Y %H:%M:%S %Z')
     - input:
           javascript: Date(819167040000)
           shell: Date(819167040000)
@@ -951,7 +951,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819167040000L))
           csharp: new DateTime(1995, 12, 17, 2, 24, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(819167040000)
-          ruby: Time.at(0, 819167040000, :millisecond).utc
+          ruby: Time.new(1995, 12, 17, 2, 24, 0).utc.strftime('%a %b %d %Y %H:%M:%S %Z')
     - input:
           javascript: Date(1995, 11, 17)
           shell: Date(1995, 11, 17)
@@ -962,7 +962,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819158400000L))
           csharp: new DateTime(1995, 12, 17, 0, 0, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(1995, 11, 17)
-          ruby: Time.new(1995, 11, 17).utc
+          ruby: Time.new(1995, 12, 17, 0, 0, 0).utc.strftime('%a %b %d %Y %H:%M:%S %Z')
     ISODate:
     - input:
           shell: new ISODate('1995-12-17T03:24:00.000Z')
@@ -972,7 +972,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          ruby: "'1995-12-17T03:24:00.000Z'.to_time.utc"
+          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc
     - input:
           shell: ISODate('1995-12-17T03:24:00.000Z')
       output:
@@ -981,7 +981,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          ruby: "'1995-12-17T03:24:00.000Z'.to_time.utc"
+          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc
     - description: now date
       input:
           shell: ISODate()
@@ -1015,7 +1015,7 @@ tests:
           java: "Pattern.compile(\"(?:)\")"
           csharp: "new Regex(\"(?:)\")"
           object: "RegExp('')"
-          ruby: "//"
+          ruby: "/(?:)/"
     - description: "RegExp without options"
       input:
           javascript: "new RegExp('abc')"
@@ -1125,7 +1125,7 @@ tests:
           csharp: "new Regex(\"ab'ab\")"
           shell: "new RegExp('ab\\'ab')"
           object: "new RegExp('ab\\'ab')"
-          ruby: "/ab\\'ab/"
+          ruby: "/ab'ab/"
     - description: "regex object with nonescaped single quote"
       input:
           javascript: "new RegExp(\"ab'ab\")"
@@ -1187,5 +1187,5 @@ tests:
           csharp: "new Regex(\"ab+c\")"
           shell: "new RegExp('ab+c', 'u')"
           object: "new RegExp('ab+c', 'u')"
-          ruby: "/ab+c'/u"
+          ruby: "/ab+c/u"
 
