@@ -98,8 +98,8 @@ fs.readdirSync(testpath).map((file) => {
                   continue;
                 }
                 if (test.output && output === 'object') { // Can't import libraries from YAML, so un-stringify it first
-                  const expected = executeJavascript(test.output.object);
                   it(`${input}: ${test.input[input]} => runnable object`, () => {
+                    const expected = executeJavascript(test.output.object);
                     const actual = transpiler[input].object.compile(test.input[input]);
                     if (expected && typeof expected === 'object' && '_bsontype' in expected) {
                       expect(actual._bsontype).to.equal(expected._bsontype);
