@@ -256,13 +256,51 @@ describe('ConnectionMenu Component', function () {
           connectionString: 'mongodb://kaleesi',
         },
       };
-      const mockDuplicateConnection = sinon.fake.resolves(null);
       const mockRemoveConnection = sinon.fake.resolves(null);
       render(
         <ConnectionMenu
           connectionString={'mongodb://kaleesi'}
-          duplicateConnection={mockDuplicateConnection}
+          duplicateConnection={() => true}
           removeConnection={mockRemoveConnection}
+          connectionInfo={connectionInfo}
+          iconColor="#EAEAEA"
+        />
+      );
+
+      fireEvent(
+        screen.getByRole('button'),
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+      
+      const removeConnectionButton = screen.getByText('Remove');
+      fireEvent(
+        removeConnectionButton,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+      expect(mockRemoveConnection.called).to.equal(true);
+    });
+    it('should call the duplicateConnection function', function () {
+      const connectionInfo: ConnectionInfo = {
+        id: 'test-id',
+        favorite: {
+          name: 'First Server',
+        },
+        connectionOptions: {
+          connectionString: 'mongodb://kaleesi',
+        },
+      };
+      const mockDuplicateConnection = sinon.fake.resolves(null);
+      render(
+        <ConnectionMenu
+          connectionString={'mongodb://kaleesi'}
+          duplicateConnection={mockDuplicateConnection}
+          removeConnection={() => true}
           connectionInfo={connectionInfo}
           iconColor="#EAEAEA"
         />
@@ -283,16 +321,7 @@ describe('ConnectionMenu Component', function () {
           cancelable: true,
         })
       );
-      const removeConnectionButton = screen.getByText('Remove');
-      fireEvent(
-        removeConnectionButton,
-        new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true,
-        })
-      );
       expect(mockDuplicateConnection.called).to.equal(true);
-      expect(mockRemoveConnection.called).to.equal(true);
     });
   });
 });
