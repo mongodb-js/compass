@@ -16,8 +16,7 @@ const { debug, log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT');
 
 export default async function connectMongoClient(
   connectionOptions: ConnectionOptions,
-  setupListeners: (client: MongoClient) => void,
-  tunnelLocalPort: number
+  setupListeners: (client: MongoClient) => void
 ): Promise<
   [
     MongoClient,
@@ -50,8 +49,7 @@ export default async function connectMongoClient(
   // same as the one passed as argument.
   const [tunnel, socks5Options] = await openSshTunnel(
     srvResolvedUrl,
-    connectionOptions.sshTunnel,
-    tunnelLocalPort
+    connectionOptions.sshTunnel
   );
 
   if (socks5Options) {

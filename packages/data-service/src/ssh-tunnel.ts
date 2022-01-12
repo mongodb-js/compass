@@ -4,7 +4,6 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { promisify } from 'util';
 
-import ConnectionStringUrl from 'mongodb-connection-string-url';
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { MongoClientOptions } from 'mongodb';
@@ -23,8 +22,7 @@ type Socks5Options = Pick<
 
 export async function openSshTunnel(
   srvResolvedConnectionString: string,
-  sshTunnelOptions: ConnectionSshOptions | undefined,
-  localPort: number
+  sshTunnelOptions: ConnectionSshOptions | undefined
 ): Promise<[SSHTunnel | undefined, Socks5Options | undefined]> {
   if (!sshTunnelOptions) {
     return [undefined, undefined];
@@ -38,7 +36,7 @@ export async function openSshTunnel(
     readyTimeout: 20000,
     forwardTimeout: 20000,
     keepaliveInterval: 20000,
-    localPort: localPort,
+    localPort: 0, // let the OS pick a port
     localAddr: '127.0.0.1',
     socks5Username: socks5Username,
     socks5Password: socks5Password,
@@ -77,7 +75,7 @@ export async function openSshTunnel(
     tunnel,
     {
       proxyHost: 'localhost',
-      proxyPort: localPort,
+      proxyPort: tunnel.config.localPort,
       proxyUsername: socks5Username,
       proxyPassword: socks5Password,
     },
