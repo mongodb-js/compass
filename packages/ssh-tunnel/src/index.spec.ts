@@ -4,7 +4,7 @@ import { createServer, Server as HttpServer, Agent as HttpAgent } from 'http';
 import { promisify } from 'util';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { AddressInfo, Socket } from 'net';
+import { Socket } from 'net';
 import fetch from 'node-fetch';
 import { expect } from 'chai';
 import { SocksClient } from 'socks';
