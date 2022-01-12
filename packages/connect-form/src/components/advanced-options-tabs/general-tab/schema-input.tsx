@@ -12,11 +12,7 @@ import {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import {
-  ConnectionFormError,
-  SchemaFieldError,
-} from '../../../utils/connect-form-errors';
-import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
+import { ConnectionFormError, errorMessageByFieldName, fieldNameHasError } from '../../../utils/validation';
 
 enum MONGODB_SCHEMA {
   MONGODB = 'MONGODB',
@@ -35,12 +31,10 @@ const srvSchemaDescription =
 function SchemaInput({
   connectionStringUrl,
   errors,
-  hideError,
   updateConnectionFormField,
 }: {
   connectionStringUrl: ConnectionStringUrl;
   errors: ConnectionFormError[];
-  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const { isSRV } = connectionStringUrl;
@@ -54,13 +48,6 @@ function SchemaInput({
     },
     [updateConnectionFormField]
   );
-
-  const schemaUpdateErrorIndex = errors.findIndex(
-    (error) => error.fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SRV
-  );
-  const schemaUpdateError = errors[schemaUpdateErrorIndex] as
-    | SchemaFieldError
-    | undefined;
 
   return (
     <>
@@ -76,13 +63,11 @@ function SchemaInput({
       <Description className={descriptionStyles}>
         {isSRV ? srvSchemaDescription : regularSchemaDescription}
       </Description>
-      {schemaUpdateError && (
+      {fieldNameHasError(errors, 'isSrv') && (
         <Banner
           variant={BannerVariant.Danger}
-          dismissible
-          onClose={() => hideError(schemaUpdateErrorIndex)}
         >
-          {schemaUpdateError.message}
+          {errorMessageByFieldName(errors, 'isSrv')}
         </Banner>
       )}
     </>

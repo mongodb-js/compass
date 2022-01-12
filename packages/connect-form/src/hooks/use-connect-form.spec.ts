@@ -167,7 +167,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'add-new-host',
-              hostIndexToAddAfter: 0,
+              fieldIndexToAddAfter: 0,
             },
             connectionStringUrl,
             connectionOptions: {
@@ -204,7 +204,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'add-new-host',
-              hostIndexToAddAfter: 1,
+              fieldIndexToAddAfter: 1,
             },
             connectionStringUrl,
             connectionOptions: {
@@ -240,7 +240,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'add-new-host',
-              hostIndexToAddAfter: 0,
+              fieldIndexToAddAfter: 0,
             },
             connectionStringUrl,
             connectionOptions: {
@@ -276,7 +276,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'remove-host',
-              hostIndexToRemove: 1,
+              fieldIndexToRemove: 1,
             },
             connectionStringUrl,
             connectionOptions: {
@@ -310,7 +310,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'remove-host',
-              hostIndexToRemove: 0,
+              fieldIndexToRemove: 0,
             },
             connectionStringUrl,
             connectionOptions: {
@@ -344,7 +344,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'update-host',
-              hostIndex: 2,
+              fieldIndex: 2,
               newHostValue: 'cruiseships:1234',
             },
             connectionStringUrl,
@@ -384,7 +384,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'update-host',
-              hostIndex: 0,
+              fieldIndex: 0,
               newHostValue: 'dogs:1234',
             },
             connectionStringUrl,
@@ -421,7 +421,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'update-host',
-              hostIndex: 0,
+              fieldIndex: 0,
               newHostValue: 'backyards',
             },
             connectionStringUrl,
@@ -458,7 +458,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'update-host',
-              hostIndex: 0,
+              fieldIndex: 0,
               newHostValue: '',
             },
             connectionStringUrl,
@@ -472,7 +472,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
-              hostIndex: 0,
+              fieldIndex: 0,
               message:
                 'Host cannot be empty. The host is the address hostname, IP address, or UNIX domain socket where the mongodb instance is running.',
             },
@@ -499,7 +499,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'update-host',
-              hostIndex: 1,
+              fieldIndex: 1,
               newHostValue: 'spaces:123@',
             },
             connectionStringUrl,
@@ -513,7 +513,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
-              hostIndex: 1,
+              fieldIndex: 1,
               message: "Invalid character in host: '@'",
             },
           ]);
@@ -540,7 +540,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'update-host',
-              hostIndex: 0,
+              fieldIndex: 0,
               newHostValue: 'outerspace:27019/',
             },
             connectionStringUrl,
@@ -554,7 +554,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
-              hostIndex: 0,
+              fieldIndex: 0,
               message: "Invalid character in host: '/'",
             },
           ]);
@@ -580,7 +580,7 @@ describe('use-connect-form hook', function () {
           updateResult = handleConnectionFormFieldUpdate({
             action: {
               type: 'update-host',
-              hostIndex: 0,
+              fieldIndex: 0,
               newHostValue: 'outerspace:',
             },
             connectionStringUrl,
@@ -594,7 +594,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
-              hostIndex: 0,
+              fieldIndex: 0,
               message: "Invalid character in host: ':'",
             },
           ]);
@@ -729,7 +729,7 @@ describe('use-connect-form hook', function () {
       });
     });
 
-    describe('update-connection-options action', function () {
+    describe('update-ssh-options action', function () {
       it('should handleUpdateConnectionOptions', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/?ssl=true&directConnection=false'
@@ -738,7 +738,7 @@ describe('use-connect-form hook', function () {
           connectionOptions: { sshTunnel },
         } = handleConnectionFormFieldUpdate({
           action: {
-            type: 'update-connection-options',
+            type: 'update-ssh-options',
             currentTab: 'password',
             key: 'host',
             value: 'localhost',

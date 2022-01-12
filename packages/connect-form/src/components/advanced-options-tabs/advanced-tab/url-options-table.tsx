@@ -249,7 +249,6 @@ function UrlOptionsTable({
       {errorMessage && (
         <Banner
           variant={'warning'}
-          dismissible={true}
           onClose={() => setErrorMessage('')}
         >
           {errorMessage}
