@@ -111,11 +111,11 @@ function ConnectForm({
           }
           }
         />
-        {errors.length && !connectionStringInvalidError && (
+        {(errors.length && !connectionStringInvalidError) ? (
           <Banner variant={BannerVariant.Danger}>
             {errors.map((err) => err.message).join('\n')}
           </Banner>
-        )}
+        ) : ''}
       </Card>
     </div>
   );
