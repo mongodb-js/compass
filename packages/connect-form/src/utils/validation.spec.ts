@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 
 import {
+  errorMessageByFieldName,
   validateConnectionOptionsErrors,
   validateConnectionOptionsWarnings,
 } from './validation';
@@ -70,6 +71,7 @@ describe('validation', function () {
           },
         ]);
       });
+
       it('should return errors if SSH is configured without both password and identity file', function () {
         const connectionInfo: ConnectionInfo = {
           id: 'connection-test',
@@ -89,6 +91,32 @@ describe('validation', function () {
           {
             message:
               'When connecting via SSH tunnel either password or identity file is required',
+          },
+        ]);
+      });
+
+      it('should return errors if SSH is configured with identity file password but no identity file', function () {
+        const connectionInfo: ConnectionInfo = {
+          id: 'connection-test',
+          connectionOptions: {
+            connectionString: 'mongodb://myserver.com',
+            sshTunnel: {
+              host: 'my-hostname',
+              port: 22,
+              username: 'mongouser',
+              identityKeyPassphrase: 'abc',
+            },
+          },
+        };
+        const result = validateConnectionOptionsErrors(
+          connectionInfo.connectionOptions
+        );
+        expect(
+          result.filter((err) => err.fieldName === 'sshIdentityKeyFile')
+        ).to.deep.equal([
+          {
+            fieldName: 'sshIdentityKeyFile',
+            message: 'File is required along with passphrase.',
           },
         ]);
       });
@@ -370,20 +398,6 @@ describe('validation', function () {
         });
       });
     });
-    it('should return warnings if unknown authMechanism', function () {
-      const connectionInfo: ConnectionInfo = {
-        id: 'connection-test',
-        connectionOptions: {
-          connectionString: `mongodb://myserver.com?authMechanism=fakeAuth`,
-        },
-      };
-      const result = validateConnectionOptionsWarnings(
-        connectionInfo.connectionOptions
-      );
-      expect(result[0]).to.deep.equal({
-        message: 'Unknown authentication mechanism fakeAuth',
-      });
-    });
 
     it('should return warnings if unknown readPreference', function () {
       const connectionInfo: ConnectionInfo = {
@@ -507,32 +521,6 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             message: 'directConnection is not supported with multiple hosts.',
-          },
-        ]);
-      });
-    });
-
-    describe('SSH', function () {
-      it('should return warning if SSH and no directConnection', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: 'mongodb+srv://myserver.com?tls=true',
-            sshTunnel: {
-              host: 'my-host',
-              port: 22,
-              username: 'mongouser',
-              password: 'password',
-            },
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
-        expect(result).to.deep.equal([
-          {
-            message:
-              'directConnection is recommended when connecting through SSH tunnel.',
           },
         ]);
       });

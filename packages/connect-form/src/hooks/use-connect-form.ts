@@ -225,7 +225,7 @@ export function handleConnectionFormFieldUpdate({
   action: ConnectionFormFieldActions;
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
-  initialErrors: ConnectionFormError[];
+  initialErrors?: ConnectionFormError[];
 }): {
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
@@ -354,7 +354,7 @@ export function handleConnectionFormFieldUpdate({
       return handleUpdateSshOptions(action, {
         connectionOptions,
         connectionStringUrl,
-        errors: initialErrors,
+        errors: initialErrors || [],
         warnings: [],
         connectionStringInvalidError: null,
       });
@@ -376,7 +376,7 @@ export function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        errors: initialErrors,
+        errors: initialErrors || [],
       };
     }
     case 'delete-search-param': {
@@ -387,7 +387,7 @@ export function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        errors: initialErrors,
+        errors: initialErrors || [],
       };
     }
     case 'update-connection-path': {
@@ -398,7 +398,7 @@ export function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        errors: initialErrors,
+        errors: initialErrors || [],
       };
     }
   }
