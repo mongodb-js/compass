@@ -5,8 +5,10 @@ import sinon from 'sinon';
 import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 
 import SSHTunnelPassword from './ssh-tunnel-password';
-import { ConnectionFormError, errorMessageByFieldName } from '../../../utils/validation';
-
+import {
+  ConnectionFormError,
+  errorMessageByFieldName,
+} from '../../../utils/validation';
 
 const formFields = [
   {
@@ -76,18 +78,20 @@ describe('SSHTunnelPassword', function () {
   });
 
   it('renders form field error on form when passed', function () {
-    const errors: ConnectionFormError[] = [{
-      fieldName: 'sshHostname',
-      message: 'Invalid host',
-    },
-    {
-      fieldName: 'sshUsername',
-      message: 'Invalid username'
-    },
-    {
-      fieldName: 'sshPassword',
-      message: 'Invalid password'
-    }];
+    const errors: ConnectionFormError[] = [
+      {
+        fieldName: 'sshHostname',
+        message: 'Invalid host',
+      },
+      {
+        fieldName: 'sshUsername',
+        message: 'Invalid username',
+      },
+      {
+        fieldName: 'sshPassword',
+        message: 'Invalid password',
+      },
+    ];
 
     render(
       <SSHTunnelPassword

@@ -5,7 +5,7 @@ import FormFieldContainer from '../../form-field-container';
 import {
   ConnectionFormError,
   errorMessageByFieldName,
-  fieldNameHasError
+  fieldNameHasError,
 } from '../../../utils/validation';
 
 type PasswordFormKeys = keyof Omit<

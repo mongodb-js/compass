@@ -12,7 +12,11 @@ import {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormError, errorMessageByFieldName, fieldNameHasError } from '../../../utils/validation';
+import {
+  ConnectionFormError,
+  errorMessageByFieldName,
+  fieldNameHasError,
+} from '../../../utils/validation';
 
 enum MONGODB_SCHEMA {
   MONGODB = 'MONGODB',
@@ -64,9 +68,7 @@ function SchemaInput({
         {isSRV ? srvSchemaDescription : regularSchemaDescription}
       </Description>
       {fieldNameHasError(errors, 'isSrv') && (
-        <Banner
-          variant={BannerVariant.Danger}
-        >
+        <Banner variant={BannerVariant.Danger}>
           {errorMessageByFieldName(errors, 'isSrv')}
         </Banner>
       )}

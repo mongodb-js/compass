@@ -16,7 +16,7 @@ import FormFieldContainer from '../../form-field-container';
 import {
   ConnectionFormError,
   errorMessageByFieldNameAndIndex,
-  fieldNameHasError
+  fieldNameHasError,
 } from '../../../utils/validation';
 
 const hostInputContainerStyles = css({
@@ -90,7 +90,11 @@ function HostInput({
               aria-labelledby="connection-host-input-label"
               state={fieldNameHasError(errors, 'hosts') ? 'error' : undefined}
               // Only show the error message on the last host.
-              errorMessage={errorMessageByFieldNameAndIndex(errors, 'hosts', index)}
+              errorMessage={errorMessageByFieldNameAndIndex(
+                errors,
+                'hosts',
+                index
+              )}
               value={`${host}`}
               onChange={(e) => onHostChange(e, index)}
             />

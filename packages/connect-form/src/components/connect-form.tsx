@@ -63,7 +63,7 @@ function ConnectForm({
       updateConnectionFormField,
       setConnectionStringUrl,
       setConnectionStringError,
-      setErrors
+      setErrors,
     },
   ] = useConnectForm(initialConnectionInfo);
 
@@ -96,11 +96,17 @@ function ConnectForm({
           />
         </div>
 
-        {(warnings.length && !connectionStringInvalidError) ? (
-          <WarningSummary warnings={warnings} /> ) : ''}
+        {warnings.length && !connectionStringInvalidError ? (
+          <WarningSummary warnings={warnings} />
+        ) : (
+          ''
+        )}
 
-        {(errors.length && !connectionStringInvalidError) ? (
-          <ErrorSummary errors={errors} /> ) : ''}
+        {errors.length && !connectionStringInvalidError ? (
+          <ErrorSummary errors={errors} />
+        ) : (
+          ''
+        )}
 
         <ConnectFormActions
           onConnectClicked={() => {
@@ -108,17 +114,18 @@ function ConnectForm({
               ...connectionOptions,
               connectionString: editingConnectionStringUrl.toString(),
             };
-            const formErrors = validateConnectionOptionsErrors(updatedConnectionOptions)
+            const formErrors = validateConnectionOptionsErrors(
+              updatedConnectionOptions
+            );
             if (formErrors.length) {
               setErrors(formErrors);
               return;
             }
             onConnectClicked({
               ...initialConnectionInfo,
-              connectionOptions: updatedConnectionOptions
-            })
-          }
-          }
+              connectionOptions: updatedConnectionOptions,
+            });
+          }}
         />
       </Card>
     </div>

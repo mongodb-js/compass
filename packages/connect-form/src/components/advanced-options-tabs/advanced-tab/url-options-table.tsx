@@ -247,10 +247,7 @@ function UrlOptionsTable({
         </Button>
       </div>
       {errorMessage && (
-        <Banner
-          variant={'warning'}
-          onClose={() => setErrorMessage('')}
-        >
+        <Banner variant={'warning'} onClose={() => setErrorMessage('')}>
           {errorMessage}
         </Banner>
       )}
