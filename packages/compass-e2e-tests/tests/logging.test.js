@@ -198,25 +198,26 @@ describe('Logging and Telemetry integration', function () {
           },
         },
         {
-          s: 'I',
-          c: 'COMPASS-CONNECT',
-          id: 1_001_000_010,
-          ctx: 'Connect',
-          msg: 'Resolved SRV record',
+          s: 'E',
+          c: 'DEVTOOLS-CONNECT',
+          id: 1_000_000_041,
+          ctx: 'compass-deps',
+          msg: 'Missing optional dependency',
           attr: (actual) => {
-            expect(actual.from).to.match(/^mongodb:\/\/localhost:27018/);
-            expect(actual.to).to.match(/^mongodb:\/\/localhost:27018/);
+            // https://jira.mongodb.org/browse/COMPASS-4768
+            // This requires some dark webpack magic to work, apparently.
+            expect(actual.name).to.equal('os-dns-native');
           },
         },
         {
           s: 'I',
-          c: 'COMPASS-CONNECT',
-          id: 1_001_000_009,
-          ctx: 'Connect',
-          msg: 'Initiating connection',
+          c: 'DEVTOOLS-CONNECT',
+          id: 1_000_000_042,
+          ctx: 'compass-connect',
+          msg: 'Initiating connection attempt',
           attr: (actual) => {
-            expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
-            expect(actual.options).to.have.property('monitorCommands', true);
+            expect(actual.uri).to.match(/^mongodb:\/\/localhost:27018/);
+            expect(actual.driver.name).to.equal('nodejs');
           },
         },
         {
@@ -270,16 +271,10 @@ describe('Logging and Telemetry integration', function () {
         },
         {
           s: 'I',
-          c: 'COMPASS-CONNECT',
-          id: 1_001_000_012,
-          ctx: 'Connect',
-          msg: 'Connection established',
-          attr: (actual) => {
-            expect(actual.driver).to.not.be.undefined;
-            expect(actual.driver.version).to.not.be.undefined;
-            expect(actual.driver.name).to.equal('nodejs');
-            expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
-          },
+          c: 'DEVTOOLS-CONNECT',
+          id: 1_000_000_037,
+          ctx: 'compass-connect',
+          msg: 'Connection attempt finished'
         },
         {
           s: 'I',

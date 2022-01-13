@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.6.1",
+    "@mongodb-js/devtools-connect": "^1.0.0",
     "@mongodb-js/ssh-tunnel": "^1.2.3",
     "async": "^3.2.0",
     "debug": "4.3.0",

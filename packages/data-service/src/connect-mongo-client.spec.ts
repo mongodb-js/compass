@@ -45,7 +45,7 @@ describe('connectMongoClient', function () {
 
       assert.strictEqual(
         url,
-        'mongodb://localhost:27018/?directConnection=true'
+        'mongodb://localhost:27018'
       );
 
       assert.deepStrictEqual(options, {
