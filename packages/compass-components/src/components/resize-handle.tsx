@@ -1,5 +1,5 @@
-import { css, cx } from '@emotion/css';
 import React, { useRef } from 'react';
+import { css, cx } from '@leafygreen-ui/emotion';
 
 enum ResizeDirection {
   TOP = 'TOP',

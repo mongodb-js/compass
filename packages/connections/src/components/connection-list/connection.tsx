@@ -1,10 +1,11 @@
-import { css, cx } from '@emotion/css';
 import React from 'react';
 import {
   H3,
   Description,
   spacing,
   uiColors,
+  css,
+  cx,
 } from '@mongodb-js/compass-components';
 import { ConnectionInfo, getConnectionTitle } from 'mongodb-data-service';
 

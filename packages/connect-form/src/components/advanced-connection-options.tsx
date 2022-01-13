@@ -1,9 +1,9 @@
-import { css } from '@emotion/css';
 import React from 'react';
 import {
   Accordion,
   compassUIColors,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';

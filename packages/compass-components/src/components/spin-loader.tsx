@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { css, keyframes } from '@emotion/css';
+import { css, keyframes } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 
 interface SpinLoaderProps {

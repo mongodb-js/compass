@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
 import React from 'react';
 import {
   Button,
   ButtonVariant,
   spacing,
   uiColors,
+  css,
 } from '@mongodb-js/compass-components';
 
 const formActionStyles = css({

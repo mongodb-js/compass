@@ -1,6 +1,11 @@
-import { css, cx } from '@emotion/css';
 import React from 'react';
-import { Icon, spacing, MongoDBLogoMark } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  spacing,
+  MongoDBLogoMark,
+  css,
+  cx,
+} from '@mongodb-js/compass-components';
 import { isLocalhost, isAtlas } from 'mongodb-build-info';
 
 const connectionIconStyles = css({

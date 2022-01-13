@@ -47,7 +47,6 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.9.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
@@ -58,7 +57,6 @@
     "react-dom": "^16.14.0"
   },
   "devDependencies": {
-    "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.9.1",
     "@mongodb-js/eslint-config-compass": "^0.5.0",
     "@mongodb-js/mocha-config-compass": "^0.7.0",

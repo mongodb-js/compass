@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
 import React from 'react';
 import {
   Banner,
   BannerVariant,
   compassUIColors,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
 import {

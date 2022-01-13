@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
-import { H2, Link, Modal, spacing } from '@mongodb-js/compass-components';
 import React, { useEffect, useRef, useState } from 'react';
+import { H2, Link, Modal, spacing, css } from '@mongodb-js/compass-components';
 
 import ConnectingAnimation from './connecting-animation';
 import ConnectingIllustration from './connecting-illustration';

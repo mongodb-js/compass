@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Label,
@@ -6,6 +5,7 @@ import {
   IconButton,
   TextInput,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';

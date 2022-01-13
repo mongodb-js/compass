@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import React, {
   ChangeEvent,
   Fragment,
@@ -14,6 +13,7 @@ import {
   TextArea,
   Toggle,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import ConnectionStringUrl, {

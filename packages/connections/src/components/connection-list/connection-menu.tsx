@@ -1,4 +1,3 @@
-import { css, cx } from '@emotion/css';
 import React, { useEffect, useRef, useReducer } from 'react';
 import {
   IconButton,
@@ -8,6 +7,8 @@ import {
   Toast,
   ToastVariant,
   spacing,
+  css,
+  cx,
 } from '@mongodb-js/compass-components';
 
 const dropdownButtonStyles = css({

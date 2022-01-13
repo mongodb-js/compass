@@ -1,4 +1,3 @@
-import { css } from '@emotion/css';
 import React from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 import {
@@ -8,6 +7,7 @@ import {
   Description,
   H3,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 
 import ConnectionStringInput from './connection-string-input';
