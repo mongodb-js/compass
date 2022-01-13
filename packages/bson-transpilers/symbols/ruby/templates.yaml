@@ -184,7 +184,7 @@ Templates:
             }
             const pairs = args.map((arg) => {
                 return `${indent}${singleStringify(arg[0])} => ${arg[1]}`;
-            }).join(', ');
+            }).join(',');
 
             return `{${pairs}${closingIndent}}`
         }
@@ -267,8 +267,8 @@ Templates:
                 return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
             }
 
-            let db_string = db ? `, \\n  '$db' => ${singleStringify(db)}` : ''
-            return `.new({\\n  '$ref' => ${singleStringify(coll)}, \\n  '$id' => ${id}${db_string}\\n})` //TODO: N, why does I need to escape the \n here? This is incorrect
+            let db_string = db ? `,\n  '$db' => ${singleStringify(db)}` : ''
+            return `.new({\n  '$ref' => ${singleStringify(coll)},\n  '$id' => ${id}${db_string}\n})`
         }
 
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >

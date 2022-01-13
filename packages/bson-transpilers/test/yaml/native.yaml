@@ -79,7 +79,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"x\", \"1\" }, \n    { \"n\", \"4\" }\n}"
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
-          ruby: "{\n  'x' => '1', \n  'n' => '4'\n}"
+          ruby: "{\n  'x' => '1',\n  'n' => '4'\n}"
     - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
@@ -91,7 +91,7 @@ tests:
           csharp: "new BsonDocument(\"graphLookup\", new BsonDocument\n    {\n        { \"from\", \"raw_data\" }, \n        { \"startWith\", \"$_id\" }, \n        { \"connectFromField\", \"_id\" }, \n        { \"connectToField\", \"manager\" }, \n        { \"as\", \"reports\" }\n    })"
           shell: "{\n  'graphLookup': {\n    'from': 'raw_data', \n    'startWith': '$_id', \n    'connectFromField': '_id', \n    'connectToField': 'manager', \n    'as': 'reports'\n  }\n}"
           object: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
-          ruby: "{\n  'graphLookup' => {\n    'from' => 'raw_data', \n    'startWith' => '$_id', \n    'connectFromField' => '_id', \n    'connectToField' => 'manager', \n    'as' => 'reports'\n  }\n}"
+          ruby: "{\n  'graphLookup' => {\n    'from' => 'raw_data',\n    'startWith' => '$_id',\n    'connectFromField' => '_id',\n    'connectToField' => 'manager',\n    'as' => 'reports'\n  }\n}"
     - input:
           javascript: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
           shell: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
@@ -103,7 +103,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}"
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
-          ruby: "{\n  'status' => 'A', \n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
+          ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
     - input:
           python: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
       output:
@@ -113,7 +113,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}"
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
-          ruby: "{\n  'status' => 'A', \n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
+          ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
     Array:
     - input:
           python: "['1', '2']"
@@ -162,7 +162,7 @@ tests:
           shell: "{\n  'pipeline': [\n    {\n      '$match': {\n        '$expr': {\n          '$eq': [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project': {\n        'managers': 0\n      }\n    }, {\n      '$sort': {\n        'startQuarter': 1, \n        'notes': 1, \n        'job_code': 1\n      }\n    }\n  ]\n}"
           python: "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}"
           object: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
-          ruby: "{\n  'pipeline' => [\n    {\n      '$match' => {\n        '$expr' => {\n          '$eq' => [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project' => {\n        'managers' => 0\n      }\n    }, {\n      '$sort' => {\n        'startQuarter' => 1, \n        'notes' => 1, \n        'job_code' => 1\n      }\n    }\n  ]\n}"
+          ruby: "{\n  'pipeline' => [\n    {\n      '$match' => {\n        '$expr' => {\n          '$eq' => [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project' => {\n        'managers' => 0\n      }\n    }, {\n      '$sort' => {\n        'startQuarter' => 1,\n        'notes' => 1,\n        'job_code' => 1\n      }\n    }\n  ]\n}"
     - input:
           python: "['1', ['2', '3']]"
           javascript: "['1', ['2', '3']]"
@@ -754,7 +754,7 @@ tests:
           java: '3'
           csharp: '3'
           object: 'new Int32(3)'
-          ruby: '3.to_i'
+          ruby: '3'
     - input:
           python: int('3')
       output:
@@ -824,7 +824,7 @@ tests:
           java: 3.001d
           csharp: '3.001'
           object: new Double(3.001)
-          ruby: 3.001.to_f
+          ruby: '3.001'
     - input:
           python: float(0x3)
       output:

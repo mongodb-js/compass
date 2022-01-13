@@ -140,7 +140,11 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
-          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', \n  '$id' => BSON::ObjectId.new\n})
+          ruby: |-
+            BSON::DBRef.new({
+              '$ref' => 'coll',
+              '$id' => BSON::ObjectId.new
+            })
     - description: '(string, ObjectID) args'
       input:
           javascript: DBRef('coll', new ObjectId())
@@ -153,7 +157,11 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
-          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', \n  '$id' => BSON::ObjectId.new\n})
+          ruby: |-
+            BSON::DBRef.new({
+              '$ref' => 'coll',
+              '$id' => BSON::ObjectId.new
+            })
     - description: '(string, ObjectId, string) args'
       input:
           javascript: new DBRef('coll', ObjectId(), 'db')
@@ -166,7 +174,12 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
-          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', \n  '$id' => BSON::ObjectId.new, \n  '$db' => 'db'\n})
+          ruby: |-
+            BSON::DBRef.new({
+              '$ref' => 'coll',
+              '$id' => BSON::ObjectId.new,
+              '$db' => 'db'
+            })
     - description: '(string, ObjectId, database=string) args'
       input:
           python: DBRef('coll', ObjectId(), database='db')
@@ -177,7 +190,12 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
-          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', \n  '$id' => BSON::ObjectId.new, \n  '$db' => 'db'\n})
+          ruby: |-
+            BSON::DBRef.new({
+              '$ref' => 'coll',
+              '$id' => BSON::ObjectId.new,
+              '$db' => 'db'
+            })
     32-bit integer:
     - description: 'NEW number arg'
       input:
