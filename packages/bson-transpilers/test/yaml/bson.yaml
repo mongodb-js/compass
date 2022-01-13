@@ -44,7 +44,7 @@ tests:
           java: 'new CodeWithScope("string", new Document("x", "1"))'
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: 'new Code("string", {"x": 1})'
-          ruby: "BSON::CodeWithScope.new('string', {\n  'x': '1'\n})"
+          ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
     - description: 'no args'
       input:
           shell: Code()
@@ -77,7 +77,7 @@ tests:
           java: 'new CodeWithScope("string", new Document("x", "1"))'
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: "new Code('string', {'x': '1'})"
-          ruby: "BSON::CodeWithScope.new('string', {'x': '1'})"
+          ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
     ObjectId:
     - description: 'no arg'
       input:
@@ -140,7 +140,7 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
-          ruby: BSON::DBRef.new({\n  '$ref' => 'coll',\n  '$id' => BSON::ObjectId.new\n})
+          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', \n  '$id' => BSON::ObjectId.new\n})
     - description: '(string, ObjectID) args'
       input:
           javascript: DBRef('coll', new ObjectId())
@@ -153,7 +153,7 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
-          ruby: BSON::DBRef.new({\n  '$ref' => 'coll',\n  '$id' => BSON::ObjectId.new\n})
+          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', \n  '$id' => BSON::ObjectId.new\n})
     - description: '(string, ObjectId, string) args'
       input:
           javascript: new DBRef('coll', ObjectId(), 'db')
@@ -166,7 +166,7 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
-          ruby: BSON::DBRef.new({\n  '$ref' => 'coll',\n  '$id' => BSON::ObjectId.new,\n  '$db' => 'db'\n})
+          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', \n  '$id' => BSON::ObjectId.new, \n  '$db' => 'db'\n})
     - description: '(string, ObjectId, database=string) args'
       input:
           python: DBRef('coll', ObjectId(), database='db')
@@ -177,7 +177,7 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
-          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', '$id' => BSON::ObjectId.new,\n  '$db' => 'db'\n})
+          ruby: BSON::DBRef.new({\n  '$ref' => 'coll', \n  '$id' => BSON::ObjectId.new, \n  '$db' => 'db'\n})
     32-bit integer:
     - description: 'NEW number arg'
       input:
@@ -228,7 +228,7 @@ tests:
           java: '0'
           csharp: '0'
           object: new Int32('0')
-          ruby: "'0'.to_i"
+          ruby: '0'
     - description: 'hex arg'
       input:
           javascript: new Int32(0x3)
@@ -241,7 +241,7 @@ tests:
           java: (int) 0x3
           csharp: Convert.ToInt32(0x3)
           object: new Int32(0x3)
-          ruby: "'0x3'.to_i"
+          ruby: 0x3.to_i
     - description: 'decimal arg'
       input:
           javascript: new Int32(3.0001)
@@ -315,7 +315,7 @@ tests:
           java: 3.0001d
           csharp: '3.0001'
           object: new Double(3.0001)
-          ruby: 3.0001.to_f
+          ruby: '3.0001'
     - description: 'hex arg'
       input:
           javascript: Double(0x3)
@@ -353,7 +353,7 @@ tests:
           java: 9223372036854775807L
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
-          ruby: 9223372036854775807.to_i
+          ruby: '9223372036854775807'
     - description: 'NEW number arg'
       input:
           javascript: Long(-1, 2147483647)
@@ -365,7 +365,7 @@ tests:
           java: 9223372036854775807L
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
-          ruby: 9223372036854775807.to_i
+          ruby: '9223372036854775807'
     - description: 'no arg'
       input:
           shell: NumberLong()
@@ -377,7 +377,7 @@ tests:
           java: 0L
           csharp: 0L
           object: Long.fromNumber(0)
-          ruby: 0.to_i
+          ruby: '0'
     - description: 'string arg'
       input:
           shell: NumberLong('9223372036854775807')
@@ -582,7 +582,7 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
-          ruby: 'abc'.to_sym # TODO: N, should I just use a : here?
+          ruby: "'abc'.to_sym" # TODO: N, should I just use a : here?
     - description: from shell symbol
       input:
           shell: Symbol('abc')
@@ -593,7 +593,7 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
-          ruby: 'abc'.to_sym
+          ruby: "'abc'.to_sym"
     - description: NEW from string
       input:
           javascript: new BSONSymbol('abc')
@@ -604,4 +604,4 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
-          ruby: 'abc'.to_sym
+          ruby: "'abc'.to_sym"
