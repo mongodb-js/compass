@@ -222,7 +222,7 @@ export function validateConnectionOptionsWarnings(
     ...validateDirectConnectionAndSrvWarnings(connectionString),
     ...validateDirectConnectionAndReplicaSetWarnings(connectionString),
     ...validateDirectConnectionAndMultiHostWarnings(connectionString),
-    ...validateTLSAndHostWarnings(connectionOptions),
+    ...validateTLSAndHostWarnings(connectionString),
   ];
 }
 
@@ -340,11 +340,17 @@ function validateDirectConnectionAndMultiHostWarnings(
 }
 
 function validateTLSAndHostWarnings(
-  connectionOptions: ConnectionOptions
+  connectionString: ConnectionString
 ): ConnectionFormWarning[] {
   const warnings: ConnectionFormWarning[] = [];
-  const connectionString = getConnectionString(connectionOptions);
-  if (connectionString.host !== 'localhost' && !isSecure(connectionString)) {
+
+  const hasNonLocalhost = !!connectionString.hosts
+    .map((host) => host.split(':')[0])
+    .find(
+      (hostname) => !['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)
+    );
+
+  if (hasNonLocalhost && !isSecure(connectionString)) {
     warnings.push({
       message:
         'Connecting without tls is not recommended as it may create a security vulnerability.',

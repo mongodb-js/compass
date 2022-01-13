@@ -15,6 +15,7 @@ import AdvancedConnectionOptions from './advanced-connection-options';
 import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
+import { ErrorSummary, WarningSummary } from './errors-summary';
 
 const formContainerStyles = css({
   margin: 0,
@@ -53,6 +54,7 @@ function ConnectForm({
   const [
     {
       errors,
+      warnings,
       connectionStringUrl,
       connectionStringInvalidError,
       connectionOptions,
@@ -93,6 +95,13 @@ function ConnectForm({
             connectionOptions={connectionOptions}
           />
         </div>
+
+        {(warnings.length && !connectionStringInvalidError) ? (
+          <WarningSummary warnings={warnings} /> ) : ''}
+
+        {(errors.length && !connectionStringInvalidError) ? (
+          <ErrorSummary errors={errors} /> ) : ''}
+
         <ConnectFormActions
           onConnectClicked={() => {
             const updatedConnectionOptions = {
@@ -111,11 +120,6 @@ function ConnectForm({
           }
           }
         />
-        {(errors.length && !connectionStringInvalidError) ? (
-          <Banner variant={BannerVariant.Danger}>
-            {errors.map((err) => err.message).join('\n')}
-          </Banner>
-        ) : ''}
       </Card>
     </div>
   );
