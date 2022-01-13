@@ -18,6 +18,8 @@ expansions.yml
 lerna-debug.log
 packages/**/*.tgz
 packages/**/package-lock.json
+scripts/package-lock.json
+configs/**/package-lock.json
 tmp
 storage
 .nyc_output
