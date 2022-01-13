@@ -108,7 +108,7 @@ async function startCompass(
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
     chromeArgs.push(COMPASS_PATH);
-    process.chdir(COMPASS_PATH);
+    //process.chdir(COMPASS_PATH); // TODO
   }
 
   // https://peter.sh/experiments/chromium-command-line-switches/
@@ -121,7 +121,10 @@ async function startCompass(
     // Evergren RHEL ci runs everything as root, and chrome will not start as
     // root without this flag
     '--no-sandbox',
-    '--verbose' // TODO: for chrome driver logs
+
+    // TODO: these are actually chromedriver options
+    `--log-dir=${chromedriverLogPath}`,
+    '--verbose'
   );
 
   // https://webdriver.io/docs/options/#webdriver-options
@@ -141,16 +144,14 @@ async function startCompass(
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
 
   const options = {
-    capabilities: [{
+    capabilities: {
       browserName: 'chrome',
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary,
-        args: chromeArgs,
-        outputDir: path.dirname(chromedriverLogPath), // TODO
-        logFileName: path.basename(chromedriverLogPath) // TODO
+        args: chromeArgs
       }
-    }],
+    },
     ...webdriverOptions,
     ...wdioOptions,
     ...opts

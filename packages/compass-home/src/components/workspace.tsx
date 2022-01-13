@@ -3,7 +3,6 @@ import React from 'react';
 
 import WorkspaceContent from './workspace-content';
 import Namespace from '../types/namespace';
-import InstanceLoadedStatus from '../constants/instance-loaded-status';
 import {
   AppRegistryComponents,
   AppRegistryRoles,

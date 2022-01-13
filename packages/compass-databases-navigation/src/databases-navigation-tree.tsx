@@ -252,8 +252,6 @@ const DatabasesNavigationTree: React.FunctionComponent<{
             );
           }
         )
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
         .flat()
     );
   }, [databases, expanded]);
