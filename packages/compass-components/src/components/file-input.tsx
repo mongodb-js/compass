@@ -162,7 +162,7 @@ function FileInput({
       <div
         className={cx(
           { [formItemHorizontalStyles]: variant === Variant.Horizontal },
-          { [formItemVerticalStyles]: variant === Variant.Vertical },
+          { [formItemVerticalStyles]: variant === Variant.Vertical }
         )}
       >
         <label

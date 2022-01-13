@@ -72,10 +72,7 @@ describe.skip('SSHTunnelSocks', function () {
     );
 
     formFields.forEach(function ({ key }) {
-      expect(
-        screen.getByText(''),
-        `renders ${key} field error`
-      ).to.exist;
+      expect(screen.getByText(''), `renders ${key} field error`).to.exist;
     });
   });
 });

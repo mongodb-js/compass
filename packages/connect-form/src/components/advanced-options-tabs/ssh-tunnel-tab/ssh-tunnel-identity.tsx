@@ -2,7 +2,11 @@ import React, { ChangeEvent } from 'react';
 import { TextInput, FileInput } from '@mongodb-js/compass-components';
 import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
-import { ConnectionFormError, errorMessageByFieldName, fieldNameHasError } from '../../../utils/validation';
+import {
+  ConnectionFormError,
+  errorMessageByFieldName,
+  fieldNameHasError,
+} from '../../../utils/validation';
 
 type IdentityFormKeys = keyof SSHConnectionOptions;
 
