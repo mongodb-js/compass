@@ -1,4 +1,4 @@
-// @ts-check
+// TODO: add back ts-check
 const { inspect } = require('util');
 const { promises: fs } = require('fs');
 const path = require('path');
@@ -8,7 +8,7 @@ const {
   gunzip,
   constants: { Z_SYNC_FLUSH },
 } = require('zlib');
-const { Application } = require('spectron');
+const { remote } = require('webdriverio');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
 const {
@@ -18,25 +18,6 @@ const {
 const Selectors = require('./selectors');
 const { addCommands } = require('./commands');
 
-/**
- * @typedef {Object} ExtendedClient
- * @property {(selector: string, timeout?: number) => Promise<void>} clickVisible
- * @property {(selector: string, value: any, timeout?: number) => Promise<void>} setValueVisible
- * @property {() => Promise<void>} waitForConnectionScreen
- * @property {() => Promise<void>} closeTourModal
- * @property {() => Promise<void>} closePrivacySettingsModal
- * @property {(timeout?: number) => Promise<void>} doConnect
- * @property {(connectionString: string, timeout?: number) => Promise<void>} connectWithConnectionString
- * @property {(connectionOptions: any, timeout?: number) => Promise<void>} connectWithConnectionForm
- * @property {() => Promise<void>} disconnect
- * @property {(str: string, parse?: boolean, timeout?: number) => Promise<any>} shellEval
- *
- * @typedef {Object} CompassLog
- * @property {Buffer} raw
- * @property {any[]} structured
- *
- * @typedef {import('spectron').Application & { compassLog: CompassLog['structured'], client: import('spectron').SpectronClient & ExtendedClient }} ExtendedApplication
- */
 
 const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
@@ -80,11 +61,7 @@ let j = 0;
 // For the html
 let k = 0;
 
-/**
- *
- * @param {import('webdriverio').LogEntry} logEntry
- * @returns {string}
- */
+
 function formatLogToErrorWithStack(logEntry) {
   const [file, lineCol, ...rest] = logEntry.message.split(' ');
   const message = rest
@@ -94,29 +71,17 @@ function formatLogToErrorWithStack(logEntry) {
   return `${message}\n  at ${file}:${lineCol}`;
 }
 
-/**
- * @param {boolean} testPackagedApp Should compass start from the packaged binary or just from the source (defaults to source)
- * @param {Partial<import('spectron').AppConstructorOptions>} opts
- * @returns {Promise<ExtendedApplication>}
- */
+
 async function startCompass(
   testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP),
   opts = {}
 ) {
+  const compass = {};
+
   /** @type {string} */
   // When imported not from electron env, require('electron') actually returns a
   // path to the binary, it's just not typed like that
   // @ts-expect-error
-  const electronPath = require('electron');
-
-  /** @type {import('spectron').AppConstructorOptions} */
-  const applicationStartOptions = !testPackagedApp
-    ? {
-        path: electronPath,
-        args: [COMPASS_PATH],
-        cwd: COMPASS_PATH,
-      }
-    : { path: getCompassBinPath(await getCompassBuildMetadata()) };
 
   const nowFormatted = formattedDate();
 
@@ -124,7 +89,7 @@ async function startCompass(
     os.tmpdir(),
     `user-data-dir-${Date.now().toString(32)}-${++i}`
   );
-  const chromeDriverLogPath = path.join(
+  const chromedriverLogPath = path.join(
     LOG_PATH,
     `chromedriver.${nowFormatted}.log`
   );
@@ -133,58 +98,82 @@ async function startCompass(
   await fs.mkdir(userDataDir, { recursive: true });
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
   // for consistency let's mkdir for both of them just in case
-  await fs.mkdir(path.dirname(chromeDriverLogPath), { recursive: true });
+  await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
 
-  const appOptions = {
-    ...opts,
-    ...applicationStartOptions,
-    chromeDriverArgs: [
-      `--user-data-dir=${userDataDir}`,
-      // Chromecast feature that is enabled by default in some chrome versions
-      // and breaks the app on Ubuntu
-      '--media-router=0',
-      // Evergren RHEL ci runs everything as root, and chrome will not start as
-      // root without this flag
-      '--no-sandbox',
-    ],
-    env: {
-      APP_ENV: 'spectron',
-      DEBUG: `${process.env.DEBUG || ''},mongodb-compass:main:logging`,
-      MONGODB_COMPASS_TEST_LOG_DIR: path.join(LOG_PATH, 'app'),
-    },
-    chromeDriverLogPath,
-    webdriverLogPath,
-    // It's usually not required when running tests in Evergreen or locally, but
-    // GitHub CI machines are pretty slow sometimes, especially the macOS one
-    startTimeout: 20_000,
-    waitTimeout: 0, // https://github.com/electron-userland/spectron/issues/763
-    webdriverOptions: {
-      waitforInterval: 100, // default is 500ms
-    },
+  const binary = testPackagedApp ? getCompassBinPath(await getCompassBuildMetadata()) : require('electron');
+  const chromeArgs = [];
+
+  if (!testPackagedApp) {
+    // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
+    chromeArgs.push(COMPASS_PATH);
+    process.chdir(COMPASS_PATH);
+  }
+
+  // https://peter.sh/experiments/chromium-command-line-switches/
+  // https://www.electronjs.org/docs/latest/api/command-line-switches
+  chromeArgs.push(
+    `--user-data-dir=${userDataDir}`,
+    // Chromecast feature that is enabled by default in some chrome versions
+    // and breaks the app on Ubuntu
+    '--media-router=0',
+    // Evergren RHEL ci runs everything as root, and chrome will not start as
+    // root without this flag
+    '--no-sandbox',
+    '--verbose' // TODO: for chrome driver logs
+  );
+
+  // https://webdriver.io/docs/options/#webdriver-options
+  const webdriverOptions = {
+    logLevel: 'info',
+    outputDir: webdriverLogPath
   };
 
-  debug('Starting Spectron with the following configuration:');
-  debug(JSON.stringify(appOptions, null, 2));
+  // https://webdriver.io/docs/options/#webdriverio
+  const wdioOptions = {
+    waitforTimeout: 3000, // default is 3000ms
+    waitforInterval: 100, // default is 500ms
+  };
 
-  /** @type {ExtendedApplication} */
+  process.env.APP_ENV = 'webdriverio';
+  process.env.DEBUG = `${process.env.DEBUG || ''},mongodb-compass:main:logging`;
+  process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
+
+  const options = {
+    capabilities: [{
+      browserName: 'chrome',
+      // https://chromedriver.chromium.org/capabilities#h.p_ID_106
+      'goog:chromeOptions': {
+        binary,
+        args: chromeArgs,
+        outputDir: path.dirname(chromedriverLogPath), // TODO
+        logFileName: path.basename(chromedriverLogPath) // TODO
+      }
+    }],
+    ...webdriverOptions,
+    ...wdioOptions,
+    ...opts
+  };
+
+  debug('Starting compass via webdriverio with the following configuration:');
+  debug(JSON.stringify(options, null, 2));
+
   // It's missing methods that we will add in a moment
   // @ts-expect-error
-  const app = new Application(appOptions);
+  const browser = await remote(options);
+  compass.browser = browser;
 
-  await app.start();
+  addCommands(compass);
+  // TODO
+  //addDebugger(compass);
 
-  app.client.setTimeout({ implicit: 0 });
-
-  addCommands(app);
-  addDebugger(app);
-
-  const _stop = app.stop.bind(app);
-
-  app.stop = async () => {
-    const mainLogs = await app.client.getMainProcessLogs();
-    const renderLogs = await app.client.getRenderProcessLogs();
+  compass.stop = async () => {
+    // TODO
+    const mainLogs = [];
+    const renderLogs = [];
+    //const mainLogs = await compass.client.getMainProcessLogs();
+    //const renderLogs = await compass.client.getRenderProcessLogs();
 
     const mainLogPath = path.join(
       LOG_PATH,
@@ -201,16 +190,16 @@ async function startCompass(
     await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
 
     debug('Stopping Compass application');
-    await _stop();
+    await browser.deleteSession();
 
-    const compassLog = await getCompassLog(mainLogs);
+    const compassLog  = await getCompassLog(mainLogs);
     const compassLogPath = path.join(
       LOG_PATH,
       `compass-log.${nowFormatted}.log`
     );
     debug(`Writing Compass application log to ${compassLogPath}`);
     await fs.writeFile(compassLogPath, compassLog.raw);
-    app.compassLog = compassLog.structured;
+    compass.compassLog = compassLog.structured; // TODO: rename
 
     debug('Removing user data');
     try {
@@ -258,17 +247,16 @@ async function startCompass(
       throw error;
     }
 
-    return app;
+    return compass;
   };
 
-  return app;
+  return compass;
 }
 
-/**
- * @param {string[]} logs The main process console logs
- * @returns {Promise<CompassLog>}
- */
 async function getCompassLog(logs) {
+  // TODO
+  return { raw: Buffer.from(''), structured: [] };
+  /*
   const logOutputIndicatorMatch = logs
     .map((line) => line.match(/Writing log output to (?<filename>.+)$/))
     .find((match) => match);
@@ -296,6 +284,7 @@ async function getCompassLog(logs) {
         }
       }),
   };
+  */
 }
 
 function formattedDate() {
@@ -376,26 +365,21 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
   }
 }
 
-/**
- * @param {ExtendedApplication} app
- */
-function addDebugger(app) {
+/*
+function addDebugger(compass) {
   const debugClient = debug.extend('webdriver:client');
-  const clientProto = Object.getPrototypeOf(app.client);
+  const browserProto = Object.getPrototypeOf(compass.browser);
 
-  for (const prop of Object.getOwnPropertyNames(clientProto)) {
+  for (const prop of Object.getOwnPropertyNames(browserProto)) {
     // disable emit logging for now because it is very noisy
     if (prop.includes('.') || prop === 'emit') {
       continue;
     }
-    const descriptor = Object.getOwnPropertyDescriptor(clientProto, prop);
+    const descriptor = Object.getOwnPropertyDescriptor(browserProto, prop);
     if (typeof descriptor.value !== 'function') {
       continue;
     }
     const origFn = descriptor.value;
-    /**
-     * @param  {any[]} args
-     */
     descriptor.value = function (...args) {
       debugClient(
         `${prop}(${args
@@ -425,7 +409,7 @@ function addDebugger(app) {
       // return the synchronous result
       return result;
     };
-    Object.defineProperty(clientProto, prop, descriptor);
+    Object.defineProperty(browserProto, prop, descriptor);
   }
 }
 
@@ -460,17 +444,16 @@ function augmentError(error, stack) {
 
   error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
 }
+*/
 
-/**
- * @param {ExtendedApplication} app
- * @param {string} imgPathName
- */
 async function capturePage(
-  app,
-  imgPathName = `screenshot-${formattedDate()}-${++j}.png`
+  //compass,
+  //imgPathName = `screenshot-${formattedDate()}-${++j}.png`
 ) {
+  // TODO
+  /*
   try {
-    const buffer = await app.browserWindow.capturePage();
+    const buffer = await compass.browserWindow.capturePage();
     await fs.mkdir(LOG_PATH, { recursive: true });
     // @ts-expect-error buffer is Electron.NativeImage not a real buffer, but it
     //                  can be used as a buffer when storing an image
@@ -479,18 +462,17 @@ async function capturePage(
   } catch (_) {
     return false;
   }
+  */
 }
 
-/**
- * @param {ExtendedApplication} app
- * @param {string} htmlPathName
- */
 async function savePage(
-  app,
-  htmlPathName = `page-${formattedDate()}-${++k}.html`
+  //compass,
+  //htmlPathName = `page-${formattedDate()}-${++k}.html`
 ) {
+  // TODO
+  /*
   try {
-    await app.webContents.savePage(
+    await compass.webContents.savePage(
       path.join(LOG_PATH, htmlPathName),
       'HTMLComplete'
     );
@@ -498,33 +480,33 @@ async function savePage(
   } catch (err) {
     return false;
   }
+  */
 }
 
 async function beforeTests() {
   const compass = await startCompass();
 
-  const { client } = compass;
+  const { browser } = compass;
 
-  await client.waitForConnectionScreen();
-  await client.closeTourModal();
-  await client.closePrivacySettingsModal();
+  await browser.waitForConnectionScreen();
+  await browser.closeTourModal();
+  await browser.closePrivacySettingsModal();
 
   return compass;
 }
 
 async function afterTests(compass) {
-  if (compass) {
-    await capturePage(compass);
-    await savePage(compass);
-
-    try {
-      await compass.stop();
-    } catch (err) {
-      debug('An error occurred while stopping compass:');
-      debug(err);
-    }
-    compass = null;
+  if (!compass) {
+    return;
   }
+
+  try {
+    await compass.stop();
+  } catch (err) {
+    debug('An error occurred while stopping compass:');
+    debug(err);
+  }
+  compass = null;
 }
 
 function pathName(text) {
@@ -551,8 +533,9 @@ function outputFilename(filename) {
 async function afterTest(compass, test) {
   if (process.env.CI) {
     if (test.state == 'failed') {
-      await capturePage(compass, screenshotPathName(test.fullTitle()));
-      await savePage(compass, pagePathName(test.fullTitle()));
+      // TODO
+      //await capturePage(compass, screenshotPathName(test.fullTitle()));
+      //await savePage(compass, pagePathName(test.fullTitle()));
     }
   }
 }

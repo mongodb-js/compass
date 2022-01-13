@@ -5,15 +5,15 @@ const FOCUS_CLASS = 'ace_text-input';
 
 const META = process.platform === 'darwin' ? 'Meta' : 'Control';
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function setAceValue(selector, value) {
-    const { client } = app;
+    const { browser } = compass;
 
     // make sure the right element is focused before we continue
-    await client.waitUntil(async () => {
-      await client.clickVisible(`${selector} .ace_scroller`);
+    await browser.waitUntil(async () => {
+      await browser.clickVisible(`${selector} .ace_scroller`);
 
-      const aceElement = await client.$(`${selector} .ace_text-input`);
+      const aceElement = await browser.$(`${selector} .ace_text-input`);
       const focused = await aceElement.isFocused();
 
       if (!focused) {
@@ -25,11 +25,11 @@ module.exports = function (app) {
       return focused;
     });
 
-    await client.keys([META, 'a']);
-    await client.keys([META]); // meta a second time to release it
-    await client.keys(['Backspace']);
-    app.electron.clipboard.writeText(value, 'clipboard');
-    await client.keys([META, 'v']);
-    await client.keys([META]); // meta a second time to release it
+    await browser.keys([META, 'a']);
+    await browser.keys([META]); // meta a second time to release it
+    await browser.keys(['Backspace']);
+    compass.electron.clipboard.writeText(value, 'clipboard');
+    await browser.keys([META, 'v']);
+    await browser.keys([META]); // meta a second time to release it
   };
 };

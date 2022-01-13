@@ -1,20 +1,20 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function closeCollectionTabs() {
-    const { client } = app;
+    const { browser } = compass;
 
     const closeSelector = Selectors.CloseCollectionTab;
 
     const countTabs = async () => {
-      return (await client.$$(closeSelector)).length;
+      return (await browser.$$(closeSelector)).length;
     };
 
     let numTabs = await countTabs();
     while (numTabs > 0) {
-      await client.clickVisible(closeSelector);
+      await browser.clickVisible(closeSelector);
 
-      await client.waitUntil(async () => {
+      await browser.waitUntil(async () => {
         return (await countTabs()) < numTabs;
       });
 

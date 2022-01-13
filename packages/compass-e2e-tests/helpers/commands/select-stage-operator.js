@@ -1,25 +1,25 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function selectStageOperator(index, stageOperator) {
-    const { client } = app;
+    const { browser } = compass;
 
     const inputSelector = Selectors.stageSelectControlInput(index);
     const textareaSelector = Selectors.stageTextarea(index);
 
     // it should become focused straight after focusStageSelector()
-    await client.waitUntil(async () => {
-      const inputElement = await client.$(inputSelector);
+    await browser.waitUntil(async () => {
+      const inputElement = await browser.$(inputSelector);
       const isFocused = await inputElement.isFocused();
       return isFocused === true;
     });
 
-    await client.setValueVisible(inputSelector, stageOperator);
-    await client.keys(['Enter']);
+    await browser.setValueVisible(inputSelector, stageOperator);
+    await browser.keys(['Enter']);
 
     // the "select" should now blur and the ace textarea become focused
-    await client.waitUntil(async () => {
-      const textareaElement = await client.$(textareaSelector);
+    await browser.waitUntil(async () => {
+      const textareaElement = await browser.$(textareaSelector);
       const isFocused = await textareaElement.isFocused();
       return isFocused === true;
     });

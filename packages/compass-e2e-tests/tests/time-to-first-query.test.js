@@ -1,40 +1,40 @@
-// @ts-check
+// TODO ts-check
 const { expect } = require('chai');
 const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
-describe('Time to first query', function () {
+describe.only('Time to first query', function () {
   let compass;
 
   it('can open compass, connect to a database and run a query on a collection', async function () {
     // start compass inside the test so that the time is measured together
     compass = await beforeTests();
 
-    const { client } = compass;
+    const { browser } = compass;
 
-    await client.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
 
-    await client.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
     // search for the document with id == 42 and wait for just one result to appear
-    const aceCommentElement = await client.$(
+    const aceCommentElement = await browser.$(
       '#query-bar-option-input-filter .ace_scroller'
     );
     await aceCommentElement.click();
 
-    await client.keys('{ i: 42 }');
-    const filterButtonElement = await client.$(
+    await browser.keys('{ i: 42 }');
+    const filterButtonElement = await browser.$(
       Selectors.QueryBarApplyFilterButton
     );
     await filterButtonElement.click();
-    await client.waitUntil(async () => {
+    await browser.waitUntil(async () => {
       // we start off with 20 results (assuming no filter) and we expect to
       // have just one once the filter finishes
-      const result = await client.$$('.document-list .document');
+      const result = await browser.$$('.document-list .document');
       return result.length === 1;
     });
 
-    const documentElementValue = await client.$(
+    const documentElementValue = await browser.$(
       '.document-list .document .element-value-is-int32'
     );
     const text = await documentElementValue.getText();

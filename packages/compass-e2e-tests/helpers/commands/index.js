@@ -1,12 +1,9 @@
-// @ts-check
+// TODO:  ts-check
 
-/**
- * @param {ExtendedApplication} app
- */
-exports.addCommands = function (app) {
+exports.addCommands = function (compass) {
   const add = (name, path) => {
-    const f = require(path)(app);
-    app.client.addCommand(name, f);
+    const f = require(path)(compass);
+    compass.browser.addCommand(name, f);
   };
 
   add('existsEventually', './exists-eventually');
