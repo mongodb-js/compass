@@ -1,8 +1,6 @@
 import { MongoClientOptions, MongoClient } from 'mongodb';
 import { connectMongoClient, hookLogger } from '@mongodb-js/devtools-connect';
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
-import resolveMongodbSrv from 'resolve-mongodb-srv';
 import EventEmitter from 'events';
 import { redactConnectionOptions, redactConnectionString } from './redact';
 
@@ -14,7 +12,7 @@ import {
   waitForTunnelError,
 } from './ssh-tunnel';
 
-const { debug, log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT');
+const { debug, log } = createLoggerAndTelemetry('COMPASS-CONNECT');
 
 export default async function connectMongoClientCompass(
   connectionOptions: ConnectionOptions,
@@ -67,18 +65,15 @@ export default async function connectMongoClientCompass(
           url,
           options,
           connectLogger,
-          CompassMongoClient);
+          CompassMongoClient
+        );
         await mongoClient.db('admin').command({ ping: 1 });
         return mongoClient;
       })(),
       waitForTunnelError(tunnel),
     ]); // waitForTunnel always throws, never resolves
 
-    return [
-      mongoClient,
-      tunnel,
-      { url, options },
-    ];
+    return [mongoClient, tunnel, { url, options }];
   } catch (err: any) {
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
