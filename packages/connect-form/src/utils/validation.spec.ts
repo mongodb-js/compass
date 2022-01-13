@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 
 import {
-  errorMessageByFieldName,
   validateConnectionOptionsErrors,
   validateConnectionOptionsWarnings,
 } from './validation';
