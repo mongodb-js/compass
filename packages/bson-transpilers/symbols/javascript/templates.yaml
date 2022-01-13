@@ -406,7 +406,7 @@ Templates:
             (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
             newStr = str.substr(1, str.length - 2);
           }
-          return `('${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}')`;
+          return `('${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}')`; //TODO: N, should this be a single quote?
         }
     BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
         () => {

@@ -582,7 +582,7 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
-          ruby: "'abc'.to_sym" # TODO: N, should I just use a : here?
+          ruby: "'abc'.to_sym"
     - description: from shell symbol
       input:
           shell: Symbol('abc')

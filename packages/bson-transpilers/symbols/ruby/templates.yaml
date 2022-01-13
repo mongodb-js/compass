@@ -156,7 +156,7 @@ Templates:
         }
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
         () => {
-            return 'nil'; // TODO: N, not technically correct, but python does the same thing
+            return 'nil';
         }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
@@ -379,7 +379,7 @@ Templates:
         () => {
             return 'BSON::Timestamp';
         }
-    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function > # TODO: N, do I want to put the .new here?
+    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
         (lhs, arg1, arg2) => {
             return `.new(${arg1 === undefined ? 0 : arg1}, ${arg2 === undefined ? 0 : arg2})`;
         }
