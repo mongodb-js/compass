@@ -21,14 +21,6 @@ const formItemVerticalStyles = css`
   margin: 5px auto 20px;
 `;
 
-const formItemErrorStyles = css`
-  border: 1px solid ${redBaseColor};
-  border-radius: 5px;
-  &:focus {
-    border: 1px solid ${redBaseColor};
-  }
-`;
-
 const buttonStyles = css`
   width: 100%;
 `;
@@ -171,7 +163,6 @@ function FileInput({
         className={cx(
           { [formItemHorizontalStyles]: variant === Variant.Horizontal },
           { [formItemVerticalStyles]: variant === Variant.Vertical },
-          { [formItemErrorStyles]: error }
         )}
       >
         <label
