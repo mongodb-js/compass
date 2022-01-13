@@ -15,7 +15,7 @@ import AdvancedConnectionOptions from './advanced-connection-options';
 import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
-import { ErrorSummary, WarningSummary } from './errors-summary';
+import { ErrorSummary, WarningSummary } from './validation-summary';
 
 const formContainerStyles = css({
   margin: 0,
