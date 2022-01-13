@@ -4,7 +4,6 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { promisify } from 'util';
 
-import ConnectionStringUrl from 'mongodb-connection-string-url';
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { MongoClientOptions } from 'mongodb';
