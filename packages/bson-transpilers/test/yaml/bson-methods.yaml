@@ -382,7 +382,7 @@ tests:
             object: new Long(419430400, 0)
     Decimal128-methods:
     -   input:
-            javascript: new Decimal128(Buffer.from('5')).toString()
+            javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).toString()
         output:
             python: str(Decimal128('5.3E-6175'))
             java: Decimal128.parse("5.3E-6175").toString()

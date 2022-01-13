@@ -6,6 +6,7 @@ const tsConfigurations = [
   'plugin:@typescript-eslint/recommended-requiring-type-checking',
 ];
 const tsRules = {
+  '@typescript-eslint/no-unused-vars': 'error',
   '@typescript-eslint/no-unsafe-assignment': 'off',
   '@typescript-eslint/no-unsafe-call': 'off',
   '@typescript-eslint/no-unsafe-member-access': 'off',
@@ -22,6 +23,7 @@ const testConfigurations = ['plugin:mocha/recommended'];
 const testRules = {
   'mocha/no-exclusive-tests': 'error',
   'mocha/no-hooks-for-single-case': 'off',
+  '@typescript-eslint/no-explicit-any': 'off',
 };
 
 module.exports = {

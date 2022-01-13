@@ -1,7 +1,6 @@
 import assert from 'assert';
+import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
-import getPort from 'get-port';
-import net from 'net';
 
 import connectMongoClient from './connect-mongo-client';
 import { ConnectionOptions } from './connection-options';
@@ -10,26 +9,8 @@ const setupListeners = () => {
   //
 };
 
-const tryConnect = (port: number): Promise<void> =>
-  new Promise<void>((resolve, reject) => {
-    const socket = net.connect(port);
-
-    socket
-      .once('error', (err) => reject(err))
-      .once('connect', () => {
-        resolve();
-        socket.destroy();
-      });
-  });
-
 describe('connectMongoClient', function () {
   let toBeClosed: { close: () => Promise<void> }[] = [];
-
-  let tunnelLocalPort: number;
-
-  beforeEach(async function () {
-    tunnelLocalPort = await getPort();
-  });
 
   afterEach(async function () {
     for (const mongoClientOrTunnel of toBeClosed) {
@@ -57,8 +38,7 @@ describe('connectMongoClient', function () {
         {
           connectionString: 'mongodb://localhost:27018',
         },
-        setupListeners,
-        tunnelLocalPort
+        setupListeners
       );
 
       toBeClosed.push(client, tunnel);
@@ -78,8 +58,7 @@ describe('connectMongoClient', function () {
         {
           connectionString: 'mongodb://localhost:27018/?directConnection=false',
         },
-        setupListeners,
-        tunnelLocalPort
+        setupListeners
       );
 
       toBeClosed.push(client, tunnel);
@@ -100,8 +79,7 @@ describe('connectMongoClient', function () {
           {
             connectionString: 'mongodb://localhost:1/?loadBalanced=true',
           },
-          setupListeners,
-          tunnelLocalPort
+          setupListeners
         );
         expect.fail('missed exception');
       } catch (err: any) {
@@ -110,29 +88,29 @@ describe('connectMongoClient', function () {
     });
 
     describe('ssh tunnel failures', function () {
-      it('should refuse to open the tunnel with a replica set', async function () {
-        const connectionOptions: ConnectionOptions = {
-          connectionString:
-            'mongodb://localhost:27018,localhost:27019,localhost:27020?serverSelectionTimeoutMS=100',
-          sshTunnel: {
-            host: 'localhost',
-            port: 22,
-            username: 'my-user',
-            password: 'password',
+      // Use async_hooks to track the state of the internal network server used
+      // for SSH tunneling
+      let asyncHook: ReturnType<typeof asyncHooks.createHook>;
+      let resources: Array<{ asyncId: number; type: string; alive: boolean }>;
+
+      beforeEach(function () {
+        resources = [];
+        asyncHook = asyncHooks.createHook({
+          init(asyncId: number, type: string) {
+            resources.push({ asyncId, type, alive: true });
           },
-        };
+          destroy(asyncId: number) {
+            const r = resources.find((r) => r.asyncId === asyncId);
+            if (r) {
+              r.alive = false;
+            }
+          },
+        });
+        asyncHook.enable();
+      });
 
-        const error = await connectMongoClient(
-          connectionOptions,
-          setupListeners,
-          tunnelLocalPort
-        ).catch((err) => err);
-
-        expect(error).to.be.instanceOf(Error);
-
-        expect(error.message).to.match(
-          /It is currently not possible to open an SSH tunnel to a replica set/
-        );
+      afterEach(function () {
+        asyncHook.disable();
       });
 
       it('should close ssh tunnel if the connection fails', async function () {
@@ -149,8 +127,7 @@ describe('connectMongoClient', function () {
 
         const error = await connectMongoClient(
           connectionOptions,
-          setupListeners,
-          tunnelLocalPort
+          setupListeners
         ).catch((err) => err);
 
         expect(error).to.be.instanceOf(Error);
@@ -160,9 +137,15 @@ describe('connectMongoClient', function () {
           /(All configured authentication methods failed|ENOTFOUND compass-tests\.fakehost\.localhost)/
         );
 
-        expect(
-          (await tryConnect(tunnelLocalPort).catch((err) => err)).code
-        ).to.equal('ECONNREFUSED');
+        for (let i = 0; i < 10; i++) {
+          // Give some time for the server to fully close + relay that status
+          // to the async_hooks tracking
+          await new Promise(setImmediate);
+        }
+        const networkServerStates = resources
+          .filter(({ type }) => type === 'TCPSERVERWRAP')
+          .map(({ alive }) => alive);
+        expect(networkServerStates).to.deep.equal([false]);
       });
     });
   });
