@@ -21,7 +21,6 @@ type Socks5Options = Pick<
 >;
 
 export async function openSshTunnel(
-  srvResolvedConnectionString: string,
   sshTunnelOptions: ConnectionSshOptions | undefined
 ): Promise<[SSHTunnel | undefined, Socks5Options | undefined]> {
   if (!sshTunnelOptions) {
