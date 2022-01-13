@@ -112,7 +112,8 @@ async function startCompass(
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
     '--media-router=0',
-    '--no-sandbox'
+    '--no-sandbox',
+    '--remote-debugging-port=9222'
   ];
 
   const applicationStartOptions = testPackagedApp
