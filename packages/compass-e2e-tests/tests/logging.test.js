@@ -274,7 +274,7 @@ describe('Logging and Telemetry integration', function () {
           c: 'DEVTOOLS-CONNECT',
           id: 1_000_000_037,
           ctx: 'compass-connect',
-          msg: 'Connection attempt finished'
+          msg: 'Connection attempt finished',
         },
         {
           s: 'I',

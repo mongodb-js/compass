@@ -43,10 +43,7 @@ describe('connectMongoClient', function () {
 
       toBeClosed.push(client, tunnel);
 
-      assert.strictEqual(
-        url,
-        'mongodb://localhost:27018'
-      );
+      assert.strictEqual(url, 'mongodb://localhost:27018');
 
       assert.deepStrictEqual(options, {
         monitorCommands: true,
