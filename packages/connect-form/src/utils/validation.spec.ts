@@ -96,21 +96,15 @@ describe('validation', function () {
       });
 
       it('should return errors if SSH is configured with identity file password but no identity file', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: 'mongodb://myserver.com',
-            sshTunnel: {
-              host: 'my-hostname',
-              port: 22,
-              username: 'mongouser',
-              identityKeyPassphrase: 'abc',
-            },
+        const result = validateConnectionOptionsErrors({
+          connectionString: 'mongodb://myserver.com',
+          sshTunnel: {
+            host: 'my-hostname',
+            port: 22,
+            username: 'mongouser',
+            identityKeyPassphrase: 'abc',
           },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        });
         expect(
           result.filter((err) => err.fieldName === 'sshIdentityKeyFile')
         ).to.deep.equal([
@@ -124,15 +118,9 @@ describe('validation', function () {
 
     describe('X509', function () {
       it('should return error if tls or ssl is not enabled', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tlsCertificateKeyFile=/path/to/file.pem`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tlsCertificateKeyFile=/path/to/file.pem`,
+        });
         expect(result).to.deep.equal([
           {
             message: 'TLS must be enabled in order to use x509 authentication.',
@@ -140,15 +128,9 @@ describe('validation', function () {
         ]);
       });
       it('should return error if tls is disabled', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=false&tlsCertificateKeyFile=/path/to/file.pem`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=false&tlsCertificateKeyFile=/path/to/file.pem`,
+        });
         expect(result).to.deep.equal([
           {
             message: 'TLS must be enabled in order to use x509 authentication.',
@@ -157,15 +139,9 @@ describe('validation', function () {
       });
 
       it('should return error if ssl is disabled', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=false&tlsCertificateKeyFile=/path/to/file.pem`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=false&tlsCertificateKeyFile=/path/to/file.pem`,
+        });
         expect(result).to.deep.equal([
           {
             message: 'TLS must be enabled in order to use x509 authentication.',
@@ -173,54 +149,30 @@ describe('validation', function () {
         ]);
       });
       it('should not return error if ssl/tsl is disabled and schema is mongosrv', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb+srv://myserver.com?authMechanism=MONGODB-X509&tlsCertificateKeyFile=/path/to/file.pem`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb+srv://myserver.com?authMechanism=MONGODB-X509&tlsCertificateKeyFile=/path/to/file.pem`,
+        });
         expect(result).to.be.empty;
       });
 
       it('should not return error if tls is enabled', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=true&tlsCertificateKeyFile=/path/to/file.pem`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&tls=true&tlsCertificateKeyFile=/path/to/file.pem`,
+        });
         expect(result).to.be.empty;
       });
 
       it('should not return error if ssl is enabled', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=true&tlsCertificateKeyFile=/path/to/file.pem`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=true&tlsCertificateKeyFile=/path/to/file.pem`,
+        });
         expect(result).to.be.empty;
       });
 
       it('should return error if no certificate is provided', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=true`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com?authMechanism=MONGODB-X509&ssl=true`,
+        });
         expect(result).to.deep.equal([
           {
             message:
@@ -231,15 +183,9 @@ describe('validation', function () {
     });
     describe('LDAP', function () {
       it('should return errors if no password is defined', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://username:@myserver.com?authMechanism=PLAIN`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://username:@myserver.com?authMechanism=PLAIN`,
+        });
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
@@ -250,15 +196,9 @@ describe('validation', function () {
     });
     describe('Kerberos', function () {
       it('should return errors if no principal is defined when using Kerberos', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?authMechanism=GSSAPI`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com?authMechanism=GSSAPI`,
+        });
         expect(result).to.deep.equal([
           {
             fieldName: 'kerberosPrincipal',
@@ -267,29 +207,17 @@ describe('validation', function () {
         ]);
       });
       it('should not return errors if principal is defined when using Kerberos', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://principal@myserver.com?authMechanism=GSSAPI`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://principal@myserver.com?authMechanism=GSSAPI`,
+        });
         expect(result).to.be.empty;
       });
     });
     describe('SCRAM-SHA', function () {
       it('should return errors if username and password are missing', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?authMechanism=SCRAM-SHA-1`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com?authMechanism=SCRAM-SHA-1`,
+        });
         expect(result).to.deep.equal([
           {
             fieldName: 'username',
@@ -302,15 +230,9 @@ describe('validation', function () {
         ]);
       });
       it('should return errors if password is missing', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://username@myserver.com?authMechanism=SCRAM-SHA-1`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://username@myserver.com?authMechanism=SCRAM-SHA-1`,
+        });
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
@@ -319,41 +241,23 @@ describe('validation', function () {
         ]);
       });
       it('should not return errors if username and password are provided', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://username:password@myserver.com?authMechanism=SCRAM-SHA-1`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://username:password@myserver.com?authMechanism=SCRAM-SHA-1`,
+        });
         expect(result).to.be.empty;
       });
     });
     describe('Default Auth Method', function () {
       it('should return errors if username and password are missing', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://myserver.com`,
+        });
         expect(result).to.be.empty;
       });
       it('should return errors if password is missing', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://username@myserver.com`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://username@myserver.com`,
+        });
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
@@ -362,15 +266,9 @@ describe('validation', function () {
         ]);
       });
       it('should not return errors if username and password are provided', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://username:password@myserver.com`,
-          },
-        };
-        const result = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsErrors({
+          connectionString: `mongodb://username:password@myserver.com`,
+        });
         expect(result).to.be.empty;
       });
     });
@@ -383,15 +281,9 @@ describe('validation', function () {
         'tlsAllowInvalidHostnames',
         'tlsAllowInvalidCertificates',
       ].forEach((option) => {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb+srv://myserver.com?${option}=true`,
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb+srv://myserver.com?${option}=true`,
+        });
         expect(result[0]).to.deep.equal({
           message:
             'Disabling certificate validation is not recommended as it may create a security vulnerability',
@@ -400,30 +292,18 @@ describe('validation', function () {
     });
 
     it('should return warnings if unknown readPreference', function () {
-      const connectionInfo: ConnectionInfo = {
-        id: 'connection-test',
-        connectionOptions: {
-          connectionString: `mongodb://myserver.com?readPreference=invalidReadPreference`,
-        },
-      };
-      const result = validateConnectionOptionsWarnings(
-        connectionInfo.connectionOptions
-      );
+      const result = validateConnectionOptionsWarnings({
+        connectionString: `mongodb://myserver.com?readPreference=invalidReadPreference`,
+      });
       expect(result[0]).to.deep.equal({
         message: 'Unknown read preference invalidReadPreference',
       });
     });
 
     it('should return warnings if tlsCertificateFile is set', function () {
-      const connectionInfo: ConnectionInfo = {
-        id: 'connection-test',
-        connectionOptions: {
-          connectionString: `mongodb://myserver.com?tlsCertificateFile=/path/to/file.pem`,
-        },
-      };
-      const result = validateConnectionOptionsWarnings(
-        connectionInfo.connectionOptions
-      );
+      const result = validateConnectionOptionsWarnings({
+        connectionString: `mongodb://myserver.com?tlsCertificateFile=/path/to/file.pem`,
+      });
       expect(result[0]).to.deep.equal({
         message:
           'tlsCertificateFile is deprecated and will be removed in future versions of Compass, please embed the client key and certificate chain in a single .pem bundle and use tlsCertificateKeyFile instead.',
@@ -432,15 +312,9 @@ describe('validation', function () {
 
     describe('Kerberos', function () {
       it('should return warning if password is set', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://user:password@myserver.com?tls=true&authMechanism=GSSAPI`,
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb://user:password@myserver.com?tls=true&authMechanism=GSSAPI`,
+        });
         expect(result).to.deep.equal([
           {
             message: 'The password is ignored with Kerberos.',
@@ -450,15 +324,9 @@ describe('validation', function () {
     });
     describe('directConnection', function () {
       it('should return warning if mongo+srv and directConnection=true', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb+srv://myserver.com?tls=true&directConnection=true`,
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb+srv://myserver.com?tls=true&directConnection=true`,
+        });
         expect(result).to.deep.equal([
           {
             message: 'directConnection not supported with SRV URI.',
@@ -467,40 +335,22 @@ describe('validation', function () {
       });
 
       it('should not return warnings if mongo+srv and directConnection=false', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb+srv://myserver.com?tls=true&directConnection=false`,
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb+srv://myserver.com?tls=true&directConnection=false`,
+        });
         expect(result).to.be.empty;
       });
       it('should not return warnings if mongo+srv and directConnection is not defined', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb+srv://myserver.com?tls=true`,
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb+srv://myserver.com?tls=true`,
+        });
         expect(result).to.be.empty;
       });
 
       it('should return warning if replicaSet and directConnection=true', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com?tls=true&directConnection=true&replicaSet=myReplicaSet`,
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb://myserver.com?tls=true&directConnection=true&replicaSet=myReplicaSet`,
+        });
         expect(result).to.deep.equal([
           {
             message: 'directConnection is not supported with replicaSet.',
@@ -509,15 +359,9 @@ describe('validation', function () {
       });
 
       it('should return warning if multiple hosts and directConnection=true', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: `mongodb://myserver.com,myserver2.com?tls=true&directConnection=true`,
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb://myserver.com,myserver2.com?tls=true&directConnection=true`,
+        });
         expect(result).to.deep.equal([
           {
             message: 'directConnection is not supported with multiple hosts.',
@@ -528,35 +372,49 @@ describe('validation', function () {
 
     describe('TLS', function () {
       it('should not return warning if TLS is disabled and mongo+srv', function () {
-        const connectionInfo: ConnectionInfo = {
-          id: 'connection-test',
-          connectionOptions: {
-            connectionString: 'mongodb+srv://myserver.com&tls=false',
-          },
-        };
-        const result = validateConnectionOptionsWarnings(
-          connectionInfo.connectionOptions
-        );
+        const result = validateConnectionOptionsWarnings({
+          connectionString: 'mongodb+srv://myserver.com&tls=false',
+        });
         expect(result).to.be.empty;
       });
     });
 
     it('should return warning if TLS is disabled and is not localhost', function () {
-      const connectionInfo: ConnectionInfo = {
-        id: 'connection-test',
-        connectionOptions: {
-          connectionString: 'mongodb://myserver.com',
-        },
-      };
-      const result = validateConnectionOptionsWarnings(
-        connectionInfo.connectionOptions
-      );
-      expect(result).to.deep.equal([
-        {
-          message:
-            'Connecting without tls is not recommended as it may create a security vulnerability.',
-        },
-      ]);
+      for (const host of [
+        'myserver',
+        'myserver:27017',
+        'myserver:27017,localhost:27018',
+      ]) {
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb://${host}`,
+        });
+        expect(result).to.deep.equal([
+          {
+            message:
+              'Connecting without tls is not recommended as it may create a security vulnerability.',
+          },
+        ]);
+      }
+    });
+
+    it('should not return warning if TLS is disabled and is localhost', function () {
+      for (const host of [
+        'localhost',
+        'localhost:27017',
+        'localhost:27017,localhost:27018',
+        '127.0.0.1',
+        '127.0.0.1:27017',
+        '127.0.0.1:27017,127.0.0.1:27018',
+        '0.0.0.0',
+        '0.0.0.0:27017',
+        '0.0.0.0:27017,0.0.0.0:27018',
+        'localhost:27017,127.0.0.1:27018,0.0.0.0:27019',
+      ]) {
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb://${host}`,
+        });
+        expect(result).to.deep.equal([]);
+      }
     });
   });
 });
