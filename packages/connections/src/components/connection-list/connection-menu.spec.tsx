@@ -274,7 +274,7 @@ describe('ConnectionMenu Component', function () {
           cancelable: true,
         })
       );
-      
+
       const removeConnectionButton = screen.getByText('Remove');
       fireEvent(
         removeConnectionButton,

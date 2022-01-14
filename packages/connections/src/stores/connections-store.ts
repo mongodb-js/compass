@@ -389,9 +389,14 @@ export function useConnections(
             (conn) => conn.id !== connectionInfo.id
           ),
         });
+        const nextActiveConnection = createNewConnectionInfo();
+        dispatch({
+          type: 'set-active-connection',
+          connectionId: nextActiveConnection.id,
+          connectionInfo: nextActiveConnection,
+        });
       },
       async duplicateConnection(connectionInfo: ConnectionInfo) {
-        if (!connectionInfo.favorite) return;
         const duplicate: ConnectionInfo = {
           ...JSON.parse(JSON.stringify(connectionInfo)),
           id: uuidv4(),
@@ -402,6 +407,11 @@ export function useConnections(
         dispatch({
           type: 'set-connections',
           connections: [...connections, duplicate],
+        });
+        dispatch({
+          type: 'set-active-connection',
+          connectionId: duplicate.id,
+          connectionInfo: duplicate,
         });
       },
     },
