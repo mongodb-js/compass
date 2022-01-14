@@ -22,7 +22,7 @@ tests:
                 }).scope
             python: |-
                 Code('test code', {
-                    'x': 1
+                    'x' => 1
                 }).scope
             java: new CodeWithScope("test code", new Document("x", 1L)).getScope()
             csharp: new BsonJavaScriptWithScope("test code", new BsonDocument("x", 1)).Scope
@@ -31,6 +31,10 @@ tests:
                   'x': 1
                 }).scope
             object: "{'x': 1}"
+            ruby: |-
+                BSON::CodeWithScope.new('test code', {
+                  'x' => 1
+                }).scope
     -   input:
             javascript: Code('test code').code
             shell: Code('test code').code
@@ -42,6 +46,7 @@ tests:
             csharp: new BsonJavaScript("test code").Code
             shell: new Code('test code').code
             object: "'test code'"
+            ruby: BSON::Code.new('test code').javascript
     ObjectId-methods:
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
@@ -54,6 +59,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").ToString()
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             object: "'5ab901c29ee65f5c8550c5b9'"
+            ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
@@ -64,6 +70,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Timestamp
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             object: new Date('2018-03-26T14:20:50.000Z')
+            ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
@@ -73,6 +80,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Equals(new ObjectId("5ab901c29ee65f5c8550c5b9"))
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             object: true
+            ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9') == BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
     -   input:
             python: ObjectId('5ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
         output:
@@ -92,6 +100,12 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
             shell: new DBRef('coll', new ObjectId(), "db").getDb()
             object: "'db'"
+            ruby: |-
+                BSON::DBRef.new({
+                  '$ref' => 'coll',
+                  '$id' => BSON::ObjectId.new,
+                  '$db' => 'db'
+                }).database
     -   input:
             javascript: new DBRef('coll', new ObjectId(), 'db').db
             python: DBRef('coll', ObjectId(), 'db').database
@@ -102,6 +116,12 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
             shell: new DBRef('coll', new ObjectId(), 'db').getDb()
             object: "'db'"
+            ruby: |-
+                BSON::DBRef.new({
+                  '$ref' => 'coll',
+                  '$id' => BSON::ObjectId.new,
+                  '$db' => 'db'
+                }).database
     -   input:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getRef()
         output:
@@ -118,6 +138,11 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
             object: "'coll'"
+            ruby: |-
+                BSON::DBRef.new({
+                  '$ref' => 'coll',
+                  '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
+                }).collection
     -   input:
             javascript: new DBRef('coll', new ObjectId()).namespace
             python: DBRef('coll', ObjectId()).collection
@@ -128,6 +153,11 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId()).CollectionName
             shell: new DBRef('coll', new ObjectId()).getCollection()
             object: "'coll'"
+            ruby: |-
+                BSON::DBRef.new({
+                  '$ref' => 'coll',
+                  '$id' => BSON::ObjectId.new
+                }).collection
     -   input:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$id
         output:
@@ -136,6 +166,11 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
+            ruby: |-
+                BSON::DBRef.new({
+                  '$ref' => 'coll',
+                  '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
+                }).id
     -   input:
             javascript: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).oid
             python: DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).id
@@ -146,6 +181,11 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
+            ruby: |-
+                BSON::DBRef.new({
+                  '$ref' => 'coll',
+                  '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
+                }).id
     Long-methods:
     -   input:
             shell: NumberLong(429496729601).top
@@ -155,6 +195,7 @@ tests:
             csharp: 429496729601L >> 32
             python: Int64(429496729601) >> 32
             object: '100'
+            ruby: 429496729601 >> 32
     -   input:
             shell: NumberLong(429496729601).bottom
         output:
@@ -163,6 +204,7 @@ tests:
             csharp: 429496729601L & 0x0000ffff
             python: Int64(429496729601) & 0x0000ffff
             object: '1'
+            ruby: 429496729601 & 0x0000ffff
     -  input:
             shell: NumberLong(429496729601).floatApprox
        output:
@@ -171,6 +213,7 @@ tests:
             csharp: "(float) 429496729601L"
             python: float(Int64(429496729601))
             object: '429496729601'
+            objerubyct: 429496729601.to_f
     -   input:
             javascript: new Long(1, 100).toInt()
         output:
@@ -179,6 +222,7 @@ tests:
             csharp: "(int) 429496729601L"
             shell: new NumberLong(429496729601).valueOf()
             object: '1'
+            ruby: '429496729601' # TODO: N, to_i?
     -   input:
             javascript: new Long(1, 100).toNumber()
         output:
@@ -187,6 +231,7 @@ tests:
             csharp: "(double) 429496729601L"
             shell: new NumberLong(429496729601).floatApprox
             object: '429496729601'
+            ruby: 429496729601.to_f
     -   input:
             javascript: new Long(1, 100).toString()
             shell: NumberLong(429496729601).toString()
@@ -196,6 +241,7 @@ tests:
             csharp: '"429496729601"'
             shell: "'429496729601'"
             object: "'429496729601'"
+            ruby: "'429496729601'"
     -   input:
             javascript: new Long(1, 100).toString(10)
         output:
@@ -204,6 +250,7 @@ tests:
             csharp: '"429496729601"'
             shell: "'429496729601'"
             object: "'429496729601'"
+            ruby: "'429496729601'"
     -   input:
             javascript: new Long(1, 100).isZero()
         output:
@@ -212,6 +259,7 @@ tests:
             csharp: 429496729601L == 0
             shell: new NumberLong(429496729601) === 0
             object: 'false'
+            ruby: 429496729601 == 0
     -   input:
             javascript: new Long(1, 100).isNegative()
         output:
@@ -220,6 +268,7 @@ tests:
             csharp: 429496729601L < 0
             shell: new NumberLong(429496729601) < 0
             object: 'false'
+            ruby: 429496729601 < 0
     -   input:
             javascript: new Long(1, 100).isOdd()
         output:
@@ -228,6 +277,7 @@ tests:
             csharp: 429496729601L % 2 == 1
             shell: "(new NumberLong(429496729601) % 2) === 1"
             object: 'true'
+            ruby: "(429496729601 % 2) == 1"
     -   input:
             javascript: new Long(1, 100).equals(new Long(9, 1))
         output:
@@ -236,6 +286,7 @@ tests:
             csharp: 429496729601L == 4294967305L
             shell: new NumberLong(429496729601) === new NumberLong(4294967305)
             object: 'false'
+            ruby: 429496729601 == 4294967305
     -   input:
             javascript: new Long(1, 100).notEquals(Long(9, 1))
         output:
@@ -244,6 +295,7 @@ tests:
             csharp: 429496729601L != 4294967305L
             shell: new NumberLong(429496729601) !== new NumberLong(4294967305)
             object: 'true'
+            ruby: 429496729601 != 4294967305
     -   input:
             javascript: new Long(1, 100).compare(new Long(9, 1))
         output:
@@ -252,6 +304,7 @@ tests:
             csharp: 429496729601L - 4294967305L
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: "1"
+            ruby: 429496729601 - 4294967305
     -   input:
             javascript: new Long(1, 100).greaterThan(new Long(9, 1))
         output:
@@ -260,6 +313,7 @@ tests:
             csharp: 429496729601L > 4294967305L
             shell: new NumberLong(429496729601) > new NumberLong(4294967305)
             object: 'true'
+            ruby: 429496729601 > 4294967305
     -   input:
             javascript: new Long(1, 100).greaterThanOrEqual(new Long(9, 1))
         output:
@@ -268,6 +322,7 @@ tests:
             csharp: 429496729601L >= 4294967305L
             shell: new NumberLong(429496729601) >= new NumberLong(4294967305)
             object: 'true'
+            ruby: 429496729601 >= 4294967305
     -   input:
             javascript: new Long(1, 100).lessThan(new Long(9, 1))
         output:
@@ -276,6 +331,7 @@ tests:
             csharp: 429496729601L < 4294967305L
             shell: new NumberLong(429496729601) < new NumberLong(4294967305)
             object: 'false'
+            ruby: 429496729601 < 4294967305
     -   input:
             javascript: new Long(1, 100).lessThanOrEqual(new Long(9, 1))
         output:
@@ -284,6 +340,7 @@ tests:
             csharp: 429496729601L <= 4294967305L
             shell: new NumberLong(429496729601) <= new NumberLong(4294967305)
             object: 'false'
+            ruby: 429496729601 <= 4294967305
     -   input:
             javascript: new Long(1, 100).negate()
         output:
@@ -292,6 +349,7 @@ tests:
             csharp: "-429496729601L"
             shell: "-new NumberLong(429496729601)"
             output: "-429496729601"
+            ruby: "-429496729601"
     -   input:
             javascript: new Long(1, 100).add(new Long(9, 1))
         output:
@@ -300,6 +358,7 @@ tests:
             csharp: 429496729601L + 4294967305L
             shell: new NumberLong(429496729601) + new NumberLong(4294967305)
             object: new Long(10, 101)
+            ruby: 429496729601 + 4294967305
     -   input:
             javascript: new Long(1, 100).subtract(new Long(9, 1))
         output:
@@ -308,6 +367,7 @@ tests:
             csharp: 429496729601L - 4294967305L
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: new Long(-8, 98)
+            ruby: 429496729601 - 4294967305
     -   input:
             javascript: new Long(1, 100).multiply(new Long(9, 1))
         output:
@@ -316,6 +376,7 @@ tests:
             csharp: 429496729601L * 4294967305L
             shell: new NumberLong(429496729601) * new NumberLong(4294967305)
             object: new Long(9, 901)
+            ruby: 429496729601 * 4294967305
     -   input:
             javascript: new Long(1, 100).div(new Long(9, 1))
         output:
@@ -324,6 +385,7 @@ tests:
             csharp: 429496729601L / 4294967305L
             shell: new NumberLong(429496729601) / new NumberLong(4294967305)
             object: new Long(99, 0)
+            ruby: 429496729601 / 4294967305
     -   input:
             javascript: new Long(1, 100).modulo(new Long(9, 1))
         output:
@@ -332,6 +394,7 @@ tests:
             csharp: 429496729601L % 4294967305L
             shell: new NumberLong(429496729601) % new NumberLong(4294967305)
             object: new Long(-890, 0)
+            ruby: 429496729601 % 4294967305
     -   input:
             javascript: new Long(1, 100).not()
         output:
@@ -340,6 +403,7 @@ tests:
             csharp: "~429496729601L"
             shell: "~new NumberLong(429496729601)"
             object: new Long(-1, -101)
+            ruby: "~429496729601"
     -   input:
             javascript: new Long(1, 100).and(new Long(9, 1))
         output:
@@ -348,6 +412,7 @@ tests:
             csharp: 429496729601L & 4294967305L
             shell: new NumberLong(429496729601) & new NumberLong(4294967305)
             object: new Long(1, 0)
+            ruby: 429496729601 & 4294967305
     -   input:
             javascript: new Long(1, 100).or(new Long(9, 1))
         output:
@@ -356,6 +421,7 @@ tests:
             csharp: 429496729601L | 4294967305L
             shell: new NumberLong(429496729601) | new NumberLong(4294967305)
             object: new Long(9, 101)
+            ruby: 429496729601 | 4294967305
     -   input:
             javascript: new Long(1, 100).xor(new Long(9, 1))
         output:
@@ -364,6 +430,7 @@ tests:
             csharp: 429496729601L ^ 4294967305L
             shell: new NumberLong(429496729601) ^ new NumberLong(4294967305)
             object: new Long(8, 101)
+            ruby: 429496729601 ^ 4294967305
     -   input:
             javascript: new Long(1, 100).shiftLeft(10)
         output:
@@ -372,6 +439,7 @@ tests:
             csharp: 429496729601L << 10
             shell: new NumberLong(429496729601) << 10
             object: new Long(1024, 102400)
+            ruby: 429496729601 << 10
     -   input:
             javascript: new Long(1, 100).shiftRight(10)
         output:
@@ -380,6 +448,7 @@ tests:
             csharp: 429496729601L >> 10
             shell: new NumberLong(429496729601) >> 10
             object: new Long(419430400, 0)
+            ruby: 429496729601 >> 10
     Decimal128-methods:
     -   input:
             javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).toString()
@@ -389,6 +458,7 @@ tests:
             csharp: Decimal128.Parse("5.3E-6175").ToString()
             shell: new NumberDecimal(5.3E-6175).toString()
             output: "'5.3E-6175'"
+            ruby: BSON::Decimal128.new('5.3E-6175').to_s
     Timestamp-methods:
     -   input:
             javascript: Timestamp(1, 100).toString()
@@ -399,6 +469,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToString()
             shell: new Timestamp(1, 100).toString()
             object: "'429496729601'"
+            ruby: BSON::Timestamp.new(1, 100).to_s
     -   input:
             javascript: Timestamp(1, 100).equals(Timestamp(2, 99))
         output:
@@ -407,6 +478,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Equals(new BsonTimestamp(2, 99))
             shell: new Timestamp(1, 100) === new Timestamp(2, 99)
             object: 'false'
+            ruby: BSON::Timestamp.new(1, 100) == BSON::Timestamp.new(2, 99)
     -   input:
             javascript: Timestamp(1, 100).compare(Timestamp(2, 99))
         output:
@@ -415,6 +487,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).CompareTo(new BsonTimestamp(2, 99))
             shell: new Timestamp(1, 100) - new Timestamp(2, 99)
             object: '1'
+            ruby: BSON::Timestamp.new(1, 100) <=> BSON::Timestamp.new(2, 99)
     -   input:
             javascript: Timestamp(1, 100).notEquals(Timestamp(2, 99))
         output:
@@ -423,6 +496,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) != new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) !== new Timestamp(2, 99)
             object: 'true'
+            ruby: BSON::Timestamp.new(1, 100) != BSON::Timestamp.new(2, 99)
     -   input:
             javascript: Timestamp(1, 100).greaterThan(Timestamp(2, 99))
         output:
@@ -431,6 +505,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) > new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) > new Timestamp(2, 99)
             object: 'true'
+            ruby: BSON::Timestamp.new(1, 100) > BSON::Timestamp.new(2, 99)
     -   input:
             javascript: Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))
         output:
@@ -439,6 +514,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) >= new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) >= new Timestamp(2, 99)
             object: 'true'
+            ruby: BSON::Timestamp.new(1, 100) >= BSON::Timestamp.new(2, 99)
     -   input:
             javascript: Timestamp(1, 100).lessThan(Timestamp(2, 99))
         output:
@@ -447,6 +523,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) < new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) < new Timestamp(2, 99)
             object: 'false'
+            ruby: BSON::Timestamp.new(1, 100) < BSON::Timestamp.new(2, 99)
     -   input:
             javascript: Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))
         output:
@@ -455,6 +532,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) <= new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) <= new Timestamp(2, 99)
             object: 'false'
+            ruby: BSON::Timestamp.new(1, 100) <= BSON::Timestamp.new(2, 99)
     -   input:
             javascript: Timestamp(1, 100).getLowBits()
             python: Timestamp(1, 100).time
@@ -465,6 +543,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToUniversalTime()
             shell: new Timestamp(1, 100).getTime()
             object: '1'
+            ruby: BSON::Timestamp.new(1, 100).seconds
     -   input:
             javascript: Timestamp(1, 100).getHighBits()
             python: Timestamp(1, 100).inc
@@ -475,6 +554,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Increment
             shell: new Timestamp(1, 100).getInc()
             object: '100'
+            ruby: BSON::Timestamp.new(1, 100).increment
     -   input:
             shell: Timestamp(1, 100).t
         output:
@@ -483,6 +563,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToUniversalTime()
             shell: new Timestamp(1, 100).getTime()
             object: '1'
+            ruby: BSON::Timestamp.new(1, 100).seconds
     -   input:
             shell: Timestamp(1, 100).i
         output:
@@ -491,6 +572,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Increment
             shell: new Timestamp(1, 100).getInc()
             object: '100'
+            ruby: BSON::Timestamp.new(1, 100).increment
     - input:
           python: Timestamp(1, 100).as_datetime
       output:
@@ -499,6 +581,7 @@ tests:
           csharp: new DateTime(1970, 1, 1).AddSeconds(new BsonTimestamp(1, 100).Timestamp)
           shell: new Date(new Timestamp(1, 100).getHighBits() * 1000)
           object: "new Date('1970-01-01T00:01:40.000Z')"
+          ruby: Time.at(BSON::Timestamp.new(1, 100).increment).utc
     Symbol-methods:
     -   input:
             javascript: new BSONSymbol('2').valueOf()
@@ -508,6 +591,7 @@ tests:
             csharp: '"2"'
             shell: "'2'"
             object: "'2'"
+            ruby: "'2'.to_sym.to_s"
     -   input:
             javascript: new BSONSymbol('2').toString()
         output:
@@ -515,7 +599,8 @@ tests:
             java: new Symbol("2").toString()
             csharp: '"2"'
             shell: "'2'"
-            output: "'2'"
+            output: "'2'" # TODO: N, should this be object?
+            ruby: "'2'.to_sym.to_s" #TODO: N, this is kind of ugly
     -   input:
             javascript: new BSONSymbol('2').inspect()
         output:
@@ -524,6 +609,7 @@ tests:
             csharp: '"2"'
             shell: "'2'"
             output: "'2'"
+            ruby: "'2'.to_sym.inspect"
     ObjectId-utils:
     - input:
           javascript: ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9')
@@ -533,6 +619,7 @@ tests:
           csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
           python: ObjectId('5ab901c29ee65f5c8550c5b9')
           object: new ObjectId('5ab901c29ee65f5c8550c5b9')
+          ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
     - input:
           python: ObjectId.from_datetime(datetime(1972, 2, 3))
           shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT')) # TODO: just takes in number?
@@ -543,6 +630,7 @@ tests:
           shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))
           # TODO: fix? this previously called ObjectId.createFromTime with a Date, but that function does not actually take a Date argument
           # object: new ObjectId('03ede8800000000000000000')
+          ruby: BSON::ObjectId.from_time(Time.new(1972, 2, 3, 0, 0, 0).utc) # TODO: N, this doesn't yield the correct ObjectId
     - input:
           javascript: ObjectId.createFromTime(1522075031)
       output:
@@ -552,6 +640,7 @@ tests:
           csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031))
           python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031))
           object: new ObjectId('62bdd85a0000000000000000')
+          ruby: BSON::ObjectId.from_time(Time.at(1522075031))
     - input:
           javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9')
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
@@ -561,6 +650,7 @@ tests:
           csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
           object: 'true'
+          ruby: BSON::ObjectId.legal?('5ab901c29ee65f5c8550c5b9')
 #    Binary-utils:
 #    - input:
 #          javascript: Binary.SUBTYPE_DEFAULT
@@ -620,6 +710,7 @@ tests:
           csharp: Int64.MaxValue
           python: sys.maxsize
           object: new Long(-1, 2147483647)
+          ruby: '9223372036854775807'
     - input:
           javascript: Long.MIN_VALUE
       output:
@@ -628,6 +719,7 @@ tests:
           csharp: Int64.MinValue
           python: "-sys.maxsize -1"
           object: new Long(0, -2147483648)
+          ruby: '-9223372036854775808'
     - input:
           javascript: Long.ZERO
       output:
@@ -636,6 +728,7 @@ tests:
           csharp: 0L
           python: Int64(0)
           object: new Long(0, 0)
+          ruby: '0'
     - input:
           javascript: Long.ONE
       output:
@@ -644,6 +737,7 @@ tests:
           csharp: 1L
           python: Int64(1)
           object: new Long(1, 0)
+          ruby: '1'
     - input:
           javascript: Long.NEG_ONE
       output:
@@ -652,6 +746,7 @@ tests:
           csharp: "-1L"
           python: Int64(-1)
           object: new Long(-1, -1)
+          ruby: '-1'
     - input:
           javascript: Long.fromInt(5)
       output:
@@ -660,6 +755,7 @@ tests:
           csharp: 5L
           python: Int64(5)
           object: new Long(5, 0)
+          ruby: '5'
     - input:
           javascript: Long.fromString('5')
       output:
@@ -668,6 +764,7 @@ tests:
           csharp: Convert.ToInt64("5", 10)
           python: Int64(int('5'))
           object: new Long(5, 0)
+          ruby: "'5'.to_i"
     - input:
           javascript: Long.fromString('5', 10)
       output:
@@ -676,6 +773,7 @@ tests:
           csharp: Convert.ToInt64("5", 10)
           python: Int64(int('5'))
           object: new Long(5, 0)
+          ruby: "'5'.to_i"
     - input:
           javascript: Long.fromBits(-1, 2147483647)
       output:
@@ -684,6 +782,7 @@ tests:
           csharp: 9223372036854775807L
           python: Int64(9223372036854775807)
           object: new Long(-1, 2147483647)
+          ruby: '9223372036854775807'
     - input:
           javascript: Long.fromNumber(429496729601)
       output:
@@ -697,6 +796,7 @@ tests:
           csharp: Decimal128.Parse("5")
           python: Decimal128('5')
           object: Decimal128.fromString("5")
+          ruby: BSON::Decimal128.new('5')
     BSONRegex-utils:
     - input:
           python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L))
@@ -706,6 +806,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
+          ruby: /^[a-z0-9_-]{3,16}$/ilmsux
     - input:
           python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L | re.A))
       output:
@@ -714,6 +815,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
+          ruby: /^[a-z0-9_-]{3,16}$/ilmsx
 
 
 
