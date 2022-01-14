@@ -14,7 +14,6 @@ const formItemHorizontalStyles = css({
   marginRight: 'auto',
   marginLeft: 'auto',
   display: 'flex',
-  alignItems: 'center',
 });
 
 const formItemVerticalStyles = css({
@@ -54,6 +53,13 @@ const labelHorizontalStyles = css({
   alignItems: 'center',
   columnGap: spacing[1],
   paddingRight: spacing[3],
+});
+
+const optionalLabelStyles = css({
+  color: uiColors.gray.base,
+  fontStyle: 'italic',
+  fontWeight: 'normal',
+  fontSize: 12,
 });
 
 const labelIconStyles = css({
@@ -107,6 +113,8 @@ function FileInput({
   onChange,
   disabled,
   multi = false,
+  optional = false,
+  optionalMessage,
   error = false,
   errorMessage,
   variant = Variant.Horizontal,
@@ -122,6 +130,8 @@ function FileInput({
   onChange: (files: string[]) => void;
   disabled?: boolean;
   multi?: boolean;
+  optional?: boolean;
+  optionalMessage?: string;
   error?: boolean;
   errorMessage?: string;
   variant?: Variant;
@@ -210,14 +220,21 @@ function FileInput({
               [disabledLabelStyles]: disabled,
             })}
           >
-            <span
-              className={cx({
-                [disabledDescriptionStyles]: disabled,
-              })}
-              style={{ gridArea: 'label' }}
-            >
-              {label}
-            </span>
+            <div>
+              <span
+                className={cx({
+                  [disabledDescriptionStyles]: disabled,
+                })}
+                style={{ gridArea: 'label' }}
+              >
+                {label}
+              </span>
+            </div>
+            {optional && (
+              <div className={optionalLabelStyles}>
+                {optionalMessage ? optionalMessage : 'Optional'}
+              </div>
+            )}
           </label>
           {renderDescription()}
         </div>

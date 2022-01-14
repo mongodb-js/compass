@@ -48,6 +48,8 @@ function TLSClientCertificate({
             );
           }}
           showFileOnNewLine
+          optional
+          optionalMessage="Optional (only required with X.509)"
         />
       </FormFieldContainer>
       <FormFieldContainer>
@@ -64,6 +66,7 @@ function TLSClientCertificate({
           label="Client Key Password"
           type="password"
           value={tlsCertificateKeyFilePassword || ''}
+          optional
         />
       </FormFieldContainer>
     </>

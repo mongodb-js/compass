@@ -189,6 +189,51 @@ describe('FileInput', function () {
     expect(errorMessage).to.exist;
   });
 
+  it('does not show optional if not specified', function () {
+    render(
+      <FileInput
+        id="file-input"
+        label="Select something"
+        onChange={spy}
+        error={true}
+        errorMessage={'Error'}
+      />
+    );
+
+    expect(screen.queryByText('Optional')).to.equal(null);
+  });
+
+  it('renders the optional when specified', function () {
+    render(
+      <FileInput
+        id="file-input"
+        label="Select something"
+        onChange={spy}
+        error={true}
+        errorMessage={'Error'}
+        optional
+      />
+    );
+
+    expect(screen.getByText('Optional')).to.be.visible;
+  });
+
+  it('renders the optional message when specified', function () {
+    render(
+      <FileInput
+        id="file-input"
+        label="Select something"
+        onChange={spy}
+        error={true}
+        errorMessage={'Error'}
+        optional
+        optionalMessage="pineapples"
+      />
+    );
+
+    expect(screen.getByText('pineapples')).to.be.visible;
+  });
+
   describe('when a file is chosen', function () {
     beforeEach(async function () {
       render(

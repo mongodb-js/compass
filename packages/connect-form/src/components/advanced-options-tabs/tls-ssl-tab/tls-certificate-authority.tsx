@@ -38,6 +38,7 @@ function TLSCertificateAuthority({
         }}
         showFileOnNewLine
         values={caFile ? [caFile] : undefined}
+        optional
       />
     </FormFieldContainer>
   );
