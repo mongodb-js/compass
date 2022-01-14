@@ -23,8 +23,6 @@ function TLSClientCertificate({
   ) => void;
   updateTLSClientCertificatePassword: (newPassword: string | null) => void;
 }): React.ReactElement {
-  // TODO: Override when underlying connection changes?
-
   const typedParams =
     connectionStringUrl.typedSearchParams<MongoClientOptions>();
   const clientCertificateKeyFile = typedParams.get('tlsCertificateKeyFile');
@@ -40,17 +38,17 @@ function TLSClientCertificate({
           disabled={disabled}
           id="tlsCertificateKeyFile"
           label="Client Certificate (.pem)"
+          dataTestId="tlsCertificateKeyFile-input"
           link={
             'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile'
           }
           values={clientCertificateKeyFile ? [clientCertificateKeyFile] : []}
-          // id={name}
-          // dataTestId={name}
           onChange={(files: string[]) => {
             updateTLSClientCertificate(
               files && files.length > 0 ? files[0] : null
             );
           }}
+          showFileOnNewLine
         />
       </FormFieldContainer>
       <FormFieldContainer>
@@ -62,6 +60,7 @@ function TLSClientCertificate({
             updateTLSClientCertificatePassword(value);
           }}
           disabled={disabled}
+          data-testid="tlsCertificateKeyFilePassword-input"
           id="tlsCertificateKeyFilePassword"
           label="Client Key Password"
           // https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFilePassword

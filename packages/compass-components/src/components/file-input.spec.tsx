@@ -2,7 +2,13 @@ import React from 'react';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import { render, screen, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 
 import FileInput, { Variant } from './file-input';
 
@@ -181,5 +187,82 @@ describe('FileInput', function () {
 
     const errorMessage = screen.getByTestId('file-input-error');
     expect(errorMessage).to.exist;
+  });
+
+  describe('when a file is chosen', function () {
+    beforeEach(async function () {
+      render(
+        <FileInput
+          id="file-input"
+          label="Select something"
+          dataTestId="test-file-input"
+          onChange={spy}
+          error={true}
+          errorMessage={'Error'}
+        />
+      );
+
+      const fileInput = screen.getByTestId('test-file-input');
+
+      await waitFor(() =>
+        fireEvent.change(fileInput, {
+          target: {
+            files: [
+              {
+                path: 'new/file/path',
+              },
+            ],
+          },
+        })
+      );
+    });
+
+    it('calls onChange with the chosen file', function () {
+      expect(spy.callCount).to.equal(1);
+      expect(spy.firstCall.args[0]).to.deep.equal(['new/file/path']);
+    });
+  });
+
+  it('renders the file name with close button when showFileOnNewLine=true', function () {
+    render(
+      <FileInput
+        id="file-input"
+        label="Select something"
+        dataTestId="test-file-input"
+        onChange={spy}
+        showFileOnNewLine
+        values={['new/file/nice', 'another/file/path']}
+      />
+    );
+
+    expect(screen.getByText('new/file/nice')).to.be.visible;
+    expect(screen.getByText('another/file/path')).to.be.visible;
+    expect(screen.getAllByLabelText('Remove file').length).to.equal(2);
+  });
+
+  describe('when a file is clicked to remove on multi line', function () {
+    beforeEach(async function () {
+      render(
+        <FileInput
+          id="file-input"
+          label="Select something"
+          dataTestId="test-file-input"
+          onChange={spy}
+          error={true}
+          errorMessage={'Error'}
+          showFileOnNewLine
+          values={['new/file/path', 'another/file/path']}
+        />
+      );
+
+      const removeButton = screen.getAllByLabelText('Remove file')[0];
+
+      await waitFor(() => fireEvent.click(removeButton));
+    });
+
+    it('calls onChange with the file removed', function () {
+      expect(spy.callCount).to.equal(1);
+      expect(spy.firstCall.args[0]).to.deep.equal(['another/file/path']);
+    });
   });
 });

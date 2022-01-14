@@ -4,7 +4,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
-import { Button, Icon, Label, Link, Description } from '..';
+import { Button, Icon, IconButton, Label, Link, Description } from '..';
 
 const { base: redBaseColor } = uiColors.red;
 
@@ -19,6 +19,15 @@ const formItemHorizontalStyles = css({
 
 const formItemVerticalStyles = css({
   margin: '5px auto 20px',
+});
+
+const removeFileLineStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+});
+
+const removeFileButtonStyles = css({
+  marginLeft: spacing[1],
 });
 
 const formItemErrorStyles = css({
@@ -106,6 +115,7 @@ function FileInput({
   error = false,
   errorMessage,
   variant = Variant.Horizontal,
+  showFileOnNewLine = false,
   link,
   description,
   values,
@@ -122,6 +132,7 @@ function FileInput({
   variant?: Variant;
   link?: string;
   description?: string;
+  showFileOnNewLine?: boolean;
   values?: string[];
   labelAlignment?: 'right' | 'left' | 'center';
 }): React.ReactElement {
@@ -143,7 +154,7 @@ function FileInput({
       });
       onChange(files);
     },
-    [onChange]
+    [onChange, values]
   );
 
   const renderDescription = (): React.ReactElement | null => {
@@ -230,6 +241,9 @@ function FileInput({
           multiple={multi}
           onChange={onFilesChanged}
           style={{ display: 'none' }}
+          // Force a re-render when the values change so
+          // the component is controlled by the prop.
+          key={values ? values.join(',') : 'empty'}
         />
         <Button
           id={id}
@@ -250,6 +264,25 @@ function FileInput({
           {buttonText}
         </Button>
       </div>
+      {showFileOnNewLine &&
+        values &&
+        values.length > 0 &&
+        values.map((value, index) => (
+          <div className={removeFileLineStyles} key={value}>
+            {value}
+            <IconButton
+              className={removeFileButtonStyles}
+              aria-label="Remove file"
+              onClick={() => {
+                const newValues = [...values];
+                newValues.splice(index, 1);
+                onChange(newValues);
+              }}
+            >
+              <Icon glyph="X" />
+            </IconButton>
+          </div>
+        ))}
       {error && errorMessage && (
         <Label
           data-testid={'file-input-error'}

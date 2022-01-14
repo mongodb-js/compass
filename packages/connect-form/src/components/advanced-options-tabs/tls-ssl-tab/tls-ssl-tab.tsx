@@ -126,7 +126,7 @@ function TLSTab({
     {
       name: 'tlsAllowInvalidHostnames',
       description:
-        'Disables the validation of the hostnames in the certificate presented by the mongod/mongos instance',
+        'This disables the validation of the hostnames in the certificate presented by the mongod/mongos instance.',
       checked:
         connectionStringUrl.searchParams.get('tlsAllowInvalidHostnames') ===
         'true',
@@ -197,12 +197,16 @@ function TLSTab({
         connectionStringUrl={connectionStringUrl}
         disabled={tlsOptionsDisabled}
         updateTLSClientCertificate={(newCertificatePath: string | null) => {
+          console.log('tlsCertificateKeyFile changed!', newCertificatePath);
           handleFieldChanged('tlsCertificateKeyFile', newCertificatePath);
         }}
         updateTLSClientCertificatePassword={(
           newCertificatePath: string | null
         ) => {
-          handleFieldChanged('tls', newCertificatePath);
+          handleFieldChanged(
+            'tlsCertificateKeyFilePassword',
+            newCertificatePath
+          );
         }}
       />
       {tlsOptionFields.map((tlsOptionField) => (
@@ -211,6 +215,7 @@ function TLSTab({
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               handleFieldChanged(tlsOptionField.name, event.target.checked);
             }}
+            data-testid={`${tlsOptionField.name}-input`}
             label={tlsOptionField.name}
             disabled={tlsOptionsDisabled}
             checked={tlsOptionField.checked}
