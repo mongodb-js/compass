@@ -102,7 +102,7 @@ export const STAGE_SPRINKLE_MAPPINGS = {
   },
   $facet: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/facet/#pipe._S_facet',
-    tooltip: 'Allows for multiple parellel aggregations to be specified.'
+    tooltip: 'Allows for multiple parallel aggregations to be specified.'
   },
   $geoNear: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/geoNear/#pipe._S_geoNear',
