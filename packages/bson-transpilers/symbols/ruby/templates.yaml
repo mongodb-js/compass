@@ -414,8 +414,10 @@ Templates:
                 (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
                 newStr = str.substr(1, str.length - 2);
                 return `'${newStr}'.to_f`;
+            } else if (type === '_decimal' || type === '_double') {
+                return newStr;
             } else {
-                return `${newStr}`;
+                return `${newStr}.to_f`;
             }
         }
     DateSymbolTemplate: &DateSymbolTemplate !!js/function >

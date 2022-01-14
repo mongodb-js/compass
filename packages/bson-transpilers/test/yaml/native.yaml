@@ -421,7 +421,7 @@ tests:
           java: 2d
           csharp: (int) 2
           object: Number(2)
-          ruby: '2'
+          ruby: 2.to_f
     - input:
           javascript: Number(2)
           shell: Number(2)
@@ -432,7 +432,7 @@ tests:
           java: 2d
           csharp: (int) 2
           object: Number(2)
-          ruby: '2'
+          ruby: 2.to_f
     - input:
           javascript: Number('2')
           shell: Number('2')
@@ -453,7 +453,7 @@ tests:
           java: 0d
           csharp: (int) 0
           object: '0'
-          ruby: '0'
+          ruby: 0.to_f
     numeric_literals:
     - input:
           javascript: '2'
