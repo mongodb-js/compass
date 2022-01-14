@@ -92,13 +92,17 @@ export const STAGE_SPRINKLE_MAPPINGS = {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/currentOp/#pipe._S_currentOp',
     tooltip: ''
   },
-  $facet: {
-    link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/facet/#pipe._S_facet',
-    tooltip: 'Allows for multiple parellel aggregations to be specified.'
+  $densify: {
+    link: 'https://docs.mongodb.com/rapid/reference/operator/aggregation/densify',
+    tooltip: 'Creates new documents in a sequence of documents where certain values in a field are missing.'
   },
   $documents: {
     link: 'https://docs.mongodb.com/v5.1/reference/operator/aggregation/documents/#mongodb-pipeline-pipe.-documents',
     tooltip: 'Returns literal documents from input values.'
+  },
+  $facet: {
+    link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/facet/#pipe._S_facet',
+    tooltip: 'Allows for multiple parellel aggregations to be specified.'
   },
   $geoNear: {
     link: 'https://docs.mongodb.com/manual/reference/operator/aggregation/geoNear/#pipe._S_geoNear',
