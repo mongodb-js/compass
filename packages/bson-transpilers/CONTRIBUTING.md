@@ -331,5 +331,7 @@ compiling each input into your output language under the `output` field.
           shell: "{\n  'x': '1'\n}"
           <your output language>: ...
 ```
+Make sure to add your output language in the outputLanguages array at the beginning
+of `run-yaml.test.js`.
 ## Adding an Input Language
 TODO!

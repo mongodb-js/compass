@@ -70,7 +70,6 @@ fs.readdirSync(testpath).map((file) => {
   if (file === 'edge-cases') {
     return; // Ignore edge case tests, they have their own runners
   }
-
   const mode = file.replace('.yaml', '');
   if (modes.length > 0 && modes.indexOf(mode) === -1) {
     return;

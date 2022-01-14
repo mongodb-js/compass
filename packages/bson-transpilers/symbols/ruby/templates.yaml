@@ -545,11 +545,11 @@ Templates:
         }
     DBRefToStringTemplate: &DBRefToStringTemplate !!js/function >
         (lhs) => {
-            return '';
+            return '${lhs}.to_s';
         }
     DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate !!js/function >
-        (lhs) => {
-            return '${lhs}.to_s';
+        () => {
+            return '';
         }
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
@@ -955,12 +955,12 @@ Templates:
     LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
     LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
-        () => {
-            return '';
+        (lhs) => {
+            return `${arg}.to_i;
         }
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
-        (lhs, arg) => {
-            return `${arg}.to_i`;
+        () => {
+            return '';
         }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
         () => {
