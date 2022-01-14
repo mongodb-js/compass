@@ -42,11 +42,6 @@ const buttonStyles = css({
   width: '100%',
 });
 
-const disabledButtonStyles = css({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pointerEvents: 'auto !important' as any, // !important to override leafygreen styles misordering.
-});
-
 const errorMessageStyles = css({
   color: `${redBaseColor} !important`,
 });
@@ -154,7 +149,7 @@ function FileInput({
       });
       onChange(files);
     },
-    [onChange, values]
+    [onChange]
   );
 
   const renderDescription = (): React.ReactElement | null => {
@@ -242,10 +237,7 @@ function FileInput({
         <Button
           id={id}
           data-testid="file-input-button"
-          className={cx({
-            [buttonStyles]: true,
-            [disabledButtonStyles]: disabled,
-          })}
+          className={buttonStyles}
           disabled={disabled}
           onClick={() => {
             if (!disabled && inputRef.current) {

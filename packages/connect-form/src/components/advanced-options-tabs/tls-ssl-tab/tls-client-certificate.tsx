@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
 import React from 'react';
-import { FileInput, TextInput } from '@mongodb-js/compass-components';
+import { FileInput, TextInput, css } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { MongoClientOptions } from 'mongodb';
 
