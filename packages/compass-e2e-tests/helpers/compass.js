@@ -8,7 +8,7 @@ const {
   gunzip,
   constants: { Z_SYNC_FLUSH },
 } = require('zlib');
-const { Application } = require('spectron');
+// const { Application } = require('spectron');
 const { rebuild } = require('electron-rebuild');
 const debug = require('debug')('compass-e2e-tests');
 const {
@@ -17,6 +17,8 @@ const {
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
 const { addCommands } = require('./commands');
+
+const { remote } = require('webdriverio');
 
 /**
  * @typedef {Object} ExtendedClient
@@ -165,101 +167,117 @@ async function startCompass(
     },
   };
 
-  debug('Starting Spectron with the following configuration:');
-  debug(JSON.stringify(appOptions, null, 2));
+  const { remote } = require('webdriverio');
+
+  const client = await remote({
+    capabilities: {
+      browserName: 'chrome',
+      'goog:chromeOptions': {
+        // binary: '/path/to/your/electron/binary', // Path to your Electron binary.
+        binary: applicationStartOptions.path,
+        args: (applicationStartOptions.args || []).concat(appOptions.chromeDriverArgs)
+      },
+    },
+  });
+
+  const app = { client };
+
+  // debug('Starting Spectron with the following configuration:');
+  // debug(JSON.stringify(appOptions, null, 2));
 
   /** @type {ExtendedApplication} */
   // It's missing methods that we will add in a moment
-  // @ts-expect-error
-  const app = new Application(appOptions);
+  // const app = new Application(appOptions);
 
-  await app.start();
+  // await app.start();
 
-  app.client.setTimeout({ implicit: 0 });
+  // app.client.setTimeout({ implicit: 0 });
 
   addCommands(app);
-  addDebugger(app);
+  // addDebugger(app);
 
-  const _stop = app.stop.bind(app);
+  // const _stop = app.stop.bind(app);
 
-  app.stop = async () => {
-    const mainLogs = await app.client.getMainProcessLogs();
-    const renderLogs = await app.client.getRenderProcessLogs();
+  // app.stop = async () => {
+  //   const mainLogs = await app.client.getMainProcessLogs();
+  //   const renderLogs = await app.client.getRenderProcessLogs();
 
-    const mainLogPath = path.join(
-      LOG_PATH,
-      `electron-main.${nowFormatted}.log`
-    );
-    debug(`Writing application main process log to ${mainLogPath}`);
-    await fs.writeFile(mainLogPath, mainLogs.join('\n'));
+  //   const mainLogPath = path.join(
+  //     LOG_PATH,
+  //     `electron-main.${nowFormatted}.log`
+  //   );
+  //   debug(`Writing application main process log to ${mainLogPath}`);
+  //   await fs.writeFile(mainLogPath, mainLogs.join('\n'));
 
-    const renderLogPath = path.join(
-      LOG_PATH,
-      `electron-render.${nowFormatted}.json`
-    );
-    debug(`Writing application render process log to ${renderLogPath}`);
-    await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
+  //   const renderLogPath = path.join(
+  //     LOG_PATH,
+  //     `electron-render.${nowFormatted}.json`
+  //   );
+  //   debug(`Writing application render process log to ${renderLogPath}`);
+  //   await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
 
-    debug('Stopping Compass application');
-    await _stop();
+  //   debug('Stopping Compass application');
+  //   await _stop();
 
-    const compassLog = await getCompassLog(mainLogs);
-    const compassLogPath = path.join(
-      LOG_PATH,
-      `compass-log.${nowFormatted}.log`
-    );
-    debug(`Writing Compass application log to ${compassLogPath}`);
-    await fs.writeFile(compassLogPath, compassLog.raw);
-    app.compassLog = compassLog.structured;
+  //   const compassLog = await getCompassLog(mainLogs);
+  //   const compassLogPath = path.join(
+  //     LOG_PATH,
+  //     `compass-log.${nowFormatted}.log`
+  //   );
+  //   debug(`Writing Compass application log to ${compassLogPath}`);
+  //   await fs.writeFile(compassLogPath, compassLog.raw);
+  //   app.compassLog = compassLog.structured;
 
-    debug('Removing user data');
-    try {
-      await fs.rmdir(userDataDir, { recursive: true });
-    } catch (e) {
-      debug(
-        `Failed to remove temporary user data directory at ${userDataDir}:`
-      );
-      debug(e);
-    }
+  //   debug('Removing user data');
+  //   try {
+  //     await fs.rmdir(userDataDir, { recursive: true });
+  //   } catch (e) {
+  //     debug(
+  //       `Failed to remove temporary user data directory at ${userDataDir}:`
+  //     );
+  //     debug(e);
+  //   }
 
-    // ERROR, CRITICAL and whatever unknown things might end up in the logs
-    const errors = renderLogs.filter((log) => {
-      if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
-        return false;
-      }
+  //   // ERROR, CRITICAL and whatever unknown things might end up in the logs
+  //   const errors = renderLogs.filter((log) => {
+  //     if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
+  //       return false;
+  //     }
 
-      // TODO: remove this once we fixed these warnings
-      if (
-        log.level === 'SEVERE' &&
-        log.message.includes('"Warning: Failed prop type: ')
-      ) {
-        return false;
-      }
+  //     // TODO: remove this once we fixed these warnings
+  //     if (
+  //       log.level === 'SEVERE' &&
+  //       log.message.includes('"Warning: Failed prop type: ')
+  //     ) {
+  //       return false;
+  //     }
 
-      return true;
-    });
+  //     return true;
+  //   });
 
-    if (errors.length) {
-      /** @type { Error & { errors?: any[] } } */
-      const error = new Error(
-        `Errors encountered in render process during testing:\n\n${errors
-          .map(formatLogToErrorWithStack)
-          .map((msg) =>
-            msg
-              .split('\n')
-              .map((line) => `  ${line}`)
-              .join('\n')
-          )
-          .join('\n\n')}`
-      );
-      error.errors = errors;
-      // Fail the tests if we encountered some severe errors while the
-      // application was running
-      throw error;
-    }
+  //   if (errors.length) {
+  //     /** @type { Error & { errors?: any[] } } */
+  //     const error = new Error(
+  //       `Errors encountered in render process during testing:\n\n${errors
+  //         .map(formatLogToErrorWithStack)
+  //         .map((msg) =>
+  //           msg
+  //             .split('\n')
+  //             .map((line) => `  ${line}`)
+  //             .join('\n')
+  //         )
+  //         .join('\n\n')}`
+  //     );
+  //     error.errors = errors;
+  //     // Fail the tests if we encountered some severe errors while the
+  //     // application was running
+  //     throw error;
+  //   }
 
-    return app;
-  };
+  //   return app;
+  // };
+
+  // return app;
 
   return app;
 }

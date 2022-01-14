@@ -6,7 +6,7 @@ const Selectors = require('../helpers/selectors');
 describe('Time to first query', function () {
   let compass;
 
-  it('can open compass, connect to a database and run a query on a collection', async function () {
+  it.only('can open compass, connect to a database and run a query on a collection', async function () {
     // start compass inside the test so that the time is measured together
     compass = await beforeTests();
 
