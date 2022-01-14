@@ -1,3 +1,4 @@
+const { retryWithBackoff } = require('../retry-with-backoff');
 const Selectors = require('../selectors');
 
 module.exports = function (compass) {
@@ -14,27 +15,34 @@ module.exports = function (compass) {
 
   return async function (str, parse = false) {
     const { browser } = compass;
-    const shellContentElement = await browser.$(Selectors.ShellContent);
-    if (!(await shellContentElement.isDisplayed())) {
-      await browser.clickVisible(Selectors.ShellExpandButton);
-    }
+    let numLines;
 
-    const numLines = (await getOutputText()).length;
+    await retryWithBackoff(async function () {
+      const shellContentElement = await browser.$(Selectors.ShellContent);
+      if (!(await shellContentElement.isDisplayed())) {
+        await browser.clickVisible(Selectors.ShellExpandButton);
+      }
 
-    await browser.clickVisible(Selectors.ShellInput);
-    // Might be marked with a deprecation warning, but can be used
-    // https://github.com/webdriverio/webdriverio/issues/2076
+      numLines = (await getOutputText()).length;
+
+      await browser.clickVisible(Selectors.ShellInput);
+    });
 
     const command = parse === true ? `JSON.stringify(${str})` : str;
+    // Might be marked with a deprecation warning, but can be used
+    // https://github.com/webdriverio/webdriverio/issues/2076
     await browser.keys(command);
-    await browser.keys('\uE007');
+    await browser.keys(['Enter']);
 
     // wait until more output compassears
-    await browser.waitUntil(async () => {
-      const lines = await getOutputText();
-      // first the command we send compassears then later the response
-      return lines.length > numLines + 1;
-    });
+    await browser.waitUntil(
+      async () => {
+        const lines = await getOutputText();
+        // first the command we send compassears then later the response
+        return lines.length > numLines + 1;
+      },
+      { timeout: 10000 }
+    );
 
     const shellOutputElements = await browser.$$(Selectors.ShellOutput);
     const output = await shellOutputElements[

@@ -1,5 +1,5 @@
 // TODO: add back ts-check
-const { inspect } = require('util');
+const { ObjectId } = require('bson');
 const { promises: fs } = require('fs');
 const path = require('path');
 const os = require('os');
@@ -17,7 +17,6 @@ const {
 } = require('hadron-build/commands/release');
 const Selectors = require('./selectors');
 const { addCommands } = require('./commands');
-
 
 const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
@@ -59,8 +58,7 @@ let i = 0;
 // For the screenshots
 let j = 0;
 // For the html
-let k = 0;
-
+//let k = 0;
 
 function formatLogToErrorWithStack(logEntry) {
   const [file, lineCol, ...rest] = logEntry.message.split(' ');
@@ -71,17 +69,11 @@ function formatLogToErrorWithStack(logEntry) {
   return `${message}\n  at ${file}:${lineCol}`;
 }
 
-
 async function startCompass(
   testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP),
   opts = {}
 ) {
   const compass = {};
-
-  /** @type {string} */
-  // When imported not from electron env, require('electron') actually returns a
-  // path to the binary, it's just not typed like that
-  // @ts-expect-error
 
   const nowFormatted = formattedDate();
 
@@ -102,13 +94,15 @@ async function startCompass(
   await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
 
-  const binary = testPackagedApp ? getCompassBinPath(await getCompassBuildMetadata()) : require('electron');
+  const binary = testPackagedApp
+    ? getCompassBinPath(await getCompassBuildMetadata())
+    : require('electron');
   const chromeArgs = [];
 
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
-    chromeArgs.push(COMPASS_PATH);
-    //process.chdir(COMPASS_PATH); // TODO
+    chromeArgs.push(`--app=${COMPASS_PATH}`);
+    //process.chdir(COMPASS_PATH); // TODO: do we need this?
   }
 
   // https://peter.sh/experiments/chromium-command-line-switches/
@@ -120,17 +114,29 @@ async function startCompass(
     '--media-router=0',
     // Evergren RHEL ci runs everything as root, and chrome will not start as
     // root without this flag
-    '--no-sandbox',
+    '--no-sandbox'
 
-    // TODO: these are actually chromedriver options
-    `--log-dir=${chromedriverLogPath}`,
-    '--verbose'
+    // chomedriver options
+    // TODO: cant get this to work
+    //`--log-path=${chromedriverLogPath}`,
+    //'--verbose',
+
+    // electron/chromium options
+    // TODO: cant get this to work either
+    //'--enable-logging=file',
+    //`--log-file=${chromedriverLogPath}`,
+    //'--log-level=INFO',
+    //'--v=1',
+    // --vmodule=pattern
   );
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'info',
-    outputDir: webdriverLogPath
+    // TODO: If we redirect the logs to a file we can't see them in stdout.
+    // Although they are quite verbose so perhaps we do need addDebugger and
+    // just write these to a file.
+    //logLevel: 'info',
+    //outputDir: webdriverLogPath
   };
 
   // https://webdriver.io/docs/options/#webdriverio
@@ -142,6 +148,7 @@ async function startCompass(
   process.env.APP_ENV = 'webdriverio';
   process.env.DEBUG = `${process.env.DEBUG || ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
+  process.env.CHROME_LOG_FILE = chromedriverLogPath;
 
   const options = {
     capabilities: {
@@ -149,12 +156,23 @@ async function startCompass(
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary,
-        args: chromeArgs
+        args: chromeArgs,
+      },
+      // more chrome options
+      /*
+      'loggingPrefs': {
+        browser: 'ALL',
+        driver: 'ALL'
+      },
+      'goog:loggingPrefs': {
+        browser: 'ALL',
+        driver: 'ALL'
       }
+      */
     },
     ...webdriverOptions,
     ...wdioOptions,
-    ...opts
+    ...opts,
   };
 
   debug('Starting compass via webdriverio with the following configuration:');
@@ -165,16 +183,20 @@ async function startCompass(
   const browser = await remote(options);
   compass.browser = browser;
 
+  // get the app logPath out of electron early in case the app crashes before we
+  // close it and load the logs
+  const logPath = await browser.execute(() => {
+    return require('electron').ipcRenderer.invoke('compass:logPath');
+  });
+
   addCommands(compass);
-  // TODO
+  // TODO: do we need this?
   //addDebugger(compass);
 
   compass.stop = async () => {
-    // TODO
+    // TODO: no idea how to get either of these
     const mainLogs = [];
     const renderLogs = [];
-    //const mainLogs = await compass.client.getMainProcessLogs();
-    //const renderLogs = await compass.client.getRenderProcessLogs();
 
     const mainLogPath = path.join(
       LOG_PATH,
@@ -193,14 +215,14 @@ async function startCompass(
     debug('Stopping Compass application');
     await browser.deleteSession();
 
-    const compassLog  = await getCompassLog(mainLogs);
+    const compassLog = await getCompassLog(logPath);
     const compassLogPath = path.join(
       LOG_PATH,
       `compass-log.${nowFormatted}.log`
     );
     debug(`Writing Compass application log to ${compassLogPath}`);
     await fs.writeFile(compassLogPath, compassLog.raw);
-    compass.compassLog = compassLog.structured; // TODO: rename
+    compass.logs = compassLog.structured;
 
     debug('Removing user data');
     try {
@@ -254,19 +276,32 @@ async function startCompass(
   return compass;
 }
 
-async function getCompassLog(logs) {
-  // TODO
-  return { raw: Buffer.from(''), structured: [] };
-  /*
-  const logOutputIndicatorMatch = logs
-    .map((line) => line.match(/Writing log output to (?<filename>.+)$/))
-    .find((match) => match);
-  if (!logOutputIndicatorMatch) {
+/**
+ * @param {string} logPath The compass application log path
+ * @returns {Promise<CompassLog>}
+ */
+async function getCompassLog(logPath) {
+  const names = await fs.readdir(logPath);
+  const logNames = names.filter((name) => name.endsWith('_log.gz'));
+
+  if (!logNames.length) {
     debug('no log output indicator found!');
     return { raw: Buffer.from(''), structured: [] };
   }
 
-  const { filename } = logOutputIndicatorMatch.groups;
+  // find the latest log file
+  let latest = 0;
+  let lastName;
+  for (const name of logNames) {
+    const id = name.slice(0, name.indexOf('_'));
+    const time = new ObjectId(id).generationTime;
+    if (time > latest) {
+      latest = time;
+      lastName = name;
+    }
+  }
+
+  const filename = path.join(logPath, lastName);
   debug('reading Compass application logs from', filename);
   const contents = await promisify(gunzip)(await fs.readFile(filename), {
     finishFlush: Z_SYNC_FLUSH,
@@ -285,7 +320,6 @@ async function getCompassLog(logs) {
         }
       }),
   };
-  */
 }
 
 function formattedDate() {
@@ -448,28 +482,22 @@ function augmentError(error, stack) {
 */
 
 async function capturePage(
-  //compass,
-  //imgPathName = `screenshot-${formattedDate()}-${++j}.png`
+  compass,
+  imgPathName = `screenshot-${formattedDate()}-${++j}.png`
 ) {
-  // TODO
-  /*
   try {
-    const buffer = await compass.browserWindow.capturePage();
-    await fs.mkdir(LOG_PATH, { recursive: true });
-    // @ts-expect-error buffer is Electron.NativeImage not a real buffer, but it
-    //                  can be used as a buffer when storing an image
-    await fs.writeFile(path.join(LOG_PATH, imgPathName), buffer);
+    const { browser } = compass;
+    await browser.saveScreenshot(path.join(LOG_PATH, imgPathName));
     return true;
-  } catch (_) {
+  } catch (err) {
+    console.warn(err.stack);
     return false;
   }
-  */
 }
 
-async function savePage(
+async function savePage() {
   //compass,
   //htmlPathName = `page-${formattedDate()}-${++k}.html`
-) {
   // TODO
   /*
   try {
@@ -534,9 +562,8 @@ function outputFilename(filename) {
 async function afterTest(compass, test) {
   if (process.env.CI) {
     if (test.state == 'failed') {
-      // TODO
-      //await capturePage(compass, screenshotPathName(test.fullTitle()));
-      //await savePage(compass, pagePathName(test.fullTitle()));
+      await capturePage(compass, screenshotPathName(test.fullTitle()));
+      await savePage(compass, pagePathName(test.fullTitle()));
     }
   }
 }

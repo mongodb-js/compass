@@ -31,8 +31,9 @@ module.exports = function (compass) {
 
     await delay(100);
 
-    // TODO
-    compass.webContents.send('app:disconnect');
+    await browser.execute(() => {
+      require('electron').ipcRenderer.emit('app:disconnect');
+    });
 
     const element = await browser.$(Selectors.ConnectSection);
     await element.waitForDisplayed();

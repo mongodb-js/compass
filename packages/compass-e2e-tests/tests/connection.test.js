@@ -1,4 +1,4 @@
-// @ts-check
+// TODO: ts-check
 const { expect } = require('chai');
 const {
   getAtlasConnectionOptions,
@@ -7,9 +7,9 @@ const {
   afterTest,
 } = require('../helpers/compass');
 
-async function disconnect(client) {
+async function disconnect(browser) {
   try {
-    await client.disconnect();
+    await browser.disconnect();
   } catch (err) {
     console.error('Error during disconnect:');
     console.error(err);
@@ -20,13 +20,12 @@ async function disconnect(client) {
  * Connection tests
  */
 describe('Connection screen', function () {
-  /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
-  let client;
+  let browser;
 
   before(async function () {
     compass = await beforeTests();
-    client = compass.client;
+    browser = compass.browser;
   });
 
   after(function () {
@@ -34,13 +33,13 @@ describe('Connection screen', function () {
   });
 
   afterEach(async function () {
-    await disconnect(client);
+    await disconnect(browser);
     await afterTest(compass, this.currentTest);
   });
 
   it('can connect using connection string', async function () {
-    await client.connectWithConnectionString('mongodb://localhost:27018/test');
-    const result = await client.shellEval(
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -48,11 +47,11 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection form', async function () {
-    await client.connectWithConnectionForm({
+    await browser.connectWithConnectionForm({
       host: 'localhost',
       port: 27018,
     });
-    const result = await client.shellEval(
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -64,8 +63,8 @@ describe('Connection screen', function () {
     if (!atlasConnectionOptions) {
       return this.skip();
     }
-    await client.connectWithConnectionForm(atlasConnectionOptions);
-    const result = await client.shellEval(
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );

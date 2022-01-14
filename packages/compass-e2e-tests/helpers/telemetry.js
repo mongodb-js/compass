@@ -38,8 +38,8 @@ async function startTelemetryServer() {
 
   function screens() {
     return events()
-      .filter((entry) => entry.type === 'screen')
-      .map((entry) => entry.name);
+      .filter((entry) => entry.event === 'Screen')
+      .map((entry) => entry.properties.name);
   }
 
   return {

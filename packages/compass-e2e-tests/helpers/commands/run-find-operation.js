@@ -1,7 +1,10 @@
 const Selectors = require('../selectors');
 
 async function setFilter(browser, tabName, value) {
-  await browser.setAceValue(Selectors.queryBarOptionInputFilter(tabName), value);
+  await browser.setAceValue(
+    Selectors.queryBarOptionInputFilter(tabName),
+    value
+  );
 }
 
 async function setProject(browser, tabName, value) {
@@ -48,7 +51,9 @@ async function isOptionsExpanded(browser, tabName) {
   // it doesn't look like there's some attribute on the options button or
   // container that we can easily check, so just look for a field that exists
   // if it is expanded
-  const element = await browser.$(Selectors.queryBarOptionInputProject(tabName));
+  const element = await browser.$(
+    Selectors.queryBarOptionInputProject(tabName)
+  );
   return element.isDisplayed();
 }
 
@@ -65,6 +70,8 @@ async function collapseOptions(browser, tabName) {
   if (!(await isOptionsExpanded(browser, tabName))) {
     return;
   }
+
+  console.log('clearing out the existing options');
 
   // Before collapsing the options, clear out all the fields in case they are
   // set. This helps to make the tests idempotent which is handy because you can

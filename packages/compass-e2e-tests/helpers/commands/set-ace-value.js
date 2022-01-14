@@ -1,9 +1,8 @@
+const clipboard = require('clipboardy');
 const debug = require('debug')('compass-e2e-tests').extend('set-ace-value');
 
 const FOCUS_TAG = 'textarea';
 const FOCUS_CLASS = 'ace_text-input';
-
-const META = process.platform === 'darwin' ? 'Meta' : 'Control';
 
 module.exports = function (compass) {
   return async function setAceValue(selector, value) {
@@ -25,11 +24,23 @@ module.exports = function (compass) {
       return focused;
     });
 
+    const META = process.platform === 'darwin' ? 'Meta' : 'Control';
+
     await browser.keys([META, 'a']);
     await browser.keys([META]); // meta a second time to release it
     await browser.keys(['Backspace']);
-    compass.electron.clipboard.writeText(value, 'clipboard');
-    await browser.keys([META, 'v']);
-    await browser.keys([META]); // meta a second time to release it
+
+    await clipboard.write(value);
+
+    // For whatever reason it is shift-insert and not cmd-v  ¯\_(ツ)_/¯
+    // https://twitter.com/webdriverio/status/812034986341789696?lang=en
+    // https://bugs.chromium.org/p/chromedriver/issues/detail?id=30
+    if (process.platform === 'darwin') {
+      await browser.keys(['Shift', 'Insert']);
+      await browser.keys(['Shift']); // shift a second time to release it
+    } else {
+      await browser.keys(['Control', 'v']);
+      await browser.keys(['Control']); // control a second time to release it
+    }
   };
 };

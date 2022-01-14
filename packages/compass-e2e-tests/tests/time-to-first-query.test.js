@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');
 
-describe.only('Time to first query', function () {
+describe('Time to first query', function () {
   let compass;
 
   it('can open compass, connect to a database and run a query on a collection', async function () {
