@@ -1,10 +1,9 @@
-import { css } from '@emotion/css';
 import React, { useState } from 'react';
-import { Tabs, Tab, spacing } from '@mongodb-js/compass-components';
+import { Tabs, Tab, spacing, css } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import GeneralTab from './general-tab';
-import AuthenticationTab from './authentication-tab';
+import GeneralTab from './general-tab/general-tab';
+import AuthenticationTab from './authentication-tab/authentication-tab';
 import SSHTunnelTab from './ssh-tunnel-tab/ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';

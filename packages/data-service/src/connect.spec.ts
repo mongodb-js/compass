@@ -494,6 +494,20 @@ describe('connect', function () {
           { authenticatedUserRoles: [], authenticatedUsers: [] }
         );
       });
+
+      it('connects with ssh (sshReplicaSetSeedlist)', async function () {
+        await testConnection(
+          envs.getConnectionOptions('sshReplicaSetSeedlist'),
+          { authenticatedUserRoles: [], authenticatedUsers: [] }
+        );
+      });
+
+      it('connects with ssh (sshReplicaSetByReplSetName)', async function () {
+        await testConnection(
+          envs.getConnectionOptions('sshReplicaSetByReplSetName'),
+          { authenticatedUserRoles: [], authenticatedUsers: [] }
+        );
+      });
     });
 
     describe('tls', function () {
@@ -509,6 +523,16 @@ describe('connect', function () {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
+      });
+
+      it('connects with tls (tlsServerValidationSsh)', async function () {
+        await testConnection(
+          envs.getConnectionOptions('tlsServerValidationSsh'),
+          {
+            authenticatedUserRoles: [],
+            authenticatedUsers: [],
+          }
+        );
       });
 
       it('connects with tls (tlsServerAndClientValidation)', async function () {

@@ -1,10 +1,10 @@
-import { css } from '@emotion/css';
+import React, { useState } from 'react';
 import {
   ResizeHandle,
   ResizeDirection,
   uiColors,
+  css,
 } from '@mongodb-js/compass-components';
-import React, { useState } from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 
 import ConnectionList from './connection-list/connection-list';

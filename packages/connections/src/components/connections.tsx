@@ -1,11 +1,10 @@
-import { css } from '@emotion/css';
 import React from 'react';
 import {
   Banner,
   BannerVariant,
-  MongoDBLogo,
   compassUIColors,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
 import {
@@ -30,11 +29,6 @@ const connectStyles = css({
   display: 'flex',
   flexDirection: 'row',
   background: compassUIColors.gray8,
-});
-
-const logoStyles = css({
-  margin: spacing[5],
-  marginBottom: 0,
 });
 
 const connectItemContainerStyles = css({

@@ -39,13 +39,11 @@ declare module 'process' {
         USE_NEW_CONNECT_FORM?: 'true' | 'false';
 
         /**
-         * Disables global overlay on the instance refresh and activates gradual
-         * data loading for the instance: collections and their stats are only
-         * loaded when database namespace is selected
-         * 
-         * Behind a feature flag while UI is being refined
+         * Enables new tab in the instance workspace that shows saved
+         * aggregations and queries in a list. Behind a feature flag while in
+         * development
          */
-        COMPASS_NO_GLOBAL_OVERLAY?: 'true';
+        COMPASS_SHOW_YOUR_QUERIES_TAB?: 'true';
       }
     }
   }

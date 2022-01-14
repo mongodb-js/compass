@@ -1,4 +1,3 @@
-import { css, cx } from '@emotion/css';
 import React, { useCallback } from 'react';
 import {
   Checkbox,
@@ -10,6 +9,8 @@ import {
   RadioBoxGroup,
   spacing,
   uiColors,
+  css,
+  cx,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';

@@ -1,5 +1,4 @@
 import React, { ChangeEvent, useEffect, useCallback } from 'react';
-import { css } from '@emotion/css';
 import {
   spacing,
   Table,
@@ -14,6 +13,7 @@ import {
   Option,
   OptionGroup,
   Banner,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';

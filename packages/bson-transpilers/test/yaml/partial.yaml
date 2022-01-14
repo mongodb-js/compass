@@ -401,7 +401,7 @@ tests:
           csharp: 429496729601L >>
           shell: new NumberLong(429496729601) >>
     - input:
-          javascript: new Decimal128(Buffer.from('5')).toString
+          javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).toString
       output:
           javascript: ''
           python: str

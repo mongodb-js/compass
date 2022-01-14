@@ -10,7 +10,6 @@ import {
   BulkWriteOptions,
   ClientSession,
   Collection,
-  CollectionInfo,
   CollStats,
   CommandFailedEvent,
   CommandSucceededEvent,
@@ -32,7 +31,6 @@ import {
   InsertManyResult,
   InsertOneOptions,
   InsertOneResult,
-  ListCollectionsOptions,
   MongoClient,
   MongoClientOptions,
   ServerClosedEvent,
@@ -68,7 +66,6 @@ import {
   IndexDetails,
 } from './types';
 
-import getPort from 'get-port';
 import { ConnectionStatusWithPrivileges, runCommand } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -516,13 +513,9 @@ class DataService extends EventEmitter {
     });
 
     try {
-      const tunnelLocalPort = this._connectionOptions.sshTunnel
-        ? await getPort()
-        : 0;
       const [client, tunnel, connectionOptions] = await connectMongoClient(
         this._connectionOptions,
-        this.setupListeners.bind(this),
-        tunnelLocalPort
+        this.setupListeners.bind(this)
       );
 
       const attr = {
@@ -912,6 +905,9 @@ class DataService extends EventEmitter {
       'Running raw find',
       { ns }
     );
+
+    logop(null);
+
     return this._collection(ns).find(filter, options);
   }
 

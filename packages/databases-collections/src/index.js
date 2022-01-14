@@ -23,7 +23,7 @@ const COLLECTIONS_PLUGIN_ROLE = {
 const DATABASES_PLUGIN_ROLE = {
   name: 'Databases',
   component: DatabasesPlugin,
-  order: 1
+  order: 2
 };
 
 // Create collection modal plugin.

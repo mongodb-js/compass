@@ -1,7 +1,11 @@
 /* eslint-disable react/prop-types */
-import { css, cx } from '@leafygreen-ui/emotion';
 import React, { useCallback, useMemo } from 'react';
-import { useHoverState, spacing } from '@mongodb-js/compass-components';
+import {
+  useHoverState,
+  spacing,
+  css,
+  cx,
+} from '@mongodb-js/compass-components';
 import { DATABASE_ROW_HEIGHT } from './constants';
 import { NamespaceAction, ActionControls } from './item-action-controls';
 import {

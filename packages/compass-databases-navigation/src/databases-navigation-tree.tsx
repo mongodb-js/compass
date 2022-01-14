@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { css } from '@leafygreen-ui/emotion';
 import React, { useCallback, useMemo, memo, useRef } from 'react';
 import { VisuallyHidden } from '@react-aria/visually-hidden';
 import { FixedSizeList as List, areEqual } from 'react-window';
@@ -9,6 +8,7 @@ import {
   FadeInPlaceholder,
   spacing,
   uiColors,
+  css,
 } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder-item';
 import {

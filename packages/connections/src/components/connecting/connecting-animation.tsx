@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
 import React, { useEffect, useRef } from 'react';
-import { spacing } from '@mongodb-js/compass-components';
+import { spacing, css } from '@mongodb-js/compass-components';
 
 const animationContainerStyles = css({
   marginTop: spacing[3],

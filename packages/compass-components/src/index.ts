@@ -1,3 +1,16 @@
+export {
+  default as emotion,
+  flush,
+  hydrate,
+  cx,
+  merge,
+  getRegisteredStyles,
+  injectGlobal,
+  keyframes,
+  css,
+  sheet,
+  cache,
+} from '@leafygreen-ui/emotion';
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
@@ -82,19 +95,6 @@ export {
   ContentWithFallback,
   FadeInPlaceholder,
 } from './components/content-with-fallback';
-export {
-  default as emotion,
-  flush,
-  hydrate,
-  cx,
-  merge,
-  getRegisteredStyles,
-  injectGlobal,
-  keyframes,
-  css,
-  sheet,
-  cache,
-} from '@leafygreen-ui/emotion';
 export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;

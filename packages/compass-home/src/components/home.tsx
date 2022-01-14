@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import { css } from '@mongodb-js/compass-components';
 import {
   ConnectionInfo,
   DataService,

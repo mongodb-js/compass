@@ -1,7 +1,12 @@
 /* eslint-disable react/prop-types */
-import { css, cx } from '@leafygreen-ui/emotion';
 import React, { forwardRef } from 'react';
-import { Icon, IconButton, spacing } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  IconButton,
+  spacing,
+  css,
+  cx,
+} from '@mongodb-js/compass-components';
 
 const iconContainer = css({
   display: 'block',
