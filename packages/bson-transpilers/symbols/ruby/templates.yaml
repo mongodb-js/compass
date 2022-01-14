@@ -26,16 +26,16 @@ Templates:
     RegexFlags: &RegexFlags
         i: 'i'
         m: 'm'
-        u: 'u'
-        y: 'y'
-        g: 'g'
+        u: ''
+        y: ''
+        g: ''
     BSONRegexFlags: &BSONRegexFlags
         i: 'i'
         m: 'm'
         x: 'x'
-        s: 's'
-        l: 'l'
-        u: 'u'
+        s: ''
+        l: ''
+        u: ''
 
     #############################################
     #                  Syntax                   #
@@ -955,12 +955,12 @@ Templates:
     LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
     LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
-        (lhs) => {
-            return `${arg}.to_i;
-        }
-    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
         () => {
             return '';
+        }
+    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `${arg}.to_i`;
         }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
         () => {

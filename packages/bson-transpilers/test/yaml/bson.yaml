@@ -577,7 +577,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
-          ruby: /^[a-z0-9_-]{3,16}$/imuxls
+          ruby: /^[a-z0-9_-]{3,16}$/imx
     - description: 'with flags named'
       input:
           python: Regex('^[a-z0-9_-]{3,16}$', flags='imuxls')
@@ -588,7 +588,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
-          ruby: /^[a-z0-9_-]{3,16}$/imuxls
+          ruby: /^[a-z0-9_-]{3,16}$/imx
     Symbol:
     - description: from string
       input:

@@ -1073,7 +1073,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
-          ruby: "/ab+c/gi"
+          ruby: "/ab+c/i"
     - description: "regex object with forward slash"
       input:
           javascript: "new RegExp('ab/cd')"
@@ -1163,7 +1163,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
-          ruby: "/ab+c/gi"
+          ruby: "/ab+c/i"
     - description: "regex object with regex literal arg"
       input:
           javascript: "new RegExp(/ab+c/, 'i')"
@@ -1187,5 +1187,5 @@ tests:
           csharp: "new Regex(\"ab+c\")"
           shell: "new RegExp('ab+c', 'u')"
           object: "new RegExp('ab+c', 'u')"
-          ruby: "/ab+c/u"
+          ruby: "/ab+c/"
 
