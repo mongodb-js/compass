@@ -197,7 +197,6 @@ function TLSTab({
         connectionStringUrl={connectionStringUrl}
         disabled={tlsOptionsDisabled}
         updateTLSClientCertificate={(newCertificatePath: string | null) => {
-          console.log('tlsCertificateKeyFile changed!', newCertificatePath);
           handleFieldChanged('tlsCertificateKeyFile', newCertificatePath);
         }}
         updateTLSClientCertificatePassword={(

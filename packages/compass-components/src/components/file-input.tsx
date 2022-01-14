@@ -211,15 +211,9 @@ function FileInput({
         >
           <label
             htmlFor={`${id}_file_input`}
-            className={cx(
-              {
-                [disabledLabelStyles]: disabled,
-                // [labelHorizontalStyles]: variant === Variant.Horizontal
-              }
-              // css({
-              //   textAlign: labelAlignment,
-              // })
-            )}
+            className={cx({
+              [disabledLabelStyles]: disabled,
+            })}
           >
             <span
               className={cx({

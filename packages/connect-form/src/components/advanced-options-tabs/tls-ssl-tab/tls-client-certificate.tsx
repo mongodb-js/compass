@@ -63,7 +63,6 @@ function TLSClientCertificate({
           data-testid="tlsCertificateKeyFilePassword-input"
           id="tlsCertificateKeyFilePassword"
           label="Client Key Password"
-          // https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFilePassword
           type="password"
           value={tlsCertificateKeyFilePassword || ''}
         />
