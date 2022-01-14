@@ -116,7 +116,7 @@ Templates:
           }
           return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
         }
-    RegexTypeTemplate: &RegexTypeTemplate !!js/function > # TODO: N, ruby does not accept the l flag and doesnt recognize u,s
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
         (pattern, flags) => {
             const str = pattern;
             let newStr = str;
@@ -350,7 +350,7 @@ Templates:
         () => {
             return '';
         }
-    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function > # TODO: N, how do you use the RegexTypeTemplate here?
+    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (lhs, pattern, flags) => {
             const singleStringify = (str) => {
                 let newStr = str;
@@ -757,7 +757,7 @@ Templates:
         (lhs, arg) => {
             return ` ${arg}`;
         }
-    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function > # TODO: N, break this and only use to_f when needed
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
         (lhs) => {
             return `${lhs}.to_f`;
         }
