@@ -1,5 +1,3 @@
-import { css, cx } from '@emotion/css';
-import { spacing } from '@mongodb-js/compass-components';
 import React, { Fragment } from 'react';
 import {
   Button,
@@ -7,6 +5,9 @@ import {
   Icon,
   uiColors,
   compassUIColors,
+  spacing,
+  css,
+  cx,
 } from '@mongodb-js/compass-components';
 import { ConnectionInfo } from 'mongodb-data-service';
 

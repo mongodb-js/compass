@@ -1,5 +1,4 @@
 import React, { ChangeEvent, useCallback } from 'react';
-import { css } from '@emotion/css';
 import { ConnectionOptions } from 'mongodb-data-service';
 import {
   RadioBox,
@@ -9,6 +8,7 @@ import {
   Label,
   IconButton,
   Icon,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { MongoClientOptions } from 'mongodb';

@@ -1,10 +1,10 @@
 import React, { ChangeEvent, useCallback } from 'react';
-import { css } from '@emotion/css';
 import {
   Label,
   RadioBox,
   RadioBoxGroup,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';

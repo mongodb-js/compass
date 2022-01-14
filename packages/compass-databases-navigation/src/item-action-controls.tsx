@@ -1,7 +1,12 @@
 /* eslint-disable react/prop-types */
-import { css, cx } from '@leafygreen-ui/emotion';
 import React, { useCallback, useState, useRef } from 'react';
-import { Menu, MenuItem, spacing } from '@mongodb-js/compass-components';
+import {
+  Menu,
+  MenuItem,
+  spacing,
+  css,
+  cx,
+} from '@mongodb-js/compass-components';
 import { IconButtonSmall } from './icon-button';
 import type { Actions } from './constants';
 
