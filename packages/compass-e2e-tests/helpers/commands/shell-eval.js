@@ -1,3 +1,4 @@
+const { retryWithBackoff } = require('../retry-with-backoff');
 const Selectors = require('../selectors');
 
 module.exports = function (app) {
@@ -14,18 +15,22 @@ module.exports = function (app) {
 
   return async function (str, parse = false) {
     const { client } = app;
-    const shellContentElement = await client.$(Selectors.ShellContent);
-    if (!(await shellContentElement.isDisplayed())) {
-      await client.clickVisible(Selectors.ShellExpandButton);
-    }
+    let numLines;
 
-    const numLines = (await getOutputText()).length;
+    await retryWithBackoff(async function () {
+      const shellContentElement = await client.$(Selectors.ShellContent);
+      if (!(await shellContentElement.isDisplayed())) {
+        await client.clickVisible(Selectors.ShellExpandButton);
+      }
 
-    await client.clickVisible(Selectors.ShellInput);
-    // Might be marked with a deprecation warning, but can be used
-    // https://github.com/webdriverio/webdriverio/issues/2076
+      numLines = (await getOutputText()).length;
+
+      await client.clickVisible(Selectors.ShellInput);
+    });
 
     const command = parse === true ? `JSON.stringify(${str})` : str;
+    // Might be marked with a deprecation warning, but can be used
+    // https://github.com/webdriverio/webdriverio/issues/2076
     await client.keys(command);
     await client.keys('\uE007');
 
