@@ -71,7 +71,6 @@ fs.readdirSync(testpath).map((file) => {
     return; // Ignore edge case tests, they have their own runners
   }
 
-  if (file !== 'syntax.yaml') return // TODO: N, remove this
   const mode = file.replace('.yaml', '');
   if (modes.length > 0 && modes.indexOf(mode) === -1) {
     return;
