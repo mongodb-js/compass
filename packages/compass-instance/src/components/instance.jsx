@@ -26,9 +26,16 @@ const InstanceComponent = ({ status, error, isDataLake, tabs }) => {
   const [activeTabId, setActiveTabId] = React.useState(0);
 
   const filteredTabs = React.useMemo(() => {
-    return tabs.filter(
-      (tabRole) => !(isDataLake && tabRole.name === 'Performance')
-    );
+    return tabs.filter((tabRole) => {
+      switch (tabRole.name) {
+        case 'Performance':
+          return !isDataLake;
+        case 'Your Queries':
+          return process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true';
+        default:
+          return true;
+      }
+    });
   }, [isDataLake]);
 
   const activeTab = filteredTabs[activeTabId];

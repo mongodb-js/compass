@@ -17,13 +17,15 @@ const STUB_STORE = Reflux.createStore({});
 
 interface Role {
   name: string;
-  component: React.JSXElementConstructor<unknown>;
+  component: React.ComponentType<unknown>;
   order?: number;
 }
 
-interface Store extends RefluxStore {
-  onActivated?: (appRegistry: AppRegistry) => void;
-}
+type Store = Partial<
+  RefluxStore & {
+    onActivated?: (appRegistry: AppRegistry) => void;
+  }
+>;
 
 /**
  * Is a registry for all user interface components, stores, and actions
@@ -32,7 +34,7 @@ interface Store extends RefluxStore {
 export class AppRegistry {
   _emitter: EventEmitter;
   actions: Record<string, unknown>;
-  components: Record<string, React.JSXElementConstructor<unknown>>;
+  components: Record<string, React.ComponentType<unknown>>;
   stores: Record<string, Store>;
   roles: Record<string, Role[]>;
   storeMisses: Record<string, number>;
@@ -131,7 +133,7 @@ export class AppRegistry {
    *
    * @returns {Component} The component.
    */
-  getComponent(name: string): React.JSXElementConstructor<unknown> | undefined {
+  getComponent(name: string): React.ComponentType<unknown> | undefined {
     return this.components[name];
   }
 
@@ -204,7 +206,7 @@ export class AppRegistry {
    */
   registerComponent(
     name: string,
-    component: React.JSXElementConstructor<unknown>
+    component: React.ComponentType<unknown>
   ): this {
     const overwrite = Object.prototype.hasOwnProperty.call(
       this.components,
