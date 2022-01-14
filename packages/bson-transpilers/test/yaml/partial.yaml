@@ -18,6 +18,7 @@ tests:
           java: ''
           csharp: ''
           shell: NumberLong
+          ruby: ''
     - input:
           javascript: new Decimal128
           python: Decimal128
@@ -27,6 +28,7 @@ tests:
           java: Decimal128
           csharp: Decimal128
           shell: NumberDecimal
+          ruby: BSON::Decimal128
     - input:
           javascript: Double
           python: float
@@ -36,6 +38,7 @@ tests:
           java: ''
           csharp: ''
           shell: ''
+          ruby: ''
     - input:
           javascript: Int32
           python: int
@@ -45,6 +48,7 @@ tests:
           java: ''
           csharp: ''
           shell: NumberInt
+          ruby: ''
     - input:
           javascript: Long
       output:
@@ -53,6 +57,7 @@ tests:
           java: ''
           csharp: ''
           shell: NumberLong
+          ruby: ''
     - input:
           javascript: Decimal128
       output:
@@ -61,6 +66,7 @@ tests:
           java: Decimal128
           csharp: Decimal128
           shell: NumberDecimal
+          ruby: BSON::Decimal128
     - input:
           javascript: ObjectId
           python: ObjectId
@@ -70,6 +76,7 @@ tests:
           java: ObjectId
           csharp: ObjectId
           shell: ObjectId
+          ruby: BSON::ObjectId
     - input:
           javascript: Code
           python: Code
@@ -79,6 +86,7 @@ tests:
           java: Code
           csharp: BsonJavaScript
           shell: Code
+          ruby: BSON::Code
     - input:
           javascript: DBRef
           python: DBRef
@@ -88,6 +96,7 @@ tests:
           java: DBRef
           csharp: MongoDBRef
           shell: DBRef
+          ruby: BSON::DBRef
     - input:
           javascript: Timestamp
           python: Timestamp
@@ -97,6 +106,7 @@ tests:
           java: BSONTimestamp
           csharp: BsonTimestamp
           shell: Timestamp
+          ruby: BSON::Timestamp
     - input:
           javascript: BSONSymbol
       output:
@@ -105,6 +115,7 @@ tests:
           java: Symbol
           csharp: ''
           shell: ''
+          ruby: ''
     - input:
           javascript: MinKey
           python: MinKey
@@ -114,6 +125,7 @@ tests:
           java: MinKey
           csharp: BsonMinKey
           shell: MinKey
+          ruby: BSON::MinKey
     - input:
           javascript: MaxKey
           python: MaxKey
@@ -123,6 +135,7 @@ tests:
           java: MaxKey
           csharp: BsonMaxKey
           shell: MaxKey
+          ruby: BSON::MaxKey
     - input:
           javascript: BSONRegExp
           python: Regex
@@ -132,6 +145,7 @@ tests:
           java: BsonRegularExpression
           csharp: BsonRegularExpression
           shell: RegExp
+          ruby: ''
     - input:
           javascript: RegExp
           python: re.compile
@@ -141,6 +155,7 @@ tests:
           java: Pattern
           csharp: Regex
           shell: RegExp
+          ruby: ''
     - input:
           python: re
       output:
@@ -149,6 +164,7 @@ tests:
           java: ''
           csharp: ''
           shell: ''
+          ruby: ''
     - input:
           javascript: Date
           python: datetime
@@ -158,6 +174,7 @@ tests:
           java: java.util.Date
           csharp: DateTime
           shell: Date
+          ruby: Time
     - input:
           javascript: ObjectId.createFromTime
           python: ObjectId.from_datetime
@@ -167,6 +184,7 @@ tests:
           java: new ObjectId
           csharp: new ObjectId.GenerateNewId
           shell: ObjectId.fromDate
+          ruby: BSON::ObjectId.from_time
     - input:
           javascript: ObjectId.isValid
           python: ObjectId.is_valid
@@ -176,6 +194,7 @@ tests:
           java: ObjectId.isValid
           csharp: new ObjectId
           shell: new ObjectId
+          ruby: BSON::ObjectId.legal?
     - input:
           javascript: ObjectId().toString
       output:
@@ -184,6 +203,7 @@ tests:
           java: new ObjectId().toHexString()
           csharp: new ObjectId().ToString()
           shell: new ObjectId().toString()
+          ruby: BSON::ObjectId.new.to_s
     - input:
           javascript: ObjectId().getTimestamp
       output:
@@ -192,6 +212,7 @@ tests:
           java: new ObjectId().getTimestamp()
           csharp: new ObjectId().Timestamp
           shell: new ObjectId().getTimestamp()
+          ruby: BSON::ObjectId.new.to_time
     - input:
           javascript: ObjectId().equals
       output:
@@ -200,6 +221,7 @@ tests:
           java: new ObjectId().equals
           csharp: new ObjectId().Equals
           shell: new ObjectId().equals
+          ruby: BSON::ObjectId.new ==
     - input:
           javascript: Long(1, 100).toInt
       output:
@@ -208,6 +230,7 @@ tests:
           java: "(int) 429496729601L"
           csharp: "(int) 429496729601L"
           shell: new NumberLong(429496729601).valueOf
+          ruby: "429496729601"
     - input:
           javascript: Long(1, 100).toNumber
       output:
@@ -216,6 +239,7 @@ tests:
           java: "(double) 429496729601L"
           csharp: "(double) 429496729601L"
           shell: new NumberLong(429496729601).floatApprox
+          ruby: "429496729601.to_f"
     - input:
           javascript: Long(1, 100).toString
       output:
@@ -224,6 +248,7 @@ tests:
           java: 429496729601L
           csharp: 429496729601L
           shell: new NumberLong(429496729601).toString
+          ruby: '429496729601.to_s'
     - input:
           javascript: Long(1, 100).isZero
       output:
@@ -232,6 +257,7 @@ tests:
           java: 429496729601L == 0
           csharp: 429496729601L == 0
           shell: new NumberLong(429496729601) === 0
+          ruby: 429496729601 == 0
     - input:
           javascript: Long(1, 100).isNegative
       output:
@@ -240,6 +266,7 @@ tests:
           java: 429496729601L < 0
           csharp: 429496729601L < 0
           shell: new NumberLong(429496729601) < 0
+          ruby: 429496729601 < 0
     - input:
           javascript: Long(1, 100).isOdd()
       output:
@@ -248,6 +275,7 @@ tests:
           java: "(429496729601L % 2) == 1"
           csharp: 429496729601L % 2 == 1
           shell: "(new NumberLong(429496729601) % 2) === 1"
+          ruby: (429496729601 % 2) == 1
     - input:
           javascript: Long(1, 100).equals
       output:
@@ -256,6 +284,7 @@ tests:
           java: 429496729601L ==
           csharp: 429496729601L ==
           shell: new NumberLong(429496729601) ===
+          ruby: 429496729601 ==
     - input:
           javascript: Long(1, 100).notEquals
       output:
@@ -264,6 +293,7 @@ tests:
           java: 429496729601L !=
           csharp: 429496729601L !=
           shell: new NumberLong(429496729601) !==
+          ruby: 429496729601 !=
     - input:
           javascript: Long(1, 100).compare
       output:
@@ -272,6 +302,7 @@ tests:
           java: 429496729601L -
           csharp: 429496729601L -
           shell: new NumberLong(429496729601) -
+          ruby: 429496729601 -
     - input:
           javascript: Long(1, 100).greaterThan
       output:
@@ -280,6 +311,7 @@ tests:
           java: 429496729601L >
           csharp: 429496729601L >
           shell: new NumberLong(429496729601) >
+          ruby: 429496729601 >
     - input:
           javascript: Long(1, 100).greaterThanOrEqual
       output:
@@ -288,6 +320,7 @@ tests:
           java: 429496729601L >=
           csharp: 429496729601L >=
           shell: new NumberLong(429496729601) >=
+          ruby: 429496729601 >=
     - input:
           javascript: Long(1, 100).lessThan
       output:
@@ -296,6 +329,7 @@ tests:
           java: 429496729601L <
           csharp: 429496729601L <
           shell: new NumberLong(429496729601) <
+          ruby: 429496729601 <
     - input:
           javascript: Long(1, 100).lessThanOrEqual
       output:
@@ -304,6 +338,7 @@ tests:
           java: 429496729601L <=
           csharp: 429496729601L <=
           shell: new NumberLong(429496729601) <=
+          ruby: 429496729601 <=
     - input:
           javascript: Long(1, 100).negate
       output:
@@ -312,6 +347,7 @@ tests:
           java: "-"
           csharp: "-"
           shell: "-"
+          ruby: "-"
     - input:
           javascript: Long(1, 100).add
       output:
@@ -320,6 +356,7 @@ tests:
           java: 429496729601L +
           csharp: 429496729601L +
           shell: new NumberLong(429496729601) +
+          ruby: 429496729601 +
     - input:
           javascript: Long(1, 100).subtract
       output:
@@ -328,6 +365,7 @@ tests:
           java: 429496729601L -
           csharp: 429496729601L -
           shell: new NumberLong(429496729601) -
+          ruby: 429496729601 -
     - input:
           javascript: Long(1, 100).multiply
       output:
@@ -336,6 +374,7 @@ tests:
           java: 429496729601L *
           csharp: 429496729601L *
           shell: new NumberLong(429496729601) *
+          ruby: 429496729601 *
     - input:
           javascript: Long(1, 100).div
       output:
@@ -344,6 +383,7 @@ tests:
           java: 429496729601L /
           csharp: 429496729601L /
           shell: new NumberLong(429496729601) /
+          ruby: 429496729601 /
     - input:
           javascript: Long(1, 100).modulo
       output:
@@ -352,6 +392,7 @@ tests:
           java: 429496729601L %
           csharp: 429496729601L %
           shell: new NumberLong(429496729601) %
+          ruby: 429496729601 %
     - input:
           javascript: Long(1, 100).not
       output:
@@ -360,6 +401,7 @@ tests:
           java: "~"
           csharp: "~"
           shell: "~"
+          ruby: "~"
     - input:
           javascript: Long(1, 100).and
       output:
@@ -368,6 +410,7 @@ tests:
           java: 429496729601L &
           csharp: 429496729601L &
           shell: new NumberLong(429496729601) &
+          ruby: 429496729601 &
     - input:
           javascript: Long(1, 100).or
       output:
@@ -376,6 +419,7 @@ tests:
           java: 429496729601L |
           csharp: 429496729601L |
           shell: new NumberLong(429496729601) |
+          ruby: 429496729601 |
     - input:
           javascript: Long(1, 100).xor
       output:
@@ -384,6 +428,7 @@ tests:
           java: 429496729601L ^
           csharp: 429496729601L ^
           shell: new NumberLong(429496729601) ^
+          ruby: 429496729601 ^
     - input:
           javascript: Long(1, 100).shiftLeft
       output:
@@ -392,6 +437,7 @@ tests:
           java: Long.rotateLeft
           csharp: 429496729601L <<
           shell: new NumberLong(429496729601) <<
+          ruby: 429496729601 <<
     - input:
           javascript: Long(1, 100).shiftRight
       output:
@@ -400,6 +446,7 @@ tests:
           java: Long.rotateRight
           csharp: 429496729601L >>
           shell: new NumberLong(429496729601) >>
+          ruby: 429496729601 >>
     - input:
           javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).toString
       output:
@@ -408,6 +455,7 @@ tests:
           java: Decimal128.parse("5.3E-6175").toString
           csharp: Decimal128.Parse("5.3E-6175").ToString
           shell: new NumberDecimal(5.3E-6175).toString
+          ruby: BSON::Decimal128.new('5.3E-6175').to_s
     - input:
           javascript: Timestamp(1, 100).toString
       output:
@@ -416,6 +464,7 @@ tests:
           java: new BSONTimestamp(1, 100).toString
           csharp: new BsonTimestamp(1, 100).ToString
           shell: new Timestamp(1, 100).toString
+          ruby: BSON::Timestamp.new(1, 100).to_s
     - input:
           javascript: Timestamp(1, 100).equals
       output:
@@ -424,6 +473,7 @@ tests:
           java: new BSONTimestamp(1, 100).equals
           csharp: new BsonTimestamp(1, 100).Equals
           shell: new Timestamp(1, 100) ===
+          ruby: BSON::Timestamp.new(1, 100) ==
     - input:
           javascript: Timestamp(1, 100).compare
       output:
@@ -432,6 +482,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100).CompareTo
           shell: new Timestamp(1, 100) -
+          ruby: BSON::Timestamp.new(1, 100) <=>
     - input:
           javascript: Timestamp(1, 100).notEquals
       output:
@@ -440,6 +491,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) !=
           shell: new Timestamp(1, 100) !==
+          ruby: BSON::Timestamp.new(1, 100) !=
     - input:
           javascript: Timestamp(1, 100).greaterThan
       output:
@@ -448,6 +500,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) >
           shell: new Timestamp(1, 100) >
+          ruby: BSON::Timestamp.new(1, 100) >
     - input:
           javascript: Timestamp(1, 100).greaterThanOrEqual
       output:
@@ -456,6 +509,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) >=
           shell: new Timestamp(1, 100) >=
+          ruby: BSON::Timestamp.new(1, 100) >=
     - input:
           javascript: Timestamp(1, 100).lessThan
       output:
@@ -464,6 +518,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) <
           shell: new Timestamp(1, 100) <
+          ruby: BSON::Timestamp.new(1, 100) <
     - input:
           javascript: Timestamp(1, 100).lessThanOrEqual
       output:
@@ -472,6 +527,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) <=
           shell: new Timestamp(1, 100) <=
+          ruby: BSON::Timestamp.new(1, 100) <=
     - input:
           javascript: Timestamp(1, 100).getLowBits
       output:
@@ -480,6 +536,7 @@ tests:
           java: new BSONTimestamp(1, 100).getTime
           csharp: new BsonTimestamp(1, 100).ToUniversalTime
           shell: new Timestamp(1, 100).getTime
+          ruby: BSON::Timestamp.new(1, 100).seconds
     - input:
           javascript: Timestamp(1, 100).getHighBits
       output:
@@ -488,6 +545,7 @@ tests:
           java: new BSONTimestamp(1, 100).getInc
           csharp: new BsonTimestamp(1, 100).Increment
           shell: new Timestamp(1, 100).getInc
+          ruby: BSON::Timestamp.new(1, 100).increment
     - input:
           javascript: BSONSymbol('2').valueOf
       output:
@@ -496,6 +554,7 @@ tests:
           java: new Symbol("2").getSymbol
           csharp: '"2"'
           shell: "'2'"
+          ruby: "'2'.to_sym.to_s"
     - input:
           javascript: BSONSymbol('2').toString
       output:
@@ -504,6 +563,7 @@ tests:
           java: new Symbol("2").toString
           csharp: '"2"'
           shell: "'2'"
+          ruby: "'2'.to_sym.to_s"
     - input:
           javascript: BSONSymbol('2').inspect
       output:
@@ -512,3 +572,4 @@ tests:
           java: new Symbol("2").getSymbol
           csharp: '"2"'
           shell: "'2'"
+          ruby: "'2'.to_sym.inspect"

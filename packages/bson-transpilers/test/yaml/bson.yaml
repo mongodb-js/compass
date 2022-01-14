@@ -18,7 +18,8 @@ tests:
           python: Code('some code')
           java: new Code("some code")
           csharp: new BsonJavaScript("some code")
-          object: BSON::Code.new('some code')
+          object: new Code('some code')
+          ruby: BSON::Code.new('some code')
     - description: 'string code'
       input:
           javascript: Code('some code')

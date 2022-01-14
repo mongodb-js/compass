@@ -325,7 +325,7 @@ Templates:
         }
     RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
         () => {
-            return 'Regexp';
+            return '';
         }
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
@@ -339,7 +339,7 @@ Templates:
             let newStr = str;
             if (
                 (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                (str.charxAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
                 newStr = str.substr(1, str.length - 2);
                 return `'${newStr}'.to_sym`;
             } else {
@@ -572,14 +572,14 @@ Templates:
             return '';
         }
     LongToStringTemplate: &LongToStringTemplate !!js/function >
-        () => {
-            return '';
-        }
-    LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
         (lhs) => {
             return `${lhs}.to_s`;
         }
-    LongToNumberTemplate: &LongToNumberTemplate !!js/function > # TODO: N, break this and only use to_f when needed
+    LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => {
             return `${lhs}.to_f`;
         }
@@ -862,35 +862,35 @@ Templates:
         }
     SymbolValueOfTemplate: &SymbolValueOfTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs}.to_s`;
         }
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate !!js/function >
         () => {
-            return `.to_s`;
+            return '';
         }
     SymbolInspectTemplate: &SymbolInspectTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs}.inspect`;
         }
     SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate !!js/function >
         () => {
-            return '.inspect';
+            return '';
         }
     SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs}.to_s`;
         }
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate !!js/function >
         (lhs) => {
-            return `.to_s`;
+            return '';
         }
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
         (lhs) => {
-            return `${lhs}`;
+            return `${lhs}.to_s`;
         }
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate !!js/function >
         (lhs) => {
-            return `.to_s`;
+            return '';
         }
 
     #############################################
