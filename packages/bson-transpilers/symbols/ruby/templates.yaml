@@ -44,7 +44,7 @@ Templates:
     #                                           #
     #############################################
 
-    DriverTemplate: &DriverTemplate null
+    DriverTemplate: &DriverTemplate null # TODO: N, template to fill out
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {
@@ -136,7 +136,23 @@ Templates:
     DecimalTypeTemplate: &DecimalTypeTemplate null # args: literal, argType
     LongBasicTypeTemplate: &LongBasicTypeTemplate null # args: literal, argType
     HexTypeTemplate: &HexTypeTemplate null # args: literal, argType
-    OctalTypeTemplate: &OctalTypeTemplate null # args: literal, argType
+    OctalTypeTemplate: &OctalTypeTemplate !!js/function >
+        (literal) => {
+            let offset = 0;
+
+            if (
+                literal.charAt(0) === '0' &&
+                (literal.charAt(1) === '0' || literal.charAt(1) === 'o' || literal.charAt(1) === 'O')
+            ) {
+                offset = 2;
+            } else if (literal.charAt(0) === '0') {
+                offset = 1;
+            }
+
+            literal = `0o${literal.substr(offset, literal.length - 1)}`;
+
+            return literal;
+        }
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal, depth) => {
@@ -493,7 +509,7 @@ Templates:
             return `${lhs}.legal?`
         }
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
-    BinaryValueTemplate: &BinaryValueTemplate null
+    BinaryValueTemplate: &BinaryValueTemplate null # TODO: N, binary stuff?
     BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
     BinaryLengthTemplate: &BinaryLengthTemplate null
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
@@ -525,11 +541,17 @@ Templates:
         (lhs) => {
             return '';
         }
-    DBRefToStringTemplate: &DBRefToStringTemplate null
-    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
+    DBRefToStringTemplate: &DBRefToStringTemplate !!js/function >
+        (lhs) => {
+            return '';
+        }
+    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate !!js/function >
+        (lhs) => {
+            return '${lhs}.to_s';
+        }
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
-    Int32ValueOfTemplate: &Int32ValueOfTemplate null
+    Int32ValueOfTemplate: &Int32ValueOfTemplate null # TODO come back
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
     Int32ToStringTemplate: &Int32ToStringTemplate null
     Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
@@ -979,7 +1001,11 @@ Templates:
     # into one statement.                       #
     #                                           #
     #############################################
-    ImportTemplate: &ImportTemplate null
+    ImportTemplate: &ImportTemplate !!js/function >
+        (args) => {
+            let set = new Set(Object.values(args))
+            return [...set].sort().join('\n');
+        }
     DriverImportTemplate: &DriverImportTemplate null
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
@@ -994,19 +1020,43 @@ Templates:
     10ImportTemplate: &10ImportTemplate null
     11ImportTemplate: &11ImportTemplate null
     12ImportTemplate: &12ImportTemplate null
-    100ImportTemplate: &100ImportTemplate null
-    101ImportTemplate: &101ImportTemplate null
-    102ImportTemplate: &102ImportTemplate null
-    103ImportTemplate: &103ImportTemplate null
+    100ImportTemplate: &100ImportTemplate !!js/function >
+        () => {
+            return `require 'bson'`
+        }
+    101ImportTemplate: &101ImportTemplate !!js/function >
+        () => {
+            return `require 'bson'`
+        }
+    102ImportTemplate: &102ImportTemplate !!js/function >
+        () => {
+            return `require 'bson'`
+        }
+    103ImportTemplate: &103ImportTemplate !!js/function >
+        () => {
+            return `require 'bson'`
+        }
     104ImportTemplate: &104ImportTemplate null
     105ImportTemplate: &105ImportTemplate null
     106ImportTemplate: &106ImportTemplate null
-    107ImportTemplate: &107ImportTemplate null
-    108ImportTemplate: &108ImportTemplate null
+    107ImportTemplate: &107ImportTemplate !!js/function >
+        () => {
+            return `require 'bson'`
+        }
+    108ImportTemplate: &108ImportTemplate !!js/function >
+        () => {
+            return `require 'bson'`
+        }
     109ImportTemplate: &109ImportTemplate null
-    110ImportTemplate: &110ImportTemplate null
+    110ImportTemplate: &110ImportTemplate !!js/function >
+        () => {
+            return `require 'bson'`
+        }
     111ImportTemplate: &111ImportTemplate null
-    112ImportTemplate: &112ImportTemplate null
+    112ImportTemplate: &112ImportTemplate !!js/function >
+        () => {
+            return `require 'bson'`
+        }
     113ImportTemplate: &113ImportTemplate null
     114ImportTemplate: &114ImportTemplate null
     200ImportTemplate: &200ImportTemplate null

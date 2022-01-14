@@ -54,7 +54,8 @@ tests:
                 BSONRegExp
               } = require('bson');
           ruby: |-
-              require 'bson'
+            require 'mongo'
+            require 'bson'
     all:
     - description: Single import Code
       input:
@@ -73,6 +74,7 @@ tests:
               const {
                 Code
               } = require('mongodb');
+          ruby: require 'bson'
     - description: Single import Code with scope
       input:
           shell: "{x: Code('code', {x: 1})}"
@@ -92,6 +94,7 @@ tests:
               const {
                 Code
               } = require('mongodb');
+          ruby: require 'bson'
     - description: Single import ObjectId
       input:
           shell: "{x: ObjectId()}"
@@ -109,6 +112,7 @@ tests:
               const {
                 ObjectId
               } = require('mongodb');
+          ruby: require 'bson'
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -145,6 +149,7 @@ tests:
                 ObjectId,
                 DBRef
               } = require('mongodb');
+          ruby: require 'bson'
     - description: Single import Double
       input:
           shell: "{x: 1}"
@@ -157,6 +162,7 @@ tests:
               using MongoDB.Driver;
           python: ''
           javascript: ''
+          ruby: ''
     - description: Single import NumberInt
       input:
           shell: "{x: NumberInt(1)}"
@@ -172,6 +178,7 @@ tests:
               const {
                 Int32
               } = require('mongodb');
+          ruby: ''
     - description: Single import NumberLong
       input:
           shell: "{x: NumberLong(1)}"
@@ -187,6 +194,7 @@ tests:
               const {
                 Long
               } = require('mongodb');
+          ruby: ''
     - description: Single import MinKey
       input:
           shell: "{x: MinKey()}"
@@ -204,6 +212,7 @@ tests:
               const {
                 MinKey
               } = require('mongodb');
+          ruby: require 'bson'
     - description: Single import MaxKey
       input:
           shell: "{x: MaxKey()}"
@@ -221,6 +230,7 @@ tests:
               const {
                 MaxKey
               } = require('mongodb');
+          ruby: require 'bson'
     - description: Single import RegExp
       input:
           shell: "{x: RegExp('abc')}"
@@ -236,6 +246,7 @@ tests:
               using System.Text.RegularExpressions;
           python: import re
           javascript: ''
+          ruby: ''
     - description: Single import BSONRegExp
       input:
           javascript: "{x: BSONRegExp('abc')}"
@@ -262,6 +273,7 @@ tests:
               using System.Text.RegularExpressions;
           python: import re
           javascript: ''
+          ruby: ''
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -279,6 +291,7 @@ tests:
               const {
                 Timestamp
               } = require('mongodb');
+          ruby: require 'bson'
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
@@ -295,6 +308,7 @@ tests:
               const {
                 BSONSymbol
               } = require('mongodb');
+          ruby: ''
     - description: Single import NumberDecimal
       input:
           shell: "{x: NumberDecimal(1)}"
@@ -312,6 +326,7 @@ tests:
               const {
                 Decimal128
               } = require('mongodb');
+          ruby: require 'bson'
     - description: Single import Date as string
       input:
           shell: "{x: Date()}"
@@ -326,6 +341,7 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
+          ruby: ''
     - description: Single import Date() as object
       input:
           shell: "{x: new Date()}"
@@ -339,6 +355,7 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
+          ruby: ''
     - description: Single import ISODate
       input:
           shell: "{x: ISODate()}"
@@ -351,12 +368,14 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
+          ruby: ''
     - description: Multiple imports without Date to string
       input: {}
       output:
           java: ''
           csharp: ''
           javascript: ''
+          ruby: ''
     - description: Multiple imports
       input:
           shell: "{  0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
@@ -411,6 +430,7 @@ tests:
                 BSONSymbol,
                 Decimal128
               } = require('mongodb');
+          ruby: require 'bson'
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:

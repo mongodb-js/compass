@@ -537,7 +537,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '01234567'
-          ruby: '01234567'
+          ruby: '0o1234567'
     - input:
           javascript: '001234567'
           shell: '001234567'
@@ -548,11 +548,11 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '001234567'
-          ruby: '001234567'
+          ruby: '0o1234567'
     - input:
           javascript: '0O1234567'
           shell: '0O1234567'
-          python: '0O1234567'
+          python: '0o1234567'
       output:
           javascript: '0O1234567'
           shell: '0O1234567'
@@ -560,7 +560,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '0O1234567'
-          ruby: '0O1234567'
+          ruby: '0o1234567'
     misc_literals:
     - input:
           javascript: 'true'
