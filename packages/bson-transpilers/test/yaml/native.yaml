@@ -552,9 +552,9 @@ tests:
     - input:
           javascript: '0O1234567'
           shell: '0O1234567'
-          python: '0o1234567'
+          python: '0O1234567'
       output:
-          javascript: '0o1234567'
+          javascript: '0O1234567'
           shell: '0O1234567'
           python: '0o1234567'
           java: '01234567'
