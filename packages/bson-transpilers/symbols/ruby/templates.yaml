@@ -44,7 +44,48 @@ Templates:
     #                                           #
     #############################################
 
-    DriverTemplate: &DriverTemplate null # TODO: N, template to fill out
+    DriverTemplate: &DriverTemplate !!js/function >
+        (spec) => {
+            comment = '# Requires the MongoDB Ruby Driver\n# https://docs.mongodb.com/ruby-driver/master/';
+
+            const getKey = k => {
+                let translateKey = {
+                    project: 'projection',
+                    maxTimeMS: 'max_time_ms'
+                }
+                return k in translateKey ? translateKey[k] : k
+            };
+            const options = spec.options;
+            const filter = spec.filter || {}
+            delete spec.options;
+            delete spec.filter
+
+            const connect = `client = Mongo::Client.new('${options.uri}', :database => '${options.database}')`;
+            const coll = `client.database['${options.collection}']`;
+
+            if ('aggregation' in spec) {
+                return `${comment}\n\n${connect}\nresult = ${coll}.aggregate(${spec.aggregation})`;
+            }
+
+            const vars = Object.keys(spec).reduce(
+                (result, k) => {
+                    return `${result}\n${getKey(k)} = ${spec[k]}`;
+                },
+                connect
+            );
+
+            const args = Object.keys(spec).reduce(
+                (result, k) => {
+                    const divider = result === '' ? '' : ',\n';
+                    return `${result}${divider}  ${getKey(k)}: ${getKey(k)}`;
+                },
+                ''
+            );
+
+            const cmd = `result = ${coll}.find(${filter}${args ? `, {\n${args}\n}` : ''})`;
+
+            return `${comment}\n\n${vars}\n\n${cmd}`;
+        }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {
@@ -271,7 +312,7 @@ Templates:
         () => {
             return 'BSON::DBRef'
         }
-    DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate !!js/function > # TODO: N, how do I use Object parse rules here?
+    DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate !!js/function >
         (lhs, coll, id, db) => {
             const singleStringify = (str) => {
                 let newStr = str;
@@ -404,7 +445,7 @@ Templates:
         () => {
             return '';
         }
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function > # TODO: N, break this and only use to_f when needed
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
             const str = arg.toString();
@@ -511,7 +552,7 @@ Templates:
             return `${lhs}.legal?`
         }
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
-    BinaryValueTemplate: &BinaryValueTemplate null # TODO: N, binary stuff?
+    BinaryValueTemplate: &BinaryValueTemplate null
     BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
     BinaryLengthTemplate: &BinaryLengthTemplate null
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
@@ -1013,9 +1054,13 @@ Templates:
     ImportTemplate: &ImportTemplate !!js/function >
         (args) => {
             let set = new Set(Object.values(args))
+            if (set.has(`require 'mongo'`)) return `require 'mongo'`
             return [...set].sort().join('\n');
         }
-    DriverImportTemplate: &DriverImportTemplate null
+    DriverImportTemplate: &DriverImportTemplate !!js/function >
+        () => {
+            return `require 'mongo'`
+        }
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null

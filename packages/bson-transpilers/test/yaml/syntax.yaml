@@ -138,8 +138,7 @@ tests:
           java: "4L == 5L"
           csharp: "4 == 5"
           object: "false"
-          ruby: "4 == 5" # TODO: N, This is not strictly true. Same with python.
-                         # in python: [] is [] -> false, [] == [] -> true
+          ruby: "4 == 5"
     - input:
           python: "4 is not 5"
       output:
