@@ -554,7 +554,7 @@ tests:
           java: new Symbol("2").getSymbol
           csharp: '"2"'
           shell: "'2'"
-          ruby: "'2'.to_sym.to_s"
+          ruby: ":'2'"
     - input:
           javascript: BSONSymbol('2').toString
       output:
@@ -563,7 +563,7 @@ tests:
           java: new Symbol("2").toString
           csharp: '"2"'
           shell: "'2'"
-          ruby: "'2'.to_sym.to_s"
+          ruby: "'2'"
     - input:
           javascript: BSONSymbol('2').inspect
       output:
@@ -572,4 +572,4 @@ tests:
           java: new Symbol("2").getSymbol
           csharp: '"2"'
           shell: "'2'"
-          ruby: "'2'.to_sym.inspect"
+          ruby: ":'2'.inspect"

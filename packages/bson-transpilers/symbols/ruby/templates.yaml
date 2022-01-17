@@ -339,9 +339,9 @@ Templates:
             let newStr = str;
             if (
                 (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                (str.charxAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
                 newStr = str.substr(1, str.length - 2);
-                return `'${newStr}'.to_sym`;
+                return `:'${newStr}'`;
             } else {
                 return `${newStr}.to_sym`;
             }
@@ -864,7 +864,7 @@ Templates:
         }
     SymbolValueOfTemplate: &SymbolValueOfTemplate !!js/function >
         (lhs) => {
-            return `${lhs}.to_s`;
+            return lhs;
         }
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate !!js/function >
         () => {
@@ -880,7 +880,14 @@ Templates:
         }
     SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
         (lhs) => {
-            return `${lhs}.to_s`;
+            let extractRegex = (lhs) => {
+                let r = /^:'(.*)'$/;
+                let arr = r.exec(lhs);
+                return arr ? arr[1] : ''
+
+            }
+            let res = extractRegex(lhs)
+            return res ? `'${res}'` : `${lhs}.to_s`;
         }
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate !!js/function >
         (lhs) => {
