@@ -99,7 +99,11 @@
           "**/nan/**",
           "**/node_modules/bindings/**",
           "**/file-uri-to-path/**",
-          "**/bson/**"
+          "**/bson/**",
+          "**/os-dns-native/**",
+          "**/bindings/**",
+          "**/ipv6-normalize/**",
+          "**/node-addon-api/**"
         ]
       },
       "rebuild": {
@@ -146,7 +150,8 @@
   "dependencies": {
     "@mongosh/node-runtime-worker-thread": "^1.1.9",
     "kerberos": "^2.0.0-beta.0",
-    "keytar": "^7.7.0"
+    "keytar": "^7.7.0",
+    "os-dns-native": "^1.0.4"
   },
   "devDependencies": {
     "@mongodb-js/compass-aggregations": "^8.18.1",
