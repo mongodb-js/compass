@@ -18,7 +18,6 @@ describe('GeneralTab', function () {
       render(
         <GeneralTab
           errors={[]}
-          hideError={noop}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={noop}
         />
@@ -46,7 +45,6 @@ describe('GeneralTab', function () {
       render(
         <GeneralTab
           errors={[]}
-          hideError={noop}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={noop}
         />
@@ -66,7 +64,6 @@ describe('GeneralTab', function () {
       render(
         <GeneralTab
           errors={[]}
-          hideError={noop}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={noop}
         />
@@ -86,7 +83,6 @@ describe('GeneralTab', function () {
       render(
         <GeneralTab
           errors={[]}
-          hideError={noop}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={noop}
         />

@@ -3,19 +3,17 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import SchemaInput from './schema-input';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../../utils/connect-form-errors';
 import FormFieldContainer from '../../form-field-container';
 import HostInput from './host-input';
+import { ConnectionFormError } from '../../../utils/validation';
 
 function GeneralTab({
   errors,
   connectionStringUrl,
-  hideError,
   updateConnectionFormField,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
-  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   return (
@@ -23,7 +21,6 @@ function GeneralTab({
       <FormFieldContainer>
         <SchemaInput
           errors={errors}
-          hideError={hideError}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}
         />

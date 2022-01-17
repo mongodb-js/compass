@@ -3,7 +3,7 @@ import { ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 
 import { TLS_OPTIONS } from '../constants/ssl-tls-options';
-import { ConnectionFormError } from '../utils/connect-form-errors';
+import { ConnectionFormError } from './validation';
 
 export function handleUpdateTlsOption({
   tlsOption,
