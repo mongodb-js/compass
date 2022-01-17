@@ -210,6 +210,7 @@ function ConnectionList({
         <div className={cx(sectionHeaderStyles, recentHeaderStyles)}>
           <div className={sectionHeaderIconStyles}>{recentIcon}</div>
           <H2 className={sectionHeaderTitleStyles}>Recents</H2>
+          <button>Clear All</button>
         </div>
         <ul className={connectionListStyles}>
           {recentConnections.map((connectionInfo, index) => (
