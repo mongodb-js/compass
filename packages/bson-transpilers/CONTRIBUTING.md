@@ -332,6 +332,6 @@ compiling each input into your output language under the `output` field.
           <your output language>: ...
 ```
 Make sure to add your output language in the outputLanguages array at the beginning
-of `run-yaml.test.js`.
+of `run-yaml.test.js`, and to the list near the end of `functions.test.js`.
 ## Adding an Input Language
 TODO!
