@@ -240,7 +240,9 @@ async function main(argv) {
       check: 'npm run typecheck && npm run lint && npm run depcheck',
       'check-ci': 'npm run check',
       test: 'mocha',
-      ...(isPlugin && { 'test-electron': 'xvfb-maybe electron-mocha' }),
+      ...(isPlugin && {
+        'test-electron': 'xvfb-maybe electron-mocha --no-sandbox',
+      }),
       'test-cov': 'nyc -x "**/*.spec.*" npm run test',
       'test-watch': 'npm run test -- --watch',
       'test-ci': isPlugin
