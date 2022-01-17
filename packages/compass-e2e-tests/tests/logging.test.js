@@ -198,18 +198,6 @@ describe('Logging and Telemetry integration', function () {
           },
         },
         {
-          s: 'E',
-          c: 'DEVTOOLS-CONNECT',
-          id: 1_000_000_041,
-          ctx: 'compass-deps',
-          msg: 'Missing optional dependency',
-          attr: (actual) => {
-            // https://jira.mongodb.org/browse/COMPASS-4768
-            // This requires some dark webpack magic to work, apparently.
-            expect(actual.name).to.equal('os-dns-native');
-          },
-        },
-        {
           s: 'I',
           c: 'DEVTOOLS-CONNECT',
           id: 1_000_000_042,
@@ -384,6 +372,11 @@ describe('Logging and Telemetry integration', function () {
             expect(expectedAttr).to.deep.equal(actualAttr);
           }
         });
+      });
+
+      it('does not contain warnings about missing optional dependencies', function () {
+        const ids = compassLog.map(({ id }) => id);
+        expect(ids).not.to.contain(1_000_000_041);
       });
     });
   });
