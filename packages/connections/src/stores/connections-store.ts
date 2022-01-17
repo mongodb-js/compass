@@ -17,7 +17,6 @@ import {
   trackConnectionFailedEvent,
 } from '../modules/telemetry';
 import { v4 as uuidv4 } from 'uuid';
-import { util } from 'chai';
 
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
