@@ -6,7 +6,7 @@ import { MongoClientOptions } from 'mongodb';
 import FormFieldContainer from '../../form-field-container';
 
 const inputFieldStyles = css({
-  width: '70%',
+  width: '80%',
 });
 
 function TLSClientCertificate({

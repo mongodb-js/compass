@@ -27,8 +27,8 @@ const tlsDescriptionStyles = css({
 
 const infoButtonStyles = css({
   verticalAlign: 'middle',
-  marginTop: -spacing[1],
-  marginBottom: -spacing[1],
+  marginTop: -spacing[2],
+  marginBottom: -spacing[2],
 });
 
 const disabledCheckboxDescriptionStyles = css({

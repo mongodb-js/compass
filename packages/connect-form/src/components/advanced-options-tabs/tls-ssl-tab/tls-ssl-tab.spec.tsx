@@ -38,9 +38,8 @@ describe('SchemaInput', function () {
     });
 
     it('should render the client cert and CA file labels', function () {
-      expect(screen.getByLabelText('Certificate Authority (.pem)')).to.be
-        .visible;
-      expect(screen.getByLabelText('Client Certificate (.pem)')).to.be.visible;
+      expect(screen.getByText('Certificate Authority (.pem)')).to.be.visible;
+      expect(screen.getByText('Client Certificate (.pem)')).to.be.visible;
     });
 
     it('should render TLS/SSL `Default` and `Off` radio boxes not selected', function () {
