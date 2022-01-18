@@ -4,19 +4,20 @@ import { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 
 export type FieldName =
+  | 'connectionString'
+  | 'hostname'
   | 'hosts'
   | 'isSrv'
-  | 'username'
-  | 'password'
-  | 'hostname'
   | 'kerberosPrincipal'
-  | 'ldapUsername'
   | 'ldapPassword'
+  | 'ldapUsername'
+  | 'password'
   | 'schema'
   | 'sshHostname'
-  | 'sshUsername'
+  | 'sshIdentityKeyFile'
   | 'sshPassword'
-  | 'sshIdentityKeyFile';
+  | 'sshUsername'
+  | 'username';
 
 export type ConnectionFormError = {
   fieldName?: FieldName;

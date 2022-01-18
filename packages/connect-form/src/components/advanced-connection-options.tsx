@@ -5,7 +5,6 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
 import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
@@ -31,13 +30,11 @@ const connectionTabsContainer = css({
 function AdvancedConnectionOptions({
   disabled,
   errors,
-  connectionStringUrl,
   updateConnectionFormField,
   connectionOptions,
 }: {
   errors: ConnectionFormError[];
   disabled: boolean;
-  connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
@@ -52,7 +49,6 @@ function AdvancedConnectionOptions({
         )}
         <AdvancedOptionsTabs
           errors={errors}
-          connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}
           connectionOptions={connectionOptions}
         />
