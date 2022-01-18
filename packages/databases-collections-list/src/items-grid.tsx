@@ -182,6 +182,7 @@ export const ItemsGrid = <T extends Item>({
           header: controls,
           row: row,
         }}
+        data-testid={`${itemType}-grid`}
       ></VirtualGrid>
     </ControlsContext.Provider>
   );

@@ -61,6 +61,8 @@ describe('databases and collections list', function () {
         ></DatabasesList>
       );
 
+      expect(screen.getByTestId('database-grid')).to.exist;
+
       expect(screen.getAllByTestId('database-grid-item')).to.have.lengthOf(3);
 
       expect(screen.getByText('foo')).to.exist;
@@ -85,6 +87,8 @@ describe('databases and collections list', function () {
           onCollectionClick={clickSpy}
         ></CollectionsList>
       );
+
+      expect(screen.getByTestId('collection-grid')).to.exist;
 
       expect(screen.getAllByTestId('collection-grid-item')).to.have.lengthOf(3);
 
