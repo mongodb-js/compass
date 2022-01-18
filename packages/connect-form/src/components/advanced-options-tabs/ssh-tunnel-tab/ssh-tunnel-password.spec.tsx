@@ -2,10 +2,13 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { SSHConnectionOptions } from '../../../utils/connection-options-handler';
+import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 
 import SSHTunnelPassword from './ssh-tunnel-password';
-import { SSHFormErrors } from '../../../utils/connect-form-errors';
+import {
+  ConnectionFormError,
+  errorMessageByFieldName,
+} from '../../../utils/validation';
 
 const formFields = [
   {
@@ -33,13 +36,6 @@ const sshTunnelOptions: SSHConnectionOptions = {
   password: 'old password',
 };
 
-const errors: SSHFormErrors = {
-  host: 'Invalid host',
-  port: 'Invalid port',
-  username: 'Invalid username',
-  password: 'Invalid password',
-};
-
 describe('SSHTunnelPassword', function () {
   let onConnectionOptionChangedSpy: sinon.SinonSpy;
 
@@ -48,7 +44,7 @@ describe('SSHTunnelPassword', function () {
 
     render(
       <SSHTunnelPassword
-        errors={{} as SSHFormErrors}
+        errors={[]}
         sshTunnelOptions={sshTunnelOptions}
         onConnectionOptionChanged={onConnectionOptionChangedSpy}
       />
@@ -82,6 +78,21 @@ describe('SSHTunnelPassword', function () {
   });
 
   it('renders form field error on form when passed', function () {
+    const errors: ConnectionFormError[] = [
+      {
+        fieldName: 'sshHostname',
+        message: 'Invalid host',
+      },
+      {
+        fieldName: 'sshUsername',
+        message: 'Invalid username',
+      },
+      {
+        fieldName: 'sshPassword',
+        message: 'Invalid password',
+      },
+    ];
+
     render(
       <SSHTunnelPassword
         errors={errors}
@@ -90,11 +101,19 @@ describe('SSHTunnelPassword', function () {
       />
     );
 
-    formFields.forEach(function ({ key }) {
-      expect(
-        screen.getByText(errors[key]),
-        `renders ${key} field error`
-      ).to.exist;
-    });
+    expect(
+      screen.getByText(errorMessageByFieldName(errors, 'sshHostname')),
+      `renders sshHostname field error`
+    ).to.exist;
+
+    expect(
+      screen.getByText(errorMessageByFieldName(errors, 'sshUsername')),
+      `renders sshUsername field error`
+    ).to.exist;
+
+    expect(
+      screen.getByText(errorMessageByFieldName(errors, 'sshPassword')),
+      `renders sshPassword field error`
+    ).to.exist;
   });
 });

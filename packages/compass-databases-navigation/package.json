@@ -39,7 +39,7 @@
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
-    "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "reformat": "npm run prettier -- --write ."
@@ -49,7 +49,6 @@
     "react-dom": "^16.14.0"
   },
   "dependencies": {
-    "@leafygreen-ui/emotion": "^4.0.0",
     "@mongodb-js/compass-components": "^0.9.1",
     "@react-aria/utils": "^3.9.0",
     "@react-aria/visually-hidden": "^3.2.3",

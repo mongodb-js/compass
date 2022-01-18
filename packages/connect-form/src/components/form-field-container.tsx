@@ -1,5 +1,4 @@
-import { css } from '@emotion/css';
-import { spacing } from '@mongodb-js/compass-components';
+import { spacing, css } from '@mongodb-js/compass-components';
 import React from 'react';
 
 const formFieldContainerStyles = css({

@@ -1,10 +1,10 @@
 import React from 'react';
-import { css } from '@emotion/css';
 import {
   spacing,
   Label,
   Description,
   Link,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 

@@ -1,16 +1,16 @@
 import React, { ChangeEvent, useCallback } from 'react';
-import { css } from '@emotion/css';
 import {
   Label,
   RadioBox,
   RadioBoxGroup,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../../utils/connect-form-errors';
+import { ConnectionFormError } from '../../../utils/validation';
 import { ConnectionOptions } from 'mongodb-data-service';
 
 import AuthenticationDefault from './authentication-default';
@@ -75,7 +75,6 @@ function AuthenticationTab({
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
-  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {

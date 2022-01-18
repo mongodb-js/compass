@@ -1,6 +1,5 @@
-import { css } from '@emotion/css';
 import React, { useState } from 'react';
-import { Tabs, Tab, spacing } from '@mongodb-js/compass-components';
+import { Tabs, Tab, spacing, css } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import GeneralTab from './general-tab/general-tab';
@@ -9,7 +8,7 @@ import SSHTunnelTab from './ssh-tunnel-tab/ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../utils/connect-form-errors';
+import { ConnectionFormError } from '../../utils/validation';
 import { ConnectionOptions } from 'mongodb-data-service';
 
 const tabsStyles = css({
@@ -20,7 +19,6 @@ interface TabObject {
   component: React.FunctionComponent<{
     errors: ConnectionFormError[];
     connectionStringUrl: ConnectionStringUrl;
-    hideError: (errorIndex: number) => void;
     updateConnectionFormField: UpdateConnectionFormField;
     connectionOptions?: ConnectionOptions;
   }>;
@@ -29,13 +27,11 @@ interface TabObject {
 function AdvancedOptionsTabs({
   errors,
   connectionStringUrl,
-  hideError,
   updateConnectionFormField,
   connectionOptions,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
-  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
@@ -63,7 +59,6 @@ function AdvancedOptionsTabs({
           <Tab key={idx} name={tabObject.name} aria-label={tabObject.name}>
             <TabComponent
               errors={errors}
-              hideError={hideError}
               connectionStringUrl={connectionStringUrl}
               updateConnectionFormField={updateConnectionFormField}
               connectionOptions={connectionOptions}

@@ -1,5 +1,4 @@
 import React, { ChangeEvent, useCallback } from 'react';
-import { css } from '@emotion/css';
 import { ConnectionOptions } from 'mongodb-data-service';
 import {
   RadioBox,
@@ -9,16 +8,17 @@ import {
   Label,
   IconButton,
   Icon,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../../utils/connect-form-errors';
 import { readPreferences } from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
+import { ConnectionFormError } from '../../../utils/validation';
 
 const infoButtonStyles = css({
   verticalAlign: 'middle',
@@ -39,7 +39,6 @@ function AdvancedTab({
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
-  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {

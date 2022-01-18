@@ -1,5 +1,5 @@
-import { css, keyframes } from '@emotion/css';
 import React from 'react';
+import { css, keyframes } from '@mongodb-js/compass-components';
 
 const connectingBackgroundSvgStyles = css({
   position: 'fixed',

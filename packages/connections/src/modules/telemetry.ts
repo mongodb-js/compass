@@ -3,6 +3,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
+import { MongoServerError } from 'mongodb';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
@@ -127,7 +128,7 @@ export function trackNewConnectionEvent(
 
 export function trackConnectionFailedEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
-  connectionError: any
+  connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>
 ): void {
   try {
     const callback = async () => {

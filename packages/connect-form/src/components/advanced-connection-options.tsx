@@ -1,16 +1,16 @@
-import { css } from '@emotion/css';
 import React from 'react';
 import {
   Accordion,
   compassUIColors,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
 import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
 import { UpdateConnectionFormField } from '../hooks/use-connect-form';
-import { ConnectionFormError } from '../utils/connect-form-errors';
+import { ConnectionFormError } from '../utils/validation';
 
 const disabledOverlayStyles = css({
   position: 'absolute',
@@ -32,14 +32,12 @@ function AdvancedConnectionOptions({
   disabled,
   errors,
   connectionStringUrl,
-  hideError,
   updateConnectionFormField,
   connectionOptions,
 }: {
   errors: ConnectionFormError[];
   disabled: boolean;
   connectionStringUrl: ConnectionStringUrl;
-  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
@@ -54,7 +52,6 @@ function AdvancedConnectionOptions({
         )}
         <AdvancedOptionsTabs
           errors={errors}
-          hideError={hideError}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}
           connectionOptions={connectionOptions}

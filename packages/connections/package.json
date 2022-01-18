@@ -42,13 +42,12 @@
     "check-ci": "npm run check",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-electron && npm run test-cov",
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.9.1",
     "mongodb-data-service": "^21.15.1",
     "react": "^16.14.0",
@@ -58,12 +57,12 @@
     "@mongodb-js/compass-logging": "^0.6.1",
     "@mongodb-js/connect-form": "^0.4.1",
     "debug": "^4.2.0",
+    "mongodb": "^4.3.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "uuid": "^8.2.0"
   },
   "devDependencies": {
-    "@emotion/css": "^11.5.0",
     "@mongodb-js/compass-components": "^0.9.1",
     "@mongodb-js/eslint-config-compass": "^0.5.0",
     "@mongodb-js/mocha-config-compass": "^0.7.0",

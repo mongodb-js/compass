@@ -5,7 +5,6 @@ import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import SchemaInput from './schema-input';
-import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
 
 describe('SchemaInput', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
@@ -24,7 +23,6 @@ describe('SchemaInput', function () {
       render(
         <SchemaInput
           errors={[]}
-          hideError={sinon.fake()}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
@@ -83,7 +81,6 @@ describe('SchemaInput', function () {
         render(
           <SchemaInput
             errors={[]}
-            hideError={sinon.fake()}
             connectionStringUrl={connectionStringUrl}
             updateConnectionFormField={updateConnectionFormFieldSpy}
           />
@@ -120,10 +117,7 @@ describe('SchemaInput', function () {
   });
 
   describe('when there is a schema error', function () {
-    let hideErrorSpy: sinon.SinonSpy;
-
     beforeEach(function () {
-      hideErrorSpy = sinon.spy();
       const connectionStringUrl = new ConnectionStringUrl(
         'mongodb://0ranges:p!neapp1es@outerspace:27017/?ssl=true'
       );
@@ -135,31 +129,18 @@ describe('SchemaInput', function () {
               message: 'unrelated error',
             },
             {
-              fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SRV,
+              fieldName: 'isSrv',
               message: 'aaaa!!!1!',
             },
           ]}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormFieldSpy}
-          hideError={hideErrorSpy}
         />
       );
     });
 
     it('should render the schema conversion error', function () {
       expect(screen.getByText('aaaa!!!1!')).to.be.visible;
-    });
-
-    describe('when the x button is clicked', function () {
-      beforeEach(function () {
-        const hideErrorButton = screen.getByLabelText('X Icon');
-        fireEvent.click(hideErrorButton);
-      });
-
-      it('should call to hide the error with the correct index', function () {
-        expect(hideErrorSpy.callCount).to.equal(1);
-        expect(hideErrorSpy.firstCall.args[0]).to.equal(1);
-      });
     });
   });
 });

@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
 import React from 'react';
+import { css } from '@mongodb-js/compass-components';
 
 import WorkspaceContent from './workspace-content';
 import Namespace from '../types/namespace';

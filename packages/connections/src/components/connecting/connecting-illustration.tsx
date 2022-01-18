@@ -1,5 +1,5 @@
-import { css } from '@emotion/css';
 import React from 'react';
+import { css } from '@mongodb-js/compass-components';
 
 const illustrationStyles = css({
   maxHeight: '40vh',

@@ -1,4 +1,4 @@
-import { css } from '@emotion/css';
+import { css } from '@leafygreen-ui/emotion';
 import React from 'react';
 
 const cancelLoaderStyle = css({

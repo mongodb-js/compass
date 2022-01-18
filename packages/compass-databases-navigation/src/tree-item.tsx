@@ -1,7 +1,11 @@
 /* eslint-disable react/prop-types */
-import { css, cx } from '@leafygreen-ui/emotion';
 import React, { useCallback, CSSProperties } from 'react';
-import { useFocusState, FocusState } from '@mongodb-js/compass-components';
+import {
+  useFocusState,
+  FocusState,
+  css,
+  cx,
+} from '@mongodb-js/compass-components';
 import {
   backgroundColorActive,
   backgroundColor,
