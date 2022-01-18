@@ -98,7 +98,13 @@ const GridContext = createContext<
 
 const GridWithHeader = forwardRef<
   HTMLDivElement,
-  React.HTMLProps<HTMLDivElement>
+  React.HTMLProps<HTMLDivElement> & {
+    // This component only gets styles passed from react-window library and it
+    // is always getting a `style.height` property that is a number
+    //
+    // See: https://github.com/bvaughn/react-window/blob/b0a470cc264e9100afcaa1b78ed59d88f7914ad4/src/FixedSizeList.js#L14-L15
+    style: React.CSSProperties & { height: number };
+  }
 >(function GridHeader({ style, children, ...props }, ref) {
   const { headerHeight, renderHeader, gridProps, classNames } =
     useContext(GridContext);
@@ -107,7 +113,7 @@ const GridWithHeader = forwardRef<
       ref={ref}
       style={{
         ...style,
-        height: parseFloat(style?.height as string) + headerHeight,
+        height: style.height + headerHeight,
       }}
       {...props}
     >
