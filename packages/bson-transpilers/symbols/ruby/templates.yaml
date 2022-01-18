@@ -325,7 +325,7 @@ Templates:
             }
 
             let db_string = db ? `,\n  '$db' => ${singleStringify(db)}` : ''
-            return `.new({\n  '$ref' => ${singleStringify(coll)},\n  '$id' => ${id}${db_string}\n})`
+            return `.new(\n  '$ref' => ${singleStringify(coll)},\n  '$id' => ${id}${db_string}\n)`
         }
 
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
@@ -482,7 +482,7 @@ Templates:
                 date.getUTCSeconds()
             ].join(', ');
 
-            return `${lhs}.new(${dateStr}).utc${toStr}`;
+            return `${lhs}.utc(${dateStr})${toStr}`;
         }
 
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >

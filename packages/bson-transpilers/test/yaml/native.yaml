@@ -882,7 +882,7 @@ tests:
           java: new java.util.Date(819158400000L)
           csharp: new DateTime(1995, 12, 17, 0, 0, 0)
           object: new Date(1995, 11, 17)
-          ruby: Time.new(1995, 12, 17, 0, 0, 0).utc
+          ruby: Time.utc(1995, 12, 17, 0, 0, 0)
     - input:
           javascript: new Date(1995, 11, 17, 3, 24)
           shell: new Date(1995, 11, 17, 3, 24)
@@ -894,7 +894,7 @@ tests:
           java: new java.util.Date(819170640000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           object: new Date(1995, 11, 17, 3, 24)
-          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc
+          ruby: Time.utc(1995, 12, 17, 3, 24, 0)
     - input:
           javascript: new Date(1995, 11, 17, 3, 24, 55)
           shell: new Date(1995, 11, 17, 3, 24, 55)
@@ -906,7 +906,7 @@ tests:
           java: new java.util.Date(819170695000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 55)
           object: new Date('Sun, 17 Dec 1995 03:24:55 GMT')
-          ruby: Time.new(1995, 12, 17, 3, 24, 55).utc
+          ruby: Time.utc(1995, 12, 17, 3, 24, 55)
     - input:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -917,7 +917,7 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc
+          ruby: Time.utc(1995, 12, 17, 3, 24, 0)
     - input:
           javascript: new Date(819167040000)
           shell: new Date(819167040000)
@@ -928,7 +928,7 @@ tests:
           java: new java.util.Date(819167040000L)
           csharp: new DateTime(1995, 12, 17, 2, 24, 0)
           object: new Date(819167040000)
-          ruby: Time.new(1995, 12, 17, 2, 24, 0).utc
+          ruby: Time.utc(1995, 12, 17, 2, 24, 0)
     date_string:
     - input:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -940,7 +940,7 @@ tests:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc.strftime('%a %b %d %Y %H:%M:%S %Z')
+          ruby: Time.utc(1995, 12, 17, 3, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
     - input:
           javascript: Date(819167040000)
           shell: Date(819167040000)
@@ -951,7 +951,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819167040000L))
           csharp: new DateTime(1995, 12, 17, 2, 24, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(819167040000)
-          ruby: Time.new(1995, 12, 17, 2, 24, 0).utc.strftime('%a %b %d %Y %H:%M:%S %Z')
+          ruby: Time.utc(1995, 12, 17, 2, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
     - input:
           javascript: Date(1995, 11, 17)
           shell: Date(1995, 11, 17)
@@ -962,7 +962,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819158400000L))
           csharp: new DateTime(1995, 12, 17, 0, 0, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(1995, 11, 17)
-          ruby: Time.new(1995, 12, 17, 0, 0, 0).utc.strftime('%a %b %d %Y %H:%M:%S %Z')
+          ruby: Time.utc(1995, 12, 17, 0, 0, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
     ISODate:
     - input:
           shell: new ISODate('1995-12-17T03:24:00.000Z')
@@ -972,7 +972,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc
+          ruby: Time.utc(1995, 12, 17, 3, 24, 0)
     - input:
           shell: ISODate('1995-12-17T03:24:00.000Z')
       output:
@@ -981,7 +981,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          ruby: Time.new(1995, 12, 17, 3, 24, 0).utc
+          ruby: Time.utc(1995, 12, 17, 3, 24, 0)
     - description: now date
       input:
           shell: ISODate()

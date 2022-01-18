@@ -101,11 +101,11 @@ tests:
             shell: new DBRef('coll', new ObjectId(), "db").getDb()
             object: "'db'"
             ruby: |-
-                BSON::DBRef.new({
+                BSON::DBRef.new(
                   '$ref' => 'coll',
                   '$id' => BSON::ObjectId.new,
                   '$db' => 'db'
-                }).database
+                ).database
     -   input:
             javascript: new DBRef('coll', new ObjectId(), 'db').db
             python: DBRef('coll', ObjectId(), 'db').database
@@ -117,11 +117,11 @@ tests:
             shell: new DBRef('coll', new ObjectId(), 'db').getDb()
             object: "'db'"
             ruby: |-
-                BSON::DBRef.new({
+                BSON::DBRef.new(
                   '$ref' => 'coll',
                   '$id' => BSON::ObjectId.new,
                   '$db' => 'db'
-                }).database
+                ).database
     -   input:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getRef()
         output:
@@ -139,10 +139,10 @@ tests:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
             object: "'coll'"
             ruby: |-
-                BSON::DBRef.new({
+                BSON::DBRef.new(
                   '$ref' => 'coll',
                   '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
-                }).collection
+                ).collection
     -   input:
             javascript: new DBRef('coll', new ObjectId()).namespace
             python: DBRef('coll', ObjectId()).collection
@@ -154,10 +154,10 @@ tests:
             shell: new DBRef('coll', new ObjectId()).getCollection()
             object: "'coll'"
             ruby: |-
-                BSON::DBRef.new({
+                BSON::DBRef.new(
                   '$ref' => 'coll',
                   '$id' => BSON::ObjectId.new
-                }).collection
+                ).collection
     -   input:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$id
         output:
@@ -167,10 +167,10 @@ tests:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
             ruby: |-
-                BSON::DBRef.new({
+                BSON::DBRef.new(
                   '$ref' => 'coll',
                   '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
-                }).id
+                ).id
     -   input:
             javascript: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).oid
             python: DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).id
@@ -182,10 +182,10 @@ tests:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
             ruby: |-
-                BSON::DBRef.new({
+                BSON::DBRef.new(
                   '$ref' => 'coll',
                   '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
-                }).id
+                ).id
     Long-methods:
     -   input:
             shell: NumberLong(429496729601).top
@@ -630,7 +630,7 @@ tests:
           shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))
           # TODO: fix? this previously called ObjectId.createFromTime with a Date, but that function does not actually take a Date argument
           # object: new ObjectId('03ede8800000000000000000')
-          ruby: BSON::ObjectId.from_time(Time.new(1972, 2, 3, 0, 0, 0).utc)
+          ruby: BSON::ObjectId.from_time(Time.utc(1972, 2, 3, 0, 0, 0))
     - input:
           javascript: ObjectId.createFromTime(1522075031)
       output:
