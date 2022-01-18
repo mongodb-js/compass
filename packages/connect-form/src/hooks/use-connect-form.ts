@@ -132,10 +132,11 @@ function buildStateFromConnectionInfo(
   );
   return {
     errors: errors,
-    // Only enable connection string editing when it's the default string.
+    // Only enable connection string editing when it's the default connection
+    // string and the connection has not been connected to (saved recent/favorite).
     enableEditingConnectionString:
       initialConnectionInfo.connectionOptions.connectionString ===
-      defaultConnectionString,
+        defaultConnectionString && !initialConnectionInfo.lastUsed,
     warnings: errors
       ? []
       : validateConnectionOptionsWarnings(
