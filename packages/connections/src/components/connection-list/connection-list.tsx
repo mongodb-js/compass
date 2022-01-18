@@ -215,8 +215,8 @@ function ConnectionList({
           <H2 className={sectionHeaderTitleStyles}>Recents</H2>
           <Button
             onClick={removeAllRecentsConnections}
-            variant='danger'
-            size='xsmall'
+            variant="danger"
+            size="xsmall"
           >
             Clear All
           </Button>

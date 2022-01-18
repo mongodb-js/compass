@@ -135,7 +135,6 @@ describe('ConnectionList Component', function () {
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
           onDoubleClick={() => true}
-          
         />
       );
 
@@ -245,7 +244,7 @@ describe('ConnectionList Component', function () {
 
       expect(removeAllRecentsConnectionsSpy.called).to.equal(false);
 
-      const button = screen.getByText('Clear All')
+      const button = screen.getByText('Clear All');
       fireEvent(
         button,
         new MouseEvent('click', {

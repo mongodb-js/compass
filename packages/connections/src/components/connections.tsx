@@ -76,7 +76,7 @@ function Connections({
       createNewConnection,
       hideStoreConnectionError,
       setActiveConnectionById,
-      removeAllRecentsConnections
+      removeAllRecentsConnections,
     },
   ] = useConnections(onConnected, connectionStorage, connectFn);
 
