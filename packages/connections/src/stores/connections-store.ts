@@ -211,7 +211,8 @@ export function useConnections(
     connectionsReducer,
     defaultConnectionsState()
   );
-  const { isConnected, connectionAttempt, connections } = state;
+  const { isConnected, connectionAttempt, connections, activeConnectionId } =
+    state;
 
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
   const connectedConnectionInfo = useRef<ConnectionInfo>();
@@ -400,12 +401,14 @@ export function useConnections(
             (conn) => conn.id !== connectionInfo.id
           ),
         });
-        const nextActiveConnection = createNewConnectionInfo();
-        dispatch({
-          type: 'set-active-connection',
-          connectionId: nextActiveConnection.id,
-          connectionInfo: nextActiveConnection,
-        });
+        if (activeConnectionId === connectionInfo.id) {
+          const nextActiveConnection = createNewConnectionInfo();
+          dispatch({
+            type: 'set-active-connection',
+            connectionId: nextActiveConnection.id,
+            connectionInfo: nextActiveConnection,
+          });
+        }
       },
       async duplicateConnection(connectionInfo: ConnectionInfo) {
         const duplicate: ConnectionInfo = {
