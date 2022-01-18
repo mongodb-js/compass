@@ -76,6 +76,8 @@ describe('ConnectionList Component', function () {
           connections={mockConnections}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
         />
       );
     });
@@ -131,6 +133,9 @@ describe('ConnectionList Component', function () {
           connections={mockConnections}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
+          
         />
       );
 
@@ -160,6 +165,8 @@ describe('ConnectionList Component', function () {
           connections={mockConnections}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
         />
       );
 
@@ -193,6 +200,8 @@ describe('ConnectionList Component', function () {
           connections={mockConnections}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
         />
       );
 
@@ -217,6 +226,37 @@ describe('ConnectionList Component', function () {
       expect(setActiveConnectionIdSpy.firstCall.args[0]).to.equal(
         'mock-connection-3'
       );
+    });
+  });
+  describe('when "clear all" button is clicked', function () {
+    let removeAllRecentsConnectionsSpy;
+    beforeEach(function () {
+      removeAllRecentsConnectionsSpy = sinon.spy();
+      render(
+        <ConnectionList
+          activeConnectionId={mockConnections[2].id}
+          connections={mockConnections}
+          createNewConnection={createNewConnectionSpy}
+          setActiveConnectionId={() => true}
+          removeAllRecentsConnections={removeAllRecentsConnectionsSpy}
+          onDoubleClick={() => true}
+        />
+      );
+
+      expect(removeAllRecentsConnectionsSpy.called).to.equal(false);
+
+      const button = screen.getByText('Clear All')
+      fireEvent(
+        button,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+    });
+
+    it('calls function to remove all recents connections', function () {
+      expect(removeAllRecentsConnectionsSpy.called).to.equal(true);
     });
   });
 });

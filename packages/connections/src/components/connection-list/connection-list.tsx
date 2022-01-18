@@ -48,6 +48,7 @@ const sectionHeaderStyles = css({
   marginTop: spacing[3],
   marginBottom: spacing[2],
   paddingLeft: spacing[2],
+  paddingRight: spacing[2],
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -139,12 +140,14 @@ function ConnectionList({
   createNewConnection,
   setActiveConnectionId,
   onDoubleClick,
+  removeAllRecentsConnections,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];
   createNewConnection: () => void;
   setActiveConnectionId: (connectionId?: string) => void;
   onDoubleClick: (connectionInfo: ConnectionInfo) => void;
+  removeAllRecentsConnections: () => void;
 }): React.ReactElement {
   const favoriteConnections = connections
     .filter(
@@ -210,7 +213,13 @@ function ConnectionList({
         <div className={cx(sectionHeaderStyles, recentHeaderStyles)}>
           <div className={sectionHeaderIconStyles}>{recentIcon}</div>
           <H2 className={sectionHeaderTitleStyles}>Recents</H2>
-          <button>Clear All</button>
+          <Button
+            onClick={removeAllRecentsConnections}
+            variant='danger'
+            size='xsmall'
+          >
+            Clear All
+          </Button>
         </div>
         <ul className={connectionListStyles}>
           {recentConnections.map((connectionInfo, index) => (
