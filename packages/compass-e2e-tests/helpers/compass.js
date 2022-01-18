@@ -560,11 +560,9 @@ function outputFilename(filename) {
 }
 
 async function afterTest(compass, test) {
-  if (process.env.CI) {
-    if (test.state == 'failed') {
-      await capturePage(compass, screenshotPathName(test.fullTitle()));
-      await savePage(compass, pagePathName(test.fullTitle()));
-    }
+  if (test.state == 'failed') {
+    await capturePage(compass, screenshotPathName(test.fullTitle()));
+    await savePage(compass, pagePathName(test.fullTitle()));
   }
 }
 
