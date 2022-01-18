@@ -17,7 +17,7 @@ import {
   trackConnectionFailedEvent,
 } from '../modules/telemetry';
 import { v4 as uuidv4 } from 'uuid';
-
+import { cloneDeep } from 'lodash';
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
 export function createNewConnectionInfo(): ConnectionInfo {
@@ -412,7 +412,7 @@ export function useConnections(
       },
       async duplicateConnection(connectionInfo: ConnectionInfo) {
         const duplicate: ConnectionInfo = {
-          ...JSON.parse(JSON.stringify(connectionInfo)),
+          ...cloneDeep(connectionInfo),
           id: uuidv4(),
         };
         duplicate.favorite!.name += ' (copy)';
