@@ -13,16 +13,11 @@ import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import {
   SSHConnectionOptions,
   SSHType,
-} from '../../../utils/connection-options-handler';
-import {
-  ConnectionFormError,
-  SSHTunnelFieldError,
-  SSHFormErrors,
-} from '../../../utils/connect-form-errors';
-import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
+} from '../../../utils/connection-ssh-handler';
 
 import Identity from './ssh-tunnel-identity';
 import Password from './ssh-tunnel-password';
+import { ConnectionFormError } from '../../../utils/validation';
 
 interface TabOption {
   id: string;
@@ -34,7 +29,7 @@ interface TabOption {
       key: keyof SSHConnectionOptions,
       value: string | number
     ) => void;
-    errors?: SSHFormErrors;
+    errors: ConnectionFormError[];
   }>;
 }
 
@@ -78,7 +73,6 @@ function SSHTunnel({
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
-  hideError: (errorIndex: number) => void;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
@@ -95,7 +89,7 @@ function SSHTunnel({
   const onConnectionOptionChanged = useCallback(
     (key: keyof SSHConnectionOptions, value: string | number) => {
       return updateConnectionFormField({
-        type: 'update-connection-options',
+        type: 'update-ssh-options',
         currentTab: selectedOption.type,
         key,
         value,
@@ -103,10 +97,6 @@ function SSHTunnel({
     },
     [updateConnectionFormField, selectedOption]
   );
-
-  const sshTunnelErrors = errors.find(
-    ({ fieldName }) => fieldName === MARKABLE_FORM_FIELD_NAMES.IS_SSH
-  ) as SSHTunnelFieldError | undefined;
 
   const SSLOptionContent = selectedOption.component;
 
@@ -138,7 +128,7 @@ function SSHTunnel({
           data-testid={`${selectedOption.type}-tab-content`}
         >
           <SSLOptionContent
-            errors={sshTunnelErrors?.errors}
+            errors={errors}
             sshTunnelOptions={connectionOptions.sshTunnel}
             onConnectionOptionChanged={onConnectionOptionChanged}
           />

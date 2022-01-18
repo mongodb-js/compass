@@ -96,7 +96,7 @@ const Selectors = {
     return selector;
   },
   databaseCard: (dbName) => {
-    return `[data-testid="database-grid-item-${dbName}"]`;
+    return `[data-testid="database-grid-item"][data-id="${dbName}"]`;
   },
 
   // Database screen

@@ -14,6 +14,8 @@ import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
 import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
+import { validateConnectionOptionsErrors } from '../utils/validation';
+import { ErrorSummary, WarningSummary } from './validation-summary';
 
 const formContainerStyles = css({
   margin: 0,
@@ -50,6 +52,7 @@ function ConnectForm({
   const [
     {
       errors,
+      warnings,
       connectionStringUrl,
       connectionStringInvalidError,
       connectionOptions,
@@ -58,7 +61,7 @@ function ConnectForm({
       updateConnectionFormField,
       setConnectionStringUrl,
       setConnectionStringError,
-      hideError,
+      setErrors,
     },
   ] = useConnectForm(initialConnectionInfo);
 
@@ -84,23 +87,43 @@ function ConnectForm({
           )}
           <AdvancedConnectionOptions
             errors={errors}
-            hideError={hideError}
             disabled={!!connectionStringInvalidError}
             connectionStringUrl={editingConnectionStringUrl}
             updateConnectionFormField={updateConnectionFormField}
             connectionOptions={connectionOptions}
           />
         </div>
+
+        {warnings.length && !connectionStringInvalidError ? (
+          <WarningSummary warnings={warnings} />
+        ) : (
+          ''
+        )}
+
+        {errors.length && !connectionStringInvalidError ? (
+          <ErrorSummary errors={errors} />
+        ) : (
+          ''
+        )}
+
         <ConnectFormActions
-          onConnectClicked={() =>
+          onConnectClicked={() => {
+            const updatedConnectionOptions = {
+              ...connectionOptions,
+              connectionString: editingConnectionStringUrl.toString(),
+            };
+            const formErrors = validateConnectionOptionsErrors(
+              updatedConnectionOptions
+            );
+            if (formErrors.length) {
+              setErrors(formErrors);
+              return;
+            }
             onConnectClicked({
               ...initialConnectionInfo,
-              connectionOptions: {
-                ...connectionOptions,
-                connectionString: editingConnectionStringUrl.toString(),
-              },
-            })
-          }
+              connectionOptions: updatedConnectionOptions,
+            });
+          }}
         />
       </Card>
     </div>

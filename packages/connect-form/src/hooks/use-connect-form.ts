@@ -5,22 +5,18 @@ import type { MongoClientOptions } from 'mongodb';
 
 import { defaultConnectionString } from '../constants/default-connection';
 import {
-  ConnectionFormWarning,
-  getConnectFormWarnings,
-} from '../utils/connect-form-warnings';
-import {
   ConnectionFormError,
-  getConnectFormErrors,
-} from '../utils/connect-form-errors';
+  ConnectionFormWarning,
+  validateConnectionOptionsWarnings,
+} from '../utils/validation';
 import { getNextHost } from '../utils/get-next-host';
 import { defaultHostname, defaultPort } from '../constants/default-connection';
-import { MARKABLE_FORM_FIELD_NAMES } from '../constants/markable-form-fields';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
 import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
 import {
-  handleUpdateConnectionOptions,
-  UpdateConnectionOptions,
-} from '../utils/connection-options-handler';
+  handleUpdateSshOptions,
+  UpdateSshOptions,
+} from '../utils/connection-ssh-handler';
 import { handleUpdateTlsOption } from '../utils/tls-options';
 import { TLS_OPTIONS } from '../constants/ssl-tls-options';
 
@@ -47,12 +43,8 @@ type Action =
       newState: ConnectFormState;
     }
   | {
-      type: 'hide-error';
-      errorIndex: number;
-    }
-  | {
-      type: 'hide-warning';
-      warningIndex: number;
+      type: 'set-form-errors';
+      errors: ConnectionFormError[];
     };
 
 function connectFormReducer(
@@ -76,22 +68,17 @@ function connectFormReducer(
         ...state,
         ...action.newState,
       };
-    case 'hide-error':
+    case 'set-form-errors':
       return {
         ...state,
-        errors: [...state.errors].splice(action.errorIndex, 1),
-      };
-    case 'hide-warning':
-      return {
-        ...state,
-        warnings: [...state.warnings].splice(action.warningIndex, 1),
+        errors: action.errors,
       };
   }
 }
 
 interface UpdateHostAction {
   type: 'update-host';
-  hostIndex: number;
+  fieldIndex: number;
   newHostValue: string;
 }
 
@@ -103,11 +90,11 @@ interface UpdateTlsOptionAction {
 type ConnectionFormFieldActions =
   | {
       type: 'add-new-host';
-      hostIndexToAddAfter: number;
+      fieldIndexToAddAfter: number;
     }
   | {
       type: 'remove-host';
-      hostIndexToRemove: number;
+      fieldIndexToRemove: number;
     }
   | UpdateHostAction
   | {
@@ -118,7 +105,7 @@ type ConnectionFormFieldActions =
       type: 'update-connection-schema';
       isSrv: boolean;
     }
-  | UpdateConnectionOptions
+  | UpdateSshOptions
   | UpdateTlsOptionAction
   | {
       type: 'update-search-param';
@@ -157,8 +144,8 @@ function buildStateFromConnectionInfo(
   };
 
   return {
-    errors: getConnectFormErrors(connectionOptions),
-    warnings: getConnectFormWarnings(connectionOptions),
+    errors: [],
+    warnings: validateConnectionOptionsWarnings(connectionOptions),
 
     connectionStringInvalidError,
     connectionStringUrl,
@@ -179,7 +166,7 @@ function handleUpdateHost({
   connectionOptions: ConnectionOptions;
   errors: ConnectionFormError[];
 } {
-  const { newHostValue, hostIndex } = action;
+  const { newHostValue, fieldIndex } = action;
   try {
     checkForInvalidCharacterInHost(newHostValue, connectionStringUrl.isSRV);
 
@@ -190,7 +177,7 @@ function handleUpdateHost({
     }
 
     const updatedConnectionString = connectionStringUrl.clone();
-    updatedConnectionString.hosts[hostIndex] = newHostValue || '';
+    updatedConnectionString.hosts[fieldIndex] = newHostValue || '';
 
     // Build a new connection string url to ensure the
     // validity of the update.
@@ -218,8 +205,8 @@ function handleUpdateHost({
       },
       errors: [
         {
-          fieldName: MARKABLE_FORM_FIELD_NAMES.HOSTS,
-          hostIndex,
+          fieldName: 'hosts',
+          fieldIndex,
           message: (err as Error).message,
         },
       ],
@@ -238,7 +225,7 @@ export function handleConnectionFormFieldUpdate({
   action: ConnectionFormFieldActions;
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
-  initialErrors: ConnectionFormError[];
+  initialErrors?: ConnectionFormError[];
 }): {
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
@@ -250,14 +237,14 @@ export function handleConnectionFormFieldUpdate({
 
   switch (action.type) {
     case 'add-new-host': {
-      const { hostIndexToAddAfter } = action;
+      const { fieldIndexToAddAfter } = action;
 
       const newHost = getNextHost(
         updatedConnectionStringUrl.hosts,
-        hostIndexToAddAfter
+        fieldIndexToAddAfter
       );
       updatedConnectionStringUrl.hosts.splice(
-        hostIndexToAddAfter + 1,
+        fieldIndexToAddAfter + 1,
         0,
         newHost
       );
@@ -275,9 +262,9 @@ export function handleConnectionFormFieldUpdate({
       };
     }
     case 'remove-host': {
-      const { hostIndexToRemove } = action;
+      const { fieldIndexToRemove } = action;
 
-      updatedConnectionStringUrl.hosts.splice(hostIndexToRemove, 1);
+      updatedConnectionStringUrl.hosts.splice(fieldIndexToRemove, 1);
 
       if (
         updatedConnectionStringUrl.hosts.length === 1 &&
@@ -354,7 +341,7 @@ export function handleConnectionFormFieldUpdate({
           },
           errors: [
             {
-              fieldName: MARKABLE_FORM_FIELD_NAMES.IS_SRV,
+              fieldName: 'isSrv',
               message: `Error updating connection schema: ${
                 (err as Error).message
               }`,
@@ -363,11 +350,11 @@ export function handleConnectionFormFieldUpdate({
         };
       }
     }
-    case 'update-connection-options': {
-      return handleUpdateConnectionOptions(action, {
+    case 'update-ssh-options': {
+      return handleUpdateSshOptions(action, {
         connectionOptions,
         connectionStringUrl,
-        errors: initialErrors,
+        errors: initialErrors || [],
         warnings: [],
         connectionStringInvalidError: null,
       });
@@ -389,7 +376,7 @@ export function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        errors: initialErrors,
+        errors: initialErrors || [],
       };
     }
     case 'delete-search-param': {
@@ -400,7 +387,7 @@ export function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        errors: initialErrors,
+        errors: initialErrors || [],
       };
     }
     case 'update-connection-path': {
@@ -411,7 +398,7 @@ export function handleConnectionFormFieldUpdate({
           ...connectionOptions,
           connectionString: updatedConnectionStringUrl.toString(),
         },
-        errors: initialErrors,
+        errors: initialErrors || [],
       };
     }
   }
@@ -423,8 +410,7 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
     setConnectionStringError: (errorMessage: string | null) => void;
     setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
     updateConnectionFormField: UpdateConnectionFormField;
-    hideError: (index: number) => void;
-    hideWarning: (index: number) => void;
+    setErrors: (errors: ConnectionFormError[]) => void;
   }
 ] {
   const [state, dispatch] = useReducer(
@@ -481,11 +467,8 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
       type: 'set-connection-string-state',
       newState: {
         connectionStringInvalidError: null,
-        errors: [
-          ...formFieldErrors,
-          ...getConnectFormErrors(connectionOptions),
-        ],
-        warnings: getConnectFormWarnings(connectionOptions),
+        errors: [...formFieldErrors],
+        warnings: validateConnectionOptionsWarnings(connectionOptions),
 
         connectionStringUrl,
         connectionOptions,
@@ -503,19 +486,13 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
         });
       },
       setConnectionStringUrl,
-      hideError: (errorIndex: number) => {
-        dispatch({
-          type: 'hide-error',
-          errorIndex,
-        });
-      },
-      hideWarning: (warningIndex: number) => {
-        dispatch({
-          type: 'hide-warning',
-          warningIndex,
-        });
-      },
       updateConnectionFormField,
+      setErrors: (errors: ConnectionFormError[]) => {
+        dispatch({
+          type: 'set-form-errors',
+          errors,
+        });
+      },
     },
   ];
 }

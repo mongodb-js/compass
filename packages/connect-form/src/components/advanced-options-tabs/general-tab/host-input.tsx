@@ -11,10 +11,13 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../../utils/connect-form-errors';
-import { MARKABLE_FORM_FIELD_NAMES } from '../../../constants/markable-form-fields';
 import DirectConnectionInput from './direct-connection-input';
 import FormFieldContainer from '../../form-field-container';
+import {
+  ConnectionFormError,
+  errorMessageByFieldNameAndIndex,
+  fieldNameHasError,
+} from '../../../utils/validation';
 
 const hostInputContainerStyles = css({
   display: 'flex',
@@ -69,17 +72,12 @@ function HostInput({
       setHosts(newHosts);
       updateConnectionFormField({
         type: 'update-host',
-        hostIndex: index,
+        fieldIndex: index,
         newHostValue: event.target.value,
       });
     },
     [hosts, setHosts, updateConnectionFormField]
   );
-
-  const hostsErrorIndex = errors.findIndex(
-    (error) => error.fieldName === MARKABLE_FORM_FIELD_NAMES.HOSTS
-  );
-  const hostsError = errors[hostsErrorIndex];
 
   return (
     <>
@@ -94,15 +92,13 @@ function HostInput({
               type="text"
               id="connection-host-input"
               aria-labelledby="connection-host-input-label"
-              state={hostsError ? 'error' : undefined}
+              state={fieldNameHasError(errors, 'hosts') ? 'error' : undefined}
               // Only show the error message on the last host.
-              errorMessage={
-                hostsError &&
-                hostsError.fieldName === MARKABLE_FORM_FIELD_NAMES.HOSTS &&
-                index === hostsError.hostIndex
-                  ? hostsError.message
-                  : undefined
-              }
+              errorMessage={errorMessageByFieldNameAndIndex(
+                errors,
+                'hosts',
+                index
+              )}
               value={`${host}`}
               onChange={(e) => onHostChange(e, index)}
             />
@@ -113,7 +109,7 @@ function HostInput({
                 onClick={() =>
                   updateConnectionFormField({
                     type: 'add-new-host',
-                    hostIndexToAddAfter: index,
+                    fieldIndexToAddAfter: index,
                   })
                 }
               >
@@ -127,7 +123,7 @@ function HostInput({
                 onClick={() =>
                   updateConnectionFormField({
                     type: 'remove-host',
-                    hostIndexToRemove: index,
+                    fieldIndexToRemove: index,
                   })
                 }
               >

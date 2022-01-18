@@ -29,14 +29,6 @@ const removeFileButtonStyles = css({
   marginLeft: spacing[1],
 });
 
-const formItemErrorStyles = css({
-  border: `1px solid ${redBaseColor}`,
-  borderRadius: '5px',
-  ['&:focus']: {
-    border: `1px solid ${redBaseColor}`,
-  },
-});
-
 const buttonStyles = css({
   width: '100%',
 });
@@ -200,8 +192,7 @@ function FileInput({
       <div
         className={cx(
           { [formItemHorizontalStyles]: variant === Variant.Horizontal },
-          { [formItemVerticalStyles]: variant === Variant.Vertical },
-          { [formItemErrorStyles]: error }
+          { [formItemVerticalStyles]: variant === Variant.Vertical }
         )}
       >
         <div

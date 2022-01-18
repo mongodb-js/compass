@@ -40,7 +40,7 @@
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
-    "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "reformat": "npm run prettier -- --write ."
@@ -53,8 +53,7 @@
     "@mongodb-js/compass-components": "^0.9.1",
     "@react-aria/utils": "^3.10.0",
     "react": "^16.14.0",
-    "react-dom": "^16.14.0",
-    "react-window": "^1.8.6"
+    "react-dom": "^16.14.0"
   },
   "devDependencies": {
     "@mongodb-js/compass-logging": "^0.6.1",

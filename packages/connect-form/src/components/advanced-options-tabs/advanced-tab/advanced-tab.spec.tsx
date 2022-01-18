@@ -21,7 +21,6 @@ describe('AdvancedTab', function () {
         <AdvancedTab
           errors={[]}
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          hideError={() => {}}
           updateConnectionFormField={updateConnectionFormFieldSpy}
           connectionStringUrl={connectionStringUrl}
         />
@@ -83,7 +82,6 @@ describe('AdvancedTab', function () {
         <AdvancedTab
           errors={[]}
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          hideError={() => {}}
           updateConnectionFormField={updateConnectionFormFieldSpy}
           connectionStringUrl={connectionStringUrl}
         />
@@ -114,7 +112,6 @@ describe('AdvancedTab', function () {
         <AdvancedTab
           errors={[]}
           // eslint-disable-next-line @typescript-eslint/no-empty-function
-          hideError={() => {}}
           updateConnectionFormField={updateConnectionFormFieldSpy}
           connectionStringUrl={connectionStringUrl}
         />
