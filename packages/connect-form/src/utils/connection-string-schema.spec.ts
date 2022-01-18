@@ -4,6 +4,34 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { tryUpdateConnectionStringSchema } from './connection-string-schema';
 
 describe('#tryUpdateConnectionStringSchema', function () {
+  it('should do nothing when updating to the same type', function () {
+    const srvConnection = new ConnectionStringUrl(
+      'mongodb+srv://a:b@outerspace/?ssl=false'
+    );
+
+    const newConnectionStringUrl = tryUpdateConnectionStringSchema(
+      srvConnection,
+      true
+    );
+    expect(newConnectionStringUrl.toString()).to.equal(
+      'mongodb+srv://a:b@outerspace/?ssl=false'
+    );
+    expect(newConnectionStringUrl.isSRV).to.equal(true);
+
+    const connectionStringUrl = new ConnectionStringUrl(
+      'mongodb://a:b@outerspace:123/?ssl=false'
+    );
+
+    const updatedConnectionUrl = tryUpdateConnectionStringSchema(
+      connectionStringUrl,
+      false
+    );
+    expect(updatedConnectionUrl.toString()).to.equal(
+      'mongodb://a:b@outerspace:123/?ssl=false'
+    );
+    expect(updatedConnectionUrl.isSRV).to.equal(false);
+  });
+
   it('should update standard to srv', function () {
     const connectionStringUrl = new ConnectionStringUrl(
       'mongodb://a:b@outerspace:123/?ssl=false'

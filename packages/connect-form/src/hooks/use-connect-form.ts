@@ -9,7 +9,11 @@ import {
   validateConnectionOptionsWarnings,
 } from '../utils/validation';
 import { getNextHost } from '../utils/get-next-host';
-import { defaultHostname, defaultPort } from '../constants/default-connection';
+import {
+  defaultConnectionString,
+  defaultHostname,
+  defaultPort,
+} from '../constants/default-connection';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
 import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
 import {
@@ -24,6 +28,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
+  enableEditingConnectionString: boolean;
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
 }
@@ -32,6 +37,10 @@ type Action =
   | {
       type: 'set-connection-form-state';
       newState: ConnectFormState;
+    }
+  | {
+      type: 'set-enable-editing-connection-string';
+      enableEditing: boolean;
     }
   | {
       type: 'set-form-errors';
@@ -47,6 +56,11 @@ function connectFormReducer(
       return {
         ...state,
         ...action.newState,
+      };
+    case 'set-enable-editing-connection-string':
+      return {
+        ...state,
+        enableEditingConnectionString: action.enableEditing,
       };
     case 'set-form-errors':
       return {
@@ -121,6 +135,10 @@ function buildStateFromConnectionInfo(
   );
   return {
     errors: errors,
+    // Only enable connection string editing when it's the default string.
+    enableEditingConnectionString:
+      initialConnectionInfo.connectionOptions.connectionString ===
+      defaultConnectionString,
     warnings: errors
       ? []
       : validateConnectionOptionsWarnings(
@@ -403,6 +421,7 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
   {
     updateConnectionFormField: UpdateConnectionFormField;
     setErrors: (errors: ConnectionFormError[]) => void;
+    setEnableEditingConnectionString: (enableEditing: boolean) => void;
   }
 ] {
   const [state, dispatch] = useReducer(
@@ -416,13 +435,18 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
     // connection is clicked in the compass-sidebar, we
     // refresh the current connection string being edited.
     // We do this here to retain the tabs/expanded accordion states.
-    const { errors, warnings, connectionOptions } =
-      buildStateFromConnectionInfo(initialConnectionInfo);
+    const {
+      errors,
+      enableEditingConnectionString,
+      warnings,
+      connectionOptions,
+    } = buildStateFromConnectionInfo(initialConnectionInfo);
 
     dispatch({
       type: 'set-connection-form-state',
       newState: {
         errors,
+        enableEditingConnectionString,
         warnings,
         connectionOptions,
       },
@@ -441,9 +465,10 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
         ...state,
         errors: [], // on each update the errors should reset
         ...updatedState,
-        warnings: validateConnectionOptionsWarnings(
-          updatedState.connectionOptions
-        ),
+        warnings:
+          updatedState.errors && updatedState.errors.length > 0
+            ? []
+            : validateConnectionOptionsWarnings(updatedState.connectionOptions),
       },
     });
   }
@@ -452,6 +477,12 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
     state,
     {
       updateConnectionFormField,
+      setEnableEditingConnectionString: (enableEditing: boolean) => {
+        dispatch({
+          type: 'set-enable-editing-connection-string',
+          enableEditing,
+        });
+      },
       setErrors: (errors: ConnectionFormError[]) => {
         dispatch({
           type: 'set-form-errors',

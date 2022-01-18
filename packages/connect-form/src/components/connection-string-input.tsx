@@ -3,7 +3,7 @@ import React, {
   Fragment,
   useCallback,
   useEffect,
-  useReducer,
+  useState,
   useRef,
 } from 'react';
 import {
@@ -15,10 +15,10 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
+import { redactConnectionString } from 'mongodb-connection-string-url';
+
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
-import ConnectionStringUrl, {
-  redactConnectionString,
-} from 'mongodb-connection-string-url';
+import { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const uriLabelStyles = css({
   padding: 0,
@@ -64,63 +64,6 @@ const textAreaLabelContainerStyles = css({
 
 const connectionStringInputId = 'connectionString';
 
-function connectionStringHasValidScheme(connectionString: string) {
-  return (
-    connectionString.startsWith('mongodb://') ||
-    connectionString.startsWith('mongodb+srv://')
-  );
-}
-
-type State = {
-  editingConnectionString: string;
-  enableEditingConnectionString: boolean;
-  showConfirmEditConnectionStringPrompt: boolean;
-};
-
-type Action =
-  | { type: 'enable-editing-connection-string' }
-  | {
-      type: 'set-editing-connection-string';
-      editingConnectionString: string;
-    }
-  | { type: 'show-edit-connection-string-confirmation' }
-  | { type: 'hide-edit-connection-string-confirmation' }
-  | { type: 'disable-editing-connection-string' };
-
-function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case 'set-editing-connection-string':
-      return {
-        ...state,
-        editingConnectionString: action.editingConnectionString,
-      };
-    case 'enable-editing-connection-string':
-      return {
-        ...state,
-        showConfirmEditConnectionStringPrompt: false,
-        enableEditingConnectionString: true,
-      };
-    case 'show-edit-connection-string-confirmation':
-      return {
-        ...state,
-        showConfirmEditConnectionStringPrompt: true,
-      };
-    case 'disable-editing-connection-string':
-      return {
-        ...state,
-        showConfirmEditConnectionStringPrompt: false,
-        enableEditingConnectionString: false,
-      };
-    case 'hide-edit-connection-string-confirmation':
-      return {
-        ...state,
-        showConfirmEditConnectionStringPrompt: false,
-      };
-    default:
-      return state;
-  }
-}
-
 export function hidePasswordInConnectionString(
   connectionString: string
 ): string {
@@ -132,44 +75,29 @@ export function hidePasswordInConnectionString(
 
 function ConnectStringInput({
   connectionString,
-  setConnectionStringError,
-  setConnectionStringUrl,
+  enableEditingConnectionString,
+  setEnableEditingConnectionString,
+  updateConnectionFormField,
 }: {
-  connectionString?: string;
-  setConnectionStringError: (errorMessage: string | null) => void;
-  setConnectionStringUrl: (connectionStringUrl: ConnectionStringUrl) => void;
+  connectionString: string;
+  enableEditingConnectionString: boolean;
+  setEnableEditingConnectionString: (enableEditing: boolean) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
-
-  const [
-    {
-      editingConnectionString,
-      enableEditingConnectionString,
-      showConfirmEditConnectionStringPrompt,
-    },
-    dispatch,
-  ] = useReducer(reducer, {
-    // If there is a connection string default it to protected.
-    enableEditingConnectionString:
-      !connectionString || connectionString === 'mongodb://localhost:27017/',
-    showConfirmEditConnectionStringPrompt: false,
-    editingConnectionString: connectionString || '',
-  });
+  const [editingConnectionString, setEditingConnectionString] =
+    useState(connectionString);
+  const [showEditConnectionStringPrompt, setShowEditConnectionStringPrompt] =
+    useState(false);
 
   useEffect(() => {
     // If the user isn't actively editing the connection string and it
-    // changes (form action) we update the string and disable editing.
+    // changes (form action/new connection) we update the string.
     if (
       editingConnectionString !== connectionString &&
       (!textAreaEl.current || textAreaEl.current !== document.activeElement)
     ) {
-      dispatch({
-        type: 'set-editing-connection-string',
-        editingConnectionString: connectionString || '',
-      });
-      dispatch({
-        type: 'disable-editing-connection-string',
-      });
+      setEditingConnectionString(connectionString);
     }
   }, [
     connectionString,
@@ -181,30 +109,14 @@ function ConnectStringInput({
     (event: ChangeEvent<HTMLTextAreaElement>) => {
       const newConnectionString = event.target.value;
 
-      dispatch({
-        type: 'set-editing-connection-string',
-        editingConnectionString: newConnectionString,
+      setEditingConnectionString(newConnectionString);
+
+      updateConnectionFormField({
+        type: 'update-connection-string',
+        newConnectionStringValue: newConnectionString,
       });
-
-      try {
-        // Ensure it's parsable connection string.
-        const connectionStringUrl = new ConnectionStringUrl(
-          newConnectionString
-        );
-        setConnectionStringUrl(connectionStringUrl);
-      } catch (error) {
-        // Check if starts with url scheme.
-        if (!connectionStringHasValidScheme(newConnectionString)) {
-          setConnectionStringError(
-            'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://`'
-          );
-          return;
-        }
-
-        setConnectionStringError((error as Error).message);
-      }
     },
-    [setConnectionStringUrl, setConnectionStringError]
+    [updateConnectionFormField]
   );
 
   const displayedConnectionString = enableEditingConnectionString
@@ -239,16 +151,12 @@ function ConnectStringInput({
           aria-labelledby="edit-connection-string-label"
           size="xsmall"
           checked={enableEditingConnectionString}
-          onClick={() => {
-            if (enableEditingConnectionString) {
-              dispatch({
-                type: 'disable-editing-connection-string',
-              });
+          onChange={(checked: boolean) => {
+            if (checked) {
+              setShowEditConnectionStringPrompt(true);
               return;
             }
-            dispatch({
-              type: 'show-edit-connection-string-confirmation',
-            });
+            setEnableEditingConnectionString(false);
           }}
         />
       </div>
@@ -264,17 +172,15 @@ function ConnectStringInput({
           placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
         />
         <ConfirmEditConnectionString
-          open={showConfirmEditConnectionStringPrompt}
-          onCancel={() =>
-            dispatch({
-              type: 'hide-edit-connection-string-confirmation',
-            })
-          }
-          onConfirm={() =>
-            dispatch({
-              type: 'enable-editing-connection-string',
-            })
-          }
+          open={showEditConnectionStringPrompt}
+          onCancel={() => {
+            setShowEditConnectionStringPrompt(false);
+          }}
+          onConfirm={() => {
+            setEnableEditingConnectionString(true);
+
+            setShowEditConnectionStringPrompt(false);
+          }}
         />
       </div>
     </Fragment>
