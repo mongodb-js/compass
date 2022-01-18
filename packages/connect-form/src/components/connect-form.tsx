@@ -5,6 +5,7 @@ import {
   BannerVariant,
   Card,
   Description,
+  FavoriteIcon,
   H3,
   spacing,
   css,
@@ -16,6 +17,7 @@ import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import { ErrorSummary, WarningSummary } from './validation-summary';
+import { IconButton } from '@mongodb-js/compass-components';
 
 const formContainerStyles = css({
   margin: 0,
@@ -44,12 +46,25 @@ const formContentContainerStyles = css({
   padding: spacing[4],
 });
 
+const favoriteButtonStyles = css({
+  position: 'absolute',
+  top: spacing[4],
+  right: spacing[4],
+  hover: {
+    cursor: 'pointer'
+  }
+})
+
 function ConnectForm({
   initialConnectionInfo,
   onConnectClicked,
+  // The connect form will not always used in an environment where
+  // the connection info can be saved.
+  showSaveConnection
 }: {
   initialConnectionInfo: ConnectionInfo;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
+  showSaveConnection: boolean
 }): React.ReactElement {
   const [
     {
@@ -77,6 +92,20 @@ function ConnectForm({
           <Description className={descriptionStyles}>
             Connect to a MongoDB deployment
           </Description>
+          {/* {showSaveConnection && (
+            <div className={favoriteButtonStyles}>
+              <FavoriteIcon />
+              Favorite
+            </div>
+          )} */}
+          {showSaveConnection && (
+            <IconButton className={favoriteButtonStyles}>
+              <FavoriteIcon 
+                isFavorite
+              />
+              {/* Favorite */}
+            </IconButton>
+          )}
           <ConnectionStringInput
             connectionString={editingConnectionStringUrl.toString()}
             setConnectionStringUrl={setConnectionStringUrl}

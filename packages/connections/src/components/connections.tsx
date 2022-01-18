@@ -105,6 +105,7 @@ function Connections({
         )}
         <div className={formContainerStyles}>
           <ConnectForm
+            showSaveConnection
             onConnectClicked={(connectionInfo) =>
               connect({
                 ...connectionInfo,
