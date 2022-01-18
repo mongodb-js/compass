@@ -88,9 +88,12 @@ Templates:
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
-            if (op.includes('!') || op.includes('not')) {
+            if (op.includes('is')) {
+                let not = op.includes('not') ? '!' : ''
+                return `${not}${lhs}.equal?(${rhs})`
+            } else if (op.includes('!') || op.includes('not')) {
                 return `${lhs} != ${rhs}`;
-            } else if (op === '==' || op === '===' || op === 'is') {
+            } else if (op === '==' || op === '===') {
                 return `${lhs} == ${rhs}`;
             }
             return `${lhs} ${op} ${rhs}`;
