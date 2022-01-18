@@ -128,7 +128,7 @@ tests:
           java: "1L > 2L < 3L >= 4L <= 6L" # TODO: this is wrong
           csharp: "1 > 2 < 3 >= 4 <= 6"
           object: "true"
-          # TODO: N, this is invalid syntax in ruby, throw an error?
+          # ruby: this is invalid syntax in ruby
     - input:
           python: "4 is 5"
       output:
