@@ -132,6 +132,7 @@ function Identity({
                 value={value as string | undefined}
                 errorMessage={errorMessage}
                 state={state as 'error' | 'none'}
+                spellCheck={false}
               />
             </FormFieldContainer>
           );
