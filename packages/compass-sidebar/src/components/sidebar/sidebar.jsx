@@ -18,6 +18,7 @@ import { changeFilterRegex } from '../../modules/databases';
 import { openLink } from '../../modules/link';
 import { toggleIsModalVisible } from '../../modules/is-modal-visible';
 import { saveFavorite } from '../../modules/connection-model';
+import { NavigationItems } from './navigation-items';
 
 // In pixels. (px)
 const sidebarWidthCollapsed = 36;
@@ -185,6 +186,9 @@ class Sidebar extends PureComponent {
             isModalVisible={this.props.isModalVisible}
             saveFavorite={this.props.saveFavorite}
           />
+        )}
+        {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB && (
+          <NavigationItems onItemClick={console.log} isExpanded={isExpanded} />
         )}
         <div
           className={styles['compass-sidebar-filter']}
