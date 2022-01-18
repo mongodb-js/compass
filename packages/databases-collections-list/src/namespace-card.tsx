@@ -269,7 +269,8 @@ export const NamespaceItemCard: React.FunctionComponent<
     <Card
       key={id}
       contentStyle="clickable"
-      data-testid={`${type}-grid-item-${id}`}
+      data-testid={`${type}-grid-item`}
+      data-id={id}
       {...cardProps}
     >
       <CardTitleGroup>
