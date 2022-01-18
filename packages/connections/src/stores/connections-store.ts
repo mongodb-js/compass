@@ -94,6 +94,11 @@ type Action =
   | {
       type: 'set-connections';
       connections: ConnectionInfo[];
+    }
+  | {
+      type: 'set-connections-and-select';
+      connections: ConnectionInfo[];
+      activeConnectionInfo: ConnectionInfo;
     };
 
 export function connectionsReducer(state: State, action: Action): State {
@@ -150,6 +155,13 @@ export function connectionsReducer(state: State, action: Action): State {
       return {
         ...state,
         connections: action.connections,
+      };
+    case 'set-connections-and-select':
+      return {
+        ...state,
+        connections: action.connections,
+        activeConnectionId: action.activeConnectionInfo.id,
+        activeConnectionInfo: action.activeConnectionInfo,
       };
     default:
       return state;
@@ -404,13 +416,9 @@ export function useConnections(
 
         await saveConnectionInfo(duplicate);
         dispatch({
-          type: 'set-connections',
+          type: 'set-connections-and-select',
           connections: [...connections, duplicate],
-        });
-        dispatch({
-          type: 'set-active-connection',
-          connectionId: duplicate.id,
-          connectionInfo: duplicate,
+          activeConnectionInfo: duplicate,
         });
       },
     },
