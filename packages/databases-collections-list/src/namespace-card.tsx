@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import React, { useCallback } from 'react';
 import {
   Card,
   css,
@@ -15,9 +16,8 @@ import {
   useFocusState,
   FocusState,
   uiColors,
+  mergeProps,
 } from '@mongodb-js/compass-components';
-import React, { useCallback } from 'react';
-import { mergeProps } from './merge-props';
 import { NamespaceParam } from './namespace-param';
 import { ItemType } from './use-create';
 import { ViewType } from './use-view-type';
