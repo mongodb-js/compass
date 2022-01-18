@@ -2,6 +2,7 @@ import { useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
+import { cloneDeep } from 'lodash';
 
 import {
   ConnectionFormError,
@@ -123,10 +124,6 @@ export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
 ) => void;
 
-function deepClone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj)) as T;
-}
-
 function buildStateFromConnectionInfo(
   initialConnectionInfo: ConnectionInfo
 ): ConnectFormState {
@@ -144,7 +141,7 @@ function buildStateFromConnectionInfo(
       : validateConnectionOptionsWarnings(
           initialConnectionInfo.connectionOptions
         ),
-    connectionOptions: deepClone(initialConnectionInfo.connectionOptions),
+    connectionOptions: cloneDeep(initialConnectionInfo.connectionOptions),
   };
 }
 
