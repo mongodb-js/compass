@@ -262,6 +262,7 @@ function ConnectStringInput({
           ref={textAreaEl}
           aria-labelledby="Connection String"
           placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
+          spellCheck={false}
         />
         <ConfirmEditConnectionString
           open={showConfirmEditConnectionStringPrompt}

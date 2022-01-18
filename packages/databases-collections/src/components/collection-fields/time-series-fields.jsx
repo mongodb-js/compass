@@ -65,6 +65,7 @@ function TimeSeriesFields({
           description={TIME_FIELD_INPUT_DESCRIPTION}
           required
           onChange={onInputChange}
+          spellCheck={false}
         />
       </FieldSet>
 
@@ -76,6 +77,7 @@ function TimeSeriesFields({
           optional
           value={metaField}
           onChange={onInputChange}
+          spellCheck={false}
         />
       </FieldSet>
 
@@ -111,6 +113,7 @@ function TimeSeriesFields({
           optional
           type="number"
           onChange={onInputChange}
+          spellCheck={false}
         />
       </FieldSet>
     </CollapsibleFieldSet>
