@@ -1,0 +1,137 @@
+import React from 'react';
+import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
+
+/**
+ * Default colors.
+ */
+const COLORS = [
+  '#5fc86e',
+  '#326fde',
+  '#deb342',
+  '#d4366e',
+  '#59c1e2',
+  '#2c5f4a',
+  '#d66531',
+  '#773819',
+  '#3b8196',
+  '#ababab',
+];
+
+const colorOptionStyles = css({
+  outline: 'none',
+  margin: 0,
+  padding: 0,
+  marginRight: spacing[2],
+  borderRadius: '50%',
+  verticalAlign: 'middle',
+  width: 36,
+  height: 36,
+  border: '1px solid transparent',
+  boxShadow: `0 0 0 0 ${uiColors.focus}`,
+  transition: 'box-shadow .16s ease-in',
+  position: 'relative',
+  overflow: 'hidden',
+});
+
+const activeColorOptionStyles = css({
+  boxShadow: `0 0 0 3px ${uiColors.focus}`,
+  transitionTimingFunction: 'ease-out',
+});
+
+const noColorRedBarStyles = css({
+  width: 40,
+  borderTop: '3px solid red',
+  transform: 'rotate(-45deg)',
+  position: 'absolute',
+  left: -5,
+});
+
+const selectedColorCheckmarkStyles = css({
+  margin: 0,
+  padding: 0,
+});
+
+function ColorOption({
+  isSelected,
+  onClick,
+  hex,
+}: {
+  isSelected: boolean;
+  onClick: () => void;
+  hex: string;
+}): React.ReactElement {
+  return (
+    <button
+      style={{ background: hex }}
+      className={cx({
+        [colorOptionStyles]: true,
+        [activeColorOptionStyles]: isSelected,
+      })}
+      onClick={onClick}
+      title={hex}
+    >
+      {isSelected && (
+        // Show a checkmark in the selected color.
+        <svg
+          className={selectedColorCheckmarkStyles}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width={20}
+          height={36}
+        >
+          <g
+            fill="white"
+            fillOpacity={isSelected ? 1 : 0}
+            strokeOpacity={isSelected ? 1 : 0}
+          >
+            <path
+              stroke="#ffffff"
+              d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"
+            />
+          </g>
+        </svg>
+      )}
+    </button>
+  );
+}
+
+function SavedConnectionColorPicker({
+  hex,
+  onChange,
+}: {
+  hex?: string;
+  onChange: (newColor?: string) => void;
+}): React.ReactElement {
+  return (
+    <div>
+      <button
+        style={{
+          background: 'white',
+          borderColor: uiColors.black,
+        }}
+        className={cx({
+          [colorOptionStyles]: true,
+          [activeColorOptionStyles]: !hex,
+        })}
+        onClick={() => {
+          onChange();
+        }}
+        title="No color"
+      >
+        <div className={noColorRedBarStyles} />
+      </button>
+      {COLORS.map((color) => (
+        <ColorOption
+          onClick={() => {
+            onChange(color);
+          }}
+          isSelected={color === hex}
+          hex={color}
+          key={color}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default SavedConnectionColorPicker;

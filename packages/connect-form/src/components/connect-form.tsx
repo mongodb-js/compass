@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 import {
   Banner,
@@ -6,9 +6,12 @@ import {
   Card,
   Description,
   FavoriteIcon,
+  Icon,
+  IconButton,
   H3,
   spacing,
   css,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
 import ConnectionStringInput from './connection-string-input';
@@ -17,7 +20,7 @@ import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import { ErrorSummary, WarningSummary } from './validation-summary';
-import { IconButton } from '@mongodb-js/compass-components';
+import SaveConnectionModal from './save-connection-modal';
 
 const formContainerStyles = css({
   margin: 0,
@@ -49,22 +52,42 @@ const formContentContainerStyles = css({
 const favoriteButtonStyles = css({
   position: 'absolute',
   top: spacing[4],
-  right: spacing[4],
+  right: spacing[6],
   hover: {
-    cursor: 'pointer'
-  }
-})
+    cursor: 'pointer',
+  },
+});
+
+const editFavoriteButtonStyles = css({
+  verticalAlign: 'text-top',
+  marginLeft: spacing[1],
+});
+
+const favoriteButtonLabelStyles = css({
+  position: 'absolute',
+  // bottom: 0,
+  // left: 0,
+  // right: 0,
+  top: spacing[5],
+  paddingTop: spacing[1],
+  color: uiColors.black,
+  fontWeight: 'bold',
+  fontSize: 12,
+  // textAlign: 'center'
+});
 
 function ConnectForm({
   initialConnectionInfo,
   onConnectClicked,
   // The connect form will not always used in an environment where
   // the connection info can be saved.
-  showSaveConnection
+  showSaveConnection = false,
+  saveConnection,
 }: {
   initialConnectionInfo: ConnectionInfo;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  showSaveConnection: boolean
+  showSaveConnection?: boolean;
+  saveConnection: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const [
     {
@@ -82,82 +105,108 @@ function ConnectForm({
     },
   ] = useConnectForm(initialConnectionInfo);
 
+  const [showSaveConnectionModal, setShowSaveConnectionModal] = useState(false);
+
   const editingConnectionStringUrl = connectionStringUrl;
 
   return (
-    <div className={formContainerStyles} data-testid="new-connect-form">
-      <Card className={formCardStyles}>
-        <div className={formContentContainerStyles}>
-          <H3>New Connection</H3>
-          <Description className={descriptionStyles}>
-            Connect to a MongoDB deployment
-          </Description>
-          {/* {showSaveConnection && (
-            <div className={favoriteButtonStyles}>
-              <FavoriteIcon />
-              Favorite
-            </div>
-          )} */}
-          {showSaveConnection && (
-            <IconButton className={favoriteButtonStyles}>
-              <FavoriteIcon 
-                isFavorite
-              />
-              {/* Favorite */}
-            </IconButton>
+    <>
+      <div className={formContainerStyles} data-testid="new-connect-form">
+        <Card className={formCardStyles}>
+          <div className={formContentContainerStyles}>
+            <H3>
+              New Connection
+              {showSaveConnection && (
+                <IconButton
+                  className={editFavoriteButtonStyles}
+                  onClick={() => {
+                    setShowSaveConnectionModal(true);
+                  }}
+                >
+                  <Icon glyph="Edit" />
+                </IconButton>
+              )}
+            </H3>
+
+            <Description className={descriptionStyles}>
+              Connect to a MongoDB deployment
+            </Description>
+            {showSaveConnection && (
+              <IconButton
+                className={favoriteButtonStyles}
+                size="large"
+                onClick={() => {
+                  setShowSaveConnectionModal(true);
+                }}
+              >
+                <FavoriteIcon isFavorite />
+                <span className={favoriteButtonLabelStyles}>FAVORITE</span>
+              </IconButton>
+            )}
+            <ConnectionStringInput
+              connectionString={editingConnectionStringUrl.toString()}
+              setConnectionStringUrl={setConnectionStringUrl}
+              setConnectionStringError={setConnectionStringError}
+            />
+            {connectionStringInvalidError && (
+              <Banner variant={BannerVariant.Danger}>
+                {connectionStringInvalidError}
+              </Banner>
+            )}
+            <AdvancedConnectionOptions
+              errors={errors}
+              disabled={!!connectionStringInvalidError}
+              connectionStringUrl={editingConnectionStringUrl}
+              updateConnectionFormField={updateConnectionFormField}
+              connectionOptions={connectionOptions}
+            />
+          </div>
+
+          {warnings.length && !connectionStringInvalidError ? (
+            <WarningSummary warnings={warnings} />
+          ) : (
+            ''
           )}
-          <ConnectionStringInput
-            connectionString={editingConnectionStringUrl.toString()}
-            setConnectionStringUrl={setConnectionStringUrl}
-            setConnectionStringError={setConnectionStringError}
-          />
-          {connectionStringInvalidError && (
-            <Banner variant={BannerVariant.Danger}>
-              {connectionStringInvalidError}
-            </Banner>
+
+          {errors.length && !connectionStringInvalidError ? (
+            <ErrorSummary errors={errors} />
+          ) : (
+            ''
           )}
-          <AdvancedConnectionOptions
-            errors={errors}
-            disabled={!!connectionStringInvalidError}
-            connectionStringUrl={editingConnectionStringUrl}
-            updateConnectionFormField={updateConnectionFormField}
-            connectionOptions={connectionOptions}
+
+          <ConnectFormActions
+            onConnectClicked={() => {
+              const updatedConnectionOptions = {
+                ...connectionOptions,
+                connectionString: editingConnectionStringUrl.toString(),
+              };
+              const formErrors = validateConnectionOptionsErrors(
+                updatedConnectionOptions
+              );
+              if (formErrors.length) {
+                setErrors(formErrors);
+                return;
+              }
+              onConnectClicked({
+                ...initialConnectionInfo,
+                connectionOptions: updatedConnectionOptions,
+              });
+            }}
           />
-        </div>
-
-        {warnings.length && !connectionStringInvalidError ? (
-          <WarningSummary warnings={warnings} />
-        ) : (
-          ''
-        )}
-
-        {errors.length && !connectionStringInvalidError ? (
-          <ErrorSummary errors={errors} />
-        ) : (
-          ''
-        )}
-
-        <ConnectFormActions
-          onConnectClicked={() => {
-            const updatedConnectionOptions = {
-              ...connectionOptions,
-              connectionString: editingConnectionStringUrl.toString(),
-            };
-            const formErrors = validateConnectionOptionsErrors(
-              updatedConnectionOptions
-            );
-            if (formErrors.length) {
-              setErrors(formErrors);
-              return;
-            }
-            onConnectClicked({
-              ...initialConnectionInfo,
-              connectionOptions: updatedConnectionOptions,
-            });
-          }}
-        />
-      </Card>
-    </div>
+        </Card>
+      </div>
+      <SaveConnectionModal
+        open={showSaveConnectionModal}
+        onCancel={() => {
+          setShowSaveConnectionModal(false);
+        }}
+        onSave={(connectionInfo: ConnectionInfo) => {
+          saveConnection(connectionInfo);
+          setShowSaveConnectionModal(false);
+        }}
+        initialConnectionInfo={initialConnectionInfo}
+      />
+    </>
   );
 }
 
