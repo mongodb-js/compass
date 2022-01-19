@@ -126,8 +126,6 @@ describe('SRV connectivity', function () {
     });
 
     // The connection attempt was aborted early.
-    expect(
-      logs.filter((log) => log.id === 1_000_000_036)
-    ).to.have.lengthOf(1);
+    expect(logs.filter((log) => log.id === 1_000_000_036)).to.have.lengthOf(1);
   });
 });
