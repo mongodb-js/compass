@@ -78,7 +78,7 @@ const getQueryItems = async (): Promise<Item[]> => {
   const queries = await getQueries();
   return queries.map((query) => ({
     id: query._id,
-    lastModified: query._dateSaved.getTime(),
+    lastModified: query._dateSaved,
     name: query._name,
     namespace: query._ns,
     type: 'query',
