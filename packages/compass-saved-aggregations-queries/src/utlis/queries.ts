@@ -10,12 +10,6 @@ export interface Query {
   _name: string;
   _ns: string;
   _dateSaved: Date;
-  collation?: Record<string, unknown>;
-  filter?: Record<string, unknown>;
-  limit?: number;
-  project?: Record<string, unknown>;
-  skip?: number;
-  sort?: Record<string, number>;
 };
 
 export const getQueries = async (): Promise<Query[]> => {

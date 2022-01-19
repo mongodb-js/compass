@@ -1,6 +1,6 @@
 import { AnyAction, Dispatch } from 'redux';
-import { Aggregation, getAggregations } from './../utlis/aggregations';
-import { Query, getQueries } from './../utlis/queries';
+import { getAggregations } from './../utlis/aggregations';
+import { getQueries } from './../utlis/queries';
 
 enum actions {
   ITEMS_FETCHED = 'itemsFetched',
@@ -16,16 +16,8 @@ export type Item = {
   lastModified: number;
   name: string;
   namespace: string;
-} & (
-    {
-      type: 'query';
-      query: Query;
-    } |
-    {
-      type: 'aggregation';
-      aggregation: Aggregation;
-    }
-  );
+  type: 'query' | 'aggregation';
+};
 
 export type State = {
   loading: boolean;
@@ -74,7 +66,6 @@ const getAggregationItems = async (): Promise<Item[]> => {
     name: aggregation.name,
     namespace: aggregation.namespace,
     type: 'aggregation',
-    aggregation,
   }));
 };
 
@@ -86,7 +77,6 @@ const getQueryItems = async (): Promise<Item[]> => {
     name: query._name,
     namespace: query._ns,
     type: 'query',
-    query,
   }));
 };
 

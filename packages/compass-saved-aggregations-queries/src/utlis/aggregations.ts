@@ -6,16 +6,6 @@ export interface Aggregation {
   name: string;
   namespace: string;
   lastModified: number;
-  autoPreview?: boolean;
-  collation?: string;
-  collationString?: string;
-  comments?: boolean;
-  env?: string;
-  isReadonly?: boolean;
-  isTimeSeries?: boolean;
-  pipeline: unknown[];
-  sample?: boolean;
-  sourceName?: string;
 };
 
 export const getAggregations = async (): Promise<Aggregation[]> => {
