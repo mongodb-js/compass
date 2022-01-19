@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { ConnectionInfo } from 'mongodb-data-service';
@@ -76,6 +76,8 @@ describe('ConnectionList Component', function () {
           connections={mockConnections}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
         />
       );
     });
@@ -131,6 +133,8 @@ describe('ConnectionList Component', function () {
           connections={mockConnections}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
         />
       );
 
@@ -160,6 +164,8 @@ describe('ConnectionList Component', function () {
           connections={mockConnections}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
         />
       );
 
@@ -193,6 +199,8 @@ describe('ConnectionList Component', function () {
           connections={mockConnections}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
         />
       );
 
@@ -217,6 +225,39 @@ describe('ConnectionList Component', function () {
       expect(setActiveConnectionIdSpy.firstCall.args[0]).to.equal(
         'mock-connection-3'
       );
+    });
+  });
+  describe('when "clear all" button is clicked', function () {
+    let removeAllRecentsConnectionsSpy;
+    beforeEach(async function () {
+      removeAllRecentsConnectionsSpy = sinon.spy();
+      render(
+        <ConnectionList
+          activeConnectionId={mockConnections[2].id}
+          connections={mockConnections}
+          createNewConnection={createNewConnectionSpy}
+          setActiveConnectionId={() => true}
+          removeAllRecentsConnections={removeAllRecentsConnectionsSpy}
+          onDoubleClick={() => true}
+        />
+      );
+
+      expect(removeAllRecentsConnectionsSpy.called).to.equal(false);
+
+      fireEvent.mouseOver(screen.getByText('Recents'));
+      await waitFor(() => screen.getByText('Clear All'));
+      const button = screen.getByText('Clear All');
+      fireEvent(
+        button,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+    });
+
+    it('calls function to remove all recents connections', function () {
+      expect(removeAllRecentsConnectionsSpy.called).to.equal(true);
     });
   });
 });

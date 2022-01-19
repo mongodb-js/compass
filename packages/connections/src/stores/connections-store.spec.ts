@@ -34,14 +34,17 @@ describe('use-connections hook', function () {
   let mockConnectionStorage: ConnectionStore;
   let loadAllSpy: sinon.SinonSpy;
   let saveSpy: sinon.SinonSpy;
+  let deleteSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     loadAllSpy = sinon.spy();
     saveSpy = sinon.spy();
+    deleteSpy = sinon.spy();
 
     mockConnectionStorage = {
       loadAll: loadAllSpy,
       save: saveSpy,
+      delete: deleteSpy,
     };
   });
 

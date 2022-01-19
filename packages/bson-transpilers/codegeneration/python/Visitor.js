@@ -328,11 +328,12 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       }
       const op = this.visit(e);
       if (op === '==' || op === '!=' || op === 'is' || op === 'isnot') {
+        skip = true;
         if (this.Syntax.equality) {
           return `${str}${this.Syntax.equality.template(
-            this.visit(arr[i - 1]), op, '')}`;
+            this.visit(arr[i - 1]), op, this.visit(arr[i + 1]))}`;
         }
-        return `${str} === ${this.visit(arr[i - 1])} ${op} `;
+        return `${str} === ${this.visit(arr[i - 1])} ${op} ${this.visit(arr[i + 1])}`;
       }
       if (op === 'in' || op === 'notin') {
         skip = true;

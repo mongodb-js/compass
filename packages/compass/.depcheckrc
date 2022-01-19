@@ -3,4 +3,5 @@ ignores: [
     '@mongodb-js/tsconfig-compass',
     # peer dependency of compass-shell
     '@mongosh/node-runtime-worker-thread',
+    'os-dns-native',
   ]

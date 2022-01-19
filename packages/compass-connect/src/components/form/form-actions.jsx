@@ -299,7 +299,7 @@ class FormActions extends React.Component {
       return (
         <div className={styles['connection-message-container']}>
           <div className={colorStyle}>
-            <div className={styles['connection-message']}>{message}</div>
+            <div className={styles['connection-message']} data-test-id="connection-message">{message}</div>
           </div>
         </div>
       );

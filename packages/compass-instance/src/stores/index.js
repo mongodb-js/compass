@@ -4,6 +4,7 @@ const INITIAL_STATE = {
   status: 'initial',
   error: null,
   isDataLake: false,
+  activeTabId: 0,
 };
 
 function reducer(state = { tabs: [], ...INITIAL_STATE }, action) {
@@ -22,6 +23,8 @@ function reducer(state = { tabs: [], ...INITIAL_STATE }, action) {
       };
     case 'reset':
       return { ...state, ...INITIAL_STATE };
+    case 'change-tab':
+      return { ...state, activeTabId: action.id };
     default:
       return state;
   }
@@ -43,6 +46,17 @@ store.onActivated = function onActivated(globalAppRegistry) {
 
   globalAppRegistry.on('instance-destroyed', () => {
     store.dispatch({ type: 'reset' });
+  });
+
+  globalAppRegistry.on('open-instance-workspace', (tabName) => {
+    if (!tabName) {
+      store.dispatch({ type: 'change-tab', id: 0 });
+    } else {
+      const id = store.getState().tabs.findIndex((tab) => tab.name === tabName);
+      if (id !== -1) {
+        store.dispatch({ type: 'change-tab', id });
+      }
+    }
   });
 };
 

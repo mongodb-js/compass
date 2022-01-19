@@ -19,6 +19,7 @@ tests:
           java: new Code("some code")
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
+          ruby: BSON::Code.new('some code')
     - description: 'string code'
       input:
           javascript: Code('some code')
@@ -31,6 +32,7 @@ tests:
           java: new Code("some code")
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
+          ruby: BSON::Code.new('some code')
     - description: 'string code and object scope'
       input:
           javascript: "new Code('string', {x: '1'})"
@@ -43,6 +45,7 @@ tests:
           java: 'new CodeWithScope("string", new Document("x", "1"))'
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: 'new Code("string", {"x": 1})'
+          ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
     - description: 'no args'
       input:
           shell: Code()
@@ -53,6 +56,7 @@ tests:
           java: new Code("")
           csharp: new BsonJavaScript("")
           object: new Code('')
+          ruby: BSON::Code.new
     - description: 'function arg'
       input:
           javascript: Code(function(test) { console.log(test); })
@@ -63,6 +67,7 @@ tests:
           java: new Code("function(test){console.log(test);}")
           csharp: new BsonJavaScript("function(test){console.log(test);}")
           object: new Code('function(test){console.log(test);}')
+          ruby: BSON::Code.new('function(test){console.log(test);}')
     - description: 'named scope arg'
       input:
           python: "Code('string', scope={'x': '1'})"
@@ -73,6 +78,7 @@ tests:
           java: 'new CodeWithScope("string", new Document("x", "1"))'
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: "new Code('string', {'x': '1'})"
+          ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
     ObjectId:
     - description: 'no arg'
       input:
@@ -86,6 +92,7 @@ tests:
           java: new ObjectId()
           csharp: new ObjectId()
           object: new ObjectId()
+          ruby: BSON::ObjectId.new
     - description: 'NEW no arg'
       input:
           javascript: new ObjectId()
@@ -97,6 +104,7 @@ tests:
           java: new ObjectId()
           csharp: new ObjectId()
           object: new ObjectId()
+          ruby: BSON::ObjectId.new
     - description: 'hex string arg'
       input:
           javascript: new ObjectId('5a7382114ec1f67ae445f778')
@@ -109,6 +117,7 @@ tests:
           java: new ObjectId("5a7382114ec1f67ae445f778")
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
+          ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
     - description: 'hex string arg named'
       input:
           python: ObjectId(oid='5a7382114ec1f67ae445f778')
@@ -119,6 +128,7 @@ tests:
           java: new ObjectId("5a7382114ec1f67ae445f778")
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
+          ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
     DBRef:
     - description: 'NEW (string, ObjectID) args'
       input:
@@ -131,6 +141,11 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
+          ruby: |-
+            BSON::DBRef.new(
+              '$ref' => 'coll',
+              '$id' => BSON::ObjectId.new
+            )
     - description: '(string, ObjectID) args'
       input:
           javascript: DBRef('coll', new ObjectId())
@@ -143,6 +158,11 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
+          ruby: |-
+            BSON::DBRef.new(
+              '$ref' => 'coll',
+              '$id' => BSON::ObjectId.new
+            )
     - description: '(string, ObjectId, string) args'
       input:
           javascript: new DBRef('coll', ObjectId(), 'db')
@@ -155,6 +175,12 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
+          ruby: |-
+            BSON::DBRef.new(
+              '$ref' => 'coll',
+              '$id' => BSON::ObjectId.new,
+              '$db' => 'db'
+            )
     - description: '(string, ObjectId, database=string) args'
       input:
           python: DBRef('coll', ObjectId(), database='db')
@@ -165,6 +191,12 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
+          ruby: |-
+            BSON::DBRef.new(
+              '$ref' => 'coll',
+              '$id' => BSON::ObjectId.new,
+              '$db' => 'db'
+            )
     32-bit integer:
     - description: 'NEW number arg'
       input:
@@ -177,6 +209,7 @@ tests:
           java: '3'
           csharp: '3'
           object: new Int32(3)
+          ruby: '3'
     - description: 'number arg'
       input:
           javascript: Int32(3)
@@ -189,6 +222,7 @@ tests:
           java: '3'
           csharp: '3'
           object: new Int32(3)
+          ruby: '3'
     - description: 'string arg'
       input:
           javascript: new Int32('3')
@@ -201,6 +235,7 @@ tests:
           java: Integer.parseInt("3")
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
+          ruby: "'3'.to_i"
     - description: 'no arg'
       input:
           shell: NumberInt()
@@ -212,6 +247,7 @@ tests:
           java: '0'
           csharp: '0'
           object: new Int32('0')
+          ruby: '0'
     - description: 'hex arg'
       input:
           javascript: new Int32(0x3)
@@ -224,6 +260,7 @@ tests:
           java: (int) 0x3
           csharp: Convert.ToInt32(0x3)
           object: new Int32(0x3)
+          ruby: 0x3.to_i
     - description: 'decimal arg'
       input:
           javascript: new Int32(3.0001)
@@ -236,6 +273,7 @@ tests:
           java: (int) 3.0001d
           csharp: Convert.ToInt32(3.0001)
           object: new Int32(3.0001)
+          ruby: 3.0001.to_i
     - description: 'octal arg'
       input:
           javascript: new Int32(0o3)
@@ -248,6 +286,7 @@ tests:
           java: (int) 03
           csharp: '3'
           object: new Int32(0o3)
+          ruby: 0o3.to_i
     Double:
     - description: 'number arg'
       input:
@@ -260,6 +299,7 @@ tests:
           java: 3d
           csharp: '3.0'
           object: new Double(3)
+          ruby: 3.to_f
     - description: 'NEW number arg'
       input:
           javascript: new Double(3)
@@ -270,6 +310,7 @@ tests:
           java: 3d
           csharp: '3.0'
           object: new Double(3)
+          ruby: 3.to_f
     - description: 'string arg'
       input:
           javascript: Double('3')
@@ -281,6 +322,7 @@ tests:
           java: Double.parseDouble("3")
           csharp: Convert.ToDouble("3")
           object: new Double('3')
+          ruby: "'3'.to_f"
     - description: 'decimal arg'
       input:
           javascript: Double(3.0001)
@@ -292,6 +334,7 @@ tests:
           java: 3.0001d
           csharp: '3.0001'
           object: new Double(3.0001)
+          ruby: '3.0001'
     - description: 'hex arg'
       input:
           javascript: Double(0x3)
@@ -303,6 +346,7 @@ tests:
           java: (double) 0x3
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
+          ruby: 0x3.to_f
     - description: 'octal arg'
       input:
           javascript: Double(0o3)
@@ -314,6 +358,7 @@ tests:
           java: (double) 03
           csharp: '3.0'
           object: new Double(0o3)
+          ruby: 0o3.to_f
     Long:
     - description: 'number arg'
       input:
@@ -327,6 +372,7 @@ tests:
           java: 9223372036854775807L
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
+          ruby: '9223372036854775807'
     - description: 'NEW number arg'
       input:
           javascript: Long(-1, 2147483647)
@@ -338,6 +384,7 @@ tests:
           java: 9223372036854775807L
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
+          ruby: '9223372036854775807'
     - description: 'no arg'
       input:
           shell: NumberLong()
@@ -349,6 +396,7 @@ tests:
           java: 0L
           csharp: 0L
           object: Long.fromNumber(0)
+          ruby: '0'
     - description: 'string arg'
       input:
           shell: NumberLong('9223372036854775807')
@@ -360,6 +408,7 @@ tests:
           java: Long.parseLong("9223372036854775807")
           csharp: Convert.ToInt64("9223372036854775807")
           object: Long.fromString('9223372036854775807')
+          ruby: "'9223372036854775807'.to_i"
     Decimal128:
     - description: 'buffer arg'
       input:
@@ -370,6 +419,7 @@ tests:
           java: Decimal128.parse("5.3E-6175")
           csharp: Decimal128.Parse("5.3E-6175")
           object: Decimal128.fromString('5.3E-6175')
+          ruby: BSON::Decimal128.new('5.3E-6175')
     - description: 'string arg'
       input:
           shell: NumberDecimal('5')
@@ -381,6 +431,7 @@ tests:
           java: Decimal128.parse("5")
           csharp: Decimal128.Parse("5")
           object: Decimal128.fromString('5')
+          ruby: BSON::Decimal128.new('5')
     - description: 'NEW'
       input:
           javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'))
@@ -391,6 +442,7 @@ tests:
           java: Decimal128.parse("5.3E-6175")
           csharp: Decimal128.Parse("5.3E-6175")
           object: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'))
+          ruby: BSON::Decimal128.new('5.3E-6175')
     - description: 'number arg'
       input:
           shell: NumberDecimal(5)
@@ -401,6 +453,7 @@ tests:
           java: Decimal128.parse("5")
           csharp: Decimal128.Parse("5")
           object: Decimal128.fromString('5')
+          ruby: BSON::Decimal128.new('5')
     - description: 'no arg'
       input:
           shell: NumberDecimal()
@@ -411,6 +464,7 @@ tests:
           java: Decimal128.parse("0")
           csharp: Decimal128.Parse("0")
           object: Decimal128.fromString('0')
+          ruby: BSON::Decimal128.new('0')
     MinKey/MaxKey:
     - description: 'MinKey'
       input:
@@ -424,6 +478,7 @@ tests:
           java: new MinKey()
           csharp: BsonMinKey.Value
           object: new MinKey()
+          ruby: BSON::MinKey.new
     - description: 'NEW MinKey'
       input:
           javascript: new MinKey()
@@ -435,6 +490,7 @@ tests:
           java: new MinKey()
           csharp: BsonMinKey.Value
           object: new MinKey()
+          ruby: BSON::MinKey.new
     - description: 'MaxKey'
       input:
           javascript: MaxKey()
@@ -447,6 +503,7 @@ tests:
           java: new MaxKey()
           csharp: BsonMaxKey.Value
           object: new MaxKey()
+          ruby: BSON::MaxKey.new
     - description: 'NEW MaxKey'
       input:
           javascript: new MaxKey()
@@ -458,6 +515,7 @@ tests:
           java: new MaxKey()
           csharp: BsonMaxKey.Value
           object: new MaxKey()
+          ruby: BSON::MaxKey.new
     Timestamp:
     - description: 'NEW Timestamp'
       input:
@@ -470,6 +528,7 @@ tests:
           java: new BSONTimestamp(10, 100)
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
+          ruby: BSON::Timestamp.new(10, 100)
     - description: 'Timestamp'
       input:
           javascript: Timestamp(10, 100)
@@ -482,6 +541,7 @@ tests:
           java: new BSONTimestamp(10, 100)
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
+          ruby: BSON::Timestamp.new(10, 100)
     BSONRegExp:
     - description: 'no flags'
       input:
@@ -494,6 +554,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
+          ruby: /^[a-z0-9_-]{3,16}$/
     - description: 'NEW no flags'
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$')
@@ -504,6 +565,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
+          ruby: /^[a-z0-9_-]{3,16}$/
     - description: 'with flags'
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
@@ -515,6 +577,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
+          ruby: /^[a-z0-9_-]{3,16}$/imx
     - description: 'with flags named'
       input:
           python: Regex('^[a-z0-9_-]{3,16}$', flags='imuxls')
@@ -525,6 +588,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
+          ruby: /^[a-z0-9_-]{3,16}$/imx
     Symbol:
     - description: from string
       input:
@@ -537,6 +601,7 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
+          ruby: ":'abc'"
     - description: from shell symbol
       input:
           shell: Symbol('abc')
@@ -547,6 +612,7 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
+          ruby: ":'abc'"
     - description: NEW from string
       input:
           javascript: new BSONSymbol('abc')
@@ -557,3 +623,4 @@ tests:
           java: new Symbol("abc")
           csharp: '"abc"'
           object: new BSONSymbol('abc')
+          ruby: ":'abc'"

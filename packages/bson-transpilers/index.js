@@ -26,24 +26,28 @@ const getCsharpGenerator = require('./codegeneration/csharp/Generator');
 const getShellGenerator = require('./codegeneration/shell/Generator');
 const getJavascriptGenerator = require('./codegeneration/javascript/Generator');
 const getObjectGenerator = require('./codegeneration/object/Generator');
+const getRubyGenerator = require('./codegeneration/ruby/Generator.js');
 
 const javascriptjavasymbols = require('./lib/symbol-table/javascripttojava');
 const javascriptpythonsymbols = require('./lib/symbol-table/javascripttopython');
 const javascriptcsharpsymbols = require('./lib/symbol-table/javascripttocsharp');
 const javascriptshellsymbols = require('./lib/symbol-table/javascripttoshell');
 const javascriptobjectsymbols = require('./lib/symbol-table/javascripttoobject');
+const javascriptrubysymbols = require('./lib/symbol-table/javascripttoruby');
 
 const shelljavasymbols = require('./lib/symbol-table/shelltojava');
 const shellpythonsymbols = require('./lib/symbol-table/shelltopython');
 const shellcsharpsymbols = require('./lib/symbol-table/shelltocsharp');
 const shelljavascriptsymbols = require('./lib/symbol-table/shelltojavascript');
 const shellobjectsymbols = require('./lib/symbol-table/shelltoobject');
+const shellrubysymbols = require('./lib/symbol-table/shelltoruby');
 
 const pythonjavasymbols = require('./lib/symbol-table/pythontojava');
 const pythonshellsymbols = require('./lib/symbol-table/pythontoshell');
 const pythoncsharpsymbols = require('./lib/symbol-table/pythontocsharp');
 const pythonjavascriptsymbols = require('./lib/symbol-table/pythontojavascript');
 const pythonobjectsymbols = require('./lib/symbol-table/pythontoobject');
+const pythonrubysymbols = require('./lib/symbol-table/pythontoruby');
 
 /**
  * Constructs the parse tree from the JS or Shell code given by the user.
@@ -203,6 +207,12 @@ module.exports = {
       getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
       getObjectGenerator,
       javascriptobjectsymbols
+    ),
+    ruby: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getRubyGenerator,
+      javascriptrubysymbols
     )
   },
   shell: {
@@ -235,6 +245,12 @@ module.exports = {
       getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
       getObjectGenerator,
       shellobjectsymbols
+    ),
+    ruby: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getRubyGenerator,
+      shellrubysymbols
     )
   },
   python: {
@@ -267,6 +283,12 @@ module.exports = {
       getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
       getObjectGenerator,
       pythonobjectsymbols
+    ),
+    ruby: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getRubyGenerator,
+      pythonrubysymbols
     )
   },
   getTree: {

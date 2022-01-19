@@ -11,7 +11,8 @@ const config = {
     'react/addons': 'react',
     'react/lib/ExecutionEnvironment': 'react',
     'react/lib/ReactContext': 'react',
-    'react-addons-test-utils': 'react-dom'
+    'react-addons-test-utils': 'react-dom',
+    'os-dns-native': 'commonjs2 os-dns-native'
   },
   module: {
     rules: [

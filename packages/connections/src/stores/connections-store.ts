@@ -33,6 +33,7 @@ export function createNewConnectionInfo(): ConnectionInfo {
 export interface ConnectionStore {
   loadAll: () => Promise<ConnectionInfo[]>;
   save: (connectionInfo: ConnectionInfo) => Promise<void>;
+  delete: (connectionInfo: ConnectionInfo) => Promise<void>;
 }
 
 type State = {
@@ -189,7 +190,8 @@ export function useConnections(
   createNewConnection: () => void;
   hideStoreConnectionError: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
-  setActiveConnectionById: (newConnectionId?: string | undefined) => void;
+  setActiveConnectionById: (newConnectionId: string) => void;
+  removeAllRecentsConnections: () => Promise<void>;
 } {
   const [state, dispatch]: [State, React.Dispatch<Action>] = useReducer(
     connectionsReducer,
@@ -230,6 +232,10 @@ export function useConnections(
     // After connecting and the UI is updated we notify the rest of Compass.
     try {
       await onConnected(connectionInfo, dataService);
+
+      // Update lastUsed date as now and save the connection.
+      connectionInfo.lastUsed = new Date();
+      await saveConnectionInfo(connectionInfo);
     } catch (err) {
       debug(
         `error occurred connection with id ${connectionInfo.id || ''}: ${
@@ -239,9 +245,7 @@ export function useConnections(
 
       dispatch({
         type: 'store-connection-error',
-        errorMessage: `Error handling connection success: ${
-          (err as Error).message
-        }`,
+        errorMessage: (err as Error).message,
       });
     }
   }
@@ -252,14 +256,6 @@ export function useConnections(
       connectedConnectionInfo.current &&
       connectedDataService.current
     ) {
-      // Update lastUsed date as now and save the connection.
-      connectedConnectionInfo.current.lastUsed = new Date();
-      try {
-        void saveConnectionInfo(connectedConnectionInfo.current);
-      } catch (e) {
-        // If it fails to save when connecting, continue.
-      }
-
       void onConnectSuccess(
         connectedConnectionInfo.current,
         connectedDataService.current
@@ -393,17 +389,31 @@ export function useConnections(
         });
       }
     },
-    setActiveConnectionById(newConnectionId?: string) {
+    setActiveConnectionById(newConnectionId: string) {
       const connection = connections.find(
         (connection) => connection.id === newConnectionId
       );
-      if (newConnectionId && connection) {
+      if (connection) {
         dispatch({
           type: 'set-active-connection',
           connectionId: newConnectionId,
           connectionInfo: connection,
         });
       }
+    },
+    async removeAllRecentsConnections() {
+      const recentConnections = connections.filter((conn) => {
+        return !conn.favorite;
+      });
+      await Promise.all(
+        recentConnections.map((conn) => connectionStorage.delete(conn))
+      );
+      dispatch({
+        type: 'set-connections',
+        connections: connections.filter((conn) => {
+          return conn.favorite;
+        }),
+      });
     },
   };
 }

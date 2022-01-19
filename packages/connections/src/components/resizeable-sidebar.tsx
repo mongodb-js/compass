@@ -35,12 +35,14 @@ function ResizableSidebar({
   createNewConnection,
   setActiveConnectionId,
   onConnectionDoubleClicked,
+  removeAllRecentsConnections,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];
   createNewConnection: () => void;
   setActiveConnectionId: (newConnectionId?: string) => void;
   onConnectionDoubleClicked: (connectionInfo: ConnectionInfo) => void;
+  removeAllRecentsConnections: () => void;
 }): React.ReactElement {
   const [width, setWidth] = useState(initialSidebarWidth);
 
@@ -58,6 +60,7 @@ function ResizableSidebar({
         createNewConnection={createNewConnection}
         setActiveConnectionId={setActiveConnectionId}
         onDoubleClick={onConnectionDoubleClicked}
+        removeAllRecentsConnections={removeAllRecentsConnections}
       />
       <ResizeHandle
         onChange={(newWidth) => setWidth(newWidth)}

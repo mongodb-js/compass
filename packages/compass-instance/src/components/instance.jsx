@@ -22,15 +22,20 @@ const RECOMMEND_READ_PREF_MSG = `It is recommended to change your read
  preference in the connection dialog to Primary Preferred or Secondary Preferred
  or provide a replica set name for a full topology connection.`;
 
-const InstanceComponent = ({ status, error, isDataLake, tabs }) => {
-  const [activeTabId, setActiveTabId] = React.useState(0);
-
+const InstanceComponent = ({
+  status,
+  error,
+  isDataLake,
+  tabs,
+  activeTabId,
+  onTabClick,
+}) => {
   const filteredTabs = React.useMemo(() => {
     return tabs.filter((tabRole) => {
       switch (tabRole.name) {
         case 'Performance':
           return !isDataLake;
-        case 'Your Queries':
+        case 'My Queries':
           return process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true';
         default:
           return true;
@@ -43,13 +48,6 @@ const InstanceComponent = ({ status, error, isDataLake, tabs }) => {
   React.useEffect(() => {
     track('Screen', { name: trackingIdForTabName(activeTab) });
   }, [activeTab]);
-
-  const onTabClicked = React.useCallback(
-    (idx) => {
-      setActiveTabId(idx);
-    },
-    [setActiveTabId]
-  );
 
   if (status === 'error') {
     if (error.includes(NOT_MASTER_ERROR)) {
@@ -78,7 +76,7 @@ const InstanceComponent = ({ status, error, isDataLake, tabs }) => {
             return <UnsafeComponent key={tab.name} component={tab.component} />;
           })}
           activeTabIndex={activeTabId}
-          onTabClicked={onTabClicked}
+          onTabClicked={onTabClick}
           mountAllViews={false}
         />
       </div>
@@ -93,6 +91,8 @@ InstanceComponent.propTypes = {
   error: PropTypes.string,
   isDataLake: PropTypes.bool.isRequired,
   tabs: PropTypes.array.isRequired,
+  activeTabId: PropTypes.number.isRequired,
+  onTabClick: PropTypes.func.isRequired,
 };
 
 module.exports = { InstanceComponent };
