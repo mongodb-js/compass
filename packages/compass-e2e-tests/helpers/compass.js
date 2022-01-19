@@ -135,8 +135,8 @@ async function startCompass(
     // TODO: If we redirect the logs to a file we can't see them in stdout.
     // Although they are quite verbose so perhaps we do need addDebugger and
     // just write these to a file.
-    //logLevel: 'info',
-    //outputDir: webdriverLogPath
+    logLevel: 'info',
+    outputDir: webdriverLogPath,
   };
 
   // https://webdriver.io/docs/options/#webdriverio
@@ -183,6 +183,34 @@ async function startCompass(
   const browser = await remote(options);
   compass.browser = browser;
 
+  const puppeteerBrowser = await browser.getPuppeteer();
+  const pages = await puppeteerBrowser.pages();
+  const page = pages[0];
+
+  compass.renderLogs = [];
+
+  page.on('console', async (message) => {
+    // human and machine readable, always UTC
+    const timestamp = new Date().toISOString();
+
+    // startGroup, endGroup, log, table, warning, etc.
+    const type = message.type();
+
+    const text = message.text();
+    const stackTrace = message.stackTrace();
+
+    // first arg is usually == text, but not always
+    const args = [];
+    for (const arg of message.args()) {
+      args.push(await arg.jsonValue());
+    }
+
+    // uncomment to see browser logs
+    //console.log({ timestamp, type, text, args, stackTrace });
+
+    compass.renderLogs.push({ timestamp, type, text, args, stackTrace });
+  });
+
   // get the app logPath out of electron early in case the app crashes before we
   // close it and load the logs
   const logPath = await browser.execute(() => {
@@ -194,23 +222,26 @@ async function startCompass(
   //addDebugger(compass);
 
   compass.stop = async () => {
-    // TODO: no idea how to get either of these
+    // TODO: we don't have main logs to write :(
+    /*
     const mainLogs = [];
-    const renderLogs = [];
-
     const mainLogPath = path.join(
       LOG_PATH,
       `electron-main.${nowFormatted}.log`
     );
     debug(`Writing application main process log to ${mainLogPath}`);
     await fs.writeFile(mainLogPath, mainLogs.join('\n'));
+    */
 
     const renderLogPath = path.join(
       LOG_PATH,
       `electron-render.${nowFormatted}.json`
     );
     debug(`Writing application render process log to ${renderLogPath}`);
-    await fs.writeFile(renderLogPath, JSON.stringify(renderLogs, null, 2));
+    await fs.writeFile(
+      renderLogPath,
+      JSON.stringify(compass.renderLogs, null, 2)
+    );
 
     debug('Stopping Compass application');
     await browser.deleteSession();
@@ -232,42 +263,6 @@ async function startCompass(
         `Failed to remove temporary user data directory at ${userDataDir}:`
       );
       debug(e);
-    }
-
-    // ERROR, CRITICAL and whatever unknown things might end up in the logs
-    const errors = renderLogs.filter((log) => {
-      if (['DEBUG', 'INFO', 'WARNING'].includes(log.level)) {
-        return false;
-      }
-
-      // TODO: remove this once we fixed these warnings
-      if (
-        log.level === 'SEVERE' &&
-        log.message.includes('"Warning: Failed prop type: ')
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-
-    if (errors.length) {
-      /** @type { Error & { errors?: any[] } } */
-      const error = new Error(
-        `Errors encountered in render process during testing:\n\n${errors
-          .map(formatLogToErrorWithStack)
-          .map((msg) =>
-            msg
-              .split('\n')
-              .map((line) => `  ${line}`)
-              .join('\n')
-          )
-          .join('\n\n')}`
-      );
-      error.errors = errors;
-      // Fail the tests if we encountered some severe errors while the
-      // application was running
-      throw error;
     }
 
     return compass;
@@ -526,6 +521,7 @@ async function beforeTests() {
 
 async function afterTests(compass) {
   if (!compass) {
+    console.log('compas is falsey in afterTests');
     return;
   }
 
@@ -534,6 +530,12 @@ async function afterTests(compass) {
   } catch (err) {
     debug('An error occurred while stopping compass:');
     debug(err);
+    try {
+      // make sure the process can exit
+      await compass.browser.deleteSession();
+    } catch (_) {
+      debug('browser already closed');
+    }
   }
   compass = null;
 }
