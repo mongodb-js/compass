@@ -96,12 +96,15 @@ describe('SRV connectivity', function () {
 
     // Find information about which DNS resolutions happened and how:
     const resolutionLogs = logs
-      .filter((log) => log.id === 1_000_000_039)
+      .filter((log) => {
+        if (log.id === 1_000_000_039) {
+          console.log('1_000_000_039', JSON.stringify(log, null, 4));
+          return true;
+        }
+        return false;
+      })
       .map((log) => log.attr);
 
-    if (resolutionLogs.length > 1) {
-      console.log(resolutionLogs);
-    }
     expect(resolutionLogs).to.have.lengthOf(1);
 
     const { from, to, resolutionDetails } = resolutionLogs[0];
