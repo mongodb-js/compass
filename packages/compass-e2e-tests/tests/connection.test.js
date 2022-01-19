@@ -98,6 +98,10 @@ describe('SRV connectivity', function () {
     const resolutionLogs = logs
       .filter((log) => log.id === 1_000_000_039)
       .map((log) => log.attr);
+
+    if (resolutionLogs.length > 1) {
+      console.log(resolutionLogs);
+    }
     expect(resolutionLogs).to.have.lengthOf(1);
 
     const { from, to, resolutionDetails } = resolutionLogs[0];
