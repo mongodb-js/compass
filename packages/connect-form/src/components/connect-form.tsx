@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { ConnectionInfo } from 'mongodb-data-service';
+import {
+  ConnectionInfo,
+  ConnectionFavoriteOptions,
+} from 'mongodb-data-service';
 import {
   Banner,
   BannerVariant,
@@ -13,6 +16,7 @@ import {
   css,
   uiColors,
 } from '@mongodb-js/compass-components';
+import { cloneDeep } from 'lodash';
 
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
@@ -189,11 +193,17 @@ function ConnectForm({
         onCancel={() => {
           setShowSaveConnectionModal(false);
         }}
-        onSave={async (connectionInfo: ConnectionInfo) => {
+        onSave={async (favoriteInfo: ConnectionFavoriteOptions) => {
           setShowSaveConnectionModal(false);
 
           try {
-            await saveConnection(connectionInfo);
+            await saveConnection({
+              ...cloneDeep(initialConnectionInfo),
+              connectionOptions: cloneDeep(connectionOptions),
+              favorite: {
+                ...favoriteInfo,
+              },
+            });
           } catch (err) {
             setErrors([err as Error]);
           }

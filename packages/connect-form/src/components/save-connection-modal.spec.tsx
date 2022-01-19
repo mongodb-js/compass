@@ -76,14 +76,8 @@ describe('SaveConnectionModal Component', function () {
         it('should have called to save with the new config', function () {
           expect(onSaveSpy.callCount).to.equal(1);
           expect(onSaveSpy.firstCall.args[0]).to.deep.equal({
-            id: 'test',
-            connectionOptions: {
-              connectionString: 'pineapples',
-            },
-            favorite: {
-              name: 'delicious cuban sandwich',
-              color: '#59c1e2',
-            },
+            name: 'delicious cuban sandwich',
+            color: '#59c1e2',
           });
         });
 
