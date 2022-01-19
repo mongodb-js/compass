@@ -50,22 +50,13 @@ function ConnectForm({
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const [
-    {
-      errors,
-      warnings,
-      connectionStringUrl,
-      connectionStringInvalidError,
-      connectionOptions,
-    },
-    {
-      updateConnectionFormField,
-      setConnectionStringUrl,
-      setConnectionStringError,
-      setErrors,
-    },
+    { enableEditingConnectionString, errors, warnings, connectionOptions },
+    { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo);
 
-  const editingConnectionStringUrl = connectionStringUrl;
+  const connectionStringInvalidError = errors.find(
+    (error) => error.fieldName === 'connectionString'
+  );
 
   return (
     <div className={formContainerStyles} data-testid="new-connect-form">
@@ -76,19 +67,19 @@ function ConnectForm({
             Connect to a MongoDB deployment
           </Description>
           <ConnectionStringInput
-            connectionString={editingConnectionStringUrl.toString()}
-            setConnectionStringUrl={setConnectionStringUrl}
-            setConnectionStringError={setConnectionStringError}
+            connectionString={connectionOptions.connectionString}
+            enableEditingConnectionString={enableEditingConnectionString}
+            setEnableEditingConnectionString={setEnableEditingConnectionString}
+            updateConnectionFormField={updateConnectionFormField}
           />
           {connectionStringInvalidError && (
             <Banner variant={BannerVariant.Danger}>
-              {connectionStringInvalidError}
+              {connectionStringInvalidError.message}
             </Banner>
           )}
           <AdvancedConnectionOptions
             errors={errors}
             disabled={!!connectionStringInvalidError}
-            connectionStringUrl={editingConnectionStringUrl}
             updateConnectionFormField={updateConnectionFormField}
             connectionOptions={connectionOptions}
           />
@@ -110,7 +101,6 @@ function ConnectForm({
           onConnectClicked={() => {
             const updatedConnectionOptions = {
               ...connectionOptions,
-              connectionString: editingConnectionStringUrl.toString(),
             };
             const formErrors = validateConnectionOptionsErrors(
               updatedConnectionOptions

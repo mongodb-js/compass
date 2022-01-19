@@ -15,12 +15,12 @@ import ConnectionStringInput, {
 } from './connection-string-input';
 
 describe('ConnectionStringInput Component', function () {
-  let setConnectionStringErrorSpy: sinon.SinonSpy;
-  let setConnectionStringUrlSpy: sinon.SinonSpy;
+  let setEnableEditingConnectionStringSpy: sinon.SinonSpy;
+  let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   beforeEach(function () {
-    setConnectionStringErrorSpy = sinon.spy();
-    setConnectionStringUrlSpy = sinon.spy();
+    setEnableEditingConnectionStringSpy = sinon.spy();
+    updateConnectionFormFieldSpy = sinon.spy();
   });
   afterEach(cleanup);
 
@@ -66,8 +66,9 @@ describe('ConnectionStringInput Component', function () {
       render(
         <ConnectionStringInput
           connectionString=""
-          setConnectionStringError={setConnectionStringErrorSpy}
-          setConnectionStringUrl={setConnectionStringUrlSpy}
+          enableEditingConnectionString={true}
+          setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
     });
@@ -91,19 +92,30 @@ describe('ConnectionStringInput Component', function () {
         userEvent.keyboard('z');
       });
 
-      it('should call setConnectionStringError', function () {
-        expect(setConnectionStringErrorSpy.callCount).to.equal(1);
-        expect(setConnectionStringErrorSpy.firstCall.args[0]).to.equal(
-          'Invalid schema, expected connection string to start with `mongodb://` or `mongodb+srv://`'
-        );
-      });
-
-      it('should not call setConnectionStringUrl', function () {
-        expect(setConnectionStringUrlSpy.callCount).to.equal(0);
+      it('should call updateConnectionFormField with the invalid connection string', function () {
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-connection-string',
+          newConnectionStringValue: 'z',
+        });
       });
     });
 
-    describe('when a valid connection string is inputted', function () {
+    describe('clicking on edit connection string toggle', function () {
+      beforeEach(function () {
+        const toggle = screen.getByRole('switch');
+        toggle.click();
+      });
+
+      it('should call setEnableEditingConnectionString', function () {
+        expect(setEnableEditingConnectionStringSpy.callCount).to.equal(1);
+        expect(setEnableEditingConnectionStringSpy.firstCall.args[0]).to.equal(
+          false
+        );
+      });
+    });
+
+    describe('when a connection string is inputted', function () {
       beforeEach(function () {
         // Focus the input.
         userEvent.tab();
@@ -112,11 +124,12 @@ describe('ConnectionStringInput Component', function () {
         userEvent.keyboard('mongodb://localhost');
       });
 
-      it('should call setConnectionStringUrl with the connection string', function () {
-        expect(setConnectionStringUrlSpy.callCount).to.equal(9);
-        expect(setConnectionStringUrlSpy.lastCall.args[0].toString()).to.equal(
-          'mongodb://localhost/'
-        );
+      it('should call updateConnectionFormField with the connection string', function () {
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(19);
+        expect(updateConnectionFormFieldSpy.lastCall.args[0]).to.deep.equal({
+          type: 'update-connection-string',
+          newConnectionStringValue: 'mongodb://localhost',
+        });
       });
     });
   });
@@ -126,8 +139,9 @@ describe('ConnectionStringInput Component', function () {
       render(
         <ConnectionStringInput
           connectionString="mongodb+srv://turtles:pineapples@localhost/"
-          setConnectionStringError={setConnectionStringErrorSpy}
-          setConnectionStringUrl={setConnectionStringUrlSpy}
+          enableEditingConnectionString={true}
+          setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
     });
@@ -147,13 +161,14 @@ describe('ConnectionStringInput Component', function () {
     });
   });
 
-  describe('with a connection string', function () {
+  describe('with a connection string with a password and editing disabled', function () {
     beforeEach(function () {
       render(
         <ConnectionStringInput
           connectionString="mongodb+srv://turtles:pineapples@localhost/"
-          setConnectionStringError={setConnectionStringErrorSpy}
-          setConnectionStringUrl={setConnectionStringUrlSpy}
+          enableEditingConnectionString={false}
+          setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
     });
@@ -186,57 +201,11 @@ describe('ConnectionStringInput Component', function () {
         await waitFor(() => expect(screen.queryByText('Confirm')).to.not.exist);
       });
 
-      it('should remove the disabled after clicking confirm to edit', function () {
-        const textArea = screen.getByRole('textbox');
-        expect(textArea).to.not.match('[disabled]');
-      });
-
-      it('should show the uncensored connection string', function () {
-        const textArea = screen.getByRole('textbox');
-        expect(textArea).to.have.text(
-          'mongodb+srv://turtles:pineapples@localhost/'
+      it('should call setEnableEditingConnectionString', function () {
+        expect(setEnableEditingConnectionStringSpy.callCount).to.equal(1);
+        expect(setEnableEditingConnectionStringSpy.firstCall.args[0]).to.equal(
+          true
         );
-      });
-
-      describe('when a valid connection string is inputted', function () {
-        beforeEach(function () {
-          // Focus the input.
-          userEvent.tab();
-          userEvent.tab();
-          userEvent.tab();
-          userEvent.keyboard('?ssl=true');
-        });
-
-        it('should call setConnectionStringUrl with the new connection string', function () {
-          expect(setConnectionStringUrlSpy.callCount).to.equal(9);
-          expect(
-            setConnectionStringUrlSpy.lastCall.args[0].toString()
-          ).to.equal('mongodb+srv://turtles:pineapples@localhost/?ssl=true');
-        });
-
-        it('should not call setConnectionStringError', function () {
-          expect(setConnectionStringErrorSpy.callCount).to.equal(0);
-        });
-      });
-
-      describe('clicking on edit connection string toggle again', function () {
-        beforeEach(function () {
-          // Wait for the modal to close.
-          const toggle = screen.getByRole('switch');
-          toggle.click();
-        });
-
-        it('should add disabled on the textbox', function () {
-          const textArea = screen.getByRole('textbox');
-          expect(textArea).to.match('[disabled]');
-        });
-
-        it('should show the censored connection string', function () {
-          const textArea = screen.getByRole('textbox');
-          expect(textArea).to.have.text(
-            'mongodb+srv://turtles:*****@localhost/'
-          );
-        });
       });
     });
 
@@ -255,14 +224,8 @@ describe('ConnectionStringInput Component', function () {
         );
       });
 
-      it('should keep the disabled on the textbox', function () {
-        const textArea = screen.getByRole('textbox');
-        expect(textArea).to.match('[disabled]');
-      });
-
-      it('should show the censored connection string', function () {
-        const textArea = screen.getByRole('textbox');
-        expect(textArea).to.have.text('mongodb+srv://turtles:*****@localhost/');
+      it('should not call setEnableEditingConnectionString', function () {
+        expect(setEnableEditingConnectionStringSpy.callCount).to.equal(0);
       });
     });
   });
