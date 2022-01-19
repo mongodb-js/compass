@@ -3,11 +3,10 @@ import React from 'react';
 import {
   Banner,
   BannerVariant,
+  InlineDefinition,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-
-import InlineDefinition from '@leafygreen-ui/inline-definition';
 
 type ErrorOrWarning = { message: string };
 
@@ -75,10 +74,16 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
   );
   return (
     <div>
-      {messages.length - 1} problems. &nbsp;
-          <InlineDefinition definition={tooltipErrors}>
-            View All
-          </InlineDefinition>
+      {messages.length} problems. <InlineDefinition
+        tooltipProps={{
+          align: 'top',
+          justify: 'start',
+          delay: 500,
+        }}
+        definition={tooltipErrors}
+      >
+        View All
+      </InlineDefinition>
     </div>
   );
 }
