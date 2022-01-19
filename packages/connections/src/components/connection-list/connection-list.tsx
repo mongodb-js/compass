@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import {
   Button,
   H2,
@@ -52,6 +52,9 @@ const sectionHeaderStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
+  ":hover": {
+
+  }
 });
 
 const recentHeaderStyles = css({
@@ -149,6 +152,7 @@ function ConnectionList({
   onDoubleClick: (connectionInfo: ConnectionInfo) => void;
   removeAllRecentsConnections: () => void;
 }): React.ReactElement {
+  const [recentHeaderHover, setRecentHover] = useState(false)
   const favoriteConnections = connections
     .filter(
       (connectionInfo): connectionInfo is ConnectionInfoFavorite =>
@@ -210,16 +214,18 @@ function ConnectionList({
             </li>
           ))}
         </ul>
-        <div className={cx(sectionHeaderStyles, recentHeaderStyles)}>
+        <div className={cx(sectionHeaderStyles, recentHeaderStyles)} onMouseEnter={() => setRecentHover(true)} onMouseLeave={() => setRecentHover(false)}>
           <div className={sectionHeaderIconStyles}>{recentIcon}</div>
           <H2 className={sectionHeaderTitleStyles}>Recents</H2>
-          <Button
-            onClick={removeAllRecentsConnections}
-            variant="danger"
-            size="xsmall"
-          >
-            Clear All
-          </Button>
+          {recentHeaderHover && 
+            <Button
+              onClick={removeAllRecentsConnections}
+              variant="default"
+              size="xsmall"
+            >
+              Clear All
+            </Button>
+          }
         </div>
         <ul className={connectionListStyles}>
           {recentConnections.map((connectionInfo, index) => (
