@@ -65,7 +65,7 @@ class Sidebar extends PureComponent {
   };
 
   onNavigationItemClick(tabName) {
-    this.props.globalAppRegistryEmit('sidebar-instance-workspace-open-tab', tabName);
+    this.props.globalAppRegistryEmit('open-instance-workspace', tabName);
   }
 
   updateWidth(width) {

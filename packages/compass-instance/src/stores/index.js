@@ -48,7 +48,7 @@ store.onActivated = function onActivated(globalAppRegistry) {
     store.dispatch({ type: 'reset' });
   });
 
-  globalAppRegistry.on('sidebar-instance-workspace-open-tab', (tabName) => {
+  globalAppRegistry.on('open-instance-workspace', (tabName) => {
     if (!tabName) {
       store.dispatch({ type: 'change-tab', id: 0 });
     } else {
