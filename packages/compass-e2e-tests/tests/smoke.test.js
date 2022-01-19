@@ -90,8 +90,7 @@ describe('Smoke tests', function () {
 
       for (const dbSelector of dbSelectors) {
         const dbElement = await browser.$(dbSelector);
-        expect(await dbElement.isExisting(), `${dbSelector} must exist`).to.be
-          .true;
+        await dbElement.waitForDisplayed();
         // TODO: Storage Size, Collections, Indexes, Drop button
       }
     });
