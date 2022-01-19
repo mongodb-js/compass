@@ -1,9 +1,9 @@
-import { Dispatch } from 'redux';
+import { AnyAction, Dispatch } from 'redux';
 import { Aggregation, getAggregations } from './../utlis/aggregations';
 import { Query, getQueries } from './../utlis/queries';
 
 enum actions {
-  ITEMS_FETCHED = 'fetchItems',
+  ITEMS_FETCHED = 'itemsFetched',
 }
 
 type StateActions = {
@@ -37,14 +37,13 @@ const INITIAL_STATE: State = {
   items: [],
 };
 
-function reducer(state = INITIAL_STATE, action: StateActions): State {
+function reducer(state = INITIAL_STATE, action: StateActions | AnyAction): State {
+  const newState = { ...state };
   if (action.type === actions.ITEMS_FETCHED) {
-    return {
-      items: action.payload,
-      loading: false,
-    };
+    newState.items = action.payload;
+    newState.loading = false;
   }
-  return state;
+  return newState;
 }
 
 export const fetchItems = () => {
