@@ -6,7 +6,7 @@ export interface Aggregation {
   name: string;
   namespace: string;
   lastModified: number;
-};
+}
 
 export const getAggregations = async (): Promise<Aggregation[]> => {
   const pipelines: Aggregation[] = await promisify(readPipelinesFromStorage)();

@@ -7,7 +7,7 @@ enum actions {
 }
 
 type StateActions = {
-  type: actions.ITEMS_FETCHED,
+  type: actions.ITEMS_FETCHED;
   payload: Item[];
 };
 
@@ -29,7 +29,10 @@ const INITIAL_STATE: State = {
   items: [],
 };
 
-function reducer(state = INITIAL_STATE, action: StateActions | AnyAction): State {
+function reducer(
+  state = INITIAL_STATE,
+  action: StateActions | AnyAction
+): State {
   const newState = { ...state };
   if (action.type === actions.ITEMS_FETCHED) {
     newState.items = action.payload;
@@ -44,10 +47,12 @@ export const fetchItems = () => {
     let queries: Item[] = [];
     try {
       aggregations = await getAggregationItems();
-    } catch (e) { }
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
     try {
       queries = await getQueryItems();
-    } catch (e) { }
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
 
     const payload = [...aggregations, ...queries];
     payload.sort((a, b) => a.lastModified - b.lastModified);
@@ -55,7 +60,7 @@ export const fetchItems = () => {
       type: actions.ITEMS_FETCHED,
       payload,
     });
-  }
+  };
 };
 
 const getAggregationItems = async (): Promise<Item[]> => {

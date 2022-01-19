@@ -1,4 +1,4 @@
-import { promisifyAmpersandMethod } from 'mongodb-data-service'
+import { promisifyAmpersandMethod } from 'mongodb-data-service';
 import { FavoriteQueryCollection } from '@mongodb-js/compass-query-history';
 
 interface AmpersandQueryModel {
@@ -10,15 +10,13 @@ export interface Query {
   _name: string;
   _ns: string;
   _dateSaved: Date;
-};
+}
 
 export const getQueries = async (): Promise<Query[]> => {
   const collection = new FavoriteQueryCollection();
-  const fetch = promisifyAmpersandMethod(
-    collection.fetch.bind(collection)
-  );
+  const fetch = promisifyAmpersandMethod(collection.fetch.bind(collection));
   return mapQueryModels(await fetch());
-}
+};
 
 const mapQueryModels = (models: AmpersandQueryModel[]): Query[] => {
   return models.map((model: AmpersandQueryModel) => {

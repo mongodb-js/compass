@@ -23,11 +23,8 @@ const AggregationsQueriesList = ({
       <ul>
         {items.map((item) => (
           <li key={item.id}>
-            Name: {item.name} (
-              Type: {item.type}; 
-              Modified: {item.lastModified}; 
-              Namespace: ${item.namespace}
-            )
+            Name: {item.name} ( Type: {item.type}; Modified: {item.lastModified}
+            ; Namespace: ${item.namespace})
           </li>
         ))}
       </ul>
