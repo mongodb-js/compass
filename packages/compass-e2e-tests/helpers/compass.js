@@ -1,4 +1,5 @@
 // TODO: add back ts-check
+const { inspect } = require('util');
 const { ObjectId } = require('bson');
 const { promises: fs } = require('fs');
 const path = require('path');
@@ -123,9 +124,6 @@ async function startCompass(
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    // TODO: If we redirect the logs to a file we can't see them in stdout.
-    // Although they are quite verbose so perhaps we do need addDebugger and
-    // just write these to a file.
     logLevel: 'info',
     outputDir: webdriverLogPath,
   };
@@ -209,8 +207,7 @@ async function startCompass(
   });
 
   addCommands(compass);
-  // TODO: do we need this?
-  //addDebugger(compass);
+  addDebugger(compass);
 
   compass.stop = async () => {
     // TODO: we don't have main logs to write :(
@@ -386,7 +383,6 @@ function getCompassBinPath({ appPath, packagerOptions: { name } }) {
   }
 }
 
-/*
 function addDebugger(compass) {
   const debugClient = debug.extend('webdriver:client');
   const browserProto = Object.getPrototypeOf(compass.browser);
@@ -465,7 +461,6 @@ function augmentError(error, stack) {
 
   error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
 }
-*/
 
 async function capturePage(
   compass,
