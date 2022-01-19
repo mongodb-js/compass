@@ -17,7 +17,6 @@ import {
 } from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
-import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const uriLabelStyles = css({
@@ -87,8 +86,6 @@ function ConnectStringInput({
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
     useState(connectionString);
-  const [showEditConnectionStringPrompt, setShowEditConnectionStringPrompt] =
-    useState(false);
 
   useEffect(() => {
     // If the user isn't actively editing the connection string and it
@@ -152,11 +149,7 @@ function ConnectStringInput({
           size="xsmall"
           checked={enableEditingConnectionString}
           onChange={(checked: boolean) => {
-            if (checked) {
-              setShowEditConnectionStringPrompt(true);
-              return;
-            }
-            setEnableEditingConnectionString(false);
+            setEnableEditingConnectionString(checked);
           }}
         />
       </div>
@@ -171,17 +164,6 @@ function ConnectStringInput({
           aria-labelledby="Connection String"
           placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
           spellCheck={false}
-        />
-        <ConfirmEditConnectionString
-          open={showEditConnectionStringPrompt}
-          onCancel={() => {
-            setShowEditConnectionStringPrompt(false);
-          }}
-          onConfirm={() => {
-            setEnableEditingConnectionString(true);
-
-            setShowEditConnectionStringPrompt(false);
-          }}
         />
       </div>
     </Fragment>

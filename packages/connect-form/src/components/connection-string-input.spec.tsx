@@ -183,22 +183,9 @@ describe('ConnectionStringInput Component', function () {
       expect(textArea).to.match('[disabled]');
     });
 
-    describe('clicking confirm to edit', function () {
-      beforeEach(async function () {
+    describe('clicking to edit the connection string', function () {
+      beforeEach(function () {
         screen.getByRole('switch').click();
-
-        // Click confirm on the modal that opens.
-        const confirmButton = screen.getByText('Confirm').closest('button');
-        fireEvent(
-          confirmButton,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
-
-        // Wait for the modal to close.
-        await waitFor(() => expect(screen.queryByText('Confirm')).to.not.exist);
       });
 
       it('should call setEnableEditingConnectionString', function () {
@@ -206,26 +193,6 @@ describe('ConnectionStringInput Component', function () {
         expect(setEnableEditingConnectionStringSpy.firstCall.args[0]).to.equal(
           true
         );
-      });
-    });
-
-    describe('clicking cancel on confirmation to edit', function () {
-      beforeEach(function () {
-        screen.getByRole('switch').click();
-
-        // Click cancel on the modal that opens.
-        const cancelButton = screen.getByText('Cancel').closest('button');
-        fireEvent(
-          cancelButton,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
-      });
-
-      it('should not call setEnableEditingConnectionString', function () {
-        expect(setEnableEditingConnectionStringSpy.callCount).to.equal(0);
       });
     });
   });
