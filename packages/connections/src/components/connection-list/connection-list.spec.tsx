@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { ConnectionInfo } from 'mongodb-data-service';
@@ -229,7 +229,7 @@ describe('ConnectionList Component', function () {
   });
   describe('when "clear all" button is clicked', function () {
     let removeAllRecentsConnectionsSpy;
-    beforeEach(function () {
+    beforeEach(async function () {
       removeAllRecentsConnectionsSpy = sinon.spy();
       render(
         <ConnectionList
@@ -244,6 +244,8 @@ describe('ConnectionList Component', function () {
 
       expect(removeAllRecentsConnectionsSpy.called).to.equal(false);
 
+      fireEvent.mouseOver(screen.getByText('Recents'));
+      await waitFor(() => screen.getByText('Clear All'));
       const button = screen.getByText('Clear All');
       fireEvent(
         button,
