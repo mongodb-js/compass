@@ -78,15 +78,20 @@ describe('SRV connectivity', function () {
     const compass = await beforeTests();
     const browser = compass.browser;
 
-    // Does not actually succeed at connecting, but that’s fine for us here
-    // (Unless you have a server listening on port 27017)
-    await browser.connectWithConnectionString(
-      'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
-      undefined,
-      false
-    );
-    await disconnect(browser);
-    await afterTests(compass);
+    try {
+      // Does not actually succeed at connecting, but that’s fine for us here
+      // (Unless you have a server listening on port 27017)
+      await browser.connectWithConnectionString(
+        'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
+        undefined,
+        'either'
+      );
+    } finally {
+      await disconnect(browser);
+      // make sure the browser gets closed otherwise if this fails the process wont exit
+      await afterTests(compass);
+    }
+
     const { logs } = compass;
 
     // Find information about which DNS resolutions happened and how:

@@ -4,18 +4,20 @@ module.exports = function (compass) {
   return async function doConnect(timeout, expectSuccess = true) {
     const { browser } = compass;
     await browser.clickVisible(Selectors.ConnectButton);
-    if (expectSuccess) {
+    let selector;
+    if (expectSuccess === 'either') {
+      // For the rare cases where we don't care whether it fails or succeeds
+      selector = `${Selectors.DatabasesTable},${Selectors.ConnectionFormMessage}`;
+    } else if (expectSuccess) {
       // First meaningful thing on the screen after being connected, good enough
       // indicator that we are connected to the server
-      const element = await browser.$(Selectors.DatabasesTable);
-      await element.waitForDisplayed({
-        timeout,
-      });
+      selector = Selectors.DatabasesTable;
     } else {
-      const element = await browser.$(Selectors.ConnectionFormMessage);
-      await element.waitForDisplayed({
-        timeout,
-      });
+      selector = Selectors.ConnectionFormMessage;
     }
+    const element = await browser.$(selector);
+    await element.waitForDisplayed({
+      timeout,
+    });
   };
 };
