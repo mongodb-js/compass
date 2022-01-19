@@ -251,7 +251,7 @@ module.exports = {
       getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
       getRubyGenerator,
       shellrubysymbols
-    ),
+    )
   },
   python: {
     java: getTranspiler(
@@ -289,7 +289,7 @@ module.exports = {
       getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
       getRubyGenerator,
       pythonrubysymbols
-    ),
+    )
   },
   getTree: {
     javascript: loadJSTree,
