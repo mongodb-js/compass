@@ -16,6 +16,7 @@ const { ReadPreference } = require('mongodb');
 const { parseConnectionString } = require('mongodb3/lib/core');
 const resolveMongodbSrv = require('resolve-mongodb-srv');
 const ConnectionString = require('mongodb-connection-string-url').default;
+const osDns = require('os-dns-native');
 const dataTypes = require('./data-types');
 const localPortGenerator = require('./local-port-generator');
 
@@ -1102,7 +1103,9 @@ async function createConnectionFromUrl(url) {
   // https://jira.mongodb.org/browse/COMPASS-4768
   // so we may want to keep it around anyway.
   const unescapedUrl = unescape(url);
-  const resolvedUrl = await resolveMongodbSrv(unescapedUrl);
+  const resolvedUrl = await resolveMongodbSrv(unescapedUrl, {
+    dns: osDns.withNodeFallback
+  });
   const parsed = await parseConnectionStringAsPromise(resolvedUrl);
   const isSrvRecord = unescapedUrl.startsWith('mongodb+srv://');
   const attrs = Object.assign(

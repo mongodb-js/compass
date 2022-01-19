@@ -23,7 +23,8 @@ module.exports = function (app) {
       sshTunnelPassword,
       sshTunnelIdentityFile,
     },
-    timeout = defaultTimeoutMS
+    timeout = defaultTimeoutMS,
+    expectSuccess = true
   ) {
     const { client } = app;
     const connectionFormButtonElement = await client.$(
@@ -182,6 +183,6 @@ module.exports = function (app) {
       await element.setValue(sshTunnelPassword);
     }
 
-    await client.doConnect(timeout);
+    await client.doConnect(timeout, expectSuccess);
   };
 };
