@@ -44,6 +44,7 @@ Templates:
     #                                           #
     #############################################
 
+    DriverTemplate: &DriverTemplate null
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate null # Args: lhs, operation, rhs
     InSyntaxTemplate: &InSyntaxTemplate null # Args: lhs, operation, rhs
     AndSyntaxTemplate: &AndSyntaxTemplate null # Args: items to compare as an array
@@ -51,6 +52,7 @@ Templates:
     NotSyntaxTemplate: &NotSyntaxTemplate null # Args: item to negate
     UnarySyntaxTemplate: &UnarySyntaxTemplate null
     BinarySyntaxTemplate: &BinarySyntaxTemplate null
+    ParensSyntaxTemplate: &ParensSyntaxTemplate null
     EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
     EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
     FloorDivTemplate: &FloorDivSyntaxTemplate null # Args: lhs, rhs
@@ -333,6 +335,7 @@ Templates:
     #                                           #
     #############################################
     ImportTemplate: &ImportTemplate null
+    DriverImportTemplate: &DriverImportTemplate null
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null
