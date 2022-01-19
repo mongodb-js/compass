@@ -52,7 +52,7 @@ const inActiveColorOptionStyles = css({
 
 const noColorRedBarStyles = css({
   width: 40,
-  borderTop: '3px solid red',
+  borderTop: `3px solid ${uiColors.red.base}`,
   transform: 'rotate(-45deg)',
   position: 'absolute',
   left: -5,
