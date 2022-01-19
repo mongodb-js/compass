@@ -69,7 +69,7 @@ function SaveConnectionModal({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Label htmlFor="">Read Preference</Label>
+        <Label htmlFor="">Color</Label>
         <SavedConnectionColorPicker
           hex={editingFavorite.color}
           onChange={(newColor?: string) => {

@@ -1,4 +1,5 @@
 ignores:
+ - "@testing-library/react-hooks"
  - "@mongodb-js/prettier-config-compass"
  - "@mongodb-js/tsconfig-compass"
  - "@types/chai"
