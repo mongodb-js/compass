@@ -60,12 +60,8 @@ function SaveConnectionModal({
               name: value,
             });
           }}
-          name={'replica-set'}
-          data-testid={'replica-set'}
-          label={'Name'}
-          type={'text'}
-          optional={true}
-          placeholder={'Test environment 3'}
+          label="Name"
+          placeholder="Connection name"
           value={editingFavorite.name}
         />
       </FormFieldContainer>

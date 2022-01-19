@@ -1,21 +1,24 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 
 import ConnectForm from './connect-form';
 
+const noop = (): any => {
+  /* no-op */
+};
+
 function renderForm() {
   return render(
     <ConnectForm
-      onConnectClicked={() => {
-        /* */
-      }}
+      onConnectClicked={noop}
       initialConnectionInfo={{
         id: 'test',
         connectionOptions: {
           connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
         },
       }}
+      saveConnection={noop}
     />
   );
 }
@@ -45,18 +48,72 @@ describe('ConnectForm Component', function () {
   it('should render an error with an invalid connection string', function () {
     render(
       <ConnectForm
-        onConnectClicked={() => {
-          /* */
-        }}
+        onConnectClicked={noop}
         initialConnectionInfo={{
           id: 'test',
           connectionOptions: {
             connectionString: 'pineapples',
           },
         }}
+        saveConnection={noop}
       />
     );
     expect(screen.getByText('Invalid connection string "pineapples"')).to.be
       .visible;
+  });
+
+  it('should not show to save a connection when showSaveConnection=false', function () {
+    render(
+      <ConnectForm
+        onConnectClicked={noop}
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'pineapples',
+          },
+        }}
+        saveConnection={noop}
+      />
+    );
+    expect(screen.queryByText('FAVORITE')).to.not.exist;
+  });
+
+  it('should show a button to save a connection when showSaveConnection=true', function () {
+    render(
+      <ConnectForm
+        onConnectClicked={noop}
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'pineapples',
+          },
+        }}
+        showSaveConnection
+        saveConnection={noop}
+      />
+    );
+    expect(screen.getByText('FAVORITE').closest('button')).to.be.visible;
+  });
+
+  it('should show the saved connection modal when the favorite button is clicked', function () {
+    render(
+      <ConnectForm
+        onConnectClicked={noop}
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'pineapples',
+          },
+        }}
+        showSaveConnection
+        saveConnection={noop}
+      />
+    );
+
+    expect(screen.queryByText('Save connection to favorites')).to.not.exist;
+
+    fireEvent.click(screen.getByText('FAVORITE').closest('button'));
+
+    expect(screen.getByText('Save connection to favorites')).to.be.visible;
   });
 });

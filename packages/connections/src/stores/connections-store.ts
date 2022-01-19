@@ -197,7 +197,8 @@ export function useConnections(
     connectionsReducer,
     defaultConnectionsState()
   );
-  const { isConnected, connectionAttempt, connections } = state;
+  const { activeConnectionId, isConnected, connectionAttempt, connections } =
+    state;
 
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
   const connectedConnectionInfo = useRef<ConnectionInfo>();
@@ -362,8 +363,6 @@ export function useConnections(
       async saveConnection(connectionInfo: ConnectionInfo) {
         await saveConnectionInfo(connectionInfo);
 
-        // TODO: Can we somehow full reload connections?
-
         const existingConnectionIndex = connections.findIndex(
           (connection) => connection.id === connectionInfo.id
         );
@@ -374,17 +373,28 @@ export function useConnections(
           // Update the existing saved connection.
           newConnections[existingConnectionIndex] = {
             ...cloneDeep(newConnections[existingConnectionIndex]),
-            ...connectionInfo,
+            ...cloneDeep(connectionInfo),
           };
         } else {
           // Add the newly saved connection to our connections list.
-          newConnections.push(connectionInfo);
+          newConnections.push(cloneDeep(connectionInfo));
         }
 
         dispatch({
           type: 'set-connections',
           connections: newConnections,
         });
+
+        // Update the active connection if it's currently selected.
+        if (activeConnectionId === connectionInfo.id) {
+          // TODO: Before merging, use the new action handler added
+          // in https://github.com/mongodb-js/compass/pull/2666/files#diff-0abd9783e312f714b88197be4cd8d7d5f84caa00fa6bce8d62d07c0c4246519eR407
+          dispatch({
+            type: 'set-active-connection',
+            connectionId: connectionInfo.id,
+            connectionInfo: cloneDeep(connectionInfo),
+          });
+        }
       },
       setActiveConnectionById(newConnectionId: string) {
         const connection = connections.find(

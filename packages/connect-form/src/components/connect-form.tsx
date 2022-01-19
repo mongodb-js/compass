@@ -105,6 +105,7 @@ function ConnectForm({
               {initialConnectionInfo.favorite?.name ?? 'New Connection'}
               {showSaveConnection && (
                 <IconButton
+                  aria-label="Save Connection"
                   className={editFavoriteButtonStyles}
                   onClick={() => {
                     setShowSaveConnectionModal(true);
@@ -119,6 +120,7 @@ function ConnectForm({
             </Description>
             {showSaveConnection && (
               <IconButton
+                aria-label="Save Connection"
                 className={favoriteButtonStyles}
                 size="large"
                 onClick={() => {
@@ -188,10 +190,8 @@ function ConnectForm({
           setShowSaveConnectionModal(false);
         }}
         onSave={async (connectionInfo: ConnectionInfo) => {
-          // await saveConnection(connectionInfo);
           setShowSaveConnectionModal(false);
 
-          // TODO: Error handling.
           try {
             await saveConnection(connectionInfo);
           } catch (err) {

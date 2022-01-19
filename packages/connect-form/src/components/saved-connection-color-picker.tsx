@@ -74,6 +74,7 @@ function ColorOption({
         [activeColorOptionStyles]: isSelected,
         [inActiveColorOptionStyles]: !isSelected,
       })}
+      data-testid={`color-pick-${hex}${isSelected ? '-selected' : ''}`}
       onClick={onClick}
       title={hex}
     >
@@ -123,6 +124,7 @@ function SavedConnectionColorPicker({
         onClick={() => {
           onChange();
         }}
+        data-testid={`color-pick-no-color${!hex ? '-selected' : ''}`}
         title="No color"
       >
         <div className={noColorRedBarStyles} />
