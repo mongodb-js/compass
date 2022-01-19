@@ -32,6 +32,7 @@ export function createNewConnectionInfo(): ConnectionInfo {
 export interface ConnectionStore {
   loadAll: () => Promise<ConnectionInfo[]>;
   save: (connectionInfo: ConnectionInfo) => Promise<void>;
+  delete: (connectionInfo: ConnectionInfo) => Promise<void>;
 }
 
 type State = {
@@ -189,6 +190,7 @@ export function useConnections(
     createNewConnection(): void;
     hideStoreConnectionError(): void;
     setActiveConnectionById(newConnectionId?: string | undefined): void;
+    removeAllRecentsConnections(): void;
   }
 ] {
   const [state, dispatch]: [State, React.Dispatch<Action>] = useReducer(
@@ -362,6 +364,20 @@ export function useConnections(
             connectionInfo: connection,
           });
         }
+      },
+      async removeAllRecentsConnections() {
+        const recentConnections = connections.filter((conn) => {
+          return !conn.favorite;
+        });
+        await Promise.all(
+          recentConnections.map((conn) => connectionStorage.delete(conn))
+        );
+        dispatch({
+          type: 'set-connections',
+          connections: connections.filter((conn) => {
+            return conn.favorite;
+          }),
+        });
       },
     },
   ];
