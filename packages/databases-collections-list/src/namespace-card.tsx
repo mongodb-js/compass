@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import React, { useCallback } from 'react';
 import {
   Card,
   css,
@@ -15,9 +16,8 @@ import {
   useFocusState,
   FocusState,
   uiColors,
+  mergeProps,
 } from '@mongodb-js/compass-components';
-import React, { useCallback } from 'react';
-import { mergeProps } from './merge-props';
 import { NamespaceParam } from './namespace-param';
 import { ItemType } from './use-create';
 import { ViewType } from './use-view-type';
@@ -269,7 +269,8 @@ export const NamespaceItemCard: React.FunctionComponent<
     <Card
       key={id}
       contentStyle="clickable"
-      data-testid={`${type}-grid-item-${id}`}
+      data-testid={`${type}-grid-item`}
+      data-id={id}
       {...cardProps}
     >
       <CardTitleGroup>

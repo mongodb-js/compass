@@ -105,3 +105,5 @@ export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';
 export { default as FormFooter } from '@leafygreen-ui/form-footer';
+export { VirtualGrid } from './components/virtual-grid';
+export { mergeProps } from './utils/merge-props';

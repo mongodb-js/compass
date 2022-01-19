@@ -15,6 +15,7 @@ function CollectionName({
         label="Collection Name"
         onChange={(e) => onChangeCollectionName(e.target.value)}
         value={collectionName}
+        spellCheck={false}
       />
     </FieldSet>
   );

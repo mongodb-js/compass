@@ -2,40 +2,39 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 
-import { TLS_OPTIONS } from '../constants/ssl-tls-options';
-import { ConnectionFormError } from './validation';
+export type TLS_OPTIONS = 'DEFAULT' | 'ON' | 'OFF';
+export interface UpdateTlsOptionAction {
+  type: 'update-tls-option';
+  tlsOption: TLS_OPTIONS;
+}
 
 export function handleUpdateTlsOption({
-  tlsOption,
+  action,
   connectionStringUrl,
   connectionOptions,
 }: {
-  tlsOption: TLS_OPTIONS;
+  action: UpdateTlsOptionAction;
   connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
 }): {
-  connectionStringUrl: ConnectionStringUrl;
   connectionOptions: ConnectionOptions;
-  errors: ConnectionFormError[];
 } {
   const updatedConnectionString = connectionStringUrl.clone();
   const updatedSearchParams =
     updatedConnectionString.typedSearchParams<MongoClientOptions>();
 
-  if (tlsOption === 'ON') {
+  if (action.tlsOption === 'ON') {
     updatedSearchParams.delete('ssl');
     updatedSearchParams.set('tls', 'true');
-  } else if (tlsOption === 'OFF') {
+  } else if (action.tlsOption === 'OFF') {
     updatedSearchParams.delete('ssl');
     updatedSearchParams.set('tls', 'false');
-  } else if (tlsOption === 'DEFAULT') {
+  } else if (action.tlsOption === 'DEFAULT') {
     updatedSearchParams.delete('ssl');
     updatedSearchParams.delete('tls');
   }
 
   return {
-    errors: [],
-    connectionStringUrl: updatedConnectionString,
     connectionOptions: {
       ...connectionOptions,
       connectionString: updatedConnectionString.toString(),

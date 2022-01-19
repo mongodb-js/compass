@@ -15,6 +15,7 @@ function DatabaseName({
         label="Database Name"
         onChange={(e) => onChangeDatabaseName(e.target.value)}
         value={databaseName}
+        spellCheck={false}
       />
     </FieldSet>
   );

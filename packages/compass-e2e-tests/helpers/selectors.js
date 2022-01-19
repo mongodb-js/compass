@@ -51,6 +51,7 @@ const Selectors = {
     '[data-test-id="connection-form"] [name="sshTunnelUsername"]',
   ConnectionFormInputSSHTunnelPassword:
     '[data-test-id="connection-form"] [name="sshTunnelPassword"]',
+  ConnectionFormMessage: '[data-test-id="connection-message"]',
 
   // Sidebar
   SidebarCollection: '[data-test-id="sidebar-collection"]',
@@ -96,7 +97,7 @@ const Selectors = {
     return selector;
   },
   databaseCard: (dbName) => {
-    return `[data-testid="database-grid-item-${dbName}"]`;
+    return `[data-testid="database-grid-item"][data-id="${dbName}"]`;
   },
 
   // Database screen

@@ -1,5 +1,5 @@
 import { ConnectionOptions } from 'mongodb-data-service';
-import { ConnectFormState } from '../hooks/use-connect-form';
+import { defaultSshPort } from '../constants/default-connection';
 
 export type SSHConnectionOptions = NonNullable<ConnectionOptions['sshTunnel']>;
 
@@ -12,47 +12,34 @@ export interface UpdateSshOptions {
   value: string | number;
 }
 
-export function handleUpdateSshOptions(
-  action: UpdateSshOptions,
-  {
-    connectionStringUrl,
-    connectionOptions,
-    connectionStringInvalidError,
-    warnings,
-  }: ConnectFormState
-): ConnectFormState {
+export function handleUpdateSshOptions({
+  action,
+  connectionOptions,
+}: {
+  action: UpdateSshOptions;
+  connectionOptions: ConnectionOptions;
+}): { connectionOptions: ConnectionOptions } {
   const { key, value, currentTab } = action;
 
   if (currentTab === 'none') {
     return {
-      connectionStringUrl,
       connectionOptions: {
-        connectionString: connectionStringUrl.toString(),
+        ...connectionOptions,
+        sshTunnel: undefined,
       },
-      errors: [],
-      warnings,
-      connectionStringInvalidError,
     };
   }
 
-  if (!connectionOptions.sshTunnel) {
-    connectionOptions.sshTunnel = {} as SSHConnectionOptions;
-  }
-
-  const response: ConnectFormState = {
-    connectionStringUrl,
+  return {
     connectionOptions: {
       ...connectionOptions,
       sshTunnel: {
+        host: '',
+        port: defaultSshPort,
+        username: '',
         ...connectionOptions.sshTunnel,
         [key]: value,
       },
-      connectionString: connectionStringUrl.toString(),
     },
-    errors: [],
-    warnings,
-    connectionStringInvalidError,
   };
-
-  return response;
 }

@@ -49,6 +49,7 @@
     "lodash": "^4.17.21",
     "mocha": "*",
     "mongodb": "^4.3.0",
+    "mongodb-connection-string-url": "^2.4.1",
     "mongodb-runner": "^4.8.3",
     "prettier": "*",
     "webdriverio": "^6.12.1",
