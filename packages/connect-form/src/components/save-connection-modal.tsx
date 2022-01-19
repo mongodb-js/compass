@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   ConfirmationModal,
-  Label,
   TextInput,
   css,
   spacing,
@@ -20,13 +19,13 @@ const connectionNameInputStyles = css({
 
 function SaveConnectionModal({
   initialConnectionInfo,
-  onCancel,
-  onSave,
+  onCancelClicked,
+  onSaveClicked,
   open,
 }: {
   initialConnectionInfo: ConnectionInfo;
-  onCancel: () => void;
-  onSave: (favoriteInfo: ConnectionFavoriteOptions) => Promise<void>;
+  onCancelClicked: () => void;
+  onSaveClicked: (favoriteInfo: ConnectionFavoriteOptions) => Promise<void>;
   open: boolean;
 }): React.ReactElement {
   const [editingFavorite, setEditingFavorite] = useState({
@@ -43,12 +42,12 @@ function SaveConnectionModal({
       }
       open={open}
       onConfirm={() => {
-        void onSave({
+        void onSaveClicked({
           ...initialConnectionInfo.favorite,
           ...editingFavorite,
         });
       }}
-      onCancel={onCancel}
+      onCancel={onCancelClicked}
       buttonText="Save"
     >
       <FormFieldContainer>
@@ -69,7 +68,6 @@ function SaveConnectionModal({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Label htmlFor="">Color</Label>
         <SavedConnectionColorPicker
           hex={editingFavorite.color}
           onChange={(newColor?: string) => {

@@ -1,5 +1,11 @@
 import React from 'react';
-import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  uiColors,
+  Label,
+} from '@mongodb-js/compass-components';
 
 /**
  * Default colors.
@@ -111,35 +117,38 @@ function SavedConnectionColorPicker({
   onChange: (newColor?: string) => void;
 }): React.ReactElement {
   return (
-    <div>
-      <button
-        style={{
-          background: 'white',
-          borderColor: uiColors.black,
-        }}
-        className={cx({
-          [colorOptionStyles]: true,
-          [activeColorOptionStyles]: !hex,
-        })}
-        onClick={() => {
-          onChange();
-        }}
-        data-testid={`color-pick-no-color${!hex ? '-selected' : ''}`}
-        title="No color"
-      >
-        <div className={noColorRedBarStyles} />
-      </button>
-      {COLORS.map((color) => (
-        <ColorOption
-          onClick={() => {
-            onChange(color);
+    <>
+      <Label htmlFor="favorite-color-selector">Color</Label>
+      <div id="favorite-color-selector">
+        <button
+          style={{
+            background: 'white',
+            borderColor: uiColors.black,
           }}
-          isSelected={color === hex}
-          hex={color}
-          key={color}
-        />
-      ))}
-    </div>
+          className={cx({
+            [colorOptionStyles]: true,
+            [activeColorOptionStyles]: !hex,
+          })}
+          onClick={() => {
+            onChange();
+          }}
+          data-testid={`color-pick-no-color${!hex ? '-selected' : ''}`}
+          title="No color"
+        >
+          <div className={noColorRedBarStyles} />
+        </button>
+        {COLORS.map((color) => (
+          <ColorOption
+            onClick={() => {
+              onChange(color);
+            }}
+            isSelected={color === hex}
+            hex={color}
+            key={color}
+          />
+        ))}
+      </div>
+    </>
   );
 }
 

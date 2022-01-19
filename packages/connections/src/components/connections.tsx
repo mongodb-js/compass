@@ -60,25 +60,24 @@ function Connections({
   connectionStorage?: ConnectionStore;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
-  const [
-    {
-      activeConnectionId,
-      activeConnectionInfo,
-      connectingStatusText,
-      connectionAttempt,
-      connections,
-      isConnected,
-      storeConnectionError,
-    },
-    {
-      cancelConnectionAttempt,
-      connect,
-      createNewConnection,
-      hideStoreConnectionError,
-      saveConnection,
-      setActiveConnectionById,
-    },
-  ] = useConnections(onConnected, connectionStorage, connectFn);
+  const {
+    state,
+    cancelConnectionAttempt,
+    connect,
+    createNewConnection,
+    hideStoreConnectionError,
+    saveConnection,
+    setActiveConnectionById,
+  } = useConnections(onConnected, connectionStorage, connectFn);
+  const {
+    activeConnectionId,
+    activeConnectionInfo,
+    connectingStatusText,
+    connectionAttempt,
+    connections,
+    isConnected,
+    storeConnectionError,
+  } = state;
 
   return (
     <div
@@ -112,7 +111,7 @@ function Connections({
                 ...connectionInfo,
               })
             }
-            saveConnection={saveConnection}
+            onSaveConnectionClicked={saveConnection}
             initialConnectionInfo={activeConnectionInfo}
           />
           <FormHelp />

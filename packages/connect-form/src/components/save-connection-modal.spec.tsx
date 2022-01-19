@@ -22,8 +22,8 @@ describe('SaveConnectionModal Component', function () {
     beforeEach(function () {
       render(
         <SaveConnectionModal
-          onSave={onSaveSpy}
-          onCancel={onCancelSpy}
+          onSaveClicked={onSaveSpy}
+          onCancelClicked={onCancelSpy}
           open
           initialConnectionInfo={{
             id: 'test',
@@ -92,8 +92,8 @@ describe('SaveConnectionModal Component', function () {
     beforeEach(function () {
       render(
         <SaveConnectionModal
-          onSave={onSaveSpy}
-          onCancel={onCancelSpy}
+          onSaveClicked={onSaveSpy}
+          onCancelClicked={onCancelSpy}
           open
           initialConnectionInfo={{
             id: 'test',

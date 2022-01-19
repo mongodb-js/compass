@@ -56,11 +56,11 @@ describe('use-connections hook', function () {
 
       // Wait for the async loading of connections to complete.
       await waitFor(() =>
-        expect(result.current[0].connections.length).to.equal(2)
+        expect(result.current.state.connections.length).to.equal(2)
       );
 
       expect(loadAllSpyWithData.callCount).to.equal(1);
-      expect(result.current[0].connections.length).to.equal(2);
+      expect(result.current.state.connections.length).to.equal(2);
     });
   });
 
@@ -76,11 +76,11 @@ describe('use-connections hook', function () {
 
         // Wait for the async loading of connections to complete.
         await waitFor(() =>
-          expect(result.current[0].connections.length).to.equal(2)
+          expect(result.current.state.connections.length).to.equal(2)
         );
 
         await act(async () => {
-          await result.current[1].saveConnection({
+          await result.current.saveConnection({
             id: 'oranges',
             connectionOptions: {
               connectionString: 'aba',
@@ -99,8 +99,8 @@ describe('use-connections hook', function () {
       });
 
       it('updates the existing entry on the connections list', function () {
-        expect(hookResult.current[0].connections.length).to.equal(2);
-        expect(hookResult.current[0].connections[1]).to.deep.equal({
+        expect(hookResult.current.state.connections.length).to.equal(2);
+        expect(hookResult.current.state.connections[1]).to.deep.equal({
           id: 'oranges',
           connectionOptions: {
             connectionString: 'aba',
@@ -112,11 +112,11 @@ describe('use-connections hook', function () {
       });
 
       it('clones the existing connection when it is updated', function () {
-        expect(hookResult.current[0].connections[1]).to.not.equal(
+        expect(hookResult.current.state.connections[1]).to.not.equal(
           mockConnections[1]
         );
         expect(
-          hookResult.current[0].connections[1].connectionOptions
+          hookResult.current.state.connections[1].connectionOptions
         ).to.not.equal(mockConnections[1].connectionOptions);
       });
     });
@@ -129,7 +129,7 @@ describe('use-connections hook', function () {
         );
 
         await act(async () => {
-          await result.current[1].saveConnection({
+          await result.current.saveConnection({
             id: 'pineapples',
             connectionOptions: {
               connectionString: '',
@@ -148,8 +148,8 @@ describe('use-connections hook', function () {
       });
 
       it('adds the new connection to the current connections list', function () {
-        expect(hookResult.current[0].connections.length).to.equal(1);
-        expect(hookResult.current[0].connections[0]).to.deep.equal({
+        expect(hookResult.current.state.connections.length).to.equal(1);
+        expect(hookResult.current.state.connections[0]).to.deep.equal({
           id: 'pineapples',
           connectionOptions: {
             connectionString: '',
@@ -172,16 +172,16 @@ describe('use-connections hook', function () {
 
         // Wait for the async loading of connections to complete.
         await waitFor(() =>
-          expect(result.current[0].connections.length).to.equal(2)
+          expect(result.current.state.connections.length).to.equal(2)
         );
 
         // Make the first connection the active connection.
         act(() => {
-          result.current[1].setActiveConnectionById('turtle');
+          result.current.setActiveConnectionById('turtle');
         });
 
         await act(async () => {
-          await result.current[1].saveConnection({
+          await result.current.saveConnection({
             id: 'turtle',
             connectionOptions: {
               connectionString: 'nice',
@@ -196,8 +196,8 @@ describe('use-connections hook', function () {
       });
 
       it('updates the current active connection with the new info', function () {
-        expect(hookResult.current[0].activeConnectionId).to.equal('turtle');
-        expect(hookResult.current[0].activeConnectionInfo).to.deep.equal({
+        expect(hookResult.current.state.activeConnectionId).to.equal('turtle');
+        expect(hookResult.current.state.activeConnectionInfo).to.deep.equal({
           id: 'turtle',
           connectionOptions: {
             connectionString: 'nice',
@@ -209,8 +209,8 @@ describe('use-connections hook', function () {
       });
 
       it('updates the existing entry on the connections list', function () {
-        expect(hookResult.current[0].connections.length).to.equal(2);
-        expect(hookResult.current[0].connections[0]).to.deep.equal({
+        expect(hookResult.current.state.connections.length).to.equal(2);
+        expect(hookResult.current.state.connections[0]).to.deep.equal({
           id: 'turtle',
           connectionOptions: {
             connectionString: 'nice',

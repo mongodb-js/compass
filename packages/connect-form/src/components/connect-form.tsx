@@ -62,6 +62,17 @@ const favoriteButtonStyles = css({
   },
 });
 
+const formHeaderStyles = css({
+  button: {
+    visibility: 'hidden',
+  },
+  '&:hover': {
+    button: {
+      visibility: 'visible',
+    },
+  },
+});
+
 const editFavoriteButtonStyles = css({
   verticalAlign: 'text-top',
   marginLeft: spacing[1],
@@ -81,13 +92,11 @@ function ConnectForm({
   onConnectClicked,
   // The connect form will not always used in an environment where
   // the connection info can be saved.
-  showSaveConnection = false,
-  saveConnection,
+  onSaveConnectionClicked,
 }: {
   initialConnectionInfo: ConnectionInfo;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  showSaveConnection?: boolean;
-  saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
+  onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
 }): React.ReactElement {
   const [
     { enableEditingConnectionString, errors, warnings, connectionOptions },
@@ -105,9 +114,9 @@ function ConnectForm({
       <div className={formContainerStyles} data-testid="new-connect-form">
         <Card className={formCardStyles}>
           <div className={formContentContainerStyles}>
-            <H3>
+            <H3 className={formHeaderStyles}>
               {initialConnectionInfo.favorite?.name ?? 'New Connection'}
-              {showSaveConnection && (
+              {!!onSaveConnectionClicked && (
                 <IconButton
                   aria-label="Save Connection"
                   className={editFavoriteButtonStyles}
@@ -122,7 +131,7 @@ function ConnectForm({
             <Description className={descriptionStyles}>
               Connect to a MongoDB deployment
             </Description>
-            {showSaveConnection && (
+            {!!onSaveConnectionClicked && (
               <IconButton
                 aria-label="Save Connection"
                 className={favoriteButtonStyles}
@@ -131,7 +140,7 @@ function ConnectForm({
                   setShowSaveConnectionModal(true);
                 }}
               >
-                <FavoriteIcon isFavorite />
+                <FavoriteIcon isFavorite={!!initialConnectionInfo.favorite} />
                 <span className={favoriteButtonLabelStyles}>FAVORITE</span>
               </IconButton>
             )}
@@ -156,16 +165,12 @@ function ConnectForm({
             />
           </div>
 
-          {warnings.length && !connectionStringInvalidError ? (
+          {warnings.length > 0 && !connectionStringInvalidError && (
             <WarningSummary warnings={warnings} />
-          ) : (
-            ''
           )}
 
-          {errors.length && !connectionStringInvalidError ? (
+          {errors.length > 0 && !connectionStringInvalidError && (
             <ErrorSummary errors={errors} />
-          ) : (
-            ''
           )}
 
           <ConnectFormActions
@@ -188,29 +193,31 @@ function ConnectForm({
           />
         </Card>
       </div>
-      <SaveConnectionModal
-        open={showSaveConnectionModal}
-        onCancel={() => {
-          setShowSaveConnectionModal(false);
-        }}
-        onSave={async (favoriteInfo: ConnectionFavoriteOptions) => {
-          setShowSaveConnectionModal(false);
+      {!!onSaveConnectionClicked && (
+        <SaveConnectionModal
+          open={showSaveConnectionModal}
+          onCancelClicked={() => {
+            setShowSaveConnectionModal(false);
+          }}
+          onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
+            setShowSaveConnectionModal(false);
 
-          try {
-            await saveConnection({
-              ...cloneDeep(initialConnectionInfo),
-              connectionOptions: cloneDeep(connectionOptions),
-              favorite: {
-                ...favoriteInfo,
-              },
-            });
-          } catch (err) {
-            setErrors([err as Error]);
-          }
-        }}
-        key={initialConnectionInfo.id}
-        initialConnectionInfo={initialConnectionInfo}
-      />
+            try {
+              await onSaveConnectionClicked({
+                ...cloneDeep(initialConnectionInfo),
+                connectionOptions: cloneDeep(connectionOptions),
+                favorite: {
+                  ...favoriteInfo,
+                },
+              });
+            } catch (err) {
+              setErrors([err as Error]);
+            }
+          }}
+          key={initialConnectionInfo.id}
+          initialConnectionInfo={initialConnectionInfo}
+        />
+      )}
     </>
   );
 }

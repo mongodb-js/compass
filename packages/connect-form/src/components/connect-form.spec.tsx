@@ -18,7 +18,7 @@ function renderForm() {
           connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
         },
       }}
-      saveConnection={noop}
+      onSaveConnectionClicked={noop}
     />
   );
 }
@@ -55,14 +55,14 @@ describe('ConnectForm Component', function () {
             connectionString: 'pineapples',
           },
         }}
-        saveConnection={noop}
+        onSaveConnectionClicked={noop}
       />
     );
     expect(screen.getByText('Invalid connection string "pineapples"')).to.be
       .visible;
   });
 
-  it('should not show to save a connection when showSaveConnection=false', function () {
+  it('should not show to save a connection when onSaveConnectionClicked doesnt exist', function () {
     render(
       <ConnectForm
         onConnectClicked={noop}
@@ -72,13 +72,12 @@ describe('ConnectForm Component', function () {
             connectionString: 'pineapples',
           },
         }}
-        saveConnection={noop}
       />
     );
     expect(screen.queryByText('FAVORITE')).to.not.exist;
   });
 
-  it('should show a button to save a connection when showSaveConnection=true', function () {
+  it('should show a button to save a connection when onSaveConnectionClicked exists', function () {
     render(
       <ConnectForm
         onConnectClicked={noop}
@@ -88,8 +87,7 @@ describe('ConnectForm Component', function () {
             connectionString: 'pineapples',
           },
         }}
-        showSaveConnection
-        saveConnection={noop}
+        onSaveConnectionClicked={noop}
       />
     );
     expect(screen.getByText('FAVORITE').closest('button')).to.be.visible;
@@ -105,8 +103,7 @@ describe('ConnectForm Component', function () {
             connectionString: 'pineapples',
           },
         }}
-        showSaveConnection
-        saveConnection={noop}
+        onSaveConnectionClicked={noop}
       />
     );
 

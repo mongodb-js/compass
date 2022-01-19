@@ -182,17 +182,15 @@ export function useConnections(
   ) => Promise<void>,
   connectionStorage: ConnectionStore,
   connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>
-): [
-  State,
-  {
-    cancelConnectionAttempt(): void;
-    connect(connectionInfo: ConnectionInfo): Promise<void>;
-    createNewConnection(): void;
-    hideStoreConnectionError(): void;
-    saveConnection(connectionInfo: ConnectionInfo): Promise<void>;
-    setActiveConnectionById(newConnectionId?: string | undefined): void;
-  }
-] {
+): {
+  state: State;
+  cancelConnectionAttempt: () => void;
+  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  createNewConnection: () => void;
+  hideStoreConnectionError: () => void;
+  saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
+  setActiveConnectionById: (newConnectionId?: string | undefined) => void;
+} {
   const [state, dispatch]: [State, React.Dispatch<Action>] = useReducer(
     connectionsReducer,
     defaultConnectionsState()
@@ -285,129 +283,127 @@ export function useConnections(
     };
   }, []);
 
-  return [
+  return {
     state,
-    {
-      cancelConnectionAttempt() {
-        connectionAttempt?.cancelConnectionAttempt();
+    cancelConnectionAttempt() {
+      connectionAttempt?.cancelConnectionAttempt();
 
-        dispatch({
-          type: 'cancel-connection-attempt',
-        });
-      },
-      async connect(connectionInfo: ConnectionInfo) {
-        if (connectionAttempt || isConnected) {
-          // Ensure we aren't currently connecting.
+      dispatch({
+        type: 'cancel-connection-attempt',
+      });
+    },
+    async connect(connectionInfo: ConnectionInfo) {
+      if (connectionAttempt || isConnected) {
+        // Ensure we aren't currently connecting.
+        return;
+      }
+
+      const newConnectionAttempt = createConnectionAttempt(connectFn);
+      connectingConnectionAttempt.current = newConnectionAttempt;
+
+      dispatch({
+        type: 'attempt-connect',
+        connectingStatusText: `Connecting to ${getConnectionTitle(
+          connectionInfo
+        )}`,
+        connectionAttempt: newConnectionAttempt,
+      });
+
+      trackConnectionAttemptEvent(connectionInfo);
+      debug('connecting with connectionInfo', connectionInfo);
+
+      try {
+        const newConnectionDataService = await newConnectionAttempt.connect(
+          connectionInfo.connectionOptions
+        );
+        connectingConnectionAttempt.current = undefined;
+
+        if (!newConnectionDataService || newConnectionAttempt.isClosed()) {
+          // The connection attempt was cancelled.
           return;
         }
 
-        const newConnectionAttempt = createConnectionAttempt(connectFn);
-        connectingConnectionAttempt.current = newConnectionAttempt;
+        // Successfully connected.
+        connectedConnectionInfo.current = connectionInfo;
+        connectedDataService.current = newConnectionDataService;
 
         dispatch({
-          type: 'attempt-connect',
-          connectingStatusText: `Connecting to ${getConnectionTitle(
-            connectionInfo
-          )}`,
-          connectionAttempt: newConnectionAttempt,
+          type: 'connection-attempt-succeeded',
         });
-
-        trackConnectionAttemptEvent(connectionInfo);
-        debug('connecting with connectionInfo', connectionInfo);
-
-        try {
-          const newConnectionDataService = await newConnectionAttempt.connect(
-            connectionInfo.connectionOptions
-          );
-          connectingConnectionAttempt.current = undefined;
-
-          if (!newConnectionDataService || newConnectionAttempt.isClosed()) {
-            // The connection attempt was cancelled.
-            return;
-          }
-
-          // Successfully connected.
-          connectedConnectionInfo.current = connectionInfo;
-          connectedDataService.current = newConnectionDataService;
-
-          dispatch({
-            type: 'connection-attempt-succeeded',
-          });
-          trackNewConnectionEvent(connectionInfo, newConnectionDataService);
-          debug(
-            'connection attempt succeeded with connection info',
-            connectionInfo
-          );
-        } catch (error) {
-          connectingConnectionAttempt.current = undefined;
-          trackConnectionFailedEvent(connectionInfo, error as Error);
-          debug('connect error', error);
-
-          dispatch({
-            type: 'connection-attempt-errored',
-            connectionErrorMessage: (error as Error).message,
-          });
-        }
-      },
-      createNewConnection() {
-        dispatch({
-          type: 'new-connection',
-          connectionInfo: createNewConnectionInfo(),
-        });
-      },
-      hideStoreConnectionError() {
-        dispatch({
-          type: 'hide-store-connection-error',
-        });
-      },
-      async saveConnection(connectionInfo: ConnectionInfo) {
-        await saveConnectionInfo(connectionInfo);
-
-        const existingConnectionIndex = connections.findIndex(
-          (connection) => connection.id === connectionInfo.id
+        trackNewConnectionEvent(connectionInfo, newConnectionDataService);
+        debug(
+          'connection attempt succeeded with connection info',
+          connectionInfo
         );
-
-        const newConnections = [...connections];
-
-        if (existingConnectionIndex !== -1) {
-          // Update the existing saved connection.
-          newConnections[existingConnectionIndex] = {
-            ...cloneDeep(newConnections[existingConnectionIndex]),
-            ...cloneDeep(connectionInfo),
-          };
-        } else {
-          // Add the newly saved connection to our connections list.
-          newConnections.push(cloneDeep(connectionInfo));
-        }
+      } catch (error) {
+        connectingConnectionAttempt.current = undefined;
+        trackConnectionFailedEvent(connectionInfo, error as Error);
+        debug('connect error', error);
 
         dispatch({
-          type: 'set-connections',
-          connections: newConnections,
+          type: 'connection-attempt-errored',
+          connectionErrorMessage: (error as Error).message,
         });
-
-        // Update the active connection if it's currently selected.
-        if (activeConnectionId === connectionInfo.id) {
-          // TODO: Before merging, use the new action handler added
-          // in https://github.com/mongodb-js/compass/pull/2666/files#diff-0abd9783e312f714b88197be4cd8d7d5f84caa00fa6bce8d62d07c0c4246519eR407
-          dispatch({
-            type: 'set-active-connection',
-            connectionId: connectionInfo.id,
-            connectionInfo: cloneDeep(connectionInfo),
-          });
-        }
-      },
-      setActiveConnectionById(newConnectionId: string) {
-        const connection = connections.find(
-          (connection) => connection.id === newConnectionId
-        );
-        if (connection) {
-          dispatch({
-            type: 'set-active-connection',
-            connectionId: newConnectionId,
-            connectionInfo: connection,
-          });
-        }
-      },
+      }
     },
-  ];
+    createNewConnection() {
+      dispatch({
+        type: 'new-connection',
+        connectionInfo: createNewConnectionInfo(),
+      });
+    },
+    hideStoreConnectionError() {
+      dispatch({
+        type: 'hide-store-connection-error',
+      });
+    },
+    async saveConnection(connectionInfo: ConnectionInfo) {
+      await saveConnectionInfo(connectionInfo);
+
+      const existingConnectionIndex = connections.findIndex(
+        (connection) => connection.id === connectionInfo.id
+      );
+
+      const newConnections = [...connections];
+
+      if (existingConnectionIndex !== -1) {
+        // Update the existing saved connection.
+        newConnections[existingConnectionIndex] = {
+          ...cloneDeep(newConnections[existingConnectionIndex]),
+          ...cloneDeep(connectionInfo),
+        };
+      } else {
+        // Add the newly saved connection to our connections list.
+        newConnections.push(cloneDeep(connectionInfo));
+      }
+
+      dispatch({
+        type: 'set-connections',
+        connections: newConnections,
+      });
+
+      // Update the active connection if it's currently selected.
+      if (activeConnectionId === connectionInfo.id) {
+        // TODO: Before merging, use the new action handler added
+        // in https://github.com/mongodb-js/compass/pull/2666/files#diff-0abd9783e312f714b88197be4cd8d7d5f84caa00fa6bce8d62d07c0c4246519eR407
+        dispatch({
+          type: 'set-active-connection',
+          connectionId: connectionInfo.id,
+          connectionInfo: cloneDeep(connectionInfo),
+        });
+      }
+    },
+    setActiveConnectionById(newConnectionId?: string) {
+      const connection = connections.find(
+        (connection) => connection.id === newConnectionId
+      );
+      if (newConnectionId && connection) {
+        dispatch({
+          type: 'set-active-connection',
+          connectionId: newConnectionId,
+          connectionInfo: connection,
+        });
+      }
+    },
+  };
 }
