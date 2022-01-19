@@ -174,7 +174,7 @@ class Sidebar extends PureComponent {
         <SidebarTitle
           connectionModel={this.props.connectionModel}
           isSidebarExpanded={isExpanded}
-          globalAppRegistryEmit={this.props.globalAppRegistryEmit}
+          onClick={() => this.onNavigationItemClick()}
         />
         {isExpanded && (
           <SidebarInstance
@@ -193,7 +193,7 @@ class Sidebar extends PureComponent {
         )}
         {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true' && (
           <NavigationItems
-            onItemClick={this.onNavigationItemClick.bind(this)}
+            onItemClick={(tabName) => this.onNavigationItemClick(tabName)}
             isExpanded={isExpanded}
           />
         )}

@@ -219,7 +219,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     appRegistry.on('data-service-disconnected', onDataServiceDisconnected);
     appRegistry.on('select-database', onSelectDatabase);
     appRegistry.on('select-namespace', onSelectNamespace);
-    appRegistry.on('select-instance', onSelectInstance);
+    appRegistry.on('sidebar-instance-workspace-open-tab', onSelectInstance);
     appRegistry.on('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
     appRegistry.on('all-collection-tabs-closed', onAllTabsClosed);
 
@@ -235,7 +235,10 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       );
       appRegistry.removeListener('select-database', onSelectDatabase);
       appRegistry.removeListener('select-namespace', onSelectNamespace);
-      appRegistry.removeListener('select-instance', onSelectInstance);
+      appRegistry.removeListener(
+        'sidebar-instance-workspace-open-tab',
+        onSelectInstance
+      );
       appRegistry.removeListener(
         'open-namespace-in-new-tab',
         onOpenNamespaceInNewTab

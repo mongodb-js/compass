@@ -212,7 +212,7 @@ describe('Home [Component]', function () {
         'data-service-disconnected',
         'select-database',
         'select-namespace',
-        'select-instance',
+        'sidebar-instance-workspace-open-tab',
         'open-namespace-in-new-tab',
         'all-collection-tabs-closed',
       ];
@@ -239,7 +239,7 @@ describe('Home [Component]', function () {
         'data-service-disconnected',
         'select-database',
         'select-namespace',
-        'select-instance',
+        'sidebar-instance-workspace-open-tab',
         'open-namespace-in-new-tab',
         'all-collection-tabs-closed',
       ];

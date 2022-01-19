@@ -125,7 +125,7 @@ store.onActivated = (appRegistry) => {
     store.dispatch(changeActiveNamespace(dbName));
   });
 
-  appRegistry.on('select-instance', () => {
+  appRegistry.on('sidebar-instance-workspace-open-tab', () => {
     store.dispatch(changeActiveNamespace(''));
   });
 

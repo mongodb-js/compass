@@ -49,9 +49,13 @@ store.onActivated = function onActivated(globalAppRegistry) {
   });
 
   globalAppRegistry.on('sidebar-instance-workspace-open-tab', (tabName) => {
-    const id = store.getState().tabs.findIndex((tab) => tab.name === tabName);
-    if (id !== -1) {
-      store.dispatch({ type: 'change-tab', id });
+    if (!tabName) {
+      store.dispatch({ type: 'change-tab', id: 0 });
+    } else {
+      const id = store.getState().tabs.findIndex((tab) => tab.name === tabName);
+      if (id !== -1) {
+        store.dispatch({ type: 'change-tab', id });
+      }
     }
   });
 };
