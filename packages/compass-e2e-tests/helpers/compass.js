@@ -60,15 +60,6 @@ let j = 0;
 // For the html
 //let k = 0;
 
-function formatLogToErrorWithStack(logEntry) {
-  const [file, lineCol, ...rest] = logEntry.message.split(' ');
-  const message = rest
-    .join(' ')
-    .replace(/\\n/g, '\n')
-    .replace(/(^"|"$)/g, '');
-  return `${message}\n  at ${file}:${lineCol}`;
-}
-
 async function startCompass(
   testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP),
   opts = {}
