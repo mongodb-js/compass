@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { fetchItems, State } from './../stores/aggregations-queries-items';
+import type { State } from './../stores/aggregations-queries-items';
+import { fetchItems } from './../actions/aggregations-queries-actions';
 
 const AggregationsQueriesList = ({
   loading,

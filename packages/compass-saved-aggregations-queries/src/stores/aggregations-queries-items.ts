@@ -1,7 +1,10 @@
 import { remote } from 'electron';
 import { join } from 'path';
 import fs from 'fs';
+import { AnyAction } from 'redux';
 import { FavoriteQueryCollection } from '@mongodb-js/compass-query-history';
+
+import { actions } from '../actions/aggregations-queries-actions';
 interface Item {
   id: string;
   name: string;
@@ -27,19 +30,13 @@ export type State = {
   items: Array<Aggregation | Query>;
 };
 
-type Action = {
-  type: string;
-};
-
 const INITIAL_STATE: State = {
   loading: true,
   items: [],
 };
 
-const FETCH_DATA = 'FETCH_DATA';
-
-function reducer(state = INITIAL_STATE, action: Action): State {
-  if (action.type === FETCH_DATA) {
+function reducer(state = INITIAL_STATE, action: AnyAction): State {
+  if (action.type === actions.FETCH_DATA) {
     return {
       items: [...getAggregations(), ...getQueries()],
       loading: false,
@@ -47,10 +44,6 @@ function reducer(state = INITIAL_STATE, action: Action): State {
   }
   return state;
 }
-
-export const fetchItems = (): Action => ({
-  type: FETCH_DATA
-});
 
 const getAggregations = () => {
   const dir = join(remote.app.getPath('userData'), 'SavedPipelines');
