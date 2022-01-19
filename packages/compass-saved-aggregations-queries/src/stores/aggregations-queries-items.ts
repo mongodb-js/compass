@@ -1,33 +1,35 @@
-import { remote } from 'electron';
-import { join } from 'path';
-import fs from 'fs';
-import { AnyAction } from 'redux';
-import { FavoriteQueryCollection } from '@mongodb-js/compass-query-history';
+import { Dispatch } from 'redux';
+import { Aggregation, getAggregations } from './../utlis/aggregations';
+import { Query, getQueries } from './../utlis/queries';
 
-import { actions } from '../actions/aggregations-queries-actions';
-interface Item {
+enum actions {
+  ITEMS_FETCHED = 'fetchItems',
+}
+
+type StateActions = {
+  type: actions.ITEMS_FETCHED,
+  payload: Item[];
+};
+
+export type Item = {
   id: string;
+  lastModified: number;
   name: string;
   namespace: string;
-  lastModified: number;
-}
-
-export interface Aggregation extends Item {
-  pipeline: unknown[];
-}
-
-export interface Query extends Item {
-  collation: Record<string, unknown>;
-  filter: Record<string, unknown>;
-  limit: number;
-  project: Record<string, unknown>;
-  skip: number;
-  sort: Record<string, number>;
-}
+} & (
+    {
+      type: 'query';
+      query: Query;
+    } |
+    {
+      type: 'aggregation';
+      aggregation: Aggregation;
+    }
+  );
 
 export type State = {
   loading: boolean;
-  items: Array<Aggregation | Query>;
+  items: Item[];
 };
 
 const INITIAL_STATE: State = {
@@ -35,68 +37,58 @@ const INITIAL_STATE: State = {
   items: [],
 };
 
-function reducer(state = INITIAL_STATE, action: AnyAction): State {
-  if (action.type === actions.FETCH_DATA) {
+function reducer(state = INITIAL_STATE, action: StateActions): State {
+  if (action.type === actions.ITEMS_FETCHED) {
     return {
-      items: [...getAggregations(), ...getQueries()],
+      items: action.payload,
       loading: false,
     };
   }
   return state;
 }
 
-const getAggregations = () => {
-  const dir = join(remote.app.getPath('userData'), 'SavedPipelines');
-  const aggregations = fs
-    .readdirSync(dir)
-    .filter((file) => file.endsWith('.json'))
-    .map((file) => {
-      const filePath = join(dir, file);
-      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      data.lastModified = fs.statSync(filePath).mtimeMs;
-      return data;
+export const fetchItems = () => {
+  return async (dispatch: Dispatch<StateActions>): Promise<void> => {
+    let aggregations: Item[] = [];
+    let queries: Item[] = [];
+    try {
+      aggregations = await getAggregationItems();
+    } catch (e) { }
+    try {
+      queries = await getQueryItems();
+    } catch (e) { }
+
+    const payload = [...aggregations, ...queries];
+    payload.sort((a, b) => a.lastModified - b.lastModified);
+    dispatch({
+      type: actions.ITEMS_FETCHED,
+      payload,
     });
-  return mapAggregations(aggregations);
+  }
 };
 
-const mapAggregations = (aggregations: unknown[]): Aggregation[] => {
-  return aggregations.map((aggregation: any) => ({
+const getAggregationItems = async (): Promise<Item[]> => {
+  const aggregations = await getAggregations();
+  return aggregations.map((aggregation) => ({
     id: aggregation.id,
+    lastModified: aggregation.lastModified,
     name: aggregation.name,
     namespace: aggregation.namespace,
-    lastModified: aggregation.lastModified,
-
-    pipeline: aggregation.pipeline,
+    type: 'aggregation',
+    aggregation,
   }));
 };
 
-const getQueries = (): Query[] => {
-  const collection = new FavoriteQueryCollection();
-  collection.fetch({
-    success: () => {
-      // todo: return mapped list here
-    },
-  });
-  return mapQueryModels(collection.models);
-};
-
-const mapQueryModels = (models: unknown[]): Query[] => {
-  return models.map((model: any) => {
-    const { _values } = model;
-    return {
-      id: _values._id,
-      name: _values._name,
-      namespace: _values._ns,
-      lastModified: _values.dateSaved,
-
-      collation: _values.collation,
-      filter: _values.filter,
-      limit: _values.limit,
-      project: _values.project,
-      skip: _values.skip,
-      sort: _values.sort,
-    };
-  });
+const getQueryItems = async (): Promise<Item[]> => {
+  const queries = await getQueries();
+  return queries.map((query) => ({
+    id: query._id,
+    lastModified: query._dateSaved.getTime(),
+    name: query._name,
+    namespace: query._ns,
+    type: 'query',
+    query,
+  }));
 };
 
 export default reducer;

@@ -57,6 +57,7 @@
     "redux-thunk": "^2.4.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-aggregations": "^8.18.1",
     "@mongodb-js/compass-query-history": "^8.17.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
