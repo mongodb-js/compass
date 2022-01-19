@@ -75,6 +75,7 @@ function Connections({
       connect,
       createNewConnection,
       hideStoreConnectionError,
+      saveConnection,
       setActiveConnectionById,
     },
   ] = useConnections(onConnected, connectionStorage, connectFn);
@@ -111,6 +112,7 @@ function Connections({
                 ...connectionInfo,
               })
             }
+            saveConnection={saveConnection}
             initialConnectionInfo={activeConnectionInfo}
           />
           <FormHelp />

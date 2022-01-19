@@ -38,6 +38,12 @@ const activeColorOptionStyles = css({
   transitionTimingFunction: 'ease-out',
 });
 
+const inActiveColorOptionStyles = css({
+  '&:focus, &:hover': {
+    boxShadow: `0 0 0 3px ${uiColors.gray.light1}`,
+  },
+});
+
 const noColorRedBarStyles = css({
   width: 40,
   borderTop: '3px solid red',
@@ -66,6 +72,7 @@ function ColorOption({
       className={cx({
         [colorOptionStyles]: true,
         [activeColorOptionStyles]: isSelected,
+        [inActiveColorOptionStyles]: !isSelected,
       })}
       onClick={onClick}
       title={hex}

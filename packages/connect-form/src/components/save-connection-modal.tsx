@@ -23,7 +23,7 @@ function SaveConnectionModal({
 }: {
   initialConnectionInfo: ConnectionInfo;
   onCancel: () => void;
-  onSave: (connectionInfo: ConnectionInfo) => void;
+  onSave: (connectionInfo: ConnectionInfo) => Promise<void>;
   open: boolean;
 }): React.ReactElement {
   const [editingFavorite, setEditingFavorite] = useState({
@@ -40,7 +40,7 @@ function SaveConnectionModal({
       }
       open={open}
       onConfirm={() => {
-        onSave({
+        void onSave({
           ...initialConnectionInfo,
           favorite: editingFavorite,
         });

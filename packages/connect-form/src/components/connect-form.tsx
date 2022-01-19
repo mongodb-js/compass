@@ -65,15 +65,11 @@ const editFavoriteButtonStyles = css({
 
 const favoriteButtonLabelStyles = css({
   position: 'absolute',
-  // bottom: 0,
-  // left: 0,
-  // right: 0,
   top: spacing[5],
   paddingTop: spacing[1],
   color: uiColors.black,
   fontWeight: 'bold',
   fontSize: 12,
-  // textAlign: 'center'
 });
 
 function ConnectForm({
@@ -87,27 +83,18 @@ function ConnectForm({
   initialConnectionInfo: ConnectionInfo;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   showSaveConnection?: boolean;
-  saveConnection: (connectionInfo: ConnectionInfo) => void;
+  saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
 }): React.ReactElement {
   const [
-    {
-      errors,
-      warnings,
-      connectionStringUrl,
-      connectionStringInvalidError,
-      connectionOptions,
-    },
-    {
-      updateConnectionFormField,
-      setConnectionStringUrl,
-      setConnectionStringError,
-      setErrors,
-    },
+    { enableEditingConnectionString, errors, warnings, connectionOptions },
+    { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo);
 
   const [showSaveConnectionModal, setShowSaveConnectionModal] = useState(false);
 
-  const editingConnectionStringUrl = connectionStringUrl;
+  const connectionStringInvalidError = errors.find(
+    (error) => error.fieldName === 'connectionString'
+  );
 
   return (
     <>
@@ -115,7 +102,7 @@ function ConnectForm({
         <Card className={formCardStyles}>
           <div className={formContentContainerStyles}>
             <H3>
-              New Connection
+              {initialConnectionInfo.favorite?.name ?? 'New Connection'}
               {showSaveConnection && (
                 <IconButton
                   className={editFavoriteButtonStyles}
@@ -127,7 +114,6 @@ function ConnectForm({
                 </IconButton>
               )}
             </H3>
-
             <Description className={descriptionStyles}>
               Connect to a MongoDB deployment
             </Description>
@@ -144,19 +130,21 @@ function ConnectForm({
               </IconButton>
             )}
             <ConnectionStringInput
-              connectionString={editingConnectionStringUrl.toString()}
-              setConnectionStringUrl={setConnectionStringUrl}
-              setConnectionStringError={setConnectionStringError}
+              connectionString={connectionOptions.connectionString}
+              enableEditingConnectionString={enableEditingConnectionString}
+              setEnableEditingConnectionString={
+                setEnableEditingConnectionString
+              }
+              updateConnectionFormField={updateConnectionFormField}
             />
             {connectionStringInvalidError && (
               <Banner variant={BannerVariant.Danger}>
-                {connectionStringInvalidError}
+                {connectionStringInvalidError.message}
               </Banner>
             )}
             <AdvancedConnectionOptions
               errors={errors}
               disabled={!!connectionStringInvalidError}
-              connectionStringUrl={editingConnectionStringUrl}
               updateConnectionFormField={updateConnectionFormField}
               connectionOptions={connectionOptions}
             />
@@ -178,7 +166,6 @@ function ConnectForm({
             onConnectClicked={() => {
               const updatedConnectionOptions = {
                 ...connectionOptions,
-                connectionString: editingConnectionStringUrl.toString(),
               };
               const formErrors = validateConnectionOptionsErrors(
                 updatedConnectionOptions
@@ -200,10 +187,18 @@ function ConnectForm({
         onCancel={() => {
           setShowSaveConnectionModal(false);
         }}
-        onSave={(connectionInfo: ConnectionInfo) => {
-          saveConnection(connectionInfo);
+        onSave={async (connectionInfo: ConnectionInfo) => {
+          // await saveConnection(connectionInfo);
           setShowSaveConnectionModal(false);
+
+          // TODO: Error handling.
+          try {
+            await saveConnection(connectionInfo);
+          } catch (err) {
+            setErrors([err as Error]);
+          }
         }}
+        key={initialConnectionInfo.id}
         initialConnectionInfo={initialConnectionInfo}
       />
     </>

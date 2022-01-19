@@ -12,7 +12,7 @@ import type { MongoClientOptions } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
-import { TLS_OPTIONS } from '../../../constants/ssl-tls-options';
+import { TLS_OPTIONS } from '../../../utils/tls-options';
 
 const descriptionStyles = css({
   marginTop: spacing[1],

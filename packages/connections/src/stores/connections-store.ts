@@ -7,6 +7,7 @@ import {
 } from 'mongodb-data-service';
 import { useEffect, useReducer, useRef } from 'react';
 import debugModule from 'debug';
+import { cloneDeep } from 'lodash';
 
 import {
   createConnectionAttempt,
@@ -188,6 +189,7 @@ export function useConnections(
     connect(connectionInfo: ConnectionInfo): Promise<void>;
     createNewConnection(): void;
     hideStoreConnectionError(): void;
+    saveConnection(connectionInfo: ConnectionInfo): Promise<void>;
     setActiveConnectionById(newConnectionId?: string | undefined): void;
   }
 ] {
@@ -217,6 +219,8 @@ export function useConnections(
         type: 'store-connection-error',
         errorMessage: (err as Error).message,
       });
+
+      throw err;
     }
   }
 
@@ -251,7 +255,11 @@ export function useConnections(
     ) {
       // Update lastUsed date as now and save the connection.
       connectedConnectionInfo.current.lastUsed = new Date();
-      void saveConnectionInfo(connectedConnectionInfo.current);
+      try {
+        void saveConnectionInfo(connectedConnectionInfo.current);
+      } catch (e) {
+        // If it fails to save when connecting, continue.
+      }
 
       void onConnectSuccess(
         connectedConnectionInfo.current,
@@ -349,6 +357,33 @@ export function useConnections(
       hideStoreConnectionError() {
         dispatch({
           type: 'hide-store-connection-error',
+        });
+      },
+      async saveConnection(connectionInfo: ConnectionInfo) {
+        await saveConnectionInfo(connectionInfo);
+
+        // TODO: Can we somehow full reload connections?
+
+        const existingConnectionIndex = connections.findIndex(
+          (connection) => connection.id === connectionInfo.id
+        );
+
+        const newConnections = [...connections];
+
+        if (existingConnectionIndex !== -1) {
+          // Update the existing saved connection.
+          newConnections[existingConnectionIndex] = {
+            ...cloneDeep(newConnections[existingConnectionIndex]),
+            ...connectionInfo,
+          };
+        } else {
+          // Add the newly saved connection to our connections list.
+          newConnections.push(connectionInfo);
+        }
+
+        dispatch({
+          type: 'set-connections',
+          connections: newConnections,
         });
       },
       setActiveConnectionById(newConnectionId: string) {
