@@ -78,7 +78,7 @@ describe('Smoke tests', function () {
     it('can edit a favourite');
   });
 
-  describe('Interface screen', function () {
+  describe('Databases tab', function () {
     before(async function () {
       await browser.navigateToInstanceTab('Databases');
     });
@@ -99,7 +99,7 @@ describe('Smoke tests', function () {
     it('can kill slow queries via the performance tab');
   });
 
-  describe('Database screen', function () {
+  describe('Collections tab', function () {
     before(async function () {
       await browser.navigateToDatabaseTab('test', 'Collections');
     });
