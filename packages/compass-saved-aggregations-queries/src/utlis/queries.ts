@@ -2,14 +2,14 @@ import { promisifyAmpersandMethod } from 'mongodb-data-service';
 import { FavoriteQueryCollection } from '@mongodb-js/compass-query-history';
 
 interface AmpersandQueryModel {
-  getAttributes: (options: { props: boolean }) => Query;
+  getAttributes: (options: { props: boolean }, raw: boolean) => Query;
 }
 
 export interface Query {
   _id: string;
   _name: string;
   _ns: string;
-  _dateSaved: Date;
+  _dateSaved: number;
 }
 
 export const getQueries = async (): Promise<Query[]> => {
@@ -20,6 +20,6 @@ export const getQueries = async (): Promise<Query[]> => {
 
 const mapQueryModels = (models: AmpersandQueryModel[]): Query[] => {
   return models.map((model: AmpersandQueryModel) => {
-    return model.getAttributes({ props: true });
+    return model.getAttributes({ props: true }, true);
   });
 };
