@@ -4,12 +4,7 @@ import { VisuallyHidden } from '@react-aria/visually-hidden';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { useId } from '@react-aria/utils';
-import {
-  FadeInPlaceholder,
-  spacing,
-  uiColors,
-  css,
-} from '@mongodb-js/compass-components';
+import { FadeInPlaceholder, css } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder-item';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
@@ -37,30 +32,6 @@ type Database = {
   collectionsLength: number;
   collections: Collection[];
 };
-
-export const focusRing = css({
-  position: 'relative',
-  outline: 'none',
-  '&::after': {
-    position: 'absolute',
-    content: '""',
-    pointerEvents: 'none',
-    top: 3,
-    right: 3,
-    bottom: 3,
-    left: 3,
-    borderRadius: spacing[1],
-    boxShadow: `0 0 0 0 ${uiColors.focus}`,
-    transition: 'box-shadow .16s ease-in',
-  },
-});
-
-export const focusRingVisible = css({
-  '&::after': {
-    boxShadow: `0 0 0 3px ${uiColors.focus}`,
-    transitionTimingFunction: 'ease-out',
-  },
-});
 
 type PlaceholderTreeItem = {
   key: string;
