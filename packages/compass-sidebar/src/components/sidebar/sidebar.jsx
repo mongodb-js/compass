@@ -64,6 +64,10 @@ class Sidebar extends PureComponent {
     prevWidth: defaultSidebarWidthOpened
   };
 
+  onNavigationItemClick(tabName) {
+    this.props.globalAppRegistryEmit('sidebar-instance-workspace-open-tab', tabName);
+  }
+
   updateWidth(width) {
     this.setState(
       (width > sidebarMinWidthOpened)
@@ -187,8 +191,11 @@ class Sidebar extends PureComponent {
             saveFavorite={this.props.saveFavorite}
           />
         )}
-        {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB && (
-          <NavigationItems onItemClick={console.log} isExpanded={isExpanded} />
+        {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true' && (
+          <NavigationItems
+            onItemClick={this.onNavigationItemClick.bind(this)}
+            isExpanded={isExpanded}
+          />
         )}
         <div
           className={styles['compass-sidebar-filter']}

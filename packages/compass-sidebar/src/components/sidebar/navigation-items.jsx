@@ -10,8 +10,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 const items = [
-  { icon: 'Laptop', label: 'My Queries', tabName: 'my-queries' },
-  { icon: 'Database', label: 'Databases', tabName: 'databases' },
+  { icon: 'Laptop', label: 'My Queries', tabName: 'My Queries' },
+  { icon: 'Database', label: 'Databases', tabName: 'Databases' },
 ];
 
 const navList = css({
