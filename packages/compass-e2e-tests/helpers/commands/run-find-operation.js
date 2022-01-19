@@ -71,8 +71,6 @@ async function collapseOptions(browser, tabName) {
     return;
   }
 
-  console.log('clearing out the existing options');
-
   // Before collapsing the options, clear out all the fields in case they are
   // set. This helps to make the tests idempotent which is handy because you can
   // work on them by focusing one it() at a time and expect it to find the same
