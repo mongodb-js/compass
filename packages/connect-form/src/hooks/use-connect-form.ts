@@ -470,7 +470,7 @@ export function useConnectForm(
         },
       });
     },
-    []
+    [state]
   );
 
   setInitialState({

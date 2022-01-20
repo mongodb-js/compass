@@ -75,6 +75,7 @@ describe('ConnectForm Component', function () {
         }}
       />
     );
+
     expect(screen.getByText('connection error')).to.be.visible;
   });
 });
