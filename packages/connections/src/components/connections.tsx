@@ -65,10 +65,12 @@ function Connections({
     cancelConnectionAttempt,
     connect,
     createNewConnection,
+    duplicateConnection,
     hideStoreConnectionError,
-    saveConnection,
     setActiveConnectionById,
     removeAllRecentsConnections,
+    removeConnection,
+    saveConnection,
   } = useConnections(onConnected, connectionStorage, connectFn);
   const {
     activeConnectionId,
@@ -94,6 +96,8 @@ function Connections({
         setActiveConnectionId={setActiveConnectionById}
         onConnectionDoubleClicked={connect}
         removeAllRecentsConnections={removeAllRecentsConnections}
+        removeConnection={removeConnection}
+        duplicateConnection={duplicateConnection}
       />
       <div className={connectItemContainerStyles}>
         {storeConnectionError && (
@@ -107,7 +111,6 @@ function Connections({
         )}
         <div className={formContainerStyles}>
           <ConnectForm
-            showSaveConnection
             onConnectClicked={(connectionInfo) =>
               connect({
                 ...connectionInfo,
@@ -119,7 +122,8 @@ function Connections({
           <FormHelp />
         </div>
       </div>
-      {!!connectionAttempt && !connectionAttempt.isClosed() && (
+      {(isConnected ||
+        (!!connectionAttempt && !connectionAttempt.isClosed())) && (
         <Connecting
           connectingStatusText={connectingStatusText}
           onCancelConnectionClicked={cancelConnectionAttempt}
