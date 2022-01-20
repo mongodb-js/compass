@@ -1,4 +1,3 @@
-// TODO: add back ts-check
 const { inspect } = require('util');
 const { ObjectId } = require('bson');
 const { promises: fs } = require('fs');

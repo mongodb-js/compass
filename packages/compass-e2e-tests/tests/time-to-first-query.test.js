@@ -1,4 +1,3 @@
-// TODO ts-check
 const { expect } = require('chai');
 const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
 const Selectors = require('../helpers/selectors');

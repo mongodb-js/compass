@@ -1,5 +1,3 @@
-// TODO:  ts-check
-
 exports.addCommands = function (compass) {
   const add = (name, path) => {
     const f = require(path)(compass);

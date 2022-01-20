@@ -1,4 +1,3 @@
-// TODO ts-check
 const path = require('path');
 const { promises: fs } = require('fs');
 const _ = require('lodash');

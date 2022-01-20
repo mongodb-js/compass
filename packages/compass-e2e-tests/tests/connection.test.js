@@ -1,4 +1,3 @@
-// TODO: ts-check
 const { expect } = require('chai');
 const ConnectionString = require('mongodb-connection-string-url').default;
 const {
