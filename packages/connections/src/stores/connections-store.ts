@@ -81,7 +81,6 @@ type Action =
     }
   | {
       type: 'set-active-connection';
-      connectionId: string;
       connectionInfo: ConnectionInfo;
     }
   | {
@@ -132,7 +131,7 @@ export function connectionsReducer(state: State, action: Action): State {
     case 'set-active-connection':
       return {
         ...state,
-        activeConnectionId: action.connectionId,
+        activeConnectionId: action.connectionInfo.id,
         activeConnectionInfo: action.connectionInfo,
       };
     case 'new-connection':
@@ -385,21 +384,20 @@ export function useConnections(
         newConnections.push(cloneDeep(connectionInfo));
       }
 
+      if (activeConnectionId === connectionInfo.id) {
+        // Update the active connection if it's currently selected.
+        dispatch({
+          type: 'set-connections-and-select',
+          connections: newConnections,
+          activeConnectionInfo: cloneDeep(connectionInfo),
+        });
+        return;
+      }
+
       dispatch({
         type: 'set-connections',
         connections: newConnections,
       });
-
-      // Update the active connection if it's currently selected.
-      if (activeConnectionId === connectionInfo.id) {
-        // TODO: Before merging, use the new action handler added
-        // in https://github.com/mongodb-js/compass/pull/2666/files#diff-0abd9783e312f714b88197be4cd8d7d5f84caa00fa6bce8d62d07c0c4246519eR407
-        dispatch({
-          type: 'set-active-connection',
-          connectionId: connectionInfo.id,
-          connectionInfo: cloneDeep(connectionInfo),
-        });
-      }
     },
     setActiveConnectionById(newConnectionId: string) {
       const connection = connections.find(
@@ -408,7 +406,6 @@ export function useConnections(
       if (connection) {
         dispatch({
           type: 'set-active-connection',
-          connectionId: newConnectionId,
           connectionInfo: connection,
         });
       }
@@ -425,7 +422,6 @@ export function useConnections(
         const nextActiveConnection = createNewConnectionInfo();
         dispatch({
           type: 'set-active-connection',
-          connectionId: nextActiveConnection.id,
           connectionInfo: nextActiveConnection,
         });
       }
