@@ -21,7 +21,7 @@ function Identity({
   errors: ConnectionFormError[];
 }): React.ReactElement {
   const formFieldChanged = useCallback(
-    (key: IdentityFormKeys, value: string | number) => {
+    (key: IdentityFormKeys, value: string) => {
       return updateConnectionFormField({
         type: 'update-ssh-options',
         key,
@@ -48,7 +48,7 @@ function Identity({
       type: 'number',
       optional: false,
       placeholder: 'SSH Tunnel Port',
-      value: sshTunnelOptions?.port,
+      value: sshTunnelOptions?.port?.toString(),
       errorMessage: '',
       state: 'none',
     },
@@ -125,7 +125,7 @@ function Identity({
                 }: ChangeEvent<HTMLInputElement>) => {
                   formFieldChanged(
                     name as IdentityFormKeys,
-                    name === 'port' ? Number(value) : value
+                    value
                   );
                 }}
                 name={name}

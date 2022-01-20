@@ -17,7 +17,7 @@ const formFields = [
   },
   {
     key: 'port',
-    value: 2222,
+    value: '2222',
   },
   {
     key: 'username',
@@ -37,43 +37,34 @@ const sshTunnelOptions: SSHConnectionOptions = {
 };
 
 describe('SSHTunnelPassword', function () {
-  let onConnectionOptionChangedSpy: sinon.SinonSpy;
+  let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   beforeEach(function () {
-    onConnectionOptionChangedSpy = sinon.spy();
+    updateConnectionFormFieldSpy = sinon.spy();
 
     render(
       <SSHTunnelPassword
         errors={[]}
         sshTunnelOptions={sshTunnelOptions}
-        onConnectionOptionChanged={onConnectionOptionChangedSpy}
+        updateConnectionFormField={updateConnectionFormFieldSpy}
       />
     );
   });
 
-  // eslint-disable-next-line mocha/no-setup-in-describe
-  formFields.forEach(function ({ key }) {
-    it(`renders ${key} field`, function () {
+  it('renders form fields and their values', function () {
+    formFields.forEach(function ({ key }) {
       const el = screen.getByTestId(key);
-      expect(el).to.exist;
-    });
-  });
-
-  // eslint-disable-next-line mocha/no-setup-in-describe
-  formFields.forEach(function ({ key }) {
-    it(`renders ${key} field value`, function () {
-      const el = screen.getByTestId(key);
-      expect(el.getAttribute('value')).to.equal(
+      expect(el, `renders ${key} field`).to.exist;
+      expect(el.getAttribute('value'), `renders ${key} value`).to.equal(
         sshTunnelOptions[key].toString()
       );
     });
   });
 
-  // eslint-disable-next-line mocha/no-setup-in-describe
-  formFields.forEach(function ({ key, value }) {
-    it(`calls onConnectionOptionChanged when ${key} field on form changes`, function () {
+  it(`calls update handler when field on form changes`, function () {
+    formFields.forEach(function ({ key, value }, index: number) {
       fireEvent.change(screen.getByTestId(key), { target: { value } });
-      expect(onConnectionOptionChangedSpy.args[0]).to.deep.equal([key, value]);
+      expect(updateConnectionFormFieldSpy.args[index][0], `calls updateConnectionFormField when ${key} field changes`).to.deep.equal({key, value, type: 'update-ssh-options'});
     });
   });
 
@@ -97,7 +88,7 @@ describe('SSHTunnelPassword', function () {
       <SSHTunnelPassword
         errors={errors}
         sshTunnelOptions={{} as SSHConnectionOptions}
-        onConnectionOptionChanged={onConnectionOptionChangedSpy}
+        updateConnectionFormField={updateConnectionFormFieldSpy}
       />
     );
 

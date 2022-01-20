@@ -24,7 +24,7 @@ function Password({
   errors: ConnectionFormError[];
 }): React.ReactElement {
   const formFieldChanged = useCallback(
-    (key: PasswordFormKeys, value: string | number) => {
+    (key: PasswordFormKeys, value: string) => {
       return updateConnectionFormField({
         type: 'update-ssh-options',
         key,
@@ -51,7 +51,7 @@ function Password({
       type: 'number',
       optional: false,
       placeholder: 'SSH Port',
-      value: sshTunnelOptions?.port,
+      value: sshTunnelOptions?.port?.toString(),
       errorMessage: undefined,
       state: 'none',
     },
@@ -97,7 +97,7 @@ function Password({
               }: ChangeEvent<HTMLInputElement>) => {
                 formFieldChanged(
                   name as PasswordFormKeys,
-                  name === 'port' ? Number(value) : value
+                  value
                 );
               }}
               name={name}
