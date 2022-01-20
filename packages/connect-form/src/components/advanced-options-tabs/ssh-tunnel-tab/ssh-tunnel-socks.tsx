@@ -82,34 +82,25 @@ function Socks({
 
   return (
     <>
-      {fields.map(
-        ({
-          name,
-          label,
-          type,
-          optional,
-          placeholder,
-          value,
-        }) => (
-          <FormFieldContainer key={name}>
-            <TextInput
-              onChange={({
-                target: { value },
-              }: ChangeEvent<HTMLInputElement>) => {
-                handleFieldChanged(name, value);
-              }}
-              name={name}
-              data-testid={name}
-              label={label}
-              type={type}
-              optional={optional}
-              placeholder={placeholder}
-              value={value}
-              spellCheck={false}
-            />
-          </FormFieldContainer>
-        )
-      )}
+      {fields.map(({ name, label, type, optional, placeholder, value }) => (
+        <FormFieldContainer key={name}>
+          <TextInput
+            onChange={({
+              target: { value },
+            }: ChangeEvent<HTMLInputElement>) => {
+              handleFieldChanged(name, value);
+            }}
+            name={name}
+            data-testid={name}
+            label={label}
+            type={type}
+            optional={optional}
+            placeholder={placeholder}
+            value={value}
+            spellCheck={false}
+          />
+        </FormFieldContainer>
+      ))}
     </>
   );
 }

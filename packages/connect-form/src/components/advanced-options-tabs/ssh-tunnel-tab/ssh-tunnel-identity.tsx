@@ -123,10 +123,7 @@ function Identity({
                 onChange={({
                   target: { value },
                 }: ChangeEvent<HTMLInputElement>) => {
-                  formFieldChanged(
-                    name as IdentityFormKeys,
-                    value
-                  );
+                  formFieldChanged(name as IdentityFormKeys, value);
                 }}
                 name={name}
                 data-testid={name}

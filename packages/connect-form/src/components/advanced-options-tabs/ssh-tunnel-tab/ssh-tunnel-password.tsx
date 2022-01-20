@@ -95,10 +95,7 @@ function Password({
               onChange={({
                 target: { value },
               }: ChangeEvent<HTMLInputElement>) => {
-                formFieldChanged(
-                  name as PasswordFormKeys,
-                  value
-                );
+                formFieldChanged(name as PasswordFormKeys, value);
               }}
               name={name}
               data-testid={name}

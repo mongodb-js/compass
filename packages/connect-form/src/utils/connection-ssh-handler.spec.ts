@@ -5,7 +5,6 @@ import { handleUpdateSshOptions } from './connection-ssh-handler';
 const connectionString = 'mongodb://a:b@outerspace:123/?ssl=false';
 
 describe('#handleUpdateSshOptions', function () {
-
   it('should handle tab update with no initial options', function () {
     const response = handleUpdateSshOptions({
       action: {

@@ -61,10 +61,13 @@ describe('SSHTunnelPassword', function () {
     });
   });
 
-  it(`calls update handler when field on form changes`, function () {
+  it('calls update handler when field on form changes', function () {
     formFields.forEach(function ({ key, value }, index: number) {
       fireEvent.change(screen.getByTestId(key), { target: { value } });
-      expect(updateConnectionFormFieldSpy.args[index][0], `calls updateConnectionFormField when ${key} field changes`).to.deep.equal({key, value, type: 'update-ssh-options'});
+      expect(
+        updateConnectionFormFieldSpy.args[index][0],
+        `calls updateConnectionFormField when ${key} field changes`
+      ).to.deep.equal({ key, value, type: 'update-ssh-options' });
     });
   });
 
@@ -94,17 +97,17 @@ describe('SSHTunnelPassword', function () {
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshHostname')),
-      `renders sshHostname field error`
+      'renders sshHostname field error'
     ).to.exist;
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshUsername')),
-      `renders sshUsername field error`
+      'renders sshUsername field error'
     ).to.exist;
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshPassword')),
-      `renders sshPassword field error`
+      'renders sshPassword field error'
     ).to.exist;
   });
 });

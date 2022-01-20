@@ -29,12 +29,12 @@ const proxyParams = {
   proxyPort: 1080,
   proxyUsername: 'cosmo',
   proxyPassword: 'kramer',
-}
+};
 const connectionStringUrl = new ConnectionStringUrl(
   'mongodb+srv://0ranges:p!neapp1es@localhost/'
 );
 
-for(const key in proxyParams) {
+for (const key in proxyParams) {
   connectionStringUrl.searchParams.set(key, proxyParams[key]);
 }
 
@@ -66,14 +66,20 @@ describe('TunnelSocks', function () {
   it('calls update handler when field on form changes - update', function () {
     formFields.forEach(function ({ key, value }, index: number) {
       fireEvent.change(screen.getByTestId(key), { target: { value } });
-      expect(updateConnectionFormFieldSpy.args[index][0], `calls updateConnectionFormField when ${key} field changes`).to.deep.equal({currentKey: key, value, type: 'update-search-param'});
+      expect(
+        updateConnectionFormFieldSpy.args[index][0],
+        `calls updateConnectionFormField when ${key} field changes`
+      ).to.deep.equal({ currentKey: key, value, type: 'update-search-param' });
     });
   });
 
   it('calls update handler when field on form changes - delete', function () {
     formFields.forEach(function ({ key }, index: number) {
       fireEvent.change(screen.getByTestId(key), { target: { value: '' } });
-      expect(updateConnectionFormFieldSpy.args[index][0], `calls updateConnectionFormField when ${key} field changes`).to.deep.equal({key, type: 'delete-search-param'});
+      expect(
+        updateConnectionFormFieldSpy.args[index][0],
+        `calls updateConnectionFormField when ${key} field changes`
+      ).to.deep.equal({ key, type: 'delete-search-param' });
     });
   });
 });

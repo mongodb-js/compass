@@ -69,20 +69,23 @@ describe('SSHTunnelIdentity', function () {
     });
   });
 
-  it(`calls update handler when field on form changes`, function () {
+  it('calls update handler when field on form changes', function () {
     formFields.forEach(function ({ key, value }, index: number) {
       const target =
-      key === 'identityKeyFile'
-        ? {
-            files: [
-              {
-                path: value,
-              },
-            ],
-          }
-        : { value };
+        key === 'identityKeyFile'
+          ? {
+              files: [
+                {
+                  path: value,
+                },
+              ],
+            }
+          : { value };
       fireEvent.change(screen.getByTestId(key), { target });
-      expect(updateConnectionFormFieldSpy.args[index][0], `calls updateConnectionFormField when ${key} field changes`).to.deep.equal({key, value, type: 'update-ssh-options'});
+      expect(
+        updateConnectionFormFieldSpy.args[index][0],
+        `calls updateConnectionFormField when ${key} field changes`
+      ).to.deep.equal({ key, value, type: 'update-ssh-options' });
     });
   });
 
@@ -112,17 +115,17 @@ describe('SSHTunnelIdentity', function () {
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshHostname')),
-      `renders sshHostname field error`
+      'renders sshHostname field error'
     ).to.exist;
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshUsername')),
-      `renders sshUsername field error`
+      'renders sshUsername field error'
     ).to.exist;
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshIdentityKeyFile')),
-      `renders sshIdentityKeyFile field error`
+      'renders sshIdentityKeyFile field error'
     ).to.exist;
   });
 });
