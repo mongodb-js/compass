@@ -72,9 +72,16 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
       ))}
     </ol>
   );
+
+  const firstMessageNoDot = messages[0].endsWith('.')
+    ? messages[0].slice(0, messages[0].length - 1)
+    : messages[0];
+
   return (
     <div>
-      <span>{messages.length} problems.</span>{' '}
+      <span>
+        {firstMessageNoDot}, and other {messages.length - 1} problems.
+      </span>{' '}
       <InlineDefinition
         tooltipProps={{
           align: 'top',
@@ -83,7 +90,7 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
         }}
         definition={tooltipErrors}
       >
-        View All
+        View all
       </InlineDefinition>
     </div>
   );

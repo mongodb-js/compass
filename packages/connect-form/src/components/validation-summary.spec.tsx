@@ -1,9 +1,6 @@
 import React from 'react';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
-
-import userEvent from '@testing-library/user-event';
-
 import { expect } from 'chai';
+import { render, screen, cleanup } from '@testing-library/react';
 
 import { ErrorSummary, WarningSummary } from './validation-summary';
 
@@ -41,22 +38,26 @@ describe('ErrorSummary/WarningSummary Component', function () {
       expect(screen.getByText('second error')).to.be.visible;
     });
 
-    it('renders 3 errors as tooltip', async function () {
+    it('renders 3 errors as tooltip', function () {
       renderSummary(Summary, [
         { message: 'first error' },
         { message: 'second error' },
         { message: 'third error' },
       ]);
 
-      expect(screen.getByText(/3 +problems\./)).to.be.visible;
+      expect(screen.getByText(/first error, and other 2 +problems\./)).to.be
+        .visible;
+      expect(screen.getByText('View all')).to.be.visible;
+    });
 
-      const trigger = screen.getByText('View All');
-      expect(trigger).to.be.visible;
-      userEvent.hover(trigger);
+    it('strips "." at the end of first error', function () {
+      renderSummary(Summary, [
+        { message: 'first error.' },
+        { message: 'second error' },
+        { message: 'third error' },
+      ]);
 
-      await waitFor(() => screen.getByText('first error'));
-      expect(screen.getByText('second error')).to.be.visible;
-      expect(screen.getByText('third error')).to.be.visible;
+      expect(screen.getByText(/first error, +and/)).to.be.visible;
     });
   });
 });
