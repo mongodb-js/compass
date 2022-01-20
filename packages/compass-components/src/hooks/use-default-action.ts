@@ -4,7 +4,7 @@ import { useCallback } from 'react';
  * Augments a component with default action handling. Default action refers to
  * the action produced by button-like interaction with the UI element: click or
  * space / enter key press
- * 
+ *
  * @param onDefaultAction Action callback
  * @returns Props that should be passed to the component
  */
