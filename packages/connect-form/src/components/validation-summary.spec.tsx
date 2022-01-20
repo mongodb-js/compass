@@ -3,9 +3,11 @@ import {
   render,
   screen,
   cleanup,
-  fireEvent,
   waitFor,
 } from '@testing-library/react';
+
+import userEvent from '@testing-library/user-event';
+
 import { expect } from 'chai';
 
 import { ErrorSummary, WarningSummary } from './validation-summary';
@@ -55,7 +57,7 @@ describe('ErrorSummary/WarningSummary Component', function () {
 
       const trigger = screen.getByText('View All');
       expect(trigger).to.be.visible;
-      fireEvent.mouseOver(trigger);
+      userEvent.hover(trigger);
 
       await waitFor(() => screen.getByText('first error'));
       expect(screen.getByText('second error')).to.be.visible;
