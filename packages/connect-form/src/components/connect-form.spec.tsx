@@ -113,4 +113,23 @@ describe('ConnectForm Component', function () {
 
     expect(screen.getByText('Save connection to favorites')).to.be.visible;
   });
+
+  it('should render a connection error', function () {
+    render(
+      <ConnectForm
+        onConnectClicked={() => {
+          /* */
+        }}
+        connectionErrorMessage="connection error"
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
+        }}
+      />
+    );
+
+    expect(screen.getByText('connection error')).to.be.visible;
+  });
 });

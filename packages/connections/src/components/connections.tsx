@@ -75,8 +75,9 @@ function Connections({
   const {
     activeConnectionId,
     activeConnectionInfo,
-    connectingStatusText,
     connectionAttempt,
+    connectionErrorMessage,
+    connectingStatusText,
     connections,
     isConnected,
     storeConnectionError,
@@ -118,6 +119,7 @@ function Connections({
             }
             onSaveConnectionClicked={saveConnection}
             initialConnectionInfo={activeConnectionInfo}
+            connectionErrorMessage={connectionErrorMessage}
           />
           <FormHelp />
         </div>

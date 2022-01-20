@@ -23,26 +23,25 @@ import AdvancedConnectionOptions from './advanced-connection-options';
 import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
-import { ErrorSummary, WarningSummary } from './validation-summary';
 import SaveConnectionModal from './save-connection-modal';
 
 const formContainerStyles = css({
   margin: 0,
   padding: 0,
   height: 'fit-content',
-  flexGrow: 1,
-  minWidth: 650,
-  maxWidth: 760,
+  width: 700,
   position: 'relative',
   display: 'inline-block',
 });
 
 const formCardStyles = css({
   margin: 0,
-  padding: spacing[2],
   height: 'fit-content',
   width: '100%',
   position: 'relative',
+  display: 'flex',
+  flexFlow: 'column nowrap',
+  maxHeight: '95vh',
 });
 
 const descriptionStyles = css({
@@ -51,6 +50,12 @@ const descriptionStyles = css({
 
 const formContentContainerStyles = css({
   padding: spacing[4],
+  overflow: 'scroll',
+  position: 'relative',
+});
+
+const formFooterStyles = css({
+  marginTop: 'auto',
 });
 
 const favoriteButtonStyles = css({
@@ -89,19 +94,21 @@ const favoriteButtonLabelStyles = css({
 
 function ConnectForm({
   initialConnectionInfo,
+  connectionErrorMessage,
   onConnectClicked,
   // The connect form will not always used in an environment where
   // the connection info can be saved.
   onSaveConnectionClicked,
 }: {
   initialConnectionInfo: ConnectionInfo;
+  connectionErrorMessage?: string | null;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
 }): React.ReactElement {
   const [
     { enableEditingConnectionString, errors, warnings, connectionOptions },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
-  ] = useConnectForm(initialConnectionInfo);
+  ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
   const [showSaveConnectionModal, setShowSaveConnectionModal] = useState(false);
 
@@ -164,33 +171,28 @@ function ConnectForm({
               connectionOptions={connectionOptions}
             />
           </div>
-
-          {warnings.length > 0 && !connectionStringInvalidError && (
-            <WarningSummary warnings={warnings} />
-          )}
-
-          {errors.length > 0 && !connectionStringInvalidError && (
-            <ErrorSummary errors={errors} />
-          )}
-
-          <ConnectFormActions
-            onConnectClicked={() => {
-              const updatedConnectionOptions = {
-                ...connectionOptions,
-              };
-              const formErrors = validateConnectionOptionsErrors(
-                updatedConnectionOptions
-              );
-              if (formErrors.length) {
-                setErrors(formErrors);
-                return;
-              }
-              onConnectClicked({
-                ...initialConnectionInfo,
-                connectionOptions: updatedConnectionOptions,
-              });
-            }}
-          />
+          <div className={formFooterStyles}>
+            <ConnectFormActions
+              errors={connectionStringInvalidError ? [] : errors}
+              warnings={connectionStringInvalidError ? [] : warnings}
+              onConnectClicked={() => {
+                const updatedConnectionOptions = {
+                  ...connectionOptions,
+                };
+                const formErrors = validateConnectionOptionsErrors(
+                  updatedConnectionOptions
+                );
+                if (formErrors.length) {
+                  setErrors(formErrors);
+                  return;
+                }
+                onConnectClicked({
+                  ...initialConnectionInfo,
+                  connectionOptions: updatedConnectionOptions,
+                });
+              }}
+            />
+          </div>
         </Card>
       </div>
       {!!onSaveConnectionClicked && (
