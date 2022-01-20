@@ -74,7 +74,8 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
   );
   return (
     <div>
-      <span>{messages.length} problems.</span> <InlineDefinition
+      <span>{messages.length} problems.</span>{' '}
+      <InlineDefinition
         tooltipProps={{
           align: 'top',
           justify: 'start',
