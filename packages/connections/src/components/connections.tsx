@@ -77,6 +77,8 @@ function Connections({
       hideStoreConnectionError,
       setActiveConnectionById,
       removeAllRecentsConnections,
+      removeConnection,
+      duplicateConnection,
     },
   ] = useConnections(onConnected, connectionStorage, connectFn);
 
@@ -94,6 +96,8 @@ function Connections({
         setActiveConnectionId={setActiveConnectionById}
         onConnectionDoubleClicked={connect}
         removeAllRecentsConnections={removeAllRecentsConnections}
+        removeConnection={removeConnection}
+        duplicateConnection={duplicateConnection}
       />
       <div className={connectItemContainerStyles}>
         {storeConnectionError && (
