@@ -1,4 +1,3 @@
-// TODO: ts-check
 const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 const { startTelemetryServer } = require('../helpers/telemetry');

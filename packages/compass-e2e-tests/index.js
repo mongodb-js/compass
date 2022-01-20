@@ -21,9 +21,11 @@ let metricsClient;
 async function setup() {
   await keychain.activate();
 
+  const disableStartStop = process.argv.includes('--disable-start-stop');
+
   // When working on the tests it is faster to just keep the server running.
   // insert-data is idempotent anyway.
-  if (!process.env.DISABLE_START_STOP) {
+  if (!disableStartStop) {
     debug('Starting MongoDB server');
     spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   }
@@ -44,7 +46,9 @@ async function setup() {
 function cleanup() {
   keychain.reset();
 
-  if (!process.env.DISABLE_START_STOP) {
+  const disableStartStop = process.argv.includes('--disable-start-stop');
+
+  if (!disableStartStop) {
     debug('Stopping MongoDB server and cleaning up server data');
     try {
       spawnSync('npm', ['run', 'stop-server'], {
@@ -108,9 +112,11 @@ async function main() {
     cwd: __dirname,
   });
 
+  const bail = process.argv.includes('--bail');
+
   const mocha = new Mocha({
     timeout: 120_000,
-    bail: process.env.BAIL ? true : false,
+    bail,
   });
 
   tests.forEach((testPath) => {

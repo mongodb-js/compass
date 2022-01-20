@@ -21,7 +21,7 @@
     "stop-server": "mongodb-runner stop --port 27018",
     "insert-data": "node ./scripts/insert-data.js",
     "unzip-fixtures": "node ./scripts/gunzip.js fixtures/*.gz",
-    "testfast": "env DISABLE_START_STOP=true env BAIL=true env DEBUG=hadron*,mongo*,compass* npm run test -- --no-native-modules --no-compile"
+    "testfast": "env DEBUG=hadron*,mongo*,compass* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail"
   },
   "peerDependencies": {
     "bson": "*"
