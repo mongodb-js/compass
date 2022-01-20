@@ -34,11 +34,11 @@ module.exports = function (compass) {
     await browser.keys(command);
     await browser.keys(['Enter']);
 
-    // wait until more output compassears
+    // wait until more output appears
     await browser.waitUntil(
       async () => {
         const lines = await getOutputText();
-        // first the command we send compassears then later the response
+        // first the command we send appears then later the response
         return lines.length > numLines + 1;
       },
       { timeout: 10000 }
