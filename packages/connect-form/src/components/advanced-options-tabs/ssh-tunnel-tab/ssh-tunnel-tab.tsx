@@ -102,13 +102,38 @@ function SSHTunnel({
     options[selectedOptionIndex]
   );
 
-  const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    const item = options.find(({ id }) => id === event.target.value);
-    if (item) {
-      setSelectedOption(item);
-    }
-  }, []);
+  const handleOptionChanged = useCallback(
+    (oldType: SSHType, newType: SSHType) => {
+      let type: 'remove-proxy-options' | 'remove-ssh-options';
+      switch (newType) {
+        case 'socks':
+          type = 'remove-ssh-options';
+          break;
+        case 'identity':
+        case 'password':
+          type = 'remove-proxy-options';
+          break;
+        default:
+          type =
+            oldType === 'socks' ? 'remove-proxy-options' : 'remove-ssh-options';
+          break;
+      }
+      updateConnectionFormField({ type });
+    },
+    [updateConnectionFormField]
+  );
+
+  const optionSelected = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      event.preventDefault();
+      const item = options.find(({ id }) => id === event.target.value);
+      if (item) {
+        handleOptionChanged(selectedOption.type, item.type);
+        setSelectedOption(item);
+      }
+    },
+    [selectedOption, handleOptionChanged]
+  );
 
   const SSLOptionContent = selectedOption.component;
 

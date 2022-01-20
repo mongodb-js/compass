@@ -118,6 +118,12 @@ type ConnectionFormFieldActions =
   | {
       type: 'update-connection-path';
       value: string;
+    }
+  | {
+      type: 'remove-ssh-options';
+    }
+  | {
+      type: 'remove-proxy-options';
     };
 
 export type UpdateConnectionFormField = (
@@ -407,6 +413,32 @@ export function handleConnectionFormFieldUpdate(
       return {
         connectionOptions: {
           ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
+    case 'remove-proxy-options': {
+      const proxyOptions = [
+        'proxyHost',
+        'proxyPort',
+        'proxyPassword',
+        'proxyUsername',
+      ];
+      proxyOptions.forEach((key) =>
+        updatedSearchParams.delete(key as keyof MongoClientOptions)
+      );
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
+    case 'remove-ssh-options': {
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          sshTunnel: undefined,
           connectionString: parsedConnectionStringUrl.toString(),
         },
       };

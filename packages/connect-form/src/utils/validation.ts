@@ -13,6 +13,7 @@ export type FieldName =
   | 'ldapUsername'
   | 'password'
   | 'schema'
+  | 'proxyHostname'
   | 'sshHostname'
   | 'sshIdentityKeyFile'
   | 'sshPassword'
@@ -60,7 +61,9 @@ export function validateConnectionOptionsErrors(
 
   return [
     ...validateAuthMechanismErrors(connectionString),
-    ...validateSSHTunnelErrors(connectionOptions, connectionString),
+    ...(connectionOptions.sshTunnel
+      ? validateSSHTunnelErrors(connectionOptions.sshTunnel)
+      : validateSocksProxyErrors(connectionString)),
   ];
 }
 
@@ -159,25 +162,9 @@ function validateKerberosErrors(
 }
 
 function validateSSHTunnelErrors(
-  { sshTunnel }: ConnectionOptions,
-  connectionString: ConnectionString
+  sshTunnel: NonNullable<ConnectionOptions['sshTunnel']>
 ): ConnectionFormError[] {
-  const proxyHost = connectionString
-    .typedSearchParams<MongoClientOptions>()
-    .get('proxyHost');
-
-  if (!sshTunnel || (!sshTunnel.host && proxyHost)) {
-    return [];
-  }
   const errors: ConnectionFormError[] = [];
-  if (proxyHost && sshTunnel.host) {
-    errors.push({
-      message: 'Can not use Proxy with SSH Tunnel.',
-    });
-    // Stop here until user clears this error first.
-    return errors;
-  }
-
   if (!sshTunnel.host) {
     errors.push({
       fieldName: 'sshHostname',
@@ -199,6 +186,25 @@ function validateSSHTunnelErrors(
     });
   }
 
+  return errors;
+}
+function validateSocksProxyErrors(
+  connectionString: ConnectionString
+): ConnectionFormError[] {
+  const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
+
+  const proxyHost = searchParams.get('proxyHost');
+  const proxyUsername = searchParams.get('proxyUsername');
+  const proxyPassword = searchParams.get('proxyPassword');
+
+  const errors: ConnectionFormError[] = [];
+  if (!proxyHost && (proxyUsername || proxyPassword)) {
+    errors.push({
+      fieldName: 'proxyHostname',
+      message: 'Proxy hostname is required.',
+    });
+    return errors;
+  }
   return errors;
 }
 
