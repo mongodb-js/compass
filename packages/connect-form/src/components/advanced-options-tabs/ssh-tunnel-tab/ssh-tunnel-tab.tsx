@@ -88,7 +88,7 @@ function SSHTunnel({
   const hasIdentityFile = connectionOptions?.sshTunnel?.identityKeyFile;
   const hasPassword = connectionOptions?.sshTunnel?.password;
 
-  const seletedOptionType: SSHType = hasProxyHost
+  const selectedOptionType: SSHType = hasProxyHost
     ? 'socks'
     : hasIdentityFile
     ? 'identity'
@@ -97,7 +97,7 @@ function SSHTunnel({
     : 'none';
 
   const selectedOptionIndex =
-    options.findIndex((x) => x.type === seletedOptionType) ?? 0;
+    options.findIndex((x) => x.type === selectedOptionType) ?? 0;
   const [selectedOption, setSelectedOption] = useState(
     options[selectedOptionIndex]
   );
