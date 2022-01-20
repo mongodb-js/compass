@@ -121,31 +121,36 @@ describe('validation', function () {
         expect(result).to.deep.equal([]);
       });
 
-      it('should not return errors if SSH host is not set but proxyHost is set', function () {
+      it('should not return errors if SSH is not set but proxyHost is set', function () {
         const result = validateConnectionOptionsErrors({
           connectionString: 'mongodb://myserver.com/?proxyHost=hello',
+          sshTunnel: undefined,
+        });
+        expect(result).to.deep.equal([]);
+      });
+
+      it('should not return errors if SSH is set but proxyHost is not set', function () {
+        const result = validateConnectionOptionsErrors({
+          connectionString: 'mongodb://myserver.com/',
           sshTunnel: {
-            host: '',
+            host: 'hello-world.com',
             port: 22,
-            username: 'mongouser',
+            username: 'cosmo',
+            password: 'kramer',
           },
         });
         expect(result).to.deep.equal([]);
       });
 
-      it('should return errors if SSH is configured and proxyHost is also set', function () {
+      it('should return errors if proxyHost is missing from proxy options', function () {
         const result = validateConnectionOptionsErrors({
-          connectionString: 'mongodb://myserver.com/?proxyHost=hello',
-          sshTunnel: {
-            host: 'my-hostname',
-            port: 22,
-            username: 'mongouser',
-            identityKeyPassphrase: 'abc',
-          },
+          connectionString: 'mongodb://myserver.com/?proxyUsername=hello',
+          sshTunnel: undefined,
         });
         expect(result).to.deep.equal([
           {
-            message: 'Can not use Proxy with SSH Tunnel.',
+            fieldName: 'proxyHostname',
+            message: 'Proxy hostname is required.',
           },
         ]);
       });
