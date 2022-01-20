@@ -4,7 +4,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
-import { Button, Icon, Label, Link, Description } from '..';
+import { Button, Icon, IconButton, Label, Link, Description } from '..';
 
 const { base: redBaseColor } = uiColors.red;
 
@@ -14,16 +14,24 @@ const formItemHorizontalStyles = css({
   marginRight: 'auto',
   marginLeft: 'auto',
   display: 'flex',
-  alignItems: 'center',
 });
 
-const formItemVerticalStyles = css`
-  margin: 5px auto 20px;
-`;
+const formItemVerticalStyles = css({
+  margin: '5px auto 20px',
+});
 
-const buttonStyles = css`
-  width: 100%;
-`;
+const removeFileLineStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+});
+
+const removeFileButtonStyles = css({
+  marginLeft: spacing[1],
+});
+
+const buttonStyles = css({
+  width: '100%',
+});
 
 const errorMessageStyles = css({
   color: `${redBaseColor} !important`,
@@ -39,31 +47,45 @@ const labelHorizontalStyles = css({
   paddingRight: spacing[3],
 });
 
-const labelIconStyles = css`
-  display: inline-block;
-  vertical-align: middle;
-  font: normal normal normal 14px/1 FontAwesome;
-  font-size: inherit;
-  text-rendering: auto;
-  margin: 0 0 0 5px;
-  cursor: pointer;
-  color: #bfbfbe;
+const optionalLabelStyles = css({
+  color: uiColors.gray.base,
+  fontStyle: 'italic',
+  fontWeight: 'normal',
+  fontSize: 12,
+});
 
-  &:link,
-  &:active {
-    color: #bfbfbe;
-  }
+const labelIconStyles = css({
+  display: 'inline-block',
+  verticalAlign: 'middle',
+  font: 'normal normal normal 14px/1 FontAwesome',
+  fontSize: 'inherit',
+  textRendering: 'auto',
+  margin: '0 0 0 5px',
+  cursor: 'pointer',
+  color: '#bfbfbe',
 
-  &:link,
-  &:active,
-  &:hover {
-    text-decoration: none;
-  }
+  '&:link, &:active': {
+    color: '#bfbfbe',
+  },
 
-  &:hover {
-    color: #fbb129;
-  }
-`;
+  '&:link, &:active, &:hover': {
+    textDecoration: 'none',
+  },
+
+  '&:hover': {
+    color: '#fbb129',
+  },
+});
+
+const disabledLabelStyles = css({
+  '&:first-child': {
+    pointerEvents: 'none',
+  },
+});
+
+const disabledDescriptionStyles = css({
+  color: uiColors.gray.dark1,
+});
 
 export enum Variant {
   Horizontal = 'HORIZONTAL',
@@ -81,10 +103,14 @@ function FileInput({
   label,
   dataTestId,
   onChange,
+  disabled,
   multi = false,
+  optional = false,
+  optionalMessage,
   error = false,
   errorMessage,
   variant = Variant.Horizontal,
+  showFileOnNewLine = false,
   link,
   description,
   values,
@@ -92,14 +118,18 @@ function FileInput({
 }: {
   id: string;
   label: string;
-  dataTestId: string;
+  dataTestId?: string;
   onChange: (files: string[]) => void;
+  disabled?: boolean;
   multi?: boolean;
+  optional?: boolean;
+  optionalMessage?: string;
   error?: boolean;
   errorMessage?: string;
   variant?: Variant;
   link?: string;
   description?: string;
+  showFileOnNewLine?: boolean;
   values?: string[];
   labelAlignment?: 'right' | 'left' | 'center';
 }): React.ReactElement {
@@ -124,9 +154,9 @@ function FileInput({
     [onChange]
   );
 
-  const renderDescription = () => {
+  const renderDescription = (): React.ReactElement | null => {
     if (!link && !description) {
-      return <></>;
+      return null;
     }
     if (!link) {
       return (
@@ -165,18 +195,40 @@ function FileInput({
           { [formItemVerticalStyles]: variant === Variant.Vertical }
         )}
       >
-        <label
-          htmlFor={`${id}_file_input`}
+        <div
           className={cx(
-            { [labelHorizontalStyles]: variant === Variant.Horizontal },
+            {
+              [labelHorizontalStyles]: variant === Variant.Horizontal,
+            },
             css({
               textAlign: labelAlignment,
             })
           )}
         >
-          <span style={{ gridArea: 'label' }}>{label}</span>
+          <label
+            htmlFor={`${id}_file_input`}
+            className={cx({
+              [disabledLabelStyles]: disabled,
+            })}
+          >
+            <div>
+              <span
+                className={cx({
+                  [disabledDescriptionStyles]: disabled,
+                })}
+                style={{ gridArea: 'label' }}
+              >
+                {label}
+              </span>
+            </div>
+            {optional && (
+              <div className={optionalLabelStyles}>
+                {optionalMessage ? optionalMessage : 'Optional'}
+              </div>
+            )}
+          </label>
           {renderDescription()}
-        </label>
+        </div>
         <input
           data-testid={dataTestId ?? 'file-input'}
           ref={inputRef}
@@ -186,13 +238,17 @@ function FileInput({
           multiple={multi}
           onChange={onFilesChanged}
           style={{ display: 'none' }}
+          // Force a re-render when the values change so
+          // the component is controlled by the prop.
+          key={values ? values.join(',') : 'empty'}
         />
         <Button
           id={id}
           data-testid="file-input-button"
-          className={cx({ [buttonStyles]: true })}
+          className={buttonStyles}
+          disabled={disabled}
           onClick={() => {
-            if (inputRef.current) {
+            if (!disabled && inputRef.current) {
               inputRef.current.click();
             }
           }}
@@ -202,6 +258,25 @@ function FileInput({
           {buttonText}
         </Button>
       </div>
+      {showFileOnNewLine &&
+        values &&
+        values.length > 0 &&
+        values.map((value, index) => (
+          <div className={removeFileLineStyles} key={value}>
+            {value}
+            <IconButton
+              className={removeFileButtonStyles}
+              aria-label="Remove file"
+              onClick={() => {
+                const newValues = [...values];
+                newValues.splice(index, 1);
+                onChange(newValues);
+              }}
+            >
+              <Icon glyph="X" />
+            </IconButton>
+          </div>
+        ))}
       {error && errorMessage && (
         <Label
           data-testid={'file-input-error'}

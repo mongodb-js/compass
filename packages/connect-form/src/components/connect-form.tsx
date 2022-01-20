@@ -21,9 +21,7 @@ const formContainerStyles = css({
   margin: 0,
   padding: 0,
   height: 'fit-content',
-  flexGrow: 1,
-  minWidth: 650,
-  maxWidth: 760,
+  width: 700,
   position: 'relative',
   display: 'inline-block',
 });
