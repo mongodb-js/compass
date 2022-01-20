@@ -69,6 +69,7 @@ function Connections({
       connections,
       isConnected,
       storeConnectionError,
+      connectionErrorMessage,
     },
     {
       cancelConnectionAttempt,
@@ -117,6 +118,7 @@ function Connections({
               })
             }
             initialConnectionInfo={activeConnectionInfo}
+            connectionErrorMessage={connectionErrorMessage}
           />
           <FormHelp />
         </div>

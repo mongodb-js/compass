@@ -15,7 +15,6 @@ import AdvancedConnectionOptions from './advanced-connection-options';
 import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
-import { ErrorSummary, WarningSummary } from './validation-summary';
 
 const formContainerStyles = css({
   margin: 0,
@@ -28,10 +27,12 @@ const formContainerStyles = css({
 
 const formCardStyles = css({
   margin: 0,
-  padding: spacing[2],
   height: 'fit-content',
   width: '100%',
   position: 'relative',
+  display: 'flex',
+  flexFlow: 'column nowrap',
+  maxHeight: '95vh',
 });
 
 const descriptionStyles = css({
@@ -40,19 +41,26 @@ const descriptionStyles = css({
 
 const formContentContainerStyles = css({
   padding: spacing[4],
+  overflow: 'scroll',
+});
+
+const formFooterStyles = css({
+  marginTop: 'auto',
 });
 
 function ConnectForm({
   initialConnectionInfo,
+  connectionErrorMessage,
   onConnectClicked,
 }: {
   initialConnectionInfo: ConnectionInfo;
+  connectionErrorMessage?: string | null;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const [
     { enableEditingConnectionString, errors, warnings, connectionOptions },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
-  ] = useConnectForm(initialConnectionInfo);
+  ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'
@@ -85,36 +93,28 @@ function ConnectForm({
           />
         </div>
 
-        {warnings.length && !connectionStringInvalidError ? (
-          <WarningSummary warnings={warnings} />
-        ) : (
-          ''
-        )}
-
-        {errors.length && !connectionStringInvalidError ? (
-          <ErrorSummary errors={errors} />
-        ) : (
-          ''
-        )}
-
-        <ConnectFormActions
-          onConnectClicked={() => {
-            const updatedConnectionOptions = {
-              ...connectionOptions,
-            };
-            const formErrors = validateConnectionOptionsErrors(
-              updatedConnectionOptions
-            );
-            if (formErrors.length) {
-              setErrors(formErrors);
-              return;
-            }
-            onConnectClicked({
-              ...initialConnectionInfo,
-              connectionOptions: updatedConnectionOptions,
-            });
-          }}
-        />
+        <div className={formFooterStyles}>
+          <ConnectFormActions
+            errors={connectionStringInvalidError ? [] : errors}
+            warnings={connectionStringInvalidError ? [] : warnings}
+            onConnectClicked={() => {
+              const updatedConnectionOptions = {
+                ...connectionOptions,
+              };
+              const formErrors = validateConnectionOptionsErrors(
+                updatedConnectionOptions
+              );
+              if (formErrors.length) {
+                setErrors(formErrors);
+                return;
+              }
+              onConnectClicked({
+                ...initialConnectionInfo,
+                connectionOptions: updatedConnectionOptions,
+              });
+            }}
+          />
+        </div>
       </Card>
     </div>
   );
