@@ -83,6 +83,7 @@ function ColorOption({
       data-testid={`color-pick-${hex}${isSelected ? '-selected' : ''}`}
       onClick={onClick}
       title={hex}
+      aria-pressed={isSelected}
     >
       {isSelected && (
         // Show a checkmark in the selected color.
@@ -134,6 +135,7 @@ function SavedConnectionColorPicker({
           }}
           data-testid={`color-pick-no-color${!hex ? '-selected' : ''}`}
           title="No color"
+          aria-pressed={!hex}
         >
           <div className={noColorRedBarStyles} />
         </button>
