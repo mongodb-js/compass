@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from 'react';
+import { Dispatch, useCallback, useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
@@ -448,6 +448,59 @@ export function useConnectForm(
     []
   );
 
+  const updateConnectionFormField = useCallback(
+    (action: ConnectionFormFieldActions) => {
+      const updatedState = handleConnectionFormFieldUpdate(
+        action,
+        state.connectionOptions
+      );
+
+      dispatch({
+        type: 'set-connection-form-state',
+        newState: {
+          ...state,
+          errors: [], // on each update the errors should reset
+          ...updatedState,
+          warnings:
+            updatedState.errors && updatedState.errors.length > 0
+              ? []
+              : validateConnectionOptionsWarnings(
+                  updatedState.connectionOptions
+                ),
+        },
+      });
+    },
+    []
+  );
+
+  setInitialState({
+    connectionErrorMessage,
+    initialConnectionInfo,
+    setErrors,
+    dispatch,
+  });
+
+  return [
+    state,
+    {
+      updateConnectionFormField,
+      setEnableEditingConnectionString,
+      setErrors,
+    },
+  ];
+}
+
+function setInitialState({
+  connectionErrorMessage,
+  initialConnectionInfo,
+  setErrors,
+  dispatch,
+}: {
+  connectionErrorMessage: string | null | undefined;
+  initialConnectionInfo: ConnectionInfo;
+  setErrors: (errors: ConnectionFormError[]) => void;
+  dispatch: Dispatch<Action>;
+}) {
   useEffect(() => {
     if (connectionErrorMessage) {
       setErrors([{ message: connectionErrorMessage }]);
@@ -476,33 +529,4 @@ export function useConnectForm(
       },
     });
   }, [initialConnectionInfo]);
-
-  function updateConnectionFormField(action: ConnectionFormFieldActions) {
-    const updatedState = handleConnectionFormFieldUpdate(
-      action,
-      state.connectionOptions
-    );
-
-    dispatch({
-      type: 'set-connection-form-state',
-      newState: {
-        ...state,
-        errors: [], // on each update the errors should reset
-        ...updatedState,
-        warnings:
-          updatedState.errors && updatedState.errors.length > 0
-            ? []
-            : validateConnectionOptionsWarnings(updatedState.connectionOptions),
-      },
-    });
-  }
-
-  return [
-    state,
-    {
-      updateConnectionFormField,
-      setEnableEditingConnectionString,
-      setErrors,
-    },
-  ];
 }
