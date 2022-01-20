@@ -126,7 +126,7 @@ function ConnectionList({
   activeConnectionId?: string;
   connections: ConnectionInfo[];
   createNewConnection: () => void;
-  setActiveConnectionId: (connectionId?: string) => void;
+  setActiveConnectionId: (connectionId: string) => void;
   onDoubleClick: (connectionInfo: ConnectionInfo) => void;
   removeAllRecentsConnections: () => void;
 }): React.ReactElement {
