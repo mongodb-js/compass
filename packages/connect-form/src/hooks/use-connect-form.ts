@@ -502,12 +502,6 @@ function setInitialState({
   dispatch: Dispatch<Action>;
 }) {
   useEffect(() => {
-    if (connectionErrorMessage) {
-      setErrors([{ message: connectionErrorMessage }]);
-    }
-  }, [setErrors, connectionErrorMessage]);
-
-  useEffect(() => {
     // When the initial connection options change, like a different
     // connection is clicked in the compass-sidebar, we
     // refresh the current connection string being edited.
@@ -529,4 +523,10 @@ function setInitialState({
       },
     });
   }, [initialConnectionInfo]);
+
+  useEffect(() => {
+    if (connectionErrorMessage) {
+      setErrors([{ message: connectionErrorMessage }]);
+    }
+  }, [setErrors, connectionErrorMessage]);
 }
