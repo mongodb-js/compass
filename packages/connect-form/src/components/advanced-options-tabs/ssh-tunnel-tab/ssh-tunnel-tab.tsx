@@ -8,6 +8,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import { MongoClientOptions } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import {
@@ -81,8 +82,25 @@ function SSHTunnel({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
-  // todo: set the correct option
-  const [selectedOption, setSelectedOption] = useState(options[0]);
+  const hasProxyHost = connectionStringUrl
+    .typedSearchParams<MongoClientOptions>()
+    .get('proxyHost');
+  const hasIdentityFile = connectionOptions?.sshTunnel?.identityKeyFile;
+  const hasPassword = connectionOptions?.sshTunnel?.password;
+
+  const seletedOptionType: SSHType = hasProxyHost
+    ? 'socks'
+    : hasIdentityFile
+    ? 'identity'
+    : hasPassword
+    ? 'password'
+    : 'none';
+
+  const selectedOptionIndex =
+    options.findIndex((x) => x.type === seletedOptionType) ?? 0;
+  const [selectedOption, setSelectedOption] = useState(
+    options[selectedOptionIndex]
+  );
 
   const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();

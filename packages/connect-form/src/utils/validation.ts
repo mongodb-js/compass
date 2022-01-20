@@ -1,5 +1,5 @@
 import type { MongoClientOptions } from 'mongodb';
-
+import { isLocalhost, isAtlas } from 'mongodb-build-info';
 import { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 
@@ -61,7 +61,7 @@ export function validateConnectionOptionsErrors(
 
   return [
     ...validateAuthMechanismErrors(connectionString),
-    ...validateSSHTunnelErrors(connectionOptions),
+    ...validateSSHTunnelErrors(connectionOptions, connectionString),
   ];
 }
 
@@ -160,33 +160,40 @@ function validateKerberosErrors(
 }
 
 function validateSSHTunnelErrors(
-  connectionOptions: ConnectionOptions
+  { sshTunnel }: ConnectionOptions,
+  connectionString: ConnectionString
 ): ConnectionFormError[] {
-  if (!connectionOptions.sshTunnel) {
+  const proxyHost = connectionString
+    .typedSearchParams<MongoClientOptions>()
+    .get('proxyHost');
+
+  if (!sshTunnel || (!sshTunnel.host && proxyHost)) {
     return [];
   }
   const errors: ConnectionFormError[] = [];
-  if (!connectionOptions.sshTunnel.host) {
+  if (proxyHost && sshTunnel.host) {
+    errors.push({
+      message: 'Can not use Proxy with SSH Tunnel.',
+    });
+    // Stop here until user clears this error first.
+    return errors;
+  }
+
+  if (!sshTunnel.host) {
     errors.push({
       fieldName: 'sshHostname',
-      message: 'A hostname is required to connect with an SSH tunnel',
+      message: 'A hostname is required to connect with an SSH tunnel.',
     });
   }
 
-  if (
-    !connectionOptions.sshTunnel.password &&
-    !connectionOptions.sshTunnel.identityKeyFile
-  ) {
+  if (!sshTunnel.password && !sshTunnel.identityKeyFile) {
     errors.push({
       message:
-        'When connecting via SSH tunnel either password or identity file is required',
+        'When connecting via SSH tunnel either password or identity file is required.',
     });
   }
 
-  if (
-    connectionOptions.sshTunnel.identityKeyPassphrase &&
-    !connectionOptions.sshTunnel.identityKeyFile
-  ) {
+  if (sshTunnel.identityKeyPassphrase && !sshTunnel.identityKeyFile) {
     errors.push({
       fieldName: 'sshIdentityKeyFile',
       message: 'File is required along with passphrase.',
@@ -225,6 +232,7 @@ export function validateConnectionOptionsWarnings(
     ...validateDirectConnectionAndReplicaSetWarnings(connectionString),
     ...validateDirectConnectionAndMultiHostWarnings(connectionString),
     ...validateTLSAndHostWarnings(connectionString),
+    ...validateSocksWarnings(connectionString),
   ];
 }
 
@@ -358,5 +366,41 @@ function validateTLSAndHostWarnings(
         'Connecting without tls is not recommended as it may create a security vulnerability.',
     });
   }
+  return warnings;
+}
+
+function validateSocksWarnings(
+  connectionString: ConnectionString
+): ConnectionFormWarning[] {
+  const warnings: ConnectionFormWarning[] = [];
+
+  const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
+  const proxyHost = searchParams.get('proxyHost');
+
+  if (!proxyHost || isLocalhost(proxyHost)) {
+    return warnings;
+  }
+
+  if (searchParams.get('proxyPassword')) {
+    warnings.push({
+      message: 'Using proxy with password.',
+    });
+  }
+
+  if (searchParams.get('tls') === 'false') {
+    warnings.push({
+      message: 'Using proxy with TLS disabled.',
+    });
+  }
+
+  const mongoHostCount = connectionString.hosts.filter((x) =>
+    isAtlas(x)
+  ).length;
+  if (mongoHostCount) {
+    warnings.push({
+      message: 'Using proxy with MongoDB service host.',
+    });
+  }
+
   return warnings;
 }

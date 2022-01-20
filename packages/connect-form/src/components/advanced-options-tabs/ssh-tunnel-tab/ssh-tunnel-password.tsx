@@ -51,7 +51,7 @@ function Password({
       type: 'number',
       optional: false,
       placeholder: 'SSH Port',
-      value: (sshTunnelOptions?.port ?? '').toString(),
+      value: sshTunnelOptions?.port,
       errorMessage: undefined,
       state: 'none',
     },

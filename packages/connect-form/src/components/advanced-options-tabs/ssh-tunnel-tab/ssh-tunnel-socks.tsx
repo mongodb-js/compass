@@ -3,7 +3,6 @@ import { TextInput } from '@mongodb-js/compass-components';
 import { MongoClientOptions } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import { defaultSocksPort } from '../../../constants/default-connection';
 import FormFieldContainer from '../../form-field-container';
 import {
   ConnectionFormError,
@@ -70,16 +69,16 @@ function Socks({
       name: 'proxyPort',
       label: 'Proxy Tunnel Port',
       type: 'number',
-      optional: false,
+      optional: true,
       placeholder: 'Proxy Tunnel Port',
-      value: typedSearchParams.get('proxyPort') ?? `${defaultSocksPort}`,
+      value: typedSearchParams.get('proxyPort') ?? '',
       state: 'none',
     },
     {
       name: 'proxyUsername',
       label: 'Proxy Username',
       type: 'text',
-      optional: false,
+      optional: true,
       placeholder: 'Proxy Username',
       value: typedSearchParams.get('proxyUsername') ?? '',
       state: 'none',

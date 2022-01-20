@@ -48,7 +48,7 @@ function Identity({
       type: 'number',
       optional: false,
       placeholder: 'SSH Tunnel Port',
-      value: (sshTunnelOptions?.port ?? '').toString(),
+      value: sshTunnelOptions?.port,
       errorMessage: '',
       state: 'none',
     },
