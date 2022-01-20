@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 import {
   Banner,
@@ -52,15 +52,23 @@ const formFooterStyles = css({
 
 function ConnectForm({
   initialConnectionInfo,
+  connectionErrorMessage,
   onConnectClicked,
 }: {
   initialConnectionInfo: ConnectionInfo;
+  connectionErrorMessage?: string | null;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const [
     { enableEditingConnectionString, errors, warnings, connectionOptions },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo);
+
+  useEffect(() => {
+    if (connectionErrorMessage) {
+      setErrors([{ message: connectionErrorMessage }]);
+    }
+  }, [setErrors, connectionErrorMessage])
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'

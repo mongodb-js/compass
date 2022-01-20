@@ -109,7 +109,7 @@ export function connectionsReducer(state: State, action: Action): State {
       return {
         ...state,
         connectionAttempt: null,
-        connectionErrorMessage: 'Connection attempt canceled.',
+        connectionErrorMessage: null,
       };
     case 'connection-attempt-succeeded':
       return {
