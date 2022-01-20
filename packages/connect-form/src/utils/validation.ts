@@ -354,13 +354,11 @@ function validateTLSAndHostWarnings(
 ): ConnectionFormWarning[] {
   const warnings: ConnectionFormWarning[] = [];
 
-  const hasNonLocalhost = !!connectionString.hosts
-    .map((host) => host.split(':')[0])
-    .find(
-      (hostname) => !['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)
-    );
+  const nonLocalhostsCount = connectionString.hosts
+    .map((host) => !isLocalhost(host))
+    .filter(Boolean).length;
 
-  if (hasNonLocalhost && !isSecure(connectionString)) {
+  if (nonLocalhostsCount && !isSecure(connectionString)) {
     warnings.push({
       message:
         'Connecting without tls is not recommended as it may create a security vulnerability.',
@@ -384,12 +382,6 @@ function validateSocksWarnings(
   if (searchParams.get('proxyPassword')) {
     warnings.push({
       message: 'Using proxy with password.',
-    });
-  }
-
-  if (searchParams.get('tls') === 'false') {
-    warnings.push({
-      message: 'Using proxy with TLS disabled.',
     });
   }
 
