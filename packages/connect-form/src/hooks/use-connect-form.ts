@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
@@ -414,7 +414,10 @@ export function handleConnectionFormFieldUpdate(
   }
 }
 
-export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
+export function useConnectForm(
+  initialConnectionInfo: ConnectionInfo,
+  connectionErrorMessage?: string | null
+): [
   ConnectFormState,
   {
     updateConnectionFormField: UpdateConnectionFormField;
@@ -427,6 +430,29 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
     initialConnectionInfo,
     buildStateFromConnectionInfo
   );
+
+  const setErrors = useCallback((errors: ConnectionFormError[]) => {
+    dispatch({
+      type: 'set-form-errors',
+      errors,
+    });
+  }, []);
+
+  const setEnableEditingConnectionString = useCallback(
+    (enableEditing: boolean) => {
+      dispatch({
+        type: 'set-enable-editing-connection-string',
+        enableEditing,
+      });
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (connectionErrorMessage) {
+      setErrors([{ message: connectionErrorMessage }]);
+    }
+  }, [setErrors, connectionErrorMessage]);
 
   useEffect(() => {
     // When the initial connection options change, like a different
@@ -475,18 +501,8 @@ export function useConnectForm(initialConnectionInfo: ConnectionInfo): [
     state,
     {
       updateConnectionFormField,
-      setEnableEditingConnectionString: (enableEditing: boolean) => {
-        dispatch({
-          type: 'set-enable-editing-connection-string',
-          enableEditing,
-        });
-      },
-      setErrors: (errors: ConnectionFormError[]) => {
-        dispatch({
-          type: 'set-form-errors',
-          errors,
-        });
-      },
+      setEnableEditingConnectionString,
+      setErrors,
     },
   ];
 }

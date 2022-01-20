@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ConnectionInfo } from 'mongodb-data-service';
 import {
   Banner,
@@ -62,13 +62,7 @@ function ConnectForm({
   const [
     { enableEditingConnectionString, errors, warnings, connectionOptions },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
-  ] = useConnectForm(initialConnectionInfo);
-
-  useEffect(() => {
-    if (connectionErrorMessage) {
-      setErrors([{ message: connectionErrorMessage }]);
-    }
-  }, [setErrors, connectionErrorMessage])
+  ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'
