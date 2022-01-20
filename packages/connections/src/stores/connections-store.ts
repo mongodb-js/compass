@@ -375,10 +375,7 @@ export function useConnections(
 
       if (existingConnectionIndex !== -1) {
         // Update the existing saved connection.
-        newConnections[existingConnectionIndex] = {
-          ...cloneDeep(newConnections[existingConnectionIndex]),
-          ...cloneDeep(connectionInfo),
-        };
+        newConnections[existingConnectionIndex] = cloneDeep(connectionInfo);
       } else {
         // Add the newly saved connection to our connections list.
         newConnections.push(cloneDeep(connectionInfo));
