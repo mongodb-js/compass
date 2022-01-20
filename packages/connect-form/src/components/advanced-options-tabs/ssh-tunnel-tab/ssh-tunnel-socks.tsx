@@ -1,67 +1,96 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback } from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
+import { MongoClientOptions } from 'mongodb';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
+
 import { defaultSocksPort } from '../../../constants/default-connection';
 import FormFieldContainer from '../../form-field-container';
-import { ConnectionFormError } from '../../../utils/validation';
+import {
+  ConnectionFormError,
+  errorMessageByFieldName,
+  fieldNameHasError,
+} from '../../../utils/validation';
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-type SocksFormKeys = keyof Omit<
-  SSHConnectionOptions,
-  'identityKeyFile' | 'identityKeyPassphrase'
->;
+interface Field {
+  name: keyof Pick<
+    MongoClientOptions,
+    'proxyHost' | 'proxyPort' | 'proxyUsername' | 'proxyPassword'
+  >;
+  label: string;
+  type: string;
+  optional: boolean;
+  placeholder: string;
+  value: string;
+  errorMessage?: string;
+  state: 'error' | 'none';
+}
 
 function Socks({
-  onConnectionOptionChanged,
+  updateConnectionFormField,
+  errors,
+  connectionStringUrl,
 }: {
-  onConnectionOptionChanged: (
-    key: SocksFormKeys,
-    value: string | number
-  ) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
   errors: ConnectionFormError[];
+  connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
-  const formFieldChanged = (key: SocksFormKeys, value: string | number) => {
-    onConnectionOptionChanged(key, value);
-  };
+  const typedSearchParams =
+    connectionStringUrl.typedSearchParams<MongoClientOptions>();
 
-  const fields = [
+  const handleFieldChanged = useCallback(
+    (key: keyof MongoClientOptions, value: unknown) => {
+      if (!value) {
+        return updateConnectionFormField({
+          type: 'delete-search-param',
+          key,
+        });
+      }
+      return updateConnectionFormField({
+        type: 'update-search-param',
+        currentKey: key,
+        value,
+      });
+    },
+    [updateConnectionFormField]
+  );
+
+  const fields: Field[] = [
     {
-      name: 'host',
+      name: 'proxyHost',
       label: 'Proxy Hostname',
       type: 'text',
       optional: false,
       placeholder: 'Proxy Hostname',
-      value: '',
-      errorMessage: undefined,
-      state: 'none',
+      value: typedSearchParams.get('proxyHost') ?? '',
+      errorMessage: errorMessageByFieldName(errors, 'proxyUsername'),
+      state: fieldNameHasError(errors, 'proxyUsername') ? 'error' : 'none',
     },
     {
-      name: 'port',
+      name: 'proxyPort',
       label: 'Proxy Tunnel Port',
       type: 'number',
       optional: false,
       placeholder: 'Proxy Tunnel Port',
-      value: `${defaultSocksPort}`,
-      errorMessage: undefined,
+      value: typedSearchParams.get('proxyPort') ?? `${defaultSocksPort}`,
       state: 'none',
     },
     {
-      name: 'username',
+      name: 'proxyUsername',
       label: 'Proxy Username',
       type: 'text',
       optional: false,
       placeholder: 'Proxy Username',
-      value: '',
-      errorMessage: undefined,
+      value: typedSearchParams.get('proxyUsername') ?? '',
       state: 'none',
     },
     {
-      name: 'password',
+      name: 'proxyPassword',
       label: 'Proxy Password',
       type: 'password',
       optional: true,
       placeholder: 'Proxy Password',
-      value: '',
-      errorMessage: '',
+      value: typedSearchParams.get('proxyPassword') ?? '',
       state: 'none',
     },
   ];
@@ -84,10 +113,7 @@ function Socks({
               onChange={({
                 target: { value },
               }: ChangeEvent<HTMLInputElement>) => {
-                formFieldChanged(
-                  name as SocksFormKeys,
-                  name === 'port' ? Number(value) : value
-                );
+                handleFieldChanged(name, value);
               }}
               name={name}
               data-testid={name}
@@ -97,7 +123,8 @@ function Socks({
               placeholder={placeholder}
               value={value}
               errorMessage={errorMessage}
-              state={state as 'error' | 'none'}
+              state={state}
+              spellCheck={false}
             />
           </FormFieldContainer>
         )

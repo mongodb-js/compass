@@ -17,6 +17,7 @@ export type FieldName =
   | 'sshIdentityKeyFile'
   | 'sshPassword'
   | 'sshUsername'
+  | 'proxyUsername'
   | 'username';
 
 export type ConnectionFormError = {

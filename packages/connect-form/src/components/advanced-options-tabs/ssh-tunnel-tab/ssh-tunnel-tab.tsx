@@ -17,6 +17,7 @@ import {
 
 import Identity from './ssh-tunnel-identity';
 import Password from './ssh-tunnel-password';
+import Socks from './ssh-tunnel-socks';
 import { ConnectionFormError } from '../../../utils/validation';
 
 interface TabOption {
@@ -25,10 +26,8 @@ interface TabOption {
   type: SSHType;
   component: React.FC<{
     sshTunnelOptions?: SSHConnectionOptions;
-    onConnectionOptionChanged: (
-      key: keyof SSHConnectionOptions,
-      value: string | number
-    ) => void;
+    updateConnectionFormField: UpdateConnectionFormField;
+    connectionStringUrl: ConnectionStringUrl;
     errors: ConnectionFormError[];
   }>;
 }
@@ -54,6 +53,12 @@ const options: TabOption[] = [
     type: 'identity',
     component: Identity,
   },
+  {
+    title: 'Socks',
+    id: 'socks',
+    type: 'socks',
+    component: Socks,
+  },
 ];
 
 const containerStyles = css({
@@ -69,12 +74,14 @@ function SSHTunnel({
   connectionOptions,
   updateConnectionFormField,
   errors,
+  connectionStringUrl,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
+  // todo: set the correct option
   const [selectedOption, setSelectedOption] = useState(options[0]);
 
   const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -84,18 +91,6 @@ function SSHTunnel({
       setSelectedOption(item);
     }
   }, []);
-
-  const onConnectionOptionChanged = useCallback(
-    (key: keyof SSHConnectionOptions, value: string | number) => {
-      return updateConnectionFormField({
-        type: 'update-ssh-options',
-        currentTab: selectedOption.type,
-        key,
-        value,
-      });
-    },
-    [updateConnectionFormField, selectedOption]
-  );
 
   const SSLOptionContent = selectedOption.component;
 
@@ -129,7 +124,8 @@ function SSHTunnel({
           <SSLOptionContent
             errors={errors}
             sshTunnelOptions={connectionOptions.sshTunnel}
-            onConnectionOptionChanged={onConnectionOptionChanged}
+            updateConnectionFormField={updateConnectionFormField}
+            connectionStringUrl={connectionStringUrl}
           />
         </div>
       )}

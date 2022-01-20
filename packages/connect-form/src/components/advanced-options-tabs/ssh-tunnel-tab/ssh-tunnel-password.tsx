@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback } from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
 import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
@@ -7,6 +7,7 @@ import {
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
+import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 type PasswordFormKeys = keyof Omit<
   SSHConnectionOptions,
@@ -15,19 +16,23 @@ type PasswordFormKeys = keyof Omit<
 
 function Password({
   sshTunnelOptions,
-  onConnectionOptionChanged,
+  updateConnectionFormField,
   errors,
 }: {
   sshTunnelOptions?: SSHConnectionOptions;
-  onConnectionOptionChanged: (
-    key: PasswordFormKeys,
-    value: string | number
-  ) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
   errors: ConnectionFormError[];
 }): React.ReactElement {
-  const formFieldChanged = (key: PasswordFormKeys, value: string | number) => {
-    onConnectionOptionChanged(key, value);
-  };
+  const formFieldChanged = useCallback(
+    (key: PasswordFormKeys, value: string | number) => {
+      return updateConnectionFormField({
+        type: 'update-ssh-options',
+        key,
+        value,
+      });
+    },
+    [updateConnectionFormField]
+  );
 
   const fields = [
     {
