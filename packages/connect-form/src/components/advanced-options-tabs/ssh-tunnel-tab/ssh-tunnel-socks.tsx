@@ -4,11 +4,6 @@ import { MongoClientOptions } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import FormFieldContainer from '../../form-field-container';
-import {
-  ConnectionFormError,
-  errorMessageByFieldName,
-  fieldNameHasError,
-} from '../../../utils/validation';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 interface Field {
@@ -21,17 +16,13 @@ interface Field {
   optional: boolean;
   placeholder: string;
   value: string;
-  errorMessage?: string;
-  state: 'error' | 'none';
 }
 
 function Socks({
   updateConnectionFormField,
-  errors,
   connectionStringUrl,
 }: {
   updateConnectionFormField: UpdateConnectionFormField;
-  errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
   const typedSearchParams =
@@ -62,8 +53,6 @@ function Socks({
       optional: false,
       placeholder: 'Proxy Hostname',
       value: typedSearchParams.get('proxyHost') ?? '',
-      errorMessage: errorMessageByFieldName(errors, 'proxyUsername'),
-      state: fieldNameHasError(errors, 'proxyUsername') ? 'error' : 'none',
     },
     {
       name: 'proxyPort',
@@ -72,7 +61,6 @@ function Socks({
       optional: true,
       placeholder: 'Proxy Tunnel Port',
       value: typedSearchParams.get('proxyPort') ?? '',
-      state: 'none',
     },
     {
       name: 'proxyUsername',
@@ -81,7 +69,6 @@ function Socks({
       optional: true,
       placeholder: 'Proxy Username',
       value: typedSearchParams.get('proxyUsername') ?? '',
-      state: 'none',
     },
     {
       name: 'proxyPassword',
@@ -90,7 +77,6 @@ function Socks({
       optional: true,
       placeholder: 'Proxy Password',
       value: typedSearchParams.get('proxyPassword') ?? '',
-      state: 'none',
     },
   ];
 
@@ -104,8 +90,6 @@ function Socks({
           optional,
           placeholder,
           value,
-          errorMessage,
-          state,
         }) => (
           <FormFieldContainer key={name}>
             <TextInput
@@ -121,8 +105,6 @@ function Socks({
               optional={optional}
               placeholder={placeholder}
               value={value}
-              errorMessage={errorMessage}
-              state={state}
               spellCheck={false}
             />
           </FormFieldContainer>
