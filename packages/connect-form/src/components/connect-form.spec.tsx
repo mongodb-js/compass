@@ -66,7 +66,7 @@ describe('ConnectForm Component', function () {
         onConnectClicked={() => {
           /* */
         }}
-        connectionErrorMessage='connection error'
+        connectionErrorMessage="connection error"
         initialConnectionInfo={{
           id: 'test',
           connectionOptions: {
@@ -75,7 +75,6 @@ describe('ConnectForm Component', function () {
         }}
       />
     );
-    expect(screen.getByText('connection error')).to.be
-      .visible;
+    expect(screen.getByText('connection error')).to.be.visible;
   });
 });
