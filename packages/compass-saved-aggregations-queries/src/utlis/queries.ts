@@ -14,7 +14,9 @@ export interface Query {
 
 export const getQueries = async (): Promise<Query[]> => {
   const collection = new FavoriteQueryCollection();
-  const fetch = promisifyAmpersandMethod(collection.fetch.bind(collection));
+  const fetch = promisifyAmpersandMethod<AmpersandQueryModel[]>(
+    collection.fetch.bind(collection)
+  );
   return mapQueryModels(await fetch());
 };
 
