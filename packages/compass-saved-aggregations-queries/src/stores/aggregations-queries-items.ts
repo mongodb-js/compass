@@ -43,22 +43,18 @@ function reducer(
 
 export const fetchItems = () => {
   return async (dispatch: Dispatch<StateActions>): Promise<void> => {
-    let aggregations: Item[] = [];
-    let queries: Item[] = [];
-    try {
-      aggregations = await getAggregationItems();
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
-    try {
-      queries = await getQueryItems();
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
-
-    const payload = [...aggregations, ...queries];
-    payload.sort((a, b) => a.lastModified - b.lastModified);
+    const payload = await Promise.allSettled([
+      getAggregationItems(),
+      getQueryItems(),
+    ]);
     dispatch({
       type: actions.ITEMS_FETCHED,
-      payload,
+      payload: payload
+        .map((result: PromiseSettledResult<Item[]>) =>
+          result.status === 'fulfilled' ? result.value : []
+        )
+        .filter(Boolean)
+        .flat(),
     });
   };
 };
