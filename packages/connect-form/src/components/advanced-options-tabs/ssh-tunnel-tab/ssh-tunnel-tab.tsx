@@ -105,10 +105,7 @@ function SSHTunnel({
       <Label htmlFor="ssh-options-radio-box-group">
         SSH Tunnel/Proxy Method
       </Label>
-      <RadioBoxGroup
-        onChange={optionSelected}
-        className="radio-box-group-style"
-      >
+      <RadioBoxGroup onChange={optionSelected} id="ssh-options-radio-box-group">
         {options.map(({ title, id, type }) => {
           return (
             <RadioBox

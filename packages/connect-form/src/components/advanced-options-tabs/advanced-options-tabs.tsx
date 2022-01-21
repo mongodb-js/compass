@@ -21,7 +21,7 @@ interface TabObject {
     errors: ConnectionFormError[];
     connectionStringUrl: ConnectionStringUrl;
     updateConnectionFormField: UpdateConnectionFormField;
-    connectionOptions?: ConnectionOptions;
+    connectionOptions: ConnectionOptions;
   }>;
 }
 

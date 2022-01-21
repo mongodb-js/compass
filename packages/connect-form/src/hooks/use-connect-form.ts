@@ -3,6 +3,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
+import ConnectionString from 'mongodb-connection-string-url';
 
 import {
   ConnectionFormError,
@@ -25,7 +26,14 @@ import {
   handleUpdateTlsOption,
   UpdateTlsOptionAction,
 } from '../utils/tls-options';
-import ConnectionString from 'mongodb-connection-string-url';
+import {
+  handleUpdateUsername,
+  handleUpdatePassword,
+  handleUpdateAuthMechanism,
+  UpdateAuthMechanismAction,
+  UpdatePasswordAction,
+  UpdateUsernameAction,
+} from '../utils/authentication-handler';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -94,11 +102,10 @@ type ConnectionFormFieldActions =
       type: 'remove-host';
       fieldIndexToRemove: number;
     }
+  | UpdateUsernameAction
+  | UpdatePasswordAction
+  | UpdateAuthMechanismAction
   | UpdateHostAction
-  | {
-      type: 'update-direct-connection';
-      isDirectConnection: boolean;
-    }
   | {
       type: 'update-connection-schema';
       isSrv: boolean;
@@ -314,28 +321,33 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: currentConnectionOptions,
       });
     }
+    case 'update-auth-mechanism': {
+      return handleUpdateAuthMechanism({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-username': {
+      return handleUpdateUsername({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-password': {
+      return handleUpdatePassword({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
     case 'update-host': {
       return handleUpdateHost({
         action,
         connectionStringUrl: parsedConnectionStringUrl,
         connectionOptions: currentConnectionOptions,
       });
-    }
-    case 'update-direct-connection': {
-      const { isDirectConnection } = action;
-      if (isDirectConnection) {
-        updatedSearchParams.set('directConnection', 'true');
-      } else if (updatedSearchParams.get('directConnection')) {
-        updatedSearchParams.delete('directConnection');
-      }
-
-      return {
-        connectionOptions: {
-          ...currentConnectionOptions,
-          connectionString: parsedConnectionStringUrl.toString(),
-        },
-        errors: [],
-      };
     }
     case 'update-connection-schema': {
       const { isSrv } = action;

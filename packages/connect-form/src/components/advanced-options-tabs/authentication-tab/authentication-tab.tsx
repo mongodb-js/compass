@@ -19,16 +19,44 @@ import AuthenticationGSSAPI from './authentication-gssapi';
 import AuthenticationPlain from './authentication-plain';
 import AuthenticationAWS from './authentication-aws';
 
+// type authMechType = typeof AuthMechanism[keyof typeof AuthMechanism];
+
+// type ourAuthMechs = Pick<
+//   keyof typeof AuthMechanism,
+//   'MONGODB_DEFAULT'
+// >;
+// type AUTH_TABS = 'AUTH_NONE' | Pick<AuthMechanism, 'DEFAULT'>
+// AuthMechanism;
+// | 'AUTH_NONE'
+// | AuthMechanism.MONGODB_DEFAULT
+// | AuthMechanism.MONGODB_X509
+// | AuthMechanism.MONGODB_GSSAPI
+// | AuthMechanism.MONGODB_PLAIN
+// | AuthMechanism.MONGODB_AWS;
+
+type AUTH_TABS =
+  | 'AUTH_NONE'
+  | 'DEFAULT' // Username/Password (scram-sha 1 + 256)
+  | 'MONGODB-X509'
+  | 'GSSAPI' // Kerberos
+  | 'PLAIN' // LDAP
+  | 'MONGODB-AWS'; // AWS IAM
+
 interface TabOption {
-  id: string;
+  id: AUTH_TABS;
   title: string;
-  component: React.FC;
+  component: React.FC<{
+    errors: ConnectionFormError[];
+    connectionStringUrl: ConnectionStringUrl;
+    updateConnectionFormField: UpdateConnectionFormField;
+    // connectionOptions?: ConnectionOptions;
+  }>;
 }
 
 const options: TabOption[] = [
   {
     title: 'None',
-    id: '',
+    id: 'AUTH_NONE',
     component: function None() {
       return <></>;
     },
@@ -69,27 +97,71 @@ const contentStyles = css({
   width: '50%',
 });
 
+function getSelectedAuthTabForConnectionString(
+  connectionStringUrl: ConnectionStringUrl
+): AUTH_TABS {
+  const authMechanismString =
+    connectionStringUrl.searchParams.get('authMechanism');
+
+  const hasPasswordOrUsername =
+    connectionStringUrl.password || connectionStringUrl.username;
+  if (!authMechanismString && hasPasswordOrUsername) {
+    // Default (Username/Password) auth when there is no
+    // `authMechanism` and there's a username or password.
+    return AuthMechanism.MONGODB_DEFAULT;
+  }
+
+  const matchingTab = options.find(({ id }) => id === authMechanismString);
+  if (matchingTab) {
+    return matchingTab.id;
+  }
+
+  switch (authMechanismString) {
+    case AuthMechanism.MONGODB_DEFAULT:
+    case AuthMechanism.MONGODB_SCRAM_SHA1:
+    case AuthMechanism.MONGODB_SCRAM_SHA256:
+    case AuthMechanism.MONGODB_CR:
+      // We bundle SCRAM-SHA-1 and SCRAM-SHA-256 into the Username/Password bucket.
+      return AuthMechanism.MONGODB_DEFAULT;
+    default:
+      return 'AUTH_NONE';
+  }
+}
+
 function AuthenticationTab({
+  errors,
   updateConnectionFormField,
   connectionStringUrl,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
-  connectionOptions?: ConnectionOptions;
+  connectionOptions: ConnectionOptions;
 }): React.ReactElement {
-  const selectedAuthMechanism =
-    connectionStringUrl.searchParams.get('authMechanism') ?? '';
+  const selectedAuthTabId =
+    getSelectedAuthTabForConnectionString(connectionStringUrl);
   const selectedAuthTab =
-    options.find(({ id }) => id === selectedAuthMechanism) ?? options[0];
+    options.find(({ id }) => id === selectedAuthTabId) || options[0];
 
   const optionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
+      // TODO: We'll want to wipe the current auth.
+
       event.preventDefault();
-      updateConnectionFormField({
-        type: 'update-search-param',
-        currentKey: 'authMechanism',
-        value: event.target.value,
+
+      if (event.target.value === 'AUTH_NONE') {
+        // updateConnectionFormField({
+        //   type: 'delete-search-param',
+        //   key: 'authMechanism',
+        // });
+        return updateConnectionFormField({
+          type: 'update-auth-mechanism',
+          authMechanism: null,
+        });
+      }
+      return updateConnectionFormField({
+        type: 'update-auth-mechanism',
+        authMechanism: event.target.value as AuthMechanism,
       });
     },
     [updateConnectionFormField]
@@ -105,6 +177,7 @@ function AuthenticationTab({
       <RadioBoxGroup
         onChange={optionSelected}
         className="radio-box-group-style"
+        value={selectedAuthTab.id}
       >
         {options.map(({ title, id }) => {
           return (
@@ -123,7 +196,12 @@ function AuthenticationTab({
         className={contentStyles}
         data-testid={`${selectedAuthTab.id}-tab-content`}
       >
-        <AuthOptionContent />
+        <AuthOptionContent
+          errors={errors}
+          connectionStringUrl={connectionStringUrl}
+          updateConnectionFormField={updateConnectionFormField}
+          // connectionOptions={connectionOptions}
+        />
       </div>
     </div>
   );
