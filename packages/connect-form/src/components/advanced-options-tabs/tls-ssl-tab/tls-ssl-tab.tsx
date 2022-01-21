@@ -121,21 +121,20 @@ function TLSTab({
     {
       name: 'tlsInsecure',
       description:
-        'This includes tlsAllowInvalidHostnames and tlsAllowInvalidCertificates. This is not recommended as disabling certificate validation creates a vulnerability.',
+        'This includes tlsAllowInvalidHostnames and tlsAllowInvalidCertificates.',
       checked: connectionStringUrl.searchParams.get('tlsInsecure') === 'true',
     },
     {
       name: 'tlsAllowInvalidHostnames',
       description:
-        'This disables the validation of the hostnames in the certificate presented by the mongod/mongos instance.',
+        'Disable the validation of the hostnames in the certificate presented by the mongod/mongos instance.',
       checked:
         connectionStringUrl.searchParams.get('tlsAllowInvalidHostnames') ===
         'true',
     },
     {
       name: 'tlsAllowInvalidCertificates',
-      description:
-        'This disables validating the server certificates. This is not recommended as it creates a vulnerability to expired mongod and mongos certificates as well as to foreign processes posing as valid mongod or mongos instances.',
+      description: 'Disable the validation of the server certificates.',
       checked:
         connectionStringUrl.searchParams.get('tlsAllowInvalidCertificates') ===
         'true',

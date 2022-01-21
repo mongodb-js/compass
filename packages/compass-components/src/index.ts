@@ -17,6 +17,7 @@ import FileInput from './components/file-input';
 import SpinLoader from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import Accordion from './components/accordion';
+export { FavoriteIcon } from './components/icons/favorite-icon';
 export {
   default as Badge,
   Variant as BadgeVariant,
