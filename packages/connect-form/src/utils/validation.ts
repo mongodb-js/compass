@@ -390,10 +390,7 @@ function validateSocksWarnings(
     });
   }
 
-  const localMongoHostCount = connectionString.hosts.filter((x) =>
-    isLocalhost(x)
-  ).length;
-  if (localMongoHostCount) {
+  if (connectionString.hosts.find(isLocalhost)) {
     warnings.push({
       message: 'Using remote proxy with local MongoDB service host.',
     });
