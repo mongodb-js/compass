@@ -79,6 +79,7 @@ const getSelectedTunnelType = (
     connectionStringUrl.typedSearchParams<MongoClientOptions>();
   const isUsingProxy =
     searchParams.get('proxyHost') ||
+    searchParams.get('proxyPort') ||
     searchParams.get('proxyUsername') ||
     searchParams.get('proxyPassword');
 
