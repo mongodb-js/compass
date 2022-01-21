@@ -11,7 +11,7 @@ import { ProxyOptions } from 'mongodb';
 const renderWithOptionsAndUrl = (
   connectionOptions: ConnectionOptions,
   connectionStringUrl: ConnectionStringUrl,
-  updateConnectionFormField,
+  updateConnectionFormField
 ) => {
   return render(
     <ProxyAndSshTunnelTab
@@ -21,9 +21,14 @@ const renderWithOptionsAndUrl = (
       updateConnectionFormField={updateConnectionFormField}
     />
   );
-}
+};
 
-const proxyOptions: NonNullable<keyof ProxyOptions>[] = ['proxyHost', 'proxyPort', 'proxyUsername', 'proxyPassword'];
+const proxyOptions: NonNullable<keyof ProxyOptions>[] = [
+  'proxyHost',
+  'proxyPort',
+  'proxyUsername',
+  'proxyPassword',
+];
 
 describe('SSHTunnelTab', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
@@ -58,7 +63,7 @@ describe('SSHTunnelTab', function () {
 
   describe('renders tabs correctly', function () {
     let connectionStringUrl: ConnectionStringUrl;
-    beforeEach(function() {
+    beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();
       connectionStringUrl = new ConnectionStringUrl(
         'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true'
@@ -68,7 +73,7 @@ describe('SSHTunnelTab', function () {
 
     // eslint-disable-next-line mocha/no-setup-in-describe
     proxyOptions.forEach((proxyKey) => {
-      it(`renders socks tab when any of socks option is selected - ${proxyKey}`, function() {
+      it(`renders socks tab when any of socks option is selected - ${proxyKey}`, function () {
         connectionStringUrl.searchParams.set(proxyKey, 'random-value');
         renderWithOptionsAndUrl(
           {} as ConnectionOptions,
@@ -81,7 +86,7 @@ describe('SSHTunnelTab', function () {
 
     // eslint-disable-next-line mocha/no-setup-in-describe
     ['identityKeyPassphrase', 'identityKeyFile'].forEach((identityOption) => {
-      it(`renders identity tab when any of identity option is selected - ${identityOption}`, function() {
+      it(`renders identity tab when any of identity option is selected - ${identityOption}`, function () {
         const connectionOptions: ConnectionOptions = {
           sshTunnel: {
             host: '',
@@ -100,7 +105,7 @@ describe('SSHTunnelTab', function () {
       });
     });
 
-    it(`renders password tab when any of password option is selected`, function() {
+    it(`renders password tab when any of password option is selected`, function () {
       const connectionOptions: ConnectionOptions = {
         sshTunnel: {
           host: '',
@@ -118,12 +123,14 @@ describe('SSHTunnelTab', function () {
       expect(screen.getByTestId('password-tab-content')).to.exist;
     });
 
-    it(`renders none tab when sshTunnel and proxy option is not defined `, function() {
+    it(`renders none tab when sshTunnel and proxy option is not defined `, function () {
       const connectionOptions: ConnectionOptions = {
         sshTunnel: undefined,
         connectionString: connectionStringUrl.toString(),
       };
-      proxyOptions.forEach((key) => connectionStringUrl.searchParams.delete(key));
+      proxyOptions.forEach((key) =>
+        connectionStringUrl.searchParams.delete(key)
+      );
       renderWithOptionsAndUrl(
         connectionOptions,
         connectionStringUrl,
@@ -132,7 +139,7 @@ describe('SSHTunnelTab', function () {
       expect(screen.getByTestId('none-tab-content')).to.exist;
     });
 
-    it(`renders none tab when sshTunnel has empty values and proxy option is not defined `, function() {
+    it(`renders none tab when sshTunnel has empty values and proxy option is not defined `, function () {
       const connectionOptions: ConnectionOptions = {
         sshTunnel: {
           host: '',
@@ -144,7 +151,9 @@ describe('SSHTunnelTab', function () {
         },
         connectionString: connectionStringUrl.toString(),
       };
-      proxyOptions.forEach((key) => connectionStringUrl.searchParams.delete(key));
+      proxyOptions.forEach((key) =>
+        connectionStringUrl.searchParams.delete(key)
+      );
       renderWithOptionsAndUrl(
         connectionOptions,
         connectionStringUrl,
@@ -156,7 +165,7 @@ describe('SSHTunnelTab', function () {
 
   describe('clears ssh/socks tunnel options as user switches between tabs', function () {
     let connectionStringUrl: ConnectionStringUrl;
-    beforeEach(function() {
+    beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();
       connectionStringUrl = new ConnectionStringUrl(
         'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true'
@@ -175,7 +184,7 @@ describe('SSHTunnelTab', function () {
         fireEvent.click(screen.getByTestId(`${tab}-tab-button`));
         expect(updateConnectionFormFieldSpy).to.have.been.called;
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-          type: 'remove-proxy-options'
+          type: 'remove-proxy-options',
         });
       });
     });
@@ -190,7 +199,7 @@ describe('SSHTunnelTab', function () {
               port: 22,
               username: '',
               password: '1234',
-            }
+            },
           } as ConnectionOptions,
           connectionStringUrl,
           updateConnectionFormFieldSpy
@@ -198,12 +207,12 @@ describe('SSHTunnelTab', function () {
         fireEvent.click(screen.getByTestId(`${tab}-tab-button`));
         expect(updateConnectionFormFieldSpy).to.have.been.called;
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-          type: 'remove-ssh-options'
+          type: 'remove-ssh-options',
         });
       });
     });
 
-    it('removes proxyOptions when user navigates from socks tab to none', function() {
+    it('removes proxyOptions when user navigates from socks tab to none', function () {
       connectionStringUrl.searchParams.set('proxyHost', 'hello');
       renderWithOptionsAndUrl(
         {} as ConnectionOptions,
@@ -213,11 +222,11 @@ describe('SSHTunnelTab', function () {
       fireEvent.click(screen.getByTestId('none-tab-button'));
       expect(updateConnectionFormFieldSpy).to.have.been.calledOnce;
       expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'remove-proxy-options'
+        type: 'remove-proxy-options',
       });
     });
 
-    it('removes sshTunnel options when user navigates from password tab to none', function() {
+    it('removes sshTunnel options when user navigates from password tab to none', function () {
       renderWithOptionsAndUrl(
         {
           sshTunnel: {
@@ -225,7 +234,7 @@ describe('SSHTunnelTab', function () {
             port: 22,
             username: '',
             password: '1234',
-          }
+          },
         } as ConnectionOptions,
         connectionStringUrl,
         updateConnectionFormFieldSpy
@@ -233,11 +242,11 @@ describe('SSHTunnelTab', function () {
       fireEvent.click(screen.getByTestId('none-tab-button'));
       expect(updateConnectionFormFieldSpy).to.have.been.calledOnce;
       expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'remove-ssh-options'
+        type: 'remove-ssh-options',
       });
     });
 
-    it('removes sshTunnel options when user navigates from identity tab to none', function() {
+    it('removes sshTunnel options when user navigates from identity tab to none', function () {
       renderWithOptionsAndUrl(
         {
           sshTunnel: {
@@ -245,7 +254,7 @@ describe('SSHTunnelTab', function () {
             port: 22,
             username: '',
             identityKeyFile: '1234',
-          }
+          },
         } as ConnectionOptions,
         connectionStringUrl,
         updateConnectionFormFieldSpy
@@ -253,9 +262,8 @@ describe('SSHTunnelTab', function () {
       fireEvent.click(screen.getByTestId('none-tab-button'));
       expect(updateConnectionFormFieldSpy).to.have.been.calledOnce;
       expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'remove-ssh-options'
+        type: 'remove-ssh-options',
       });
     });
   });
-  
 });
