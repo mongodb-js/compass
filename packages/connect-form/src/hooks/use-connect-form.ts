@@ -424,9 +424,7 @@ export function handleConnectionFormFieldUpdate(
         'proxyPassword',
         'proxyUsername',
       ];
-      proxyOptions.forEach((key) =>
-        updatedSearchParams.delete(key)
-      );
+      proxyOptions.forEach((key) => updatedSearchParams.delete(key));
       return {
         connectionOptions: {
           ...currentConnectionOptions,

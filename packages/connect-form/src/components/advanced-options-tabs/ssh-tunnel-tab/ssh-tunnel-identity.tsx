@@ -11,7 +11,7 @@ import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 type IdentityFormKeys = keyof SSHConnectionOptions;
 
-function Identity({
+function SshTunnelIdentity({
   sshTunnelOptions,
   updateConnectionFormField,
   errors,
@@ -144,4 +144,4 @@ function Identity({
   );
 }
 
-export default Identity;
+export default SshTunnelIdentity;

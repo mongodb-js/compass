@@ -5,7 +5,7 @@ import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
-import SSHTunnelTab from './ssh-tunnel-tab';
+import ProxyAndSshTunnelTab from './proxy-and-ssh-tunnel-tab';
 
 describe('SSHTunnelTab', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
@@ -18,7 +18,7 @@ describe('SSHTunnelTab', function () {
     updateConnectionFormFieldSpy = sinon.spy();
 
     render(
-      <SSHTunnelTab
+      <ProxyAndSshTunnelTab
         errors={[]}
         connectionOptions={{} as ConnectionOptions}
         connectionStringUrl={connectionStringUrl}

@@ -14,7 +14,7 @@ type PasswordFormKeys = keyof Omit<
   'identityKeyFile' | 'identityKeyPassphrase'
 >;
 
-function Password({
+function SshTunnelPassword({
   sshTunnelOptions,
   updateConnectionFormField,
   errors,
@@ -115,4 +115,4 @@ function Password({
   );
 }
 
-export default Password;
+export default SshTunnelPassword;

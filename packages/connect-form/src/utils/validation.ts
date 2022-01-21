@@ -359,8 +359,9 @@ function validateTLSAndHostWarnings(
 ): ConnectionFormWarning[] {
   const warnings: ConnectionFormWarning[] = [];
 
-  const nonLocalhostsCount = connectionString.hosts
-    .filter((host) => !isLocalhost(host)).length;
+  const nonLocalhostsCount = connectionString.hosts.filter(
+    (host) => !isLocalhost(host)
+  ).length;
 
   if (nonLocalhostsCount && !isSecure(connectionString)) {
     warnings.push({

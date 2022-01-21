@@ -13,18 +13,18 @@ import { MongoClientOptions } from 'mongodb';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import {
   SSHConnectionOptions,
-  SSHType,
+  TunnelType,
 } from '../../../utils/connection-ssh-handler';
 
-import Identity from './ssh-tunnel-identity';
-import Password from './ssh-tunnel-password';
-import Socks from './ssh-tunnel-socks';
+import SshTunnelIdentity from './ssh-tunnel-identity';
+import SshTunnelPassword from './ssh-tunnel-password';
+import Socks from './socks';
 import { ConnectionFormError } from '../../../utils/validation';
 
 interface TabOption {
   id: string;
   title: string;
-  type: SSHType;
+  type: TunnelType;
   component: React.FC<{
     sshTunnelOptions?: SSHConnectionOptions;
     updateConnectionFormField: UpdateConnectionFormField;
@@ -46,13 +46,13 @@ const options: TabOption[] = [
     title: 'Use Password',
     id: 'password',
     type: 'password',
-    component: Password,
+    component: SshTunnelPassword,
   },
   {
     title: 'Use Identity File',
     id: 'identity',
     type: 'identity',
-    component: Identity,
+    component: SshTunnelIdentity,
   },
   {
     title: 'Socks',
@@ -71,7 +71,40 @@ const contentStyles = css({
   width: '50%',
 });
 
-function SSHTunnel({
+const getSelectedTunnelType = (
+  connectionStringUrl: ConnectionStringUrl,
+  connectionOptions?: ConnectionOptions
+): TunnelType => {
+  const searchParams =
+    connectionStringUrl.typedSearchParams<MongoClientOptions>();
+  const isUsingProxy =
+    searchParams.get('proxyHost') ||
+    searchParams.get('proxyUsername') ||
+    searchParams.get('proxyPassword');
+
+  if (isUsingProxy) {
+    return 'socks';
+  }
+
+  if (
+    !connectionOptions ||
+    !connectionOptions?.sshTunnel ||
+    !Object.values(connectionOptions.sshTunnel).find(Boolean) // If the whole object values are empty
+  ) {
+    return 'none';
+  }
+
+  const isUsingIdentity =
+    connectionOptions.sshTunnel.identityKeyFile ||
+    connectionOptions.sshTunnel.identityKeyPassphrase;
+  if (isUsingIdentity) {
+    return 'identity';
+  }
+
+  return 'password';
+};
+
+function ProxyAndSshTunnelTab({
   connectionOptions,
   updateConnectionFormField,
   errors,
@@ -82,28 +115,19 @@ function SSHTunnel({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
-  const hasProxyHost = connectionStringUrl
-    .typedSearchParams<MongoClientOptions>()
-    .get('proxyHost');
-  const hasIdentityFile = connectionOptions?.sshTunnel?.identityKeyFile;
-  const hasPassword = connectionOptions?.sshTunnel?.password;
-
-  const selectedOptionType: SSHType = hasProxyHost
-    ? 'socks'
-    : hasIdentityFile
-    ? 'identity'
-    : hasPassword
-    ? 'password'
-    : 'none';
+  const selectedTunnelType: TunnelType = getSelectedTunnelType(
+    connectionStringUrl,
+    connectionOptions
+  );
 
   const selectedOptionIndex =
-    options.findIndex((x) => x.type === selectedOptionType) ?? 0;
+    options.findIndex((x) => x.type === selectedTunnelType) ?? 0;
   const [selectedOption, setSelectedOption] = useState(
     options[selectedOptionIndex]
   );
 
   const handleOptionChanged = useCallback(
-    (oldType: SSHType, newType: SSHType) => {
+    (oldType: TunnelType, newType: TunnelType) => {
       let type: 'remove-proxy-options' | 'remove-ssh-options';
       switch (newType) {
         case 'socks':
@@ -176,4 +200,4 @@ function SSHTunnel({
   );
 }
 
-export default SSHTunnel;
+export default ProxyAndSshTunnelTab;

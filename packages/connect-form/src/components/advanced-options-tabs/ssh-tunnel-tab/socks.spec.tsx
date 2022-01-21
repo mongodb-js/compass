@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import SSHTunnelSocks from './ssh-tunnel-socks';
+import SSHTunnelSocks from './socks';
 
 const formFields = [
   {
