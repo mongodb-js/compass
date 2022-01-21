@@ -25,7 +25,7 @@ const renderWithOptionsAndUrl = (
 
 const proxyOptions: NonNullable<keyof ProxyOptions>[] = ['proxyHost', 'proxyPort', 'proxyUsername', 'proxyPassword'];
 
-describe.only('SSHTunnelTab', function () {
+describe('SSHTunnelTab', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   beforeEach(function () {
