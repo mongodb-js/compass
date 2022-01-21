@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
-import type { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
 
 import {
@@ -418,14 +418,14 @@ export function handleConnectionFormFieldUpdate(
       };
     }
     case 'remove-proxy-options': {
-      const proxyOptions = [
+      const proxyOptions: (keyof ProxyOptions)[] = [
         'proxyHost',
         'proxyPort',
         'proxyPassword',
         'proxyUsername',
       ];
       proxyOptions.forEach((key) =>
-        updatedSearchParams.delete(key as keyof MongoClientOptions)
+        updatedSearchParams.delete(key)
       );
       return {
         connectionOptions: {
@@ -439,7 +439,6 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: {
           ...currentConnectionOptions,
           sshTunnel: undefined,
-          connectionString: parsedConnectionStringUrl.toString(),
         },
       };
     }

@@ -1,5 +1,5 @@
 import type { MongoClientOptions } from 'mongodb';
-import { isLocalhost, isAtlas } from 'mongodb-build-info';
+import { isLocalhost } from 'mongodb-build-info';
 import { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 
@@ -360,8 +360,7 @@ function validateTLSAndHostWarnings(
   const warnings: ConnectionFormWarning[] = [];
 
   const nonLocalhostsCount = connectionString.hosts
-    .map((host) => !isLocalhost(host))
-    .filter(Boolean).length;
+    .filter((host) => !isLocalhost(host)).length;
 
   if (nonLocalhostsCount && !isSecure(connectionString)) {
     warnings.push({
@@ -386,16 +385,16 @@ function validateSocksWarnings(
 
   if (searchParams.get('proxyPassword')) {
     warnings.push({
-      message: 'Using proxy with password.',
+      message: 'Socks5 proxy password will be transmitted in plaintext.',
     });
   }
 
-  const mongoHostCount = connectionString.hosts.filter((x) =>
-    isAtlas(x)
+  const localMongoHostCount = connectionString.hosts.filter((x) =>
+    isLocalhost(x)
   ).length;
-  if (mongoHostCount) {
+  if (localMongoHostCount) {
     warnings.push({
-      message: 'Using proxy with MongoDB service host.',
+      message: 'Using remote proxy with local MongoDB service host.',
     });
   }
 

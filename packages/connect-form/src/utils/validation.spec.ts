@@ -478,18 +478,18 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
-            message: 'Using proxy with password.',
+            message: 'Socks5 proxy password will be transmitted in plaintext.',
           },
         ]);
       });
       it('should return warning if proxyHost is not localhost and hosts contains mongodb service host', function () {
         const result = validateConnectionOptionsWarnings({
           connectionString:
-            'mongodb://dev.mongodb.net/?tls=true&proxyHost=mongo',
+            'mongodb://localhost:27017/?tls=true&proxyHost=mongo',
         });
         expect(result).to.deep.equal([
           {
-            message: 'Using proxy with MongoDB service host.',
+            message: 'Using remote proxy with local MongoDB service host.',
           },
         ]);
       });
