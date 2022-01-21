@@ -104,6 +104,7 @@ function Password({
               value={value}
               errorMessage={errorMessage}
               state={state as 'error' | 'none'}
+              spellCheck={false}
             />
           </FormFieldContainer>
         )

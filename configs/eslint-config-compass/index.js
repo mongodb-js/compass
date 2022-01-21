@@ -62,7 +62,11 @@ module.exports = {
       files: ['**/*.tsx'],
       env: { node: true, browser: true },
       extends: [...tsConfigurations, ...reactConfigurations, 'prettier'],
-      rules: { ...tsRules },
+      rules: {
+        ...tsRules,
+        // No reason to have propTypes if your components are strictly typed
+        'react/prop-types': 'off',
+      },
     },
     {
       files: [

@@ -46,6 +46,7 @@ export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
+export { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
 export {
   Select,
   Option,
@@ -105,3 +106,6 @@ export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';
 export { default as FormFooter } from '@leafygreen-ui/form-footer';
+export { VirtualGrid } from './components/virtual-grid';
+export { mergeProps } from './utils/merge-props';
+export { useFocusRing } from './hooks/use-focus-ring';

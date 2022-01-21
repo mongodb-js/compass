@@ -41,4 +41,41 @@ describe('ConnectForm Component', function () {
     const textArea = screen.getByRole('textbox');
     expect(textArea).to.have.text('mongodb://pineapple:*****@localhost:27019/');
   });
+
+  it('should render an error with an invalid connection string', function () {
+    render(
+      <ConnectForm
+        onConnectClicked={() => {
+          /* */
+        }}
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'pineapples',
+          },
+        }}
+      />
+    );
+    expect(screen.getByText('Invalid connection string "pineapples"')).to.be
+      .visible;
+  });
+
+  it('should render a connection error', function () {
+    render(
+      <ConnectForm
+        onConnectClicked={() => {
+          /* */
+        }}
+        connectionErrorMessage="connection error"
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
+        }}
+      />
+    );
+
+    expect(screen.getByText('connection error')).to.be.visible;
+  });
 });

@@ -26,7 +26,7 @@
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
     "start": "echo \"There is not an electron running environment available for this package. Please run `npm start` from the root to run this.\"",
-    "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-ci": "npm run test",
     "bootstrap": "npm run compile",
     "reformat": "npm run prettier -- --write ."

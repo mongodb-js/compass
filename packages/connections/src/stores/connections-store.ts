@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import {
   ConnectionInfo,
   ConnectionOptions,
@@ -17,7 +16,8 @@ import {
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
 } from '../modules/telemetry';
-
+import { v4 as uuidv4 } from 'uuid';
+import { cloneDeep } from 'lodash';
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
 export function createNewConnectionInfo(): ConnectionInfo {
@@ -32,6 +32,7 @@ export function createNewConnectionInfo(): ConnectionInfo {
 export interface ConnectionStore {
   loadAll: () => Promise<ConnectionInfo[]>;
   save: (connectionInfo: ConnectionInfo) => Promise<void>;
+  delete: (connectionInfo: ConnectionInfo) => Promise<void>;
 }
 
 type State = {
@@ -93,6 +94,11 @@ type Action =
   | {
       type: 'set-connections';
       connections: ConnectionInfo[];
+    }
+  | {
+      type: 'set-connections-and-select';
+      connections: ConnectionInfo[];
+      activeConnectionInfo: ConnectionInfo;
     };
 
 export function connectionsReducer(state: State, action: Action): State {
@@ -109,7 +115,7 @@ export function connectionsReducer(state: State, action: Action): State {
       return {
         ...state,
         connectionAttempt: null,
-        connectionErrorMessage: 'Connection attempt canceled.',
+        connectionErrorMessage: null,
       };
     case 'connection-attempt-succeeded':
       return {
@@ -150,6 +156,13 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         connections: action.connections,
       };
+    case 'set-connections-and-select':
+      return {
+        ...state,
+        connections: action.connections,
+        activeConnectionId: action.activeConnectionInfo.id,
+        activeConnectionInfo: action.activeConnectionInfo,
+      };
     default:
       return state;
   }
@@ -189,13 +202,17 @@ export function useConnections(
     createNewConnection(): void;
     hideStoreConnectionError(): void;
     setActiveConnectionById(newConnectionId?: string | undefined): void;
+    removeAllRecentsConnections(): void;
+    duplicateConnection(connectioInfo: ConnectionInfo): void;
+    removeConnection(connectionInfo: ConnectionInfo): void;
   }
 ] {
   const [state, dispatch]: [State, React.Dispatch<Action>] = useReducer(
     connectionsReducer,
     defaultConnectionsState()
   );
-  const { isConnected, connectionAttempt, connections } = state;
+  const { isConnected, connectionAttempt, connections, activeConnectionId } =
+    state;
 
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
   const connectedConnectionInfo = useRef<ConnectionInfo>();
@@ -204,7 +221,6 @@ export function useConnections(
   async function saveConnectionInfo(connectionInfo: ConnectionInfo) {
     try {
       await connectionStorage.save(connectionInfo);
-
       debug(`saved connection with id ${connectionInfo.id || ''}`);
     } catch (err) {
       debug(
@@ -362,6 +378,51 @@ export function useConnections(
             connectionInfo: connection,
           });
         }
+      },
+      async removeAllRecentsConnections() {
+        const recentConnections = connections.filter((conn) => {
+          return !conn.favorite;
+        });
+        await Promise.all(
+          recentConnections.map((conn) => connectionStorage.delete(conn))
+        );
+        dispatch({
+          type: 'set-connections',
+          connections: connections.filter((conn) => {
+            return conn.favorite;
+          }),
+        });
+      },
+      async removeConnection(connectionInfo: ConnectionInfo) {
+        await connectionStorage.delete(connectionInfo);
+        dispatch({
+          type: 'set-connections',
+          connections: connections.filter(
+            (conn) => conn.id !== connectionInfo.id
+          ),
+        });
+        if (activeConnectionId === connectionInfo.id) {
+          const nextActiveConnection = createNewConnectionInfo();
+          dispatch({
+            type: 'set-active-connection',
+            connectionId: nextActiveConnection.id,
+            connectionInfo: nextActiveConnection,
+          });
+        }
+      },
+      async duplicateConnection(connectionInfo: ConnectionInfo) {
+        const duplicate: ConnectionInfo = {
+          ...cloneDeep(connectionInfo),
+          id: uuidv4(),
+        };
+        duplicate.favorite!.name += ' (copy)';
+
+        await saveConnectionInfo(duplicate);
+        dispatch({
+          type: 'set-connections-and-select',
+          connections: [...connections, duplicate],
+          activeConnectionInfo: duplicate,
+        });
       },
     },
   ];

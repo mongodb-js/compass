@@ -41,7 +41,7 @@
     "check-ci": "npm run check",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-electron && npm run test-cov",
     "reformat": "npm run prettier -- --write ."
@@ -52,6 +52,7 @@
     "react-dom": "^16.14.0"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "mongodb-connection-string-url": "^2.4.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"

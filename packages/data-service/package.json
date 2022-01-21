@@ -46,7 +46,7 @@
     "pretest": "mongodb-runner start --port=27018 && node ../../scripts/rebuild.js keytar",
     "test": "mocha",
     "posttest": "mongodb-runner stop --port=27018",
-    "test-cov": "nyc -x \"**/*.spec.*\" npm run test",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.6.1",
+    "@mongodb-js/devtools-connect": "^1.1.2",
     "@mongodb-js/ssh-tunnel": "^1.2.3",
     "async": "^3.2.0",
     "debug": "4.3.0",
@@ -66,7 +67,6 @@
     "mongodb-connection-string-url": "^2.4.1",
     "mongodb-index-model": "^3.7.0",
     "mongodb-ns": "^2.2.0",
-    "resolve-mongodb-srv": "^1.1.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

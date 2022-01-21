@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import {
   Button,
   H2,
@@ -48,9 +48,11 @@ const sectionHeaderStyles = css({
   marginTop: spacing[3],
   marginBottom: spacing[2],
   paddingLeft: spacing[2],
+  paddingRight: spacing[2],
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
+  ':hover': {},
 });
 
 const recentHeaderStyles = css({
@@ -139,13 +141,20 @@ function ConnectionList({
   createNewConnection,
   setActiveConnectionId,
   onDoubleClick,
+  removeAllRecentsConnections,
+  duplicateConnection,
+  removeConnection,
 }: {
   activeConnectionId?: string;
   connections: ConnectionInfo[];
   createNewConnection: () => void;
   setActiveConnectionId: (connectionId?: string) => void;
   onDoubleClick: (connectionInfo: ConnectionInfo) => void;
+  removeAllRecentsConnections: () => void;
+  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
+  removeConnection: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
+  const [recentHeaderHover, setRecentHover] = useState(false);
   const favoriteConnections = connections
     .filter(
       (connectionInfo): connectionInfo is ConnectionInfoFavorite =>
@@ -203,13 +212,28 @@ function ConnectionList({
                 connectionInfo={connectionInfo}
                 onClick={() => setActiveConnectionId(connectionInfo.id)}
                 onDoubleClick={onDoubleClick}
+                removeConnection={removeConnection}
+                duplicateConnection={duplicateConnection}
               />
             </li>
           ))}
         </ul>
-        <div className={cx(sectionHeaderStyles, recentHeaderStyles)}>
+        <div
+          className={cx(sectionHeaderStyles, recentHeaderStyles)}
+          onMouseEnter={() => setRecentHover(true)}
+          onMouseLeave={() => setRecentHover(false)}
+        >
           <div className={sectionHeaderIconStyles}>{recentIcon}</div>
           <H2 className={sectionHeaderTitleStyles}>Recents</H2>
+          {recentHeaderHover && (
+            <Button
+              onClick={removeAllRecentsConnections}
+              variant="default"
+              size="xsmall"
+            >
+              Clear All
+            </Button>
+          )}
         </div>
         <ul className={connectionListStyles}>
           {recentConnections.map((connectionInfo, index) => (
@@ -225,6 +249,8 @@ function ConnectionList({
                 connectionInfo={connectionInfo}
                 onClick={() => setActiveConnectionId(connectionInfo.id)}
                 onDoubleClick={onDoubleClick}
+                removeConnection={removeConnection}
+                duplicateConnection={duplicateConnection}
               />
             </li>
           ))}

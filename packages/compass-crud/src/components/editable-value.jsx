@@ -283,6 +283,7 @@ class EditableValue extends React.Component {
               width: `${boundTextAreaLength(valueLength)}ch`
             }}
             value={this.editor().value(this.state.editing)}
+            spellCheck={false}
           />
         ) : (
           <input
