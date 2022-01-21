@@ -1,5 +1,5 @@
 import connect from './connect';
-import { ConnectionInfo } from './connection-info';
+import { ConnectionInfo, ConnectionFavoriteOptions } from './connection-info';
 import { ConnectionOptions } from './connection-options';
 import { ConnectionStorage } from './connection-storage';
 import { getConnectionTitle } from './connection-title';
@@ -16,6 +16,7 @@ import {
 
 export {
   ConnectionInfo,
+  ConnectionFavoriteOptions,
   ConnectionOptions,
   ConnectionStorage,
   DataService,
