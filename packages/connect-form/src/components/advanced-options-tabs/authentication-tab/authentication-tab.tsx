@@ -145,15 +145,9 @@ function AuthenticationTab({
 
   const optionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      // TODO: We'll want to wipe the current auth.
-
       event.preventDefault();
 
       if (event.target.value === 'AUTH_NONE') {
-        // updateConnectionFormField({
-        //   type: 'delete-search-param',
-        //   key: 'authMechanism',
-        // });
         return updateConnectionFormField({
           type: 'update-auth-mechanism',
           authMechanism: null,

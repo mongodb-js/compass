@@ -153,21 +153,4 @@ describe('AuthenticationDefault Component', function () {
 
     expect(screen.getByText('pineapples')).to.be.visible;
   });
-
-  // it('calls the onConfirm prop when confirm is clicked', function () {
-  //   const button = screen.getByText('Confirm').closest('button');
-
-  //   expect(onConfirmSpy.called).to.equal(false);
-
-  //   fireEvent(
-  //     button,
-  //     new MouseEvent('click', {
-  //       bubbles: true,
-  //       cancelable: true,
-  //     })
-  //   );
-
-  //   expect(onConfirmSpy.called).to.equal(true);
-  //   expect(onCancelSpy.called).to.equal(false);
-  // });
 });
