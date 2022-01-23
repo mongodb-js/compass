@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
   Icon,
   IconButton,
@@ -40,7 +40,7 @@ const defaultAuthMechanismOptions: {
     value: AuthMechanism.MONGODB_SCRAM_SHA1,
   },
   {
-    title: 'SCRAM-SHA-1',
+    title: 'SCRAM-SHA-256',
     value: AuthMechanism.MONGODB_SCRAM_SHA256,
   },
 ];
@@ -56,8 +56,6 @@ function AuthenticationDefault({
 }): React.ReactElement {
   const password = connectionStringUrl.password;
   const username = connectionStringUrl.username;
-  // const [username, setUsername] = useState(connectionStringUrl.username);
-  // const [usernameErrorMessage, usernameErrorMessage]
 
   const selectedAuthMechanism =
     connectionStringUrl.searchParams.get('authMechanism') ?? '';
@@ -66,14 +64,7 @@ function AuthenticationDefault({
       ({ value }) => value === selectedAuthMechanism
     ) ?? defaultAuthMechanismOptions[0];
 
-  // useEffect(() => {
-  //   // Update the username in the state when the underlying connection username
-  //   // changes. This can be when a user changes connections, pastes in a new
-  //   // connection string, or changes a setting which also updates the username.
-  //   setUsername(connectionStringUrl.username);
-  // }, [connectionStringUrl]);
-
-  const optionSelected = useCallback(
+  const onAuthMechanismSelected = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       event.preventDefault();
       updateConnectionFormField({
@@ -84,6 +75,8 @@ function AuthenticationDefault({
     },
     [updateConnectionFormField]
   );
+
+  const usernameError = errors?.find((error) => error.fieldName === 'username');
 
   return (
     <>
@@ -99,9 +92,8 @@ function AuthenticationDefault({
           }}
           // disabled={disabled}
           label="Username"
-          errorMessage={
-            errors?.find((error) => error.fieldName === 'username')?.message
-          }
+          errorMessage={usernameError?.message}
+          state={usernameError ? 'error' : undefined}
           value={username || ''}
         />
       </FormFieldContainer>
@@ -169,7 +161,7 @@ function AuthenticationDefault({
           Authentication Mechanism
         </Label>
         <RadioBoxGroup
-          onChange={optionSelected}
+          onChange={onAuthMechanismSelected}
           id="authentication-mechanism-radio-box-group"
           size="default"
           value={selectedAuthTab.value}

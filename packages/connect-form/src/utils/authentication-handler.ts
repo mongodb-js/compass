@@ -82,8 +82,8 @@ export function handleUpdateUsername({
         {
           fieldName: 'username',
           message: action.username
-            ? `Username cannot be empty: "${(err as Error).message}"`
-            : (err as Error).message,
+            ? (err as Error).message
+            : `Username cannot be empty: "${(err as Error).message}"`,
         },
       ],
     };
