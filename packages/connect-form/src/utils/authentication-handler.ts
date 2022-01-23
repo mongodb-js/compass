@@ -38,7 +38,7 @@ export function handleUpdateAuthMechanism({
   if (!action.authMechanism) {
     updatedSearchParams.delete('authMechanism');
 
-    // Wipe the auth of the connection.
+    // Wipe any existing auth options on the connection.
     updatedConnectionString.password = '';
     updatedConnectionString.username = '';
   } else {

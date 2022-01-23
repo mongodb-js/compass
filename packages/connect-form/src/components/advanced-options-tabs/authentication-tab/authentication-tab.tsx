@@ -19,24 +19,9 @@ import AuthenticationGSSAPI from './authentication-gssapi';
 import AuthenticationPlain from './authentication-plain';
 import AuthenticationAWS from './authentication-aws';
 
-// type authMechType = typeof AuthMechanism[keyof typeof AuthMechanism];
-
-// type ourAuthMechs = Pick<
-//   keyof typeof AuthMechanism,
-//   'MONGODB_DEFAULT'
-// >;
-// type AUTH_TABS = 'AUTH_NONE' | Pick<AuthMechanism, 'DEFAULT'>
-// AuthMechanism;
-// | 'AUTH_NONE'
-// | AuthMechanism.MONGODB_DEFAULT
-// | AuthMechanism.MONGODB_X509
-// | AuthMechanism.MONGODB_GSSAPI
-// | AuthMechanism.MONGODB_PLAIN
-// | AuthMechanism.MONGODB_AWS;
-
 type AUTH_TABS =
   | 'AUTH_NONE'
-  | 'DEFAULT' // Username/Password (scram-sha 1 + 256)
+  | 'DEFAULT' // Username/Password (SCRAM-SHA-1 + SCRAM-SHA-256 + DEFAULT)
   | 'MONGODB-X509'
   | 'GSSAPI' // Kerberos
   | 'PLAIN' // LDAP
@@ -49,7 +34,6 @@ interface TabOption {
     errors: ConnectionFormError[];
     connectionStringUrl: ConnectionStringUrl;
     updateConnectionFormField: UpdateConnectionFormField;
-    // connectionOptions?: ConnectionOptions;
   }>;
 }
 
@@ -194,7 +178,6 @@ function AuthenticationTab({
           errors={errors}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}
-          // connectionOptions={connectionOptions}
         />
       </div>
     </div>

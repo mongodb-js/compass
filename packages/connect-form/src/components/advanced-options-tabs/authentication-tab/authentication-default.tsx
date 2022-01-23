@@ -90,7 +90,6 @@ function AuthenticationDefault({
               username: value,
             });
           }}
-          // disabled={disabled}
           label="Username"
           errorMessage={usernameError?.message}
           state={usernameError ? 'error' : undefined}
@@ -107,7 +106,6 @@ function AuthenticationDefault({
               password: value,
             });
           }}
-          // disabled={disabled}
           label="Password"
           type="password"
           value={password || ''}
@@ -123,7 +121,6 @@ function AuthenticationDefault({
           <IconButton
             className={infoButtonStyles}
             aria-label="Authentication Database Documentation"
-            // data-testid="connectionStringDocsButton"
             href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
             target="_blank"
           >
@@ -148,10 +145,8 @@ function AuthenticationDefault({
               value,
             });
           }}
-          // disabled={disabled}
           id="authSourceInput"
           aria-labelledby="authSourceLabel"
-          // label="Authentication Database"
           value={connectionStringUrl.searchParams.get('authSource') ?? ''}
           optional
         />
