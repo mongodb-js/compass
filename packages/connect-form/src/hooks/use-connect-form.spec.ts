@@ -759,5 +759,67 @@ describe('use-connect-form hook', function () {
         ).to.equal('/');
       });
     });
+
+    describe('update-username action', function () {
+      it('should update the username', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-username',
+            username: 'aa',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(connectionOptions.connectionString).username
+        ).to.equal('aa');
+      });
+    });
+
+    describe('update-password action', function () {
+      it('should update the password', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://a123:b123@localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-password',
+            password: 'a@!1()',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(connectionOptions.connectionString).password
+        ).to.equal('a%40!1()');
+      });
+    });
+
+    describe('update-auth-mechanism action', function () {
+      it('should update the username', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-auth-mechanism',
+            authMechanism: 'PLAIN',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('authMechanism')
+        ).to.equal('PLAIN');
+      });
+    });
   });
 });

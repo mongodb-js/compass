@@ -121,7 +121,6 @@ describe('Authentication Handler', function () {
         },
       });
 
-      console.log('res.errors', res.errors);
       expect(res.errors).to.equal(undefined);
       expect(res.connectionOptions.connectionString).to.equal(
         'mongodb://a123:p!n34pp%20e%40%40)s@localhost/'
