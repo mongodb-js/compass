@@ -1,6 +1,6 @@
 # Compass e2e test suites
 
-A suite of compass end-to-end tests powered by spectron and mocha test runner.
+A suite of compass end-to-end tests powered by webdriverio and mocha test runner.
 
 ## npm scripts
 

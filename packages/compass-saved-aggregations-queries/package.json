@@ -46,7 +46,7 @@
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
-    "test-ci": "npm run test-electron && npm run test-cov",
+    "test-ci": "npm run test-electron",
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
@@ -58,6 +58,9 @@
     "redux-thunk": "^2.4.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-aggregations": "^8.18.1",
+    "@mongodb-js/compass-query-history": "^8.17.1",
+    "mongodb-data-service": "^21.15.1",
     "@mongodb-js/compass-components": "^0.9.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",

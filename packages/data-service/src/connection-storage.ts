@@ -69,7 +69,7 @@ export class ConnectionStorage {
   }
 }
 
-function promisifyAmpersandMethod<T>(
+export function promisifyAmpersandMethod<T>(
   fn: (options: AmpersandMethodOptions<T>) => void
 ): () => Promise<T> {
   return () =>

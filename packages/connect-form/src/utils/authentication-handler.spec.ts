@@ -1,7 +1,9 @@
 import { expect } from 'chai';
+import { MongoClientOptions } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 
 import {
+  getConnectionUrlWithoutAuth,
   handleUpdateUsername,
   handleUpdatePassword,
   handleUpdateAuthMechanism,
@@ -190,7 +192,7 @@ describe('Authentication Handler', function () {
       });
 
       expect(res.connectionOptions.connectionString).to.equal(
-        'mongodb://a123:b123@localhost/?authMechanism=PLAIN'
+        'mongodb://localhost/?authMechanism=PLAIN'
       );
       expect(res.errors).to.equal(undefined);
     });
@@ -211,6 +213,89 @@ describe('Authentication Handler', function () {
         'mongodb://localhost/'
       );
       expect(res.errors).to.equal(undefined);
+    });
+  });
+
+  describe('#getConnectionUrlWithoutAuth', function () {
+    it('should remove the authMechanism in the connection string', function () {
+      const res = getConnectionUrlWithoutAuth(
+        new ConnectionString(
+          'mongodb://a123:b123@localhost:27020/?authMechanism=PLAIN'
+        )
+      );
+
+      expect(res.toString()).to.equal('mongodb://localhost:27020/');
+      expect(
+        res.typedSearchParams<MongoClientOptions>().get('authMechanism')
+      ).to.equal(null);
+    });
+
+    it('should remove the username+password in the connection string', function () {
+      const res = getConnectionUrlWithoutAuth(
+        new ConnectionString(
+          'mongodb://a123:b123@localhost:27020/?authMechanism=PLAIN'
+        )
+      );
+
+      expect(res.toString()).to.equal('mongodb://localhost:27020/');
+      expect(res.username).to.equal('');
+      expect(res.password).to.equal('');
+    });
+
+    it('should remove the username in the connection string', function () {
+      const res = getConnectionUrlWithoutAuth(
+        new ConnectionString('mongodb://a123@localhost:27021')
+      );
+
+      expect(res.toString()).to.equal('mongodb://localhost:27021/');
+      expect(res.username).to.equal('');
+    });
+
+    it('should remove the gssapiServiceName in the connection string', function () {
+      const testString = new ConnectionString(
+        'mongodb://a123@localhost:27020/?authMechanism=GSSAPI&gssapiServiceName=aaa'
+      );
+      expect(testString.searchParams.get('gssapiServiceName')).to.equal('aaa');
+      const res = getConnectionUrlWithoutAuth(testString);
+
+      expect(res.toString()).to.equal('mongodb://localhost:27020/');
+      expect(res.searchParams.get('gssapiServiceName')).to.equal(null);
+    });
+
+    it('should remove the authMechanismProperties in the connection string', function () {
+      const res = getConnectionUrlWithoutAuth(
+        new ConnectionString(
+          'mongodb://a123:b123@outerspace:27777/testdb?authSource=$external&authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:super-secret'
+        )
+      );
+
+      expect(res.toString()).to.equal('mongodb://outerspace:27777/testdb');
+      expect(
+        res
+          .typedSearchParams<MongoClientOptions>()
+          .get('authMechanismProperties')
+      ).to.equal(null);
+    });
+
+    it('should remove authSource from the connection string', function () {
+      const res = getConnectionUrlWithoutAuth(
+        new ConnectionString(
+          'mongodb://a123:b123@outerspace:27777/testdb?authSource=$external&authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:super-secret'
+        )
+      );
+
+      expect(res.toString()).to.equal('mongodb://outerspace:27777/testdb');
+      expect(
+        res.typedSearchParams<MongoClientOptions>().get('authSource')
+      ).to.equal(null);
+    });
+
+    it('should do nothing to a connection string with no auth', function () {
+      const res = getConnectionUrlWithoutAuth(
+        new ConnectionString('mongodb+srv://kansas/?tls=true')
+      );
+
+      expect(res.toString()).to.equal('mongodb+srv://kansas/?tls=true');
     });
   });
 });

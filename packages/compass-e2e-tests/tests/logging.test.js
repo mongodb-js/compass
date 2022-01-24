@@ -1,41 +1,39 @@
-// @ts-check
 const { expect } = require('chai');
 const { beforeTests, afterTests } = require('../helpers/compass');
 const { startTelemetryServer } = require('../helpers/telemetry');
 
 describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
-    let compassLog;
+    let logs;
     let telemetry;
 
     before(async function () {
       telemetry = await startTelemetryServer();
       const compass = await beforeTests();
+      const { browser } = compass;
       try {
-        await compass.client.connectWithConnectionString(
+        await browser.connectWithConnectionString(
           'mongodb://localhost:27018/test'
         );
 
-        await compass.client.shellEval('use test');
-        await compass.client.shellEval(
-          'db.runCommand({ connectionStatus: 1 })'
-        );
+        await browser.shellEval('use test');
+        await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
 
-        await compass.client.openTourModal();
-        await compass.client.closeTourModal();
+        await browser.openTourModal();
+        await browser.closeTourModal();
       } finally {
         await afterTests(compass);
         await telemetry.stop();
       }
 
-      compassLog = compass.compassLog;
-      expect(compassLog).not.to.be.undefined;
+      logs = compass.logs;
+      expect(logs).not.to.be.undefined;
     });
 
     it('logs have a timestamp on all entries', function () {
-      expect(compassLog).not.to.be.undefined;
+      expect(logs).not.to.be.undefined;
 
-      for (const entry of compassLog) {
+      for (const entry of logs) {
         expect(entry.t.$date).to.be.a('string');
       }
     });
@@ -316,7 +314,7 @@ describe('Logging and Telemetry integration', function () {
 
       // eslint-disable-next-line mocha/no-hooks-for-single-case
       before(function () {
-        criticalPathActualLogs = compassLog.filter((entry) => {
+        criticalPathActualLogs = logs.filter((entry) => {
           // Remove most mongosh entries as they are quite noisy
           if (
             entry.c.startsWith('MONGOSH') &&
@@ -375,7 +373,7 @@ describe('Logging and Telemetry integration', function () {
       });
 
       it('does not contain warnings about missing optional dependencies', function () {
-        const ids = compassLog.map(({ id }) => id);
+        const ids = logs.map(({ id }) => id);
         expect(ids).not.to.contain(1_000_000_041);
       });
     });
@@ -404,7 +402,7 @@ describe('Logging and Telemetry integration', function () {
     });
 
     it('provides logging information for uncaught exceptions', async function () {
-      const uncaughtEntry = compass.compassLog.find(
+      const uncaughtEntry = compass.logs.find(
         (entry) => entry.id === 1_001_000_002
       );
 

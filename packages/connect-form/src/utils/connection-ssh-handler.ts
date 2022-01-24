@@ -3,11 +3,10 @@ import { defaultSshPort } from '../constants/default-connection';
 
 export type SSHConnectionOptions = NonNullable<ConnectionOptions['sshTunnel']>;
 
-export type SSHType = 'none' | 'password' | 'identity' | 'socks';
+export type TunnelType = 'none' | 'ssh-password' | 'ssh-identity' | 'socks';
 
 export interface UpdateSshOptions {
   type: 'update-ssh-options';
-  currentTab: SSHType;
   key: keyof SSHConnectionOptions;
   value: string | number;
 }
@@ -19,17 +18,7 @@ export function handleUpdateSshOptions({
   action: UpdateSshOptions;
   connectionOptions: ConnectionOptions;
 }): { connectionOptions: ConnectionOptions } {
-  const { key, value, currentTab } = action;
-
-  if (currentTab === 'none') {
-    return {
-      connectionOptions: {
-        ...connectionOptions,
-        sshTunnel: undefined,
-      },
-    };
-  }
-
+  const { key, value } = action;
   return {
     connectionOptions: {
       ...connectionOptions,

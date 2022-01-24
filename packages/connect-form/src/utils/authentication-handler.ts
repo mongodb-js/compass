@@ -19,6 +19,28 @@ export type UpdatePasswordAction = {
   password: string;
 };
 
+export function getConnectionUrlWithoutAuth(
+  connectionStringUrl: ConnectionStringUrl
+): ConnectionStringUrl {
+  const updatedConnectionString = connectionStringUrl.clone();
+  const updatedSearchParams =
+    updatedConnectionString.typedSearchParams<MongoClientOptions>();
+
+  updatedSearchParams.delete('authMechanism');
+
+  // Wipe any existing auth options on the connection.
+  updatedConnectionString.password = '';
+  updatedConnectionString.username = '';
+
+  updatedSearchParams.delete('authMechanismProperties');
+  // `gssapiServiceName` is a legacy option now set with `authMechanismProperties`.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updatedSearchParams.delete('gssapiServiceName' as any);
+  updatedSearchParams.delete('authSource');
+
+  return updatedConnectionString;
+}
+
 export function handleUpdateAuthMechanism({
   action,
   connectionStringUrl,
@@ -31,17 +53,12 @@ export function handleUpdateAuthMechanism({
   connectionOptions: ConnectionOptions;
   errors?: ConnectionFormError[];
 } {
-  const updatedConnectionString = connectionStringUrl.clone();
+  const updatedConnectionString =
+    getConnectionUrlWithoutAuth(connectionStringUrl);
   const updatedSearchParams =
     updatedConnectionString.typedSearchParams<MongoClientOptions>();
 
-  if (!action.authMechanism) {
-    updatedSearchParams.delete('authMechanism');
-
-    // Wipe any existing auth options on the connection.
-    updatedConnectionString.password = '';
-    updatedConnectionString.username = '';
-  } else {
+  if (action.authMechanism) {
     updatedSearchParams.set('authMechanism', action.authMechanism);
   }
 

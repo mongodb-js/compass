@@ -1,30 +1,35 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback } from 'react';
 import { TextInput, FileInput } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
+import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
 import {
   ConnectionFormError,
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 type IdentityFormKeys = keyof SSHConnectionOptions;
 
-function Identity({
+function SshTunnelIdentity({
   sshTunnelOptions,
-  onConnectionOptionChanged,
+  updateConnectionFormField,
   errors,
 }: {
   sshTunnelOptions?: SSHConnectionOptions;
-  onConnectionOptionChanged: (
-    key: IdentityFormKeys,
-    value: string | number
-  ) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
   errors: ConnectionFormError[];
 }): React.ReactElement {
-  const formFieldChanged = (key: IdentityFormKeys, value: string | number) => {
-    onConnectionOptionChanged(key, value);
-  };
+  const formFieldChanged = useCallback(
+    (key: IdentityFormKeys, value: string) => {
+      return updateConnectionFormField({
+        type: 'update-ssh-options',
+        key,
+        value,
+      });
+    },
+    [updateConnectionFormField]
+  );
 
   const fields = [
     {
@@ -43,7 +48,7 @@ function Identity({
       type: 'number',
       optional: false,
       placeholder: 'SSH Tunnel Port',
-      value: (sshTunnelOptions?.port ?? '').toString(),
+      value: sshTunnelOptions?.port?.toString(),
       errorMessage: '',
       state: 'none',
     },
@@ -118,10 +123,7 @@ function Identity({
                 onChange={({
                   target: { value },
                 }: ChangeEvent<HTMLInputElement>) => {
-                  formFieldChanged(
-                    name as IdentityFormKeys,
-                    name === 'port' ? Number(value) : value
-                  );
+                  formFieldChanged(name as IdentityFormKeys, value);
                 }}
                 name={name}
                 data-testid={name}
@@ -142,4 +144,4 @@ function Identity({
   );
 }
 
-export default Identity;
+export default SshTunnelIdentity;

@@ -13,8 +13,6 @@ export function compactBytes(bytes: number, si = true, decimals = 2): string {
 
 export function compactNumber(number: number): string {
   return new Intl.NumberFormat('en', {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error this does exist, just not in TS types
     notation: 'compact',
   })
     .formatToParts(number)

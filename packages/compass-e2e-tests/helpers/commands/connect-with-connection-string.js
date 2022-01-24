@@ -2,17 +2,17 @@ const Selectors = require('../selectors');
 
 const defaultTimeoutMS = 30_000;
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function connectWithConnectionString(
     connectionString,
     timeout = defaultTimeoutMS,
-    expectSuccess = true
+    connectionStatus = 'success'
   ) {
-    const { client } = app;
-    await client.setValueVisible(
+    const { browser } = compass;
+    await browser.setValueVisible(
       Selectors.ConnectionStringInput,
       connectionString
     );
-    await client.doConnect(timeout, expectSuccess);
+    await browser.doConnect(timeout, connectionStatus);
   };
 };

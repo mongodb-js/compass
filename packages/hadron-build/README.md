@@ -329,13 +329,11 @@ Which assets are generated depends on the target platform.
 - nightly auto update channel
 - `upload` called and result is all assets needed to release ready? Write manifest to nightly auto update channel
 - `publish` command for setting `draft=true` on GitHub Release and pushing S3 manifest
-- Make `test` use `xvfb-maybe` by default
 - `snap` and `appimage` installers for Linux
 
 [npm_img]: https://img.shields.io/npm/v/hadron-build.svg
 [npm_url]: https://npmjs.org/package/hadron-build
 [npm-scripts]: https://docs.npmjs.com/misc/scripts
-[spectron]: https://github.com/kevinsawicki/spectron
 [electron-mocha]: https://github.com/jprichardson/electron-mocha
 [electron-app-getPath]: https://github.com/electron/electron/blob/78193a0608b5fa55161e95b7b3845b6bd85af377/docs/api/app.md#appgetpathname
 [appveyor_img]: https://ci.appveyor.com/api/projects/status/n9yqrfsf17s4g1ss?svg=true
