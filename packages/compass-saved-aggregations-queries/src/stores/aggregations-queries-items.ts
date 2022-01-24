@@ -52,8 +52,7 @@ export const fetchItems = () => {
       payload: payload
         .map((result: PromiseSettledResult<Item[]>) =>
           result.status === 'fulfilled' ? result.value : []
-        )
-        .filter(Boolean)
+      )
         .flat(),
     });
   };
