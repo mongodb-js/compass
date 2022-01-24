@@ -1,7 +1,7 @@
 import { Dispatch, useCallback, useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
-import type { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
 
 import {
@@ -118,6 +118,12 @@ type ConnectionFormFieldActions =
   | {
       type: 'update-connection-path';
       value: string;
+    }
+  | {
+      type: 'remove-ssh-options';
+    }
+  | {
+      type: 'remove-proxy-options';
     };
 
 export type UpdateConnectionFormField = (
@@ -408,6 +414,29 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: {
           ...currentConnectionOptions,
           connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
+    case 'remove-proxy-options': {
+      const proxyOptions: (keyof ProxyOptions)[] = [
+        'proxyHost',
+        'proxyPort',
+        'proxyPassword',
+        'proxyUsername',
+      ];
+      proxyOptions.forEach((key) => updatedSearchParams.delete(key));
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
+    case 'remove-ssh-options': {
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          sshTunnel: undefined,
         },
       };
     }

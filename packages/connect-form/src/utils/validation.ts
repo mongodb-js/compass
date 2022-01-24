@@ -1,5 +1,5 @@
 import type { MongoClientOptions } from 'mongodb';
-
+import { isLocalhost } from 'mongodb-build-info';
 import { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 
@@ -13,6 +13,7 @@ export type FieldName =
   | 'ldapUsername'
   | 'password'
   | 'schema'
+  | 'proxyHostname'
   | 'sshHostname'
   | 'sshIdentityKeyFile'
   | 'sshPassword'
@@ -60,7 +61,9 @@ export function validateConnectionOptionsErrors(
 
   return [
     ...validateAuthMechanismErrors(connectionString),
-    ...validateSSHTunnelErrors(connectionOptions),
+    ...(connectionOptions.sshTunnel
+      ? validateSSHTunnelErrors(connectionOptions.sshTunnel)
+      : validateSocksProxyErrors(connectionString)),
   ];
 }
 
@@ -159,39 +162,50 @@ function validateKerberosErrors(
 }
 
 function validateSSHTunnelErrors(
-  connectionOptions: ConnectionOptions
+  sshTunnel: NonNullable<ConnectionOptions['sshTunnel']>
 ): ConnectionFormError[] {
-  if (!connectionOptions.sshTunnel) {
-    return [];
-  }
   const errors: ConnectionFormError[] = [];
-  if (!connectionOptions.sshTunnel.host) {
+  if (!sshTunnel.host) {
     errors.push({
       fieldName: 'sshHostname',
-      message: 'A hostname is required to connect with an SSH tunnel',
+      message: 'A hostname is required to connect with an SSH tunnel.',
     });
   }
 
-  if (
-    !connectionOptions.sshTunnel.password &&
-    !connectionOptions.sshTunnel.identityKeyFile
-  ) {
+  if (!sshTunnel.password && !sshTunnel.identityKeyFile) {
     errors.push({
       message:
-        'When connecting via SSH tunnel either password or identity file is required',
+        'When connecting via SSH tunnel either password or identity file is required.',
     });
   }
 
-  if (
-    connectionOptions.sshTunnel.identityKeyPassphrase &&
-    !connectionOptions.sshTunnel.identityKeyFile
-  ) {
+  if (sshTunnel.identityKeyPassphrase && !sshTunnel.identityKeyFile) {
     errors.push({
       fieldName: 'sshIdentityKeyFile',
       message: 'File is required along with passphrase.',
     });
   }
 
+  return errors;
+}
+function validateSocksProxyErrors(
+  connectionString: ConnectionString
+): ConnectionFormError[] {
+  const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
+
+  const proxyHost = searchParams.get('proxyHost');
+  const proxyPort = searchParams.get('proxyPort');
+  const proxyUsername = searchParams.get('proxyUsername');
+  const proxyPassword = searchParams.get('proxyPassword');
+
+  const errors: ConnectionFormError[] = [];
+  if (!proxyHost && (proxyPort || proxyUsername || proxyPassword)) {
+    errors.push({
+      fieldName: 'proxyHostname',
+      message: 'Proxy hostname is required.',
+    });
+    return errors;
+  }
   return errors;
 }
 
@@ -224,6 +238,7 @@ export function validateConnectionOptionsWarnings(
     ...validateDirectConnectionAndReplicaSetWarnings(connectionString),
     ...validateDirectConnectionAndMultiHostWarnings(connectionString),
     ...validateTLSAndHostWarnings(connectionString),
+    ...validateSocksWarnings(connectionString),
   ];
 }
 
@@ -345,17 +360,42 @@ function validateTLSAndHostWarnings(
 ): ConnectionFormWarning[] {
   const warnings: ConnectionFormWarning[] = [];
 
-  const hasNonLocalhost = !!connectionString.hosts
-    .map((host) => host.split(':')[0])
-    .find(
-      (hostname) => !['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)
-    );
+  const nonLocalhostsCount = connectionString.hosts.filter(
+    (host) => !isLocalhost(host)
+  ).length;
 
-  if (hasNonLocalhost && !isSecure(connectionString)) {
+  if (nonLocalhostsCount && !isSecure(connectionString)) {
     warnings.push({
       message:
         'Connecting without tls is not recommended as it may create a security vulnerability.',
     });
   }
+  return warnings;
+}
+
+function validateSocksWarnings(
+  connectionString: ConnectionString
+): ConnectionFormWarning[] {
+  const warnings: ConnectionFormWarning[] = [];
+
+  const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
+  const proxyHost = searchParams.get('proxyHost');
+
+  if (!proxyHost || isLocalhost(proxyHost)) {
+    return warnings;
+  }
+
+  if (searchParams.get('proxyPassword')) {
+    warnings.push({
+      message: 'Socks5 proxy password will be transmitted in plaintext.',
+    });
+  }
+
+  if (connectionString.hosts.find(isLocalhost)) {
+    warnings.push({
+      message: 'Using remote proxy with local MongoDB service host.',
+    });
+  }
+
   return warnings;
 }
