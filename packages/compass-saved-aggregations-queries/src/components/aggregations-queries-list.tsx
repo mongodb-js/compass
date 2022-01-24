@@ -1,46 +1,100 @@
 import React, { useEffect } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { VirtualGrid, H2, css, spacing } from '@mongodb-js/compass-components';
 import { State, fetchItems } from './../stores/aggregations-queries-items';
+import {
+  SavedItemCard,
+  SavedItemCardProps,
+  Action,
+  CARD_WIDTH,
+  CARD_HEIGHT,
+} from './saved-item-card';
+
+const ConnectedItemCard = connect<
+  Omit<SavedItemCardProps, 'onAction'>,
+  Pick<SavedItemCardProps, 'onAction'>,
+  { index: number },
+  State
+>(
+  ({ items }, props) => {
+    const item = items[props.index];
+
+    return {
+      id: item.id,
+      type: item.type,
+      name: item.name,
+      database: item.database,
+      collection: item.collection,
+      lastModified: item.lastModified,
+    };
+  },
+  {
+    onAction(id: string, actionName: Action) {
+      return () => {
+        // TODO: thunk action to handle multiple possible card actions
+        console.log({ id, actionName });
+      };
+    },
+  }
+)(SavedItemCard);
+
+const header = css({
+  margin: spacing[3],
+});
+
+const title = css({
+  marginBottom: spacing[1],
+});
+
+const row = css({
+  gap: spacing[2],
+  paddingLeft: spacing[3],
+  paddingRight: spacing[3],
+  paddingBottom: spacing[2],
+});
 
 const AggregationsQueriesList = ({
   loading,
   items,
   fetchItems,
-}: PropsFromRedux) => {
+}: AggregationsQueriesListProps) => {
   useEffect(() => {
     void fetchItems();
   }, [fetchItems]);
 
   if (loading) {
-    return <p>Loading ...</p>;
+    return null;
   }
-  if (!items.length) {
-    return <p>No saved queries/aggregations.</p>;
-  }
+
   return (
-    <div>
-      <h3>Saved Items</h3>
-      <ul>
-        {items.map((item) => (
-          <li key={item.id}>
-            Name: {item.name} ( Type: {item.type}; Modified: {item.lastModified}
-            ; Namespace: ${item.namespace})
-          </li>
-        ))}
-      </ul>
-    </div>
+    <VirtualGrid
+      itemMinWidth={CARD_WIDTH}
+      itemHeight={CARD_HEIGHT + spacing[2]}
+      itemsCount={items.length}
+      renderItem={ConnectedItemCard}
+      renderHeader={() => {
+        return (
+          <div className={header}>
+            {/* TODO: This h1 and a subtitle might go away so that the layout */}
+            {/*       is more aligned with what you see in the db / coll tabs */}
+            <H2 as="h1" className={title}>
+              My queries
+            </H2>
+            <div>All my saved queries in one place</div>
+          </div>
+        );
+      }}
+      classNames={{ row }}
+    ></VirtualGrid>
   );
 };
 
-const mapState = ({ loading, items }: State) => ({
-  loading,
-  items,
-});
+const mapState = ({ loading, items }: State) => ({ loading, items });
 
-const mapDispatch = {
-  fetchItems,
-};
+const mapDispatch = { fetchItems };
 
 const connector = connect(mapState, mapDispatch);
-type PropsFromRedux = ConnectedProps<typeof connector>;
+
+type AggregationsQueriesListProps = ConnectedProps<typeof connector>;
+
 export default connector(AggregationsQueriesList);
