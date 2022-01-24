@@ -50,7 +50,7 @@ const descriptionStyles = css({
 
 const formContentContainerStyles = css({
   padding: spacing[4],
-  overflow: 'scroll',
+  overflowY: 'auto',
   position: 'relative',
 });
 
