@@ -73,7 +73,7 @@ const favoriteButtonContentStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center'
+  justifyContent: 'center',
 });
 
 const formHeaderStyles = css({
