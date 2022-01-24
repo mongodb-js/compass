@@ -1,17 +1,17 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function navigateToInstanceTab(tabName) {
-    const { client } = app;
+    const { browser } = compass;
 
     const tabSelector = Selectors.instanceTab(tabName);
     const tabSelectedSelector = Selectors.instanceTab(tabName, true);
 
-    await client.clickVisible(Selectors.SidebarTitle);
-    const instanceTabElement = await client.$(Selectors.InstanceTabs);
+    await browser.clickVisible(Selectors.SidebarTitle);
+    const instanceTabElement = await browser.$(Selectors.InstanceTabs);
     await instanceTabElement.waitForDisplayed();
 
-    const tabSelectorElement = await client.$(tabSelectedSelector);
+    const tabSelectorElement = await browser.$(tabSelectedSelector);
 
     // if the correct tab is already visible, do nothing
     if (await tabSelectorElement.isExisting()) {
@@ -19,7 +19,7 @@ module.exports = function (app) {
     }
 
     // otherwise select the tab and wait for it to become selected
-    await client.clickVisible(tabSelector);
+    await browser.clickVisible(tabSelector);
     await tabSelectorElement.waitForDisplayed();
   };
 };

@@ -1,8 +1,8 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   async function navigateToCollection(dbName, collectionName) {
-    const { client } = app;
+    const { browser } = compass;
 
     const headerSelector = Selectors.collectionHeaderTitle(
       dbName,
@@ -13,22 +13,22 @@ module.exports = function (app) {
       collectionName
     );
 
-    const headerElement = await client.$(headerSelector);
+    const headerElement = await browser.$(headerSelector);
 
     // Close all the collection tabs to get rid of all the state we might have accumulated. This is the only way to get back to the zero state of Schema, Explain Plan and Validation tabs without re-connecting.
-    await client.closeCollectionTabs();
+    await browser.closeCollectionTabs();
 
     // search for the collection and wait for the collection to be there and visible
-    await client.clickVisible(Selectors.SidebarFilterInput);
-    const sidebarFilterInputElement = await client.$(
+    await browser.clickVisible(Selectors.SidebarFilterInput);
+    const sidebarFilterInputElement = await browser.$(
       Selectors.SidebarFilterInput
     );
     await sidebarFilterInputElement.setValue(collectionName);
-    const collectionElement = await client.$(collectionSelector);
+    const collectionElement = await browser.$(collectionSelector);
     await collectionElement.waitForDisplayed();
 
     // click it and wait for the collection header to become visible
-    await client.clickVisible(collectionSelector);
+    await browser.clickVisible(collectionSelector);
     await headerElement.waitForDisplayed();
   }
 
@@ -37,21 +37,21 @@ module.exports = function (app) {
     collectionName,
     tabName
   ) {
-    const { client } = app;
+    const { browser } = compass;
 
     const tabSelector = Selectors.collectionTab(tabName);
     const tabSelectedSelector = Selectors.collectionTab(tabName, true);
 
     await navigateToCollection(dbName, collectionName);
 
-    const tabSelectedSelectorElement = await client.$(tabSelectedSelector);
+    const tabSelectedSelectorElement = await browser.$(tabSelectedSelector);
     // if the correct tab is already visible, do nothing
     if (await tabSelectedSelectorElement.isExisting()) {
       return;
     }
 
     // otherwise select the tab and wait for it to become selected
-    await client.clickVisible(tabSelector);
+    await browser.clickVisible(tabSelector);
 
     await tabSelectedSelectorElement.waitForDisplayed();
   };

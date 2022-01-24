@@ -1,18 +1,18 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function setValidation(value) {
-    const { client } = app;
+    const { browser } = compass;
 
-    await client.setAceValue(Selectors.ValidationEditor, value);
+    await browser.setAceValue(Selectors.ValidationEditor, value);
 
     // it should eventually detect that the text changed
-    const validationActionMessageElement = await client.$(
+    const validationActionMessageElement = await browser.$(
       Selectors.ValidationActionMessage
     );
     await validationActionMessageElement.waitForDisplayed();
 
-    await client.clickVisible(Selectors.UpdateValidationButton);
+    await browser.clickVisible(Selectors.UpdateValidationButton);
 
     // both buttons should become hidden if it succeeds
     await validationActionMessageElement.waitForDisplayed({
@@ -21,7 +21,7 @@ module.exports = function (app) {
       reverse: true,
     });
 
-    const updateValidationButtonElement = await client.$(
+    const updateValidationButtonElement = await browser.$(
       Selectors.UpdateValidationButton
     );
     await updateValidationButtonElement.waitForDisplayed({

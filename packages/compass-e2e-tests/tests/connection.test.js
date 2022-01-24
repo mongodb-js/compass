@@ -1,4 +1,3 @@
-// @ts-check
 const { expect } = require('chai');
 const ConnectionString = require('mongodb-connection-string-url').default;
 const {
@@ -8,9 +7,9 @@ const {
   afterTest,
 } = require('../helpers/compass');
 
-async function disconnect(client) {
+async function disconnect(browser) {
   try {
-    await client.disconnect();
+    await browser.disconnect();
   } catch (err) {
     console.error('Error during disconnect:');
     console.error(err);
@@ -21,13 +20,12 @@ async function disconnect(client) {
  * Connection tests
  */
 describe('Connection screen', function () {
-  /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
-  let client;
+  let browser;
 
   before(async function () {
     compass = await beforeTests();
-    client = compass.client;
+    browser = compass.browser;
   });
 
   after(function () {
@@ -35,13 +33,13 @@ describe('Connection screen', function () {
   });
 
   afterEach(async function () {
-    await disconnect(client);
+    await disconnect(browser);
     await afterTest(compass, this.currentTest);
   });
 
   it('can connect using connection string', async function () {
-    await client.connectWithConnectionString('mongodb://localhost:27018/test');
-    const result = await client.shellEval(
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -49,11 +47,11 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection form', async function () {
-    await client.connectWithConnectionForm({
+    await browser.connectWithConnectionForm({
       host: 'localhost',
       port: 27018,
     });
-    const result = await client.shellEval(
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -65,8 +63,8 @@ describe('Connection screen', function () {
     if (!atlasConnectionOptions) {
       return this.skip();
     }
-    await client.connectWithConnectionForm(atlasConnectionOptions);
-    const result = await client.shellEval(
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -76,23 +74,37 @@ describe('Connection screen', function () {
 
 describe('SRV connectivity', function () {
   it('resolves SRV connection string using OS DNS APIs', async function () {
-    const compass = await beforeTests();
-    const client = compass.client;
+    if (process.platform === 'win32') {
+      // TODO: re-enable this test on windows
+      return;
+    }
 
-    // Does not actually succeed at connecting, but that’s fine for us here
-    await client.connectWithConnectionString(
-      'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
-      undefined,
-      false
-    );
-    await disconnect(client);
-    await afterTests(compass);
-    const { compassLog } = compass;
+    const compass = await beforeTests();
+    const browser = compass.browser;
+
+    try {
+      // Does not actually succeed at connecting, but that’s fine for us here
+      // (Unless you have a server listening on port 27017)
+      await browser.connectWithConnectionString(
+        'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
+        undefined,
+        'either'
+      );
+    } finally {
+      await disconnect(browser);
+      // make sure the browser gets closed otherwise if this fails the process wont exit
+      await afterTests(compass);
+    }
+
+    const { logs } = compass;
 
     // Find information about which DNS resolutions happened and how:
-    const resolutionLogs = compassLog
-      .filter((log) => log.id === 1_000_000_039)
+    const resolutionLogs = logs
+      .filter(
+        (log) => log.id === 1_000_000_039 && log.ctx === 'compass-connect'
+      )
       .map((log) => log.attr);
+
     expect(resolutionLogs).to.have.lengthOf(1);
 
     const { from, to, resolutionDetails } = resolutionLogs[0];
@@ -126,8 +138,6 @@ describe('SRV connectivity', function () {
     });
 
     // The connection attempt was aborted early.
-    expect(
-      compassLog.filter((log) => log.id === 1_000_000_036)
-    ).to.have.lengthOf(1);
+    expect(logs.filter((log) => log.id === 1_000_000_036)).to.have.lengthOf(1);
   });
 });
