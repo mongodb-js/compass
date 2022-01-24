@@ -48,18 +48,10 @@ const descriptionStyles = css({
   marginTop: spacing[2],
 });
 
-const scrollbarWidth = spacing[2];
 const formContentContainerStyles = css({
   padding: spacing[4],
-  paddingRight: spacing[4] - scrollbarWidth,
-  overflowY: 'scroll',
+  overflowY: 'auto',
   position: 'relative',
-  scrollPadding: 0,
-  scrollbarGutter: 'unset',
-  scrollbarWidth: 'none',
-  '::-webkit-scrollbar': {
-    width: scrollbarWidth,
-  },
 });
 
 const formFooterStyles = css({
