@@ -3,7 +3,6 @@ import { css } from '@mongodb-js/compass-components';
 import {
   ConnectionInfo,
   DataService,
-  convertConnectionInfoToModel,
   getConnectionTitle,
   ConnectionStorage,
 } from 'mongodb-data-service';
@@ -129,7 +128,7 @@ function Home({
   connectionStorage = new ConnectionStorage(),
 }: {
   appName: string;
-  connectionStorage: ConnectionStorage;
+  connectionStorage?: ConnectionStorage;
 }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
@@ -155,22 +154,17 @@ function Home({
 
   // TODO: Remove this comment once we only have one connections package:
   // This is currently only used by the new connections package.
-  // We've moved to not calling the `data-service-connected` event inside
-  // of connections and instead call it here.
-  async function onConnected(
+  // We've moved to calling the `data-service-connected` event here instead
+  // of inside `connections`/`compass-connect` and instead call it here.
+  function onConnected(
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) {
-    const legacyConnectionModel = await convertConnectionInfoToModel(
-      connectionInfo
-    );
-
     appRegistry.emit(
       'data-service-connected',
       null, // No error connecting.
       dataService,
-      connectionInfo,
-      legacyConnectionModel // TODO: Remove this once we remove the dependency in compass-sidebar.
+      connectionInfo
     );
   }
 
