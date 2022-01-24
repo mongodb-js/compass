@@ -309,18 +309,6 @@ describe('validation', function () {
       });
     });
 
-    describe('Kerberos', function () {
-      it('should return warning if password is set', function () {
-        const result = validateConnectionOptionsWarnings({
-          connectionString: `mongodb://user:password@myserver.com?tls=true&authMechanism=GSSAPI`,
-        });
-        expect(result).to.deep.equal([
-          {
-            message: 'The password is ignored with Kerberos.',
-          },
-        ]);
-      });
-    });
     describe('directConnection', function () {
       it('should return warning if mongo+srv and directConnection=true', function () {
         const result = validateConnectionOptionsWarnings({

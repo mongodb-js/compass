@@ -216,7 +216,6 @@ export function validateConnectionOptionsWarnings(
 ): ConnectionFormWarning[] {
   const connectionString = getConnectionString(connectionOptions);
   return [
-    ...validateAuthMechanismWarnings(connectionString),
     ...validateReadPreferenceWarnings(connectionString),
     ...validateDeprecatedOptionsWarnings(connectionString),
     ...validateCertificateValidationWarnings(connectionString),
@@ -276,22 +275,6 @@ function validateReadPreferenceWarnings(
       message: `Unknown read preference ${readPreference}`,
     });
   }
-  return warnings;
-}
-
-function validateAuthMechanismWarnings(
-  connectionString: ConnectionString
-): ConnectionFormWarning[] {
-  const warnings: ConnectionFormWarning[] = [];
-  const authMechanism =
-    connectionString.searchParams.get('authMechanism') || '';
-
-  if (authMechanism === 'GSSAPI' && connectionString.password) {
-    warnings.push({
-      message: 'The password is ignored with Kerberos.',
-    });
-  }
-
   return warnings;
 }
 
