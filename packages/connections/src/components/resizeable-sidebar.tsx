@@ -42,7 +42,7 @@ function ResizableSidebar({
   activeConnectionId?: string;
   connections: ConnectionInfo[];
   createNewConnection: () => void;
-  setActiveConnectionId: (newConnectionId?: string) => void;
+  setActiveConnectionId: (newConnectionId: string) => void;
   onConnectionDoubleClicked: (connectionInfo: ConnectionInfo) => void;
   removeAllRecentsConnections: () => void;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;

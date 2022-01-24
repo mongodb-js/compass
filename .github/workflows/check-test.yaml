@@ -16,7 +16,7 @@ jobs:
   check-and-test:
     name: Check and Test
 
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     strategy:
       matrix:
