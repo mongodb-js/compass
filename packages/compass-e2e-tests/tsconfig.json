@@ -1,0 +1,6 @@
+{
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
+  "compilerOptions": {
+    "types": ["node", "webdriverio", "webdriverio/async"]
+  }
+}

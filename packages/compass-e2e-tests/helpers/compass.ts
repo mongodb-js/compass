@@ -1,0 +1,590 @@
+import { inspect } from 'util';
+import { ObjectId } from 'bson';
+import { promises as fs } from 'fs';
+import Mocha from 'mocha';
+import path from 'path';
+import os from 'os';
+import { promisify } from 'util';
+import zlib from 'zlib'
+import { remote, Browser } from 'webdriverio';
+import { rebuild } from 'electron-rebuild';
+import { ConsoleMessage } from 'puppeteer';
+import {
+  run as packageCompass,
+  compileAssets,
+} from 'hadron-build/commands/release';
+export { default as Selectors } from './selectors';
+import { addCommands } from './commands';
+
+import Debug = require('debug');
+
+const debug = Debug('compass-e2e-tests');
+
+const { gunzip } = zlib;
+const { Z_SYNC_FLUSH } = zlib.constants;
+
+const compileAssetsAsync = promisify(compileAssets);
+const packageCompassAsync = promisify(packageCompass);
+
+const COMPASS_PATH = path.dirname(
+  require.resolve('mongodb-compass/package.json')
+);
+const LOG_PATH = path.resolve(__dirname, '..', '.log');
+const OUTPUT_PATH = path.join(LOG_PATH, 'output');
+
+export function getAtlasConnectionOptions() {
+  const missingKeys = [
+    'E2E_TESTS_ATLAS_HOST',
+    'E2E_TESTS_ATLAS_USERNAME',
+    'E2E_TESTS_ATLAS_PASSWORD',
+  ].filter((key) => !process.env[key]);
+
+  if (missingKeys.length > 0) {
+    const keysStr = missingKeys.join(', ');
+    if (process.env.ci || process.env.CI) {
+      throw new Error(`Missing required environmental variable(s): ${keysStr}`);
+    }
+    return null;
+  }
+
+  const {
+    E2E_TESTS_ATLAS_HOST: host,
+    E2E_TESTS_ATLAS_USERNAME: username,
+    E2E_TESTS_ATLAS_PASSWORD: password,
+  } = process.env;
+
+  return { host, username, password, srvRecord: true };
+}
+
+// For the tmpdirs
+let i = 0;
+// For the screenshots
+let j = 0;
+// For the html
+//let k = 0;
+
+type CompassOptions = {
+  userDataDir: string
+}
+
+class Compass {
+  browser: Browser<'async'>;
+  renderLogs: any[];
+  logs: any[];
+  logPath?: string;
+  userDataDir: string;
+
+  constructor(browser: Browser<'async'>, options: CompassOptions) {
+
+    this.browser = browser;
+    this.userDataDir = options.userDataDir;
+    this.logs = [];
+    this.renderLogs = [];
+
+    addCommands(this); // TODO
+    this.addDebugger();
+  }
+
+  async recordLogs() {
+    const puppeteerBrowser = await this.browser.getPuppeteer();
+    const pages = await puppeteerBrowser.pages();
+    const page = pages[0];
+
+    page.on('console', (message: any) => {
+      // TODO: why is this a different ConsoleMessage? Different versions of puppeteer?
+      message = message as ConsoleMessage;
+      const run = async () => {
+        // human and machine readable, always UTC
+        const timestamp = new Date().toISOString();
+
+        // startGroup, endGroup, log, table, warning, etc.
+        const type = message.type();
+
+        const text = message.text();
+
+        // first arg is usually == text, but not always
+        const args = [];
+        for (const arg of message.args()) {
+          args.push(await arg.jsonValue());
+        }
+
+        // uncomment to see browser logs
+        //console.log({ timestamp, type, text, args });
+
+        this.renderLogs.push({ timestamp, type, text, args });
+      };
+      run();
+    });
+
+    // get the app logPath out of electron early in case the app crashes before we
+    // close it and load the logs
+    this.logPath = await this.browser.execute(() => {
+      return require('electron').ipcRenderer.invoke('compass:logPath');
+    });
+  }
+
+  addDebugger() {
+    const browser = this.browser;
+    const debugClient = debug.extend('webdriver:client');
+    const browserProto = Object.getPrototypeOf(browser);
+
+    for (const prop of Object.getOwnPropertyNames(browserProto)) {
+      // disable emit logging for now because it is very noisy
+      if (prop.includes('.') || prop === 'emit') {
+        continue;
+      }
+      const descriptor = Object.getOwnPropertyDescriptor(browserProto, prop);
+      if (!descriptor || typeof descriptor.value !== 'function') {
+        continue;
+      }
+      const origFn = descriptor.value;
+      descriptor.value = function (...args: any[]) {
+        debugClient(
+          `${prop}(${args
+            .map((arg) => inspect(arg, { breakLength: Infinity }))
+            .join(', ')})`
+        );
+
+        const stack = new Error(prop).stack || '';
+
+        let result;
+        try {
+          result = origFn.call(this, ...args);
+        } catch (error) {
+          // In this case the method threw synchronously
+          augmentError(error, stack);
+          throw error;
+        }
+
+        if (result && result.then) {
+          // If the result looks like a promise, resolve it and look for errors
+          return result.catch((error: any) => {
+            augmentError(error, stack);
+            throw error;
+          });
+        }
+
+        // return the synchronous result
+        return result;
+      };
+      Object.defineProperty(browserProto, prop, descriptor);
+    }
+  }
+
+  async stop() {
+    // TODO: we don't have main logs to write :(
+    /*
+    const mainLogs = [];
+    const mainLogPath = path.join(
+      LOG_PATH,
+      `electron-main.${nowFormatted}.log`
+    );
+    debug(`Writing application main process log to ${mainLogPath}`);
+    await fs.writeFile(mainLogPath, mainLogs.join('\n'));
+    */
+
+    const nowFormatted = formattedDate();
+
+    const renderLogPath = path.join(
+      LOG_PATH,
+      `electron-render.${nowFormatted}.json`
+    );
+    debug(`Writing application render process log to ${renderLogPath}`);
+    await fs.writeFile(
+      renderLogPath,
+      JSON.stringify(this.renderLogs, null, 2)
+    );
+
+    debug('Stopping Compass application');
+    await this.browser.deleteSession();
+
+    const compassLog = await getCompassLog(this.logPath || '');
+    const compassLogPath = path.join(
+      LOG_PATH,
+      `compass-log.${nowFormatted}.log`
+    );
+    debug(`Writing Compass application log to ${compassLogPath}`);
+    await fs.writeFile(compassLogPath, compassLog.raw);
+    this.logs = compassLog.structured;
+
+    debug('Removing user data');
+    try {
+      await fs.rmdir(this.userDataDir, { recursive: true });
+    } catch (e) {
+      debug(
+        `Failed to remove temporary user data directory at ${this.userDataDir}:`
+      );
+      debug(e);
+    }
+  }
+
+  async capturePage(
+    imgPathName = `screenshot-${formattedDate()}-${++j}.png`
+  ) {
+    try {
+      await this.browser.saveScreenshot(path.join(LOG_PATH, imgPathName));
+      return true;
+    } catch (err: any) {
+      console.warn(err.stack);
+      return false;
+    }
+  }
+}
+
+async function startCompass(
+  testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP || ''),
+  opts = {}
+) {
+
+  const nowFormatted = formattedDate();
+
+  const userDataDir = path.join(
+    os.tmpdir(),
+    `user-data-dir-${Date.now().toString(32)}-${++i}`
+  );
+  const chromedriverLogPath = path.join(
+    LOG_PATH,
+    `chromedriver.${nowFormatted}.log`
+  );
+  const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
+
+  await fs.mkdir(userDataDir, { recursive: true });
+  // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
+  // for consistency let's mkdir for both of them just in case
+  await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
+  await fs.mkdir(webdriverLogPath, { recursive: true });
+  await fs.mkdir(OUTPUT_PATH, { recursive: true });
+
+  const binary = testPackagedApp
+    ? getCompassBinPath(await getCompassBuildMetadata())
+    : require('electron');
+  const chromeArgs = [];
+
+  if (!testPackagedApp) {
+    // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
+    chromeArgs.push(`--app=${COMPASS_PATH}`);
+    //process.chdir(COMPASS_PATH); // TODO: do we need this?
+  }
+
+  // https://peter.sh/experiments/chromium-command-line-switches/
+  // https://www.electronjs.org/docs/latest/api/command-line-switches
+  chromeArgs.push(
+    `--user-data-dir=${userDataDir}`,
+    // Chromecast feature that is enabled by default in some chrome versions
+    // and breaks the app on Ubuntu
+    '--media-router=0',
+    // Evergren RHEL ci runs everything as root, and chrome will not start as
+    // root without this flag
+    '--no-sandbox'
+
+    // chomedriver options
+    // TODO: cant get this to work
+    //`--log-path=${chromedriverLogPath}`,
+    //'--verbose',
+
+    // electron/chromium options
+    // TODO: cant get this to work either
+    //'--enable-logging=file',
+    //`--log-file=${chromedriverLogPath}`,
+    //'--log-level=INFO',
+    //'--v=1',
+    // --vmodule=pattern
+  );
+
+  // https://webdriver.io/docs/options/#webdriver-options
+  const webdriverOptions = {
+    logLevel: 'info',
+    outputDir: webdriverLogPath,
+  };
+
+  // https://webdriver.io/docs/options/#webdriverio
+  const wdioOptions = {
+    waitforTimeout: 5000, // default is 3000ms
+    waitforInterval: 100, // default is 500ms
+  };
+
+  process.env.APP_ENV = 'webdriverio';
+  process.env.DEBUG = `${process.env.DEBUG || ''},mongodb-compass:main:logging`;
+  process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
+  process.env.CHROME_LOG_FILE = chromedriverLogPath;
+
+  const options = {
+    capabilities: {
+      browserName: 'chrome',
+      // https://chromedriver.chromium.org/capabilities#h.p_ID_106
+      'goog:chromeOptions': {
+        binary,
+        args: chromeArgs,
+      },
+      // more chrome options
+      /*
+      'loggingPrefs': {
+        browser: 'ALL',
+        driver: 'ALL'
+      },
+      'goog:loggingPrefs': {
+        browser: 'ALL',
+        driver: 'ALL'
+      }
+      */
+    },
+    ...webdriverOptions,
+    ...wdioOptions,
+    ...opts,
+  };
+
+
+  debug('Starting compass via webdriverio with the following configuration:');
+  debug(JSON.stringify(options, null, 2));
+
+  // It's missing methods that we will add in a moment
+  // @ts-expect-error
+  const browser = await remote(options);
+
+  const compass = new Compass(browser, { userDataDir });
+
+  await compass.recordLogs();
+
+
+
+
+  return compass;
+}
+
+/**
+ * @param {string} logPath The compass application log path
+ * @returns {Promise<CompassLog>}
+ */
+async function getCompassLog(logPath: string) {
+  const names = await fs.readdir(logPath);
+  const logNames = names.filter((name) => name.endsWith('_log.gz'));
+
+  if (!logNames.length) {
+    debug('no log output indicator found!');
+    return { raw: Buffer.from(''), structured: [] };
+  }
+
+  // find the latest log file
+  let latest = 0;
+  let lastName = logNames[0];
+  for (const name of logNames.slice(1)) {
+    const id = name.slice(0, name.indexOf('_'));
+    const time = new ObjectId(id).generationTime;
+    if (time > latest) {
+      latest = time;
+      lastName = name;
+    }
+  }
+
+  const filename = path.join(logPath, lastName);
+  debug('reading Compass application logs from', filename);
+  const contents = await promisify(gunzip)(await fs.readFile(filename), {
+    finishFlush: Z_SYNC_FLUSH,
+  });
+  return {
+    raw: contents,
+    structured: contents
+      .toString()
+      .split('\n')
+      .filter((line) => line.trim())
+      .map((line) => {
+        try {
+          return JSON.parse(line);
+        } catch {
+          return { unparsabableLine: line };
+        }
+      }),
+  };
+}
+
+function formattedDate() {
+  // Mimicking webdriver path with this for consistency
+  return new Date().toISOString().replace(/:/g, '-').replace(/Z$/, '');
+}
+
+async function rebuildNativeModules(compassPath = COMPASS_PATH) {
+  const {
+    config: {
+      hadron: { rebuild: rebuildConfig },
+    },
+  } = require(path.join(compassPath, 'package.json'));
+
+  await rebuild({
+    ...rebuildConfig,
+    electronVersion: require('electron/package.json').version,
+    buildPath: compassPath,
+    // monorepo root, so that the root packages are also inspected
+    projectRootPath: path.resolve(compassPath, '..', '..'),
+  });
+}
+
+async function compileCompassAssets(compassPath = COMPASS_PATH) {
+  // @ts-ignore some weirdness from util-callbackify
+  await compileAssetsAsync({ dir: compassPath });
+}
+
+async function getCompassBuildMetadata() {
+  try {
+    let metadata;
+    if (process.env.COMPASS_APP_PATH && process.env.COMPASS_APP_NAME) {
+      metadata = {
+        appPath: process.env.COMPASS_APP_PATH,
+        packagerOptions: { name: process.env.COMPASS_APP_NAME },
+      };
+    } else {
+      metadata = require('mongodb-compass/dist/target.json');
+    }
+    // Double-checking that Compass app path exists, not only the metadata
+    fs.stat(metadata.appPath);
+    return metadata;
+  } catch (e) {
+    throw new Error(
+      "Compass package metadata doesn't exist. Make sure you built Compass before running e2e tests"
+    );
+  }
+}
+
+export async function buildCompass(force = false, compassPath = COMPASS_PATH) {
+  if (!force) {
+    try {
+      await getCompassBuildMetadata();
+      return;
+    } catch (e) {
+      // No compass build found, let's build it
+    }
+  }
+
+  await packageCompassAsync({
+    dir: compassPath,
+    skip_installer: true,
+  });
+}
+
+type BinPathOptions = {
+  appPath: string,
+  packagerOptions: {
+    name: string
+  }
+}
+
+export function getCompassBinPath({ appPath, packagerOptions }: BinPathOptions) {
+  const { name } = packagerOptions;
+
+  switch (process.platform) {
+    case 'win32':
+      return path.join(appPath, `${name}.exe`);
+    case 'linux':
+      return path.join(appPath, name);
+    case 'darwin':
+      return path.join(appPath, 'Contents', 'MacOS', name);
+    default:
+      throw new Error(
+        `Unsupported platform: don't know where the app binary is for ${process.platform}`
+      );
+  }
+}
+
+function augmentError(error: any, stack: string) {
+  const lines = stack.split('\n');
+  const strippedLines = lines.filter((line, index) => {
+    // try to only contain lines that originated in this workspace
+    if (index === 0) {
+      return true;
+    }
+    if (line.startsWith('    at augmentError')) {
+      return false;
+    }
+    if (line.startsWith('    at Object.descriptor.value [as')) {
+      return false;
+    }
+    if (line.includes('node_modules')) {
+      return false;
+    }
+    if (line.includes('helpers/')) {
+      return true;
+    }
+    if (line.includes('tests/')) {
+      return true;
+    }
+    return false;
+  });
+
+  if (strippedLines.length === 1) {
+    return;
+  }
+
+  error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
+}
+
+export async function beforeTests() {
+  const compass = await startCompass();
+
+  const { browser } = compass;
+
+  await browser.waitForConnectionScreen();
+  await browser.closeTourModal();
+  await browser.closePrivacySettingsModal();
+
+  return compass;
+}
+
+export async function afterTests(compass?: Compass) {
+  if (!compass) {
+    console.log('compas is falsey in afterTests');
+    return;
+  }
+
+  try {
+    await compass.stop();
+  } catch (err) {
+    debug('An error occurred while stopping compass:');
+    debug(err);
+    try {
+      // make sure the process can exit
+      await compass.browser.deleteSession();
+    } catch (_) {
+      debug('browser already closed');
+    }
+  }
+}
+
+function pathName(text: string) {
+  return text
+    .replace(/ /g, '-') // spaces to dashes
+    .replace(/[^a-z0-9-_]/gi, ''); // strip everything non-ascii (for now)
+}
+
+function screenshotPathName(text: string) {
+  return `screenshot-${pathName(text)}.png`;
+}
+
+/**
+ * @param {string} filename
+ */
+export function outputFilename(filename: string) {
+  return path.join(OUTPUT_PATH, filename);
+}
+
+export async function afterTest(compass: Compass, test: Mocha.Hook | Mocha.Test) {
+  if (test.state == 'failed') {
+    await compass.capturePage( screenshotPathName(test.fullTitle()));
+  }
+}
+
+// TODO
+/*
+module.exports = {
+  startCompass,
+  rebuildNativeModules,
+  compileCompassAssets,
+  getAtlasConnectionOptions,
+  buildCompass,
+  Selectors,
+  COMPASS_PATH,
+  LOG_PATH,
+  OUTPUT_PATH,
+  beforeTests,
+  outputFilename,
+  afterTest,
+};
+*/
