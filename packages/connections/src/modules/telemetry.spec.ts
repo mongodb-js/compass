@@ -359,7 +359,10 @@ describe('connection tracking', function () {
   });
 
   it('tracks the instance data - case 1', async function () {
-    const mockDataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'currentTopologyType'
+    > = {
       instance: () => {
         return Promise.resolve({
           dataLake: {
@@ -404,7 +407,10 @@ describe('connection tracking', function () {
   });
 
   it('tracks the instance data - case 2', async function () {
-    const mockDataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'currentTopologyType'
+    > = {
       instance: () => {
         return Promise.resolve({
           dataLake: {
