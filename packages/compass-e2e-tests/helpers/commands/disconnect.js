@@ -1,8 +1,7 @@
 const { delay } = require('../delay');
 const Selectors = require('../selectors');
 
-async function closeConnectionModal(compass) {
-  const { browser } = compass;
+async function closeConnectionModal({ browser }) {
   await browser.clickVisible(Selectors.CancelConnectionButton);
   const connectionModalContentElement = await browser.$(
     Selectors.ConnectionStatusModalContent

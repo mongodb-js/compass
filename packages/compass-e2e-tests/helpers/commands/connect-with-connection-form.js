@@ -67,10 +67,10 @@ module.exports = function (compass) {
     await authStrategyInputComponent.selectByAttribute('value', authStrategy);
 
     if (typeof username !== 'undefined') {
-      const kerberosPrincipalInputElement = await compass.browser.$(
+      const kerberosPrincipalInputElement = await browser.$(
         Selectors.ConnectionFormInputKerberosPrincipal
       );
-      const ldapUsernameInputElement = await compass.browser.$(
+      const ldapUsernameInputElement = await browser.$(
         Selectors.ConnectionFormInputLDAPUsername
       );
       // TODO: No point in having different `name`s in UI, they are not used for
