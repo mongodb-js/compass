@@ -16,7 +16,7 @@ import {
   MenuItem,
   IconButton,
 } from '@mongodb-js/compass-components';
-import { formatDate } from '../util/format-date';
+import { formatDate } from '../utlis/format-date';
 
 type Action = 'open' | 'delete' | 'copy' | 'edit';
 
