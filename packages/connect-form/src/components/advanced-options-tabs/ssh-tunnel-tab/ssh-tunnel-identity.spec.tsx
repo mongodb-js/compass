@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
+import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 
 import SSHTunnelIdentity from './ssh-tunnel-identity';
 import {
@@ -17,7 +17,7 @@ const formFields = [
   },
   {
     key: 'port',
-    value: 2222,
+    value: '2222',
   },
   {
     key: 'username',
@@ -42,56 +42,50 @@ const sshTunnelOptions: SSHConnectionOptions = {
 };
 
 describe('SSHTunnelIdentity', function () {
-  let onConnectionOptionChangedSpy: sinon.SinonSpy;
+  let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   beforeEach(function () {
-    onConnectionOptionChangedSpy = sinon.spy();
+    updateConnectionFormFieldSpy = sinon.spy();
 
     render(
       <SSHTunnelIdentity
         errors={[]}
         sshTunnelOptions={sshTunnelOptions}
-        onConnectionOptionChanged={onConnectionOptionChangedSpy}
+        updateConnectionFormField={updateConnectionFormFieldSpy}
       />
     );
   });
 
-  // eslint-disable-next-line mocha/no-setup-in-describe
-  formFields.forEach(function ({ key }) {
-    it(`renders ${key} field`, function () {
+  it('renders form fields and their values', function () {
+    formFields.forEach(function ({ key }) {
       const el = screen.getByTestId(key);
-      expect(el).to.exist;
+      expect(el, `renders ${key} field`).to.exist;
+
+      if (key !== 'identityKeyFile') {
+        expect(el.getAttribute('value'), `renders ${key} value`).to.equal(
+          sshTunnelOptions[key].toString()
+        );
+      }
     });
   });
 
-  // eslint-disable-next-line mocha/no-setup-in-describe
-  formFields.forEach(function ({ key }) {
-    // not setting value on file input
-    if (key !== 'identityKeyFile') {
-      it(`renders ${key} field value`, function () {
-        const el = screen.getByTestId(key);
-        expect(el.getAttribute('value')).to.equal(
-          sshTunnelOptions[key].toString()
-        );
-      });
-    }
-  });
-
-  // eslint-disable-next-line mocha/no-setup-in-describe
-  formFields.forEach(function ({ key, value }) {
-    const target =
-      key === 'identityKeyFile'
-        ? {
-            files: [
-              {
-                path: value,
-              },
-            ],
-          }
-        : { value };
-    it(`calls onConnectionOptionChanged when ${key} field on form changes`, function () {
+  it('calls update handler when field on form changes', function () {
+    formFields.forEach(function ({ key, value }, index: number) {
+      const target =
+        key === 'identityKeyFile'
+          ? {
+              files: [
+                {
+                  path: value,
+                },
+              ],
+            }
+          : { value };
       fireEvent.change(screen.getByTestId(key), { target });
-      expect(onConnectionOptionChangedSpy.args[0]).to.deep.equal([key, value]);
+      expect(
+        updateConnectionFormFieldSpy.args[index][0],
+        `calls updateConnectionFormField when ${key} field changes`
+      ).to.deep.equal({ key, value, type: 'update-ssh-options' });
     });
   });
 
@@ -115,23 +109,23 @@ describe('SSHTunnelIdentity', function () {
       <SSHTunnelIdentity
         errors={errors}
         sshTunnelOptions={{} as SSHConnectionOptions}
-        onConnectionOptionChanged={onConnectionOptionChangedSpy}
+        updateConnectionFormField={updateConnectionFormFieldSpy}
       />
     );
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshHostname')),
-      `renders sshHostname field error`
+      'renders sshHostname field error'
     ).to.exist;
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshUsername')),
-      `renders sshUsername field error`
+      'renders sshUsername field error'
     ).to.exist;
 
     expect(
       screen.getByText(errorMessageByFieldName(errors, 'sshIdentityKeyFile')),
-      `renders sshIdentityKeyFile field error`
+      'renders sshIdentityKeyFile field error'
     ).to.exist;
   });
 });

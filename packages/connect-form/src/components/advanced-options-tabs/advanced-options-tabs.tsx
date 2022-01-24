@@ -5,7 +5,7 @@ import { ConnectionOptions } from 'mongodb-data-service';
 
 import GeneralTab from './general-tab/general-tab';
 import AuthenticationTab from './authentication-tab/authentication-tab';
-import SSHTunnelTab from './ssh-tunnel-tab/ssh-tunnel-tab';
+import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
@@ -40,7 +40,7 @@ function AdvancedOptionsTabs({
     { name: 'General', component: GeneralTab },
     { name: 'Authentication', component: AuthenticationTab },
     { name: 'TLS/SSL', component: TLSTab },
-    { name: 'Proxy/SSH Tunnel', component: SSHTunnelTab },
+    { name: 'Proxy/SSH Tunnel', component: ProxyAndSshTunnelTab },
     { name: 'Advanced', component: AdvancedTab },
   ];
 

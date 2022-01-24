@@ -1,9 +1,9 @@
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function clickVisible(selector) {
-    const { client } = app;
-    const element = await client.$(selector);
+    const { browser } = compass;
+    const element = await browser.$(selector);
     await element.waitForDisplayed();
-    await client.waitForAnimations(selector);
+    await browser.waitForAnimations(selector);
     await element.click();
   };
 };

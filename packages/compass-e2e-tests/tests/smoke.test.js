@@ -1,4 +1,3 @@
-// @ts-check
 const path = require('path');
 const { promises: fs } = require('fs');
 const _ = require('lodash');
@@ -24,18 +23,16 @@ const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
  * This test suite is based on compass smoke test matrix
  */
 describe('Smoke tests', function () {
-  /** @type {import('../helpers/compass').ExtendedApplication} */
   let compass;
-  /** @type {import('../helpers/compass').ExtendedApplication['client']} */
-  let client;
+  let browser;
   let telemetry;
 
   before(async function () {
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
-    client = compass.client;
+    browser = compass.browser;
 
-    await client.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   after(async function () {
@@ -49,7 +46,7 @@ describe('Smoke tests', function () {
 
   describe('Sidebar', function () {
     it('contains cluster info', async function () {
-      const topologySingleHostAddressElement = await client.$(
+      const topologySingleHostAddressElement = await browser.$(
         Selectors.TopologySingleHostAddress
       );
 
@@ -57,14 +54,14 @@ describe('Smoke tests', function () {
         await topologySingleHostAddressElement.getText();
       expect(topologySingleHostAddress).to.equal('localhost:27018');
 
-      const singleClusterTypeElement = await client.$(
+      const singleClusterTypeElement = await browser.$(
         Selectors.SingleClusterType
       );
 
       const singleClusterType = await singleClusterTypeElement.getText();
       expect(singleClusterType).to.equal('Standalone');
 
-      const serverVersionTextElement = await client.$(
+      const serverVersionTextElement = await browser.$(
         Selectors.ServerVersionText
       );
 
@@ -80,9 +77,9 @@ describe('Smoke tests', function () {
     it('can edit a favourite');
   });
 
-  describe('Interface screen', function () {
+  describe('Databases tab', function () {
     before(async function () {
-      await client.navigateToInstanceTab('Databases');
+      await browser.navigateToInstanceTab('Databases');
     });
 
     it('contains a list of databases', async function () {
@@ -91,8 +88,8 @@ describe('Smoke tests', function () {
       );
 
       for (const dbSelector of dbSelectors) {
-        const dbElement = await client.$(dbSelector);
-        expect(await dbElement.isExisting()).to.be.true;
+        const dbElement = await browser.$(dbSelector);
+        await dbElement.waitForExist();
         // TODO: Storage Size, Collections, Indexes, Drop button
       }
     });
@@ -101,13 +98,13 @@ describe('Smoke tests', function () {
     it('can kill slow queries via the performance tab');
   });
 
-  describe('Database screen', function () {
+  describe('Collections tab', function () {
     before(async function () {
-      await client.navigateToDatabaseTab('test', 'Collections');
+      await browser.navigateToDatabaseTab('test', 'Collections');
     });
 
     it('contains a list of collections', async function () {
-      expect(await client.existsEventually(Selectors.CollectionsGrid)).to.eq(
+      expect(await browser.existsEventually(Selectors.CollectionsGrid)).to.eq(
         true
       );
     });
@@ -118,7 +115,7 @@ describe('Smoke tests', function () {
 
   describe('Collection screen', function () {
     before(async function () {
-      await client.navigateToCollectionTab('test', 'numbers', 'Documents');
+      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
     it('contains the collection tabs', async function () {
@@ -132,33 +129,33 @@ describe('Smoke tests', function () {
       ].map(Selectors.collectionTab);
 
       for (const tabSelector of tabSelectors) {
-        const tabElement = await client.$(tabSelector);
+        const tabElement = await browser.$(tabSelector);
         expect(await tabElement.isExisting()).to.be.true;
       }
     });
 
     it('contains the collection stats', async function () {
-      const documentCountValueElement = await client.$(
+      const documentCountValueElement = await browser.$(
         Selectors.DocumentCountValue
       );
       expect(await documentCountValueElement.getText()).to.equal('1k');
-      const indexCountValueElement = await client.$(Selectors.IndexCountValue);
+      const indexCountValueElement = await browser.$(Selectors.IndexCountValue);
       expect(await indexCountValueElement.getText()).to.equal('1');
 
       // all of these unfortunately differ slightly between different versions of mongodb
-      const totalDocumentSizeValueElement = await client.$(
+      const totalDocumentSizeValueElement = await browser.$(
         Selectors.StorageSizeValue
       );
       expect(await totalDocumentSizeValueElement.getText()).to.include('KB');
-      const avgDocumentSizeValueElement = await client.$(
+      const avgDocumentSizeValueElement = await browser.$(
         Selectors.AvgDocumentSizeValue
       );
       expect(await avgDocumentSizeValueElement.getText()).to.include('B');
-      const totalIndexSizeValueElement = await client.$(
+      const totalIndexSizeValueElement = await browser.$(
         Selectors.TotalIndexSizeValue
       );
       expect(await totalIndexSizeValueElement.getText()).to.include('KB');
-      const avgIndexSizeValueElement = await client.$(
+      const avgIndexSizeValueElement = await browser.$(
         Selectors.AvgIndexSizeValue
       );
       expect(await avgIndexSizeValueElement.getText()).to.include('KB');
@@ -167,14 +164,14 @@ describe('Smoke tests', function () {
 
   describe('Documents tab', function () {
     before(async function () {
-      await client.navigateToCollectionTab('test', 'numbers', 'Documents');
+      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
     it('supports simple find operations', async function () {
-      const telemetryEntry = await client.listenForTelemetryEvents(telemetry);
-      await client.runFindOperation('Documents', '{ i: 5 }');
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+      await browser.runFindOperation('Documents', '{ i: 5 }');
 
-      const documentListActionBarMessageElement = await client.$(
+      const documentListActionBarMessageElement = await browser.$(
         Selectors.DocumentListActionBarMessage
       );
       const text = await documentListActionBarMessageElement.getText();
@@ -192,15 +189,15 @@ describe('Smoke tests', function () {
     });
 
     it('supports advanced find operations', async function () {
-      const telemetryEntry = await client.listenForTelemetryEvents(telemetry);
-      await client.runFindOperation('Documents', '{ i: { $gt: 5 } }', {
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+      await browser.runFindOperation('Documents', '{ i: { $gt: 5 } }', {
         project: '{ _id: 0 }',
         sort: '{ i: -1 }',
         skip: '5',
         limit: '50',
       });
 
-      const documentListActionBarMessageElement = await client.$(
+      const documentListActionBarMessageElement = await browser.$(
         Selectors.DocumentListActionBarMessage
       );
       const text = await documentListActionBarMessageElement.getText();
@@ -219,21 +216,27 @@ describe('Smoke tests', function () {
 
     it('supports cancelling a find and then running another query', async function () {
       // execute a query that will take a long time
-      await client.runFindOperation(
+      await browser.runFindOperation(
         'Documents',
         '{ $where: function() { return sleep(10000) || true; } }',
-        { waitForResult: false }
+        {
+          // Clearing out input fields has no effect for some reason so just set
+          // it to something else. Otherwise setOrClearValue clears it but the
+          // moment the field blurs it just goes back to what it was before
+          skip: '0',
+          waitForResult: false,
+        }
       );
 
       // stop it
-      const documentListFetchingElement = await client.$(
+      const documentListFetchingElement = await browser.$(
         Selectors.DocumentListFetching
       );
       await documentListFetchingElement.waitForDisplayed();
 
-      await client.clickVisible(Selectors.DocumentListFetchingStopButton);
+      await browser.clickVisible(Selectors.DocumentListFetchingStopButton);
 
-      const documentListErrorElement = await client.$(
+      const documentListErrorElement = await browser.$(
         Selectors.DocumentListError
       );
       await documentListErrorElement.waitForDisplayed();
@@ -242,10 +245,11 @@ describe('Smoke tests', function () {
       expect(errorText).to.equal('The operation was cancelled.');
 
       // execute another (small, fast) query
-      await client.runFindOperation('Documents', '{ i: 5 }');
-      const documentListActionBarMessageElement = await client.$(
+      await browser.runFindOperation('Documents', '{ i: 5 }');
+      const documentListActionBarMessageElement = await browser.$(
         Selectors.DocumentListActionBarMessage
       );
+
       const displayText = await documentListActionBarMessageElement.getText();
       expect(displayText).to.equal('Displaying documents 1 - 1 of 1');
     });
@@ -269,19 +273,19 @@ describe('Smoke tests', function () {
 
   describe('Aggregations tab', function () {
     before(async function () {
-      await client.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+      await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     });
 
     // TODO: This seems to crash chromedriver on windows and I have no idea why.
     // _something_ throws "Error: connect ECONNREFUSED 127.0.0.1:9515"
     it.skip('supports the right stages for the environment', async function () {
       // sanity check to make sure there's only one
-      const stageContainers = await client.$$(Selectors.StageContainer);
+      const stageContainers = await browser.$$(Selectors.StageContainer);
       expect(stageContainers).to.have.lengthOf(1);
 
-      await client.focusStageOperator(0);
+      await browser.focusStageOperator(0);
 
-      const stageOperatorOptionsElement = await client.$(
+      const stageOperatorOptionsElement = await browser.$(
         Selectors.stageOperatorOptions
       );
       const options = await stageOperatorOptionsElement.getText(0);
@@ -322,12 +326,12 @@ describe('Smoke tests', function () {
 
     // the aggregation runs and the preview is shown
     it('supports creating an aggregation', async function () {
-      await client.focusStageOperator(0);
-      await client.selectStageOperator(0, '$match');
-      await client.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
+      await browser.focusStageOperator(0);
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
 
-      await client.waitUntil(async function () {
-        const textElement = await client.$(
+      await browser.waitUntil(async function () {
+        const textElement = await browser.$(
           Selectors.stagePreviewToolbarTooltip(0)
         );
         const text = await textElement.getText();
@@ -336,11 +340,11 @@ describe('Smoke tests', function () {
     });
 
     it('shows atlas only stage preview', async function () {
-      await client.focusStageOperator(0);
-      await client.selectStageOperator(0, '$search');
+      await browser.focusStageOperator(0);
+      await browser.selectStageOperator(0, '$search');
 
-      await client.waitUntil(async function () {
-        const textElement = await client.$(
+      await browser.waitUntil(async function () {
+        const textElement = await browser.$(
           Selectors.atlasOnlyStagePreviewSection(0)
         );
         const text = await textElement.getText();
@@ -351,11 +355,11 @@ describe('Smoke tests', function () {
     });
 
     it('shows empty preview', async function () {
-      await client.focusStageOperator(0);
-      await client.selectStageOperator(0, '$addFields');
+      await browser.focusStageOperator(0);
+      await browser.selectStageOperator(0, '$addFields');
 
-      await client.waitUntil(async function () {
-        const textElement = await client.$(Selectors.stagePreviewEmpty(0));
+      await browser.waitUntil(async function () {
+        const textElement = await browser.$(Selectors.stagePreviewEmpty(0));
         const text = await textElement.getText();
         return text === 'No Preview Documents';
       });
@@ -394,30 +398,33 @@ describe('Smoke tests', function () {
 
   describe('Schema tab', function () {
     before(async function () {
-      await client.navigateToCollectionTab('test', 'numbers', 'Schema');
+      await browser.navigateToCollectionTab('test', 'numbers', 'Schema');
     });
 
     it('analyzes a schema', async function () {
-      await client.clickVisible(Selectors.AnalyzeSchemaButton);
+      await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
-      const element = await client.$(Selectors.SchemaFieldList);
+      const element = await browser.$(Selectors.SchemaFieldList);
       await element.waitForDisplayed();
-      const analysisMessageElement = await client.$(Selectors.AnalysisMessage);
+      const analysisMessageElement = await browser.$(Selectors.AnalysisMessage);
       const message = await analysisMessageElement.getText();
-      expect(message).to.equal(
+      // message contains non-breaking spaces
+      expect(message.replace(/\s/g, ' ')).to.equal(
         'This report is based on a sample of 1000 documents.'
       );
 
-      const fields = await client.$$(Selectors.SchemaField);
+      const fields = await browser.$$(Selectors.SchemaField);
       expect(fields).to.have.lengthOf(2);
 
-      const schemaFieldNameElement = await client.$$(Selectors.SchemaFieldName);
+      const schemaFieldNameElement = await browser.$$(
+        Selectors.SchemaFieldName
+      );
       const fieldNames = await Promise.all(
         schemaFieldNameElement.map((el) => el.getText())
       );
       expect(fieldNames).to.deep.equal(['_id', 'i']);
 
-      const schemaFieldTypeListElement = await client.$$(
+      const schemaFieldTypeListElement = await browser.$$(
         Selectors.SchemaFieldTypeList
       );
       const fieldTypes = await Promise.all(
@@ -435,15 +442,15 @@ describe('Smoke tests', function () {
 
   describe('Explain Plan tab', function () {
     before(async function () {
-      await client.navigateToCollectionTab('test', 'numbers', 'Explain Plan');
+      await browser.navigateToCollectionTab('test', 'numbers', 'Explain Plan');
     });
 
     it('supports queries not covered by an index', async function () {
-      await client.clickVisible(Selectors.ExecuteExplainButton);
+      await browser.clickVisible(Selectors.ExecuteExplainButton);
 
-      const element = await client.$(Selectors.ExplainSummary);
+      const element = await browser.$(Selectors.ExplainSummary);
       await element.waitForDisplayed();
-      const stages = await client.$$(Selectors.ExplainStage);
+      const stages = await browser.$$(Selectors.ExplainStage);
       expect(stages).to.have.lengthOf(1);
     });
 
@@ -456,17 +463,17 @@ describe('Smoke tests', function () {
   describe('Indexes tab', function () {
     // eslint-disable-next-line mocha/no-hooks-for-single-case
     before(async function () {
-      await client.navigateToCollectionTab('test', 'numbers', 'Indexes');
+      await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
     });
 
     it('lists indexes', async function () {
-      const element = await client.$(Selectors.IndexList);
+      const element = await browser.$(Selectors.IndexList);
       await element.waitForDisplayed();
 
-      const indexes = await client.$$(Selectors.IndexComponent);
+      const indexes = await browser.$$(Selectors.IndexComponent);
       expect(indexes).to.have.lengthOf(1);
 
-      const nameColumnNameElement = await client.$(Selectors.NameColumnName);
+      const nameColumnNameElement = await browser.$(Selectors.NameColumnName);
       expect(await nameColumnNameElement.getText()).to.equal('_id_');
     });
 
@@ -475,28 +482,28 @@ describe('Smoke tests', function () {
 
   describe('Validation tab', function () {
     before(async function () {
-      await client.navigateToCollectionTab('test', 'numbers', 'Validation');
+      await browser.navigateToCollectionTab('test', 'numbers', 'Validation');
     });
 
     it('supports rules in JSON schema', async function () {
-      await client.clickVisible(Selectors.AddRuleButton);
-      const element = await client.$(Selectors.ValidationEditor);
+      await browser.clickVisible(Selectors.AddRuleButton);
+      const element = await browser.$(Selectors.ValidationEditor);
       await element.waitForDisplayed();
 
       // Add validation that makes everything invalid
 
       // the automatic indentation and brackets makes multi-line values very fiddly here
-      await client.setValidation(
+      await browser.setValidation(
         '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }'
       );
 
       // nothing passed, everything failed
-      await client.waitUntil(async () => {
-        const matchTextElement = await client.$(
+      await browser.waitUntil(async () => {
+        const matchTextElement = await browser.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
         const matchText = await matchTextElement.getText();
-        const notMatchingTextElement = await client.$(
+        const notMatchingTextElement = await browser.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();
@@ -509,15 +516,15 @@ describe('Smoke tests', function () {
       // Reset the validation again to make everything valid for future tests
 
       // the automatic indentation and brackets makes multi-line values very fiddly here
-      await client.setValidation('{}');
+      await browser.setValidation('{}');
 
       // nothing failed, everything passed
-      await client.waitUntil(async () => {
-        const matchTextElement = await client.$(
+      await browser.waitUntil(async () => {
+        const matchTextElement = await browser.$(
           Selectors.ValidationMatchingDocumentsPreview
         );
         const matchText = await matchTextElement.getText();
-        const notMatchingTextElement = await client.$(
+        const notMatchingTextElement = await browser.$(
           Selectors.ValidationNotMatchingDocumentsPreview
         );
         const notMatchingText = await notMatchingTextElement.getText();
@@ -534,7 +541,7 @@ describe('Smoke tests', function () {
 
   describe('Import', function () {
     it('supports JSON arrays', async function () {
-      await client.navigateToCollectionTab('test', 'json-array', 'Documents');
+      await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
       const array = [];
       for (let i = 0; i < 1000; ++i) {
@@ -542,29 +549,29 @@ describe('Smoke tests', function () {
       }
       const json = JSON.stringify(array);
 
-      await client.clickVisible(Selectors.AddDataButton);
-      const insertDocumentOption = await client.$(
+      await browser.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = await browser.$(
         Selectors.InsertDocumentOption
       );
       await insertDocumentOption.waitForDisplayed();
-      await client.clickVisible(Selectors.InsertDocumentOption);
+      await browser.clickVisible(Selectors.InsertDocumentOption);
 
-      const insertDialog = await client.$(Selectors.InsertDialog);
+      const insertDialog = await browser.$(Selectors.InsertDialog);
       await insertDialog.waitForDisplayed();
-      await client.setAceValue(Selectors.InsertJSONEditor, json);
+      await browser.setAceValue(Selectors.InsertJSONEditor, json);
 
-      const insertConfirm = await client.$(Selectors.InsertConfirm);
+      const insertConfirm = await browser.$(Selectors.InsertConfirm);
       // this selector is very brittle, so just make sure it works
       expect(await insertConfirm.isDisplayed()).to.be.true;
       expect(await insertConfirm.getText()).to.equal('Insert');
       await insertConfirm.waitForEnabled();
-      await client.clickVisible(Selectors.InsertConfirm);
+      await browser.clickVisible(Selectors.InsertConfirm);
 
       await insertDialog.waitForDisplayed({ reverse: true });
-      const messageElement = await client.$(
+      const messageElement = await browser.$(
         Selectors.DocumentListActionBarMessage
       );
-      await client.waitUntil(async () => {
+      await browser.waitUntil(async () => {
         const text = await messageElement.getText();
         return text === 'Displaying documents 1 - 20 of 1000';
       });
@@ -578,35 +585,35 @@ describe('Smoke tests', function () {
         'listings.json'
       );
 
-      await client.navigateToCollectionTab('test', 'json-file', 'Documents');
+      await browser.navigateToCollectionTab('test', 'json-file', 'Documents');
 
       // open the import modal
-      await client.clickVisible(Selectors.AddDataButton);
-      const insertDocumentOption = await client.$(Selectors.ImportFileOption);
+      await browser.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
       await insertDocumentOption.waitForDisplayed();
-      await client.clickVisible(Selectors.ImportFileOption);
+      await browser.clickVisible(Selectors.ImportFileOption);
 
       // wait for the modal to appear and select the file
-      const importModal = await client.$(Selectors.ImportModal);
+      const importModal = await browser.$(Selectors.ImportModal);
       await importModal.waitForDisplayed({ timeout: 10_000 });
-      await client.selectFile(Selectors.ImportFileInput, jsonPath);
+      await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
       // make sure it auto-selected JSON and then confirm
-      const fileTypeJSON = await client.$(Selectors.FileTypeJSON);
-      await client.waitUntil(async () => {
+      const fileTypeJSON = await browser.$(Selectors.FileTypeJSON);
+      await browser.waitUntil(async () => {
         const selected = await fileTypeJSON.getAttribute('aria-selected');
         return selected === 'true';
       });
-      await client.clickVisible(Selectors.ImportConfirm);
+      await browser.clickVisible(Selectors.ImportConfirm);
 
       // wait for the done button to appear and then click it
-      const doneButton = await client.$(Selectors.ImportDone);
+      const doneButton = await browser.$(Selectors.ImportDone);
       await doneButton.waitForDisplayed({ timeout: 60_000 });
-      await client.clickVisible(Selectors.ImportDone);
+      await browser.clickVisible(Selectors.ImportDone);
 
       // wait for the modal to go away
       await importModal.waitForDisplayed({ reverse: false });
-      const messageElement = await client.$(
+      const messageElement = await browser.$(
         Selectors.DocumentListActionBarMessage
       );
       const text = await messageElement.getText();
@@ -628,17 +635,17 @@ describe('Smoke tests', function () {
 
   describe('Export', function () {
     before(async function () {
-      await client.navigateToCollectionTab('test', 'numbers', 'Documents');
+      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
     it('supports collection to CSV with a query filter', async function () {
-      const telemetryEntry = await client.listenForTelemetryEvents(telemetry);
-      await client.runFindOperation('Documents', '{ i: 5 }');
-      await client.clickVisible(Selectors.ExportCollectionButton);
-      const exportModal = await client.$(Selectors.ExportModal);
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+      await browser.runFindOperation('Documents', '{ i: 5 }');
+      await browser.clickVisible(Selectors.ExportCollectionButton);
+      const exportModal = await browser.$(Selectors.ExportModal);
       await exportModal.waitForDisplayed();
 
-      const exportModalQueryTextElement = await client.$(
+      const exportModalQueryTextElement = await browser.$(
         Selectors.ExportModalQueryText
       );
       expect(await exportModalQueryTextElement.getText()).to
@@ -646,16 +653,16 @@ describe('Smoke tests', function () {
   {i: 5}
 )`);
 
-      await client.clickVisible(Selectors.ExportModalSelectFieldsButton);
+      await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
       // don't change any field selections for now
-      await client.clickVisible(Selectors.ExportModalSelectOutputButton);
+      await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
       // select csv (unselected at first, selected by the end)
-      await client.clickVisible(
+      await browser.clickVisible(
         Selectors.selectExportFileTypeButton('csv', false)
       );
-      const selectExportFileTypeButtonElement = await client.$(
+      const selectExportFileTypeButtonElement = await browser.$(
         Selectors.selectExportFileTypeButton('csv', true)
       );
       await selectExportFileTypeButtonElement.waitForDisplayed();
@@ -667,7 +674,7 @@ describe('Smoke tests', function () {
       // this is cheating a bit, but we cannot interact with the native dialog
       // it pops up from webdriver and writing to the readonly text field
       // doesn't help either.
-      await client.execute(function (f) {
+      await browser.execute(function (f) {
         // eslint-disable-next-line no-undef
         document.dispatchEvent(
           // eslint-disable-next-line no-undef
@@ -675,17 +682,17 @@ describe('Smoke tests', function () {
         );
       }, filename);
 
-      await client.waitUntil(async () => {
-        const exportModalFileText = await client.$(
+      await browser.waitUntil(async () => {
+        const exportModalFileText = await browser.$(
           Selectors.ExportModalFileText
         );
         const value = await exportModalFileText.getValue();
         return value === filename;
       });
 
-      await client.clickVisible(Selectors.ExportModalExportButton);
+      await browser.clickVisible(Selectors.ExportModalExportButton);
 
-      const exportModalShowFileButtonElement = await client.$(
+      const exportModalShowFileButtonElement = await browser.$(
         Selectors.ExportModalShowFileButton
       );
       await exportModalShowFileButtonElement.waitForDisplayed();
@@ -694,10 +701,10 @@ describe('Smoke tests', function () {
       // which is probably not something we can check with webdriver. But we can
       // check that the file exists.
 
-      await client.clickVisible(Selectors.ExportModalCloseButton);
+      await browser.clickVisible(Selectors.ExportModalCloseButton);
 
       // the modal should go away
-      const exportModalElement = await client.$(Selectors.ExportModal);
+      const exportModalElement = await browser.$(Selectors.ExportModal);
       await exportModalElement.waitForDisplayed({
         reverse: true,
         timeout: 30_000, // Fixes flaky macOS CI.

@@ -1,19 +1,19 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function closePrivacySettingsModal() {
-    const { client } = app;
+    const { browser } = compass;
 
-    if (!(await client.existsEventually(Selectors.PrivacySettingsModal))) {
+    if (!(await browser.existsEventually(Selectors.PrivacySettingsModal))) {
       return;
     }
 
-    const privateSettingsModalElement = await client.$(
+    const privateSettingsModalElement = await browser.$(
       Selectors.PrivacySettingsModal
     );
 
     await privateSettingsModalElement.waitForDisplayed();
-    await client.clickVisible(Selectors.ClosePrivacySettingsButton);
+    await browser.clickVisible(Selectors.ClosePrivacySettingsButton);
     await privateSettingsModalElement.waitForDisplayed({
       reverse: true,
     });

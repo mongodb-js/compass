@@ -1,21 +1,25 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function closeCollectionTabs() {
-    const { client } = app;
+    const { browser } = compass;
 
     const closeSelector = Selectors.CloseCollectionTab;
 
     const countTabs = async () => {
-      return (await client.$$(closeSelector)).length;
+      const closeButtons = await browser.$$(closeSelector);
+      return closeButtons.length;
     };
 
     let numTabs = await countTabs();
     while (numTabs > 0) {
-      await client.clickVisible(closeSelector);
+      await browser.waitUntil(async () => {
+        // Sometimes for whatever reason clicking to close the tab never closes
+        // it so I just moved the click inside the wait loop.
+        await browser.clickVisible(closeSelector);
 
-      await client.waitUntil(async () => {
-        return (await countTabs()) < numTabs;
+        const tabCount = await countTabs();
+        return tabCount < numTabs;
       });
 
       numTabs = await countTabs();

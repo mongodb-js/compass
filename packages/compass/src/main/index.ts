@@ -5,12 +5,12 @@ import { handleUncaughtException } from './handle-uncaught-exception';
 // Name and version are setup outside of Application and before anything else so
 // that if uncaught exception happens we already show correct name and version
 app.setName(process.env.HADRON_PRODUCT_NAME);
-// For spectron env we are changing appName so that keychain records do not
-// overlap with anything else. Only appName should be changed for the spectron
+// For webdriverio env we are changing appName so that keychain records do not
+// overlap with anything else. Only appName should be changed for the webdriverio
 // environment that is running tests, all relevant paths are configured from the
 // test runner.
-if (process.env.APP_ENV === 'spectron') {
-  app.setName(`${app.getName()} Spectron`);
+if (process.env.APP_ENV === 'webdriverio') {
+  app.setName(`${app.getName()} Webdriverio`);
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

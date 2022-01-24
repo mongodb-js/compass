@@ -116,6 +116,10 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       (process as EventEmitter).emit('compass:log', meta);
     });
 
+    ipcMain.handle('compass:logPath', () => {
+      return app.getPath('logs');
+    });
+
     await manager.cleanupOldLogfiles();
 
     return writer.logFilePath;
