@@ -116,7 +116,9 @@ const GridWithHeader = forwardRef<
       }}
       {...props}
     >
-      <div className={classNames?.header}>{renderHeader({})}</div>
+      <div className={classNames?.header}>
+        {React.createElement(renderHeader, {})}
+      </div>
       <div {...gridProps}>{children}</div>
     </div>
   );
@@ -153,7 +155,7 @@ const Row: React.FunctionComponent<{
           key={`empty${cellIdx}`}
         ></div>
       ) : (
-        renderItem({
+        React.createElement(renderItem, {
           role: 'gridcell',
           className: cx(cell, classNames?.cell),
           tabIndex: itemIdx === currentTabbable ? 0 : -1,
