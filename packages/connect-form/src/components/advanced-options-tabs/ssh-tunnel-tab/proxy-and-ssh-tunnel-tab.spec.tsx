@@ -6,12 +6,12 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
 import ProxyAndSshTunnelTab from './proxy-and-ssh-tunnel-tab';
-import { ProxyOptions } from 'mongodb';
+import type { ProxyOptions } from 'mongodb';
 
 const renderWithOptionsAndUrl = (
   connectionOptions: ConnectionOptions,
   connectionStringUrl: ConnectionStringUrl,
-  updateConnectionFormField
+  updateConnectionFormField: sinon.SinonSpy<any[], any>
 ) => {
   return render(
     <ProxyAndSshTunnelTab
@@ -53,7 +53,7 @@ describe('SSHTunnelTab', function () {
   });
 
   it('renders tab when selected', function () {
-    ['none', 'password', 'identity'].forEach(function (type) {
+    ['none', 'ssh-password', 'ssh-identity'].forEach(function (type) {
       const tabButton = screen.getByTestId(`${type}-tab-button`);
       fireEvent.click(tabButton);
       const tabContent = screen.getByTestId(`${type}-tab-content`);
@@ -101,11 +101,11 @@ describe('SSHTunnelTab', function () {
           connectionStringUrl,
           updateConnectionFormFieldSpy
         );
-        expect(screen.getByTestId('identity-tab-content')).to.exist;
+        expect(screen.getByTestId('ssh-identity-tab-content')).to.exist;
       });
     });
 
-    it(`renders password tab when any of password option is selected`, function () {
+    it('renders password tab when any of password option is selected', function () {
       const connectionOptions: ConnectionOptions = {
         sshTunnel: {
           host: '',
@@ -120,10 +120,10 @@ describe('SSHTunnelTab', function () {
         connectionStringUrl,
         updateConnectionFormFieldSpy
       );
-      expect(screen.getByTestId('password-tab-content')).to.exist;
+      expect(screen.getByTestId('ssh-password-tab-content')).to.exist;
     });
 
-    it(`renders none tab when sshTunnel and proxy option is not defined `, function () {
+    it('renders none tab when sshTunnel and proxy option is not defined', function () {
       const connectionOptions: ConnectionOptions = {
         sshTunnel: undefined,
         connectionString: connectionStringUrl.toString(),
@@ -139,7 +139,7 @@ describe('SSHTunnelTab', function () {
       expect(screen.getByTestId('none-tab-content')).to.exist;
     });
 
-    it(`renders none tab when sshTunnel has empty values and proxy option is not defined `, function () {
+    it('renders none tab when sshTunnel has empty values and proxy option is not defined', function () {
       const connectionOptions: ConnectionOptions = {
         sshTunnel: {
           host: '',
@@ -173,7 +173,7 @@ describe('SSHTunnelTab', function () {
       cleanup();
     });
     // eslint-disable-next-line mocha/no-setup-in-describe
-    ['none', 'password', 'identity'].forEach((tab) => {
+    ['none', 'ssh-password', 'ssh-identity'].forEach((tab) => {
       it(`removes proxy options when user clicks ${tab} tab`, function () {
         connectionStringUrl.searchParams.set('proxyHost', 'hello');
         renderWithOptionsAndUrl(

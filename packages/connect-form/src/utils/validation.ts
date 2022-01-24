@@ -194,11 +194,12 @@ function validateSocksProxyErrors(
   const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
 
   const proxyHost = searchParams.get('proxyHost');
+  const proxyPort = searchParams.get('proxyPort');
   const proxyUsername = searchParams.get('proxyUsername');
   const proxyPassword = searchParams.get('proxyPassword');
 
   const errors: ConnectionFormError[] = [];
-  if (!proxyHost && (proxyUsername || proxyPassword)) {
+  if (!proxyHost && (proxyPort || proxyUsername || proxyPassword)) {
     errors.push({
       fieldName: 'proxyHostname',
       message: 'Proxy hostname is required.',

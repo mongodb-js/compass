@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
+import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 
 import SSHTunnelIdentity from './ssh-tunnel-identity';
 import {

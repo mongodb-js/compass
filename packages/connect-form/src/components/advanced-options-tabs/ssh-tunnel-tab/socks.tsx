@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useCallback } from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
-import { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import FormFieldContainer from '../../form-field-container';
@@ -9,7 +9,7 @@ import {
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 interface Field {
   name: keyof Pick<

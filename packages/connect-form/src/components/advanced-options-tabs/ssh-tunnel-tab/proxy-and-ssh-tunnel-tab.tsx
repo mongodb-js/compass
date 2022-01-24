@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState, useCallback } from 'react';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Label,
   RadioBox,
@@ -8,9 +8,9 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
 
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import {
   SSHConnectionOptions,
   TunnelType,
@@ -19,7 +19,7 @@ import {
 import SshTunnelIdentity from './ssh-tunnel-identity';
 import SshTunnelPassword from './ssh-tunnel-password';
 import Socks from './socks';
-import { ConnectionFormError } from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
 
 interface TabOption {
   id: string;
@@ -43,19 +43,19 @@ const options: TabOption[] = [
     },
   },
   {
-    title: 'Use Password',
+    title: 'SSH with Password',
     id: 'password',
-    type: 'password',
+    type: 'ssh-password',
     component: SshTunnelPassword,
   },
   {
-    title: 'Use Identity File',
+    title: 'SSH with Identity File',
     id: 'identity',
-    type: 'identity',
+    type: 'ssh-identity',
     component: SshTunnelIdentity,
   },
   {
-    title: 'Socks',
+    title: 'Socks5',
     id: 'socks',
     type: 'socks',
     component: Socks,
@@ -100,10 +100,10 @@ const getSelectedTunnelType = (
     connectionOptions.sshTunnel.identityKeyFile ||
     connectionOptions.sshTunnel.identityKeyPassphrase;
   if (isUsingIdentity) {
-    return 'identity';
+    return 'ssh-identity';
   }
 
-  return 'password';
+  return 'ssh-password';
 };
 
 function ProxyAndSshTunnelTab({
@@ -135,8 +135,8 @@ function ProxyAndSshTunnelTab({
         case 'socks':
           type = 'remove-ssh-options';
           break;
-        case 'identity':
-        case 'password':
+        case 'ssh-identity':
+        case 'ssh-password':
           type = 'remove-proxy-options';
           break;
         default:
@@ -161,7 +161,7 @@ function ProxyAndSshTunnelTab({
     [selectedOption, handleOptionChanged]
   );
 
-  const SSLOptionContent = selectedOption.component;
+  const TunnelContent = selectedOption.component;
 
   return (
     <div className={containerStyles}>
@@ -190,7 +190,7 @@ function ProxyAndSshTunnelTab({
           className={contentStyles}
           data-testid={`${selectedOption.type}-tab-content`}
         >
-          <SSLOptionContent
+          <TunnelContent
             errors={errors}
             sshTunnelOptions={connectionOptions.sshTunnel}
             updateConnectionFormField={updateConnectionFormField}
