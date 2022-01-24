@@ -661,9 +661,6 @@ describe('Smoke tests', function () {
           Selectors.ExportModalFileText
         );
         const value = await exportModalFileText.getValue();
-        if (value !== filename) {
-          console.log(value, '!==', filename);
-        }
         return value === filename;
       });
 
