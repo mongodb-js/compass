@@ -6,14 +6,12 @@ const WEEK = DAY * 7;
 const MONTH = WEEK * 4;
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error this does exist, just not in TS types
 const relativeDateFormatter = new Intl.RelativeTimeFormat('en', {
   numeric: 'auto',
 });
 
 const absoluteDateFormatter = new Intl.DateTimeFormat('en', {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error this does exist, just not in TS types
   dateStyle: 'long',
 });
 
