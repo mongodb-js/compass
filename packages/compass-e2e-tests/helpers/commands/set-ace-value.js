@@ -35,12 +35,7 @@ module.exports = function (compass) {
     // For whatever reason it is shift-insert and not cmd-v  ¯\_(ツ)_/¯
     // https://twitter.com/webdriverio/status/812034986341789696?lang=en
     // https://bugs.chromium.org/p/chromedriver/issues/detail?id=30
-    if (process.platform === 'darwin') {
-      await browser.keys(['Shift', 'Insert']);
-      await browser.keys(['Shift']); // shift a second time to release it
-    } else {
-      await browser.keys(['Control', 'v']);
-      await browser.keys(['Control']); // control a second time to release it
-    }
+    await browser.keys(['Shift', 'Insert']);
+    await browser.keys(['Shift']); // shift a second time to release it
   };
 };

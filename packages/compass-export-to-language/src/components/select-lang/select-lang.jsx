@@ -30,7 +30,8 @@ class SelectLang extends PureComponent {
       { value: 'java', label: 'Java' },
       { value: 'javascript', label: 'Node' },
       { value: 'csharp', label: 'C#' },
-      { value: 'python', label: 'Python 3' }
+      { value: 'python', label: 'Python 3' },
+      { value: 'ruby', label: 'Ruby' }
     ];
 
     return (

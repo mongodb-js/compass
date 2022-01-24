@@ -5,29 +5,9 @@ import { handleUpdateSshOptions } from './connection-ssh-handler';
 const connectionString = 'mongodb://a:b@outerspace:123/?ssl=false';
 
 describe('#handleUpdateSshOptions', function () {
-  it('should handle none tab update', function () {
-    const response = handleUpdateSshOptions({
-      action: {
-        currentTab: 'none',
-        type: 'update-ssh-options',
-        key: undefined,
-        value: undefined,
-      },
-      connectionOptions: {
-        connectionString,
-      },
-    });
-
-    expect(response.connectionOptions.connectionString).to.equal(
-      connectionString
-    );
-    expect(response.connectionOptions.sshTunnel).to.be.undefined;
-  });
-
   it('should handle tab update with no initial options', function () {
     const response = handleUpdateSshOptions({
       action: {
-        currentTab: 'password',
         type: 'update-ssh-options',
         key: 'host',
         value: 'localhost',
@@ -55,7 +35,6 @@ describe('#handleUpdateSshOptions', function () {
   it('should handle tab update with initial options', function () {
     const response = handleUpdateSshOptions({
       action: {
-        currentTab: 'password',
         type: 'update-ssh-options',
         key: 'host',
         value: 'localhosted',

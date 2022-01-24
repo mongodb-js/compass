@@ -10,18 +10,17 @@ describe('Logging and Telemetry integration', function () {
     before(async function () {
       telemetry = await startTelemetryServer();
       const compass = await beforeTests();
+      const { browser } = compass;
       try {
-        await compass.browser.connectWithConnectionString(
+        await browser.connectWithConnectionString(
           'mongodb://localhost:27018/test'
         );
 
-        await compass.browser.shellEval('use test');
-        await compass.browser.shellEval(
-          'db.runCommand({ connectionStatus: 1 })'
-        );
+        await browser.shellEval('use test');
+        await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
 
-        await compass.browser.openTourModal();
-        await compass.browser.closeTourModal();
+        await browser.openTourModal();
+        await browser.closeTourModal();
       } finally {
         await afterTests(compass);
         await telemetry.stop();

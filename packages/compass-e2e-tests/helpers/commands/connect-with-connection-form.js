@@ -24,7 +24,7 @@ module.exports = function (compass) {
       sshTunnelIdentityFile,
     },
     timeout = defaultTimeoutMS,
-    expectSuccess = true
+    connectionStatus = 'success'
   ) {
     const { browser } = compass;
     const connectionFormButtonElement = await browser.$(
@@ -67,10 +67,10 @@ module.exports = function (compass) {
     await authStrategyInputComponent.selectByAttribute('value', authStrategy);
 
     if (typeof username !== 'undefined') {
-      const kerberosPrincipalInputElement = await compass.browser.$(
+      const kerberosPrincipalInputElement = await browser.$(
         Selectors.ConnectionFormInputKerberosPrincipal
       );
-      const ldapUsernameInputElement = await compass.browser.$(
+      const ldapUsernameInputElement = await browser.$(
         Selectors.ConnectionFormInputLDAPUsername
       );
       // TODO: No point in having different `name`s in UI, they are not used for
@@ -183,6 +183,6 @@ module.exports = function (compass) {
       await element.setValue(sshTunnelPassword);
     }
 
-    await browser.doConnect(timeout, expectSuccess);
+    await browser.doConnect(timeout, connectionStatus);
   };
 };
