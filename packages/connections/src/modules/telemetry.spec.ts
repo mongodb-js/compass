@@ -359,7 +359,7 @@ describe('connection tracking', function () {
   });
 
   it('tracks the instance data - case 1', async function () {
-    const mockDataService: Pick<DataService, 'instance'> = {
+    const mockDataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
       instance: () => {
         return Promise.resolve({
           dataLake: {
@@ -382,6 +382,7 @@ describe('connection tracking', function () {
           featureCompatibilityVersion: null,
         });
       },
+      currentTopologyType: () => 'Unknown',
     };
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
@@ -403,7 +404,7 @@ describe('connection tracking', function () {
   });
 
   it('tracks the instance data - case 2', async function () {
-    const mockDataService: Pick<DataService, 'instance'> = {
+    const mockDataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
       instance: () => {
         return Promise.resolve({
           dataLake: {
@@ -426,6 +427,7 @@ describe('connection tracking', function () {
           featureCompatibilityVersion: null,
         });
       },
+      currentTopologyType: () => 'Sharded',
     };
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
@@ -444,6 +446,7 @@ describe('connection tracking', function () {
     expect(properties.server_version).to.equal('4.3.9');
     expect(properties.server_arch).to.equal('debian');
     expect(properties.server_os_family).to.equal('ubuntu');
+    expect(properties.topology_type).to.equal('Sharded');
   });
 
   it('tracks connection error event', async function () {
