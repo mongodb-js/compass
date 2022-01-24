@@ -203,7 +203,7 @@ describe('connection tracking', function () {
         auth_type: 'NONE',
         tunnel: 'none',
         is_srv: is_srv,
-        is_likely_replset: is_srv,
+        topology_type: 'Unknown',
         is_atlas: false,
         is_dataLake: false,
         is_enterprise: false,
