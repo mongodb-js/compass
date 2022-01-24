@@ -60,11 +60,20 @@ const formFooterStyles = css({
 
 const favoriteButtonStyles = css({
   position: 'absolute',
-  top: spacing[4],
-  right: spacing[6],
+  top: spacing[2],
+  right: 0,
   hover: {
     cursor: 'pointer',
   },
+  width: spacing[7],
+  height: spacing[7],
+});
+
+const favoriteButtonContentStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center'
 });
 
 const formHeaderStyles = css({
@@ -80,12 +89,9 @@ const formHeaderStyles = css({
 
 const editFavoriteButtonStyles = css({
   verticalAlign: 'text-top',
-  marginLeft: spacing[1],
 });
 
 const favoriteButtonLabelStyles = css({
-  position: 'absolute',
-  top: spacing[5],
   paddingTop: spacing[1],
   color: uiColors.black,
   fontWeight: 'bold',
@@ -147,8 +153,13 @@ function ConnectForm({
                   setShowSaveConnectionModal(true);
                 }}
               >
-                <FavoriteIcon isFavorite={!!initialConnectionInfo.favorite} />
-                <span className={favoriteButtonLabelStyles}>FAVORITE</span>
+                <div className={favoriteButtonContentStyles}>
+                  <FavoriteIcon
+                    isFavorite={!!initialConnectionInfo.favorite}
+                    size={spacing[5]}
+                  />
+                  <span className={favoriteButtonLabelStyles}>FAVORITE</span>
+                </div>
               </IconButton>
             )}
             <ConnectionStringInput
