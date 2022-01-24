@@ -61,7 +61,7 @@ const formFooterStyles = css({
 const favoriteButtonStyles = css({
   position: 'absolute',
   top: spacing[2],
-  right: 0,
+  right: spacing[2],
   hover: {
     cursor: 'pointer',
   },
