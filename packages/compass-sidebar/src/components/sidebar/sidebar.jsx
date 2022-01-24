@@ -18,6 +18,7 @@ import { changeFilterRegex } from '../../modules/databases';
 import { openLink } from '../../modules/link';
 import { toggleIsModalVisible } from '../../modules/is-modal-visible';
 import { saveFavorite } from '../../modules/connection-model';
+import { NavigationItems } from './navigation-items';
 
 // In pixels. (px)
 const sidebarWidthCollapsed = 36;
@@ -62,6 +63,10 @@ class Sidebar extends PureComponent {
     width: defaultSidebarWidthOpened,
     prevWidth: defaultSidebarWidthOpened
   };
+
+  onNavigationItemClick(tabName) {
+    this.props.globalAppRegistryEmit('open-instance-workspace', tabName);
+  }
 
   updateWidth(width) {
     this.setState(
@@ -169,7 +174,7 @@ class Sidebar extends PureComponent {
         <SidebarTitle
           connectionModel={this.props.connectionModel}
           isSidebarExpanded={isExpanded}
-          globalAppRegistryEmit={this.props.globalAppRegistryEmit}
+          onClick={() => this.onNavigationItemClick()}
         />
         {isExpanded && (
           <SidebarInstance
@@ -184,6 +189,12 @@ class Sidebar extends PureComponent {
             toggleIsModalVisible={this.props.toggleIsModalVisible}
             isModalVisible={this.props.isModalVisible}
             saveFavorite={this.props.saveFavorite}
+          />
+        )}
+        {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true' && (
+          <NavigationItems
+            onItemClick={(tabName) => this.onNavigationItemClick(tabName)}
+            isExpanded={isExpanded}
           />
         )}
         <div

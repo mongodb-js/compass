@@ -46,7 +46,7 @@ describe('function expressions (shell)', () => {
     );
   });
 
-  ['object', 'csharp', 'java', 'python'].forEach((language) => {
+  ['object', 'csharp', 'java', 'python', 'ruby'].forEach((language) => {
     it(`throws an unsupported error compiling functions to ${language}`, () => {
       assert.throws(
         () => {

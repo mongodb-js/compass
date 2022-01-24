@@ -22,7 +22,7 @@ export interface ConnectionInfo {
   connectionOptions: ConnectionOptions;
 }
 
-interface ConnectionFavoriteOptions {
+export interface ConnectionFavoriteOptions {
   /**
    * User-defined name of the connection.
    */

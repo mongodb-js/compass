@@ -60,24 +60,28 @@ function Connections({
   connectionStorage?: ConnectionStore;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
-  const [
-    {
-      activeConnectionId,
-      activeConnectionInfo,
-      connectingStatusText,
-      connectionAttempt,
-      connections,
-      isConnected,
-      storeConnectionError,
-    },
-    {
-      cancelConnectionAttempt,
-      connect,
-      createNewConnection,
-      hideStoreConnectionError,
-      setActiveConnectionById,
-    },
-  ] = useConnections(onConnected, connectionStorage, connectFn);
+  const {
+    state,
+    cancelConnectionAttempt,
+    connect,
+    createNewConnection,
+    duplicateConnection,
+    hideStoreConnectionError,
+    setActiveConnectionById,
+    removeAllRecentsConnections,
+    removeConnection,
+    saveConnection,
+  } = useConnections(onConnected, connectionStorage, connectFn);
+  const {
+    activeConnectionId,
+    activeConnectionInfo,
+    connectionAttempt,
+    connectionErrorMessage,
+    connectingStatusText,
+    connections,
+    isConnected,
+    storeConnectionError,
+  } = state;
 
   return (
     <div
@@ -92,6 +96,9 @@ function Connections({
         createNewConnection={createNewConnection}
         setActiveConnectionId={setActiveConnectionById}
         onConnectionDoubleClicked={connect}
+        removeAllRecentsConnections={removeAllRecentsConnections}
+        removeConnection={removeConnection}
+        duplicateConnection={duplicateConnection}
       />
       <div className={connectItemContainerStyles}>
         {storeConnectionError && (
@@ -110,12 +117,15 @@ function Connections({
                 ...connectionInfo,
               })
             }
+            onSaveConnectionClicked={saveConnection}
             initialConnectionInfo={activeConnectionInfo}
+            connectionErrorMessage={connectionErrorMessage}
           />
           <FormHelp />
         </div>
       </div>
-      {!!connectionAttempt && !connectionAttempt.isClosed() && (
+      {(isConnected ||
+        (!!connectionAttempt && !connectionAttempt.isClosed())) && (
         <Connecting
           connectingStatusText={connectingStatusText}
           onCancelConnectionClicked={cancelConnectionAttempt}

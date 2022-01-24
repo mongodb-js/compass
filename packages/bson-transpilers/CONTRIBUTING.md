@@ -16,6 +16,11 @@ _I strongly suggest using an IDE that will help you visualize ANTLR trees (JetBr
  `javac <Language>*.java && grun <Language> <StartRule> -gui`.
  [This might be helpful](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md)._
 
+Make sure you have run the following from the root directory:
+```shell
+$ npm run bootstrap
+```
+
 Then compile and run tests locally with:
 ```shell
 $ npm run compile && npm run test
@@ -326,5 +331,7 @@ compiling each input into your output language under the `output` field.
           shell: "{\n  'x': '1'\n}"
           <your output language>: ...
 ```
+Make sure to add your output language in the outputLanguages array at the beginning
+of `run-yaml.test.js`, and to the list near the end of `functions.test.js`.
 ## Adding an Input Language
 TODO!

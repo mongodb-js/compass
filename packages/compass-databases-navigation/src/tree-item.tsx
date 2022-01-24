@@ -1,17 +1,16 @@
 /* eslint-disable react/prop-types */
 import React, { useCallback, CSSProperties } from 'react';
 import {
-  useFocusState,
-  FocusState,
+  useFocusRing,
   css,
   cx,
+  mergeProps,
 } from '@mongodb-js/compass-components';
 import {
   backgroundColorActive,
   backgroundColor,
   backgroundColorHover,
 } from './constants';
-import { focusRing, focusRingVisible } from './databases-navigation-tree';
 import type { Actions } from './constants';
 
 export type VirtualListItemProps = {
@@ -107,30 +106,30 @@ export const ItemContainer: React.FunctionComponent<
   className,
   ...props
 }) => {
-  const [focusProps, focusState] = useFocusState();
+  const focusRingProps = useFocusRing<HTMLDivElement>();
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
-  return (
-    <div
-      role="treeitem"
-      data-id={id}
-      data-testid={`sidebar-database-${id}`}
-      aria-level={level}
-      aria-setsize={setSize}
-      aria-posinset={posInSet}
-      aria-expanded={isExpanded}
-      tabIndex={isTabbable ? 0 : -1}
-      className={cx(
+  const treeItemProps = mergeProps(
+    {
+      role: 'treeitem',
+      'aria-level': level,
+      'aria-setsize': setSize,
+      'aria-posinset': posInSet,
+      'aria-expanded': isExpanded,
+      tabIndex: isTabbable ? 0 : -1,
+      className: cx(
         itemContainer,
         isActive ? activeBackground : isHovered && hoverBackground,
-        focusRing,
-        focusState === FocusState.FocusVisible && focusRingVisible,
         className
-      )}
-      {...props}
-      {...defaultActionProps}
-      {...focusProps}
-    >
+      ),
+    },
+    props,
+    defaultActionProps,
+    focusRingProps
+  );
+
+  return (
+    <div data-id={id} data-testid={`sidebar-database-${id}`} {...treeItemProps}>
       {children}
     </div>
   );
