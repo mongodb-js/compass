@@ -10,7 +10,7 @@ import {
 
 const initialHadronApp = (global as any).hadronApp;
 
-const dataService: Pick<DataService, 'instance'> = {
+const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
   instance: () => {
     return Promise.resolve({
       dataLake: {
@@ -30,6 +30,7 @@ const dataService: Pick<DataService, 'instance'> = {
       featureCompatibilityVersion: null,
     });
   },
+  currentTopologyType: () => 'Unknown',
 };
 
 describe('connection tracking', function () {
@@ -111,6 +112,7 @@ describe('connection tracking', function () {
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -144,6 +146,7 @@ describe('connection tracking', function () {
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -200,6 +203,7 @@ describe('connection tracking', function () {
         auth_type: 'NONE',
         tunnel: 'none',
         is_srv: is_srv,
+        is_likely_replset: is_srv,
         is_atlas: false,
         is_dataLake: false,
         is_enterprise: false,
@@ -234,6 +238,7 @@ describe('connection tracking', function () {
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -267,6 +272,7 @@ describe('connection tracking', function () {
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
       is_enterprise: false,

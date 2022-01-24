@@ -51,18 +51,20 @@ async function getConnectionData(connectionInfo) {
   const {connectionOptions: {connectionString, sshTunnel}} = connectionInfo;
   const connectionStringData = new ConnectionString(connectionString);
   const hostName = connectionStringData.hosts[0];
+  const searchParams = connectionStringData.searchParams;
 
-  const authMechanism = connectionStringData.searchParams.get('authMechanism');
+  const authMechanism = searchParams.get('authMechanism');
   const authType = authMechanism
     ? authMechanism
     : connectionStringData.username
       ? 'DEFAULT'
       : 'NONE';
+  const proxyHost = searchParams.get('proxyHost');
 
   return {
     ...(await getHostInformation(hostName)),
     auth_type: authType.toUpperCase(),
-    tunnel: sshTunnel ? 'ssh' : 'none',
+    tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
   };
 }
@@ -109,6 +111,7 @@ export function trackNewConnectionEvent(
         server_version: build.version,
         server_arch: host.arch,
         server_os_family: host.os_family,
+        topology_type: dataService.currentTopologyType()
       };
       return trackEvent;
     };
