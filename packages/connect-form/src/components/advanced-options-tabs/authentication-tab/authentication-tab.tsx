@@ -131,15 +131,12 @@ function AuthenticationTab({
     (event: ChangeEvent<HTMLInputElement>) => {
       event.preventDefault();
 
-      if (event.target.value === 'AUTH_NONE') {
-        return updateConnectionFormField({
-          type: 'update-auth-mechanism',
-          authMechanism: null,
-        });
-      }
       return updateConnectionFormField({
         type: 'update-auth-mechanism',
-        authMechanism: event.target.value as AuthMechanism,
+        authMechanism:
+          event.target.value === 'AUTH_NONE'
+            ? null
+            : (event.target.value as AuthMechanism),
       });
     },
     [updateConnectionFormField]

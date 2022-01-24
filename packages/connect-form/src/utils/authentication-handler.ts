@@ -3,7 +3,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 
-import { ConnectionFormError } from './validation';
+import { ConnectionFormError, tryToParseConnectionString } from './validation';
 
 export type UpdateAuthMechanismAction = {
   type: 'update-auth-mechanism';
@@ -82,33 +82,34 @@ export function handleUpdateUsername({
   connectionOptions: ConnectionOptions;
   errors?: ConnectionFormError[];
 } {
-  try {
-    const updatedConnectionString = connectionStringUrl.clone();
+  const updatedConnectionString = connectionStringUrl.clone();
 
-    updatedConnectionString.username = action.username;
+  updatedConnectionString.username = action.username;
 
-    // This will throw if the connection string is invalid
-    new ConnectionStringUrl(updatedConnectionString.toString());
+  const [, parsingError] = tryToParseConnectionString(
+    updatedConnectionString.toString()
+  );
 
-    return {
-      connectionOptions: {
-        ...connectionOptions,
-        connectionString: updatedConnectionString.toString(),
-      },
-    };
-  } catch (err) {
+  if (parsingError) {
     return {
       connectionOptions,
       errors: [
         {
           fieldName: 'username',
           message: action.username
-            ? (err as Error).message
-            : `Username cannot be empty: "${(err as Error).message}"`,
+            ? parsingError.message
+            : `Username cannot be empty: "${parsingError.message}"`,
         },
       ],
     };
   }
+
+  return {
+    connectionOptions: {
+      ...connectionOptions,
+      connectionString: updatedConnectionString.toString(),
+    },
+  };
 }
 
 export function handleUpdatePassword({
@@ -123,34 +124,28 @@ export function handleUpdatePassword({
   connectionOptions: ConnectionOptions;
   errors?: ConnectionFormError[];
 } {
-  try {
-    const updatedConnectionString = connectionStringUrl.clone();
+  const updatedConnectionString = connectionStringUrl.clone();
 
-    updatedConnectionString.password = action.password;
+  updatedConnectionString.password = action.password;
 
-    // This will throw if the connection string is invalid
-    new ConnectionStringUrl(updatedConnectionString.toString());
+  const [, parsingError] = tryToParseConnectionString(
+    updatedConnectionString.toString()
+  );
 
-    return {
-      connectionOptions: {
-        ...connectionOptions,
-        connectionString: updatedConnectionString.toString(),
-      },
-    };
-  } catch (err) {
+  if (parsingError) {
     return {
       connectionOptions,
       errors: connectionStringUrl.username
         ? [
             {
               fieldName: 'password',
-              message: (err as Error).message,
+              message: parsingError.message,
             },
           ]
         : [
             {
               fieldName: 'username',
-              message: `Username cannot be empty: "${(err as Error).message}"`,
+              message: `Username cannot be empty: "${parsingError.message}"`,
             },
             {
               fieldName: 'password',
@@ -159,4 +154,11 @@ export function handleUpdatePassword({
           ],
     };
   }
+
+  return {
+    connectionOptions: {
+      ...connectionOptions,
+      connectionString: updatedConnectionString.toString(),
+    },
+  };
 }

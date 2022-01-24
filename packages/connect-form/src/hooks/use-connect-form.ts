@@ -8,6 +8,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import {
   ConnectionFormError,
   ConnectionFormWarning,
+  tryToParseConnectionString,
   validateConnectionOptionsWarnings,
 } from '../utils/validation';
 import { getNextHost } from '../utils/get-next-host';
@@ -137,6 +138,25 @@ export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
 ) => void;
 
+function parseConnectionString(
+  connectionString: string
+): [ConnectionString | undefined, ConnectionFormError[]] {
+  const [parsedConnectionString, parsingError] =
+    tryToParseConnectionString(connectionString);
+
+  return [
+    parsedConnectionString,
+    parsingError
+      ? [
+          {
+            fieldName: 'connectionString',
+            message: parsingError.message,
+          },
+        ]
+      : [],
+  ];
+}
+
 function buildStateFromConnectionInfo(
   initialConnectionInfo: ConnectionInfo
 ): ConnectFormState {
@@ -214,25 +234,6 @@ function handleUpdateHost({
         },
       ],
     };
-  }
-}
-
-function parseConnectionString(
-  connectionString: string
-): [ConnectionString | undefined, ConnectionFormError[]] {
-  try {
-    const connectionStringUrl = new ConnectionString(connectionString);
-    return [connectionStringUrl, []];
-  } catch (err) {
-    return [
-      undefined,
-      [
-        {
-          fieldName: 'connectionString',
-          message: (err as Error)?.message,
-        },
-      ],
-    ];
   }
 }
 
