@@ -6,13 +6,13 @@ module.exports = function (compass) {
   return async function connectWithConnectionString(
     connectionString,
     timeout = defaultTimeoutMS,
-    expectSuccess = true
+    connectionStatus = 'success'
   ) {
     const { browser } = compass;
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
       connectionString
     );
-    await browser.doConnect(timeout, expectSuccess);
+    await browser.doConnect(timeout, connectionStatus);
   };
 };

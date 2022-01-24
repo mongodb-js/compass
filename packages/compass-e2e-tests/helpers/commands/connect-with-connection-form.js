@@ -24,7 +24,7 @@ module.exports = function (compass) {
       sshTunnelIdentityFile,
     },
     timeout = defaultTimeoutMS,
-    expectSuccess = true
+    connectionStatus = 'success'
   ) {
     const { browser } = compass;
     const connectionFormButtonElement = await browser.$(
@@ -183,6 +183,6 @@ module.exports = function (compass) {
       await element.setValue(sshTunnelPassword);
     }
 
-    await browser.doConnect(timeout, expectSuccess);
+    await browser.doConnect(timeout, connectionStatus);
   };
 };
