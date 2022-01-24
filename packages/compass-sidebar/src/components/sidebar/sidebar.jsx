@@ -16,7 +16,6 @@ import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { changeFilterRegex } from '../../modules/databases';
 import { openLink } from '../../modules/link';
-import { toggleIsModalVisible } from '../../modules/is-modal-visible';
 import { saveFavorite } from '../../modules/connection-model';
 import { NavigationItems } from './navigation-items';
 
@@ -186,8 +185,6 @@ class Sidebar extends PureComponent {
             toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
             connectionModel={this.props.connectionModel}
-            toggleIsModalVisible={this.props.toggleIsModalVisible}
-            isModalVisible={this.props.isModalVisible}
             saveFavorite={this.props.saveFavorite}
           />
         )}
@@ -241,7 +238,6 @@ const mapStateToProps = (state) => ({
   isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
   connectionModel: state.connectionModel,
-  isModalVisible: state.isModalVisible,
 });
 
 /**
@@ -256,7 +252,6 @@ const MappedSidebar = connect(
     changeFilterRegex,
     openLink,
     globalAppRegistryEmit,
-    toggleIsModalVisible,
     saveFavorite
   },
 )(Sidebar);

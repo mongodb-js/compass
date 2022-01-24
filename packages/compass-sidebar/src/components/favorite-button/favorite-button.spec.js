@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import IsFavoritePill from './is-favorite-pill';
+import FavoriteButton from './favorite-button';
 
-import styles from './is-favorite-pill.module.less';
+import styles from './favorite-button.module.less';
 
-describe('IsFavoritePill [Component]', () => {
+describe('FavoriteButton [Component]', () => {
   context('when it is a new connection', () => {
     const connectionModel = {
       connection: {
@@ -20,7 +20,7 @@ describe('IsFavoritePill [Component]', () => {
 
     beforeEach(() => {
       component = shallow(
-        <IsFavoritePill
+        <FavoriteButton
           toggleIsModalVisible={()=>{}}
           connectionModel={connectionModel}
           isSidebarCollapsed={isSidebarCollapsed} />
@@ -32,8 +32,8 @@ describe('IsFavoritePill [Component]', () => {
     });
 
     it('displays the the default pill', () => {
-      expect(component.find(`.${styles['is-favorite-pill']}`)).to.be.present();
-      expect(component.find(`.${styles['is-favorite-pill-text']}`)).to.be.present();
+      expect(component.find(`.${styles['favorite-button']}`)).to.be.present();
+      expect(component.find(`.${styles['favorite-button-text']}`)).to.be.present();
       expect(component.find('FontAwesome[name="star-o"]')).to.be.present();
     });
   });
@@ -53,7 +53,7 @@ describe('IsFavoritePill [Component]', () => {
 
     beforeEach(() => {
       component = shallow(
-        <IsFavoritePill
+        <FavoriteButton
           toggleIsModalVisible={()=>{}}
           connectionModel={connectionModel}
           isSidebarCollapsed={isSidebarCollapsed} />
@@ -65,8 +65,8 @@ describe('IsFavoritePill [Component]', () => {
     });
 
     it('displays the the filled with no color pill', () => {
-      expect(component.find(`.${styles['is-favorite-pill']}`)).to.be.present();
-      expect(component.find(`.${styles['is-favorite-pill-text']}`)).to.be.present();
+      expect(component.find(`.${styles['favorite-button']}`)).to.be.present();
+      expect(component.find(`.${styles['favorite-button-text']}`)).to.be.present();
       expect(component.find('FontAwesome[name="star"]')).to.be.present();
     });
   });

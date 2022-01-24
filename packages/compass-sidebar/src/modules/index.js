@@ -30,9 +30,6 @@ import isGenuineMongoDBVisible, {
 import connectionModel, {
   INITIAL_STATE as CONNECTION_MODEL_IS
 } from './connection-model';
-import isModalVisible, {
-  INITIAL_STATE as MODAL_VISIBLE_IS
-} from './is-modal-visible';
 
 /**
  * The reducer.
@@ -48,8 +45,7 @@ const reducer = combineReducers({
   isGenuineMongoDB,
   isGenuineMongoDBVisible,
   isDataLake,
-  connectionModel,
-  isModalVisible
+  connectionModel
 });
 
 /**
@@ -72,8 +68,7 @@ const rootReducer = (state, action) => {
       isGenuineMongoDB: GENUINE_IS,
       isGenuineMongoDBVisible: IS_VISIBLE_IS,
       isDataLake: DL_INITIAL_STATE,
-      connectionModel: CONNECTION_MODEL_IS,
-      isModalVisible: MODAL_VISIBLE_IS
+      connectionModel: CONNECTION_MODEL_IS
     };
   }
   return reducer(state, action);
