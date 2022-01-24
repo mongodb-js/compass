@@ -12,7 +12,7 @@
   "scripts": {
     "clean": "rimraf ./lib",
     "precompile": "npm run clean",
-    "prewebpack": "rm -rf ./lib",
+    "prewebpack": "rimraf ./lib",
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
     "prettier": "prettier",

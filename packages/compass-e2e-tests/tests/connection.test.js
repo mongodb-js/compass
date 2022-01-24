@@ -74,11 +74,6 @@ describe('Connection screen', function () {
 
 describe('SRV connectivity', function () {
   it('resolves SRV connection string using OS DNS APIs', async function () {
-    if (process.platform === 'win32') {
-      // TODO: re-enable this test on windows
-      return;
-    }
-
     const compass = await beforeTests();
     const browser = compass.browser;
 
