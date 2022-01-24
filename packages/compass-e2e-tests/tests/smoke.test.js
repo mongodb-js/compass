@@ -717,3 +717,4 @@ describe('Smoke tests', function () {
     it('supports running commands');
   });
 });
+
