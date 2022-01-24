@@ -228,7 +228,7 @@ function ConnectForm({
             }
           }}
           key={initialConnectionInfo.id}
-          initialConnectionInfo={initialConnectionInfo}
+          initialFavoriteInfo={initialConnectionInfo.favorite}
         />
       )}
     </>

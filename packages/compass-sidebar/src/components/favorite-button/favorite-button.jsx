@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
+import {
+  mergeProps,
+  useFocusRing
+} from '@mongodb-js/compass-components';
 
 import styles from './favorite-button.module.less';
 
@@ -8,17 +12,6 @@ const FavoriteButton = ({
   favoriteOptions,
   toggleIsFavoriteModalVisible
 }) => {
-  /**
-   * Shows modal when the favorite pill is clicked.
-   *
-   * @param {Object} evt - The click event.
-   */
-  // function clickFavoritePill(evt) {
-  //   evt.preventDefault();
-  //   evt.stopPropagation();
-  //   this.props.toggleIsModalVisible(true);
-  // }
-
   const isFavorite = !!favoriteOptions;
   const fontAwesomeName = isFavorite ? 'star' : 'star-o';
   const hex = favoriteOptions?.color;
@@ -27,11 +20,20 @@ const FavoriteButton = ({
     color: isFavorite ? '#ffffff' : '#88989a'
   };
 
+  const focusRingProps = useFocusRing();
+  const buttonProps = mergeProps({
+    type: 'button',
+    'aria-label': 'Edit saved connection',
+    title: 'Edit saved connection',
+    onClick: () => toggleIsFavoriteModalVisible(),
+    className: styles['favorite-button-text'],
+    style
+  }, focusRingProps);
+
   return (
     <div className={styles['favorite-button']}>
       <button
-        style={style} className={styles['favorite-button-text']}
-        onClick={() => toggleIsFavoriteModalVisible()}
+        {...buttonProps}
       >
         <FontAwesome name={fontAwesomeName} />
         &nbsp;FAVORITE

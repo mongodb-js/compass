@@ -17,24 +17,19 @@ export const SidebarInstance = ({
   toggleIsDetailsExpanded,
   globalAppRegistryEmit,
   detailsPlugins,
-  connectionModel,
-  saveFavorite
+  connectionInfo,
+  updateConnectionInfo
 }) => {
   const [ isFavoriteModalVisible, setIsFavoriteModalVisible ] = useState(false);
 
-  /**
-  * Saves the current connection to favorites.
-  *
-  * @param {String} name - The favorite name.
-  * @param {String} color - The favorite color.
-  */
+  const onClickSaveFavorite = useCallback((newFavoriteInfo) => {
+    updateConnectionInfo({
+      ...connectionInfo,
+      favorite: newFavoriteInfo
+    });
 
-  // (name, color)
-  const onClickSaveFavorite = useCallback((connectionInfo) => {
-    console.log('save!', connectionInfo);
-    // saveFavorite(connectionModel.connection, name, color);
     setIsFavoriteModalVisible(false);
-  }, [connectionModel, saveFavorite, setIsFavoriteModalVisible]);
+  }, [connectionInfo, updateConnectionInfo, setIsFavoriteModalVisible]);
 
   return (
     <div className={styles['sidebar-instance']}>
@@ -46,20 +41,14 @@ export const SidebarInstance = ({
         globalAppRegistryEmit={globalAppRegistryEmit}
       />
       <FavoriteButton
-        connectionModel={connectionModel}
+        favoriteOptions={connectionInfo.favorite}
         toggleIsFavoriteModalVisible={() => setIsFavoriteModalVisible(
           !isFavoriteModalVisible
         )}
       />
       <SaveConnectionModal
-        initialConnectionInfo={{
-          id: 123,
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017'
-          }
-        }}
+        initialFavoriteInfo={connectionInfo.favorite}
         open={isFavoriteModalVisible}
-        // connectionModel={connectionModel.connection}
         onCancelClicked={() => setIsFavoriteModalVisible(false)}
         onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
       />
@@ -83,10 +72,8 @@ SidebarInstance.propTypes = {
   toggleIsDetailsExpanded: PropTypes.func.isRequired,
   globalAppRegistryEmit: PropTypes.func.isRequired,
   detailsPlugins: PropTypes.array.isRequired,
-  connectionModel: PropTypes.object,
-  toggleIsModalVisible: PropTypes.func.isRequired,
-  isModalVisible: PropTypes.bool.isRequired,
-  saveFavorite: PropTypes.func.isRequired
+  connectionInfo: PropTypes.object.isRequired,
+  updateConnectionInfo: PropTypes.func.isRequired
 };
 
 export default SidebarInstance;

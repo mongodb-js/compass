@@ -1,24 +1,35 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Provider } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import Sidebar from './components/sidebar';
 import store from './stores';
 
-class Plugin extends Component {
-  static displayName = 'SidebarPlugin';
 
-  /**
-   * Connect the Plugin to the store and render.
-   *
-   * @returns {React.Component} The rendered component.
-   */
-  render() {
-    return (
-      <Provider store={store}>
-        <Sidebar />
-      </Provider>
-    );
-  }
+/**
+ * Connect the Plugin to the store and render.
+ *
+ * @returns {React.Component} The rendered component.
+ */
+function SidebarPlugin({
+  connectionInfo,
+  updateAndSaveConnectionInfo
+}) {
+  return (
+    <Provider store={store}>
+      <Sidebar
+        connectionInfo={connectionInfo}
+        updateConnectionInfo={updateAndSaveConnectionInfo}
+      />
+    </Provider>
+  );
 }
 
-export default Plugin;
+SidebarPlugin.displayName = 'SidebarPlugin';
+SidebarPlugin.propTypes = {
+  connectionInfo: PropTypes.object.isRequired,
+  updateAndSaveConnectionInfo: PropTypes.func.isRequired
+};
+
+
+export default SidebarPlugin;

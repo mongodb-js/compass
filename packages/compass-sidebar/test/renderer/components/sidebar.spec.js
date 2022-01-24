@@ -8,6 +8,16 @@ import SidebarInstance from '../../../src/components/sidebar-instance';
 import styles from '../../../src/components/sidebar/sidebar.module.less';
 
 describe('Sidebar [Component]', () => {
+  const connectionInfo = {
+    connectionOptions: {
+      connectionString: 'mongodb://localhost:27020?readPreference=primaryPreferred'
+    },
+    id: '123',
+    favorite: {
+      name: 'my favorite'
+    }
+  };
+
   describe('when rendered with the store', () => {
     let component;
 
@@ -16,6 +26,8 @@ describe('Sidebar [Component]', () => {
         <Provider store={SidebarStore}>
           <Sidebar
             onCollapse={()=>{}}
+            updateConnectionInfo={()=>{}}
+            connectionInfo={connectionInfo}
           />
         </Provider>
       );
@@ -31,16 +43,6 @@ describe('Sidebar [Component]', () => {
   });
 
   describe('when it is open (not collapsed)', () => {
-    const connectionModel = {
-      connection: {
-        authStrategy: 'MONGODB',
-        isSrvRecord: false,
-        readPreference: 'primaryPreferred',
-        attributes: { hostanme: 'localhost' },
-        isFavorite: true
-      }
-    };
-
     let component;
     let emitSpy;
     let saveFavoriteSpy;
@@ -52,7 +54,7 @@ describe('Sidebar [Component]', () => {
         <Provider store={SidebarStore}>
           <Sidebar
             store={SidebarStore}
-            connectionModel={connectionModel}
+            connectionInfo={connectionInfo}
             description="Topology type not yet discovered."
             databases={{
               databases: []
@@ -71,7 +73,6 @@ describe('Sidebar [Component]', () => {
             isGenuineMongoDB
             isGenuineMongoDBVisible={false}
             toggleIsGenuineMongoDBVisible={()=>{}}
-            isModalVisible={false}
             openLink={() => {}}
             isDetailsExpanded={false}
             toggleIsDetailsExpanded={() => {}}
@@ -79,7 +80,7 @@ describe('Sidebar [Component]', () => {
             filterDatabases={() => {}}
             changeDatabases={() => {}}
             changeFilterRegex={() => {}}
-            toggleIsModalVisible={()=>{}}
+            updateConnectionInfo={()=>{}}
             saveFavorite={saveFavoriteSpy}
           />
         </Provider>
@@ -116,7 +117,8 @@ describe('Sidebar [Component]', () => {
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar
-            store={SidebarStore}
+            updateConnectionInfo={()=>{}}
+            connectionInfo={connectionInfo}
           />
         </Provider>
       );
@@ -148,7 +150,8 @@ describe('Sidebar [Component]', () => {
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar
-            store={SidebarStore}
+            updateConnectionInfo={()=>{}}
+            connectionInfo={connectionInfo}
           />
         </Provider>
       );
@@ -181,7 +184,8 @@ describe('Sidebar [Component]', () => {
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar
-            store={SidebarStore}
+            updateConnectionInfo={()=>{}}
+            connectionInfo={connectionInfo}
           />
         </Provider>
       );

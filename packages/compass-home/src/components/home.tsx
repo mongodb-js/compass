@@ -5,9 +5,12 @@ import {
   DataService,
   convertConnectionInfoToModel,
   getConnectionTitle,
+  ConnectionStorage,
 } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
 import Connections from '@mongodb-js/compass-connections';
+import ipc from 'hadron-ipc';
+import debugModule from 'debug';
 
 import Workspace from './workspace';
 import Namespace from '../types/namespace';
@@ -17,7 +20,8 @@ import {
   useAppRegistryRole,
 } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
-import ipc from 'hadron-ipc';
+
+const debug = debugModule('mongodb-compass:home:home');
 
 const homeViewStyles = css({
   display: 'flex',
@@ -41,24 +45,31 @@ const defaultNS: Namespace = {
   collection: '',
 };
 
-type State = {
-  connectionTitle: string;
-  isConnected: boolean;
-  namespace: Namespace;
-};
+type State =
+  | {
+      connectionInfo: undefined;
+      isConnected: false;
+      namespace: Namespace;
+    }
+  | {
+      connectionInfo: ConnectionInfo;
+      isConnected: true;
+      namespace: Namespace;
+    };
 
-const initialState = {
-  connectionTitle: '',
-  isConnected: false,
+const initialState: State = {
+  connectionInfo: undefined,
   namespace: defaultNS,
+  isConnected: false,
 };
 
 type Action =
   | {
       type: 'connected';
-      connectionTitle: string;
+      connectionInfo: ConnectionInfo;
     }
   | { type: 'disconnected' }
+  | { type: 'update-connection-info'; connectionInfo: ConnectionInfo }
   | { type: 'update-namespace'; namespace: Namespace };
 
 function reducer(state: State, action: Action): State {
@@ -66,9 +77,17 @@ function reducer(state: State, action: Action): State {
     case 'connected':
       return {
         ...state,
+        connectionInfo: action.connectionInfo,
         namespace: { ...defaultNS },
         isConnected: true,
-        connectionTitle: action.connectionTitle,
+      };
+    case 'update-connection-info':
+      return {
+        ...state,
+        isConnected: true,
+        connectionInfo: {
+          ...action.connectionInfo,
+        },
       };
     case 'update-namespace':
       return {
@@ -89,13 +108,35 @@ function hideCollectionSubMenu() {
   void ipc.ipcRenderer?.call('window:hide-collection-submenu');
 }
 
-function Home({ appName }: { appName: string }): React.ReactElement | null {
+async function saveConnectionInfo(
+  connectionInfo: ConnectionInfo,
+  connectionStorage: ConnectionStorage
+) {
+  try {
+    await connectionStorage.save(connectionInfo);
+    debug(`saved connection with id ${connectionInfo.id || ''}`);
+  } catch (err) {
+    debug(
+      `error saving connection with id ${connectionInfo.id || ''}: ${
+        (err as Error).message
+      }`
+    );
+  }
+}
+
+function Home({
+  appName,
+  connectionStorage = new ConnectionStorage(),
+}: {
+  appName: string;
+  connectionStorage: ConnectionStorage;
+}): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
   const connectedDataService = useRef<DataService>();
   const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
 
-  const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
+  const [{ connectionInfo, isConnected, namespace }, dispatch] = useReducer(
     reducer,
     { ...initialState }
   );
@@ -108,7 +149,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     connectedDataService.current = ds;
     dispatch({
       type: 'connected',
-      connectionTitle: getConnectionTitle(connectionInfo) || '',
+      connectionInfo,
     });
   }
 
@@ -132,6 +173,19 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       legacyConnectionModel // TODO: Remove this once we remove the dependency in compass-sidebar.
     );
   }
+
+  const updateAndSaveConnectionInfo = useCallback(
+    (newConnectionInfo: ConnectionInfo) => {
+      // Currently we silently fail if saving the favorite fails.
+      void saveConnectionInfo(newConnectionInfo, connectionStorage);
+
+      dispatch({
+        type: 'update-connection-info',
+        connectionInfo: newConnectionInfo,
+      });
+    },
+    [connectionStorage]
+  );
 
   function onSelectDatabase(ns: string) {
     hideCollectionSubMenu();
@@ -178,10 +232,10 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }, [appName]);
 
   useEffect(() => {
-    if (isConnected) {
-      updateTitle(appName, connectionTitle, namespace);
+    if (isConnected && connectionInfo) {
+      updateTitle(appName, getConnectionTitle(connectionInfo) || '', namespace);
     }
-  }, [isConnected, appName, connectionTitle, namespace]);
+  }, [isConnected, appName, connectionInfo, namespace]);
 
   useEffect(() => {
     async function handleDisconnectClicked() {
@@ -247,8 +301,14 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
-  if (isConnected) {
-    return <Workspace namespace={namespace} />;
+  if (isConnected && connectionInfo) {
+    return (
+      <Workspace
+        connectionInfo={connectionInfo}
+        updateAndSaveConnectionInfo={updateAndSaveConnectionInfo}
+        namespace={namespace}
+      />
+    );
   }
 
   if (showNewConnectForm) {

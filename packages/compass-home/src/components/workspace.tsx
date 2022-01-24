@@ -9,6 +9,7 @@ import {
   useAppRegistryComponent,
   useAppRegistryRole,
 } from '../contexts/app-registry-context';
+import { ConnectionInfo } from 'mongodb-data-service';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -36,9 +37,13 @@ const homePageContentStyles = css({
 });
 
 export default function Workspace({
+  connectionInfo,
   namespace,
+  updateAndSaveConnectionInfo,
 }: {
+  connectionInfo: ConnectionInfo;
   namespace: Namespace;
+  updateAndSaveConnectionInfo: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const SidebarComponent = useAppRegistryComponent(
     AppRegistryComponents.SIDEBAR_COMPONENT
@@ -56,7 +61,12 @@ export default function Workspace({
         <div className={homePageContentStyles}>
           <WorkspaceContent namespace={namespace} />
         </div>
-        {SidebarComponent && <SidebarComponent />}
+        {SidebarComponent && (
+          <SidebarComponent
+            connectionInfo={connectionInfo}
+            updateAndSaveConnectionInfo={updateAndSaveConnectionInfo}
+          />
+        )}
         {FindInPage && <FindInPage />}
       </div>
       {globalModals &&

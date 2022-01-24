@@ -16,7 +16,6 @@ import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { changeFilterRegex } from '../../modules/databases';
 import { openLink } from '../../modules/link';
-import { saveFavorite } from '../../modules/connection-model';
 import { NavigationItems } from './navigation-items';
 
 // In pixels. (px)
@@ -52,10 +51,8 @@ class Sidebar extends PureComponent {
     isGenuineMongoDBVisible: PropTypes.bool.isRequired,
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
-    connectionModel: PropTypes.object.isRequired,
-    toggleIsModalVisible: PropTypes.func.isRequired,
-    isModalVisible: PropTypes.bool.isRequired,
-    saveFavorite: PropTypes.func.isRequired
+    connectionInfo: PropTypes.object.isRequired,
+    updateConnectionInfo: PropTypes.func.isRequired
   };
 
   state = {
@@ -171,7 +168,7 @@ class Sidebar extends PureComponent {
           <i className={collapsedButton}/>
         </button>
         <SidebarTitle
-          connectionModel={this.props.connectionModel}
+          connectionInfo={this.props.connectionInfo}
           isSidebarExpanded={isExpanded}
           onClick={() => this.onNavigationItemClick()}
         />
@@ -184,8 +181,8 @@ class Sidebar extends PureComponent {
             isGenuineMongoDB={this.props.isGenuineMongoDB}
             toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
-            connectionModel={this.props.connectionModel}
-            saveFavorite={this.props.saveFavorite}
+            connectionInfo={this.props.connectionInfo}
+            updateConnectionInfo={this.props.updateConnectionInfo}
           />
         )}
         {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true' && (
@@ -236,8 +233,7 @@ const mapStateToProps = (state) => ({
   detailsPlugins: state.detailsPlugins,
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
-  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-  connectionModel: state.connectionModel,
+  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible
 });
 
 /**
@@ -251,8 +247,7 @@ const MappedSidebar = connect(
     toggleIsGenuineMongoDBVisible,
     changeFilterRegex,
     openLink,
-    globalAppRegistryEmit,
-    saveFavorite
+    globalAppRegistryEmit
   },
 )(Sidebar);
 

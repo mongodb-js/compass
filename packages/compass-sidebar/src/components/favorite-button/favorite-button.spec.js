@@ -6,24 +6,14 @@ import styles from './favorite-button.module.less';
 
 describe('FavoriteButton [Component]', () => {
   context('when it is a new connection', () => {
-    const connectionModel = {
-      connection: {
-        authStrategy: 'MONGODB',
-        isSrvRecord: false,
-        readPreference: 'primaryPreferred',
-        attributes: { hostanme: 'localhost' },
-        isFavorite: false
-      }
-    };
-    const isSidebarCollapsed = false;
     let component;
 
     beforeEach(() => {
       component = shallow(
         <FavoriteButton
-          toggleIsModalVisible={()=>{}}
-          connectionModel={connectionModel}
-          isSidebarCollapsed={isSidebarCollapsed} />
+          toggleIsFavoriteModalVisible={()=>{}}
+          favoriteOptions={undefined}
+        />
       );
     });
 
@@ -39,24 +29,17 @@ describe('FavoriteButton [Component]', () => {
   });
 
   context('when it is a saved with no color', () => {
-    const connectionModel = {
-      connection: {
-        authStrategy: 'MONGODB',
-        isSrvRecord: false,
-        readPreference: 'primaryPreferred',
-        attributes: { hostanme: 'localhost' },
-        isFavorite: true
-      }
-    };
-    const isSidebarCollapsed = false;
     let component;
 
     beforeEach(() => {
       component = shallow(
         <FavoriteButton
-          toggleIsModalVisible={()=>{}}
-          connectionModel={connectionModel}
-          isSidebarCollapsed={isSidebarCollapsed} />
+          toggleIsFavoriteModalVisible={()=>{}}
+          favoriteOptions={{
+            name: '123',
+            color: undefined
+          }}
+        />
       );
     });
 
