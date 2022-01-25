@@ -60,10 +60,10 @@ describe('SavedItemCard', function () {
     userEvent.keyboard('{enter}');
 
     expect(onAction).to.have.callCount(3);
-    expect(onAction.getCalls().map((call) => call.args[0])).to.deep.eq([
-      'open',
-      'open',
-      'open',
+    expect(onAction.getCalls().map((call) => call.args)).to.deep.eq([
+      ['123', 'open'],
+      ['123', 'open'],
+      ['123', 'open'],
     ]);
   });
 });
