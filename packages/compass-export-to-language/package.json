@@ -94,7 +94,7 @@
     "mongodb-ace-theme": "^1.5.0",
     "mongodb-connection-model": "^21.11.1",
     "mongodb-data-service": "^21.15.1",
-    "mongodb-ns": "^2.2.0",
+    "mongodb-ns": "^2.3.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^13.1.0",

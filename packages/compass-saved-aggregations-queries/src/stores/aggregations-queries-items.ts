@@ -1,8 +1,4 @@
 import { AnyAction, Dispatch } from 'redux';
-// TODO: Add declarations to the package, otherwise it will be like third time
-// we have to copy-paste them around
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import toNS from 'mongodb-ns';
 import { getAggregations } from './../utlis/aggregations';
 import { getQueries } from './../utlis/queries';
