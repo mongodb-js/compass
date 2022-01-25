@@ -18,7 +18,10 @@ import {
   ConnectionFormError,
   errorMessageByFieldName,
 } from '../../../utils/validation';
-import { getConnectionStringPassword, getConnectionStringUsername } from '../../../utils/connection-string-helpers';
+import {
+  getConnectionStringPassword,
+  getConnectionStringUsername,
+} from '../../../utils/connection-string-helpers';
 
 const authSourceLabelStyles = css({
   padding: 0,

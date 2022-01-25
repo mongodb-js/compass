@@ -8,7 +8,10 @@ import {
   ConnectionFormError,
   errorMessageByFieldName,
 } from '../../../utils/validation';
-import { getConnectionStringUsername, parseAuthMechanismProperties } from '../../../utils/connection-string-helpers';
+import {
+  getConnectionStringUsername,
+  parseAuthMechanismProperties,
+} from '../../../utils/connection-string-helpers';
 
 function AuthenticationGSSAPI({
   errors,
