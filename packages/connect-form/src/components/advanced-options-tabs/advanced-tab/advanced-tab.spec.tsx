@@ -29,7 +29,6 @@ describe('AdvancedTab', function () {
 
     it('renders view correctly', function () {
       expect(screen.getByTestId('read-preferences')).to.exist;
-      expect(screen.getByTestId('replica-set')).to.exist;
       expect(screen.getByTestId('default-database')).to.exist;
       expect(screen.getByTestId('url-options')).to.exist;
     });
@@ -47,17 +46,6 @@ describe('AdvancedTab', function () {
       });
     });
 
-    it(`handles changes on replicaSet field when user changes input`, function () {
-      fireEvent.change(screen.getByTestId('replica-set'), {
-        target: { value: 'hello' },
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'update-search-param',
-        currentKey: 'replicaSet',
-        value: 'hello',
-      });
-    });
     it(`handles changes on defaultDatabase field when user changes input`, function () {
       fireEvent.change(screen.getByTestId('default-database'), {
         target: { value: 'hello' },
@@ -77,7 +65,6 @@ describe('AdvancedTab', function () {
     beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();
       connectionStringUrl.searchParams.set('readPreference', 'nearest');
-      connectionStringUrl.searchParams.set('replicaSet', 'hello-rs');
       render(
         <AdvancedTab
           errors={[]}
@@ -93,40 +80,10 @@ describe('AdvancedTab', function () {
           .getByTestId('nearest-preference-button')
           .getAttribute('aria-checked')
       ).to.equal('true');
-      expect(screen.getByTestId('replica-set').getAttribute('value')).to.equal(
-        'hello-rs'
-      );
       expect(
         screen.getByTestId('default-database').getAttribute('value')
       ).to.equal('admin');
     });
   });
-
-  describe('handles delete', function () {
-    const connectionStringUrl = new ConnectionStringUrl(
-      'mongodb+srv://0ranges:p!neapp1es@localhost/?authSource=1&replicaSet=2'
-    );
-    beforeEach(function () {
-      updateConnectionFormFieldSpy = sinon.spy();
-      render(
-        <AdvancedTab
-          errors={[]}
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          updateConnectionFormField={updateConnectionFormFieldSpy}
-          connectionStringUrl={connectionStringUrl}
-        />
-      );
-    });
-
-    it(`delete replicaSet field when user sets input to empty`, function () {
-      fireEvent.change(screen.getByTestId('replica-set'), {
-        target: { value: '' },
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'delete-search-param',
-        key: 'replicaSet',
-      });
-    });
-  });
 });
+

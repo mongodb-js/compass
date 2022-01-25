@@ -37,6 +37,10 @@ export const editableUrlOptions = [
     values: ['maxStalenessSeconds', 'readPreferenceTags'],
   },
   {
+    title: 'Replica Set Options',
+    values: ['replicaSet'],
+  },
+  {
     title: 'Authentication Options',
     values: ['authMechanismProperties', 'gssapiServiceName'],
   },

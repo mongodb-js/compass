@@ -44,7 +44,6 @@ function AdvancedTab({
 }): React.ReactElement {
   const { searchParams, pathname } = connectionStringUrl;
   const readPreference = searchParams.get('readPreference');
-  const replicaSet = searchParams.get('replicaSet');
   const defaultDatabase = pathname.startsWith('/')
     ? pathname.substr(1)
     : pathname;
@@ -111,23 +110,6 @@ function AdvancedTab({
           );
         })}
       </RadioBoxGroup>
-      {/* Replica Set */}
-      <FormFieldContainer>
-        <TextInput
-          spellCheck={false}
-          className={fieldStyles}
-          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-            handleFieldChanged('replicaSet', value);
-          }}
-          name={'replica-set'}
-          data-testid={'replica-set'}
-          label={'Replica Set Name'}
-          type={'text'}
-          optional={true}
-          placeholder={'Replica Set Name'}
-          value={replicaSet ?? ''}
-        />
-      </FormFieldContainer>
       {/* Default Database */}
       <FormFieldContainer>
         <TextInput
@@ -138,13 +120,13 @@ function AdvancedTab({
           }}
           name={'default-database'}
           data-testid={'default-database'}
-          label={'Default Database'}
+          label={'Default Authentication Database'}
           type={'text'}
           optional={true}
-          placeholder={'Default Database'}
+          placeholder={'Default Authentication Database'}
           value={defaultDatabase ?? ''}
           description={
-            'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'
+            'The authentication database used when the authSource option is not specified.'
           }
         />
       </FormFieldContainer>
