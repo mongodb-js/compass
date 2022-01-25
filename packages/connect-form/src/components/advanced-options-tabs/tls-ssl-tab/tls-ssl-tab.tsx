@@ -214,7 +214,7 @@ function TLSTab({
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               handleFieldChanged(
                 tlsOptionField.name,
-                event.target.checked ? 'true' : 'false'
+                event.target.checked ? 'true' : ''
               );
             }}
             data-testid={`${tlsOptionField.name}-input`}

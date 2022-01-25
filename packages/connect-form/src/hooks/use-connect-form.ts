@@ -2,10 +2,7 @@ import { Dispatch, useCallback, useEffect, useReducer } from 'react';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
-import ConnectionStringUrl, {
-  CommaAndColonSeparatedRecord,
-} from 'mongodb-connection-string-url';
-
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 import {
   ConnectionFormError,
   ConnectionFormWarning,
@@ -36,18 +33,15 @@ import {
   UpdatePasswordAction,
   UpdateUsernameAction,
 } from '../utils/authentication-handler';
+import {
+  AuthMechanismProperties,
+  parseAuthMechanismProperties,
+} from '../utils/auth-mechanism-properties';
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
   enableEditingConnectionString: boolean;
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
-}
-
-interface AuthMechanismProperties {
-  SERVICE_NAME?: string;
-  SERVICE_REALM?: string;
-  CANONICALIZE_HOST_NAME?: boolean;
-  AWS_SESSION_TOKEN?: string;
 }
 
 type Action =
@@ -488,22 +482,6 @@ export function handleConnectionFormFieldUpdate(
         },
       };
     }
-  }
-}
-
-export function parseAuthMechanismProperties(
-  connectionString: ConnectionStringUrl
-): CommaAndColonSeparatedRecord<AuthMechanismProperties> {
-  const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
-  const authMechanismPropertiesString = searchParams.get(
-    'authMechanismProperties'
-  );
-  try {
-    return new CommaAndColonSeparatedRecord<AuthMechanismProperties>(
-      authMechanismPropertiesString
-    );
-  } catch (e) {
-    return new CommaAndColonSeparatedRecord<AuthMechanismProperties>();
   }
 }
 
