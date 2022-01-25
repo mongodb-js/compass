@@ -84,7 +84,7 @@ export function handleUpdateUsername({
 } {
   const updatedConnectionString = connectionStringUrl.clone();
 
-  updatedConnectionString.username = action.username;
+  updatedConnectionString.username = encodeURIComponent(action.username);
 
   const [, parsingError] = tryToParseConnectionString(
     updatedConnectionString.toString()
@@ -126,7 +126,7 @@ export function handleUpdatePassword({
 } {
   const updatedConnectionString = connectionStringUrl.clone();
 
-  updatedConnectionString.password = action.password;
+  updatedConnectionString.password = encodeURIComponent(action.password);
 
   const [, parsingError] = tryToParseConnectionString(
     updatedConnectionString.toString()
