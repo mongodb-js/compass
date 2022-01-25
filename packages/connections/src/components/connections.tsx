@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Banner,
   BannerVariant,
+  LeafyGreenProvider,
   compassUIColors,
   spacing,
   css,
@@ -84,54 +85,56 @@ function Connections({
   } = state;
 
   return (
-    <div
-      data-testid={
-        isConnected ? 'connections-connected' : 'connections-disconnected'
-      }
-      className={connectStyles}
-    >
-      <ResizableSidebar
-        activeConnectionId={activeConnectionId}
-        connections={connections}
-        createNewConnection={createNewConnection}
-        setActiveConnectionId={setActiveConnectionById}
-        onConnectionDoubleClicked={connect}
-        removeAllRecentsConnections={removeAllRecentsConnections}
-        removeConnection={removeConnection}
-        duplicateConnection={duplicateConnection}
-      />
-      <div className={connectItemContainerStyles}>
-        {storeConnectionError && (
-          <Banner
-            variant={BannerVariant.Danger}
-            dismissible
-            onClose={hideStoreConnectionError}
-          >
-            {storeConnectionError}
-          </Banner>
-        )}
-        <div className={formContainerStyles}>
-          <ConnectForm
-            onConnectClicked={(connectionInfo) =>
-              connect({
-                ...connectionInfo,
-              })
-            }
-            onSaveConnectionClicked={saveConnection}
-            initialConnectionInfo={activeConnectionInfo}
-            connectionErrorMessage={connectionErrorMessage}
-          />
-          <FormHelp />
-        </div>
-      </div>
-      {(isConnected ||
-        (!!connectionAttempt && !connectionAttempt.isClosed())) && (
-        <Connecting
-          connectingStatusText={connectingStatusText}
-          onCancelConnectionClicked={cancelConnectionAttempt}
+    <LeafyGreenProvider>
+      <div
+        data-testid={
+          isConnected ? 'connections-connected' : 'connections-disconnected'
+        }
+        className={connectStyles}
+      >
+        <ResizableSidebar
+          activeConnectionId={activeConnectionId}
+          connections={connections}
+          createNewConnection={createNewConnection}
+          setActiveConnectionId={setActiveConnectionById}
+          onConnectionDoubleClicked={connect}
+          removeAllRecentsConnections={removeAllRecentsConnections}
+          removeConnection={removeConnection}
+          duplicateConnection={duplicateConnection}
         />
-      )}
-    </div>
+        <div className={connectItemContainerStyles}>
+          {storeConnectionError && (
+            <Banner
+              variant={BannerVariant.Danger}
+              dismissible
+              onClose={hideStoreConnectionError}
+            >
+              {storeConnectionError}
+            </Banner>
+          )}
+          <div className={formContainerStyles}>
+            <ConnectForm
+              onConnectClicked={(connectionInfo) =>
+                connect({
+                  ...connectionInfo,
+                })
+              }
+              onSaveConnectionClicked={saveConnection}
+              initialConnectionInfo={activeConnectionInfo}
+              connectionErrorMessage={connectionErrorMessage}
+            />
+            <FormHelp />
+          </div>
+        </div>
+        {(isConnected ||
+          (!!connectionAttempt && !connectionAttempt.isClosed())) && (
+          <Connecting
+            connectingStatusText={connectingStatusText}
+            onCancelConnectionClicked={cancelConnectionAttempt}
+          />
+        )}
+      </div>
+    </LeafyGreenProvider>
   );
 }
 
