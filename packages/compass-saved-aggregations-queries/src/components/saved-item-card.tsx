@@ -16,17 +16,15 @@ import {
   MenuItem,
   IconButton,
 } from '@mongodb-js/compass-components';
+import type { Item } from '../stores/aggregations-queries-items';
 import { formatDate } from '../utlis/format-date';
 
 export type Action = 'open' | 'delete' | 'copy' | 'rename';
 
-export type SavedItemCardProps = {
-  id: string;
-  type: 'query' | 'aggregation';
-  name: string;
-  database: string;
-  collection: string;
-  lastModified: number;
+export type SavedItemCardProps = Pick<
+  Item,
+  'id' | 'type' | 'name' | 'database' | 'collection' | 'lastModified'
+> & {
   onAction(id: string, actionName: Action): void;
 };
 
