@@ -1,4 +1,3 @@
-import { promisify } from 'util';
 import { readPipelinesFromStorage } from '@mongodb-js/compass-aggregations';
 
 export interface Aggregation {
@@ -9,6 +8,5 @@ export interface Aggregation {
 }
 
 export const getAggregations = async (): Promise<Aggregation[]> => {
-  const pipelines: Aggregation[] = await promisify(readPipelinesFromStorage)();
-  return pipelines;
+  return await readPipelinesFromStorage();
 };
