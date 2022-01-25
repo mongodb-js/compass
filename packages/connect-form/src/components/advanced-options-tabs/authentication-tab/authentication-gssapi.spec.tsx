@@ -26,7 +26,7 @@ function renderComponent({
   );
 }
 
-describe('AuthenticationGssapi Component', function () {
+describe.only('AuthenticationGssapi Component', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
   beforeEach(function () {
     updateConnectionFormFieldSpy = sinon.spy();
@@ -39,7 +39,7 @@ describe('AuthenticationGssapi Component', function () {
       });
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
 
-      fireEvent.change(screen.getAllByRole('textbox')[0], {
+      fireEvent.change(screen.getByLabelText('Principal'), {
         target: { value: 'good sandwich' },
       });
     });
@@ -60,7 +60,7 @@ describe('AuthenticationGssapi Component', function () {
       });
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
 
-      fireEvent.change(screen.getAllByRole('textbox')[1], {
+      fireEvent.change(screen.getByLabelText('Service Name'), {
         target: { value: 'good sandwich' },
       });
     });
@@ -82,7 +82,7 @@ describe('AuthenticationGssapi Component', function () {
       });
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
 
-      fireEvent.change(screen.getAllByRole('textbox')[2], {
+      fireEvent.change(screen.getByLabelText('Service Realm'), {
         target: { value: 'good sandwich' },
       });
     });
@@ -102,9 +102,10 @@ describe('AuthenticationGssapi Component', function () {
       renderComponent({
         updateConnectionFormField: updateConnectionFormFieldSpy,
       });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
 
-      fireEvent.click(screen.getByRole('checkbox'));
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+      const checkbox = screen.getByLabelText('Canonicalize Host Name');
+      fireEvent.click(checkbox);
     });
 
     it('calls to update the form field', function () {
