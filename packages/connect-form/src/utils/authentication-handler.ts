@@ -60,6 +60,13 @@ export function handleUpdateAuthMechanism({
 
   if (action.authMechanism) {
     updatedSearchParams.set('authMechanism', action.authMechanism);
+    if (
+      ['MONGODB-AWS', 'GSSAPI', 'PLAIN', 'MONGODB-X509'].includes(
+        action.authMechanism
+      )
+    ) {
+      updatedSearchParams.set('authSource', '$external');
+    }
   }
 
   return {
