@@ -54,8 +54,8 @@ function AuthenticationDefault({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
-  const password = connectionStringUrl.password;
-  const username = connectionStringUrl.username;
+  const password = decodeURIComponent(connectionStringUrl.password);
+  const username = decodeURIComponent(connectionStringUrl.username);
 
   const selectedAuthMechanism =
     connectionStringUrl.searchParams.get('authMechanism') ?? '';

@@ -49,6 +49,24 @@ describe('Authentication Handler', function () {
       expect(res.errors).to.equal(undefined);
     });
 
+    it('should encode the username in the connection string', function () {
+      const res = handleUpdateUsername({
+        action: {
+          type: 'update-username',
+          username: 'C;Ib86n5b8{AnExew[TU%XZy,)E6G!dk;;',
+        },
+        connectionStringUrl: new ConnectionString('mongodb://before@localhost'),
+        connectionOptions: {
+          connectionString: 'mongodb://before@localhost',
+        },
+      });
+
+      expect(res.connectionOptions.connectionString).to.equal(
+        'mongodb://C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C)E6G!dk%3B%3B@localhost/'
+      );
+      expect(res.errors).to.equal(undefined);
+    });
+
     it('should return an error if the connection string has a password and the username is being set to empty', function () {
       const res = handleUpdateUsername({
         action: {
@@ -127,6 +145,26 @@ describe('Authentication Handler', function () {
       expect(res.connectionOptions.connectionString).to.equal(
         'mongodb://a123:p!n34pp%20e%40%40)s@localhost/'
       );
+    });
+
+    it('should encode the password in the connection string', function () {
+      const res = handleUpdatePassword({
+        action: {
+          type: 'update-password',
+          password: 'C;Ib86n5b8{AnExew[TU%XZy,)E6G!dk;;',
+        },
+        connectionStringUrl: new ConnectionString(
+          'mongodb://before:password@outerspaces'
+        ),
+        connectionOptions: {
+          connectionString: 'mongodb://before:password@outerspaces',
+        },
+      });
+
+      expect(res.connectionOptions.connectionString).to.equal(
+        'mongodb://before:C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C)E6G!dk%3B%3B@outerspaces/'
+      );
+      expect(res.errors).to.equal(undefined);
     });
 
     it('should return an error if the connection string has no username and the password is being set to not empty', function () {
