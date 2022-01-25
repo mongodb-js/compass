@@ -156,12 +156,12 @@ describe('AuthenticationDefault Component', function () {
   it('decodes the password as a uri component before rendering', function () {
     renderComponent({
       connectionStringUrl: new ConnectionStringUrl(
-        'mongodb://C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C)E6G!dk:password@outerspace:12345'
+        'mongodb://username:C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C)E6G!dk@outerspace:12345'
       ),
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
-    expect(screen.getByLabelText('Username').getAttribute('value')).to.equal(
+    expect(screen.getByLabelText('Password').getAttribute('value')).to.equal(
       'C;Ib86n5b8{AnExew[TU%XZy,)E6G!dk'
     );
   });

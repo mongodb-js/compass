@@ -8,7 +8,7 @@ import {
   ConnectionFormError,
   errorMessageByFieldName,
 } from '../../../utils/validation';
-import { parseAuthMechanismProperties } from '../../../utils/auth-mechanism-properties';
+import { getConnectionStringUsername, parseAuthMechanismProperties } from '../../../utils/connection-string-helpers';
 
 function AuthenticationGSSAPI({
   errors,
@@ -23,7 +23,7 @@ function AuthenticationGSSAPI({
     errors,
     'kerberosPrincipal'
   );
-  const principal = decodeURIComponent(connectionStringUrl.username);
+  const principal = getConnectionStringUsername(connectionStringUrl);
   const authMechanismProperties =
     parseAuthMechanismProperties(connectionStringUrl);
   const serviceName = authMechanismProperties.get('SERVICE_NAME');

@@ -18,6 +18,7 @@ import {
   ConnectionFormError,
   errorMessageByFieldName,
 } from '../../../utils/validation';
+import { getConnectionStringPassword, getConnectionStringUsername } from '../../../utils/connection-string-helpers';
 
 const authSourceLabelStyles = css({
   padding: 0,
@@ -57,8 +58,8 @@ function AuthenticationDefault({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
-  const password = decodeURIComponent(connectionStringUrl.password);
-  const username = decodeURIComponent(connectionStringUrl.username);
+  const password = getConnectionStringPassword(connectionStringUrl);
+  const username = getConnectionStringUsername(connectionStringUrl);
 
   const selectedAuthMechanism =
     connectionStringUrl.searchParams.get('authMechanism') ?? '';

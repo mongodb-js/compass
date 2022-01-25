@@ -6,7 +6,6 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import {
   ConnectionFormError,
   ConnectionFormWarning,
-  tryToParseConnectionString,
   validateConnectionOptionsWarnings,
 } from '../utils/validation';
 import { getNextHost } from '../utils/get-next-host';
@@ -36,7 +35,9 @@ import {
 import {
   AuthMechanismProperties,
   parseAuthMechanismProperties,
-} from '../utils/auth-mechanism-properties';
+  tryToParseConnectionString,
+} from '../utils/connection-string-helpers';
+
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
   enableEditingConnectionString: boolean;
