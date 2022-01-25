@@ -140,6 +140,32 @@ describe('AuthenticationDefault Component', function () {
     });
   });
 
+  it('decodes the username as a uri component before rendering', function () {
+    renderComponent({
+      connectionStringUrl: new ConnectionStringUrl(
+        'mongodb://C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C)E6G!dk:password@outerspace:12345'
+      ),
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    expect(screen.getByLabelText('Username').getAttribute('value')).to.equal(
+      'C;Ib86n5b8{AnExew[TU%XZy,)E6G!dk'
+    );
+  });
+
+  it('decodes the password as a uri component before rendering', function () {
+    renderComponent({
+      connectionStringUrl: new ConnectionStringUrl(
+        'mongodb://C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C)E6G!dk:password@outerspace:12345'
+      ),
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    expect(screen.getByLabelText('Username').getAttribute('value')).to.equal(
+      'C;Ib86n5b8{AnExew[TU%XZy,)E6G!dk'
+    );
+  });
+
   it('renders a username error when there is a username error', function () {
     renderComponent({
       errors: [
