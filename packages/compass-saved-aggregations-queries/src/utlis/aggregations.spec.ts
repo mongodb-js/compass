@@ -20,24 +20,30 @@ const mockAggregations = [
   },
 ];
 
-const initialAggreatePathValue = process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH;
+const initialAggreatePathValue =
+  process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH;
 
 describe('Aggregations', function () {
   let tmpDir;
   before(function () {
     tmpDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'saved-aggregations-queries-test'),
+      path.join(os.tmpdir(), 'saved-aggregations-queries-test')
     );
     fs.mkdirSync(path.join(tmpDir, 'SavedPipelines'));
     process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH = tmpDir;
-    mockAggregations.forEach(aggregation => {
-      const fileName = path.join(tmpDir, 'SavedPipelines', `${aggregation.id}.json`);
+    mockAggregations.forEach((aggregation) => {
+      const fileName = path.join(
+        tmpDir,
+        'SavedPipelines',
+        `${aggregation.id}.json`
+      );
       fs.writeFileSync(fileName, JSON.stringify(aggregation));
     });
   });
 
   after(function () {
-    process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH = initialAggreatePathValue;
+    process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH =
+      initialAggreatePathValue;
     fs.rmdirSync(tmpDir, { recursive: true });
   });
 

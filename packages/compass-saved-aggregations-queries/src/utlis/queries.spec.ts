@@ -16,14 +16,13 @@ const mockQueries = [
     _name: 'find all by name',
     _ns: 'mongodb.mongosh',
     _dateSaved: 987654321,
-  }
+  },
 ];
 
 describe('Queries', function () {
-
   before(async function () {
     const collection = new FavoriteQueryCollection(mockQueries);
-    const promises = collection.models.map(model => {
+    const promises = collection.models.map((model) => {
       return new Promise((resolve, reject) => {
         model.sync('create', model, {
           success: resolve,
