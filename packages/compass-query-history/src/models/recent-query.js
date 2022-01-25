@@ -10,7 +10,7 @@ const RecentQuery = Query.extend(storageMixin, {
   namespace: 'RecentQueries',
   storage: {
     backend: 'disk',
-    basepath: remote.app.getPath('userData')
+    basepath: process.env.MONGODB_COMPASS_STORAGE_MIXIN_TEST_BASE_PATH || remote.app.getPath('userData')
   }
 });
 
