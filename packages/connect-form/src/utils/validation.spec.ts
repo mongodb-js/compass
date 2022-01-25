@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 
 import {
+  tryToParseConnectionString,
   validateConnectionOptionsErrors,
   validateConnectionOptionsWarnings,
 } from './validation';
@@ -350,18 +351,6 @@ describe('validation', function () {
       });
     });
 
-    describe('Kerberos', function () {
-      it('should return warning if password is set', function () {
-        const result = validateConnectionOptionsWarnings({
-          connectionString: `mongodb://user:password@myserver.com?tls=true&authMechanism=GSSAPI`,
-        });
-        expect(result).to.deep.equal([
-          {
-            message: 'The password is ignored with Kerberos.',
-          },
-        ]);
-      });
-    });
     describe('directConnection', function () {
       it('should return warning if mongo+srv and directConnection=true', function () {
         const result = validateConnectionOptionsWarnings({
@@ -493,6 +482,39 @@ describe('validation', function () {
           },
         ]);
       });
+    });
+  });
+
+  describe('#tryToParseConnectionString', function () {
+    it('should return the connection string when successfully parsed', function () {
+      const [connectionString] = tryToParseConnectionString(
+        'mongodb://outerspace:27099?directConnection=true'
+      );
+
+      expect(connectionString.toString()).to.equal(
+        'mongodb://outerspace:27099/?directConnection=true'
+      );
+      expect(connectionString.hosts[0]).to.equal('outerspace:27099');
+    });
+
+    it('should return without an error when successfully parsed', function () {
+      const [connectionString, error] = tryToParseConnectionString(
+        'mongodb://outerspace:27099/?directConnection=true'
+      );
+
+      expect(connectionString).to.not.equal(undefined);
+      expect(error).to.equal(undefined);
+    });
+
+    it('should return an error when it cannot be parsed', function () {
+      const [connectionString, error] = tryToParseConnectionString(
+        'mangos://pineapple:27099/?directConnection=true'
+      );
+
+      expect(connectionString).to.equal(undefined);
+      expect(error.message).to.equal(
+        'Invalid connection string "mangos://pineapple:27099/?directConnection=true"'
+      );
     });
   });
 });

@@ -63,6 +63,7 @@ const textAreaLabelContainerStyles = css({
 });
 
 const connectionStringInputId = 'connectionString';
+const connectionStringLabelId = 'connectionStringLabel';
 
 export function hidePasswordInConnectionString(
   connectionString: string
@@ -126,7 +127,11 @@ function ConnectStringInput({
   return (
     <Fragment>
       <div className={textAreaLabelContainerStyles}>
-        <Label className={uriLabelStyles} htmlFor={connectionStringInputId}>
+        <Label
+          className={uriLabelStyles}
+          htmlFor={connectionStringInputId}
+          id={connectionStringLabelId}
+        >
           URI
           <IconButton
             className={infoButtonStyles}
@@ -168,7 +173,7 @@ function ConnectStringInput({
           disabled={!enableEditingConnectionString}
           id={connectionStringInputId}
           ref={textAreaEl}
-          aria-labelledby="Connection String"
+          aria-labelledby={connectionStringLabelId}
           placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
           spellCheck={false}
         />

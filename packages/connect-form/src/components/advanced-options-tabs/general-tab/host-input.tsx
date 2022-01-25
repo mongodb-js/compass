@@ -93,7 +93,6 @@ function HostInput({
               id="connection-host-input"
               aria-labelledby="connection-host-input-label"
               state={fieldNameHasError(errors, 'hosts') ? 'error' : undefined}
-              // Only show the error message on the last host.
               errorMessage={errorMessageByFieldNameAndIndex(
                 errors,
                 'hosts',
