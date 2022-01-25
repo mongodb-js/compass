@@ -38,7 +38,7 @@ function Socks({
     connectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   const handleFieldChanged = useCallback(
-    (key: keyof MongoClientOptions, value: unknown) => {
+    (key: keyof MongoClientOptions, value?: string) => {
       if (!value) {
         return updateConnectionFormField({
           type: 'delete-search-param',

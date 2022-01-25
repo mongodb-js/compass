@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, spacing, TextInput, Toggle } from '@mongodb-js/compass-components';
+import { Checkbox, TextInput } from '@mongodb-js/compass-components';
 
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import {
@@ -11,26 +11,6 @@ import {
   ConnectionFormError,
   errorMessageByFieldName,
 } from '../../../utils/validation';
-
-const canonicalizeHostnameStyles = css({
-  padding: 0,
-  margin: 0,
-  display: 'flex',
-});
-
-const canonicalizeHostnameToggleStyles = css({
-  height: 14,
-  width: 26,
-  margin: spacing[1],
-  marginRight: 0,
-  marginLeft: 'auto',
-});
-
-const canonicalizeHostnameLabelStyles = css({
-  '&:hover': {
-    cursor: 'pointer',
-  },
-});
 
 function AuthenticationGSSAPI({
   errors,
@@ -50,7 +30,9 @@ function AuthenticationGSSAPI({
     parseAuthMechanismProperties(connectionStringUrl);
   const serviceName = authMechanismProperties.get('SERVICE_NAME');
   const serviceRealm = authMechanismProperties.get('SERVICE_REALM');
-  const canonicalizeHostname = authMechanismProperties.get('CANONICALIZE_HOST_NAME');
+  const canonicalizeHostname = authMechanismProperties.get(
+    'CANONICALIZE_HOST_NAME'
+  );
 
   return (
     <>
@@ -88,28 +70,18 @@ function AuthenticationGSSAPI({
       </FormFieldContainer>
 
       <FormFieldContainer>
-        <div className={canonicalizeHostnameStyles}>
-          <label
-            className={canonicalizeHostnameLabelStyles}
-            id="canonicalizeHostnameLabel"
-            htmlFor="canonicalizeHostname"
-          >
-            Canonicalize Host Name
-          </label>
-          <Toggle
-            id="canonicalizeHostname"
-            aria-labelledby="label"
-            className={canonicalizeHostnameToggleStyles}
-            onChange={(checked) => {
-              updateConnectionFormField({
-                type: 'update-auth-mechanism-property',
-                key: 'CANONICALIZE_HOST_NAME',
-                value: checked ? 'true' : '',
-              });
-            }}
-            checked={canonicalizeHostname === 'true'}
-          />
-        </div>
+        <Checkbox
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            updateConnectionFormField({
+              type: 'update-auth-mechanism-property',
+              key: 'CANONICALIZE_HOST_NAME',
+              value: event.target.checked ? 'true' : '',
+            });
+          }}
+          label="Canonicalize Host Name"
+          checked={canonicalizeHostname === 'true'}
+          bold={false}
+        />
       </FormFieldContainer>
 
       <FormFieldContainer>
