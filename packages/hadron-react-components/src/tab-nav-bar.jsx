@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import map from 'lodash.map';
-import { LeafyGreenProvider, Tabs, Tab } from '@mongodb-js/compass-components';
+import { Tabs, Tab } from '@mongodb-js/compass-components';
 
 /**
  * Represents tabbed navigation with a tabbed header and content.
@@ -110,14 +110,12 @@ class TabNavBar extends React.Component {
    */
   render() {
     return (
-      <LeafyGreenProvider>
-        <div className="tab-nav-bar">
-          <div className="tab-nav-bar-tabs">
-            {this.renderTabs()}
-          </div>
-          {this.props.mountAllViews ? this.renderViews() : this.renderActiveView()}
+      <div className="tab-nav-bar">
+        <div className="tab-nav-bar-tabs">
+          {this.renderTabs()}
         </div>
-      </LeafyGreenProvider>
+        {this.props.mountAllViews ? this.renderViews() : this.renderActiveView()}
+      </div>
     );
   }
 }
