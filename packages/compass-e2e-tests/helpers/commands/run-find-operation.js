@@ -1,59 +1,64 @@
 const Selectors = require('../selectors');
 
-async function setFilter(client, tabName, value) {
-  await client.setAceValue(Selectors.queryBarOptionInputFilter(tabName), value);
+async function setFilter(browser, tabName, value) {
+  await browser.setAceValue(
+    Selectors.queryBarOptionInputFilter(tabName),
+    value
+  );
 }
 
-async function setProject(client, tabName, value) {
-  await client.setAceValue(
+async function setProject(browser, tabName, value) {
+  await browser.setAceValue(
     Selectors.queryBarOptionInputProject(tabName),
     value
   );
 }
 
-async function setSort(client, tabName, value) {
-  await client.setAceValue(Selectors.queryBarOptionInputSort(tabName), value);
+async function setSort(browser, tabName, value) {
+  await browser.setAceValue(Selectors.queryBarOptionInputSort(tabName), value);
 }
 
-async function setCollation(client, tabName, value) {
-  await client.setAceValue(
+async function setCollation(browser, tabName, value) {
+  await browser.setAceValue(
     Selectors.queryBarOptionInputCollation(tabName),
     value
   );
 }
 
-async function setMaxTimeMS(client, tabName, value) {
+async function setMaxTimeMS(browser, tabName, value) {
   const selector = Selectors.queryBarOptionInputMaxTimeMS(tabName);
-  await client.clickVisible(selector);
-  await client.setOrClearValue(selector, value);
+  await browser.clickVisible(selector);
+  await browser.setOrClearValue(selector, value);
 }
 
-async function setSkip(client, tabName, value) {
+async function setSkip(browser, tabName, value) {
   const selector = Selectors.queryBarOptionInputSkip(tabName);
-  await client.clickVisible(selector);
-  await client.setOrClearValue(selector, value);
+  await browser.clickVisible(selector);
+  await browser.setOrClearValue(selector, value);
 }
 
-async function setLimit(client, tabName, value) {
+async function setLimit(browser, tabName, value) {
   const selector = Selectors.queryBarOptionInputLimit(tabName);
-  await client.clickVisible(selector);
-  await client.setOrClearValue(selector, value);
+  await browser.clickVisible(selector);
+  await browser.setOrClearValue(selector, value);
 }
 
-async function runFind(client, tabName) {
-  await client.clickVisible(Selectors.queryBarApplyFilterButton(tabName));
+async function runFind(browser, tabName) {
+  await browser.clickVisible(Selectors.queryBarApplyFilterButton(tabName));
 }
 
-async function isOptionsExpanded(client, tabName) {
+async function isOptionsExpanded(browser, tabName) {
   // it doesn't look like there's some attribute on the options button or
   // container that we can easily check, so just look for a field that exists
   // if it is expanded
-  const element = await client.$(Selectors.queryBarOptionInputProject(tabName));
+  const element = await browser.$(
+    Selectors.queryBarOptionInputProject(tabName)
+  );
   return element.isDisplayed();
 }
 
-async function waitUntilCollapsed(client, tabName) {
-  const queryBarOptionInputProjectElement = await client.$(
+async function waitUntilCollapsed(browser, tabName) {
+  const queryBarOptionInputProjectElement = await browser.$(
     Selectors.queryBarOptionInputProject(tabName)
   );
   await queryBarOptionInputProjectElement.waitForDisplayed({
@@ -61,8 +66,8 @@ async function waitUntilCollapsed(client, tabName) {
   });
 }
 
-async function collapseOptions(client, tabName) {
-  if (!(await isOptionsExpanded(client, tabName))) {
+async function collapseOptions(browser, tabName) {
+  if (!(await isOptionsExpanded(browser, tabName))) {
     return;
   }
 
@@ -72,34 +77,34 @@ async function collapseOptions(client, tabName) {
   // results as if you ran the whole suite. If we ever do want to test that all
   // the options you had set before you collapsed the options are still in
   // effect then we can make this behaviour opt-out through an option.
-  await setProject(client, tabName, '');
-  await setSort(client, tabName, '');
-  await setMaxTimeMS(client, tabName, '');
-  await setCollation(client, tabName, '');
-  await setSkip(client, tabName, '');
-  await setLimit(client, tabName, '');
+  await setProject(browser, tabName, '');
+  await setSort(browser, tabName, '');
+  await setMaxTimeMS(browser, tabName, '');
+  await setCollation(browser, tabName, '');
+  await setSkip(browser, tabName, '');
+  await setLimit(browser, tabName, '');
 
-  await client.clickVisible(Selectors.queryBarOptionsToggle(tabName));
-  await waitUntilCollapsed(client, tabName);
+  await browser.clickVisible(Selectors.queryBarOptionsToggle(tabName));
+  await waitUntilCollapsed(browser, tabName);
 }
 
-async function waitUntilExpanded(client, tabName) {
-  const queryBarOptionInputProjectElement = await client.$(
+async function waitUntilExpanded(browser, tabName) {
+  const queryBarOptionInputProjectElement = await browser.$(
     Selectors.queryBarOptionInputProject(tabName)
   );
   await queryBarOptionInputProjectElement.waitForDisplayed();
 }
 
-async function expandOptions(client, tabName) {
-  if (await isOptionsExpanded(client, tabName)) {
+async function expandOptions(browser, tabName) {
+  if (await isOptionsExpanded(browser, tabName)) {
     return;
   }
 
-  await client.clickVisible(Selectors.queryBarOptionsToggle(tabName));
-  await waitUntilExpanded(client, tabName);
+  await browser.clickVisible(Selectors.queryBarOptionsToggle(tabName));
+  await waitUntilExpanded(browser, tabName);
 }
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function runFindOperation(
     tabName,
     filter,
@@ -113,35 +118,35 @@ module.exports = function (app) {
       waitForResult = true,
     } = {}
   ) {
-    const { client } = app;
+    const { browser } = compass;
 
     const queryBarSelector = Selectors.queryBar(tabName);
 
     // look up the current resultId
-    const queryBarSelectorElement = await client.$(queryBarSelector);
+    const queryBarSelectorElement = await browser.$(queryBarSelector);
     const initialResultId = await queryBarSelectorElement.getAttribute(
       'data-result-id'
     );
 
     if (project || sort || maxTimeMS || collation || skip || limit) {
-      await expandOptions(client, tabName);
+      await expandOptions(browser, tabName);
 
-      await setProject(client, tabName, project);
-      await setSort(client, tabName, sort);
-      await setMaxTimeMS(client, tabName, maxTimeMS);
-      await setCollation(client, tabName, collation);
-      await setSkip(client, tabName, skip);
-      await setLimit(client, tabName, limit);
+      await setProject(browser, tabName, project);
+      await setSort(browser, tabName, sort);
+      await setMaxTimeMS(browser, tabName, maxTimeMS);
+      await setCollation(browser, tabName, collation);
+      await setSkip(browser, tabName, skip);
+      await setLimit(browser, tabName, limit);
     } else {
-      await collapseOptions(client, tabName);
+      await collapseOptions(browser, tabName);
     }
 
-    await setFilter(client, tabName, filter);
-    await runFind(client, tabName);
+    await setFilter(browser, tabName, filter);
+    await runFind(browser, tabName);
 
     if (waitForResult) {
       // now we can easily see if we get a new resultId
-      await client.waitUntil(async () => {
+      await browser.waitUntil(async () => {
         const resultId = await queryBarSelectorElement.getAttribute(
           'data-result-id'
         );

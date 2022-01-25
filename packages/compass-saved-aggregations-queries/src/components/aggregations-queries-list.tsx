@@ -1,15 +1,46 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect } from 'react';
+import { connect, ConnectedProps } from 'react-redux';
+import { State, fetchItems } from './../stores/aggregations-queries-items';
 
-const AggregationsQueriesList: React.FunctionComponent = () => {
-  return <div>Hello, world!</div>;
+const AggregationsQueriesList = ({
+  loading,
+  items,
+  fetchItems,
+}: PropsFromRedux) => {
+  useEffect(() => {
+    void fetchItems();
+  }, [fetchItems]);
+
+  if (loading) {
+    return <p>Loading ...</p>;
+  }
+  if (!items.length) {
+    return <p>No saved queries/aggregations.</p>;
+  }
+  return (
+    <div>
+      <h3>Saved Items</h3>
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>
+            Name: {item.name} ( Type: {item.type}; Modified: {item.lastModified}
+            ; Namespace: ${item.namespace})
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 };
 
-const mapStateToProps = () => ({});
+const mapState = ({ loading, items }: State) => ({
+  loading,
+  items,
+});
 
-const mapDispatchToProps = {};
+const mapDispatch = {
+  fetchItems,
+};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AggregationsQueriesList);
+const connector = connect(mapState, mapDispatch);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+export default connector(AggregationsQueriesList);

@@ -1,11 +1,11 @@
 const { retryWithBackoff } = require('../retry-with-backoff');
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   async function getOutputText() {
-    const { client } = app;
+    const { browser } = compass;
 
-    const elements = await client.$$(Selectors.ShellOutput);
+    const elements = await browser.$$(Selectors.ShellOutput);
     return Promise.all(
       elements.map((element) => {
         return element.getText();
@@ -14,34 +14,37 @@ module.exports = function (app) {
   }
 
   return async function (str, parse = false) {
-    const { client } = app;
+    const { browser } = compass;
     let numLines;
 
     await retryWithBackoff(async function () {
-      const shellContentElement = await client.$(Selectors.ShellContent);
+      const shellContentElement = await browser.$(Selectors.ShellContent);
       if (!(await shellContentElement.isDisplayed())) {
-        await client.clickVisible(Selectors.ShellExpandButton);
+        await browser.clickVisible(Selectors.ShellExpandButton);
       }
 
       numLines = (await getOutputText()).length;
 
-      await client.clickVisible(Selectors.ShellInput);
+      await browser.clickVisible(Selectors.ShellInput);
     });
 
     const command = parse === true ? `JSON.stringify(${str})` : str;
     // Might be marked with a deprecation warning, but can be used
     // https://github.com/webdriverio/webdriverio/issues/2076
-    await client.keys(command);
-    await client.keys('\uE007');
+    await browser.keys(command);
+    await browser.keys(['Enter']);
 
     // wait until more output appears
-    await client.waitUntil(async () => {
-      const lines = await getOutputText();
-      // first the command we send appears then later the response
-      return lines.length > numLines + 1;
-    });
+    await browser.waitUntil(
+      async () => {
+        const lines = await getOutputText();
+        // first the command we send appears then later the response
+        return lines.length > numLines + 1;
+      },
+      { timeout: 10000 }
+    );
 
-    const shellOutputElements = await client.$$(Selectors.ShellOutput);
+    const shellOutputElements = await browser.$$(Selectors.ShellOutput);
     const output = await shellOutputElements[
       shellOutputElements.length - 1
     ].getText();

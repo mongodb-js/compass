@@ -4,152 +4,6 @@ import { handleConnectionFormFieldUpdate } from './use-connect-form';
 
 describe('use-connect-form hook', function () {
   describe('#handleConnectionFormFieldUpdate', function () {
-    describe('update-direct-connection action', function () {
-      describe('directConnection is false on the connection string', function () {
-        const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://localhost:27019/?ssl=true&directConnection=false'
-        );
-
-        describe('when set directConnection to true is passed', function () {
-          let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-          beforeEach(function () {
-            updateResult = handleConnectionFormFieldUpdate(
-              {
-                type: 'update-direct-connection',
-                isDirectConnection: true,
-              },
-              {
-                connectionString: connectionStringUrl.toString(),
-              }
-            );
-          });
-
-          it('updates directConnection to true', function () {
-            expect(
-              new ConnectionStringUrl(
-                updateResult.connectionOptions.connectionString
-              ).searchParams.get('directConnection')
-            ).to.equal('true');
-          });
-
-          it('updates connection string', function () {
-            expect(updateResult.connectionOptions.connectionString).to.equal(
-              'mongodb://localhost:27019/?ssl=true&directConnection=true'
-            );
-          });
-
-          it('returns no errors', function () {
-            expect(updateResult.errors.length).to.equal(0);
-          });
-        });
-
-        describe('when set directConnection to false is passed', function () {
-          let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-          beforeEach(function () {
-            updateResult = handleConnectionFormFieldUpdate(
-              {
-                type: 'update-direct-connection',
-                isDirectConnection: false,
-              },
-              {
-                connectionString: connectionStringUrl.toString(),
-              }
-            );
-          });
-
-          it('unsets directConnection on the connectionStringUrl', function () {
-            expect(
-              new ConnectionStringUrl(
-                updateResult.connectionOptions.connectionString
-              ).searchParams.get('directConnection')
-            ).to.equal(null);
-          });
-
-          it('updates the connection string with the unset', function () {
-            expect(updateResult.connectionOptions.connectionString).to.equal(
-              'mongodb://localhost:27019/?ssl=true'
-            );
-          });
-
-          it('returns no errors', function () {
-            expect(updateResult.errors.length).to.equal(0);
-          });
-        });
-      });
-
-      describe('directConnection is true on the connection string', function () {
-        const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://localhost:27019/?ssl=true&directConnection=true'
-        );
-
-        describe('when set directConnection to true is passed', function () {
-          let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-          beforeEach(function () {
-            updateResult = handleConnectionFormFieldUpdate(
-              {
-                type: 'update-direct-connection',
-                isDirectConnection: true,
-              },
-              {
-                connectionString: connectionStringUrl.toString(),
-              }
-            );
-          });
-
-          it('keeps directConnection equal to true', function () {
-            expect(
-              new ConnectionStringUrl(
-                updateResult.connectionOptions.connectionString
-              ).searchParams.get('directConnection')
-            ).to.equal('true');
-          });
-
-          it('does not change the connection string', function () {
-            expect(updateResult.connectionOptions.connectionString).to.equal(
-              'mongodb://localhost:27019/?ssl=true&directConnection=true'
-            );
-          });
-
-          it('returns no errors', function () {
-            expect(updateResult.errors.length).to.equal(0);
-          });
-        });
-
-        describe('when set directConnection to false is passed', function () {
-          let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-          beforeEach(function () {
-            updateResult = handleConnectionFormFieldUpdate(
-              {
-                type: 'update-direct-connection',
-                isDirectConnection: false,
-              },
-              {
-                connectionString: connectionStringUrl.toString(),
-              }
-            );
-          });
-
-          it('unsets directConnection on the connectionStringUrl', function () {
-            expect(
-              new ConnectionStringUrl(
-                updateResult.connectionOptions.connectionString
-              ).searchParams.get('directConnection')
-            ).to.equal(null);
-          });
-
-          it('updates the connection string', function () {
-            expect(updateResult.connectionOptions.connectionString).to.equal(
-              'mongodb://localhost:27019/?ssl=true'
-            );
-          });
-
-          it('returns no errors', function () {
-            expect(updateResult.errors.length).to.equal(0);
-          });
-        });
-      });
-    });
-
     describe('add-new-host action', function () {
       describe('when directConnection is not set', function () {
         const connectionStringUrl = new ConnectionStringUrl(
@@ -903,6 +757,68 @@ describe('use-connect-form hook', function () {
         expect(
           new ConnectionStringUrl(connectionOptions.connectionString).pathname
         ).to.equal('/');
+      });
+    });
+
+    describe('update-username action', function () {
+      it('should update the username', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-username',
+            username: 'aa',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(connectionOptions.connectionString).username
+        ).to.equal('aa');
+      });
+    });
+
+    describe('update-password action', function () {
+      it('should update the password', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://a123:b123@localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-password',
+            password: 'a@!1()',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(connectionOptions.connectionString).password
+        ).to.equal('a%40!1()');
+      });
+    });
+
+    describe('update-auth-mechanism action', function () {
+      it('should update the username', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-auth-mechanism',
+            authMechanism: 'PLAIN',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('authMechanism')
+        ).to.equal('PLAIN');
       });
     });
   });

@@ -3,7 +3,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
-import { MongoServerError } from 'mongodb';
+import { MongoServerError, MongoClientOptions } from 'mongodb';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
@@ -61,18 +61,21 @@ async function getConnectionData({
 > {
   const connectionStringData = new ConnectionString(connectionString);
   const hostName = connectionStringData.hosts[0];
+  const searchParams =
+    connectionStringData.typedSearchParams<MongoClientOptions>();
 
-  const authMechanism = connectionStringData.searchParams.get('authMechanism');
+  const authMechanism = searchParams.get('authMechanism');
   const authType = authMechanism
     ? authMechanism
     : connectionStringData.username
     ? 'DEFAULT'
     : 'NONE';
+  const proxyHost = searchParams.get('proxyHost');
 
   return {
     ...(await getHostInformation(hostName)),
     auth_type: authType.toUpperCase(),
-    tunnel: sshTunnel ? 'ssh' : 'none',
+    tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
   };
 }
@@ -95,7 +98,7 @@ export function trackConnectionAttemptEvent({
 
 export function trackNewConnectionEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
-  dataService: Pick<DataService, 'instance'>
+  dataService: Pick<DataService, 'instance' | 'currentTopologyType'>
 ): void {
   try {
     const callback = async () => {
@@ -117,6 +120,7 @@ export function trackNewConnectionEvent(
         server_version: build.version,
         server_arch: host.arch,
         server_os_family: host.os_family,
+        topology_type: dataService.currentTopologyType(),
       };
       return trackEvent;
     };

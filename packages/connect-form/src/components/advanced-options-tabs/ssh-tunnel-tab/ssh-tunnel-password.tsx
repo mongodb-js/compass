@@ -1,33 +1,38 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback } from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
-import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
+import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
 import {
   ConnectionFormError,
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 type PasswordFormKeys = keyof Omit<
   SSHConnectionOptions,
   'identityKeyFile' | 'identityKeyPassphrase'
 >;
 
-function Password({
+function SshTunnelPassword({
   sshTunnelOptions,
-  onConnectionOptionChanged,
+  updateConnectionFormField,
   errors,
 }: {
   sshTunnelOptions?: SSHConnectionOptions;
-  onConnectionOptionChanged: (
-    key: PasswordFormKeys,
-    value: string | number
-  ) => void;
+  updateConnectionFormField: UpdateConnectionFormField;
   errors: ConnectionFormError[];
 }): React.ReactElement {
-  const formFieldChanged = (key: PasswordFormKeys, value: string | number) => {
-    onConnectionOptionChanged(key, value);
-  };
+  const formFieldChanged = useCallback(
+    (key: PasswordFormKeys, value: string) => {
+      return updateConnectionFormField({
+        type: 'update-ssh-options',
+        key,
+        value,
+      });
+    },
+    [updateConnectionFormField]
+  );
 
   const fields = [
     {
@@ -46,7 +51,7 @@ function Password({
       type: 'number',
       optional: false,
       placeholder: 'SSH Port',
-      value: (sshTunnelOptions?.port ?? '').toString(),
+      value: sshTunnelOptions?.port?.toString(),
       errorMessage: undefined,
       state: 'none',
     },
@@ -90,10 +95,7 @@ function Password({
               onChange={({
                 target: { value },
               }: ChangeEvent<HTMLInputElement>) => {
-                formFieldChanged(
-                  name as PasswordFormKeys,
-                  name === 'port' ? Number(value) : value
-                );
+                formFieldChanged(name as PasswordFormKeys, value);
               }}
               name={name}
               data-testid={name}
@@ -113,4 +115,4 @@ function Password({
   );
 }
 
-export default Password;
+export default SshTunnelPassword;

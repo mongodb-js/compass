@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 
 import {
+  tryToParseConnectionString,
   validateConnectionOptionsErrors,
   validateConnectionOptionsWarnings,
 } from './validation';
@@ -66,7 +67,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'sshHostname',
-            message: 'A hostname is required to connect with an SSH tunnel',
+            message: 'A hostname is required to connect with an SSH tunnel.',
           },
         ]);
       });
@@ -89,7 +90,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             message:
-              'When connecting via SSH tunnel either password or identity file is required',
+              'When connecting via SSH tunnel either password or identity file is required.',
           },
         ]);
       });
@@ -110,6 +111,47 @@ describe('validation', function () {
           {
             fieldName: 'sshIdentityKeyFile',
             message: 'File is required along with passphrase.',
+          },
+        ]);
+      });
+
+      it('should not return errors if SSH is not configured and proxyHost is not set', function () {
+        const result = validateConnectionOptionsErrors({
+          connectionString: 'mongodb://myserver.com/',
+        });
+        expect(result).to.deep.equal([]);
+      });
+
+      it('should not return errors if SSH is not set but proxyHost is set', function () {
+        const result = validateConnectionOptionsErrors({
+          connectionString: 'mongodb://myserver.com/?proxyHost=hello',
+          sshTunnel: undefined,
+        });
+        expect(result).to.deep.equal([]);
+      });
+
+      it('should not return errors if SSH is set but proxyHost is not set', function () {
+        const result = validateConnectionOptionsErrors({
+          connectionString: 'mongodb://myserver.com/',
+          sshTunnel: {
+            host: 'hello-world.com',
+            port: 22,
+            username: 'cosmo',
+            password: 'kramer',
+          },
+        });
+        expect(result).to.deep.equal([]);
+      });
+
+      it('should return errors if proxyHost is missing from proxy options', function () {
+        const result = validateConnectionOptionsErrors({
+          connectionString: 'mongodb://myserver.com/?proxyUsername=hello',
+          sshTunnel: undefined,
+        });
+        expect(result).to.deep.equal([
+          {
+            fieldName: 'proxyHostname',
+            message: 'Proxy hostname is required.',
           },
         ]);
       });
@@ -309,18 +351,6 @@ describe('validation', function () {
       });
     });
 
-    describe('Kerberos', function () {
-      it('should return warning if password is set', function () {
-        const result = validateConnectionOptionsWarnings({
-          connectionString: `mongodb://user:password@myserver.com?tls=true&authMechanism=GSSAPI`,
-        });
-        expect(result).to.deep.equal([
-          {
-            message: 'The password is ignored with Kerberos.',
-          },
-        ]);
-      });
-    });
     describe('directConnection', function () {
       it('should return warning if mongo+srv and directConnection=true', function () {
         const result = validateConnectionOptionsWarnings({
@@ -412,8 +442,79 @@ describe('validation', function () {
         const result = validateConnectionOptionsWarnings({
           connectionString: `mongodb://${host}`,
         });
-        expect(result).to.deep.equal([]);
+        expect(result, `${host} fails validation`).to.deep.equal([]);
       }
+    });
+
+    describe('Socks', function () {
+      it('should not return warning if proxyHost is not set', function () {
+        const result = validateConnectionOptionsWarnings({
+          connectionString: 'mongodb://myserver.com/?tls=true&proxyHost=',
+        });
+        expect(result).to.be.empty;
+      });
+      it('should not return warning if proxyHost is localhost', function () {
+        const result = validateConnectionOptionsWarnings({
+          connectionString:
+            'mongodb://myserver.com/?tls=true&proxyHost=localhost',
+        });
+        expect(result).to.be.empty;
+      });
+      it('should return warning if proxyHost is not localhost and proxyPassword is set', function () {
+        const result = validateConnectionOptionsWarnings({
+          connectionString:
+            'mongodb://myserver.com/?tls=true&proxyHost=mongo&proxyPassword=as',
+        });
+        expect(result).to.deep.equal([
+          {
+            message: 'Socks5 proxy password will be transmitted in plaintext.',
+          },
+        ]);
+      });
+      it('should return warning if proxyHost is not localhost and hosts contains mongodb service host', function () {
+        const result = validateConnectionOptionsWarnings({
+          connectionString:
+            'mongodb://localhost:27017/?tls=true&proxyHost=mongo',
+        });
+        expect(result).to.deep.equal([
+          {
+            message: 'Using remote proxy with local MongoDB service host.',
+          },
+        ]);
+      });
+    });
+  });
+
+  describe('#tryToParseConnectionString', function () {
+    it('should return the connection string when successfully parsed', function () {
+      const [connectionString] = tryToParseConnectionString(
+        'mongodb://outerspace:27099?directConnection=true'
+      );
+
+      expect(connectionString.toString()).to.equal(
+        'mongodb://outerspace:27099/?directConnection=true'
+      );
+      expect(connectionString.hosts[0]).to.equal('outerspace:27099');
+    });
+
+    it('should return without an error when successfully parsed', function () {
+      const [connectionString, error] = tryToParseConnectionString(
+        'mongodb://outerspace:27099/?directConnection=true'
+      );
+
+      expect(connectionString).to.not.equal(undefined);
+      expect(error).to.equal(undefined);
+    });
+
+    it('should return an error when it cannot be parsed', function () {
+      const [connectionString, error] = tryToParseConnectionString(
+        'mangos://pineapple:27099/?directConnection=true'
+      );
+
+      expect(connectionString).to.equal(undefined);
+      expect(error.message).to.equal(
+        'Invalid connection string "mangos://pineapple:27099/?directConnection=true"'
+      );
     });
   });
 });

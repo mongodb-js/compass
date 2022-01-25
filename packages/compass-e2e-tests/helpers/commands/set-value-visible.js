@@ -1,7 +1,7 @@
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function setValueVisible(selector, value) {
-    const { client } = app;
-    const element = await client.$(selector);
+    const { browser } = compass;
+    const element = await browser.$(selector);
     await element.waitForDisplayed();
     await element.setValue(value);
   };

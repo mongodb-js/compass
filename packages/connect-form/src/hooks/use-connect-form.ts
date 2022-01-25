@@ -1,12 +1,14 @@
 import { Dispatch, useCallback, useEffect, useReducer } from 'react';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
-import type { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
+import ConnectionString from 'mongodb-connection-string-url';
 
 import {
   ConnectionFormError,
   ConnectionFormWarning,
+  tryToParseConnectionString,
   validateConnectionOptionsWarnings,
 } from '../utils/validation';
 import { getNextHost } from '../utils/get-next-host';
@@ -25,7 +27,14 @@ import {
   handleUpdateTlsOption,
   UpdateTlsOptionAction,
 } from '../utils/tls-options';
-import ConnectionString from 'mongodb-connection-string-url';
+import {
+  handleUpdateUsername,
+  handleUpdatePassword,
+  handleUpdateAuthMechanism,
+  UpdateAuthMechanismAction,
+  UpdatePasswordAction,
+  UpdateUsernameAction,
+} from '../utils/authentication-handler';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -94,11 +103,10 @@ type ConnectionFormFieldActions =
       type: 'remove-host';
       fieldIndexToRemove: number;
     }
+  | UpdateUsernameAction
+  | UpdatePasswordAction
+  | UpdateAuthMechanismAction
   | UpdateHostAction
-  | {
-      type: 'update-direct-connection';
-      isDirectConnection: boolean;
-    }
   | {
       type: 'update-connection-schema';
       isSrv: boolean;
@@ -118,11 +126,36 @@ type ConnectionFormFieldActions =
   | {
       type: 'update-connection-path';
       value: string;
+    }
+  | {
+      type: 'remove-ssh-options';
+    }
+  | {
+      type: 'remove-proxy-options';
     };
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
 ) => void;
+
+function parseConnectionString(
+  connectionString: string
+): [ConnectionString | undefined, ConnectionFormError[]] {
+  const [parsedConnectionString, parsingError] =
+    tryToParseConnectionString(connectionString);
+
+  return [
+    parsedConnectionString,
+    parsingError
+      ? [
+          {
+            fieldName: 'connectionString',
+            message: parsingError.message,
+          },
+        ]
+      : [],
+  ];
+}
 
 function buildStateFromConnectionInfo(
   initialConnectionInfo: ConnectionInfo
@@ -201,25 +234,6 @@ function handleUpdateHost({
         },
       ],
     };
-  }
-}
-
-function parseConnectionString(
-  connectionString: string
-): [ConnectionString | undefined, ConnectionFormError[]] {
-  try {
-    const connectionStringUrl = new ConnectionString(connectionString);
-    return [connectionStringUrl, []];
-  } catch (err) {
-    return [
-      undefined,
-      [
-        {
-          fieldName: 'connectionString',
-          message: (err as Error)?.message,
-        },
-      ],
-    ];
   }
 }
 
@@ -314,28 +328,33 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: currentConnectionOptions,
       });
     }
+    case 'update-auth-mechanism': {
+      return handleUpdateAuthMechanism({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-username': {
+      return handleUpdateUsername({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-password': {
+      return handleUpdatePassword({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
     case 'update-host': {
       return handleUpdateHost({
         action,
         connectionStringUrl: parsedConnectionStringUrl,
         connectionOptions: currentConnectionOptions,
       });
-    }
-    case 'update-direct-connection': {
-      const { isDirectConnection } = action;
-      if (isDirectConnection) {
-        updatedSearchParams.set('directConnection', 'true');
-      } else if (updatedSearchParams.get('directConnection')) {
-        updatedSearchParams.delete('directConnection');
-      }
-
-      return {
-        connectionOptions: {
-          ...currentConnectionOptions,
-          connectionString: parsedConnectionStringUrl.toString(),
-        },
-        errors: [],
-      };
     }
     case 'update-connection-schema': {
       const { isSrv } = action;
@@ -408,6 +427,29 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: {
           ...currentConnectionOptions,
           connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
+    case 'remove-proxy-options': {
+      const proxyOptions: (keyof ProxyOptions)[] = [
+        'proxyHost',
+        'proxyPort',
+        'proxyPassword',
+        'proxyUsername',
+      ];
+      proxyOptions.forEach((key) => updatedSearchParams.delete(key));
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
+    case 'remove-ssh-options': {
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          sshTunnel: undefined,
         },
       };
     }

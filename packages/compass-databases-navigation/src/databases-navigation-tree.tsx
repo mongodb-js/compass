@@ -164,69 +164,57 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   const id = useId();
 
   const items: TreeItem[] = useMemo(() => {
-    return (
-      databases
-        .map(
-          (
-            {
-              _id: id,
-              name,
-              collections,
-              collectionsLength,
-              collectionsStatus,
-            },
-            dbIndex
-          ) => {
-            const isExpanded = expanded[id];
+    return databases
+      .map(
+        (
+          { _id: id, name, collections, collectionsLength, collectionsStatus },
+          dbIndex
+        ) => {
+          const isExpanded = expanded[id];
 
-            const database: DatabaseTreeItem = {
-              key: String(dbIndex),
-              level: 1,
-              id,
-              name,
-              type: 'database' as const,
-              isExpanded,
-              setSize: databases.length,
-              posInSet: dbIndex + 1,
-            };
+          const database: DatabaseTreeItem = {
+            key: String(dbIndex),
+            level: 1,
+            id,
+            name,
+            type: 'database' as const,
+            isExpanded,
+            setSize: databases.length,
+            posInSet: dbIndex + 1,
+          };
 
-            if (!isExpanded) {
-              return [database] as TreeItem[];
-            }
-
-            const areCollectionsReady = [
-              'ready',
-              'refreshing',
-              'error',
-            ].includes(collectionsStatus);
-
-            const placeholdersLength = Math.min(
-              collectionsLength,
-              MAX_COLLECTION_PLACEHOLDER_ITEMS
-            );
-
-            return ([database] as TreeItem[]).concat(
-              areCollectionsReady
-                ? collections.map(({ _id: id, name, type }, index) => ({
-                    key: `${dbIndex}-${index}`,
-                    level: 2,
-                    id,
-                    name,
-                    type: type as 'collection' | 'view' | 'timeseries',
-                    setSize: collections.length,
-                    posInSet: index + 1,
-                  }))
-                : Array.from({ length: placeholdersLength }, (_, index) => ({
-                    key: `${dbIndex}-${index}`,
-                    type: 'placeholder' as const,
-                  }))
-            );
+          if (!isExpanded) {
+            return [database] as TreeItem[];
           }
-        )
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        .flat()
-    );
+
+          const areCollectionsReady = ['ready', 'refreshing', 'error'].includes(
+            collectionsStatus
+          );
+
+          const placeholdersLength = Math.min(
+            collectionsLength,
+            MAX_COLLECTION_PLACEHOLDER_ITEMS
+          );
+
+          return ([database] as TreeItem[]).concat(
+            areCollectionsReady
+              ? collections.map(({ _id: id, name, type }, index) => ({
+                  key: `${dbIndex}-${index}`,
+                  level: 2,
+                  id,
+                  name,
+                  type: type as 'collection' | 'view' | 'timeseries',
+                  setSize: collections.length,
+                  posInSet: index + 1,
+                }))
+              : Array.from({ length: placeholdersLength }, (_, index) => ({
+                  key: `${dbIndex}-${index}`,
+                  type: 'placeholder' as const,
+                }))
+          );
+        }
+      )
+      .flat();
   }, [databases, expanded]);
 
   const onExpandedChange = useCallback(

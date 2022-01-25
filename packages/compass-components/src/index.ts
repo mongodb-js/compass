@@ -17,6 +17,7 @@ import FileInput from './components/file-input';
 import SpinLoader from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import Accordion from './components/accordion';
+export { FavoriteIcon } from './components/icons/favorite-icon';
 export {
   default as Badge,
   Variant as BadgeVariant,
@@ -109,3 +110,4 @@ export { default as FormFooter } from '@leafygreen-ui/form-footer';
 export { VirtualGrid } from './components/virtual-grid';
 export { mergeProps } from './utils/merge-props';
 export { useFocusRing } from './hooks/use-focus-ring';
+export { useDefaultAction } from './hooks/use-default-action';

@@ -1,17 +1,17 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function () {
-    const { client } = app;
+    const { browser } = compass;
 
-    if (!(await client.existsEventually(Selectors.FeatureTourModal))) {
+    if (!(await browser.existsEventually(Selectors.FeatureTourModal))) {
       return;
     }
 
-    const featureTourModalElement = await client.$(Selectors.FeatureTourModal);
+    const featureTourModalElement = await browser.$(Selectors.FeatureTourModal);
 
     await featureTourModalElement.waitForDisplayed();
-    await client.clickVisible(Selectors.CloseFeatureTourModal);
+    await browser.clickVisible(Selectors.CloseFeatureTourModal);
     await featureTourModalElement.waitForExist({
       reverse: true,
     });

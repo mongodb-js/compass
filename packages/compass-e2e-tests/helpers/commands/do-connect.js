@@ -1,21 +1,23 @@
 const Selectors = require('../selectors');
 
-module.exports = function (app) {
-  return async function doConnect(timeout, expectSuccess = true) {
-    const { client } = app;
-    await client.clickVisible(Selectors.ConnectButton);
-    if (expectSuccess) {
+module.exports = function (compass) {
+  return async function doConnect(timeout, connectionStatus = 'success') {
+    const { browser } = compass;
+    await browser.clickVisible(Selectors.ConnectButton);
+    let selector;
+    if (connectionStatus === 'either') {
+      // For the rare cases where we don't care whether it fails or succeeds
+      selector = `${Selectors.DatabasesTable},${Selectors.ConnectionFormMessage}`;
+    } else if (connectionStatus === 'success') {
       // First meaningful thing on the screen after being connected, good enough
       // indicator that we are connected to the server
-      const element = await client.$(Selectors.DatabasesTable);
-      await element.waitForDisplayed({
-        timeout,
-      });
+      selector = Selectors.DatabasesTable;
     } else {
-      const element = await client.$(Selectors.ConnectionFormMessage);
-      await element.waitForDisplayed({
-        timeout,
-      });
+      selector = Selectors.ConnectionFormMessage;
     }
+    const element = await browser.$(selector);
+    await element.waitForDisplayed({
+      timeout,
+    });
   };
 };

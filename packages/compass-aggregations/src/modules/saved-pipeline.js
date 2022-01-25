@@ -77,6 +77,35 @@ export const getDirectory = () => {
   return path.join(userDataDir, DIRNAME);
 };
 
+export const readPipelinesFromStorage = (callback) => {
+  const asyncr = require('async');
+  const fs = require('fs');
+  const path = require('path');
+
+  const pipelines = [];
+  const dir = getDirectory();
+
+  fs.readdir(dir, (error, files) => {
+    if (error) {
+      return callback(error);
+    }
+    const validFiles = files.filter(file => file.endsWith('.json'));
+    const tasks = validFiles.map((file) => {
+      return (cb) => {
+        fs.readFile(path.join(dir, file), 'utf8', (err, data) => {
+          if (!err) {
+            pipelines.push(JSON.parse(data));
+          }
+          cb(null);
+        });
+      };
+    });
+    asyncr.parallel(tasks, (err) => {
+      callback(err, pipelines);
+    });
+  });
+};
+
 /**
  * Update the pipeline list.
  *
@@ -84,35 +113,13 @@ export const getDirectory = () => {
  */
 export const updatePipelineList = () => {
   return (dispatch, getState) => {
-    const asyncr = require('async');
-    const fs = require('fs');
-    const path = require('path');
-
     const state = getState();
-    const pipelines = [];
-
-    const dir = getDirectory();
-    fs.readdir(dir, (error, files) => {
+    readPipelinesFromStorage((error, pipelines) => {
       if (!error) {
-        const validFiles = files.filter(file => file.endsWith('.json'));
-        const tasks = validFiles.map((file) => {
-          return (callback) => {
-            fs.readFile(path.join(dir, file), 'utf8', (err, data) => {
-              if (!err) {
-                const pipeline = JSON.parse(data);
-                if (pipeline.namespace === state.namespace) {
-                  pipelines.push(pipeline);
-                }
-              }
-              callback(null);
-            });
-          };
-        });
-        asyncr.parallel(tasks, () => {
-          dispatch(setIsModified(false));
-          dispatch(savedPipelineAdd(pipelines));
-          dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
-        });
+        const thisNamespacePipelines = pipelines.filter(({namespace}) => namespace === state.namespace);
+        dispatch(setIsModified(false));
+        dispatch(savedPipelineAdd(thisNamespacePipelines));
+        dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
       }
     });
   };
