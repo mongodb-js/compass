@@ -1,9 +1,10 @@
 import { Dispatch, useCallback, useEffect, useReducer } from 'react';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
-import ConnectionString from 'mongodb-connection-string-url';
+import ConnectionStringUrl, {
+  CommaAndColonSeparatedRecord,
+} from 'mongodb-connection-string-url';
 
 import {
   ConnectionFormError,
@@ -35,12 +36,18 @@ import {
   UpdatePasswordAction,
   UpdateUsernameAction,
 } from '../utils/authentication-handler';
-
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
   enableEditingConnectionString: boolean;
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
+}
+
+interface AuthMechanismProperties {
+  SERVICE_NAME?: string;
+  SERVICE_REALM?: string;
+  CANONICALIZE_HOST_NAME?: boolean;
+  AWS_SESSION_TOKEN?: string;
 }
 
 type Action =
@@ -117,11 +124,16 @@ type ConnectionFormFieldActions =
       type: 'update-search-param';
       currentKey: keyof MongoClientOptions;
       newKey?: keyof MongoClientOptions;
-      value?: unknown;
+      value?: string;
     }
   | {
       type: 'delete-search-param';
       key: keyof MongoClientOptions;
+    }
+  | {
+      type: 'update-auth-mechanism-property';
+      key: keyof AuthMechanismProperties;
+      value?: string;
     }
   | {
       type: 'update-connection-path';
@@ -140,7 +152,7 @@ export type UpdateConnectionFormField = (
 
 function parseConnectionString(
   connectionString: string
-): [ConnectionString | undefined, ConnectionFormError[]] {
+): [ConnectionStringUrl | undefined, ConnectionFormError[]] {
   const [parsedConnectionString, parsingError] =
     tryToParseConnectionString(connectionString);
 
@@ -412,6 +424,29 @@ export function handleConnectionFormFieldUpdate(
         },
       };
     }
+    case 'update-auth-mechanism-property': {
+      const authMechanismProperties = parseAuthMechanismProperties(
+        parsedConnectionStringUrl
+      );
+
+      if (action.value) {
+        authMechanismProperties.set(action.key, action.value);
+      } else {
+        authMechanismProperties.delete(action.key);
+      }
+
+      updatedSearchParams.set(
+        'authMechanismProperties',
+        authMechanismProperties.toString()
+      );
+
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
     case 'delete-search-param': {
       updatedSearchParams.delete(action.key);
       return {
@@ -453,6 +488,22 @@ export function handleConnectionFormFieldUpdate(
         },
       };
     }
+  }
+}
+
+export function parseAuthMechanismProperties(
+  connectionString: ConnectionStringUrl
+): CommaAndColonSeparatedRecord<AuthMechanismProperties> {
+  const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
+  const authMechanismPropertiesString = searchParams.get(
+    'authMechanismProperties'
+  );
+  try {
+    return new CommaAndColonSeparatedRecord<AuthMechanismProperties>(
+      authMechanismPropertiesString
+    );
+  } catch (e) {
+    return new CommaAndColonSeparatedRecord<AuthMechanismProperties>();
   }
 }
 
