@@ -26,7 +26,7 @@ function renderComponent({
   );
 }
 
-describe.only('AuthenticationGssapi Component', function () {
+describe('AuthenticationGssapi Component', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
   beforeEach(function () {
     updateConnectionFormFieldSpy = sinon.spy();
