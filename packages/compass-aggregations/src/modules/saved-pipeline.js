@@ -73,7 +73,7 @@ export const getSavedPipelines = () => {
 export const getDirectory = () => {
   const { remote } = require('electron');
   const path = require('path');
-  const userDataDir = remote.app.getPath('userData');
+  const userDataDir = process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH || remote.app.getPath('userData');
   return path.join(userDataDir, DIRNAME);
 };
 
