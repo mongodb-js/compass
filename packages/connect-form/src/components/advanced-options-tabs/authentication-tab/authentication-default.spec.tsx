@@ -171,12 +171,26 @@ describe('AuthenticationDefault Component', function () {
       errors: [
         {
           fieldName: 'username',
-          message: 'pineapples',
+          message: 'username error',
         },
       ],
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
-    expect(screen.getByText('pineapples')).to.be.visible;
+    expect(screen.getByText('username error')).to.be.visible;
+  });
+
+  it('renders a password error when there is a password error', function () {
+    renderComponent({
+      errors: [
+        {
+          fieldName: 'password',
+          message: 'password error',
+        },
+      ],
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    expect(screen.getByText('password error')).to.be.visible;
   });
 });

@@ -14,7 +14,10 @@ import { AuthMechanism } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
-import { ConnectionFormError } from '../../../utils/validation';
+import {
+  ConnectionFormError,
+  errorMessageByFieldName,
+} from '../../../utils/validation';
 
 const authSourceLabelStyles = css({
   padding: 0,
@@ -76,7 +79,8 @@ function AuthenticationDefault({
     [updateConnectionFormField]
   );
 
-  const usernameError = errors?.find((error) => error.fieldName === 'username');
+  const usernameError = errorMessageByFieldName(errors, 'username');
+  const passwordError = errorMessageByFieldName(errors, 'password');
 
   return (
     <>
@@ -91,7 +95,7 @@ function AuthenticationDefault({
             });
           }}
           label="Username"
-          errorMessage={usernameError?.message}
+          errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
           value={username || ''}
         />
@@ -109,6 +113,8 @@ function AuthenticationDefault({
           label="Password"
           type="password"
           value={password || ''}
+          errorMessage={passwordError}
+          state={passwordError ? 'error' : undefined}
         />
       </FormFieldContainer>
       <FormFieldContainer>
