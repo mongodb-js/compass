@@ -13,10 +13,10 @@ import {
   parseAuthMechanismProperties,
 } from '../../../utils/connection-string-helpers';
 
-export const GSSAPI_PRINCIPAL_NAME_LABEL = "Principal";
-export const GSSAPI_SERVICE_NAME_LABEL = "Service Name";
-export const GSSAPI_CANONICALIZE_HOST_NAME_LABEL = "Canonicalize Host Name";
-export const GSSAPI_SERVICE_REALM_LABEL = "Service Realm";
+export const GSSAPI_PRINCIPAL_NAME_LABEL = 'Principal';
+export const GSSAPI_SERVICE_NAME_LABEL = 'Service Name';
+export const GSSAPI_CANONICALIZE_HOST_NAME_LABEL = 'Canonicalize Host Name';
+export const GSSAPI_SERVICE_REALM_LABEL = 'Service Realm';
 
 function AuthenticationGSSAPI({
   errors,

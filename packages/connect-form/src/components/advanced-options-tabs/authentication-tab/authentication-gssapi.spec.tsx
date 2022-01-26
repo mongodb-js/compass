@@ -4,7 +4,12 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import AuthenticationGssapi, { GSSAPI_CANONICALIZE_HOST_NAME_LABEL, GSSAPI_PRINCIPAL_NAME_LABEL, GSSAPI_SERVICE_NAME_LABEL, GSSAPI_SERVICE_REALM_LABEL } from './authentication-gssapi';
+import AuthenticationGssapi, {
+  GSSAPI_CANONICALIZE_HOST_NAME_LABEL,
+  GSSAPI_PRINCIPAL_NAME_LABEL,
+  GSSAPI_SERVICE_NAME_LABEL,
+  GSSAPI_SERVICE_REALM_LABEL,
+} from './authentication-gssapi';
 import { ConnectionFormError } from '../../../utils/validation';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
@@ -104,7 +109,9 @@ describe('AuthenticationGssapi Component', function () {
       });
 
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
-      const checkbox = screen.getByLabelText(GSSAPI_CANONICALIZE_HOST_NAME_LABEL);
+      const checkbox = screen.getByLabelText(
+        GSSAPI_CANONICALIZE_HOST_NAME_LABEL
+      );
       fireEvent.click(checkbox);
     });
 
