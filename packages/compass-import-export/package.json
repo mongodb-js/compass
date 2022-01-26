@@ -47,7 +47,7 @@
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-redux": "^5.0.6",
-    "redux": "^3.7.2"
+    "redux": "^4.1.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -124,7 +124,7 @@
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
     "react-redux": "^5.0.6",
-    "redux": "^3.7.2",
+    "redux": "^4.1.2",
     "redux-mock-store": "^1.5.4",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
