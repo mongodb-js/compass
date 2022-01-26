@@ -259,7 +259,7 @@ describe('use-connections hook', function () {
       await waitFor(() => {
         expect(result.current.state.connections.length).to.equal(3);
       });
-      result.current.removeAllRecentsConnections();
+      await result.current.removeAllRecentsConnections();
 
       expect(loadAllSpyWithData.callCount).to.equal(1);
       expect(deleteSpy.callCount).to.equal(2);
@@ -347,7 +347,27 @@ describe('use-connections hook', function () {
     });
   });
   describe('#createNewConnection', function () {
-    it('should remove a connection', async function () {
+    it('should create a connection', async function () {
+      const mockConnections = [
+        {
+          id: 'turtle',
+          connectionOptions: {
+            connectionString: 'mongodb://turtle',
+          },
+          favorite: {
+            name: 'turtles',
+          },
+        },
+        {
+          id: 'oranges',
+          connectionOptions: {
+            connectionString: 'mongodb://peaches',
+          },
+          favorite: {
+            name: 'peaches',
+          },
+        },
+      ];
       const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
@@ -362,9 +382,11 @@ describe('use-connections hook', function () {
       });
       expect(loadAllSpyWithData.callCount).to.equal(1);
       result.current.createNewConnection();
-      await waitFor(() => {
-        expect(result.current.state.connections.length).to.equal(3);
-      });
+      expect(result.current.state.activeConnectionId).not.undefined;
+      expect(
+        result.current.state.activeConnectionInfo.connectionOptions
+          .connectionString
+      ).equal('mongodb://localhost:27017');
     });
   });
 });
