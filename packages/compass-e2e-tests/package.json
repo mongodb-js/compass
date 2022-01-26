@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "node -e \"try { fs.rmdirSync('.mongodb', { recursive: true }); } catch (e) {}\" && node -e \"try { fs.rmdirSync('.log', { recursive: true }); } catch (e) {}\"",
     "eslint": "eslint",
-    "prettier": "rm -f fixtures/*.json && prettier",
+    "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
@@ -16,7 +16,7 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js",
     "test-packaged": "npm run test -- -- --test-packaged-app",
     "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app",
-    "reformat": "rm -f fixtures/*.json && npm run prettier -- --write .",
+    "reformat": "npm run prettier -- --write .",
     "start-server": "mongodb-runner start --port 27018 --dbpath ./.mongodb",
     "stop-server": "mongodb-runner stop --port 27018",
     "insert-data": "ts-node ./scripts/insert-data.ts",
