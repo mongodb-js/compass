@@ -4,7 +4,11 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import AuthenticationGssapi, { GSSAPI_CANONICALIZE_HOST_NAME_LABEL, GSSAPI_PRINCIPAL_NAME_LABEL, GSSAPI_SERVICE_NAME_LABEL, GSSAPI_SERVICE_REALM_LABEL } from './authentication-gssapi';
+import AuthenticationAws, {
+  AWS_ACCESS_KEY_ID_LABEL,
+  AWS_SECRET_ACCESS_KEY_LABEL,
+  AWS_SESSION_TOKEN_LABEL,
+} from './authentication-aws';
 import { ConnectionFormError } from '../../../utils/validation';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
@@ -18,7 +22,7 @@ function renderComponent({
   updateConnectionFormField: UpdateConnectionFormField;
 }) {
   render(
-    <AuthenticationGssapi
+    <AuthenticationAws
       errors={errors}
       connectionStringUrl={connectionStringUrl}
       updateConnectionFormField={updateConnectionFormField}
@@ -26,20 +30,20 @@ function renderComponent({
   );
 }
 
-describe('AuthenticationGssapi Component', function () {
+describe('AuthenticationAws Component', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
   beforeEach(function () {
     updateConnectionFormFieldSpy = sinon.spy();
   });
 
-  describe('when the kerberosPrincipal input is changed', function () {
+  describe('when the Aws Access Key Id input is changed', function () {
     beforeEach(function () {
       renderComponent({
         updateConnectionFormField: updateConnectionFormFieldSpy,
       });
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
 
-      fireEvent.change(screen.getByLabelText(GSSAPI_PRINCIPAL_NAME_LABEL), {
+      fireEvent.change(screen.getByLabelText(AWS_ACCESS_KEY_ID_LABEL), {
         target: { value: 'good sandwich' },
       });
     });
@@ -53,14 +57,14 @@ describe('AuthenticationGssapi Component', function () {
     });
   });
 
-  describe('when the serviceName input is changed', function () {
+  describe('when the Aws Secret Access Key input is changed', function () {
     beforeEach(function () {
       renderComponent({
         updateConnectionFormField: updateConnectionFormFieldSpy,
       });
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
 
-      fireEvent.change(screen.getByLabelText(GSSAPI_SERVICE_NAME_LABEL), {
+      fireEvent.change(screen.getByLabelText(AWS_SECRET_ACCESS_KEY_LABEL), {
         target: { value: 'good sandwich' },
       });
     });
@@ -68,21 +72,20 @@ describe('AuthenticationGssapi Component', function () {
     it('calls to update the form field', function () {
       expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
       expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        key: 'SERVICE_NAME',
-        type: 'update-auth-mechanism-property',
-        value: 'good sandwich',
+        type: 'update-password',
+        password: 'good sandwich',
       });
     });
   });
 
-  describe('when the serviceRealm input is changed', function () {
+  describe('when the Aws Session Token input is changed', function () {
     beforeEach(function () {
       renderComponent({
         updateConnectionFormField: updateConnectionFormFieldSpy,
       });
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
 
-      fireEvent.change(screen.getByLabelText(GSSAPI_SERVICE_REALM_LABEL), {
+      fireEvent.change(screen.getByLabelText(AWS_SESSION_TOKEN_LABEL), {
         target: { value: 'good sandwich' },
       });
     });
@@ -90,45 +93,10 @@ describe('AuthenticationGssapi Component', function () {
     it('calls to update the form field', function () {
       expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
       expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        key: 'SERVICE_REALM',
+        key: 'AWS_SESSION_TOKEN',
         type: 'update-auth-mechanism-property',
         value: 'good sandwich',
       });
     });
-  });
-
-  describe('when the canoncalize hostname is changed', function () {
-    beforeEach(function () {
-      renderComponent({
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-      });
-
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
-      const checkbox = screen.getByLabelText(GSSAPI_CANONICALIZE_HOST_NAME_LABEL);
-      fireEvent.click(checkbox);
-    });
-
-    it('calls to update the form field', function () {
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        key: 'CANONICALIZE_HOST_NAME',
-        type: 'update-auth-mechanism-property',
-        value: 'true',
-      });
-    });
-  });
-
-  it('renders an error when there is a kerberosPrincipal error', function () {
-    renderComponent({
-      errors: [
-        {
-          fieldName: 'kerberosPrincipal',
-          message: 'kerberosPrincipal error',
-        },
-      ],
-      updateConnectionFormField: updateConnectionFormFieldSpy,
-    });
-
-    expect(screen.getByText('kerberosPrincipal error')).to.be.visible;
   });
 });
