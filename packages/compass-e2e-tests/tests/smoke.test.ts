@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import _ from 'lodash';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import { startTelemetryServer, Telemetry } from '../helpers/telemetry';
 import {
   beforeTests,

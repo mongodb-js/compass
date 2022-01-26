@@ -1,4 +1,4 @@
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import retryWithBackoff from '../retry-with-backoff';
 import * as Commands from '../commands';
 import * as Selectors from '../selectors';

@@ -1,4 +1,4 @@
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import * as Commands from './click-visible';
 import * as Selectors from '../selectors';
 

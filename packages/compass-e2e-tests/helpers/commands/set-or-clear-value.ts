@@ -1,4 +1,4 @@
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 
 export async function setOrClearValue(
   browser: Browser<'async'>,

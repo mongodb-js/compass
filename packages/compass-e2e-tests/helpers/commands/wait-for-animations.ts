@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 
 export async function waitForAnimations(
   browser: Browser<'async'>,

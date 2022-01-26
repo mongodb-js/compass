@@ -2,10 +2,12 @@ import { expect } from 'chai';
 import { beforeTests, afterTests, Compass } from '../helpers/compass';
 import { startTelemetryServer, Telemetry } from '../helpers/telemetry';
 import * as Commands from '../helpers/commands';
+import { mongoLogId } from 'mongodb-log-writer';
+import type { MongoLogEntry } from 'mongodb-log-writer';
 
 describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
-    let logs: Array<any>;
+    let logs: MongoLogEntry[];
     let telemetry: Telemetry;
 
     before(async function () {
@@ -39,7 +41,7 @@ describe('Logging and Telemetry integration', function () {
       expect(logs).not.to.be.undefined;
 
       for (const entry of logs) {
-        expect(entry.t.$date).to.be.a('string');
+        expect(entry.t).to.be.a('string');
       }
     });
 
@@ -314,7 +316,7 @@ describe('Logging and Telemetry integration', function () {
         },
       ];
 
-      let criticalPathActualLogs: Array<any>;
+      let criticalPathActualLogs: MongoLogEntry[];
       const testedIndexes = new Set();
 
       // eslint-disable-next-line mocha/no-hooks-for-single-case
@@ -340,7 +342,8 @@ describe('Logging and Telemetry integration', function () {
         // resulting in duplicate test names.
         it(`logs "${expected.msg}" (${i})`, function () {
           const actualLogIndex = criticalPathActualLogs.findIndex(
-            ({ id }, index) => id === expected.id && !testedIndexes.has(index)
+            ({ id }, index) =>
+              id === mongoLogId(expected.id) && !testedIndexes.has(index)
           );
           if (actualLogIndex < 0) {
             throw new Error(

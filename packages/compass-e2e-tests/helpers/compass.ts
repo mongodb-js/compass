@@ -87,7 +87,7 @@ export class Compass {
     this.addDebugger();
   }
 
-  async recordLogs() {
+  async recordLogs(): Promise<void> {
     const puppeteerBrowser = await this.browser.getPuppeteer();
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
@@ -126,7 +126,7 @@ export class Compass {
     });
   }
 
-  addDebugger() {
+  addDebugger(): void {
     const browser = this.browser;
     const debugClient = debug.extend('webdriver:client');
     const browserProto = Object.getPrototypeOf(browser);
@@ -142,6 +142,7 @@ export class Compass {
       }
       const origFn = descriptor.value;
       descriptor.value = function (...args: Array<any>) {
+        // TODO
         debugClient(
           `${prop}(${args
             .map((arg) => inspect(arg, { breakLength: Infinity }))
@@ -174,7 +175,7 @@ export class Compass {
     }
   }
 
-  async stop() {
+  async stop(): Promise<void> {
     // TODO: we don't have main logs to write :(
     /*
     const mainLogs = [];
@@ -218,7 +219,9 @@ export class Compass {
     }
   }
 
-  async capturePage(imgPathName = `screenshot-${formattedDate()}-${++j}.png`) {
+  async capturePage(
+    imgPathName = `screenshot-${formattedDate()}-${++j}.png`
+  ): Promise<void> {
     try {
       await this.browser.saveScreenshot(path.join(LOG_PATH, imgPathName));
       return true;
@@ -232,7 +235,7 @@ export class Compass {
 async function startCompass(
   testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP ?? ''),
   opts = {}
-) {
+): Promise<Compass> {
   const nowFormatted = formattedDate();
 
   const userDataDir = path.join(
@@ -349,7 +352,8 @@ async function startCompass(
  * @param {string} logPath The compass application log path
  * @returns {Promise<CompassLog>}
  */
-async function getCompassLog(logPath: string) {
+async function getCompassLog(logPath: string): Promise<any> {
+  // TODO
   const names = await fs.readdir(logPath);
   const logNames = names.filter((name) => name.endsWith('_log.gz'));
 
@@ -391,7 +395,7 @@ async function getCompassLog(logPath: string) {
   };
 }
 
-function formattedDate() {
+function formattedDate(): string {
   // Mimicking webdriver path with this for consistency
   return new Date().toISOString().replace(/:/g, '-').replace(/Z$/, '');
 }

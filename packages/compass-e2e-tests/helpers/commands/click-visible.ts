@@ -1,4 +1,4 @@
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import * as Commands from '../commands';
 
 export async function clickVisible(

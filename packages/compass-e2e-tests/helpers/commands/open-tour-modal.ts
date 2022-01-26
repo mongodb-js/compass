@@ -1,4 +1,4 @@
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import * as Selectors from '../selectors';
 
 const MINUTE = 60_000;

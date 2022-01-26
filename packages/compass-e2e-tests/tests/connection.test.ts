@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import ConnectionString from 'mongodb-connection-string-url';
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import {
   getAtlasConnectionOptions,
   beforeTests,

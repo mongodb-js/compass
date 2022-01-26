@@ -1,6 +1,6 @@
 import clipboard from 'clipboardy';
 import Debug from 'debug';
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import * as Commands from '../commands';
 
 const debug = Debug('compass-e2e-tests').extend('set-ace-value');

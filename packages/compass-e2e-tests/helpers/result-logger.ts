@@ -66,19 +66,6 @@ type Env = { [K in typeof ENV_VARS[number]]?: string };
 
 type HookOrTest = Mocha.Hook | Mocha.Test;
 
-enum ResultStatus {
-  Start = 'start',
-  Pass = 'pass',
-  Fail = 'fail',
-  SilentFail = 'silentfail',
-}
-
-enum CI {
-  Evergreen = 'evergreen',
-  GithubActions = 'github-actions',
-  Unknown = 'unknown',
-}
-
 function joinPath(parts: string[]) {
   // Turn an array of test/hook path components into a string we can use as an
   // identifier for the test, hook or suite
@@ -98,7 +85,7 @@ type Result = {
   test_file: string;
   type?: string; // tests don't have types and we delete these before handing it to evergreen
   start: number;
-  status: ResultStatus;
+  status: 'start' | 'pass' | 'fail' | 'silentfail';
   end?: number;
   elapsed?: number;
   error?: any;
@@ -119,7 +106,7 @@ export default class ResultLogger {
   collection?: Collection;
   context: {
     env: Env;
-    ci: CI;
+    ci: 'evergreen' | 'github-actions' | 'unknown';
     platform: string;
     os: string;
     author: string;
@@ -151,10 +138,10 @@ export default class ResultLogger {
 
       // infer some common variables
       ci: process.env.EVERGREEN
-        ? CI.Evergreen
+        ? 'evergreen'
         : process.env.GITHUB_ACTIONS
-        ? CI.GithubActions
-        : CI.Unknown,
+        ? 'github-actions'
+        : 'unknown',
 
       platform: process.platform,
 
@@ -247,8 +234,8 @@ export default class ResultLogger {
       test_file,
       type: hookOrTest.type,
       start: Date.now() / 1000,
-      status: ResultStatus.Start, // evergreen only knows fail, pass, silentfail and skip
-    };
+      status: 'start', // evergreen only knows fail, pass, silentfail and skip
+    } as Result;
 
     this.results.push(result);
   }
@@ -260,7 +247,7 @@ export default class ResultLogger {
 
     assert.ok(result);
 
-    result.status = ResultStatus.Pass;
+    result.status = 'pass';
     result.end = Date.now() / 1000;
     result.elapsed = result.end - result.start;
   }
@@ -272,7 +259,7 @@ export default class ResultLogger {
 
     assert.ok(result);
 
-    result.status = ResultStatus.Fail;
+    result.status = 'fail';
     result.end = Date.now() / 1000;
     result.elapsed = result.end - result.start;
     result.error = error.stack;
@@ -316,7 +303,7 @@ export default class ResultLogger {
         // change things that are still stuck as "start" to something evergreen
         // understands
         if (result.status === 'start') {
-          result.status = ResultStatus.SilentFail;
+          result.status = 'silentfail';
         }
 
         // copy over some evergreen-specific fields if they exist

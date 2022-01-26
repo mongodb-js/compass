@@ -1,4 +1,4 @@
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import delay from '../delay';
 import * as Commands from '../commands';
 import * as Selectors from '../selectors';

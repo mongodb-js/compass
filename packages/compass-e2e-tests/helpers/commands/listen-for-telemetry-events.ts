@@ -1,4 +1,4 @@
-import { Browser } from 'webdriverio';
+import type { Browser } from 'webdriverio';
 import { Telemetry } from '../telemetry';
 
 export function listenForTelemetryEvents(
