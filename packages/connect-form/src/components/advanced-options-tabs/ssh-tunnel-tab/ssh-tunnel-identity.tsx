@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from 'react';
-import { TextInput, FileInput } from '@mongodb-js/compass-components';
 import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
 import {
@@ -7,6 +6,8 @@ import {
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
+
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 type IdentityFormKeys = keyof SSHConnectionOptions;
 
@@ -22,6 +23,8 @@ function Identity({
   ) => void;
   errors: ConnectionFormError[];
 }): React.ReactElement {
+  const { TextInput, FileInput } = useUiKitContext();
+
   const formFieldChanged = (key: IdentityFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
   };

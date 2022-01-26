@@ -1,9 +1,10 @@
 import React, { ChangeEvent } from 'react';
-import { TextInput } from '@mongodb-js/compass-components';
 import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import { defaultSocksPort } from '../../../constants/default-connection';
 import FormFieldContainer from '../../form-field-container';
 import { ConnectionFormError } from '../../../utils/validation';
+
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 type SocksFormKeys = keyof Omit<
   SSHConnectionOptions,
@@ -19,6 +20,7 @@ function Socks({
   ) => void;
   errors: ConnectionFormError[];
 }): React.ReactElement {
+  const { TextInput } = useUiKitContext();
   const formFieldChanged = (key: SocksFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
   };

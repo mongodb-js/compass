@@ -1,14 +1,4 @@
 import React, { useCallback } from 'react';
-import {
-  Banner,
-  BannerVariant,
-  Description,
-  Label,
-  RadioBox,
-  RadioBoxGroup,
-  spacing,
-  css,
-} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -18,14 +8,12 @@ import {
   fieldNameHasError,
 } from '../../../utils/validation';
 
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
+
 enum MONGODB_SCHEMA {
   MONGODB = 'MONGODB',
   MONGODB_SRV = 'MONGODB_SRV',
 }
-
-const descriptionStyles = css({
-  marginTop: spacing[1],
-});
 
 const regularSchemaDescription =
   'Standard Connection String Format. The standard format of the MongoDB connection URI is used to connect to a MongoDB deployment: standalone, replica set, or a sharded cluster.';
@@ -41,6 +29,21 @@ function SchemaInput({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const {
+    Banner,
+    BannerVariant,
+    Description,
+    Label,
+    RadioBox,
+    RadioBoxGroup,
+    spacing,
+    css,
+  } = useUiKitContext();
+
+  const descriptionStyles = css({
+    marginTop: spacing[1],
+  });
+
   const { isSRV } = connectionStringUrl;
 
   const onChangeConnectionSchema = useCallback(

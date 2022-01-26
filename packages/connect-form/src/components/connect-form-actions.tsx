@@ -1,28 +1,11 @@
 import React from 'react';
-import {
-  Button,
-  ButtonVariant,
-  spacing,
-  uiColors,
-  css,
-} from '@mongodb-js/compass-components';
 import { ErrorSummary, WarningSummary } from './validation-summary';
 import {
   ConnectionFormError,
   ConnectionFormWarning,
 } from '../utils/validation';
 
-const formActionStyles = css({
-  borderTop: `1px solid ${uiColors.gray.light2}`,
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
-});
-
-const formButtonsStyles = css({
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
-  textAlign: 'right',
-});
+import { useUiKitContext } from '../contexts/ui-kit-context';
 
 function ConnectFormActions({
   errors,
@@ -33,6 +16,26 @@ function ConnectFormActions({
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
 }): React.ReactElement {
+  const {
+    Button,
+    ButtonVariant,
+    spacing,
+    uiColors,
+    css,
+  } = useUiKitContext();
+
+  const formActionStyles = css({
+    borderTop: `1px solid ${uiColors.gray?.light2}`,
+    paddingLeft: spacing[4],
+    paddingRight: spacing[4],
+  });
+  
+  const formButtonsStyles = css({
+    paddingTop: spacing[3],
+    paddingBottom: spacing[3],
+    textAlign: 'right',
+  });
+
   return (
     <div className={formActionStyles}>
       {warnings.length ? <WarningSummary warnings={warnings} /> : ''}

@@ -1,24 +1,8 @@
 import React from 'react';
 
-import {
-  Banner,
-  BannerVariant,
-  InlineDefinition,
-  spacing,
-  css,
-} from '@mongodb-js/compass-components';
+import { useUiKitContext } from '../contexts/ui-kit-context';
 
 type ErrorOrWarning = { message: string };
-
-const bannerStyle = css({
-  marginTop: spacing[1],
-});
-
-const listStyle = css({
-  padding: 0,
-  margin: 0,
-  listStylePosition: 'inside',
-});
 
 export function ErrorSummary({
   errors,
@@ -26,6 +10,12 @@ export function ErrorSummary({
   errors: ErrorOrWarning[];
 }): React.ReactElement | null {
   if (!errors || !errors.length) return null;
+
+  const { Banner, BannerVariant, css, spacing } = useUiKitContext();
+
+  const bannerStyle = css({
+    marginTop: spacing[1],
+  });
 
   return (
     <Banner variant={BannerVariant.Danger} className={bannerStyle}>
@@ -41,6 +31,12 @@ export function WarningSummary({
 }): React.ReactElement | null {
   if (!warnings || !warnings.length) return null;
 
+  const { Banner, BannerVariant, css, spacing } = useUiKitContext();
+
+  const bannerStyle = css({
+    marginTop: spacing[1],
+  });
+
   return (
     <Banner variant={BannerVariant.Warning} className={bannerStyle}>
       <Summary messages={warnings.map((warning) => warning.message)}></Summary>
@@ -52,6 +48,14 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
   if (messages.length === 1) {
     return <div>{messages[0]}</div>;
   }
+
+  const { InlineDefinition, css } = useUiKitContext();
+
+  const listStyle = css({
+    padding: 0,
+    margin: 0,
+    listStylePosition: 'inside',
+  });
 
   if (messages.length === 2) {
     return (

@@ -1,13 +1,5 @@
 import React, { ChangeEvent, useCallback } from 'react';
-import {
-  Label,
-  RadioBox,
-  RadioBoxGroup,
-  spacing,
-  css,
-} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { AuthMechanism } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../../utils/validation';
@@ -18,6 +10,19 @@ import AuthenticationX509 from './authentication-x509';
 import AuthenticationGSSAPI from './authentication-gssapi';
 import AuthenticationPlain from './authentication-plain';
 import AuthenticationAWS from './authentication-aws';
+
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
+
+enum AuthMechanism {
+  MONGODB_AWS = "MONGODB-AWS",
+  MONGODB_CR = "MONGODB-CR",
+  MONGODB_DEFAULT = "DEFAULT",
+  MONGODB_GSSAPI = "GSSAPI",
+  MONGODB_PLAIN = "PLAIN",
+  MONGODB_SCRAM_SHA1 = "SCRAM-SHA-1",
+  MONGODB_SCRAM_SHA256 = "SCRAM-SHA-256",
+  MONGODB_X509 = "MONGODB-X509"
+};
 
 interface TabOption {
   id: string;
@@ -60,15 +65,6 @@ const options: TabOption[] = [
   },
 ];
 
-const containerStyles = css({
-  marginTop: spacing[3],
-});
-
-const contentStyles = css({
-  marginTop: spacing[3],
-  width: '50%',
-});
-
 function AuthenticationTab({
   updateConnectionFormField,
   connectionStringUrl,
@@ -78,6 +74,23 @@ function AuthenticationTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
+  const {
+    Label,
+    RadioBox,
+    RadioBoxGroup,
+    spacing,
+    css,
+  } = useUiKitContext();
+
+  const containerStyles = css({
+    marginTop: spacing[3],
+  });
+  
+  const contentStyles = css({
+    marginTop: spacing[3],
+    width: '50%',
+  });
+
   const selectedAuthMechanism =
     connectionStringUrl.searchParams.get('authMechanism') ?? '';
   const selectedAuthTab =

@@ -4,63 +4,14 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useRef,
+  useRef
 } from 'react';
-import {
-  Icon,
-  IconButton,
-  Label,
-  TextArea,
-  Toggle,
-  spacing,
-  css,
-} from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
-const uriLabelStyles = css({
-  padding: 0,
-  margin: 0,
-  flexGrow: 1,
-});
-
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[1],
-});
-
-const textAreaContainerStyle = css({
-  position: 'relative',
-  marginBottom: spacing[2],
-});
-
-const connectionStringStyles = css({
-  textarea: {
-    minHeight: spacing[7],
-    resize: 'vertical',
-  },
-});
-
-const editToggleStyles = css({
-  height: 14,
-  width: 26,
-  margin: spacing[1],
-  marginRight: 0,
-});
-
-const editToggleLabelStyles = css({
-  '&:hover': {
-    cursor: 'pointer',
-  },
-});
-
-const textAreaLabelContainerStyles = css({
-  marginTop: spacing[3],
-  display: 'flex',
-  flexDirection: 'row',
-});
+import { useUiKitContext } from '../contexts/ui-kit-context';
 
 const connectionStringInputId = 'connectionString';
 
@@ -84,6 +35,58 @@ function ConnectStringInput({
   setEnableEditingConnectionString: (enableEditing: boolean) => void;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const {
+    Icon,
+    IconButton,
+    Label,
+    TextArea,
+    Toggle,
+    spacing,
+    css,
+  } = useUiKitContext();
+
+  const uriLabelStyles = css({
+    padding: 0,
+    margin: 0,
+    flexGrow: 1,
+  });
+  
+  const infoButtonStyles = css({
+    verticalAlign: 'middle',
+    marginTop: -spacing[1],
+  });
+  
+  const textAreaContainerStyle = css({
+    position: 'relative',
+    marginBottom: spacing[2],
+  });
+  
+  const connectionStringStyles = css({
+    textarea: {
+      minHeight: spacing[7],
+      resize: 'vertical',
+    },
+  });
+  
+  const editToggleStyles = css({
+    height: 14,
+    width: 26,
+    margin: spacing[1],
+    marginRight: 0,
+  });
+  
+  const editToggleLabelStyles = css({
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  });
+  
+  const textAreaLabelContainerStyles = css({
+    marginTop: spacing[3],
+    display: 'flex',
+    flexDirection: 'row',
+  });
+  
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
     useState(connectionString);

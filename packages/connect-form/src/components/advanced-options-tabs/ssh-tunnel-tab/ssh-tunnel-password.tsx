@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from 'react';
-import { TextInput } from '@mongodb-js/compass-components';
 import { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
 import {
@@ -7,6 +6,8 @@ import {
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
+
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 type PasswordFormKeys = keyof Omit<
   SSHConnectionOptions,
@@ -25,6 +26,7 @@ function Password({
   ) => void;
   errors: ConnectionFormError[];
 }): React.ReactElement {
+  const { TextInput } = useUiKitContext();
   const formFieldChanged = (key: PasswordFormKeys, value: string | number) => {
     onConnectionOptionChanged(key, value);
   };

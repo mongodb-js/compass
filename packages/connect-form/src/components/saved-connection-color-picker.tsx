@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  css,
-  cx,
-  spacing,
-  uiColors,
-  Label,
-} from '@mongodb-js/compass-components';
+import { useUiKitContext } from '../contexts/ui-kit-context';
 
 /**
  * Default colors.
@@ -23,46 +17,6 @@ const COLORS = [
   '#ababab',
 ];
 
-const colorOptionStyles = css({
-  outline: 'none',
-  margin: 0,
-  padding: 0,
-  marginRight: spacing[2],
-  borderRadius: '50%',
-  verticalAlign: 'middle',
-  width: 36,
-  height: 36,
-  border: '1px solid transparent',
-  boxShadow: `0 0 0 0 ${uiColors.focus}`,
-  transition: 'box-shadow .16s ease-in',
-  position: 'relative',
-  overflow: 'hidden',
-});
-
-const activeColorOptionStyles = css({
-  boxShadow: `0 0 0 3px ${uiColors.focus}`,
-  transitionTimingFunction: 'ease-out',
-});
-
-const inActiveColorOptionStyles = css({
-  '&:focus, &:hover': {
-    boxShadow: `0 0 0 3px ${uiColors.gray.light1}`,
-  },
-});
-
-const noColorRedBarStyles = css({
-  width: 40,
-  borderTop: `3px solid ${uiColors.red.base}`,
-  transform: 'rotate(-45deg)',
-  position: 'absolute',
-  left: -5,
-});
-
-const selectedColorCheckmarkStyles = css({
-  margin: 0,
-  padding: 0,
-});
-
 function ColorOption({
   isSelected,
   onClick,
@@ -72,6 +26,45 @@ function ColorOption({
   onClick: () => void;
   hex: string;
 }): React.ReactElement {
+  const {
+    css,
+    cx,
+    spacing,
+    uiColors
+  } = useUiKitContext();
+
+  const colorOptionStyles = css({
+    outline: 'none',
+    margin: 0,
+    padding: 0,
+    marginRight: spacing[2],
+    borderRadius: '50%',
+    verticalAlign: 'middle',
+    width: 36,
+    height: 36,
+    border: '1px solid transparent',
+    boxShadow: `0 0 0 0 ${uiColors.focus}`,
+    transition: 'box-shadow .16s ease-in',
+    position: 'relative',
+    overflow: 'hidden',
+  });
+  
+  const activeColorOptionStyles = css({
+    boxShadow: `0 0 0 3px ${uiColors.focus}`,
+    transitionTimingFunction: 'ease-out',
+  });
+  
+  const inActiveColorOptionStyles = css({
+    '&:focus, &:hover': {
+      boxShadow: `0 0 0 3px ${uiColors.gray.light1}`,
+    },
+  });
+  
+  const selectedColorCheckmarkStyles = css({
+    margin: 0,
+    padding: 0,
+  });
+
   return (
     <button
       style={{ background: hex }}
@@ -117,6 +110,43 @@ function SavedConnectionColorPicker({
   hex?: string;
   onChange: (newColor?: string) => void;
 }): React.ReactElement {
+  const {
+    css,
+    cx,
+    spacing,
+    uiColors,
+    Label,
+  } = useUiKitContext();
+
+  const colorOptionStyles = css({
+    outline: 'none',
+    margin: 0,
+    padding: 0,
+    marginRight: spacing[2],
+    borderRadius: '50%',
+    verticalAlign: 'middle',
+    width: 36,
+    height: 36,
+    border: '1px solid transparent',
+    boxShadow: `0 0 0 0 ${uiColors.focus}`,
+    transition: 'box-shadow .16s ease-in',
+    position: 'relative',
+    overflow: 'hidden',
+  });
+  
+  const activeColorOptionStyles = css({
+    boxShadow: `0 0 0 3px ${uiColors.focus}`,
+    transitionTimingFunction: 'ease-out',
+  });
+  
+  const noColorRedBarStyles = css({
+    width: 40,
+    borderTop: `3px solid ${uiColors.red.base}`,
+    transform: 'rotate(-45deg)',
+    position: 'absolute',
+    left: -5,
+  });
+
   return (
     <>
       <Label htmlFor="favorite-color-selector">Color</Label>

@@ -1,43 +1,11 @@
 import React, { ChangeEvent, useEffect, useCallback } from 'react';
-import {
-  spacing,
-  Table,
-  TableHeader,
-  Row,
-  Cell,
-  Button,
-  IconButton,
-  Icon,
-  TextInput,
-  Select,
-  Option,
-  OptionGroup,
-  Banner,
-  css,
-} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import { editableUrlOptions, UrlOption } from '../../../utils/url-options';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-const optionSelectStyles = css({
-  width: 300,
-});
-
-const optionValueCellStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%',
-});
-
-const addUrlOptionsButtonStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[3],
-  marginBottom: spacing[2],
-});
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 function getUrlOptions(connectionStringUrl: ConnectionStringUrl): UrlOption[] {
   let opts: string[] = [];
@@ -64,6 +32,41 @@ function UrlOptionsTable({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
+  const {
+    spacing,
+    Table,
+    TableHeader,
+    Row,
+    Cell,
+    Button,
+    IconButton,
+    Icon,
+    TextInput,
+    Select,
+    Option,
+    OptionGroup,
+    Banner,
+    css,
+  } = useUiKitContext();
+
+  const optionSelectStyles = css({
+    width: 300,
+  });
+  
+  const optionValueCellStyles = css({
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  });
+  
+  const addUrlOptionsButtonStyles = css({
+    textAlign: 'center',
+    marginTop: spacing[3],
+    marginBottom: spacing[2],
+  });
+
   const [options, setOptions] = React.useState<Partial<UrlOption>[]>([]);
   const [errorMessage, setErrorMessage] = React.useState('');
 
@@ -172,7 +175,7 @@ function UrlOptionsTable({
                 aria-labelledby={
                   datum.name ? `${datum.name} select` : 'new option select'
                 }
-                onChange={(name, event): void => {
+                onChange={(name: any, event: any): void => {
                   event.preventDefault();
                   updateUrlOption(
                     datum.name,

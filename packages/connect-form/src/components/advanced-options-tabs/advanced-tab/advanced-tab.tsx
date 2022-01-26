@@ -1,17 +1,7 @@
 import React, { ChangeEvent, useCallback } from 'react';
 import { ConnectionOptions } from 'mongodb-data-service';
-import {
-  RadioBox,
-  RadioBoxGroup,
-  spacing,
-  TextInput,
-  Label,
-  IconButton,
-  Icon,
-  css,
-} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -20,18 +10,7 @@ import { readPreferences } from '../../../utils/read-preferences';
 import UrlOptions from './url-options';
 import { ConnectionFormError } from '../../../utils/validation';
 
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[1],
-});
-
-const containerStyles = css({
-  marginTop: spacing[3],
-});
-
-const fieldStyles = css({
-  width: '50%',
-});
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 function AdvancedTab({
   updateConnectionFormField,
@@ -42,6 +21,30 @@ function AdvancedTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
+  const {
+    RadioBox,
+    RadioBoxGroup,
+    spacing,
+    TextInput,
+    Label,
+    IconButton,
+    Icon,
+    css,
+  } = useUiKitContext();
+
+  const infoButtonStyles = css({
+    verticalAlign: 'middle',
+    marginTop: -spacing[1],
+  });
+  
+  const containerStyles = css({
+    marginTop: spacing[3],
+  });
+  
+  const fieldStyles = css({
+    width: '50%',
+  });
+
   const { searchParams, pathname } = connectionStringUrl;
   const readPreference = searchParams.get('readPreference');
   const replicaSet = searchParams.get('replicaSet');

@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Banner,
-  BannerVariant,
-  compassUIColors,
-  spacing,
-  css,
-} from '@mongodb-js/compass-components';
+import * as compassComponents from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
 import {
   ConnectionInfo,
@@ -19,6 +13,14 @@ import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
 import { ConnectionStore, useConnections } from '../stores/connections-store';
+
+const {
+  Banner,
+  BannerVariant,
+  compassUIColors,
+  spacing,
+  css,
+} = compassComponents;
 
 const connectStyles = css({
   position: 'absolute',
@@ -120,6 +122,7 @@ function Connections({
             onSaveConnectionClicked={saveConnection}
             initialConnectionInfo={activeConnectionInfo}
             connectionErrorMessage={connectionErrorMessage}
+            compassComponents={compassComponents}
           />
           <FormHelp />
         </div>

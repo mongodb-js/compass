@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { useUiKitContext } from '../contexts/ui-kit-context';
 
 function ConfirmEditConnectionString({
   onCancel,
@@ -10,6 +10,8 @@ function ConfirmEditConnectionString({
   onConfirm: () => void;
   open: boolean;
 }): React.ReactElement {
+  const { ConfirmationModal } = useUiKitContext();
+
   return (
     <ConfirmationModal
       title="Are you sure you want to edit your connection string?"

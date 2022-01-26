@@ -47,18 +47,18 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.9.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
   "dependencies": {
+    "@mongodb-js/compass-components": "^0.9.1",
+    "mongodb": "^4.3.0",
     "lodash": "^4.17.21",
     "mongodb-connection-string-url": "^2.4.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-components": "^0.9.1",
     "@mongodb-js/eslint-config-compass": "^0.5.0",
     "@mongodb-js/mocha-config-compass": "^0.7.0",
     "@mongodb-js/prettier-config-compass": "^0.4.0",
@@ -76,7 +76,6 @@
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^8.4.0",
-    "mongodb": "^4.3.0",
     "mongodb-data-service": "^21.15.1",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",

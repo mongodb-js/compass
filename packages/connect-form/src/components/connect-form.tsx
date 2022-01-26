@@ -1,21 +1,7 @@
 import React, { useState } from 'react';
 import {
-  ConnectionInfo,
-  ConnectionFavoriteOptions,
+  ConnectionInfo
 } from 'mongodb-data-service';
-import {
-  Banner,
-  BannerVariant,
-  Card,
-  Description,
-  FavoriteIcon,
-  Icon,
-  IconButton,
-  H3,
-  spacing,
-  css,
-  uiColors,
-} from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
 import ConnectionStringInput from './connection-string-input';
@@ -25,72 +11,8 @@ import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
 
-const formContainerStyles = css({
-  margin: 0,
-  padding: 0,
-  height: 'fit-content',
-  width: 700,
-  position: 'relative',
-  display: 'inline-block',
-});
-
-const formCardStyles = css({
-  margin: 0,
-  height: 'fit-content',
-  width: '100%',
-  position: 'relative',
-  display: 'flex',
-  flexFlow: 'column nowrap',
-  maxHeight: '95vh',
-});
-
-const descriptionStyles = css({
-  marginTop: spacing[2],
-});
-
-const formContentContainerStyles = css({
-  padding: spacing[4],
-  overflow: 'scroll',
-  position: 'relative',
-});
-
-const formFooterStyles = css({
-  marginTop: 'auto',
-});
-
-const favoriteButtonStyles = css({
-  position: 'absolute',
-  top: spacing[4],
-  right: spacing[6],
-  hover: {
-    cursor: 'pointer',
-  },
-});
-
-const formHeaderStyles = css({
-  button: {
-    visibility: 'hidden',
-  },
-  '&:hover': {
-    button: {
-      visibility: 'visible',
-    },
-  },
-});
-
-const editFavoriteButtonStyles = css({
-  verticalAlign: 'text-top',
-  marginLeft: spacing[1],
-});
-
-const favoriteButtonLabelStyles = css({
-  position: 'absolute',
-  top: spacing[5],
-  paddingTop: spacing[1],
-  color: uiColors.black,
-  fontWeight: 'bold',
-  fontSize: 12,
-});
+import { pick } from 'lodash';
+import { createUiKitContext, UiKitComponents } from '../contexts/ui-kit-context';
 
 function ConnectForm({
   initialConnectionInfo,
@@ -99,12 +21,16 @@ function ConnectForm({
   // The connect form will not always used in an environment where
   // the connection info can be saved.
   onSaveConnectionClicked,
+  compassComponents
 }: {
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
+  compassComponents?: any
 }): React.ReactElement {
+  const UiKitContext = createUiKitContext(compassComponents);
+
   const [
     { enableEditingConnectionString, errors, warnings, connectionOptions },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
@@ -116,8 +42,92 @@ function ConnectForm({
     (error) => error.fieldName === 'connectionString'
   );
 
+  const {
+    Banner,
+    BannerVariant,
+    Card,
+    Description,
+    FavoriteIcon,
+    Icon,
+    IconButton,
+    H3,
+    spacing,
+    css,
+    uiColors,
+  } = compassComponents;
+
+  const formContainerStyles = css({
+    margin: 0,
+    padding: 0,
+    height: 'fit-content',
+    width: 700,
+    position: 'relative',
+    display: 'inline-block',
+  });
+  
+  const formCardStyles = css({
+    margin: 0,
+    height: 'fit-content',
+    width: '100%',
+    position: 'relative',
+    display: 'flex',
+    flexFlow: 'column nowrap',
+    maxHeight: '95vh',
+  });
+  
+  const descriptionStyles = css({
+    marginTop: spacing[2],
+  });
+  
+  const formContentContainerStyles = css({
+    padding: spacing[4],
+    overflow: 'scroll',
+    position: 'relative',
+  });
+  
+  const formFooterStyles = css({
+    marginTop: 'auto',
+  });
+  
+  const favoriteButtonStyles = css({
+    position: 'absolute',
+    top: spacing[4],
+    right: spacing[6],
+    hover: {
+      cursor: 'pointer',
+    },
+  });
+  
+  const formHeaderStyles = css({
+    button: {
+      visibility: 'hidden',
+    },
+    '&:hover': {
+      button: {
+        visibility: 'visible',
+      },
+    },
+  });
+  
+  const editFavoriteButtonStyles = css({
+    verticalAlign: 'text-top',
+    marginLeft: spacing[1],
+  });
+  
+  const favoriteButtonLabelStyles = css({
+    position: 'absolute',
+    top: spacing[5],
+    paddingTop: spacing[1],
+    color: uiColors.black,
+    fontWeight: 'bold',
+    fontSize: 12,
+  });
+
   return (
-    <>
+    <UiKitContext.Provider value={pick(
+      compassComponents,
+      UiKitComponents
+    )}>
       <div className={formContainerStyles} data-testid="new-connect-form">
         <Card className={formCardStyles}>
           <div className={formContentContainerStyles}>
@@ -201,7 +211,7 @@ function ConnectForm({
           onCancelClicked={() => {
             setShowSaveConnectionModal(false);
           }}
-          onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
+          onSaveClicked={async (favoriteInfo: any) => {
             setShowSaveConnectionModal(false);
 
             try {
@@ -220,7 +230,7 @@ function ConnectForm({
           initialConnectionInfo={initialConnectionInfo}
         />
       )}
-    </>
+    </UiKitContext.Provider>
   );
 }
 

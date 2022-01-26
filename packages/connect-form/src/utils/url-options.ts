@@ -1,4 +1,4 @@
-import { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
 
 export interface UrlOption {
   name: keyof MongoClientOptions;

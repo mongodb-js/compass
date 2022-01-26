@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
 import {
-  ConfirmationModal,
-  TextInput,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
-import {
-  ConnectionInfo,
-  ConnectionFavoriteOptions,
+  ConnectionInfo
 } from 'mongodb-data-service';
 
 import FormFieldContainer from './form-field-container';
 import SavedConnectionColorPicker from './saved-connection-color-picker';
 
-const connectionNameInputStyles = css({
-  marginTop: spacing[5],
-});
+import { useUiKitContext } from '../contexts/ui-kit-context';
 
 function SaveConnectionModal({
   initialConnectionInfo,
@@ -25,9 +16,20 @@ function SaveConnectionModal({
 }: {
   initialConnectionInfo: ConnectionInfo;
   onCancelClicked: () => void;
-  onSaveClicked: (favoriteInfo: ConnectionFavoriteOptions) => Promise<void>;
+  onSaveClicked: (favoriteInfo: any) => Promise<void>;
   open: boolean;
 }): React.ReactElement {
+  const {
+    ConfirmationModal,
+    TextInput,
+    css,
+    spacing,
+  } = useUiKitContext();
+
+  const connectionNameInputStyles = css({
+    marginTop: spacing[5],
+  });
+
   const [editingFavorite, setEditingFavorite] = useState({
     name: '',
     ...initialConnectionInfo.favorite,

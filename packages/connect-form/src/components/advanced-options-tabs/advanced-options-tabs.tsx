@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { Tabs, Tab, spacing, css } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
@@ -12,9 +11,8 @@ import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import { ConnectionFormError } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
 
-const tabsStyles = css({
-  marginTop: spacing[1],
-});
+import { useUiKitContext } from '../../contexts/ui-kit-context';
+
 interface TabObject {
   name: string;
   component: React.FunctionComponent<{
@@ -34,6 +32,17 @@ function AdvancedOptionsTabs({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
+  const {
+    Tabs,
+    Tab,
+    spacing,
+    css,
+  } = useUiKitContext();
+
+  const tabsStyles = css({
+    marginTop: spacing[1],
+  });
+
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs: TabObject[] = [

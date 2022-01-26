@@ -1,12 +1,5 @@
 import React, { ChangeEvent, useState, useCallback } from 'react';
 import { ConnectionOptions } from 'mongodb-data-service';
-import {
-  Label,
-  RadioBox,
-  RadioBoxGroup,
-  spacing,
-  css,
-} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -18,6 +11,8 @@ import {
 import Identity from './ssh-tunnel-identity';
 import Password from './ssh-tunnel-password';
 import { ConnectionFormError } from '../../../utils/validation';
+
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 interface TabOption {
   id: string;
@@ -56,16 +51,6 @@ const options: TabOption[] = [
   },
 ];
 
-const containerStyles = css({
-  marginTop: spacing[3],
-});
-
-const contentStyles = css({
-  marginTop: spacing[3],
-  width: '50%',
-  minWidth: 400,
-});
-
 function SSHTunnel({
   connectionOptions,
   updateConnectionFormField,
@@ -76,6 +61,24 @@ function SSHTunnel({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
+  const {
+    Label,
+    RadioBox,
+    RadioBoxGroup,
+    spacing,
+    css,
+  } = useUiKitContext();
+
+  const containerStyles = css({
+    marginTop: spacing[3],
+  });
+  
+  const contentStyles = css({
+    marginTop: spacing[3],
+    width: '50%',
+    minWidth: 400,
+  });
+
   const [selectedOption, setSelectedOption] = useState(options[0]);
 
   const optionSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {

@@ -1,11 +1,14 @@
-import {
-  ReadPreferenceMode,
-  ReadPreference as MongoReadPreference,
-} from 'mongodb';
+enum MongoReadPreference {
+  PRIMARY = "primary",
+  PRIMARY_PREFERRED = "primaryPreferred",
+  SECONDARY = "secondary",
+  SECONDARY_PREFERRED = "secondaryPreferred",
+  NEAREST = "nearest"
+}
 
 interface ReadPreference {
   title: string;
-  id: ReadPreferenceMode;
+  id: any;
 }
 
 export const readPreferences: ReadPreference[] = [

@@ -1,13 +1,10 @@
 import React from 'react';
-import { FileInput, TextInput, css } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 
-const inputFieldStyles = css({
-  width: '80%',
-});
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 function TLSClientCertificate({
   connectionStringUrl,
@@ -22,6 +19,12 @@ function TLSClientCertificate({
   ) => void;
   updateTLSClientCertificatePassword: (newPassword: string | null) => void;
 }): React.ReactElement {
+  const { FileInput, TextInput, css } = useUiKitContext();
+
+  const inputFieldStyles = css({
+    width: '80%',
+  });
+
   const typedParams =
     connectionStringUrl.typedSearchParams<MongoClientOptions>();
   const clientCertificateKeyFile = typedParams.get('tlsCertificateKeyFile');

@@ -1,21 +1,11 @@
 import React from 'react';
-import {
-  spacing,
-  Label,
-  Description,
-  Link,
-  css,
-} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 import UrlOptionsTable from './url-options-table';
 
-const urlOptionsContainerStyles = css({
-  marginTop: spacing[3],
-  width: '70%',
-});
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 function UrlOptions({
   updateConnectionFormField,
@@ -24,6 +14,19 @@ function UrlOptions({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
+  const {
+    spacing,
+    Label,
+    Description,
+    Link,
+    css,
+  } = useUiKitContext();
+
+  const urlOptionsContainerStyles = css({
+    marginTop: spacing[3],
+    width: '70%',
+  });
+
   return (
     <div className={urlOptionsContainerStyles} data-testid="url-options">
       <Label htmlFor={''}>Url Options</Label>

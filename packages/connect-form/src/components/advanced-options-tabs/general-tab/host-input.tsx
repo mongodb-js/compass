@@ -1,12 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  Label,
-  Icon,
-  IconButton,
-  TextInput,
-  spacing,
-  css,
-} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
@@ -19,25 +11,7 @@ import {
   fieldNameHasError,
 } from '../../../utils/validation';
 
-const hostInputContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  width: '100%',
-  marginBottom: spacing[2],
-});
-
-const hostInputStyles = css({
-  flexGrow: 1,
-});
-
-const hostActionButtonStyles = css({
-  marginLeft: spacing[1],
-  marginTop: spacing[1],
-});
-
-const inputFieldStyles = css({
-  width: '50%',
-});
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 function HostInput({
   errors,
@@ -48,6 +22,35 @@ function HostInput({
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const {
+    Label,
+    css,
+    spacing,
+    TextInput,
+    IconButton,
+    Icon
+  } = useUiKitContext();
+
+  const hostInputContainerStyles = css({
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    marginBottom: spacing[2],
+  });
+
+  const hostInputStyles = css({
+    flexGrow: 1,
+  });
+
+  const hostActionButtonStyles = css({
+    marginLeft: spacing[1],
+    marginTop: spacing[1],
+  });
+
+  const inputFieldStyles = css({
+    width: '50%',
+  });
+
   const [hosts, setHosts] = useState([...connectionStringUrl.hosts]);
   const { isSRV } = connectionStringUrl;
 
@@ -100,7 +103,7 @@ function HostInput({
                 index
               )}
               value={`${host}`}
-              onChange={(e) => onHostChange(e, index)}
+              onChange={(e: any) => onHostChange(e, index)}
             />
             {!isSRV && (
               <IconButton

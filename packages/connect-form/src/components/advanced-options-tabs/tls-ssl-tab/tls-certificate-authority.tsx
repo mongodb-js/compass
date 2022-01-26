@@ -1,13 +1,10 @@
 import React from 'react';
-import { css, FileInput } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 
-const caFieldsContainer = css({
-  width: '80%',
-});
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 function TLSCertificateAuthority({
   connectionStringUrl,
@@ -18,6 +15,12 @@ function TLSCertificateAuthority({
   disabled: boolean;
   updateCAFile: (newCAFile: string | null) => void;
 }): React.ReactElement {
+  const { css, FileInput } = useUiKitContext();
+
+  const caFieldsContainer = css({
+    width: '80%',
+  });
+
   const caFile = connectionStringUrl
     .typedSearchParams<MongoClientOptions>()
     .get('tlsCAFile');

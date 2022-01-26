@@ -1,17 +1,4 @@
 import React, { useCallback } from 'react';
-import {
-  Checkbox,
-  Description,
-  Icon,
-  IconButton,
-  Label,
-  RadioBox,
-  RadioBoxGroup,
-  spacing,
-  uiColors,
-  css,
-  cx,
-} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
@@ -21,19 +8,7 @@ import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
 import { TLS_OPTIONS } from '../../../utils/tls-options';
 
-const tlsDescriptionStyles = css({
-  marginTop: spacing[1],
-});
-
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[2],
-  marginBottom: -spacing[2],
-});
-
-const disabledCheckboxDescriptionStyles = css({
-  color: uiColors.gray.light1,
-});
+import { useUiKitContext } from '../../../contexts/ui-kit-context';
 
 const TLS_TYPES: {
   value: TLS_OPTIONS;
@@ -101,6 +76,34 @@ function TLSTab({
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const {
+    Checkbox,
+    Description,
+    Icon,
+    IconButton,
+    Label,
+    RadioBox,
+    RadioBoxGroup,
+    spacing,
+    uiColors,
+    css,
+    cx,
+  } = useUiKitContext();
+
+  const tlsDescriptionStyles = css({
+    marginTop: spacing[1],
+  });
+  
+  const infoButtonStyles = css({
+    verticalAlign: 'middle',
+    marginTop: -spacing[2],
+    marginBottom: -spacing[2],
+  });
+  
+  const disabledCheckboxDescriptionStyles = css({
+    color: uiColors.gray.light1,
+  });
+
   const tlsOption = getTLSOptionForConnectionString(connectionStringUrl);
 
   const onChangeTLSOption = useCallback(
