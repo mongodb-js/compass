@@ -5,7 +5,6 @@ import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import ipc from 'hadron-ipc';
 import sinon from 'sinon';
-
 import AppRegistryContext from '../contexts/app-registry-context';
 import Home from '.';
 
@@ -27,14 +26,9 @@ const getComponent = (name: string) => {
 const createDataService = () => ({});
 
 describe('Home [Component]', function () {
-  let mockConnectionStorage;
-
   let testAppRegistry: AppRegistry;
   beforeEach(function () {
     testAppRegistry = new AppRegistry();
-    mockConnectionStorage = {
-      save: sinon.spy(),
-    };
     [
       'Collection.Workspace',
       'Database.Workspace',
@@ -61,10 +55,7 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home
-            appName="home-testing"
-            connectionStorage={mockConnectionStorage}
-          />
+          <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
     });
@@ -85,10 +76,7 @@ describe('Home [Component]', function () {
     ) {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home
-            appName="home-testing"
-            connectionStorage={mockConnectionStorage}
-          />
+          <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
       testAppRegistry.emit('data-service-connected', null, dataService, {
@@ -213,10 +201,7 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home
-            appName="home-testing"
-            connectionStorage={mockConnectionStorage}
-          />
+          <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
     });
@@ -242,10 +227,7 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       const { unmount } = render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home
-            appName="home-testing"
-            connectionStorage={mockConnectionStorage}
-          />
+          <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
       unmount();

@@ -15,6 +15,7 @@ import SidebarDatabasesNavigation from '../sidebar-databases-navigation';
 import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { changeFilterRegex } from '../../modules/databases';
+import { updateAndSaveConnectionInfo } from '../../modules/connection-info';
 import { openLink } from '../../modules/link';
 import { NavigationItems } from './navigation-items';
 
@@ -52,7 +53,7 @@ class Sidebar extends PureComponent {
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
     connectionInfo: PropTypes.object.isRequired,
-    updateConnectionInfo: PropTypes.func.isRequired
+    updateAndSaveConnectionInfo: PropTypes.func.isRequired
   };
 
   state = {
@@ -182,7 +183,7 @@ class Sidebar extends PureComponent {
             toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
             connectionInfo={this.props.connectionInfo}
-            updateConnectionInfo={this.props.updateConnectionInfo}
+            updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
           />
         )}
         {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true' && (
@@ -226,6 +227,7 @@ class Sidebar extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
+  connectionInfo: state.connectionInfo.connectionInfo,
   instance: state.instance,
   databases: state.databases.databases,
   isDetailsExpanded: state.isDetailsExpanded,
@@ -247,7 +249,8 @@ const MappedSidebar = connect(
     toggleIsGenuineMongoDBVisible,
     changeFilterRegex,
     openLink,
-    globalAppRegistryEmit
+    globalAppRegistryEmit,
+    updateAndSaveConnectionInfo
   },
 )(Sidebar);
 

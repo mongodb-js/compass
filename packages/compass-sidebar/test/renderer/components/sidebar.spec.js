@@ -26,8 +26,6 @@ describe('Sidebar [Component]', () => {
         <Provider store={SidebarStore}>
           <Sidebar
             onCollapse={()=>{}}
-            updateConnectionInfo={()=>{}}
-            connectionInfo={connectionInfo}
           />
         </Provider>
       );
@@ -80,7 +78,7 @@ describe('Sidebar [Component]', () => {
             filterDatabases={() => {}}
             changeDatabases={() => {}}
             changeFilterRegex={() => {}}
-            updateConnectionInfo={()=>{}}
+            updateAndSaveConnectionInfo={()=>{}}
             saveFavorite={saveFavoriteSpy}
           />
         </Provider>
@@ -116,10 +114,7 @@ describe('Sidebar [Component]', () => {
     beforeEach(() => {
       component = mount(
         <Provider store={SidebarStore}>
-          <Sidebar
-            updateConnectionInfo={()=>{}}
-            connectionInfo={connectionInfo}
-          />
+          <Sidebar />
         </Provider>
       );
       component.find('[data-test-id="toggle-sidebar"]').simulate('click');
@@ -149,10 +144,7 @@ describe('Sidebar [Component]', () => {
     beforeEach(() => {
       component = mount(
         <Provider store={SidebarStore}>
-          <Sidebar
-            updateConnectionInfo={()=>{}}
-            connectionInfo={connectionInfo}
-          />
+          <Sidebar />
         </Provider>
       );
       component.find('[data-test-id="toggle-sidebar"]').simulate('click');
@@ -184,7 +176,7 @@ describe('Sidebar [Component]', () => {
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar
-            updateConnectionInfo={()=>{}}
+            updateAndSaveConnectionInfo={()=>{}}
             connectionInfo={connectionInfo}
           />
         </Provider>

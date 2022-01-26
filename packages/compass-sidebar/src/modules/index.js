@@ -27,6 +27,9 @@ import isGenuineMongoDB, {
 import isGenuineMongoDBVisible, {
   INITIAL_STATE as IS_VISIBLE_IS
 } from './is-genuine-mongodb-visible';
+import connectionInfo, {
+  INITIAL_STATE as CONNECTION_INFO_IS
+} from './connection-info';
 
 /**
  * The reducer.
@@ -34,6 +37,7 @@ import isGenuineMongoDBVisible, {
 const reducer = combineReducers({
   appRegistry,
   databases,
+  connectionInfo,
   description,
   detailsPlugins,
   instance,
@@ -56,6 +60,7 @@ const rootReducer = (state, action) => {
   if (action.type === RESET) {
     return {
       ...state,
+      connectionInfo: CONNECTION_INFO_IS,
       databases: DATABASES_INITIAL_STATE,
       description: DESCRIPTION_INITIAL_STATE,
       instance: INSTANCE_INITIAL_STATE,

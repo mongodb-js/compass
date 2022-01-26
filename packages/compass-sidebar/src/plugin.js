@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import PropTypes from 'prop-types';
 
 import Sidebar from './components/sidebar';
 import store from './stores';
@@ -11,25 +10,14 @@ import store from './stores';
  *
  * @returns {React.Component} The rendered component.
  */
-function SidebarPlugin({
-  connectionInfo,
-  updateAndSaveConnectionInfo
-}) {
+function SidebarPlugin() {
   return (
     <Provider store={store}>
-      <Sidebar
-        connectionInfo={connectionInfo}
-        updateConnectionInfo={updateAndSaveConnectionInfo}
-      />
+      <Sidebar />
     </Provider>
   );
 }
 
 SidebarPlugin.displayName = 'SidebarPlugin';
-SidebarPlugin.propTypes = {
-  connectionInfo: PropTypes.object.isRequired,
-  updateAndSaveConnectionInfo: PropTypes.func.isRequired
-};
-
 
 export default SidebarPlugin;
