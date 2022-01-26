@@ -27,8 +27,8 @@ function AuthenticationPlain({
 }): React.ReactElement {
   const username = getConnectionStringUsername(connectionStringUrl);
   const password = getConnectionStringPassword(connectionStringUrl);
-  const usernameError = errorMessageByFieldName(errors, 'ldapUsername');
-  const passwordError = errorMessageByFieldName(errors, 'ldapPassword');
+  const usernameError = errorMessageByFieldName(errors, 'username');
+  const passwordError = errorMessageByFieldName(errors, 'password');
 
   return (
     <>

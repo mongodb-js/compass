@@ -81,7 +81,7 @@ describe('AuthenticationAws Component', function () {
     renderComponent({
       errors: [
         {
-          fieldName: 'ldapUsername',
+          fieldName: 'username',
           message: 'username error',
         },
       ],
@@ -95,7 +95,7 @@ describe('AuthenticationAws Component', function () {
     renderComponent({
       errors: [
         {
-          fieldName: 'ldapPassword',
+          fieldName: 'password',
           message: 'password error',
         },
       ],
