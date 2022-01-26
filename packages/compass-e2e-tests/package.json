@@ -24,7 +24,8 @@
     "testfast": "env DEBUG=hadron*,mongo*,compass* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail"
   },
   "peerDependencies": {
-    "bson": "*"
+    "bson": "*",
+    "puppeteer": "*"
   },
   "dependencies": {
     "@types/cross-spawn": "^6.0.2",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.5.0",
     "@mongodb-js/prettier-config-compass": "^0.4.0",
+    "@mongodb-js/tsconfig-compass": "^0.4.0",
     "bson": "*",
     "chai": "*",
     "chai-as-promised": "*",

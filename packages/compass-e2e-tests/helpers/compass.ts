@@ -5,7 +5,7 @@ import Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
 import { promisify } from 'util';
-import zlib from 'zlib'
+import zlib from 'zlib';
 import { remote, Browser } from 'webdriverio';
 import { rebuild } from 'electron-rebuild';
 import { ConsoleMessage } from 'puppeteer';
@@ -13,10 +13,11 @@ import {
   run as packageCompass,
   compileAssets,
 } from 'hadron-build/commands/release';
-export { default as Selectors } from './selectors';
-import { addCommands } from './commands';
+export * as Selectors from './selectors';
+export * as Commands from './commands';
+import * as Commands from './commands';
 
-import Debug = require('debug');
+import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -29,10 +30,15 @@ const packageCompassAsync = promisify(packageCompass);
 const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
 );
-const LOG_PATH = path.resolve(__dirname, '..', '.log');
+export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 
-export function getAtlasConnectionOptions() {
+export function getAtlasConnectionOptions(): {
+  host: string;
+  username: string;
+  password: string;
+  srvRecord: boolean;
+} | null {
   const missingKeys = [
     'E2E_TESTS_ATLAS_HOST',
     'E2E_TESTS_ATLAS_USERNAME',
@@ -47,11 +53,9 @@ export function getAtlasConnectionOptions() {
     return null;
   }
 
-  const {
-    E2E_TESTS_ATLAS_HOST: host,
-    E2E_TESTS_ATLAS_USERNAME: username,
-    E2E_TESTS_ATLAS_PASSWORD: password,
-  } = process.env;
+  const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
+  const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+  const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
 
   return { host, username, password, srvRecord: true };
 }
@@ -64,24 +68,22 @@ let j = 0;
 //let k = 0;
 
 type CompassOptions = {
-  userDataDir: string
-}
+  userDataDir: string;
+};
 
 class Compass {
   browser: Browser<'async'>;
-  renderLogs: any[];
-  logs: any[];
+  renderLogs: any[]; // TODO
+  logs: any[]; // TODO
   logPath?: string;
   userDataDir: string;
 
   constructor(browser: Browser<'async'>, options: CompassOptions) {
-
     this.browser = browser;
     this.userDataDir = options.userDataDir;
     this.logs = [];
     this.renderLogs = [];
 
-    addCommands(this); // TODO
     this.addDebugger();
   }
 
@@ -113,12 +115,13 @@ class Compass {
 
         this.renderLogs.push({ timestamp, type, text, args });
       };
-      run();
+      void run();
     });
 
     // get the app logPath out of electron early in case the app crashes before we
     // close it and load the logs
     this.logPath = await this.browser.execute(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       return require('electron').ipcRenderer.invoke('compass:logPath');
     });
   }
@@ -139,26 +142,27 @@ class Compass {
       }
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
+        // TODO
         debugClient(
           `${prop}(${args
             .map((arg) => inspect(arg, { breakLength: Infinity }))
             .join(', ')})`
         );
 
-        const stack = new Error(prop).stack || '';
+        const stack = new Error(prop).stack ?? '';
 
         let result;
         try {
           result = origFn.call(this, ...args);
         } catch (error) {
           // In this case the method threw synchronously
-          augmentError(error, stack);
+          augmentError(error as Error, stack);
           throw error;
         }
 
         if (result && result.then) {
           // If the result looks like a promise, resolve it and look for errors
-          return result.catch((error: any) => {
+          return result.catch((error: Error) => {
             augmentError(error, stack);
             throw error;
           });
@@ -190,15 +194,12 @@ class Compass {
       `electron-render.${nowFormatted}.json`
     );
     debug(`Writing application render process log to ${renderLogPath}`);
-    await fs.writeFile(
-      renderLogPath,
-      JSON.stringify(this.renderLogs, null, 2)
-    );
+    await fs.writeFile(renderLogPath, JSON.stringify(this.renderLogs, null, 2));
 
     debug('Stopping Compass application');
     await this.browser.deleteSession();
 
-    const compassLog = await getCompassLog(this.logPath || '');
+    const compassLog = await getCompassLog(this.logPath ?? '');
     const compassLogPath = path.join(
       LOG_PATH,
       `compass-log.${nowFormatted}.log`
@@ -218,24 +219,21 @@ class Compass {
     }
   }
 
-  async capturePage(
-    imgPathName = `screenshot-${formattedDate()}-${++j}.png`
-  ) {
+  async capturePage(imgPathName = `screenshot-${formattedDate()}-${++j}.png`) {
     try {
       await this.browser.saveScreenshot(path.join(LOG_PATH, imgPathName));
       return true;
-    } catch (err: any) {
-      console.warn(err.stack);
+    } catch (err) {
+      console.warn((err as Error).stack);
       return false;
     }
   }
 }
 
 async function startCompass(
-  testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP || ''),
+  testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP ?? ''),
   opts = {}
 ) {
-
   const nowFormatted = formattedDate();
 
   const userDataDir = path.join(
@@ -304,7 +302,7 @@ async function startCompass(
   };
 
   process.env.APP_ENV = 'webdriverio';
-  process.env.DEBUG = `${process.env.DEBUG || ''},mongodb-compass:main:logging`;
+  process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
   process.env.CHROME_LOG_FILE = chromedriverLogPath;
 
@@ -333,20 +331,17 @@ async function startCompass(
     ...opts,
   };
 
-
   debug('Starting compass via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
-  // It's missing methods that we will add in a moment
+  // TODO
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const browser = await remote(options);
 
   const compass = new Compass(browser, { userDataDir });
 
   await compass.recordLogs();
-
-
-
 
   return compass;
 }
@@ -402,28 +397,41 @@ function formattedDate() {
   return new Date().toISOString().replace(/:/g, '-').replace(/Z$/, '');
 }
 
-async function rebuildNativeModules(compassPath = COMPASS_PATH) {
+export async function rebuildNativeModules(
+  compassPath = COMPASS_PATH
+): Promise<void> {
+  const fullCompassPath = require.resolve(
+    path.join(compassPath, 'package.json')
+  );
   const {
     config: {
       hadron: { rebuild: rebuildConfig },
     },
-  } = require(path.join(compassPath, 'package.json'));
+  } = JSON.parse(await fs.readFile(fullCompassPath, 'utf8'));
+
+  const fullElectronPath = require.resolve('electron/package.json');
+  const electronVersion = JSON.parse(
+    await fs.readFile(fullElectronPath, 'utf8')
+  ).version;
 
   await rebuild({
     ...rebuildConfig,
-    electronVersion: require('electron/package.json').version,
+    electronVersion,
     buildPath: compassPath,
     // monorepo root, so that the root packages are also inspected
     projectRootPath: path.resolve(compassPath, '..', '..'),
   });
 }
 
-async function compileCompassAssets(compassPath = COMPASS_PATH) {
+export async function compileCompassAssets(
+  compassPath = COMPASS_PATH
+): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore some weirdness from util-callbackify
   await compileAssetsAsync({ dir: compassPath });
 }
 
-async function getCompassBuildMetadata() {
+async function getCompassBuildMetadata(): Promise<BinPathOptions> {
   try {
     let metadata;
     if (process.env.COMPASS_APP_PATH && process.env.COMPASS_APP_NAME) {
@@ -435,7 +443,7 @@ async function getCompassBuildMetadata() {
       metadata = require('mongodb-compass/dist/target.json');
     }
     // Double-checking that Compass app path exists, not only the metadata
-    fs.stat(metadata.appPath);
+    await fs.stat(metadata.appPath);
     return metadata;
   } catch (e) {
     throw new Error(
@@ -444,7 +452,10 @@ async function getCompassBuildMetadata() {
   }
 }
 
-export async function buildCompass(force = false, compassPath = COMPASS_PATH) {
+export async function buildCompass(
+  force = false,
+  compassPath = COMPASS_PATH
+): Promise<void> {
   if (!force) {
     try {
       await getCompassBuildMetadata();
@@ -461,13 +472,16 @@ export async function buildCompass(force = false, compassPath = COMPASS_PATH) {
 }
 
 type BinPathOptions = {
-  appPath: string,
+  appPath: string;
   packagerOptions: {
-    name: string
-  }
-}
+    name: string;
+  };
+};
 
-export function getCompassBinPath({ appPath, packagerOptions }: BinPathOptions) {
+export function getCompassBinPath({
+  appPath,
+  packagerOptions,
+}: BinPathOptions): string {
   const { name } = packagerOptions;
 
   switch (process.platform) {
@@ -484,7 +498,7 @@ export function getCompassBinPath({ appPath, packagerOptions }: BinPathOptions) 
   }
 }
 
-function augmentError(error: any, stack: string) {
+function augmentError(error: Error, stack: string) {
   const lines = stack.split('\n');
   const strippedLines = lines.filter((line, index) => {
     // try to only contain lines that originated in this workspace
@@ -513,22 +527,22 @@ function augmentError(error: any, stack: string) {
     return;
   }
 
-  error.stack = `${error.stack}\nvia ${strippedLines.join('\n')}`;
+  error.stack = `${error.stack ?? ''}\nvia ${strippedLines.join('\n')}`;
 }
 
-export async function beforeTests() {
+export async function beforeTests(): Promise<Compass> {
   const compass = await startCompass();
 
   const { browser } = compass;
 
-  await browser.waitForConnectionScreen();
-  await browser.closeTourModal();
-  await browser.closePrivacySettingsModal();
+  await Commands.waitForConnectionScreen(browser);
+  await Commands.closeTourModal(browser);
+  await Commands.closePrivacySettingsModal(browser);
 
   return compass;
 }
 
-export async function afterTests(compass?: Compass) {
+export async function afterTests(compass?: Compass): Promise<void> {
   if (!compass) {
     console.log('compas is falsey in afterTests');
     return;
@@ -561,13 +575,16 @@ function screenshotPathName(text: string) {
 /**
  * @param {string} filename
  */
-export function outputFilename(filename: string) {
+export function outputFilename(filename: string): string {
   return path.join(OUTPUT_PATH, filename);
 }
 
-export async function afterTest(compass: Compass, test: Mocha.Hook | Mocha.Test) {
+export async function afterTest(
+  compass: Compass,
+  test: Mocha.Hook | Mocha.Test
+): Promise<void> {
   if (test.state == 'failed') {
-    await compass.capturePage( screenshotPathName(test.fullTitle()));
+    await compass.capturePage(screenshotPathName(test.fullTitle()));
   }
 }
 

@@ -70,13 +70,13 @@ enum ResultStatus {
   Start = 'start',
   Pass = 'pass',
   Fail = 'fail',
-  SilentFail = 'silentfail'
-};
+  SilentFail = 'silentfail',
+}
 
 enum CI {
   Evergreen = 'evergreen',
   GithubActions = 'github-actions',
-  Unknown = 'unknown'
+  Unknown = 'unknown',
 }
 
 function joinPath(parts: string[]) {
@@ -87,12 +87,28 @@ function joinPath(parts: string[]) {
 }
 
 function githubWorkflowRunUrl() {
-  const serverURL = process.env.GITHUB_SERVER_URL;
-  const repository = process.env.GITHUB_REPOSITORY;
-  const runID = process.env.GITHUB_RUN_ID;
+  const serverURL = process.env.GITHUB_SERVER_URL ?? '';
+  const repository = process.env.GITHUB_REPOSITORY ?? '';
+  const runID = process.env.GITHUB_RUN_ID ?? '';
 
   return `${serverURL}/${repository}/actions/runs/${runID}`;
 }
+
+type Result = {
+  test_file: string;
+  type?: string; // tests don't have types and we delete these before handing it to evergreen
+  start: number;
+  status: ResultStatus;
+  end?: number;
+  elapsed?: number;
+  error?: any;
+  task_id?: string;
+  execution?: number;
+};
+
+type Report = {
+  results: Result[];
+};
 
 export default class ResultLogger {
   _id?: ObjectId;
@@ -102,26 +118,16 @@ export default class ResultLogger {
   client?: MongoClient;
   collection?: Collection;
   context: {
-    env: Env,
-    ci: CI,
-    platform: string,
-    os: string,
-    author: string,
-    branch: string,
-    commit: string,
-    url: string
+    env: Env;
+    ci: CI;
+    platform: string;
+    os: string;
+    author: string;
+    branch: string;
+    commit: string;
+    url: string;
   };
-  results: {
-      test_file: string,
-      type?: string, // tests don't have types and we delete these before handing it to evergreen
-      start: number,
-      status: ResultStatus,
-      end?: number,
-      elapsed?: number,
-      error?: any,
-      task_id?: string,
-      execution?: number
-  }[];
+  results: Result[];
   runner: Mocha.Runner;
 
   constructor(client: MongoClient, runner: Mocha.Runner) {
@@ -155,28 +161,30 @@ export default class ResultLogger {
       // this way we should be able to distinguish between ubuntu and rhel on
       // evergreen and linux on github actions
       os:
-        process.env.EVERGREEN_BUILD_VARIANT || process.env.RUNNER_OS || 'unknown',
+        process.env.EVERGREEN_BUILD_VARIANT ??
+        process.env.RUNNER_OS ??
+        'unknown',
 
       author:
-        process.env.EVERGREEN_AUTHOR || process.env.GITHUB_ACTOR || 'unknown',
+        process.env.EVERGREEN_AUTHOR ?? process.env.GITHUB_ACTOR ?? 'unknown',
 
       // For an evergreen patch the branch name is set to main which is not what we want
       branch: process.env.EVERGREEN_IS_PATCH
         ? 'evergreen-patch'
-        : process.env.EVERGREEN_BRANCH_NAME ||
-          process.env.GITHUB_HEAD_REF ||
+        : process.env.EVERGREEN_BRANCH_NAME ??
+          process.env.GITHUB_HEAD_REF ??
           'unknown',
 
       // EVERGREEN_REVISION is the ${revision} expansion, but the ${github_commit} one might be better?
       // GITHUB_SHA also doesn't look 100% right.
       commit:
-        process.env.EVERGREEN_REVISION || process.env.GITHUB_SHA || 'unknown',
+        process.env.EVERGREEN_REVISION ?? process.env.GITHUB_SHA ?? 'unknown',
 
       url: process.env.EVERGREEN
-        ? process.env.EVERGREEN_TASK_URL || ''
+        ? process.env.EVERGREEN_TASK_URL ?? ''
         : process.env.GITHUB_ACTIONS
         ? githubWorkflowRunUrl()
-        : 'unknown'
+        : 'unknown',
     };
 
     // Hooks and tests. See
@@ -216,7 +224,7 @@ export default class ResultLogger {
     });
   }
 
-  async init() {
+  async init(): Promise<void> {
     debug('init');
 
     this.start = Date.now() / 1000;
@@ -231,7 +239,7 @@ export default class ResultLogger {
     }
   }
 
-  startResult(hookOrTest: HookOrTest) {
+  startResult(hookOrTest: HookOrTest): void {
     const test_file = joinPath(hookOrTest.titlePath());
     debug('start', test_file);
 
@@ -245,7 +253,7 @@ export default class ResultLogger {
     this.results.push(result);
   }
 
-  passResult(hookOrTest: HookOrTest) {
+  passResult(hookOrTest: HookOrTest): void {
     const test_file = joinPath(hookOrTest.titlePath());
     debug('pass', test_file);
     const result = this.findResult(test_file);
@@ -257,7 +265,7 @@ export default class ResultLogger {
     result.elapsed = result.end - result.start;
   }
 
-  failResult(hookOrTest: HookOrTest, error: any) {
+  failResult(hookOrTest: HookOrTest, error: Error): void {
     const test_file = joinPath(hookOrTest.titlePath());
     debug('fail', test_file);
     const result = this.findResult(test_file);
@@ -270,7 +278,7 @@ export default class ResultLogger {
     result.error = error.stack;
   }
 
-  async done(failures: number) {
+  async done(failures: number): Promise<Report> {
     debug('done');
 
     this.end = Date.now() / 1000;
@@ -290,7 +298,7 @@ export default class ResultLogger {
     return this.report();
   }
 
-  report() {
+  report(): Report {
     const results = this.results
       .filter((r) => {
         if (r.status !== 'pass') {
@@ -333,7 +341,7 @@ export default class ResultLogger {
     return { results };
   }
 
-  findResult(test_file: string) {
+  findResult(test_file: string): Result | null {
     for (const result of this.results) {
       if (result.test_file === test_file) {
         return result;

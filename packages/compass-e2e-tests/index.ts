@@ -130,6 +130,7 @@ async function main() {
   if (metricsConnection) {
     debug('Connecting to E2E_TESTS_METRICS_URI');
     // only require it down here because it gets rebuilt up top
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { MongoClient } = require('mongodb');
     metricsClient = new MongoClient(metricsConnection);
     await metricsClient.connect();
@@ -140,6 +141,7 @@ async function main() {
   debug('Running E2E tests');
   // mocha.run has a callback and returns a result, so just promisify it manually
   const { resultLogger, failures } = await new Promise((resolve, reject) => {
+    // eslint-disable-next-line prefer-const
     let resultLogger: ResultLogger;
 
     const runner = mocha.run((failures: number) => {
@@ -153,7 +155,7 @@ async function main() {
     // Synchronously create the ResultLogger so it can start listening to events
     // on runner immediately after calling mocha.run() before any of the events
     // fire.
-    resultLogger.init().catch((err: any) => {
+    resultLogger.init().catch((err: Error) => {
       // reject() doesn't stop mocha.run()...
       reject(err);
     });
@@ -181,13 +183,13 @@ process.once('SIGTERM', () => {
   process.kill(process.pid, 'SIGTERM');
 });
 
-process.once('uncaughtException', (err) => {
+process.once('uncaughtException', (err: Error) => {
   debug('Uncaught exception. Cleaning-up and exiting.');
   cleanup();
   throw err;
 });
 
-process.on('unhandledRejection', (err: any) => {
+process.on('unhandledRejection', (err: Error) => {
   debug('Unhandled exception. Cleaning-up and exiting.');
   cleanup();
   console.error(err.stack || err.message || err);
@@ -205,4 +207,4 @@ async function run() {
   }
 }
 
-run();
+void run();

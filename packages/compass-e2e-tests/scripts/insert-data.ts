@@ -6,7 +6,7 @@ async function dropCollection(db: Db, name: string) {
   const collection = db.collection(name);
   try {
     await collection.drop();
-  } catch (err: any) {
+  } catch (err: Error) {
     if (err.codeName !== 'NamespaceNotFound') {
       throw err;
     }
@@ -43,9 +43,9 @@ if (require.main === module) {
   };
 
   run()
-    .catch((err) => {
+    .catch((err: Error) => {
       console.error(err);
       process.exit(1);
     })
-    .finally(() => client.close());
+    .finally(() => void client.close());
 }

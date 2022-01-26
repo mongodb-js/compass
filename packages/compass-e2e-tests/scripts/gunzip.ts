@@ -28,7 +28,7 @@ async function run() {
 }
 
 if (require.main === module) {
-  run().catch((err: any) => {
+  run().catch((err: Error) => {
     console.error('An error occurred:', err);
     process.exitCode = 1;
   });

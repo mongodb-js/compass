@@ -4,7 +4,7 @@ import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests').extend('keychain');
 
-export function getDefaultKeychain() {
+export function getDefaultKeychain(): string {
   return JSON.parse(
     execSync('security default-keychain', { encoding: 'utf8' }).trim()
   );
@@ -13,6 +13,12 @@ export function getDefaultKeychain() {
 function wait(ms = 1000) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export type Keychain = {
+  name: string;
+  activate: () => Promise<void>;
+  reset: () => void;
+};
 
 /**
  * Compass uses user keychain through the keytar module. If the keychain is not
@@ -29,7 +35,7 @@ function wait(ms = 1000) {
  * [1]: https://github.com/electron/electron/pull/30020#discussion_r664153197
  * [2]: https://www.electronjs.org/docs/latest/api/command-line-switches
  */
-export function createUnlockedKeychain() {
+export function createUnlockedKeychain(): Keychain {
   if (process.platform === 'darwin') {
     const tempKeychainName = `temp${Date.now().toString(32)}.keychain`;
     const origDefaultKeychain = getDefaultKeychain();
@@ -87,5 +93,13 @@ export function createUnlockedKeychain() {
     };
   }
 
-  return { name: null, activate() {}, reset() {} };
+  return {
+    name: null,
+    async activate() {
+      return Promise.resolve();
+    },
+    reset() {
+      return;
+    },
+  };
 }
