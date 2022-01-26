@@ -13,7 +13,7 @@ const mockConnections = [
   {
     id: 'turtle',
     connectionOptions: {
-      connectionString: '',
+      connectionString: 'mongodb://turtle',
     },
     favorite: {
       name: 'turtles',
@@ -22,7 +22,7 @@ const mockConnections = [
   {
     id: 'oranges',
     connectionOptions: {
-      connectionString: '',
+      connectionString: 'mongodb://peaches',
     },
     favorite: {
       name: 'peaches',
@@ -222,6 +222,148 @@ describe('use-connections hook', function () {
             name: 'snakes! ah!',
           },
         });
+      });
+    });
+  });
+  describe('#removeAllRecentsConnections', function () {
+    it('should delete all recent connections', async function () {
+      const mockConnections = [
+        {
+          id: 'dolphin',
+          connectionOptions: {
+            connectionString: '',
+          },
+          favorite: {
+            name: 'Dolphin',
+          },
+        },
+        {
+          id: 'turtle',
+          connectionOptions: {
+            connectionString: '',
+          },
+        },
+        {
+          id: 'oranges',
+          connectionOptions: {
+            connectionString: '',
+          },
+        },
+      ];
+      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
+      mockConnectionStorage.loadAll = loadAllSpyWithData;
+
+      const { result } = renderHook(() =>
+        useConnections(noop, mockConnectionStorage, noop)
+      );
+      await waitFor(() => {
+        expect(result.current.state.connections.length).to.equal(3);
+      });
+      result.current.removeAllRecentsConnections();
+
+      expect(loadAllSpyWithData.callCount).to.equal(1);
+      expect(deleteSpy.callCount).to.equal(2);
+      await waitFor(() => {
+        expect(result.current.state.connections.length).to.equal(1);
+      });
+    });
+  });
+  describe('#duplicateConnection', function () {
+    let hookResult: RenderResult<ReturnType<typeof useConnections>>;
+
+    it('should duplicate a connection', async function () {
+      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
+      mockConnectionStorage.loadAll = loadAllSpyWithData;
+
+      const { result } = renderHook(() =>
+        useConnections(noop, mockConnectionStorage, noop)
+      );
+      await waitFor(() => {
+        expect(result.current.state.connections.length).to.equal(2);
+      });
+      result.current.setActiveConnectionById('turtle');
+      result.current.duplicateConnection(result.current.state.connections[0]);
+
+      expect(loadAllSpyWithData.callCount).to.equal(1);
+      expect(saveSpy.callCount).to.equal(1);
+
+      await waitFor(() => {
+        expect(result.current.state.connections.length).to.equal(3);
+      });
+
+      hookResult = result;
+    });
+
+    it('should set the duplicated connection as current active', function () {
+      const originalConnection = hookResult.current.state.connections[0];
+      const duplicatedConnection = hookResult.current.state.connections[2];
+      expect(duplicatedConnection.favorite.name).to.equal('turtles (copy)');
+      expect(duplicatedConnection.id).not.undefined;
+      expect(duplicatedConnection.connectionOptions.connectionString).to.equal(
+        originalConnection.connectionOptions.connectionString
+      );
+
+      // check active connection
+      expect(hookResult.current.state.activeConnectionId).equal(
+        duplicatedConnection.id
+      );
+      expect(hookResult.current.state.activeConnectionInfo).deep.equal(
+        duplicatedConnection
+      );
+    });
+  });
+  describe('#removeConnection', function () {
+    let hookResult: RenderResult<ReturnType<typeof useConnections>>;
+    it('should remove a connection', async function () {
+      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
+      mockConnectionStorage.loadAll = loadAllSpyWithData;
+
+      const { result } = renderHook(() =>
+        useConnections(noop, mockConnectionStorage, noop)
+      );
+      await waitFor(() => {
+        expect(result.current.state.connections.length).to.equal(2);
+      });
+      act(() => {
+        result.current.setActiveConnectionById('turtle');
+      });
+      result.current.removeConnection(result.current.state.connections[0]);
+
+      expect(loadAllSpyWithData.callCount).to.equal(1);
+      expect(deleteSpy.callCount).to.equal(1);
+      await waitFor(() => {
+        expect(result.current.state.connections.length).to.equal(1);
+      });
+
+      expect(result.current.state.connections[0].id).to.equal('oranges');
+      hookResult = result;
+    });
+    it('should set a new connection as current active connection', function () {
+      expect(hookResult.current.state.activeConnectionId).not.undefined;
+      expect(
+        hookResult.current.state.activeConnectionInfo.connectionOptions
+          .connectionString
+      ).equal('mongodb://localhost:27017');
+    });
+  });
+  describe('#createNewConnection', function () {
+    it('should remove a connection', async function () {
+      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
+      mockConnectionStorage.loadAll = loadAllSpyWithData;
+
+      const { result } = renderHook(() =>
+        useConnections(noop, mockConnectionStorage, noop)
+      );
+      await waitFor(() => {
+        expect(result.current.state.connections.length).to.equal(2);
+      });
+      act(() => {
+        result.current.setActiveConnectionById('turtle');
+      });
+      expect(loadAllSpyWithData.callCount).to.equal(1);
+      result.current.createNewConnection();
+      await waitFor(() => {
+        expect(result.current.state.connections.length).to.equal(3);
       });
     });
   });
