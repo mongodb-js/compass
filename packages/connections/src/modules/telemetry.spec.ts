@@ -287,7 +287,7 @@ describe('connection tracking', function () {
   });
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  ['', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach(
+  ['', 'DEFAULT', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach(
     (authMechanism) => {
       it(`tracks a new connection event - ${
         authMechanism || 'DEFAULT'
