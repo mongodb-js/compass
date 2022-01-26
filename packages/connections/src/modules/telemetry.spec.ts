@@ -295,7 +295,7 @@ describe('connection tracking', function () {
         const trackEvent = once(process, 'compass:track');
         const connectionInfo = {
           connectionOptions: {
-            connectionString: `mongodb://root@example:127.0.0.1?authMechanism=${authMechanism}`,
+            connectionString: `mongodb://root:pwd@127.0.0.1?authMechanism=${authMechanism}`,
           },
         };
         trackNewConnectionEvent(connectionInfo, dataService);
