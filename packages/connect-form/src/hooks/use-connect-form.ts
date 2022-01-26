@@ -1,9 +1,8 @@
 import { Dispatch, useCallback, useEffect, useReducer } from 'react';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
-
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 import {
   ConnectionFormError,
   ConnectionFormWarning,
@@ -25,7 +24,19 @@ import {
   handleUpdateTlsOption,
   UpdateTlsOptionAction,
 } from '../utils/tls-options';
-import ConnectionString from 'mongodb-connection-string-url';
+import {
+  handleUpdateUsername,
+  handleUpdatePassword,
+  handleUpdateAuthMechanism,
+  UpdateAuthMechanismAction,
+  UpdatePasswordAction,
+  UpdateUsernameAction,
+} from '../utils/authentication-handler';
+import {
+  AuthMechanismProperties,
+  parseAuthMechanismProperties,
+  tryToParseConnectionString,
+} from '../utils/connection-string-helpers';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -94,11 +105,10 @@ type ConnectionFormFieldActions =
       type: 'remove-host';
       fieldIndexToRemove: number;
     }
+  | UpdateUsernameAction
+  | UpdatePasswordAction
+  | UpdateAuthMechanismAction
   | UpdateHostAction
-  | {
-      type: 'update-direct-connection';
-      isDirectConnection: boolean;
-    }
   | {
       type: 'update-connection-schema';
       isSrv: boolean;
@@ -109,11 +119,16 @@ type ConnectionFormFieldActions =
       type: 'update-search-param';
       currentKey: keyof MongoClientOptions;
       newKey?: keyof MongoClientOptions;
-      value?: unknown;
+      value?: string;
     }
   | {
       type: 'delete-search-param';
       key: keyof MongoClientOptions;
+    }
+  | {
+      type: 'update-auth-mechanism-property';
+      key: keyof AuthMechanismProperties;
+      value?: string;
     }
   | {
       type: 'update-connection-path';
@@ -129,6 +144,25 @@ type ConnectionFormFieldActions =
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
 ) => void;
+
+function parseConnectionString(
+  connectionString: string
+): [ConnectionStringUrl | undefined, ConnectionFormError[]] {
+  const [parsedConnectionString, parsingError] =
+    tryToParseConnectionString(connectionString);
+
+  return [
+    parsedConnectionString,
+    parsingError
+      ? [
+          {
+            fieldName: 'connectionString',
+            message: parsingError.message,
+          },
+        ]
+      : [],
+  ];
+}
 
 function buildStateFromConnectionInfo(
   initialConnectionInfo: ConnectionInfo
@@ -207,25 +241,6 @@ function handleUpdateHost({
         },
       ],
     };
-  }
-}
-
-function parseConnectionString(
-  connectionString: string
-): [ConnectionString | undefined, ConnectionFormError[]] {
-  try {
-    const connectionStringUrl = new ConnectionString(connectionString);
-    return [connectionStringUrl, []];
-  } catch (err) {
-    return [
-      undefined,
-      [
-        {
-          fieldName: 'connectionString',
-          message: (err as Error)?.message,
-        },
-      ],
-    ];
   }
 }
 
@@ -320,28 +335,33 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: currentConnectionOptions,
       });
     }
+    case 'update-auth-mechanism': {
+      return handleUpdateAuthMechanism({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-username': {
+      return handleUpdateUsername({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-password': {
+      return handleUpdatePassword({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
     case 'update-host': {
       return handleUpdateHost({
         action,
         connectionStringUrl: parsedConnectionStringUrl,
         connectionOptions: currentConnectionOptions,
       });
-    }
-    case 'update-direct-connection': {
-      const { isDirectConnection } = action;
-      if (isDirectConnection) {
-        updatedSearchParams.set('directConnection', 'true');
-      } else if (updatedSearchParams.get('directConnection')) {
-        updatedSearchParams.delete('directConnection');
-      }
-
-      return {
-        connectionOptions: {
-          ...currentConnectionOptions,
-          connectionString: parsedConnectionStringUrl.toString(),
-        },
-        errors: [],
-      };
     }
     case 'update-connection-schema': {
       const { isSrv } = action;
@@ -391,6 +411,29 @@ export function handleConnectionFormFieldUpdate(
       } else {
         updatedSearchParams.set(action.currentKey, action.value);
       }
+
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
+    case 'update-auth-mechanism-property': {
+      const authMechanismProperties = parseAuthMechanismProperties(
+        parsedConnectionStringUrl
+      );
+
+      if (action.value) {
+        authMechanismProperties.set(action.key, action.value);
+      } else {
+        authMechanismProperties.delete(action.key);
+      }
+
+      updatedSearchParams.set(
+        'authMechanismProperties',
+        authMechanismProperties.toString()
+      );
 
       return {
         connectionOptions: {

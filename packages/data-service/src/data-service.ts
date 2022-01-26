@@ -44,11 +44,13 @@ import {
   TopologyDescription,
   TopologyDescriptionChangedEvent,
   TopologyOpeningEvent,
+  TopologyType,
   UpdateFilter,
   UpdateOptions,
   UpdateResult,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import parseNamespace from 'mongodb-ns';
 import { ConnectionOptions } from './connection-options';
 import {
   adaptCollectionInfo,
@@ -65,13 +67,10 @@ import {
   CollectionStats,
   IndexDetails,
 } from './types';
-
 import { ConnectionStatusWithPrivileges, runCommand } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const parseNamespace = require('mongodb-ns');
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-DATA-SERVICE'
@@ -104,7 +103,7 @@ class DataService extends EventEmitter {
   private _lastSeenTopology: TopologyDescription | null = null;
 
   private _isWritable = false;
-  private _isMongos = false;
+  private _topologyType: TopologyType = 'Unknown';
   private _id: number;
 
   constructor(connectionOptions: ConnectionOptions) {
@@ -283,7 +282,17 @@ class DataService extends EventEmitter {
    * @returns If the data service is connected to a mongos.
    */
   isMongos(): boolean {
-    return this._isMongos;
+    return this._topologyType === 'Sharded';
+  }
+
+  /**
+   * Return the current topology type, as reported by the driver's topology
+   * update events.
+   *
+   * @returns The current topology type.
+   */
+  currentTopologyType(): TopologyType {
+    return this._topologyType;
   }
 
   async connectionStatus(): Promise<ConnectionStatusWithPrivileges> {
@@ -1550,7 +1559,7 @@ class DataService extends EventEmitter {
         'topologyDescriptionChanged',
         (evt: TopologyDescriptionChangedEvent) => {
           this._isWritable = this._checkIsWritable(evt);
-          this._isMongos = this._checkIsMongos(evt);
+          this._topologyType = evt.newDescription.type;
           const attr = {
             isWritable: this.isWritable(),
             isMongos: this.isMongos(),
@@ -1852,17 +1861,6 @@ class DataService extends EventEmitter {
   }
 
   /**
-   * Determine if we are connected to a mongos
-   *
-   * @param evt - The topology descriptiopn changed event.
-   *
-   * @returns If the server is a mongos.
-   */
-  private _checkIsMongos(evt: TopologyDescriptionChangedEvent): boolean {
-    return evt.newDescription.type === 'Sharded';
-  }
-
-  /**
    * Translates the error message to something human readable.
    *
    * @param error - The error.
@@ -1886,7 +1884,7 @@ class DataService extends EventEmitter {
     this._tunnel = undefined;
     this._mongoClientConnectionOptions = undefined;
     this._isWritable = false;
-    this._isMongos = false;
+    this._topologyType = 'Unknown';
     this._isConnecting = false;
   }
 

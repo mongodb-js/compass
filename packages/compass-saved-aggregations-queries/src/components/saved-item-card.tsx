@@ -16,18 +16,16 @@ import {
   MenuItem,
   IconButton,
 } from '@mongodb-js/compass-components';
-import { formatDate } from '../util/format-date';
+import type { Item } from '../stores/aggregations-queries-items';
+import { formatDate } from '../utlis/format-date';
 
-type Action = 'open' | 'delete' | 'copy' | 'edit';
+export type Action = 'open' | 'delete' | 'copy' | 'rename';
 
-type SavedItemCardProps = {
-  id: string;
-  type: 'query' | 'aggregation';
-  name: string;
-  database: string;
-  collection: string;
-  lastModified: number;
-  onAction(actionName: Action): void;
+export type SavedItemCardProps = Pick<
+  Item,
+  'id' | 'type' | 'name' | 'database' | 'collection' | 'lastModified'
+> & {
+  onAction(id: string, actionName: Action): void;
 };
 
 const namespacePart = css({
@@ -52,15 +50,14 @@ const NamespacePart: React.FunctionComponent<{
   );
 };
 
-const CARD_WIDTH = spacing[6] * 4;
+export const CARD_WIDTH = spacing[6] * 4;
+
+export const CARD_HEIGHT = 218;
 
 const card = css({
   // Workaround for uncollapsible text in flex children
   minWidth: 0,
-  // TODO: only for testing purposes, should be removed when integrated with
-  // v-grid component
-  width: CARD_WIDTH,
-
+  width: '100%',
   paddingTop: spacing[3],
   paddingBottom: spacing[3],
   paddingLeft: spacing[2],
@@ -136,9 +133,10 @@ function useFormattedDate(timestamp: number) {
 }
 
 const CardActions: React.FunctionComponent<{
+  itemId: string;
   isVisible: boolean;
   onAction: SavedItemCardProps['onAction'];
-}> = ({ isVisible, onAction }) => {
+}> = ({ itemId, isVisible, onAction }) => {
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -146,11 +144,11 @@ const CardActions: React.FunctionComponent<{
     (evt) => {
       evt.stopPropagation();
       setIsMenuOpen(false);
-      onAction(evt.currentTarget.dataset.action);
+      onAction(itemId, evt.currentTarget.dataset.action);
       // Workaround for https://jira.mongodb.org/browse/PD-1674
       menuTriggerRef.current?.focus();
     },
-    [onAction]
+    [itemId, onAction]
   );
 
   const isMenuTriggerVisible = isVisible || isMenuOpen;
@@ -159,6 +157,10 @@ const CardActions: React.FunctionComponent<{
     <Menu
       open={isMenuOpen}
       setOpen={setIsMenuOpen}
+      // NB: Focus should be preserved inside the card while interactions are
+      // happening inside the card DOM tree, otherwise we will have troubles
+      // tracking card focus for the virtual grid keyboard navigation
+      usePortal={false}
       trigger={({
         onClick,
         children: menu,
@@ -210,7 +212,7 @@ export const SavedItemCard: React.FunctionComponent<
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
   const defaultActionProps = useDefaultAction(() => {
-    onAction('open');
+    onAction(id, 'open');
   });
 
   const cardProps = mergeProps(
@@ -235,6 +237,7 @@ export const SavedItemCard: React.FunctionComponent<
 
         <div className={cardActions}>
           <CardActions
+            itemId={id}
             isVisible={
               isHovered ||
               [FocusState.FocusVisible, FocusState.FocusWithinVisible].includes(

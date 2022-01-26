@@ -42,8 +42,8 @@ describe('DirectConnectionInput', function () {
       it('should call to update with direct connection = false', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'update-direct-connection',
-          isDirectConnection: false,
+          type: 'delete-search-param',
+          key: 'directConnection',
         });
       });
     });
@@ -76,8 +76,9 @@ describe('DirectConnectionInput', function () {
       it('should call to update with direct connection = true', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'update-direct-connection',
-          isDirectConnection: true,
+          type: 'update-search-param',
+          currentKey: 'directConnection',
+          value: 'true',
         });
       });
     });
@@ -110,8 +111,9 @@ describe('DirectConnectionInput', function () {
       it('should call to update with direct connection = true', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'update-direct-connection',
-          isDirectConnection: true,
+          type: 'update-search-param',
+          currentKey: 'directConnection',
+          value: 'true',
         });
       });
     });

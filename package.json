@@ -29,6 +29,7 @@
     "packages-version": "lerna version --allow-branch main --no-push --no-private -m \"chore(release): Bump package versions\"",
     "release": "npm run release --workspace mongodb-compass --",
     "reformat": "lerna run reformat --stream --no-bail",
+    "reformat-changed": "lerna run reformat --stream --no-bail --since origin/HEAD --exclude-dependents",
     "package-compass": "npm run package-compass --workspace=mongodb-compass --",
     "prestart": "npm run compile --workspace=@mongodb-js/webpack-config-compass",
     "start": "npm run start --workspace=mongodb-compass",

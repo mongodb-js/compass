@@ -1,7 +1,10 @@
 import connect from './connect';
 import { ConnectionInfo, ConnectionFavoriteOptions } from './connection-info';
 import { ConnectionOptions } from './connection-options';
-import { ConnectionStorage } from './connection-storage';
+import {
+  ConnectionStorage,
+  promisifyAmpersandMethod,
+} from './connection-storage';
 import { getConnectionTitle } from './connection-title';
 import DataService from './data-service';
 import {
@@ -27,4 +30,5 @@ export {
   ConnectionSecrets,
   extractSecrets,
   mergeSecrets,
+  promisifyAmpersandMethod,
 };
