@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
 import {
+  FavoriteIcon,
   mergeProps,
   useFocusRing
 } from '@mongodb-js/compass-components';
@@ -13,7 +13,6 @@ const FavoriteButton = ({
   toggleIsFavoriteModalVisible
 }) => {
   const isFavorite = !!favoriteOptions;
-  const fontAwesomeName = isFavorite ? 'star' : 'star-o';
   const hex = favoriteOptions?.color;
   const style = {
     backgroundColor: hex || '#243642',
@@ -35,8 +34,14 @@ const FavoriteButton = ({
       <button
         {...buttonProps}
       >
-        <FontAwesome name={fontAwesomeName} />
-        &nbsp;FAVORITE
+        <FavoriteIcon
+          darkMode
+          isFavorite={isFavorite}
+          favoriteColor="#ffffff"
+          showCircle={false}
+          size={18}
+        />
+        FAVORITE
       </button>
     </div>
   );

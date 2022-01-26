@@ -612,7 +612,6 @@ describe('use-connect-form hook', function () {
         } = handleConnectionFormFieldUpdate(
           {
             type: 'update-ssh-options',
-            currentTab: 'password',
             key: 'host',
             value: 'localhost',
           },
