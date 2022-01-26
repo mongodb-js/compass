@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { VirtualGrid, H2, css, spacing } from '@mongodb-js/compass-components';
-import { State, fetchItems } from './../stores/aggregations-queries-items';
+import { fetchItems } from '../stores/aggregations-queries-items';
+import { RootState } from '../stores/index';
 import {
   SavedItemCard,
   SavedItemCardProps,
@@ -14,9 +15,9 @@ const ConnectedItemCard = connect<
   Omit<SavedItemCardProps, 'onAction'>,
   Pick<SavedItemCardProps, 'onAction'>,
   { index: number },
-  State
+  RootState
 >(
-  ({ items }, props) => {
+  ({ savedItems: { items } }, props) => {
     const item = items[props.index];
 
     return {
@@ -89,7 +90,10 @@ const AggregationsQueriesList = ({
   );
 };
 
-const mapState = ({ loading, items }: State) => ({ loading, items });
+const mapState = ({ savedItems: { items, loading } }: RootState) => ({
+  items,
+  loading,
+});
 
 const mapDispatch = { fetchItems };
 

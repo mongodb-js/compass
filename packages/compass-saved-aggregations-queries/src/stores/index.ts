@@ -1,14 +1,28 @@
 import type AppRegistry from 'hadron-app-registry';
-import { Store, createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
+import itemsReducer from './aggregations-queries-items';
+import instanceReducer, { resetInstance, setInstance } from './instance';
 
-import reducer, { State } from './aggregations-queries-items';
+const _store = createStore(
+  combineReducers({
+    savedItems: itemsReducer,
+    instance: instanceReducer,
+  }),
+  applyMiddleware(thunk)
+);
 
-const store: Store<State> & {
-  onActivated(appRegistry: AppRegistry): void;
-} = Object.assign(createStore(reducer, applyMiddleware(thunk)), {
-  onActivated() {
-    // initial setup
+export type RootState = ReturnType<typeof _store.getState>;
+
+const store = Object.assign(_store, {
+  onActivated(appRegistry: AppRegistry) {
+    appRegistry.on('instance-created', ({ instance }) => {
+      store.dispatch(setInstance(instance));
+    });
+
+    appRegistry.on('instance-destroyed', () => {
+      store.dispatch(resetInstance());
+    });
   },
 });
 
