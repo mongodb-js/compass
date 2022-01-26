@@ -103,7 +103,7 @@
     "mongodb-connection-model": "^21.11.1",
     "mongodb-data-service": "^21.15.1",
     "mongodb-extended-json": "^1.11.1",
-    "mongodb-ns": "^2.2.0",
+    "mongodb-ns": "^2.3.0",
     "mongodb-query-parser": "^2.4.3",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
