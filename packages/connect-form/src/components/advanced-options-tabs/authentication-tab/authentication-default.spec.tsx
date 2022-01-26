@@ -156,12 +156,12 @@ describe('AuthenticationDefault Component', function () {
   it('decodes the password as a uri component before rendering', function () {
     renderComponent({
       connectionStringUrl: new ConnectionStringUrl(
-        'mongodb://C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C)E6G!dk:password@outerspace:12345'
+        'mongodb://username:C%3BIb86n5b8%7BAnExew%5BTU%25XZy%2C)E6G!dk@outerspace:12345'
       ),
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
-    expect(screen.getByLabelText('Username').getAttribute('value')).to.equal(
+    expect(screen.getByLabelText('Password').getAttribute('value')).to.equal(
       'C;Ib86n5b8{AnExew[TU%XZy,)E6G!dk'
     );
   });
@@ -171,12 +171,26 @@ describe('AuthenticationDefault Component', function () {
       errors: [
         {
           fieldName: 'username',
-          message: 'pineapples',
+          message: 'username error',
         },
       ],
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
-    expect(screen.getByText('pineapples')).to.be.visible;
+    expect(screen.getByText('username error')).to.be.visible;
+  });
+
+  it('renders a password error when there is a password error', function () {
+    renderComponent({
+      errors: [
+        {
+          fieldName: 'password',
+          message: 'password error',
+        },
+      ],
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    expect(screen.getByText('password error')).to.be.visible;
   });
 });

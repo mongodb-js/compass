@@ -28,7 +28,7 @@ function DirectConnectionInput({
       return updateConnectionFormField({
         type: 'update-search-param',
         currentKey: 'directConnection',
-        value: event.target.checked,
+        value: event.target.checked ? 'true' : 'false',
       });
     },
     [updateConnectionFormField]

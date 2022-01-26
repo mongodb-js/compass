@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { MongoClientOptions } from 'mongodb';
+import { AuthMechanism, MongoClientOptions } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 
 import {
@@ -230,9 +230,61 @@ describe('Authentication Handler', function () {
       });
 
       expect(res.connectionOptions.connectionString).to.equal(
-        'mongodb://localhost/?authMechanism=PLAIN'
+        'mongodb://localhost/?authMechanism=PLAIN&authSource=%24external'
       );
       expect(res.errors).to.equal(undefined);
+    });
+
+    it('should set authSource=$external when needed', function () {
+      const externalAuthMechanisms: AuthMechanism[] = [
+        'MONGODB-AWS',
+        'GSSAPI',
+        'PLAIN',
+        'MONGODB-X509',
+      ];
+
+      for (const authMechanism of externalAuthMechanisms) {
+        const res = handleUpdateAuthMechanism({
+          action: {
+            type: 'update-auth-mechanism',
+            authMechanism,
+          },
+          connectionStringUrl: new ConnectionString(testConnectionString),
+          connectionOptions: {
+            connectionString: testConnectionString,
+          },
+        });
+
+        expect(res.connectionOptions.connectionString).to.equal(
+          `mongodb://localhost/?authMechanism=${authMechanism}&authSource=%24external`
+        );
+      }
+    });
+
+    it('should not set authSource=$external when not needed', function () {
+      const externalAuthMechanisms: AuthMechanism[] = [
+        'MONGODB-CR',
+        'DEFAULT',
+        'SCRAM-SHA-1',
+        'SCRAM-SHA-256',
+      ];
+
+      for (const authMechanism of externalAuthMechanisms) {
+        const res = handleUpdateAuthMechanism({
+          action: {
+            type: 'update-auth-mechanism',
+            authMechanism,
+          },
+          connectionStringUrl: new ConnectionString(testConnectionString),
+          connectionOptions: {
+            connectionString: testConnectionString,
+          },
+        });
+
+        expect(res.connectionOptions.connectionString).to.equal(
+          `mongodb://localhost/?authMechanism=${authMechanism}`
+        );
+      }
     });
 
     it('should remove the username/password field when being set to no auth', function () {

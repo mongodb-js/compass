@@ -1,14 +1,11 @@
 import { Dispatch, useCallback, useEffect, useReducer } from 'react';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
-import ConnectionString from 'mongodb-connection-string-url';
-
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 import {
   ConnectionFormError,
   ConnectionFormWarning,
-  tryToParseConnectionString,
   validateConnectionOptionsWarnings,
 } from '../utils/validation';
 import { getNextHost } from '../utils/get-next-host';
@@ -35,6 +32,11 @@ import {
   UpdatePasswordAction,
   UpdateUsernameAction,
 } from '../utils/authentication-handler';
+import {
+  AuthMechanismProperties,
+  parseAuthMechanismProperties,
+  tryToParseConnectionString,
+} from '../utils/connection-string-helpers';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -117,11 +119,16 @@ type ConnectionFormFieldActions =
       type: 'update-search-param';
       currentKey: keyof MongoClientOptions;
       newKey?: keyof MongoClientOptions;
-      value?: unknown;
+      value?: string;
     }
   | {
       type: 'delete-search-param';
       key: keyof MongoClientOptions;
+    }
+  | {
+      type: 'update-auth-mechanism-property';
+      key: keyof AuthMechanismProperties;
+      value?: string;
     }
   | {
       type: 'update-connection-path';
@@ -140,7 +147,7 @@ export type UpdateConnectionFormField = (
 
 function parseConnectionString(
   connectionString: string
-): [ConnectionString | undefined, ConnectionFormError[]] {
+): [ConnectionStringUrl | undefined, ConnectionFormError[]] {
   const [parsedConnectionString, parsingError] =
     tryToParseConnectionString(connectionString);
 
@@ -404,6 +411,29 @@ export function handleConnectionFormFieldUpdate(
       } else {
         updatedSearchParams.set(action.currentKey, action.value);
       }
+
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          connectionString: parsedConnectionStringUrl.toString(),
+        },
+      };
+    }
+    case 'update-auth-mechanism-property': {
+      const authMechanismProperties = parseAuthMechanismProperties(
+        parsedConnectionStringUrl
+      );
+
+      if (action.value) {
+        authMechanismProperties.set(action.key, action.value);
+      } else {
+        authMechanismProperties.delete(action.key);
+      }
+
+      updatedSearchParams.set(
+        'authMechanismProperties',
+        authMechanismProperties.toString()
+      );
 
       return {
         connectionOptions: {

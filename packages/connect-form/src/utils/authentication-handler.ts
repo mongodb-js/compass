@@ -3,7 +3,12 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 
-import { ConnectionFormError, tryToParseConnectionString } from './validation';
+import { ConnectionFormError } from './validation';
+import {
+  setConnectionStringPassword,
+  setConnectionStringUsername,
+  tryToParseConnectionString,
+} from './connection-string-helpers';
 
 export type UpdateAuthMechanismAction = {
   type: 'update-auth-mechanism';
@@ -60,6 +65,13 @@ export function handleUpdateAuthMechanism({
 
   if (action.authMechanism) {
     updatedSearchParams.set('authMechanism', action.authMechanism);
+    if (
+      ['MONGODB-AWS', 'GSSAPI', 'PLAIN', 'MONGODB-X509'].includes(
+        action.authMechanism
+      )
+    ) {
+      updatedSearchParams.set('authSource', '$external');
+    }
   }
 
   return {
@@ -82,9 +94,10 @@ export function handleUpdateUsername({
   connectionOptions: ConnectionOptions;
   errors?: ConnectionFormError[];
 } {
-  const updatedConnectionString = connectionStringUrl.clone();
-
-  updatedConnectionString.username = encodeURIComponent(action.username);
+  const updatedConnectionString = setConnectionStringUsername(
+    connectionStringUrl,
+    action.username
+  );
 
   const [, parsingError] = tryToParseConnectionString(
     updatedConnectionString.toString()
@@ -124,9 +137,10 @@ export function handleUpdatePassword({
   connectionOptions: ConnectionOptions;
   errors?: ConnectionFormError[];
 } {
-  const updatedConnectionString = connectionStringUrl.clone();
-
-  updatedConnectionString.password = encodeURIComponent(action.password);
+  const updatedConnectionString = setConnectionStringPassword(
+    connectionStringUrl,
+    action.password
+  );
 
   const [, parsingError] = tryToParseConnectionString(
     updatedConnectionString.toString()
