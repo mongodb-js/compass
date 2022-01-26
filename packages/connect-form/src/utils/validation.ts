@@ -9,8 +9,6 @@ export type FieldName =
   | 'hosts'
   | 'isSrv'
   | 'kerberosPrincipal'
-  | 'ldapPassword'
-  | 'ldapUsername'
   | 'password'
   | 'schema'
   | 'proxyHostname'
