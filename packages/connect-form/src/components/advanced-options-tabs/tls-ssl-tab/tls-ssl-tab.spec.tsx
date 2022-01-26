@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -14,22 +14,32 @@ describe('SchemaInput', function () {
   });
 
   describe('with ssl=true', function () {
+    let testUrl: ConnectionStringUrl;
+    let rerender: (
+      ui: React.ReactElement<any, string | React.JSXElementConstructor<any>>
+    ) => void;
     beforeEach(function () {
-      const connectionStringUrl = new ConnectionStringUrl(
+      testUrl = new ConnectionStringUrl(
         'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true'
       );
-      render(
+      const component = render(
         <SSLTab
-          connectionStringUrl={connectionStringUrl}
+          connectionStringUrl={testUrl}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
+      rerender = component.rerender;
     });
 
     it('should render the TLS/SSL `On` radio box selected', function () {
       const tlsOnRadioBox = screen.getAllByRole('radio')[1] as HTMLInputElement;
       expect(tlsOnRadioBox.checked).to.equal(true);
       expect(tlsOnRadioBox.getAttribute('aria-checked')).to.equal('true');
+    });
+
+    it('should render the client cert and CA file labels', function () {
+      expect(screen.getByText('Certificate Authority (.pem)')).to.be.visible;
+      expect(screen.getByText('Client Certificate (.pem)')).to.be.visible;
     });
 
     it('should render TLS/SSL `Default` and `Off` radio boxes not selected', function () {
@@ -44,6 +54,14 @@ describe('SchemaInput', function () {
       )[2] as HTMLInputElement;
       expect(tlsOffRadioBox.checked).to.equal(false);
       expect(tlsOffRadioBox.getAttribute('aria-checked')).to.equal('false');
+    });
+
+    it('should render all of the checkboxes unchecked', function () {
+      const checkboxes: HTMLInputElement[] = screen.getAllByRole('checkbox');
+      expect(checkboxes.length).to.equal(3);
+      expect(checkboxes.find((checkbox) => checkbox.checked)).to.equal(
+        undefined
+      );
     });
 
     describe('when TLS/SSL default is clicked', function () {
@@ -86,6 +104,192 @@ describe('SchemaInput', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
       });
     });
+
+    describe('when a tlsCAFile is chosen', function () {
+      beforeEach(async function () {
+        const fileInput = screen.getByTestId('tlsCAFile-input');
+
+        await waitFor(() =>
+          fireEvent.change(fileInput, {
+            target: {
+              files: [
+                {
+                  path: 'new/caFile/path',
+                },
+              ],
+            },
+          })
+        );
+      });
+
+      it('should call to update the tlsCAFile with the chosen file', function () {
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-search-param',
+          currentKey: 'tlsCAFile',
+          value: 'new/caFile/path',
+        });
+      });
+    });
+
+    describe('when a tlsCertificateKeyFile is chosen', function () {
+      beforeEach(async function () {
+        const fileInput = screen.getByTestId('tlsCertificateKeyFile-input');
+
+        await waitFor(() =>
+          fireEvent.change(fileInput, {
+            target: {
+              files: [
+                {
+                  path: 'new/caFile/path',
+                },
+              ],
+            },
+          })
+        );
+      });
+
+      it('should call to update the tlsCertificateKeyFile with the chosen file', function () {
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-search-param',
+          currentKey: 'tlsCertificateKeyFile',
+          value: 'new/caFile/path',
+        });
+      });
+    });
+
+    describe('when tlsCAFile exists', function () {
+      beforeEach(function () {
+        testUrl.searchParams.set('tlsCAFile', 'pineapples');
+        rerender(
+          <SSLTab
+            connectionStringUrl={testUrl}
+            updateConnectionFormField={updateConnectionFormFieldSpy}
+          />
+        );
+      });
+
+      it('should render the filepath', function () {
+        expect(screen.getAllByText('pineapples').length).to.equal(2);
+      });
+    });
+
+    describe('when tlsCertificateKeyFile exists', function () {
+      beforeEach(function () {
+        testUrl.searchParams.set('tlsCertificateKeyFile', 'a_great_file_path');
+        rerender(
+          <SSLTab
+            connectionStringUrl={testUrl}
+            updateConnectionFormField={updateConnectionFormFieldSpy}
+          />
+        );
+      });
+
+      it('should render the filepath', function () {
+        expect(screen.getAllByText('a_great_file_path').length).to.equal(2);
+      });
+    });
+
+    describe('when tlsCertificateKeyFilePassword exists', function () {
+      beforeEach(function () {
+        testUrl.searchParams.set(
+          'tlsCertificateKeyFilePassword',
+          'tlsClientPassword'
+        );
+        rerender(
+          <SSLTab
+            connectionStringUrl={testUrl}
+            updateConnectionFormField={updateConnectionFormFieldSpy}
+          />
+        );
+      });
+
+      it('should render the password', function () {
+        expect(
+          screen
+            .getByTestId('tlsCertificateKeyFilePassword-input')
+            .getAttribute('type')
+        ).to.equal('password');
+        expect(screen.getByTestId('tlsCertificateKeyFilePassword-input')).to.be
+          .visible;
+        expect(
+          screen
+            .getByTestId('tlsCertificateKeyFilePassword-input')
+            .getAttribute('value')
+        ).to.equal('tlsClientPassword');
+      });
+    });
+
+    // eslint-disable-next-line mocha/no-setup-in-describe
+    [
+      'tlsInsecure',
+      'tlsAllowInvalidHostnames',
+      'tlsAllowInvalidCertificates',
+    ].forEach((connectionStringTlsParam) => {
+      describe('with ', function () {
+        it('should render the checkbox not checked', function () {
+          const checkbox: HTMLInputElement = screen.getByTestId(
+            `${connectionStringTlsParam}-input`
+          );
+          expect(checkbox.checked).to.equal(false);
+        });
+
+        describe(`when ${connectionStringTlsParam} is clicked`, function () {
+          beforeEach(function () {
+            const checkboxLabel = screen.getByText(connectionStringTlsParam);
+            fireEvent.click(checkboxLabel);
+          });
+
+          it('should call to update the connection configuration to set the param to true', function () {
+            expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+            expect(
+              updateConnectionFormFieldSpy.firstCall.args[0]
+            ).to.deep.equal({
+              type: 'update-search-param',
+              currentKey: connectionStringTlsParam,
+              value: 'true',
+            });
+          });
+        });
+
+        describe(`when ${connectionStringTlsParam} is true`, function () {
+          beforeEach(function () {
+            testUrl.searchParams.set(connectionStringTlsParam, 'true');
+            rerender(
+              <SSLTab
+                connectionStringUrl={testUrl}
+                updateConnectionFormField={updateConnectionFormFieldSpy}
+              />
+            );
+          });
+
+          it('should render the checkbox checked', function () {
+            const checkbox: HTMLInputElement = screen.getByTestId(
+              `${connectionStringTlsParam}-input`
+            );
+            expect(checkbox.checked).to.equal(true);
+          });
+
+          describe(`when ${connectionStringTlsParam} is clicked`, function () {
+            beforeEach(function () {
+              const checkboxLabel = screen.getByText(connectionStringTlsParam);
+              fireEvent.click(checkboxLabel);
+            });
+
+            it('should call to update the connection configuration to set the param to false', function () {
+              expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+              expect(
+                updateConnectionFormFieldSpy.firstCall.args[0]
+              ).to.deep.equal({
+                type: 'delete-search-param',
+                key: connectionStringTlsParam,
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('with ssl=false', function () {
@@ -105,6 +309,13 @@ describe('SchemaInput', function () {
       const tlsOnRadioBox = screen.getAllByRole('radio')[2] as HTMLInputElement;
       expect(tlsOnRadioBox.checked).to.equal(true);
       expect(tlsOnRadioBox.getAttribute('aria-checked')).to.equal('true');
+    });
+
+    it('should render all of the checkboxes disabled', function () {
+      const checkboxes: HTMLInputElement[] = screen.getAllByRole('checkbox');
+      expect(checkboxes.find((checkbox) => !checkbox.disabled)).to.equal(
+        undefined
+      );
     });
 
     describe('when TLS/SSL off is clicked', function () {

@@ -1,11 +1,11 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Mon Jan 17 2022.
+This document was automatically generated on Wed Jan 26 2022.
 
 ## List of dependencies
 
 Package|Version|License
 -------|-------|-------
-**[@mongosh/node-runtime-worker-thread](#d11756cc34bb1e4ff8b25e0ba2e5687f96fd1eaf9906a375ff7b4f4c221ec722)**|1.1.8|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#e76b1351c660a63528d2b8a0e356450b46c4c0dbed9e8b19242e7d686a2449ab)**|1.1.9|Apache-2.0
 **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
 **[ansi-regex](#f4a8a360dfe3cdd0cbb8fcfa0cff23bb22eafa4225343577912ddf831d670411)**|3.0.0|MIT
 **[aproba](#b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e)**|1.2.0|ISC
@@ -30,6 +30,7 @@ Package|Version|License
 **[inherits](#3eafa9bfb872baf192e837ab771da2e95e983ee682371a2b1c579e518e96f7b4)**|2.0.4|ISC
 **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**|1.3.8|ISC
 **[interruptor](#d6fd68c71b18a07f39270565100f4a6c1351ecdeca77766cde73da8315ff695a)**|1.0.1|Apache-2.0
+**[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**|1.0.1|MIT
 **[is-fullwidth-code-point](#4b36fcbed647fcfb1016159ad5d4b5399c52c3fe258134e06275ab22ed10ceb9)**|1.0.0|MIT
 **[is-fullwidth-code-point](#37e66573b7442d1313698f6e836d77c2b42ea4625ea9f6da41c091c6e5a8f30d)**|2.0.0|MIT
 **[isarray](#dd5060a7691a8157c413dadfba4ff4c1de7480dcfd6d34af69a9696558358cec)**|1.0.0|MIT
@@ -48,6 +49,7 @@ Package|Version|License
 **[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
 **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**|4.1.1|MIT
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
+**[os-dns-native](#ba8dc45d4ba1cab6cd3a45e6be7d62e9a77da5e07fa33324e930bdeabafd5718)**|1.1.1|MIT
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
@@ -75,8 +77,8 @@ Package|Version|License
 
 ## Package details
 
-<a id="d11756cc34bb1e4ff8b25e0ba2e5687f96fd1eaf9906a375ff7b4f4c221ec722"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.1.8)
+<a id="e76b1351c660a63528d2b8a0e356450b46c4c0dbed9e8b19242e7d686a2449ab"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.1.9)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
@@ -1409,6 +1411,17 @@ License files:
 
 Authors:
 * Anna Henningsen <anna@addaleax.net>
+
+
+<a id="7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203"></a>
+### [ipv6-normalize](https://www.npmjs.com/package/ipv6-normalize) (version 1.0.1)
+<!-- initially found at node_modules/ipv6-normalize -->
+> ipv6-normalize
+
+License tags: MIT
+
+Authors:
+* Po-Ying Chen <poying.me@gmail.com> (陳柏穎)
 
 
 <a id="4b36fcbed647fcfb1016159ad5d4b5399c52c3fe258134e06275ab22ed10ceb9"></a>
@@ -2841,6 +2854,44 @@ License files:
 
 Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
+
+
+<a id="ba8dc45d4ba1cab6cd3a45e6be7d62e9a77da5e07fa33324e930bdeabafd5718"></a>
+### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 1.1.1)
+<!-- initially found at node_modules/os-dns-native -->
+> Perform DNS queries using OS APIs
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      The MIT License (MIT)
+      
+      Copyright (c) 2021 MongoDB, Inc.
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+      
+
+Authors:
+* Anna Henningsen <anna@addaleax.net>
 
 
 <a id="a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda"></a>

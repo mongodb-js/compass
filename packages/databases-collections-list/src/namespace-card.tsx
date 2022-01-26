@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import React, { useCallback } from 'react';
 import {
   Card,
   css,
@@ -15,49 +16,12 @@ import {
   useFocusState,
   FocusState,
   uiColors,
+  mergeProps,
+  useDefaultAction,
 } from '@mongodb-js/compass-components';
-import React, { useCallback } from 'react';
-import { mergeProps } from './merge-props';
 import { NamespaceParam } from './namespace-param';
 import { ItemType } from './use-create';
 import { ViewType } from './use-view-type';
-
-function useDefaultAction<T>(
-  onDefaultAction: (evt: React.KeyboardEvent<T> | React.MouseEvent<T>) => void
-): React.HTMLAttributes<T> {
-  // Prevent event from possibly causing bubbled focus on parent element, if
-  // something is interacting with this component using mouse, we want to
-  // prevent anything from bubbling
-  const onMouseDown = useCallback((evt: React.MouseEvent<T>) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-  }, []);
-
-  const onClick = useCallback(
-    (evt: React.MouseEvent<T>) => {
-      evt.stopPropagation();
-      onDefaultAction(evt);
-    },
-    [onDefaultAction]
-  );
-
-  const onKeyDown = useCallback(
-    (evt: React.KeyboardEvent<T>) => {
-      if (
-        // Only handle keyboard events if they originated on the element
-        evt.target === evt.currentTarget &&
-        [' ', 'Enter'].includes(evt.key)
-      ) {
-        evt.preventDefault();
-        evt.stopPropagation();
-        onDefaultAction(evt);
-      }
-    },
-    [onDefaultAction]
-  );
-
-  return { onMouseDown, onClick, onKeyDown };
-}
 
 const cardTitleGroup = css({
   display: 'flex',
@@ -269,7 +233,8 @@ export const NamespaceItemCard: React.FunctionComponent<
     <Card
       key={id}
       contentStyle="clickable"
-      data-testid={`${type}-grid-item-${id}`}
+      data-testid={`${type}-grid-item`}
+      data-id={id}
       {...cardProps}
     >
       <CardTitleGroup>

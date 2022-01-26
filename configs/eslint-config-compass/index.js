@@ -24,6 +24,7 @@ const testRules = {
   'mocha/no-exclusive-tests': 'error',
   'mocha/no-hooks-for-single-case': 'off',
   '@typescript-eslint/no-explicit-any': 'off',
+  '@typescript-eslint/no-empty-function': 'off',
 };
 
 module.exports = {
@@ -62,7 +63,11 @@ module.exports = {
       files: ['**/*.tsx'],
       env: { node: true, browser: true },
       extends: [...tsConfigurations, ...reactConfigurations, 'prettier'],
-      rules: { ...tsRules },
+      rules: {
+        ...tsRules,
+        // No reason to have propTypes if your components are strictly typed
+        'react/prop-types': 'off',
+      },
     },
     {
       files: [
@@ -71,6 +76,8 @@ module.exports = {
         '**/*.spec.ts',
         '**/*.spec.tsx',
         '**/*.test.js',
+        '**/*.test.tsx',
+        '**/*.test.ts',
       ],
       env: { mocha: true },
       extends: [...testConfigurations],

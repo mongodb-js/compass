@@ -19,9 +19,16 @@ function DirectConnectionInput({
 
   const updateDirectConnection = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      updateConnectionFormField({
-        type: 'update-direct-connection',
-        isDirectConnection: event.target.checked,
+      if (!event.target.checked) {
+        return updateConnectionFormField({
+          type: 'delete-search-param',
+          key: 'directConnection',
+        });
+      }
+      return updateConnectionFormField({
+        type: 'update-search-param',
+        currentKey: 'directConnection',
+        value: event.target.checked ? 'true' : 'false',
       });
     },
     [updateConnectionFormField]

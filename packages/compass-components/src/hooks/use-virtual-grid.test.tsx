@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { mergeProps } from './merge-props';
+import { mergeProps } from '../utils/merge-props';
 import {
   useVirtualGridArrowNavigation,
   useVirtualRovingTabIndex,

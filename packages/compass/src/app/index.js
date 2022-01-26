@@ -329,7 +329,7 @@ var Application = View.extend({
       if (
         semver.lt(oldVersion, currentVersion) ||
         // So we can test the tour in any e2e environment, not only on prod
-        process.env.APP_ENV === 'spectron'
+        process.env.APP_ENV === 'webdriverio'
       ) {
         prefs.showFeatureTour = oldVersion;
         save = true;

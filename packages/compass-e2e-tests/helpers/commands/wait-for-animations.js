@@ -1,10 +1,10 @@
 const _ = require('lodash');
 
-module.exports = function (app) {
+module.exports = function (compass) {
   return async function waitForAnimations(selector) {
-    const { client } = app;
+    const { browser } = compass;
 
-    const element = await client.$(selector);
+    const element = await browser.$(selector);
 
     let previousResult = {
       ...(await element.getLocation()),
@@ -12,8 +12,8 @@ module.exports = function (app) {
     };
     // small delay to make sure that if it is busy animating it had time to move
     // before the first check
-    await client.pause(50);
-    await client.waitUntil(async function () {
+    await browser.pause(50);
+    await browser.waitUntil(async function () {
       const result = {
         ...(await element.getLocation()),
         ...(await element.getSize()),

@@ -9,15 +9,9 @@ type Database = {
   _id: string;
   name: string;
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-  statusError: string | null;
-  collectionsStatus: string;
-  collectionsStatusError: string | null;
-  collection_count: number;
-  document_count: number;
   storage_size: number;
   data_size: number;
   index_count: number;
-  index_size: number;
   collectionsLength: number;
 };
 

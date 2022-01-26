@@ -5,7 +5,7 @@ const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
 );
 
-function isConnectionAttemptTerminatedError(err: any) {
+function isConnectionAttemptTerminatedError(err: Error) {
   return err?.name === 'MongoError' && err?.message === 'Topology closed';
 }
 
@@ -61,7 +61,7 @@ export class ConnectionAttempt {
       this._dataService = await this._connectFn(connectionOptions);
       return this._dataService;
     } catch (err) {
-      if (isConnectionAttemptTerminatedError(err)) {
+      if (isConnectionAttemptTerminatedError(err as Error)) {
         debug('caught connection attempt closed error', err);
         return;
       }

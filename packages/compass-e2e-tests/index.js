@@ -20,8 +20,17 @@ let metricsClient;
 
 async function setup() {
   await keychain.activate();
-  debug('Starting MongoDB server and importing fixtures');
-  spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
+
+  const disableStartStop = process.argv.includes('--disable-start-stop');
+
+  // When working on the tests it is faster to just keep the server running.
+  // insert-data is idempotent anyway.
+  if (!disableStartStop) {
+    debug('Starting MongoDB server');
+    spawnSync('npm', ['run', 'start-server'], { stdio: 'inherit' });
+  }
+
+  debug('Importing test fixtures');
   spawnSync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
 
   try {
@@ -30,38 +39,37 @@ async function setup() {
   } catch (e) {
     debug('.log dir already removed');
   }
+
+  fs.mkdirSync(LOG_PATH, { recursive: true });
 }
 
 function cleanup() {
   keychain.reset();
-  debug('Stopping MongoDB server and cleaning up server data');
-  try {
-    spawnSync('npm', ['run', 'stop-server'], {
-      // If it's taking too long we might as well kill the process and move on,
-      // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
-      // take care of additional clean up anyway
-      timeout: 30_000,
-      stdio: 'inherit',
-    });
-  } catch (e) {
-    debug('Failed to stop MongoDB Server', e);
-  }
-  try {
-    fs.rmdirSync('.mongodb', { recursive: true });
-  } catch (e) {
-    debug('Failed to clean up server data', e);
+
+  const disableStartStop = process.argv.includes('--disable-start-stop');
+
+  if (!disableStartStop) {
+    debug('Stopping MongoDB server and cleaning up server data');
+    try {
+      spawnSync('npm', ['run', 'stop-server'], {
+        // If it's taking too long we might as well kill the process and move on,
+        // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
+        // take care of additional clean up anyway
+        timeout: 30_000,
+        stdio: 'inherit',
+      });
+    } catch (e) {
+      debug('Failed to stop MongoDB Server', e);
+    }
+    try {
+      fs.rmdirSync('.mongodb', { recursive: true });
+    } catch (e) {
+      debug('Failed to clean up server data', e);
+    }
   }
 }
 
 async function main() {
-  if (process.platform === 'win32') {
-    // These tests are not working well on windows machines and we will
-    // skip them for now.
-    // https://jira.mongodb.org/browse/COMPASS-5159
-    console.warn('⚠️ Skipping e2e tests on windows machine');
-    return;
-  }
-
   if (process.env.EVERGREEN && process.platform === 'darwin') {
     // TODO: https://jira.mongodb.org/browse/COMPASS-5214
     console.warn(
@@ -104,8 +112,11 @@ async function main() {
     cwd: __dirname,
   });
 
+  const bail = process.argv.includes('--bail');
+
   const mocha = new Mocha({
     timeout: 120_000,
+    bail,
   });
 
   tests.forEach((testPath) => {
@@ -151,6 +162,8 @@ async function main() {
   const reportPath = path.join(LOG_PATH, 'report.json');
   const jsonReport = JSON.stringify(result, null, 2);
   await fs.promises.writeFile(reportPath, jsonReport);
+
+  debug('done');
 }
 
 process.once('SIGINT', () => {

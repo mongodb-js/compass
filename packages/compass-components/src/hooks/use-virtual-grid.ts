@@ -1,5 +1,5 @@
-import { useFocusState, FocusState } from '@mongodb-js/compass-components';
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { useFocusState, FocusState } from './use-focus-hover';
 
 export function useVirtualGridArrowNavigation<
   T extends HTMLElement = HTMLElement

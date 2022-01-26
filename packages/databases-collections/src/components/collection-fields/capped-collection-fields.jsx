@@ -30,6 +30,7 @@ function CappedCollectionFields({
         type="number"
         description="Maximum size in bytes for the capped collection."
         onChange={(e) => onChangeCappedSize(e.target.value)}
+        spellCheck={false}
       />
     </CollapsibleFieldSet>
   );

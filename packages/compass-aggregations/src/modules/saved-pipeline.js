@@ -2,7 +2,7 @@ import { createId } from './id';
 import { setIsModified } from './is-modified';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const PREFIX = 'aggregations/saved-pipeline';
 
@@ -77,6 +77,36 @@ export const getDirectory = () => {
   return path.join(userDataDir, DIRNAME);
 };
 
+export const readPipelinesFromStorage = async() => {
+  const { promises: fs } = require('fs');
+  const path = require('path');
+
+  const dir = getDirectory();
+  const files = (await fs.readdir(dir))
+    .filter((file) => file.endsWith('.json'))
+    .map((file) => path.join(dir, file));
+
+  const getFileData = async(filePath) => {
+    try {
+      const [file, stats] = await Promise.all([
+        fs.readFile(filePath, 'utf8'),
+        fs.stat(filePath),
+      ]);
+      return {
+        ...JSON.parse(file),
+        lastModified: stats.mtimeMs,
+      };
+    } catch (err) {
+      debug(`Failed to load pipeline ${path.basename(filePath)}`, err);
+      return null;
+    }
+  };
+
+  return (
+    await Promise.all(files.map((filePath) => getFileData(filePath)))
+  ).filter(Boolean);
+};
+
 /**
  * Update the pipeline list.
  *
@@ -84,37 +114,17 @@ export const getDirectory = () => {
  */
 export const updatePipelineList = () => {
   return (dispatch, getState) => {
-    const asyncr = require('async');
-    const fs = require('fs');
-    const path = require('path');
-
     const state = getState();
-    const pipelines = [];
-
-    const dir = getDirectory();
-    fs.readdir(dir, (error, files) => {
-      if (!error) {
-        const validFiles = files.filter(file => file.endsWith('.json'));
-        const tasks = validFiles.map((file) => {
-          return (callback) => {
-            fs.readFile(path.join(dir, file), 'utf8', (err, data) => {
-              if (!err) {
-                const pipeline = JSON.parse(data);
-                if (pipeline.namespace === state.namespace) {
-                  pipelines.push(pipeline);
-                }
-              }
-              callback(null);
-            });
-          };
-        });
-        asyncr.parallel(tasks, () => {
-          dispatch(setIsModified(false));
-          dispatch(savedPipelineAdd(pipelines));
-          dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
-        });
-      }
-    });
+    readPipelinesFromStorage()
+      .then(pipelines => {
+        const thisNamespacePipelines = pipelines.filter(({namespace}) => namespace === state.namespace);
+        dispatch(setIsModified(false));
+        dispatch(savedPipelineAdd(thisNamespacePipelines));
+        dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
+      })
+      .catch(err => {
+        debug('Failed to load pipelines', err);
+      });
   };
 };
 

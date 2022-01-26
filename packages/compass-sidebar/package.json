@@ -101,7 +101,7 @@
     "mongodb-data-service": "^21.15.1",
     "mongodb-database-model": "^1.6.1",
     "mongodb-instance-model": "^11.17.1",
-    "mongodb-ns": "^2.2.0",
+    "mongodb-ns": "^2.3.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",

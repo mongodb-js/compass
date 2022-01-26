@@ -4,6 +4,7 @@
     "esModuleInterop": true,
     "downlevelIteration": true,
     "declaration": true,
+    "declarationMap": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["dom", "es2018"],
     "module": "commonjs",

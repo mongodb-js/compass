@@ -4,7 +4,7 @@ import Component from './components/index';
 
 const role = {
   component: Component,
-  name: 'Your Queries',
+  name: 'My Queries',
   order: 1,
 };
 

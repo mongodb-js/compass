@@ -4,156 +4,6 @@ import { handleConnectionFormFieldUpdate } from './use-connect-form';
 
 describe('use-connect-form hook', function () {
   describe('#handleConnectionFormFieldUpdate', function () {
-    describe('update-direct-connection action', function () {
-      describe('directConnection is false on the connection string', function () {
-        const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://localhost:27019/?ssl=true&directConnection=false'
-        );
-
-        describe('when set directConnection to true is passed', function () {
-          let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-          beforeEach(function () {
-            updateResult = handleConnectionFormFieldUpdate({
-              action: {
-                type: 'update-direct-connection',
-                isDirectConnection: true,
-              },
-              connectionStringUrl,
-              connectionOptions: {
-                connectionString: connectionStringUrl.toString(),
-              },
-            });
-          });
-
-          it('updates directConnection to true', function () {
-            expect(
-              updateResult.connectionStringUrl.searchParams.get(
-                'directConnection'
-              )
-            ).to.equal('true');
-          });
-
-          it('updates connection string', function () {
-            expect(updateResult.connectionOptions.connectionString).to.equal(
-              'mongodb://localhost:27019/?ssl=true&directConnection=true'
-            );
-          });
-
-          it('returns no errors', function () {
-            expect(updateResult.errors.length).to.equal(0);
-          });
-        });
-
-        describe('when set directConnection to false is passed', function () {
-          let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-          beforeEach(function () {
-            updateResult = handleConnectionFormFieldUpdate({
-              action: {
-                type: 'update-direct-connection',
-                isDirectConnection: false,
-              },
-              connectionStringUrl,
-              connectionOptions: {
-                connectionString: connectionStringUrl.toString(),
-              },
-            });
-          });
-
-          it('unsets directConnection on the connectionStringUrl', function () {
-            expect(
-              updateResult.connectionStringUrl.searchParams.get(
-                'directConnection'
-              )
-            ).to.equal(null);
-          });
-
-          it('updates the connection string with the unset', function () {
-            expect(updateResult.connectionOptions.connectionString).to.equal(
-              'mongodb://localhost:27019/?ssl=true'
-            );
-          });
-
-          it('returns no errors', function () {
-            expect(updateResult.errors.length).to.equal(0);
-          });
-        });
-      });
-
-      describe('directConnection is true on the connection string', function () {
-        const connectionStringUrl = new ConnectionStringUrl(
-          'mongodb://localhost:27019/?ssl=true&directConnection=true'
-        );
-
-        describe('when set directConnection to true is passed', function () {
-          let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-          beforeEach(function () {
-            updateResult = handleConnectionFormFieldUpdate({
-              action: {
-                type: 'update-direct-connection',
-                isDirectConnection: true,
-              },
-              connectionStringUrl,
-              connectionOptions: {
-                connectionString: connectionStringUrl.toString(),
-              },
-            });
-          });
-
-          it('keeps directConnection equal to true', function () {
-            expect(
-              updateResult.connectionStringUrl.searchParams.get(
-                'directConnection'
-              )
-            ).to.equal('true');
-          });
-
-          it('does not change the connection string', function () {
-            expect(updateResult.connectionOptions.connectionString).to.equal(
-              'mongodb://localhost:27019/?ssl=true&directConnection=true'
-            );
-          });
-
-          it('returns no errors', function () {
-            expect(updateResult.errors.length).to.equal(0);
-          });
-        });
-
-        describe('when set directConnection to false is passed', function () {
-          let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
-          beforeEach(function () {
-            updateResult = handleConnectionFormFieldUpdate({
-              action: {
-                type: 'update-direct-connection',
-                isDirectConnection: false,
-              },
-              connectionStringUrl,
-              connectionOptions: {
-                connectionString: connectionStringUrl.toString(),
-              },
-            });
-          });
-
-          it('unsets directConnection on the connectionStringUrl', function () {
-            expect(
-              updateResult.connectionStringUrl.searchParams.get(
-                'directConnection'
-              )
-            ).to.equal(null);
-          });
-
-          it('updates the connection string', function () {
-            expect(updateResult.connectionOptions.connectionString).to.equal(
-              'mongodb://localhost:27019/?ssl=true'
-            );
-          });
-
-          it('returns no errors', function () {
-            expect(updateResult.errors.length).to.equal(0);
-          });
-        });
-      });
-    });
-
     describe('add-new-host action', function () {
       describe('when directConnection is not set', function () {
         const connectionStringUrl = new ConnectionStringUrl(
@@ -162,23 +12,23 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'add-new-host',
               fieldIndexToAddAfter: 0,
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('adds the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'outerspace:123',
-            'outerspace:124',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['outerspace:123', 'outerspace:124']);
         });
 
         it('updates the connection string with the new host', function () {
@@ -188,7 +38,7 @@ describe('use-connect-form hook', function () {
         });
 
         it('returns no errors', function () {
-          expect(updateResult.errors.length).to.equal(0);
+          expect(updateResult.errors).to.equal(undefined);
         });
       });
 
@@ -199,20 +49,23 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'add-new-host',
               fieldIndexToAddAfter: 1,
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('adds the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal([
             'outerspace:123',
             'backyard',
             'backyard:27018',
@@ -235,23 +88,22 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'add-new-host',
               fieldIndexToAddAfter: 0,
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('unsets direct connection when a host is added', function () {
           expect(
-            updateResult.connectionStringUrl.searchParams.get(
-              'directConnection'
-            )
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).searchParams.get('directConnection')
           ).to.equal(null);
         });
 
@@ -271,24 +123,23 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'remove-host',
               fieldIndexToRemove: 1,
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('removes the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'outerspace:123',
-            'cruiseship:1234',
-            'catch:22',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['outerspace:123', 'cruiseship:1234', 'catch:22']);
         });
 
         it('updates the connection string to not have the host', function () {
@@ -305,22 +156,23 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'remove-host',
               fieldIndexToRemove: 0,
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('removes the host on the connectionStringUrl, but sets the last host to default', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'localhost:27017',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['localhost:27017']);
         });
 
         it('updates the connection string to have one default host', function () {
@@ -339,21 +191,24 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-host',
               fieldIndex: 2,
               newHostValue: 'cruiseships:1234',
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('updates the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal([
             'outerspace:123',
             'backyard',
             'cruiseships:1234',
@@ -379,23 +234,24 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-host',
               fieldIndex: 0,
               newHostValue: 'dogs:1234',
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('updates the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'dogs:1234',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['dogs:1234']);
         });
 
         it('updates the connection string with the updated host', function () {
@@ -416,23 +272,24 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-host',
               fieldIndex: 0,
               newHostValue: 'backyards',
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('updates the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'backyards',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['backyards']);
         });
 
         it('updates the connection string with the updated host', function () {
@@ -453,17 +310,16 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-host',
               fieldIndex: 0,
               newHostValue: '',
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('adds an error to the errors with a message and the host field name', function () {
@@ -478,9 +334,11 @@ describe('use-connect-form hook', function () {
         });
 
         it('keeps the connection string and url the same', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'outerspace:27019',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['outerspace:27019']);
           expect(updateResult.connectionOptions.connectionString).to.equal(
             'mongodb://outerspace:27019/?ssl=true&directConnection=true'
           );
@@ -494,17 +352,16 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-host',
               fieldIndex: 1,
               newHostValue: 'spaces:123@',
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('adds an error to the errors with a message and the host field name', function () {
@@ -518,10 +375,11 @@ describe('use-connect-form hook', function () {
         });
 
         it('keeps the connection string and url the same', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'outerspace:27019',
-            'spaces:123',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['outerspace:27019', 'spaces:123']);
           expect(updateResult.connectionOptions.connectionString).to.equal(
             'mongodb://outerspace:27019,spaces:123/?ssl=true&directConnection=true'
           );
@@ -535,17 +393,16 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-host',
               fieldIndex: 0,
               newHostValue: 'outerspace:27019/',
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('adds an error to the errors with a message and the host field name', function () {
@@ -559,9 +416,11 @@ describe('use-connect-form hook', function () {
         });
 
         it('keeps the connection string and url the same', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'outerspace:27019',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['outerspace:27019']);
           expect(updateResult.connectionOptions.connectionString).to.equal(
             'mongodb://outerspace:27019/?ssl=true&directConnection=true'
           );
@@ -575,17 +434,16 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-host',
               fieldIndex: 0,
               newHostValue: 'outerspace:',
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('adds an error to the errors with a message and the host field name', function () {
@@ -599,9 +457,11 @@ describe('use-connect-form hook', function () {
         });
 
         it('keeps the connection string and url the same', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'outerspace',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['outerspace']);
           expect(updateResult.connectionOptions.connectionString).to.equal(
             'mongodb+srv://outerspace/?ssl=true'
           );
@@ -617,26 +477,31 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-connection-schema',
               isSrv: true,
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('updates the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'cruiseship',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['cruiseship']);
         });
 
         it('updates the schema on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.isSRV).to.equal(true);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).isSRV
+          ).to.equal(true);
         });
 
         it('updates the connection string', function () {
@@ -657,26 +522,31 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-connection-schema',
               isSrv: true,
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('removes the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'outerspace',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['outerspace']);
         });
 
         it('updates the schema on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.isSRV).to.equal(true);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).isSRV
+          ).to.equal(true);
         });
 
         it('updates the connection string', function () {
@@ -693,26 +563,31 @@ describe('use-connect-form hook', function () {
 
         let updateResult: ReturnType<typeof handleConnectionFormFieldUpdate>;
         beforeEach(function () {
-          updateResult = handleConnectionFormFieldUpdate({
-            action: {
+          updateResult = handleConnectionFormFieldUpdate(
+            {
               type: 'update-connection-schema',
               isSrv: false,
             },
-            connectionStringUrl,
-            connectionOptions: {
+            {
               connectionString: connectionStringUrl.toString(),
-            },
-          });
+            }
+          );
         });
 
         it('updates the host on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.hosts).to.deep.equal([
-            'outerspace:27017',
-          ]);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).hosts
+          ).to.deep.equal(['outerspace:27017']);
         });
 
         it('updates the schema on the connectionStringUrl', function () {
-          expect(updateResult.connectionStringUrl.isSRV).to.equal(false);
+          expect(
+            new ConnectionStringUrl(
+              updateResult.connectionOptions.connectionString
+            ).isSRV
+          ).to.equal(false);
         });
 
         it('updates the connection string', function () {
@@ -734,19 +609,17 @@ describe('use-connect-form hook', function () {
         );
         const {
           connectionOptions: { sshTunnel },
-        } = handleConnectionFormFieldUpdate({
-          action: {
+        } = handleConnectionFormFieldUpdate(
+          {
             type: 'update-ssh-options',
             currentTab: 'password',
             key: 'host',
             value: 'localhost',
           },
-          connectionOptions: {
+          {
             connectionString: connectionStringUrl.toString(),
-          },
-          connectionStringUrl: connectionStringUrl,
-          initialErrors: [],
-        });
+          }
+        );
 
         expect(sshTunnel).to.not.be.undefined;
         expect(sshTunnel.host).to.equal('localhost');
@@ -758,60 +631,67 @@ describe('use-connect-form hook', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/'
         );
-        const { connectionStringUrl: connectionUrl } =
-          handleConnectionFormFieldUpdate({
-            action: {
-              type: 'update-search-param',
-              currentKey: 'w',
-              value: 'localhost',
-            },
-            connectionOptions: {
-              connectionString: connectionStringUrl.toString(),
-            },
-            connectionStringUrl: connectionStringUrl,
-            initialErrors: [],
-          });
-        expect(connectionUrl.searchParams.get('w')).to.equal('localhost');
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-search-param',
+            currentKey: 'w',
+            value: 'localhost',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('w')
+        ).to.equal('localhost');
       });
       it('should handle update of search param key - with existing value', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/?w=w-value'
         );
-        const { connectionStringUrl: connectionUrl } =
-          handleConnectionFormFieldUpdate({
-            action: {
-              type: 'update-search-param',
-              currentKey: 'w',
-              newKey: 'journal',
-            },
-            connectionOptions: {
-              connectionString: connectionStringUrl.toString(),
-            },
-            connectionStringUrl: connectionStringUrl,
-            initialErrors: [],
-          });
-        expect(connectionUrl.searchParams.get('journal')).to.equal('w-value');
-        expect(connectionUrl.searchParams.get('w')).to.not.be.true;
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-search-param',
+            currentKey: 'w',
+            newKey: 'journal',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('journal')
+        ).to.equal('w-value');
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('w')
+        ).to.not.be.true;
       });
       it('should handle update of search param key - with new value', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/w=w-value'
         );
-        const { connectionStringUrl: connectionUrl } =
-          handleConnectionFormFieldUpdate({
-            action: {
-              type: 'update-search-param',
-              currentKey: 'w',
-              newKey: 'journal',
-              value: 'j-value',
-            },
-            connectionOptions: {
-              connectionString: connectionStringUrl.toString(),
-            },
-            connectionStringUrl: connectionStringUrl,
-            initialErrors: [],
-          });
-        expect(connectionUrl.searchParams.get('journal')).to.equal('j-value');
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-search-param',
+            currentKey: 'w',
+            newKey: 'journal',
+            value: 'j-value',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('journal')
+        ).to.equal('j-value');
       });
     });
 
@@ -820,20 +700,25 @@ describe('use-connect-form hook', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/?w=hello&journal=hi'
         );
-        const { connectionStringUrl: connectionUrl } =
-          handleConnectionFormFieldUpdate({
-            action: {
-              type: 'delete-search-param',
-              key: 'w',
-            },
-            connectionOptions: {
-              connectionString: connectionStringUrl.toString(),
-            },
-            connectionStringUrl: connectionStringUrl,
-            initialErrors: [],
-          });
-        expect(connectionUrl.searchParams.get('w')).to.not.be.true;
-        expect(connectionUrl.searchParams.get('journal')).to.equal('hi');
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'delete-search-param',
+            key: 'w',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('w')
+        ).to.not.be.true;
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('journal')
+        ).to.equal('hi');
       });
     });
 
@@ -842,38 +727,98 @@ describe('use-connect-form hook', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/admin'
         );
-        const { connectionStringUrl: connectionUrl } =
-          handleConnectionFormFieldUpdate({
-            action: {
-              type: 'update-connection-path',
-              value: 'awesome',
-            },
-            connectionOptions: {
-              connectionString: connectionStringUrl.toString(),
-            },
-            connectionStringUrl: connectionStringUrl,
-            initialErrors: [],
-          });
-        expect(connectionUrl.pathname).to.equal('/awesome');
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-connection-path',
+            value: 'awesome',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(connectionOptions.connectionString).pathname
+        ).to.equal('/awesome');
       });
 
       it('should udpate connection path - to empty value', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/admin'
         );
-        const { connectionStringUrl: connectionUrl } =
-          handleConnectionFormFieldUpdate({
-            action: {
-              type: 'update-connection-path',
-              value: '',
-            },
-            connectionOptions: {
-              connectionString: connectionStringUrl.toString(),
-            },
-            connectionStringUrl: connectionStringUrl,
-            initialErrors: [],
-          });
-        expect(connectionUrl.pathname).to.equal('');
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-connection-path',
+            value: '',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(connectionOptions.connectionString).pathname
+        ).to.equal('/');
+      });
+    });
+
+    describe('update-username action', function () {
+      it('should update the username', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-username',
+            username: 'aa',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(connectionOptions.connectionString).username
+        ).to.equal('aa');
+      });
+    });
+
+    describe('update-password action', function () {
+      it('should update the password', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://a123:b123@localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-password',
+            password: 'a@!1()',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(connectionOptions.connectionString).password
+        ).to.equal('a%40!1()');
+      });
+    });
+
+    describe('update-auth-mechanism action', function () {
+      it('should update the username', function () {
+        const connectionStringUrl = new ConnectionStringUrl(
+          'mongodb://localhost:27019'
+        );
+        const { connectionOptions } = handleConnectionFormFieldUpdate(
+          {
+            type: 'update-auth-mechanism',
+            authMechanism: 'PLAIN',
+          },
+          {
+            connectionString: connectionStringUrl.toString(),
+          }
+        );
+        expect(
+          new ConnectionStringUrl(
+            connectionOptions.connectionString
+          ).searchParams.get('authMechanism')
+        ).to.equal('PLAIN');
       });
     });
   });

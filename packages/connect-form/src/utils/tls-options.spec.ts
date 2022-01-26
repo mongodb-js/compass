@@ -11,16 +11,23 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'ON',
+        action: {
+          tlsOption: 'ON',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
         },
       });
-      expect(res.connectionStringUrl.toString()).to.equal(
+      expect(res.connectionOptions.connectionString).to.equal(
         'mongodb://a:b@outerspace:123/?directConnection=true&tls=true'
       );
-      expect(res.connectionStringUrl.searchParams.get('tls')).to.equal('true');
+      expect(
+        new ConnectionStringUrl(
+          res.connectionOptions.connectionString
+        ).searchParams.get('tls')
+      ).to.equal('true');
     });
 
     it('should update the connection string', function () {
@@ -29,7 +36,10 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'ON',
+        action: {
+          tlsOption: 'ON',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -46,13 +56,20 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'ON',
+        action: {
+          tlsOption: 'ON',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
         },
       });
-      expect(res.connectionStringUrl.searchParams.get('ssl')).to.equal(null);
+      expect(
+        new ConnectionStringUrl(
+          res.connectionOptions.connectionString
+        ).searchParams.get('ssl')
+      ).to.equal(null);
     });
   });
 
@@ -63,16 +80,23 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'OFF',
+        action: {
+          tlsOption: 'OFF',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
         },
       });
-      expect(res.connectionStringUrl.toString()).to.equal(
+      expect(res.connectionOptions.connectionString).to.equal(
         'mongodb://a:b@outerspace:123/?directConnection=true&tls=false'
       );
-      expect(res.connectionStringUrl.searchParams.get('tls')).to.equal('false');
+      expect(
+        new ConnectionStringUrl(
+          res.connectionOptions.connectionString
+        ).searchParams.get('tls')
+      ).to.equal('false');
     });
 
     it('should update the connection string', function () {
@@ -81,7 +105,10 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'OFF',
+        action: {
+          tlsOption: 'OFF',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -98,13 +125,20 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'OFF',
+        action: {
+          tlsOption: 'OFF',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
         },
       });
-      expect(res.connectionStringUrl.searchParams.get('ssl')).to.equal(null);
+      expect(
+        new ConnectionStringUrl(
+          res.connectionOptions.connectionString
+        ).searchParams.get('ssl')
+      ).to.equal(null);
     });
 
     it('should unset the `ssl` option when ssl=false', function () {
@@ -113,13 +147,20 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'OFF',
+        action: {
+          tlsOption: 'OFF',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
         },
       });
-      expect(res.connectionStringUrl.searchParams.get('ssl')).to.equal(null);
+      expect(
+        new ConnectionStringUrl(
+          res.connectionOptions.connectionString
+        ).searchParams.get('ssl')
+      ).to.equal(null);
     });
   });
 
@@ -130,16 +171,23 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'DEFAULT',
+        action: {
+          tlsOption: 'DEFAULT',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
         },
       });
-      expect(res.connectionStringUrl.toString()).to.equal(
+      expect(res.connectionOptions.connectionString).to.equal(
         'mongodb://a:b@outerspace:123/?directConnection=true'
       );
-      expect(res.connectionStringUrl.searchParams.get('tls')).to.equal(null);
+      expect(
+        new ConnectionStringUrl(
+          res.connectionOptions.connectionString
+        ).searchParams.get('tls')
+      ).to.equal(null);
     });
 
     it('should update the connection string', function () {
@@ -148,7 +196,10 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'DEFAULT',
+        action: {
+          tlsOption: 'DEFAULT',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
@@ -165,13 +216,20 @@ describe('#handleUpdateTlsOption', function () {
       );
 
       const res = handleUpdateTlsOption({
-        tlsOption: 'DEFAULT',
+        action: {
+          tlsOption: 'DEFAULT',
+          type: 'update-tls-option',
+        },
         connectionStringUrl,
         connectionOptions: {
           connectionString: connectionStringUrl.toString(),
         },
       });
-      expect(res.connectionStringUrl.searchParams.get('ssl')).to.equal(null);
+      expect(
+        new ConnectionStringUrl(
+          res.connectionOptions.connectionString
+        ).searchParams.get('ssl')
+      ).to.equal(null);
     });
   });
 });

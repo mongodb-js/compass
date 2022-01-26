@@ -2,7 +2,7 @@
 const assert = require('assert');
 const Mocha = require('mocha');
 
-const debug = require('debug')('compass-e2e-tests').extend('result-logger');
+const debug = require('debug')('result-logger');
 
 const DB_NAME = 'compass_e2e';
 const COLLECTION_NAME = 'results';

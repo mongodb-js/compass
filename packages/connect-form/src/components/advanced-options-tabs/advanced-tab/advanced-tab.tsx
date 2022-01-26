@@ -50,7 +50,7 @@ function AdvancedTab({
     : pathname;
 
   const handleFieldChanged = useCallback(
-    (key: keyof MongoClientOptions, value: unknown) => {
+    (key: keyof MongoClientOptions, value?: string) => {
       if (!value) {
         return updateConnectionFormField({
           type: 'delete-search-param',
@@ -114,6 +114,7 @@ function AdvancedTab({
       {/* Replica Set */}
       <FormFieldContainer>
         <TextInput
+          spellCheck={false}
           className={fieldStyles}
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
             handleFieldChanged('replicaSet', value);
@@ -130,6 +131,7 @@ function AdvancedTab({
       {/* Default Database */}
       <FormFieldContainer>
         <TextInput
+          spellCheck={false}
           className={fieldStyles}
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
             handlePathChanged(value);

@@ -7,6 +7,7 @@ export const sharedExternals: string[] = [
   'keytar',
   'kerberos',
   'interruptor',
+  'os-dns-native',
   // MongoDB Node.js Driver stuff that is optional, but fails webpack builds
   // with "missing dependency" if not installed due to how driver imports those
   'bson-ext',

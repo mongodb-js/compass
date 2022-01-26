@@ -10,7 +10,7 @@ import {
 
 const initialHadronApp = (global as any).hadronApp;
 
-const dataService: Pick<DataService, 'instance'> = {
+const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
   instance: () => {
     return Promise.resolve({
       dataLake: {
@@ -30,6 +30,7 @@ const dataService: Pick<DataService, 'instance'> = {
       featureCompatibilityVersion: null,
     });
   },
+  currentTopologyType: () => 'Unknown',
 };
 
 describe('connection tracking', function () {
@@ -111,6 +112,7 @@ describe('connection tracking', function () {
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -144,6 +146,7 @@ describe('connection tracking', function () {
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -200,6 +203,7 @@ describe('connection tracking', function () {
         auth_type: 'NONE',
         tunnel: 'none',
         is_srv: is_srv,
+        topology_type: 'Unknown',
         is_atlas: false,
         is_dataLake: false,
         is_enterprise: false,
@@ -234,6 +238,7 @@ describe('connection tracking', function () {
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -267,6 +272,7 @@ describe('connection tracking', function () {
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -281,7 +287,7 @@ describe('connection tracking', function () {
   });
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  ['', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach(
+  ['', 'DEFAULT', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach(
     (authMechanism) => {
       it(`tracks a new connection event - ${
         authMechanism || 'DEFAULT'
@@ -289,7 +295,7 @@ describe('connection tracking', function () {
         const trackEvent = once(process, 'compass:track');
         const connectionInfo = {
           connectionOptions: {
-            connectionString: `mongodb://root@example:127.0.0.1?authMechanism=${authMechanism}`,
+            connectionString: `mongodb://root:pwd@127.0.0.1?authMechanism=${authMechanism}`,
           },
         };
         trackNewConnectionEvent(connectionInfo, dataService);
@@ -353,7 +359,10 @@ describe('connection tracking', function () {
   });
 
   it('tracks the instance data - case 1', async function () {
-    const mockDataService: Pick<DataService, 'instance'> = {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'currentTopologyType'
+    > = {
       instance: () => {
         return Promise.resolve({
           dataLake: {
@@ -376,6 +385,7 @@ describe('connection tracking', function () {
           featureCompatibilityVersion: null,
         });
       },
+      currentTopologyType: () => 'Unknown',
     };
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
@@ -397,7 +407,10 @@ describe('connection tracking', function () {
   });
 
   it('tracks the instance data - case 2', async function () {
-    const mockDataService: Pick<DataService, 'instance'> = {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'currentTopologyType'
+    > = {
       instance: () => {
         return Promise.resolve({
           dataLake: {
@@ -420,6 +433,7 @@ describe('connection tracking', function () {
           featureCompatibilityVersion: null,
         });
       },
+      currentTopologyType: () => 'Sharded',
     };
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
@@ -438,6 +452,7 @@ describe('connection tracking', function () {
     expect(properties.server_version).to.equal('4.3.9');
     expect(properties.server_arch).to.equal('debian');
     expect(properties.server_os_family).to.equal('ubuntu');
+    expect(properties.topology_type).to.equal('Sharded');
   });
 
   it('tracks connection error event', async function () {

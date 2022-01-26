@@ -72,6 +72,15 @@ tests:
                       'x': new NumberLong(0), 
                       'y': new ObjectId()
                     });"
+                ruby: |-
+                    # Requires the MongoDB Ruby Driver
+                    # https://docs.mongodb.com/ruby-driver/master/
+
+                    client = Mongo::Client.new('mongodb://localhost:27017', :database => 'db')
+                    result = client.database['collection'].aggregate({
+                      'x' => 0,
+                      'y' => BSON::ObjectId.new
+                    })
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -96,6 +105,7 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
+                ruby: require 'mongo'
     query:
         -
             description: 'generate driver syntax with only filter'
@@ -158,6 +168,15 @@ tests:
                     db.collection.find({
                       'x': new NumberLong(0)
                     });"
+                ruby: |-
+                    # Requires the MongoDB Ruby Driver
+                    # https://docs.mongodb.com/ruby-driver/master/
+
+                    client = Mongo::Client.new('mongodb://localhost:27017', :database => 'db')
+
+                    result = client.database['collection'].find({
+                      'x' => 0
+                    })
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -179,6 +198,7 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
+                ruby: require 'mongo'
         -
             description: 'generate driver syntax with filter and other options'
             input:
@@ -318,6 +338,34 @@ tests:
                     }).skip(5).limit(10).maxTimeMS(100).collation({
                       'locale': 'zh'
                     });"
+                ruby: |-
+                    # Requires the MongoDB Ruby Driver
+                    # https://docs.mongodb.com/ruby-driver/master/
+
+                    client = Mongo::Client.new('mongodb://localhost:27017', :database => 'db')
+                    projection = {
+                      'y' => BSON::ObjectId.new
+                    }
+                    sort = {
+                      'name' => 1
+                    }
+                    skip = 5
+                    limit = 10
+                    max_time_ms = 100
+                    collation = {
+                      'locale' => 'zh'
+                    }
+
+                    result = client.database['collection'].find({
+                      'x' => 0
+                    }, {
+                      projection: projection,
+                      sort: sort,
+                      skip: skip,
+                      limit: limit,
+                      max_time_ms: max_time_ms,
+                      collation: collation
+                    })
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -341,3 +389,4 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
+                ruby: require 'mongo'
