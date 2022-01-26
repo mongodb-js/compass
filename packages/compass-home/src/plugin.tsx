@@ -1,5 +1,6 @@
 import React from 'react';
 import AppRegistry from 'hadron-app-registry';
+import { LeafyGreenProvider } from '@mongodb-js/compass-components';
 
 import Home from './components/home';
 import AppRegistryContext from './contexts/app-registry-context';
@@ -15,7 +16,9 @@ function Plugin({
 }): React.ReactElement {
   return (
     <AppRegistryContext.Provider value={appRegistry}>
-      <Home appName={appName} />
+      <LeafyGreenProvider>
+        <Home appName={appName} />
+      </LeafyGreenProvider>
     </AppRegistryContext.Provider>
   );
 }

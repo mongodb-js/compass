@@ -57,7 +57,6 @@ function SaveConnectionModal({
             });
           }}
           label="Name"
-          placeholder="Connection name"
           value={editingFavorite.name}
         />
       </FormFieldContainer>

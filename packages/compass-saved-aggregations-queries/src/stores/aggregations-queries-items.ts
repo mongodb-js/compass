@@ -1,4 +1,9 @@
 import { AnyAction, Dispatch } from 'redux';
+// TODO: Add declarations to the package, otherwise it will be like third time
+// we have to copy-paste them around
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import toNS from 'mongodb-ns';
 import { getAggregations } from './../utlis/aggregations';
 import { getQueries } from './../utlis/queries';
 
@@ -15,7 +20,8 @@ export type Item = {
   id: string;
   lastModified: number;
   name: string;
-  namespace: string;
+  database: string;
+  collection: string;
   type: 'query' | 'aggregation';
 };
 
@@ -60,24 +66,32 @@ export const fetchItems = () => {
 
 const getAggregationItems = async (): Promise<Item[]> => {
   const aggregations = await getAggregations();
-  return aggregations.map((aggregation) => ({
-    id: aggregation.id,
-    lastModified: aggregation.lastModified,
-    name: aggregation.name,
-    namespace: aggregation.namespace,
-    type: 'aggregation',
-  }));
+  return aggregations.map((aggregation) => {
+    const { database, collection } = toNS(aggregation.namespace);
+    return {
+      id: aggregation.id,
+      lastModified: aggregation.lastModified,
+      name: aggregation.name,
+      database,
+      collection,
+      type: 'aggregation',
+    };
+  });
 };
 
 const getQueryItems = async (): Promise<Item[]> => {
   const queries = await getQueries();
-  return queries.map((query) => ({
-    id: query._id,
-    lastModified: query._dateSaved,
-    name: query._name,
-    namespace: query._ns,
-    type: 'query',
-  }));
+  return queries.map((query) => {
+    const { database, collection } = toNS(query._ns);
+    return {
+      id: query._id,
+      lastModified: query._dateSaved,
+      name: query._name,
+      database,
+      collection,
+      type: 'query',
+    };
+  });
 };
 
 export default reducer;
