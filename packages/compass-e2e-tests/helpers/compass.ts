@@ -71,10 +71,10 @@ type CompassOptions = {
   userDataDir: string;
 };
 
-class Compass {
+export class Compass {
   browser: Browser<'async'>;
-  renderLogs: any[]; // TODO
-  logs: any[]; // TODO
+  renderLogs: Array<any>; // TODO
+  logs: Array<any>; // TODO
   logPath?: string;
   userDataDir: string;
 
@@ -141,8 +141,7 @@ class Compass {
         continue;
       }
       const origFn = descriptor.value;
-      descriptor.value = function (...args: any[]) {
-        // TODO
+      descriptor.value = function (...args: Array<any>) {
         debugClient(
           `${prop}(${args
             .map((arg) => inspect(arg, { breakLength: Infinity }))
@@ -581,27 +580,9 @@ export function outputFilename(filename: string): string {
 
 export async function afterTest(
   compass: Compass,
-  test: Mocha.Hook | Mocha.Test
+  test?: Mocha.Hook | Mocha.Test
 ): Promise<void> {
-  if (test.state == 'failed') {
+  if (test && test.state == 'failed') {
     await compass.capturePage(screenshotPathName(test.fullTitle()));
   }
 }
-
-// TODO
-/*
-module.exports = {
-  startCompass,
-  rebuildNativeModules,
-  compileCompassAssets,
-  getAtlasConnectionOptions,
-  buildCompass,
-  Selectors,
-  COMPASS_PATH,
-  LOG_PATH,
-  OUTPUT_PATH,
-  beforeTests,
-  outputFilename,
-  afterTest,
-};
-*/

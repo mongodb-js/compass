@@ -38,7 +38,11 @@ async function setSort(
   );
 }
 
-async function setCollation(browser: Browser<'async'>, tabName, value) {
+async function setCollation(
+  browser: Browser<'async'>,
+  tabName: string,
+  value: string
+) {
   await Commands.setAceValue(
     browser,
     Selectors.queryBarOptionInputCollation(tabName),

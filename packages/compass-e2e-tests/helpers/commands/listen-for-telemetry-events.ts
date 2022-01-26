@@ -1,24 +1,13 @@
 import { Browser } from 'webdriverio';
+import { Telemetry } from '../telemetry';
 
-// TODO
-/*
-   {
-    requests,
-    stop,
-    events,
-    key,
-    screens,
-  }
-*/
-type Telemetry = any;
-
-export default function (
+export function listenForTelemetryEvents(
   browser: Browser<'async'>,
   telemetry: Telemetry
 ): (eventName: string) => Promise<void> {
   const existingEventCount = telemetry.events().length;
 
-  function lookupNewEvent(eventName) {
+  function lookupNewEvent(eventName: string) {
     const newEvents = telemetry.events().slice(existingEventCount);
     return newEvents.find((entry) => entry.event === eventName);
   }

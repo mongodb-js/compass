@@ -1,26 +1,31 @@
-const { expect } = require('chai');
-const { beforeTests, afterTests } = require('../helpers/compass');
-const { startTelemetryServer } = require('../helpers/telemetry');
+import { expect } from 'chai';
+import { beforeTests, afterTests, Compass } from '../helpers/compass';
+import { startTelemetryServer, Telemetry } from '../helpers/telemetry';
+import * as Commands from '../helpers/commands';
 
 describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
-    let logs;
-    let telemetry;
+    let logs: Array<any>;
+    let telemetry: Telemetry;
 
     before(async function () {
       telemetry = await startTelemetryServer();
       const compass = await beforeTests();
       const { browser } = compass;
       try {
-        await browser.connectWithConnectionString(
+        await Commands.connectWithConnectionString(
+          browser,
           'mongodb://localhost:27018/test'
         );
 
-        await browser.shellEval('use test');
-        await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
+        await Commands.shellEval(browser, 'use test');
+        await Commands.shellEval(
+          browser,
+          'db.runCommand({ connectionStatus: 1 })'
+        );
 
-        await browser.openTourModal();
-        await browser.closeTourModal();
+        await Commands.openTourModal(browser);
+        await Commands.closeTourModal(browser);
       } finally {
         await afterTests(compass);
         await telemetry.stop();
@@ -41,7 +46,7 @@ describe('Logging and Telemetry integration', function () {
     describe('telemetry events for the critical path', function () {
       it('uses the proper API key', function () {
         expect(telemetry.requests[0].req.headers.authorization).to.include(
-          Buffer.from(telemetry.key + ':').toString('base64')
+          Buffer.from(`${telemetry.key}:`).toString('base64')
         );
       });
 
@@ -125,7 +130,7 @@ describe('Logging and Telemetry integration', function () {
           id: 1_001_000_001,
           ctx: 'logging',
           msg: 'Starting logging',
-          attr: (actual) => {
+          attr: (actual: any) => {
             expect(actual.version).to.be.a('string');
             expect(actual.platform).to.equal(process.platform);
             expect(actual.arch).to.equal(process.arch);
@@ -144,7 +149,7 @@ describe('Logging and Telemetry integration', function () {
           id: 1_001_000_093,
           ctx: 'Telemetry',
           msg: 'Loading telemetry config',
-          attr: (actual) => {
+          attr: (actual: any) => {
             expect(actual.telemetryCapableEnvironment).to.equal(true);
             expect(actual.hasAnalytics).to.equal(true);
             expect(actual.currentUserId).to.be.a('string');
@@ -171,7 +176,7 @@ describe('Logging and Telemetry integration', function () {
           id: 1_001_000_093,
           ctx: 'Telemetry',
           msg: 'Loading telemetry config',
-          attr: (actual) => {
+          attr: (actual: any) => {
             expect(actual.telemetryCapableEnvironment).to.equal(true);
             expect(actual.hasAnalytics).to.equal(true);
             expect(actual.currentUserId).to.be.a('string');
@@ -191,7 +196,7 @@ describe('Logging and Telemetry integration', function () {
           id: 1_001_000_014,
           ctx: 'Connection 0',
           msg: 'Connecting',
-          attr: (actual) => {
+          attr: (actual: any) => {
             expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
           },
         },
@@ -201,7 +206,7 @@ describe('Logging and Telemetry integration', function () {
           id: 1_000_000_042,
           ctx: 'compass-connect',
           msg: 'Initiating connection attempt',
-          attr: (actual) => {
+          attr: (actual: any) => {
             expect(actual.uri).to.match(/^mongodb:\/\/localhost:27018/);
             expect(actual.driver.name).to.equal('nodejs');
           },
@@ -279,7 +284,7 @@ describe('Logging and Telemetry integration', function () {
           id: 1_001_000_024,
           ctx: 'Connection 0',
           msg: 'Fetched instance information',
-          attr: (actual) => {
+          attr: (actual: any) => {
             const { dataLake, genuineMongoDB } = actual;
             expect({ dataLake, genuineMongoDB }).to.deep.equal({
               dataLake: { isDataLake: false, version: null },
@@ -309,7 +314,7 @@ describe('Logging and Telemetry integration', function () {
         },
       ];
 
-      let criticalPathActualLogs;
+      let criticalPathActualLogs: Array<any>;
       const testedIndexes = new Set();
 
       // eslint-disable-next-line mocha/no-hooks-for-single-case
@@ -380,7 +385,7 @@ describe('Logging and Telemetry integration', function () {
   });
 
   describe('Uncaught exceptions', function () {
-    let compass;
+    let compass: Compass;
 
     before(async function () {
       try {
@@ -401,7 +406,7 @@ describe('Logging and Telemetry integration', function () {
       }
     });
 
-    it('provides logging information for uncaught exceptions', async function () {
+    it('provides logging information for uncaught exceptions', function () {
       const uncaughtEntry = compass.logs.find(
         (entry) => entry.id === 1_001_000_002
       );

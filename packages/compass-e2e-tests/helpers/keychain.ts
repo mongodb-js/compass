@@ -15,7 +15,7 @@ function wait(ms = 1000) {
 }
 
 export type Keychain = {
-  name: string;
+  name?: string;
   activate: () => Promise<void>;
   reset: () => void;
 };
@@ -94,7 +94,6 @@ export function createUnlockedKeychain(): Keychain {
   }
 
   return {
-    name: null,
     async activate() {
       return Promise.resolve();
     },

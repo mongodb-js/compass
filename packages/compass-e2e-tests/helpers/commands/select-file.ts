@@ -10,7 +10,9 @@ export async function selectFile(
   await browser.execute((selector) => {
     // eslint-disable-next-line no-undef
     const f = document.querySelector(selector);
-    f.removeAttribute('style');
+    if (f) {
+      f.removeAttribute('style');
+    }
   }, fileSelector);
 
   // select the file
@@ -21,6 +23,8 @@ export async function selectFile(
   await browser.execute((selector) => {
     // eslint-disable-next-line no-undef
     const f = document.querySelector(selector);
-    f.setAttribute('style', 'display: none');
+    if (f) {
+      f.setAttribute('style', 'display: none');
+    }
   }, fileSelector);
 }

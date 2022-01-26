@@ -1,15 +1,18 @@
-const { expect } = require('chai');
-const ConnectionString = require('mongodb-connection-string-url').default;
-const {
+import { expect } from 'chai';
+import ConnectionString from 'mongodb-connection-string-url';
+import { Browser } from 'webdriverio';
+import {
   getAtlasConnectionOptions,
   beforeTests,
   afterTests,
   afterTest,
-} = require('../helpers/compass');
+  Compass,
+} from '../helpers/compass';
+import * as Commands from '../helpers/commands';
 
-async function disconnect(browser) {
+async function disconnect(browser: Browser<'async'>) {
   try {
-    await browser.disconnect();
+    await Commands.disconnect(browser);
   } catch (err) {
     console.error('Error during disconnect:');
     console.error(err);
@@ -20,8 +23,8 @@ async function disconnect(browser) {
  * Connection tests
  */
 describe('Connection screen', function () {
-  let compass;
-  let browser;
+  let compass: Compass;
+  let browser: Browser<'async'>;
 
   before(async function () {
     compass = await beforeTests();
@@ -38,8 +41,12 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection string', async function () {
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
-    const result = await browser.shellEval(
+    await Commands.connectWithConnectionString(
+      browser,
+      'mongodb://localhost:27018/test'
+    );
+    const result = await Commands.shellEval(
+      browser,
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -47,11 +54,12 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection form', async function () {
-    await browser.connectWithConnectionForm({
+    await Commands.connectWithConnectionForm(browser, {
       host: 'localhost',
       port: 27018,
     });
-    const result = await browser.shellEval(
+    const result = await Commands.shellEval(
+      browser,
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -63,8 +71,9 @@ describe('Connection screen', function () {
     if (!atlasConnectionOptions) {
       return this.skip();
     }
-    await browser.connectWithConnectionForm(atlasConnectionOptions);
-    const result = await browser.shellEval(
+    await Commands.connectWithConnectionForm(browser, atlasConnectionOptions);
+    const result = await Commands.shellEval(
+      browser,
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -72,6 +81,7 @@ describe('Connection screen', function () {
   });
 });
 
+// eslint-disable-next-line mocha/max-top-level-suites
 describe('SRV connectivity', function () {
   it('resolves SRV connection string using OS DNS APIs', async function () {
     if (process.platform === 'win32') {
@@ -85,7 +95,8 @@ describe('SRV connectivity', function () {
     try {
       // Does not actually succeed at connecting, but that’s fine for us here
       // (Unless you have a server listening on port 27017)
-      await browser.connectWithConnectionString(
+      await Commands.connectWithConnectionString(
+        browser,
         'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
         undefined,
         'either'
@@ -121,8 +132,8 @@ describe('SRV connectivity', function () {
     );
 
     expect(resolutionDetails).to.have.lengthOf(2);
-    const srvResolution = resolutionDetails.find((q) => q.query === 'SRV');
-    const txtResolution = resolutionDetails.find((q) => q.query === 'TXT');
+    const srvResolution = resolutionDetails.find((q: any) => q.query === 'SRV');
+    const txtResolution = resolutionDetails.find((q: any) => q.query === 'TXT');
     expect(srvResolution).to.deep.equal({
       query: 'SRV',
       hostname: '_mongodb._tcp.test1.test.build.10gen.cc',

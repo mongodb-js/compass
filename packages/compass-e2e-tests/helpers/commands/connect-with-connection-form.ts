@@ -5,8 +5,8 @@ import * as Selectors from '../selectors';
 const defaultTimeoutMS = 30_000;
 
 type ConnectOptions = {
-  host?: string;
-  port?: string;
+  host: string;
+  port?: number;
   srvRecord?: boolean;
   username?: string;
   password?: string;

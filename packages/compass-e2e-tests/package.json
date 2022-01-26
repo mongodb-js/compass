@@ -37,6 +37,7 @@
     "@mongodb-js/eslint-config-compass": "^0.5.0",
     "@mongodb-js/prettier-config-compass": "^0.4.0",
     "@mongodb-js/tsconfig-compass": "^0.4.0",
+    "@types/chai-as-promised": "^7.1.4",
     "bson": "*",
     "chai": "*",
     "chai-as-promised": "*",

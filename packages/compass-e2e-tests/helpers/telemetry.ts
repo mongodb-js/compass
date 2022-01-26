@@ -1,9 +1,18 @@
-// @ts-check
-const { once } = require('events');
-const http = require('http');
+import { once } from 'events';
+import http from 'http';
+import { AddressInfo } from 'net';
 
-async function startTelemetryServer() {
-  let requests = [];
+// TODO: lots of any here
+export type Telemetry = {
+  requests: Array<any>;
+  stop: () => Promise<void>;
+  events: () => Array<any>;
+  key: string;
+  screens: () => Array<any>;
+};
+
+export async function startTelemetryServer(): Promise<Telemetry> {
+  const requests: Array<any> = [];
   const srv = http
     .createServer((req, res) => {
       let body = '';
@@ -20,7 +29,11 @@ async function startTelemetryServer() {
     })
     .listen(0);
   await once(srv, 'listening');
-  const host = `http://localhost:${srv.address().port}`;
+
+  // address() returns either a string or AddresInfo.
+  const address = srv.address() as AddressInfo;
+
+  const host = `http://localhost:${address.port}`;
   const key = '🔑';
   process.env.HADRON_METRICS_SEGMENT_API_KEY_OVERRIDE = key;
   process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE = host;
@@ -32,25 +45,21 @@ async function startTelemetryServer() {
     delete process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE;
   }
 
-  function events() {
+  function events(): Array<any> {
     return requests.flatMap((req) => req.body.batch);
   }
 
-  function screens() {
+  function screens(): Array<any> {
     return events()
       .filter((entry) => entry.event === 'Screen')
       .map((entry) => entry.properties.name);
   }
 
   return {
+    key,
     requests,
     stop,
     events,
-    key,
     screens,
   };
 }
-
-module.exports = {
-  startTelemetryServer,
-};

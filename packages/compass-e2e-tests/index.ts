@@ -111,7 +111,7 @@ async function main() {
     }
   }
 
-  const tests = await promisify(glob)('tests/**/*.{test,spec}.js', {
+  const tests = await promisify(glob)('tests/**/*.{test,spec}.ts', {
     cwd: __dirname,
   });
 

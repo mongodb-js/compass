@@ -1,4 +1,4 @@
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, Db, MongoServerError } from 'mongodb';
 
 const CONNECTION_URI = 'mongodb://localhost:27018';
 
@@ -6,8 +6,9 @@ async function dropCollection(db: Db, name: string) {
   const collection = db.collection(name);
   try {
     await collection.drop();
-  } catch (err: Error) {
-    if (err.codeName !== 'NamespaceNotFound') {
+  } catch (err) {
+    const codeName = (err as MongoServerError).codeName;
+    if (codeName !== 'NamespaceNotFound') {
       throw err;
     }
   }

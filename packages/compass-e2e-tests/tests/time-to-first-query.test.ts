@@ -1,9 +1,15 @@
-const { expect } = require('chai');
-const { beforeTests, afterTests, afterTest } = require('../helpers/compass');
-const Selectors = require('../helpers/selectors');
+import { expect } from 'chai';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  Compass,
+} from '../helpers/compass';
+import * as Commands from '../helpers/commands';
+import * as Selectors from '../helpers/selectors';
 
 describe('Time to first query', function () {
-  let compass;
+  let compass: Compass;
 
   it('can open compass, connect to a database and run a query on a collection', async function () {
     // start compass inside the test so that the time is measured together
@@ -11,9 +17,17 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    await Commands.connectWithConnectionString(
+      browser,
+      'mongodb://localhost:27018/test'
+    );
 
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await Commands.navigateToCollectionTab(
+      browser,
+      'test',
+      'numbers',
+      'Documents'
+    );
 
     // search for the document with id == 42 and wait for just one result to appear
     const aceCommentElement = await browser.$(
