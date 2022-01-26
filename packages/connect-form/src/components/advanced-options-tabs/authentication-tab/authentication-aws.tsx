@@ -74,6 +74,7 @@ function AuthenticationAWS({
           }}
           label={AWS_SESSION_TOKEN_LABEL}
           value={sessionToken || ''}
+          type="password"
         />
       </FormFieldContainer>
     </>
