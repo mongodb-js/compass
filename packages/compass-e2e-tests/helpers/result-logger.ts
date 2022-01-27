@@ -128,7 +128,7 @@ export default class ResultLogger {
 
     this.context = {
       // copy known env vars as-is if they are set
-      env: ENV_VARS.reduce((obj: any, name) => {
+      env: ENV_VARS.reduce((obj: Env, name: keyof Env) => {
         const value = process.env[name];
         if (value) {
           obj[name] = value;
