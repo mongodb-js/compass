@@ -6,7 +6,7 @@ module.exports = (config) => {
     singleRun: true,
     files: ['test/karma-setup.js'],
     reporters: ['mocha'],
-    preprocessors: { 'test/karma-setup.js': ['webpack', 'sourcemap', 'electron'] },
+    preprocessors: { 'test/karma-setup.js': ['webpack', 'sourcemap'] },
     browsers: ['Compass'],
     frameworks: ['mocha', 'chai', 'sinon', 'chai-sinon'],
     webpack: webpackConfig,
@@ -28,9 +28,12 @@ module.exports = (config) => {
     customLaunchers: {
       Compass: {
         base: 'Electron',
+        flags: ['--no-sandbox'],
         browserWindowOptions: {
           webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true
           }
         }
       }

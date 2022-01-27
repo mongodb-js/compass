@@ -16,10 +16,13 @@ describe('SidebarInstance [Component]', () => {
         detailsPlugins={[]}
         globalAppRegistryEmit={() => {}}
         toggleIsDetailsExpanded={() => {}}
-        connectionModel={{ connection: {} }}
-        toggleIsModalVisible={() => {}}
-        saveFavorite={() => {}}
-        isModalVisible={false}
+        connectionInfo={{
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017'
+          },
+          id: '123'
+        }}
+        updateConnectionInfo={() => {}}
       />);
     });
 

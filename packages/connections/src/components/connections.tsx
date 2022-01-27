@@ -56,7 +56,7 @@ function Connections({
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
-  ) => Promise<void>;
+  ) => void;
   connectionStorage?: ConnectionStore;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
