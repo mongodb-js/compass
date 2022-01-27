@@ -131,8 +131,5 @@ describe('SRV connectivity', function () {
       error: true,
       wasNativelyLookedUp: false, // Due to fallback to Node.js API after resolution error
     });
-
-    // The connection attempt was aborted early.
-    expect(logs.filter((log) => log.id === 1_000_000_036)).to.have.lengthOf(1);
   });
 });
