@@ -33,9 +33,7 @@ describe('Smoke tests', function () {
     compass = await beforeTests();
     browser = compass.browser;
 
-    await browser.connectWithConnectionString(
-      'mongodb://localhost:27018/test'
-    );
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   after(async function () {
@@ -107,9 +105,9 @@ describe('Smoke tests', function () {
     });
 
     it('contains a list of collections', async function () {
-      expect(
-        await browser.existsEventually(Selectors.CollectionsGrid)
-      ).to.eq(true);
+      expect(await browser.existsEventually(Selectors.CollectionsGrid)).to.eq(
+        true
+      );
     });
 
     // capped and not capped
@@ -118,11 +116,7 @@ describe('Smoke tests', function () {
 
   describe('Collection screen', function () {
     before(async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'numbers',
-        'Documents'
-      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
     it('contains the collection tabs', async function () {
@@ -171,17 +165,11 @@ describe('Smoke tests', function () {
 
   describe('Documents tab', function () {
     before(async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'numbers',
-        'Documents'
-      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
     it('supports simple find operations', async function () {
-      const telemetryEntry = await browser.listenForTelemetryEvents(
-        telemetry
-      );
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
       await browser.runFindOperation('Documents', '{ i: 5 }');
 
       const documentListActionBarMessageElement = await browser.$(
@@ -202,19 +190,13 @@ describe('Smoke tests', function () {
     });
 
     it('supports advanced find operations', async function () {
-      const telemetryEntry = await browser.listenForTelemetryEvents(
-        telemetry
-      );
-      await browser.runFindOperation(
-        'Documents',
-        '{ i: { $gt: 5 } }',
-        {
-          project: '{ _id: 0 }',
-          sort: '{ i: -1 }',
-          skip: '5',
-          limit: '50',
-        }
-      );
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+      await browser.runFindOperation('Documents', '{ i: { $gt: 5 } }', {
+        project: '{ _id: 0 }',
+        sort: '{ i: -1 }',
+        skip: '5',
+        limit: '50',
+      });
 
       const documentListActionBarMessageElement = await browser.$(
         Selectors.DocumentListActionBarMessage
@@ -253,9 +235,7 @@ describe('Smoke tests', function () {
       );
       await documentListFetchingElement.waitForDisplayed();
 
-      await browser.clickVisible(
-        Selectors.DocumentListFetchingStopButton
-      );
+      await browser.clickVisible(Selectors.DocumentListFetchingStopButton);
 
       const documentListErrorElement = await browser.$(
         Selectors.DocumentListError
@@ -294,11 +274,7 @@ describe('Smoke tests', function () {
 
   describe('Aggregations tab', function () {
     before(async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'numbers',
-        'Aggregations'
-      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     });
 
     // TODO
@@ -422,11 +398,7 @@ describe('Smoke tests', function () {
 
   describe('Schema tab', function () {
     before(async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'numbers',
-        'Schema'
-      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Schema');
     });
 
     it('analyzes a schema', async function () {
@@ -470,11 +442,7 @@ describe('Smoke tests', function () {
 
   describe('Explain Plan tab', function () {
     before(async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'numbers',
-        'Explain Plan'
-      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Explain Plan');
     });
 
     it('supports queries not covered by an index', async function () {
@@ -495,11 +463,7 @@ describe('Smoke tests', function () {
   describe('Indexes tab', function () {
     // eslint-disable-next-line mocha/no-hooks-for-single-case
     before(async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'numbers',
-        'Indexes'
-      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
     });
 
     it('lists indexes', async function () {
@@ -518,11 +482,7 @@ describe('Smoke tests', function () {
 
   describe('Validation tab', function () {
     before(async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'numbers',
-        'Validation'
-      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Validation');
     });
 
     it('supports rules in JSON schema', async function () {
@@ -581,11 +541,7 @@ describe('Smoke tests', function () {
 
   describe('Import', function () {
     it('supports JSON arrays', async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'json-array',
-        'Documents'
-      );
+      await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
       const array = [];
       for (let i = 0; i < 1000; ++i) {
@@ -629,11 +585,7 @@ describe('Smoke tests', function () {
         'listings.json'
       );
 
-      await browser.navigateToCollectionTab(
-        'test',
-        'json-file',
-        'Documents'
-      );
+      await browser.navigateToCollectionTab('test', 'json-file', 'Documents');
 
       // open the import modal
       await browser.clickVisible(Selectors.AddDataButton);
@@ -683,17 +635,11 @@ describe('Smoke tests', function () {
 
   describe('Export', function () {
     before(async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'numbers',
-        'Documents'
-      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     });
 
     it('supports collection to CSV with a query filter', async function () {
-      const telemetryEntry = await browser.listenForTelemetryEvents(
-        telemetry
-      );
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
       await browser.runFindOperation('Documents', '{ i: 5 }');
       await browser.clickVisible(Selectors.ExportCollectionButton);
       const exportModal = await browser.$(Selectors.ExportModal);
@@ -707,14 +653,10 @@ describe('Smoke tests', function () {
   {i: 5}
 )`);
 
-      await browser.clickVisible(
-        Selectors.ExportModalSelectFieldsButton
-      );
+      await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
       // don't change any field selections for now
-      await browser.clickVisible(
-        Selectors.ExportModalSelectOutputButton
-      );
+      await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
       // select csv (unselected at first, selected by the end)
       await browser.clickVisible(

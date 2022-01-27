@@ -16,15 +16,9 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectWithConnectionString(
-      'mongodb://localhost:27018/test'
-    );
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
 
-    await browser.navigateToCollectionTab(
-      'test',
-      'numbers',
-      'Documents'
-    );
+    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
     // search for the document with id == 42 and wait for just one result to appear
     const aceCommentElement = await browser.$(
