@@ -2,15 +2,18 @@ import { once } from 'events';
 import http from 'http';
 import { AddressInfo } from 'net';
 import { EJSON } from 'bson';
+import { MongoLogEntry } from 'mongodb-log-writer';
 
 // TODO: lots of any here
 export type Telemetry = {
-  requests: any[];
+  requests: LogEntry[];
   stop: () => Promise<void>;
   events: () => any[];
   key: string;
   screens: () => any[];
 };
+
+export type LogEntry = Omit<MongoLogEntry, 'id'> & { id: number };
 
 export async function startTelemetryServer(): Promise<Telemetry> {
   const requests: any[] = [];

@@ -16,6 +16,7 @@ import {
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
+import { LogEntry } from './telemetry';
 import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests');
@@ -73,7 +74,7 @@ type CompassOptions = {
 export class Compass {
   browser: Browser<'async'>;
   renderLogs: any[]; // TODO
-  logs: any[]; // TODO
+  logs: LogEntry[];
   logPath?: string;
   userDataDir: string;
 

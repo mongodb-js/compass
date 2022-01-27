@@ -1,10 +1,11 @@
 import { expect } from 'chai';
 import { beforeTests, afterTests, Compass } from '../helpers/compass';
-import { startTelemetryServer, Telemetry } from '../helpers/telemetry';
+import {
+  startTelemetryServer,
+  Telemetry,
+  LogEntry,
+} from '../helpers/telemetry';
 import * as Commands from '../helpers/commands';
-import type { MongoLogEntry } from 'mongodb-log-writer';
-
-type LogEntry = Omit<MongoLogEntry, 'id'> & { id: number };
 
 describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
