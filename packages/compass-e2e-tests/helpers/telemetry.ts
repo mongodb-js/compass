@@ -6,7 +6,7 @@ import { MongoLogEntry } from 'mongodb-log-writer';
 
 // TODO: lots of any here
 export type Telemetry = {
-  requests: LogEntry[];
+  requests: any[];
   stop: () => Promise<void>;
   events: () => any[];
   key: string;

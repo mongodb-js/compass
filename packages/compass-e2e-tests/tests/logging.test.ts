@@ -415,6 +415,13 @@ describe('Logging and Telemetry integration', function () {
         (entry) => entry.id === 1_001_000_002
       );
 
+      expect(uncaughtEntry).to.exist;
+
+      if (!uncaughtEntry) {
+        // making ts happy
+        return;
+      }
+
       uncaughtEntry.attr.stack = uncaughtEntry.attr.stack
         .replace(/file:\/\/\/.+:\d+:\d+/g, '<filename>')
         .split('\n')
