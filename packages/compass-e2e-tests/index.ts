@@ -6,6 +6,7 @@ import glob from 'glob';
 import crossSpawn from 'cross-spawn';
 import Mocha from 'mocha';
 import Debug from 'debug';
+import type { MongoClient } from 'mongodb';
 import {
   rebuildNativeModules,
   compileCompassAssets,
@@ -19,7 +20,7 @@ const debug = Debug('compass-e2e-tests');
 const keychain = createUnlockedKeychain();
 
 // We can't import mongodb here yet because native modules will be recompiled
-let metricsClient: any;
+let metricsClient: MongoClient;
 
 async function setup() {
   await keychain.activate();
@@ -130,8 +131,8 @@ async function main() {
   if (metricsConnection) {
     debug('Connecting to E2E_TESTS_METRICS_URI');
     // only require it down here because it gets rebuilt up top
-    const { MongoClient } = await import('mongodb');
-    metricsClient = new MongoClient(metricsConnection);
+    const mongodb = await import('mongodb');
+    metricsClient = new mongodb.MongoClient(metricsConnection);
     await metricsClient.connect();
   } else {
     debug('Not logging metrics to a database.');

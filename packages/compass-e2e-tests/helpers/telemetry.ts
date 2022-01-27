@@ -10,7 +10,7 @@ export type Telemetry = {
   stop: () => Promise<void>;
   events: () => any[];
   key: string;
-  screens: () => any[];
+  screens: () => string[];
 };
 
 export type LogEntry = Omit<MongoLogEntry, 'id'> & { id: number };

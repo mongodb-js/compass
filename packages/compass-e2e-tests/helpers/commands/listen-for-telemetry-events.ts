@@ -5,10 +5,10 @@ import { Telemetry } from '../telemetry';
 export async function listenForTelemetryEvents(
   browser: Browser<'async'>,
   telemetry: Telemetry
-): Promise<(eventName: string) => Promise<void>> {
+): Promise<(eventName: string) => Promise<any>> {
   const existingEventCount = telemetry.events().length;
 
-  function lookupNewEvent(eventName: string) {
+  function lookupNewEvent(eventName: string): any {
     const newEvents = telemetry.events().slice(existingEventCount);
     return newEvents.find((entry) => entry.event === eventName);
   }
