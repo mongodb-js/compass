@@ -221,7 +221,7 @@ export class Compass {
 
   async capturePage(
     imgPathName = `screenshot-${formattedDate()}-${++j}.png`
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       await this.browser.saveScreenshot(path.join(LOG_PATH, imgPathName));
       return true;

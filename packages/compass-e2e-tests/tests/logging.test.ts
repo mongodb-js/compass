@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { beforeTests, afterTests, Compass } from '../helpers/compass';
 import { startTelemetryServer, Telemetry } from '../helpers/telemetry';
 import * as Commands from '../helpers/commands';
-import { mongoLogId } from 'mongodb-log-writer';
 import type { MongoLogEntry } from 'mongodb-log-writer';
 
 describe('Logging and Telemetry integration', function () {
@@ -41,7 +40,7 @@ describe('Logging and Telemetry integration', function () {
       expect(logs).not.to.be.undefined;
 
       for (const entry of logs) {
-        expect(entry.t).to.be.a('string');
+        expect((entry.t as any).$date).to.be.a('string');
       }
     });
 
@@ -343,7 +342,7 @@ describe('Logging and Telemetry integration', function () {
         it(`logs "${expected.msg}" (${i})`, function () {
           const actualLogIndex = criticalPathActualLogs.findIndex(
             ({ id }, index) =>
-              id === mongoLogId(expected.id) && !testedIndexes.has(index)
+              (id as unknown ) === expected.id && !testedIndexes.has(index)
           );
           if (actualLogIndex < 0) {
             throw new Error(
