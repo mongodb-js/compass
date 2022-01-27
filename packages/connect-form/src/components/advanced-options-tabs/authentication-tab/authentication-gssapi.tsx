@@ -13,6 +13,11 @@ import {
   parseAuthMechanismProperties,
 } from '../../../utils/connection-string-helpers';
 
+export const GSSAPI_PRINCIPAL_NAME_LABEL = 'Principal';
+export const GSSAPI_SERVICE_NAME_LABEL = 'Service Name';
+export const GSSAPI_CANONICALIZE_HOST_NAME_LABEL = 'Canonicalize Host Name';
+export const GSSAPI_SERVICE_REALM_LABEL = 'Service Realm';
+
 function AuthenticationGSSAPI({
   errors,
   connectionStringUrl,
@@ -47,7 +52,7 @@ function AuthenticationGSSAPI({
               username: value,
             });
           }}
-          label="Principal"
+          label={GSSAPI_PRINCIPAL_NAME_LABEL}
           errorMessage={kerberosPrincipalError}
           state={kerberosPrincipalError ? 'error' : undefined}
           value={principal || ''}
@@ -65,7 +70,7 @@ function AuthenticationGSSAPI({
               value: value,
             });
           }}
-          label="Service Name"
+          label={GSSAPI_SERVICE_NAME_LABEL}
           value={serviceName || ''}
         />
       </FormFieldContainer>
@@ -79,7 +84,7 @@ function AuthenticationGSSAPI({
               value: event.target.checked ? 'true' : '',
             });
           }}
-          label="Canonicalize Host Name"
+          label={GSSAPI_CANONICALIZE_HOST_NAME_LABEL}
           checked={canonicalizeHostname === 'true'}
           bold={false}
         />
@@ -96,7 +101,7 @@ function AuthenticationGSSAPI({
               value: value,
             });
           }}
-          label="Service Realm"
+          label={GSSAPI_SERVICE_REALM_LABEL}
           value={serviceRealm || ''}
         />
       </FormFieldContainer>

@@ -84,11 +84,6 @@ describe('Connection screen', function () {
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('SRV connectivity', function () {
   it('resolves SRV connection string using OS DNS APIs', async function () {
-    if (process.platform === 'win32') {
-      // TODO: re-enable this test on windows
-      return;
-    }
-
     const compass = await beforeTests();
     const browser = compass.browser;
 
@@ -147,8 +142,5 @@ describe('SRV connectivity', function () {
       error: true,
       wasNativelyLookedUp: false, // Due to fallback to Node.js API after resolution error
     });
-
-    // The connection attempt was aborted early.
-    expect(logs.filter((log) => log.id === 1_000_000_036)).to.have.lengthOf(1);
   });
 });

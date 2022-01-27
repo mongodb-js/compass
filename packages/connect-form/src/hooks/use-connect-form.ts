@@ -430,10 +430,15 @@ export function handleConnectionFormFieldUpdate(
         authMechanismProperties.delete(action.key);
       }
 
-      updatedSearchParams.set(
-        'authMechanismProperties',
-        authMechanismProperties.toString()
-      );
+      const authMechanismPropertiesString = authMechanismProperties.toString();
+      if (authMechanismPropertiesString) {
+        updatedSearchParams.set(
+          'authMechanismProperties',
+          authMechanismPropertiesString
+        );
+      } else {
+        updatedSearchParams.delete('authMechanismProperties');
+      }
 
       return {
         connectionOptions: {
