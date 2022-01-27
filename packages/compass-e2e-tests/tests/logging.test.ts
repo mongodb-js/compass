@@ -4,9 +4,11 @@ import { startTelemetryServer, Telemetry } from '../helpers/telemetry';
 import * as Commands from '../helpers/commands';
 import type { MongoLogEntry } from 'mongodb-log-writer';
 
+type LogEntry = Omit<MongoLogEntry, 'id'> & { id: number };
+
 describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
-    let logs: MongoLogEntry[];
+    let logs: LogEntry[];
     let telemetry: Telemetry;
 
     before(async function () {
@@ -40,7 +42,7 @@ describe('Logging and Telemetry integration', function () {
       expect(logs).not.to.be.undefined;
 
       for (const entry of logs) {
-        expect((entry.t as any).$date).to.be.a('string');
+        expect(entry.t).to.be.a('date');
       }
     });
 
@@ -315,7 +317,7 @@ describe('Logging and Telemetry integration', function () {
         },
       ];
 
-      let criticalPathActualLogs: MongoLogEntry[];
+      let criticalPathActualLogs: LogEntry[];
       const testedIndexes = new Set();
 
       // eslint-disable-next-line mocha/no-hooks-for-single-case
@@ -342,7 +344,7 @@ describe('Logging and Telemetry integration', function () {
         it(`logs "${expected.msg}" (${i})`, function () {
           const actualLogIndex = criticalPathActualLogs.findIndex(
             ({ id }, index) =>
-              (id as unknown ) === expected.id && !testedIndexes.has(index)
+              id === expected.id && !testedIndexes.has(index)
           );
           if (actualLogIndex < 0) {
             throw new Error(

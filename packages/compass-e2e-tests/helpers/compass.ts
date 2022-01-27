@@ -1,5 +1,5 @@
 import { inspect } from 'util';
-import { ObjectId } from 'bson';
+import { ObjectId, EJSON } from 'bson';
 import { promises as fs } from 'fs';
 import Mocha from 'mocha';
 import path from 'path';
@@ -16,7 +16,6 @@ import {
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
-
 import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests');
@@ -73,8 +72,8 @@ type CompassOptions = {
 
 export class Compass {
   browser: Browser<'async'>;
-  renderLogs: Array<any>; // TODO
-  logs: Array<any>; // TODO
+  renderLogs: any[]; // TODO
+  logs: any[]; // TODO
   logPath?: string;
   userDataDir: string;
 
@@ -141,7 +140,7 @@ export class Compass {
         continue;
       }
       const origFn = descriptor.value;
-      descriptor.value = function (...args: Array<any>) {
+      descriptor.value = function (...args: any[]) {
         // TODO
         debugClient(
           `${prop}(${args
@@ -387,7 +386,7 @@ async function getCompassLog(logPath: string): Promise<any> {
       .filter((line) => line.trim())
       .map((line) => {
         try {
-          return JSON.parse(line);
+          return EJSON.parse(line);
         } catch {
           return { unparsabableLine: line };
         }

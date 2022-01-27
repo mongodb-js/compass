@@ -1,18 +1,19 @@
 import { once } from 'events';
 import http from 'http';
 import { AddressInfo } from 'net';
+import { EJSON } from 'bson';
 
 // TODO: lots of any here
 export type Telemetry = {
-  requests: Array<any>;
+  requests: any[];
   stop: () => Promise<void>;
-  events: () => Array<any>;
+  events: () => any[];
   key: string;
-  screens: () => Array<any>;
+  screens: () => any[];
 };
 
 export async function startTelemetryServer(): Promise<Telemetry> {
-  const requests: Array<any> = [];
+  const requests: any[] = [];
   const srv = http
     .createServer((req, res) => {
       let body = '';
@@ -22,7 +23,7 @@ export async function startTelemetryServer(): Promise<Telemetry> {
           body += chunk;
         })
         .on('end', () => {
-          requests.push({ req, body: JSON.parse(body) });
+          requests.push({ req, body: EJSON.parse(body) });
           res.writeHead(200);
           res.end('Ok\n');
         });
@@ -45,11 +46,11 @@ export async function startTelemetryServer(): Promise<Telemetry> {
     delete process.env.HADRON_METRICS_SEGMENT_HOST_OVERRIDE;
   }
 
-  function events(): Array<any> {
+  function events(): any[] {
     return requests.flatMap((req) => req.body.batch);
   }
 
-  function screens(): Array<any> {
+  function screens(): any[] {
     return events()
       .filter((entry) => entry.event === 'Screen')
       .map((entry) => entry.properties.name);
