@@ -343,8 +343,7 @@ describe('Logging and Telemetry integration', function () {
         // resulting in duplicate test names.
         it(`logs "${expected.msg}" (${i})`, function () {
           const actualLogIndex = criticalPathActualLogs.findIndex(
-            ({ id }, index) =>
-              id === expected.id && !testedIndexes.has(index)
+            ({ id }, index) => id === expected.id && !testedIndexes.has(index)
           );
           if (actualLogIndex < 0) {
             throw new Error(
