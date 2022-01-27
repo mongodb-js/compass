@@ -1,12 +1,10 @@
 import delay from './delay';
 
-export default async function retryWithBackoff(
-  fn = async () => {
-    return Promise.resolve();
-  },
+export default async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
   retries = 3,
   backoffStep = 200
-): Promise<any> {
+): ReturnType<typeof fn> {
   let err;
   let attempt = 0;
   while (attempt < retries) {

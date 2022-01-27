@@ -130,8 +130,7 @@ async function main() {
   if (metricsConnection) {
     debug('Connecting to E2E_TESTS_METRICS_URI');
     // only require it down here because it gets rebuilt up top
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { MongoClient } = require('mongodb');
+    const { MongoClient } = await import('mongodb');
     metricsClient = new MongoClient(metricsConnection);
     await metricsClient.connect();
   } else {
