@@ -1,9 +1,8 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from '../commands';
+import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export async function selectStageOperator(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   index: number,
   stageOperator: string
 ): Promise<void> {
@@ -17,7 +16,7 @@ export async function selectStageOperator(
     return isFocused === true;
   });
 
-  await Commands.setValueVisible(browser, inputSelector, stageOperator);
+  await browser.setValueVisible(inputSelector, stageOperator);
   await browser.keys(['Enter']);
 
   // the "select" should now blur and the ace textarea become focused

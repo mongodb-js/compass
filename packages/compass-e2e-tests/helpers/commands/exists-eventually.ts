@@ -1,7 +1,7 @@
-import type { Browser } from 'webdriverio';
+import type { CompassBrowser } from '../compass-browser';
 
 export async function existsEventually(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   selector: string,
   timeout = 10000
 ): Promise<boolean> {

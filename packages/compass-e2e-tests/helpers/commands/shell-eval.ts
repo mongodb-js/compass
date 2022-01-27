@@ -1,9 +1,8 @@
-import type { Browser } from 'webdriverio';
+import type { CompassBrowser } from '../compass-browser';
 import retryWithBackoff from '../retry-with-backoff';
-import * as Commands from '../commands';
 import * as Selectors from '../selectors';
 
-async function getOutputText(browser: Browser<'async'>): Promise<string[]> {
+async function getOutputText(browser: CompassBrowser): Promise<string[]> {
   const elements = await browser.$$(Selectors.ShellOutput);
   return Promise.all(
     elements.map((element) => {
@@ -13,7 +12,7 @@ async function getOutputText(browser: Browser<'async'>): Promise<string[]> {
 }
 
 export async function shellEval(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   str: string,
   parse = false
 ): Promise<string> {
@@ -22,12 +21,12 @@ export async function shellEval(
   await retryWithBackoff(async function () {
     const shellContentElement = await browser.$(Selectors.ShellContent);
     if (!(await shellContentElement.isDisplayed())) {
-      await Commands.clickVisible(browser, Selectors.ShellExpandButton);
+      await browser.clickVisible(Selectors.ShellExpandButton);
     }
 
     numLines = (await getOutputText(browser)).length;
 
-    await Commands.clickVisible(browser, Selectors.ShellInput);
+    await browser.clickVisible(Selectors.ShellInput);
   });
 
   const command = parse === true ? `JSON.stringify(${str})` : str;

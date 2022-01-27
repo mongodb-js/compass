@@ -1,15 +1,14 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from './click-visible';
+import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export async function navigateToInstanceTab(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string
 ): Promise<void> {
   const tabSelector = Selectors.instanceTab(tabName);
   const tabSelectedSelector = Selectors.instanceTab(tabName, true);
 
-  await Commands.clickVisible(browser, Selectors.SidebarTitle);
+  await browser.clickVisible(Selectors.SidebarTitle);
   const instanceTabElement = await browser.$(Selectors.InstanceTabs);
   await instanceTabElement.waitForDisplayed();
 
@@ -21,6 +20,6 @@ export async function navigateToInstanceTab(
   }
 
   // otherwise select the tab and wait for it to become selected
-  await Commands.clickVisible(browser, tabSelector);
+  await browser.clickVisible(tabSelector);
   await tabSelectorElement.waitForDisplayed();
 }

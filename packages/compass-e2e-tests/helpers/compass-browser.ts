@@ -6,9 +6,9 @@ type CommandsType = typeof Commands;
 export type CompassBrowser = Browser<'async'> &
   {
     [key in keyof CommandsType]: CommandsType[key] extends (
-      browser: Browser<'async'>,
+      browser: CompassBrowser,
       ...args: infer A
     ) => infer R
-      ? (this: Browser<'async'>, ...args: A) => R
+      ? (this: CompassBrowser, ...args: A) => R
       : never;
   };

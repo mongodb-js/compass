@@ -1,13 +1,12 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from '../commands';
+import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export async function doConnect(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   timeout: number,
   connectionStatus: 'success' | 'failure' | 'either' = 'success'
 ): Promise<void> {
-  await Commands.clickVisible(browser, Selectors.ConnectButton);
+  await browser.clickVisible(Selectors.ConnectButton);
   let selector: string;
   if (connectionStatus === 'either') {
     // For the rare cases where we don't care whether it fails or succeeds

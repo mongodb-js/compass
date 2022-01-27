@@ -1,9 +1,9 @@
-import type { Browser } from 'webdriverio';
+import type { CompassBrowser } from '../compass-browser';
 import { Telemetry } from '../telemetry';
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function listenForTelemetryEvents(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   telemetry: Telemetry
 ): Promise<(eventName: string) => Promise<any>> {
   const existingEventCount = telemetry.events().length;

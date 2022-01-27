@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import type { Browser } from 'webdriverio';
+import type { CompassBrowser } from '../compass-browser';
 
 export async function waitForAnimations(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   selector: string
 ): Promise<void> {
   const element = await browser.$(selector);

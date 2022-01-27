@@ -1,7 +1,7 @@
-import type { Browser } from 'webdriverio';
+import type { CompassBrowser } from '../compass-browser';
 
 export async function setValueVisible(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   selector: string,
   value: string
 ): Promise<void> {

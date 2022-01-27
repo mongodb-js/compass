@@ -1,5 +1,4 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from '../commands';
+import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 const defaultTimeoutMS = 30_000;
@@ -25,7 +24,7 @@ type ConnectOptions = {
 };
 
 export async function connectWithConnectionForm(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   options: ConnectOptions,
   timeout = defaultTimeoutMS,
   connectionStatus: 'success' | 'failure' | 'either' = 'success'
@@ -54,13 +53,10 @@ export async function connectWithConnectionForm(
     Selectors.ShowConnectionFormButton
   );
   if (await connectionFormButtonElement.isDisplayed()) {
-    await Commands.clickVisible(browser, Selectors.ShowConnectionFormButton);
+    await browser.clickVisible(Selectors.ShowConnectionFormButton);
   }
 
-  await Commands.clickVisible(
-    browser,
-    Selectors.ConnectionFormHostnameTabButton
-  );
+  await browser.clickVisible(Selectors.ConnectionFormHostnameTabButton);
 
   if (typeof host !== 'undefined') {
     const element = await browser.$(Selectors.ConnectionFormInputHostname);
@@ -73,10 +69,7 @@ export async function connectWithConnectionForm(
   }
 
   if (srvRecord === true) {
-    await Commands.clickVisible(
-      browser,
-      Selectors.ConnectionFormInputSrvRecord
-    );
+    await browser.clickVisible(Selectors.ConnectionFormInputSrvRecord);
   }
 
   const authStrategy =
@@ -140,7 +133,7 @@ export async function connectWithConnectionForm(
     await element.setValue(gssapiServiceName);
   }
 
-  await Commands.clickVisible(browser, '#More_Options');
+  await browser.clickVisible('#More_Options');
 
   if (typeof replicaSet !== 'undefined') {
     const element = await browser.$(Selectors.ConnectionFormInputReplicaSet);
@@ -208,5 +201,5 @@ export async function connectWithConnectionForm(
     await element.setValue(sshTunnelPassword);
   }
 
-  await Commands.doConnect(browser, timeout, connectionStatus);
+  await browser.doConnect(timeout, connectionStatus);
 }

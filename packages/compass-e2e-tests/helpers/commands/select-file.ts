@@ -1,7 +1,7 @@
-import type { Browser } from 'webdriverio';
+import type { CompassBrowser } from '../compass-browser';
 
 export async function selectFile(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   fileSelector: string,
   filePath: string
 ): Promise<void> {

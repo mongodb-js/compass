@@ -1,12 +1,11 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from '../commands';
+import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export async function setValidation(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   value: string
 ): Promise<void> {
-  await Commands.setAceValue(browser, Selectors.ValidationEditor, value);
+  await browser.setAceValue(Selectors.ValidationEditor, value);
 
   // it should eventually detect that the text changed
   const validationActionMessageElement = await browser.$(
@@ -14,7 +13,7 @@ export async function setValidation(
   );
   await validationActionMessageElement.waitForDisplayed();
 
-  await Commands.clickVisible(browser, Selectors.UpdateValidationButton);
+  await browser.clickVisible(Selectors.UpdateValidationButton);
 
   // both buttons should become hidden if it succeeds
   await validationActionMessageElement.waitForDisplayed({

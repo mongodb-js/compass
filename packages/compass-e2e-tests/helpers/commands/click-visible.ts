@@ -1,12 +1,11 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from '../commands';
+import type { CompassBrowser } from '../compass-browser';
 
 export async function clickVisible(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   selector: string
 ): Promise<void> {
   const element = await browser.$(selector);
   await element.waitForDisplayed();
-  await Commands.waitForAnimations(browser, selector);
+  await browser.waitForAnimations(selector);
   await element.click();
 }

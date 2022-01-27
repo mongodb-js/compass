@@ -1,10 +1,9 @@
-import type { Browser } from 'webdriverio';
+import type { CompassBrowser } from '../compass-browser';
 import delay from '../delay';
-import * as Commands from '../commands';
 import * as Selectors from '../selectors';
 
-async function closeConnectionModal(browser: Browser<'async'>): Promise<void> {
-  await Commands.clickVisible(browser, Selectors.CancelConnectionButton);
+async function closeConnectionModal(browser: CompassBrowser): Promise<void> {
+  await browser.clickVisible(Selectors.CancelConnectionButton);
   const connectionModalContentElement = await browser.$(
     Selectors.ConnectionStatusModalContent
   );
@@ -13,7 +12,7 @@ async function closeConnectionModal(browser: Browser<'async'>): Promise<void> {
   });
 }
 
-export async function disconnect(browser: Browser<'async'>): Promise<void> {
+export async function disconnect(browser: CompassBrowser): Promise<void> {
   const cancelConnectionButtonElement = await browser.$(
     Selectors.CancelConnectionButton
   );
@@ -37,6 +36,6 @@ export async function disconnect(browser: Browser<'async'>): Promise<void> {
   const element = await browser.$(Selectors.ConnectSection);
   await element.waitForDisplayed();
 
-  await Commands.clickVisible(browser, Selectors.SidebarNewConnectionButton);
+  await browser.clickVisible(Selectors.SidebarNewConnectionButton);
   await delay(100);
 }

@@ -1,93 +1,82 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from '../commands';
+import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 async function setFilter(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string,
   value: string
 ) {
-  await Commands.setAceValue(
-    browser,
+  await browser.setAceValue(
     Selectors.queryBarOptionInputFilter(tabName),
     value
   );
 }
 
 async function setProject(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string,
   value: string
 ) {
-  await Commands.setAceValue(
-    browser,
+  await browser.setAceValue(
     Selectors.queryBarOptionInputProject(tabName),
     value
   );
 }
 
 async function setSort(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string,
   value: string
 ) {
-  await Commands.setAceValue(
-    browser,
-    Selectors.queryBarOptionInputSort(tabName),
-    value
-  );
+  await browser.setAceValue(Selectors.queryBarOptionInputSort(tabName), value);
 }
 
 async function setCollation(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string,
   value: string
 ) {
-  await Commands.setAceValue(
-    browser,
+  await browser.setAceValue(
     Selectors.queryBarOptionInputCollation(tabName),
     value
   );
 }
 
 async function setMaxTimeMS(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string,
   value: string
 ) {
   const selector = Selectors.queryBarOptionInputMaxTimeMS(tabName);
-  await Commands.clickVisible(browser, selector);
-  await Commands.setOrClearValue(browser, selector, value);
+  await browser.clickVisible(selector);
+  await browser.setOrClearValue(selector, value);
 }
 
 async function setSkip(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string,
   value: string
 ) {
   const selector = Selectors.queryBarOptionInputSkip(tabName);
-  await Commands.clickVisible(browser, selector);
-  await Commands.setOrClearValue(browser, selector, value);
+  await browser.clickVisible(selector);
+  await browser.setOrClearValue(selector, value);
 }
 
 async function setLimit(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string,
   value: string
 ) {
   const selector = Selectors.queryBarOptionInputLimit(tabName);
-  await Commands.clickVisible(browser, selector);
-  await Commands.setOrClearValue(browser, selector, value);
+  await browser.clickVisible(selector);
+  await browser.setOrClearValue(selector, value);
 }
 
-async function runFind(browser: Browser<'async'>, tabName: string) {
-  await Commands.clickVisible(
-    browser,
-    Selectors.queryBarApplyFilterButton(tabName)
-  );
+async function runFind(browser: CompassBrowser, tabName: string) {
+  await browser.clickVisible(Selectors.queryBarApplyFilterButton(tabName));
 }
 
-async function isOptionsExpanded(browser: Browser<'async'>, tabName: string) {
+async function isOptionsExpanded(browser: CompassBrowser, tabName: string) {
   // it doesn't look like there's some attribute on the options button or
   // container that we can easily check, so just look for a field that exists
   // if it is expanded
@@ -97,7 +86,7 @@ async function isOptionsExpanded(browser: Browser<'async'>, tabName: string) {
   return element.isDisplayed();
 }
 
-async function waitUntilCollapsed(browser: Browser<'async'>, tabName: string) {
+async function waitUntilCollapsed(browser: CompassBrowser, tabName: string) {
   const queryBarOptionInputProjectElement = await browser.$(
     Selectors.queryBarOptionInputProject(tabName)
   );
@@ -106,7 +95,7 @@ async function waitUntilCollapsed(browser: Browser<'async'>, tabName: string) {
   });
 }
 
-async function collapseOptions(browser: Browser<'async'>, tabName: string) {
+async function collapseOptions(browser: CompassBrowser, tabName: string) {
   if (!(await isOptionsExpanded(browser, tabName))) {
     return;
   }
@@ -124,34 +113,28 @@ async function collapseOptions(browser: Browser<'async'>, tabName: string) {
   await setSkip(browser, tabName, '');
   await setLimit(browser, tabName, '');
 
-  await Commands.clickVisible(
-    browser,
-    Selectors.queryBarOptionsToggle(tabName)
-  );
+  await browser.clickVisible(Selectors.queryBarOptionsToggle(tabName));
   await waitUntilCollapsed(browser, tabName);
 }
 
-async function waitUntilExpanded(browser: Browser<'async'>, tabName: string) {
+async function waitUntilExpanded(browser: CompassBrowser, tabName: string) {
   const queryBarOptionInputProjectElement = await browser.$(
     Selectors.queryBarOptionInputProject(tabName)
   );
   await queryBarOptionInputProjectElement.waitForDisplayed();
 }
 
-async function expandOptions(browser: Browser<'async'>, tabName: string) {
+async function expandOptions(browser: CompassBrowser, tabName: string) {
   if (await isOptionsExpanded(browser, tabName)) {
     return;
   }
 
-  await Commands.clickVisible(
-    browser,
-    Selectors.queryBarOptionsToggle(tabName)
-  );
+  await browser.clickVisible(Selectors.queryBarOptionsToggle(tabName));
   await waitUntilExpanded(browser, tabName);
 }
 
 export async function runFindOperation(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   tabName: string,
   filter: string,
   {

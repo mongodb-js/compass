@@ -1,19 +1,17 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from '../commands';
+import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 const defaultTimeoutMS = 30_000;
 
 export async function connectWithConnectionString(
-  browser: Browser<'async'>,
+  browser: CompassBrowser,
   connectionString: string,
   timeout = defaultTimeoutMS,
   connectionStatus: 'success' | 'failure' | 'either' = 'success'
 ): Promise<void> {
-  await Commands.setValueVisible(
-    browser,
+  await browser.setValueVisible(
     Selectors.ConnectionStringInput,
     connectionString
   );
-  await Commands.doConnect(browser, timeout, connectionStatus);
+  await browser.doConnect(timeout, connectionStatus);
 }

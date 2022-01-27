@@ -1,13 +1,10 @@
-import type { Browser } from 'webdriverio';
-import * as Commands from '../commands';
+import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export async function closePrivacySettingsModal(
-  browser: Browser<'async'>
+  browser: CompassBrowser
 ): Promise<void> {
-  if (
-    !(await Commands.existsEventually(browser, Selectors.PrivacySettingsModal))
-  ) {
+  if (!(await browser.existsEventually(Selectors.PrivacySettingsModal))) {
     return;
   }
 
@@ -16,7 +13,7 @@ export async function closePrivacySettingsModal(
   );
 
   await privateSettingsModalElement.waitForDisplayed();
-  await Commands.clickVisible(browser, Selectors.ClosePrivacySettingsButton);
+  await browser.clickVisible(Selectors.ClosePrivacySettingsButton);
   await privateSettingsModalElement.waitForDisplayed({
     reverse: true,
   });
