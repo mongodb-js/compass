@@ -6,7 +6,7 @@ import path from 'path';
 import os from 'os';
 import { promisify } from 'util';
 import zlib from 'zlib';
-import { remote, Browser } from 'webdriverio';
+import { remote } from 'webdriverio';
 import { rebuild } from 'electron-rebuild';
 import { ConsoleMessage } from 'puppeteer';
 import {
@@ -16,6 +16,7 @@ import {
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
+import { CompassBrowser } from './compass-browser';
 import { LogEntry } from './telemetry';
 import Debug from 'debug';
 
@@ -32,6 +33,8 @@ const COMPASS_PATH = path.dirname(
 );
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
+
+
 
 export function getAtlasConnectionOptions(): {
   host: string;
@@ -72,17 +75,25 @@ type CompassOptions = {
 };
 
 export class Compass {
-  browser: Browser<'async'>;
+  browser: CompassBrowser;
   renderLogs: any[]; // TODO
   logs: LogEntry[];
   logPath?: string;
   userDataDir: string;
 
-  constructor(browser: Browser<'async'>, options: CompassOptions) {
+  constructor(browser: CompassBrowser, options: CompassOptions) {
     this.browser = browser;
     this.userDataDir = options.userDataDir;
     this.logs = [];
     this.renderLogs = [];
+
+    for (const [k, v] of Object.entries(Commands)) {
+      this.browser.addCommand(k, (...args) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return v(browser, ...args);
+      });
+    }
 
     this.addDebugger();
   }
@@ -538,9 +549,9 @@ export async function beforeTests(): Promise<Compass> {
 
   const { browser } = compass;
 
-  await Commands.waitForConnectionScreen(browser);
-  await Commands.closeTourModal(browser);
-  await Commands.closePrivacySettingsModal(browser);
+  await browser.waitForConnectionScreen();
+  await browser.closeTourModal();
+  await browser.closePrivacySettingsModal();
 
   return compass;
 }

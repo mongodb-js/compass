@@ -1,10 +1,11 @@
 import type { Browser } from 'webdriverio';
 import { Telemetry } from '../telemetry';
 
-export function listenForTelemetryEvents(
+// eslint-disable-next-line @typescript-eslint/require-await
+export async function listenForTelemetryEvents(
   browser: Browser<'async'>,
   telemetry: Telemetry
-): (eventName: string) => Promise<void> {
+): Promise<(eventName: string) => Promise<void>> {
   const existingEventCount = telemetry.events().length;
 
   function lookupNewEvent(eventName: string) {

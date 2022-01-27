@@ -5,7 +5,6 @@ import {
   Telemetry,
   LogEntry,
 } from '../helpers/telemetry';
-import * as Commands from '../helpers/commands';
 
 describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
@@ -17,19 +16,17 @@ describe('Logging and Telemetry integration', function () {
       const compass = await beforeTests();
       const { browser } = compass;
       try {
-        await Commands.connectWithConnectionString(
-          browser,
+        await browser.connectWithConnectionString(
           'mongodb://localhost:27018/test'
         );
 
-        await Commands.shellEval(browser, 'use test');
-        await Commands.shellEval(
-          browser,
+        await browser.shellEval('use test');
+        await browser.shellEval(
           'db.runCommand({ connectionStatus: 1 })'
         );
 
-        await Commands.openTourModal(browser);
-        await Commands.closeTourModal(browser);
+        await browser.openTourModal();
+        await browser.closeTourModal();
       } finally {
         await afterTests(compass);
         await telemetry.stop();

@@ -5,7 +5,6 @@ import {
   afterTest,
   Compass,
 } from '../helpers/compass';
-import * as Commands from '../helpers/commands';
 import * as Selectors from '../helpers/selectors';
 
 describe('Time to first query', function () {
@@ -17,13 +16,11 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await Commands.connectWithConnectionString(
-      browser,
+    await browser.connectWithConnectionString(
       'mongodb://localhost:27018/test'
     );
 
-    await Commands.navigateToCollectionTab(
-      browser,
+    await browser.navigateToCollectionTab(
       'test',
       'numbers',
       'Documents'

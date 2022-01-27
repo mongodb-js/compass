@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import ConnectionString from 'mongodb-connection-string-url';
-import type { Browser } from 'webdriverio';
+import type { CompassBrowser } from '../helpers/compass-browser';
 import {
   getAtlasConnectionOptions,
   beforeTests,
@@ -8,11 +8,10 @@ import {
   afterTest,
   Compass,
 } from '../helpers/compass';
-import * as Commands from '../helpers/commands';
 
-async function disconnect(browser: Browser<'async'>) {
+async function disconnect(browser: CompassBrowser) {
   try {
-    await Commands.disconnect(browser);
+    await browser.disconnect();
   } catch (err) {
     console.error('Error during disconnect:');
     console.error(err);
@@ -24,7 +23,7 @@ async function disconnect(browser: Browser<'async'>) {
  */
 describe('Connection screen', function () {
   let compass: Compass;
-  let browser: Browser<'async'>;
+  let browser: CompassBrowser;
 
   before(async function () {
     compass = await beforeTests();
@@ -41,12 +40,10 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection string', async function () {
-    await Commands.connectWithConnectionString(
-      browser,
+    await browser.connectWithConnectionString(
       'mongodb://localhost:27018/test'
     );
-    const result = await Commands.shellEval(
-      browser,
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -54,12 +51,11 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection form', async function () {
-    await Commands.connectWithConnectionForm(browser, {
+    await browser.connectWithConnectionForm({
       host: 'localhost',
       port: 27018,
     });
-    const result = await Commands.shellEval(
-      browser,
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -71,9 +67,8 @@ describe('Connection screen', function () {
     if (!atlasConnectionOptions) {
       return this.skip();
     }
-    await Commands.connectWithConnectionForm(browser, atlasConnectionOptions);
-    const result = await Commands.shellEval(
-      browser,
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -90,8 +85,7 @@ describe('SRV connectivity', function () {
     try {
       // Does not actually succeed at connecting, but that’s fine for us here
       // (Unless you have a server listening on port 27017)
-      await Commands.connectWithConnectionString(
-        browser,
+      await browser.connectWithConnectionString(
         'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
         undefined,
         'either'
