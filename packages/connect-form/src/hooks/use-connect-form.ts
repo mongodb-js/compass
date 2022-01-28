@@ -21,9 +21,11 @@ import {
   UpdateSshOptions,
 } from '../utils/connection-ssh-handler';
 import {
+  handleUpdateTls,
   handleUpdateTlsOption,
+  UpdateTlsAction,
   UpdateTlsOptionAction,
-} from '../utils/tls-options';
+} from '../utils/tls-handler';
 import {
   handleUpdateUsername,
   handleUpdatePassword,
@@ -114,6 +116,7 @@ type ConnectionFormFieldActions =
       isSrv: boolean;
     }
   | UpdateSshOptions
+  | UpdateTlsAction
   | UpdateTlsOptionAction
   | {
       type: 'update-search-param';
@@ -327,6 +330,13 @@ export function handleConnectionFormFieldUpdate(
           connectionString: parsedConnectionStringUrl.toString(),
         },
       };
+    }
+    case 'update-tls': {
+      return handleUpdateTls({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
     }
     case 'update-tls-option': {
       return handleUpdateTlsOption({
