@@ -64,8 +64,9 @@ function AuthenticationDefault({
   const password = getConnectionStringPassword(connectionStringUrl);
   const username = getConnectionStringUsername(connectionStringUrl);
 
-  const selectedAuthMechanism =
-    connectionStringUrl.searchParams.get('authMechanism') ?? '';
+  const selectedAuthMechanism = (
+    connectionStringUrl.searchParams.get('authMechanism') ?? ''
+  ).toUpperCase();
   const selectedAuthTab =
     defaultAuthMechanismOptions.find(
       ({ value }) => value === selectedAuthMechanism

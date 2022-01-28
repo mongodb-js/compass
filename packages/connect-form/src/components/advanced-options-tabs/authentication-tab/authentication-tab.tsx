@@ -84,8 +84,9 @@ const contentStyles = css({
 function getSelectedAuthTabForConnectionString(
   connectionStringUrl: ConnectionStringUrl
 ): AUTH_TABS {
-  const authMechanismString =
-    connectionStringUrl.searchParams.get('authMechanism');
+  const authMechanismString = (
+    connectionStringUrl.searchParams.get('authMechanism') || ''
+  ).toUpperCase();
 
   const hasPasswordOrUsername =
     connectionStringUrl.password || connectionStringUrl.username;
