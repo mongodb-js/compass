@@ -66,6 +66,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'sshHostname',
+            fieldTab: 'Proxy/SSH Tunnel',
             message: 'A hostname is required to connect with an SSH tunnel.',
           },
         ]);
@@ -88,6 +89,7 @@ describe('validation', function () {
         );
         expect(result).to.deep.equal([
           {
+            fieldTab: 'Proxy/SSH Tunnel',
             message:
               'When connecting via SSH tunnel either password or identity file is required.',
           },
@@ -109,6 +111,7 @@ describe('validation', function () {
         ).to.deep.equal([
           {
             fieldName: 'sshIdentityKeyFile',
+            fieldTab: 'Proxy/SSH Tunnel',
             message: 'File is required along with passphrase.',
           },
         ]);
@@ -150,6 +153,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'proxyHostname',
+            fieldTab: 'Proxy/SSH Tunnel',
             message: 'Proxy hostname is required.',
           },
         ]);
@@ -163,6 +167,7 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldTab: 'TLS/SSL',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
         ]);
@@ -173,6 +178,7 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldTab: 'TLS/SSL',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
         ]);
@@ -184,6 +190,7 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldTab: 'TLS/SSL',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
         ]);
@@ -215,6 +222,7 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldTab: 'TLS/SSL',
             message:
               'A Client Certificate is required with x509 authentication.',
           },
@@ -229,6 +237,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
+            fieldTab: 'Authentication',
             message: 'Password is missing.',
           },
         ]);
@@ -242,6 +251,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'kerberosPrincipal',
+            fieldTab: 'Authentication',
             message: 'Principal name is required with Kerberos.',
           },
         ]);
@@ -261,10 +271,12 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'username',
+            fieldTab: 'Authentication',
             message: 'Username is missing.',
           },
           {
             fieldName: 'password',
+            fieldTab: 'Authentication',
             message: 'Password is missing.',
           },
         ]);
@@ -276,6 +288,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
+            fieldTab: 'Authentication',
             message: 'Password is missing.',
           },
         ]);
@@ -301,6 +314,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
+            fieldTab: 'Authentication',
             message: 'Password is missing.',
           },
         ]);

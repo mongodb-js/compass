@@ -9,7 +9,10 @@ import { ConnectionOptions } from 'mongodb-data-service';
 
 import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
 import { UpdateConnectionFormField } from '../hooks/use-connect-form';
-import { ConnectionFormError } from '../utils/validation';
+import {
+  ConnectionFormError,
+  ConnectionFormWarning,
+} from '../utils/validation';
 
 const disabledOverlayStyles = css({
   position: 'absolute',
@@ -32,11 +35,13 @@ function AdvancedConnectionOptions({
   errors,
   updateConnectionFormField,
   connectionOptions,
+  warnings,
 }: {
   errors: ConnectionFormError[];
   disabled: boolean;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
+  warnings: ConnectionFormWarning[];
 }): React.ReactElement {
   return (
     <Accordion text="Advanced Connection Options">
@@ -51,6 +56,7 @@ function AdvancedConnectionOptions({
           errors={errors}
           updateConnectionFormField={updateConnectionFormField}
           connectionOptions={connectionOptions}
+          warnings={warnings}
         />
       </div>
     </Accordion>

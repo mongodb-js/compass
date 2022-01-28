@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Tabs, Tab, spacing, css } from '@mongodb-js/compass-components';
+import { Tabs, Tab, spacing, css, cx } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
@@ -9,14 +9,47 @@ import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../utils/validation';
+import {
+  ConnectionFormError,
+  ConnectionFormWarning,
+} from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
+import { ConnectFormTab } from '../../types/connect-form-tab';
 
 const tabsStyles = css({
   marginTop: spacing[1],
 });
+
+const tabWithErrorStyle = css({
+  position: 'relative',
+  '[role=tab]&::before': {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    content: '""',
+    width: 7,
+    height: 7,
+    backgroundColor: 'red',
+    borderRadius: '50%',
+  },
+});
+
+const tabWithWarningStyle = css({
+  position: 'relative',
+  'button &::before': {
+    position: 'absolute',
+    top: spacing[1],
+    right: spacing[1],
+    content: '""',
+    width: spacing[2],
+    height: spacing[2],
+    backgroundColor: 'yellow',
+    borderRadius: '50%',
+  },
+});
+
 interface TabObject {
-  name: string;
+  name: ConnectFormTab;
   component: React.FunctionComponent<{
     errors: ConnectionFormError[];
     connectionStringUrl: ConnectionStringUrl;
@@ -29,10 +62,12 @@ function AdvancedOptionsTabs({
   errors,
   updateConnectionFormField,
   connectionOptions,
+  warnings,
 }: {
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
+  warnings: ConnectionFormWarning[];
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -63,8 +98,27 @@ function AdvancedOptionsTabs({
       {tabs.map((tabObject: TabObject, idx: number) => {
         const TabComponent = tabObject.component;
 
+        const tabHasError = !!errors.find(
+          (error) => error.fieldTab === tabObject.name
+        );
+        // If the tab has an error, don't show the warning indicator.
+        const tabHasWarning =
+          !tabHasError &&
+          !!warnings.find((warnings) => warnings.fieldTab === tabObject.name);
+
         return (
-          <Tab key={idx} name={tabObject.name} aria-label={tabObject.name}>
+          <Tab
+            data-testid={`${tabObject.name}-tab${
+              tabHasError ? '-has-error' : ''
+            }${tabHasWarning ? '-has-warning' : ''}`}
+            className={cx({
+              [tabWithErrorStyle]: tabHasError,
+              [tabWithWarningStyle]: tabHasWarning,
+            })}
+            key={idx}
+            name={tabObject.name}
+            aria-label={tabObject.name}
+          >
             <TabComponent
               errors={errors}
               connectionStringUrl={connectionStringUrl}
