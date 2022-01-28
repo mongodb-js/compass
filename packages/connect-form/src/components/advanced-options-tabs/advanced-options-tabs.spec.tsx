@@ -56,15 +56,43 @@ describe('AdvancedOptionsTabs Component', function () {
 
     ['General', 'Authentication', 'TLS/SSL', 'Proxy/SSH Tunnel'].forEach(
       (tabName) => {
-        expect(
-          screen
-            .getAllByTestId(`${tabName}-tab`)[0]
-            .getAttribute('data-has-error')
-        ).to.equal('false');
+        const tab = screen.getAllByTestId(`${tabName}-tab`)[0];
+        expect(tab.getAttribute('data-has-error')).to.equal('false');
       }
     );
     expect(
       screen.getAllByTestId('Advanced-tab')[0].getAttribute('data-has-error')
     ).to.equal('true');
+  });
+
+  it('should have an aria-label for the tab that shows the error count', function () {
+    render(
+      <AdvancedOptionsTabs
+        connectionOptions={{
+          connectionString: testUrl,
+        }}
+        errors={[
+          {
+            fieldTab: 'tls',
+            message: 'oranges',
+          },
+          {
+            fieldTab: 'tls',
+            message: 'peaches',
+          },
+        ]}
+        updateConnectionFormField={updateConnectionFormFieldSpy}
+      />
+    );
+
+    ['General', 'Authentication', 'Proxy/SSH Tunnel', 'Advanced'].forEach(
+      (tabName) => {
+        const tab = screen.getAllByTestId(`${tabName}-tab`)[0];
+        expect(tab.getAttribute('aria-label')).to.equal(tabName);
+      }
+    );
+    expect(
+      screen.getAllByTestId('TLS/SSL-tab')[0].getAttribute('aria-label')
+    ).to.equal('TLS/SSL (2 errors)');
   });
 });

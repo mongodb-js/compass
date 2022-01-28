@@ -90,9 +90,10 @@ function AdvancedOptionsTabs({
       {tabs.map((tabObject: TabObject, idx: number) => {
         const TabComponent = tabObject.component;
 
-        const showTabErrorIndicator = !!errors.find(
+        const tabErrors = errors.filter(
           (error) => error.fieldTab === tabObject.id
         );
+        const showTabErrorIndicator = tabErrors.length > 0;
 
         return (
           <Tab
@@ -101,7 +102,13 @@ function AdvancedOptionsTabs({
             })}
             key={idx}
             name={tabObject.name}
-            aria-label={tabObject.name}
+            aria-label={`${tabObject.name}${
+              tabErrors.length > 0
+                ? ` (${tabErrors.length} error${
+                    tabErrors.length > 1 ? 's' : ''
+                  })`
+                : ''
+            }`}
             data-testid={`${tabObject.name}-tab`}
             data-has-error={showTabErrorIndicator}
           >
