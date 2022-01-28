@@ -1,7 +1,7 @@
 import QueryHistoryPlugin from './plugin';
 import configureStore from './stores';
 import configureActions from './actions';
-import { QueryStorage } from './utils/query-storage';
+import { QueryStorage } from './utils';
 
 /**
  * A sample role for the component.

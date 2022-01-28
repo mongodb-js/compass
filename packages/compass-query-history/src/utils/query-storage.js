@@ -2,48 +2,46 @@ import { promisifyAmpersandMethod } from 'mongodb-data-service';
 import { FavoriteQueryCollection, FavoriteQuery } from '../models';
 
 export class QueryStorage {
-  fetch;
-  sync;
-
-  constructor() {
-    const queryCollection = new FavoriteQueryCollection();
-
-    this.fetch = promisifyAmpersandMethod(
-      queryCollection.fetch.bind(queryCollection)
-    );
-
-    this.sync = promisifyAmpersandMethod(
-      queryCollection.sync.bind(queryCollection)
-    );
-  }
-
   /**
    *
    * Loads all saved queries from the storage.
    *
    */
   async loadAll() {
-    const models = await this.fetch();
+    const queryCollection = new FavoriteQueryCollection();
+    const fetch = promisifyAmpersandMethod(
+      queryCollection.fetch.bind(queryCollection)
+    );
+    const models = await fetch();
     return models.map((model) => {
       return model.getAttributes({ props: true }, true);
     });
   }
 
   /**
-   * Save/Update a Query Model. If model has _id, it will be updated.
+   * Updates attributes of the model.
    *
-   * @param {object} model The model to create or update.
+   * @param {string} modelId ID of the model to update
+   * @param {object} attributes Attributes of model to update
    */
-  async save(model) {
-    // If we are updating, find the existing model.
-    // storage-mixin internally calls `_write` for both save/update
-    // and it will override the existing data
-    let data = {};
-    if (model._id) {
-      data = await this.sync('read', model._id);
+  async updateAttributes(modelId, attributes) {
+    if (!modelId) {
+      throw new Error('modelId is required');
     }
-    const favoriteQuery = new FavoriteQuery({...data, ...model});
-    return this.sync('update', favoriteQuery);
+    const model = new FavoriteQuery({_id: modelId});
+
+    const fetch = promisifyAmpersandMethod(
+      model.fetch.bind(model)
+    );
+
+    await fetch();
+
+    model.set(attributes);
+
+    const save = promisifyAmpersandMethod(
+      model.save.bind(model)
+    );
+    await save(model);
   }
 
   /**
@@ -51,7 +49,11 @@ export class QueryStorage {
    *
    * @param {string} modelId Model ID
    */
-  delete(modelId) {
-    this.sync('delete', modelId);
+  async delete(modelId) {
+    const model = new FavoriteQuery({_id: modelId});
+    const destroy = promisifyAmpersandMethod(
+      model.destroy.bind(model)
+    );
+    return destroy();
   }
 }
