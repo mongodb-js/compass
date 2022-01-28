@@ -16,10 +16,7 @@ import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
-import {
-  ConnectionFormError,
-  ConnectFormTabName,
-} from '../../utils/validation';
+import { ConnectionFormError, TabId } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
 
 const tabsStyles = css({
@@ -41,7 +38,8 @@ const tabWithErrorIndicatorStyles = css({
 });
 
 interface TabObject {
-  name: ConnectFormTabName;
+  name: string;
+  id: TabId;
   component: React.FunctionComponent<{
     errors: ConnectionFormError[];
     connectionStringUrl: ConnectionStringUrl;
@@ -62,11 +60,15 @@ function AdvancedOptionsTabs({
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs: TabObject[] = [
-    { name: 'General', component: GeneralTab },
-    { name: 'Authentication', component: AuthenticationTab },
-    { name: 'TLS/SSL', component: TLSTab },
-    { name: 'Proxy/SSH Tunnel', component: ProxyAndSshTunnelTab },
-    { name: 'Advanced', component: AdvancedTab },
+    { name: 'General', id: 'general', component: GeneralTab },
+    {
+      name: 'Authentication',
+      id: 'authentication',
+      component: AuthenticationTab,
+    },
+    { name: 'TLS/SSL', id: 'tls', component: TLSTab },
+    { name: 'Proxy/SSH Tunnel', id: 'proxy', component: ProxyAndSshTunnelTab },
+    { name: 'Advanced', id: 'advanced', component: AdvancedTab },
   ];
 
   const connectionStringUrl = useMemo(() => {
@@ -89,7 +91,7 @@ function AdvancedOptionsTabs({
         const TabComponent = tabObject.component;
 
         const showTabErrorIndicator = !!errors.find(
-          (error) => error.fieldTab === tabObject.name
+          (error) => error.fieldTab === tabObject.id
         );
 
         return (

@@ -18,17 +18,12 @@ export type FieldName =
   | 'sshUsername'
   | 'username';
 
-export type ConnectFormTabName =
-  | 'General'
-  | 'Authentication'
-  | 'TLS/SSL'
-  | 'Proxy/SSH Tunnel'
-  | 'Advanced';
+export type TabId = 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced';
 
 export type ConnectionFormError = {
   fieldName?: FieldName;
   fieldIndex?: number;
-  fieldTab?: ConnectFormTabName;
+  fieldTab?: TabId;
   message: string;
 };
 
@@ -119,7 +114,7 @@ function validateUsernameAndPasswordErrors(
   const errors: ConnectionFormError[] = [];
   if (!username) {
     errors.push({
-      fieldTab: 'Authentication',
+      fieldTab: 'authentication',
       fieldName: 'username',
       message: 'Username is missing.',
     });
@@ -127,7 +122,7 @@ function validateUsernameAndPasswordErrors(
 
   if (!password) {
     errors.push({
-      fieldTab: 'Authentication',
+      fieldTab: 'authentication',
       fieldName: 'password',
       message: 'Password is missing.',
     });
@@ -140,13 +135,13 @@ function validateX509Errors(
   const errors: ConnectionFormError[] = [];
   if (!isSecure(connectionString)) {
     errors.push({
-      fieldTab: 'TLS/SSL',
+      fieldTab: 'tls',
       message: 'TLS must be enabled in order to use x509 authentication.',
     });
   }
   if (!connectionString.searchParams.has('tlsCertificateKeyFile')) {
     errors.push({
-      fieldTab: 'TLS/SSL',
+      fieldTab: 'tls',
       message: 'A Client Certificate is required with x509 authentication.',
     });
   }
@@ -164,7 +159,7 @@ function validateKerberosErrors(
   const errors: ConnectionFormError[] = [];
   if (!connectionString.username) {
     errors.push({
-      fieldTab: 'Authentication',
+      fieldTab: 'authentication',
       fieldName: 'kerberosPrincipal',
       message: 'Principal name is required with Kerberos.',
     });
@@ -178,7 +173,7 @@ function validateSSHTunnelErrors(
   const errors: ConnectionFormError[] = [];
   if (!sshTunnel.host) {
     errors.push({
-      fieldTab: 'Proxy/SSH Tunnel',
+      fieldTab: 'proxy',
       fieldName: 'sshHostname',
       message: 'A hostname is required to connect with an SSH tunnel.',
     });
@@ -186,7 +181,7 @@ function validateSSHTunnelErrors(
 
   if (!sshTunnel.password && !sshTunnel.identityKeyFile) {
     errors.push({
-      fieldTab: 'Proxy/SSH Tunnel',
+      fieldTab: 'proxy',
       message:
         'When connecting via SSH tunnel either password or identity file is required.',
     });
@@ -194,7 +189,7 @@ function validateSSHTunnelErrors(
 
   if (sshTunnel.identityKeyPassphrase && !sshTunnel.identityKeyFile) {
     errors.push({
-      fieldTab: 'Proxy/SSH Tunnel',
+      fieldTab: 'proxy',
       fieldName: 'sshIdentityKeyFile',
       message: 'File is required along with passphrase.',
     });
@@ -215,7 +210,7 @@ function validateSocksProxyErrors(
   const errors: ConnectionFormError[] = [];
   if (!proxyHost && (proxyPort || proxyUsername || proxyPassword)) {
     errors.push({
-      fieldTab: 'Proxy/SSH Tunnel',
+      fieldTab: 'proxy',
       fieldName: 'proxyHostname',
       message: 'Proxy hostname is required.',
     });

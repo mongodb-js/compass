@@ -46,7 +46,7 @@ describe('AdvancedOptionsTabs Component', function () {
         }}
         errors={[
           {
-            fieldTab: 'Advanced',
+            fieldTab: 'advanced',
             message: 'oranges',
           },
         ]}
