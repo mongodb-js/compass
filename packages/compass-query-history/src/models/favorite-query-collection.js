@@ -17,7 +17,7 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
   namespace: 'FavoriteQueries',
   storage: {
     backend: 'disk',
-    basepath: process.env.MONGODB_COMPASS_STORAGE_MIXIN_TEST_BASE_PATH || remote.app.getPath('userData')
+    basepath: remote ? remote.app.getPath('userData') : undefined,
   },
   mainIndex: '_id',
   comparator: (favorite) => {

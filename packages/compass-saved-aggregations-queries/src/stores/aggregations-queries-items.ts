@@ -4,8 +4,8 @@ import { AnyAction, Dispatch } from 'redux';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import toNS from 'mongodb-ns';
-import { getAggregations } from './../utlis/aggregations';
-import { getQueries } from './../utlis/queries';
+import { QueryStorage } from '@mongodb-js/compass-query-history';
+import { readPipelinesFromStorage } from '@mongodb-js/compass-aggregations';
 
 enum actions {
   ITEMS_FETCHED = 'itemsFetched',
@@ -24,6 +24,20 @@ export type Item = {
   collection: string;
   type: 'query' | 'aggregation';
 };
+
+interface Query {
+  _id: string;
+  _name: string;
+  _ns: string;
+  _dateSaved: number;
+}
+
+interface Aggregation {
+  id: string;
+  name: string;
+  namespace: string;
+  lastModified: number;
+}
 
 export type State = {
   loading: boolean;
@@ -64,8 +78,10 @@ export const fetchItems = () => {
   };
 };
 
+const queryStorage = new QueryStorage();
+
 const getAggregationItems = async (): Promise<Item[]> => {
-  const aggregations = await getAggregations();
+  const aggregations: Aggregation[] = await readPipelinesFromStorage();
   return aggregations.map((aggregation) => {
     const { database, collection } = toNS(aggregation.namespace);
     return {
@@ -80,13 +96,13 @@ const getAggregationItems = async (): Promise<Item[]> => {
 };
 
 const getQueryItems = async (): Promise<Item[]> => {
-  const queries = await getQueries();
+  const queries: Query[] = await queryStorage.loadAll();
   return queries.map((query) => {
     const { database, collection } = toNS(query._ns);
     return {
       id: query._id,
-      lastModified: query._dateSaved,
       name: query._name,
+      lastModified: query._dateSaved,
       database,
       collection,
       type: 'query',

@@ -1,7 +1,7 @@
 import QueryHistoryPlugin from './plugin';
 import configureStore from './stores';
 import configureActions from './actions';
-import { FavoriteQueryCollection } from './models';
+import { QueryStorage } from './utils/query-storage';
 
 /**
  * A sample role for the component.
@@ -31,5 +31,5 @@ function deactivate(appRegistry) {
 }
 
 export default QueryHistoryPlugin;
-export { activate, deactivate, configureStore, configureActions, FavoriteQueryCollection };
+export { activate, deactivate, configureStore, configureActions, QueryStorage };
 export { default as metadata } from '../package.json';

@@ -72,15 +72,18 @@ export class ConnectionStorage {
 export function promisifyAmpersandMethod<T>(
   fn: (options: AmpersandMethodOptions<T>) => void
 ): () => Promise<T> {
-  return () =>
+  return (...args) =>
     new Promise((resolve, reject) => {
-      fn({
-        success: (model: T) => {
-          resolve(model);
-        },
-        error: (model: T, error: Error) => {
-          reject(error);
-        },
-      });
+      fn(
+        ...args,
+        {
+          success: (model: T) => {
+            resolve(model);
+          },
+          error: (model: T, error: Error) => {
+            reject(error);
+          },
+        }
+      );
     });
 }

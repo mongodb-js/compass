@@ -17,7 +17,7 @@ const RecentQueryCollection = Collection.extend(storageMixin, {
   namespace: 'RecentQueries',
   storage: {
     backend: 'disk',
-    basepath: process.env.MONGODB_COMPASS_STORAGE_MIXIN_TEST_BASE_PATH || remote.app.getPath('userData')
+    basepath: remote ? remote.app.getPath('userData') : undefined,
   },
   mainIndex: '_id',
   comparator: (recent) => {
