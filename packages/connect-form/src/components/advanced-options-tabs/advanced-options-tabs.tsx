@@ -20,31 +20,28 @@ const tabsStyles = css({
   marginTop: spacing[1],
 });
 
-const tabWithErrorStyle = css({
+const tabWithIndicatorStyles = css({
   position: 'relative',
   '[role=tab]&::before': {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    content: '""',
-    width: 7,
-    height: 7,
-    backgroundColor: 'red',
-    borderRadius: '50%',
-  },
-});
-
-const tabWithWarningStyle = css({
-  position: 'relative',
-  'button &::before': {
     position: 'absolute',
     top: spacing[1],
     right: spacing[1],
     content: '""',
     width: spacing[2],
     height: spacing[2],
-    backgroundColor: 'yellow',
     borderRadius: '50%',
+  },
+});
+
+const tabWithErrorStyle = css({
+  '[role=tab]&::before': {
+    backgroundColor: 'red',
+  },
+});
+
+const tabWithWarningStyle = css({
+  'button &::before': {
+    backgroundColor: 'yellow',
   },
 });
 
@@ -112,6 +109,7 @@ function AdvancedOptionsTabs({
               tabHasError ? '-has-error' : ''
             }${tabHasWarning ? '-has-warning' : ''}`}
             className={cx({
+              [tabWithIndicatorStyles]: tabHasError || tabHasWarning,
               [tabWithErrorStyle]: tabHasError,
               [tabWithWarningStyle]: tabHasWarning,
             })}
