@@ -1,5 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Tabs, Tab, spacing, css, cx } from '@mongodb-js/compass-components';
+import {
+  Tabs,
+  Tab,
+  spacing,
+  css,
+  cx,
+  uiColors,
+} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionOptions } from 'mongodb-data-service';
 
@@ -11,16 +18,15 @@ import AdvancedTab from './advanced-tab/advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import {
   ConnectionFormError,
-  ConnectionFormWarning,
+  ConnectFormTabName,
 } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
-import { ConnectFormTab } from '../../types/connect-form-tab';
 
 const tabsStyles = css({
   marginTop: spacing[1],
 });
 
-const tabWithIndicatorStyles = css({
+const tabWithErrorIndicatorStyles = css({
   position: 'relative',
   '[role=tab]&::before': {
     position: 'absolute',
@@ -30,23 +36,12 @@ const tabWithIndicatorStyles = css({
     width: spacing[2],
     height: spacing[2],
     borderRadius: '50%',
-  },
-});
-
-const tabWithErrorStyle = css({
-  '[role=tab]&::before': {
-    backgroundColor: 'red',
-  },
-});
-
-const tabWithWarningStyle = css({
-  'button &::before': {
-    backgroundColor: 'yellow',
+    backgroundColor: uiColors.red.base,
   },
 });
 
 interface TabObject {
-  name: ConnectFormTab;
+  name: ConnectFormTabName;
   component: React.FunctionComponent<{
     errors: ConnectionFormError[];
     connectionStringUrl: ConnectionStringUrl;
@@ -59,12 +54,10 @@ function AdvancedOptionsTabs({
   errors,
   updateConnectionFormField,
   connectionOptions,
-  warnings,
 }: {
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
-  warnings: ConnectionFormWarning[];
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -95,27 +88,20 @@ function AdvancedOptionsTabs({
       {tabs.map((tabObject: TabObject, idx: number) => {
         const TabComponent = tabObject.component;
 
-        const tabHasError = !!errors.find(
+        const showTabErrorIndicator = !!errors.find(
           (error) => error.fieldTab === tabObject.name
         );
-        // If the tab has an error, don't show the warning indicator.
-        const tabHasWarning =
-          !tabHasError &&
-          !!warnings.find((warnings) => warnings.fieldTab === tabObject.name);
 
         return (
           <Tab
-            data-testid={`${tabObject.name}-tab${
-              tabHasError ? '-has-error' : ''
-            }${tabHasWarning ? '-has-warning' : ''}`}
             className={cx({
-              [tabWithIndicatorStyles]: tabHasError || tabHasWarning,
-              [tabWithErrorStyle]: tabHasError,
-              [tabWithWarningStyle]: tabHasWarning,
+              [tabWithErrorIndicatorStyles]: showTabErrorIndicator,
             })}
             key={idx}
             name={tabObject.name}
             aria-label={tabObject.name}
+            data-testid={`${tabObject.name}-tab`}
+            data-has-error={showTabErrorIndicator}
           >
             <TabComponent
               errors={errors}

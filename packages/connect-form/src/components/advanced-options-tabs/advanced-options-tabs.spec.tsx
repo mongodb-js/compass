@@ -23,7 +23,6 @@ describe('AdvancedOptionsTabs Component', function () {
           connectionString: testUrl,
         }}
         errors={[]}
-        warnings={[]}
         updateConnectionFormField={updateConnectionFormFieldSpy}
       />
     );
@@ -39,7 +38,7 @@ describe('AdvancedOptionsTabs Component', function () {
     });
   });
 
-  it('should have only the tab with an error on it showing an error', function () {
+  it('should have the tab with an error have the error', function () {
     render(
       <AdvancedOptionsTabs
         connectionOptions={{
@@ -51,46 +50,21 @@ describe('AdvancedOptionsTabs Component', function () {
             message: 'oranges',
           },
         ]}
-        warnings={[
-          {
-            message: 'pineapple',
-          },
-        ]}
         updateConnectionFormField={updateConnectionFormFieldSpy}
       />
     );
 
     ['General', 'Authentication', 'TLS/SSL', 'Proxy/SSH Tunnel'].forEach(
       (tabName) => {
-        expect(screen.queryByTestId(`${tabName}-tab-has-error`)).to.not.exist;
+        expect(
+          screen
+            .getAllByTestId(`${tabName}-tab`)[0]
+            .getAttribute('data-has-error')
+        ).to.equal('false');
       }
     );
-    expect(screen.getAllByTestId('Advanced-tab-has-error')[0]).to.be.visible;
-  });
-
-  it('the tab with a warning should have the warning test id (and hopefully the visual indicator)', function () {
-    render(
-      <AdvancedOptionsTabs
-        connectionOptions={{
-          connectionString: testUrl,
-        }}
-        errors={[]}
-        warnings={[
-          {
-            fieldTab: 'Authentication',
-            message: 'pineapple',
-          },
-        ]}
-        updateConnectionFormField={updateConnectionFormFieldSpy}
-      />
-    );
-
-    ['General', 'TLS/SSL', 'Proxy/SSH Tunnel', 'Advanced'].forEach(
-      (tabName) => {
-        expect(screen.queryByTestId(`${tabName}-tab-has-warning`)).to.not.exist;
-      }
-    );
-    expect(screen.getAllByTestId('Authentication-tab-has-warning')[0]).to.be
-      .visible;
+    expect(
+      screen.getAllByTestId('Advanced-tab')[0].getAttribute('data-has-error')
+    ).to.equal('true');
   });
 });

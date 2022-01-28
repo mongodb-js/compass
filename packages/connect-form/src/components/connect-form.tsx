@@ -176,8 +176,7 @@ function ConnectForm({
               </Banner>
             )}
             <AdvancedConnectionOptions
-              errors={connectionStringInvalidError ? [] : errors}
-              warnings={connectionStringInvalidError ? [] : warnings}
+              errors={errors}
               disabled={!!connectionStringInvalidError}
               updateConnectionFormField={updateConnectionFormField}
               connectionOptions={connectionOptions}

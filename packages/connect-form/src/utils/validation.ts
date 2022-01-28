@@ -3,8 +3,6 @@ import { isLocalhost } from 'mongodb-build-info';
 import { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 
-import { ConnectFormTab } from '../types/connect-form-tab';
-
 export type FieldName =
   | 'connectionString'
   | 'hostname'
@@ -20,15 +18,21 @@ export type FieldName =
   | 'sshUsername'
   | 'username';
 
+export type ConnectFormTabName =
+  | 'General'
+  | 'Authentication'
+  | 'TLS/SSL'
+  | 'Proxy/SSH Tunnel'
+  | 'Advanced';
+
 export type ConnectionFormError = {
   fieldName?: FieldName;
   fieldIndex?: number;
-  fieldTab?: ConnectFormTab;
+  fieldTab?: ConnectFormTabName;
   message: string;
 };
 
 export interface ConnectionFormWarning {
-  fieldTab?: ConnectFormTab;
   message: string;
 }
 
