@@ -2,9 +2,13 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-
-import ConnectionMenu from './connection-menu';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { ConnectionInfo } from 'mongodb-data-service';
+
+import ConnectionMenu, {
+  tryToRemoveAppNameFromConnectionString,
+} from './connection-menu';
+import { MongoClientOptions } from 'mongodb';
 
 describe('ConnectionMenu Component', function () {
   describe('on non-favorite item', function () {
@@ -154,7 +158,7 @@ describe('ConnectionMenu Component', function () {
         it('calls to copy the connection string to clipboard', function () {
           expect(mockCopyToClipboard.called).to.equal(true);
           expect(mockCopyToClipboard.firstCall.args[0]).to.equal(
-            'mongodb://kaleesi'
+            'mongodb://kaleesi/'
           );
         });
 
@@ -322,6 +326,42 @@ describe('ConnectionMenu Component', function () {
         })
       );
       expect(mockDuplicateConnection.called).to.equal(true);
+    });
+  });
+
+  describe('#tryToRemoveAppNameFromConnectionString', function () {
+    it('should remove appName from a connection string', function () {
+      const connectionString = tryToRemoveAppNameFromConnectionString(
+        'mongodb://outerspace:27019/?directConnection=true&appName=turtles&readPreference=secondary'
+      );
+      expect(connectionString).to.equal(
+        'mongodb://outerspace:27019/?directConnection=true&readPreference=secondary'
+      );
+      expect(
+        new ConnectionStringUrl(connectionString)
+          .typedSearchParams<MongoClientOptions>()
+          .get('appName')
+      ).to.equal(null);
+    });
+
+    it('should return the unchanged connection string when there is no app name', function () {
+      const connectionString = tryToRemoveAppNameFromConnectionString(
+        'mongodb://outerspace:27022/?directConnection=true&readPreference=secondary'
+      );
+      expect(connectionString).to.equal(
+        'mongodb://outerspace:27022/?directConnection=true&readPreference=secondary'
+      );
+      expect(
+        new ConnectionStringUrl(connectionString)
+          .typedSearchParams<MongoClientOptions>()
+          .get('appName')
+      ).to.equal(null);
+    });
+
+    it('should return the connection string when its invalid', function () {
+      const connectionString =
+        tryToRemoveAppNameFromConnectionString('invalid123');
+      expect(connectionString).to.equal('invalid123');
     });
   });
 });

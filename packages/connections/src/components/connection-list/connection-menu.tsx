@@ -74,15 +74,18 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function tryToRemoveAppNameFromConnectionString(connectionString: string) {
+export function tryToRemoveAppNameFromConnectionString(
+  connectionString: string
+): string {
   try {
     const connectionStringUrl = new ConnectionStringUrl(connectionString);
 
-    const searchParams = connectionStringUrl.typedSearchParams<MongoClientOptions>();
+    const searchParams =
+      connectionStringUrl.typedSearchParams<MongoClientOptions>();
     if (searchParams.get('appName')) {
       // Compass used to save the appName onto the connection string.
       // Here we remove it so the copied connection string does not have it.
-      searchParams.set('appName', null);
+      searchParams.delete('appName');
     }
 
     return connectionStringUrl.toString();
@@ -124,8 +127,9 @@ function ConnectionMenu({
 
   async function copyConnectionString(connectionString: string) {
     try {
-      const connectionStringToCopy = tryToRemoveAppNameFromConnectionString(connectionString);
-      
+      const connectionStringToCopy =
+        tryToRemoveAppNameFromConnectionString(connectionString);
+
       await navigator.clipboard.writeText(connectionStringToCopy);
       dispatch({
         type: 'show-success-toast',
