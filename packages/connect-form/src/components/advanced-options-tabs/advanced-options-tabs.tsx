@@ -16,7 +16,11 @@ import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
 import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
-import { ConnectionFormError, TabId } from '../../utils/validation';
+import {
+  ConnectionFormError,
+  TabId,
+  errorsByFieldTab,
+} from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
 
 const tabsStyles = css({
@@ -90,9 +94,7 @@ function AdvancedOptionsTabs({
       {tabs.map((tabObject: TabObject, idx: number) => {
         const TabComponent = tabObject.component;
 
-        const tabErrors = errors.filter(
-          (error) => error.fieldTab === tabObject.id
-        );
+        const tabErrors = errorsByFieldTab(errors, tabObject.id);
         const showTabErrorIndicator = tabErrors.length > 0;
 
         return (

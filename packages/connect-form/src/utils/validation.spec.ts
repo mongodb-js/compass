@@ -89,6 +89,7 @@ describe('validation', function () {
         );
         expect(result).to.deep.equal([
           {
+            fieldName: 'sshPassword',
             fieldTab: 'proxy',
             message:
               'When connecting via SSH tunnel either password or identity file is required.',
@@ -167,6 +168,7 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldName: 'tls',
             fieldTab: 'tls',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
@@ -178,6 +180,7 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldName: 'tls',
             fieldTab: 'tls',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
@@ -191,6 +194,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldTab: 'tls',
+            fieldName: 'tls',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
         ]);
@@ -223,6 +227,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldTab: 'tls',
+            fieldName: 'tlsCertificateKeyFile',
             message:
               'A Client Certificate is required with x509 authentication.',
           },

@@ -109,6 +109,7 @@ export function handleUpdateUsername({
       errors: [
         {
           fieldName: 'username',
+          fieldTab: 'authentication',
           message: action.username
             ? parsingError.message
             : `Username cannot be empty: "${parsingError.message}"`,
@@ -153,16 +154,19 @@ export function handleUpdatePassword({
         ? [
             {
               fieldName: 'password',
+              fieldTab: 'authentication',
               message: parsingError.message,
             },
           ]
         : [
             {
               fieldName: 'username',
+              fieldTab: 'authentication',
               message: `Username cannot be empty: "${parsingError.message}"`,
             },
             {
               fieldName: 'password',
+              fieldTab: 'authentication',
               message: 'Please enter a username first',
             },
           ],

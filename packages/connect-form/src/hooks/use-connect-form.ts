@@ -157,6 +157,7 @@ function parseConnectionString(
       ? [
           {
             fieldName: 'connectionString',
+            fieldTab: 'general',
             message: parsingError.message,
           },
         ]
@@ -236,6 +237,7 @@ function handleUpdateHost({
       errors: [
         {
           fieldName: 'hosts',
+          fieldTab: 'general',
           fieldIndex,
           message: (err as Error).message,
         },
@@ -387,6 +389,7 @@ export function handleConnectionFormFieldUpdate(
           errors: [
             {
               fieldName: 'isSrv',
+              fieldTab: 'general',
               message: `Error updating connection schema: ${
                 (err as Error).message
               }`,

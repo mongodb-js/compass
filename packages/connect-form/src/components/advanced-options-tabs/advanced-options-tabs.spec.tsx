@@ -47,6 +47,7 @@ describe('AdvancedOptionsTabs Component', function () {
         errors={[
           {
             fieldTab: 'advanced',
+            fieldName: 'connectionString',
             message: 'oranges',
           },
         ]}
@@ -74,10 +75,12 @@ describe('AdvancedOptionsTabs Component', function () {
         errors={[
           {
             fieldTab: 'tls',
+            fieldName: 'tls',
             message: 'oranges',
           },
           {
             fieldTab: 'tls',
+            fieldName: 'tlsCertificateKeyFile',
             message: 'peaches',
           },
         ]}

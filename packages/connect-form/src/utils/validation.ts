@@ -16,19 +16,36 @@ export type FieldName =
   | 'sshIdentityKeyFile'
   | 'sshPassword'
   | 'sshUsername'
+  | 'tls'
+  | 'tlsCertificateKeyFile'
   | 'username';
 
 export type TabId = 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced';
 
-export type ConnectionFormError = {
-  fieldName?: FieldName;
+type ConnectionFormErrorWithField = {
+  fieldName: FieldName;
+  fieldTab: TabId;
   fieldIndex?: number;
-  fieldTab?: TabId;
   message: string;
 };
-
+type ConnectionFormErrorWithoutField = {
+  fieldName?: never;
+  fieldTab?: never;
+  fieldIndex?: never;
+  message: string;
+};
+export type ConnectionFormError =
+  | ConnectionFormErrorWithField
+  | ConnectionFormErrorWithoutField;
 export interface ConnectionFormWarning {
   message: string;
+}
+
+export function errorsByFieldTab(
+  errors: ConnectionFormError[],
+  tabId: TabId
+): ConnectionFormError[] {
+  return errors.filter((error) => error.fieldTab === tabId);
 }
 
 export function errorMessageByFieldName(
@@ -136,12 +153,14 @@ function validateX509Errors(
   if (!isSecure(connectionString)) {
     errors.push({
       fieldTab: 'tls',
+      fieldName: 'tls',
       message: 'TLS must be enabled in order to use x509 authentication.',
     });
   }
   if (!connectionString.searchParams.has('tlsCertificateKeyFile')) {
     errors.push({
       fieldTab: 'tls',
+      fieldName: 'tlsCertificateKeyFile',
       message: 'A Client Certificate is required with x509 authentication.',
     });
   }
@@ -182,6 +201,7 @@ function validateSSHTunnelErrors(
   if (!sshTunnel.password && !sshTunnel.identityKeyFile) {
     errors.push({
       fieldTab: 'proxy',
+      fieldName: 'sshPassword',
       message:
         'When connecting via SSH tunnel either password or identity file is required.',
     });

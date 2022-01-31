@@ -88,6 +88,7 @@ describe('HostInput', function () {
           errors={[
             {
               fieldName: 'hosts',
+              fieldTab: 'general',
               fieldIndex: 1,
               message: 'Eeeee!!!',
             },
