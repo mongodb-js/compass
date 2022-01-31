@@ -99,7 +99,6 @@ export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
 export const CreateDatabaseCreateButton = '[trackingid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Drop database modal
-
 export const DropDatabaseModal = '[trackingid="drop_database_modal"]';
 export const DropDatabaseConfirmName = '[data-test-id="confirm-drop-database-name"]';
 export const DropDatabaseDropButton = '[trackingid="drop_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
