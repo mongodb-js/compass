@@ -2,6 +2,17 @@ import { MongoClient, Db, MongoServerError } from 'mongodb';
 
 const CONNECTION_URI = 'mongodb://localhost:27018';
 
+async function dropDatabase(db: Db) {
+  try {
+    await db.dropDatabase();
+  } catch (err) {
+    const codeName = (err as MongoServerError).codeName;
+    if (codeName !== 'NamespaceNotFound') {
+      throw err;
+    }
+  }
+}
+
 async function dropCollection(db: Db, name: string) {
   const collection = db.collection(name);
   try {
@@ -28,7 +39,14 @@ if (require.main === module) {
     await client.connect();
     console.log('Connected successfully to server');
 
+    // Drop the databases that get created by tests just in case tests failed to
+    // clean them up.
+    await dropDatabase(client.db('my-database'));
+
     const db = client.db('test');
+
+    // Drop the collections that get created by tests
+    await dropCollection(db, 'my-collection');
 
     // Create some empty collections for the import tests so each one won't have
     // to possibly drop and create via the UI every time.
