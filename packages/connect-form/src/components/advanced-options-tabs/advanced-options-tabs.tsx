@@ -29,10 +29,10 @@ const tabsStyles = css({
 
 const tabWithErrorIndicatorStyles = css({
   position: 'relative',
-  '[role=tab]&::before': {
+  '&::after': {
     position: 'absolute',
-    top: spacing[1],
-    right: spacing[1],
+    top: -spacing[2],
+    right: -spacing[2],
     content: '""',
     width: spacing[2],
     height: spacing[2],
@@ -99,11 +99,16 @@ function AdvancedOptionsTabs({
 
         return (
           <Tab
-            className={cx({
-              [tabWithErrorIndicatorStyles]: showTabErrorIndicator,
-            })}
             key={idx}
-            name={tabObject.name}
+            name={
+              <div
+                className={cx({
+                  [tabWithErrorIndicatorStyles]: showTabErrorIndicator,
+                })}
+              >
+                {tabObject.name}
+              </div>
+            }
             aria-label={`${tabObject.name}${
               tabErrors.length > 0
                 ? ` (${tabErrors.length} error${
