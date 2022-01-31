@@ -27,7 +27,7 @@ async function loadById(_id) {
   return models.find((model) => model._id === _id);
 }
 
-describe.only('query-storage [Utils]', function() {
+describe('query-storage [Utils]', function() {
   let tmpDir;
   let queryStorage;
   beforeEach(function() {

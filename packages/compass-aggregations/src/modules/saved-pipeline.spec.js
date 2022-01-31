@@ -14,7 +14,7 @@ const createPipeline = (tmpDir, data) => {
   );
 };
 
-describe.only('saved-pipeline', function() {
+describe('saved-pipeline', function() {
   let tmpDir;
   beforeEach(function() {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'SavedPipelines'));
