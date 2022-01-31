@@ -149,6 +149,9 @@ function ConnectForm({
                 aria-label="Save Connection"
                 className={favoriteButtonStyles}
                 size="large"
+                onMouseDown={(event: React.MouseEvent) => {
+                  event.preventDefault();
+                }}
                 onClick={() => {
                   setShowSaveConnectionModal(true);
                 }}
