@@ -29,7 +29,7 @@
     "caller-id": "^0.1.0",
     "debug": "4.3.0",
     "lodash": "^4.13.1",
-    "mongodb-ns": "^2.2.0",
+    "mongodb-ns": "^2.3.0",
     "mongodb-redact": "0.2.0",
     "mongodb-stitch-browser-sdk": "^4.8.0",
     "mongodb-stitch-server-sdk": "^4.8.0",

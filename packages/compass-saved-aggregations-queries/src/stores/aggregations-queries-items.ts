@@ -1,18 +1,14 @@
-import { AnyAction, Dispatch } from 'redux';
-// TODO: Add declarations to the package, otherwise it will be like third time
-// we have to copy-paste them around
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
+import { Dispatch, Reducer } from 'redux';
 import toNS from 'mongodb-ns';
 import { QueryStorage } from '@mongodb-js/compass-query-history';
 import { readPipelinesFromStorage } from '@mongodb-js/compass-aggregations';
 
-enum actions {
-  ITEMS_FETCHED = 'itemsFetched',
+export enum ActionTypes {
+  ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
 }
 
-type StateActions = {
-  type: actions.ITEMS_FETCHED;
+export type Actions = {
+  type: ActionTypes.ITEMS_FETCHED;
   payload: Item[];
 };
 
@@ -49,26 +45,25 @@ const INITIAL_STATE: State = {
   items: [],
 };
 
-function reducer(
-  state = INITIAL_STATE,
-  action: StateActions | AnyAction
-): State {
-  const newState = { ...state };
-  if (action.type === actions.ITEMS_FETCHED) {
-    newState.items = action.payload;
-    newState.loading = false;
+const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+  if (action.type === ActionTypes.ITEMS_FETCHED) {
+    return {
+      ...state,
+      items: action.payload,
+      loading: false,
+    };
   }
-  return newState;
-}
+  return state;
+};
 
 export const fetchItems = () => {
-  return async (dispatch: Dispatch<StateActions>): Promise<void> => {
+  return async (dispatch: Dispatch<Actions>): Promise<void> => {
     const payload = await Promise.allSettled([
       getAggregationItems(),
       getQueryItems(),
     ]);
     dispatch({
-      type: actions.ITEMS_FETCHED,
+      type: ActionTypes.ITEMS_FETCHED,
       payload: payload
         .map((result: PromiseSettledResult<Item[]>) =>
           result.status === 'fulfilled' ? result.value : []

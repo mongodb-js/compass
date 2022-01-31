@@ -19,7 +19,6 @@ interface Field {
   label: string;
   type: string;
   optional: boolean;
-  placeholder: string;
   value: string;
   errorMessage?: string;
   state: 'error' | 'none';
@@ -38,7 +37,7 @@ function Socks({
     connectionStringUrl.typedSearchParams<MongoClientOptions>();
 
   const handleFieldChanged = useCallback(
-    (key: keyof MongoClientOptions, value: unknown) => {
+    (key: keyof MongoClientOptions, value?: string) => {
       if (!value) {
         return updateConnectionFormField({
           type: 'delete-search-param',
@@ -60,7 +59,6 @@ function Socks({
       label: 'Proxy Hostname',
       type: 'text',
       optional: false,
-      placeholder: 'Proxy Hostname',
       value: typedSearchParams.get('proxyHost') ?? '',
       errorMessage: errorMessageByFieldName(errors, 'proxyHostname'),
       state: fieldNameHasError(errors, 'proxyHostname') ? 'error' : 'none',
@@ -70,7 +68,6 @@ function Socks({
       label: 'Proxy Tunnel Port',
       type: 'number',
       optional: true,
-      placeholder: 'Proxy Tunnel Port',
       value: typedSearchParams.get('proxyPort') ?? '',
       state: 'none',
     },
@@ -79,7 +76,6 @@ function Socks({
       label: 'Proxy Username',
       type: 'text',
       optional: true,
-      placeholder: 'Proxy Username',
       value: typedSearchParams.get('proxyUsername') ?? '',
       state: 'none',
     },
@@ -88,7 +84,6 @@ function Socks({
       label: 'Proxy Password',
       type: 'password',
       optional: true,
-      placeholder: 'Proxy Password',
       value: typedSearchParams.get('proxyPassword') ?? '',
       state: 'none',
     },
@@ -97,16 +92,7 @@ function Socks({
   return (
     <>
       {fields.map(
-        ({
-          name,
-          label,
-          type,
-          optional,
-          placeholder,
-          value,
-          errorMessage,
-          state,
-        }) => (
+        ({ name, label, type, optional, value, errorMessage, state }) => (
           <FormFieldContainer key={name}>
             <TextInput
               onChange={({
@@ -119,7 +105,6 @@ function Socks({
               label={label}
               type={type}
               optional={optional}
-              placeholder={placeholder}
               value={value}
               errorMessage={errorMessage}
               state={state}

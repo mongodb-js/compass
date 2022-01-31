@@ -41,7 +41,7 @@
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.2.0",
     "react-tooltip": "^3.11.1",
-    "redux": "^3.7.2",
+    "redux": "^4.1.2",
     "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
@@ -87,7 +87,7 @@
     "mongodb-connection-model": "^21.11.1",
     "mongodb-data-service": "^21.15.1",
     "mongodb-instance-model": "^11.17.1",
-    "mongodb-ns": "^2.2.0",
+    "mongodb-ns": "^2.3.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "numeral": "^2.0.6",
@@ -100,7 +100,7 @@
     "react-hot-loader": "^4.13.0",
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.2.0",
-    "redux": "^3.7.2",
+    "redux": "^4.1.2",
     "redux-thunk": "^2.3.0",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",

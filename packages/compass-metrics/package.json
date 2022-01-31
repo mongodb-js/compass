@@ -33,7 +33,7 @@
     "hadron-ipc": "^2.7.0",
     "mongodb-js-metrics": "^7.6.0",
     "mongodb-schema": "^8.2.5",
-    "redux": "^3.7.2"
+    "redux": "^4.1.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -100,7 +100,7 @@
     "react-fontawesome": "^1.6.1",
     "react-hot-loader": "^4.13.0",
     "react-ios-switch": "^0.1.19",
-    "redux": "^3.7.2",
+    "redux": "^4.1.2",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.0",
     "semver": "^5.4.1",

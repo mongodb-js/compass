@@ -5,10 +5,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import {
-  ConnectionInfo,
-  ConnectionFavoriteOptions,
-} from 'mongodb-data-service';
+import { ConnectionFavoriteOptions } from 'mongodb-data-service';
 
 import FormFieldContainer from './form-field-container';
 import SavedConnectionColorPicker from './saved-connection-color-picker';
@@ -18,32 +15,29 @@ const connectionNameInputStyles = css({
 });
 
 function SaveConnectionModal({
-  initialConnectionInfo,
+  initialFavoriteInfo,
   onCancelClicked,
   onSaveClicked,
   open,
 }: {
-  initialConnectionInfo: ConnectionInfo;
+  initialFavoriteInfo?: ConnectionFavoriteOptions;
   onCancelClicked: () => void;
   onSaveClicked: (favoriteInfo: ConnectionFavoriteOptions) => Promise<void>;
   open: boolean;
 }): React.ReactElement {
   const [editingFavorite, setEditingFavorite] = useState({
     name: '',
-    ...initialConnectionInfo.favorite,
+    ...initialFavoriteInfo,
   });
 
   return (
     <ConfirmationModal
       title={
-        initialConnectionInfo.favorite
-          ? 'Edit favorite'
-          : 'Save connection to favorites'
+        initialFavoriteInfo ? 'Edit favorite' : 'Save connection to favorites'
       }
       open={open}
       onConfirm={() => {
         void onSaveClicked({
-          ...initialConnectionInfo.favorite,
           ...editingFavorite,
         });
       }}

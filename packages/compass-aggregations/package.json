@@ -163,7 +163,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isstring": "^4.0.1",
     "mongodb-extended-json": "^1.11.1",
-    "mongodb-ns": "^2.2.0",
+    "mongodb-ns": "^2.3.0",
     "re-resizable": "^6.9.0",
     "react-bootstrap": "^0.32.4",
     "react-dnd": "^10.0.2",
@@ -171,7 +171,7 @@
     "react-ios-switch": "^0.1.19",
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.2.0",
-    "redux": "^4.0.1",
+    "redux": "^4.1.2",
     "redux-thunk": "^2.3.0",
     "semver": "^5.7.1",
     "storage-mixin": "^4.9.0"

@@ -287,7 +287,7 @@ describe('connection tracking', function () {
   });
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  ['', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach(
+  ['', 'DEFAULT', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach(
     (authMechanism) => {
       it(`tracks a new connection event - ${
         authMechanism || 'DEFAULT'
@@ -295,7 +295,7 @@ describe('connection tracking', function () {
         const trackEvent = once(process, 'compass:track');
         const connectionInfo = {
           connectionOptions: {
-            connectionString: `mongodb://root@example:127.0.0.1?authMechanism=${authMechanism}`,
+            connectionString: `mongodb://root:pwd@127.0.0.1?authMechanism=${authMechanism}`,
           },
         };
         trackNewConnectionEvent(connectionInfo, dataService);

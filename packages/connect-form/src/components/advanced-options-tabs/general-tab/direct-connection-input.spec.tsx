@@ -78,7 +78,7 @@ describe('DirectConnectionInput', function () {
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
           type: 'update-search-param',
           currentKey: 'directConnection',
-          value: true,
+          value: 'true',
         });
       });
     });
@@ -113,7 +113,7 @@ describe('DirectConnectionInput', function () {
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
           type: 'update-search-param',
           currentKey: 'directConnection',
-          value: true,
+          value: 'true',
         });
       });
     });

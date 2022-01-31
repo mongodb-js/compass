@@ -248,7 +248,7 @@ describe('SchemaInput', function () {
             ).to.deep.equal({
               type: 'update-search-param',
               currentKey: connectionStringTlsParam,
-              value: true,
+              value: 'true',
             });
           });
         });

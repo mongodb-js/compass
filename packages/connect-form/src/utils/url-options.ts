@@ -37,10 +37,6 @@ export const editableUrlOptions = [
     values: ['maxStalenessSeconds', 'readPreferenceTags'],
   },
   {
-    title: 'Authentication Options',
-    values: ['authMechanismProperties', 'gssapiServiceName'],
-  },
-  {
     title: 'Server Options',
     values: [
       'localThresholdMS',

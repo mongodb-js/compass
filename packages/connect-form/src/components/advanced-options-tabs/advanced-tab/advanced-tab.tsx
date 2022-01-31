@@ -50,7 +50,7 @@ function AdvancedTab({
     : pathname;
 
   const handleFieldChanged = useCallback(
-    (key: keyof MongoClientOptions, value: unknown) => {
+    (key: keyof MongoClientOptions, value?: string) => {
       if (!value) {
         return updateConnectionFormField({
           type: 'delete-search-param',
@@ -124,7 +124,6 @@ function AdvancedTab({
           label={'Replica Set Name'}
           type={'text'}
           optional={true}
-          placeholder={'Replica Set Name'}
           value={replicaSet ?? ''}
         />
       </FormFieldContainer>
@@ -141,7 +140,6 @@ function AdvancedTab({
           label={'Default Database'}
           type={'text'}
           optional={true}
-          placeholder={'Default Database'}
           value={defaultDatabase ?? ''}
           description={
             'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'

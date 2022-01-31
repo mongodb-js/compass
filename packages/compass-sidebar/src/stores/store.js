@@ -13,7 +13,7 @@ import { toggleIsDataLake } from '../modules/is-data-lake';
 import { loadDetailsPlugins } from '../modules/details-plugins';
 import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
-import { changeConnection } from '../modules/connection-model';
+import { changeConnectionInfo } from '../modules/connection-info';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -60,8 +60,8 @@ store.onActivated = (appRegistry) => {
 
   store.dispatch(loadDetailsPlugins(appRegistry));
 
-  appRegistry.on('data-service-connected', (_, dataService, connectionInfo, legacyConnectionModel) => {
-    store.dispatch(changeConnection(legacyConnectionModel));
+  appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
+    store.dispatch(changeConnectionInfo(connectionInfo));
   });
 
   appRegistry.on('instance-destroyed', () => {

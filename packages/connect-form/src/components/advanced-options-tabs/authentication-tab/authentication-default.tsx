@@ -14,7 +14,14 @@ import { AuthMechanism } from 'mongodb';
 
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
-import { ConnectionFormError } from '../../../utils/validation';
+import {
+  ConnectionFormError,
+  errorMessageByFieldName,
+} from '../../../utils/validation';
+import {
+  getConnectionStringPassword,
+  getConnectionStringUsername,
+} from '../../../utils/connection-string-helpers';
 
 const authSourceLabelStyles = css({
   padding: 0,
@@ -54,11 +61,12 @@ function AuthenticationDefault({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
-  const password = decodeURIComponent(connectionStringUrl.password);
-  const username = decodeURIComponent(connectionStringUrl.username);
+  const password = getConnectionStringPassword(connectionStringUrl);
+  const username = getConnectionStringUsername(connectionStringUrl);
 
-  const selectedAuthMechanism =
-    connectionStringUrl.searchParams.get('authMechanism') ?? '';
+  const selectedAuthMechanism = (
+    connectionStringUrl.searchParams.get('authMechanism') ?? ''
+  ).toUpperCase();
   const selectedAuthTab =
     defaultAuthMechanismOptions.find(
       ({ value }) => value === selectedAuthMechanism
@@ -76,7 +84,8 @@ function AuthenticationDefault({
     [updateConnectionFormField]
   );
 
-  const usernameError = errors?.find((error) => error.fieldName === 'username');
+  const usernameError = errorMessageByFieldName(errors, 'username');
+  const passwordError = errorMessageByFieldName(errors, 'password');
 
   return (
     <>
@@ -91,7 +100,7 @@ function AuthenticationDefault({
             });
           }}
           label="Username"
-          errorMessage={usernameError?.message}
+          errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
           value={username || ''}
         />
@@ -109,6 +118,8 @@ function AuthenticationDefault({
           label="Password"
           type="password"
           value={password || ''}
+          errorMessage={passwordError}
+          state={passwordError ? 'error' : undefined}
         />
       </FormFieldContainer>
       <FormFieldContainer>

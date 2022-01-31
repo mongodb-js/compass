@@ -9,8 +9,6 @@ export type FieldName =
   | 'hosts'
   | 'isSrv'
   | 'kerberosPrincipal'
-  | 'ldapPassword'
-  | 'ldapUsername'
   | 'password'
   | 'schema'
   | 'proxyHostname'
@@ -28,17 +26,6 @@ export type ConnectionFormError = {
 
 export interface ConnectionFormWarning {
   message: string;
-}
-
-export function tryToParseConnectionString(
-  connectionString: string
-): [ConnectionString | undefined, Error | undefined] {
-  try {
-    const connectionStringUrl = new ConnectionString(connectionString);
-    return [connectionStringUrl, undefined];
-  } catch (err) {
-    return [undefined, err as Error];
-  }
 }
 
 export function errorMessageByFieldName(

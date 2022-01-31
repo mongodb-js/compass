@@ -212,6 +212,7 @@ function ConnectionList({
               onClick={removeAllRecentsConnections}
               variant="default"
               size="xsmall"
+              darkMode
             >
               Clear All
             </Button>
