@@ -45,7 +45,7 @@ describe('Smoke tests', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  describe.only('Connection sidebar', function () {
+  describe('Connection sidebar', function () {
     it('contains cluster info', async function () {
       const topologySingleHostAddressElement = await browser.$(
         Selectors.TopologySingleHostAddress
