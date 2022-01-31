@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -30,7 +30,6 @@ describe('UrlOptionsTable', function () {
 
   describe('with SearchParams', function () {
     beforeEach(function () {
-      cleanup();
       updateConnectionFormFieldSpy = sinon.spy();
       // add option that's not in Editable url options
       connectionStringUrl.searchParams.set('readPreferences', 'primary');
