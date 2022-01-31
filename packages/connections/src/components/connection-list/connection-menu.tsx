@@ -11,6 +11,9 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 import { ConnectionInfo } from 'mongodb-data-service';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
+import { MongoClientOptions } from 'mongodb';
+
 const dropdownButtonStyles = css({
   position: 'absolute',
   right: spacing[1],
@@ -71,6 +74,24 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+function tryToRemoveAppNameFromConnectionString(connectionString: string) {
+  try {
+    const connectionStringUrl = new ConnectionStringUrl(connectionString);
+
+    const searchParams = connectionStringUrl.typedSearchParams<MongoClientOptions>();
+    if (searchParams.get('appName')) {
+      // Compass used to save the appName onto the connection string.
+      // Here we remove it so the copied connection string does not have it.
+      searchParams.set('appName', null);
+    }
+
+    return connectionStringUrl.toString();
+  } catch (e) {
+    // Connection string could not be parsed, just return it to be copied.
+    return connectionString;
+  }
+}
+
 function ConnectionMenu({
   connectionString,
   iconColor,
@@ -103,7 +124,9 @@ function ConnectionMenu({
 
   async function copyConnectionString(connectionString: string) {
     try {
-      await navigator.clipboard.writeText(connectionString);
+      const connectionStringToCopy = tryToRemoveAppNameFromConnectionString(connectionString);
+      
+      await navigator.clipboard.writeText(connectionStringToCopy);
       dispatch({
         type: 'show-success-toast',
       });
