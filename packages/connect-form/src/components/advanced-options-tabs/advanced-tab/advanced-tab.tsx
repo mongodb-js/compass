@@ -128,6 +128,7 @@ function AdvancedTab({
         />
       </FormFieldContainer>
       {/* Default Database */}
+
       <FormFieldContainer>
         <TextInput
           spellCheck={false}
@@ -137,12 +138,12 @@ function AdvancedTab({
           }}
           name={'default-database'}
           data-testid={'default-database'}
-          label={'Default Database'}
+          label={'Default Authentication Database'}
           type={'text'}
           optional={true}
           value={defaultDatabase ?? ''}
           description={
-            'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'
+            'Authentication database used when authSource is not specified.'
           }
         />
       </FormFieldContainer>

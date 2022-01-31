@@ -1,19 +1,17 @@
-import React, { ChangeEvent, useEffect, useCallback } from 'react';
+import React, { ChangeEvent, useEffect } from 'react';
 import {
-  spacing,
   Table,
   TableHeader,
   Row,
   Cell,
-  Button,
   IconButton,
   Icon,
   TextInput,
   Select,
   Option,
   OptionGroup,
-  Banner,
   css,
+  spacing,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -22,22 +20,41 @@ import { editableUrlOptions, UrlOption } from '../../../utils/url-options';
 import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 const optionSelectStyles = css({
-  width: 300,
+  width: spacing[5] * 9,
+});
+
+const optionNameCellStyles = css({
+  width: spacing[5] * 9,
 });
 
 const optionValueCellStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%',
+  // width: '30%',
 });
 
-const addUrlOptionsButtonStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[3],
-  marginBottom: spacing[2],
+const optionValueCellContentStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
 });
+
+const valueInputStyles = css({
+  maxWidth: spacing[7],
+});
+
+const deleteOptionButtonStyle = css({
+  marginLeft: spacing[2],
+});
+
+function appendEmptyOption(
+  urlOptions: Partial<UrlOption>[]
+): Partial<UrlOption>[] {
+  if (!urlOptions.length || urlOptions[urlOptions.length - 1].name) {
+    return [...urlOptions, { name: undefined, value: undefined }];
+  }
+
+  return urlOptions;
+}
 
 function getUrlOptions(connectionStringUrl: ConnectionStringUrl): UrlOption[] {
   let opts: string[] = [];
@@ -65,39 +82,16 @@ function UrlOptionsTable({
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
   const [options, setOptions] = React.useState<Partial<UrlOption>[]>([]);
-  const [errorMessage, setErrorMessage] = React.useState('');
-
-  // To fix UI issue that removes empty option(name -> undefined) when user
-  // removes an existing option (name -> defined) [because of the state update]
-  const [containsEmptyOption, setContainsEmptyOption] = React.useState(false);
-
   useEffect(() => {
-    const options: Partial<UrlOption>[] = getUrlOptions(connectionStringUrl);
-    if (!options.length || containsEmptyOption) {
-      options.push({ name: undefined, value: undefined });
-    }
+    const options = appendEmptyOption(getUrlOptions(connectionStringUrl));
     setOptions(options);
-  }, [connectionStringUrl, containsEmptyOption]);
-
-  const addUrlOption = useCallback(() => {
-    setErrorMessage('');
-    // Use case: User clicks on `Add url option` button and then clicked again without completing existing entry.
-    // Don't add another option in such case
-    if (options.find(({ name }) => !name)) {
-      setErrorMessage('Please complete the existing option.');
-      return;
-    }
-    const newOptions = [...options, { name: undefined, value: undefined }];
-    setOptions(newOptions);
-    setContainsEmptyOption(true);
-  }, [options]);
+  }, [connectionStringUrl]);
 
   const updateUrlOption = (
     currentName?: UrlOption['name'],
     name?: UrlOption['name'],
     value?: string
   ) => {
-    setErrorMessage('');
     const indexOfUpdatedOption = options.findIndex(
       (option) => option.name === currentName
     );
@@ -107,7 +101,8 @@ function UrlOptionsTable({
     };
     const newOptions = [...options];
     newOptions[indexOfUpdatedOption] = option;
-    setOptions(newOptions);
+
+    setOptions(appendEmptyOption(newOptions));
 
     if (name) {
       updateConnectionFormField({
@@ -122,24 +117,17 @@ function UrlOptionsTable({
   };
 
   const deleteUrlOption = (name?: UrlOption['name']) => {
-    setErrorMessage('');
+    if (!name) {
+      return;
+    }
+
     const indexOfDeletedOption = options.findIndex(
       (option) => option.name === name
     );
     const newOptions = [...options];
     newOptions.splice(indexOfDeletedOption, 1);
-    if (newOptions.length === 0) {
-      newOptions.push({ name: undefined, value: undefined });
-    }
-    setOptions(newOptions);
 
-    if (!name) {
-      return;
-    }
-
-    if (newOptions.filter((x) => !x.name).length > 0) {
-      setContainsEmptyOption(true);
-    }
+    setOptions(appendEmptyOption(newOptions));
 
     updateConnectionFormField({
       type: 'delete-search-param',
@@ -164,7 +152,7 @@ function UrlOptionsTable({
               datum.name ? `${datum.name}-table-row` : 'new-option-table-row'
             }
           >
-            <Cell>
+            <Cell className={optionNameCellStyles}>
               <Select
                 className={optionSelectStyles}
                 placeholder="Select key"
@@ -202,8 +190,8 @@ function UrlOptionsTable({
                 ))}
               </Select>
             </Cell>
-            <Cell>
-              <div className={optionValueCellStyles}>
+            <Cell className={optionValueCellStyles}>
+              <div className={optionValueCellContentStyles}>
                 <TextInput
                   onChange={(event: ChangeEvent<HTMLInputElement>) => {
                     event.preventDefault();
@@ -219,38 +207,29 @@ function UrlOptionsTable({
                   placeholder={'Value'}
                   aria-labelledby="Enter value"
                   value={datum.value}
+                  className={valueInputStyles}
                 />
-                <IconButton
-                  data-testid={
-                    datum.name
-                      ? `${datum.name}-delete-button`
-                      : 'new-option-delete-button'
-                  }
-                  aria-label={`Delete option: ${datum.name ?? ''}`}
-                  onClick={() => deleteUrlOption(datum.name)}
-                >
-                  <Icon glyph="X" />
-                </IconButton>
+                {datum.name ? (
+                  <IconButton
+                    data-testid={
+                      datum.name
+                        ? `${datum.name}-delete-button`
+                        : 'new-option-delete-button'
+                    }
+                    aria-label={`Delete option: ${datum.name ?? ''}`}
+                    onClick={() => deleteUrlOption(datum.name)}
+                    className={deleteOptionButtonStyle}
+                  >
+                    <Icon glyph="X" />
+                  </IconButton>
+                ) : (
+                  ''
+                )}
               </div>
             </Cell>
           </Row>
         )}
       </Table>
-      <div className={addUrlOptionsButtonStyles}>
-        <Button
-          data-testid="add-url-options-button"
-          onClick={() => addUrlOption()}
-          variant={'primaryOutline'}
-          size={'xsmall'}
-        >
-          Add url option
-        </Button>
-      </div>
-      {errorMessage && (
-        <Banner variant={'warning'} onClose={() => setErrorMessage('')}>
-          {errorMessage}
-        </Banner>
-      )}
     </>
   );
 }
