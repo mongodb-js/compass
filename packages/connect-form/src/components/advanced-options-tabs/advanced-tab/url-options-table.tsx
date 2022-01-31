@@ -84,7 +84,7 @@ function UrlOptionsTable({
     // Use case: User clicks on `Add url option` button and then clicked again without completing existing entry.
     // Don't add another option in such case
     if (options.find(({ name }) => !name)) {
-      setErrorMessage('Please complete existing option.');
+      setErrorMessage('Please complete the existing option.');
       return;
     }
     const newOptions = [...options, { name: undefined, value: undefined }];

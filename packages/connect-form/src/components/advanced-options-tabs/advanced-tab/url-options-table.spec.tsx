@@ -80,7 +80,8 @@ describe('UrlOptionsTable', function () {
       const button = screen.getByTestId('add-url-options-button');
       fireEvent.click(button);
       fireEvent.click(button);
-      expect(screen.findByText('Please complete existing option.')).to.exist;
+      expect(screen.findByText('Please complete the existing option.')).to
+        .exist;
     });
 
     it('renders selected key when user select a key', function () {
