@@ -39,7 +39,6 @@ function DiskBackend(options) {
 
   this.basepath = options.basepath;
   this.namespace = options.namespace;
-  // this.path = path.join(options.basepath, options.namespace);
 
   // create path synchronously so we can use the model right away
   try {
