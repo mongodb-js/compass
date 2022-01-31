@@ -131,18 +131,7 @@ describe('Smoke tests', function () {
       // open the create database modal from the sidebar
       await browser.clickVisible(Selectors.CreateDatabaseButton);
 
-      // TODO: move into a create database command
-      const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
-      await createModalElement.waitForDisplayed();
-      const dbInput = await browser.$(Selectors.CreateDatabaseDatabaseName);
-      await dbInput.setValue(dbName);
-      const collectionInput = await browser.$(Selectors.CreateDatabaseCollectionName);
-      await collectionInput.setValue(collectionName);
-      const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
-      await createButton.waitForEnabled();
-      await createButton.click();
-      await createModalElement.waitForDisplayed({ reverse: true });
-
+      await browser.addDatabase(dbName, collectionName);
       await browser.clickVisible(Selectors.sidebarDatabase(dbName));
 
       // wait for it to appear
@@ -154,15 +143,7 @@ describe('Smoke tests', function () {
 
        await browser.clickVisible(Selectors.DropDatabaseButton);
 
-      // TODO: move into a drop database command
-      const dropModalElement = await browser.$(Selectors.DropDatabaseModal);
-      await dropModalElement.waitForDisplayed();
-      const confirmInput = await browser.$(Selectors.DropDatabaseConfirmName);
-      await confirmInput.setValue(dbName);
-      const confirmButton = await browser.$(Selectors.DropDatabaseDropButton);
-      await confirmButton.waitForEnabled();
-      await confirmButton.click();
-      await dropModalElement.waitForDisplayed({ reverse: true });
+      await browser.dropDatabase(dbName);
 
       // wait for it to be gone
       const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
@@ -186,13 +167,7 @@ describe('Smoke tests', function () {
 
       await browser.clickVisible(Selectors.CreateCollectionButton);
 
-      // TODO: move to create collection command
-      const createModalElement = await browser.$(Selectors.CreateCollectionModal);
-      await createModalElement.waitForDisplayed();
-      const collectionInput = await browser.$(Selectors.CreateDatabaseCollectionName);
-      await collectionInput.setValue(collectionName);
-      await browser.clickVisible(Selectors.CreateCollectionCreateButton);
-      await createModalElement.waitForDisplayed({ reverse: true });
+      await browser.addCollection(collectionName);
 
       const collectionSelector = Selectors.sidebarCollection(dbName, collectionName);
       const collectionElement = await browser.$(collectionSelector);
@@ -205,15 +180,7 @@ describe('Smoke tests', function () {
       await browser.clickVisible(Selectors.ShowActionsButton);
       await browser.clickVisible(Selectors.DropCollectionButton);
 
-      // TODO: move into a drop collection command
-      const dropModalElement = await browser.$(Selectors.DropCollectionModal);
-      await dropModalElement.waitForDisplayed();
-      const confirmInput = await browser.$(Selectors.DropCollectionConfirmName);
-      await confirmInput.setValue(collectionName);
-      const confirmButton = await browser.$(Selectors.DropCollectionDropButton);
-      await confirmButton.waitForEnabled();
-      await confirmButton.click();
-      await dropModalElement.waitForDisplayed({ reverse: true });
+      await browser.dropCollection(collectionName);
 
       // wait for it to be gone
       await collectionElement.waitForExist({ reverse: true });
