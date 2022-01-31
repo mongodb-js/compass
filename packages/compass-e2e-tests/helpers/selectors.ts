@@ -59,7 +59,8 @@ export const ConnectionFormInputSSHTunnelPassword =
 export const ConnectionFormMessage = '[data-test-id="connection-message"]';
 
 // Connection Sidebar
-export const SidebarTreeItems = '[data-test-id="databases-and-collections"] [role="treeitem"]';
+export const SidebarTreeItems =
+  '[data-test-id="databases-and-collections"] [role="treeitem"]';
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-test-id="new-connection-button"]';
@@ -75,9 +76,7 @@ export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 
-export const sidebarDatabase = (
-  dbName: string
-): string => {
+export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
 };
 
@@ -96,22 +95,28 @@ export const sidebarCollection = (
 export const CreateDatabaseModal = '[trackingid="create_database_modal"]';
 export const CreateDatabaseDatabaseName = '[data-testid="database-name"]';
 export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
-export const CreateDatabaseCreateButton = '[trackingid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateDatabaseCreateButton =
+  '[trackingid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Drop database modal
 export const DropDatabaseModal = '[trackingid="drop_database_modal"]';
-export const DropDatabaseConfirmName = '[data-test-id="confirm-drop-database-name"]';
-export const DropDatabaseDropButton = '[trackingid="drop_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const DropDatabaseConfirmName =
+  '[data-test-id="confirm-drop-database-name"]';
+export const DropDatabaseDropButton =
+  '[trackingid="drop_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Create collection modal
 export const CreateCollectionModal = '[trackingid="create_collection_modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
-export const CreateCollectionCreateButton = '[trackingid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateCollectionCreateButton =
+  '[trackingid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Drop collection modal
 export const DropCollectionModal = '[trackingid="drop_collection_modal"]';
-export const DropCollectionConfirmName = '[data-test-id="confirm-drop-collection-name"]';
-export const DropCollectionDropButton = '[trackingid="drop_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const DropCollectionConfirmName =
+  '[data-test-id="confirm-drop-collection-name"]';
+export const DropCollectionDropButton =
+  '[trackingid="drop_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Shell
 export const ShellContent = '[data-test-id="shell-content"]';

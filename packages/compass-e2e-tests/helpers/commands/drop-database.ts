@@ -1,9 +1,9 @@
 import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors'
+import * as Selectors from '../selectors';
 
 export async function dropDatabase(
   browser: CompassBrowser,
-  dbName: string,
+  dbName: string
 ): Promise<void> {
   const dropModalElement = await browser.$(Selectors.DropDatabaseModal);
   await dropModalElement.waitForDisplayed();

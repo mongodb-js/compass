@@ -77,7 +77,9 @@ describe('Smoke tests', function () {
 
       await browser.clickVisible(Selectors.sidebarDatabaseToggle('test'));
 
-      const collectionElement = await browser.$(Selectors.sidebarCollection('test', 'numbers'));
+      const collectionElement = await browser.$(
+        Selectors.sidebarCollection('test', 'numbers')
+      );
       await collectionElement.waitForDisplayed();
     });
 
@@ -113,7 +115,9 @@ describe('Smoke tests', function () {
       const dbElement = await browser.$(Selectors.sidebarDatabase('test'));
       expect(await dbElement.isDisplayed()).to.be.true;
 
-      const collectionElement = await browser.$(Selectors.sidebarCollection('test', 'numbers'));
+      const collectionElement = await browser.$(
+        Selectors.sidebarCollection('test', 'numbers')
+      );
       expect(await collectionElement.isDisplayed()).to.be.true;
 
       await sidebarFilterInputElement.setValue('*'); // clearValue() is unreliable here
@@ -135,13 +139,15 @@ describe('Smoke tests', function () {
       await browser.clickVisible(Selectors.sidebarDatabase(dbName));
 
       // wait for it to appear
-      const collectionElement = await browser.$(Selectors.sidebarCollection(dbName, collectionName));
+      const collectionElement = await browser.$(
+        Selectors.sidebarCollection(dbName, collectionName)
+      );
       await collectionElement.waitForDisplayed();
 
       // open the drop database modal from the sidebar
       await browser.hover(Selectors.sidebarDatabase(dbName));
 
-       await browser.clickVisible(Selectors.DropDatabaseButton);
+      await browser.clickVisible(Selectors.DropDatabaseButton);
 
       await browser.dropDatabase(dbName);
 
@@ -169,7 +175,10 @@ describe('Smoke tests', function () {
 
       await browser.addCollection(collectionName);
 
-      const collectionSelector = Selectors.sidebarCollection(dbName, collectionName);
+      const collectionSelector = Selectors.sidebarCollection(
+        dbName,
+        collectionName
+      );
       const collectionElement = await browser.$(collectionSelector);
       await collectionElement.waitForDisplayed();
 

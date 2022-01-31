@@ -1,9 +1,9 @@
 import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors'
+import * as Selectors from '../selectors';
 
 export async function dropCollection(
   browser: CompassBrowser,
-  collectionName: string,
+  collectionName: string
 ): Promise<void> {
   const dropModalElement = await browser.$(Selectors.DropCollectionModal);
   await dropModalElement.waitForDisplayed();
