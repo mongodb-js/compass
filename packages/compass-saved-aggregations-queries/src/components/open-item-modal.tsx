@@ -26,7 +26,7 @@ type AsyncItemsSelectProps = {
 
 const select = css({
   // Working around leafygreen Select issues
-  // See (TODO: link to JIRA ticket)
+  // See https://jira.mongodb.org/browse/PD-1677 and https://jira.mongodb.org/browse/PD-1764
   button: {
     zIndex: 999,
   },
@@ -138,13 +138,13 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
       open={isModalOpen}
       onCancel={onClose}
       onConfirm={onSubmit}
-      title="Select Namespace"
+      title="Select a Namespace"
       buttonText="Open"
       submitDisabled={isSubmitDisabled}
     >
       <div className={modalContent}>
         <div className={description}>
-          Namespace <strong>{namespace}</strong> for the saved {itemType}{' '}
+          The namespace <strong>{namespace}</strong> for the saved {itemType}{' '}
           <strong>{itemName}</strong> doesn&rsquo;t exist in&nbsp;the current
           cluster. Please select another namespace to&nbsp;open saved {itemType}
           .
