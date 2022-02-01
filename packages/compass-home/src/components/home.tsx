@@ -99,7 +99,9 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
   const connectedDataService = useRef<DataService>();
   const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
-  const [theme, setTheme] = useState<Theme>({ theme: 'LIGHT' });
+  const [theme, setTheme] = useState<Theme>({
+    theme: (global as any).hadronApp?.theme ?? 'LIGHT',
+  });
 
   const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
     reducer,
@@ -119,12 +121,14 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }
 
   const onDarkModeEnabled = useCallback(() => {
+    console.log('compass home, dark modeaaa');
     setTheme({
       theme: 'DARK',
     });
   }, []);
 
   const onDarkModeDisabled = useCallback(() => {
+    console.log('compass home, light modeaaa');
     setTheme({
       theme: 'LIGHT',
     });
@@ -225,7 +229,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       };
     }
   }, [appRegistry, showNewConnectForm, onDataServiceDisconnected]);
-  // SavedTheme
   useEffect(() => {
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
@@ -262,14 +265,15 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       appRegistry.removeListener('darkmode-enable', onDarkModeEnabled);
       appRegistry.removeListener('darkmode-disable', onDarkModeDisabled);
     };
-  }, [appRegistry, onDataServiceDisconnected]);
+  }, [
+    appRegistry,
+    onDataServiceDisconnected,
+    onDarkModeDisabled,
+    onDarkModeEnabled,
+  ]);
 
   if (isConnected) {
-    return (
-      <ThemeProvider theme={theme}>
-        <Workspace namespace={namespace} />
-      </ThemeProvider>
-    );
+    return <Workspace namespace={namespace} />;
   }
 
   if (showNewConnectForm) {

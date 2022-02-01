@@ -8,8 +8,6 @@ function Toggle(
 ): ReturnType<typeof LeafyGreenToggle> {
   const theme = useTheme();
 
-  console.log('theme', theme?.theme);
-
   return <LeafyGreenToggle darkMode={theme?.theme === 'DARK'} {...props} />;
 }
 

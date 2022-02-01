@@ -1,10 +1,5 @@
 import React, { createContext, useContext } from 'react';
 
-export enum SavedTheme {
-  OS_THEME = 'OS_THEME',
-  LIGHT = 'LIGHT',
-  DARK = 'DARK',
-}
 export type Theme = 'LIGHT' | 'DARK';
 
 type ThemeState = {
