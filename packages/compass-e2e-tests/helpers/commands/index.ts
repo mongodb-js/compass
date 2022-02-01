@@ -23,3 +23,8 @@ export * from './set-or-clear-value';
 export * from './listen-for-telemetry-events';
 export * from './select-file';
 export * from './do-connect';
+export * from './hover';
+export * from './add-database';
+export * from './add-collection';
+export * from './drop-database';
+export * from './drop-collection';
