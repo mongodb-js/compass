@@ -57,11 +57,11 @@ const row = css({
 const AggregationsQueriesList = ({
   loading,
   items,
-  fetchItems,
+  onMount,
 }: AggregationsQueriesListProps) => {
   useEffect(() => {
-    void fetchItems();
-  }, [fetchItems]);
+    void onMount();
+  }, [onMount]);
 
   if (loading) {
     return null;
@@ -95,7 +95,7 @@ const mapState = ({ savedItems: { items, loading } }: RootState) => ({
   loading,
 });
 
-const mapDispatch = { fetchItems };
+const mapDispatch = { onMount: fetchItems };
 
 const connector = connect(mapState, mapDispatch);
 
