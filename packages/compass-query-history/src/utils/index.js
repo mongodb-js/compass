@@ -1,4 +1,4 @@
 import formatQuery from './format-query';
-import { QueryStorage } from './query-storage';
+import { FavoriteQueryStorage } from './favorite-query-storage';
 
-export { formatQuery, QueryStorage };
+export { formatQuery, FavoriteQueryStorage };

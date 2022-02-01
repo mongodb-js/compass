@@ -5,7 +5,7 @@ import path from 'path';
 
 import { readPipelinesFromStorage } from './saved-pipeline';
 
-const initialAggregateValue = process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH;
+const initialAggregationsPath = process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH;
 
 const createPipeline = (tmpDir, data) => {
   fs.writeFileSync(
@@ -19,12 +19,12 @@ describe('saved-pipeline', function() {
   beforeEach(function() {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'SavedPipelines'));
     fs.mkdirSync(path.join(tmpDir, 'SavedPipelines'));
-    process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH = tmpDir;
+    process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH = tmpDir;
   });
 
   afterEach(function() {
     fs.rmdirSync(tmpDir, { recursive: true });
-    process.env.MONGODB_COMPASS_AGGREGATE_TEST_BASE_PATH = initialAggregateValue;
+    process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH = initialAggregationsPath;
   });
 
   it('should read saved aggregations', async function() {

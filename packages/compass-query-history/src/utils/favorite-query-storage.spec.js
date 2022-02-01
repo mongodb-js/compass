@@ -6,7 +6,7 @@ import path from 'path';
 import os from 'os';
 import { promisifyAmpersandMethod } from 'mongodb-data-service';
 
-import { QueryStorage } from './';
+import { FavoriteQueryStorage } from '.';
 import { FavoriteQuery, FavoriteQueryCollection } from '../models';
 
 async function createNewQuery(data) {
@@ -27,13 +27,13 @@ async function loadById(_id) {
   return models.find((model) => model._id === _id);
 }
 
-describe('query-storage [Utils]', function() {
+describe('favorite-query-storage [Utils]', function() {
   let tmpDir;
-  let queryStorage;
+  let favoriteQueryStorage;
   beforeEach(function() {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connection-storage-tests'));
     TestBackend.enable(tmpDir);
-    queryStorage = new QueryStorage();
+    favoriteQueryStorage = new FavoriteQueryStorage();
   });
 
   afterEach(function() {
@@ -42,7 +42,7 @@ describe('query-storage [Utils]', function() {
   });
 
   it('loads all queries', async function() {
-    expect(await queryStorage.loadAll()).to.be.empty;
+    expect(await favoriteQueryStorage.loadAll()).to.be.empty;
 
     const data = [
       {
@@ -59,7 +59,7 @@ describe('query-storage [Utils]', function() {
     await createNewQuery(data[0]);
     await createNewQuery(data[1]);
 
-    const queries = await queryStorage.loadAll();
+    const queries = await favoriteQueryStorage.loadAll();
     expect(queries.find(x => x._id === data[0]._id)).to.deep.equal(data[0]);
     expect(queries.find(x => x._id === data[1]._id)).to.deep.equal(data[1]);
 
@@ -73,7 +73,7 @@ describe('query-storage [Utils]', function() {
       _ns: 'query.storage'
     };
     await createNewQuery(data);
-    await queryStorage.updateAttributes(data._id, {_name: 'updated name'});
+    await favoriteQueryStorage.updateAttributes(data._id, {_name: 'updated name'});
     const query = await loadById(data._id);
     expect(query.getAttributes({props: true})).to.deep.equal({
       ...data,
@@ -90,7 +90,7 @@ describe('query-storage [Utils]', function() {
     await createNewQuery(data);
     expect(await loadById(data._id)).to.not.be.undefined;
 
-    await queryStorage.delete(data._id);
+    await favoriteQueryStorage.delete(data._id);
     expect(await loadById(data._id)).to.be.undefined;
   });
 });

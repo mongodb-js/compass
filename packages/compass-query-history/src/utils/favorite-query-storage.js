@@ -1,7 +1,7 @@
 import { promisifyAmpersandMethod } from 'mongodb-data-service';
 import { FavoriteQueryCollection, FavoriteQuery } from '../models';
 
-export class QueryStorage {
+export class FavoriteQueryStorage {
   /**
    *
    * Loads all saved queries from the storage.

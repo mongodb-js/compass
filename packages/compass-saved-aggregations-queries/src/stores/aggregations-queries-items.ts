@@ -1,6 +1,6 @@
 import { Dispatch, Reducer } from 'redux';
 import toNS from 'mongodb-ns';
-import { QueryStorage } from '@mongodb-js/compass-query-history';
+import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
 import { readPipelinesFromStorage } from '@mongodb-js/compass-aggregations';
 
 export enum ActionTypes {
@@ -73,7 +73,7 @@ export const fetchItems = () => {
   };
 };
 
-const queryStorage = new QueryStorage();
+const favoriteQueryStorage = new FavoriteQueryStorage();
 
 const getAggregationItems = async (): Promise<Item[]> => {
   const aggregations: Aggregation[] = await readPipelinesFromStorage();
@@ -91,7 +91,7 @@ const getAggregationItems = async (): Promise<Item[]> => {
 };
 
 const getQueryItems = async (): Promise<Item[]> => {
-  const queries: Query[] = await queryStorage.loadAll();
+  const queries: Query[] = await favoriteQueryStorage.loadAll();
   return queries.map((query) => {
     const { database, collection } = toNS(query._ns);
     return {
