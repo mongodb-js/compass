@@ -1,11 +1,12 @@
-import { MongoClientOptions, MongoClient } from 'mongodb';
+import type { MongoClientOptions} from 'mongodb';
+import { MongoClient } from 'mongodb';
 import { connectMongoClient, hookLogger } from '@mongodb-js/devtools-connect';
-import SSHTunnel from '@mongodb-js/ssh-tunnel';
+import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import EventEmitter from 'events';
 import { redactConnectionOptions, redactConnectionString } from './redact';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { ConnectionOptions } from './connection-options';
+import type { ConnectionOptions } from './connection-options';
 import {
   forceCloseTunnel,
   openSshTunnel,

@@ -9,13 +9,14 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
 
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
+import type {
+  ConnectionFormError} from '../../../utils/validation';
 import {
-  ConnectionFormError,
   errorMessageByFieldName,
 } from '../../../utils/validation';
 import {

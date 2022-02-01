@@ -9,7 +9,7 @@ import os from 'os';
 import { v4 as uuid } from 'uuid';
 
 import { ConnectionStorage } from './connection-storage';
-import { LegacyConnectionModel } from './legacy/legacy-connection-model';
+import type { LegacyConnectionModel } from './legacy/legacy-connection-model';
 
 async function eventually(
   fn: () => void | Promise<void>,

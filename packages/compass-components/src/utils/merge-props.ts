@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { mergeProps as _mergeProps } from '@react-aria/utils';
 
 export function mergeProps<T extends HTMLElement = HTMLElement>(

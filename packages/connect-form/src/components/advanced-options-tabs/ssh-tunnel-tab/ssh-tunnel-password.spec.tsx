@@ -5,8 +5,9 @@ import sinon from 'sinon';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 
 import SSHTunnelPassword from './ssh-tunnel-password';
+import type {
+  ConnectionFormError} from '../../../utils/validation';
 import {
-  ConnectionFormError,
   errorMessageByFieldName,
 } from '../../../utils/validation';
 

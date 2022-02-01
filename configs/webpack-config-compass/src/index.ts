@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { WebpackPluginInstance } from 'webpack';
+import type { WebpackPluginInstance } from 'webpack';
 import { merge } from 'webpack-merge';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -9,13 +9,8 @@ import path from 'path';
 import { builtinModules } from 'module';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { WebpackPluginStartElectron } from './webpack-plugin-start-electron';
-import {
-  ConfigArgs,
-  isServe,
-  WebpackConfig,
-  webpackArgsWithDefaults,
-  WebpackCLIArgs,
-} from './args';
+import type { ConfigArgs, WebpackConfig, WebpackCLIArgs } from './args';
+import { isServe, webpackArgsWithDefaults } from './args';
 import {
   javascriptLoader,
   nodeLoader,

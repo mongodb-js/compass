@@ -5,7 +5,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { ConnectionFavoriteOptions } from 'mongodb-data-service';
+import type { ConnectionFavoriteOptions } from 'mongodb-data-service';
 
 import FormFieldContainer from './form-field-container';
 import SavedConnectionColorPicker from './saved-connection-color-picker';

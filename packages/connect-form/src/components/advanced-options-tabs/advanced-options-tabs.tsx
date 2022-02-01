@@ -8,17 +8,18 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from 'mongodb-data-service';
 
 import GeneralTab from './general-tab/general-tab';
 import AuthenticationTab from './authentication-tab/authentication-tab';
 import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
-import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
-import {
+import type { UpdateConnectionFormField } from '../../hooks/use-connect-form';
+import type {
   ConnectionFormError,
-  TabId,
+  TabId} from '../../utils/validation';
+import {
   errorsByFieldTab,
 } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';

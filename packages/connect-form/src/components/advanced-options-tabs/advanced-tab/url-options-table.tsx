@@ -1,4 +1,5 @@
-import React, { ChangeEvent, useEffect } from 'react';
+import type { ChangeEvent} from 'react';
+import React, { useEffect } from 'react';
 import {
   Table,
   TableHeader,
@@ -13,11 +14,12 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
-import { editableUrlOptions, UrlOption } from '../../../utils/url-options';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { UrlOption } from '../../../utils/url-options';
+import { editableUrlOptions } from '../../../utils/url-options';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 const optionSelectStyles = css({
   width: spacing[5] * 9,

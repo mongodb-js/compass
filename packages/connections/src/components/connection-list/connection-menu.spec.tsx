@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import ConnectionMenu from './connection-menu';
-import { ConnectionInfo } from 'mongodb-data-service';
+import type { ConnectionInfo } from 'mongodb-data-service';
 
 describe('ConnectionMenu Component', function () {
   describe('on non-favorite item', function () {

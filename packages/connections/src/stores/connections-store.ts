@@ -1,7 +1,8 @@
-import {
+import type {
   ConnectionInfo,
   ConnectionOptions,
-  DataService,
+  DataService} from 'mongodb-data-service';
+import {
   getConnectionTitle,
 } from 'mongodb-data-service';
 import { useEffect, useReducer, useRef } from 'react';
@@ -9,9 +10,10 @@ import debugModule from 'debug';
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
+import type {
+  ConnectionAttempt} from '../modules/connection-attempt';
 import {
-  createConnectionAttempt,
-  ConnectionAttempt,
+  createConnectionAttempt
 } from '../modules/connection-attempt';
 import {
   trackConnectionAttemptEvent,

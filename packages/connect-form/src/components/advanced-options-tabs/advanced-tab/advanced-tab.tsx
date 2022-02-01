@@ -1,5 +1,6 @@
-import React, { ChangeEvent, useCallback } from 'react';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { ChangeEvent} from 'react';
+import React, { useCallback } from 'react';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   RadioBox,
   RadioBoxGroup,
@@ -10,15 +11,15 @@ import {
   Icon,
   css,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { MongoClientOptions } from 'mongodb';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { readPreferences } from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
-import { ConnectionFormError } from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
 
 const infoButtonStyles = css({
   verticalAlign: 'middle',

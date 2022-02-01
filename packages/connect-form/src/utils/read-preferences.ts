@@ -1,5 +1,6 @@
+import type {
+  ReadPreferenceMode} from 'mongodb';
 import {
-  ReadPreferenceMode,
   ReadPreference as MongoReadPreference,
 } from 'mongodb';
 

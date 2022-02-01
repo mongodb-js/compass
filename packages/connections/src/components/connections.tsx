@@ -8,11 +8,12 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import ConnectForm from '@mongodb-js/connect-form';
-import {
+import type {
   ConnectionInfo,
   ConnectionOptions,
+  DataService} from 'mongodb-data-service';
+import {
   ConnectionStorage,
-  DataService,
   connect,
 } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -20,7 +21,8 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
-import { ConnectionStore, useConnections } from '../stores/connections-store';
+import type { ConnectionStore} from '../stores/connections-store';
+import { useConnections } from '../stores/connections-store';
 
 const { debug } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
