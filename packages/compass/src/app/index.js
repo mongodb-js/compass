@@ -50,7 +50,6 @@ var { Action } = require('@mongodb-js/hadron-plugin-manager');
 const darkreader = require('darkreader');
 
 ipc.once('app:launched', function() {
-  console.log('in app:launched');
   if (process.env.NODE_ENV === 'development') {
     require('debug').enable('mon*,had*');
   }
@@ -69,10 +68,12 @@ window.addEventListener('error', (event) => {
 
 const darkreaderOptions = { brightness: 100, contrast: 90, sepia: 10 };
 function enableDarkTheme() {
+  global.hadronApp.appRegistry.emit('darkmode-enable');
   darkreader.enable(darkreaderOptions);
 }
 
 function disableDarkTheme() {
+  global.hadronApp.appRegistry.emit('darkmode-disable');
   darkreader.disable();
 }
 
@@ -379,22 +380,24 @@ app.extend({
           throw err;
         }
 
-        // Get theme from the preferences and set accordingly.
-        loadTheme(app.preferences.theme);
-        ipc.on('app:darkreader-enable', () => {
-          enableDarkTheme();
-        });
-        ipc.on('app:darkreader-disable', () => {
-          disableDarkTheme();
-        });
-        ipc.on('app:save-theme', (_, theme) => {
-          // Save the new theme on the user's preferences.
-          app.preferences.save({
-            theme
-          });
-        });
-
         Action.pluginActivationCompleted.listen(() => {
+          // Get theme from the preferences and set accordingly.
+          loadTheme(app.preferences.theme);
+          ipc.on('app:darkreader-enable', () => {
+            // global.hadronApp.appRegistry.emit('darkmode-enable');
+            enableDarkTheme();
+          });
+          ipc.on('app:darkreader-disable', () => {
+            // global.hadronApp.appRegistry.emit('darkmode-disable');
+            disableDarkTheme();
+          });
+          ipc.on('app:save-theme', (_, theme) => {
+            // Save the new theme on the user's preferences.
+            app.preferences.save({
+              theme
+            });
+          });
+
           ipc.call('compass:loading:change-status', {
             status: 'activating plugins'
           });

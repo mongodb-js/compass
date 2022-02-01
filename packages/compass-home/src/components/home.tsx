@@ -1,5 +1,11 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { css } from '@mongodb-js/compass-components';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+} from 'react';
+import { ThemeProvider, Theme, css } from '@mongodb-js/compass-components';
 import {
   ConnectionInfo,
   DataService,
@@ -93,6 +99,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
   const connectedDataService = useRef<DataService>();
   const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
+  const [theme, setTheme] = useState<Theme>({ theme: 'LIGHT' });
 
   const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
     reducer,
@@ -110,6 +117,18 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       connectionTitle: getConnectionTitle(connectionInfo) || '',
     });
   }
+
+  const onDarkModeEnabled = useCallback(() => {
+    setTheme({
+      theme: 'DARK',
+    });
+  }, []);
+
+  const onDarkModeDisabled = useCallback(() => {
+    setTheme({
+      theme: 'LIGHT',
+    });
+  }, []);
 
   // TODO: Remove this comment once we only have one connections package:
   // This is currently only used by the new connections package.
@@ -206,7 +225,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       };
     }
   }, [appRegistry, showNewConnectForm, onDataServiceDisconnected]);
-
+  // SavedTheme
   useEffect(() => {
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
@@ -216,6 +235,8 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     appRegistry.on('open-instance-workspace', onInstanceWorkspaceOpenTap);
     appRegistry.on('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
     appRegistry.on('all-collection-tabs-closed', onAllTabsClosed);
+    appRegistry.on('darkmode-enable', onDarkModeEnabled);
+    appRegistry.on('darkmode-disable', onDarkModeDisabled);
 
     return () => {
       // Clean up the app registry listeners.
@@ -238,18 +259,26 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
         onOpenNamespaceInNewTab
       );
       appRegistry.removeListener('all-collection-tabs-closed', onAllTabsClosed);
+      appRegistry.removeListener('darkmode-enable', onDarkModeEnabled);
+      appRegistry.removeListener('darkmode-disable', onDarkModeDisabled);
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
   if (isConnected) {
-    return <Workspace namespace={namespace} />;
+    return (
+      <ThemeProvider theme={theme}>
+        <Workspace namespace={namespace} />
+      </ThemeProvider>
+    );
   }
 
   if (showNewConnectForm) {
     return (
       <div className={homeViewStyles} data-test-id="home-view">
         <div className={homePageStyles}>
-          <Connections onConnected={onConnected} />
+          <ThemeProvider theme={theme}>
+            <Connections onConnected={onConnected} />
+          </ThemeProvider>
         </div>
       </div>
     );

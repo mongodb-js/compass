@@ -61,7 +61,10 @@ export {
   default as Toast,
   Variant as ToastVariant,
 } from '@leafygreen-ui/toast';
-export { default as Toggle } from '@leafygreen-ui/toggle';
+// export { default as Toggle } from '@leafygreen-ui/toggle';
+// export { Toggle as ToggleTwo } from './components/toggle';
+export { Toggle } from './components/toggle';
+
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 export {
@@ -92,6 +95,7 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
+export { useTheme, Theme, ThemeProvider } from './hooks/use-theme';
 export {
   ContentWithFallback,
   FadeInPlaceholder,
