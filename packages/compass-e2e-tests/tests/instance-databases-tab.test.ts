@@ -40,5 +40,32 @@ describe('Instance databases tab', function () {
     }
   });
 
-  it('can create a database from the databases tab');
+  it('can create a database from the databases tab', async function () {
+    const dbName = 'my-database';
+    const collectionName = 'my-collection';
+
+    // open the create database modal from the button at the top
+    await browser.clickVisible(Selectors.InstanceCreateDatabaseButton);
+
+    await browser.addDatabase(dbName, collectionName);
+
+    const databaseCard = await browser.$(Selectors.databaseCard(dbName));
+    await databaseCard.waitForDisplayed();
+
+    await databaseCard.scrollIntoView(false);
+
+    await browser.waitUntil(async () => {
+      // open the drop database modal from the database card
+      await browser.hover(Selectors.databaseCard(dbName));
+      const el = await browser.$(Selectors.DatabaseCardDrop);
+      return await el.isDisplayed();
+    });
+
+    await browser.clickVisible(Selectors.DatabaseCardDrop, false);
+
+    await browser.dropDatabase(dbName);
+
+    // wait for it to be gone
+    await databaseCard.waitForExist({ reverse: true });
+  });
 });

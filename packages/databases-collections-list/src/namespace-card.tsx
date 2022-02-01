@@ -71,7 +71,7 @@ const cardActionContainer = css({
 });
 
 const CardActionContainer: React.FunctionComponent = ({ children }) => {
-  return <div className={cardActionContainer}>{children}</div>;
+  return <div className={cardActionContainer} data-testid="card-action-container">{children}</div>;
 };
 
 const cardBadges = css({

@@ -108,7 +108,7 @@ const GridControls = () => {
 
   return (
     <>
-      {createControls && <div className={control}>{createControls}</div>}
+      {createControls && <div className={control} data-testid="create-controls">{createControls}</div>}
       <div className={control}>{viewTypeControls}</div>
       <div className={cx(control, pushRight)}>{sortControls}</div>
     </>

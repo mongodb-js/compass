@@ -70,7 +70,8 @@ export const SingleClusterType =
   '[data-test-id="topology-single-cluster-type"]';
 export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
-export const CreateDatabaseButton = '[data-test-id="create-database-button"]';
+export const SidebarCreateDatabaseButton =
+  '[data-test-id="create-database-button"]';
 export const ShowActionsButton = '[data-testid="show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
@@ -135,6 +136,11 @@ export const QueryBarApplyFilterButton =
 export const InstanceTabs = '[data-test-id="instance-tabs"]';
 export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
+export const InstanceCreateDatabaseButton =
+  '[data-testid="database-grid"] [data-testid="create-controls"] button';
+// assume that there's only one hovered card at a time and that the first and only button is the drop button
+export const DatabaseCardDrop =
+  '[data-testid="database-grid"] [data-testid="card-action-container"] button';
 
 export const instanceTab = (tabName: string, selected?: boolean): string => {
   const selector = `${InstanceTab}[name="${tabName}"]`;

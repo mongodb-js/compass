@@ -116,7 +116,7 @@ describe('Instance sidebar', function () {
     const collectionName = 'my-collection';
 
     // open the create database modal from the sidebar
-    await browser.clickVisible(Selectors.CreateDatabaseButton);
+    await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
 
     await browser.addDatabase(dbName, collectionName);
     await browser.clickVisible(Selectors.sidebarDatabase(dbName));
