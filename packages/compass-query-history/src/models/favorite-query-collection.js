@@ -17,7 +17,7 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
   namespace: 'FavoriteQueries',
   storage: {
     backend: 'disk',
-    basepath: remote.app.getPath('userData')
+    basepath: remote ? remote.app.getPath('userData') : undefined,
   },
   mainIndex: '_id',
   comparator: (favorite) => {

@@ -43,6 +43,7 @@ function AuthenticationAWS({
           }}
           label={AWS_ACCESS_KEY_ID_LABEL}
           value={awsAccessKeyId || ''}
+          optional={true}
         />
       </FormFieldContainer>
       <FormFieldContainer>
@@ -58,6 +59,7 @@ function AuthenticationAWS({
           label={AWS_SECRET_ACCESS_KEY_LABEL}
           type="password"
           value={awsSecretAccessKey || ''}
+          optional={true}
         />
       </FormFieldContainer>
 
@@ -74,6 +76,7 @@ function AuthenticationAWS({
           }}
           label={AWS_SESSION_TOKEN_LABEL}
           value={sessionToken || ''}
+          optional={true}
           type="password"
         />
       </FormFieldContainer>

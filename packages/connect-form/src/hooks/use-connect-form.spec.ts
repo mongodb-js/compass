@@ -327,6 +327,7 @@ describe('use-connect-form hook', function () {
             {
               fieldName: 'hosts',
               fieldIndex: 0,
+              fieldTab: 'general',
               message:
                 'Host cannot be empty. The host is the address hostname, IP address, or UNIX domain socket where the mongodb instance is running.',
             },
@@ -368,6 +369,7 @@ describe('use-connect-form hook', function () {
           expect(updateResult.errors).to.deep.equal([
             {
               fieldName: 'hosts',
+              fieldTab: 'general',
               fieldIndex: 1,
               message: "Invalid character in host: '@'",
             },
@@ -410,6 +412,7 @@ describe('use-connect-form hook', function () {
             {
               fieldName: 'hosts',
               fieldIndex: 0,
+              fieldTab: 'general',
               message: "Invalid character in host: '/'",
             },
           ]);
@@ -451,6 +454,7 @@ describe('use-connect-form hook', function () {
             {
               fieldName: 'hosts',
               fieldIndex: 0,
+              fieldTab: 'general',
               message: "Invalid character in host: ':'",
             },
           ]);
@@ -612,7 +616,6 @@ describe('use-connect-form hook', function () {
         } = handleConnectionFormFieldUpdate(
           {
             type: 'update-ssh-options',
-            currentTab: 'password',
             key: 'host',
             value: 'localhost',
           },

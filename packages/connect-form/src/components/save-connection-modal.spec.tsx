@@ -25,12 +25,7 @@ describe('SaveConnectionModal Component', function () {
           onSaveClicked={onSaveSpy}
           onCancelClicked={onCancelSpy}
           open
-          initialConnectionInfo={{
-            id: 'test',
-            connectionOptions: {
-              connectionString: 'pineapples',
-            },
-          }}
+          initialFavoriteInfo={undefined}
         />
       );
     });
@@ -95,15 +90,9 @@ describe('SaveConnectionModal Component', function () {
           onSaveClicked={onSaveSpy}
           onCancelClicked={onCancelSpy}
           open
-          initialConnectionInfo={{
-            id: 'test',
-            connectionOptions: {
-              connectionString: 'pineapples',
-            },
-            favorite: {
-              name: 'pineapples',
-              color: '#326fde',
-            },
+          initialFavoriteInfo={{
+            name: 'pineapples',
+            color: '#326fde',
           }}
         />
       );

@@ -83,6 +83,10 @@ function uniqueBy<T extends Record<string, unknown>>(
   return Array.from(new Map(values.map((val) => [val[key], val])).values());
 }
 
+function isEmptyObject(obj: Record<string, unknown>) {
+  return Object.keys(obj).length === 0;
+}
+
 let id = 0;
 
 class DataService extends EventEmitter {
@@ -396,7 +400,12 @@ class DataService extends EventEmitter {
     try {
       const [listedCollections, collectionsFromPrivileges] = await Promise.all([
         listCollections(),
-        getCollectionsFromPrivileges(),
+        // If the filter is not empty, we can't meaningfully derive collections
+        // from privileges and filter them as the criteria might include any key
+        // from the listCollections result object and there is no such info in
+        // privileges. Because of that we are ignoring privileges completely if
+        // listCollections was called with a filter.
+        isEmptyObject(filter) ? getCollectionsFromPrivileges() : [],
       ]);
 
       const collections = uniqueBy(

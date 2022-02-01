@@ -42,7 +42,6 @@ describe('UrlOptionsTable', function () {
     });
 
     it('renders view correctly', function () {
-      expect(screen.getByTestId('add-url-options-button')).to.exist;
       expect(screen.getByTestId('url-options-table')).to.exist;
     });
 
@@ -66,25 +65,7 @@ describe('UrlOptionsTable', function () {
       });
     });
 
-    it('renders new option entry with no value when user clicks on add new button', function () {
-      const button = screen.getByTestId('add-url-options-button');
-      fireEvent.click(button);
-
-      expect(screen.getByTestId('new-option-table-row')).to.exist;
-      expect(
-        screen.getByTestId('new-option-input-field').getAttribute('value')
-      ).to.equal('');
-    });
-
-    it('renders error message when user clicks twice add new button', function () {
-      const button = screen.getByTestId('add-url-options-button');
-      fireEvent.click(button);
-      fireEvent.click(button);
-      expect(screen.findByText('Please complete existing option.')).to.exist;
-    });
-
     it('renders selected key when user select a key', function () {
-      fireEvent.click(screen.getByTestId('add-url-options-button')); // Add new entry
       fireEvent.click(screen.getByText(/select key/i)); // Click select button
       fireEvent.click(screen.getByText(/appname/i)); // Select the option
 
@@ -108,7 +89,6 @@ describe('UrlOptionsTable', function () {
     });
 
     it('renders input value when user changes value', function () {
-      fireEvent.click(screen.getByTestId('add-url-options-button'));
       fireEvent.change(screen.getByTestId('new-option-input-field'), {
         target: { value: 'hello' },
       });
@@ -122,7 +102,6 @@ describe('UrlOptionsTable', function () {
     });
 
     it('should update an option - when name changes', function () {
-      fireEvent.click(screen.getByTestId('add-url-options-button')); // Add new entry
       fireEvent.click(screen.getByText(/select key/i)); // Click select button
       fireEvent.click(screen.getByText(/appname/i)); // Select the option
 
@@ -139,6 +118,8 @@ describe('UrlOptionsTable', function () {
         newKey: 'compressors',
         value: '',
       });
+
+      expect(screen.getByText(/select key/i)).to.exist; // renders an empty new option
     });
 
     it('should update an option - when value changes', function () {
@@ -155,13 +136,9 @@ describe('UrlOptionsTable', function () {
       });
     });
 
-    it('should delete a new option', function () {
-      fireEvent.click(screen.getByTestId('add-url-options-button'));
-      fireEvent.click(screen.getByTestId('new-option-delete-button'));
-      expect(() => {
-        screen.getByTestId('new-option-table-row');
-      }).to.throw;
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+    it('should not render a delete button for a new option', function () {
+      expect(screen.getByTestId('new-option-table-row')).to.exist;
+      expect(screen.queryByTestId('new-option-delete-button')).to.not.exist;
     });
 
     // eslint-disable-next-line mocha/no-setup-in-describe
@@ -196,7 +173,6 @@ describe('UrlOptionsTable', function () {
 
     it('renders view correctly', function () {
       expect(screen.getByTestId('url-options-table')).to.exist;
-      expect(screen.getByTestId('add-url-options-button')).to.exist;
     });
 
     it('renders new option row and fields', function () {

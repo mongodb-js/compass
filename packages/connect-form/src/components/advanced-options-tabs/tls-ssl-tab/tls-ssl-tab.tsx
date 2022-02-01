@@ -19,11 +19,7 @@ import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
 import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
-import { TLS_OPTIONS } from '../../../utils/tls-options';
-
-const tlsDescriptionStyles = css({
-  marginTop: spacing[1],
-});
+import { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
 
 const infoButtonStyles = css({
   verticalAlign: 'middle',
@@ -38,23 +34,18 @@ const disabledCheckboxDescriptionStyles = css({
 const TLS_TYPES: {
   value: TLS_OPTIONS;
   label: string;
-  description: string;
 }[] = [
   {
     value: 'DEFAULT',
     label: 'Default',
-    description:
-      'Default (unset) – TLS/SSL will be used when connecting using a DNS Seed List Connection Format (mongodb+srv://) and it will not be used when connecting using a standard connection string schema format (mongodb://).',
   },
   {
     value: 'ON',
     label: 'On',
-    description: 'On – TLS/SSL is enabled for this connection.',
   },
   {
     value: 'OFF',
     label: 'Off',
-    description: 'Off – TLS/SSL is disabled for this connection.',
   },
 ];
 
@@ -103,10 +94,10 @@ function TLSTab({
 }): React.ReactElement {
   const tlsOption = getTLSOptionForConnectionString(connectionStringUrl);
 
-  const onChangeTLSOption = useCallback(
+  const onChangeTLS = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       updateConnectionFormField({
-        type: 'update-tls-option',
+        type: 'update-tls',
         tlsOption: event.target.value as TLS_OPTIONS,
       });
     },
@@ -114,7 +105,7 @@ function TLSTab({
   );
 
   const tlsOptionFields: {
-    name: keyof MongoClientOptions;
+    name: TLSOptionName;
     description: string;
     checked: boolean;
   }[] = [
@@ -141,19 +132,13 @@ function TLSTab({
     },
   ];
 
-  const tlsOptionsDisabled = tlsOption !== 'ON';
+  const tlsOptionsDisabled = tlsOption === 'OFF';
 
-  const handleFieldChanged = useCallback(
-    (key: keyof MongoClientOptions, value?: string | null) => {
-      if (!value) {
-        return updateConnectionFormField({
-          type: 'delete-search-param',
-          key,
-        });
-      }
+  const handleTlsOptionChanged = useCallback(
+    (key: TLSOptionName, value?: string | null) => {
       return updateConnectionFormField({
-        type: 'update-search-param',
-        currentKey: key,
+        type: 'update-tls-option',
+        key,
         value,
       });
     },
@@ -174,35 +159,31 @@ function TLSTab({
             <Icon glyph="InfoWithCircle" size="small" />
           </IconButton>
         </Label>
-        <RadioBoxGroup value={tlsOption || ''} onChange={onChangeTLSOption}>
+        <RadioBoxGroup value={tlsOption || ''} onChange={onChangeTLS}>
           {TLS_TYPES.map((tlsType) => (
             <RadioBox value={tlsType.value} key={tlsType.value}>
               {tlsType.label}
             </RadioBox>
           ))}
         </RadioBoxGroup>
-        <Description className={tlsDescriptionStyles}>
-          {TLS_TYPES.find((tlsType) => tlsType.value === tlsOption)
-            ?.description || ''}
-        </Description>
       </FormFieldContainer>
       <TLSCertificateAuthority
         connectionStringUrl={connectionStringUrl}
         disabled={tlsOptionsDisabled}
         updateCAFile={(newCertificatePath: string | null) => {
-          handleFieldChanged('tlsCAFile', newCertificatePath);
+          handleTlsOptionChanged('tlsCAFile', newCertificatePath);
         }}
       />
       <TLSClientCertificate
         connectionStringUrl={connectionStringUrl}
         disabled={tlsOptionsDisabled}
         updateTLSClientCertificate={(newCertificatePath: string | null) => {
-          handleFieldChanged('tlsCertificateKeyFile', newCertificatePath);
+          handleTlsOptionChanged('tlsCertificateKeyFile', newCertificatePath);
         }}
         updateTLSClientCertificatePassword={(
           newCertificatePath: string | null
         ) => {
-          handleFieldChanged(
+          handleTlsOptionChanged(
             'tlsCertificateKeyFilePassword',
             newCertificatePath
           );
@@ -212,9 +193,9 @@ function TLSTab({
         <FormFieldContainer key={tlsOptionField.name}>
           <Checkbox
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              handleFieldChanged(
+              handleTlsOptionChanged(
                 tlsOptionField.name,
-                event.target.checked ? 'true' : ''
+                event.target.checked ? 'true' : null
               );
             }}
             data-testid={`${tlsOptionField.name}-input`}

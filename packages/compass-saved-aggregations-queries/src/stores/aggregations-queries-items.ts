@@ -1,7 +1,7 @@
 import { Dispatch, Reducer } from 'redux';
 import toNS from 'mongodb-ns';
-import { getAggregations } from './../utlis/aggregations';
-import { getQueries } from './../utlis/queries';
+import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
+import { readPipelinesFromStorage } from '@mongodb-js/compass-aggregations';
 
 export enum ActionTypes {
   ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
@@ -20,6 +20,20 @@ export type Item = {
   collection: string;
   type: 'query' | 'aggregation';
 };
+
+interface Query {
+  _id: string;
+  _name: string;
+  _ns: string;
+  _dateSaved: number;
+}
+
+interface Aggregation {
+  id: string;
+  name: string;
+  namespace: string;
+  lastModified: number;
+}
 
 export type State = {
   loading: boolean;
@@ -59,8 +73,10 @@ export const fetchItems = () => {
   };
 };
 
+const favoriteQueryStorage = new FavoriteQueryStorage();
+
 const getAggregationItems = async (): Promise<Item[]> => {
-  const aggregations = await getAggregations();
+  const aggregations: Aggregation[] = await readPipelinesFromStorage();
   return aggregations.map((aggregation) => {
     const { database, collection } = toNS(aggregation.namespace);
     return {
@@ -75,13 +91,13 @@ const getAggregationItems = async (): Promise<Item[]> => {
 };
 
 const getQueryItems = async (): Promise<Item[]> => {
-  const queries = await getQueries();
+  const queries: Query[] = await favoriteQueryStorage.loadAll();
   return queries.map((query) => {
     const { database, collection } = toNS(query._ns);
     return {
       id: query._id,
-      lastModified: query._dateSaved,
       name: query._name,
+      lastModified: query._dateSaved,
       database,
       collection,
       type: 'query',

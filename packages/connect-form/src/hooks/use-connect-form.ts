@@ -21,9 +21,11 @@ import {
   UpdateSshOptions,
 } from '../utils/connection-ssh-handler';
 import {
+  handleUpdateTls,
   handleUpdateTlsOption,
+  UpdateTlsAction,
   UpdateTlsOptionAction,
-} from '../utils/tls-options';
+} from '../utils/tls-handler';
 import {
   handleUpdateUsername,
   handleUpdatePassword,
@@ -114,6 +116,7 @@ type ConnectionFormFieldActions =
       isSrv: boolean;
     }
   | UpdateSshOptions
+  | UpdateTlsAction
   | UpdateTlsOptionAction
   | {
       type: 'update-search-param';
@@ -157,6 +160,7 @@ function parseConnectionString(
       ? [
           {
             fieldName: 'connectionString',
+            fieldTab: 'general',
             message: parsingError.message,
           },
         ]
@@ -236,6 +240,7 @@ function handleUpdateHost({
       errors: [
         {
           fieldName: 'hosts',
+          fieldTab: 'general',
           fieldIndex,
           message: (err as Error).message,
         },
@@ -328,6 +333,13 @@ export function handleConnectionFormFieldUpdate(
         },
       };
     }
+    case 'update-tls': {
+      return handleUpdateTls({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
     case 'update-tls-option': {
       return handleUpdateTlsOption({
         action,
@@ -387,6 +399,7 @@ export function handleConnectionFormFieldUpdate(
           errors: [
             {
               fieldName: 'isSrv',
+              fieldTab: 'general',
               message: `Error updating connection schema: ${
                 (err as Error).message
               }`,

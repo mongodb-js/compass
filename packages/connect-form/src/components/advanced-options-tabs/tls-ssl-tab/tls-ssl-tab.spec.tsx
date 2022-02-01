@@ -73,7 +73,7 @@ describe('SchemaInput', function () {
       it('should call to update the connection configuration to TLS/SSL default', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'update-tls-option',
+          type: 'update-tls',
           tlsOption: 'DEFAULT',
         });
       });
@@ -88,7 +88,7 @@ describe('SchemaInput', function () {
       it('should call to update the connection configuration to TLS/SSL off', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'update-tls-option',
+          type: 'update-tls',
           tlsOption: 'OFF',
         });
       });
@@ -125,8 +125,8 @@ describe('SchemaInput', function () {
       it('should call to update the tlsCAFile with the chosen file', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'update-search-param',
-          currentKey: 'tlsCAFile',
+          type: 'update-tls-option',
+          key: 'tlsCAFile',
           value: 'new/caFile/path',
         });
       });
@@ -152,8 +152,8 @@ describe('SchemaInput', function () {
       it('should call to update the tlsCertificateKeyFile with the chosen file', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'update-search-param',
-          currentKey: 'tlsCertificateKeyFile',
+          type: 'update-tls-option',
+          key: 'tlsCertificateKeyFile',
           value: 'new/caFile/path',
         });
       });
@@ -246,8 +246,8 @@ describe('SchemaInput', function () {
             expect(
               updateConnectionFormFieldSpy.firstCall.args[0]
             ).to.deep.equal({
-              type: 'update-search-param',
-              currentKey: connectionStringTlsParam,
+              type: 'update-tls-option',
+              key: connectionStringTlsParam,
               value: 'true',
             });
           });
@@ -282,8 +282,9 @@ describe('SchemaInput', function () {
               expect(
                 updateConnectionFormFieldSpy.firstCall.args[0]
               ).to.deep.equal({
-                type: 'delete-search-param',
+                type: 'update-tls-option',
                 key: connectionStringTlsParam,
+                value: null,
               });
             });
           });
@@ -338,7 +339,7 @@ describe('SchemaInput', function () {
       it('should call to update the connection configuration to TLS/SSL on', function () {
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-          type: 'update-tls-option',
+          type: 'update-tls',
           tlsOption: 'ON',
         });
       });

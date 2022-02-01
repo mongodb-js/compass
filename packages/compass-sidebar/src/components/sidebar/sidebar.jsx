@@ -15,9 +15,8 @@ import SidebarDatabasesNavigation from '../sidebar-databases-navigation';
 import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { changeFilterRegex } from '../../modules/databases';
+import { updateAndSaveConnectionInfo } from '../../modules/connection-info';
 import { openLink } from '../../modules/link';
-import { toggleIsModalVisible } from '../../modules/is-modal-visible';
-import { saveFavorite } from '../../modules/connection-model';
 import { NavigationItems } from './navigation-items';
 
 // In pixels. (px)
@@ -53,10 +52,8 @@ class Sidebar extends PureComponent {
     isGenuineMongoDBVisible: PropTypes.bool.isRequired,
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
-    connectionModel: PropTypes.object.isRequired,
-    toggleIsModalVisible: PropTypes.func.isRequired,
-    isModalVisible: PropTypes.bool.isRequired,
-    saveFavorite: PropTypes.func.isRequired
+    connectionInfo: PropTypes.object.isRequired,
+    updateAndSaveConnectionInfo: PropTypes.func.isRequired
   };
 
   state = {
@@ -125,6 +122,7 @@ class Sidebar extends PureComponent {
           <button
             className={className}
             title="Create Database"
+            data-test-id="create-database-button"
             onClick={this.handleCreateDatabaseClick.bind(this, this.props.isWritable)}>
             <i className="mms-icon-add" />
             <div className={classnames(styles['plus-button'])}>
@@ -172,7 +170,7 @@ class Sidebar extends PureComponent {
           <i className={collapsedButton}/>
         </button>
         <SidebarTitle
-          connectionModel={this.props.connectionModel}
+          connectionInfo={this.props.connectionInfo}
           isSidebarExpanded={isExpanded}
           onClick={() => this.onNavigationItemClick()}
         />
@@ -185,10 +183,8 @@ class Sidebar extends PureComponent {
             isGenuineMongoDB={this.props.isGenuineMongoDB}
             toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
-            connectionModel={this.props.connectionModel}
-            toggleIsModalVisible={this.props.toggleIsModalVisible}
-            isModalVisible={this.props.isModalVisible}
-            saveFavorite={this.props.saveFavorite}
+            connectionInfo={this.props.connectionInfo}
+            updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
           />
         )}
         {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true' && (
@@ -232,6 +228,7 @@ class Sidebar extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
+  connectionInfo: state.connectionInfo.connectionInfo,
   instance: state.instance,
   databases: state.databases.databases,
   isDetailsExpanded: state.isDetailsExpanded,
@@ -239,9 +236,7 @@ const mapStateToProps = (state) => ({
   detailsPlugins: state.detailsPlugins,
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
-  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-  connectionModel: state.connectionModel,
-  isModalVisible: state.isModalVisible,
+  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible
 });
 
 /**
@@ -256,8 +251,7 @@ const MappedSidebar = connect(
     changeFilterRegex,
     openLink,
     globalAppRegistryEmit,
-    toggleIsModalVisible,
-    saveFavorite
+    updateAndSaveConnectionInfo
   },
 )(Sidebar);
 

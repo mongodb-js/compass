@@ -54,6 +54,12 @@ const optionalLabelStyles = css({
   fontSize: 12,
 });
 
+const infoLinkStyles = css({
+  '&:link, &:active, &:hover': {
+    textDecoration: 'none',
+  },
+});
+
 const labelIconStyles = css({
   display: 'inline-block',
   verticalAlign: 'middle',
@@ -173,9 +179,7 @@ function FileInput({
         data-testid={'file-input-link'}
         href={link}
         className={cx(
-          {
-            [labelIconStyles]: !description,
-          },
+          description ? infoLinkStyles : labelIconStyles,
           css({
             gridArea: description ? 'description' : 'icon',
           })

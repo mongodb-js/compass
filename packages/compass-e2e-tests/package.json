@@ -11,7 +11,7 @@
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "pretest": "npm run unzip-fixtures",
-    "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1024x768x24\" -- node index.js",
+    "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1024x768x24\" -- ts-node index.ts",
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
     "test-packaged": "npm run test -- -- --test-packaged-app",
@@ -19,19 +19,25 @@
     "reformat": "npm run prettier -- --write .",
     "start-server": "mongodb-runner start --port 27018 --dbpath ./.mongodb",
     "stop-server": "mongodb-runner stop --port 27018",
-    "insert-data": "node ./scripts/insert-data.js",
-    "unzip-fixtures": "node ./scripts/gunzip.js fixtures/*.gz",
+    "insert-data": "ts-node ./scripts/insert-data.ts",
+    "unzip-fixtures": "ts-node ./scripts/gunzip.ts fixtures/*.gz",
     "testfast": "env DEBUG=hadron*,mongo*,compass* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail"
   },
   "peerDependencies": {
-    "bson": "*"
+    "bson": "*",
+    "puppeteer": "*"
   },
   "dependencies": {
+    "@types/cross-spawn": "^6.0.2",
+    "@types/puppeteer": "^5.4.4",
+    "@wdio/types": "^7.16.13",
     "mongodb-compass": "^0.0.0-dev.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.5.0",
     "@mongodb-js/prettier-config-compass": "^0.4.0",
+    "@mongodb-js/tsconfig-compass": "^0.4.0",
+    "@types/chai-as-promised": "^7.1.4",
     "bson": "*",
     "chai": "*",
     "chai-as-promised": "*",
@@ -50,9 +56,11 @@
     "mocha": "*",
     "mongodb": "^4.3.0",
     "mongodb-connection-string-url": "^2.4.1",
+    "mongodb-log-writer": "^1.1.4",
     "mongodb-runner": "^4.8.3",
     "prettier": "*",
-    "webdriverio": "^6.12.1",
+    "ts-node": "^10.4.0",
+    "webdriverio": "^7.16.13",
     "xvfb-maybe": "^0.2.1"
   }
 }

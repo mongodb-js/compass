@@ -124,11 +124,11 @@ function AdvancedTab({
           label={'Replica Set Name'}
           type={'text'}
           optional={true}
-          placeholder={'Replica Set Name'}
           value={replicaSet ?? ''}
         />
       </FormFieldContainer>
       {/* Default Database */}
+
       <FormFieldContainer>
         <TextInput
           spellCheck={false}
@@ -138,13 +138,12 @@ function AdvancedTab({
           }}
           name={'default-database'}
           data-testid={'default-database'}
-          label={'Default Database'}
+          label={'Default Authentication Database'}
           type={'text'}
           optional={true}
-          placeholder={'Default Database'}
           value={defaultDatabase ?? ''}
           description={
-            'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'
+            'Authentication database used when authSource is not specified.'
           }
         />
       </FormFieldContainer>

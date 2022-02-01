@@ -40,7 +40,6 @@ function SshTunnelPassword({
       label: 'SSH Hostname',
       type: 'text',
       optional: false,
-      placeholder: 'SSH Hostname',
       value: sshTunnelOptions?.host,
       errorMessage: errorMessageByFieldName(errors, 'sshHostname'),
       state: fieldNameHasError(errors, 'sshHostname') ? 'error' : 'none',
@@ -50,7 +49,6 @@ function SshTunnelPassword({
       label: 'SSH Port',
       type: 'number',
       optional: false,
-      placeholder: 'SSH Port',
       value: sshTunnelOptions?.port?.toString(),
       errorMessage: undefined,
       state: 'none',
@@ -60,7 +58,6 @@ function SshTunnelPassword({
       label: 'SSH Username',
       type: 'text',
       optional: false,
-      placeholder: 'SSH Username',
       value: sshTunnelOptions?.username,
       errorMessage: errorMessageByFieldName(errors, 'sshUsername'),
       state: fieldNameHasError(errors, 'sshUsername') ? 'error' : 'none',
@@ -70,7 +67,6 @@ function SshTunnelPassword({
       label: 'SSH Password',
       type: 'password',
       optional: true,
-      placeholder: 'SSH Password',
       value: sshTunnelOptions?.password,
       errorMessage: errorMessageByFieldName(errors, 'sshPassword'),
       state: fieldNameHasError(errors, 'sshPassword') ? 'error' : 'none',
@@ -80,16 +76,7 @@ function SshTunnelPassword({
   return (
     <>
       {fields.map(
-        ({
-          name,
-          label,
-          type,
-          optional,
-          placeholder,
-          value,
-          errorMessage,
-          state,
-        }) => (
+        ({ name, label, type, optional, value, errorMessage, state }) => (
           <FormFieldContainer key={name}>
             <TextInput
               onChange={({
@@ -102,7 +89,6 @@ function SshTunnelPassword({
               label={label}
               type={type}
               optional={optional}
-              placeholder={placeholder}
               value={value}
               errorMessage={errorMessage}
               state={state as 'error' | 'none'}
