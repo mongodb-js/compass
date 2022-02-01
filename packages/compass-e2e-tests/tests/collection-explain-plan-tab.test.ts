@@ -10,7 +10,7 @@ import * as Selectors from '../helpers/selectors';
 
 const { expect } = chai;
 
-describe('Explain plan tab', function () {
+describe('Collection explain plan tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 

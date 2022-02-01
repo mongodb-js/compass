@@ -7,7 +7,7 @@ import {
   Compass,
 } from '../helpers/compass';
 
-describe('Schell', function () {
+describe('Shell', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
