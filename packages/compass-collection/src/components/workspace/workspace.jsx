@@ -1,11 +1,7 @@
-/* eslint-disable react/no-multi-comp */
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import {
-  useTheme
-} from '@mongodb-js/compass-components';
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 
@@ -171,9 +167,7 @@ class Workspace extends PureComponent {
         closeTab={this.props.closeTab}
         activeSubTabName={tab.activeSubTabName}
         selectTab={this.props.selectTab}
-        moveTab={this.props.moveTab}
-        // theme={this.props.theme}
-      />
+        moveTab={this.props.moveTab} />
     );
   }
 
@@ -277,17 +271,6 @@ class Workspace extends PureComponent {
   }
 }
 
-function WorkspaceWithTheme(props) {
-  const theme = useTheme();
-
-  return (
-    <Workspace
-      theme={theme}
-      {...props}
-    />
-  );
-}
-
 /**
  * Map the store state to properties to pass to the components.
  *
@@ -316,7 +299,7 @@ const MappedWorkspace = connect(
     selectTab,
     changeActiveSubTab
   }
-)(WorkspaceWithTheme);
+)(Workspace);
 
 export default MappedWorkspace;
 export { Workspace };
