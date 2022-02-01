@@ -8,13 +8,12 @@ import type {
 import ConnectionString from 'mongodb-connection-string-url';
 import util from 'util';
 import type { ConnectionInfo } from '../connection-info';
-import type { ConnectionOptions, ConnectionSshOptions } from '../connection-options';
 import type {
-  ConnectionSecrets} from '../connection-secrets';
-import {
-  extractSecrets,
-  mergeSecrets,
-} from '../connection-secrets';
+  ConnectionOptions,
+  ConnectionSshOptions,
+} from '../connection-options';
+import type { ConnectionSecrets } from '../connection-secrets';
+import { extractSecrets, mergeSecrets } from '../connection-secrets';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ConnectionModel = require('mongodb-connection-model');

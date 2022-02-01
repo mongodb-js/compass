@@ -1,4 +1,4 @@
-import type { MongoClientOptions} from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { connectMongoClient, hookLogger } from '@mongodb-js/devtools-connect';
 import type SSHTunnel from '@mongodb-js/ssh-tunnel';

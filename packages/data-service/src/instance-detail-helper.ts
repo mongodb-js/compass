@@ -16,10 +16,9 @@ import type {
   ConnectionStatusWithPrivileges,
   DatabaseInfo,
   DbStats,
-  HostInfo} from './run-command';
-import {
-  runCommand,
+  HostInfo,
 } from './run-command';
+import { runCommand } from './run-command';
 
 const { debug } = createLogger('COMPASS-CONNECT');
 

@@ -52,13 +52,12 @@ import type {
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
 import type { ConnectionOptions } from './connection-options';
-import type {
-  InstanceDetails} from './instance-detail-helper';
+import type { InstanceDetails } from './instance-detail-helper';
 import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
   getPrivilegesByDatabaseAndCollection,
-  getInstance
+  getInstance,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
@@ -68,7 +67,7 @@ import type {
   CollectionStats,
   IndexDetails,
 } from './types';
-import type { ConnectionStatusWithPrivileges} from './run-command';
+import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

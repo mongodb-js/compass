@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { ConnectionOptions } from './connection-options';
-import type {
-  InstanceDetails} from './instance-detail-helper';
+import type { InstanceDetails } from './instance-detail-helper';
 import {
   getPrivilegesByDatabaseAndCollection,
-  getInstance
+  getInstance,
 } from './instance-detail-helper';
 
 import * as fixtures from '../test/fixtures';

@@ -1,11 +1,7 @@
 import { expect } from 'chai';
 import type { ConnectionInfo } from './connection-info';
-import type {
-  ConnectionSecrets} from './connection-secrets';
-import {
-  mergeSecrets,
-  extractSecrets
-} from './connection-secrets';
+import type { ConnectionSecrets } from './connection-secrets';
+import { mergeSecrets, extractSecrets } from './connection-secrets';
 
 describe('connection secrets', function () {
   describe('mergeSecrets', function () {

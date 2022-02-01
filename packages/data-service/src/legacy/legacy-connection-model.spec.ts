@@ -3,11 +3,10 @@ import util from 'util';
 
 import type { ConnectionInfo } from '../connection-info';
 
-import type {
-  LegacyConnectionModelProperties} from './legacy-connection-model';
+import type { LegacyConnectionModelProperties } from './legacy-connection-model';
 import {
   convertConnectionInfoToModel,
-  convertConnectionModelToInfo
+  convertConnectionModelToInfo,
 } from './legacy-connection-model';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

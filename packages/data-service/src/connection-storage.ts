@@ -1,8 +1,7 @@
 import type { ConnectionInfo } from './connection-info';
 
 import { validate as uuidValidate } from 'uuid';
-import type {
-  AmpersandMethodOptions} from './legacy/legacy-connection-model';
+import type { AmpersandMethodOptions } from './legacy/legacy-connection-model';
 import {
   convertConnectionInfoToModel,
   convertConnectionModelToInfo,
