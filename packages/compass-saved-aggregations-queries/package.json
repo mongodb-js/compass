@@ -86,6 +86,7 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^8.7.0",
     "mocha": "^8.4.0",
+    "mongodb-data-service": "^21.15.1",
     "mongodb-instance-model": "^11.17.1",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
