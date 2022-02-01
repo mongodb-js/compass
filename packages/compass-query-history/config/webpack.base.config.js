@@ -21,6 +21,9 @@ module.exports = {
       utils: path.join(project.path.src, 'utils')
     }
   },
+  externals: {
+    'os-dns-native': 'commonjs2 os-dns-native'
+  },
   module: {
     rules: [{
       test: /\.css$/,
