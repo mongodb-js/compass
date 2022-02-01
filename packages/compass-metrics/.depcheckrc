@@ -19,7 +19,6 @@ ignores: [
   "mongodb-reflux-store",
   "react-bootstrap",
   "react-fontawesome",
-  "react-ios-switch",
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",

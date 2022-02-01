@@ -113,7 +113,6 @@
     "react-dom": "^16.14.0",
     "react-fontawesome": "^1.6.1",
     "react-hot-loader": "^4.13.0",
-    "react-ios-switch": "^0.1.19",
     "react-redux": "^5.0.6",
     "react-tooltip": "^3.11.1",
     "redux": "^4.1.2",

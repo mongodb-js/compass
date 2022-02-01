@@ -15,7 +15,6 @@ ignores: [
   "karma-webpack",
   "mongodb-client-encryption",
   "mongodb-database-model",
-  "react-ios-switch",
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",

@@ -58,7 +58,7 @@ describe('PipelinePreviewToolbar [Component]', () => {
     describe('when toggling sampling', () => {
       it('calls the action', () => {
         component
-          .find(`.${styles['toggle-sample']} .${styles.switch}`)
+          .find('#sampleModeToggle')
           .hostNodes()
           .simulate('click');
         expect(toggleSampleSpy.calledOnce).to.equal(true);
@@ -80,7 +80,7 @@ describe('PipelinePreviewToolbar [Component]', () => {
     describe('when toggling auto previewing', () => {
       it('calls the action', () => {
         component
-          .find(`.${styles['toggle-auto-preview']} .${styles.switch}`)
+          .find('#autoPreviewToggle')
           .hostNodes()
           .simulate('click');
         expect(toggleAutoPreviewSpy.calledOnce).to.equal(true);
