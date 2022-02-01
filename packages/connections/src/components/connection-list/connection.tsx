@@ -6,6 +6,7 @@ import {
   uiColors,
   css,
   cx,
+  useColorCode,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
@@ -110,9 +111,9 @@ const dateConfig: Intl.DateTimeFormatOptions = {
   minute: 'numeric',
 };
 
-function getActiveConnectionStyles({ favorite }: ConnectionInfo) {
-  const background = favorite?.color ?? uiColors.gray.dark2;
-  const labelColor = favorite?.color ? uiColors.gray.dark3 : uiColors.gray.base;
+function getActiveConnectionStyles(color?: string) {
+  const background = color ?? uiColors.gray.dark2;
+  const labelColor = color ? uiColors.gray.dark3 : uiColors.gray.base;
   return css({
     background: `${background} !important`,
     color: uiColors.white,
@@ -143,17 +144,21 @@ function Connection({
     favorite,
     lastUsed,
   } = connectionInfo;
+
+  const { colorCodeToHex } = useColorCode();
+  const favoriteColorHex = colorCodeToHex(favorite?.color);
+
   const color =
-    isActive && favorite && favorite.color
+    isActive && favoriteColorHex
       ? uiColors.black
-      : favorite?.color ?? uiColors.white;
+      : favoriteColorHex ?? uiColors.white;
 
   return (
     <div className={connectionButtonContainerStyles}>
       <button
         className={cx(
           connectionButtonStyles,
-          isActive ? getActiveConnectionStyles(connectionInfo) : null
+          isActive ? getActiveConnectionStyles(favoriteColorHex) : null
         )}
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
@@ -172,16 +177,14 @@ function Connection({
         >
           {connectionTitle}
         </H3>
-        {lastUsed && (
-          <Description
-            className={connectionDescriptionStyles}
-            data-testid={`${
-              favorite ? 'favorite' : 'recent'
-            }-connection-description`}
-          >
-            {lastUsed.toLocaleString('default', dateConfig)}
-          </Description>
-        )}
+        <Description
+          className={connectionDescriptionStyles}
+          data-testid={`${
+            favorite ? 'favorite' : 'recent'
+          }-connection-description`}
+        >
+          {lastUsed ? lastUsed.toLocaleString('default', dateConfig) : 'Never'}
+        </Description>
       </button>
       <div
         className={
@@ -190,7 +193,7 @@ function Connection({
       >
         <ConnectionMenu
           iconColor={
-            isActive && favorite && favorite.color
+            isActive && favorite && favoriteColorHex
               ? uiColors.gray.dark3
               : uiColors.white
           }

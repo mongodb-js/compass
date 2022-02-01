@@ -1,28 +1,14 @@
 import React from 'react';
+import { css, cx, Label, spacing, uiColors } from '..';
 import {
-  css,
-  cx,
-  spacing,
-  uiColors,
-  Label,
-} from '@mongodb-js/compass-components';
+  COLOR_CODES,
+  legacyColorsToColorCode,
+  useColorCode,
+} from '../hooks/use-color-code';
 
 /**
  * Default colors.
  */
-const COLORS = [
-  '#5fc86e',
-  '#326fde',
-  '#deb342',
-  '#d4366e',
-  '#59c1e2',
-  '#2c5f4a',
-  '#d66531',
-  '#773819',
-  '#3b8196',
-  '#ababab',
-];
-
 const colorOptionStyles = css({
   outline: 'none',
   margin: 0,
@@ -110,13 +96,16 @@ function ColorOption({
   );
 }
 
-function SavedConnectionColorPicker({
-  hex,
+export function ColorPicker({
+  colorCode,
   onChange,
 }: {
-  hex?: string;
+  colorCode?: string;
   onChange: (newColor?: string) => void;
 }): React.ReactElement {
+  const selectedColorCode = legacyColorsToColorCode(colorCode);
+  const { colorCodeToHex } = useColorCode();
+  const selectedColorHex = colorCodeToHex(selectedColorCode);
   return (
     <>
       <Label htmlFor="favorite-color-selector">Color</Label>
@@ -128,30 +117,33 @@ function SavedConnectionColorPicker({
           }}
           className={cx({
             [colorOptionStyles]: true,
-            [activeColorOptionStyles]: !hex,
+            [activeColorOptionStyles]: !selectedColorHex,
           })}
           onClick={() => {
             onChange();
           }}
-          data-testid={`color-pick-no-color${!hex ? '-selected' : ''}`}
+          data-testid={`color-pick-no-color${
+            !selectedColorHex ? '-selected' : ''
+          }`}
           title="No color"
-          aria-pressed={!hex}
+          aria-pressed={!selectedColorHex}
         >
           <div className={noColorRedBarStyles} />
         </button>
-        {COLORS.map((color) => (
-          <ColorOption
-            onClick={() => {
-              onChange(color);
-            }}
-            isSelected={color === hex}
-            hex={color}
-            key={color}
-          />
-        ))}
+        {COLOR_CODES.map((colorCode) => {
+          const hex = colorCodeToHex(colorCode) || '';
+          return (
+            <ColorOption
+              onClick={() => {
+                onChange(colorCode);
+              }}
+              isSelected={colorCode === selectedColorCode}
+              hex={hex}
+              key={colorCode}
+            />
+          );
+        })}
       </div>
     </>
   );
 }
-
-export default SavedConnectionColorPicker;

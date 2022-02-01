@@ -112,3 +112,5 @@ export { VirtualGrid } from './components/virtual-grid';
 export { mergeProps } from './utils/merge-props';
 export { useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
+export { ColorPicker } from './components/color-picker';
+export { useColorCode } from './hooks/use-color-code';
