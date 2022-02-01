@@ -13,8 +13,7 @@ import type { MongoClientOptions } from 'mongodb';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import DirectConnectionInput from './direct-connection-input';
 import FormFieldContainer from '../../form-field-container';
-import type {
-  ConnectionFormError} from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorMessageByFieldNameAndIndex,
   fieldNameHasError,

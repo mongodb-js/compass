@@ -1,4 +1,4 @@
-import type { ChangeEvent} from 'react';
+import type { ChangeEvent } from 'react';
 import React, { useEffect } from 'react';
 import {
   Table,

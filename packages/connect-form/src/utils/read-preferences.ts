@@ -1,8 +1,5 @@
-import type {
-  ReadPreferenceMode} from 'mongodb';
-import {
-  ReadPreference as MongoReadPreference,
-} from 'mongodb';
+import type { ReadPreferenceMode } from 'mongodb';
+import { ReadPreference as MongoReadPreference } from 'mongodb';
 
 interface ReadPreference {
   title: string;

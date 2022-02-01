@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import type { CSSProperties} from 'react';
+import type { CSSProperties } from 'react';
 import React, { useMemo } from 'react';
 import { css, cx, keyframes } from '../';
 import { uiColors, spacing } from '../';

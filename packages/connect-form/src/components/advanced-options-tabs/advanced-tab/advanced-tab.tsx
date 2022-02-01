@@ -1,4 +1,4 @@
-import type { ChangeEvent} from 'react';
+import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {

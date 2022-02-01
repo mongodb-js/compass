@@ -14,11 +14,8 @@ import { AuthMechanism } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
-import type {
-  ConnectionFormError} from '../../../utils/validation';
-import {
-  errorMessageByFieldName,
-} from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
+import { errorMessageByFieldName } from '../../../utils/validation';
 import {
   getConnectionStringPassword,
   getConnectionStringUsername,

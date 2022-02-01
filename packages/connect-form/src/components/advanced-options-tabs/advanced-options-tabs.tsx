@@ -16,12 +16,8 @@ import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
 import type { UpdateConnectionFormField } from '../../hooks/use-connect-form';
-import type {
-  ConnectionFormError,
-  TabId} from '../../utils/validation';
-import {
-  errorsByFieldTab,
-} from '../../utils/validation';
+import type { ConnectionFormError, TabId } from '../../utils/validation';
+import { errorsByFieldTab } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
 
 const tabsStyles = css({

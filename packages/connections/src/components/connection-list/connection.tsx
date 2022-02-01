@@ -7,7 +7,7 @@ import {
   css,
   cx,
 } from '@mongodb-js/compass-components';
-import type { ConnectionInfo} from 'mongodb-data-service';
+import type { ConnectionInfo } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 
 import ConnectionMenu from './connection-menu';

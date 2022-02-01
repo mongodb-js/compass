@@ -1,12 +1,11 @@
-import type { ChangeEvent} from 'react';
+import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
 import type { MongoClientOptions } from 'mongodb';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import FormFieldContainer from '../../form-field-container';
-import type {
-  ConnectionFormError} from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorMessageByFieldName,
   fieldNameHasError,

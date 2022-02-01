@@ -12,8 +12,7 @@ import {
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import type {
-  ConnectionFormError} from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorMessageByFieldName,
   fieldNameHasError,

@@ -4,7 +4,7 @@ import type { RenderResult } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
 
-import type { ConnectionStore} from './connections-store';
+import type { ConnectionStore } from './connections-store';
 import { useConnections } from './connections-store';
 
 const noop = (): any => {
