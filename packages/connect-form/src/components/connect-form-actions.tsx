@@ -19,12 +19,10 @@ const formActionStyles = css({
   paddingRight: spacing[4],
 });
 
-const formActionButtonStyles = css({
+const formActionButtonsStyles = css({
   display: 'flex',
   justifyContent: 'flex-end',
-  '& div:first-child': {
-    marginRight: spacing[2],
-  },
+  gap: spacing[2],
 });
 
 const formButtonsStyles = css({
@@ -34,53 +32,40 @@ const formButtonsStyles = css({
 });
 
 function ConnectFormActions({
-  initialConnectionInfo,
   errors,
   warnings,
   onConnectClicked,
   onSaveClicked,
-  saveDisabled,
+  saveButton,
 }: {
-  initialConnectionInfo: ConnectionInfo;
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
   onConnectClicked: () => void;
   onSaveClicked: () => void;
-  saveDisabled: boolean;
+  saveButton: 'enabled' | 'disabled' | 'hidden';
 }): React.ReactElement {
   return (
     <div className={formActionStyles}>
       {warnings.length ? <WarningSummary warnings={warnings} /> : ''}
       {errors.length ? <ErrorSummary errors={errors} /> : ''}
-      <div className={formActionButtonStyles}>
-        {!initialConnectionInfo.favorite && (
+      <div className={formActionButtonsStyles}>
+        {saveButton !== 'hidden' && (
           <div className={formButtonsStyles}>
-            <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
-              Connect
+            <Button
+              variant={ButtonVariant.Default}
+              disabled={saveButton === 'disabled'}
+              onClick={onSaveClicked}
+            >
+              Save
             </Button>
           </div>
         )}
-        {!!initialConnectionInfo.favorite && (
-          <Fragment>
-            <div className={formButtonsStyles}>
-              <Button
-                variant={ButtonVariant.Default}
-                disabled={saveDisabled}
-                onClick={onSaveClicked}
-              >
-                Save
-              </Button>
-            </div>
-            <div className={formButtonsStyles}>
-              <Button
-                variant={ButtonVariant.Primary}
-                onClick={onConnectClicked}
-              >
-                Connect
-              </Button>
-            </div>
-          </Fragment>
-        )}
+
+        <div className={formButtonsStyles}>
+          <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
+            Connect
+          </Button>
+        </div>
       </div>
     </div>
   );

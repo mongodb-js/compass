@@ -193,10 +193,15 @@ function ConnectForm({
           </div>
           <div className={formFooterStyles}>
             <ConnectFormActions
-              initialConnectionInfo={initialConnectionInfo}
               errors={connectionStringInvalidError ? [] : errors}
               warnings={connectionStringInvalidError ? [] : warnings}
-              saveDisabled={!isDirty}
+              saveButton={
+                initialConnectionInfo.favorite
+                  ? isDirty
+                    ? 'enabled'
+                    : 'disabled'
+                  : 'hidden'
+              }
               onSaveClicked={async () => {
                 if (onSaveConnectionClicked) {
                   await onSaveConnectionClicked({
