@@ -56,6 +56,8 @@ describe('Instance databases tab', function () {
       const collectionElement = await browser.$(collectionSelector);
       await collectionElement.waitForExist();
     }
+
+    await browser.navigateToInstanceTab('Databases');
   });
 
   it('can create a database from the databases tab', async function () {
@@ -67,19 +69,20 @@ describe('Instance databases tab', function () {
 
     await browser.addDatabase(dbName, collectionName);
 
-    const databaseCard = await browser.$(Selectors.databaseCard(dbName));
+    const selector = `${Selectors.databaseCard(dbName)}`;
+    const databaseCard = await browser.$(selector);
     await databaseCard.waitForDisplayed();
 
     await databaseCard.scrollIntoView(false);
 
     await browser.waitUntil(async () => {
       // open the drop database modal from the database card
-      await browser.hover(Selectors.databaseCard(dbName));
+      await browser.hover(selector);
       const el = await browser.$(Selectors.DatabaseCardDrop);
       return await el.isDisplayed();
     });
 
-    await browser.clickVisible(Selectors.DatabaseCardDrop, false);
+    await browser.clickVisible(Selectors.DatabaseCardDrop);
 
     await browser.dropDatabase(dbName);
 
