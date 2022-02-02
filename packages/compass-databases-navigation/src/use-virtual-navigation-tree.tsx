@@ -1,4 +1,5 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import type React from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { FocusState, useFocusState } from '@mongodb-js/compass-components';
 
 type TreeItem = {
