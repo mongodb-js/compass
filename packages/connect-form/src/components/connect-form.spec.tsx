@@ -58,8 +58,11 @@ describe('ConnectForm Component', function () {
         onSaveConnectionClicked={noop}
       />
     );
-    expect(screen.getByText('Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"')).to.be
-      .visible;
+    expect(
+      screen.getByText(
+        'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
+      )
+    ).to.be.visible;
   });
 
   it('should not show to save a connection when onSaveConnectionClicked doesnt exist', function () {
