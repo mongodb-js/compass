@@ -1,4 +1,4 @@
-import { Configuration, WebpackOptionsNormalized } from 'webpack';
+import type { Configuration, WebpackOptionsNormalized } from 'webpack';
 import { merge } from 'webpack-merge';
 import path from 'path';
 

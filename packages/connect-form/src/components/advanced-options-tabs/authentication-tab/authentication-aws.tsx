@@ -1,10 +1,10 @@
 import React from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
 
-import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
-import { ConnectionFormError } from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
 import {
   getConnectionStringPassword,
   getConnectionStringUsername,

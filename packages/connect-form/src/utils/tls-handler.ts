@@ -1,5 +1,5 @@
-import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 
 export type TLS_OPTIONS = 'DEFAULT' | 'ON' | 'OFF';

@@ -1,6 +1,6 @@
 import type { MongoClientOptions } from 'mongodb';
 import { isLocalhost } from 'mongodb-build-info';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 
 export type FieldName =

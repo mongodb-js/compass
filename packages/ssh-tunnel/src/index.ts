@@ -1,7 +1,8 @@
 import { promisify } from 'util';
 import { EventEmitter, once } from 'events';
 import type { Socket } from 'net';
-import { Client as SshClient, ClientChannel, ConnectConfig } from 'ssh2';
+import type { ClientChannel, ConnectConfig } from 'ssh2';
+import { Client as SshClient } from 'ssh2';
 import createDebug from 'debug';
 
 // The socksv5 module is not bundle-able by itself, so we get the

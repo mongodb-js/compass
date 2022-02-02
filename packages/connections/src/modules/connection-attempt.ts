@@ -1,5 +1,6 @@
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { connect, ConnectionOptions, DataService } from 'mongodb-data-service';
+import type { ConnectionOptions, DataService } from 'mongodb-data-service';
+import { connect } from 'mongodb-data-service';
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'

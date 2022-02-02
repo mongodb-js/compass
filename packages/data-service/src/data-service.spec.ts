@@ -1,12 +1,13 @@
 import assert from 'assert';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
-import { MongoClient, Sort } from 'mongodb';
+import type { Sort } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
 import DataService from './data-service';
-import { ConnectionOptions } from './connection-options';
+import type { ConnectionOptions } from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
 

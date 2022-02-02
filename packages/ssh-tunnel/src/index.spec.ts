@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import { Server as SSHServer, ServerConfig } from 'ssh2';
-import { createServer, Server as HttpServer, Agent as HttpAgent } from 'http';
+import type { ServerConfig } from 'ssh2';
+import { Server as SSHServer } from 'ssh2';
+import type { Server as HttpServer } from 'http';
+import { createServer, Agent as HttpAgent } from 'http';
 import { promisify } from 'util';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -9,7 +11,8 @@ import fetch from 'node-fetch';
 import { expect } from 'chai';
 import { SocksClient } from 'socks';
 
-import SSHTunnel, { SshTunnelConfig } from './index';
+import type { SshTunnelConfig } from './index';
+import SSHTunnel from './index';
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

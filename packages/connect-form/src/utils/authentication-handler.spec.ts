@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { AuthMechanism, MongoClientOptions } from 'mongodb';
+import type { AuthMechanism, MongoClientOptions } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 
 import {
