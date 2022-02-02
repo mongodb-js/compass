@@ -58,7 +58,7 @@ describe('ConnectForm Component', function () {
         onSaveConnectionClicked={noop}
       />
     );
-    expect(screen.getByText('Invalid connection string "pineapples"')).to.be
+    expect(screen.getByText('Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"')).to.be
       .visible;
   });
 
