@@ -6,8 +6,9 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
-import { RootState } from '../stores';
+import { connect } from 'react-redux';
+import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
+import type { RootState } from '../stores';
 import {
   closeModal,
   openSelectedItem,

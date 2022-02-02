@@ -1,5 +1,5 @@
 import type { Browser } from 'webdriverio';
-import * as Commands from './commands';
+import type * as Commands from './commands';
 
 type CommandsType = typeof Commands;
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'hadron-app-registry';
 import { LeafyGreenProvider } from '@mongodb-js/compass-components';
 
 import Home from './components/home';

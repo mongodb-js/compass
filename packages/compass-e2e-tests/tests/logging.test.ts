@@ -1,10 +1,8 @@
 import { expect } from 'chai';
-import { beforeTests, afterTests, Compass } from '../helpers/compass';
-import {
-  startTelemetryServer,
-  Telemetry,
-  LogEntry,
-} from '../helpers/telemetry';
+import { beforeTests, afterTests } from '../helpers/compass';
+import type { Compass } from '../helpers/compass';
+import { startTelemetryServer } from '../helpers/telemetry';
+import type { Telemetry, LogEntry } from '../helpers/telemetry';
 
 describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {

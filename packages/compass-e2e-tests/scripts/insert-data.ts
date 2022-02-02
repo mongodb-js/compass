@@ -1,4 +1,5 @@
-import { MongoClient, Db, MongoServerError } from 'mongodb';
+import { MongoClient } from 'mongodb';
+import type { Db, MongoServerError } from 'mongodb';
 
 const CONNECTION_URI = 'mongodb://localhost:27018';
 

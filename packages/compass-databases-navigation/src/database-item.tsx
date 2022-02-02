@@ -7,13 +7,13 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 import { DATABASE_ROW_HEIGHT } from './constants';
-import { NamespaceAction, ActionControls } from './item-action-controls';
-import {
+import { ActionControls } from './item-action-controls';
+import type { NamespaceAction } from './item-action-controls';
+import { ItemContainer, ItemLabel } from './tree-item';
+import type {
   VirtualListItemProps,
   TreeItemProps,
   NamespaceItemProps,
-  ItemContainer,
-  ItemLabel,
 } from './tree-item';
 import { SmallIcon } from './icon-button';
 import type { Actions } from './constants';

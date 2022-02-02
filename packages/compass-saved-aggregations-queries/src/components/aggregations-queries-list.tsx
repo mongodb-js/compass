@@ -1,17 +1,13 @@
 import React, { useEffect } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
+import { connect } from 'react-redux';
+import type { ConnectedProps } from 'react-redux';
+import type { ThunkDispatch } from 'redux-thunk';
 import { VirtualGrid, H2, css, spacing } from '@mongodb-js/compass-components';
 import { fetchItems } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
-import { RootActions, RootState } from '../stores/index';
-import {
-  SavedItemCard,
-  SavedItemCardProps,
-  Action,
-  CARD_WIDTH,
-  CARD_HEIGHT,
-} from './saved-item-card';
+import type { RootActions, RootState } from '../stores/index';
+import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
+import type { SavedItemCardProps, Action } from './saved-item-card';
 import OpenItemModal from './open-item-modal';
 
 const ConnectedItemCard = connect<
