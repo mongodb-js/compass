@@ -2,7 +2,7 @@ import type { CompassBrowser } from '../compass-browser';
 
 export async function clickVisible(
   browser: CompassBrowser,
-  selector: string,
+  selector: string
 ): Promise<void> {
   const element = await browser.$(selector);
 
