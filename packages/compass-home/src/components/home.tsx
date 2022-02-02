@@ -105,7 +105,9 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
   const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
     reducer,
-    { ...initialState }
+    {
+      ...initialState,
+    }
   );
 
   function onDataServiceConnected(
@@ -120,19 +122,17 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
   }
 
-  const onDarkModeEnabled = useCallback(() => {
-    console.log('compass home, dark modeaaa');
+  function onDarkModeEnabled() {
     setTheme({
       theme: 'DARK',
     });
-  }, []);
+  }
 
-  const onDarkModeDisabled = useCallback(() => {
-    console.log('compass home, light modeaaa');
+  function onDarkModeDisabled() {
     setTheme({
       theme: 'LIGHT',
     });
-  }, []);
+  }
 
   // TODO: Remove this comment once we only have one connections package:
   // This is currently only used by the new connections package.
@@ -265,12 +265,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       appRegistry.removeListener('darkmode-enable', onDarkModeEnabled);
       appRegistry.removeListener('darkmode-disable', onDarkModeDisabled);
     };
-  }, [
-    appRegistry,
-    onDataServiceDisconnected,
-    onDarkModeDisabled,
-    onDarkModeEnabled,
-  ]);
+  }, [appRegistry, onDataServiceDisconnected]);
 
   if (isConnected) {
     return <Workspace namespace={namespace} />;
