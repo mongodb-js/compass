@@ -45,6 +45,7 @@ export interface ConnectFormState {
   enableEditingConnectionString: boolean;
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
+  isDirty: boolean;
 }
 
 type Action =
@@ -187,6 +188,7 @@ function buildStateFromConnectionInfo(
           initialConnectionInfo.connectionOptions
         ),
     connectionOptions: cloneDeep(initialConnectionInfo.connectionOptions),
+    isDirty: false,
   };
 }
 
@@ -544,7 +546,6 @@ export function useConnectForm(
         action,
         state.connectionOptions
       );
-
       dispatch({
         type: 'set-connection-form-state',
         newState: {
@@ -557,6 +558,9 @@ export function useConnectForm(
               : validateConnectionOptionsWarnings(
                   updatedState.connectionOptions
                 ),
+          isDirty:
+            updatedState.connectionOptions.connectionString !=
+            state.connectionOptions.connectionString,
         },
       });
     },
@@ -610,6 +614,7 @@ function setInitialState({
         enableEditingConnectionString,
         warnings,
         connectionOptions,
+        isDirty: false,
       },
     });
   }, [initialConnectionInfo]);
