@@ -1,7 +1,7 @@
 import type { ActionCreator, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
-import { Item } from './aggregations-queries-items';
+import type { Item } from './aggregations-queries-items';
 
 export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 

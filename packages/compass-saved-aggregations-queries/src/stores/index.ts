@@ -1,11 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
-import {
-  createStore,
-  applyMiddleware,
-  combineReducers,
-  Store,
-  AnyAction,
-} from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
+import type { Store, AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
 import instanceReducer, { setInstance, resetInstance } from './instance';
