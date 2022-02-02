@@ -11,7 +11,7 @@ import type {
   ConnectionFormError,
   ConnectionFormWarning,
 } from '../utils/validation';
-import { ConnectionInfo } from 'mongodb-data-service';
+import type { ConnectionInfo } from 'mongodb-data-service';
 
 const formActionStyles = css({
   borderTop: `1px solid ${uiColors.gray.light2}`,
