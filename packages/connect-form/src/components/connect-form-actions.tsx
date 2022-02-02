@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import {
   Button,
   ButtonVariant,
@@ -11,7 +11,6 @@ import type {
   ConnectionFormError,
   ConnectionFormWarning,
 } from '../utils/validation';
-import type { ConnectionInfo } from 'mongodb-data-service';
 
 const formActionStyles = css({
   borderTop: `1px solid ${uiColors.gray.light2}`,
