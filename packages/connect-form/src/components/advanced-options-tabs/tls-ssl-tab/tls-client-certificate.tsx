@@ -36,7 +36,7 @@ function TLSClientCertificate({
           description={'Learn More'}
           disabled={disabled}
           id="tlsCertificateKeyFile"
-          label="Client Certificate (.pem)"
+          label="Client Certificate Bundle (.pem)"
           dataTestId="tlsCertificateKeyFile-input"
           link={
             'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile'
@@ -49,7 +49,7 @@ function TLSClientCertificate({
           }}
           showFileOnNewLine
           optional
-          optionalMessage="Optional (only required with X.509)"
+          optionalMessage="Optional (required with X.509)"
         />
       </FormFieldContainer>
       <FormFieldContainer>
