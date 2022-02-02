@@ -67,8 +67,6 @@
         "darwin": {
           "icon": "app-icons/darwin/mongodb-compass.icns",
           "dmg_background": "app-icons/darwin/background.png",
-          "codesign_identity": "Developer ID Application: MongoDB, Inc. (4XWMY46275)",
-          "codesign_sha1": "BBF6BCF14C4365D5632BA5E68B378DA4D8CBDF4C",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
@@ -114,7 +112,8 @@
           "keytar",
           "kerberos"
         ]
-      }
+      },
+      "macosEntitlements": "./scripts/macos-entitlements.xml"
     }
   },
   "scripts": {
