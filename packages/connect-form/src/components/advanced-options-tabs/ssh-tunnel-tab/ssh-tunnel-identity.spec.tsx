@@ -5,10 +5,8 @@ import sinon from 'sinon';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 
 import SSHTunnelIdentity from './ssh-tunnel-identity';
-import {
-  ConnectionFormError,
-  errorMessageByFieldName,
-} from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
+import { errorMessageByFieldName } from '../../../utils/validation';
 
 const formFields = [
   {

@@ -1,4 +1,5 @@
-import SSHTunnel, { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
+import type { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
+import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import type {
   MongoClient,
   MongoClientOptions,
@@ -6,13 +7,13 @@ import type {
 } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 import util from 'util';
-import { ConnectionInfo } from '../connection-info';
-import { ConnectionOptions, ConnectionSshOptions } from '../connection-options';
-import {
-  ConnectionSecrets,
-  extractSecrets,
-  mergeSecrets,
-} from '../connection-secrets';
+import type { ConnectionInfo } from '../connection-info';
+import type {
+  ConnectionOptions,
+  ConnectionSshOptions,
+} from '../connection-options';
+import type { ConnectionSecrets } from '../connection-secrets';
+import { extractSecrets, mergeSecrets } from '../connection-secrets';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ConnectionModel = require('mongodb-connection-model');

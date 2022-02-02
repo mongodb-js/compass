@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import { waitFor } from '@testing-library/react';
-import { renderHook, act, RenderResult } from '@testing-library/react-hooks';
+import type { RenderResult } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
 
-import { ConnectionStore, useConnections } from './connections-store';
+import type { ConnectionStore } from './connections-store';
+import { useConnections } from './connections-store';
 
 const noop = (): any => {
   /* no-op */

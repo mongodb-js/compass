@@ -8,8 +8,8 @@ import AuthenticationPlain, {
   PLAIN_USERNAME_LABEL,
   PLAIN_PASSWORD_LABEL,
 } from './authentication-plain';
-import { ConnectionFormError } from '../../../utils/validation';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { ConnectionFormError } from '../../../utils/validation';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 function renderComponent({
   errors = [],

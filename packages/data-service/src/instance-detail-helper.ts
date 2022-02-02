@@ -1,4 +1,4 @@
-import { AnyError, MongoClient, Document } from 'mongodb';
+import type { AnyError, MongoClient, Document } from 'mongodb';
 import {
   isEnterprise,
   getGenuineMongoDB,
@@ -7,7 +7,7 @@ import {
 import toNS from 'mongodb-ns';
 import createLogger from '@mongodb-js/compass-logging';
 
-import {
+import type {
   AtlasVersionInfo,
   BuildInfo,
   CmdLineOpts,
@@ -17,8 +17,8 @@ import {
   DatabaseInfo,
   DbStats,
   HostInfo,
-  runCommand,
 } from './run-command';
+import { runCommand } from './run-command';
 
 const { debug } = createLogger('COMPASS-CONNECT');
 

@@ -1,4 +1,5 @@
-import Reflux, { Store as RefluxStore } from 'reflux';
+import type { Store as RefluxStore } from 'reflux';
+import Reflux from 'reflux';
 import EventEmitter from 'eventemitter3';
 import { Actions } from './actions';
 

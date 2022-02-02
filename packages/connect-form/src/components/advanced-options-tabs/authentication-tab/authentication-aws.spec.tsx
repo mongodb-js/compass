@@ -9,8 +9,8 @@ import AuthenticationAws, {
   AWS_SECRET_ACCESS_KEY_LABEL,
   AWS_SESSION_TOKEN_LABEL,
 } from './authentication-aws';
-import { ConnectionFormError } from '../../../utils/validation';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { ConnectionFormError } from '../../../utils/validation';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 function renderComponent({
   errors = [],

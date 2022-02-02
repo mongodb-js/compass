@@ -12,14 +12,14 @@ import {
   css,
   cx,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
 import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
-import { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
+import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
 
 const infoButtonStyles = css({
   verticalAlign: 'middle',

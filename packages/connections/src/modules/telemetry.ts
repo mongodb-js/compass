@@ -1,9 +1,9 @@
-import { ConnectionInfo, DataService } from 'mongodb-data-service';
+import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
-import { MongoServerError, MongoClientOptions } from 'mongodb';
+import type { MongoServerError, MongoClientOptions } from 'mongodb';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
