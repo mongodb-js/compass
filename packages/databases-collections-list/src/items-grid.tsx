@@ -4,7 +4,8 @@ import { css, cx, spacing, VirtualGrid } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { useSortControls, useSortedItems } from './use-sort';
 import type { NamespaceItemCardProps } from './namespace-card';
-import { useViewTypeControls, ViewType } from './use-view-type';
+import { useViewTypeControls } from './use-view-type';
+import type { ViewType } from './use-view-type';
 import { useCreateControls } from './use-create';
 
 const { track } = createLoggerAndTelemetry(
@@ -108,7 +109,11 @@ const GridControls = () => {
 
   return (
     <>
-      {createControls && <div className={control}>{createControls}</div>}
+      {createControls && (
+        <div className={control} data-testid="create-controls">
+          {createControls}
+        </div>
+      )}
       <div className={control}>{viewTypeControls}</div>
       <div className={cx(control, pushRight)}>{sortControls}</div>
     </>

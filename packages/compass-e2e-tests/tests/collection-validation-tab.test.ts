@@ -1,10 +1,6 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import {
-  beforeTests,
-  afterTests,
-  afterTest,
-  Compass,
-} from '../helpers/compass';
+import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';

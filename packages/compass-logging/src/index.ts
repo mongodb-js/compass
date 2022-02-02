@@ -1,4 +1,5 @@
-import { MongoLogWriter, MongoLogEntry, mongoLogId } from 'mongodb-log-writer';
+import type { MongoLogEntry } from 'mongodb-log-writer';
+import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import isElectronRenderer from 'is-electron-renderer';
 import createDebug from 'debug';
 import type { Writable } from 'stream';

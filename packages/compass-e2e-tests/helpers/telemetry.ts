@@ -1,8 +1,8 @@
 import { once } from 'events';
 import http from 'http';
-import { AddressInfo } from 'net';
+import type { AddressInfo } from 'net';
 import { EJSON } from 'bson';
-import { MongoLogEntry } from 'mongodb-log-writer';
+import type { MongoLogEntry } from 'mongodb-log-writer';
 
 // TODO: lots of any here
 export type Telemetry = {

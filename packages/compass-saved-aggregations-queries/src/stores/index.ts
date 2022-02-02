@@ -1,21 +1,47 @@
 import type AppRegistry from 'hadron-app-registry';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
+import type { Store, AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
-import instanceReducer, { resetInstance, setInstance } from './instance';
+import instanceReducer, { setInstance, resetInstance } from './instance';
+import dataServiceReducer, {
+  setDataService,
+  resetDataService,
+} from './data-service';
+import openItemReducer from './open-item';
 
 const _store = createStore(
   combineReducers({
     savedItems: itemsReducer,
     instance: instanceReducer,
+    dataService: dataServiceReducer,
+    openItem: openItemReducer,
   }),
   applyMiddleware(thunk)
 );
 
-export type RootState = ReturnType<typeof _store.getState>;
+type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
+
+type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
+
+export type RootActions = StoreActions<typeof _store>;
+
+export type RootState = StoreState<typeof _store>;
 
 const store = Object.assign(_store, {
   onActivated(appRegistry: AppRegistry) {
+    appRegistry.on('data-service-connected', (err, dataService) => {
+      if (err) {
+        return;
+      }
+
+      store.dispatch(setDataService(dataService));
+    });
+
+    appRegistry.on('data-service-disconnected', () => {
+      store.dispatch(resetDataService());
+    });
+
     appRegistry.on('instance-created', ({ instance }) => {
       store.dispatch(setInstance(instance));
     });

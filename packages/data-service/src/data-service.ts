@@ -1,10 +1,10 @@
 import { promisify } from 'util';
-import SshTunnel from '@mongodb-js/ssh-tunnel';
+import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
 import { isFunction } from 'lodash';
-import {
+import type {
   AggregateOptions,
   AggregationCursor,
   BulkWriteOptions,
@@ -51,23 +51,24 @@ import {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
-import { ConnectionOptions } from './connection-options';
+import type { ConnectionOptions } from './connection-options';
+import type { InstanceDetails } from './instance-detail-helper';
 import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
   getPrivilegesByDatabaseAndCollection,
   getInstance,
-  InstanceDetails,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
-import {
+import type {
   Callback,
   CollectionDetails,
   CollectionStats,
   IndexDetails,
 } from './types';
-import { ConnectionStatusWithPrivileges, runCommand } from './run-command';
+import type { ConnectionStatusWithPrivileges } from './run-command';
+import { runCommand } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');

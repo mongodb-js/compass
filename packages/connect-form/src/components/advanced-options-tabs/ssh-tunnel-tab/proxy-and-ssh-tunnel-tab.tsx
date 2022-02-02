@@ -1,4 +1,5 @@
-import React, { ChangeEvent, useState, useCallback } from 'react';
+import type { ChangeEvent } from 'react';
+import React, { useState, useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Label,
@@ -7,11 +8,11 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import {
+import type {
   SSHConnectionOptions,
   TunnelType,
 } from '../../../utils/connection-ssh-handler';

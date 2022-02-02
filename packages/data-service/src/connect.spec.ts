@@ -9,8 +9,8 @@ import os from 'os';
 import type { MongoClientOptions } from 'mongodb';
 
 import connect from './connect';
-import { ConnectionOptions } from './connection-options';
-import DataService from './data-service';
+import type { ConnectionOptions } from './connection-options';
+import type DataService from './data-service';
 import { redactConnectionOptions } from './redact';
 
 const IS_CI = process.env.EVERGREEN_BUILD_VARIANT || process.env.CI === 'true';

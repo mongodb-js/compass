@@ -1,8 +1,8 @@
-import { Compiler } from 'webpack';
+import type { Compiler } from 'webpack';
 import { pathToFileURL } from 'url';
 import { EnvironmentPlugin } from 'webpack';
 import path from 'path';
-import { ChildProcess } from 'child_process';
+import type { ChildProcess } from 'child_process';
 import { spawn } from 'child_process';
 import { once } from 'events';
 import electronBinaryPath from 'electron';

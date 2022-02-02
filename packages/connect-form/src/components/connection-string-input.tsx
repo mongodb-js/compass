@@ -1,5 +1,5 @@
+import type { ChangeEvent } from 'react';
 import React, {
-  ChangeEvent,
   Fragment,
   useCallback,
   useEffect,
@@ -18,7 +18,7 @@ import {
 import { redactConnectionString } from 'mongodb-connection-string-url';
 
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
-import { UpdateConnectionFormField } from '../hooks/use-connect-form';
+import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const uriLabelStyles = css({
   padding: 0,

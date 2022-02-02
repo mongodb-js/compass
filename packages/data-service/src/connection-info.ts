@@ -1,4 +1,4 @@
-import { ConnectionOptions } from './connection-options';
+import type { ConnectionOptions } from './connection-options';
 
 export interface ConnectionInfo {
   /**

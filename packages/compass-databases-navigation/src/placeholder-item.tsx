@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import React, { CSSProperties } from 'react';
+import React from 'react';
+import type { CSSProperties } from 'react';
 import { spacing, Placeholder, css, cx } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
 
