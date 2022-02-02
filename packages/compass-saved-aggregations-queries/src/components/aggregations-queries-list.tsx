@@ -10,7 +10,7 @@ import {
   CARD_WIDTH,
   CARD_HEIGHT,
 } from './saved-item-card';
-import { useGridHeader } from './use-grid-header';
+import { useGridHeader } from '../hooks/use-grid-header';
 
 const ConnectedItemCard = connect<
   Omit<SavedItemCardProps, 'onAction'>,
@@ -64,14 +64,14 @@ const AggregationsQueriesList = ({
     void fetchItems();
   }, [fetchItems]);
 
-  const [gridHeader, sortedItems] = useGridHeader(items);
+  const [gridHeader, listItems] = useGridHeader(items);
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
     React.useCallback(
       ({ index, ...props }: { index: number }) => (
-        <ConnectedItemCard index={index} items={sortedItems} {...props} />
+        <ConnectedItemCard index={index} items={listItems} {...props} />
       ),
-      [sortedItems]
+      [listItems]
     );
 
   if (loading) {
@@ -89,7 +89,7 @@ const AggregationsQueriesList = ({
       <VirtualGrid
         itemMinWidth={CARD_WIDTH}
         itemHeight={CARD_HEIGHT + spacing[2]}
-        itemsCount={sortedItems.length}
+        itemsCount={listItems.length}
         renderItem={renderItem}
         renderHeader={gridHeader}
         classNames={{ row }}
