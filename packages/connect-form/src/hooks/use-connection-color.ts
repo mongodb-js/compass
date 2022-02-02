@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { uiColors } from '..';
 
 type ColorCode =
   | 'color1'
@@ -13,17 +12,17 @@ type ColorCode =
   | 'color9'
   | 'color10';
 
-const COLOR_CODES_TO_UI_COLORS_MAP: Record<ColorCode, string> = {
-  color1: uiColors.yellow.base,
-  color2: uiColors.blue.light2,
-  color3: '#F1D4FD', // purple is missing in the non rebranded palette
-  color4: uiColors.red.light2,
-  color5: uiColors.gray.light1,
-  color6: uiColors.green.light2,
-  color7: uiColors.green.base,
-  color8: uiColors.yellow.light2,
-  color9: uiColors.blue.light1,
-  color10: uiColors.red.base,
+const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
+  color1: '#00A35C', // green.dark1
+  color2: '#71F6BA', // green.light1
+  color3: '#016BF8', // blue.base
+  color4: '#0498EC', // blue.light1
+  color5: '#FFC010', // yellow.base
+  color6: '#EF5752', // red.light1
+  color7: '#B45AF2', // purple.base
+  color8: '#F1D4FD', // purple.light2
+  color9: '#889397', // gray.base
+  color10: '#C1C7C6', // gray.light1
 };
 
 const LEGACY_COLORS_TO_COLOR_CODE_MAP: Record<string, ColorCode> = {
@@ -39,13 +38,13 @@ const LEGACY_COLORS_TO_COLOR_CODE_MAP: Record<string, ColorCode> = {
   '#ababab': 'color10',
 };
 
-export const COLOR_CODES = Object.keys(
-  COLOR_CODES_TO_UI_COLORS_MAP
+export const CONNECTION_COLOR_CODES = Object.keys(
+  COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP
 ) as ColorCode[];
 
 function isColorCode(hexOrColorCode: string | undefined) {
   return hexOrColorCode
-    ? (COLOR_CODES as string[]).includes(hexOrColorCode)
+    ? (CONNECTION_COLOR_CODES as string[]).includes(hexOrColorCode)
     : undefined;
 }
 
@@ -63,8 +62,8 @@ export function legacyColorsToColorCode(
   return LEGACY_COLORS_TO_COLOR_CODE_MAP[hexOrColorCode];
 }
 
-export function useColorCode(): {
-  colorCodeToHex: (colorCode: string | undefined) => string | undefined;
+export function useConnectionColor(): {
+  connectionColorToHex: (colorCode: string | undefined) => string | undefined;
 } {
   const colorCodeToHex = useCallback(
     (colorCode: string | undefined): string | undefined => {
@@ -77,12 +76,12 @@ export function useColorCode(): {
         return;
       }
 
-      return COLOR_CODES_TO_UI_COLORS_MAP[migratedColor];
+      return COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP[migratedColor];
     },
     []
   );
 
   return {
-    colorCodeToHex,
+    connectionColorToHex: colorCodeToHex,
   };
 }

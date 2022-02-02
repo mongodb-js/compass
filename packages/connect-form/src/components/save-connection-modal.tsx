@@ -4,11 +4,11 @@ import {
   TextInput,
   css,
   spacing,
-  ColorPicker,
 } from '@mongodb-js/compass-components';
 import type { ConnectionFavoriteOptions } from 'mongodb-data-service';
 
 import FormFieldContainer from './form-field-container';
+import { FavoriteColorPicker } from './favorite-color-picker';
 
 const connectionNameInputStyles = css({
   marginTop: spacing[5],
@@ -62,7 +62,7 @@ function SaveConnectionModal({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <ColorPicker
+        <FavoriteColorPicker
           colorCode={editingFavorite.color}
           onChange={(newColor?: string) => {
             setEditingFavorite({

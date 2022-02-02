@@ -1,10 +1,10 @@
 import React from 'react';
-import { css, cx, Label, spacing, uiColors } from '..';
+import { css, cx, Label, spacing, uiColors } from '@mongodb-js/compass-components';
 import {
-  COLOR_CODES,
+  CONNECTION_COLOR_CODES,
   legacyColorsToColorCode,
-  useColorCode,
-} from '../hooks/use-color-code';
+  useConnectionColor,
+} from '../hooks/use-connection-color';
 
 /**
  * Default colors.
@@ -16,8 +16,8 @@ const colorOptionStyles = css({
   marginRight: spacing[2],
   borderRadius: '50%',
   verticalAlign: 'middle',
-  width: 36,
-  height: 36,
+  width: spacing[5] + spacing[1],
+  height: spacing[5] + spacing[1],
   border: '1px solid transparent',
   boxShadow: `0 0 0 0 ${uiColors.focus}`,
   transition: 'box-shadow .16s ease-in',
@@ -96,7 +96,7 @@ function ColorOption({
   );
 }
 
-export function ColorPicker({
+export function FavoriteColorPicker({
   colorCode,
   onChange,
 }: {
@@ -104,7 +104,7 @@ export function ColorPicker({
   onChange: (newColor?: string) => void;
 }): React.ReactElement {
   const selectedColorCode = legacyColorsToColorCode(colorCode);
-  const { colorCodeToHex } = useColorCode();
+  const { connectionColorToHex: colorCodeToHex } = useConnectionColor();
   const selectedColorHex = colorCodeToHex(selectedColorCode);
   return (
     <>
@@ -130,7 +130,7 @@ export function ColorPicker({
         >
           <div className={noColorRedBarStyles} />
         </button>
-        {COLOR_CODES.map((colorCode) => {
+        {CONNECTION_COLOR_CODES.map((colorCode) => {
           const hex = colorCodeToHex(colorCode) || '';
           return (
             <ColorOption
