@@ -112,3 +112,4 @@ export { VirtualGrid } from './components/virtual-grid';
 export { mergeProps } from './utils/merge-props';
 export { useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
+export { useSortControls, useSortedItems } from './hooks/use-sort';
