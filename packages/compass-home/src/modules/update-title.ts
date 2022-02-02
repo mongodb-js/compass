@@ -1,4 +1,4 @@
-import Namespace from '../types/namespace';
+import type Namespace from '../types/namespace';
 
 export default function updateTitle(
   appName: string,
