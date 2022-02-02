@@ -3,14 +3,14 @@ import type { CompassBrowser } from '../compass-browser';
 export async function clickVisible(
   browser: CompassBrowser,
   selector: string,
-  scrollIntoView = false
+  scrollIntoView = true
 ): Promise<void> {
   const element = await browser.$(selector);
 
   // Allow opting out of scrolling the item into view because that can be quite
   // finicky for things that only display on hover.
   if (scrollIntoView) {
-    // You can't scroll a think that doesn't exist yet
+    // You can't scroll a thing that doesn't exist yet
     await element.waitForExist();
 
     // The element can be displayed, but not on screen and then click will silently fail.
