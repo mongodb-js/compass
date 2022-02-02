@@ -40,6 +40,24 @@ describe('Instance databases tab', function () {
     }
   });
 
+  it('links database cards to the database collections tab', async function () {
+    // Click on the db name text inside the card specifically to try and have
+    // tighter control over where it clicks, because clicking in the center of
+    // the last card if all cards don't fit on screen can silently do nothing
+    // even after scrolling it into view.
+    const selector = `${Selectors.databaseCard('test')} [title="test"]`;
+    await browser.clickVisible(selector);
+
+    const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(
+      (collectionName) => Selectors.collectionCard('test', collectionName)
+    );
+
+    for (const collectionSelector of collectionSelectors) {
+      const collectionElement = await browser.$(collectionSelector);
+      await collectionElement.waitForExist();
+    }
+  });
+
   it('can create a database from the databases tab', async function () {
     const dbName = 'my-database';
     const collectionName = 'my-collection';

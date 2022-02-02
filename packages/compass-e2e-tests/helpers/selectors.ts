@@ -178,6 +178,13 @@ export const databaseTab = (tabName: string, selected?: boolean): string => {
   return selector;
 };
 
+export const collectionCard = (
+  dbName: string,
+  collectionName: string
+): string => {
+  return `[data-testid="collection-grid-item"][data-id="${dbName}.${collectionName}"]`;
+};
+
 // Collection screen
 export const CollectionTab = '.test-tab-nav-bar-tab';
 export const CollectionHeaderTitle = '[data-test-id="collection-header-title"]';
