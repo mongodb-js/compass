@@ -1,14 +1,14 @@
 import { inspect } from 'util';
 import { ObjectId, EJSON } from 'bson';
 import { promises as fs } from 'fs';
-import Mocha from 'mocha';
+import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
 import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from 'electron-rebuild';
-import { ConsoleMessage } from 'puppeteer';
+import type { ConsoleMessage } from 'puppeteer';
 import {
   run as packageCompass,
   compileAssets,
@@ -16,8 +16,8 @@ import {
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
-import { CompassBrowser } from './compass-browser';
-import { LogEntry } from './telemetry';
+import type { CompassBrowser } from './compass-browser';
+import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests');

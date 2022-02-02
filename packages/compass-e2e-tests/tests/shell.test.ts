@@ -1,11 +1,8 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer, Telemetry } from '../helpers/telemetry';
-import {
-  beforeTests,
-  afterTests,
-  afterTest,
-  Compass,
-} from '../helpers/compass';
+import { startTelemetryServer } from '../helpers/telemetry';
+import type { Telemetry } from '../helpers/telemetry';
+import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import type { Compass } from '../helpers/compass';
 
 describe('Shell', function () {
   let compass: Compass;

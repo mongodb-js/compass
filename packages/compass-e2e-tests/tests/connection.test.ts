@@ -6,8 +6,8 @@ import {
   beforeTests,
   afterTests,
   afterTest,
-  Compass,
 } from '../helpers/compass';
+import type { Compass } from '../helpers/compass';
 
 async function disconnect(browser: CompassBrowser) {
   try {

@@ -2,14 +2,15 @@ import { promises as fs } from 'fs';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer, Telemetry } from '../helpers/telemetry';
+import { startTelemetryServer } from '../helpers/telemetry';
+import type { Telemetry } from '../helpers/telemetry';
 import {
   beforeTests,
   afterTests,
   afterTest,
   outputFilename,
-  Compass,
 } from '../helpers/compass';
+import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
 chai.use(chaiAsPromised);
