@@ -2,7 +2,7 @@ import type { Dispatch } from 'react';
 import { useCallback, useEffect, useReducer } from 'react';
 import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type {
   ConnectionFormError,
@@ -558,9 +558,10 @@ export function useConnectForm(
               : validateConnectionOptionsWarnings(
                   updatedState.connectionOptions
                 ),
-          isDirty:
-            updatedState.connectionOptions.connectionString !=
-            state.connectionOptions.connectionString,
+          isDirty: !isEqual(
+            updatedState.connectionOptions,
+            state.connectionOptions
+          ),
         },
       });
     },
