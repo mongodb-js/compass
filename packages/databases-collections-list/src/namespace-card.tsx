@@ -19,8 +19,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { BadgeVariant, IconGlyph } from '@mongodb-js/compass-components';
 import { NamespaceParam } from './namespace-param';
-import { ItemType } from './use-create';
-import { ViewType } from './use-view-type';
+import type { ItemType } from './use-create';
+import type { ViewType } from './use-view-type';
 
 const cardTitleGroup = css({
   display: 'flex',
