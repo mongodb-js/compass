@@ -6,16 +6,16 @@ import {
   Select,
   Option,
   cx,
+  TextInput,
 } from '@mongodb-js/compass-components';
 
 export interface Tree {
-  propName: string;
   value: string;
   items?: Tree[];
 }
 
-interface TreeState {
-  [key: string]: string | null;
+export interface TreeState {
+  [key: string]: string | undefined;
 }
 
 const selectContainer = css({
@@ -23,17 +23,32 @@ const selectContainer = css({
   flexDirection: 'row',
 });
 
+const selectStyles = css({
+  marginRight: spacing[2],
+});
+
+const searchInputStyles = css({
+  width: '300px',
+  marginRight: spacing[2],
+});
+
 const RenderFilterSelect = ({
   items,
   onSelect,
+  defaultValue,
   placeHolder = 'Select',
 }: {
   items: Pick<Tree, 'value'>[];
   onSelect: (value: string) => void;
+  defaultValue?: string;
   placeHolder?: string;
 }) => {
   const labelId = useId();
   const controlId = useId();
+  const longestLabel = Math.max(
+    placeHolder.length,
+    ...items.map((item) => item.value.length)
+  );
   return (
     <Select
       disabled={items.length === 0}
@@ -42,12 +57,11 @@ const RenderFilterSelect = ({
       allowDeselect={true}
       placeholder={placeHolder}
       className={cx(
-        css({
-          width: '200px',
-          marginRight: spacing[2],
-        })
+        selectStyles,
+        css({ minWidth: `calc(${longestLabel}ch + ${spacing[6]}px)` })
       )}
       onChange={onSelect}
+      defaultValue={defaultValue}
     >
       {items.map((item) => (
         <Option key={item.value} value={item.value}>
@@ -59,26 +73,15 @@ const RenderFilterSelect = ({
 };
 
 export function useTreeFilter(tree: Tree[]): [React.ReactElement, TreeState] {
-  const [treeState, setTreeState] = useState<TreeState>({
-    database: null,
-    collection: null,
-  });
+  const [treeState, setTreeState] = useState<TreeState>({});
 
   const [collections, setCollections] = useState<Tree[]>([]);
 
   const selectDatabase = useMemo(() => {
     return (database: string): void => {
-      if (!database) {
-        setTreeState({
-          database: null,
-          collection: null,
-        });
-        setCollections([]);
-        return;
-      }
       setTreeState({
-        database,
-        collection: null,
+        database: database ?? undefined,
+        collection: undefined,
       });
       const items = tree.find((x) => x.value === database)?.items;
       setCollections(items || []);
@@ -87,18 +90,10 @@ export function useTreeFilter(tree: Tree[]): [React.ReactElement, TreeState] {
 
   const selectCollection = useMemo(() => {
     return (collection: string): void => {
-      if (!collection) {
-        setTreeState({
-          ...treeState,
-          collection: null,
-        });
-        return;
-      }
       setTreeState({
         ...treeState,
-        collection,
+        collection: collection ?? undefined,
       });
-      return;
     };
   }, [treeState]);
 
@@ -107,40 +102,40 @@ export function useTreeFilter(tree: Tree[]): [React.ReactElement, TreeState] {
       <div className={selectContainer}>
         <RenderFilterSelect
           items={tree}
-          placeHolder={'Select database'}
+          placeHolder={'All databases'}
           onSelect={selectDatabase}
+          defaultValue={treeState['database']}
         />
         <RenderFilterSelect
           items={collections}
-          placeHolder={'Select collection'}
+          placeHolder={'All collections'}
           onSelect={selectCollection}
+          defaultValue={treeState['collection']}
         />
       </div>
     );
-  }, [selectDatabase, tree, collections, selectCollection]);
+  }, [selectDatabase, tree, collections, selectCollection, treeState]);
 
   return [treeControls, treeState];
 }
 
-export function useFilteredItems<T extends Record<string, unknown>>(
-  items: T[],
-  treeState: TreeState
-): T[] {
-  return useMemo(() => {
-    const filterConditions = { ...treeState };
-    for (const key in filterConditions) {
-      if (!filterConditions[key]) {
-        delete filterConditions[key];
-      }
-    }
-    return [...items].filter((item) => {
-      let shouldReturnItem = true;
-      for (const key in filterConditions) {
-        if (item[key] !== filterConditions[key]) {
-          shouldReturnItem = false;
-        }
-      }
-      return shouldReturnItem;
-    });
-  }, [items, treeState]);
+export function useTextFilter(): [React.ReactElement, string] {
+  const [search, setSearch] = useState('');
+
+  const treeControls = useMemo(() => {
+    return (
+      <TextInput
+        className={searchInputStyles}
+        aria-label="Search"
+        type="search"
+        placeholder="Search"
+        value={search}
+        defaultValue={search}
+        onChange={(e) => setSearch(e.target.value)}
+        spellCheck={false}
+      />
+    );
+  }, [search]);
+
+  return [treeControls, search];
 }
