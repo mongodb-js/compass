@@ -5,11 +5,11 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from 'mongodb-data-service';
 
 import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
-import { UpdateConnectionFormField } from '../hooks/use-connect-form';
-import { ConnectionFormError } from '../utils/validation';
+import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
+import type { ConnectionFormError } from '../utils/validation';
 
 const disabledOverlayStyles = css({
   position: 'absolute',

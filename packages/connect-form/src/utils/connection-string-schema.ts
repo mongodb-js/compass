@@ -1,4 +1,4 @@
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import { defaultHostname, defaultPort } from '../constants/default-connection';

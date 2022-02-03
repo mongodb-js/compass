@@ -1,8 +1,5 @@
-import { Reducer } from 'redux';
-
-// TODO: add types for whatever we will be using in this plugin and maybe move
-//       them to the model package
-type MongoDBInstance = Record<string, unknown>;
+import type { Reducer } from 'redux';
+import type MongoDBInstance from 'mongodb-instance-model';
 
 export type State = MongoDBInstance | null;
 

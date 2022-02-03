@@ -1,4 +1,5 @@
-import { Document, Db, RunCommandOptions, ReadPreference } from 'mongodb';
+import type { Document, Db, RunCommandOptions } from 'mongodb';
+import { ReadPreference } from 'mongodb';
 import type { Binary } from 'bson';
 
 export type ConnectionStatus = {

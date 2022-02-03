@@ -1,15 +1,12 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { css } from '@mongodb-js/compass-components';
-import {
-  ConnectionInfo,
-  DataService,
-  getConnectionTitle,
-} from 'mongodb-data-service';
+import { getConnectionTitle } from 'mongodb-data-service';
+import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
 import Connections from '@mongodb-js/compass-connections';
 
 import Workspace from './workspace';
-import Namespace from '../types/namespace';
+import type Namespace from '../types/namespace';
 import {
   AppRegistryRoles,
   useAppRegistryContext,

@@ -1,8 +1,8 @@
 import assert from 'assert';
 import Debug from 'debug';
 import Mocha from 'mocha';
-import { MongoClient, Collection } from 'mongodb';
-import { ObjectId } from 'bson';
+import type { MongoClient, Collection } from 'mongodb';
+import type { ObjectId } from 'bson';
 
 const debug = Debug('result-logger');
 

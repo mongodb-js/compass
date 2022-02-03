@@ -7,14 +7,14 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import DirectConnectionInput from './direct-connection-input';
 import FormFieldContainer from '../../form-field-container';
+import type { ConnectionFormError } from '../../../utils/validation';
 import {
-  ConnectionFormError,
   errorMessageByFieldNameAndIndex,
   fieldNameHasError,
 } from '../../../utils/validation';

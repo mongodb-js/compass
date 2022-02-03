@@ -9,7 +9,7 @@ import {
   Placeholder,
   keyframes,
 } from '@mongodb-js/compass-components';
-import { ViewType } from './use-view-type';
+import type { ViewType } from './use-view-type';
 
 const namespaceParam = css({
   display: 'flex',

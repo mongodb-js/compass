@@ -1,6 +1,6 @@
 import { once } from 'events';
 import { expect } from 'chai';
-import { DataService } from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
 
 import {
   trackConnectionAttemptEvent,

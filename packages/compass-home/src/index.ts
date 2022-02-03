@@ -1,4 +1,4 @@
-import AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'hadron-app-registry';
 import HomePlugin from './plugin';
 
 /**

@@ -1,4 +1,4 @@
-import { Dispatch, Reducer } from 'redux';
+import type { Dispatch, Reducer } from 'redux';
 import toNS from 'mongodb-ns';
 import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
 import { readPipelinesFromStorage } from '@mongodb-js/compass-aggregations';

@@ -122,6 +122,7 @@ class Sidebar extends PureComponent {
           <button
             className={className}
             title="Create Database"
+            data-test-id="create-database-button"
             onClick={this.handleCreateDatabaseClick.bind(this, this.props.isWritable)}>
             <i className="mms-icon-add" />
             <div className={classnames(styles['plus-button'])}>

@@ -58,8 +58,9 @@ export const ConnectionFormInputSSHTunnelPassword =
   '[data-test-id="connection-form"] [name="sshTunnelPassword"]';
 export const ConnectionFormMessage = '[data-test-id="connection-message"]';
 
-// Sidebar
-export const SidebarCollection = '[data-test-id="sidebar-collection"]';
+// Connection Sidebar
+export const SidebarTreeItems =
+  '[data-test-id="databases-and-collections"] [role="treeitem"]';
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-test-id="new-connection-button"]';
@@ -69,6 +70,20 @@ export const SingleClusterType =
   '[data-test-id="topology-single-cluster-type"]';
 export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
+export const SidebarCreateDatabaseButton =
+  '[data-test-id="create-database-button"]';
+export const ShowActionsButton = '[data-testid="show-actions"]';
+export const DropDatabaseButton = '[data-action="drop-database"]';
+export const CreateCollectionButton = '[data-action="create-collection"]';
+export const DropCollectionButton = '[data-action="drop-collection"]';
+
+export const sidebarDatabase = (dbName: string): string => {
+  return `[data-testid="sidebar-database-${dbName}"]`;
+};
+
+export const sidebarDatabaseToggle = (dbName: string): string => {
+  return `[data-testid="sidebar-database-${dbName}"] button[type=button]`;
+};
 
 export const sidebarCollection = (
   dbName: string,
@@ -76,6 +91,33 @@ export const sidebarCollection = (
 ): string => {
   return `[data-testid="sidebar-collection-${dbName}.${collectionName}"]`;
 };
+
+// Create database modal
+export const CreateDatabaseModal = '[trackingid="create_database_modal"]';
+export const CreateDatabaseDatabaseName = '[data-testid="database-name"]';
+export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
+export const CreateDatabaseCreateButton =
+  '[trackingid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+// Drop database modal
+export const DropDatabaseModal = '[trackingid="drop_database_modal"]';
+export const DropDatabaseConfirmName =
+  '[data-test-id="confirm-drop-database-name"]';
+export const DropDatabaseDropButton =
+  '[trackingid="drop_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+// Create collection modal
+export const CreateCollectionModal = '[trackingid="create_collection_modal"]';
+export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
+export const CreateCollectionCreateButton =
+  '[trackingid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+// Drop collection modal
+export const DropCollectionModal = '[trackingid="drop_collection_modal"]';
+export const DropCollectionConfirmName =
+  '[data-test-id="confirm-drop-collection-name"]';
+export const DropCollectionDropButton =
+  '[trackingid="drop_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Shell
 export const ShellContent = '[data-test-id="shell-content"]';
@@ -94,6 +136,11 @@ export const QueryBarApplyFilterButton =
 export const InstanceTabs = '[data-test-id="instance-tabs"]';
 export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
+export const InstanceCreateDatabaseButton =
+  '[data-testid="database-grid"] [data-testid="create-controls"] button';
+// assume that there's only one hovered card at a time and that the first and only button is the drop button
+export const DatabaseCardDrop =
+  '[data-testid="database-grid"] [data-testid="card-action-container"] button';
 
 export const instanceTab = (tabName: string, selected?: boolean): string => {
   const selector = `${InstanceTab}[name="${tabName}"]`;
@@ -129,6 +176,13 @@ export const databaseTab = (tabName: string, selected?: boolean): string => {
   }
 
   return selector;
+};
+
+export const collectionCard = (
+  dbName: string,
+  collectionName: string
+): string => {
+  return `[data-testid="collection-grid-item"][data-id="${dbName}.${collectionName}"]`;
 };
 
 // Collection screen

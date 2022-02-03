@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
+import { connect } from 'react-redux';
+import type { ConnectedProps } from 'react-redux';
+import type { ThunkDispatch } from 'redux-thunk';
 import { VirtualGrid, H2, css, spacing } from '@mongodb-js/compass-components';
-import { fetchItems, Item } from '../stores/aggregations-queries-items';
-import { RootState } from '../stores/index';
-import {
-  SavedItemCard,
-  SavedItemCardProps,
-  Action,
-  CARD_WIDTH,
-  CARD_HEIGHT,
-} from './saved-item-card';
+import { fetchItems } from '../stores/aggregations-queries-items';
+import type { Item } from '../stores/aggregations-queries-items';
+import { openSavedItem } from '../stores/open-item';
+import type { RootActions, RootState } from '../stores/index';
+import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
+import type { SavedItemCardProps, Action } from './saved-item-card';
+import OpenItemModal from './open-item-modal';
 import { useGridHeader } from '../hooks/use-grid-header';
 
 const ConnectedItemCard = connect<
@@ -32,9 +32,14 @@ const ConnectedItemCard = connect<
   },
   {
     onAction(id: string, actionName: Action) {
-      return () => {
-        // TODO: thunk action to handle multiple possible card actions
-        console.log({ id, actionName });
+      return (
+        dispatch: ThunkDispatch<RootState, void, RootActions>,
+        getState: () => RootState
+      ) => {
+        switch (actionName) {
+          case 'open':
+            return openSavedItem(id)(dispatch, getState);
+        }
       };
     },
   }
@@ -94,6 +99,7 @@ const AggregationsQueriesList = ({
         renderHeader={gridHeader}
         classNames={{ row }}
       ></VirtualGrid>
+      <OpenItemModal></OpenItemModal>
     </>
   );
 };

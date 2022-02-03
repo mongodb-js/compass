@@ -5,10 +5,9 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import {
-  NavigationTreeData,
-  useVirtualNavigationTree,
-} from './use-virtual-navigation-tree';
+import { useVirtualNavigationTree } from './use-virtual-navigation-tree';
+
+import type { NavigationTreeData } from './use-virtual-navigation-tree';
 
 function NavigationTreeItem({
   id,
