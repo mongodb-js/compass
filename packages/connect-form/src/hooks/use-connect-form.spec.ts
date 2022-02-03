@@ -36,6 +36,22 @@ describe('use-connect-form hook', function () {
       });
       expect(result.current[0].isDirty).to.be.true;
     });
+    it('should be true after ssh options are changed', function () {
+      const { result } = renderHook(() =>
+        useConnectForm(initialConnectionInfo, null)
+      );
+      const initialState = result.current[0];
+      const functions = result.current[1];
+      expect(initialState.isDirty).to.be.false;
+      act(() => {
+        functions.updateConnectionFormField({
+          type: 'update-ssh-options',
+          key: 'host',
+          value: 'myproxy:22',
+        });
+      });
+      expect(result.current[0].isDirty).to.be.true;
+    });
   });
   describe('#handleConnectionFormFieldUpdate', function () {
     describe('add-new-host action', function () {
