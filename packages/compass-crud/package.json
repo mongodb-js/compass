@@ -135,12 +135,10 @@
     "fast-json-parse": "^1.0.3",
     "hadron-document": "^7.7.0",
     "hadron-type-checker": "^6.6.0",
-    "js-beautify": "^1.10.2",
     "lodash": "^4.17.15",
     "moment": "^2.27.0",
     "moment-timezone": "^0.5.21",
     "mongodb-ace-theme": "^1.5.0",
-    "mongodb-extended-json": "^1.11.1",
     "react-click-outside": "^3.0.1",
     "react-tooltip": "^3.11.1"
   },
