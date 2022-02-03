@@ -33,7 +33,7 @@ const titleStyles = css({
 const filterStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
-  paddingBottom: spacing[3],
+  paddingBottom: spacing[1],
   paddingTop: spacing[1],
 });
 
@@ -46,7 +46,7 @@ export const useGridHeader = (
   const [sortControls, sortState] = useSortControls(sortBy);
   const sortedItems = useSortedItems(filteredItems, sortState as any);
 
-  const GridHeader = () => {
+  const gridHeader = () => {
     return (
       <div className={headerStyles}>
         <H2 as="h1" className={titleStyles}>
@@ -61,5 +61,5 @@ export const useGridHeader = (
     );
   };
 
-  return [GridHeader as React.FunctionComponent, sortedItems];
+  return [gridHeader as React.FunctionComponent, sortedItems];
 };

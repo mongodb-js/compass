@@ -50,6 +50,7 @@ const row = css({
   paddingLeft: spacing[3],
   paddingRight: spacing[3],
   paddingBottom: spacing[2],
+  paddingTop: spacing[1],
 });
 
 const AggregationsQueriesList = ({

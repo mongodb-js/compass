@@ -246,9 +246,6 @@ function filterByText(items: Item[], text: string): Item[] {
     keys: ['meta', 'tags', 'data'],
   });
   const searchedIndexes = fuse.search(text).map((x) => x.refIndex);
-
-  console.log(fuse.search(text));
-
   return items.filter((_x, index) => searchedIndexes.includes(index));
 }
 
