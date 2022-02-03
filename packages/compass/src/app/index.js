@@ -1,7 +1,6 @@
 require('./index.less');
 require('../setup-hadron-distribution');
 
-const { Theme } = require('@mongodb-js/compass-components');
 const marky = require('marky');
 const EventEmitter = require('events');
 marky.mark('Time to Connect rendered');
@@ -36,7 +35,6 @@ var webvitals = require('web-vitals');
 var semver = require('semver');
 
 const Preferences = require('compass-preferences-model');
-const { THEMES } = Preferences;
 var User = require('compass-user-model');
 
 require('./menu-renderer');
@@ -48,7 +46,12 @@ marky.stop('Migrations');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var { Action } = require('@mongodb-js/hadron-plugin-manager');
-const darkreader = require('darkreader');
+
+const {
+  enableDarkTheme,
+  disableDarkTheme,
+  loadTheme
+} = require('./theme');
 
 ipc.once('app:launched', function() {
   console.log('in app:launched');
@@ -67,43 +70,6 @@ window.addEventListener('error', (event) => {
       { message: event.error.message, stack: event.error.stack } :
       { message: event.message, stack: '<no stack available>' });
 });
-
-const darkreaderOptions = { brightness: 100, contrast: 90, sepia: 10 };
-function enableDarkTheme() {
-  // Compass-home initializes the theme and listens to these events
-  // to update the theme in the react context.
-  global.hadronApp.theme = Theme.Dark;
-  global.hadronApp.appRegistry?.emit('darkmode-enable');
-
-  darkreader.enable(darkreaderOptions);
-}
-
-function disableDarkTheme() {
-  global.hadronApp.theme = Theme.Light;
-  global.hadronApp.appRegistry?.emit('darkmode-disable');
-
-  darkreader.disable();
-}
-
-function loadTheme(theme) {
-  // Update main Compass when we've loaded the theme for setting app menus.
-  ipc.call('window:theme-loaded', theme);
-
-  if (theme === THEMES.OS_THEME
-    && electron.remote.nativeTheme.shouldUseDarkColors
-  ) {
-    enableDarkTheme();
-    return;
-  }
-
-  // Update our view based on the provided theme.
-  if (theme === THEMES.DARK) {
-    enableDarkTheme();
-    return;
-  }
-
-  disableDarkTheme();
-}
 
 /**
  * The top-level application singleton that brings everything together!
