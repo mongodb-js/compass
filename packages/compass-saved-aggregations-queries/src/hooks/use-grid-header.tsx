@@ -21,16 +21,16 @@ const sortBy: { name: Extract<keyof Item, string>; label: string }[] = [
   },
 ];
 
-const header = css({
+const headerStyles = css({
   margin: spacing[3],
   marginBottom: 0,
 });
 
-const title = css({
+const titleStyles = css({
   marginBottom: spacing[1],
 });
 
-const headerStyles = css({
+const filterStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
   paddingBottom: spacing[3],
@@ -48,12 +48,12 @@ export const useGridHeader = (
 
   const GridHeader = () => {
     return (
-      <div className={header}>
-        <H2 as="h1" className={title}>
+      <div className={headerStyles}>
+        <H2 as="h1" className={titleStyles}>
           My queries
         </H2>
         <div>All my saved queries in one place</div>
-        <div className={headerStyles}>
+        <div className={filterStyles}>
           <div>{filterControls}</div>
           <div>{sortControls}</div>
         </div>
