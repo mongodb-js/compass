@@ -16,7 +16,6 @@ import CreateIndexButton from '../create-index-button';
 import IndexHeader from '../index-header';
 import IndexList from '../index-list';
 
-import classnames from 'classnames';
 import styles from './indexes.module.less';
 
 class Indexes extends PureComponent {
@@ -42,7 +41,7 @@ class Indexes extends PureComponent {
     return (
       <div className="column-container">
         <div className="column main">
-          <table className={classnames(styles['indexes'])}>
+          <table className={styles['indexes']}>
             <IndexHeader
               isWritable={this.props.isWritable}
               isReadonly={this.props.isReadonly}
@@ -97,7 +96,7 @@ class Indexes extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames('index-container', styles['indexes-scroll-fix'])}>
+      <div className="index-container">
         <div className="controls-container">
           {this.renderCreateIndexButton()}
         </div>
