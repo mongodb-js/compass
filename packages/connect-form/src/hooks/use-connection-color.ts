@@ -32,10 +32,8 @@ export const CONNECTION_COLOR_CODES = Object.keys(
   COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP
 ) as ColorCode[];
 
-function isColorCode(hexOrColorCode: string | undefined) {
-  return hexOrColorCode
-    ? (CONNECTION_COLOR_CODES as string[]).includes(hexOrColorCode)
-    : undefined;
+function isColorCode(hexOrColorCode: string | undefined): hexOrColorCode is ColorCode {
+  return (CONNECTION_COLOR_CODES as string[]).includes(hexOrColorCode);
 }
 
 export function legacyColorsToColorCode(
