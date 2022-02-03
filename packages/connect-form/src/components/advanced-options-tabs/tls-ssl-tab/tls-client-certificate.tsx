@@ -49,7 +49,7 @@ function TLSClientCertificate({
           }}
           showFileOnNewLine
           optional
-          optionalMessage="Optional (required with X.509)"
+          optionalMessage="Optional (required with X.509 auth)"
         />
       </FormFieldContainer>
       <FormFieldContainer>
