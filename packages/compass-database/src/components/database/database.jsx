@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
-import { TabNavBar, UnsafeComponent } from 'hadron-react-components';
+import { ErrorBoundary } from '@mongodb-js/compass-components';
+import { TabNavBar } from 'hadron-react-components';
 
 import styles from './database.module.less';
 
@@ -35,7 +36,12 @@ class Database extends Component {
     const views = roles.map((role, i) => {
       tabs.push(role.name);
       return (
-        <UnsafeComponent component={role.component} key={i} />
+        <ErrorBoundary
+          displayName={role.displayName}
+          key={i}
+        >
+          <role.component />
+        </ErrorBoundary>
       );
     });
 

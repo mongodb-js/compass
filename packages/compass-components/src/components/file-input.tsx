@@ -38,7 +38,7 @@ const errorMessageStyles = css({
 });
 
 const labelHorizontalStyles = css({
-  width: '70%',
+  width: '90%',
   display: 'grid',
   gridTemplateAreas: `'label icon' 'description .'`,
   gridTemplateColumns: '1fr auto',

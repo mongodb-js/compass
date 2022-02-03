@@ -159,6 +159,12 @@ export const databaseCard = (dbName: string): string => {
   return `[data-testid="database-grid-item"][data-id="${dbName}"]`;
 };
 
+export const databaseCardClickable = (dbName: string): string => {
+  // webdriver does not like clicking on the card even though the card has the
+  // click handler, so click on the title
+  return `${databaseCard(dbName)} [title="${dbName}"]`;
+};
+
 // Database screen
 export const DatabaseTabs = '[data-test-id="database-tabs"]';
 export const DatabaseTab = '.test-tab-nav-bar-tab';
@@ -183,6 +189,18 @@ export const collectionCard = (
   collectionName: string
 ): string => {
   return `[data-testid="collection-grid-item"][data-id="${dbName}.${collectionName}"]`;
+};
+
+export const collectionCardClickable = (
+  dbName: string,
+  collectionName: string
+): string => {
+  // webdriver does not like clicking on the card even though the card has the
+  // click handler, so click on the title
+  return `${collectionCard(
+    dbName,
+    collectionName
+  )} [title="${collectionName}"]`;
 };
 
 // Collection screen

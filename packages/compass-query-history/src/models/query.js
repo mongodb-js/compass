@@ -1,6 +1,6 @@
 import Model from 'ampersand-model';
+import { EJSON } from 'bson';
 import uuid from 'uuid';
-import EJSON from 'mongodb-extended-json';
 
 /**
  * A model that represents a MongoDB query.
@@ -51,7 +51,7 @@ const Query = Model.extend({
     _ns: 'string'
   },
   parse: function(attrs) {
-    return EJSON.deserialize(attrs);
+    return attrs ? EJSON.deserialize(attrs) : undefined;
   },
   serialize: function() {
     return EJSON.serialize(this.getAttributes({ props: true }));
