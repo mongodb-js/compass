@@ -83,6 +83,42 @@ describe('SaveConnectionModal Component', function () {
     });
   });
 
+  describe('when the connection does not have a name', function () {
+    beforeEach(function () {
+      render(
+        <SaveConnectionModal
+          onSaveClicked={onSaveSpy}
+          onCancelClicked={onCancelSpy}
+          open
+          initialFavoriteInfo={{ color: 'color1', name: '' }}
+        />
+      );
+    });
+
+    it('renders save disabled', function () {
+      const button = screen.getByText('Save').closest('button');
+      expect(button.disabled).to.be.true;
+    });
+  });
+
+  describe('when the connection does have a name', function () {
+    beforeEach(function () {
+      render(
+        <SaveConnectionModal
+          onSaveClicked={onSaveSpy}
+          onCancelClicked={onCancelSpy}
+          open
+          initialFavoriteInfo={{ color: 'color1', name: 'some name' }}
+        />
+      );
+    });
+
+    it('renders save as enabled', function () {
+      const button = screen.getByText('Save').closest('button');
+      expect(button.disabled).not.to.be.true;
+    });
+  });
+
   describe('when the loaded connection is already a favorite', function () {
     beforeEach(function () {
       render(
