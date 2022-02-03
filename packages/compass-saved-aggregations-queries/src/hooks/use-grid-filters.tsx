@@ -180,6 +180,7 @@ function filterByText(item: Item, text: string): boolean {
     return true;
   }
   const expression = new RegExp(text, 'i');
+  // todo: use lev and build a useful searchable string
   return Boolean(expression.exec(JSON.stringify(item)));
 }
 
