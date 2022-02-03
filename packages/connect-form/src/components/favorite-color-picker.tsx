@@ -1,5 +1,11 @@
 import React from 'react';
-import { css, cx, Label, spacing, uiColors } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  Label,
+  spacing,
+  uiColors,
+} from '@mongodb-js/compass-components';
 import {
   CONNECTION_COLOR_CODES,
   legacyColorsToColorCode,
@@ -52,10 +58,12 @@ const selectedColorCheckmarkStyles = css({
 function ColorOption({
   isSelected,
   onClick,
+  code,
   hex,
 }: {
   isSelected: boolean;
   onClick: () => void;
+  code: string;
   hex: string;
 }): React.ReactElement {
   return (
@@ -66,7 +74,7 @@ function ColorOption({
         [activeColorOptionStyles]: isSelected,
         [inActiveColorOptionStyles]: !isSelected,
       })}
-      data-testid={`color-pick-${hex}${isSelected ? '-selected' : ''}`}
+      data-testid={`color-pick-${code}${isSelected ? '-selected' : ''}`}
       onClick={onClick}
       title={hex}
       aria-pressed={isSelected}
@@ -139,6 +147,7 @@ export function FavoriteColorPicker({
               }}
               isSelected={colorCode === selectedColorCode}
               hex={hex}
+              code={colorCode}
               key={colorCode}
             />
           );

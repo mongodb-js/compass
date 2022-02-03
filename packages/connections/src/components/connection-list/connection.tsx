@@ -174,7 +174,7 @@ function Connection({
 
   const connectionMenuColor = hasColoredBackground
     ? uiColors.gray.dark3
-    : uiColors.white
+    : uiColors.white;
 
   return (
     <div className={connectionButtonContainerStyles}>
@@ -234,4 +234,3 @@ function Connection({
 }
 
 export default Connection;
-

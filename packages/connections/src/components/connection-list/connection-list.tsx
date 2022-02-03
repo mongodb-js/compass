@@ -24,7 +24,7 @@ const newConnectionButtonContainerStyles = css({
   fontWeight: 'bold',
   color: uiColors.white,
   height: spacing[6] + spacing[2],
-  overflow: 'hidden'
+  overflow: 'hidden',
 });
 
 const newConnectionButtonStyles = css({
