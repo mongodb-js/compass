@@ -25,6 +25,9 @@ describe('Instance databases tab', function () {
   });
 
   it('contains a list of databases', async function () {
+    const dbTable = await browser.$(Selectors.DatabasesTable);
+    await dbTable.waitForDisplayed();
+
     const dbSelectors = ['admin', 'config', 'local', 'test'].map(
       Selectors.databaseCard
     );
@@ -32,7 +35,6 @@ describe('Instance databases tab', function () {
     for (const dbSelector of dbSelectors) {
       const dbElement = await browser.$(dbSelector);
       await dbElement.waitForExist();
-      // TODO: Storage Size, Collections, Indexes, Drop button
     }
   });
 
@@ -41,8 +43,7 @@ describe('Instance databases tab', function () {
     // tighter control over where it clicks, because clicking in the center of
     // the last card if all cards don't fit on screen can silently do nothing
     // even after scrolling it into view.
-    const selector = `${Selectors.databaseCard('test')} [title="test"]`;
-    await browser.clickVisible(selector);
+    await browser.clickVisible(Selectors.databaseCardClickable('test'));
 
     const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(
       (collectionName) => Selectors.collectionCard('test', collectionName)
@@ -65,7 +66,7 @@ describe('Instance databases tab', function () {
 
     await browser.addDatabase(dbName, collectionName);
 
-    const selector = `${Selectors.databaseCard(dbName)}`;
+    const selector = Selectors.databaseCard(dbName);
     const databaseCard = await browser.$(selector);
     await databaseCard.waitForDisplayed();
 
