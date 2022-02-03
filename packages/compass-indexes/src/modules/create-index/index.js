@@ -1,5 +1,5 @@
+import { EJSON } from 'bson';
 import { combineReducers } from 'redux';
-const EJSON = require('mongodb-extended-json');
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import dataService from '../data-service';

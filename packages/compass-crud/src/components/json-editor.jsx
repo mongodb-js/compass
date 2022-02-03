@@ -1,6 +1,6 @@
+import { EJSON } from 'bson';
 import React from 'react';
 import PropTypes from 'prop-types';
-import EJSON from 'mongodb-extended-json';
 import jsBeautify from 'js-beautify';
 import jsonParse from 'fast-json-parse';
 import { TextButton } from 'hadron-react-buttons';

@@ -140,7 +140,6 @@
     "moment": "^2.27.0",
     "moment-timezone": "^0.5.21",
     "mongodb-ace-theme": "^1.5.0",
-    "mongodb-extended-json": "^1.11.1",
     "react-click-outside": "^3.0.1",
     "react-tooltip": "^3.11.1"
   },

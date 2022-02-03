@@ -1,6 +1,6 @@
+import { EJSON } from 'bson';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
-import EJSON from 'mongodb-extended-json';
 import { findIndex, isEmpty } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
