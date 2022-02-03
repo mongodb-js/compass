@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useId } from '@react-aria/utils';
+import Fuse from 'fuse.js';
 import {
   css,
   spacing,
@@ -19,6 +20,12 @@ interface Tree {
 interface SelectState {
   database?: string;
   collection?: string;
+}
+
+interface SearchableItem {
+  meta: string[];
+  tags: string[];
+  data: string;
 }
 
 const selectContainer = css({
@@ -175,58 +182,7 @@ function convertItemsToTree(items: Item[]): Tree[] {
   return tree;
 }
 
-function getSearchableText(item: Item) {
-  let searchable: unknown[] = [item.name, item.database, item.collection];
-
-  if (item.type === 'aggregation') {
-    const stages = item.aggregation.pipeline
-      .filter((x) => x.stageOperator && x.stage)
-      .map((stage) => {
-        return {
-          [stage.stageOperator]: JSON.parse(stage.stage),
-        };
-      });
-    searchable = searchable.concat([
-      item.aggregation.namespace,
-      item.aggregation.env ?? '',
-      item.aggregation.collationString ?? '',
-      item.aggregation.isTimeSeries ? ['timeseries', 'time series'] : '',
-      ['aggregate', 'aggregation'],
-      stages,
-    ]);
-  } else {
-    searchable = searchable.concat([
-      item.query._ns,
-      ['find', 'query'],
-      {
-        filter: item.query.filter,
-        project: item.query.project,
-        sort: item.query.sort,
-        skip: item.query.skip,
-        limit: item.query.limit,
-        collation: item.query.collation,
-      },
-    ]);
-  }
-
-  return searchable.filter(Boolean);
-}
-
-function filterByText(item: Item, text: string): boolean {
-  if (!text) {
-    return true;
-  }
-  try {
-    const expression = new RegExp(text, 'i');
-    const searchable = getSearchableText(item);
-    // todo: use lev and make sure we catch $ operators
-    return Boolean(expression.exec(JSON.stringify(searchable)));
-  } catch (e) {
-    return false;
-  }
-}
-
-function filterByConditions(item: Item, conditions: SelectState): boolean {
+function filterItemByConditions(item: Item, conditions: SelectState): boolean {
   if (Object.keys(conditions).length === 0) {
     return true;
   }
@@ -239,6 +195,62 @@ function filterByConditions(item: Item, conditions: SelectState): boolean {
     }
   }
   return shouldReturnItem;
+}
+
+function mapItemToSearchable(item: Item): SearchableItem {
+  const searchable: SearchableItem = {
+    meta: [item.name],
+    tags: [],
+    data: '',
+  };
+
+  if (item.type === 'aggregation') {
+    const stages = item.aggregation.pipeline
+      .filter((x) => x.stageOperator && x.stage)
+      .map((stage) => {
+        return {
+          [stage.stageOperator]: JSON.parse(stage.stage),
+        };
+      });
+
+    searchable.meta.push(item.aggregation.namespace);
+    searchable.meta.push(item.aggregation.env ?? '');
+    searchable.meta.push(item.aggregation.collationString ?? '');
+    searchable.meta.push(item.aggregation.isTimeSeries ? 'timeseries' : '');
+    searchable['tags'] = ['aggregate', 'aggregation'];
+    searchable['data'] = JSON.stringify(stages);
+  } else {
+    searchable.meta.push(item.query._ns);
+    searchable['tags'] = ['find', 'query'];
+    searchable['data'] = JSON.stringify({
+      filter: item.query.filter,
+      project: item.query.project,
+      sort: item.query.sort,
+      skip: item.query.skip,
+      limit: item.query.limit,
+      collation: item.query.collation,
+    });
+  }
+  return searchable;
+}
+
+function filterByText(items: Item[], text: string): Item[] {
+  if (!text || text.length === 1) {
+    return items;
+  }
+  const fuse = new Fuse<SearchableItem>(items.map(mapItemToSearchable), {
+    findAllMatches: true,
+    shouldSort: true,
+    minMatchCharLength: 2,
+    threshold: 0.3,
+    ignoreLocation: true,
+    keys: ['meta', 'tags', 'data'],
+  });
+  const searchedIndexes = fuse.search(text).map((x) => x.refIndex);
+
+  console.log(fuse.search(text));
+
+  return items.filter((_x, index) => searchedIndexes.includes(index));
 }
 
 export function useGridFilters(
@@ -271,8 +283,8 @@ export function useFilteredItems(
       delete filterConditions[key as keyof SelectState];
     }
   }
-  return [...items].filter(
-    (item) =>
-      filterByText(item, search) && filterByConditions(item, filterConditions)
+  const filteredItems = [...items].filter((item) =>
+    filterItemByConditions(item, filterConditions)
   );
+  return filterByText(filteredItems, search);
 }

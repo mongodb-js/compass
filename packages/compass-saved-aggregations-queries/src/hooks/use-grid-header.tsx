@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
-import { Item } from '../stores/aggregations-queries-items';
+import type { Item } from '../stores/aggregations-queries-items';
 
 const sorts = [
   {
