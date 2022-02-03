@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
-import jsBeautify from 'js-beautify';
 import PropTypes from 'prop-types';
 
 import 'ace-builds';
@@ -36,7 +35,7 @@ const OPTIONS = {
 class InsertJsonDocument extends Component {
   componentDidMount() {
     if (this.props.jsonDoc !== '') {
-      let value = jsBeautify(this.props.jsonDoc);
+      let value = this.props.jsonDoc;
 
       if (this.props.isCommentNeeded) {
         value = `${EDITOR_COMMENT}${value}`;

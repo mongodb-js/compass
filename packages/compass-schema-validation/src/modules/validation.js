@@ -1,4 +1,4 @@
-import EJSON from 'mongodb-extended-json';
+import { EJSON } from 'bson';
 import queryParser from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
