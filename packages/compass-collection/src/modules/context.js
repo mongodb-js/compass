@@ -1,7 +1,12 @@
 import React from 'react';
-import { UnsafeComponent } from 'hadron-react-components';
 import AppRegistry from 'hadron-app-registry';
 import semver from 'semver';
+import { ErrorBoundary } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { debug } = createLoggerAndTelemetry(
+  'mongodb-compass:compass-collection:context'
+);
 
 /**
  * Setup scoped actions for a plugin.
@@ -264,7 +269,20 @@ const createContext = ({
     }
 
     // Add the view.
-    views.push(<UnsafeComponent component={role.component} key={i} store={store} actions={actions} />);
+    views.push((
+      <ErrorBoundary
+        key={i}
+        displayName={role.component.displayName}
+        onError={(error, errorInfo) => {
+          debug('error rendering collection view', role.component.displayName, error, errorInfo);
+        }}
+      >
+        <role.component
+          store={store}
+          actions={actions}
+        />
+      </ErrorBoundary>
+    ));
   });
 
   const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
