@@ -1,7 +1,6 @@
 import { EJSON } from 'bson';
 import React from 'react';
 import PropTypes from 'prop-types';
-import jsBeautify from 'js-beautify';
 import jsonParse from 'fast-json-parse';
 import { TextButton } from 'hadron-react-buttons';
 import DocumentActions from './document-actions';
@@ -130,7 +129,7 @@ class EditableJson extends React.Component {
       deleting: false,
       mode: VIEWING,
       message: EMPTY,
-      json: jsBeautify(EJSON.stringify(this.props.doc.generateObject()))
+      json: EJSON.stringify(this.props.doc.generateObject(), null, 2)
     });
 
     this.props.clearUpdateStatus();
@@ -313,7 +312,7 @@ class EditableJson extends React.Component {
 
     const value = this.state.json
       ? this.state.json
-      : jsBeautify(EJSON.stringify(this.props.doc.generateObject()));
+      : EJSON.stringify(this.props.doc.generateObject(), null, 2);
 
     return (
       <div className="json-ace-editor">

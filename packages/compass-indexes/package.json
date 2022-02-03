@@ -32,8 +32,6 @@
     "@hot-loader/react-dom": "^16.9.0",
     "@mongodb-js/compass-components": "^0.10.0",
     "@mongodb-js/compass-deployment-awareness": "^11.18.0",
-    "@mongodb-js/compass-components": "^0.9.1",
-    "@mongodb-js/compass-deployment-awareness": "^11.17.1",
     "bson": "^4.4.1",
     "debug": "4.3.0",
     "hadron-react-buttons": "^5.6.0",

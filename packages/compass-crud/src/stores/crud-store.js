@@ -362,7 +362,7 @@ const configureStore = (options = {}) => {
      */
     copyToClipboard(doc) {
       track('Document Copied', { mode: this.modeForTelemetry() });
-      const documentJSON = EJSON.stringify(doc.generateObject());
+      const documentJSON = EJSON.stringify(doc.generateObject(), null, 2);
       let input = document.createElement(INPUT);
       input.type = TYPE;
       input.setAttribute(STYLES, DISPLAY);
@@ -678,7 +678,7 @@ const configureStore = (options = {}) => {
         }
       }
 
-      const jsonDoc = EJSON.stringify(hadronDoc.generateObject());
+      const jsonDoc = EJSON.stringify(hadronDoc.generateObject(), null, 2);
 
       this.setState({
         insert: {
@@ -718,7 +718,7 @@ const configureStore = (options = {}) => {
      */
     toggleInsertDocument(view) {
       if (view === 'JSON') {
-        const jsonDoc = EJSON.stringify(this.state.insert.doc.generateObject());
+        const jsonDoc = EJSON.stringify(this.state.insert.doc.generateObject(), null, 2);
 
         this.setState({
           insert: {
