@@ -22,12 +22,8 @@ const formActionButtonsStyles = css({
   display: 'flex',
   justifyContent: 'flex-end',
   gap: spacing[2],
-});
-
-const formButtonsStyles = css({
   paddingTop: spacing[3],
   paddingBottom: spacing[3],
-  textAlign: 'right',
 });
 
 function ConnectFormActions({
@@ -49,22 +45,18 @@ function ConnectFormActions({
       {errors.length ? <ErrorSummary errors={errors} /> : ''}
       <div className={formActionButtonsStyles}>
         {saveButton !== 'hidden' && (
-          <div className={formButtonsStyles}>
-            <Button
-              variant={ButtonVariant.Default}
-              disabled={saveButton === 'disabled'}
-              onClick={onSaveClicked}
-            >
-              Save
-            </Button>
-          </div>
+          <Button
+            variant={ButtonVariant.Default}
+            disabled={saveButton === 'disabled'}
+            onClick={onSaveClicked}
+          >
+            Save
+          </Button>
         )}
 
-        <div className={formButtonsStyles}>
-          <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
-            Connect
-          </Button>
-        </div>
+        <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
+          Connect
+        </Button>
       </div>
     </div>
   );
