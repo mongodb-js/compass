@@ -23,7 +23,7 @@ export type Item = {
   query: Query;
 } | {
   type: 'aggregation';
-  aggregation: Aggregation;
+  aggregation: Omit<Aggregation, 'lastModified'>;
 });
 
 interface Query {
@@ -53,9 +53,27 @@ interface Aggregation {
   env?: string;
   isReadonly?: boolean;
   isTimeSeries?: boolean;
-  pipeline: unknown[];
+  pipeline: Pipeline[];
   sample?: boolean;
   sourceName?: string;
+}
+
+interface Pipeline {
+  id: string;
+  stageOperator: string;
+  stage: string;
+  isValid: boolean;
+  isEnabled: boolean;
+  isExpanded: boolean;
+  isLoading: boolean;
+  isComplete: boolean;
+  previewDocuments: unknown[],
+  syntaxError: unknown,
+  error: unknown,
+  projections?: unknown[],
+  fromStageOperators?: boolean;
+  executor?: unknown,
+  isMissingAtlasOnlyStageSupport?: boolean;
 }
 
 export type State = {

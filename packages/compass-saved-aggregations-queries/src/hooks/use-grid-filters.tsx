@@ -85,7 +85,7 @@ function useSearchFilter(): [React.ReactElement, string] {
   useEffect(() => {
     ref.current?.focus();
   }, [search]);
-  const treeControls = useMemo(() => {
+  const searchControls = useMemo(() => {
     return (
       <TextInput
         ref={ref}
@@ -103,7 +103,7 @@ function useSearchFilter(): [React.ReactElement, string] {
     );
   }, [search]);
 
-  return [treeControls, search];
+  return [searchControls, search];
 }
 
 function useSelectFilter(tree: Tree[]): [React.ReactElement, SelectState] {
@@ -175,13 +175,55 @@ function convertItemsToTree(items: Item[]): Tree[] {
   return tree;
 }
 
+function getSearchableText(item: Item) {
+  let searchable: unknown[] = [item.name, item.database, item.collection];
+
+  if (item.type === 'aggregation') {
+    const stages = item.aggregation.pipeline
+      .filter((x) => x.stageOperator && x.stage)
+      .map((stage) => {
+        return {
+          [stage.stageOperator]: JSON.parse(stage.stage),
+        };
+      });
+    searchable = searchable.concat([
+      item.aggregation.namespace,
+      item.aggregation.env ?? '',
+      item.aggregation.collationString ?? '',
+      item.aggregation.isTimeSeries ? ['timeseries', 'time series'] : '',
+      ['aggregate', 'aggregation'],
+      stages,
+    ]);
+  } else {
+    searchable = searchable.concat([
+      item.query._ns,
+      ['find', 'query'],
+      {
+        filter: item.query.filter,
+        project: item.query.project,
+        sort: item.query.sort,
+        skip: item.query.skip,
+        limit: item.query.limit,
+        collation: item.query.collation,
+      },
+    ]);
+  }
+
+  return searchable.filter(Boolean);
+}
+
 function filterByText(item: Item, text: string): boolean {
   if (!text) {
     return true;
   }
-  const expression = new RegExp(text, 'i');
-  // todo: use lev and build a useful searchable string
-  return Boolean(expression.exec(JSON.stringify(item)));
+  try {
+    const expression = new RegExp(text, 'i');
+    const searchable = getSearchableText(item);
+    // todo: use lev and make sure we catch $ operators
+    return Boolean(expression.exec(JSON.stringify(searchable)));
+  } catch (e) {
+    return false;
+  }
 }
 
 function filterByConditions(item: Item, conditions: SelectState): boolean {
