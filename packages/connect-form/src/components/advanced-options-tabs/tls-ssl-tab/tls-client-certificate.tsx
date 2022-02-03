@@ -36,7 +36,7 @@ function TLSClientCertificate({
           description={'Learn More'}
           disabled={disabled}
           id="tlsCertificateKeyFile"
-          label="Client Certificate Bundle (.pem)"
+          label="Client Certificate and Key (.pem)"
           dataTestId="tlsCertificateKeyFile-input"
           link={
             'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile'
