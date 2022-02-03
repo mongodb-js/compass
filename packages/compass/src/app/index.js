@@ -1,6 +1,7 @@
 require('./index.less');
 require('../setup-hadron-distribution');
 
+const { Theme } = require('@mongodb-js/compass-components');
 const marky = require('marky');
 const EventEmitter = require('events');
 marky.mark('Time to Connect rendered');
@@ -71,14 +72,14 @@ const darkreaderOptions = { brightness: 100, contrast: 90, sepia: 10 };
 function enableDarkTheme() {
   // Compass-home initializes the theme and listens to these events
   // to update the theme in the react context.
-  global.hadronApp.theme = 'DARK';
+  global.hadronApp.theme = Theme.Dark;
   global.hadronApp.appRegistry?.emit('darkmode-enable');
 
   darkreader.enable(darkreaderOptions);
 }
 
 function disableDarkTheme() {
-  global.hadronApp.theme = 'LIGHT';
+  global.hadronApp.theme = Theme.Light;
   global.hadronApp.appRegistry?.emit('darkmode-disable');
 
   darkreader.disable();

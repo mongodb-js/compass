@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { ThemeProvider, css } from '@mongodb-js/compass-components';
-import type { Theme } from '@mongodb-js/compass-components';
+import { Theme } from '@mongodb-js/compass-components';
 import { getConnectionTitle } from 'mongodb-data-service';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
@@ -97,9 +97,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
   const connectedDataService = useRef<DataService>();
   const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
-  const [theme, setTheme] = useState<Theme>({
-    theme: (global as any).hadronApp?.theme ?? 'LIGHT',
-  });
 
   const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
     reducer,
@@ -117,18 +114,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     dispatch({
       type: 'connected',
       connectionTitle: getConnectionTitle(connectionInfo) || '',
-    });
-  }
-
-  function onDarkModeEnabled() {
-    setTheme({
-      theme: 'DARK',
-    });
-  }
-
-  function onDarkModeDisabled() {
-    setTheme({
-      theme: 'LIGHT',
     });
   }
 
@@ -236,8 +221,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     appRegistry.on('open-instance-workspace', onInstanceWorkspaceOpenTap);
     appRegistry.on('open-namespace-in-new-tab', onOpenNamespaceInNewTab);
     appRegistry.on('all-collection-tabs-closed', onAllTabsClosed);
-    appRegistry.on('darkmode-enable', onDarkModeEnabled);
-    appRegistry.on('darkmode-disable', onDarkModeDisabled);
 
     return () => {
       // Clean up the app registry listeners.
@@ -260,8 +243,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
         onOpenNamespaceInNewTab
       );
       appRegistry.removeListener('all-collection-tabs-closed', onAllTabsClosed);
-      appRegistry.removeListener('darkmode-enable', onDarkModeEnabled);
-      appRegistry.removeListener('darkmode-disable', onDarkModeDisabled);
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
@@ -273,9 +254,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     return (
       <div className={homeViewStyles} data-test-id="home-view">
         <div className={homePageStyles}>
-          <ThemeProvider theme={theme}>
-            <Connections onConnected={onConnected} />
-          </ThemeProvider>
+          <Connections onConnected={onConnected} />
         </div>
       </div>
     );
@@ -295,6 +274,46 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   );
 }
 
-Home.displayName = 'HomeComponent';
+function ThemedHome(
+  props: React.ComponentProps<typeof Home>
+): ReturnType<typeof Home> {
+  const appRegistry = useAppRegistryContext();
 
-export default Home;
+  const [theme, setTheme] = useState<Theme>({
+    theme: (global as any).hadronApp?.theme ?? Theme.Light,
+  });
+
+  function onDarkModeEnabled() {
+    setTheme({
+      theme: Theme.Dark,
+    });
+  }
+
+  function onDarkModeDisabled() {
+    setTheme({
+      theme: Theme.Light,
+    });
+  }
+
+  useEffect(() => {
+    // Setup app registry listeners.
+    appRegistry.on('darkmode-enable', onDarkModeEnabled);
+    appRegistry.on('darkmode-disable', onDarkModeDisabled);
+
+    return () => {
+      // Clean up the app registry listeners.
+      appRegistry.removeListener('darkmode-enable', onDarkModeEnabled);
+      appRegistry.removeListener('darkmode-disable', onDarkModeDisabled);
+    };
+  }, [appRegistry]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Home {...props}></Home>
+    </ThemeProvider>
+  );
+}
+
+ThemedHome.displayName = 'HomeComponent';
+
+export default ThemedHome;

@@ -1,14 +1,14 @@
 import React from 'react';
 import LeafyGreenToggle from '@leafygreen-ui/toggle';
 
-import { useTheme } from '../hooks/use-theme';
+import { Theme, useTheme } from '../hooks/use-theme';
 
 function Toggle(
   props: React.ComponentProps<typeof LeafyGreenToggle>
 ): ReturnType<typeof LeafyGreenToggle> {
   const theme = useTheme();
 
-  return <LeafyGreenToggle darkMode={theme?.theme === 'DARK'} {...props} />;
+  return <LeafyGreenToggle darkMode={theme?.theme === Theme.Dark} {...props} />;
 }
 
 export { Toggle };
