@@ -4,12 +4,13 @@ import {
   useSortedItems,
   spacing,
   css,
+  H2,
 } from '@mongodb-js/compass-components';
 
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
 import type { Item } from '../stores/aggregations-queries-items';
 
-const sorts = [
+const sortBy: { name: Extract<keyof Item, string>; label: string }[] = [
   {
     name: 'name',
     label: 'Name',
@@ -20,30 +21,45 @@ const sorts = [
   },
 ];
 
+const header = css({
+  margin: spacing[3],
+  marginBottom: 0,
+});
+
+const title = css({
+  marginBottom: spacing[1],
+});
+
 const headerStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
-  paddingBottom: spacing[2],
-  paddingTop: spacing[2],
+  paddingBottom: spacing[3],
+  paddingTop: spacing[1],
 });
 
-export const useGridHeader = (items: Item[]): [React.Component, Item[]] => {
+export const useGridHeader = (
+  items: Item[]
+): [React.FunctionComponent, Item[]] => {
   const [filterControls, filters, search] = useGridFilters(items);
   const filteredItems = useFilteredItems(items, filters, search);
 
-  const [sortControls, sortState] = useSortControls(sorts);
-  const sortedItems = useSortedItems<Item>(filteredItems, sortState);
+  const [sortControls, sortState] = useSortControls(sortBy);
+  const sortedItems = useSortedItems(filteredItems, sortState as any);
 
-  const gridHeader = () => {
+  const GridHeader = () => {
     return (
-      <div className={headerStyles}>
-        <div>{filterControls}</div>
-        <div>{sortControls}</div>
+      <div className={header}>
+        <H2 as="h1" className={title}>
+          My queries
+        </H2>
+        <div>All my saved queries in one place</div>
+        <div className={headerStyles}>
+          <div>{filterControls}</div>
+          <div>{sortControls}</div>
+        </div>
       </div>
     );
   };
 
-  return [gridHeader, sortedItems];
+  return [GridHeader as React.FunctionComponent, sortedItems];
 };

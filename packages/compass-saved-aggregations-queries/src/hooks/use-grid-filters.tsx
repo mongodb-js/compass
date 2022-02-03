@@ -101,7 +101,6 @@ function useSearchFilter(): [React.ReactElement, string] {
         type="search"
         placeholder="Search"
         value={search}
-        defaultValue={search}
         onChange={(e) => {
           setSearch(e.target.value);
         }}

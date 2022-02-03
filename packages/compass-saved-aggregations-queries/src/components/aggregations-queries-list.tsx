@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
-import { VirtualGrid, H2, css, spacing } from '@mongodb-js/compass-components';
+import { VirtualGrid, css, spacing } from '@mongodb-js/compass-components';
 import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
@@ -45,14 +45,6 @@ const ConnectedItemCard = connect<
   }
 )(SavedItemCard);
 
-const header = css({
-  margin: spacing[3],
-});
-
-const title = css({
-  marginBottom: spacing[1],
-});
-
 const row = css({
   gap: spacing[2],
   paddingLeft: spacing[3],
@@ -85,18 +77,12 @@ const AggregationsQueriesList = ({
 
   return (
     <>
-      <div className={header}>
-        <H2 as="h1" className={title}>
-          My queries
-        </H2>
-        <div>All my saved queries in one place</div>
-      </div>
+      {React.createElement(gridHeader, {})}
       <VirtualGrid
         itemMinWidth={CARD_WIDTH}
         itemHeight={CARD_HEIGHT + spacing[2]}
         itemsCount={listItems.length}
         renderItem={renderItem}
-        renderHeader={gridHeader}
         classNames={{ row }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
