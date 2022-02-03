@@ -8,7 +8,7 @@ import {
 import type { ConnectionFavoriteOptions } from 'mongodb-data-service';
 
 import FormFieldContainer from './form-field-container';
-import SavedConnectionColorPicker from './saved-connection-color-picker';
+import { FavoriteColorPicker } from './favorite-color-picker';
 
 const connectionNameInputStyles = css({
   marginTop: spacing[5],
@@ -41,6 +41,7 @@ function SaveConnectionModal({
           ...editingFavorite,
         });
       }}
+      submitDisabled={(editingFavorite.name || '').trim() ? false : true}
       onCancel={onCancelClicked}
       buttonText="Save"
     >
@@ -61,8 +62,8 @@ function SaveConnectionModal({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <SavedConnectionColorPicker
-          hex={editingFavorite.color}
+        <FavoriteColorPicker
+          colorCode={editingFavorite.color}
           onChange={(newColor?: string) => {
             setEditingFavorite({
               ...editingFavorite,

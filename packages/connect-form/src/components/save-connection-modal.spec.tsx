@@ -40,7 +40,7 @@ describe('SaveConnectionModal Component', function () {
 
     describe('when the color and name are changed and save is clicked', function () {
       beforeEach(function () {
-        fireEvent.click(screen.getByTestId('color-pick-#59c1e2'));
+        fireEvent.click(screen.getByTestId('color-pick-color3'));
 
         const textArea = screen.getByRole('textbox');
 
@@ -72,7 +72,7 @@ describe('SaveConnectionModal Component', function () {
           expect(onSaveSpy.callCount).to.equal(1);
           expect(onSaveSpy.firstCall.args[0]).to.deep.equal({
             name: 'delicious cuban sandwich',
-            color: '#59c1e2',
+            color: 'color3',
           });
         });
 
@@ -80,6 +80,42 @@ describe('SaveConnectionModal Component', function () {
           expect(onCancelSpy.callCount).to.equal(0);
         });
       });
+    });
+  });
+
+  describe('when the connection does not have a name', function () {
+    beforeEach(function () {
+      render(
+        <SaveConnectionModal
+          onSaveClicked={onSaveSpy}
+          onCancelClicked={onCancelSpy}
+          open
+          initialFavoriteInfo={{ color: 'color1', name: '' }}
+        />
+      );
+    });
+
+    it('renders save disabled', function () {
+      const button = screen.getByText('Save').closest('button');
+      expect(button.disabled).to.be.true;
+    });
+  });
+
+  describe('when the connection does have a name', function () {
+    beforeEach(function () {
+      render(
+        <SaveConnectionModal
+          onSaveClicked={onSaveSpy}
+          onCancelClicked={onCancelSpy}
+          open
+          initialFavoriteInfo={{ color: 'color1', name: 'some name' }}
+        />
+      );
+    });
+
+    it('renders save as enabled', function () {
+      const button = screen.getByText('Save').closest('button');
+      expect(button.disabled).not.to.be.true;
     });
   });
 
@@ -92,7 +128,7 @@ describe('SaveConnectionModal Component', function () {
           open
           initialFavoriteInfo={{
             name: 'pineapples',
-            color: '#326fde',
+            color: 'color3',
           }}
         />
       );
@@ -104,7 +140,7 @@ describe('SaveConnectionModal Component', function () {
 
     it('should have the color already selected', function () {
       expect(screen.queryByTestId('color-pick-no-color-selected')).to.not.exist;
-      expect(screen.getByTestId('color-pick-#326fde-selected')).to.be.visible;
+      expect(screen.getByTestId('color-pick-color3-selected')).to.be.visible;
     });
   });
 });

@@ -2,27 +2,19 @@ import React from 'react';
 import {
   css,
   cx,
+  Label,
   spacing,
   uiColors,
-  Label,
 } from '@mongodb-js/compass-components';
+import {
+  CONNECTION_COLOR_CODES,
+  legacyColorsToColorCode,
+  useConnectionColor,
+} from '../hooks/use-connection-color';
 
 /**
  * Default colors.
  */
-const COLORS = [
-  '#5fc86e',
-  '#326fde',
-  '#deb342',
-  '#d4366e',
-  '#59c1e2',
-  '#2c5f4a',
-  '#d66531',
-  '#773819',
-  '#3b8196',
-  '#ababab',
-];
-
 const colorOptionStyles = css({
   outline: 'none',
   margin: 0,
@@ -30,8 +22,8 @@ const colorOptionStyles = css({
   marginRight: spacing[2],
   borderRadius: '50%',
   verticalAlign: 'middle',
-  width: 36,
-  height: 36,
+  width: spacing[5] + spacing[1],
+  height: spacing[5] + spacing[1],
   border: '1px solid transparent',
   boxShadow: `0 0 0 0 ${uiColors.focus}`,
   transition: 'box-shadow .16s ease-in',
@@ -66,10 +58,12 @@ const selectedColorCheckmarkStyles = css({
 function ColorOption({
   isSelected,
   onClick,
+  code,
   hex,
 }: {
   isSelected: boolean;
   onClick: () => void;
+  code: string;
   hex: string;
 }): React.ReactElement {
   return (
@@ -80,7 +74,7 @@ function ColorOption({
         [activeColorOptionStyles]: isSelected,
         [inActiveColorOptionStyles]: !isSelected,
       })}
-      data-testid={`color-pick-${hex}${isSelected ? '-selected' : ''}`}
+      data-testid={`color-pick-${code}${isSelected ? '-selected' : ''}`}
       onClick={onClick}
       title={hex}
       aria-pressed={isSelected}
@@ -110,13 +104,16 @@ function ColorOption({
   );
 }
 
-function SavedConnectionColorPicker({
-  hex,
+export function FavoriteColorPicker({
+  colorCode,
   onChange,
 }: {
-  hex?: string;
+  colorCode?: string;
   onChange: (newColor?: string) => void;
 }): React.ReactElement {
+  const selectedColorCode = legacyColorsToColorCode(colorCode);
+  const { connectionColorToHex: colorCodeToHex } = useConnectionColor();
+  const selectedColorHex = colorCodeToHex(selectedColorCode);
   return (
     <>
       <Label htmlFor="favorite-color-selector">Color</Label>
@@ -128,30 +125,34 @@ function SavedConnectionColorPicker({
           }}
           className={cx({
             [colorOptionStyles]: true,
-            [activeColorOptionStyles]: !hex,
+            [activeColorOptionStyles]: !selectedColorHex,
           })}
           onClick={() => {
             onChange();
           }}
-          data-testid={`color-pick-no-color${!hex ? '-selected' : ''}`}
+          data-testid={`color-pick-no-color${
+            !selectedColorHex ? '-selected' : ''
+          }`}
           title="No color"
-          aria-pressed={!hex}
+          aria-pressed={!selectedColorHex}
         >
           <div className={noColorRedBarStyles} />
         </button>
-        {COLORS.map((color) => (
-          <ColorOption
-            onClick={() => {
-              onChange(color);
-            }}
-            isSelected={color === hex}
-            hex={color}
-            key={color}
-          />
-        ))}
+        {CONNECTION_COLOR_CODES.map((colorCode) => {
+          const hex = colorCodeToHex(colorCode) || '';
+          return (
+            <ColorOption
+              onClick={() => {
+                onChange(colorCode);
+              }}
+              isSelected={colorCode === selectedColorCode}
+              hex={hex}
+              code={colorCode}
+              key={colorCode}
+            />
+          );
+        })}
       </div>
     </>
   );
 }
-
-export default SavedConnectionColorPicker;
