@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-type ColorCode = `color${1|2|3|4|5|6|7|8|9|10}`;
+type ColorCode = `color${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
 
 const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
   color1: '#00A35C', // green.dark1
@@ -32,8 +32,8 @@ export const CONNECTION_COLOR_CODES = Object.keys(
   COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP
 ) as ColorCode[];
 
-function isColorCode(hexOrColorCode: string | undefined): hexOrColorCode is ColorCode {
-  return (CONNECTION_COLOR_CODES as string[]).includes(hexOrColorCode);
+function isColorCode(hexOrColorCode: string | undefined): boolean {
+  return CONNECTION_COLOR_CODES.includes(hexOrColorCode as ColorCode);
 }
 
 export function legacyColorsToColorCode(

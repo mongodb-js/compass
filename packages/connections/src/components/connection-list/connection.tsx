@@ -160,12 +160,12 @@ function Connection({
   } = connectionInfo;
 
   const { connectionColorToHex } = useConnectionColor();
-  const favoriteColorHex = connectionColorToHex(favorite?.color);
+  const favoriteColorHex = connectionColorToHex(favorite?.color) ?? '';
 
   const hasColoredBackground = isActive && favoriteColorHex;
   const titleColor = hasColoredBackground ? uiColors.black : uiColors.white;
   const backgroundColor = hasColoredBackground
-    ? `${favoriteColorHex as string} !important`
+    ? `${favoriteColorHex} !important`
     : 'none';
 
   const descriptionColor = hasColoredBackground
