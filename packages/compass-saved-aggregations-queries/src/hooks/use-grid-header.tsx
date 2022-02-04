@@ -37,8 +37,14 @@ export const useGridHeader = (
   const [filterControls, filters, search] = useGridFilters(items);
   const filteredItems = useFilteredItems(items, filters, search);
 
-  const [sortControls, sortState] = useSortControls<SortKeys>(sortBy);
-  const sortedItems = useSortedItems(filteredItems, sortState);
+  const isDisabled = Boolean(search) ?? false;
+  const [sortControls, sortState] = useSortControls<SortKeys>(sortBy, {
+    isDisabled,
+  });
+  const sortedItems = useSortedItems(
+    filteredItems,
+    isDisabled ? null : sortState
+  );
 
   const gridHeader = () => {
     return (

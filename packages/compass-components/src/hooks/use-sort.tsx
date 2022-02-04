@@ -29,8 +29,13 @@ type SortAction<T> =
   | { type: 'change-name'; name: T | null }
   | { type: 'change-order' };
 
+type SortOptions = {
+  isDisabled?: boolean;
+};
+
 export function useSortControls<T extends string>(
-  items: { name: T; label: string }[]
+  items: { name: T; label: string }[],
+  options?: SortOptions
 ): [React.ReactElement, SortState<T>] {
   const labelId = useId();
   const controlId = useId();
@@ -70,6 +75,7 @@ export function useSortControls<T extends string>(
           Sort by
         </Label>
         <Select
+          disabled={options?.isDisabled}
           id={controlId}
           aria-labelledby={labelId}
           allowDeselect={false}
@@ -93,11 +99,11 @@ export function useSortControls<T extends string>(
           onClick={() => {
             dispatch({ type: 'change-order' });
           }}
-          disabled={sortState.name === null}
+          disabled={sortState.name === null || options?.isDisabled}
         ></Button>
       </div>
     );
-  }, [items, sortState, controlId, labelId]);
+  }, [sortState, items, labelId, controlId, options?.isDisabled]);
 
   return [sortControls, sortState];
 }
@@ -112,13 +118,10 @@ function sortString(a: string, b: string, order: SortOrder): number {
 
 export function useSortedItems<T extends Record<string, unknown>>(
   items: T[],
-  {
-    name,
-    order,
-  }: {
+  sortState: {
     name: keyof T | null;
     order: SortOrder;
-  },
+  } | null,
   sortFn: Partial<
     {
       [key in keyof T]: (a: T[key], b: T[key], order: SortOrder) => number;
@@ -126,6 +129,10 @@ export function useSortedItems<T extends Record<string, unknown>>(
   > | null = null
 ): T[] {
   return useMemo(() => {
+    if (!sortState) {
+      return items;
+    }
+    const { name, order } = sortState;
     return [...items].sort((a, b) => {
       if (!name) {
         return 0;
@@ -146,5 +153,5 @@ export function useSortedItems<T extends Record<string, unknown>>(
       }
       return sortUnknown(a[name], b[name], order);
     });
-  }, [items, sortFn, name, order]);
+  }, [sortState, items, sortFn]);
 }

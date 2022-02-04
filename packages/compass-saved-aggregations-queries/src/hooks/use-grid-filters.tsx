@@ -9,28 +9,13 @@ import {
   cx,
   TextInput,
 } from '@mongodb-js/compass-components';
+import _ from 'lodash';
 
 import type { Item } from '../stores/aggregations-queries-items';
 
 interface SelectState {
   database?: string;
   collection?: string;
-}
-
-interface SearchableItem {
-  /**
-   * Information about the item (name, namespace, timeseries?)
-   */
-  meta: string[];
-  /**
-   * Possible keywords user can use to search by,
-   * e.g a query can also be searched by find.
-   */
-  tags: string[];
-  /**
-   * The actual query/agregation information
-   */
-  data: string;
 }
 
 const selectContainer = css({
@@ -116,19 +101,20 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
   const [selectState, setSelectState] = useState<SelectState>({});
   const [collections, setCollections] = useState<string[]>([]);
 
-  const databases = items
-    .map((x) => x.database)
-    .filter((x, i, arr) => arr.indexOf(x) === i);
+  const databases = _.uniq(_.map(items, 'database'));
 
   const selectDatabase = useMemo(() => {
     return (database: string): void => {
       setSelectState({
         database: database ?? undefined,
       });
-      const collections = items
-        .filter((x) => x.database === database)
-        .map((x) => x.collection)
-        .filter((x, i, arr) => arr.indexOf(x) === i);
+
+      const collections = _.uniq(
+        _.map(
+          _.filter(items, (x) => x.database === database),
+          'collection'
+        )
+      );
       setCollections(collections);
     };
   }, [items]);
@@ -179,57 +165,71 @@ function filterItemByConditions(item: Item, conditions: SelectState): boolean {
   return shouldReturnItem;
 }
 
-function mapItemToSearchable(item: Item): SearchableItem {
-  const searchable: SearchableItem = {
-    meta: [item.name],
-    tags: [],
-    data: '',
-  };
-
-  if (item.type === 'aggregation') {
-    const stages = item.aggregation.pipeline
-      .filter((x) => x.stageOperator && x.stage)
-      .map((stage) => {
-        return {
-          [stage.stageOperator]: JSON.parse(stage.stage),
-        };
-      });
-
-    searchable.meta.push(item.aggregation.namespace);
-    searchable.meta.push(item.aggregation.env ?? '');
-    searchable.meta.push(item.aggregation.collationString ?? '');
-    searchable.meta.push(item.aggregation.isTimeSeries ? 'timeseries' : '');
-    searchable['tags'] = ['aggregate', 'aggregation'];
-    searchable['data'] = JSON.stringify(stages);
-  } else {
-    searchable.meta.push(item.query._ns);
-    searchable['tags'] = ['find', 'query'];
-    searchable['data'] = JSON.stringify({
-      filter: item.query.filter,
-      project: item.query.project,
-      sort: item.query.sort,
-      skip: item.query.skip,
-      limit: item.query.limit,
-      collation: item.query.collation,
-    });
-  }
-  return searchable;
-}
-
 function filterByText(items: Item[], text: string): Item[] {
   if (!text || text.length === 1) {
     return items;
   }
-  const fuse = new Fuse<SearchableItem>(items.map(mapItemToSearchable), {
+  const fuse = new Fuse<Item>(items, {
     findAllMatches: true,
     shouldSort: true,
     minMatchCharLength: 2,
     threshold: 0.3,
     ignoreLocation: true,
-    keys: ['meta', 'tags', 'data'],
+    keys: [
+      {
+        name: 'name',
+        weight: 4,
+      },
+      {
+        name: 'namespace',
+        weight: 3,
+      },
+      {
+        name: 'searchTags',
+        weight: 2,
+      },
+      {
+        name: 'data',
+        weight: 1,
+      },
+    ],
+    getFn: (item: Item, path) => {
+      const key = Array.isArray(path) ? path[0] : path;
+      if (key === 'namespace') {
+        return `${item.database}.${item.collection}`;
+      }
+
+      if (item.type === 'query') {
+        if (key === 'searchTags') {
+          return ['find', 'query'];
+        }
+        if (key === 'data') {
+          return JSON.stringify({
+            filter: item.query.filter,
+          });
+        }
+      }
+
+      if (item.type === 'aggregation') {
+        if (key === 'searchTags') {
+          return ['aggregate', 'aggregation'];
+        }
+
+        if (key === 'data') {
+          const stages = item.aggregation.pipeline
+            .filter((x) => x.stageOperator && x.stage)
+            .map((stage) => {
+              return {
+                [stage.stageOperator]: JSON.parse(stage.stage),
+              };
+            });
+          return JSON.stringify(stages);
+        }
+      }
+      return _.get(item, path);
+    },
   });
-  const searchedIndexes = fuse.search(text).map((x) => x.refIndex);
-  return items.filter((_x, index) => searchedIndexes.includes(index));
+  return fuse.search(text).map((x) => x.item);
 }
 
 export function useGridFilters(
