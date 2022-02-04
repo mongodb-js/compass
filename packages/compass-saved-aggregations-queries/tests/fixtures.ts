@@ -91,7 +91,7 @@ export const queries: Item[] = [
   },
 ];
 
-export const aggregations = [
+export const aggregations: Item[] = [
   {
     id: '61b753fdce2a0a1d7a32ae1d',
     name: 'Demo',
@@ -107,16 +107,69 @@ export const aggregations = [
       sourceName: null,
       pipeline: [
         {
+          id: '61b8a4a2ffab3b5b30862d8b',
           stageOperator: '$match',
           stage: '{\n  "reviews_per_month": 3\n}',
+          isValid: true,
+          isEnabled: true,
+          isExpanded: true,
+          isLoading: false,
+          isComplete: false,
+          previewDocuments: [],
+          syntaxError: null,
+          error: null,
+          projections: [],
         },
         {
+          id: '61b8a4a2ffab3b5b30862d8c',
           stageOperator: '$limit',
           stage: '3',
+          isValid: true,
+          isEnabled: true,
+          isExpanded: true,
+          isLoading: false,
+          isComplete: true,
+          previewDocuments: [],
+          syntaxError: null,
+          error: null,
+          projections: [],
+          fromStageOperators: false,
+          executor: {
+            $limit: 3,
+          },
+          isMissingAtlasOnlyStageSupport: false,
         },
         {
+          id: '61b8a4a2ffab3b5b30862d8d',
           stageOperator: '$project',
           stage: '{\n  "_id": 0,\n  "name": 1,\n  "host_location": 1\n}',
+          isValid: true,
+          isEnabled: true,
+          isExpanded: true,
+          isLoading: false,
+          isComplete: true,
+          previewDocuments: [],
+          syntaxError: null,
+          error: null,
+          projections: [
+            {
+              name: 'name',
+              value: 'name',
+              score: 1,
+              meta: '1',
+              version: '0.0.0',
+              index: 2,
+            },
+            {
+              name: 'host_location',
+              value: 'host_location',
+              score: 1,
+              meta: '1',
+              version: '0.0.0',
+              index: 2,
+            },
+          ],
+          isMissingAtlasOnlyStageSupport: false,
         },
       ],
       name: 'Demo',
@@ -128,4 +181,4 @@ export const aggregations = [
       collationString: '',
     },
   },
-] as Item[];
+];

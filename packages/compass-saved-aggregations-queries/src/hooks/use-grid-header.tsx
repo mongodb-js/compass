@@ -9,7 +9,12 @@ import {
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
 import type { Item } from '../stores/aggregations-queries-items';
 
-const sortBy: { name: Extract<keyof Item, string>; label: string }[] = [
+type SortKeys = Exclude<
+  Extract<keyof Item, string>,
+  'id' | 'database' | 'collection' | 'type'
+>;
+
+const sortBy: { name: SortKeys; label: string }[] = [
   {
     name: 'name',
     label: 'Name',
@@ -32,8 +37,8 @@ export const useGridHeader = (
   const [filterControls, filters, search] = useGridFilters(items);
   const filteredItems = useFilteredItems(items, filters, search);
 
-  const [sortControls, sortState] = useSortControls(sortBy);
-  const sortedItems = useSortedItems(filteredItems, sortState as any);
+  const [sortControls, sortState] = useSortControls<SortKeys>(sortBy);
+  const sortedItems = useSortedItems(filteredItems, sortState);
 
   const gridHeader = () => {
     return (
@@ -44,5 +49,5 @@ export const useGridHeader = (
     );
   };
 
-  return [gridHeader as React.FunctionComponent, sortedItems];
+  return [gridHeader, sortedItems];
 };

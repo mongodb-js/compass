@@ -23,20 +23,20 @@ const select = css({
 
 export type SortOrder = 1 | -1;
 
-type SortState<T = string> = { name: T | null; order: SortOrder };
+type SortState<T> = { name: T | null; order: SortOrder };
 
-type SortAction =
-  | { type: 'change-name'; name: string | null }
+type SortAction<T> =
+  | { type: 'change-name'; name: T | null }
   | { type: 'change-order' };
 
-export function useSortControls(
-  items: { name: string; label: string }[]
-): [React.ReactElement, SortState] {
+export function useSortControls<T extends string>(
+  items: { name: T; label: string }[]
+): [React.ReactElement, SortState<T>] {
   const labelId = useId();
   const controlId = useId();
 
   const [sortState, dispatch] = useReducer(
-    (state: SortState, action: SortAction): SortState => {
+    (state: SortState<T>, action: SortAction<T>): SortState<T> => {
       if (action.type === 'change-name' && action.name !== state.name) {
         return {
           ...state,
@@ -78,7 +78,7 @@ export function useSortControls(
             css({ minWidth: `calc(${longestLabel}ch + ${spacing[6]}px)` })
           )}
           onChange={(value) => {
-            dispatch({ type: 'change-name', name: value || null });
+            dispatch({ type: 'change-name', name: (value as T) || null });
           }}
           defaultValue={sortState.name ?? undefined}
         >

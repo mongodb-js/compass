@@ -1,47 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import { VirtualGrid, css, spacing } from '@mongodb-js/compass-components';
 import { fetchItems } from '../stores/aggregations-queries-items';
-import type { Item } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
 import type { RootActions, RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { SavedItemCardProps, Action } from './saved-item-card';
 import OpenItemModal from './open-item-modal';
 import { useGridHeader } from '../hooks/use-grid-header';
-
-const ConnectedItemCard = connect<
-  Omit<SavedItemCardProps, 'onAction'>,
-  Pick<SavedItemCardProps, 'onAction'>,
-  { item: Item },
-  RootState
->(
-  (_state, { item }) => {
-    return {
-      id: item.id,
-      type: item.type,
-      name: item.name,
-      database: item.database,
-      collection: item.collection,
-      lastModified: item.lastModified,
-    };
-  },
-  {
-    onAction(id: string, actionName: Action) {
-      return (
-        dispatch: ThunkDispatch<RootState, void, RootActions>,
-        getState: () => RootState
-      ) => {
-        switch (actionName) {
-          case 'open':
-            return openSavedItem(id)(dispatch, getState);
-        }
-      };
-    },
-  }
-)(SavedItemCard);
 
 const row = css({
   gap: spacing[2],
@@ -54,6 +22,7 @@ const AggregationsQueriesList = ({
   loading,
   items,
   fetchItems,
+  onAction,
 }: AggregationsQueriesListProps) => {
   useEffect(() => {
     void fetchItems();
@@ -62,12 +31,12 @@ const AggregationsQueriesList = ({
   const [gridHeader, listItems] = useGridHeader(items);
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
-    React.useCallback(
-      ({ index, ...props }: { index: number }) => {
-        const item = listItems[index];
-        return <ConnectedItemCard item={item} {...props} />;
+    useCallback(
+      ({ index }: { index: number }) => {
+        const item: Omit<SavedItemCardProps, 'onAction'> = listItems[index];
+        return <SavedItemCard {...item} onAction={onAction} />;
       },
-      [listItems]
+      [listItems, onAction]
     );
 
   if (loading) {
@@ -95,7 +64,20 @@ const mapState = ({ savedItems: { items, loading } }: RootState) => ({
   loading,
 });
 
-const mapDispatch = { fetchItems };
+const mapDispatch = {
+  fetchItems,
+  onAction(id: string, actionName: Action) {
+    return (
+      dispatch: ThunkDispatch<RootState, void, RootActions>,
+      getState: () => RootState
+    ) => {
+      switch (actionName) {
+        case 'open':
+          return openSavedItem(id)(dispatch, getState);
+      }
+    };
+  },
+};
 
 const connector = connect(mapState, mapDispatch);
 
