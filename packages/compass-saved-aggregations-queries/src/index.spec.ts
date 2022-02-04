@@ -1,5 +1,11 @@
 import { expect } from 'chai';
-import * as CompassPlugin from './index';
+import proxyquire from 'proxyquire';
+import { createProxyquireMockForQueriesAndAggregationsPlugins } from '../test/mock';
+
+const CompassPlugin: any = proxyquire.load(
+  './index',
+  createProxyquireMockForQueriesAndAggregationsPlugins([], [])
+);
 
 describe('Compass Plugin', function () {
   it('exports activate, deactivate, and metadata', function () {

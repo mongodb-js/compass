@@ -7,13 +7,6 @@ require('ts-node').register({
   },
 });
 
-require('tsconfig-paths').register({
-  baseUrl: process.cwd(),
-  paths: {
-    '*': ['__mocks__/*', '*'],
-  },
-});
-
 // XXX: @cspotcode/source-map-support library used by ts-node internally causes
 // issues when running tests in electron renderer environment due to webassembly
 // module registering that it's trying to run going out of allowed size boundary
