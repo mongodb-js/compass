@@ -8,12 +8,12 @@ import {
   within,
 } from '@testing-library/react';
 import { expect } from 'chai';
-import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
 
 import Connections from './connections';
-import { ConnectionStore } from '../stores/connections-store';
+import type { ConnectionStore } from '../stores/connections-store';
 
 function getMockConnectionStorage(
   mockConnections: ConnectionInfo[]

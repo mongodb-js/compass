@@ -44,6 +44,20 @@ describe('ErrorBoundary', function () {
     ).to.be.visible;
   });
 
+  it('should render an error message with the display name', function () {
+    render(
+      <ErrorBoundary displayName="ErroringComponent">
+        <ComponentThatThrowsError />
+      </ErrorBoundary>
+    );
+
+    expect(
+      screen.getByText(
+        'An error occurred while rendering ErroringComponent: a.throwAnErrorNow is not a function'
+      )
+    ).to.be.visible;
+  });
+
   it('should call the onError function when an error occurs and its passed', function () {
     render(
       <ErrorBoundary onError={onErrorSpy}>

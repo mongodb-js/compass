@@ -2,7 +2,7 @@ import _ from 'lodash';
 import ConnectionString, {
   CommaAndColonSeparatedRecord,
 } from 'mongodb-connection-string-url';
-import { ConnectionInfo } from './connection-info';
+import type { ConnectionInfo } from './connection-info';
 import type { MongoClientOptions, AuthMechanismProperties } from 'mongodb';
 
 export interface ConnectionSecrets {

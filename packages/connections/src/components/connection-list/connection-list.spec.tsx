@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { ConnectionInfo } from 'mongodb-data-service';
+import type { ConnectionInfo } from 'mongodb-data-service';
 
 import ConnectionList from './connection-list';
 

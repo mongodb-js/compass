@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {
+import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
 } from 'mongodb-data-service';

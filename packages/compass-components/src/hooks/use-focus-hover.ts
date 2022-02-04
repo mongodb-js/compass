@@ -4,7 +4,8 @@ import {
   useFocusWithin,
 } from '@react-aria/interactions';
 import { mergeProps } from '@react-aria/utils';
-import React, { useMemo, useRef, useState } from 'react';
+import type React from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 export enum FocusState {
   NoFocus = 'NoFocus',

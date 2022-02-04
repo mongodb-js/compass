@@ -8,10 +8,14 @@ import Connection from './connection';
 describe('Connection Component', function () {
   let onClickSpy: sinon.SinonSpy<any[], any>;
   let onDoubleClickSpy: sinon.SinonSpy<any[], any>;
+  let duplicateConnectionSpy: sinon.SinonSpy<any[], any>;
+  let removeConnectionSpy: sinon.SinonSpy<any[], any>;
 
   beforeEach(function () {
     onClickSpy = sinon.spy();
     onDoubleClickSpy = sinon.spy();
+    duplicateConnectionSpy = sinon.spy();
+    removeConnectionSpy = sinon.spy();
   });
 
   describe('when it has a lastUsed date', function () {
@@ -23,12 +27,16 @@ describe('Connection Component', function () {
         <Connection
           isActive={false}
           connectionInfo={{
+            id: '0000-0000-0000-0000',
             lastUsed: lastUsed,
             connectionOptions: {
               connectionString: '',
             },
           }}
           onClick={onClickSpy}
+          onDoubleClick={onDoubleClickSpy}
+          duplicateConnection={duplicateConnectionSpy}
+          removeConnection={removeConnectionSpy}
         />
       );
 
@@ -54,6 +62,7 @@ describe('Connection Component', function () {
           <Connection
             isActive={false}
             connectionInfo={{
+              id: '0000-0000-0000-0000',
               connectionOptions: {
                 connectionString: '',
               },
@@ -62,6 +71,9 @@ describe('Connection Component', function () {
               },
             }}
             onClick={onClickSpy}
+            onDoubleClick={onDoubleClickSpy}
+            duplicateConnection={duplicateConnectionSpy}
+            removeConnection={removeConnectionSpy}
           />
         );
       });
@@ -78,6 +90,7 @@ describe('Connection Component', function () {
           <Connection
             isActive={false}
             connectionInfo={{
+              id: '0000-0000-0000-0000',
               connectionOptions: {
                 connectionString: '',
               },
@@ -86,6 +99,9 @@ describe('Connection Component', function () {
               },
             }}
             onClick={onClickSpy}
+            onDoubleClick={onDoubleClickSpy}
+            duplicateConnection={duplicateConnectionSpy}
+            removeConnection={removeConnectionSpy}
           />
         );
       });
@@ -97,33 +113,6 @@ describe('Connection Component', function () {
         ).to.equal('rgb(255, 255, 255)');
       });
     });
-
-    describe('when there is a favorite color', function () {
-      beforeEach(function () {
-        render(
-          <Connection
-            isActive={false}
-            connectionInfo={{
-              connectionOptions: {
-                connectionString: '',
-              },
-              favorite: {
-                name: 'aaa',
-                color: 'rgb(95, 200, 110)',
-              },
-            }}
-            onClick={onClickSpy}
-          />
-        );
-      });
-
-      it('it uses favorite color', function () {
-        const favoriteIndicator = screen.getByTestId('connection-icon');
-        expect(
-          getComputedStyle(favoriteIndicator).getPropertyValue('color')
-        ).to.equal('rgb(95, 200, 110)');
-      });
-    });
   });
 
   describe('when it is not a favorite', function () {
@@ -132,11 +121,15 @@ describe('Connection Component', function () {
         <Connection
           isActive={false}
           connectionInfo={{
+            id: '0000-0000-0000-0000',
             connectionOptions: {
               connectionString: 'mongodb://outerspace:27019',
             },
           }}
           onClick={onClickSpy}
+          onDoubleClick={onDoubleClickSpy}
+          duplicateConnection={duplicateConnectionSpy}
+          removeConnection={removeConnectionSpy}
         />
       );
     });
@@ -166,11 +159,15 @@ describe('Connection Component', function () {
         <Connection
           isActive={false}
           connectionInfo={{
+            id: '0000-0000-0000-0000',
             connectionOptions: {
               connectionString: 'invalid connection string',
             },
           }}
           onClick={onClickSpy}
+          onDoubleClick={onDoubleClickSpy}
+          duplicateConnection={duplicateConnectionSpy}
+          removeConnection={removeConnectionSpy}
         />
       );
     });
@@ -187,11 +184,15 @@ describe('Connection Component', function () {
         <Connection
           isActive={false}
           connectionInfo={{
+            id: '0000-0000-0000-0000',
             connectionOptions: {
               connectionString: '',
             },
           }}
           onClick={onClickSpy}
+          onDoubleClick={onDoubleClickSpy}
+          duplicateConnection={duplicateConnectionSpy}
+          removeConnection={removeConnectionSpy}
         />
       );
     });
@@ -208,6 +209,7 @@ describe('Connection Component', function () {
         <Connection
           isActive={false}
           connectionInfo={{
+            id: '0000-0000-0000-0000',
             connectionOptions: {
               connectionString: '',
             },
@@ -216,6 +218,9 @@ describe('Connection Component', function () {
             },
           }}
           onClick={onClickSpy}
+          onDoubleClick={onDoubleClickSpy}
+          duplicateConnection={duplicateConnectionSpy}
+          removeConnection={removeConnectionSpy}
         />
       );
       const button = screen.getByText('123').closest('button');
@@ -242,6 +247,7 @@ describe('Connection Component', function () {
         <Connection
           isActive={false}
           connectionInfo={{
+            id: '0000-0000-0000-0000',
             connectionOptions: {
               connectionString: 'double-click.com',
             },
@@ -249,7 +255,10 @@ describe('Connection Component', function () {
               name: 'double-click',
             },
           }}
+          onClick={onClickSpy}
           onDoubleClick={onDoubleClickSpy}
+          duplicateConnection={duplicateConnectionSpy}
+          removeConnection={removeConnectionSpy}
         />
       );
       const button = screen.getByText('double-click').closest('button');
@@ -267,100 +276,13 @@ describe('Connection Component', function () {
       expect(onDoubleClickSpy.called).to.equal(true);
       const [connectionInfo] = onDoubleClickSpy.getCall(0).args;
       expect(connectionInfo).to.deep.equal({
+        id: '0000-0000-0000-0000',
         connectionOptions: {
           connectionString: 'double-click.com',
         },
         favorite: {
           name: 'double-click',
         },
-      });
-    });
-  });
-
-  describe('when connection is active', function () {
-    describe('and is favorite', function () {
-      describe('and has a favorite color', function () {
-        beforeEach(function () {
-          render(
-            <Connection
-              isActive={true}
-              connectionInfo={{
-                id: '1234',
-                connectionOptions: {
-                  connectionString: '',
-                },
-                favorite: {
-                  name: 'aaa',
-                  color: 'rgb(95, 200, 110)',
-                },
-              }}
-            />
-          );
-        });
-        it('uses favorite color as background color and white as text color', function () {
-          const connection = screen.getByTestId('saved-connection-button-1234');
-          expect(connection).to.not.equal(null);
-          const styles = getComputedStyle(connection);
-          expect(styles.getPropertyValue('color')).to.equal(
-            'rgb(255, 255, 255)'
-          );
-          expect(styles.getPropertyValue('background-color')).to.equal(
-            'rgb(95, 200, 110)'
-          );
-        });
-      });
-      describe('and does not have a favorite color', function () {
-        beforeEach(function () {
-          render(
-            <Connection
-              isActive={true}
-              connectionInfo={{
-                id: '1234',
-                connectionOptions: {
-                  connectionString: '',
-                },
-                favorite: {
-                  name: 'aaa',
-                },
-              }}
-            />
-          );
-        });
-        it('uses dark gray as background color and white as text color', function () {
-          const connection = screen.getByTestId('saved-connection-button-1234');
-          expect(connection).to.not.equal(null);
-          const styles = getComputedStyle(connection);
-          expect(styles.getPropertyValue('color')).to.equal(
-            'rgb(255, 255, 255)'
-          );
-          expect(styles.getPropertyValue('background-color')).to.equal(
-            'rgb(61, 79, 88)'
-          );
-        });
-      });
-    });
-    describe('and is not favorite', function () {
-      beforeEach(function () {
-        render(
-          <Connection
-            isActive={true}
-            connectionInfo={{
-              id: '1234',
-              connectionOptions: {
-                connectionString: '',
-              },
-            }}
-          />
-        );
-      });
-      it('uses dark gray as background color and white as text color', function () {
-        const connection = screen.getByTestId('saved-connection-button-1234');
-        expect(connection).to.not.equal(null);
-        const styles = getComputedStyle(connection);
-        expect(styles.getPropertyValue('color')).to.equal('rgb(255, 255, 255)');
-        expect(styles.getPropertyValue('background-color')).to.equal(
-          'rgb(61, 79, 88)'
-        );
       });
     });
   });

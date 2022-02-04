@@ -10,7 +10,7 @@ import {
   css,
   cx,
 } from '@mongodb-js/compass-components';
-import { ConnectionInfo } from 'mongodb-data-service';
+import type { ConnectionInfo } from 'mongodb-data-service';
 
 import Connection from './connection';
 
@@ -23,7 +23,8 @@ const newConnectionButtonContainerStyles = css({
   position: 'relative',
   fontWeight: 'bold',
   color: uiColors.white,
-  height: '75px',
+  height: spacing[6] + spacing[2],
+  overflow: 'hidden',
 });
 
 const newConnectionButtonStyles = css({
@@ -46,9 +47,9 @@ const newConnectionButtonContent = css({
 });
 
 const sectionHeaderStyles = css({
-  marginTop: spacing[3],
-  marginBottom: spacing[2],
-  paddingLeft: spacing[2],
+  marginTop: spacing[4],
+  marginBottom: spacing[3],
+  paddingLeft: spacing[3],
   paddingRight: spacing[2],
   display: 'flex',
   flexDirection: 'row',

@@ -13,6 +13,7 @@ function DatabaseName({
       <TextInput
         required
         label="Database Name"
+        data-testid="database-name"
         onChange={(e) => onChangeDatabaseName(e.target.value)}
         value={databaseName}
         spellCheck={false}

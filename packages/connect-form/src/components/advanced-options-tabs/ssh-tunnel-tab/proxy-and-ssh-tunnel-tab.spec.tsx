@@ -3,7 +3,7 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from 'mongodb-data-service';
 
 import ProxyAndSshTunnelTab from './proxy-and-ssh-tunnel-tab';
 import type { ProxyOptions } from 'mongodb';

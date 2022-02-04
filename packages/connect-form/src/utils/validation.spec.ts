@@ -4,7 +4,7 @@ import {
   validateConnectionOptionsErrors,
   validateConnectionOptionsWarnings,
 } from './validation';
-import { ConnectionInfo } from 'mongodb-data-service';
+import type { ConnectionInfo } from 'mongodb-data-service';
 
 describe('validation', function () {
   describe('Form Validation Errors', function () {

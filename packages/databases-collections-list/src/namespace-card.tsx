@@ -9,8 +9,6 @@ import {
   Subtitle,
   useHoverState,
   Badge,
-  BadgeVariant,
-  IconGlyph,
   Tooltip,
   cx,
   useFocusState,
@@ -19,9 +17,10 @@ import {
   mergeProps,
   useDefaultAction,
 } from '@mongodb-js/compass-components';
+import type { BadgeVariant, IconGlyph } from '@mongodb-js/compass-components';
 import { NamespaceParam } from './namespace-param';
-import { ItemType } from './use-create';
-import { ViewType } from './use-view-type';
+import type { ItemType } from './use-create';
+import type { ViewType } from './use-view-type';
 
 const cardTitleGroup = css({
   display: 'flex',
@@ -71,7 +70,11 @@ const cardActionContainer = css({
 });
 
 const CardActionContainer: React.FunctionComponent = ({ children }) => {
-  return <div className={cardActionContainer}>{children}</div>;
+  return (
+    <div className={cardActionContainer} data-testid="card-action-container">
+      {children}
+    </div>
+  );
 };
 
 const cardBadges = css({

@@ -1,5 +1,6 @@
 import ConnectForm from './components/connect-form';
 import SaveConnectionModal from './components/save-connection-modal';
-
-export { SaveConnectionModal };
+import { useConnectionColor } from './hooks/use-connection-color';
+useConnectionColor;
+export { SaveConnectionModal, useConnectionColor };
 export default ConnectForm;

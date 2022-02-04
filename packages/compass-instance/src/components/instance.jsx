@@ -1,13 +1,18 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { TabNavBar, UnsafeComponent } = require('hadron-react-components');
-const { Banner, BannerVariant } = require('@mongodb-js/compass-components');
+const { TabNavBar } = require('hadron-react-components');
+const { Banner, BannerVariant, ErrorBoundary } = require('@mongodb-js/compass-components');
 const { track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry(
     'COMPASS-INSTANCE-UI'
   );
+const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
 
 const { default: styles } = require('./instance.module.less');
+
+const { debug } = createLoggerAndTelemetry(
+  'mongodb-compass:compass-collection:context'
+);
 
 function trackingIdForTabName({ name }) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -73,7 +78,17 @@ const InstanceComponent = ({
             return tab.name;
           })}
           views={filteredTabs.map((tab) => {
-            return <UnsafeComponent key={tab.name} component={tab.component} />;
+            return (
+              <ErrorBoundary
+                displayName={tab.displayName}
+                key={tab.name}
+                onError={(renderingError, errorInfo) => {
+                  debug('error rendering instance view', tab.name, renderingError, errorInfo);
+                }}
+              >
+                <tab.component />
+              </ErrorBoundary>
+            );
           })}
           activeTabIndex={activeTabId}
           onTabClicked={onTabClick}

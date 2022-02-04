@@ -1,8 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
-import Switch from 'react-ios-switch';
 import { Tooltip } from 'hadron-react-components';
+import { Toggle } from '@mongodb-js/compass-components';
 
 import styles from './toggle-stage.module.less';
 
@@ -40,16 +39,17 @@ class ToggleStage extends PureComponent {
       : 'Include stage in pipeline';
     return (
       <div
-        className={classnames(styles['toggle-stage'])}
+        className={styles['toggle-stage']}
         data-for="toggle-stage"
         data-tip={TOOLTIP}
-        data-place="top">
-        <Switch
+        data-place="top"
+      >
+        <Toggle
           checked={this.props.isEnabled}
           onChange={this.onStageToggled}
-          className={classnames(styles['toggle-stage-button'])}
-          onColor="rgb(19, 170, 82)"
-          style={{ backgroundColor: 'rgb(255,255,255)' }}
+          className={styles['toggle-stage-button']}
+          aria-label={TOOLTIP}
+          size="small"
         />
         <Tooltip id="toggle-stage" />
       </div>

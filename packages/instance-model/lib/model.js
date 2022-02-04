@@ -261,6 +261,20 @@ const InstanceModel = AmpersandModel.extend(
       }
     },
 
+    async getNamespace({ dataService, database, collection }) {
+      await this.fetchDatabases({ dataService });
+      const db = this.databases.get(database);
+      if (!db) {
+        return null;
+      }
+      await db.fetchCollections({ dataService });
+      const coll = db.collections.get(collection, 'name');
+      if (!coll) {
+        return null;
+      }
+      return coll;
+    },
+
     removeAllListeners() {
       removeListenersRec(this);
       VisitedModels.deleteAll();

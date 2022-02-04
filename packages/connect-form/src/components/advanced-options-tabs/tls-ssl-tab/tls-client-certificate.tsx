@@ -1,7 +1,7 @@
 import React from 'react';
 import { FileInput, TextInput, css } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { MongoClientOptions } from 'mongodb';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 
@@ -36,7 +36,7 @@ function TLSClientCertificate({
           description={'Learn More'}
           disabled={disabled}
           id="tlsCertificateKeyFile"
-          label="Client Certificate (.pem)"
+          label="Client Certificate and Key (.pem)"
           dataTestId="tlsCertificateKeyFile-input"
           link={
             'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile'
@@ -49,7 +49,7 @@ function TLSClientCertificate({
           }}
           showFileOnNewLine
           optional
-          optionalMessage="Optional (only required with X.509)"
+          optionalMessage="Optional (required with X.509 auth)"
         />
       </FormFieldContainer>
       <FormFieldContainer>
