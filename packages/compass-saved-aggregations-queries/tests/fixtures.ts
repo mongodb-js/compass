@@ -52,6 +52,7 @@ export const queries: Item[] = [
       },
       sort: {
         reviews: -1,
+        num_of_host_spaces: 1,
       },
       skip: 0,
       limit: 10,

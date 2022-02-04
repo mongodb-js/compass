@@ -74,12 +74,83 @@ describe('use-grid-header', function () {
     });
   });
 
-  describe('filters/sorts items correctly', function () {
+  describe('filters items by text search', function () {
+    let searchInput;
+    beforeEach(function () {
+      render(<GridHeader />);
+      searchInput = screen.getByPlaceholderText(/search/i);
+    });
+
+    it('should not filter when input is empty', function () {
+      // Sorted by name default
+      const sortedItems = [...items].sort(
+        (a, b) => a.name.localeCompare(b.name) * 1
+      );
+      const expectedItems = [...gridItems];
+      expect(expectedItems).to.deep.equal(sortedItems);
+    });
+
+    it('should filter items by search text - database name', function () {
+      fireEvent.change(searchInput, { target: { value: 'airbnb' } });
+      expect(gridItems).to.have.length(4);
+    });
+
+    it('should filter items by search text - collection name', function () {
+      fireEvent.change(searchInput, { target: { value: 'listings' } });
+      expect(gridItems).to.have.length(3);
+    });
+
+    it('should filter items by search text - filter key', function () {
+      fireEvent.change(searchInput, { target: { value: 'host_location' } });
+      expect(gridItems).to.have.length(4);
+    });
+
+    it('should not filter items by search text - sort key (num_of_host_spaces)', function () {
+      fireEvent.change(searchInput, {
+        target: { value: 'num_of_host_spaces' },
+      });
+      expect(gridItems).to.have.length(0);
+    });
+
+    it('should filter items by search text', function () {
+      fireEvent.change(searchInput, { target: { value: 'beds' } });
+      expect(gridItems).to.have.length(2); // matches best (in name)
+    });
+  });
+
+  describe('filters items by database/collection selects', function () {
     beforeEach(function () {
       render(<GridHeader />);
     });
 
-    it('should sort items - name', function () {
+    it('should filter items by database/collection', function () {
+      const { database, collection } = items[0];
+      // select database
+      fireEvent.click(screen.getByText('All databases'));
+      fireEvent.click(screen.getByText(database));
+      // select collection
+      fireEvent.click(screen.getByText('All collections'));
+      fireEvent.click(screen.getByText(collection));
+
+      const filteredItems = [...items]
+        .filter(
+          (item) => item.database === database && item.collection === collection
+        )
+        .sort((a, b) => a.lastModified - b.lastModified);
+      const expectedItems = [...gridItems].sort(
+        (a, b) => a.lastModified - b.lastModified
+      );
+
+      expect(filteredItems).to.deep.equal(expectedItems);
+    });
+  });
+
+  describe.only('sorts items correctly', function () {
+    beforeEach(function () {
+      render(<GridHeader />);
+    });
+
+    it('sorts by name', function () {
       // asc order
       let sortedItems = [...items].sort(
         (a, b) => a.name.localeCompare(b.name) * 1
@@ -109,7 +180,7 @@ describe('use-grid-header', function () {
       ).to.exist;
     });
 
-    it('should sort items - last modified', function () {
+    it('sorts by last modified', function () {
       // Open the sort dropdown
       fireEvent.click(
         screen.getByText('Name', {
@@ -148,29 +219,28 @@ describe('use-grid-header', function () {
         })
       ).to.exist;
     });
+  });
 
-    it('should filter items by database/collection', function () {
-      const { database, collection } = items[0];
-      // select database
-      fireEvent.click(screen.getByText('All databases'));
-      fireEvent.click(screen.getByText(database));
-      // select collection
-      fireEvent.click(screen.getByText('All collections'));
-      fireEvent.click(screen.getByText(collection));
-
-      const filteredItems = [...items]
-        .filter(
-          (item) => item.database === database && item.collection === collection
-        )
-        .sort((a, b) => a.lastModified - b.lastModified);
-      const expectedItems = [...gridItems].sort(
-        (a, b) => a.lastModified - b.lastModified
-      );
-
-      expect(filteredItems).to.deep.equal(expectedItems);
+  describe('filters items by text and dropdown/collection selects correctly', function () {
+    beforeEach(function () {
+      render(<GridHeader />);
     });
 
-    it('should filter items by text search');
-    it('should filter items by database/collection and text search');
+    it('should filter items by database/collection and text search', function () {
+      const searchInput = screen.getByPlaceholderText(/search/i);
+      fireEvent.change(searchInput, { target: { value: 'berlin' } });
+
+      // select database
+      fireEvent.click(screen.getByText('All databases'));
+      fireEvent.click(screen.getByText('airbnb'));
+      // select collection
+      fireEvent.click(screen.getByText('All collections'));
+      fireEvent.click(screen.getByText('listings'));
+
+      expect(
+        gridItems,
+        'it should filter items by database and collection'
+      ).to.have.length(2);
+    });
   });
 });
