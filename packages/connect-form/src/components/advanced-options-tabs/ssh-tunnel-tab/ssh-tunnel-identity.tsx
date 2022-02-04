@@ -1,9 +1,10 @@
-import React, { ChangeEvent, useCallback } from 'react';
+import type { ChangeEvent } from 'react';
+import React, { useCallback } from 'react';
 import { TextInput, FileInput } from '@mongodb-js/compass-components';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import FormFieldContainer from '../../form-field-container';
+import type { ConnectionFormError } from '../../../utils/validation';
 import {
-  ConnectionFormError,
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
@@ -37,7 +38,6 @@ function SshTunnelIdentity({
       label: 'SSH Hostname',
       type: 'text',
       optional: false,
-      placeholder: 'SSH Hostname',
       value: sshTunnelOptions?.host,
       errorMessage: errorMessageByFieldName(errors, 'sshHostname'),
       state: fieldNameHasError(errors, 'sshHostname') ? 'error' : 'none',
@@ -47,7 +47,6 @@ function SshTunnelIdentity({
       label: 'SSH Tunnel Port',
       type: 'number',
       optional: false,
-      placeholder: 'SSH Tunnel Port',
       value: sshTunnelOptions?.port?.toString(),
       errorMessage: '',
       state: 'none',
@@ -57,7 +56,6 @@ function SshTunnelIdentity({
       label: 'SSH Username',
       type: 'text',
       optional: false,
-      placeholder: 'SSH Username',
       value: sshTunnelOptions?.username,
       errorMessage: errorMessageByFieldName(errors, 'sshUsername'),
       state: fieldNameHasError(errors, 'sshUsername') ? 'error' : 'none',
@@ -78,7 +76,6 @@ function SshTunnelIdentity({
       label: 'SSH Passphrase',
       type: 'password',
       optional: true,
-      placeholder: 'SSH Passphrase',
       value: sshTunnelOptions?.identityKeyPassphrase,
       errorMessage: undefined,
       state: 'none',
@@ -88,16 +85,7 @@ function SshTunnelIdentity({
   return (
     <>
       {fields.map(
-        ({
-          name,
-          label,
-          type,
-          optional,
-          placeholder,
-          value,
-          errorMessage,
-          state,
-        }) => {
+        ({ name, label, type, optional, value, errorMessage, state }) => {
           if (type === 'file') {
             return (
               <FormFieldContainer key={name}>
@@ -130,7 +118,6 @@ function SshTunnelIdentity({
                 label={label}
                 type={type}
                 optional={optional}
-                placeholder={placeholder}
                 value={value as string | undefined}
                 errorMessage={errorMessage}
                 state={state as 'error' | 'none'}

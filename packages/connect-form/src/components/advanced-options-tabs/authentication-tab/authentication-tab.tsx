@@ -1,4 +1,5 @@
-import React, { ChangeEvent, useCallback } from 'react';
+import type { ChangeEvent } from 'react';
+import React, { useCallback } from 'react';
 import {
   Label,
   RadioBox,
@@ -6,12 +7,12 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
 
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../../utils/validation';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { ConnectionFormError } from '../../../utils/validation';
+import type { ConnectionOptions } from 'mongodb-data-service';
 
 import AuthenticationDefault from './authentication-default';
 import AuthenticationX509 from './authentication-x509';
@@ -84,8 +85,9 @@ const contentStyles = css({
 function getSelectedAuthTabForConnectionString(
   connectionStringUrl: ConnectionStringUrl
 ): AUTH_TABS {
-  const authMechanismString =
-    connectionStringUrl.searchParams.get('authMechanism');
+  const authMechanismString = (
+    connectionStringUrl.searchParams.get('authMechanism') || ''
+  ).toUpperCase();
 
   const hasPasswordOrUsername =
     connectionStringUrl.password || connectionStringUrl.username;

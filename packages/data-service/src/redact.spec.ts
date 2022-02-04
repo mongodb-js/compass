@@ -1,5 +1,5 @@
 /* eslint-disable mocha/no-mocha-arrows */
-import { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
+import type { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import assert from 'assert';
 import { redactSshTunnelOptions } from './redact';
 

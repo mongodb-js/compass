@@ -1,11 +1,12 @@
-import React, { ChangeEvent, useCallback } from 'react';
+import type { ChangeEvent } from 'react';
+import React, { useCallback } from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
 import type { MongoClientOptions } from 'mongodb';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import FormFieldContainer from '../../form-field-container';
+import type { ConnectionFormError } from '../../../utils/validation';
 import {
-  ConnectionFormError,
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
@@ -19,7 +20,6 @@ interface Field {
   label: string;
   type: string;
   optional: boolean;
-  placeholder: string;
   value: string;
   errorMessage?: string;
   state: 'error' | 'none';
@@ -60,7 +60,6 @@ function Socks({
       label: 'Proxy Hostname',
       type: 'text',
       optional: false,
-      placeholder: 'Proxy Hostname',
       value: typedSearchParams.get('proxyHost') ?? '',
       errorMessage: errorMessageByFieldName(errors, 'proxyHostname'),
       state: fieldNameHasError(errors, 'proxyHostname') ? 'error' : 'none',
@@ -70,7 +69,6 @@ function Socks({
       label: 'Proxy Tunnel Port',
       type: 'number',
       optional: true,
-      placeholder: 'Proxy Tunnel Port',
       value: typedSearchParams.get('proxyPort') ?? '',
       state: 'none',
     },
@@ -79,7 +77,6 @@ function Socks({
       label: 'Proxy Username',
       type: 'text',
       optional: true,
-      placeholder: 'Proxy Username',
       value: typedSearchParams.get('proxyUsername') ?? '',
       state: 'none',
     },
@@ -88,7 +85,6 @@ function Socks({
       label: 'Proxy Password',
       type: 'password',
       optional: true,
-      placeholder: 'Proxy Password',
       value: typedSearchParams.get('proxyPassword') ?? '',
       state: 'none',
     },
@@ -97,16 +93,7 @@ function Socks({
   return (
     <>
       {fields.map(
-        ({
-          name,
-          label,
-          type,
-          optional,
-          placeholder,
-          value,
-          errorMessage,
-          state,
-        }) => (
+        ({ name, label, type, optional, value, errorMessage, state }) => (
           <FormFieldContainer key={name}>
             <TextInput
               onChange={({
@@ -119,7 +106,6 @@ function Socks({
               label={label}
               type={type}
               optional={optional}
-              placeholder={placeholder}
               value={value}
               errorMessage={errorMessage}
               state={state}

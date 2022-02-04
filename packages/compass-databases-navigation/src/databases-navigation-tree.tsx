@@ -13,10 +13,8 @@ import {
 import { DatabaseItem } from './database-item';
 import { CollectionItem } from './collection-item';
 import type { Actions } from './constants';
-import {
-  useVirtualNavigationTree,
-  NavigationTreeData,
-} from './use-virtual-navigation-tree';
+import { useVirtualNavigationTree } from './use-virtual-navigation-tree';
+import type { NavigationTreeData } from './use-virtual-navigation-tree';
 import { DatabasesPlaceholder } from './databases-placeholder';
 
 type Collection = {
@@ -276,6 +274,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
         aria-labelledby={id}
         className={navigationTree}
         {...rootProps}
+        data-test-id="databases-and-collections"
       >
         <AutoSizer
           disableWidth={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_WIDTH)}

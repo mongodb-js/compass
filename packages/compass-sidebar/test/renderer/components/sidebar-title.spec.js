@@ -8,14 +8,11 @@ import { SidebarTitle as SidebarTitleClass } from '../../../src/components/sideb
 import styles from '../../../src/components/sidebar-title/sidebar-title.module.less';
 
 describe('SidebarTitle [Component]', () => {
-  const connectionModel = {
-    connection: {
-      authStrategy: 'MONGODB',
-      isSrvRecord: false,
-      readPreference: 'primaryPreferred',
-      attributes: { hostanme: 'localhost' },
-      isFavorite: false
-    }
+  const connectionInfo = {
+    connectionOptions: {
+      connectionString: 'mongodb://localhost:27020?readPreference=primaryPreferred'
+    },
+    id: '123'
   };
 
   context('when sidebar is collapsed', () => {
@@ -27,7 +24,7 @@ describe('SidebarTitle [Component]', () => {
       component = shallow(
         <SidebarTitleClass
           globalAppRegistryEmit={globalAppRegistryEmit}
-          connectionModel={connectionModel}
+          connectionInfo={connectionInfo}
           isSidebarExpanded={isSidebarExpanded}
         />
       );
@@ -55,7 +52,7 @@ describe('SidebarTitle [Component]', () => {
       component = shallow(
         <SidebarTitleClass
           globalAppRegistryEmit={globalAppRegistryEmit}
-          connectionModel={connectionModel}
+          connectionInfo={connectionInfo}
           isSidebarExpanded={isSidebarExpanded}
         />
       );
@@ -83,7 +80,7 @@ describe('SidebarTitle [Component]', () => {
         <SidebarTitleClass
           changeActiveNamespace={changeActiveNamespaceFake}
           globalAppRegistryEmit={globalAppRegistryEmit}
-          connectionModel={connectionModel}
+          connectionInfo={connectionInfo}
           isSidebarExpanded
         />
       );
@@ -112,7 +109,7 @@ describe('SidebarTitle [Component]', () => {
           activeNamespace={''}
           changeActiveNamespace={changeActiveNamespaceFake}
           globalAppRegistryEmit={globalAppRegistryEmit}
-          connectionModel={connectionModel}
+          connectionInfo={connectionInfo}
           isSidebarExpanded
         />
       );

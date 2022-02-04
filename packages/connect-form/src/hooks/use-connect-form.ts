@@ -1,13 +1,14 @@
-import { Dispatch, useCallback, useEffect, useReducer } from 'react';
-import { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
+import type { Dispatch } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
+import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import {
+import type {
   ConnectionFormError,
   ConnectionFormWarning,
-  validateConnectionOptionsWarnings,
 } from '../utils/validation';
+import { validateConnectionOptionsWarnings } from '../utils/validation';
 import { getNextHost } from '../utils/get-next-host';
 import {
   defaultConnectionString,
@@ -16,24 +17,25 @@ import {
 } from '../constants/default-connection';
 import { checkForInvalidCharacterInHost } from '../utils/check-for-invalid-character-in-host';
 import { tryUpdateConnectionStringSchema } from '../utils/connection-string-schema';
-import {
-  handleUpdateSshOptions,
-  UpdateSshOptions,
-} from '../utils/connection-ssh-handler';
-import {
-  handleUpdateTlsOption,
+import type { UpdateSshOptions } from '../utils/connection-ssh-handler';
+import { handleUpdateSshOptions } from '../utils/connection-ssh-handler';
+import type {
+  UpdateTlsAction,
   UpdateTlsOptionAction,
-} from '../utils/tls-options';
-import {
-  handleUpdateUsername,
-  handleUpdatePassword,
-  handleUpdateAuthMechanism,
+} from '../utils/tls-handler';
+import { handleUpdateTls, handleUpdateTlsOption } from '../utils/tls-handler';
+import type {
   UpdateAuthMechanismAction,
   UpdatePasswordAction,
   UpdateUsernameAction,
 } from '../utils/authentication-handler';
 import {
-  AuthMechanismProperties,
+  handleUpdateUsername,
+  handleUpdatePassword,
+  handleUpdateAuthMechanism,
+} from '../utils/authentication-handler';
+import type { AuthMechanismProperties } from '../utils/connection-string-helpers';
+import {
   parseAuthMechanismProperties,
   tryToParseConnectionString,
 } from '../utils/connection-string-helpers';
@@ -114,6 +116,7 @@ type ConnectionFormFieldActions =
       isSrv: boolean;
     }
   | UpdateSshOptions
+  | UpdateTlsAction
   | UpdateTlsOptionAction
   | {
       type: 'update-search-param';
@@ -157,6 +160,7 @@ function parseConnectionString(
       ? [
           {
             fieldName: 'connectionString',
+            fieldTab: 'general',
             message: parsingError.message,
           },
         ]
@@ -236,6 +240,7 @@ function handleUpdateHost({
       errors: [
         {
           fieldName: 'hosts',
+          fieldTab: 'general',
           fieldIndex,
           message: (err as Error).message,
         },
@@ -328,6 +333,13 @@ export function handleConnectionFormFieldUpdate(
         },
       };
     }
+    case 'update-tls': {
+      return handleUpdateTls({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
     case 'update-tls-option': {
       return handleUpdateTlsOption({
         action,
@@ -387,6 +399,7 @@ export function handleConnectionFormFieldUpdate(
           errors: [
             {
               fieldName: 'isSrv',
+              fieldTab: 'general',
               message: `Error updating connection schema: ${
                 (err as Error).message
               }`,

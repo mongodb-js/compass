@@ -1,6 +1,8 @@
 import path from 'path';
-import { Compiler, ProgressPlugin, WebpackPluginInstance } from 'webpack';
-import { MultiBar, SingleBar } from 'cli-progress';
+import type { Compiler, WebpackPluginInstance } from 'webpack';
+import { ProgressPlugin } from 'webpack';
+import type { SingleBar } from 'cli-progress';
+import { MultiBar } from 'cli-progress';
 import chalk from 'chalk';
 
 const multibar = new MultiBar({

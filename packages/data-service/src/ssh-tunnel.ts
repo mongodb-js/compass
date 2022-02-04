@@ -8,7 +8,7 @@ import SSHTunnel from '@mongodb-js/ssh-tunnel';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { MongoClientOptions } from 'mongodb';
 
-import { ConnectionSshOptions } from './connection-options';
+import type { ConnectionSshOptions } from './connection-options';
 import { redactSshTunnelOptions } from './redact';
 
 const debug = createDebug('mongodb-data-service:connect');

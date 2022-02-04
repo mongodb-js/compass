@@ -10,7 +10,7 @@ const RecentQuery = Query.extend(storageMixin, {
   namespace: 'RecentQueries',
   storage: {
     backend: 'disk',
-    basepath: remote.app.getPath('userData')
+    basepath: remote ? remote.app.getPath('userData') : undefined,
   }
 });
 

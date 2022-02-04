@@ -1,10 +1,10 @@
 import React from 'react';
 import { TextInput } from '@mongodb-js/compass-components';
 
-import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
-import { ConnectionFormError } from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
 import {
   getConnectionStringPassword,
   getConnectionStringUsername,
@@ -43,6 +43,7 @@ function AuthenticationAWS({
           }}
           label={AWS_ACCESS_KEY_ID_LABEL}
           value={awsAccessKeyId || ''}
+          optional={true}
         />
       </FormFieldContainer>
       <FormFieldContainer>
@@ -58,6 +59,7 @@ function AuthenticationAWS({
           label={AWS_SECRET_ACCESS_KEY_LABEL}
           type="password"
           value={awsSecretAccessKey || ''}
+          optional={true}
         />
       </FormFieldContainer>
 
@@ -74,6 +76,7 @@ function AuthenticationAWS({
           }}
           label={AWS_SESSION_TOKEN_LABEL}
           value={sessionToken || ''}
+          optional={true}
           type="password"
         />
       </FormFieldContainer>

@@ -38,7 +38,7 @@ const errorMessageStyles = css({
 });
 
 const labelHorizontalStyles = css({
-  width: '70%',
+  width: '90%',
   display: 'grid',
   gridTemplateAreas: `'label icon' 'description .'`,
   gridTemplateColumns: '1fr auto',
@@ -52,6 +52,12 @@ const optionalLabelStyles = css({
   fontStyle: 'italic',
   fontWeight: 'normal',
   fontSize: 12,
+});
+
+const infoLinkStyles = css({
+  '&:link, &:active, &:hover': {
+    textDecoration: 'none',
+  },
 });
 
 const labelIconStyles = css({
@@ -173,9 +179,7 @@ function FileInput({
         data-testid={'file-input-link'}
         href={link}
         className={cx(
-          {
-            [labelIconStyles]: !description,
-          },
+          description ? infoLinkStyles : labelIconStyles,
           css({
             gridArea: description ? 'description' : 'icon',
           })

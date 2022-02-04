@@ -1,22 +1,46 @@
 import React, { useState, useMemo } from 'react';
-import { Tabs, Tab, spacing, css } from '@mongodb-js/compass-components';
+import {
+  Tabs,
+  Tab,
+  spacing,
+  css,
+  cx,
+  uiColors,
+} from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from 'mongodb-data-service';
 
 import GeneralTab from './general-tab/general-tab';
 import AuthenticationTab from './authentication-tab/authentication-tab';
 import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
-import { UpdateConnectionFormField } from '../../hooks/use-connect-form';
-import { ConnectionFormError } from '../../utils/validation';
+import type { UpdateConnectionFormField } from '../../hooks/use-connect-form';
+import type { ConnectionFormError, TabId } from '../../utils/validation';
+import { errorsByFieldTab } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
 
 const tabsStyles = css({
   marginTop: spacing[1],
 });
+
+const tabWithErrorIndicatorStyles = css({
+  position: 'relative',
+  '&::after': {
+    position: 'absolute',
+    top: -spacing[2],
+    right: -spacing[2],
+    content: '""',
+    width: spacing[2],
+    height: spacing[2],
+    borderRadius: '50%',
+    backgroundColor: uiColors.red.base,
+  },
+});
+
 interface TabObject {
   name: string;
+  id: TabId;
   component: React.FunctionComponent<{
     errors: ConnectionFormError[];
     connectionStringUrl: ConnectionStringUrl;
@@ -37,11 +61,15 @@ function AdvancedOptionsTabs({
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs: TabObject[] = [
-    { name: 'General', component: GeneralTab },
-    { name: 'Authentication', component: AuthenticationTab },
-    { name: 'TLS/SSL', component: TLSTab },
-    { name: 'Proxy/SSH Tunnel', component: ProxyAndSshTunnelTab },
-    { name: 'Advanced', component: AdvancedTab },
+    { name: 'General', id: 'general', component: GeneralTab },
+    {
+      name: 'Authentication',
+      id: 'authentication',
+      component: AuthenticationTab,
+    },
+    { name: 'TLS/SSL', id: 'tls', component: TLSTab },
+    { name: 'Proxy/SSH Tunnel', id: 'proxy', component: ProxyAndSshTunnelTab },
+    { name: 'Advanced', id: 'advanced', component: AdvancedTab },
   ];
 
   const connectionStringUrl = useMemo(() => {
@@ -63,8 +91,31 @@ function AdvancedOptionsTabs({
       {tabs.map((tabObject: TabObject, idx: number) => {
         const TabComponent = tabObject.component;
 
+        const tabErrors = errorsByFieldTab(errors, tabObject.id);
+        const showTabErrorIndicator = tabErrors.length > 0;
+
         return (
-          <Tab key={idx} name={tabObject.name} aria-label={tabObject.name}>
+          <Tab
+            key={idx}
+            name={
+              <div
+                className={cx({
+                  [tabWithErrorIndicatorStyles]: showTabErrorIndicator,
+                })}
+              >
+                {tabObject.name}
+              </div>
+            }
+            aria-label={`${tabObject.name}${
+              tabErrors.length > 0
+                ? ` (${tabErrors.length} error${
+                    tabErrors.length > 1 ? 's' : ''
+                  })`
+                : ''
+            }`}
+            data-testid={`${tabObject.name}-tab`}
+            data-has-error={showTabErrorIndicator}
+          >
             <TabComponent
               errors={errors}
               connectionStringUrl={connectionStringUrl}

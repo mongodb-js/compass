@@ -10,7 +10,6 @@ import StoreConnector from './store-connector';
 import Tooltip from './tooltip';
 import ViewSwitcher from './view-switcher';
 import ZeroState from './zero-state';
-import UnsafeComponent from './unsafe-component';
 import WithDragDropContext from './with-drag-drop-context';
 
 export {
@@ -26,6 +25,5 @@ export {
   Tooltip,
   ViewSwitcher,
   ZeroState,
-  UnsafeComponent,
   WithDragDropContext
 };

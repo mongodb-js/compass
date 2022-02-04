@@ -1,8 +1,8 @@
-import { ConnectionInfo } from './connection-info';
+import type { ConnectionInfo } from './connection-info';
 
 import { validate as uuidValidate } from 'uuid';
+import type { AmpersandMethodOptions } from './legacy/legacy-connection-model';
 import {
-  AmpersandMethodOptions,
   convertConnectionInfoToModel,
   convertConnectionModelToInfo,
 } from './legacy/legacy-connection-model';
@@ -72,9 +72,9 @@ export class ConnectionStorage {
 export function promisifyAmpersandMethod<T>(
   fn: (options: AmpersandMethodOptions<T>) => void
 ): () => Promise<T> {
-  return () =>
+  return (...args) =>
     new Promise((resolve, reject) => {
-      fn({
+      fn(...args, {
         success: (model: T) => {
           resolve(model);
         },

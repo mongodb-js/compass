@@ -1,71 +1,88 @@
-import React, { PureComponent } from 'react';
+/* eslint-disable react/no-multi-comp */
+import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 import {
   MongoDBLogoMark
 } from '@mongodb-js/compass-components';
+import {
+  getConnectionTitle,
+} from 'mongodb-data-service';
 
 import { NO_ACTIVE_NAMESPACE } from '../../modules/databases';
 import styles from './sidebar-title.module.less';
 
-/**
- * The title row in the sidebar.
- */
-class SidebarTitle extends PureComponent {
-  static displayName = 'SidebarTitleComponent';
+const CollapsedTitle = ({
+  connectionInfo
+}) => {
+  const isFavorite = !!connectionInfo.favorite;
 
-  static propTypes = {
-    activeNamespace: PropTypes.string.isRequired,
-    connectionModel: PropTypes.object.isRequired,
-    isSidebarExpanded: PropTypes.bool.isRequired,
-    onClick: PropTypes.func.isRequired,
-  };
+  return (
+    <div
+      style={isFavorite ? {
+        backgroundColor: connectionInfo.favorite.color || 'transparent'
+      } : {}}
+      className={styles['sidebar-title-logo']}
+    >
+      <MongoDBLogoMark
+        color="white"
+      />
+    </div>
+  );
+};
 
-  renderTitle() {
-    if (this.props.isSidebarExpanded) {
-      return (
-        <div className={styles['sidebar-title-name']}>
-          {this.props.connectionModel.connection.name}
-        </div>
-      );
-    }
+CollapsedTitle.propTypes = {
+  connectionInfo: PropTypes.object.isRequired
+};
 
-    const isFavorite = this.props.connectionModel.connection.isFavorite;
+const ExpandedTitle = ({
+  connectionInfo
+}) => {
+  return (
+    <div className={styles['sidebar-title-name']}>
+      {getConnectionTitle(connectionInfo)}
+    </div>
+  );
+};
 
-    return (
-      <div
-        style={isFavorite ? {
-          backgroundColor: this.props.connectionModel.connection.color || 'transparent'
-        } : {}}
-        className={styles['sidebar-title-logo']}
-      >
-        <MongoDBLogoMark
-          color="white"
+ExpandedTitle.propTypes = {
+  connectionInfo: PropTypes.object.isRequired
+};
+
+const SidebarTitle = ({
+  activeNamespace,
+  connectionInfo,
+  isSidebarExpanded,
+  onClick
+}) => {
+  return (
+    <div
+      className={classnames(styles['sidebar-title'], {
+        [styles['sidebar-title-is-active']]: activeNamespace === NO_ACTIVE_NAMESPACE
+      })}
+      data-test-id="sidebar-title"
+      onClick={onClick}
+    >
+      {isSidebarExpanded
+        ? <ExpandedTitle
+          connectionInfo={connectionInfo}
         />
-      </div>
-    );
-  }
+        : <CollapsedTitle
+          connectionInfo={connectionInfo}
+        />
+      }
+    </div>
+  );
+};
 
-  /**
-   * Renders the title component.
-   *
-   * @returns {Component} The component.
-   */
-  render() {
-    return (
-      <div
-        className={classnames(styles['sidebar-title'], {
-          [styles['sidebar-title-is-active']]: this.props.activeNamespace === NO_ACTIVE_NAMESPACE
-        })}
-        data-test-id="sidebar-title"
-        onClick={this.props.onClick}
-      >
-        {this.renderTitle()}
-      </div>
-    );
-  }
-}
+SidebarTitle.displayName = 'SidebarTitleComponent';
+SidebarTitle.propTypes = {
+  activeNamespace: PropTypes.string.isRequired,
+  connectionInfo: PropTypes.object.isRequired,
+  isSidebarExpanded: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 const mapStateToProps = (state) => ({
   activeNamespace: state.databases.activeNamespace

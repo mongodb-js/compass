@@ -7,7 +7,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import { ErrorSummary, WarningSummary } from './validation-summary';
-import {
+import type {
   ConnectionFormError,
   ConnectionFormWarning,
 } from '../utils/validation';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {
+import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
 } from 'mongodb-data-service';
@@ -149,6 +149,9 @@ function ConnectForm({
                 aria-label="Save Connection"
                 className={favoriteButtonStyles}
                 size="large"
+                onMouseDown={(event: React.MouseEvent) => {
+                  event.preventDefault();
+                }}
                 onClick={() => {
                   setShowSaveConnectionModal(true);
                 }}
@@ -176,7 +179,7 @@ function ConnectForm({
               </Banner>
             )}
             <AdvancedConnectionOptions
-              errors={errors}
+              errors={connectionStringInvalidError ? [] : errors}
               disabled={!!connectionStringInvalidError}
               updateConnectionFormField={updateConnectionFormField}
               connectionOptions={connectionOptions}
@@ -228,7 +231,7 @@ function ConnectForm({
             }
           }}
           key={initialConnectionInfo.id}
-          initialConnectionInfo={initialConnectionInfo}
+          initialFavoriteInfo={initialConnectionInfo.favorite}
         />
       )}
     </>

@@ -3,7 +3,7 @@ import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
 
 import connectMongoClient from './connect-mongo-client';
-import { ConnectionOptions } from './connection-options';
+import type { ConnectionOptions } from './connection-options';
 
 const setupListeners = () => {
   //

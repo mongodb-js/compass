@@ -39,12 +39,11 @@ function DiskBackend(options) {
 
   this.basepath = options.basepath;
   this.namespace = options.namespace;
-  this.path = path.join(options.basepath, options.namespace);
 
   // create path synchronously so we can use the model right away
   try {
     /* eslint no-sync: 0 */
-    fs.mkdirSync(this.path);
+    fs.mkdirSync(this._getPath());
   } catch (e) {
     // ignore error
   }
@@ -67,10 +66,17 @@ DiskBackend.clear = function(basepath, namespace, done) {
   rimraf(path.join(basepath, namespace), done);
 };
 
+DiskBackend.prototype._getPath = function() {
+  return path.join(
+    process.env.MONGODB_COMPASS_STORAGE_MIXIN_TEST_BASE_PATH || this.basepath,
+    this.namespace
+  );
+};
+
 DiskBackend.prototype._getId = function(modelOrFilename) {
   var id = (typeof modelOrFilename === 'string') ?
     modelOrFilename : modelOrFilename.getId();
-  return path.join(this.path, id + '.json');
+  return path.join(this._getPath(), id + '.json');
 };
 
 /**
@@ -161,7 +167,7 @@ DiskBackend.prototype.findOne = function(model, options, done) {
 DiskBackend.prototype.find = function(collection, options, done) {
   var self = this;
 
-  fs.readdir(this.path, function(err, files) {
+  fs.readdir(this._getPath(), function(err, files) {
     if (err) {
       return done(err);
     }

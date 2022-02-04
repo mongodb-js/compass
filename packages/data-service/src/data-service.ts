@@ -1,10 +1,10 @@
 import { promisify } from 'util';
-import SshTunnel from '@mongodb-js/ssh-tunnel';
+import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
 import { isFunction } from 'lodash';
-import {
+import type {
   AggregateOptions,
   AggregationCursor,
   BulkWriteOptions,
@@ -51,23 +51,24 @@ import {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
-import { ConnectionOptions } from './connection-options';
+import type { ConnectionOptions } from './connection-options';
+import type { InstanceDetails } from './instance-detail-helper';
 import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
   getPrivilegesByDatabaseAndCollection,
   getInstance,
-  InstanceDetails,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
-import {
+import type {
   Callback,
   CollectionDetails,
   CollectionStats,
   IndexDetails,
 } from './types';
-import { ConnectionStatusWithPrivileges, runCommand } from './run-command';
+import type { ConnectionStatusWithPrivileges } from './run-command';
+import { runCommand } from './run-command';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -81,6 +82,10 @@ function uniqueBy<T extends Record<string, unknown>>(
   key: keyof T
 ) {
   return Array.from(new Map(values.map((val) => [val[key], val])).values());
+}
+
+function isEmptyObject(obj: Record<string, unknown>) {
+  return Object.keys(obj).length === 0;
 }
 
 let id = 0;
@@ -396,7 +401,12 @@ class DataService extends EventEmitter {
     try {
       const [listedCollections, collectionsFromPrivileges] = await Promise.all([
         listCollections(),
-        getCollectionsFromPrivileges(),
+        // If the filter is not empty, we can't meaningfully derive collections
+        // from privileges and filter them as the criteria might include any key
+        // from the listCollections result object and there is no such info in
+        // privileges. Because of that we are ignoring privileges completely if
+        // listCollections was called with a filter.
+        isEmptyObject(filter) ? getCollectionsFromPrivileges() : [],
       ]);
 
       const collections = uniqueBy(

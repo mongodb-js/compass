@@ -1,5 +1,6 @@
-import React, { ChangeEvent, useCallback } from 'react';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { ChangeEvent } from 'react';
+import React, { useCallback } from 'react';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   RadioBox,
   RadioBoxGroup,
@@ -10,15 +11,15 @@ import {
   Icon,
   css,
 } from '@mongodb-js/compass-components';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { MongoClientOptions } from 'mongodb';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { readPreferences } from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
-import { ConnectionFormError } from '../../../utils/validation';
+import type { ConnectionFormError } from '../../../utils/validation';
 
 const infoButtonStyles = css({
   verticalAlign: 'middle',
@@ -124,11 +125,11 @@ function AdvancedTab({
           label={'Replica Set Name'}
           type={'text'}
           optional={true}
-          placeholder={'Replica Set Name'}
           value={replicaSet ?? ''}
         />
       </FormFieldContainer>
       {/* Default Database */}
+
       <FormFieldContainer>
         <TextInput
           spellCheck={false}
@@ -138,13 +139,12 @@ function AdvancedTab({
           }}
           name={'default-database'}
           data-testid={'default-database'}
-          label={'Default Database'}
+          label={'Default Authentication Database'}
           type={'text'}
           optional={true}
-          placeholder={'Default Database'}
           value={defaultDatabase ?? ''}
           description={
-            'Default database will be the one you authenticate on. Leave this field empty if you want the default behaviour.'
+            'Authentication database used when authSource is not specified.'
           }
         />
       </FormFieldContainer>

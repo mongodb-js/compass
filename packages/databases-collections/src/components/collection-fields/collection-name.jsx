@@ -13,6 +13,7 @@ function CollectionName({
       <TextInput
         required
         label="Collection Name"
+        data-testid="collection-name"
         onChange={(e) => onChangeCollectionName(e.target.value)}
         value={collectionName}
         spellCheck={false}

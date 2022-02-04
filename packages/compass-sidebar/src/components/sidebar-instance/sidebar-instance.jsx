@@ -1,94 +1,79 @@
-import React, { PureComponent } from 'react';
+import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+import { SaveConnectionModal } from '@mongodb-js/connect-form';
+
 import SidebarInstanceStats from '../sidebar-instance-stats';
 import SidebarInstanceDetails from '../sidebar-instance-details';
 import NonGenuineWarningPill from '../non-genuine-warning-pill';
-import IsFavoritePill from '../is-favorite-pill';
-import { FavoriteModal } from '@mongodb-js/compass-connect';
+import FavoriteButton from '../favorite-button';
 
 import styles from './sidebar-instance.module.less';
 
-class SidebarInstance extends PureComponent {
-  static displayName = 'SidebarInstance';
-  static propTypes = {
-    instance: PropTypes.object,
-    databases: PropTypes.array,
-    isExpanded: PropTypes.bool.isRequired,
-    isGenuineMongoDB: PropTypes.bool.isRequired,
-    toggleIsDetailsExpanded: PropTypes.func.isRequired,
-    globalAppRegistryEmit: PropTypes.func.isRequired,
-    detailsPlugins: PropTypes.array.isRequired,
-    connectionModel: PropTypes.object,
-    toggleIsModalVisible: PropTypes.func.isRequired,
-    isModalVisible: PropTypes.bool.isRequired,
-    saveFavorite: PropTypes.func.isRequired
-  };
+export const SidebarInstance = ({
+  instance,
+  databases,
+  isExpanded,
+  isGenuineMongoDB,
+  toggleIsDetailsExpanded,
+  globalAppRegistryEmit,
+  detailsPlugins,
+  connectionInfo,
+  updateConnectionInfo
+}) => {
+  const [ isFavoriteModalVisible, setIsFavoriteModalVisible ] = useState(false);
 
-  /**
-   * Closes the favorite modal.
-   */
-  closeFavoriteModal() {
-    this.props.toggleIsModalVisible(false);
-  }
+  const onClickSaveFavorite = useCallback((newFavoriteInfo) => {
+    updateConnectionInfo({
+      ...connectionInfo,
+      favorite: newFavoriteInfo
+    });
 
-  /**
-   * Saves the current connection to favorites.
-   *
-   * @param {String} name - The favorite name.
-   * @param {String} color - The favorite color.
-   */
-  saveFavorite(name, color) {
-    this.props.saveFavorite(this.props.connectionModel.connection, name, color);
-    this.props.toggleIsModalVisible(false);
-  }
+    setIsFavoriteModalVisible(false);
+  }, [connectionInfo, updateConnectionInfo, setIsFavoriteModalVisible]);
 
-  /**
-   * Renders the favorite modal.
-   *
-   * @returns {React.Component}
-   */
-  renderFavoriteModal() {
-    if (this.props.isModalVisible) {
-      return (
-        <FavoriteModal
-          connectionModel={this.props.connectionModel.connection}
-          closeFavoriteModal={this.closeFavoriteModal.bind(this)}
-          saveFavorite={this.saveFavorite.bind(this)}
-        />
-      );
-    }
-  }
+  return (
+    <div className={styles['sidebar-instance']}>
+      <SidebarInstanceStats
+        instance={instance}
+        databases={databases}
+        isExpanded={isExpanded}
+        toggleIsExpanded={toggleIsDetailsExpanded}
+        globalAppRegistryEmit={globalAppRegistryEmit}
+      />
+      <FavoriteButton
+        favoriteOptions={connectionInfo.favorite}
+        toggleIsFavoriteModalVisible={() => setIsFavoriteModalVisible(
+          !isFavoriteModalVisible
+        )}
+      />
+      <SaveConnectionModal
+        initialFavoriteInfo={connectionInfo.favorite}
+        open={isFavoriteModalVisible}
+        onCancelClicked={() => setIsFavoriteModalVisible(false)}
+        onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
+      />
+      <NonGenuineWarningPill
+        isGenuineMongoDB={isGenuineMongoDB}
+      />
+      <SidebarInstanceDetails
+        detailsPlugins={detailsPlugins}
+        isExpanded={isExpanded}
+      />
+    </div>
+  );
+};
 
-  /**
-   * Renders the SidebarInstance component.
-   *
-   * @returns {React.Component}
-   */
-  render() {
-    return (
-      <div className={styles['sidebar-instance']}>
-        <SidebarInstanceStats
-          instance={this.props.instance}
-          databases={this.props.databases}
-          isExpanded={this.props.isExpanded}
-          toggleIsExpanded={this.props.toggleIsDetailsExpanded}
-          globalAppRegistryEmit={this.props.globalAppRegistryEmit}
-        />
-        <IsFavoritePill
-          connectionModel={this.props.connectionModel}
-          toggleIsModalVisible={this.props.toggleIsModalVisible}
-        />
-        {this.renderFavoriteModal()}
-        <NonGenuineWarningPill
-          isGenuineMongoDB={this.props.isGenuineMongoDB}
-        />
-        <SidebarInstanceDetails
-          detailsPlugins={this.props.detailsPlugins}
-          isExpanded={this.props.isExpanded}
-        />
-      </div>
-    );
-  }
-}
+SidebarInstance.displayName = 'SidebarInstance';
+SidebarInstance.propTypes = {
+  instance: PropTypes.object,
+  databases: PropTypes.array,
+  isExpanded: PropTypes.bool.isRequired,
+  isGenuineMongoDB: PropTypes.bool.isRequired,
+  toggleIsDetailsExpanded: PropTypes.func.isRequired,
+  globalAppRegistryEmit: PropTypes.func.isRequired,
+  detailsPlugins: PropTypes.array.isRequired,
+  connectionInfo: PropTypes.object.isRequired,
+  updateConnectionInfo: PropTypes.func.isRequired
+};
 
 export default SidebarInstance;

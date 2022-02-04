@@ -1,6 +1,7 @@
 import path from 'path';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import { ConfigArgs, isServe } from './args';
+import type { ConfigArgs } from './args';
+import { isServe } from './args';
 
 const electronVersion = (() => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

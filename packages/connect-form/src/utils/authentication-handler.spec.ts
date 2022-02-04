@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { AuthMechanism, MongoClientOptions } from 'mongodb';
+import type { AuthMechanism, MongoClientOptions } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 
 import {
@@ -85,6 +85,7 @@ describe('Authentication Handler', function () {
       expect(res.errors).to.deep.equal([
         {
           fieldName: 'username',
+          fieldTab: 'authentication',
           message:
             'Username cannot be empty: "URI contained empty userinfo section"',
         },
@@ -187,11 +188,13 @@ describe('Authentication Handler', function () {
       expect(res.errors).to.deep.equal([
         {
           fieldName: 'username',
+          fieldTab: 'authentication',
           message:
             'Username cannot be empty: "URI contained empty userinfo section"',
         },
         {
           fieldName: 'password',
+          fieldTab: 'authentication',
           message: 'Please enter a username first',
         },
       ]);

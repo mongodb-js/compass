@@ -1,16 +1,12 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { css } from '@mongodb-js/compass-components';
-import {
-  ConnectionInfo,
-  DataService,
-  convertConnectionInfoToModel,
-  getConnectionTitle,
-} from 'mongodb-data-service';
+import { getConnectionTitle } from 'mongodb-data-service';
+import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
 import Connections from '@mongodb-js/compass-connections';
 
 import Workspace from './workspace';
-import Namespace from '../types/namespace';
+import type Namespace from '../types/namespace';
 import {
   AppRegistryRoles,
   useAppRegistryContext,
@@ -114,22 +110,17 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
   // TODO: Remove this comment once we only have one connections package:
   // This is currently only used by the new connections package.
-  // We've moved to not calling the `data-service-connected` event inside
-  // of connections and instead call it here.
-  async function onConnected(
+  // We've moved to calling the `data-service-connected` event here instead
+  // of inside `connections`/`compass-connect` and instead call it here.
+  function onConnected(
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) {
-    const legacyConnectionModel = await convertConnectionInfoToModel(
-      connectionInfo
-    );
-
     appRegistry.emit(
       'data-service-connected',
       null, // No error connecting.
       dataService,
-      connectionInfo,
-      legacyConnectionModel // TODO: Remove this once we remove the dependency in compass-sidebar.
+      connectionInfo
     );
   }
 

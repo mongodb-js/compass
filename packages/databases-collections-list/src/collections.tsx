@@ -2,7 +2,8 @@
 import React from 'react';
 import { spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
-import { BadgeProp, NamespaceItemCard } from './namespace-card';
+import type { BadgeProp } from './namespace-card';
+import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
 
 type Collection = {

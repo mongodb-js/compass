@@ -5,8 +5,8 @@ import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import AuthenticationDefault from './authentication-default';
-import { ConnectionFormError } from '../../../utils/validation';
-import { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { ConnectionFormError } from '../../../utils/validation';
+import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 function renderComponent({
   errors = [],

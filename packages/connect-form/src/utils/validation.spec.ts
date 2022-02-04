@@ -4,7 +4,7 @@ import {
   validateConnectionOptionsErrors,
   validateConnectionOptionsWarnings,
 } from './validation';
-import { ConnectionInfo } from 'mongodb-data-service';
+import type { ConnectionInfo } from 'mongodb-data-service';
 
 describe('validation', function () {
   describe('Form Validation Errors', function () {
@@ -66,6 +66,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'sshHostname',
+            fieldTab: 'proxy',
             message: 'A hostname is required to connect with an SSH tunnel.',
           },
         ]);
@@ -88,6 +89,8 @@ describe('validation', function () {
         );
         expect(result).to.deep.equal([
           {
+            fieldName: 'sshPassword',
+            fieldTab: 'proxy',
             message:
               'When connecting via SSH tunnel either password or identity file is required.',
           },
@@ -109,6 +112,7 @@ describe('validation', function () {
         ).to.deep.equal([
           {
             fieldName: 'sshIdentityKeyFile',
+            fieldTab: 'proxy',
             message: 'File is required along with passphrase.',
           },
         ]);
@@ -150,6 +154,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'proxyHostname',
+            fieldTab: 'proxy',
             message: 'Proxy hostname is required.',
           },
         ]);
@@ -163,6 +168,8 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldName: 'tls',
+            fieldTab: 'tls',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
         ]);
@@ -173,6 +180,8 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldName: 'tls',
+            fieldTab: 'tls',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
         ]);
@@ -184,6 +193,8 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldTab: 'tls',
+            fieldName: 'tls',
             message: 'TLS must be enabled in order to use x509 authentication.',
           },
         ]);
@@ -215,6 +226,8 @@ describe('validation', function () {
         });
         expect(result).to.deep.equal([
           {
+            fieldTab: 'tls',
+            fieldName: 'tlsCertificateKeyFile',
             message:
               'A Client Certificate is required with x509 authentication.',
           },
@@ -229,6 +242,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
+            fieldTab: 'authentication',
             message: 'Password is missing.',
           },
         ]);
@@ -242,6 +256,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'kerberosPrincipal',
+            fieldTab: 'authentication',
             message: 'Principal name is required with Kerberos.',
           },
         ]);
@@ -261,10 +276,12 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'username',
+            fieldTab: 'authentication',
             message: 'Username is missing.',
           },
           {
             fieldName: 'password',
+            fieldTab: 'authentication',
             message: 'Password is missing.',
           },
         ]);
@@ -276,6 +293,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
+            fieldTab: 'authentication',
             message: 'Password is missing.',
           },
         ]);
@@ -301,6 +319,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             fieldName: 'password',
+            fieldTab: 'authentication',
             message: 'Password is missing.',
           },
         ]);

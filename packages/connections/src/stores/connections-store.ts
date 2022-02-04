@@ -1,18 +1,16 @@
-import {
+import type {
   ConnectionInfo,
   ConnectionOptions,
   DataService,
-  getConnectionTitle,
 } from 'mongodb-data-service';
+import { getConnectionTitle } from 'mongodb-data-service';
 import { useEffect, useReducer, useRef } from 'react';
 import debugModule from 'debug';
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  createConnectionAttempt,
-  ConnectionAttempt,
-} from '../modules/connection-attempt';
+import type { ConnectionAttempt } from '../modules/connection-attempt';
+import { createConnectionAttempt } from '../modules/connection-attempt';
 import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
@@ -190,7 +188,7 @@ export function useConnections(
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
-  ) => Promise<void>,
+  ) => void,
   connectionStorage: ConnectionStore,
   connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>
 ): {
@@ -242,7 +240,7 @@ export function useConnections(
   ) {
     // After connecting and the UI is updated we notify the rest of Compass.
     try {
-      await onConnected(connectionInfo, dataService);
+      onConnected(connectionInfo, dataService);
 
       // Update lastUsed date as now and save the connection.
       connectionInfo.lastUsed = new Date();

@@ -1,18 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import Switch from 'react-ios-switch';
 import { Tooltip } from 'hadron-react-components';
 import { IconButton } from 'hadron-react-buttons';
+import { Toggle } from '@mongodb-js/compass-components';
 
 import styles from './pipeline-preview-toolbar.module.less';
 import { TOOLTIP_PREVIEW_MODE, TOOLTIP_SAMPLING_MODE } from '../../constants';
-
-const SHARED_SWITCH_PROPS = {
-  className: styles.switch,
-  onColor: 'rgb(19, 170, 82)',
-  style: { backgroundColor: 'rgb(255,255,255)' }
-};
 
 /**
  * The pipeline preview toolbar component.
@@ -38,15 +32,23 @@ class PipelinePreviewToolbar extends PureComponent {
         data-for="preview-mode"
         data-tip={TOOLTIP_PREVIEW_MODE}
         data-place="top"
-        data-html="true">
-        <Switch
+        data-html="true"
+      >
+        <Toggle
           checked={this.props.isAutoPreviewing}
           onChange={this.props.toggleAutoPreview}
-          {...SHARED_SWITCH_PROPS}
+          className={styles.toggle}
+          id="autoPreviewToggle"
+          size="xsmall"
+          aria-labelledby="autoPreviewToggleLabel"
         />
-        <span className={styles['toggle-auto-preview-label']}>
+        <label
+          className={styles['toggle-auto-preview-label']}
+          htmlFor="autoPreviewToggle"
+          id="autoPreviewToggleLabel"
+        >
           Auto Preview
-        </span>
+        </label>
         <Tooltip id="preview-mode" />
       </div>
     );
@@ -60,13 +62,21 @@ class PipelinePreviewToolbar extends PureComponent {
           data-tip={TOOLTIP_SAMPLING_MODE}
           data-for="sampling-mode"
           data-place="top"
-          data-html="true">
-          <Switch
+          data-html="true"
+        >
+          <Toggle
+            id="sampleModeToggle"
             checked={this.props.isSampling}
             onChange={this.props.toggleSample}
-            {...SHARED_SWITCH_PROPS}
+            className={styles.toggle}
+            size="xsmall"
+            aria-labelledby="sampleModeToggleLabel"
           />
-          <span className={styles['toggle-sample-label']}>Sample Mode</span>
+          <label
+            className={styles['toggle-sample-label']}
+            htmlFor="sampleModeToggle"
+            id="sampleModeToggleLabel"
+          >Sample Mode</label>
           <Tooltip id="sampling-mode" />
         </div>
       );

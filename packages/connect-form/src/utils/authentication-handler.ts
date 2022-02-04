@@ -1,9 +1,9 @@
-import { AuthMechanism } from 'mongodb';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { ConnectionOptions } from 'mongodb-data-service';
+import type { AuthMechanism } from 'mongodb';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 
-import { ConnectionFormError } from './validation';
+import type { ConnectionFormError } from './validation';
 import {
   setConnectionStringPassword,
   setConnectionStringUsername,
@@ -109,6 +109,7 @@ export function handleUpdateUsername({
       errors: [
         {
           fieldName: 'username',
+          fieldTab: 'authentication',
           message: action.username
             ? parsingError.message
             : `Username cannot be empty: "${parsingError.message}"`,
@@ -153,16 +154,19 @@ export function handleUpdatePassword({
         ? [
             {
               fieldName: 'password',
+              fieldTab: 'authentication',
               message: parsingError.message,
             },
           ]
         : [
             {
               fieldName: 'username',
+              fieldTab: 'authentication',
               message: `Username cannot be empty: "${parsingError.message}"`,
             },
             {
               fieldName: 'password',
+              fieldTab: 'authentication',
               message: 'Please enter a username first',
             },
           ],

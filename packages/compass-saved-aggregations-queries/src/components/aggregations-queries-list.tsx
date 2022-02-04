@@ -1,22 +1,22 @@
 import React, { useEffect } from 'react';
-import { connect, ConnectedProps } from 'react-redux';
+import { connect } from 'react-redux';
+import type { ConnectedProps } from 'react-redux';
+import type { ThunkDispatch } from 'redux-thunk';
 import { VirtualGrid, H2, css, spacing } from '@mongodb-js/compass-components';
-import { State, fetchItems } from './../stores/aggregations-queries-items';
-import {
-  SavedItemCard,
-  SavedItemCardProps,
-  Action,
-  CARD_WIDTH,
-  CARD_HEIGHT,
-} from './saved-item-card';
+import { fetchItems } from '../stores/aggregations-queries-items';
+import { openSavedItem } from '../stores/open-item';
+import type { RootActions, RootState } from '../stores/index';
+import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
+import type { SavedItemCardProps, Action } from './saved-item-card';
+import OpenItemModal from './open-item-modal';
 
 const ConnectedItemCard = connect<
   Omit<SavedItemCardProps, 'onAction'>,
   Pick<SavedItemCardProps, 'onAction'>,
   { index: number },
-  State
+  RootState
 >(
-  ({ items }, props) => {
+  ({ savedItems: { items } }, props) => {
     const item = items[props.index];
 
     return {
@@ -30,9 +30,14 @@ const ConnectedItemCard = connect<
   },
   {
     onAction(id: string, actionName: Action) {
-      return () => {
-        // TODO: thunk action to handle multiple possible card actions
-        console.log({ id, actionName });
+      return (
+        dispatch: ThunkDispatch<RootState, void, RootActions>,
+        getState: () => RootState
+      ) => {
+        switch (actionName) {
+          case 'open':
+            return openSavedItem(id)(dispatch, getState);
+        }
       };
     },
   }
@@ -67,29 +72,35 @@ const AggregationsQueriesList = ({
   }
 
   return (
-    <VirtualGrid
-      itemMinWidth={CARD_WIDTH}
-      itemHeight={CARD_HEIGHT + spacing[2]}
-      itemsCount={items.length}
-      renderItem={ConnectedItemCard}
-      renderHeader={() => {
-        return (
-          <div className={header}>
-            {/* TODO: This h1 and a subtitle might go away so that the layout */}
-            {/*       is more aligned with what you see in the db / coll tabs */}
-            <H2 as="h1" className={title}>
-              My queries
-            </H2>
-            <div>All my saved queries in one place</div>
-          </div>
-        );
-      }}
-      classNames={{ row }}
-    ></VirtualGrid>
+    <>
+      <VirtualGrid
+        itemMinWidth={CARD_WIDTH}
+        itemHeight={CARD_HEIGHT + spacing[2]}
+        itemsCount={items.length}
+        renderItem={ConnectedItemCard}
+        renderHeader={() => {
+          return (
+            <div className={header}>
+              {/* TODO: This h1 and a subtitle might go away so that the layout */}
+              {/*       is more aligned with what you see in the db / coll tabs */}
+              <H2 as="h1" className={title}>
+                My queries
+              </H2>
+              <div>All my saved queries in one place</div>
+            </div>
+          );
+        }}
+        classNames={{ row }}
+      ></VirtualGrid>
+      <OpenItemModal></OpenItemModal>
+    </>
   );
 };
 
-const mapState = ({ loading, items }: State) => ({ loading, items });
+const mapState = ({ savedItems: { items, loading } }: RootState) => ({
+  items,
+  loading,
+});
 
 const mapDispatch = { fetchItems };
 
