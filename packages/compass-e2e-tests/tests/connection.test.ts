@@ -24,14 +24,17 @@ async function disconnect(browser: CompassBrowser) {
 describe('Connection screen', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let screenshot: string | undefined;
 
   before(async function () {
+    screenshot = 'connection-screen-before';
     compass = await beforeTests();
     browser = compass.browser;
+    screenshot = undefined;
   });
 
   after(function () {
-    return afterTests(compass);
+    return afterTests(compass, screenshot);
   });
 
   afterEach(async function () {
@@ -79,7 +82,9 @@ describe('SRV connectivity', function () {
   it('resolves SRV connection string using OS DNS APIs', async function () {
     const compass = await beforeTests();
     const browser = compass.browser;
+    let screenshot: string | undefined;
 
+    screenshot = 'srv-connectivity';
     try {
       // Does not actually succeed at connecting, but that’s fine for us here
       // (Unless you have a server listening on port 27017)
@@ -88,10 +93,10 @@ describe('SRV connectivity', function () {
         undefined,
         'either'
       );
+      screenshot = undefined;
     } finally {
-      await disconnect(browser);
-      // make sure the browser gets closed otherwise if this fails the process wont exit
-      await afterTests(compass);
+      // make sure the browser gets closed otherwise if this fails the process won't exit
+      await afterTests(compass, screenshot);
     }
 
     const { logs } = compass;

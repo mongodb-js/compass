@@ -9,18 +9,22 @@ const { expect } = chai;
 describe('Collection explain plan tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let screenshot: string | undefined;
 
   before(async function () {
+    screenshot = 'collection-explain-plan-tab-before';
+
     compass = await beforeTests();
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
 
     await browser.navigateToCollectionTab('test', 'numbers', 'Explain Plan');
+    screenshot = undefined;
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, screenshot);
   });
 
   afterEach(async function () {

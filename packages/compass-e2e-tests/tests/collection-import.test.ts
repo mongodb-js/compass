@@ -10,16 +10,19 @@ const { expect } = chai;
 describe('Collection import', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let screenshot: string | undefined;
 
   before(async function () {
+    screenshot = 'collection-import-before';
     compass = await beforeTests();
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    screenshot = undefined;
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, screenshot);
   });
 
   afterEach(async function () {

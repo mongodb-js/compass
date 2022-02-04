@@ -9,8 +9,10 @@ const { expect } = chai;
 describe('Instance sidebar', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let screenshot: string | undefined;
 
   before(async function () {
+    screenshot = 'instance-sidebar-before';
     compass = await beforeTests();
     browser = compass.browser;
 
@@ -18,7 +20,7 @@ describe('Instance sidebar', function () {
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, screenshot);
   });
 
   afterEach(async function () {

@@ -9,18 +9,21 @@ const { expect } = chai;
 describe('Database collections tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let screenshot: string | undefined;
 
   before(async function () {
+    screenshot = 'database-collections-tab-before';
     compass = await beforeTests();
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
 
     await browser.navigateToDatabaseTab('test', 'Collections');
+    screenshot = undefined;
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, screenshot);
   });
 
   afterEach(async function () {

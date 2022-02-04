@@ -6,18 +6,22 @@ import * as Selectors from '../helpers/selectors';
 describe('Instance databases tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let screenshot: string | undefined;
 
   before(async function () {
+    screenshot = 'instance-databases-tab-before';
     compass = await beforeTests();
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
 
     await browser.navigateToInstanceTab('Databases');
+
+    screenshot = undefined;
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, screenshot);
   });
 
   afterEach(async function () {

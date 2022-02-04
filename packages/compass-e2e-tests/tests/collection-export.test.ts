@@ -21,8 +21,10 @@ describe('Collection export', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
+  let screenshot: string | undefined;
 
   before(async function () {
+    screenshot = 'collection-export-before';
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
@@ -30,10 +32,11 @@ describe('Collection export', function () {
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
 
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    screenshot = undefined;
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, screenshot);
     await telemetry.stop();
   });
 

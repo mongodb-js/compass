@@ -554,10 +554,17 @@ export async function beforeTests(): Promise<Compass> {
   return compass;
 }
 
-export async function afterTests(compass?: Compass): Promise<void> {
+export async function afterTests(
+  compass?: Compass,
+  screenshotName?: string
+): Promise<void> {
   if (!compass) {
-    console.log('compas is falsey in afterTests');
     return;
+  }
+
+  // useful for when a hook fails
+  if (screenshotName) {
+    await compass.capturePage(screenshotPathName(screenshotName));
   }
 
   try {

@@ -13,7 +13,9 @@ describe('Logging and Telemetry integration', function () {
       telemetry = await startTelemetryServer();
       const compass = await beforeTests();
       const { browser } = compass;
+      let screenshot: string | undefined;
       try {
+        screenshot = 'example-path-before';
         await browser.connectWithConnectionString(
           'mongodb://localhost:27018/test'
         );
@@ -23,8 +25,9 @@ describe('Logging and Telemetry integration', function () {
 
         await browser.openTourModal();
         await browser.closeTourModal();
+        screenshot = undefined;
       } finally {
-        await afterTests(compass);
+        await afterTests(compass, screenshot);
         await telemetry.stop();
       }
 
@@ -383,23 +386,24 @@ describe('Logging and Telemetry integration', function () {
 
   describe('Uncaught exceptions', function () {
     let compass: Compass;
+    let screenshot: string | undefined;
 
     before(async function () {
+      screenshot = 'uncaught-exceptions-before';
       try {
         process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION = '1';
         compass = await beforeTests();
       } finally {
         delete process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION;
       }
-
+      screenshot = undefined;
       await afterTests(compass);
     });
 
     after(async function () {
-      if (compass) {
-        // cleanup outside of the test so that the time it takes to run does not
-        // get added to the time it took to run the first query
-        await afterTests(compass);
+      // clean up if it failed during the before hook
+      if (screenshot) {
+        await afterTests(compass, screenshot);
       }
     });
 
