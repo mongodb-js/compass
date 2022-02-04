@@ -18,13 +18,16 @@ export type Item = {
   name: string;
   database: string;
   collection: string;
-} & ({
-  type: 'query';
-  query: Query;
-} | {
-  type: 'aggregation';
-  aggregation: Omit<Aggregation, 'lastModified'>;
-});
+} & (
+    | {
+      type: 'query';
+      query: Query;
+  }
+  | {
+    type: 'aggregation';
+    aggregation: Omit<Aggregation, 'lastModified'>;
+    }
+  );
 
 interface Query {
   _id: string;
@@ -67,12 +70,12 @@ interface Pipeline {
   isExpanded: boolean;
   isLoading: boolean;
   isComplete: boolean;
-  previewDocuments: unknown[],
-  syntaxError: unknown,
-  error: unknown,
-  projections?: unknown[],
+  previewDocuments: unknown[];
+  syntaxError: unknown;
+  error: unknown;
+  projections?: unknown[];
   fromStageOperators?: boolean;
-  executor?: unknown,
+  executor?: unknown;
   isMissingAtlasOnlyStageSupport?: boolean;
 }
 
@@ -143,7 +146,7 @@ const getQueryItems = async (): Promise<Item[]> => {
       database,
       collection,
       type: 'query',
-      query
+      query,
     };
   });
 };
