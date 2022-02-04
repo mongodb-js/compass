@@ -133,6 +133,53 @@ describe('ConnectionStorage', function () {
       });
     });
 
+    it('attempts to preserve old model properties', async function () {
+      const id: string = uuid();
+      expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
+
+      const connectionStorage = new ConnectionStorage();
+      await connectionStorage.save({
+        id,
+        favorite: {
+          name: 'Favorite',
+        },
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017?ssl=true',
+        },
+      });
+
+      await eventually(() => {
+        const { isFavorite, sslMethod, name } = JSON.parse(
+          fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+        );
+
+        expect({ isFavorite, sslMethod, name }).to.deep.equal({
+          isFavorite: true,
+          name: 'Favorite',
+          sslMethod: 'SYSTEMCA',
+        });
+      });
+    });
+
+    it('saves a connection with arbitrary authMechanism (bypass Ampersand validations)', async function () {
+      const id: string = uuid();
+      const connectionStorage = new ConnectionStorage();
+      await connectionStorage.save({
+        id,
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017?authMechanism=FAKEAUTH',
+        },
+      });
+
+      await eventually(() => {
+        expect(
+          JSON.parse(
+            fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+          ).connectionInfo?.connectionOptions?.connectionString
+        ).to.be.equal('mongodb://localhost:27017/?authMechanism=FAKEAUTH');
+      });
+    });
+
     it('requires id to be set', async function () {
       const connectionStorage = new ConnectionStorage();
       const error = await connectionStorage
