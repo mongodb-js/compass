@@ -12,19 +12,24 @@ import {
 
 import type { Item } from '../stores/aggregations-queries-items';
 
-interface Tree {
-  value: string;
-  items?: Tree[];
-}
-
 interface SelectState {
   database?: string;
   collection?: string;
 }
 
 interface SearchableItem {
+  /**
+   * Information about the item (name, namespace, timeseries?)
+   */
   meta: string[];
+  /**
+   * Possible keywords user can use to search by,
+   * e.g a query can also be searched by find.
+   */
   tags: string[];
+  /**
+   * The actual query/agregation information
+   */
   data: string;
 }
 
@@ -46,40 +51,35 @@ const searchInputStyles = css({
   marginRight: spacing[2],
 });
 
-const RenderFilterSelect = ({
-  items,
-  onSelect,
-  defaultValue,
-  placeHolder = 'Select',
-}: {
-  items: Pick<Tree, 'value'>[];
+const FilterSelect: React.FunctionComponent<{
+  options: string[];
   onSelect: (value: string) => void;
-  defaultValue?: string;
-  placeHolder?: string;
-}) => {
+  value?: string;
+  placeholder?: string;
+}> = ({ options, onSelect, value, placeholder }) => {
   const labelId = useId();
   const controlId = useId();
   const longestLabel = Math.max(
-    placeHolder.length,
-    ...items.map((item) => item.value.length)
+    placeholder?.length || 0,
+    ...options.map((item) => item.length)
   );
   return (
     <Select
-      disabled={items.length === 0}
+      disabled={options.length === 0}
       id={controlId}
       aria-labelledby={labelId}
       allowDeselect={true}
-      placeholder={placeHolder}
+      placeholder={placeholder}
       className={cx(
         selectStyles,
         css({ minWidth: `calc(${longestLabel}ch + ${spacing[6]}px)` })
       )}
       onChange={onSelect}
-      defaultValue={defaultValue}
+      value={value}
     >
-      {items.map((item) => (
-        <Option key={item.value} value={item.value}>
-          {item.value}
+      {options.map((option) => (
+        <Option key={option} value={option}>
+          {option}
         </Option>
       ))}
     </Select>
@@ -112,19 +112,26 @@ function useSearchFilter(): [React.ReactElement, string] {
   return [searchControls, search];
 }
 
-function useSelectFilter(tree: Tree[]): [React.ReactElement, SelectState] {
+function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
   const [selectState, setSelectState] = useState<SelectState>({});
-  const [collections, setCollections] = useState<Tree[]>([]);
+  const [collections, setCollections] = useState<string[]>([]);
+
+  const databases = items
+    .map((x) => x.database)
+    .filter((x, i, arr) => arr.indexOf(x) === i);
 
   const selectDatabase = useMemo(() => {
     return (database: string): void => {
       setSelectState({
         database: database ?? undefined,
       });
-      const items = tree.find((x) => x.value === database)?.items;
-      setCollections(items || []);
+      const collections = items
+        .filter((x) => x.database === database)
+        .map((x) => x.collection)
+        .filter((x, i, arr) => arr.indexOf(x) === i);
+      setCollections(collections);
     };
-  }, [tree]);
+  }, [items]);
 
   const selectCollection = useMemo(() => {
     return (collection: string): void => {
@@ -138,47 +145,23 @@ function useSelectFilter(tree: Tree[]): [React.ReactElement, SelectState] {
   const treeControls = useMemo(() => {
     return (
       <div className={selectContainer}>
-        <RenderFilterSelect
-          items={tree}
-          placeHolder={'All databases'}
+        <FilterSelect
+          options={databases}
+          placeholder={'All databases'}
           onSelect={selectDatabase}
-          defaultValue={selectState.database}
+          value={selectState.database}
         />
-        <RenderFilterSelect
-          items={collections}
-          placeHolder={'All collections'}
+        <FilterSelect
+          options={collections}
+          placeholder={'All collections'}
           onSelect={selectCollection}
-          defaultValue={selectState.collection}
+          value={selectState.collection}
         />
       </div>
     );
-  }, [selectDatabase, tree, collections, selectCollection, selectState]);
+  }, [databases, selectDatabase, selectState, collections, selectCollection]);
 
   return [treeControls, selectState];
-}
-
-function convertItemsToTree(items: Item[]): Tree[] {
-  const dbCollectionMap: Record<string, string[]> = {};
-  const tree = [];
-  items.forEach((item) => {
-    if (!dbCollectionMap[item.database]) {
-      dbCollectionMap[item.database] = [];
-    }
-    dbCollectionMap[item.database].push(item.collection);
-  });
-  for (const database in dbCollectionMap) {
-    const collections = dbCollectionMap[database]
-      .filter((collection, index, arr) => arr.indexOf(collection) === index)
-      .map((collection) => ({
-        value: collection,
-      }));
-
-    tree.push({
-      value: database,
-      items: collections,
-    });
-  }
-  return tree;
 }
 
 function filterItemByConditions(item: Item, conditions: SelectState): boolean {
@@ -252,8 +235,7 @@ function filterByText(items: Item[], text: string): Item[] {
 export function useGridFilters(
   items: Item[]
 ): [React.ReactElement, SelectState, string] {
-  const tree: Tree[] = convertItemsToTree(items);
-  const [selectControls, conditions] = useSelectFilter(tree);
+  const [selectControls, conditions] = useSelectFilter(items);
   const [searchControls, search] = useSearchFilter();
 
   const filterControls = useMemo(() => {

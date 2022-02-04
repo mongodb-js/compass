@@ -15,12 +15,10 @@ import { useGridHeader } from '../hooks/use-grid-header';
 const ConnectedItemCard = connect<
   Omit<SavedItemCardProps, 'onAction'>,
   Pick<SavedItemCardProps, 'onAction'>,
-  { index: number; items: Item[] },
+  { item: Item },
   RootState
 >(
-  (_state, { index, items }) => {
-    const item = items[index];
-
+  (_state, { item }) => {
     return {
       id: item.id,
       type: item.type,
@@ -50,7 +48,6 @@ const row = css({
   paddingLeft: spacing[3],
   paddingRight: spacing[3],
   paddingBottom: spacing[2],
-  paddingTop: spacing[1],
 });
 
 const AggregationsQueriesList = ({
@@ -66,9 +63,10 @@ const AggregationsQueriesList = ({
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
     React.useCallback(
-      ({ index, ...props }: { index: number }) => (
-        <ConnectedItemCard index={index} items={listItems} {...props} />
-      ),
+      ({ index, ...props }: { index: number }) => {
+        const item = listItems[index];
+        return <ConnectedItemCard item={item} {...props} />;
+      },
       [listItems]
     );
 
@@ -78,12 +76,13 @@ const AggregationsQueriesList = ({
 
   return (
     <>
-      {React.createElement(gridHeader, {})}
       <VirtualGrid
         itemMinWidth={CARD_WIDTH}
         itemHeight={CARD_HEIGHT + spacing[2]}
         itemsCount={listItems.length}
         renderItem={renderItem}
+        renderHeader={gridHeader}
+        headerHeight={spacing[5] + 36}
         classNames={{ row }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
