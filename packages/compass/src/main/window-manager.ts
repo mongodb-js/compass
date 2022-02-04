@@ -7,14 +7,11 @@ import path from 'path';
 import createDebug from 'debug';
 import { ipcMain } from 'hadron-ipc';
 import { once } from 'events';
-import {
-  app as electronApp,
-  shell,
-  dialog,
-  BrowserWindow,
+import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,
 } from 'electron';
+import { app as electronApp, shell, dialog, BrowserWindow } from 'electron';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 
@@ -27,7 +24,7 @@ const debug = createDebug('mongodb-compass:electron:window-manager');
 /**
  * The outer dimensions to use for new windows.
  */
-const DEFAULT_WIDTH = 1280;
+const DEFAULT_WIDTH = 1432;
 const DEFAULT_HEIGHT = (() => {
   let height = 840;
   /**
@@ -277,7 +274,7 @@ class CompassWindowManager {
   }
 
   static init(app: CompassApplication): Promise<void> {
-    return this.initPromise ??= this._init(app);
+    return (this.initPromise ??= this._init(app));
   }
 }
 
