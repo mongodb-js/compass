@@ -5,6 +5,11 @@ import proxyquire from 'proxyquire';
 import { createProxyquireMockForQueriesAndAggregationsPlugins } from '../../test/mock';
 
 describe('AggregationsQueriesList', function () {
+  // Even though we are mocking dependencies, the code is still processed by
+  // ts-node (we're just not running it) so running this suite takes more time
+  // than is allowed by our default configuration
+  this.timeout(30000)
+
   afterEach(cleanup);
 
   it('should load queries and display them in the list', async function () {
