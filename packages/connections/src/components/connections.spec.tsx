@@ -73,7 +73,7 @@ describe('Connections Component', function () {
         <Connections
           onConnected={onConnectedSpy}
           connectionStorage={mockStorage}
-          appName={'Test App Name'}
+          appName='Test App Name'
         />
       );
     });
