@@ -109,6 +109,26 @@ describe('ConnectionStorage', function () {
       const connections = await connectionStorage.loadAll();
       expect(connections[0].lastUsed).to.deep.equal(lastUsed);
     });
+
+    it('should remove appName', async function () {
+      const id = uuid();
+      writeFakeConnection(tmpDir, {
+        _id: id,
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017?x=123&appName=Test+App',
+          },
+        },
+      });
+
+      const connectionStorage = new ConnectionStorage();
+      const connections = await connectionStorage.loadAll();
+      expect(connections[0].connectionOptions.connectionString).to.deep.equal(
+        'mongodb://localhost:27017/?x=123'
+      );
+    });
   });
 
   describe('save', function () {
@@ -159,6 +179,31 @@ describe('ConnectionStorage', function () {
         .catch((err) => err);
 
       expect(error.message).to.be.equal('id must be a uuid');
+    });
+
+    it('removes appName on save', async function () {
+      const id: string = uuid();
+
+      const connectionStorage = new ConnectionStorage();
+      await connectionStorage
+        .save({
+          id,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017?x=123&appName=Test+App',
+          },
+        })
+        .catch((err) => err);
+
+      await eventually(() => {
+        expect(
+          JSON.parse(
+            fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+          ).connectionInfo.connectionOptions
+        ).to.be.deep.equal({
+          connectionString: 'mongodb://localhost:27017/?x=123',
+        });
+      });
     });
   });
 
