@@ -6,6 +6,33 @@ import {
   convertConnectionInfoToModel,
   convertConnectionModelToInfo,
 } from './legacy/legacy-connection-model';
+import ConnectionString from 'mongodb-connection-string-url';
+
+// appName is a special param that will be overridden
+// on connnect and we don't want to save or load it
+
+export function deleteAppNameParam(
+  connectionInfo: ConnectionInfo
+): ConnectionInfo {
+  let connectionStringUrl;
+
+  try {
+    connectionStringUrl = new ConnectionString(
+      connectionInfo.connectionOptions?.connectionString
+    );
+  } catch {
+    return connectionInfo;
+  }
+
+  connectionStringUrl.searchParams.delete('appName');
+  return {
+    ...connectionInfo,
+    connectionOptions: {
+      ...connectionInfo.connectionOptions,
+      connectionString: connectionStringUrl.href,
+    },
+  };
+}
 
 export class ConnectionStorage {
   /**
@@ -22,7 +49,9 @@ export class ConnectionStorage {
     );
 
     await fetchConnectionModels();
-    return connectionCollection.map(convertConnectionModelToInfo);
+    return connectionCollection
+      .map(convertConnectionModelToInfo)
+      .map(deleteAppNameParam);
   }
 
   /**
@@ -42,7 +71,9 @@ export class ConnectionStorage {
       throw new Error('id must be a uuid');
     }
 
-    const model = await convertConnectionInfoToModel(connectionInfo);
+    const model = await convertConnectionInfoToModel(
+      deleteAppNameParam(connectionInfo)
+    );
     model.save();
   }
 

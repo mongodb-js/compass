@@ -23,6 +23,7 @@ function getMockConnectionStorage(
       return Promise.resolve(mockConnections);
     },
     save: () => Promise.resolve(),
+    delete: () => Promise.resolve(),
   };
 }
 
@@ -72,6 +73,7 @@ describe('Connections Component', function () {
         <Connections
           onConnected={onConnectedSpy}
           connectionStorage={mockStorage}
+          appName={'Test App Name'}
         />
       );
     });
@@ -142,6 +144,7 @@ describe('Connections Component', function () {
           onConnected={onConnectedSpy}
           connectFn={mockConnectFn}
           connectionStorage={mockStorage}
+          appName="Test App Name"
         />
       );
 
@@ -201,7 +204,7 @@ describe('Connections Component', function () {
         expect(mockConnectFn.callCount).to.equal(1);
         expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
           connectionString:
-            'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+            'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
         });
       });
 
@@ -295,6 +298,7 @@ describe('Connections Component', function () {
           onConnected={onConnectedSpy}
           connectFn={mockConnectFn}
           connectionStorage={mockStorage}
+          appName="Test App Name"
         />
       );
 
@@ -359,7 +363,7 @@ describe('Connections Component', function () {
         expect(mockConnectFn.callCount).to.equal(1);
         expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
           connectionString:
-            'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000',
+            'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&appName=Test+App+Name',
         });
       });
 
@@ -392,7 +396,7 @@ describe('Connections Component', function () {
           expect(mockConnectFn.callCount).to.equal(2);
           expect(mockConnectFn.secondCall.args[0]).to.deep.equal({
             connectionString:
-              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
           });
         });
 

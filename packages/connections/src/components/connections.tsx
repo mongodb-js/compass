@@ -54,9 +54,21 @@ const formContainerStyles = css({
   gap: spacing[4],
 });
 
+function getElectronAppName(): string {
+  const defaultAppName = 'MongoDB Compass';
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const electron = require('electron');
+    return electron?.remote?.app?.getName() || defaultAppName;
+  } catch (e) {
+    return defaultAppName;
+  }
+}
+
 function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
+  appName = getElectronAppName(),
   connectFn = connect,
 }: {
   onConnected: (
@@ -64,6 +76,7 @@ function Connections({
     dataService: DataService
   ) => void;
   connectionStorage?: ConnectionStore;
+  appName: string;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
   const {
@@ -77,7 +90,7 @@ function Connections({
     removeAllRecentsConnections,
     removeConnection,
     saveConnection,
-  } = useConnections(onConnected, connectionStorage, connectFn);
+  } = useConnections({ onConnected, connectionStorage, connectFn, appName });
   const {
     activeConnectionId,
     activeConnectionInfo,
