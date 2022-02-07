@@ -135,7 +135,7 @@ describe('Instance sidebar', function () {
     await dbElement.waitForExist({ reverse: true });
   });
 
-  it.skip('can create a collection and drop it', async function () {
+  it.only('can create a collection and drop it', async function () {
     const dbName = 'test'; // existing db
     const collectionName = 'my-collection';
 
