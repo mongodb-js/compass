@@ -70,7 +70,7 @@ const ToastPile = (): React.ReactElement => {
  *
  * ```
  * const MyButton = () => {
- *   const { openToast } = useToast();
+ *   const { openToast } = useToast('my-namespace');
  *   return <button onClick={() => openToast(
  *      'myToast1', {title: 'This is a notification'})} />
  * };
@@ -83,7 +83,7 @@ const ToastPile = (): React.ReactElement => {
 export const ToastArea = ({
   children,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }): React.ReactElement => {
   const [toasts, setToasts] = useState({});
 
