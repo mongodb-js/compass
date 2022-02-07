@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import type { ToastVariant } from '..';
+import { css, ToastVariant } from '..';
 import { Toast } from '..';
 
 type ToastProperties = {
@@ -34,6 +34,12 @@ const ToastContext = createContext<ToastContextState>({
   },
 });
 
+const toastStyles = css({
+  button: {
+    position: 'absolute',
+  },
+});
+
 const ToastPile = (): React.ReactElement => {
   const { toasts } = useContext(ToastContext);
   const { closeToast } = useGlobalToast();
@@ -43,6 +49,7 @@ const ToastPile = (): React.ReactElement => {
       {Object.entries(toasts).map(
         ([id, { title, body, variant, progress }]) => (
           <Toast
+            className={toastStyles}
             key={id}
             title={title}
             body={body}
