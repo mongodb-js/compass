@@ -50,8 +50,9 @@ function setAppNameParamIfMissing(
     return connectionString;
   }
 
-  if (!connectionStringUrl.searchParams.has('appName')) {
-    connectionStringUrl.searchParams.set('appName', appName);
+  const searchParams = connectionStringUrl.typedSearchParams<MongoClientOptions>();
+  if (!searchParams.has('appName')) {
+    searchParams.set('appName', appName);
   }
 
   return connectionStringUrl.href;
