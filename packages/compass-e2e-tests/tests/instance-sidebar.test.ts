@@ -18,7 +18,7 @@ describe('Instance sidebar', function () {
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, this.currentTest);
   });
 
   afterEach(async function () {
