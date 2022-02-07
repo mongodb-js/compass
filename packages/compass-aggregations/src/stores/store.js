@@ -1,7 +1,7 @@
 /* eslint complexity: 0 */
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from '../modules';
+import reducer, { getPipelineFromIndexedDB } from '../modules';
 import toNS from 'mongodb-ns';
 import { namespaceChanged } from '../modules/namespace';
 import { dataServiceConnected } from '../modules/data-service';
@@ -300,6 +300,10 @@ const configureStore = (options = {}) => {
 
   if (options.sourceName) {
     setSourceNames(store, options.sourceName);
+  }
+
+  if (options.aggregation) {
+    getPipelineFromIndexedDB(options.aggregation.id)(store.dispatch);
   }
 
   return store;

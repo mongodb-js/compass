@@ -26,6 +26,24 @@ import configureGridStore from './grid-store';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
+function pickQueryProps({
+  filter,
+  sort,
+  limit,
+  skip,
+  maxTimeMS,
+  project,
+  collation,
+} = {}) {
+  const query = { filter, sort, limit, skip, maxTimeMS, project, collation };
+  for (const key of Object.keys(query)) {
+    if (query[key] === null || query[key] === undefined) {
+      delete query[key];
+    }
+  }
+  return query;
+}
+
 /**
  * Number of docs per page.
  */
@@ -254,7 +272,8 @@ const configureStore = (options = {}) => {
         skip: 0,
         maxTimeMS: DEFAULT_INITIAL_MAX_TIME_MS,
         project: null,
-        collation: null
+        collation: null,
+        ...pickQueryProps(options.query ?? {})
       };
     },
 

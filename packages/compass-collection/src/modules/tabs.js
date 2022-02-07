@@ -141,7 +141,15 @@ const doCreateTab = (state, action) => {
   const newState = state.map((tab) => {
     return { ...tab, isActive: false };
   });
-  const subTabIndex = action.editViewName ? 1 : 0;
+
+  const subTabIndex = action.query
+    ? 0
+    : action.aggregation
+      ? 1
+      : action.editViewName
+        ? 1
+        : 0;
+
   newState.push({
     id: action.id,
     namespace: action.namespace,
@@ -353,7 +361,9 @@ export const createTab = ({
   editViewName,
   context,
   sourceReadonly,
-  sourceViewOn
+  sourceViewOn,
+  query,
+  aggregation
 }) => ({
   type: CREATE_TAB,
   id: id,
@@ -364,7 +374,9 @@ export const createTab = ({
   editViewName: editViewName,
   context: context,
   sourceReadonly: sourceReadonly,
-  sourceViewOn: sourceViewOn
+  sourceViewOn: sourceViewOn,
+  query,
+  aggregation
 });
 
 /**
@@ -560,7 +572,9 @@ export const createNewTab = ({
   editViewName,
   sourceReadonly,
   sourceViewOn,
-  sourcePipeline
+  sourcePipeline,
+  query,
+  aggregation
 }) => {
   return (dispatch, getState) => {
     const state = getState();
@@ -572,7 +586,9 @@ export const createNewTab = ({
       isTimeSeries,
       sourceName,
       editViewName,
-      sourcePipeline
+      sourcePipeline,
+      query,
+      aggregation
     });
     dispatch(
       createTab({
@@ -584,7 +600,9 @@ export const createNewTab = ({
         editViewName,
         context,
         sourceReadonly: !!sourceReadonly,
-        sourceViewOn
+        sourceViewOn,
+        query,
+        aggregation
       })
     );
     showCollectionSubmenu({ isReadOnly: isReadonly });
