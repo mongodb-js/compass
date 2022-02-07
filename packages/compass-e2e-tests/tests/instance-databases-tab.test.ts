@@ -76,7 +76,13 @@ describe('Instance databases tab', function () {
       // open the drop database modal from the database card
       await browser.hover(`${selector} [title="${dbName}"]`);
       const el = await browser.$(Selectors.DatabaseCardDrop);
-      return await el.isDisplayed();
+      if (await el.isDisplayed()) {
+        return true;
+      }
+
+      // go hover somewhere else to give the next attempt a fighting chance
+      await browser.hover(Selectors.SidebarTitle);
+      return false;
     });
 
     await browser.clickVisible(Selectors.DatabaseCardDrop);
