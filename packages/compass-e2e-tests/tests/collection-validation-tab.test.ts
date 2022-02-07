@@ -75,7 +75,4 @@ describe('Collection validation tab', function () {
       );
     });
   });
-
-  it('supports rules in MQL');
-  it('does not allow invalid documents to be inserted');
 });
