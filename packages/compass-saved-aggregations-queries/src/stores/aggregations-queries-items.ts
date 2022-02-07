@@ -19,15 +19,15 @@ export type Item = {
   database: string;
   collection: string;
 } & (
-    | {
+  | {
       type: 'query';
       query: Query;
-  }
-  | {
-    type: 'aggregation';
-    aggregation: Omit<Aggregation, 'lastModified'>;
     }
-  );
+  | {
+      type: 'aggregation';
+      aggregation: Omit<Aggregation, 'lastModified'>;
+    }
+);
 
 interface Query {
   _id: string;
