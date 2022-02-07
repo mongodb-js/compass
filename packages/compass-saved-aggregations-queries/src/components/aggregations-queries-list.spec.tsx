@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -8,6 +8,7 @@ import thunk from 'redux-thunk';
 import type { RootState } from '../stores/index';
 
 import AggregationsQueriesList from './aggregations-queries-list';
+import { filterByText } from '../hooks/use-grid-filters';
 import { queries, aggregations } from '../../tests/fixtures';
 
 const items = [...queries, ...aggregations];
@@ -97,6 +98,7 @@ describe('aggregations-queries-list', function () {
       });
     });
   });
+
   describe('filters items by database/collection selects', function () {
     beforeEach(function () {
       const store = mockStore(initialState);
@@ -130,6 +132,142 @@ describe('aggregations-queries-list', function () {
 
       expectedItems.forEach((item) => {
         expect(screen.getByText(item.name)).to.exist;
+      });
+    });
+  });
+
+  describe('sorts items correctly', function () {
+    beforeEach(function () {
+      const store = mockStore(initialState);
+      render(
+        <Provider store={store}>
+          <AggregationsQueriesList />
+        </Provider>
+      );
+    });
+
+    it('sorts by name - asc', function () {
+      const sortedItems = [...items].sort(
+        (a, b) => a.name.localeCompare(b.name) * 1
+      );
+      sortedItems.forEach((item, index) => {
+        expect(
+          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
+        ).to.exist;
+      });
+    });
+
+    it('sorts by name - desc', function () {
+      const sortedItems = [...items].sort(
+        (a, b) => a.name.localeCompare(b.name) * -1
+      );
+      fireEvent.click(
+        screen.getByRole('img', {
+          name: /sort ascending icon/i,
+        })
+      );
+      sortedItems.forEach((item, index) => {
+        expect(
+          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
+        ).to.exist;
+      });
+    });
+
+    it('sorts by last modified - asc', function () {
+      // Open the sort dropdown
+      fireEvent.click(
+        screen.getByText('Name', {
+          selector: 'div',
+        })
+      );
+      fireEvent.click(
+        screen.getByText('Last Modified', {
+          selector: 'span',
+        })
+      );
+
+      const sortedItems = [...items].sort(
+        (a, b) => a.lastModified - b.lastModified
+      );
+      sortedItems.forEach((item, index) => {
+        expect(
+          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
+        ).to.exist;
+      });
+    });
+
+    it('sorts by last modified - desc', function () {
+      // Open the sort dropdown
+      fireEvent.click(
+        screen.getByText('Name', {
+          selector: 'div',
+        })
+      );
+      fireEvent.click(
+        screen.getByText('Last Modified', {
+          selector: 'span',
+        })
+      );
+
+      fireEvent.click(
+        screen.getByRole('img', {
+          name: /sort ascending icon/i,
+        })
+      );
+
+      const sortedItems = [...items].sort(
+        (a, b) => b.lastModified - a.lastModified
+      );
+      sortedItems.forEach((item, index) => {
+        expect(
+          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
+        ).to.exist;
+      });
+    });
+  });
+
+  describe('filters items by text and dropdown/collection selects correctly', function () {
+    beforeEach(function () {
+      const store = mockStore(initialState);
+      render(
+        <Provider store={store}>
+          <AggregationsQueriesList />
+        </Provider>
+      );
+    });
+
+    it('should filter items by database/collection and text search', function () {
+      const searchTerm = 'spaces in berlin'; // have id of 1234 & 5678
+      const searchInput = screen.getByPlaceholderText(/search/i);
+      fireEvent.change(searchInput, { target: { value: searchTerm } });
+
+      // select database
+      fireEvent.click(screen.getByText('All databases'));
+      fireEvent.click(
+        screen.getByRole('option', {
+          name: 'airbnb',
+        })
+      );
+      // select collection
+      fireEvent.click(screen.getByText('All collections'));
+      fireEvent.click(
+        screen.getByRole('option', {
+          name: 'listings',
+        })
+      );
+
+      const filteredItems = filterByText(
+        items.filter(
+          ({ database, collection }) =>
+            database === 'airbnb' && collection === 'listings'
+        ),
+        searchTerm
+      );
+
+      filteredItems.forEach((item, index) => {
+        expect(
+          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
+        ).to.exist;
       });
     });
   });

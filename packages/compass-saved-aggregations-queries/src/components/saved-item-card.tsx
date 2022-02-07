@@ -208,6 +208,7 @@ export const SavedItemCard: React.FunctionComponent<
   collection,
   lastModified,
   onAction,
+  dataTestId,
   ...containerProps
 }) => {
   const [hoverProps, isHovered] = useHoverState();
@@ -230,7 +231,12 @@ export const SavedItemCard: React.FunctionComponent<
     // @ts-expect-error the error here is caused by passing children to Card
     // component, even though it's allowed on the implementation level the types
     // are super confused and don't allow that
-    <Card key={id} contentStyle="clickable" {...cardProps}>
+    <Card
+      key={id}
+      contentStyle="clickable"
+      data-testid={dataTestId}
+      {...cardProps}
+    >
       <div className={actionsRow}>
         <Badge variant="darkgray" className={cardBadge}>
           .{type === 'query' ? 'find' : 'aggregate'}

@@ -160,7 +160,7 @@ function filterItemByConditions(item: Item, conditions: SelectState): boolean {
   return shouldReturnItem;
 }
 
-function filterByText(items: Item[], text: string): Item[] {
+export function filterByText(items: Item[], text: string): Item[] {
   if (!text || text.length === 1) {
     return items;
   }
