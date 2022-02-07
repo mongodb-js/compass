@@ -34,24 +34,25 @@ export interface ConnectionStore {
   delete: (connectionInfo: ConnectionInfo) => Promise<void>;
 }
 
-function tryParseConnectionString(
-  connectionString: string
-): ConnectionString | undefined {
+function setAppNameParamIfMissing(
+  connectionString: string,
+  appName: string
+): string {
+  let connectionStringUrl;
+
   try {
-    return new ConnectionString(connectionString);
+    connectionStringUrl = new ConnectionString(connectionString);
   } catch (e) {
     //
   }
-}
-
-function setAppNameParam(connectionString: string, appName: string): string {
-  const connectionStringUrl = tryParseConnectionString(connectionString);
 
   if (!connectionStringUrl) {
     return connectionString;
   }
 
-  connectionStringUrl.searchParams.set('appName', appName);
+  if (!connectionStringUrl.searchParams.has('appName')) {
+    connectionStringUrl.searchParams.set('appName', appName);
+  }
 
   return connectionStringUrl.href;
 }
@@ -347,7 +348,7 @@ export function useConnections({
       debug('connecting with connectionInfo', connectionInfo);
 
       try {
-        const connectionStringWithAppName = setAppNameParam(
+        const connectionStringWithAppName = setAppNameParamIfMissing(
           connectionInfo.connectionOptions.connectionString,
           appName
         );
