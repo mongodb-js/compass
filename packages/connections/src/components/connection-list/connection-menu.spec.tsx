@@ -5,6 +5,7 @@ import sinon from 'sinon';
 
 import ConnectionMenu from './connection-menu';
 import type { ConnectionInfo } from 'mongodb-data-service';
+import { ToastArea } from '@mongodb-js/compass-components';
 
 describe('ConnectionMenu Component', function () {
   describe('on non-favorite item', function () {
@@ -68,13 +69,15 @@ describe('ConnectionMenu Component', function () {
         },
       };
       render(
-        <ConnectionMenu
-          connectionString={'mongodb://kaleesi'}
-          duplicateConnection={() => true}
-          removeConnection={() => true}
-          connectionInfo={connectionInfo}
-          iconColor="#EAEAEA"
-        />
+        <ToastArea>
+          <ConnectionMenu
+            connectionString={'mongodb://kaleesi'}
+            duplicateConnection={() => true}
+            removeConnection={() => true}
+            connectionInfo={connectionInfo}
+            iconColor="#EAEAEA"
+          />
+        </ToastArea>
       );
     });
 
@@ -160,7 +163,7 @@ describe('ConnectionMenu Component', function () {
 
         it('opens a toast with a success message', async function () {
           await waitFor(
-            () => expect(screen.getByText('Success!')).to.be.visible
+            () => expect(screen.getByText('Success')).to.be.visible
           );
           await waitFor(
             () => expect(screen.getByText('Copied to clipboard.')).to.be.visible

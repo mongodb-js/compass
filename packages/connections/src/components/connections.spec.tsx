@@ -5,7 +5,6 @@ import {
   screen,
   waitFor,
   fireEvent,
-  within,
 } from '@testing-library/react';
 import { expect } from 'chai';
 import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
@@ -171,37 +170,6 @@ describe('Connections Component', function () {
 
     it('renders the title of the saved connection', function () {
       expect(screen.getByText('localhost:27018')).to.be.visible;
-    });
-
-    describe('when saving the connection fails', function () {
-      beforeEach(async function () {
-        mockStorage.save = () => {
-          throw new Error('Error: pineapples');
-        };
-
-        await loadSavedConnectionAndConnect(
-          connections.find(({ id }) => id === savedConnectionId)
-        );
-      });
-
-      it('displays the error that occurred when saving', function () {
-        expect(screen.getByRole('alert').textContent).to.equal(
-          'Error: pineapples'
-        );
-      });
-
-      describe('clicking the close button on the banner', function () {
-        beforeEach(function () {
-          const closeBannerButton = within(
-            screen.getByRole('alert')
-          ).getByLabelText('X Icon');
-          fireEvent.click(closeBannerButton);
-        });
-
-        it('should hide the save error banner', function () {
-          expect(screen.queryByRole('alert')).to.not.exist;
-        });
-      });
     });
 
     describe('when a saved connection is clicked on and connected to', function () {

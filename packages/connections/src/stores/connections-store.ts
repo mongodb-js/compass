@@ -244,9 +244,11 @@ export function useConnections({
       );
 
       openToast('save-connection-error', {
-        title: 'Unable to save the connection',
+        title: 'Error',
         variant: ToastVariant.Warning,
-        body: (err as Error).message,
+        body: `An error occurred while saving the connection. ${
+          (err as Error).message
+        }`,
       });
 
       throw err;

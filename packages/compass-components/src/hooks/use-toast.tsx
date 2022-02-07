@@ -83,8 +83,7 @@ const ToastPile = (): React.ReactElement => {
 export const ToastArea = ({
   children,
 }: {
-  children: React.ReactChildren;
-  theme: ToastActions;
+  children: React.ReactNode;
 }): React.ReactElement => {
   const [toasts, setToasts] = useState({});
 
