@@ -1,22 +1,70 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useContext } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
-import { VirtualGrid, css, spacing } from '@mongodb-js/compass-components';
+import {
+  VirtualGrid,
+  css,
+  spacing,
+  useSortControls,
+  useSortedItems,
+} from '@mongodb-js/compass-components';
 import { fetchItems } from '../stores/aggregations-queries-items';
+import type { Item } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
 import type { RootActions, RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { SavedItemCardProps, Action } from './saved-item-card';
 import OpenItemModal from './open-item-modal';
-import { useGridHeader } from '../hooks/use-grid-header';
+import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 
-const row = css({
+type SortKeys = Exclude<
+  Extract<keyof Item, string>,
+  'id' | 'database' | 'collection' | 'type'
+>;
+
+const sortBy: { name: SortKeys; label: string }[] = [
+  {
+    name: 'name',
+    label: 'Name',
+  },
+  {
+    name: 'lastModified',
+    label: 'Last Modified',
+  },
+];
+
+const headerStyles = css({
+  margin: spacing[3],
+  display: 'flex',
+  justifyContent: 'space-between',
+});
+
+const rowStyles = css({
   gap: spacing[2],
   paddingLeft: spacing[3],
   paddingRight: spacing[3],
   paddingBottom: spacing[2],
 });
+
+const ControlsContext = React.createContext<{
+  filterControls: React.ReactElement | null;
+  sortControls: React.ReactElement | null;
+}>({
+  filterControls: null,
+  sortControls: null,
+});
+
+const GridControls = () => {
+  const { filterControls, sortControls } = useContext(ControlsContext);
+
+  return (
+    <div className={headerStyles}>
+      <div>{filterControls}</div>
+      <div>{sortControls}</div>
+    </div>
+  );
+};
 
 const AggregationsQueriesList = ({
   loading,
@@ -28,15 +76,26 @@ const AggregationsQueriesList = ({
     void fetchItems();
   }, [fetchItems]);
 
-  const [gridHeader, listItems] = useGridHeader(items);
+  const [filterControls, filters, search] = useGridFilters(items);
+  const filteredItems = useFilteredItems(items, filters, search);
+  // If a user is searching, we disable the sort as
+  // search results are sorted by match score
+  const isDisabled = Boolean(search) ?? false;
+  const [sortControls, sortState] = useSortControls<SortKeys>(sortBy, {
+    isDisabled,
+  });
+  const sortedItems = useSortedItems(
+    filteredItems,
+    isDisabled ? null : sortState
+  );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
     useCallback(
       ({ index }: { index: number }) => {
-        const item: Omit<SavedItemCardProps, 'onAction'> = listItems[index];
+        const item: Omit<SavedItemCardProps, 'onAction'> = sortedItems[index];
         return <SavedItemCard {...item} onAction={onAction} />;
       },
-      [listItems, onAction]
+      [onAction, sortedItems]
     );
 
   if (loading) {
@@ -44,18 +103,23 @@ const AggregationsQueriesList = ({
   }
 
   return (
-    <>
+    <ControlsContext.Provider
+      value={{
+        filterControls: filterControls ?? null,
+        sortControls: isDisabled ? null : sortControls,
+      }}
+    >
       <VirtualGrid
         itemMinWidth={CARD_WIDTH}
         itemHeight={CARD_HEIGHT + spacing[2]}
-        itemsCount={listItems.length}
+        itemsCount={sortedItems.length}
         renderItem={renderItem}
-        renderHeader={gridHeader}
+        renderHeader={GridControls}
         headerHeight={spacing[5] + 36}
-        classNames={{ row }}
+        classNames={{ row: rowStyles }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
-    </>
+    </ControlsContext.Provider>
   );
 };
 

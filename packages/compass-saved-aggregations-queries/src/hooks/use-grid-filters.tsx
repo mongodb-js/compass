@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useId } from '@react-aria/utils';
 import Fuse from 'fuse.js';
 import {
@@ -72,15 +72,10 @@ const FilterSelect: React.FunctionComponent<{
 };
 
 function useSearchFilter(): [React.ReactElement, string] {
-  const ref = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
-  useEffect(() => {
-    ref.current?.focus();
-  }, [search]);
   const searchControls = useMemo(() => {
     return (
       <TextInput
-        ref={ref}
         className={searchInputStyles}
         aria-label="Search"
         type="search"
@@ -185,7 +180,7 @@ function filterByText(items: Item[], text: string): Item[] {
         weight: 3,
       },
       {
-        name: 'searchTags',
+        name: 'tags',
         weight: 2,
       },
       {
@@ -200,7 +195,7 @@ function filterByText(items: Item[], text: string): Item[] {
       }
 
       if (item.type === 'query') {
-        if (key === 'searchTags') {
+        if (key === 'tags') {
           return ['find', 'query'];
         }
         if (key === 'data') {
@@ -211,7 +206,7 @@ function filterByText(items: Item[], text: string): Item[] {
       }
 
       if (item.type === 'aggregation') {
-        if (key === 'searchTags') {
+        if (key === 'tags') {
           return ['aggregate', 'aggregation'];
         }
 
