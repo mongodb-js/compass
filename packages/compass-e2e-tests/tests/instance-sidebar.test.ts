@@ -107,7 +107,7 @@ describe('Instance sidebar', function () {
     await adminElement.waitForDisplayed();
   });
 
-  it.skip('can create a database and drop it', async function () {
+  it('can create a database and drop it', async function () {
     const dbName = 'my-database';
     const collectionName = 'my-collection';
 
@@ -135,7 +135,7 @@ describe('Instance sidebar', function () {
     await dbElement.waitForExist({ reverse: true });
   });
 
-  it.only('can create a collection and drop it', async function () {
+  it('can create a collection and drop it', async function () {
     const dbName = 'test'; // existing db
     const collectionName = 'my-collection';
 

@@ -38,7 +38,7 @@ describe('Database collections tab', function () {
     }
   });
 
-  it.only('links collection cards to the collection documents tab', async function () {
+  it('links collection cards to the collection documents tab', async function () {
     await browser.clickVisible(
       Selectors.collectionCardClickable('test', 'numbers')
     );
