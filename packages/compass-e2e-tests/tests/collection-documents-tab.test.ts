@@ -24,7 +24,7 @@ describe('Collection documents tab', function () {
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, this.currentTest);
     await telemetry.stop();
   });
 

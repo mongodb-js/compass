@@ -17,7 +17,7 @@ describe('Instance databases tab', function () {
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, this.currentTest);
   });
 
   afterEach(async function () {
