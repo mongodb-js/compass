@@ -36,6 +36,8 @@ export async function setAceValue(
 
   await clipboard.write(value);
 
+  await browser.pause(1000);
+
   // For whatever reason it is shift-insert and not cmd-v  ¯\_(ツ)_/¯
   // https://twitter.com/webdriverio/status/812034986341789696?lang=en
   // https://bugs.chromium.org/p/chromedriver/issues/detail?id=30
