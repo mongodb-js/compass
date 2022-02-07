@@ -20,6 +20,7 @@ function CappedCollectionFields({
       disabled={isTimeSeries}
       onToggle={checked => onChangeIsCapped(checked)}
       label="Capped Collection"
+      dataTestId="capped-collection-fields"
       helpUrl={HELP_URL_CAPPED}
       openLink={openLink}
       description="Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
@@ -27,6 +28,7 @@ function CappedCollectionFields({
       <TextInput
         value={cappedSize}
         label="size"
+        data-testid="capped-size"
         type="number"
         description="Maximum size in bytes for the capped collection."
         onChange={(e) => onChangeCappedSize(e.target.value)}

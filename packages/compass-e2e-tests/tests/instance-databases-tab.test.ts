@@ -57,7 +57,7 @@ describe('Instance databases tab', function () {
     await browser.navigateToInstanceTab('Databases');
   });
 
-  it.skip('can create a database from the databases tab', async function () {
+  it.skip('can create a database from the databases tab and drop it', async function () {
     const dbName = 'my-database';
     const collectionName = 'my-collection';
 

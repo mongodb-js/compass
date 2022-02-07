@@ -169,6 +169,7 @@ export const databaseCardClickable = (dbName: string): string => {
 export const DatabaseTabs = '[data-test-id="database-tabs"]';
 export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
+export const DatabaseCreateCollectionButton = '[data-testid="collection-grid"] [data-testid="create-controls"] button';
 
 export const databaseTab = (tabName: string, selected?: boolean): string => {
   const selector = `${DatabaseTab}[name="${tabName}"]`;

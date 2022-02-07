@@ -13,12 +13,13 @@ function CollapsibleFieldSet({
   disabled,
   helpUrl,
   label,
+  dataTestId,
   onToggle,
   openLink,
   toggled
 }) {
   return (
-    <FieldSet>
+    <FieldSet dataTestId={dataTestId}>
       <Checkbox
         onChange={event => {
           onToggle(event.target.checked);
@@ -27,6 +28,7 @@ function CollapsibleFieldSet({
         label={label}
         checked={toggled}
         bold={false}
+        id={dataTestId ? `toggle-${dataTestId}` : undefined}
       />
       {!description ? '' : description}
       {!!helpUrl && !!openLink && (
@@ -51,6 +53,7 @@ function CollapsibleFieldSet({
 CollapsibleFieldSet.propTypes = {
   children: PropTypes.node,
   label: PropTypes.string.isRequired,
+  dataTestId: PropTypes.string,
   description: PropTypes.oneOfType([
     PropTypes.element,
     PropTypes.string
