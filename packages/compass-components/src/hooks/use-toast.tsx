@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { css, ToastVariant } from '..';
+import type { ToastVariant } from '..';
+import { css } from '..';
 import { Toast } from '..';
 
 type ToastProperties = {
