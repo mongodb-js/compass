@@ -105,7 +105,10 @@ export function useSortControls<T extends string>(
     );
   }, [sortState, items, labelId, controlId, options?.isDisabled]);
 
-  return [sortControls, sortState];
+  return [
+    sortControls,
+    options?.isDisabled ? { name: null, order: 1 } : sortState,
+  ];
 }
 
 function sortUnknown(a: unknown, b: unknown, order: SortOrder): number {
@@ -118,10 +121,13 @@ function sortString(a: string, b: string, order: SortOrder): number {
 
 export function useSortedItems<T extends Record<string, unknown>>(
   items: T[],
-  sortState: {
+  {
+    name,
+    order,
+  }: {
     name: keyof T | null;
     order: SortOrder;
-  } | null,
+  },
   sortFn: Partial<
     {
       [key in keyof T]: (a: T[key], b: T[key], order: SortOrder) => number;
@@ -129,10 +135,6 @@ export function useSortedItems<T extends Record<string, unknown>>(
   > | null = null
 ): T[] {
   return useMemo(() => {
-    if (!sortState) {
-      return items;
-    }
-    const { name, order } = sortState;
     return [...items].sort((a, b) => {
       if (!name) {
         return 0;
@@ -153,5 +155,5 @@ export function useSortedItems<T extends Record<string, unknown>>(
       }
       return sortUnknown(a[name], b[name], order);
     });
-  }, [sortState, items, sortFn]);
+  }, [items, name, sortFn, order]);
 }

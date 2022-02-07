@@ -84,10 +84,7 @@ const AggregationsQueriesList = ({
   const [sortControls, sortState] = useSortControls<SortKeys>(sortBy, {
     isDisabled,
   });
-  const sortedItems = useSortedItems(
-    filteredItems,
-    isDisabled ? null : sortState
-  );
+  const sortedItems = useSortedItems(filteredItems, sortState);
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
     useCallback(
