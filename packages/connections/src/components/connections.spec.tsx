@@ -13,6 +13,7 @@ import sinon from 'sinon';
 
 import Connections from './connections';
 import type { ConnectionStore } from '../stores/connections-store';
+import { ToastArea } from '@mongodb-js/compass-components';
 
 function getMockConnectionStorage(
   mockConnections: ConnectionInfo[]
@@ -146,12 +147,14 @@ describe('Connections Component', function () {
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
 
       render(
-        <Connections
-          onConnected={onConnectedSpy}
-          connectFn={mockConnectFn}
-          connectionStorage={mockStorage}
-          appName="Test App Name"
-        />
+        <ToastArea>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectFn={mockConnectFn}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </ToastArea>
       );
 
       await waitFor(() => expect(screen.queryAllByRole('listitem')).to.exist);

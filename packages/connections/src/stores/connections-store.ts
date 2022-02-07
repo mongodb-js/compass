@@ -250,8 +250,6 @@ export function useConnections({
           (err as Error).message
         }`,
       });
-
-      throw err;
     }
   }
 
@@ -272,12 +270,6 @@ export function useConnections({
           (err as Error).message
         }`
       );
-
-      openToast('save-connection-error', {
-        title: 'Unable to save the connection',
-        variant: ToastVariant.Warning,
-        body: (err as Error).message,
-      });
     }
   }
 
