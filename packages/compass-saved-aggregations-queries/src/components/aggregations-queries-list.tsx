@@ -93,7 +93,13 @@ const AggregationsQueriesList = ({
     useCallback(
       ({ index }: { index: number }) => {
         const item: Omit<SavedItemCardProps, 'onAction'> = sortedItems[index];
-        return <SavedItemCard {...item} onAction={onAction} />;
+        return (
+          <SavedItemCard
+            {...item}
+            onAction={onAction}
+            dataTestId={`grid-item-${index}`}
+          />
+        );
       },
       [onAction, sortedItems]
     );
@@ -106,7 +112,7 @@ const AggregationsQueriesList = ({
     <ControlsContext.Provider
       value={{
         filterControls: filterControls ?? null,
-        sortControls: isDisabled ? null : sortControls,
+        sortControls: sortControls ?? null,
       }}
     >
       <VirtualGrid

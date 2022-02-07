@@ -26,6 +26,7 @@ export type SavedItemCardProps = Pick<
   'id' | 'type' | 'name' | 'database' | 'collection' | 'lastModified'
 > & {
   onAction(id: string, actionName: Action): void;
+  dataTestId?: string;
 };
 
 const namespacePart = css({

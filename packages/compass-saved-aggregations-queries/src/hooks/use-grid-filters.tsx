@@ -123,7 +123,7 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
     };
   }, [selectState]);
 
-  const treeControls = useMemo(() => {
+  const selectControls = useMemo(() => {
     return (
       <div className={selectContainer}>
         <FilterSelect
@@ -142,7 +142,7 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
     );
   }, [databases, selectDatabase, selectState, collections, selectCollection]);
 
-  return [treeControls, selectState];
+  return [selectControls, selectState];
 }
 
 function filterItemByConditions(item: Item, conditions: SelectState): boolean {
