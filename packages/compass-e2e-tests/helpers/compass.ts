@@ -308,7 +308,7 @@ async function startCompass(
 
   // https://webdriver.io/docs/options/#webdriverio
   const wdioOptions = {
-    waitforTimeout: 5000, // default is 3000ms
+    waitforTimeout: 10000, // default is 3000ms
     waitforInterval: 100, // default is 500ms
   };
 
