@@ -246,7 +246,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     return (
       <div className={homeViewStyles} data-test-id="home-view">
         <div className={homePageStyles}>
-          <Connections onConnected={onConnected} />
+          <Connections onConnected={onConnected} appName={appName} />
         </div>
       </div>
     );

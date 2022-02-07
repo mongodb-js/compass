@@ -54,21 +54,10 @@ const formContainerStyles = css({
   gap: spacing[4],
 });
 
-function getElectronAppName(): string {
-  const defaultAppName = 'MongoDB Compass';
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const electron = require('electron');
-    return electron?.remote?.app?.getName() || defaultAppName;
-  } catch (e) {
-    return defaultAppName;
-  }
-}
-
 function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
-  appName = getElectronAppName(),
+  appName,
   connectFn = connect,
 }: {
   onConnected: (
