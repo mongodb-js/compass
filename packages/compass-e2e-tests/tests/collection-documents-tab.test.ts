@@ -79,7 +79,7 @@ describe('Collection documents tab', function () {
     });
   });
 
-  it('supports cancelling a find and then running another query', async function () {
+  it.only('supports cancelling a find and then running another query', async function () {
     // execute a query that will take a long time
     await browser.runFindOperation(
       'Documents',
