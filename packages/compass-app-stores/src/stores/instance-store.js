@@ -101,22 +101,23 @@ store.fetchAllCollections = async() => {
  * that events like open-in-new-tab, select-namespace, edit-view require
  */
 store.fetchCollectionMetadata = async(ns) => {
-  const coll = await store.fetchCollectionDetails(ns);
-  const collectionMetadata = {
-    namespace: coll.ns,
-    isReadonly: coll.readonly,
-    isTimeSeries: coll.isTimeSeries,
-  };
-  if (coll.sourceId) {
-    const source = await store.fetchCollectionDetails(coll.sourceId);
-    Object.assign(collectionMetadata, {
-      sourceName: source.ns,
-      sourceReadonly: source.readonly,
-      sourceViewon: source.sourceId,
-      sourcePipeline: coll.pipeline,
-    });
+  const { instance, dataService } = store.getState();
+  const { database, collection } = toNS(ns);
+
+  if (!instance || !dataService) {
+    debug(
+      'Trying to fetch collection metadata without the model or dataService in the state'
+    );
+    return;
   }
-  return collectionMetadata;
+
+  const coll = await instance.getNamespace({
+    database,
+    collection,
+    dataService,
+  });
+
+  return await coll.fetchMetadata({ dataService });
 };
 
 store.refreshNamespace = async({ ns, database }) => {
