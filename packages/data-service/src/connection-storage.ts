@@ -9,7 +9,7 @@ import {
 import ConnectionString from 'mongodb-connection-string-url';
 
 // appName is a special param that will be overridden
-// on connnect and we don't want to save or load it
+// on connect and we don't want to save or load it
 
 export function deleteAppNameParam(
   connectionInfo: ConnectionInfo
