@@ -4,12 +4,13 @@ export async function clickVisible(
   browser: CompassBrowser,
   selector: string
 ): Promise<void> {
-  const element = await browser.$(selector);
+  const displayElement = await browser.$(selector);
 
-  await element.waitForDisplayed();
+  await displayElement.waitForDisplayed();
 
   // Clicking a thing that's still animating is unreliable at best.
   await browser.waitForAnimations(selector);
 
-  await element.click();
+  const clickElement = await browser.$(selector);
+  await clickElement.click();
 }

@@ -58,7 +58,7 @@ describe('Instance databases tab', function () {
   });
 
   it('can create a database from the databases tab and drop it', async function () {
-    const dbName = 'my-database';
+    const dbName = 'my-instance-database';
     const collectionName = 'my-collection';
 
     // open the create database modal from the button at the top
@@ -74,7 +74,7 @@ describe('Instance databases tab', function () {
 
     await browser.waitUntil(async () => {
       // open the drop database modal from the database card
-      await browser.hover(selector);
+      await browser.hover(`${selector} [title="${dbName}"]`);
       const el = await browser.$(Selectors.DatabaseCardDrop);
       return await el.isDisplayed();
     });

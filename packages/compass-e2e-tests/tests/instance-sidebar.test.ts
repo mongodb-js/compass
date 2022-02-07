@@ -108,7 +108,7 @@ describe('Instance sidebar', function () {
   });
 
   it('can create a database and drop it', async function () {
-    const dbName = 'my-database';
+    const dbName = 'my-sidebar-database';
     const collectionName = 'my-collection';
 
     // open the create database modal from the sidebar
@@ -137,7 +137,7 @@ describe('Instance sidebar', function () {
 
   it('can create a collection and drop it', async function () {
     const dbName = 'test'; // existing db
-    const collectionName = 'my-collection';
+    const collectionName = 'my-sidebar-collection';
 
     await browser.clickVisible(Selectors.SidebarFilterInput);
     const sidebarFilterInputElement = await browser.$(

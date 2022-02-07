@@ -42,12 +42,14 @@ if (require.main === module) {
 
     // Drop the databases that get created by tests just in case tests failed to
     // clean them up.
-    await dropDatabase(client.db('my-database'));
+    await dropDatabase(client.db('my-sidebar-database'));
+    await dropDatabase(client.db('my-instance-database'));
 
     const db = client.db('test');
 
     // Drop the collections that get created by tests
-    await dropCollection(db, 'my-collection');
+    await dropCollection(db, 'my-sidebar-collection');
+    await dropCollection(db, 'my-database-collection');
 
     // Create some empty collections for the import tests so each one won't have
     // to possibly drop and create via the UI every time.
