@@ -327,51 +327,72 @@ function modelTunnelToConnectionOptions(
   return sshTunnel;
 }
 
+async function tryConvertBackwardCompatibleOptions(
+  connectionInfo: ConnectionInfo
+): Promise<Partial<LegacyConnectionModelProperties>> {
+  try {
+    const legacyConnectionModelProperties: Partial<LegacyConnectionModelProperties> =
+      {};
+
+    const connection: LegacyConnectionModel = await util.promisify(
+      ConnectionModel.from
+    )(removeAWSParams(connectionInfo.connectionOptions.connectionString));
+
+    convertSslOptionsToLegacyProperties(
+      connectionInfo.connectionOptions,
+      legacyConnectionModelProperties
+    );
+
+    const connectionOptions = connectionInfo.connectionOptions;
+
+    if (connectionOptions.sshTunnel) {
+      legacyConnectionModelProperties.sshTunnel = !connectionOptions.sshTunnel
+        .identityKeyFile
+        ? 'USER_PASSWORD'
+        : 'IDENTITY_FILE';
+      legacyConnectionModelProperties.sshTunnelPort =
+        connectionOptions.sshTunnel.port;
+      legacyConnectionModelProperties.sshTunnelHostname =
+        connectionOptions.sshTunnel.host;
+      legacyConnectionModelProperties.sshTunnelUsername =
+        connectionOptions.sshTunnel.username;
+      legacyConnectionModelProperties.sshTunnelPassword =
+        connectionOptions.sshTunnel.password;
+      legacyConnectionModelProperties.sshTunnelIdentityFile =
+        connectionOptions.sshTunnel.identityKeyFile;
+      legacyConnectionModelProperties.sshTunnelPassphrase =
+        connectionOptions.sshTunnel.identityKeyPassphrase;
+    }
+
+    if (connectionInfo.favorite) {
+      legacyConnectionModelProperties.isFavorite = true;
+      legacyConnectionModelProperties.name = connectionInfo.favorite.name;
+      legacyConnectionModelProperties.color = connectionInfo.favorite.color;
+    }
+
+    if (connectionInfo.lastUsed) {
+      legacyConnectionModelProperties.lastUsed = connectionInfo.lastUsed;
+    }
+
+    return {
+      ...connection.toJSON(),
+      ...legacyConnectionModelProperties,
+    };
+  } catch (e) {
+    return {};
+  }
+}
+
 export async function convertConnectionInfoToModel(
   connectionInfo: ConnectionInfo
 ): Promise<LegacyConnectionModel> {
-  const connection: LegacyConnectionModel = await util.promisify(
-    ConnectionModel.from
-  )(removeAWSParams(connectionInfo.connectionOptions.connectionString));
-
-  const additionalOptions: Partial<LegacyConnectionModelProperties> = {
-    _id: connectionInfo.id,
-  };
-
-  convertSslOptionsToLegacyProperties(
-    connectionInfo.connectionOptions,
-    additionalOptions
-  );
-
-  const connectionOptions = connectionInfo.connectionOptions;
-
-  if (connectionOptions.sshTunnel) {
-    additionalOptions.sshTunnel = !connectionOptions.sshTunnel.identityKeyFile
-      ? 'USER_PASSWORD'
-      : 'IDENTITY_FILE';
-    additionalOptions.sshTunnelPort = connectionOptions.sshTunnel.port;
-    additionalOptions.sshTunnelHostname = connectionOptions.sshTunnel.host;
-    additionalOptions.sshTunnelUsername = connectionOptions.sshTunnel.username;
-    additionalOptions.sshTunnelPassword = connectionOptions.sshTunnel.password;
-    additionalOptions.sshTunnelIdentityFile =
-      connectionOptions.sshTunnel.identityKeyFile;
-    additionalOptions.sshTunnelPassphrase =
-      connectionOptions.sshTunnel.identityKeyPassphrase;
-  }
-
-  if (connectionInfo.favorite) {
-    additionalOptions.isFavorite = true;
-    additionalOptions.name = connectionInfo.favorite.name;
-    additionalOptions.color = connectionInfo.favorite.color;
-  }
-
-  if (connectionInfo.lastUsed) {
-    additionalOptions.lastUsed = connectionInfo.lastUsed;
-  }
-
   return new ConnectionModel({
-    ...connection.toJSON(),
-    ...additionalOptions,
+    // Attempt to add options for the old ampersand
+    // connection model. This would allow older version
+    // of Compass to work with new connections,
+    // making possible to downgrade
+    ...(await tryConvertBackwardCompatibleOptions(connectionInfo)),
+    _id: connectionInfo.id,
     ...extractSecrets(connectionInfo),
   });
 }

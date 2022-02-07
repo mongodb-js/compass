@@ -128,6 +128,7 @@ function Connections({
                   ...connectionInfo,
                 })
               }
+              key={activeConnectionId}
               onSaveConnectionClicked={saveConnection}
               initialConnectionInfo={activeConnectionInfo}
               connectionErrorMessage={connectionErrorMessage}

@@ -112,7 +112,13 @@ function ConnectForm({
   onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
 }): React.ReactElement {
   const [
-    { enableEditingConnectionString, errors, warnings, connectionOptions },
+    {
+      enableEditingConnectionString,
+      isDirty,
+      errors,
+      warnings,
+      connectionOptions,
+    },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
@@ -189,6 +195,21 @@ function ConnectForm({
             <ConnectFormActions
               errors={connectionStringInvalidError ? [] : errors}
               warnings={connectionStringInvalidError ? [] : warnings}
+              saveButton={
+                initialConnectionInfo.favorite
+                  ? isDirty
+                    ? 'enabled'
+                    : 'disabled'
+                  : 'hidden'
+              }
+              onSaveClicked={async () => {
+                if (onSaveConnectionClicked) {
+                  await onSaveConnectionClicked({
+                    ...cloneDeep(initialConnectionInfo),
+                    connectionOptions: cloneDeep(connectionOptions),
+                  });
+                }
+              }}
               onConnectClicked={() => {
                 const updatedConnectionOptions = {
                   ...connectionOptions,

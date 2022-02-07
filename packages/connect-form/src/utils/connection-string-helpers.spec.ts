@@ -55,12 +55,12 @@ describe('connection-string-helpers', function () {
 
     it('should return an error when it cannot be parsed', function () {
       const [connectionString, error] = tryToParseConnectionString(
-        'mangos://pineapple:27099/?directConnection=true'
+        'mongos://pineapple:27099/?directConnection=true'
       );
 
       expect(connectionString).to.equal(undefined);
       expect(error.message).to.equal(
-        'Invalid connection string "mangos://pineapple:27099/?directConnection=true"'
+        'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
       );
     });
   });
