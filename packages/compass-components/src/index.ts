@@ -61,6 +61,9 @@ export {
   default as Toast,
   Variant as ToastVariant,
 } from '@leafygreen-ui/toast';
+
+export { useToast, ToastArea } from './hooks/use-toast';
+
 export { Toggle } from './components/toggle';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
