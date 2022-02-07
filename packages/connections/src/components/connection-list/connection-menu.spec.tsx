@@ -242,7 +242,12 @@ describe('ConnectionMenu Component', function () {
         it('opens a toast with an error message', async function () {
           await waitFor(() => expect(screen.getByText('Error')).to.be.visible);
           await waitFor(
-            () => expect(screen.getByText('Test error')).to.be.visible
+            () =>
+              expect(
+                screen.getByText(
+                  'An error occurred when copying to clipboard. Please try again.'
+                )
+              ).to.be.visible
           );
         });
       });
