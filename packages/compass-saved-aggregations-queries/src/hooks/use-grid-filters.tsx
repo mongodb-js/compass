@@ -9,7 +9,6 @@ import {
   cx,
   TextInput,
 } from '@mongodb-js/compass-components';
-import _ from 'lodash';
 
 import type { Item } from '../stores/aggregations-queries-items';
 
@@ -96,7 +95,9 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
   const [selectState, setSelectState] = useState<SelectState>({});
   const [collections, setCollections] = useState<string[]>([]);
 
-  const databases = _.uniq(_.map(items, 'database'));
+  const databases = items
+    .map((x) => x.database)
+    .filter((x, i, arr) => arr.indexOf(x) === i);
 
   const selectDatabase = useMemo(() => {
     return (database: string): void => {
@@ -104,12 +105,10 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
         database: database ?? undefined,
       });
 
-      const collections = _.uniq(
-        _.map(
-          _.filter(items, (x) => x.database === database),
-          'collection'
-        )
-      );
+      const collections = items
+        .filter((x) => x.database === database)
+        .map((x) => x.collection)
+        .filter((x, i, arr) => arr.indexOf(x) === i);
       setCollections(collections);
     };
   }, [items]);
@@ -221,7 +220,8 @@ export function filterByText(items: Item[], text: string): Item[] {
           return JSON.stringify(stages);
         }
       }
-      return _.get(item, path);
+
+      return item[key as keyof Item] as any;
     },
   });
   return fuse.search(text).map((x) => x.item);

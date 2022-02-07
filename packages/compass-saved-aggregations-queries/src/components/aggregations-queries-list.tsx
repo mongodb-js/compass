@@ -97,7 +97,7 @@ const AggregationsQueriesList = ({
           <SavedItemCard
             {...item}
             onAction={onAction}
-            dataTestId={`grid-item-${index}`}
+            data-testId={`grid-item-${index}`}
           />
         );
       },
