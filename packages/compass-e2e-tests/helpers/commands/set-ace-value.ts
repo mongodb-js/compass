@@ -39,6 +39,12 @@ export async function setAceValue(
   // For whatever reason it is shift-insert and not cmd-v  ¯\_(ツ)_/¯
   // https://twitter.com/webdriverio/status/812034986341789696?lang=en
   // https://bugs.chromium.org/p/chromedriver/issues/detail?id=30
-  await browser.keys(['Shift', 'Insert']);
-  await browser.keys(['Shift']); // shift a second time to release it
+  // https://support.google.com/chrome/thread/15776362/is-shift-insert-to-paste-disabled-when-copying-from-outside-of-chrome?hl=en
+  if (process.platform === 'darwin') {
+    await browser.keys(['Shift', 'Insert']);
+    await browser.keys(['Shift']); // shift a second time to release it
+  } else {
+    await browser.keys(['Control', 'v']);
+    await browser.keys(['Control']); // control a second time to release it
+  }
 }
