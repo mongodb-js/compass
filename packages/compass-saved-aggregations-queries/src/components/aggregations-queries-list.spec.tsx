@@ -8,7 +8,6 @@ import thunk from 'redux-thunk';
 import type { RootState } from '../stores/index';
 
 import AggregationsQueriesList from './aggregations-queries-list';
-import { filterByText } from '../hooks/use-grid-filters';
 import { queries, aggregations } from '../../tests/fixtures';
 
 const items = [...queries, ...aggregations];
@@ -219,52 +218,6 @@ describe('aggregations-queries-list', function () {
         (a, b) => b.lastModified - a.lastModified
       );
       sortedItems.forEach((item, index) => {
-        expect(
-          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
-        ).to.exist;
-      });
-    });
-  });
-
-  describe('filters items by text and dropdown/collection selects correctly', function () {
-    beforeEach(function () {
-      const store = mockStore(initialState);
-      render(
-        <Provider store={store}>
-          <AggregationsQueriesList />
-        </Provider>
-      );
-    });
-
-    it('should filter items by database/collection and text search', function () {
-      const searchTerm = 'spaces in berlin'; // have id of 1234 & 5678
-      const searchInput = screen.getByPlaceholderText(/search/i);
-      fireEvent.change(searchInput, { target: { value: searchTerm } });
-
-      // select database
-      fireEvent.click(screen.getByText('All databases'));
-      fireEvent.click(
-        screen.getByRole('option', {
-          name: 'airbnb',
-        })
-      );
-      // select collection
-      fireEvent.click(screen.getByText('All collections'));
-      fireEvent.click(
-        screen.getByRole('option', {
-          name: 'listings',
-        })
-      );
-
-      const filteredItems = filterByText(
-        items.filter(
-          ({ database, collection }) =>
-            database === 'airbnb' && collection === 'listings'
-        ),
-        searchTerm
-      );
-
-      filteredItems.forEach((item, index) => {
         expect(
           within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
         ).to.exist;

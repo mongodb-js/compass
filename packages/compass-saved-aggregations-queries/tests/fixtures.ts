@@ -95,7 +95,7 @@ export const queries: Item[] = [
 export const aggregations: Item[] = [
   {
     id: '61b753fdce2a0a1d7a32ae1d',
-    name: 'Demo',
+    name: 'spaces in munich',
     database: 'airbnb',
     collection: 'listings',
     type: 'aggregation',

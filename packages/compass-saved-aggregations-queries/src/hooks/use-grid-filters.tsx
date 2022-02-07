@@ -17,6 +17,11 @@ interface SelectState {
   collection?: string;
 }
 
+interface FilterItem {
+  score: number;
+  item: Item;
+}
+
 const selectContainer = css({
   display: 'flex',
   flexDirection: 'row',
@@ -159,16 +164,17 @@ function filterItemByConditions(item: Item, conditions: SelectState): boolean {
   return shouldReturnItem;
 }
 
-export function filterByText(items: Item[], text: string): Item[] {
+export function filterByText(items: Item[], text: string): FilterItem[] {
   if (!text || text.length === 1) {
-    return items;
+    return items.map((item) => ({ item, score: 1 }));
   }
   const fuse = new Fuse<Item>(items, {
     findAllMatches: true,
-    shouldSort: true,
+    shouldSort: false,
     minMatchCharLength: 2,
     threshold: 0.3,
     ignoreLocation: true,
+    includeScore: true,
     keys: [
       {
         name: 'name',
@@ -224,7 +230,19 @@ export function filterByText(items: Item[], text: string): Item[] {
       return item[key as keyof Item] as any;
     },
   });
-  return fuse.search(text).map((x) => x.item);
+  return fuse.search(text).map((x) => ({ item: x.item, score: x.score ?? 0 }));
+}
+
+function filterByConditions(items: FilterItem[], conditions: SelectState) {
+  const filterConditions = { ...conditions };
+  for (const key in filterConditions) {
+    if (!filterConditions[key as keyof SelectState]) {
+      delete filterConditions[key as keyof SelectState];
+    }
+  }
+  return [...items].filter((item) =>
+    filterItemByConditions(item.item, filterConditions)
+  );
 }
 
 export function useGridFilters(
@@ -249,15 +267,7 @@ export function useFilteredItems(
   items: Item[],
   conditions: SelectState,
   search: string
-): Item[] {
-  const filterConditions = { ...conditions };
-  for (const key in filterConditions) {
-    if (!filterConditions[key as keyof SelectState]) {
-      delete filterConditions[key as keyof SelectState];
-    }
-  }
-  const filteredItems = [...items].filter((item) =>
-    filterItemByConditions(item, filterConditions)
-  );
-  return filterByText(filteredItems, search);
+): FilterItem[] {
+  const filteredItems: FilterItem[] = filterByText(items, search);
+  return filterByConditions(filteredItems, conditions);
 }

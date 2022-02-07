@@ -12,7 +12,9 @@ let gridItems: Item[];
 
 const GridFilter = () => {
   const [filterControls, selectConditions, search] = useGridFilters(items);
-  gridItems = useFilteredItems(items, selectConditions, search);
+  gridItems = useFilteredItems(items, selectConditions, search)
+    .sort((a, b) => a.score - b.score)
+    .map((x) => x.item);
   return <>{filterControls}</>;
 };
 
@@ -121,7 +123,7 @@ describe('use-grid-header', function () {
     });
   });
 
-  describe('filters items by text and dropdown/collection selects correctly', function () {
+  describe('filters items by text and dropdown/collection selects', function () {
     beforeEach(function () {
       render(<GridFilter />);
     });

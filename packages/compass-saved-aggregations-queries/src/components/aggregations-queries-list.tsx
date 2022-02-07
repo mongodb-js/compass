@@ -77,12 +77,16 @@ const AggregationsQueriesList = ({
   }, [fetchItems]);
 
   const [filterControls, filters, search] = useGridFilters(items);
-  const filteredItems = useFilteredItems(items, filters, search);
+  const filteredItems = useFilteredItems(items, filters, search)
+    .sort((a, b) => {
+      return a.score - b.score;
+    })
+    .map((x) => x.item);
+
   // If a user is searching, we disable the sort as
   // search results are sorted by match score
-  const isDisabled = Boolean(search) ?? false;
   const [sortControls, sortState] = useSortControls<SortKeys>(sortBy, {
-    isDisabled,
+    isDisabled: Boolean(search) ?? false,
   });
   const sortedItems = useSortedItems(filteredItems, sortState);
 
@@ -94,7 +98,7 @@ const AggregationsQueriesList = ({
           <SavedItemCard
             {...item}
             onAction={onAction}
-            data-testId={`grid-item-${index}`}
+            data-testid={`grid-item-${index}`}
           />
         );
       },
