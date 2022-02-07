@@ -115,7 +115,7 @@ describe('Connections Component', function () {
     });
   });
 
-  describe.only('when rendered with saved connections in storage', function () {
+  describe('when rendered with saved connections in storage', function () {
     let mockConnectFn: sinon.SinonSpy;
     let mockStorage: ConnectionStore;
     let savedConnectionId: string;

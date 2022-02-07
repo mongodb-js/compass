@@ -17,6 +17,7 @@ import {
   trackConnectionFailedEvent,
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
 
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
@@ -50,7 +51,8 @@ function setAppNameParamIfMissing(
     return connectionString;
   }
 
-  const searchParams = connectionStringUrl.typedSearchParams<MongoClientOptions>();
+  const searchParams =
+    connectionStringUrl.typedSearchParams<MongoClientOptions>();
   if (!searchParams.has('appName')) {
     searchParams.set('appName', appName);
   }
