@@ -12,12 +12,14 @@ describe('Database collections tab', function () {
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
-
-    await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
   after(async function () {
     await afterTests(compass, this.currentTest);
+  });
+
+  beforeEach(async function () {
+    await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
   afterEach(async function () {
@@ -59,6 +61,38 @@ describe('Database collections tab', function () {
     }
   });
 
-  // capped and not capped
-  it('can create a collection and drop it');
+  it('can create a collection from the collections tab and drop it', async function () {
+    const collectionName = 'my-database-collection';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(collectionName);
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    await collectionCard.scrollIntoView(false);
+
+    await browser.waitUntil(async () => {
+      // open the drop collection modal from the collection card
+      await browser.hover(`${selector} [title="${collectionName}"]`);
+      const el = await browser.$(Selectors.CollectionCardDrop);
+      if (await el.isDisplayed()) {
+        return true;
+      }
+
+      // go hover somewhere else to give the next attempt a fighting chance
+      await browser.hover(Selectors.SidebarTitle);
+      return false;
+    });
+
+    await browser.clickVisible(Selectors.CollectionCardDrop);
+
+    await browser.dropCollection(collectionName);
+
+    // wait for it to be gone
+    await collectionCard.waitForExist({ reverse: true });
+  });
 });

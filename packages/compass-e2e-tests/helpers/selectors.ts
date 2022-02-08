@@ -171,6 +171,9 @@ export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+// assume that there's only one hovered card at a time and that the first and only button is the drop button
+export const CollectionCardDrop =
+  '[data-testid="collection-grid"] [data-testid="card-action-container"] button';
 
 export const databaseTab = (tabName: string, selected?: boolean): string => {
   const selector = `${DatabaseTab}[name="${tabName}"]`;
