@@ -3,6 +3,10 @@ const {
   Collection: MongoDbDatabaseCollection,
 } = require('mongodb-database-model');
 
+
+const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-INSTANCE-MODEL');
+
 const Inflight = new Map();
 
 function debounceInflight(fn) {
@@ -216,13 +220,14 @@ const InstanceModel = AmpersandModel.extend(
         await Promise.all(
           this.databases.map((db) => {
             if (shouldRefresh(db.collectionsStatus, fetchCollections)) {
+              log.info(mongoLogId(1_001_000_106), 'Refresh', 'Fetching collections', { fetchInfo: fetchCollInfo });
               return db.fetchCollections({
                 dataService,
                 fetchInfo: fetchCollInfo,
                 force: true,
               });
             } else {
-              // TODO: log
+              log.info(mongoLogId(1_001_000_107), 'Refresh', 'Decided against fetching collections', { fetchInfo: fetchCollInfo });
             }
           })
         );
@@ -267,7 +272,6 @@ const InstanceModel = AmpersandModel.extend(
       await this.fetchDatabases({ dataService });
       const db = this.databases.get(database);
       if (!db) {
-        // TODO: log
         return null;
       }
       await db.fetchCollections({ dataService });

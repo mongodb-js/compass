@@ -83,15 +83,14 @@ store.fetchCollectionDetails = async(ns) => {
 };
 
 store.fetchAllCollections = async() => {
-  log.info(mongoLogId(1001000105), 'Instance Store', 'Fetching all collections');
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
-    debug(
-      'Trying to fetch collections without the model or dataService in the state'
-    );
+    log.info(mongoLogId(1001000109), 'fetchAllCollections', 'Trying to fetch collections without the model or dataService in the state');
     return;
   }
+
+  log.info(mongoLogId(1001000105), 'fetchAllCollections', 'Fetching all collections');
 
   await Promise.all(
     instance.databases.map((db) => {
@@ -130,9 +129,10 @@ store.refreshNamespace = async({ ns, database }) => {
   }
   const db = instance.databases.get(database);
   if (!db.collections.get(ns)) {
+    log.info(mongoLogId(1001000110), 'Refresh Namespace', 'Fetching all collections');
     await db.fetchCollections({ dataService, force: true });
   } else {
-    // TODO: log
+    log.info(mongoLogId(1001000108), 'Refresh Namespace', 'Decided against fetching all collections');
   }
   await store.refreshNamespaceStats(ns);
 };
