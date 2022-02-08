@@ -17,7 +17,7 @@ describe('Database collections tab', function () {
   });
 
   after(async function () {
-    await afterTests(compass);
+    await afterTests(compass, this.currentTest);
   });
 
   afterEach(async function () {
@@ -38,7 +38,7 @@ describe('Database collections tab', function () {
     }
   });
 
-  it('links collection cards to the collection documents tab', async function () {
+  it.skip('links collection cards to the collection documents tab', async function () {
     await browser.clickVisible(
       Selectors.collectionCardClickable('test', 'numbers')
     );

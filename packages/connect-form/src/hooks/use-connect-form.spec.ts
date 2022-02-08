@@ -1,8 +1,58 @@
 import { expect } from 'chai';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { handleConnectionFormFieldUpdate } from './use-connect-form';
-
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useConnectForm } from './use-connect-form';
 describe('use-connect-form hook', function () {
+  describe('isDirty', function () {
+    const initialConnectionInfo = {
+      id: 'turtle',
+      connectionOptions: {
+        connectionString: 'mongodb://turtle',
+      },
+      favorite: {
+        name: 'turtles',
+      },
+    };
+    beforeEach(function () {});
+    it('should be false on first render', function () {
+      const { result } = renderHook(() =>
+        useConnectForm(initialConnectionInfo, null)
+      );
+      expect(result.current[0].isDirty).to.be.false;
+    });
+    it('should be true after connection string is updated', function () {
+      const { result } = renderHook(() =>
+        useConnectForm(initialConnectionInfo, null)
+      );
+      const initialState = result.current[0];
+      const functions = result.current[1];
+      expect(initialState.isDirty).to.be.false;
+      act(() => {
+        functions.updateConnectionFormField({
+          type: 'update-connection-string',
+          newConnectionStringValue: 'mongodb://localhost:27017',
+        });
+      });
+      expect(result.current[0].isDirty).to.be.true;
+    });
+    it('should be true after ssh options are changed', function () {
+      const { result } = renderHook(() =>
+        useConnectForm(initialConnectionInfo, null)
+      );
+      const initialState = result.current[0];
+      const functions = result.current[1];
+      expect(initialState.isDirty).to.be.false;
+      act(() => {
+        functions.updateConnectionFormField({
+          type: 'update-ssh-options',
+          key: 'host',
+          value: 'myproxy:22',
+        });
+      });
+      expect(result.current[0].isDirty).to.be.true;
+    });
+  });
   describe('#handleConnectionFormFieldUpdate', function () {
     describe('add-new-host action', function () {
       describe('when directConnection is not set', function () {

@@ -1,5 +1,12 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { css } from '@mongodb-js/compass-components';
+import React, {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
+import { ThemeProvider, css } from '@mongodb-js/compass-components';
+import { Theme } from '@mongodb-js/compass-components';
 import { getConnectionTitle } from 'mongodb-data-service';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
@@ -93,7 +100,9 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
   const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
     reducer,
-    { ...initialState }
+    {
+      ...initialState,
+    }
   );
 
   function onDataServiceConnected(
@@ -203,7 +212,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       };
     }
   }, [appRegistry, showNewConnectForm, onDataServiceDisconnected]);
-
   useEffect(() => {
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
@@ -266,6 +274,46 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   );
 }
 
-Home.displayName = 'HomeComponent';
+function ThemedHome(
+  props: React.ComponentProps<typeof Home>
+): ReturnType<typeof Home> {
+  const appRegistry = useAppRegistryContext();
 
-export default Home;
+  const [theme, setTheme] = useState<Theme>({
+    theme: (global as any).hadronApp?.theme ?? Theme.Light,
+  });
+
+  function onDarkModeEnabled() {
+    setTheme({
+      theme: Theme.Dark,
+    });
+  }
+
+  function onDarkModeDisabled() {
+    setTheme({
+      theme: Theme.Light,
+    });
+  }
+
+  useEffect(() => {
+    // Setup app registry listeners.
+    appRegistry.on('darkmode-enable', onDarkModeEnabled);
+    appRegistry.on('darkmode-disable', onDarkModeDisabled);
+
+    return () => {
+      // Clean up the app registry listeners.
+      appRegistry.removeListener('darkmode-enable', onDarkModeEnabled);
+      appRegistry.removeListener('darkmode-disable', onDarkModeDisabled);
+    };
+  }, [appRegistry]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Home {...props}></Home>
+    </ThemeProvider>
+  );
+}
+
+ThemedHome.displayName = 'HomeComponent';
+
+export default ThemedHome;

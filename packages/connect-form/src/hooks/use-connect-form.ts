@@ -2,7 +2,7 @@ import type { Dispatch } from 'react';
 import { useCallback, useEffect, useReducer } from 'react';
 import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type {
   ConnectionFormError,
@@ -45,6 +45,7 @@ export interface ConnectFormState {
   enableEditingConnectionString: boolean;
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
+  isDirty: boolean;
 }
 
 type Action =
@@ -187,6 +188,7 @@ function buildStateFromConnectionInfo(
           initialConnectionInfo.connectionOptions
         ),
     connectionOptions: cloneDeep(initialConnectionInfo.connectionOptions),
+    isDirty: false,
   };
 }
 
@@ -544,7 +546,6 @@ export function useConnectForm(
         action,
         state.connectionOptions
       );
-
       dispatch({
         type: 'set-connection-form-state',
         newState: {
@@ -557,6 +558,10 @@ export function useConnectForm(
               : validateConnectionOptionsWarnings(
                   updatedState.connectionOptions
                 ),
+          isDirty: !isEqual(
+            updatedState.connectionOptions,
+            state.connectionOptions
+          ),
         },
       });
     },
@@ -610,6 +615,7 @@ function setInitialState({
         enableEditingConnectionString,
         warnings,
         connectionOptions,
+        isDirty: false,
       },
     });
   }, [initialConnectionInfo]);

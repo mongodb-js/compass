@@ -148,6 +148,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
+    "@mongodb-js/compass-components": "^0.10.0",
     "@mongosh/node-runtime-worker-thread": "^1.1.9",
     "kerberos": "^2.0.0-beta.0",
     "keytar": "^7.7.0",

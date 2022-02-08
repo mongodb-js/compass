@@ -215,6 +215,8 @@ describe('Home [Component]', function () {
         'open-instance-workspace',
         'open-namespace-in-new-tab',
         'all-collection-tabs-closed',
+        'darkmode-enable',
+        'darkmode-disable',
       ];
 
       events.forEach((name) => {
@@ -242,6 +244,8 @@ describe('Home [Component]', function () {
         'open-instance-workspace',
         'open-namespace-in-new-tab',
         'all-collection-tabs-closed',
+        'darkmode-enable',
+        'darkmode-disable',
       ];
 
       events.forEach((name) => {
