@@ -221,6 +221,8 @@ const InstanceModel = AmpersandModel.extend(
                 fetchInfo: fetchCollInfo,
                 force: true,
               });
+            } else {
+              // TODO: log
             }
           })
         );
@@ -265,6 +267,7 @@ const InstanceModel = AmpersandModel.extend(
       await this.fetchDatabases({ dataService });
       const db = this.databases.get(database);
       if (!db) {
+        // TODO: log
         return null;
       }
       await db.fetchCollections({ dataService });

@@ -7,6 +7,9 @@ import { changeInstance } from '../modules/instance/instance';
 import { changeErrorMessage } from '../modules/instance/error-message';
 import { changeDataService } from '../modules/instance/data-service';
 
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-APP-STORES');
+
 const debug = require('debug')('mongodb-compass:stores:InstanceStore');
 
 const store = createStore(reducer);
@@ -80,6 +83,7 @@ store.fetchCollectionDetails = async(ns) => {
 };
 
 store.fetchAllCollections = async() => {
+  log.info(mongoLogId(1_001_000_105), 'Instance Store', 'Fetching all collections');
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
@@ -127,6 +131,8 @@ store.refreshNamespace = async({ ns, database }) => {
   const db = instance.databases.get(database);
   if (!db.collections.get(ns)) {
     await db.fetchCollections({ dataService, force: true });
+  } else {
+    // TODO: log
   }
   await store.refreshNamespaceStats(ns);
 };
