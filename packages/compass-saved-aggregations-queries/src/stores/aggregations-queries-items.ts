@@ -1,16 +1,24 @@
 import type { Dispatch, Reducer } from 'redux';
 import toNS from 'mongodb-ns';
 import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
-import { readPipelinesFromStorage } from '@mongodb-js/compass-aggregations';
+import { PipelineStorage } from '@mongodb-js/compass-aggregations';
+import type { ThunkAction } from 'redux-thunk';
+import type { RootState } from '.';
 
 export enum ActionTypes {
   ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
+  ITEM_DELETED = 'compass-saved-aggregations-queries/itemDeleted',
 }
 
-export type Actions = {
-  type: ActionTypes.ITEMS_FETCHED;
-  payload: Item[];
-};
+export type Actions =
+  | {
+      type: ActionTypes.ITEMS_FETCHED;
+      payload: Item[];
+    }
+  | {
+      type: ActionTypes.ITEM_DELETED;
+      payload: string;
+    };
 
 export type Item = {
   id: string;
@@ -45,6 +53,9 @@ const INITIAL_STATE: State = {
   items: [],
 };
 
+const favoriteQueryStorage = new FavoriteQueryStorage();
+const pipelineStorage = new PipelineStorage();
+
 const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   if (action.type === ActionTypes.ITEMS_FETCHED) {
     return {
@@ -53,10 +64,21 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
       loading: false,
     };
   }
+  if (action.type === ActionTypes.ITEM_DELETED) {
+    const deletedItemIndex = state.items.findIndex(
+      (x) => x.id === action.payload
+    );
+    const newItems = [...state.items];
+    newItems.splice(deletedItemIndex, 1);
+    return {
+      ...state,
+      items: newItems,
+    };
+  }
   return state;
 };
 
-export const fetchItems = () => {
+export const fetchItems = (): ThunkAction<void, RootState, void, Actions> => {
   return async (dispatch: Dispatch<Actions>): Promise<void> => {
     const payload = await Promise.allSettled([
       getAggregationItems(),
@@ -73,10 +95,31 @@ export const fetchItems = () => {
   };
 };
 
-const favoriteQueryStorage = new FavoriteQueryStorage();
+export const deleteItem = (
+  itemId: string
+): ThunkAction<void, RootState, void, Actions> => {
+  return async (dispatch: Dispatch<Actions>, getState) => {
+    const {
+      savedItems: { items },
+    } = getState();
+    const item = items.find((x) => x.id === itemId);
+    if (!item) {
+      return;
+    }
+    const deleteAction =
+      item.type === 'query'
+        ? favoriteQueryStorage.delete
+        : pipelineStorage.delete;
+    await deleteAction(itemId);
+    dispatch({
+      type: ActionTypes.ITEM_DELETED,
+      payload: itemId,
+    });
+  };
+};
 
 const getAggregationItems = async (): Promise<Item[]> => {
-  const aggregations: Aggregation[] = await readPipelinesFromStorage();
+  const aggregations: Aggregation[] = await pipelineStorage.loadAll();
   return aggregations.map((aggregation) => {
     const { database, collection } = toNS(aggregation.namespace);
     return {

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import { VirtualGrid, H2, css, spacing } from '@mongodb-js/compass-components';
-import { fetchItems } from '../stores/aggregations-queries-items';
+import { fetchItems, deleteItem } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
 import type { RootActions, RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
@@ -37,6 +37,8 @@ const ConnectedItemCard = connect<
         switch (actionName) {
           case 'open':
             return openSavedItem(id)(dispatch, getState);
+          case 'delete':
+            return deleteItem(id)(dispatch, getState);
         }
       };
     },
