@@ -33,7 +33,7 @@ function deleteCompassAppNameParam(
 
   try {
     connectionStringUrl = new ConnectionString(
-      connectionInfo.connectionOptions?.connectionString
+      connectionInfo.connectionOptions.connectionString
     );
   } catch {
     return connectionInfo;

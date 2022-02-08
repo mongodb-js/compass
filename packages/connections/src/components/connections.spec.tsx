@@ -214,9 +214,9 @@ describe('Connections Component', function () {
         );
       });
 
-      afterEach(function() {
+      afterEach(function () {
         this.clock.restore();
-      })
+      });
 
       it('should call the connect function with the connection options to connect', function () {
         expect(mockConnectFn.callCount).to.equal(1);
