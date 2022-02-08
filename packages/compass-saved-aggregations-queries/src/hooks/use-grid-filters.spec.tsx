@@ -4,9 +4,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
 
 import type { Item } from '../stores/aggregations-queries-items';
-import { queries, aggregations } from '../../test/fixtures';
+import { queries, pipelines } from '../../test/fixtures';
 
-const items = [...queries, ...aggregations];
+const items = [...queries, ...pipelines];
 
 let gridItems: Item[];
 

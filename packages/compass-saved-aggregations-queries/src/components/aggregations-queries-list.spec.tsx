@@ -4,13 +4,24 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import proxyquire from 'proxyquire';
 
 import type { RootState } from '../stores/index';
+import { queries, pipelines } from '../../test/fixtures';
+import { createProxyquireMockForQueriesAndAggregationsPlugins } from '../../test/mock';
 
-import AggregationsQueriesList from './aggregations-queries-list';
-import { queries, aggregations } from '../../test/fixtures';
+const { default: AggregationsQueriesList }: any = proxyquire.load(
+  './aggregations-queries-list',
+  {
+    ...(createProxyquireMockForQueriesAndAggregationsPlugins([], []) as any),
+    react: Object.assign(React, {
+      '@global': true,
+      '@noCallThru': true,
+    }),
+  }
+);
 
-const items = [...queries, ...aggregations];
+const items = [...queries, ...pipelines];
 const mockStore = configureStore<RootState>([thunk]);
 
 const initialState = {

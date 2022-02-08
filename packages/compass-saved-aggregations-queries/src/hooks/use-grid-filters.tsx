@@ -212,7 +212,7 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
 
       if (item.type === 'aggregation') {
         if (key === 'tags') {
-          return ['aggregate', 'aggregation'];
+          return ['aggregate', 'aggregation', 'pipeline'];
         }
 
         if (key === 'data') {
