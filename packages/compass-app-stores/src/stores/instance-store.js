@@ -83,7 +83,7 @@ store.fetchCollectionDetails = async(ns) => {
 };
 
 store.fetchAllCollections = async() => {
-  log.info(mongoLogId(1_001_000_105), 'Instance Store', 'Fetching all collections');
+  log.info(mongoLogId(1001000105), 'Instance Store', 'Fetching all collections');
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
