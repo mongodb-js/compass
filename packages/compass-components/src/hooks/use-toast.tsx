@@ -15,23 +15,17 @@ type ToastState = ToastProperties & {
   timeoutRef?: ReturnType<typeof setTimeout>;
 };
 
-type ToastId = string;
-
-type ToastContextState = {
-  toasts: Record<ToastId, ToastState>;
-  setToasts: (toasts: Record<ToastId, ToastState>) => void;
-};
-
 interface ToastActions {
-  openToast: (id: ToastId, toastProperties: ToastProperties) => void;
-  closeToast: (id: ToastId) => void;
+  openToast: (id: string, toastProperties: ToastProperties) => void;
+  closeToast: (id: string) => void;
 }
 
-const ToastContext = createContext<ToastContextState>({
-  toasts: {},
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setToasts: (t: Record<ToastId, ToastProperties>) => {
-    return;
+const ToastContext = createContext<ToastActions>({
+  openToast: () => {
+    //
+  },
+  closeToast: () => {
+    //
   },
 });
 
@@ -41,36 +35,12 @@ const toastStyles = css({
   },
 });
 
-const ToastPile = (): React.ReactElement => {
-  const { toasts } = useContext(ToastContext);
-  const { closeToast } = useGlobalToast();
-
-  return (
-    <>
-      {Object.entries(toasts).map(
-        ([id, { title, body, variant, progress }]) => (
-          <Toast
-            className={toastStyles}
-            key={id}
-            title={title}
-            body={body}
-            variant={variant}
-            progress={progress}
-            open={true}
-            close={() => closeToast(id)}
-          />
-        )
-      )}
-    </>
-  );
-};
-
 /**
  * @example
  *
  * ```
  * const MyButton = () => {
- *   const { openToast } = useToast('my-namespace');
+ *   const { openToast } = useToast('namespace');
  *   return <button onClick={() => openToast(
  *      'myToast1', {title: 'This is a notification'})} />
  * };
@@ -83,23 +53,12 @@ const ToastPile = (): React.ReactElement => {
 export const ToastArea = ({
   children,
 }: {
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }): React.ReactElement => {
-  const [toasts, setToasts] = useState({});
-
-  return (
-    <ToastContext.Provider value={{ toasts, setToasts }}>
-      <>{children}</>
-      <ToastPile />
-    </ToastContext.Provider>
-  );
-};
-
-function useGlobalToast(): ToastActions {
-  const { toasts, setToasts } = useContext(ToastContext);
+  const [toasts, setToasts] = useState<Record<string, ToastState>>({});
 
   const closeToast = useCallback(
-    (toastId: ToastId): void => {
+    (toastId: string): void => {
       const { timeoutRef } = toasts[toastId] || {};
       if (timeoutRef) {
         clearTimeout(timeoutRef);
@@ -113,15 +72,15 @@ function useGlobalToast(): ToastActions {
   );
 
   const openToast = useCallback(
-    (toastId: ToastId, toastProperties: ToastProperties): void => {
+    (toastId: string, toastProperties: ToastProperties): void => {
       // if updating clear timeouts first
       const { timeoutRef } = toasts[toastId] || {};
       if (timeoutRef) {
         clearTimeout(timeoutRef);
       }
 
-      setToasts(currentState => ({
-        ...currentState,
+      setToasts((prevToasts) => ({
+        ...prevToasts,
         [toastId]: {
           ...toastProperties,
           timeoutRef: toastProperties.timeout
@@ -129,34 +88,49 @@ function useGlobalToast(): ToastActions {
                 closeToast(toastId);
               }, toastProperties.timeout)
             : undefined,
-        }
+        },
       }));
     },
     [toasts, setToasts, closeToast]
   );
 
-  return {
-    openToast,
-    closeToast,
-  };
-}
-
-const namespacedId = (namespace: string, id: ToastId) => `${namespace}--${id}`;
+  return (
+    <ToastContext.Provider value={{ closeToast, openToast }}>
+      <>{children}</>
+      <>
+        {Object.entries(toasts).map(
+          ([id, { title, body, variant, progress }]) => (
+            <Toast
+              className={toastStyles}
+              key={id}
+              title={title}
+              body={body}
+              variant={variant}
+              progress={progress}
+              open={true}
+              close={() => closeToast(id)}
+            />
+          )
+        )}
+      </>
+    </ToastContext.Provider>
+  );
+};
 
 export function useToast(namespace: string): ToastActions {
   const { openToast: openGlobalToast, closeToast: closeGlobalToast } =
-    useGlobalToast();
+    useContext(ToastContext);
 
   const openToast = useCallback(
-    (toastId: ToastId, toastProperties: ToastProperties): void => {
-      openGlobalToast(namespacedId(namespace, toastId), toastProperties);
+    (toastId: string, toastProperties: ToastProperties): void => {
+      openGlobalToast(`${namespace}--${toastId}`, toastProperties);
     },
     [namespace, openGlobalToast]
   );
 
   const closeToast = useCallback(
-    (toastId: ToastId): void => {
-      closeGlobalToast(namespacedId(namespace, toastId));
+    (toastId: string): void => {
+      closeGlobalToast(`${namespace}--${toastId}`);
     },
     [namespace, closeGlobalToast]
   );
