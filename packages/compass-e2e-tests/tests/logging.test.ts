@@ -396,11 +396,8 @@ describe('Logging and Telemetry integration', function () {
     });
 
     after(async function () {
-      if (compass) {
-        // cleanup outside of the test so that the time it takes to run does not
-        // get added to the time it took to run the first query
-        await afterTests(compass);
-      }
+      // clean up if it failed during the before hook
+      await afterTests(compass, this.currentTest);
     });
 
     it('provides logging information for uncaught exceptions', function () {

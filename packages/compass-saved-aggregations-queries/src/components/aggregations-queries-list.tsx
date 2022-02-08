@@ -69,12 +69,12 @@ const GridControls = () => {
 const AggregationsQueriesList = ({
   loading,
   items,
-  fetchItems,
   onAction,
+  onMount,
 }: AggregationsQueriesListProps) => {
   useEffect(() => {
-    void fetchItems();
-  }, [fetchItems]);
+    void onMount();
+  }, [onMount]);
 
   const [filterControls, filters, search] = useGridFilters(items);
   const filteredItems = useFilteredItems(items, filters, search)
@@ -136,7 +136,7 @@ const mapState = ({ savedItems: { items, loading } }: RootState) => ({
 });
 
 const mapDispatch = {
-  fetchItems,
+  onMount: fetchItems,
   onAction(id: string, actionName: Action) {
     return (
       dispatch: ThunkDispatch<RootState, void, RootActions>,

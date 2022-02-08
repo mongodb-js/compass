@@ -31,7 +31,7 @@ describe('Connection screen', function () {
   });
 
   after(function () {
-    return afterTests(compass);
+    return afterTests(compass, this.currentTest);
   });
 
   afterEach(async function () {
@@ -89,7 +89,6 @@ describe('SRV connectivity', function () {
         'either'
       );
     } finally {
-      await disconnect(browser);
       // make sure the browser gets closed otherwise if this fails the process wont exit
       await afterTests(compass);
     }

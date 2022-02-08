@@ -308,7 +308,7 @@ async function startCompass(
 
   // https://webdriver.io/docs/options/#webdriverio
   const wdioOptions = {
-    waitforTimeout: 5000, // default is 3000ms
+    waitforTimeout: 10000, // default is 3000ms
     waitforInterval: 100, // default is 500ms
   };
 
@@ -554,10 +554,18 @@ export async function beforeTests(): Promise<Compass> {
   return compass;
 }
 
-export async function afterTests(compass?: Compass): Promise<void> {
+export async function afterTests(
+  compass?: Compass,
+  test?: Mocha.Hook | Mocha.Test
+): Promise<void> {
   if (!compass) {
-    console.log('compas is falsey in afterTests');
     return;
+  }
+
+  if (test && test.state === undefined) {
+    // if there's no state, then it is probably because the before() hook failed
+    const filename = screenshotPathName(`${test.fullTitle()}-hook`);
+    await compass.capturePage(filename);
   }
 
   try {
@@ -595,7 +603,7 @@ export async function afterTest(
   compass: Compass,
   test?: Mocha.Hook | Mocha.Test
 ): Promise<void> {
-  if (test && test.state == 'failed') {
+  if (test && test.state === 'failed') {
     await compass.capturePage(screenshotPathName(test.fullTitle()));
   }
 }
