@@ -16,6 +16,9 @@ import {
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
 } from '../modules/telemetry';
+import ConnectionString from 'mongodb-connection-string-url';
+import type { MongoClientOptions } from 'mongodb';
+
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
 export function createNewConnectionInfo(): ConnectionInfo {
@@ -26,11 +29,35 @@ export function createNewConnectionInfo(): ConnectionInfo {
     },
   };
 }
-
 export interface ConnectionStore {
   loadAll: () => Promise<ConnectionInfo[]>;
   save: (connectionInfo: ConnectionInfo) => Promise<void>;
   delete: (connectionInfo: ConnectionInfo) => Promise<void>;
+}
+
+function setAppNameParamIfMissing(
+  connectionString: string,
+  appName: string
+): string {
+  let connectionStringUrl;
+
+  try {
+    connectionStringUrl = new ConnectionString(connectionString);
+  } catch (e) {
+    //
+  }
+
+  if (!connectionStringUrl) {
+    return connectionString;
+  }
+
+  const searchParams =
+    connectionStringUrl.typedSearchParams<MongoClientOptions>();
+  if (!searchParams.has('appName')) {
+    searchParams.set('appName', appName);
+  }
+
+  return connectionStringUrl.href;
 }
 
 type State = {
@@ -184,14 +211,20 @@ async function loadConnections(
   }
 }
 
-export function useConnections(
+export function useConnections({
+  onConnected,
+  connectionStorage,
+  appName,
+  connectFn,
+}: {
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
-  ) => void,
-  connectionStorage: ConnectionStore,
-  connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>
-): {
+  ) => void;
+  connectionStorage: ConnectionStore;
+  connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
+  appName: string;
+}): {
   state: State;
   cancelConnectionAttempt: () => void;
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
@@ -318,9 +351,14 @@ export function useConnections(
       debug('connecting with connectionInfo', connectionInfo);
 
       try {
-        const newConnectionDataService = await newConnectionAttempt.connect(
-          connectionInfo.connectionOptions
+        const connectionStringWithAppName = setAppNameParamIfMissing(
+          connectionInfo.connectionOptions.connectionString,
+          appName
         );
+        const newConnectionDataService = await newConnectionAttempt.connect({
+          ...connectionInfo.connectionOptions,
+          connectionString: connectionStringWithAppName,
+        });
         connectingConnectionAttempt.current = undefined;
 
         if (!newConnectionDataService || newConnectionAttempt.isClosed()) {

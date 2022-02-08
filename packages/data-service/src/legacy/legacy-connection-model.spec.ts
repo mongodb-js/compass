@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import ConnectionString from 'mongodb-connection-string-url';
 import util from 'util';
 
 import type { ConnectionInfo } from '../connection-info';
@@ -23,7 +24,7 @@ async function createAndConvertModel(
 
 describe('LegacyConnectionModel', function () {
   describe('convertConnectionModelToInfo', function () {
-    it('converts a raw model to the connection model instance', function () {
+    it('converts a raw model to connection info', function () {
       const rawModel = {
         _id: '1234-1234-1234-1234',
         hostname: 'localhost',
@@ -36,6 +37,32 @@ describe('LegacyConnectionModel', function () {
       const { id } = convertConnectionModelToInfo(rawModel);
 
       expect(id).to.deep.equal('1234-1234-1234-1234');
+    });
+
+    it('removes appName if matches MongoDB Compass', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin?appName=MongoDB+Compass',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.has('appName')
+      ).to.be.false;
+    });
+
+    it('preserves appName if does not match MongoDB Compass', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin?appName=Some+Other+App',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.get('appName')
+      ).to.deep.equal('Some Other App');
     });
 
     it('converts _id', async function () {

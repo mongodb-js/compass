@@ -26,6 +26,36 @@ type SslMethod =
   | 'SERVER'
   | 'ALL';
 
+function deleteCompassAppNameParam(
+  connectionInfo: ConnectionInfo
+): ConnectionInfo {
+  let connectionStringUrl;
+
+  try {
+    connectionStringUrl = new ConnectionString(
+      connectionInfo.connectionOptions.connectionString
+    );
+  } catch {
+    return connectionInfo;
+  }
+
+  if (
+    /^mongodb compass/i.exec(
+      connectionStringUrl.searchParams.get('appName') || ''
+    )
+  ) {
+    connectionStringUrl.searchParams.delete('appName');
+  }
+
+  return {
+    ...connectionInfo,
+    connectionOptions: {
+      ...connectionInfo.connectionOptions,
+      connectionString: connectionStringUrl.href,
+    },
+  };
+}
+
 export interface LegacyConnectionModelProperties {
   _id: string;
   hostname: string;
@@ -173,7 +203,7 @@ export function convertConnectionModelToInfo(
       connectionInfo.lastUsed = new Date(connectionInfo.lastUsed);
     }
 
-    return connectionInfo;
+    return deleteCompassAppNameParam(connectionInfo);
   }
 
   // Not migrated yet, has to be converted
@@ -223,7 +253,7 @@ export function convertConnectionModelToInfo(
     info.lastUsed = legacyModel.lastUsed;
   }
 
-  return info;
+  return deleteCompassAppNameParam(info);
 }
 
 function setConnectionStringParam<K extends keyof MongoClientOptions>(

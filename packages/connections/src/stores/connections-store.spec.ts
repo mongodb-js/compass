@@ -56,7 +56,12 @@ describe('use-connections hook', function () {
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHook(() =>
-        useConnections(noop, mockConnectionStorage, noop)
+        useConnections({
+          onConnected: noop,
+          connectionStorage: mockConnectionStorage,
+          connectFn: noop,
+          appName: 'Test App Name',
+        })
       );
 
       // Wait for the async loading of connections to complete.
@@ -76,7 +81,12 @@ describe('use-connections hook', function () {
         mockConnectionStorage.loadAll = () => Promise.resolve(mockConnections);
 
         const { result } = renderHook(() =>
-          useConnections(noop, mockConnectionStorage, noop)
+          useConnections({
+            onConnected: noop,
+            connectionStorage: mockConnectionStorage,
+            connectFn: noop,
+            appName: 'Test App Name',
+          })
         );
 
         // Wait for the async loading of connections to complete.
@@ -130,7 +140,12 @@ describe('use-connections hook', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
       beforeEach(async function () {
         const { result } = renderHook(() =>
-          useConnections(noop, mockConnectionStorage, noop)
+          useConnections({
+            onConnected: noop,
+            connectionStorage: mockConnectionStorage,
+            connectFn: noop,
+            appName: 'Test App Name',
+          })
         );
 
         await act(async () => {
@@ -172,7 +187,12 @@ describe('use-connections hook', function () {
         mockConnectionStorage.loadAll = () => Promise.resolve(mockConnections);
 
         const { result } = renderHook(() =>
-          useConnections(noop, mockConnectionStorage, noop)
+          useConnections({
+            onConnected: noop,
+            connectionStorage: mockConnectionStorage,
+            connectFn: noop,
+            appName: 'Test App Name',
+          })
         );
 
         // Wait for the async loading of connections to complete.
@@ -256,7 +276,12 @@ describe('use-connections hook', function () {
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHook(() =>
-        useConnections(noop, mockConnectionStorage, noop)
+        useConnections({
+          onConnected: noop,
+          connectionStorage: mockConnectionStorage,
+          connectFn: noop,
+          appName: 'Test App Name',
+        })
       );
       await waitFor(() => {
         expect(result.current.state.connections.length).to.equal(3);
@@ -278,7 +303,12 @@ describe('use-connections hook', function () {
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHook(() =>
-        useConnections(noop, mockConnectionStorage, noop)
+        useConnections({
+          onConnected: noop,
+          connectionStorage: mockConnectionStorage,
+          connectFn: noop,
+          appName: 'Test App Name',
+        })
       );
       await waitFor(() => {
         expect(result.current.state.connections.length).to.equal(2);
@@ -321,7 +351,12 @@ describe('use-connections hook', function () {
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHook(() =>
-        useConnections(noop, mockConnectionStorage, noop)
+        useConnections({
+          onConnected: noop,
+          connectionStorage: mockConnectionStorage,
+          connectFn: noop,
+          appName: 'Test App Name',
+        })
       );
       await waitFor(() => {
         expect(result.current.state.connections.length).to.equal(2);
@@ -374,7 +409,12 @@ describe('use-connections hook', function () {
       mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHook(() =>
-        useConnections(noop, mockConnectionStorage, noop)
+        useConnections({
+          onConnected: noop,
+          connectionStorage: mockConnectionStorage,
+          connectFn: noop,
+          appName: 'Test App Name',
+        })
       );
       await waitFor(() => {
         expect(result.current.state.connections.length).to.equal(2);
