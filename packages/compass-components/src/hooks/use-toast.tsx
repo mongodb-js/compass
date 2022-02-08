@@ -120,8 +120,8 @@ function useGlobalToast(): ToastActions {
         clearTimeout(timeoutRef);
       }
 
-      setToasts({
-        ...toasts,
+      setToasts(currentState => ({
+        ...currentState,
         [toastId]: {
           ...toastProperties,
           timeoutRef: toastProperties.timeout
@@ -129,8 +129,8 @@ function useGlobalToast(): ToastActions {
                 closeToast(toastId);
               }, toastProperties.timeout)
             : undefined,
-        },
-      });
+        }
+      }));
     },
     [toasts, setToasts, closeToast]
   );
