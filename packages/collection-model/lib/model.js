@@ -4,6 +4,9 @@ const { promisify } = require('util');
 const toNs = require('mongodb-ns');
 const { getProperties } = require('./collection-properties');
 
+const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-COLLECTION-MODEL');
+
 const NamespaceCache = new Map();
 
 function getNamespaceInfo(ns) {
@@ -246,8 +249,10 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
    */
   async fetch({ dataService, fetchInfo = true, force = false }) {
     if (!shouldFetch(this.status, force)) {
+      log.info(mongoLogId(1_001_000_103), 'Fetch', 'Deciding not to fetch collections', { fetchInfo });
       return;
     }
+    log.info(mongoLogId(1_001_000_104), 'Fetch', 'Fetching collections', { fetchInfo });
     const collectionStatsAsync = promisify(
       dataService.collectionStats.bind(dataService)
     );

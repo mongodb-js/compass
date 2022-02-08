@@ -4,6 +4,9 @@ const {
   Collection: MongoDbCollectionCollection,
 } = require('mongodb-collection-model');
 
+const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATABASE-MODEL');
+
 function mergeInit(...init) {
   return {
     initialize(...args) {
@@ -155,8 +158,10 @@ const DatabaseModel = AmpersandModel.extend(
      */
     async fetchCollections({ dataService, fetchInfo = false, force = false }) {
       if (!shouldFetch(this.collectionsStatus, force)) {
+        log.info(mongoLogId(1_001_000_101), 'Fetch Collections', 'Deciding not to fetch collections', { fetchInfo });
         return;
       }
+      log.info(mongoLogId(1_001_000_102), 'Fetch Collections', 'Fetching collections', { fetchInfo });
 
       try {
         const newStatus =

@@ -83,13 +83,10 @@ store.fetchAllCollections = async() => {
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
-    throw new Error('fetchAllCollections, not no instance or dataService :(');
-    /*
     debug(
       'Trying to fetch collections without the model or dataService in the state'
     );
     return;
-    */
   }
 
   await Promise.all(
