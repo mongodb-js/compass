@@ -52,6 +52,4 @@ export async function setAceValue(
     await browser.keys(['Control', 'v']);
     await browser.keys(['Control']); // control a second time to release it
   }
-
-  await browser.pause(100);
 }
