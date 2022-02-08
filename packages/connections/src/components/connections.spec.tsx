@@ -52,13 +52,9 @@ describe('Connections Component', function () {
 
   beforeEach(function () {
     onConnectedSpy = sinon.spy();
-    this.clock = sinon.useFakeTimers({
-      now: 1483228800000,
-    });
   });
 
   afterEach(function () {
-    this.clock.restore();
     sinon.restore();
     cleanup();
   });
@@ -210,10 +206,17 @@ describe('Connections Component', function () {
 
     describe('when a saved connection is clicked on and connected to', function () {
       beforeEach(async function () {
+        this.clock = sinon.useFakeTimers({
+          now: 1483228800000,
+        });
         await loadSavedConnectionAndConnect(
           connections.find(({ id }) => id === savedConnectionId)
         );
       });
+
+      afterEach(function() {
+        this.clock.restore();
+      })
 
       it('should call the connect function with the connection options to connect', function () {
         expect(mockConnectFn.callCount).to.equal(1);
@@ -292,7 +295,7 @@ describe('Connections Component', function () {
         async (connectionOptions: ConnectionOptions) => {
           if (
             connectionOptions.connectionString ===
-            'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000'
+            'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&appName=Test+App+Name'
           ) {
             return new Promise((resolve) => {
               // On first call we want this attempt to be cancelled before
@@ -358,16 +361,13 @@ describe('Connections Component', function () {
       const connectButton = screen.getByText('Connect');
       fireEvent.click(connectButton);
 
-      // Speedup the modal showing animation.
-      this.clock.tick(300);
-
       // Wait for the connecting... modal to be shown.
       await waitFor(() => expect(screen.queryByText('Cancel')).to.be.visible);
     });
 
     describe('when the connection attempt is cancelled', function () {
       beforeEach(async function () {
-        const cancelButton = screen.getByText('Cancel').closest('Button');
+        const cancelButton = screen.getByText('Cancel');
         fireEvent.click(cancelButton);
 
         // Wait for the connecting... modal to hide.
