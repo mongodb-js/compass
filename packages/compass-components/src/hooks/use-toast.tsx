@@ -64,9 +64,11 @@ export const ToastArea = ({
         clearTimeout(timeoutRef);
       }
 
-      const newToasts = { ...toasts };
-      delete newToasts[toastId];
-      setToasts(newToasts);
+      setToasts((prevToasts) => {
+        const newToasts = { ...prevToasts };
+        delete newToasts[toastId];
+        return newToasts;
+      });
     },
     [toasts, setToasts]
   );
