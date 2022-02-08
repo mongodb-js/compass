@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
-import { SaveConnectionModal } from '@mongodb-js/connect-form';
+import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarInstanceStats from '../sidebar-instance-stats';
 import SidebarInstanceDetails from '../sidebar-instance-details';

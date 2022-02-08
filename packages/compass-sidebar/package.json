@@ -30,7 +30,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.10.0",
-    "@mongodb-js/connect-form": "^0.5.0",
+    "@mongodb-js/connection-form": "^0.1.0",
     "debug": "*",
     "mongodb-data-service": "^21.16.0",
     "prop-types": "^15.7.2",
@@ -56,7 +56,7 @@
     "@mongodb-js/compass-deployment-awareness": "^11.18.0",
     "@mongodb-js/compass-server-version": "^5.18.0",
     "@mongodb-js/compass-ssh-tunnel-status": "^6.18.0",
-    "@mongodb-js/connect-form": "^0.5.0",
+    "@mongodb-js/connection-form": "^0.1.0",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "chai": "^4.2.0",
