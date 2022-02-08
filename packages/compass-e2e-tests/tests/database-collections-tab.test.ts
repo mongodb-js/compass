@@ -142,7 +142,7 @@ describe('Database collections tab', function () {
     // TODO: how do we make sure this is really a collection with a custom collation?
   });
 
-  it('can create a time series collection', async function () {
+  it.skip('can create a time series collection', async function () {
     const collectionName = 'my-timeseries-collection';
 
     // open the create collection modal from the button at the top
