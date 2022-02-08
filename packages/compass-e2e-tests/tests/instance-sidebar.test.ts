@@ -173,6 +173,4 @@ describe('Instance sidebar', function () {
     // wait for it to be gone
     await collectionElement.waitForExist({ reverse: true });
   });
-
-  it('can edit a favourite');
 });

@@ -84,6 +84,7 @@ function TimeSeriesFields({
 
       <FieldSet>
         <Select
+          id="timeSeries-granularity"
           className={styles['options-select-dropdown']}
           label="granularity"
           name="timeSeries.granularity"

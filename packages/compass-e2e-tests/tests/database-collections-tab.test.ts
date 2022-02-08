@@ -95,4 +95,72 @@ describe('Database collections tab', function () {
     // wait for it to be gone
     await collectionCard.waitForExist({ reverse: true });
   });
+
+  it('can create a capped collection', async function () {
+    const collectionName = 'my-capped-collection';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(collectionName, {
+      capped: {
+        size: 1000,
+      },
+    });
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    // TODO: how do we make sure this is really a capped collection?
+  });
+
+  it('can create a collection with custom collation', async function () {
+    const collectionName = 'my-custom-collation-collection';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(collectionName, {
+      customCollation: {
+        locale: 'af - Afrikaans',
+        strength: 3,
+        caseLevel: false,
+        caseFirst: 'lower',
+        numericOrdering: false,
+        alternate: 'non-ignorable',
+        maxVariable: 'punct',
+        backwards: false,
+        normalization: false,
+      },
+    });
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    // TODO: how do we make sure this is really a collection with a custom collation?
+  });
+
+  it('can create a time series collection', async function () {
+    const collectionName = 'my-timeseries-collection';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(collectionName, {
+      timeseries: {
+        timeField: 'time',
+        metaField: 'meta',
+        granularity: 'minutes',
+        expireAfterSeconds: 60,
+      },
+    });
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    // TODO: how do we make sure this is really a timeseries collection?
+  });
 });

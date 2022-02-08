@@ -50,6 +50,9 @@ if (require.main === module) {
     // Drop the collections that get created by tests
     await dropCollection(db, 'my-sidebar-collection');
     await dropCollection(db, 'my-database-collection');
+    await dropCollection(db, 'my-capped-collection');
+    await dropCollection(db, 'my-custom-collation-collection');
+    await dropCollection(db, 'my-timeseries-collection');
 
     // Create some empty collections for the import tests so each one won't have
     // to possibly drop and create via the UI every time.
