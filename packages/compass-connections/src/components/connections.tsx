@@ -57,6 +57,7 @@ const formContainerStyles = css({
 function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
+  appName,
   connectFn = connect,
 }: {
   onConnected: (
@@ -64,6 +65,7 @@ function Connections({
     dataService: DataService
   ) => void;
   connectionStorage?: ConnectionStore;
+  appName: string;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
   const {
@@ -77,7 +79,7 @@ function Connections({
     removeAllRecentsConnections,
     removeConnection,
     saveConnection,
-  } = useConnections(onConnected, connectionStorage, connectFn);
+  } = useConnections({ onConnected, connectionStorage, connectFn, appName });
   const {
     activeConnectionId,
     activeConnectionInfo,
