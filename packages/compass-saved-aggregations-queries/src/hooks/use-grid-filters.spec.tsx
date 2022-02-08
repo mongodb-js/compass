@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
 
 import type { Item } from '../stores/aggregations-queries-items';
-import { queries, aggregations } from '../../tests/fixtures';
+import { queries, aggregations } from '../../test/fixtures';
 
 const items = [...queries, ...aggregations];
 

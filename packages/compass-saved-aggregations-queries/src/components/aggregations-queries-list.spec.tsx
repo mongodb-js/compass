@@ -8,7 +8,7 @@ import thunk from 'redux-thunk';
 import type { RootState } from '../stores/index';
 
 import AggregationsQueriesList from './aggregations-queries-list';
-import { queries, aggregations } from '../../tests/fixtures';
+import { queries, aggregations } from '../../test/fixtures';
 
 const items = [...queries, ...aggregations];
 const mockStore = configureStore<RootState>([thunk]);
