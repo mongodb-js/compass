@@ -1,6 +1,7 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
+import * as Selectors from '../helpers/selectors';
 
 describe('Instance performance tab', function () {
   let compass: Compass;
@@ -11,6 +12,8 @@ describe('Instance performance tab', function () {
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+
+    await browser.navigateToInstanceTab('Performance');
   });
 
   after(async function () {
@@ -21,5 +24,8 @@ describe('Instance performance tab', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it('can kill slow queries via the performance tab');
+  it('loads up without issue', async function () {
+    const stats = await browser.$(Selectors.ServerStats);
+    await stats.waitForDisplayed();
+  });
 });

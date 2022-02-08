@@ -141,6 +141,7 @@ export const InstanceCreateDatabaseButton =
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
   '[data-testid="database-grid"] [data-testid="card-action-container"] button';
+export const ServerStats = '.serverstats';
 
 export const instanceTab = (tabName: string, selected?: boolean): string => {
   const selector = `${InstanceTab}[name="${tabName}"]`;
