@@ -41,7 +41,9 @@ store.onActivated = (appRegistry) => {
             sourceReadonly: metadata.sourceReadonly,
             isTimeSeries: !!metadata.isTimeSeries,
             sourceViewOn: metadata.sourceViewOn,
-            sourcePipeline: metadata.sourcePipeline
+            sourcePipeline: metadata.sourcePipeline,
+            query: metadata.query,
+            aggregation: metadata.aggregation,
           })
         );
       }

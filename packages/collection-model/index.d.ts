@@ -51,6 +51,15 @@ interface Collection {
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
+  fetchMetadata(opts: { dataService: DataService }): Promise<{
+    namespace: string;
+    isReadonly: boolean;
+    isTimeSeries: boolean;
+    sourceName?: string;
+    sourceReadonly?: boolean;
+    sourceViewon?: strong;
+    sourcePipeline?: unknown[];
+  }>;
   toJSON(opts?: { derived: boolean }): this;
 }
 
