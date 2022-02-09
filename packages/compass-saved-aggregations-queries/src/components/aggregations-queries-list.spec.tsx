@@ -42,6 +42,12 @@ describe('aggregations-queries-list', function () {
     );
   });
 
+  it('should render list items', function () {
+    items.forEach((item) => {
+      expect(screen.getByText(item.name)).to.exist;
+    });
+  });
+
   it('should filter items by database/collection', function () {
     const { database, collection } = items[0];
     // select database

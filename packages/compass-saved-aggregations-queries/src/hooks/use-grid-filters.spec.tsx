@@ -17,17 +17,15 @@ describe('use-grid-header', function () {
         await screen.findByText('search');
       }).to.not.throw;
     });
-    it.skip('should render database and collection selects', function () {
+    it('should render database and collection selects', function () {
       const { result } = renderHook(() => useGridFilters(items));
-      render(result.current.controls);
+      const { rerender } = render(result.current.controls);
       expect(screen.getByText('All databases')).to.exist;
       expect(screen.getByText('All collections')).to.exist;
 
       // Open the database dropdown
-      act(() => {
-        userEvent.click(screen.getByText('All databases'), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      userEvent.click(screen.getByText('All databases'), undefined, {
+        skipPointerEventsCheck: true,
       });
       items.forEach((item) => {
         expect(
@@ -37,17 +35,14 @@ describe('use-grid-header', function () {
       });
 
       // Select the database
-      act(() => {
-        userEvent.click(screen.getByText('airbnb'), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      userEvent.click(screen.getByText('airbnb'), undefined, {
+        skipPointerEventsCheck: true,
       });
 
-      // todo
-      act(() => {
-        userEvent.click(screen.getByText('All collections'), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      rerender(result.current.controls);
+
+      userEvent.click(screen.getByText('All collections'), undefined, {
+        skipPointerEventsCheck: true,
       });
 
       items
@@ -169,33 +164,25 @@ describe('use-grid-header', function () {
   });
 
   describe('filters items by database/collection selects', function () {
-    it.skip('should filter items by database/collection', function () {
+    it('should filter items by database/collection', function () {
       const { result } = renderHook(() => useGridFilters(items));
-      render(result.current.controls);
+      const { rerender } = render(result.current.controls);
 
       const { database, collection } = items[0];
       // select database
-      act(() => {
-        userEvent.click(screen.getByText('All databases'), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      userEvent.click(screen.getByText('All databases'), undefined, {
+        skipPointerEventsCheck: true,
       });
-      act(() => {
-        userEvent.click(screen.getByText(database), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      userEvent.click(screen.getByText(database), undefined, {
+        skipPointerEventsCheck: true,
       });
-      act(() => {
-        // select collection
-        userEvent.click(screen.getByText('All collections'), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      rerender(result.current.controls);
+      // select collection
+      userEvent.click(screen.getByText('All collections'), undefined, {
+        skipPointerEventsCheck: true,
       });
-      // todo
-      act(() => {
-        userEvent.click(screen.getByText(collection), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      userEvent.click(screen.getByText(collection), undefined, {
+        skipPointerEventsCheck: true,
       });
 
       const filteredItems = [...items]
@@ -219,9 +206,9 @@ describe('use-grid-header', function () {
   });
 
   describe('filters items by text and dropdown/collection selects', function () {
-    it.skip('should filter items by database/collection and text search', function () {
+    it('should filter items by database/collection and text search', function () {
       const { result } = renderHook(() => useGridFilters(items));
-      render(result.current.controls);
+      const { rerender } = render(result.current.controls);
       const searchInput = screen.getByPlaceholderText(/search/i);
 
       act(() => {
@@ -229,30 +216,22 @@ describe('use-grid-header', function () {
       });
 
       // open database select
-      act(() => {
-        userEvent.click(screen.getByText('All databases'), undefined, {
-          skipPointerEventsCheck: true,
-        });
-      });
-      // select database
-      act(() => {
-        userEvent.click(screen.getByText('airbnb'), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /all databases/i,
+        })
+      );
+      userEvent.click(screen.getByText('airbnb'), undefined, {
+        skipPointerEventsCheck: true,
       });
 
-      // open collections select
-      act(() => {
-        userEvent.click(screen.getByText('All collections'), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      rerender(result.current.controls);
+
+      userEvent.click(screen.getByText('All collections'), undefined, {
+        skipPointerEventsCheck: true,
       });
-      // select collection
-      act(() => {
-        // todo
-        userEvent.click(screen.getByText('listings'), undefined, {
-          skipPointerEventsCheck: true,
-        });
+      userEvent.click(screen.getByText('listings'), undefined, {
+        skipPointerEventsCheck: true,
       });
 
       const gridItems = renderHook(() =>

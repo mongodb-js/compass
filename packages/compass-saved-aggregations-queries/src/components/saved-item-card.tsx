@@ -32,6 +32,14 @@ const namespacePart = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[2],
+  flexWrap: 'wrap',
+});
+
+const namespaceNameStyles = css({
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  flex: 1,
 });
 
 const NamespacePart: React.FunctionComponent<{
@@ -45,7 +53,7 @@ const NamespacePart: React.FunctionComponent<{
         glyph={type === 'database' ? 'Database' : 'Folder'}
         color={uiColors.gray.dark1}
       ></Icon>
-      <span>{name}</span>
+      <span className={namespaceNameStyles}>{name}</span>
     </div>
   );
 };

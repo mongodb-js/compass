@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useSortControls, useSortedItems } from './use-sort';
@@ -88,7 +88,7 @@ describe('use-sort', function () {
     render(result.current[0]);
 
     act(() => {
-      fireEvent.click(screen.getByLabelText(/sort ascending/i));
+      userEvent.click(screen.getByTitle(/sortascending/i));
     });
 
     const { result: { current: sortedItems } } = renderHook(() => useSortedItems(items, result.current[1]));
@@ -152,7 +152,7 @@ describe('use-sort', function () {
     });
 
     act(() => {
-      fireEvent.click(screen.getByLabelText(/sort ascending/i));
+      userEvent.click(screen.getByTitle(/sortascending/i));
     });
 
     const { result: { current: sortedItems } } = renderHook(() => useSortedItems(items, result.current[1]));

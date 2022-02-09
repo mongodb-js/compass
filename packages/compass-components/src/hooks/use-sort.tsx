@@ -100,6 +100,7 @@ export function useSortControls<T extends string>(
         </Select>
         <Button
           aria-label={glyph}
+          title={glyph}
           rightGlyph={<Icon glyph={glyph}></Icon>}
           onClick={() => {
             dispatch({ type: 'change-order' });

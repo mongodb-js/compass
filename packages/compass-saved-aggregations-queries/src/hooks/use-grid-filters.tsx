@@ -6,7 +6,6 @@ import {
   spacing,
   Select,
   Option,
-  cx,
   TextInput,
 } from '@mongodb-js/compass-components';
 
@@ -29,12 +28,7 @@ const selectContainer = css({
 
 const selectStyles = css({
   marginRight: spacing[2],
-});
-
-const optionStyles = css({
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+  width: `calc(16ch + ${spacing[6]}px)`,
 });
 
 const filterStyles = css({
@@ -55,8 +49,6 @@ const FilterSelect: React.FunctionComponent<{
   const labelId = useId();
   const controlId = useId();
 
-  const width = `calc(${placeholder?.length ?? 20}ch + ${spacing[6]}px)`;
-
   return (
     <Select
       disabled={options.length === 0}
@@ -64,26 +56,13 @@ const FilterSelect: React.FunctionComponent<{
       aria-labelledby={labelId}
       allowDeselect={true}
       placeholder={placeholder}
-      className={cx(
-        selectStyles,
-        css({
-          width,
-        })
-      )}
+      className={selectStyles}
       onChange={onSelect}
       value={value}
+      name={value}
     >
       {options.map((option) => (
-        <Option
-          className={cx(
-            optionStyles,
-            css({
-              width,
-            })
-          )}
-          key={option}
-          value={option}
-        >
+        <Option key={option} value={option}>
           {option}
         </Option>
       ))}
