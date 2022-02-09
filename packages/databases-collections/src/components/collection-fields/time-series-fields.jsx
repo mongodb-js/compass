@@ -55,6 +55,7 @@ function TimeSeriesFields({
       onToggle={checked => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
+      dataTestId="time-series-fields"
       description="Time-series collections efficiently store sequences of measurements over a period of time."
     >
       <FieldSet>
@@ -83,6 +84,7 @@ function TimeSeriesFields({
 
       <FieldSet>
         <Select
+          id="timeSeries-granularity"
           className={styles['options-select-dropdown']}
           label="granularity"
           name="timeSeries.granularity"

@@ -38,7 +38,7 @@ describe('Instance databases tab', function () {
     }
   });
 
-  it.skip('links database cards to the database collections tab', async function () {
+  it('links database cards to the database collections tab', async function () {
     // Click on the db name text inside the card specifically to try and have
     // tighter control over where it clicks, because clicking in the center of
     // the last card if all cards don't fit on screen can silently do nothing
@@ -57,8 +57,8 @@ describe('Instance databases tab', function () {
     await browser.navigateToInstanceTab('Databases');
   });
 
-  it.skip('can create a database from the databases tab', async function () {
-    const dbName = 'my-database';
+  it('can create a database from the databases tab and drop it', async function () {
+    const dbName = 'my-instance-database';
     const collectionName = 'my-collection';
 
     // open the create database modal from the button at the top
@@ -74,9 +74,15 @@ describe('Instance databases tab', function () {
 
     await browser.waitUntil(async () => {
       // open the drop database modal from the database card
-      await browser.hover(selector);
+      await browser.hover(`${selector} [title="${dbName}"]`);
       const el = await browser.$(Selectors.DatabaseCardDrop);
-      return await el.isDisplayed();
+      if (await el.isDisplayed()) {
+        return true;
+      }
+
+      // go hover somewhere else to give the next attempt a fighting chance
+      await browser.hover(Selectors.SidebarTitle);
+      return false;
     });
 
     await browser.clickVisible(Selectors.DatabaseCardDrop);
