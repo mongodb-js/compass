@@ -1,3 +1,14 @@
+const ipc = require('hadron-ipc');
+
+// Setup error reporting to main process before anything else.
+window.addEventListener('error', (event) => {
+  event.preventDefault();
+  ipc.call('compass:error:fatal',
+    event.error ?
+      { message: event.error.message, stack: event.error.stack } :
+      { message: event.message, stack: '<no stack available>' });
+});
+
 require('./index.less');
 require('../setup-hadron-distribution');
 
@@ -29,7 +40,6 @@ var APP_VERSION = electron.remote.app.getVersion();
 var _ = require('lodash');
 var View = require('ampersand-view');
 var async = require('async');
-var ipc = require('hadron-ipc');
 var webvitals = require('web-vitals');
 
 var semver = require('semver');
@@ -62,15 +72,7 @@ ipc.once('app:launched', function() {
 
 const { log, mongoLogId, debug, track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-APP');
-
-window.addEventListener('error', (event) => {
-  event.preventDefault();
-  ipc.call('compass:error:fatal',
-    event.error ?
-      { message: event.error.message, stack: event.error.stack } :
-      { message: event.message, stack: '<no stack available>' });
-});
-
+  
 /**
  * The top-level application singleton that brings everything together!
  */
