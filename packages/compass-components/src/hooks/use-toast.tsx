@@ -53,11 +53,7 @@ const toastStyles = css({
  *
  * @returns
  */
-export const ToastArea = ({
-  children,
-}: {
-  children: React.ReactNode;
-}): React.ReactElement => {
+export const ToastArea: React.FunctionComponent = ({ children }) => {
   const [toasts, setToasts] = useState<Record<string, ToastState>>({});
 
   const closeToast = useCallback(
