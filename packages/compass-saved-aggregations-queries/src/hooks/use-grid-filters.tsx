@@ -31,6 +31,12 @@ const selectStyles = css({
   marginRight: spacing[2],
 });
 
+const optionStyles = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
 const filterStyles = css({
   display: 'flex',
 });
@@ -48,10 +54,9 @@ const FilterSelect: React.FunctionComponent<{
 }> = ({ options, onSelect, value, placeholder }) => {
   const labelId = useId();
   const controlId = useId();
-  const longestLabel = Math.max(
-    placeholder?.length || 0,
-    ...options.map((item) => item.length)
-  );
+
+  const width = `calc(${placeholder?.length ?? 20}ch + ${spacing[6]}px)`;
+
   return (
     <Select
       disabled={options.length === 0}
@@ -61,13 +66,24 @@ const FilterSelect: React.FunctionComponent<{
       placeholder={placeholder}
       className={cx(
         selectStyles,
-        css({ minWidth: `calc(${longestLabel}ch + ${spacing[6]}px)` })
+        css({
+          width,
+        })
       )}
       onChange={onSelect}
       value={value}
     >
       {options.map((option) => (
-        <Option key={option} value={option}>
+        <Option
+          className={cx(
+            optionStyles,
+            css({
+              width,
+            })
+          )}
+          key={option}
+          value={option}
+        >
           {option}
         </Option>
       ))}
@@ -245,13 +261,15 @@ function filterByConditions(items: FilterItem[], conditions: SelectState) {
   );
 }
 
-export function useGridFilters(
-  items: Item[]
-): [React.ReactElement, SelectState, string] {
+export function useGridFilters(items: Item[]): {
+  controls: React.ReactElement;
+  conditions: SelectState;
+  search: string;
+} {
   const [selectControls, conditions] = useSelectFilter(items);
   const [searchControls, search] = useSearchFilter();
 
-  const filterControls = useMemo(() => {
+  const controls = useMemo(() => {
     return (
       <div className={filterStyles}>
         {searchControls}
@@ -260,7 +278,11 @@ export function useGridFilters(
     );
   }, [searchControls, selectControls]);
 
-  return [filterControls, conditions, search];
+  return {
+    controls,
+    conditions,
+    search,
+  };
 }
 
 export function useFilteredItems(
