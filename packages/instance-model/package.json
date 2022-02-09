@@ -31,7 +31,6 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.7.0",
     "ampersand-model": "^8.0.1",
     "mongodb-database-model": "^1.7.0"
   },
