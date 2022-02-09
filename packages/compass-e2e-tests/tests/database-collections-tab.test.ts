@@ -142,6 +142,7 @@ describe('Database collections tab', function () {
     // TODO: how do we make sure this is really a collection with a custom collation?
   });
 
+  // This needs mongodb 5
   it.skip('can create a time series collection', async function () {
     const collectionName = 'my-timeseries-collection';
 

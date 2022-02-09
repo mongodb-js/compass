@@ -61,8 +61,16 @@ export async function addCollection(
       );
       await menu.waitForDisplayed();
       const span = await menu.$(`span=${value.toString()}`);
+      await span.waitForDisplayed();
       await span.click();
     }
+
+    // scroll to the locale one so the screenshot will include it.
+    // (for debugging)
+    const localeButton = await browser.$(
+      Selectors.createCollectionCustomCollationFieldButton('locale')
+    );
+    await localeButton.scrollIntoView();
   }
 
   if (options && options.timeseries) {
