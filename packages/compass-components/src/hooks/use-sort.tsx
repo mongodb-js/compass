@@ -33,11 +33,15 @@ type SortOptions = {
   isDisabled?: boolean;
 };
 
+type Unwrap<T extends ArrayLike<unknown>> = T extends ArrayLike<infer V>
+  ? V
+  : never;
+
 export function useSortControls<T extends string>(
-  items: { name: T; label: string }[],
+  items: readonly { name: T; label: string }[],
   options?: SortOptions
-): [React.ReactElement, SortState<T>] {
-  const labelId = useId();
+): [React.ReactElement, SortState<Unwrap<typeof items>['name']>] {
+  const labelId = useId('Sort by');
   const controlId = useId();
 
   const [sortState, dispatch] = useReducer(
@@ -95,6 +99,7 @@ export function useSortControls<T extends string>(
           ))}
         </Select>
         <Button
+          aria-label={glyph}
           rightGlyph={<Icon glyph={glyph}></Icon>}
           onClick={() => {
             dispatch({ type: 'change-order' });
