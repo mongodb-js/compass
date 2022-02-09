@@ -184,7 +184,7 @@ export class Compass {
     }
   }
 
-  async stop(): Promise<void> {
+  async stop(test?: Mocha.Hook | Mocha.Test): Promise<void> {
     // TODO: we don't have main logs to write :(
     /*
     const mainLogs = [];
@@ -198,6 +198,9 @@ export class Compass {
 
     const nowFormatted = formattedDate();
 
+    // name the log files after the closest test if possible to make it easier to find
+    const name = test ? pathName(test.fullTitle()) : nowFormatted;
+
     const renderLogPath = path.join(
       LOG_PATH,
       `electron-render.${nowFormatted}.json`
@@ -209,10 +212,7 @@ export class Compass {
     await this.browser.deleteSession();
 
     const compassLog = await getCompassLog(this.logPath ?? '');
-    const compassLogPath = path.join(
-      LOG_PATH,
-      `compass-log.${nowFormatted}.log`
-    );
+    const compassLogPath = path.join(LOG_PATH, `compass-log.${name}.log`);
     debug(`Writing Compass application log to ${compassLogPath}`);
     await fs.writeFile(compassLogPath, compassLog.raw);
     this.logs = compassLog.structured;
@@ -569,7 +569,7 @@ export async function afterTests(
   }
 
   try {
-    await compass.stop();
+    await compass.stop(test);
   } catch (err) {
     debug('An error occurred while stopping compass:');
     debug(err);
