@@ -89,9 +89,9 @@ store.fetchAllCollections = async() => {
     return;
   }
 
-  // It is possible for to get here before the databases finished loading. We
-  // have to wait for the databases, otherwise it will load all the collections
-  // for 0 databases.
+  // It is possible to get here before the databases finished loading. We have
+  // to wait for the databases, otherwise it will load all the collections for 0
+  // databases.
   await instance.fetchDatabases({ dataService });
 
   await Promise.all(
