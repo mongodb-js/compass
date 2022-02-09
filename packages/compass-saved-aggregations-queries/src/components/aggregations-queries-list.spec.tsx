@@ -1,6 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -32,207 +33,46 @@ const initialState = {
 } as RootState;
 
 describe('aggregations-queries-list', function () {
-  describe('renders view correctly', function () {
-    beforeEach(function () {
-      const store = mockStore(initialState);
-      render(
-        <Provider store={store}>
-          <AggregationsQueriesList />
-        </Provider>
-      );
-    });
-    it('should render search input', function () {
-      expect(async () => {
-        await screen.findByText('search');
-      }).to.not.throw;
-    });
-    it('should render database select', function () {
-      const databaseSelect = screen.getByText('All databases');
-      expect(databaseSelect).to.exist;
-      // Open the database dropdown
-      fireEvent.click(databaseSelect);
-      items.forEach((item) => {
-        expect(
-          screen.getByRole('option', {
-            name: item.database,
-          }),
-          `it shows ${item.database} - database`
-        ).to.exist;
-      });
-    });
-    it('should render collection select', function () {
-      const collectionSelect = screen.getByText('All collections');
-      expect(collectionSelect).to.exist;
-      fireEvent.click(screen.getByText('All databases'));
-      fireEvent.click(
-        screen.getByRole('option', {
-          name: 'airbnb',
-        })
-      );
-      // Open the collection dropdown
-      fireEvent.click(collectionSelect);
-      items
-        .filter((x) => x.database === 'airbnb')
-        .forEach((item) => {
-          expect(
-            screen.getByRole('option', {
-              name: item.collection,
-            }),
-            `it shows ${item.collection} - collection`
-          ).to.exist;
-        });
-    });
-    it('should render sort select', function () {
-      expect(screen.getByLabelText('Sort by')).to.exist;
-
-      expect(screen.getByText('Name'), 'Name is the default sort').to.exist;
-
-      // Open the sort dropdown
-      fireEvent.click(
-        screen.getByText('Name', {
-          selector: 'div',
-        })
-      );
-      ['Name', 'Last Modified'].forEach((item) => {
-        expect(
-          screen.getByText(item, {
-            selector: 'span',
-          }),
-          `it shows ${item} sort option`
-        ).to.exist;
-      });
-    });
-    it('should render list items', function () {
-      items.forEach((item) => {
-        expect(screen.getByText(item.name)).to.exist;
-      });
-    });
+  beforeEach(function () {
+    const store = mockStore(initialState);
+    render(
+      <Provider store={store}>
+        <AggregationsQueriesList />
+      </Provider>
+    );
   });
 
-  describe('filters items by database/collection selects', function () {
-    beforeEach(function () {
-      const store = mockStore(initialState);
-      render(
-        <Provider store={store}>
-          <AggregationsQueriesList />
-        </Provider>
-      );
+  it('should filter items by database/collection', function () {
+    const { database, collection } = items[0];
+    // select database
+    userEvent.click(screen.getByText('All databases'), undefined, {
+      skipPointerEventsCheck: true,
     });
-
-    it('should filter items by database/collection', function () {
-      const { database, collection } = items[0];
-      // select database
-      fireEvent.click(screen.getByText('All databases'));
-      fireEvent.click(
-        screen.getByRole('option', {
-          name: database,
-        })
-      );
-      // select collection
-      fireEvent.click(screen.getByText('All collections'));
-      fireEvent.click(
-        screen.getByRole('option', {
-          name: collection,
-        })
-      );
-
-      const expectedItems = [...items].filter(
-        (item) => item.database === database && item.collection === collection
-      );
-
-      expectedItems.forEach((item) => {
-        expect(screen.getByText(item.name)).to.exist;
-      });
+    userEvent.click(
+      screen.getByRole('option', {
+        name: database,
+      }),
+      undefined,
+      { skipPointerEventsCheck: true }
+    );
+    // select collection
+    userEvent.click(screen.getByText('All collections'), undefined, {
+      skipPointerEventsCheck: true,
     });
-  });
+    userEvent.click(
+      screen.getByRole('option', {
+        name: collection,
+      }),
+      undefined,
+      { skipPointerEventsCheck: true }
+    );
 
-  describe('sorts items correctly', function () {
-    beforeEach(function () {
-      const store = mockStore(initialState);
-      render(
-        <Provider store={store}>
-          <AggregationsQueriesList />
-        </Provider>
-      );
-    });
+    const expectedItems = [...items].filter(
+      (item) => item.database === database && item.collection === collection
+    );
 
-    it('sorts by name - asc', function () {
-      const sortedItems = [...items].sort(
-        (a, b) => a.name.localeCompare(b.name) * 1
-      );
-      sortedItems.forEach((item, index) => {
-        expect(
-          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
-        ).to.exist;
-      });
-    });
-
-    it('sorts by name - desc', function () {
-      const sortedItems = [...items].sort(
-        (a, b) => a.name.localeCompare(b.name) * -1
-      );
-      fireEvent.click(
-        screen.getByRole('img', {
-          name: /sort ascending icon/i,
-        })
-      );
-      sortedItems.forEach((item, index) => {
-        expect(
-          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
-        ).to.exist;
-      });
-    });
-
-    it('sorts by last modified - asc', function () {
-      // Open the sort dropdown
-      fireEvent.click(
-        screen.getByText('Name', {
-          selector: 'div',
-        })
-      );
-      fireEvent.click(
-        screen.getByText('Last Modified', {
-          selector: 'span',
-        })
-      );
-
-      const sortedItems = [...items].sort(
-        (a, b) => a.lastModified - b.lastModified
-      );
-      sortedItems.forEach((item, index) => {
-        expect(
-          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
-        ).to.exist;
-      });
-    });
-
-    it('sorts by last modified - desc', function () {
-      // Open the sort dropdown
-      fireEvent.click(
-        screen.getByText('Name', {
-          selector: 'div',
-        })
-      );
-      fireEvent.click(
-        screen.getByText('Last Modified', {
-          selector: 'span',
-        })
-      );
-
-      fireEvent.click(
-        screen.getByRole('img', {
-          name: /sort ascending icon/i,
-        })
-      );
-
-      const sortedItems = [...items].sort(
-        (a, b) => b.lastModified - a.lastModified
-      );
-      sortedItems.forEach((item, index) => {
-        expect(
-          within(screen.getByTestId(`grid-item-${index}`)).getByText(item.name)
-        ).to.exist;
-      });
+    expectedItems.forEach((item) => {
+      expect(screen.getByText(item.name)).to.exist;
     });
   });
 });

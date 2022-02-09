@@ -18,12 +18,7 @@ import type { SavedItemCardProps, Action } from './saved-item-card';
 import OpenItemModal from './open-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 
-type SortKeys = Exclude<
-  Extract<keyof Item, string>,
-  'id' | 'database' | 'collection' | 'type'
->;
-
-const sortBy: { name: SortKeys; label: string }[] = [
+const sortBy: { name: keyof Item; label: string }[] = [
   {
     name: 'name',
     label: 'Name',
@@ -76,7 +71,11 @@ const AggregationsQueriesList = ({
     void onMount();
   }, [onMount]);
 
-  const [filterControls, filters, search] = useGridFilters(items);
+  const {
+    controls: filterControls,
+    conditions: filters,
+    search,
+  } = useGridFilters(items);
   const filteredItems = useFilteredItems(items, filters, search)
     .sort((a, b) => {
       return a.score - b.score;
@@ -85,8 +84,8 @@ const AggregationsQueriesList = ({
 
   // If a user is searching, we disable the sort as
   // search results are sorted by match score
-  const [sortControls, sortState] = useSortControls<SortKeys>(sortBy, {
-    isDisabled: Boolean(search) ?? false,
+  const [sortControls, sortState] = useSortControls<keyof Item>(sortBy, {
+    isDisabled: Boolean(search),
   });
   const sortedItems = useSortedItems(filteredItems, sortState);
 
