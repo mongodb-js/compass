@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { ToastVariant } from '..';
 import { css } from '..';
 import { Toast } from '..';
@@ -11,10 +18,6 @@ type ToastProperties = {
   timeout?: number;
 };
 
-type ToastState = ToastProperties & {
-  timeoutRef?: ReturnType<typeof setTimeout>;
-};
-
 interface ToastActions {
   openToast: (id: string, toastProperties: ToastProperties) => void;
   closeToast: (id: string) => void;
@@ -22,12 +25,9 @@ interface ToastActions {
 
 const ToastContext = createContext<ToastActions>({
   openToast: () => {
-    console.log('Fake openToast');
-
     //
   },
   closeToast: () => {
-    console.log('Fake closeToast');
     //
   },
 });
@@ -54,14 +54,34 @@ const toastStyles = css({
  * @returns
  */
 export const ToastArea: React.FunctionComponent = ({ children }) => {
-  const [toasts, setToasts] = useState<Record<string, ToastState>>({});
+  const [toasts, setToasts] = useState<Record<string, ToastProperties>>({});
+  const timeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  useEffect(() => {
+    return () => {
+      Object.values(timeouts).forEach(clearTimeout);
+    };
+  }, [timeouts]);
+
+  const clearTimeoutRef = useCallback(
+    (id) => {
+      clearTimeout(timeouts.current[id]);
+      delete timeouts.current[id];
+    },
+    [timeouts]
+  );
+
+  const setTimeoutRef = useCallback(
+    (id: string, callback: () => void, timeout: number) => {
+      clearTimeoutRef(id);
+      timeouts.current[id] = setTimeout(callback, timeout);
+    },
+    [timeouts, clearTimeoutRef]
+  );
 
   const closeToast = useCallback(
     (toastId: string): void => {
-      const { timeoutRef } = toasts[toastId] || {};
-      if (timeoutRef) {
-        clearTimeout(timeoutRef);
-      }
+      clearTimeoutRef(toastId);
 
       setToasts((prevToasts) => {
         const newToasts = { ...prevToasts };
@@ -69,30 +89,31 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
         return newToasts;
       });
     },
-    [toasts, setToasts]
+    [setToasts, clearTimeoutRef]
   );
 
   const openToast = useCallback(
     (toastId: string, toastProperties: ToastProperties): void => {
-      // if updating clear timeouts first
-      const { timeoutRef } = toasts[toastId] || {};
-      if (timeoutRef) {
-        clearTimeout(timeoutRef);
+      clearTimeoutRef(toastId);
+
+      if (toastProperties.timeout) {
+        setTimeoutRef(
+          toastId,
+          () => {
+            closeToast(toastId);
+          },
+          toastProperties.timeout
+        );
       }
 
       setToasts((prevToasts) => ({
         ...prevToasts,
         [toastId]: {
           ...toastProperties,
-          timeoutRef: toastProperties.timeout
-            ? setTimeout(() => {
-                closeToast(toastId);
-              }, toastProperties.timeout)
-            : undefined,
         },
       }));
     },
-    [toasts, setToasts, closeToast]
+    [setToasts, setTimeoutRef, clearTimeoutRef, closeToast]
   );
 
   return (
