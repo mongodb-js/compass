@@ -22,9 +22,12 @@ interface ToastActions {
 
 const ToastContext = createContext<ToastActions>({
   openToast: () => {
+    console.log('Fake openToast');
+
     //
   },
   closeToast: () => {
+    console.log('Fake closeToast');
     //
   },
 });
@@ -59,6 +62,8 @@ export const ToastArea = ({
 
   const closeToast = useCallback(
     (toastId: string): void => {
+      console.log('real closeToast');
+
       const { timeoutRef } = toasts[toastId] || {};
       if (timeoutRef) {
         clearTimeout(timeoutRef);
@@ -75,6 +80,8 @@ export const ToastArea = ({
 
   const openToast = useCallback(
     (toastId: string, toastProperties: ToastProperties): void => {
+      console.log('real openToast');
+
       // if updating clear timeouts first
       const { timeoutRef } = toasts[toastId] || {};
       if (timeoutRef) {
@@ -125,6 +132,7 @@ export function useToast(namespace: string): ToastActions {
 
   const openToast = useCallback(
     (toastId: string, toastProperties: ToastProperties): void => {
+      console.log('hook open toast');
       openGlobalToast(`${namespace}--${toastId}`, toastProperties);
     },
     [namespace, openGlobalToast]
@@ -132,6 +140,7 @@ export function useToast(namespace: string): ToastActions {
 
   const closeToast = useCallback(
     (toastId: string): void => {
+      console.log('hook close toast');
       closeGlobalToast(`${namespace}--${toastId}`);
     },
     [namespace, closeGlobalToast]
