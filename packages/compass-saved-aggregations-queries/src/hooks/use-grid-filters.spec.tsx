@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
 
 import { queries, pipelines } from '../../test/fixtures';
@@ -24,9 +24,7 @@ describe('use-grid-header', function () {
       expect(screen.getByText('All collections')).to.exist;
 
       // Open the database dropdown
-      userEvent.click(screen.getByText('All databases'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: /all databases/i }));
       items.forEach((item) => {
         expect(
           screen.getByText(item.database),
@@ -35,15 +33,11 @@ describe('use-grid-header', function () {
       });
 
       // Select the database
-      userEvent.click(screen.getByText('airbnb'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('option', { name: /airbnb/i }));
 
       rerender(result.current.controls);
 
-      userEvent.click(screen.getByText('All collections'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: /all collections/i }));
 
       items
         .filter((x) => x.database === 'airbnb')
@@ -62,9 +56,7 @@ describe('use-grid-header', function () {
 
       render(result.current.controls);
       const searchInput = screen.getByPlaceholderText(/search/i);
-      act(() => {
-        fireEvent.change(searchInput, { target: { value: '' } });
-      });
+      fireEvent.change(searchInput, { target: { value: '' } });
       const gridItems = renderHook(() =>
         useFilteredItems(
           items,
@@ -79,9 +71,7 @@ describe('use-grid-header', function () {
       const { result } = renderHook(() => useGridFilters(items));
       render(result.current.controls);
       const searchInput = screen.getByPlaceholderText(/search/i);
-      act(() => {
-        fireEvent.change(searchInput, { target: { value: 'airbnb' } });
-      });
+      fireEvent.change(searchInput, { target: { value: 'airbnb' } });
       const gridItems = renderHook(() =>
         useFilteredItems(
           items,
@@ -96,9 +86,7 @@ describe('use-grid-header', function () {
       const { result } = renderHook(() => useGridFilters(items));
       render(result.current.controls);
       const searchInput = screen.getByPlaceholderText(/search/i);
-      act(() => {
-        fireEvent.change(searchInput, { target: { value: 'listings' } });
-      });
+      fireEvent.change(searchInput, { target: { value: 'listings' } });
       const gridItems = renderHook(() =>
         useFilteredItems(
           items,
@@ -113,9 +101,7 @@ describe('use-grid-header', function () {
       const { result } = renderHook(() => useGridFilters(items));
       render(result.current.controls);
       const searchInput = screen.getByPlaceholderText(/search/i);
-      act(() => {
-        fireEvent.change(searchInput, { target: { value: 'host_location' } });
-      });
+      fireEvent.change(searchInput, { target: { value: 'host_location' } });
       const gridItems = renderHook(() =>
         useFilteredItems(
           items,
@@ -130,10 +116,8 @@ describe('use-grid-header', function () {
       const { result } = renderHook(() => useGridFilters(items));
       render(result.current.controls);
       const searchInput = screen.getByPlaceholderText(/search/i);
-      act(() => {
-        fireEvent.change(searchInput, {
-          target: { value: 'num_of_host_spaces' },
-        });
+      fireEvent.change(searchInput, {
+        target: { value: 'num_of_host_spaces' },
       });
       const gridItems = renderHook(() =>
         useFilteredItems(
@@ -149,9 +133,7 @@ describe('use-grid-header', function () {
       const { result } = renderHook(() => useGridFilters(items));
       render(result.current.controls);
       const searchInput = screen.getByPlaceholderText(/search/i);
-      act(() => {
-        fireEvent.change(searchInput, { target: { value: 'beds' } });
-      });
+      fireEvent.change(searchInput, { target: { value: 'beds' } });
       const gridItems = renderHook(() =>
         useFilteredItems(
           items,
@@ -170,20 +152,12 @@ describe('use-grid-header', function () {
 
       const { database, collection } = items[0];
       // select database
-      userEvent.click(screen.getByText('All databases'), undefined, {
-        skipPointerEventsCheck: true,
-      });
-      userEvent.click(screen.getByText(database), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: /all databases/i }));
+      userEvent.click(screen.getByRole('option', { name: database }));
       rerender(result.current.controls);
       // select collection
-      userEvent.click(screen.getByText('All collections'), undefined, {
-        skipPointerEventsCheck: true,
-      });
-      userEvent.click(screen.getByText(collection), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      userEvent.click(screen.getByRole('button', { name: /all collections/i }));
+      userEvent.click(screen.getByRole('option', { name: collection }));
 
       const filteredItems = [...items]
         .filter(
@@ -211,28 +185,18 @@ describe('use-grid-header', function () {
       const { rerender } = render(result.current.controls);
       const searchInput = screen.getByPlaceholderText(/search/i);
 
-      act(() => {
-        fireEvent.change(searchInput, { target: { value: 'berlin' } });
-      });
+      fireEvent.change(searchInput, { target: { value: 'berlin' } });
 
-      // open database select
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /all databases/i,
-        })
-      );
-      userEvent.click(screen.getByText('airbnb'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      // select database
+      userEvent.click(screen.getByRole('button', { name: /all databases/i }));
+      userEvent.click(screen.getByRole('option', { name: /airbnb/i }));
+      rerender(result.current.controls);
 
       rerender(result.current.controls);
 
-      userEvent.click(screen.getByText('All collections'), undefined, {
-        skipPointerEventsCheck: true,
-      });
-      userEvent.click(screen.getByText('listings'), undefined, {
-        skipPointerEventsCheck: true,
-      });
+      // select collection
+      userEvent.click(screen.getByRole('button', { name: /all collections/i }));
+      userEvent.click(screen.getByRole('option', { name: /listings/i }));
 
       const gridItems = renderHook(() =>
         useFilteredItems(

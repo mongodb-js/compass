@@ -1,27 +1,27 @@
 import { expect } from 'chai';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import { useSortControls, useSortedItems } from './use-sort';
 
 const sortBy = [
   {
-    name: "title",
-    label: "Title",
+    name: 'title',
+    label: 'Title',
   },
   {
-    name: "age",
-    label: "Age",
-  }
+    name: 'age',
+    label: 'Age',
+  },
 ];
 
 const items = [
   {
-    title: "Compass",
+    title: 'Compass',
     age: 6,
   },
   {
-    title: "Mongosh",
+    title: 'Mongosh',
     age: 2,
   },
 ];
@@ -32,10 +32,8 @@ describe('use-sort', function () {
     render(result.current[0]);
 
     expect(screen.getByText('Title'), 'Title is the default sort').to.exist;
-    act(() => {
-      userEvent.click(screen.getByText('Title'), undefined, {
-        skipPointerEventsCheck: true
-      });
+    userEvent.click(screen.getByText('Title'), undefined, {
+      skipPointerEventsCheck: true,
     });
     ['Title', 'Age'].forEach((item) => {
       expect(
@@ -48,12 +46,18 @@ describe('use-sort', function () {
   });
 
   it('should render sort select in disabled state', function () {
-    const { result } = renderHook(() => useSortControls(sortBy, { isDisabled: true }));
+    const { result } = renderHook(() =>
+      useSortControls(sortBy, { isDisabled: true })
+    );
     render(result.current[0]);
 
-    expect(screen.getByRole('button', {
-      name: /title/i
-    }).hasAttribute('disabled')).to.be.true
+    expect(
+      screen
+        .getByRole('button', {
+          name: /title/i,
+        })
+        .hasAttribute('disabled')
+    ).to.be.true;
   });
 
   it('sorts by string value - asc', function () {
@@ -63,23 +67,25 @@ describe('use-sort', function () {
     // Opens dropdown
     userEvent.click(
       screen.getByRole('button', {
-        name: /title/i
+        name: /title/i,
       }),
-      undefined, {
-      skipPointerEventsCheck: true,
-    });
+      undefined,
+      {
+        skipPointerEventsCheck: true,
+      }
+    );
 
-    act(() => {
-      userEvent.click(
-        screen.getByRole('option', {
-          name: /title/i
-        }),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
-    });
+    userEvent.click(
+      screen.getByRole('option', {
+        name: /title/i,
+      }),
+      undefined,
+      { skipPointerEventsCheck: true }
+    );
 
-    const { result: { current: sortedItems } } = renderHook(() => useSortedItems(items, result.current[1]));
+    const {
+      result: { current: sortedItems },
+    } = renderHook(() => useSortedItems(items, result.current[1]));
     expect(sortedItems).to.deep.equal([items[0], items[1]]);
   });
 
@@ -87,11 +93,11 @@ describe('use-sort', function () {
     const { result } = renderHook(() => useSortControls(sortBy));
     render(result.current[0]);
 
-    act(() => {
-      userEvent.click(screen.getByTitle(/sortascending/i));
-    });
+    userEvent.click(screen.getByTitle(/sortascending/i));
 
-    const { result: { current: sortedItems } } = renderHook(() => useSortedItems(items, result.current[1]));
+    const {
+      result: { current: sortedItems },
+    } = renderHook(() => useSortedItems(items, result.current[1]));
     expect(sortedItems).to.deep.equal([items[1], items[0]]);
   });
 
@@ -100,28 +106,28 @@ describe('use-sort', function () {
     render(result.current[0]);
 
     // Opens dropdown
-    act(() => {
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /title/i
-        }),
-        undefined, {
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /title/i,
+      }),
+      undefined,
+      {
         skipPointerEventsCheck: true,
-      });
-    });
+      }
+    );
 
     // Select age
-    act(() => {
-      userEvent.click(
-        screen.getByRole('option', {
-          name: /age/i
-        }),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
-    });
+    userEvent.click(
+      screen.getByRole('option', {
+        name: /age/i,
+      }),
+      undefined,
+      { skipPointerEventsCheck: true }
+    );
 
-    const { result: { current: sortedItems } } = renderHook(() => useSortedItems(items, result.current[1]));
+    const {
+      result: { current: sortedItems },
+    } = renderHook(() => useSortedItems(items, result.current[1]));
     expect(sortedItems).to.deep.equal([items[1], items[0]]);
   });
 
@@ -130,40 +136,42 @@ describe('use-sort', function () {
     render(result.current[0]);
 
     // Opens dropdown
-    act(() => {
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /title/i
-        }),
-        undefined, {
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /title/i,
+      }),
+      undefined,
+      {
         skipPointerEventsCheck: true,
-      });
-    });
+      }
+    );
 
     // Select age
-    act(() => {
-      userEvent.click(
-        screen.getByRole('option', {
-          name: /age/i
-        }),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
-    });
+    userEvent.click(
+      screen.getByRole('option', {
+        name: /age/i,
+      }),
+      undefined,
+      { skipPointerEventsCheck: true }
+    );
 
-    act(() => {
-      userEvent.click(screen.getByTitle(/sortascending/i));
-    });
+    userEvent.click(screen.getByTitle(/sortascending/i));
 
-    const { result: { current: sortedItems } } = renderHook(() => useSortedItems(items, result.current[1]));
+    const {
+      result: { current: sortedItems },
+    } = renderHook(() => useSortedItems(items, result.current[1]));
     expect(sortedItems).to.deep.equal([items[0], items[1]]);
   });
 
   it('should not sort when disabled', function () {
-    const { result } = renderHook(() => useSortControls(sortBy, { isDisabled: true }));
+    const { result } = renderHook(() =>
+      useSortControls(sortBy, { isDisabled: true })
+    );
     render(result.current[0]);
 
-    const { result: { current: sortedItems } } = renderHook(() => useSortedItems(items, result.current[1]));
+    const {
+      result: { current: sortedItems },
+    } = renderHook(() => useSortedItems(items, result.current[1]));
     expect(sortedItems).to.deep.equal(items);
   });
 });
