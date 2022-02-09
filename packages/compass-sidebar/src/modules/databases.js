@@ -142,8 +142,6 @@ export const changeFilterRegex = (filterRegex) => (dispatch, getState) => {
     // is required as a workaround for the syncronous nature of the current
     // filtering feature
     appRegistry.globalAppRegistry.emit('sidebar-filter-navigation-list');
-  } else if (filterRegex && !appRegistry.globalAppRegistry) {
-    throw new Error('There is a filterRegex but no appRegistry.globalAppRegistry');
   }
   dispatch({
     type: CHANGE_FILTER_REGEX,
