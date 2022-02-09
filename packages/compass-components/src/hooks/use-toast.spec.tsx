@@ -6,10 +6,9 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { expect } from 'chai';
-import React, { useCallback } from 'react';
+import React from 'react';
 
-import { ToastArea, ToastVariant } from '..';
-import { useToast } from '../../lib';
+import { ToastArea, ToastVariant, useToast } from '..';
 
 const OpenToastButton = ({
   namespace,
@@ -27,20 +26,27 @@ const OpenToastButton = ({
 }) => {
   const { openToast } = useToast(namespace);
   return (
-    <button
-      onClick={useCallback(() => {
-        openToast(id, { title, variant, body });
-      }, [openToast])}
-    >
+    <button onClick={() => openToast(id, { title, variant, body })}>
       Open Toast
     </button>
   );
 };
 
-describe.only('useToast', function () {
+const CloseToastButton = ({
+  namespace,
+  id,
+}: {
+  namespace: string;
+  id: string;
+}) => {
+  const { closeToast } = useToast(namespace);
+  return <button onClick={() => closeToast(id)}>Close Toast</button>;
+};
+
+describe('useToast', function () {
   afterEach(cleanup);
 
-  it('opens a toast', async function () {
+  it('opens and closes a toast', async function () {
     render(
       <ToastArea>
         <OpenToastButton
@@ -50,13 +56,16 @@ describe.only('useToast', function () {
           body="Toast body"
           variant={ToastVariant.Success}
         />
+        <CloseToastButton namespace="ns-1" id="toast-1" />
       </ToastArea>
     );
 
     fireEvent.click(screen.getByText('Open Toast'));
 
-    // await waitFor(() => {
-    //   expect(screen.getByText('My Toast')).to.exist;
-    // });
+    await screen.findByText('My Toast');
+
+    fireEvent.click(screen.getByText('Close Toast'));
+
+    expect(screen.queryByText('My Toast')).to.not.exist;
   });
 });
