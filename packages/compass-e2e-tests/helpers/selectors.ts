@@ -437,6 +437,10 @@ export const queryBarOptionsToggle = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-test-id="query-bar-options-toggle"]`;
 };
+export const queryBarResetFilterButton = (tabName: string): string => {
+  const tabSelector = collectionContent(tabName);
+  return `${tabSelector} [data-test-id="query-bar-reset-filter-button"]`;
+};
 
 // Tabs at the top
 export const CloseCollectionTab = '[data-test-id="close-collection-tab"]';

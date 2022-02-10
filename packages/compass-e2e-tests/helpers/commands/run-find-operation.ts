@@ -98,9 +98,7 @@ async function waitUntilCollapsed(browser: CompassBrowser, tabName: string) {
 async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
   // click reset if it is enabled to get us back to the empty state
   const resetButton = await browser.$(
-    `${Selectors.collectionContent(
-      tabName
-    )} [data-test-id="query-bar-reset-filter-button"]`
+    Selectors.queryBarResetFilterButton(tabName)
   );
   await resetButton.waitForDisplayed();
 
