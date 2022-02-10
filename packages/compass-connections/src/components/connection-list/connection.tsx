@@ -12,7 +12,7 @@ import { getConnectionTitle } from 'mongodb-data-service';
 
 import ConnectionMenu from './connection-menu';
 import ConnectionIcon from './connection-icon';
-import { useConnectionColor } from '@mongodb-js/connect-form';
+import { useConnectionColor } from '@mongodb-js/connection-form';
 
 const connectionMenuHiddenStyles = css({
   visibility: 'hidden',

@@ -5,7 +5,7 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import ConnectForm from '@mongodb-js/connect-form';
+import ConnectionForm from '@mongodb-js/connection-form';
 import type {
   ConnectionInfo,
   ConnectionOptions,
@@ -111,7 +111,7 @@ function Connections({
               debug('error rendering connect form', error, errorInfo);
             }}
           >
-            <ConnectForm
+            <ConnectionForm
               onConnectClicked={(connectionInfo) =>
                 connect({
                   ...connectionInfo,

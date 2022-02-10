@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/connect-form",
+  "name": "@mongodb-js/connection-form",
   "description": "A form for specifying information needed to connect to a MongoDB instance",
   "author": {
     "name": "MongoDB Inc",
@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.5.0",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
