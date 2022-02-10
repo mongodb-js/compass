@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Dropdown, MenuItem } from 'react-bootstrap';
 import {
   isFunction,
   pick,
@@ -11,6 +10,7 @@ import {
   map
 } from 'lodash';
 import FontAwesome from 'react-fontawesome';
+import { Icon } from '@mongodb-js/compass-components';
 
 import QueryOption from '../query-option';
 import OptionsToggle from '../options-toggle';
@@ -368,8 +368,31 @@ class QueryBar extends Component {
       styles['query-history-button']
     );
 
+    const _exportToLanguageClassName = classnames(
+      'btn',
+      'btn-default',
+      'btn-sm',
+      styles['export-to-language-button']
+    );
+
     return (
       <div className={_inputGroupClassName}>
+        {showQueryHistoryButton &&
+          <button
+            id="query_history_button"
+            key="query-history-button"
+            className={_queryHistoryClassName}
+            data-test-id="query-history-button"
+            type="button"
+            onClick={this.props.actions.toggleQueryHistory}
+            title="Toggle Query History"
+          >
+            <FontAwesome
+              data-test-id="query-history-button-icon"
+              name="history"
+            />
+          </button>
+        }
         <div
           onBlur={this._onBlur}
           onFocus={this._onFocus}
@@ -394,34 +417,25 @@ class QueryBar extends Component {
             onClick={this.onResetButtonClicked}>
             Reset
           </button>
-          {showQueryHistoryButton &&
-              <button
-                id="query_history_button"
-                key="query-history-button"
-                className={_queryHistoryClassName}
-                data-test-id="query-history-button"
-                type="button"
-                onClick={this.props.actions.toggleQueryHistory}
-                title="Toggle Query History"
-              >
-                <FontAwesome
-                  data-test-id="query-history-button-icon"
-                  name="history"
-                />
-              </button>
-          }
         </div>
 
-        {showExportToLanguageButton &&
-          <Dropdown pullRight id="query-bar-menu-actions">
-            <Dropdown.Toggle noCaret>
-              <i className="mms-icon-ellipsis" aria-hidden />
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <MenuItem onClick={this.props.actions.exportToLanguage}>Export To Language</MenuItem>
-            </Dropdown.Menu>
-          </Dropdown>
-        }
+        {showExportToLanguageButton && (
+          <button
+            // id="query_export_to_language_button"
+            // key="export-to-language-button"
+            className={_exportToLanguageClassName}
+            // data-test-id="query-export-to-language-button"
+            type="button"
+            onClick={this.props.actions.exportToLanguage}
+            title="Export Query to Language"
+          >
+            <Icon
+              glyph="Export"
+              size="small"
+              data-test-id="query-export-to-language-button-icon"
+            />
+          </button>
+        )}
       </div>
     );
   }

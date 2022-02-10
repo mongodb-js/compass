@@ -1,6 +1,6 @@
 # export-to-language
 
-> export to language button
+> Modal for viewing a query or pipeline translated into various languages (node.js, python, etc.)
 
 ## Usage
 
