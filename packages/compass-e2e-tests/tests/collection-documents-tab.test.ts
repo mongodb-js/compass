@@ -85,10 +85,6 @@ describe('Collection documents tab', function () {
       'Documents',
       '{ $where: function() { return sleep(10000) || true; } }',
       {
-        // Clearing out input fields has no effect for some reason so just set
-        // it to something else. Otherwise setOrClearValue clears it but the
-        // moment the field blurs it just goes back to what it was before
-        skip: '0',
         waitForResult: false,
       }
     );
@@ -123,7 +119,6 @@ describe('Collection documents tab', function () {
   it('supports view/edit via json view');
   it('supports view/edit via table view');
   it('supports maxTimeMS');
-  it('can reset query');
   // different languages, with and without imports, with and without driver usage
   it('can export to language');
   // JSON mode

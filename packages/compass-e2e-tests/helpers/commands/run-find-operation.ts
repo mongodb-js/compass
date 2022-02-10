@@ -95,23 +95,38 @@ async function waitUntilCollapsed(browser: CompassBrowser, tabName: string) {
   });
 }
 
+async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
+  // click reset if it is enabled to get us back to the empty state
+  const resetButton = await browser.$(
+    `${Selectors.collectionContent(
+      tabName
+    )} [data-test-id="query-bar-reset-filter-button"]`
+  );
+  await resetButton.waitForDisplayed();
+
+  if (!(await resetButton.getAttribute('class')).includes('disabled')) {
+    await resetButton.click();
+
+    // wait for the button to become disabled which should happen once it reset
+    // all the filter fields
+    await browser.waitUntil(async () => {
+      return (await resetButton.getAttribute('class')).includes('disabled');
+    });
+  }
+}
+
 async function collapseOptions(browser: CompassBrowser, tabName: string) {
   if (!(await isOptionsExpanded(browser, tabName))) {
     return;
   }
 
-  // Before collapsing the options, clear out all the fields in case they are
-  // set. This helps to make the tests idempotent which is handy because you can
-  // work on them by focusing one it() at a time and expect it to find the same
-  // results as if you ran the whole suite. If we ever do want to test that all
-  // the options you had set before you collapsed the options are still in
-  // effect then we can make this behaviour opt-out through an option.
-  await setProject(browser, tabName, '');
-  await setSort(browser, tabName, '');
-  await setMaxTimeMS(browser, tabName, '');
-  await setCollation(browser, tabName, '');
-  await setSkip(browser, tabName, '');
-  await setLimit(browser, tabName, '');
+  // Reset the query if there was one before. This helps to make the tests
+  // idempotent which is handy because you can work on them by focusing one it()
+  // at a time and expect it to find the same results as if you ran the whole
+  // suite. If we ever do want to test that all the options you had set before
+  // you collapsed the options are still in effect then we can make this
+  // behaviour opt-out through an option.
+  await maybeResetQuery(browser, tabName);
 
   await browser.clickVisible(Selectors.queryBarOptionsToggle(tabName));
   await waitUntilCollapsed(browser, tabName);
