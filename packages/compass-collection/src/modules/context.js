@@ -53,7 +53,9 @@ const setupStore = ({
   allowWrites,
   sourceName,
   editViewName,
-  sourcePipeline
+  sourcePipeline,
+  query,
+  aggregation
 }) => {
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
@@ -70,7 +72,9 @@ const setupStore = ({
     allowWrites: allowWrites,
     sourceName: sourceName,
     editViewName: editViewName,
-    sourcePipeline: sourcePipeline
+    sourcePipeline: sourcePipeline,
+    query,
+    aggregation
   });
   localAppRegistry.registerStore(role.storeName, store);
 
@@ -199,7 +203,9 @@ const createContext = ({
   isDataLake,
   sourceName,
   editViewName,
-  sourcePipeline
+  sourcePipeline,
+  query,
+  aggregation
 }) => {
   const serverVersion = state.serverVersion;
   const localAppRegistry = new AppRegistry();
@@ -236,7 +242,9 @@ const createContext = ({
     isReadonly,
     isTimeSeries,
     actions: queryBarActions,
-    allowWrites: !isDataLake
+    allowWrites: !isDataLake,
+    query,
+    aggregation
   });
 
   // Setup each of the tabs inside the collection tab. They will all get
@@ -257,7 +265,9 @@ const createContext = ({
       allowWrite: !isDataLake,
       sourceName,
       editViewName,
-      sourcePipeline
+      sourcePipeline,
+      query,
+      aggregation
     });
 
     // Add the tab.

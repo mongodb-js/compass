@@ -5,19 +5,21 @@ export async function waitForAnimations(
   browser: CompassBrowser,
   selector: string
 ): Promise<void> {
-  const element = await browser.$(selector);
+  const initialElement = await browser.$(selector);
 
   let previousResult = {
-    ...(await element.getLocation()),
-    ...(await element.getSize()),
+    ...(await initialElement.getLocation()),
+    ...(await initialElement.getSize()),
   };
   // small delay to make sure that if it is busy animating it had time to move
   // before the first check
   await browser.pause(50);
   await browser.waitUntil(async function () {
+    const currentElement = await browser.$(selector);
+
     const result = {
-      ...(await element.getLocation()),
-      ...(await element.getSize()),
+      ...(await currentElement.getLocation()),
+      ...(await currentElement.getSize()),
     };
     const stopped = _.isEqual(result, previousResult);
     previousResult = result;

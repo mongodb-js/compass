@@ -199,6 +199,38 @@ export const closeModal: ActionCreator<CloseModalAction> = () => {
   return { type: ActionTypes.CloseModal };
 };
 
+const openItem =
+  (
+    item: Item,
+    database: string,
+    collection: string
+  ): ThunkAction<void, RootState, void, Actions> =>
+  async (dispatch, getState) => {
+    const { dataService, instance, appRegistry } = getState();
+
+    if (!instance || !dataService || !appRegistry) {
+      return;
+    }
+
+    const coll = await instance.getNamespace({
+      dataService,
+      database,
+      collection,
+    });
+
+    if (!coll) {
+      return;
+    }
+
+    const metadata = await coll.fetchMetadata({ dataService });
+
+    appRegistry.emit('open-namespace-in-new-tab', {
+      ...metadata,
+      aggregation: item.type === 'aggregation' ? item.aggregation : null,
+      query: item.type === 'query' ? item.query : null,
+    });
+  };
+
 export const openSavedItem =
   (id: string): ThunkAction<void, RootState, void, Actions> =>
   async (dispatch, getState) => {
@@ -231,8 +263,7 @@ export const openSavedItem =
       return;
     }
 
-    // TODO: Actually open query or aggregation
-    console.log('open', { item, database, collection });
+    dispatch(openItem(item, database, collection));
   };
 
 export const openSelectedItem =
@@ -241,10 +272,12 @@ export const openSelectedItem =
       openItem: { selectedItem, selectedDatabase, selectedCollection },
     } = getState();
 
-    // TODO: Actually open query or aggregation
-    console.log('open', { selectedItem, selectedDatabase, selectedCollection });
+    if (!selectedItem || !selectedDatabase || !selectedCollection) {
+      return;
+    }
 
     dispatch({ type: ActionTypes.CloseModal });
+    dispatch(openItem(selectedItem, selectedDatabase, selectedCollection));
   };
 
 export const selectDatabase =
@@ -256,15 +289,15 @@ export const selectDatabase =
       openItem: { selectedDatabase },
     } = getState();
 
+    if (!instance || !dataService) {
+      return;
+    }
+
     if (database === selectedDatabase) {
       return;
     }
 
     dispatch({ type: ActionTypes.SelectDatabase, database });
-
-    if (!instance || !dataService) {
-      return;
-    }
 
     const db = instance.databases.get(database);
 

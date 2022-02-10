@@ -111,6 +111,37 @@ export const CreateCollectionModal = '[trackingid="create_collection_modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
 export const CreateCollectionCreateButton =
   '[trackingid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateCollectionCappedCheckboxLabel =
+  '[data-testid="capped-collection-fields"] #toggle-capped-collection-fields-label';
+export const CreateCollectionCappedSizeInput =
+  '[data-testid="capped-collection-fields"] [data-testid="capped-size"]';
+export const CreateCollectionCustomCollationCheckboxLabel =
+  '[data-testid="use-custom-collation-fields"] #toggle-use-custom-collation-fields-label';
+
+export const CreateCollectionTimeseriesCheckboxLabel =
+  '[data-testid="time-series-fields"] #toggle-time-series-fields-label';
+export const CreateCollectionTimeseriesTimeField =
+  '[data-testid="time-series-fields"] [name="timeSeries.timeField"]';
+export const CreateCollectionTimeseriesMetaField =
+  '[data-testid="time-series-fields"] [name="timeSeries.metaField"]';
+export const CreateCollectionTimeseriesGranularityButton =
+  '[data-testid="time-series-fields"] [name="timeSeries.granularity"]';
+export const CreateCollectionTimeseriesGranularityMenu =
+  '[data-testid="time-series-fields"] #timeSeries-granularity-menu';
+export const CreateCollectionTimeseriesExpireAfterSeconds =
+  '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
+
+export const createCollectionCustomCollationFieldButton = (
+  fieldName: string
+): string => {
+  return `[data-testid="use-custom-collation-fields"] [name="${fieldName}"]`;
+};
+
+export const createCollectionCustomCollationFieldMenu = (
+  fieldName: string
+): string => {
+  return `[data-testid="use-custom-collation-fields"] #collation-field-${fieldName}-menu`;
+};
 
 // Drop collection modal
 export const DropCollectionModal = '[trackingid="drop_collection_modal"]';
@@ -170,6 +201,11 @@ export const databaseCardClickable = (dbName: string): string => {
 export const DatabaseTabs = '[data-test-id="database-tabs"]';
 export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
+export const DatabaseCreateCollectionButton =
+  '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+// assume that there's only one hovered card at a time and that the first and only button is the drop button
+export const CollectionCardDrop =
+  '[data-testid="collection-grid"] [data-testid="card-action-container"] button';
 
 export const databaseTab = (tabName: string, selected?: boolean): string => {
   const selector = `${DatabaseTab}[name="${tabName}"]`;
@@ -324,8 +360,29 @@ export const ExplainStage = '[data-test-id="explain-stage"]';
 
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';
-export const IndexComponent = '[data-test-id="index-component"]';
+export const IndexComponent = '[data-test-id="index-list"] tr';
 export const NameColumnName = '[data-test-id="name-column-name"]';
+export const CreateIndexButton =
+  '[data-test-id="open-create-index-modal-button"]';
+export const CreateIndexModal = '[data-test-id="create-index-modal"]';
+export const CreateIndexModalFieldSelect =
+  '[data-test-id="create-index-modal-field-select"]';
+export const CreateIndexModalTypeSelect =
+  '[data-test-id="create-index-modal-type-select"]';
+export const CreateIndexConfirmButton = '[data-test-id="create-index-button"]';
+export const DropIndexModal = '[trackingid="drop_index_modal"]';
+export const DropIndexModalConfirmName =
+  '[data-test-id="confirm-drop-index-name"]';
+export const DropIndexModalConfirmButton =
+  '[trackingid="drop_index_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+export const indexComponent = (indexName: string): string => {
+  return `[data-test-id="index-component-${indexName}"]`;
+};
+
+export const dropIndexButton = (indexName: string): string => {
+  return `[data-test-id="index-component-${indexName}"] .btn-default`;
+};
 
 // Validation tab
 export const AddRuleButton = '[data-test-id="add-rule-button"]';

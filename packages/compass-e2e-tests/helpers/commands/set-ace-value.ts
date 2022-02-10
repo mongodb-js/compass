@@ -1,4 +1,5 @@
 import clipboard from 'clipboardy';
+import { expect } from 'chai';
 import Debug from 'debug';
 import type { CompassBrowser } from '../compass-browser';
 
@@ -35,6 +36,10 @@ export async function setAceValue(
   await browser.keys(['Backspace']);
 
   await clipboard.write(value);
+
+  expect(await clipboard.read()).to.equal(value);
+
+  await browser.pause(100);
 
   // For whatever reason it is shift-insert and not cmd-v  ¯\_(ツ)_/¯
   // https://twitter.com/webdriverio/status/812034986341789696?lang=en
