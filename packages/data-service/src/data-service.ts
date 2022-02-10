@@ -1534,7 +1534,7 @@ class DataService extends EventEmitter {
             'Server description changed',
             {
               address: evt.address,
-              error: evt.newDescription.error ?? null,
+              error: evt.newDescription.error?.message ?? null,
               previousType: evt.previousDescription.type,
               newType: evt.newDescription.type,
             }

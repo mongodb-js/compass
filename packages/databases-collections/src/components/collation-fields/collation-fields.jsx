@@ -56,6 +56,7 @@ function CollationFields({
     return (
       <FieldSet key={element.field}>
         <Select
+          id={`collation-field-${element.field}`}
           className={styles['options-select-dropdown']}
           label={element.field}
           name={element.field}

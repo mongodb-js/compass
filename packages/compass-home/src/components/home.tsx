@@ -1,3 +1,14 @@
+import {
+  css,
+  Theme,
+  ThemeProvider,
+  ToastArea,
+} from '@mongodb-js/compass-components';
+import Connections from '@mongodb-js/compass-connections';
+import ipc from 'hadron-ipc';
+import type { ConnectionInfo, DataService } from 'mongodb-data-service';
+import { getConnectionTitle } from 'mongodb-data-service';
+import toNS from 'mongodb-ns';
 import React, {
   useCallback,
   useEffect,
@@ -5,22 +16,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ThemeProvider, css } from '@mongodb-js/compass-components';
-import { Theme } from '@mongodb-js/compass-components';
-import { getConnectionTitle } from 'mongodb-data-service';
-import type { ConnectionInfo, DataService } from 'mongodb-data-service';
-import toNS from 'mongodb-ns';
-import Connections from '@mongodb-js/compass-connections';
-
-import Workspace from './workspace';
-import type Namespace from '../types/namespace';
 import {
   AppRegistryRoles,
   useAppRegistryContext,
   useAppRegistryRole,
 } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
-import ipc from 'hadron-ipc';
+import type Namespace from '../types/namespace';
+import Workspace from './workspace';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -254,7 +257,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     return (
       <div className={homeViewStyles} data-test-id="home-view">
         <div className={homePageStyles}>
-          <Connections onConnected={onConnected} />
+          <Connections onConnected={onConnected} appName={appName} />
         </div>
       </div>
     );
@@ -309,7 +312,9 @@ function ThemedHome(
 
   return (
     <ThemeProvider theme={theme}>
-      <Home {...props}></Home>
+      <ToastArea>
+        <Home {...props}></Home>
+      </ToastArea>
     </ThemeProvider>
   );
 }

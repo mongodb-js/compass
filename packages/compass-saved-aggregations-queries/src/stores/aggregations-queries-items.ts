@@ -26,14 +26,29 @@ export type Item = {
   name: string;
   database: string;
   collection: string;
-  type: 'query' | 'aggregation';
-};
+} & (
+  | {
+      type: 'query';
+      query: Query;
+    }
+  | {
+      type: 'aggregation';
+      aggregation: Omit<Aggregation, 'lastModified'>;
+    }
+);
 
 interface Query {
   _id: string;
   _name: string;
   _ns: string;
   _dateSaved: number;
+
+  collation?: Record<string, unknown>;
+  filter?: Record<string, unknown>;
+  limit?: number;
+  project?: Record<string, unknown>;
+  skip?: number;
+  sort?: Record<string, number>;
 }
 
 interface Aggregation {
@@ -41,6 +56,35 @@ interface Aggregation {
   name: string;
   namespace: string;
   lastModified: number;
+
+  autoPreview?: boolean;
+  collation?: string;
+  collationString?: string;
+  comments?: boolean;
+  env?: string;
+  isReadonly?: boolean;
+  isTimeSeries?: boolean;
+  pipeline: Pipeline[];
+  sample?: boolean;
+  sourceName?: string;
+}
+
+interface Pipeline {
+  id: string;
+  stageOperator: string;
+  stage: string;
+  isValid: boolean;
+  isEnabled: boolean;
+  isExpanded: boolean;
+  isLoading: boolean;
+  isComplete: boolean;
+  previewDocuments: unknown[];
+  syntaxError: unknown;
+  error: unknown;
+  projections?: unknown[];
+  fromStageOperators?: boolean;
+  executor?: unknown;
+  isMissingAtlasOnlyStageSupport?: boolean;
 }
 
 export type State = {
@@ -129,6 +173,7 @@ const getAggregationItems = async (): Promise<Item[]> => {
       database,
       collection,
       type: 'aggregation',
+      aggregation,
     };
   });
 };
@@ -144,6 +189,7 @@ const getQueryItems = async (): Promise<Item[]> => {
       database,
       collection,
       type: 'query',
+      query,
     };
   });
 };
