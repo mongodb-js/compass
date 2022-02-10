@@ -301,6 +301,9 @@ export const ImportConfirm =
 export const ImportDone =
   '[data-test-id="import-modal"] [data-test-id="done-button"]';
 
+export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
+export const QueryBarHistory = '[data-test-id="query-history"]';
+
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
 
