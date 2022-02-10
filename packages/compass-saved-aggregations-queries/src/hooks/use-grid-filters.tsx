@@ -212,12 +212,9 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
 
         if (key === 'data') {
           const stages = item.aggregation.pipeline
-            .filter((x) => x.stageOperator && x.stage)
-            .map((stage) => {
-              return {
-                [stage.stageOperator]: JSON.parse(stage.stage),
-              };
-            });
+            .filter((p) => p.stageOperator && p.stage)
+            .map((p) => `${p.stageOperator}: ${p.stage}`)
+            .join(' ');
           return JSON.stringify(stages);
         }
       }
