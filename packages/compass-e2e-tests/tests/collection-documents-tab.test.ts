@@ -115,10 +115,31 @@ describe('Collection documents tab', function () {
     expect(displayText).to.equal('Displaying documents 1 - 1 of 1');
   });
 
+  it('supports maxTimeMS', async function () {
+    // execute a query that will take a long time, but set a maxTimeMS shorter than that
+    await browser.runFindOperation(
+      'Documents',
+      '{ $where: function() { return sleep(10000) || true; } }',
+      {
+        maxTimeMS: '1000',
+        waitForResult: false,
+      }
+    );
+
+    const documentListErrorElement = await browser.$(
+      Selectors.DocumentListError
+    );
+    await documentListErrorElement.waitForDisplayed();
+
+    const errorText = await documentListErrorElement.getText();
+    expect(errorText).to.equal(
+      'Executor error during find command :: caused by :: operation exceeded time limit'
+    );
+  });
+
   it('supports view/edit via list view');
   it('supports view/edit via json view');
   it('supports view/edit via table view');
-  it('supports maxTimeMS');
   // different languages, with and without imports, with and without driver usage
   it('can export to language');
   // JSON mode
