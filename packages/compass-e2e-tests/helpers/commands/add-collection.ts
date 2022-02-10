@@ -98,6 +98,7 @@ export async function addCollection(
     );
     await menu.waitForDisplayed();
     const span = await menu.$(`span=${options.timeseries.granularity}`);
+    await span.waitForDisplayed();
     await span.click();
 
     const expireField = await browser.$(

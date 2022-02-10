@@ -360,8 +360,29 @@ export const ExplainStage = '[data-test-id="explain-stage"]';
 
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';
-export const IndexComponent = '[data-test-id="index-component"]';
+export const IndexComponent = '[data-test-id="index-list"] tr';
 export const NameColumnName = '[data-test-id="name-column-name"]';
+export const CreateIndexButton =
+  '[data-test-id="open-create-index-modal-button"]';
+export const CreateIndexModal = '[data-test-id="create-index-modal"]';
+export const CreateIndexModalFieldSelect =
+  '[data-test-id="create-index-modal-field-select"]';
+export const CreateIndexModalTypeSelect =
+  '[data-test-id="create-index-modal-type-select"]';
+export const CreateIndexConfirmButton = '[data-test-id="create-index-button"]';
+export const DropIndexModal = '[trackingid="drop_index_modal"]';
+export const DropIndexModalConfirmName =
+  '[data-test-id="confirm-drop-index-name"]';
+export const DropIndexModalConfirmButton =
+  '[trackingid="drop_index_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+export const indexComponent = (indexName: string): string => {
+  return `[data-test-id="index-component-${indexName}"]`;
+};
+
+export const dropIndexButton = (indexName: string): string => {
+  return `[data-test-id="index-component-${indexName}"] .btn-default`;
+};
 
 // Validation tab
 export const AddRuleButton = '[data-test-id="add-rule-button"]';
