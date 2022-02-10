@@ -1,7 +1,5 @@
 import React from 'react';
 import {
-  Banner,
-  BannerVariant,
   ErrorBoundary,
   compassUIColors,
   spacing,
@@ -74,7 +72,6 @@ function Connections({
     connect,
     createNewConnection,
     duplicateConnection,
-    hideStoreConnectionError,
     setActiveConnectionById,
     removeAllRecentsConnections,
     removeConnection,
@@ -88,7 +85,6 @@ function Connections({
     connectingStatusText,
     connections,
     isConnected,
-    storeConnectionError,
   } = state;
 
   return (
@@ -109,15 +105,6 @@ function Connections({
         duplicateConnection={duplicateConnection}
       />
       <div className={connectItemContainerStyles}>
-        {storeConnectionError && (
-          <Banner
-            variant={BannerVariant.Danger}
-            dismissible
-            onClose={hideStoreConnectionError}
-          >
-            {storeConnectionError}
-          </Banner>
-        )}
         <div className={formContainerStyles}>
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {

@@ -19,6 +19,7 @@ import {
 import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
+import { ToastVariant, useToast } from '@mongodb-js/compass-components';
 const debug = debugModule('mongodb-compass:connections:connections-store');
 
 export function createNewConnectionInfo(): ConnectionInfo {
@@ -109,13 +110,6 @@ type Action =
       connectionInfo: ConnectionInfo;
     }
   | {
-      type: 'store-connection-error';
-      errorMessage: string;
-    }
-  | {
-      type: 'hide-store-connection-error';
-    }
-  | {
       type: 'set-connections';
       connections: ConnectionInfo[];
     }
@@ -164,16 +158,6 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         activeConnectionId: action.connectionInfo.id,
         activeConnectionInfo: action.connectionInfo,
-      };
-    case 'store-connection-error':
-      return {
-        ...state,
-        storeConnectionError: action.errorMessage,
-      };
-    case 'hide-store-connection-error':
-      return {
-        ...state,
-        storeConnectionError: null,
       };
     case 'set-connections':
       return {
@@ -229,13 +213,14 @@ export function useConnections({
   cancelConnectionAttempt: () => void;
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   createNewConnection: () => void;
-  hideStoreConnectionError: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
   removeAllRecentsConnections: () => Promise<void>;
   duplicateConnection: (connectioInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
 } {
+  const { openToast } = useToast('compass-connections');
+
   const [state, dispatch]: [State, React.Dispatch<Action>] = useReducer(
     connectionsReducer,
     defaultConnectionsState()
@@ -258,12 +243,13 @@ export function useConnections({
         }`
       );
 
-      dispatch({
-        type: 'store-connection-error',
-        errorMessage: (err as Error).message,
+      openToast('save-connection-error', {
+        title: 'Error',
+        variant: ToastVariant.Warning,
+        body: `An error occurred while saving the connection. ${
+          (err as Error).message
+        }`,
       });
-
-      throw err;
     }
   }
 
@@ -284,11 +270,6 @@ export function useConnections({
           (err as Error).message
         }`
       );
-
-      dispatch({
-        type: 'store-connection-error',
-        errorMessage: (err as Error).message,
-      });
     }
   }
 
@@ -393,11 +374,6 @@ export function useConnections({
       dispatch({
         type: 'new-connection',
         connectionInfo: createNewConnectionInfo(),
-      });
-    },
-    hideStoreConnectionError() {
-      dispatch({
-        type: 'hide-store-connection-error',
       });
     },
     async saveConnection(connectionInfo: ConnectionInfo) {
