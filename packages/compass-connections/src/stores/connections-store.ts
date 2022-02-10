@@ -339,7 +339,7 @@ export function useConnections({
           appName
         );
         const newConnectionDataService = await newConnectionAttempt.connect({
-          ...connectionInfo.connectionOptions,
+          ...cloneDeep(connectionInfo.connectionOptions),
           connectionString: connectionStringWithAppName,
         });
         connectingConnectionAttempt.current = undefined;

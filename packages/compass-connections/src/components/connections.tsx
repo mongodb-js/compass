@@ -19,6 +19,7 @@ import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
 import type { ConnectionStore } from '../stores/connections-store';
 import { useConnections } from '../stores/connections-store';
+import { cloneDeep } from 'lodash';
 
 const { debug } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
@@ -114,7 +115,7 @@ function Connections({
             <ConnectionForm
               onConnectClicked={(connectionInfo) =>
                 connect({
-                  ...connectionInfo,
+                  ...cloneDeep(connectionInfo),
                 })
               }
               key={activeConnectionId}
