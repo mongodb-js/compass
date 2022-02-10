@@ -211,9 +211,7 @@ function ConnectForm({
                 }
               }}
               onConnectClicked={() => {
-                const updatedConnectionOptions = {
-                  ...connectionOptions,
-                };
+                const updatedConnectionOptions = cloneDeep(connectionOptions);
                 const formErrors = validateConnectionOptionsErrors(
                   updatedConnectionOptions
                 );

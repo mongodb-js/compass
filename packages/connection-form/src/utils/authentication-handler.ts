@@ -9,6 +9,7 @@ import {
   setConnectionStringUsername,
   tryToParseConnectionString,
 } from './connection-string-helpers';
+import { cloneDeep } from 'lodash';
 
 export type UpdateAuthMechanismAction = {
   type: 'update-auth-mechanism';
@@ -76,7 +77,7 @@ export function handleUpdateAuthMechanism({
 
   return {
     connectionOptions: {
-      ...connectionOptions,
+      ...cloneDeep(connectionOptions),
       connectionString: updatedConnectionString.toString(),
     },
   };
@@ -120,7 +121,7 @@ export function handleUpdateUsername({
 
   return {
     connectionOptions: {
-      ...connectionOptions,
+      ...cloneDeep(connectionOptions),
       connectionString: updatedConnectionString.toString(),
     },
   };
@@ -175,7 +176,7 @@ export function handleUpdatePassword({
 
   return {
     connectionOptions: {
-      ...connectionOptions,
+      ...cloneDeep(connectionOptions),
       connectionString: updatedConnectionString.toString(),
     },
   };
