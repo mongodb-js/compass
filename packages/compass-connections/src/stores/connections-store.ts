@@ -69,7 +69,6 @@ type State = {
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
   isConnected: boolean;
-  storeConnectionError: string | null;
 };
 
 export function defaultConnectionsState(): State {
@@ -81,7 +80,6 @@ export function defaultConnectionsState(): State {
     connectionAttempt: null,
     connectionErrorMessage: null,
     isConnected: false,
-    storeConnectionError: null,
   };
 }
 
@@ -127,7 +125,6 @@ export function connectionsReducer(state: State, action: Action): State {
         connectionAttempt: action.connectionAttempt,
         connectingStatusText: action.connectingStatusText,
         connectionErrorMessage: null,
-        storeConnectionError: null,
       };
     case 'cancel-connection-attempt':
       return {
@@ -140,6 +137,7 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         connectionAttempt: null,
         isConnected: true,
+        connectionErrorMessage: null,
       };
     case 'connection-attempt-errored':
       return {
@@ -152,17 +150,20 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         activeConnectionId: action.connectionInfo.id,
         activeConnectionInfo: action.connectionInfo,
+        connectionErrorMessage: null,
       };
     case 'new-connection':
       return {
         ...state,
         activeConnectionId: action.connectionInfo.id,
         activeConnectionInfo: action.connectionInfo,
+        connectionErrorMessage: null,
       };
     case 'set-connections':
       return {
         ...state,
         connections: action.connections,
+        connectionErrorMessage: null,
       };
     case 'set-connections-and-select':
       return {
@@ -170,6 +171,7 @@ export function connectionsReducer(state: State, action: Action): State {
         connections: action.connections,
         activeConnectionId: action.activeConnectionInfo.id,
         activeConnectionInfo: action.activeConnectionInfo,
+        connectionErrorMessage: null,
       };
     default:
       return state;
@@ -337,7 +339,7 @@ export function useConnections({
           appName
         );
         const newConnectionDataService = await newConnectionAttempt.connect({
-          ...connectionInfo.connectionOptions,
+          ...cloneDeep(connectionInfo.connectionOptions),
           connectionString: connectionStringWithAppName,
         });
         connectingConnectionAttempt.current = undefined;

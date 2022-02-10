@@ -1,6 +1,7 @@
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
+import { cloneDeep } from 'lodash';
 
 export type TLS_OPTIONS = 'DEFAULT' | 'ON' | 'OFF';
 export type TLSOptionName = keyof Pick<
@@ -51,7 +52,7 @@ export function handleUpdateTls({
 
   return {
     connectionOptions: {
-      ...connectionOptions,
+      ...cloneDeep(connectionOptions),
       connectionString: updatedConnectionString.toString(),
     },
   };
@@ -85,7 +86,7 @@ export function handleUpdateTlsOption({
 
   return {
     connectionOptions: {
-      ...connectionOptions,
+      ...cloneDeep(connectionOptions),
       connectionString: updatedConnectionString.toString(),
     },
   };

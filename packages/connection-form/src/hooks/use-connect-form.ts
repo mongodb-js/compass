@@ -225,7 +225,7 @@ function handleUpdateHost({
 
     return {
       connectionOptions: {
-        ...connectionOptions,
+        ...cloneDeep(connectionOptions),
         connectionString: newConnectionStringUrl.toString(),
       },
       errors: [],
@@ -236,7 +236,7 @@ function handleUpdateHost({
     // connection string url.
     return {
       connectionOptions: {
-        ...connectionOptions,
+        ...cloneDeep(connectionOptions),
         connectionString: connectionStringUrl.toString(),
       },
       errors: [

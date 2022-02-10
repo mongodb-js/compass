@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { defaultSshPort } from '../constants/default-connection';
 
@@ -18,15 +19,16 @@ export function handleUpdateSshOptions({
   action: UpdateSshOptions;
   connectionOptions: ConnectionOptions;
 }): { connectionOptions: ConnectionOptions } {
+  const clonedConnectionOptions = cloneDeep(connectionOptions);
   const { key, value } = action;
   return {
     connectionOptions: {
-      ...connectionOptions,
+      ...clonedConnectionOptions,
       sshTunnel: {
         host: '',
         port: defaultSshPort,
         username: '',
-        ...connectionOptions.sshTunnel,
+        ...clonedConnectionOptions.sshTunnel,
         [key]: value,
       },
     },
