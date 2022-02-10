@@ -124,7 +124,7 @@ export const pipelines: Item[] = [
         {
           id: '61b8a4a2ffab3b5b30862d8c',
           stageOperator: '$limit',
-          stage: '3',
+          stage: '/**\n * Provide the number of documents to limit.\n */\n10',
           isValid: true,
           isEnabled: true,
           isExpanded: true,
@@ -134,6 +134,8 @@ export const pipelines: Item[] = [
           syntaxError: null,
           error: null,
           projections: [],
+          snippet:
+            '/**\n * Provide the number of documents to limit.\n */\n${1:number}',
           fromStageOperators: false,
           executor: {
             $limit: 3,
