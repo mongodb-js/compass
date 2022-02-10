@@ -19,6 +19,7 @@ const DeleteItemModal: React.FunctionComponent<DeleteItemModalProps> = ({
   }?`;
   return (
     <ConfirmationModal
+      data-testid="delete-item-modal"
       open={true}
       onCancel={onClose}
       onConfirm={onDelete}
