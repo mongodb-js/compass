@@ -204,9 +204,7 @@ describe('Collection documents tab', function () {
     await documentListErrorElement.waitForDisplayed();
 
     const errorText = await documentListErrorElement.getText();
-    expect(errorText).to.equal(
-      'Executor error during find command :: caused by :: operation exceeded time limit'
-    );
+    expect(errorText).to.include('operation exceeded time limit');
   });
 
   it('keeps the query when navigating to schema and explain', async function () {
