@@ -264,7 +264,7 @@ export const collectionTab = (tabName: string, selected?: boolean): string => {
   return selector;
 };
 export const collectionContent = (tabName: string): string => {
-  const tn = tabName.toLowerCase().replace(/ /g, ' ');
+  const tn = tabName.toLowerCase().replace(/ /g, '-');
   return `[data-test-id="${tn}-content"]`;
 };
 export const collectionHeaderTitle = (
@@ -351,7 +351,8 @@ export const stageTextarea = (stageIndex: number): string => {
 // Schema tab
 export const AnalyzeSchemaButton = '[data-test-id="analyze-schema-button"]';
 export const SchemaFieldList = '.schema-field-list';
-export const AnalysisMessage = '.analysis-message';
+export const AnalysisMessage =
+  '[data-test-id="schema-content"] .analysis-message';
 export const SchemaField = '.schema-field';
 export const SchemaFieldName = '.schema-field-name';
 export const SchemaFieldTypeList = '.schema-field-type-list';
@@ -360,6 +361,8 @@ export const SchemaFieldTypeList = '.schema-field-type-list';
 export const ExecuteExplainButton = '[data-test-id="execute-explain-button"]';
 export const ExplainSummary = '[data-test-id="explain-summary"]';
 export const ExplainStage = '[data-test-id="explain-stage"]';
+export const ExplainDocumentsReturnedSummary =
+  '[data-test-id="documents-returned-summary"]';
 
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';

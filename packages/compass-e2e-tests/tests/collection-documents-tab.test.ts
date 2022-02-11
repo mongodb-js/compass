@@ -43,6 +43,22 @@ async function getRecentQueries(
   );
 }
 
+async function navigateToTab(browser: CompassBrowser, tabName: string) {
+  const tabSelector = Selectors.collectionTab(tabName);
+  const tabSelectedSelector = Selectors.collectionTab(tabName, true);
+
+  const tabSelectedSelectorElement = await browser.$(tabSelectedSelector);
+  // if the correct tab is already visible, do nothing
+  if (await tabSelectedSelectorElement.isExisting()) {
+    return;
+  }
+
+  // otherwise select the tab and wait for it to become selected
+  await browser.clickVisible(tabSelector);
+
+  await tabSelectedSelectorElement.waitForDisplayed();
+}
+
 describe('Collection documents tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -193,16 +209,53 @@ describe('Collection documents tab', function () {
     );
   });
 
+  it('keeps the query when navigating to schema and explain', async function () {
+    await browser.runFindOperation('Documents', '{ i: 5 }');
+
+    const documentListActionBarMessageElement = await browser.$(
+      Selectors.DocumentListActionBarMessage
+    );
+    const documentsMessage =
+      await documentListActionBarMessageElement.getText();
+    expect(documentsMessage).to.equal('Displaying documents 1 - 1 of 1');
+
+    await navigateToTab(browser, 'Schema');
+
+    // will have to re-run the query because either the schema hasn't been
+    // analyzed yet or it might be outdated
+    await browser.runFind('Schema', true);
+
+    // if the schema tab only matched one document, then it is presumably the same query
+    const schemaAnalysisMessageElement = await browser.$(
+      Selectors.AnalysisMessage
+    );
+    const analysisMessage = await schemaAnalysisMessageElement.getText();
+    expect(analysisMessage.replace(/\s/g, ' ')).to.equal(
+      'This report is based on a sample of 1 document.'
+    );
+
+    await navigateToTab(browser, 'Explain Plan');
+
+    await browser.runFind('Explain Plan', true);
+
+    // if the eplain plan tab only matched one document, then it is presumably the same query
+    const explainSummaryElement = await browser.$(
+      Selectors.ExplainDocumentsReturnedSummary
+    );
+    const explainSummary = await explainSummaryElement.getText();
+    expect(explainSummary.replace(/\s/g, ' ')).to.equal('Documents Returned:1');
+  });
+
   it('supports view/edit via list view');
   it('supports view/edit via json view');
   it('supports view/edit via table view');
+
   // different languages, with and without imports, with and without driver usage
   it('can export to language');
+
   // JSON mode
   // field by field mode
   // array of JSON docs
   it('can insert document');
-  // behaviour with multiple tabs
-  it('keeps the query when navigating to schema and explain');
   it('can copy/clone/delete a document from contextual toolbar');
 });

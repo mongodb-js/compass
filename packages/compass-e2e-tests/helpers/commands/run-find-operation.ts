@@ -72,10 +72,6 @@ async function setLimit(
   await browser.setOrClearValue(selector, value);
 }
 
-async function runFind(browser: CompassBrowser, tabName: string) {
-  await browser.clickVisible(Selectors.queryBarApplyFilterButton(tabName));
-}
-
 async function isOptionsExpanded(browser: CompassBrowser, tabName: string) {
   // it doesn't look like there's some attribute on the options button or
   // container that we can easily check, so just look for a field that exists
@@ -104,13 +100,7 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
 
   if (!(await resetButton.getAttribute('class')).includes('disabled')) {
     // look up the current resultId
-    const queryBarSelector = Selectors.queryBar(tabName);
-    const queryBarSelectorElement = await browser.$(queryBarSelector);
-    const initialResultId = await queryBarSelectorElement.getAttribute(
-      'data-result-id'
-    );
-
-    await runFind(browser, tabName);
+    const initialResultId = await browser.getQueryId(tabName);
 
     await resetButton.click();
 
@@ -123,9 +113,7 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
     // now we can easily see if we get a new resultId
     // (which we should because resetting re-runs the query)
     await browser.waitUntil(async () => {
-      const resultId = await queryBarSelectorElement.getAttribute(
-        'data-result-id'
-      );
+      const resultId = await browser.getQueryId(tabName);
       return resultId !== initialResultId;
     });
   }
@@ -193,22 +181,5 @@ export async function runFindOperation(
 
   await setFilter(browser, tabName, filter);
 
-  // look up the current resultId
-  const queryBarSelector = Selectors.queryBar(tabName);
-  const queryBarSelectorElement = await browser.$(queryBarSelector);
-  const initialResultId = await queryBarSelectorElement.getAttribute(
-    'data-result-id'
-  );
-
-  await runFind(browser, tabName);
-
-  if (waitForResult) {
-    // now we can easily see if we get a new resultId
-    await browser.waitUntil(async () => {
-      const resultId = await queryBarSelectorElement.getAttribute(
-        'data-result-id'
-      );
-      return resultId !== initialResultId;
-    });
-  }
+  await browser.runFind(tabName, waitForResult);
 }
