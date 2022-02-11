@@ -1,7 +1,6 @@
-import React, { useEffect, useCallback, useContext } from 'react';
+import React, { useEffect, useCallback, useContext, useState } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import type { ThunkDispatch } from 'redux-thunk';
 import {
   VirtualGrid,
   css,
@@ -9,13 +8,14 @@ import {
   useSortControls,
   useSortedItems,
 } from '@mongodb-js/compass-components';
-import { fetchItems } from '../stores/aggregations-queries-items';
+import { fetchItems, deleteItem } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
-import type { RootActions, RootState } from '../stores/index';
+import type { RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { SavedItemCardProps, Action } from './saved-item-card';
 import OpenItemModal from './open-item-modal';
+import DeleteItemModal from './delete-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 
 const sortBy: { name: keyof Item; label: string }[] = [
@@ -64,13 +64,15 @@ const GridControls = () => {
 const AggregationsQueriesList = ({
   loading,
   items,
-  onAction,
   onMount,
+  onOpenItem,
+  onDeleteItem,
 }: AggregationsQueriesListProps) => {
   useEffect(() => {
     void onMount();
   }, [onMount]);
 
+  const [deletingItem, setDeletingItem] = useState<Item | undefined>(undefined);
   const {
     controls: filterControls,
     conditions: filters,
@@ -88,6 +90,18 @@ const AggregationsQueriesList = ({
     isDisabled: Boolean(search),
   });
   const sortedItems = useSortedItems(filteredItems, sortState);
+
+  const onAction = useCallback(
+    (id: string, actionName: Action) => {
+      switch (actionName) {
+        case 'open':
+          return onOpenItem(id);
+        case 'delete':
+          return setDeletingItem(sortedItems.find((x) => x.id === id));
+      }
+    },
+    [sortedItems, onOpenItem]
+  );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
     useCallback(
@@ -125,6 +139,17 @@ const AggregationsQueriesList = ({
         classNames={{ row: rowStyles }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
+      {deletingItem && (
+        <DeleteItemModal
+          isOpen={true}
+          itemType={deletingItem.type}
+          onClose={() => setDeletingItem(undefined)}
+          onDelete={() => {
+            onDeleteItem(deletingItem.id);
+            setDeletingItem(undefined);
+          }}
+        />
+      )}
     </ControlsContext.Provider>
   );
 };
@@ -136,17 +161,8 @@ const mapState = ({ savedItems: { items, loading } }: RootState) => ({
 
 const mapDispatch = {
   onMount: fetchItems,
-  onAction(id: string, actionName: Action) {
-    return (
-      dispatch: ThunkDispatch<RootState, void, RootActions>,
-      getState: () => RootState
-    ) => {
-      switch (actionName) {
-        case 'open':
-          return openSavedItem(id)(dispatch, getState);
-      }
-    };
-  },
+  onOpenItem: openSavedItem,
+  onDeleteItem: deleteItem,
 };
 
 const connector = connect(mapState, mapDispatch);

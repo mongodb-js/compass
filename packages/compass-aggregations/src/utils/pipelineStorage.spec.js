@@ -3,7 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { readPipelinesFromStorage } from './saved-pipeline';
+import { PipelineStorage } from './pipelineStorage';
 
 const initialAggregationsPath = process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH;
 
@@ -14,7 +14,9 @@ const createPipeline = (tmpDir, data) => {
   );
 };
 
-describe('saved-pipeline', function() {
+const pipelineStorage = new PipelineStorage();
+
+describe('PipelineStorage', function() {
   let tmpDir;
   beforeEach(function() {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'SavedPipelines'));
@@ -27,8 +29,8 @@ describe('saved-pipeline', function() {
     process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH = initialAggregationsPath;
   });
 
-  it('should read saved aggregations', async function() {
-    let aggregations = await readPipelinesFromStorage();
+  it('should read saved pipelines', async function() {
+    let aggregations = await pipelineStorage.loadAll();
     expect(aggregations).to.have.length(0);
 
     const data = [
@@ -44,7 +46,7 @@ describe('saved-pipeline', function() {
     createPipeline(tmpDir, data[0]);
     createPipeline(tmpDir, data[1]);
 
-    aggregations = await readPipelinesFromStorage();
+    aggregations = await pipelineStorage.loadAll();
 
     expect(aggregations).to.have.length(2);
 
@@ -59,5 +61,24 @@ describe('saved-pipeline', function() {
 
     expect(aggregations.find(x => x.id === data[0].id)).to.deep.equal(data[0]);
     expect(aggregations.find(x => x.id === data[1].id)).to.deep.equal(data[1]);
+  });
+
+  it('should delete a pipeline', async function() {
+    const data = {
+      id: 1234567890,
+      name: 'hello',
+    };
+    createPipeline(tmpDir, data);
+
+    let aggregations = await pipelineStorage.loadAll();
+
+    expect(aggregations).to.have.length(1);
+    expect(aggregations[0].id).to.equal(data.id);
+    expect(aggregations[0].name).to.equal(data.name);
+
+    await pipelineStorage.delete(data.id);
+
+    aggregations = await pipelineStorage.loadAll();
+    expect(aggregations).to.have.length(0);
   });
 });

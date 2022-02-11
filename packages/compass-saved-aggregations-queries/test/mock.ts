@@ -1,16 +1,29 @@
-export function createCompassAggregationsMock(pipelines: unknown[]): {
-  readPipelinesFromStorage(): Promise<typeof pipelines>;
-} {
-  return {
-    readPipelinesFromStorage(): Promise<typeof pipelines> {
-      return Promise.resolve(pipelines);
-    },
-  };
-}
-
 interface FavoriteQueryStorageClass<T> {
   new (): {
     loadAll(): Promise<T>;
+    delete(): Promise<void>;
+  };
+}
+
+interface PipelineStorageClass<T> {
+  new (): {
+    loadAll(): Promise<T>;
+    delete(): Promise<void>;
+  };
+}
+
+export function createCompassAggregationsMock(pipelines: unknown[]): {
+  PipelineStorage: PipelineStorageClass<typeof pipelines>;
+} {
+  return {
+    PipelineStorage: class PipelineStorageClass {
+      loadAll(): Promise<typeof pipelines> {
+        return Promise.resolve(pipelines);
+      }
+      delete(): Promise<void> {
+        return Promise.resolve();
+      }
+    },
   };
 }
 
@@ -21,6 +34,9 @@ export function createCompassQueryHistoryMock(queries: unknown[]): {
     FavoriteQueryStorage: class FavoriteQueryStorage {
       loadAll(): Promise<typeof queries> {
         return Promise.resolve(queries);
+      }
+      delete(): Promise<void> {
+        return Promise.resolve();
       }
     },
   };

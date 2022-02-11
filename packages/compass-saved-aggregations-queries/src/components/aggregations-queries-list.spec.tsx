@@ -1,9 +1,10 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
+import type { MockStoreEnhanced } from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import proxyquire from 'proxyquire';
 
@@ -33,8 +34,9 @@ const initialState = {
 } as RootState;
 
 describe('aggregations-queries-list', function () {
+  let store: MockStoreEnhanced<RootState>;
   beforeEach(function () {
-    const store = mockStore(initialState);
+    store = mockStore(initialState);
     render(
       <Provider store={store}>
         <AggregationsQueriesList />
@@ -80,5 +82,40 @@ describe('aggregations-queries-list', function () {
     expectedItems.forEach((item) => {
       expect(screen.getByText(item.name)).to.exist;
     });
+  });
+
+  it('should delete an item', function () {
+    const item = items[0];
+    const card = screen.getByTestId('grid-item-0');
+    userEvent.hover(card);
+    userEvent.click(within(card).getByLabelText(/show actions/i));
+    userEvent.click(
+      within(card).getByRole('menuitem', {
+        name: /delete/i,
+      })
+    );
+
+    const modal = screen.getByTestId('delete-item-modal');
+
+    const title = new RegExp(
+      `are you sure you want to delete your ${
+        item.type === 'query' ? 'query' : 'aggregation'
+      }?`,
+      'i'
+    );
+    const description = /this action can not be undone/i;
+
+    expect(within(modal).getByText(title), 'show title').to.exist;
+    expect(within(modal).getByText(description), 'show description').to.exist;
+
+    userEvent.click(
+      within(modal).getByRole('button', {
+        name: /delete/i,
+      })
+    );
+
+    expect(() => {
+      screen.getByTestId(/delete item modal/i);
+    }, 'hides modal after deleting').to.throw;
   });
 });
