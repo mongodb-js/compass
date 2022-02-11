@@ -65,8 +65,8 @@ const AggregationsQueriesList = ({
   loading,
   items,
   onMount,
-  openSavedItem,
-  deleteItem,
+  onOpenItem,
+  onDeleteItem,
 }: AggregationsQueriesListProps) => {
   useEffect(() => {
     void onMount();
@@ -95,12 +95,12 @@ const AggregationsQueriesList = ({
     (id: string, actionName: Action) => {
       switch (actionName) {
         case 'open':
-          return openSavedItem(id);
+          return onOpenItem(id);
         case 'delete':
           return setDeletingItem(sortedItems.find((x) => x.id === id));
       }
     },
-    [sortedItems, openSavedItem]
+    [sortedItems, onOpenItem]
   );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
@@ -141,10 +141,11 @@ const AggregationsQueriesList = ({
       <OpenItemModal></OpenItemModal>
       {deletingItem && (
         <DeleteItemModal
+          isOpen={true}
           itemType={deletingItem.type}
           onClose={() => setDeletingItem(undefined)}
           onDelete={() => {
-            deleteItem(deletingItem.id);
+            onDeleteItem(deletingItem.id);
             setDeletingItem(undefined);
           }}
         />
@@ -160,8 +161,8 @@ const mapState = ({ savedItems: { items, loading } }: RootState) => ({
 
 const mapDispatch = {
   onMount: fetchItems,
-  openSavedItem,
-  deleteItem,
+  onOpenItem: openSavedItem,
+  onDeleteItem: deleteItem,
 };
 
 const connector = connect(mapState, mapDispatch);

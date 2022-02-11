@@ -17,7 +17,7 @@ export type Actions =
     }
   | {
       type: ActionTypes.ITEM_DELETED;
-      payload: string;
+      id: string;
     };
 
 export type Item = {
@@ -109,11 +109,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
     };
   }
   if (action.type === ActionTypes.ITEM_DELETED) {
-    const deletedItemIndex = state.items.findIndex(
-      (x) => x.id === action.payload
-    );
-    const newItems = [...state.items];
-    newItems.splice(deletedItemIndex, 1);
+    const newItems = state.items.filter(item => item.id !== action.id)
     return {
       ...state,
       items: newItems,
@@ -152,8 +148,8 @@ export const deleteItem = (
     }
     const deleteAction =
       item.type === 'query'
-        ? favoriteQueryStorage.delete
-        : pipelineStorage.delete;
+        ? favoriteQueryStorage.delete.bind(favoriteQueryStorage)
+        : pipelineStorage.delete.bind(pipelineStorage);
     await deleteAction(itemId);
     dispatch({
       type: ActionTypes.ITEM_DELETED,
