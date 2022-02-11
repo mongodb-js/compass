@@ -103,12 +103,30 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
   await resetButton.waitForDisplayed();
 
   if (!(await resetButton.getAttribute('class')).includes('disabled')) {
+    // look up the current resultId
+    const queryBarSelector = Selectors.queryBar(tabName);
+    const queryBarSelectorElement = await browser.$(queryBarSelector);
+    const initialResultId = await queryBarSelectorElement.getAttribute(
+      'data-result-id'
+    );
+
+    await runFind(browser, tabName);
+
     await resetButton.click();
 
     // wait for the button to become disabled which should happen once it reset
     // all the filter fields
     await browser.waitUntil(async () => {
       return (await resetButton.getAttribute('class')).includes('disabled');
+    });
+
+    // now we can easily see if we get a new resultId
+    // (which we should because resetting re-runs the query)
+    await browser.waitUntil(async () => {
+      const resultId = await queryBarSelectorElement.getAttribute(
+        'data-result-id'
+      );
+      return resultId !== initialResultId;
     });
   }
 }
@@ -160,14 +178,6 @@ export async function runFindOperation(
     waitForResult = true,
   } = {}
 ): Promise<void> {
-  const queryBarSelector = Selectors.queryBar(tabName);
-
-  // look up the current resultId
-  const queryBarSelectorElement = await browser.$(queryBarSelector);
-  const initialResultId = await queryBarSelectorElement.getAttribute(
-    'data-result-id'
-  );
-
   if (project || sort || maxTimeMS || collation || skip || limit) {
     await expandOptions(browser, tabName);
 
@@ -182,6 +192,14 @@ export async function runFindOperation(
   }
 
   await setFilter(browser, tabName, filter);
+
+  // look up the current resultId
+  const queryBarSelector = Selectors.queryBar(tabName);
+  const queryBarSelectorElement = await browser.$(queryBarSelector);
+  const initialResultId = await queryBarSelectorElement.getAttribute(
+    'data-result-id'
+  );
+
   await runFind(browser, tabName);
 
   if (waitForResult) {
