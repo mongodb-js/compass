@@ -109,7 +109,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
     };
   }
   if (action.type === ActionTypes.ITEM_DELETED) {
-    const newItems = state.items.filter(item => item.id !== action.id)
+    const newItems = state.items.filter((item) => item.id !== action.id);
     return {
       ...state,
       items: newItems,
@@ -136,13 +136,13 @@ export const fetchItems = (): ThunkAction<void, RootState, void, Actions> => {
 };
 
 export const deleteItem = (
-  itemId: string
+  id: string
 ): ThunkAction<void, RootState, void, Actions> => {
   return async (dispatch: Dispatch<Actions>, getState) => {
     const {
       savedItems: { items },
     } = getState();
-    const item = items.find((x) => x.id === itemId);
+    const item = items.find((x) => x.id === id);
     if (!item) {
       return;
     }
@@ -150,10 +150,10 @@ export const deleteItem = (
       item.type === 'query'
         ? favoriteQueryStorage.delete.bind(favoriteQueryStorage)
         : pipelineStorage.delete.bind(pipelineStorage);
-    await deleteAction(itemId);
+    await deleteAction(id);
     dispatch({
       type: ActionTypes.ITEM_DELETED,
-      payload: itemId,
+      id,
     });
   };
 };
