@@ -478,7 +478,7 @@ export const startExport = () => {
     // Pick the columns that are going to be matched by the projection,
     // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
     // has an entry in the projection object.
-    const columns = Object.keys(exportData.allFields)
+    const columns = Object.keys(exportData.fields)
       .filter(field => field.split('.').some(
         (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]));
     let formatter;
