@@ -3,7 +3,6 @@ import { ConfirmationModal, Description } from '@mongodb-js/compass-components';
 import type { Item } from '../stores/aggregations-queries-items';
 
 type DeleteItemModalProps = {
-  id: string;
   itemType: Item['type'];
   onClose: () => void;
   onDelete: () => void;
