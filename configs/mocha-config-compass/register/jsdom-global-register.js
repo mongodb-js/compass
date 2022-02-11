@@ -19,4 +19,16 @@ if (typeof window === 'undefined') {
       disconnect() {}
     };
   }
+  if (!globalThis.navigator.clipboard) {
+    class Clipboard {
+      #text = '';
+      async writeText(str) {
+        this.#text = str;
+      }
+      async readText() {
+        return this.#text;
+      }
+    }
+    globalThis.navigator.clipboard = new Clipboard();
+  }
 }

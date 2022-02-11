@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useContext, useState } from 'react';
+import React, { useEffect, useCallback, useContext } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import {
@@ -8,15 +8,17 @@ import {
   useSortControls,
   useSortedItems,
 } from '@mongodb-js/compass-components';
-import { fetchItems, deleteItem } from '../stores/aggregations-queries-items';
+import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
 import type { RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
-import type { SavedItemCardProps, Action } from './saved-item-card';
+import type { Action } from './saved-item-card';
 import OpenItemModal from './open-item-modal';
 import DeleteItemModal from './delete-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
+import { deleteItem } from '../stores/delete-item';
+import { copyToClipboard } from '../stores/copy-to-clipboard';
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {
@@ -67,17 +69,18 @@ const AggregationsQueriesList = ({
   onMount,
   onOpenItem,
   onDeleteItem,
+  onCopyToClipboard,
 }: AggregationsQueriesListProps) => {
   useEffect(() => {
     void onMount();
   }, [onMount]);
 
-  const [deletingItem, setDeletingItem] = useState<Item | undefined>(undefined);
   const {
     controls: filterControls,
     conditions: filters,
     search,
   } = useGridFilters(items);
+
   const filteredItems = useFilteredItems(items, filters, search)
     .sort((a, b) => {
       return a.score - b.score;
@@ -86,9 +89,10 @@ const AggregationsQueriesList = ({
 
   // If a user is searching, we disable the sort as
   // search results are sorted by match score
-  const [sortControls, sortState] = useSortControls<keyof Item>(sortBy, {
+  const [sortControls, sortState] = useSortControls(sortBy, {
     isDisabled: Boolean(search),
   });
+
   const sortedItems = useSortedItems(filteredItems, sortState);
 
   const onAction = useCallback(
@@ -97,21 +101,33 @@ const AggregationsQueriesList = ({
         case 'open':
           return onOpenItem(id);
         case 'delete':
-          return setDeletingItem(sortedItems.find((x) => x.id === id));
+          return onDeleteItem(id);
+        case 'copy':
+          return onCopyToClipboard(id);
       }
     },
-    [sortedItems, onOpenItem]
+    [onOpenItem, onDeleteItem, onCopyToClipboard]
   );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
     useCallback(
-      ({ index }: { index: number }) => {
-        const item: Omit<SavedItemCardProps, 'onAction'> = sortedItems[index];
+      ({
+        index,
+        ...props
+      }: Omit<React.HTMLProps<HTMLDivElement>, 'type'> & { index: number }) => {
+        const item = sortedItems[index];
+
         return (
           <SavedItemCard
-            {...item}
+            id={item.id}
+            type={item.type}
+            name={item.name}
+            database={item.database}
+            collection={item.collection}
+            lastModified={item.lastModified}
             onAction={onAction}
             data-testid={`grid-item-${index}`}
+            {...props}
           />
         );
       },
@@ -139,17 +155,7 @@ const AggregationsQueriesList = ({
         classNames={{ row: rowStyles }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
-      {deletingItem && (
-        <DeleteItemModal
-          isOpen={true}
-          itemType={deletingItem.type}
-          onClose={() => setDeletingItem(undefined)}
-          onDelete={() => {
-            onDeleteItem(deletingItem.id);
-            setDeletingItem(undefined);
-          }}
-        />
-      )}
+      <DeleteItemModal></DeleteItemModal>
     </ControlsContext.Provider>
   );
 };
@@ -163,6 +169,7 @@ const mapDispatch = {
   onMount: fetchItems,
   onOpenItem: openSavedItem,
   onDeleteItem: deleteItem,
+  onCopyToClipboard: copyToClipboard,
 };
 
 const connector = connect(mapState, mapDispatch);

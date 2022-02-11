@@ -1,19 +1,22 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { ConfirmationModal, Description } from '@mongodb-js/compass-components';
+import type { RootState } from '../stores';
+import { deleteItemConfirm } from '../stores/delete-item';
 import type { Item } from '../stores/aggregations-queries-items';
 
 type DeleteItemModalProps = {
   isOpen: boolean;
-  itemType: Item['type'];
-  onClose: () => void;
-  onDelete: () => void;
+  itemType: Item['type'] | null;
+  onDeleteCancel: () => void;
+  onDeleteConfirm: () => void;
 };
 
 const DeleteItemModal: React.FunctionComponent<DeleteItemModalProps> = ({
   isOpen,
   itemType,
-  onClose,
-  onDelete,
+  onDeleteCancel,
+  onDeleteConfirm,
 }) => {
   const title = `Are you sure you want to delete your ${
     itemType === 'query' ? 'query' : 'aggregation'
@@ -22,8 +25,8 @@ const DeleteItemModal: React.FunctionComponent<DeleteItemModalProps> = ({
     <ConfirmationModal
       data-testid="delete-item-modal"
       open={isOpen}
-      onCancel={onClose}
-      onConfirm={onDelete}
+      onCancel={onDeleteCancel}
+      onConfirm={onDeleteConfirm}
       title={title}
       buttonText="Delete"
       variant="danger"
@@ -33,4 +36,19 @@ const DeleteItemModal: React.FunctionComponent<DeleteItemModalProps> = ({
   );
 };
 
-export default DeleteItemModal;
+export default connect<
+  Pick<DeleteItemModalProps, 'isOpen' | 'itemType'>,
+  { onDeleteConfirm(): void; onDeleteCancel(): void },
+  Record<string, never>,
+  RootState
+>(
+  (state) => {
+    return {
+      isOpen: !!state.deleteItem.id,
+      itemType:
+        state.savedItems.items.find((item) => item.id === state.deleteItem.id)
+          ?.type ?? null,
+    };
+  },
+  { onDeleteConfirm: deleteItemConfirm, onDeleteCancel: deleteItemConfirm }
+)(DeleteItemModal);
