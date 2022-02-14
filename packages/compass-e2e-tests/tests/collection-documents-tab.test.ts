@@ -1,4 +1,5 @@
 import chai from 'chai';
+import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
@@ -92,6 +93,7 @@ describe('Collection documents tab', function () {
     );
     const text = await documentListActionBarMessageElement.getText();
     expect(text).to.equal('Displaying documents 1 - 1 of 1');
+
     const queryExecutedEvent = await telemetryEntry('Query Executed');
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -242,14 +244,95 @@ describe('Collection documents tab', function () {
     );
     const explainSummary = await explainSummaryElement.getText();
     expect(explainSummary.replace(/\s/g, ' ')).to.equal('Documents Returned:1');
+
+    await navigateToTab(browser, 'Documents');
+  });
+
+  it('can export to language', async function () {
+    await navigateToTab(browser, 'Documents'); // just in case the previous test failed before it could clean up
+
+    await browser.runFindOperation('Documents', '{ i: 5 }');
+
+    await browser.clickVisible('#query-bar-menu-actions');
+
+    await browser.clickVisible('a=Export To Language');
+
+    const exportModal = await browser.$(
+      '[data-test-id="export-to-lang-modal"]'
+    );
+    await exportModal.waitForDisplayed();
+
+    await browser.clickVisible('[data-test-id="select-lang-field"]');
+
+    const listBox = await browser.$(
+      '[data-test-id="select-lang-field"] [role="listbox"]'
+    );
+    await listBox.waitForDisplayed();
+
+    const javaElement = await listBox.$('div=Java');
+    await javaElement.waitForDisplayed();
+    await javaElement.click();
+
+    const importsCheckbox = await browser.$(
+      '[data-test-id="export-to-lang-checkbox-imports"]'
+    );
+    await importsCheckbox.waitForDisplayed();
+    if (!(await importsCheckbox.isSelected())) {
+      await importsCheckbox.click();
+    }
+
+    const driverCheckbox = await browser.$(
+      '[data-test-id="export-to-lang-checkbox-driver"]'
+    );
+    await driverCheckbox.waitForDisplayed();
+    if (!(await driverCheckbox.isSelected())) {
+      await driverCheckbox.click();
+    }
+
+    const buildersCheckbox = await browser.$(
+      '[data-test-id="export-to-lang-checkbox-builders"]'
+    );
+    await buildersCheckbox.waitForDisplayed();
+    if (!(await buildersCheckbox.isSelected())) {
+      await buildersCheckbox.click();
+    }
+
+    // clicking too fast copies out of date stuff
+    await browser.pause(2000);
+
+    await browser.clickVisible('[data-test-id="export-to-lang-copy-output"]');
+
+    expect(await clipboard.read()).to
+      .equal(`import static com.mongodb.client.model.Filters.eq;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.conversions.Bson;
+import java.util.concurrent.TimeUnit;
+import org.bson.Document;
+
+/*
+ * Requires the MongoDB Java Driver.
+ * https://mongodb.github.io/mongo-java-driver
+ */
+
+Bson filter = eq("i", 5L);
+
+MongoClient mongoClient = new MongoClient(
+    new MongoClientURI(
+        "mongodb://localhost:27018/test?readPreference=primary&directConnection=true&ssl=false"
+    )
+);
+MongoDatabase database = mongoClient.getDatabase("test");
+MongoCollection<Document> collection = database.getCollection("numbers");
+FindIterable<Document> result = collection.find(filter);`);
   });
 
   it('supports view/edit via list view');
   it('supports view/edit via json view');
   it('supports view/edit via table view');
-
-  // different languages, with and without imports, with and without driver usage
-  it('can export to language');
 
   // JSON mode
   // field by field mode
