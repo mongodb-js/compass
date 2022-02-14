@@ -323,7 +323,7 @@ async function main(argv) {
   );
 
   const prettierIgnorePath = path.join(packagePath, '.prettierignore');
-  const prettierIgnoreContent = '.nyc-output\ndist\n';
+  const prettierIgnoreContent = '.nyc_output\ndist\ncoverage\n';
 
   const tsconfigPath = path.join(packagePath, 'tsconfig.json');
   const tsconfigContent = JSON.stringify(

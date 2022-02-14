@@ -44,6 +44,7 @@ interface Pipeline {
   fromStageOperators?: boolean;
   executor?: unknown;
   isMissingAtlasOnlyStageSupport?: boolean;
+  snippet?: string;
 }
 
 declare module '@mongodb-js/compass-query-history' {

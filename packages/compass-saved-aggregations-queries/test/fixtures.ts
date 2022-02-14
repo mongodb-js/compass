@@ -105,7 +105,7 @@ export const pipelines: Item[] = [
       env: 'on-prem',
       isTimeSeries: false,
       isReadonly: false,
-      sourceName: null,
+      sourceName: undefined,
       pipeline: [
         {
           id: '61b8a4a2ffab3b5b30862d8b',
@@ -180,7 +180,7 @@ export const pipelines: Item[] = [
       comments: true,
       sample: true,
       autoPreview: true,
-      collation: null,
+      collation: undefined,
       collationString: '',
     },
   },

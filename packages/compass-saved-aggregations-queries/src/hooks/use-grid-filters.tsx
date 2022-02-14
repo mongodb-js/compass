@@ -189,28 +189,27 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
       },
     ],
     getFn: (item: Item, path) => {
-      const key = Array.isArray(path) ? path[0] : path;
+      // path can only represent names from the `keys` configuration option
+      const key = path as 'name' | 'namespace' | 'tags' | 'data';
+
       if (key === 'namespace') {
         return `${item.database}.${item.collection}`;
       }
 
-      if (item.type === 'query') {
-        if (key === 'tags') {
+      if (key === 'tags') {
+        if (item.type === 'query') {
           return ['find', 'query'];
-        }
-        if (key === 'data') {
-          return JSON.stringify({
-            filter: item.query.filter,
-          });
+        } else {
+          return ['aggregate', 'aggregation', 'pipeline'];
         }
       }
 
-      if (item.type === 'aggregation') {
-        if (key === 'tags') {
-          return ['aggregate', 'aggregation', 'pipeline'];
-        }
-
-        if (key === 'data') {
+      if (key === 'data') {
+        if (item.type === 'query') {
+          return JSON.stringify({
+            filter: item.query.filter,
+          });
+        } else {
           const stages = item.aggregation.pipeline
             .filter((p) => p.stageOperator && p.stage)
             .map((p) => `${p.stageOperator}: ${p.stage}`)
@@ -219,7 +218,7 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
         }
       }
 
-      return item[key as keyof Item] as any;
+      return item[key];
     },
   });
   return fuse.search(text).map((x) => ({ item: x.item, score: x.score ?? 0 }));
