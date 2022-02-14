@@ -189,8 +189,16 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
       },
     ],
     getFn: (item: Item, path) => {
-      // path can only represent names from the `keys` configuration option
-      const key = path as 'name' | 'namespace' | 'tags' | 'data';
+      // The `path` here can only be names from the `keys` configuration option
+      // so it is safe to assert the type here. Additionally the argument value
+      // is typed by the library as string | string[]. Even though the library
+      // seem to always return an array, we will handle it as if we are not sure
+      // excatly what is passed here
+      const key = (Array.isArray(path) ? path[0] : path) as
+        | 'name'
+        | 'namespace'
+        | 'tags'
+        | 'data';
 
       if (key === 'namespace') {
         return `${item.database}.${item.collection}`;
