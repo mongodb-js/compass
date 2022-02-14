@@ -9,6 +9,7 @@ import dataServiceReducer, {
   resetDataService,
 } from './data-service';
 import openItemReducer from './open-item';
+import editItemReducer from './edit-item';
 import appRegistryReducer, { setAppRegistry } from './app-registry';
 
 const _store = createStore(
@@ -17,6 +18,7 @@ const _store = createStore(
     instance: instanceReducer,
     dataService: dataServiceReducer,
     openItem: openItemReducer,
+    editItem: editItemReducer,
     appRegistry: appRegistryReducer,
   }),
   applyMiddleware(thunk)

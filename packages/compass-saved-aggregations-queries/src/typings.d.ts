@@ -46,9 +46,12 @@ interface Pipeline {
   isMissingAtlasOnlyStageSupport?: boolean;
 }
 
+type Attributes = Record<string, unknown>;
+
 declare module '@mongodb-js/compass-query-history' {
   class FavoriteQueryStorage {
     loadAll(): Promise<Query[]>;
+    updateAttributes(id: string, attributes: Attributes): Promise<void>;
     delete(id: string): Promise<void>;
   }
 
@@ -57,6 +60,7 @@ declare module '@mongodb-js/compass-query-history' {
 declare module '@mongodb-js/compass-aggregations' {
   class PipelineStorage {
     loadAll(): Promise<Aggregation[]>;
+    updateAttributes(id: string, attributes: Attributes): Promise<void>;
     delete(id: string): Promise<void>;
   }
 
