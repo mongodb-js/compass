@@ -94,7 +94,7 @@ function AuthenticationGSSAPI({
           {GSSAPI_CANONICALIZE_HOST_NAME_LABEL}
         </Label>
         <Select
-          name="name"
+          name="canonicalize-hostname"
           placeholder="Select ..."
           id="canonicalize-hostname-select"
           aria-labelledby="canonicalize-hostname-label"
