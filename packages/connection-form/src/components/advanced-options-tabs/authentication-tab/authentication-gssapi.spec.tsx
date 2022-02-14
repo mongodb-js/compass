@@ -4,14 +4,14 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import AuthenticationGssapi, {
-  GSSAPI_CANONICALIZE_HOST_NAME_LABEL,
-  GSSAPI_PRINCIPAL_NAME_LABEL,
-  GSSAPI_SERVICE_NAME_LABEL,
-  GSSAPI_SERVICE_REALM_LABEL,
-} from './authentication-gssapi';
+import AuthenticationGssapi from './authentication-gssapi';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+
+const GSSAPI_PRINCIPAL_NAME_LABEL = 'Principal';
+const GSSAPI_SERVICE_NAME_LABEL = 'Service Name';
+const GSSAPI_CANONICALIZE_HOST_NAME_LABEL = 'Canonicalize Host Name';
+const GSSAPI_SERVICE_REALM_LABEL = 'Service Realm';
 
 function renderComponent({
   errors = [],

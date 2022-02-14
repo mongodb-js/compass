@@ -1,7 +1,14 @@
 import React from 'react';
-import { Checkbox, TextInput } from '@mongodb-js/compass-components';
+import {
+  Select,
+  Option,
+  TextInput,
+  Label,
+} from '@mongodb-js/compass-components';
 
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import util from 'util';
+
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -11,10 +18,10 @@ import {
   parseAuthMechanismProperties,
 } from '../../../utils/connection-string-helpers';
 
-export const GSSAPI_PRINCIPAL_NAME_LABEL = 'Principal';
-export const GSSAPI_SERVICE_NAME_LABEL = 'Service Name';
-export const GSSAPI_CANONICALIZE_HOST_NAME_LABEL = 'Canonicalize Host Name';
-export const GSSAPI_SERVICE_REALM_LABEL = 'Service Realm';
+const GSSAPI_PRINCIPAL_NAME_LABEL = 'Principal';
+const GSSAPI_SERVICE_NAME_LABEL = 'Service Name';
+const GSSAPI_CANONICALIZE_HOST_NAME_LABEL = 'Canonicalize Host Name';
+const GSSAPI_SERVICE_REALM_LABEL = 'Service Realm';
 
 function AuthenticationGSSAPI({
   errors,
@@ -37,6 +44,12 @@ function AuthenticationGSSAPI({
   const canonicalizeHostname = authMechanismProperties.get(
     'CANONICALIZE_HOST_NAME'
   );
+
+  const GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS: Record<string, string> = {
+    None: 'none',
+    Forward: 'forward',
+    'Forward and reverse': 'forwardAndReverse',
+  };
 
   return (
     <>
@@ -74,19 +87,40 @@ function AuthenticationGSSAPI({
       </FormFieldContainer>
 
       <FormFieldContainer>
-        <Checkbox
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+        <Label
+          id="canonicalize-hostname-label"
+          htmlFor="canonicalize-hostname-select"
+        >
+          {GSSAPI_CANONICALIZE_HOST_NAME_LABEL}
+        </Label>
+        <Select
+          name="name"
+          placeholder="Select ..."
+          id="canonicalize-hostname-select"
+          aria-labelledby="canonicalize-hostname-label"
+          onChange={(name): void => {
             updateConnectionFormField({
               type: 'update-auth-mechanism-property',
               key: 'CANONICALIZE_HOST_NAME',
-              value: event.target.checked ? 'true' : '',
+              value: name,
             });
           }}
-          label={GSSAPI_CANONICALIZE_HOST_NAME_LABEL}
-          checked={canonicalizeHostname === 'true'}
-          bold={false}
-        />
+          allowDeselect={true}
+          value={canonicalizeHostname}
+        >
+          {Object.entries(GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS).map(
+            ([label, value]) => (
+              <Option key={value} value={value}>
+                {label}
+              </Option>
+            )
+          )}
+        </Select>
       </FormFieldContainer>
+      <br />
+      <pre>
+        value=<b>{util.inspect(canonicalizeHostname)}</b>
+      </pre>
 
       <FormFieldContainer>
         <TextInput
