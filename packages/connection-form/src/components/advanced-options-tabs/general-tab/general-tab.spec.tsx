@@ -28,8 +28,8 @@ describe('GeneralTab', function () {
       expect(screen.queryByText('Direct Connection')).to.not.exist;
     });
 
-    it('should render the schema input', function () {
-      expect(screen.getByText('Schema')).to.be.visible;
+    it('should render the scheme input', function () {
+      expect(screen.getByText('Connection String Scheme')).to.be.visible;
     });
 
     it('should render the hostname input', function () {

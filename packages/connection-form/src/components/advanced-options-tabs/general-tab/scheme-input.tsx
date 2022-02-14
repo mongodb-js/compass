@@ -55,7 +55,9 @@ function SchemaInput({
 
   return (
     <>
-      <Label htmlFor="connection-schema-radio-box-group">Schema</Label>
+      <Label htmlFor="connection-schema-radio-box-group">
+        Connection String Scheme
+      </Label>
       <RadioBoxGroup
         id="connection-schema-radio-box-group"
         value={isSRV ? MONGODB_SCHEMA.MONGODB_SRV : MONGODB_SCHEMA.MONGODB}

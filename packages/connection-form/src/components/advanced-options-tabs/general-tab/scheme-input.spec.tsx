@@ -4,9 +4,9 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import SchemaInput from './schema-input';
+import SchemeInput from './scheme-input';
 
-describe('SchemaInput', function () {
+describe('SchemeInput', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   beforeEach(function () {
@@ -15,13 +15,13 @@ describe('SchemaInput', function () {
 
   afterEach(cleanup);
 
-  describe('with a srv connection string schema (mongodb+srv://)', function () {
+  describe('with a srv connection string scheme (mongodb+srv://)', function () {
     beforeEach(function () {
       const connectionStringUrl = new ConnectionStringUrl(
         'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true'
       );
       render(
-        <SchemaInput
+        <SchemeInput
           errors={[]}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormFieldSpy}
@@ -36,19 +36,19 @@ describe('SchemaInput', function () {
     });
 
     it('should render the standard box not selected', function () {
-      const standardSchemaRadioBox = screen.getAllByRole(
+      const standardSchemeRadioBox = screen.getAllByRole(
         'radio'
       )[0] as HTMLInputElement;
-      expect(standardSchemaRadioBox.checked).to.equal(false);
-      expect(standardSchemaRadioBox.getAttribute('aria-checked')).to.equal(
+      expect(standardSchemeRadioBox.checked).to.equal(false);
+      expect(standardSchemeRadioBox.getAttribute('aria-checked')).to.equal(
         'false'
       );
     });
 
-    describe('when the standard schema radio box is clicked', function () {
+    describe('when the standard scheme radio box is clicked', function () {
       beforeEach(function () {
-        const standardSchemaRadioBox = screen.getAllByRole('radio')[0];
-        fireEvent.click(standardSchemaRadioBox);
+        const standardSchemeRadioBox = screen.getAllByRole('radio')[0];
+        fireEvent.click(standardSchemeRadioBox);
       });
 
       it('should call to update the connection string with standard schema', function () {
@@ -79,7 +79,7 @@ describe('SchemaInput', function () {
           'mongodb://0ranges:p!neapp1es@outerspace:27017/?ssl=true'
         );
         render(
-          <SchemaInput
+          <SchemeInput
             errors={[]}
             connectionStringUrl={connectionStringUrl}
             updateConnectionFormField={updateConnectionFormFieldSpy}
@@ -122,13 +122,13 @@ describe('SchemaInput', function () {
         'mongodb://0ranges:p!neapp1es@outerspace:27017/?ssl=true'
       );
       render(
-        <SchemaInput
+        <SchemeInput
           errors={[
             {
-              fieldName: undefined,
               message: 'unrelated error',
             },
             {
+              fieldTab: 'general',
               fieldName: 'isSrv',
               message: 'aaaa!!!1!',
             },
