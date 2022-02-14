@@ -46,17 +46,17 @@ export class PipelineStorage {
   }
 
   /**
-   * Updates attributes of an aggregation.
+   * Updates attributes of an pipeline.
    *
-   * @param {string} aggregationId ID of the aggregation to update
-   * @param {object} attributes Attributes of aggregation to update
+   * @param {string} id ID of the pipeline to update
+   * @param {object} attributes Attributes of pipeline to update
    */
-  async updateAttributes(aggregationId, attributes) {
-    if (!aggregationId) {
-      throw new Error('aggregationId is required');
+  async updateAttributes(id, attributes) {
+    if (!id) {
+      throw new Error('pipelineId is required');
     }
 
-    const filePath = path.join(getDirectory(), `${aggregationId}.json`);
+    const filePath = path.join(getDirectory(), `${id}.json`);
     const data = await this._getFileData(filePath);
 
     return fs.writeFile(filePath, JSON.stringify({
@@ -66,9 +66,9 @@ export class PipelineStorage {
   }
 
   /**
-   * Deletes an aggregation from the storage.
+   * Deletes an pipeline from the storage.
    *
-   * @param {string} id Aggregation ID
+   * @param {string} id Pipeline ID
    */
   async delete(id) {
     track('Aggregation Deleted');
