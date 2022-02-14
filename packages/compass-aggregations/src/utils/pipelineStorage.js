@@ -5,6 +5,8 @@ const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { getDirectory } from './getDirectory';
 
+const ENCODING = 'utf8';
+
 export class PipelineStorage {
   /**
    *
@@ -18,24 +20,49 @@ export class PipelineStorage {
       .map((file) => path.join(dir, file));
 
     return (
-      await Promise.all(files.map((filePath) => this._getFileData(filePath)))
+      await Promise.all(files.map((filePath) => this._loadOne(filePath)))
     ).filter(Boolean);
   }
 
-  async _getFileData(filePath) {
+  async _loadOne(filePath) {
     try {
-      const [file, stats] = await Promise.all([
-        fs.readFile(filePath, 'utf8'),
+      const [data, stats] = await Promise.all([
+        this._getFileData(filePath),
         fs.stat(filePath),
       ]);
       return {
-        ...JSON.parse(file),
+        ...data,
         lastModified: stats.mtimeMs,
       };
     } catch (err) {
       debug(`Failed to load pipeline ${path.basename(filePath)}`, err);
       return null;
     }
+  }
+
+  async _getFileData(filePath) {
+    const data = await fs.readFile(filePath, ENCODING);
+    return JSON.parse(data);
+  }
+
+  /**
+   * Updates attributes of an aggregation.
+   *
+   * @param {string} aggregationId ID of the aggregation to update
+   * @param {object} attributes Attributes of aggregation to update
+   */
+  async updateAttributes(aggregationId, attributes) {
+    if (!aggregationId) {
+      throw new Error('aggregationId is required');
+    }
+
+    const filePath = path.join(getDirectory(), `${aggregationId}.json`);
+    const data = await this._getFileData(filePath);
+
+    return fs.writeFile(filePath, JSON.stringify({
+      ...data,
+      ...attributes,
+    }), ENCODING);
   }
 
   /**
