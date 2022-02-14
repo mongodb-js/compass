@@ -95,7 +95,7 @@ export const queries: Item[] = [
 export const pipelines: Item[] = [
   {
     id: '61b753fdce2a0a1d7a32ae1d',
-    name: 'spaces in munich',
+    name: 'Demo',
     database: 'airbnb',
     collection: 'listings',
     type: 'aggregation',
@@ -105,7 +105,7 @@ export const pipelines: Item[] = [
       env: 'on-prem',
       isTimeSeries: false,
       isReadonly: false,
-      sourceName: null,
+      sourceName: undefined,
       pipeline: [
         {
           id: '61b8a4a2ffab3b5b30862d8b',
@@ -180,7 +180,7 @@ export const pipelines: Item[] = [
       comments: true,
       sample: true,
       autoPreview: true,
-      collation: null,
+      collation: undefined,
       collationString: '',
     },
   },

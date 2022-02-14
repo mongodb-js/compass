@@ -6,6 +6,8 @@ import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import type { Aggregation } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
+import type { Actions as DeleteItemActions } from './delete-item';
+import { ActionTypes as DeleteItemActionTypes } from './delete-item';
 
 export enum ActionTypes {
   ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
@@ -52,20 +54,24 @@ const INITIAL_STATE: State = {
 const favoriteQueryStorage = new FavoriteQueryStorage();
 const pipelineStorage = new PipelineStorage();
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
-  if (action.type === ActionTypes.ITEMS_FETCHED) {
-    return {
-      ...state,
-      items: action.payload,
-      loading: false,
-    };
-  }
-  if (action.type === ActionTypes.ITEM_DELETED) {
-    const newItems = state.items.filter((item) => item.id !== action.id);
-    return {
-      ...state,
-      items: newItems,
-    };
+const reducer: Reducer<State, Actions | DeleteItemActions> = (
+  state = INITIAL_STATE,
+  action
+) => {
+  switch (action.type) {
+    case ActionTypes.ITEMS_FETCHED:
+      return {
+        ...state,
+        items: action.payload,
+        loading: false,
+      };
+    case DeleteItemActionTypes.DeleteItemConfirm: {
+      const newItems = state.items.filter((item) => item.id !== action.id);
+      return {
+        ...state,
+        items: newItems,
+      };
+    }
   }
   return state;
 };
@@ -83,29 +89,6 @@ export const fetchItems = (): ThunkAction<void, RootState, void, Actions> => {
           result.status === 'fulfilled' ? result.value : []
         )
         .flat(),
-    });
-  };
-};
-
-export const deleteItem = (
-  id: string
-): ThunkAction<void, RootState, void, Actions> => {
-  return async (dispatch: Dispatch<Actions>, getState) => {
-    const {
-      savedItems: { items },
-    } = getState();
-    const item = items.find((x) => x.id === id);
-    if (!item) {
-      return;
-    }
-    const deleteAction =
-      item.type === 'query'
-        ? favoriteQueryStorage.delete.bind(favoriteQueryStorage)
-        : pipelineStorage.delete.bind(pipelineStorage);
-    await deleteAction(id);
-    dispatch({
-      type: ActionTypes.ITEM_DELETED,
-      id,
     });
   };
 };
