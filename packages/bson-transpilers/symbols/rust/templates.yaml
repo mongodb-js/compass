@@ -1,0 +1,422 @@
+#############################################
+#             Sample Templates              #
+#                                           #
+# The expected arguments are commented next #
+# to the template itself. Currently all are #
+# set to null, but to define a function     #
+# replace 'null' with '!!js/function > \n   #
+# and a function defined below.             #
+#                                           #
+# See the other template files for examples #
+#                                           #
+#               Good to know:               #
+# lhs is left-hand-side of the expression   #
+# rhs is right-hand-side of the expression  #
+# All args are strings unless noted         #
+#    - arg? is boolean                      #
+#    - arg# is number                       #
+#                                           #
+#############################################
+Templates:
+    ########
+    # Misc #
+    ########
+
+    # Filter out regex flags that have translations or are unsupported.
+    RegexFlags: &RegexFlags
+        i: 'i'
+        m: 'm'
+        u: 'u'
+        y: 'y'
+        g: 'g'
+    BSONRegexFlags: &BSONRegexFlags
+        i: 'i'
+        m: 'm'
+        x: 'x'
+        s: 's'
+        l: 'l'
+        u: 'u'
+
+    #############################################
+    #                  Syntax                   #
+    #                                           #
+    # Templates for language syntax expressions #
+    #                                           #
+    #############################################
+
+    DriverTemplate: &DriverTemplate !!js/function >
+        (spec) => {
+            const comment = `// Requires the MongoDB crate.\n// https://crates.io/crates/mongodb`;
+            
+            const options = spec.options;
+            const filter = spec.filter || {};
+            delete spec.options;
+            delete spec.filter;
+
+            const connect = `let client = Client::with_uri_str("${options.uri}").await?;`
+            const coll = `client.database("${options.database}").collection("${options.collection}")`;
+
+            if ('aggregation' in spec) {
+                return `${comment}\n\n${connect}\nlet result = ${coll}.aggregate(${spec.aggregation}, None).await?;`;
+            }
+
+            const vars = Object.keys(spec).reduce(
+                (result, k) => {
+                    if (k === 'sort') {
+                        return `${result}\n${k}=list(${spec[k]}.items())`;
+                    }
+                    return `${result}\n${k}=${spec[k]}`;
+                },
+                connect
+            );
+
+            const args = Object.keys(spec).reduce(
+                (result, k) => {
+                    const divider = result === '' ? '' : ',\n';
+                    return `${result}${divider}  ${
+                        k in translateKey ? translateKey[k] : k
+                    }=${k}`;
+                },
+                ''
+            );
+            const cmd = `result = ${coll}.find(\n${args}\n)`;
+
+            return `${comment}\n\n${vars}\n\n${cmd}`;
+        }
+    EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            if (op.includes('!')) {
+                return `${lhs} != ${rhs}`;
+            }
+            else if (op === '==' || op === '===' || op === 'is') {
+                return `${lhs} == ${rhs}`;
+            }
+            return `${lhs} ${op} ${rhs}`;
+        }
+    InSyntaxTemplate: &InSyntaxTemplate null # Args: lhs, operation, rhs
+    AndSyntaxTemplate: &AndSyntaxTemplate null # Args: items to compare as an array
+    OrSyntaxTemplate: &OrSyntaxTemplate  null # Args: items to compare as an array
+    NotSyntaxTemplate: &NotSyntaxTemplate null # Args: item to negate
+    UnarySyntaxTemplate: &UnarySyntaxTemplate null
+    BinarySyntaxTemplate: &BinarySyntaxTemplate null
+    ParensSyntaxTemplate: &ParensSyntaxTemplate null
+    EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
+    EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
+    FloorDivTemplate: &FloorDivSyntaxTemplate null # Args: lhs, rhs
+    PowerTemplate: &PowerSyntaxTemplate null # Args: lhs, rhs
+    NewTemplate: &NewSyntaxTemplate null # Args: expression, skip?, code# [to check if meant to be skipped]
+
+    #############################################
+    #               Literal Types               #
+    #                                           #
+    # Templates for literal type instance. Most #
+    # get passed the literal itself as an arg.  #
+    #                                           #
+    #############################################
+    StringTypeTemplate: &StringTypeTemplate null # Args: literal (can be w/w/out quotes and unescaped interior quotes.)
+    RegexTypeTemplate: &RegexTypeTemplate null # Args: pattern, flag
+    BoolTypeTemplate: &BoolTypeTemplate null # Args: literal
+    IntegerTypeTemplate: &IntegerTypeTemplate null # args: literal, argType (i.e. '_string', '_decimal' etc)
+    DecimalTypeTemplate: &DecimalTypeTemplate null # args: literal, argType
+    LongBasicTypeTemplate: &LongBasicTypeTemplate null # args: literal, argType
+    HexTypeTemplate: &HexTypeTemplate null # args: literal, argType
+    OctalTypeTemplate: &OctalTypeTemplate null # args: literal, argType
+    NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
+    ArrayTypeTemplate: &ArrayTypeTemplate null # Args: the interior of the array (i.e. '1, 2'), nestedness#
+    ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
+    NullTypeTemplate: &NullTypeTemplate null # No args
+    UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
+    ObjectTypeTemplate: &ObjectTypeTemplate null # Args: literal (for empty array, is empty string. Otherwise all set)
+    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null # Args: single object element [2] (i.e. array with [key, value]), nestedness#
+
+    #############################################
+    #               Symbols                     #
+    #                                           #
+    # Templates for symbols, can be either      #
+    # functions or variables.                   #
+    #                                           #
+    # The *SymbolTemplates return names and     #
+    # usually don't take any arguments. The     #
+    # *SymbolArgsTemplates are invoked for func #
+    # calls. The first argument is always the   #
+    # lhs, i.e. the symbol returned from the    #
+    # corresponding SymbolTemplate. The rest of #
+    # the arguments are the processed arguments #
+    # passed to the original function.          #
+    #                                           #
+    #############################################
+    CodeSymbolTemplate: &CodeSymbolTemplate null # No args
+    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate null # Args: code, scope
+    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # No args
+    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null # Args: lhs, string (can be empty or null for no arg)
+    BinarySymbolTemplate: &BinarySymbolTemplate null
+    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
+    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null
+    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate null
+    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate null
+    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate null
+    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate null
+    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template null
+    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate null
+    DBRefSymbolTemplate: &DBRefSymbolTemplate null # No args
+    DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null # Args: lhs, coll, id, db
+    DoubleSymbolTemplate: &DoubleSymbolTemplate null # No args
+    DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate null # Args: lhs, arg, argType (i.e. '_string', '_double')
+    Int32SymbolTemplate: &Int32SymbolTemplate null # No args
+    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Args: lhs, arg, argType
+    LongSymbolTemplate: &LongSymbolTemplate null # No args
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Args: lhs, arg, argType
+    RegExpSymbolTemplate: &RegExpSymbolTemplate null # No args
+    RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
+    SymbolSymbolTemplate: &SymbolSymbolTemplate null # No args
+    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null # Args: lhs, arg
+    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # No args
+    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
+    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # No args
+    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null # Args: lhs, arg
+    MinKeySymbolTemplate: &MinKeySymbolTemplate null # No args
+    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null # No args
+    MaxKeySymbolTemplate: &MaxKeySymbolTemplate null # No args
+    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null # No args
+    TimestampSymbolTemplate: &TimestampSymbolTemplate null # No args
+    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null # Args: lhs, low, high
+    # non bson-specific
+    NumberSymbolTemplate: &NumberSymbolTemplate null # No args
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null # Args: lhs, arg, argType
+    DateSymbolTemplate: &DateSymbolTemplate null # No args
+    DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Args: lhs, date (Date object), isString? (if the result needs to be a date string instead of a date instance)
+
+    #############################################
+    #         Object Attributes/Methods         #
+    #                                           #
+    # These're variables or functions called on #
+    # instantiated objects. For example,        #
+    # ObjectId().isValid() or Timestamp().t     #
+    #                                           #
+    # They follow the same pattern with the
+    # *Template/*ArgsTemplates: usually no args #
+    # to the Template and lhs plus any original #
+    # arguments to the ArgsTemplate.            #
+    #                                           #
+    #############################################
+    CodeCodeTemplate: &CodeCodeTemplate null
+    CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
+    CodeScopeTemplate: &CodeScopeTemplate null
+    CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
+    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
+    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
+    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
+    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
+    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
+    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
+    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
+    BinaryValueTemplate: &BinaryValueTemplate null
+    BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
+    BinaryLengthTemplate: &BinaryLengthTemplate null
+    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
+    BinaryToStringTemplate: &BinaryToStringTemplate null
+    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
+    BinarySubtypeTemplate: &BinarySubtypeTemplate null
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
+    DBRefGetDBTemplate: &DBRefGetDBTemplate null
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
+    DBRefGetIdTemplate: &DBRefGetIdTemplate null
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null
+    DBRefToStringTemplate: &DBRefToStringTemplate null
+    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
+    DoubleValueOfTemplate: &DoubleValueOfTemplate null
+    DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
+    Int32ValueOfTemplate: &Int32ValueOfTemplate null
+    Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
+    Int32ToStringTemplate: &Int32ToStringTemplate null
+    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
+    LongEqualsTemplate: &LongEqualsTemplate null
+    LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
+    LongToStringTemplate: &LongToStringTemplate null
+    LongToStringArgsTemplate: &LongToStringArgsTemplate null
+    LongToIntTemplate: &LongToIntTemplate null
+    LongToIntArgsTemplate: &LongToIntArgsTemplate null
+    LongValueOfTemplate: &LongValueOfTemplate null
+    LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
+    LongToNumberTemplate: &LongToNumberTemplate null
+    LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
+    LongAddTemplate: &LongAddTemplate null
+    LongAddArgsTemplate: &LongAddArgsTemplate null
+    LongSubtractTemplate: &LongSubtractTemplate null
+    LongSubtractArgsTemplate: &LongSubtractArgsTemplate null
+    LongMultiplyTemplate: &LongMultiplyTemplate null
+    LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate null
+    LongDivTemplate: &LongDivTemplate null
+    LongDivArgsTemplate: &LongDivArgsTemplate null
+    LongModuloTemplate: &LongModuloTemplate null
+    LongModuloArgsTemplate: &LongModuloArgsTemplate null
+    LongAndTemplate: &LongAndTemplate null
+    LongAndArgsTemplate: &LongAndArgsTemplate null
+    LongOrTemplate: &LongOrTemplate null
+    LongOrArgsTemplate: &LongOrArgsTemplate null
+    LongXorTemplate: &LongXorTemplate null
+    LongXorArgsTemplate: &LongXorArgsTemplate null
+    LongShiftLeftTemplate: &LongShiftLeftTemplate null
+    LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate null
+    LongShiftRightTemplate: &LongShiftRightTemplate null
+    LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate null
+    LongCompareTemplate: &LongCompareTemplate null
+    LongCompareArgsTemplate: &LongCompareArgsTemplate null
+    LongIsOddTemplate: &LongIsOddTemplate null
+    LongIsOddArgsTemplate: &LongIsOddArgsTemplate null
+    LongIsZeroTemplate: &LongIsZeroTemplate null
+    LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate null
+    LongIsNegativeTemplate: &LongIsNegativeTemplate null
+    LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate null
+    LongNegateTemplate: &LongNegateTemplate null
+    LongNegateArgsTemplate: &LongNegateArgsTemplate null
+    LongNotTemplate: &LongNotTemplate null
+    LongNotArgsTemplate: &LongNotArgsTemplate null
+    LongNotEqualsTemplate: &LongNotEqualsTemplate null
+    LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate null
+    LongGreaterThanTemplate: &LongGreaterThanTemplate null
+    LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate null
+    LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate null
+    LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate null
+    LongLessThanTemplate: &LongLessThanTemplate null
+    LongLessThanArgsTemplate: &LongLessThanArgsTemplate null
+    LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate null
+    LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate null
+    LongFloatApproxTemplate: &LongFloatApproxTemplate null
+    LongTopTemplate: &LongTopTemplate null
+    LongBottomTemplate: &LongBottomTemplate null
+    TimestampToStringTemplate: &TimestampToStringTemplate null
+    TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
+    TimestampEqualsTemplate: &TimestampEqualsTemplate null
+    TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate null
+    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate null
+    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
+    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate null
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
+    TimestampTTemplate: &TimestampTTemplate null
+    TimestampITemplate: &TimestampITemplate null
+    TimestampAsDateTemplate: &TimestampAsDateTemplate null
+    TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate null
+    TimestampCompareTemplate: &TimestampCompareTemplate null
+    TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
+    TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate null
+    TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate null
+    TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate null
+    TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate null
+    TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate null
+    TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate null
+    TimestampLessThanTemplate: &TimestampLessThanTemplate null
+    TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate null
+    TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate null
+    TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate null
+    SymbolValueOfTemplate: &SymbolValueOfTemplate null
+    SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
+    SymbolInspectTemplate: &SymbolInspectTemplate null
+    SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
+    SymbolToStringTemplate: &SymbolToStringTemplate null
+    SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
+    Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
+    Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
+    # non bson-specific
+    DateSymbolNowTemplate: &DateSymbolNowTemplate null
+    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
+
+    #############################################
+    #         Symbol Attributes/Methods         #
+    #                                           #
+    # These're variables or functions called on #
+    # symbols. Also called bson-utils.          #
+    #                                           #
+    # They are basically the same thing as      #
+    # object attributes/methods, but need to be #
+    # distinguished since they are separate     #
+    # namespaces that happen to have the same   #
+    # name which is v confusing.                #
+    #                                           #
+    # For example, ObjectId().toString() is an  #
+    # object method, while ObjectId.fromString  #
+    # is a symbol attribute. These are two      #
+    # separate ObjectId related namespaces that #
+    # don't overlap.                            #
+    #                                           #
+    #############################################
+    LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
+    LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
+    LongSymbolMinTemplate: &LongSymbolMinTemplate null
+    LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate null
+    LongSymbolZeroTemplate: &LongSymbolZeroTemplate null
+    LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate null
+    LongSymbolOneTemplate: &LongSymbolOneTemplate null
+    LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate null
+    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate null
+    LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
+    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null
+    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate null
+    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate null
+    LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
+    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
+    LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
+    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate null
+    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate null
+    Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate null
+    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
+    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
+    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
+    ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate null
+    ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
+    # non bson-specific would go here, but there aren't any atm.
+
+    #############################################
+    #                 Imports                   #
+    #                                           #
+    # Each type has a 'code' that is consistent #
+    # between languages. The import templates   #
+    # for each code generate the required       #
+    # statement for each type. No args.         #
+    #                                           #
+    # The ImportTemplate collects everything    #
+    # into one statement.                       #
+    #                                           #
+    #############################################
+    ImportTemplate: &ImportTemplate null
+    DriverImportTemplate: &DriverImportTemplate null
+    0ImportTemplate: &0ImportTemplate null
+    1ImportTemplate: &1ImportTemplate null
+    2ImportTemplate: &2ImportTemplate null
+    3ImportTemplate: &3ImportTemplate null
+    4ImportTemplate: &4ImportTemplate null
+    5ImportTemplate: &5ImportTemplate null
+    6ImportTemplate: &6ImportTemplate null
+    7ImportTemplate: &7ImportTemplate null
+    8ImportTemplate: &8ImportTemplate null
+    9ImportTemplate: &9ImportTemplate null
+    10ImportTemplate: &10ImportTemplate null
+    11ImportTemplate: &11ImportTemplate null
+    12ImportTemplate: &12ImportTemplate null
+    100ImportTemplate: &100ImportTemplate null
+    101ImportTemplate: &101ImportTemplate null
+    102ImportTemplate: &102ImportTemplate null
+    103ImportTemplate: &103ImportTemplate null
+    104ImportTemplate: &104ImportTemplate null
+    105ImportTemplate: &105ImportTemplate null
+    106ImportTemplate: &106ImportTemplate null
+    107ImportTemplate: &107ImportTemplate null
+    108ImportTemplate: &108ImportTemplate null
+    109ImportTemplate: &109ImportTemplate null
+    110ImportTemplate: &110ImportTemplate null
+    111ImportTemplate: &111ImportTemplate null
+    112ImportTemplate: &112ImportTemplate null
+    113ImportTemplate: &113ImportTemplate null
+    114ImportTemplate: &114ImportTemplate null
+    200ImportTemplate: &200ImportTemplate null
+    201ImportTemplate: &201ImportTemplate null
+    300ImportTemplate: &300ImportTemplate null
+    301ImportTemplate: &301ImportTemplate null
+    302ImportTemplate: &302ImportTemplate null
+    303ImportTemplate: &303ImportTemplate null
+    304ImportTemplate: &304ImportTemplate null
+    305ImportTemplate: &305ImportTemplate null
+    306ImportTemplate: &306ImportTemplate null
