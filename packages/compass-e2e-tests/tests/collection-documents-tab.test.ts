@@ -297,9 +297,6 @@ describe('Collection documents tab', function () {
       await buildersCheckbox.click();
     }
 
-    // clicking too fast copies out of date stuff
-    await browser.pause(2000);
-
     await browser.clickVisible('[data-test-id="export-to-lang-copy-output"]');
 
     expect(await clipboard.read()).to
@@ -333,10 +330,10 @@ FindIterable<Document> result = collection.find(filter);`);
   it('supports view/edit via list view');
   it('supports view/edit via json view');
   it('supports view/edit via table view');
-
-  // JSON mode
-  // field by field mode
-  // array of JSON docs
-  it('can insert document');
-  it('can copy/clone/delete a document from contextual toolbar');
+  it('can insert a document in list view');
+  it('can insert a document in json view');
+  it('can insert an array of documents in json view');
+  it('can copy a document from the contextual toolbar');
+  it('can clone a document from the contextual toolbar');
+  it('can delete a document from the contextual toolbar');
 });
