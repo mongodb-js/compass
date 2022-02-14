@@ -44,6 +44,7 @@ interface Pipeline {
   fromStageOperators?: boolean;
   executor?: unknown;
   isMissingAtlasOnlyStageSupport?: boolean;
+  snippet?: string;
 }
 
 type Attributes = Record<string, unknown>;

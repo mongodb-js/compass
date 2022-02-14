@@ -44,7 +44,7 @@ function SshTunnelIdentity({
     },
     {
       name: 'port',
-      label: 'SSH Tunnel Port',
+      label: 'SSH Port',
       type: 'number',
       optional: false,
       value: sshTunnelOptions?.port?.toString(),
