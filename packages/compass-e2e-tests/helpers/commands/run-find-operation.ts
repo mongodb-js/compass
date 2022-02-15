@@ -72,10 +72,6 @@ async function setLimit(
   await browser.setOrClearValue(selector, value);
 }
 
-async function runFind(browser: CompassBrowser, tabName: string) {
-  await browser.clickVisible(Selectors.queryBarApplyFilterButton(tabName));
-}
-
 async function isOptionsExpanded(browser: CompassBrowser, tabName: string) {
   // it doesn't look like there's some attribute on the options button or
   // container that we can easily check, so just look for a field that exists
@@ -95,23 +91,46 @@ async function waitUntilCollapsed(browser: CompassBrowser, tabName: string) {
   });
 }
 
+async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
+  // click reset if it is enabled to get us back to the empty state
+  const resetButton = await browser.$(
+    Selectors.queryBarResetFilterButton(tabName)
+  );
+  await resetButton.waitForDisplayed();
+
+  if (!(await resetButton.getAttribute('class')).includes('disabled')) {
+    // look up the current resultId
+    const initialResultId = await browser.getQueryId(tabName);
+
+    await resetButton.click();
+
+    // wait for the button to become disabled which should happen once it reset
+    // all the filter fields
+    await browser.waitUntil(async () => {
+      return (await resetButton.getAttribute('class')).includes('disabled');
+    });
+
+    // now we can easily see if we get a new resultId
+    // (which we should because resetting re-runs the query)
+    await browser.waitUntil(async () => {
+      const resultId = await browser.getQueryId(tabName);
+      return resultId !== initialResultId;
+    });
+  }
+}
+
 async function collapseOptions(browser: CompassBrowser, tabName: string) {
   if (!(await isOptionsExpanded(browser, tabName))) {
     return;
   }
 
-  // Before collapsing the options, clear out all the fields in case they are
-  // set. This helps to make the tests idempotent which is handy because you can
-  // work on them by focusing one it() at a time and expect it to find the same
-  // results as if you ran the whole suite. If we ever do want to test that all
-  // the options you had set before you collapsed the options are still in
-  // effect then we can make this behaviour opt-out through an option.
-  await setProject(browser, tabName, '');
-  await setSort(browser, tabName, '');
-  await setMaxTimeMS(browser, tabName, '');
-  await setCollation(browser, tabName, '');
-  await setSkip(browser, tabName, '');
-  await setLimit(browser, tabName, '');
+  // Reset the query if there was one before. This helps to make the tests
+  // idempotent which is handy because you can work on them by focusing one it()
+  // at a time and expect it to find the same results as if you ran the whole
+  // suite. If we ever do want to test that all the options you had set before
+  // you collapsed the options are still in effect then we can make this
+  // behaviour opt-out through an option.
+  await maybeResetQuery(browser, tabName);
 
   await browser.clickVisible(Selectors.queryBarOptionsToggle(tabName));
   await waitUntilCollapsed(browser, tabName);
@@ -147,14 +166,6 @@ export async function runFindOperation(
     waitForResult = true,
   } = {}
 ): Promise<void> {
-  const queryBarSelector = Selectors.queryBar(tabName);
-
-  // look up the current resultId
-  const queryBarSelectorElement = await browser.$(queryBarSelector);
-  const initialResultId = await queryBarSelectorElement.getAttribute(
-    'data-result-id'
-  );
-
   if (project || sort || maxTimeMS || collation || skip || limit) {
     await expandOptions(browser, tabName);
 
@@ -169,15 +180,6 @@ export async function runFindOperation(
   }
 
   await setFilter(browser, tabName, filter);
-  await runFind(browser, tabName);
 
-  if (waitForResult) {
-    // now we can easily see if we get a new resultId
-    await browser.waitUntil(async () => {
-      const resultId = await queryBarSelectorElement.getAttribute(
-        'data-result-id'
-      );
-      return resultId !== initialResultId;
-    });
-  }
+  await browser.runFind(tabName, waitForResult);
 }
