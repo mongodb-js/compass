@@ -7,6 +7,38 @@ import configureExportStore from '../stores/export-store';
 
 describe('export [module]', () => {
   describe('#reducer', () => {
+    context('#startExport', () => {
+      let store;
+      const localAppRegistry = new AppRegistry();
+      const globalAppRegistry = new AppRegistry();
+
+      beforeEach(() => {
+        store = configureExportStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: function() { console.log('errrorrrrrrrr'); },
+            dataProvider: {
+              fetch: function() {
+                console.log('FETCHING', arguments);
+                return {
+                  stream: function() {
+                    console.log('streaming');
+                  }
+                }
+              }
+            }
+          }
+        });
+      });
+      it('should set the correct fields to export', () => {
+        const fields = { 'field': 1, 'field2': 0 };
+        const action = actions.updateSelectedFields(fields);
+        reducer(undefined, action);
+        store.dispatch(actions.startExport());
+        console.log(store.getState());
+      });
+    });
     context('when the action type is FINISHED', () => {
       let store;
       const localAppRegistry = new AppRegistry();
