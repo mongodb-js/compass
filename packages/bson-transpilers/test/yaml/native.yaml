@@ -20,6 +20,7 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
+          rust: "doc! {\n  \"x\": \"1\"\n}"
     - input:
           javascript: "{x: '1',}"
           shell: "{x: '1',}"
@@ -32,6 +33,7 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
+          rust: "doc! {\n  \"x\": \"1\"\n}"
     - input:
           javascript: "{x: ['1', '2']}"
           shell: "{x: ['1', '2']}"
@@ -44,6 +46,7 @@ tests:
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
           ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
+          rust: "doc! {\n  \"x\": [\n    \"1\", \"2\"\n  ]\n}"
     - input:
           javascript: "{x: {y: 2}}"
           shell: "{x: {y: 2}}"
@@ -56,6 +59,7 @@ tests:
           shell: "{\n  'x': {\n    'y': 2\n  }\n}"
           object: "{x: {y: 2}}"
           ruby: "{\n  'x' => {\n    'y' => 2\n  }\n}"
+          rust: "doc! {\n  \"x\": doc! {\n    \"y\": 2\n  }\n}"
     - input:
           javascript: "{}"
           shell: "{}"
@@ -68,6 +72,7 @@ tests:
           csharp: "new BsonDocument()"
           object: "{}"
           ruby: "{}"
+          rust: "doc! {}"
     - input:
           javascript: "{x: '1', n: '4'}"
           shell: "{x: '1', n: '4'}"

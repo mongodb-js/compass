@@ -121,21 +121,20 @@ Templates:
                     return s;
                 }
                 const rhs = arr[i + 1];
-                switch(op) {
-                    case '//':
-                        return `(${s} / ${rhs}).floor()`;
-                    case '**':
-                        return `${s}.pow(${rhs})`;
-                    default:
-                        return `${s} ${op} ${rhs}`;
-                }
+                return `${s} ${op} ${rhs}`;
             }, args[0]);
         }
     ParensSyntaxTemplate: &ParensSyntaxTemplate null
     EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
     EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
-    FloorDivTemplate: &FloorDivSyntaxTemplate null # Args: lhs, rhs
-    PowerTemplate: &PowerSyntaxTemplate null # Args: lhs, rhs
+    FloorDivTemplate: &FloorDivSyntaxTemplate !!js/function >
+        (lhs, rhs) => {
+            return `(${lhs} / {$rhs}).floor()`;
+        }
+    PowerTemplate: &PowerSyntaxTemplate !!js/function >
+        (lhs, rhs) => {
+            return `${lhs}.pow(${rhs})`;
+        }
     NewTemplate: &NewSyntaxTemplate null # Args: expression, skip?, code# [to check if meant to be skipped]
 
     #############################################
@@ -145,7 +144,16 @@ Templates:
     # get passed the literal itself as an arg.  #
     #                                           #
     #############################################
-    StringTypeTemplate: &StringTypeTemplate null # Args: literal (can be w/w/out quotes and unescaped interior quotes.)
+    StringTypeTemplate: &StringTypeTemplate !!js/function >
+        (str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+        }
     RegexTypeTemplate: &RegexTypeTemplate null # Args: pattern, flag
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
@@ -171,8 +179,35 @@ Templates:
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate null # No args
     UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
-    ObjectTypeTemplate: &ObjectTypeTemplate null # Args: literal (for empty array, is empty string. Otherwise all set)
-    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null # Args: single object element [2] (i.e. array with [key, value]), nestedness#
+    ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
+        (literal) => {
+            return `doc! {${literal}}`;
+        }
+    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
+        (args, depth) => {
+            if (args.length === 0) {
+                return '';
+            }
+            depth++;
+            const indent = '\n' + '  '.repeat(depth);
+            const closingIndent = '\n' + '  '.repeat(depth - 1);
+            const doubleStringify = (str) => {
+                let newStr = str;
+                if (
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            }
+
+            const pairs = args.map((pair) => {
+                return `${indent}${doubleStringify(pair[0])}: ${pair[1]}`;
+            }).join(',');
+
+            return `${pairs}${closingIndent}`;
+
+        }
 
     #############################################
     #               Symbols                     #
