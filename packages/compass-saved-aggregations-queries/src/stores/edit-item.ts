@@ -36,7 +36,8 @@ type EditItemUpdatedAction = {
   type: ActionTypes.EditItemUpdated;
 };
 
-type Actions = EditItemClickedAction
+type Actions =
+  | EditItemClickedAction
   | EditItemCancelledAction
   | EditItemUpdatedAction;
 
@@ -49,7 +50,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
     case ActionTypes.EditItemCancelled:
     case ActionTypes.EditItemUpdated:
       return {
-        id: undefined
+        id: undefined,
       };
     default:
       return state;
@@ -65,12 +66,17 @@ export const cancelEditItem = (): EditItemCancelledAction => ({
   type: ActionTypes.EditItemCancelled,
 });
 
-
-export const updateItem = (id: string, attributes: UpdateItemAttributes): ThunkAction<void, RootState, void, Actions> =>
+export const updateItem =
+  (
+    id: string,
+    attributes: UpdateItemAttributes
+  ): ThunkAction<void, RootState, void, Actions> =>
   async (dispatch, getState) => {
-    const { savedItems: { items } } = getState();
+    const {
+      savedItems: { items },
+    } = getState();
 
-    const item = items.find(x => x.id === id);
+    const item = items.find((x) => x.id === id);
     if (!item) {
       return;
     }
@@ -88,7 +94,7 @@ export const updateItem = (id: string, attributes: UpdateItemAttributes): ThunkA
     }
 
     dispatch({
-      type: ActionTypes.EditItemUpdated
+      type: ActionTypes.EditItemUpdated,
     });
     dispatch(fetchItems());
   };
