@@ -7,6 +7,7 @@ import type { RootState } from '.';
 export enum ActionTypes {
   DeleteItem = 'compass-saved-aggregations-queries/deleteItem',
   DeleteItemConfirm = 'compass-saved-aggregations-queries/deleteItemConfirm',
+  DeleteItemCancel = 'compass-saved-aggregations-queries/deleteItemCancel',
 }
 
 const favoriteQueryStorage = new FavoriteQueryStorage();
@@ -17,12 +18,19 @@ type DeleteItemAction = {
   id: string;
 };
 
+type DeleteItemCancelAction = {
+  type: ActionTypes.DeleteItemCancel;
+};
+
 type DeleteItemConfirmAction = {
   type: ActionTypes.DeleteItemConfirm;
   id: string;
 };
 
-export type Actions = DeleteItemAction | DeleteItemConfirmAction;
+export type Actions =
+  | DeleteItemAction
+  | DeleteItemCancelAction
+  | DeleteItemConfirmAction;
 
 export type State = {
   id: string | null;
@@ -33,21 +41,24 @@ const INITIAL_STATE: State = {
 };
 
 const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
-  if (action.type === ActionTypes.DeleteItem) {
-    return {
-      id: action.id,
-    };
+  switch (action.type) {
+    case ActionTypes.DeleteItem:
+      return { id: action.id };
+    case ActionTypes.DeleteItemCancel:
+      return { id: null };
+    case ActionTypes.DeleteItemConfirm:
+      return { id: null };
+    default:
+      return state;
   }
-  if (action.type === ActionTypes.DeleteItemConfirm) {
-    return {
-      id: null,
-    };
-  }
-  return state;
 };
 
 export const deleteItem = (id: string): DeleteItemAction => {
   return { type: ActionTypes.DeleteItem, id };
+};
+
+export const deleteItemCancel = (): DeleteItemCancelAction => {
+  return { type: ActionTypes.DeleteItemCancel };
 };
 
 export const deleteItemConfirm = (): ThunkAction<

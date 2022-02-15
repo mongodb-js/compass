@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, cleanup, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  within,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
@@ -226,9 +232,16 @@ describe('AggregationsQueriesList', function () {
       });
     });
 
-    it('should delete an item', function () {
+    it('should delete an item', async function () {
       const item = queries[0];
-      const card = screen.getByTestId('grid-item-0');
+      const card = document.querySelector<HTMLElement>(
+        `[data-id="${item.id}"]`
+      );
+
+      if (!card) {
+        throw new Error('Expected card to exist');
+      }
+
       userEvent.hover(card);
       userEvent.click(within(card).getByLabelText(/show actions/i));
       userEvent.click(
@@ -256,9 +269,38 @@ describe('AggregationsQueriesList', function () {
         })
       );
 
-      expect(() => {
-        screen.getByTestId(/delete item modal/i);
-      }, 'hides modal after deleting').to.throw;
+      await waitForElementToBeRemoved(() => {
+        return screen.queryByTestId('delete-item-modal');
+      });
+
+      expect(screen.queryByText(item.name)).to.not.exist;
+    });
+
+    it('should keep an item in the list if delete was not confirmed', async function () {
+      const item = queries[0];
+      const card = document.querySelector<HTMLElement>(
+        `[data-id="${item.id}"]`
+      );
+
+      if (!card) {
+        throw new Error('Expected card to exist');
+      }
+
+      userEvent.hover(card);
+      userEvent.click(within(card).getByLabelText('Show actions'));
+      userEvent.click(within(card).getByText('Delete'));
+
+      const modal = await screen.findByTestId('delete-item-modal');
+
+      userEvent.click(within(modal).getByText('Cancel'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      await waitForElementToBeRemoved(() => {
+        return screen.queryByTestId('delete-item-modal');
+      });
+
+      expect(screen.queryByText(item.name)).to.exist;
     });
   });
 });
