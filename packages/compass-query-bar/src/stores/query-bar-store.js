@@ -776,6 +776,10 @@ const configureStore = (options = {}) => {
     store.onServerVersionChanged(options.serverVersion);
   }
 
+  if (options.query) {
+    store.setQuery(options.query, true);
+  }
+
   return store;
 };
 

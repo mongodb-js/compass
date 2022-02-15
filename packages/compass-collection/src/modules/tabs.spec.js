@@ -62,7 +62,9 @@ describe('tabs module', () => {
         editViewName: 'db.view',
         sourceReadonly: undefined,
         sourceViewOn: undefined,
-        context: {}
+        context: {},
+        query: undefined,
+        aggregation: undefined
       });
     });
   });

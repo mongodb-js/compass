@@ -15,7 +15,8 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**@mongodb-js/compass-auto-updates**](packages/compass-auto-updates): Compass Auto Updates Plugin
 - [**@mongodb-js/compass-collection**](packages/compass-collection): Compass Collection Plugin
 - [**@mongodb-js/compass-collection-stats**](packages/compass-collection-stats): Compass Collection Stats Plugin
-- [**@mongodb-js/compass-connect**](packages/compass-connect): Connection Screen Plugin that supports Compass
+- [**@mongodb-js/compass-connect**](packages/compass-connect): Connection Screen Plugin that supports Compass (soon to be replaced by `compass-connections`)
+- [**@mongodb-js/compass-connections**](packages/compass-connections): Connection Screen that will replace `compass-connect`
 - [**@mongodb-js/compass-crud**](packages/compass-crud): Compass Plugin for CRUD Operations
 - [**@mongodb-js/compass-database**](packages/compass-database): Compass Database Plugin
 - [**@mongodb-js/compass-databases-collections**](packages/databases-collections): Plugin for viewing the list of, creating, and dropping databases and collections
@@ -45,7 +46,7 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 ### Shared Libraries and Build Tools
 
 - [**@mongodb-js/compass-components**](packages/compass-components): A set of React Components used in Compass
-- [**@mongodb-js/connect-form**](packages/connect-form): A form for specifying information needed to connect to a MongoDB instance
+- [**@mongodb-js/connection-form**](packages/connection-form): A form for specifying information needed to connect to a MongoDB instance
 - [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
 - [**@mongodb-js/mongodb-notary-service-client**](packages/notary-service-client): A client for our notary-service: an API for codesigning.
 - [**@mongodb-js/mongodb-redux-common**](packages/redux-common): Common Redux Modules for mongodb-js

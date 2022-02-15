@@ -107,8 +107,8 @@ describe('Instance sidebar', function () {
     await adminElement.waitForDisplayed();
   });
 
-  it.skip('can create a database and drop it', async function () {
-    const dbName = 'my-database';
+  it('can create a database and drop it', async function () {
+    const dbName = 'my-sidebar-database';
     const collectionName = 'my-collection';
 
     // open the create database modal from the sidebar
@@ -135,9 +135,9 @@ describe('Instance sidebar', function () {
     await dbElement.waitForExist({ reverse: true });
   });
 
-  it.skip('can create a collection and drop it', async function () {
+  it('can create a collection and drop it', async function () {
     const dbName = 'test'; // existing db
-    const collectionName = 'my-collection';
+    const collectionName = 'my-sidebar-collection';
 
     await browser.clickVisible(Selectors.SidebarFilterInput);
     const sidebarFilterInputElement = await browser.$(
@@ -173,6 +173,4 @@ describe('Instance sidebar', function () {
     // wait for it to be gone
     await collectionElement.waitForExist({ reverse: true });
   });
-
-  it('can edit a favourite');
 });

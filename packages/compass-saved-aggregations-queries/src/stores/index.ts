@@ -9,6 +9,8 @@ import dataServiceReducer, {
   resetDataService,
 } from './data-service';
 import openItemReducer from './open-item';
+import deleteItemReducer from './delete-item';
+import appRegistryReducer, { setAppRegistry } from './app-registry';
 
 const _store = createStore(
   combineReducers({
@@ -16,6 +18,8 @@ const _store = createStore(
     instance: instanceReducer,
     dataService: dataServiceReducer,
     openItem: openItemReducer,
+    deleteItem: deleteItemReducer,
+    appRegistry: appRegistryReducer,
   }),
   applyMiddleware(thunk)
 );
@@ -30,6 +34,8 @@ export type RootState = StoreState<typeof _store>;
 
 const store = Object.assign(_store, {
   onActivated(appRegistry: AppRegistry) {
+    store.dispatch(setAppRegistry(appRegistry));
+
     appRegistry.on('data-service-connected', (err, dataService) => {
       if (err) {
         return;

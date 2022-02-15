@@ -17,7 +17,7 @@ const ThemeProvider = ({
   children,
   theme,
 }: {
-  children: React.ReactChildren;
+  children: React.ReactNode;
   theme: ThemeState;
 }): React.ReactElement => {
   return (

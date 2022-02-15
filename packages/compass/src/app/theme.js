@@ -46,4 +46,4 @@ module.exports = {
   enableDarkTheme,
   disableDarkTheme,
   loadTheme
-}
+};

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Tue Feb 08 2022.
+This document was automatically generated on Tue Feb 15 2022.
 
 ## List of dependencies
 
@@ -83,12 +83,12 @@ Package|Version|License
 **[@react-aria/interactions](#e9192398723deae3ba2f387ff5053bcf4806545f3996c50abd05d233c50fde8c)**|3.6.0|Apache-2.0
 **[@react-aria/ssr](#5a434de49c4136f8a9e264ce88b351efade463a32be755ce6cdb15bb73ab23bd)**|3.1.0|Apache-2.0
 **[@react-aria/tooltip](#2e61e531887eb6d055bd61d6dcf51d4f2034fea73da6bcccecad497e8fae94a4)**|3.1.3|Apache-2.0
-**[@react-aria/utils](#d4dfc246bc6e45234519a770cde5f278bf14031a10327df529c321c07295454b)**|3.10.0|Apache-2.0
+**[@react-aria/utils](#0419dbb06ebf827f99f6400efdae15d33612a158f70c26418161bbfa39d762af)**|3.11.0|Apache-2.0
 **[@react-stately/overlays](#2cbc0451d0cbcbeedd7e9b8647377f1ca96453e739aa1593050efa75b08b59bd)**|3.1.3|Apache-2.0
 **[@react-stately/tooltip](#717ad36def55560d9ae0a472b95b5b79820fd622844abba55251cece76e39e1b)**|3.0.5|Apache-2.0
 **[@react-stately/utils](#45a411ed9ba9d2b489a2d277e95c19e8e029b38787a3ae3038503c890d8f875c)**|3.3.0|Apache-2.0
 **[@react-types/overlays](#37071036440186b3c2227b4a8039d3aaeca88b7152173b2d7351bcf1ba4f6e85)**|3.5.1|Apache-2.0
-**[@react-types/shared](#9f4eec7b49954c558c4d9435f90d2c2e0c0e2f9e8ee5829a8a8a2d21417747d1)**|3.10.0|Apache-2.0
+**[@react-types/shared](#ed5f5e40083f8dcfdd6b91821b931e301a6d975f0091b2af705ddaa65228ed25)**|3.10.1|Apache-2.0
 **[@react-types/tooltip](#a7d7b7439661486a27b0f3b735a40c721cfe2ea3ea0e518a5b0950610fb67cfe)**|3.1.2|Apache-2.0
 **[@types/parse-json](#f1178a1d84f935a2960903a1c568447caa960bdb1b11cd3fe4154209b1a6f3f8)**|4.0.0|MIT
 **[@types/prop-types](#bf7f52bc106107c67effd59d0a9eff41c4b69e0fbba0cc719336cc3758e41715)**|15.7.3|MIT
@@ -2658,8 +2658,8 @@ License files:
       
 
 
-<a id="d4dfc246bc6e45234519a770cde5f278bf14031a10327df529c321c07295454b"></a>
-### [@react-aria/utils](https://www.npmjs.com/package/@react-aria/utils) (version 3.10.0)
+<a id="0419dbb06ebf827f99f6400efdae15d33612a158f70c26418161bbfa39d762af"></a>
+### [@react-aria/utils](https://www.npmjs.com/package/@react-aria/utils) (version 3.11.0)
 <!-- initially found at node_modules/@react-aria/utils -->
 > Spectrum UI components in React
 
@@ -3728,8 +3728,8 @@ License files:
       
 
 
-<a id="9f4eec7b49954c558c4d9435f90d2c2e0c0e2f9e8ee5829a8a8a2d21417747d1"></a>
-### [@react-types/shared](https://www.npmjs.com/package/@react-types/shared) (version 3.10.0)
+<a id="ed5f5e40083f8dcfdd6b91821b931e301a6d975f0091b2af705ddaa65228ed25"></a>
+### [@react-types/shared](https://www.npmjs.com/package/@react-types/shared) (version 3.10.1)
 <!-- initially found at node_modules/@react-types/shared -->
 > Spectrum UI components in React
 

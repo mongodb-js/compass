@@ -32,6 +32,15 @@ const namespacePart = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[2],
+  minWidth: 0,
+});
+
+const namespaceIconStyles = css({ flex: 'none' });
+
+const namespaceNameStyles = css({
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
 });
 
 const NamespacePart: React.FunctionComponent<{
@@ -44,8 +53,9 @@ const NamespacePart: React.FunctionComponent<{
         title={null}
         glyph={type === 'database' ? 'Database' : 'Folder'}
         color={uiColors.gray.dark1}
+        className={namespaceIconStyles}
       ></Icon>
-      <span>{name}</span>
+      <span className={namespaceNameStyles}>{name}</span>
     </div>
   );
 };
@@ -229,7 +239,7 @@ export const SavedItemCard: React.FunctionComponent<
     // @ts-expect-error the error here is caused by passing children to Card
     // component, even though it's allowed on the implementation level the types
     // are super confused and don't allow that
-    <Card key={id} contentStyle="clickable" {...cardProps}>
+    <Card key={id} contentStyle="clickable" data-id={id} {...cardProps}>
       <div className={actionsRow}>
         <Badge variant="darkgray" className={cardBadge}>
           .{type === 'query' ? 'find' : 'aggregate'}

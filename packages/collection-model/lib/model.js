@@ -270,6 +270,43 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     }
   },
 
+  /**
+   * Fetches collection info and returns a special format of collection metadata
+   * that events like open-in-new-tab, select-namespace, edit-view require
+   */
+  async fetchMetadata({ dataService }) {
+    try {
+      await this.fetch({ dataService });
+    } catch (e) {
+      if (e.name !== 'MongoServerError') {
+        throw e;
+      }
+      // We don't care if it fails to get stats from server for any reason
+    }
+    const collectionMetadata = {
+      namespace: this.ns,
+      isReadonly: this.readonly,
+      isTimeSeries: this.isTimeSeries,
+    };
+    if (this.sourceId) {
+      try {
+        await this.source.fetch({ dataService });
+      } catch (e) {
+        if (e.name !== 'MongoServerError') {
+          throw e;
+        }
+        // We don't care if it fails to get stats from server for any reason
+      }
+      Object.assign(collectionMetadata, {
+        sourceName: this.source.ns,
+        sourceReadonly: this.source.readonly,
+        sourceViewon: this.source.sourceId,
+        sourcePipeline: this.pipeline,
+      });
+    }
+    return collectionMetadata;
+  },
+
   toJSON(opts = { derived: true }) {
     const serialized = this.serialize(opts);
     if (serialized.source) {

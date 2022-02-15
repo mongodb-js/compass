@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
-import { SaveConnectionModal } from '@mongodb-js/connect-form';
+import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarInstanceStats from '../sidebar-instance-stats';
 import SidebarInstanceDetails from '../sidebar-instance-details';
@@ -8,6 +8,7 @@ import NonGenuineWarningPill from '../non-genuine-warning-pill';
 import FavoriteButton from '../favorite-button';
 
 import styles from './sidebar-instance.module.less';
+import { cloneDeep } from 'lodash';
 
 export const SidebarInstance = ({
   instance,
@@ -24,7 +25,7 @@ export const SidebarInstance = ({
 
   const onClickSaveFavorite = useCallback((newFavoriteInfo) => {
     updateConnectionInfo({
-      ...connectionInfo,
+      ...cloneDeep(connectionInfo),
       favorite: newFavoriteInfo
     });
 

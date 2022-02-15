@@ -56,6 +56,7 @@ class ExplainSummary extends Component {
         <FlexBox alignItems="flex-start">
           <div className={styles['summary-stats']}>
             <SummaryStat
+              dataTestId="documents-returned-summary"
               dataLink={HELP_URLS.NRETURNED}
               label="Documents Returned:"
               value={this.props.nReturned}

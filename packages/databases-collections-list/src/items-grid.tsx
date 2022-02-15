@@ -1,8 +1,14 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useCallback } from 'react';
-import { css, cx, spacing, VirtualGrid } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  VirtualGrid,
+  useSortControls,
+  useSortedItems,
+} from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { useSortControls, useSortedItems } from './use-sort';
 import type { NamespaceItemCardProps } from './namespace-card';
 import { useViewTypeControls } from './use-view-type';
 import type { ViewType } from './use-view-type';

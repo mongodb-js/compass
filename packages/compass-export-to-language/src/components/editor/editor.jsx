@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import jsBeautify from 'js-beautify';
 
 import 'ace-builds';
 import AceEditor from 'react-ace';
@@ -9,6 +8,7 @@ import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/mode-csharp';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-java';
+import 'ace-builds/src-noconflict/mode-ruby';
 
 import 'mongodb-ace-theme';
 
@@ -17,44 +17,19 @@ import styles from './editor.module.less';
 class Editor extends PureComponent {
   static displayName = 'EditorComponent';
 
-  // input query can be an object(empty query) or a string(an actual query) so
-  // check for any
   static propTypes = {
-    outputLang: PropTypes.string.isRequired,
-    transpiledExpression: PropTypes.string.isRequired,
-    error: PropTypes.string,
-    imports: PropTypes.string.isRequired,
-    showImports: PropTypes.bool.isRequired,
-    isInput: PropTypes.bool, // display input or output
-    from: PropTypes.string.isRequired // filter for query, agg for agg
+    language: PropTypes.string,
+    value: PropTypes.string.isRequired
   };
 
-  // need to be able to stringify and add spaces to prettify the object
-  componentDidMount() {
-    if (this.props.isInput && this.props.from !== '') {
-      this.editor.setValue(jsBeautify(this.props.from));
-      this.editor.clearSelection();
-    }
+  static defaultProps = {
+    language: 'javascript'
   }
 
   componentDidUpdate() {
-    if (!this.props.isInput) {
-      if (this.props.error) {
-        this.editor.setValue('');
-        this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
-        this.editor.clearSelection();
-      } else {
-        const output = this.props.showImports && this.props.imports !== '' ?
-          this.props.imports + '\n\n' + this.props.transpiledExpression :
-          this.props.transpiledExpression;
-        this.editor.setValue(output);
-        this.editor.session.setMode('ace/mode/' + this.props.outputLang || 'javascript');
-        this.editor.clearSelection();
-      }
-    } else if (this.props.from !== '') {
-      this.editor.setValue(jsBeautify(this.props.from, null, 2));
-      this.editor.clearSelection();
-    }
+    this.editor.setValue(this.props.value);
+    this.editor.session.setMode(`ace/mode/${this.props.language}`);
+    this.editor.clearSelection();
   }
 
   render() {
@@ -71,17 +46,13 @@ class Editor extends PureComponent {
     };
 
     const queryStyle = classnames(styles.editor);
-    const output = this.props.showImports && this.props.imports !== '' ? this.props.imports + '\n\n' + this.props.transpiledExpression : this.props.transpiledExpression;
-
-    const to = this.props.error ? '' : output;
-    const value = this.props.isInput ? this.props.from : to;
 
     return (
       <div className={queryStyle}>
         <AceEditor
-          mode="javascript"
+          mode={this.props.language}
           defaultValue=""
-          value={value}
+          value={this.props.value}
           theme="mongodb"
           width="100%"
           editorProps={{$blockScrolling: Infinity}}
