@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { ConfirmationModal, Description } from '@mongodb-js/compass-components';
 import type { RootState } from '../stores';
-import { deleteItemConfirm } from '../stores/delete-item';
+import { deleteItemConfirm, deleteItemCancel } from '../stores/delete-item';
 import type { Item } from '../stores/aggregations-queries-items';
 
 type DeleteItemModalProps = {
@@ -50,5 +50,5 @@ export default connect<
           ?.type ?? null,
     };
   },
-  { onDeleteConfirm: deleteItemConfirm, onDeleteCancel: deleteItemConfirm }
+  { onDeleteConfirm: deleteItemConfirm, onDeleteCancel: deleteItemCancel }
 )(DeleteItemModal);
