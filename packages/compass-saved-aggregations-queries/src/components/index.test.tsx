@@ -302,5 +302,87 @@ describe('AggregationsQueriesList', function () {
 
       expect(screen.queryByText(item.name)).to.exist;
     });
+
+    it('should edit an item', async function () {
+      const item = queries[0];
+      const card = document.querySelector<HTMLElement>(
+        `[data-id="${item.id}"]`
+      );
+
+      if (!card) {
+        throw new Error('Expected card to exist');
+      }
+
+      userEvent.hover(card);
+      userEvent.click(within(card).getByLabelText('Show actions'));
+      userEvent.click(within(card).getByText('Edit'));
+
+      const modal = screen.getByTestId('edit-item-modal');
+
+      const title = new RegExp(
+        `edit ${item.type === 'query' ? 'query' : 'aggregation'}`,
+        'i'
+      );
+      expect(within(modal).getByText(title), 'show title').to.exist;
+
+      const nameInput = within(modal).getByRole<HTMLInputElement>('textbox', {
+        name: /name/i,
+      });
+
+      expect(nameInput, 'show name input').to.exist;
+      expect(nameInput.value, 'input with item name').to.equal(item.name);
+
+      expect(
+        within(modal).getByRole<HTMLButtonElement>('button', {
+          name: /update/i,
+        }).disabled,
+        'submit button is disabled when user has not changed field value'
+      ).to.be.true;
+
+      userEvent.clear(nameInput);
+      expect(
+        within(modal).getByRole<HTMLButtonElement>('button', {
+          name: /update/i,
+        }).disabled,
+        'submit button is disabled when field value is empty'
+      ).to.be.true;
+
+      userEvent.type(nameInput, 'the updated name');
+      userEvent.click(
+        within(modal).getByRole<HTMLButtonElement>('button', {
+          name: /update/i,
+        })
+      );
+
+      await waitForElementToBeRemoved(() => {
+        return screen.queryByTestId('edit-item-modal');
+      });
+
+      expect(screen.queryByText(item.name)).to.not.exist;
+      expect(screen.getByText('the updated name')).to.exist;
+    });
+
+    it('should not update an item if edit was not confirmed', async function () {
+      const item = queries[0];
+      const card = document.querySelector<HTMLElement>(
+        `[data-id="${item.id}"]`
+      );
+
+      if (!card) {
+        throw new Error('Expected card to exist');
+      }
+
+      userEvent.hover(card);
+      userEvent.click(within(card).getByLabelText('Show actions'));
+      userEvent.click(within(card).getByText('Edit'));
+
+      const modal = await screen.findByTestId('edit-item-modal');
+
+      userEvent.click(within(modal).getByText('Cancel'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      expect(screen.queryByText(item.name)).to.exist;
+    });
   });
 });

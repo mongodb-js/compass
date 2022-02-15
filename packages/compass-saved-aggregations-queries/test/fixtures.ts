@@ -38,7 +38,7 @@ export const queries: Item[] = [
     lastModified: 12,
     type: 'query',
     query: {
-      _id: '1234',
+      _id: '5678',
       _name: 'best spaces in berlin',
       _ns: 'airbnb.listings',
       _dateSaved: 123456,
@@ -69,7 +69,7 @@ export const queries: Item[] = [
     lastModified: 13,
     type: 'query',
     query: {
-      _id: '1234',
+      _id: '9012',
       _name: 'best hosts in berlin',
       _ns: 'airbnb.hosts',
       _dateSaved: 123456,
