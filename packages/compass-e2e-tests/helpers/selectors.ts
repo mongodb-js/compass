@@ -285,14 +285,24 @@ export const DocumentListFetchingStopButton =
 export const DocumentListError =
   '[data-test-id="documents-content"] .status-row-has-error';
 export const AddDataButton = '#insert-data-dropdown';
-export const InsertDialog = '.insert-document-dialog';
 export const InsertDocumentOption =
   '[data-test-id="insert-data-dropdown-insert-document"]';
 export const ImportFileOption =
   '[data-test-id="insert-data-dropdown-import-file"]';
+
+// Insert Document modal
+
+export const InsertDialog = '.insert-document-dialog';
+export const InsertDialogErrorMessage =
+  '[trackingid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
 export const InsertJSONEditor = '.insert-document-dialog #ace-editor';
 export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
+export const InsertCancel =
+  '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
+
+// Import File modal
+
 export const ImportModal = '[data-test-id="import-modal"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-test-id="select-file-type-json"]';
@@ -300,6 +310,8 @@ export const ImportConfirm =
   '[data-test-id="import-modal"] [data-test-id="import-button"]';
 export const ImportDone =
   '[data-test-id="import-modal"] [data-test-id="done-button"]';
+
+// Query bar history
 
 export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
 export const QueryBarHistory = '[data-test-id="query-history"]';
