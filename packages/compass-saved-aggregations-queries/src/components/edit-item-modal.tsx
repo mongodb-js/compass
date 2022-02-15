@@ -33,18 +33,24 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
   const onConfirm = () => {
     return onSubmit(item.id, { name });
   };
+  const isSubmitDisabled = () => {
+    return !name || name === item.name;
+  };
   return (
     <ConfirmationModal
       open={isModalOpen}
       onCancel={onCancel}
       onConfirm={onConfirm}
+      data-testid="edit-item-modal"
       title={title}
       buttonText="Update"
-      submitDisabled={!name || name === item.name}
+      submitDisabled={isSubmitDisabled()}
     >
       <TextInput
+        tabIndex={0}
+        aria-label="Name"
         label="Name"
-        placeholder={title}
+        placeholder="Name"
         onChange={(event) => {
           setName(event.target.value);
         }}
