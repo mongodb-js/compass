@@ -455,6 +455,8 @@ export const CloseCollectionTab = '[data-test-id="close-collection-tab"]';
 export const ExportModal = '[data-test-id="export-modal"]';
 export const ExportModalQueryText =
   '[data-test-id="export-modal"] [data-test-id="query-viewer-wrapper"] .ace_text-layer';
+export const ExportModalFullCollectionOption =
+  '[data-test-id="export-modal"] [data-test-id="export-full-collection"]';
 export const ExportModalSelectFieldsButton =
   '[data-test-id="export-modal"] [data-test-id="select-fields-button"]';
 export const ExportModalSelectOutputButton =
@@ -482,4 +484,8 @@ export const selectExportFileTypeButton = (
   }
 
   return selector;
+};
+
+export const exportModalExportField = (fieldName: string): string => {
+  return `[data-test-id="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
