@@ -47,12 +47,18 @@ interface Pipeline {
   snippet?: string;
 }
 
-type Attributes = Record<string, unknown>;
+type QueryUpdateAttributes = {
+  _name: string;
+};
+
+type PipelineUpdateAttributes = {
+  name: string;
+};
 
 declare module '@mongodb-js/compass-query-history' {
   class FavoriteQueryStorage {
     loadAll(): Promise<Query[]>;
-    updateAttributes(id: string, attributes: Attributes): Promise<void>;
+    updateAttributes(id: string, attributes: QueryUpdateAttributes): Promise<void>;
     delete(id: string): Promise<void>;
   }
 
@@ -61,7 +67,7 @@ declare module '@mongodb-js/compass-query-history' {
 declare module '@mongodb-js/compass-aggregations' {
   class PipelineStorage {
     loadAll(): Promise<Aggregation[]>;
-    updateAttributes(id: string, attributes: Attributes): Promise<void>;
+    updateAttributes(id: string, attributes: PipelineUpdateAttributes): Promise<void>;
     delete(id: string): Promise<void>;
   }
 

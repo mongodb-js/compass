@@ -15,8 +15,10 @@ import type { RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { Action } from './saved-item-card';
 import OpenItemModal from './open-item-modal';
+import EditItemModal from './edit-item-modal';
 import DeleteItemModal from './delete-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
+import { editItem } from '../stores/edit-item';
 import { deleteItem } from '../stores/delete-item';
 import { copyToClipboard } from '../stores/copy-to-clipboard';
 
@@ -68,6 +70,7 @@ const AggregationsQueriesList = ({
   items,
   onMount,
   onOpenItem,
+  onEditItem,
   onDeleteItem,
   onCopyToClipboard,
 }: AggregationsQueriesListProps) => {
@@ -100,13 +103,15 @@ const AggregationsQueriesList = ({
       switch (actionName) {
         case 'open':
           return onOpenItem(id);
+        case 'edit':
+          return onEditItem(id);
         case 'delete':
           return onDeleteItem(id);
         case 'copy':
           return onCopyToClipboard(id);
       }
     },
-    [onOpenItem, onDeleteItem, onCopyToClipboard]
+    [onOpenItem, onEditItem, onDeleteItem, onCopyToClipboard]
   );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
@@ -155,6 +160,7 @@ const AggregationsQueriesList = ({
         classNames={{ row: rowStyles }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
+      <EditItemModal></EditItemModal>
       <DeleteItemModal></DeleteItemModal>
     </ControlsContext.Provider>
   );
@@ -168,6 +174,7 @@ const mapState = ({ savedItems: { items, loading } }: RootState) => ({
 const mapDispatch = {
   onMount: fetchItems,
   onOpenItem: openSavedItem,
+  onEditItem: editItem,
   onDeleteItem: deleteItem,
   onCopyToClipboard: copyToClipboard,
 };

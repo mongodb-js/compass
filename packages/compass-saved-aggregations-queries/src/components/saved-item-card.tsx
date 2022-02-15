@@ -19,7 +19,7 @@ import {
 import type { Item } from '../stores/aggregations-queries-items';
 import { formatDate } from '../utlis/format-date';
 
-export type Action = 'open' | 'delete' | 'copy' | 'rename';
+export type Action = 'open' | 'delete' | 'copy' | 'edit';
 
 export type SavedItemCardProps = Pick<
   Item,

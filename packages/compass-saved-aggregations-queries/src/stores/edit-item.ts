@@ -3,8 +3,11 @@ import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
+import { fetchItems } from './aggregations-queries-items';
 
-export type UpdateAttributes = Record<string, unknown>;
+export type UpdateItemAttributes = {
+  name: string;
+};
 
 export type State = {
   id: string | undefined;
@@ -15,31 +18,36 @@ const INITIAL_STATE: State = {
 };
 
 export enum ActionTypes {
-  ItemEdited = 'compass-saved-aggregations-queries/edit-item/itemEdited',
-  ItemUpdated = 'compass-saved-aggregations-queries/edit-item/itemUpdated',
+  EditItemClicked = 'compass-saved-aggregations-queries/edit-item/editItemClicked',
+  EditItemCancelled = 'compass-saved-aggregations-queries/edit-item/editItemCancelled',
+  EditItemUpdated = 'compass-saved-aggregations-queries/edit-item/editItemUpdated',
 }
 
-type ItemEditedAction = {
-  type: ActionTypes.ItemEdited;
+type EditItemClickedAction = {
+  type: ActionTypes.EditItemClicked;
   id: string;
 };
 
-type ItemUpdatedAction = {
-  type: ActionTypes.ItemUpdated;
+type EditItemCancelledAction = {
+  type: ActionTypes.EditItemCancelled;
 };
 
-export type Actions = ItemEditedAction | ItemUpdatedAction;
+type EditItemUpdatedAction = {
+  type: ActionTypes.EditItemUpdated;
+};
 
-const favoriteQueryStorage = new FavoriteQueryStorage();
-const pipelineStorage = new PipelineStorage();
+type Actions = EditItemClickedAction
+  | EditItemCancelledAction
+  | EditItemUpdatedAction;
 
 const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case ActionTypes.ItemEdited:
+    case ActionTypes.EditItemClicked:
       return {
         id: action.id,
-      }
-    case ActionTypes.ItemUpdated:
+      };
+    case ActionTypes.EditItemCancelled:
+    case ActionTypes.EditItemUpdated:
       return {
         id: undefined
       };
@@ -48,31 +56,41 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   }
 };
 
-export const editItem = (id: string): ItemEditedAction => {
-  return {
-    type: ActionTypes.ItemEdited,
-    id,
-  }
-};
+export const editItem = (id: string): EditItemClickedAction => ({
+  type: ActionTypes.EditItemClicked,
+  id,
+});
 
-export const updateItem = (itemId: string, attributes: UpdateAttributes): ThunkAction<void, RootState, void, Actions> =>
+export const cancelEditItem = (): EditItemCancelledAction => ({
+  type: ActionTypes.EditItemCancelled,
+});
+
+
+export const updateItem = (id: string, attributes: UpdateItemAttributes): ThunkAction<void, RootState, void, Actions> =>
   async (dispatch, getState) => {
     const { savedItems: { items } } = getState();
 
-    const item = items.find(x => x.id === itemId);
+    const item = items.find(x => x.id === id);
     if (!item) {
       return;
     }
 
-    const updateAction = item.type === 'query'
-      ? favoriteQueryStorage.updateAttributes.bind(favoriteQueryStorage)
-      : pipelineStorage.updateAttributes.bind(pipelineStorage);
-
-    await updateAction(itemId, attributes);
+    if (item.type === 'query') {
+      const favoriteQueryStorage = new FavoriteQueryStorage();
+      await favoriteQueryStorage.updateAttributes(id, {
+        _name: attributes.name,
+      });
+    } else {
+      const pipelineStorage = new PipelineStorage();
+      await pipelineStorage.updateAttributes(id, {
+        name: attributes.name,
+      });
+    }
 
     dispatch({
-      type: ActionTypes.ItemUpdated
+      type: ActionTypes.EditItemUpdated
     });
+    dispatch(fetchItems());
   };
 
 export default reducer;
