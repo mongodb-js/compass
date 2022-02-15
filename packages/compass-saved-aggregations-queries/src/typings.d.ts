@@ -2,7 +2,7 @@ interface Query {
   _id: string;
   _name: string;
   _ns: string;
-  _dateSaved: number;
+  _dateModified: number;
   collation?: Record<string, unknown>;
   filter?: Record<string, unknown>;
   limit?: number;

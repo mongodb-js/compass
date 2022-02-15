@@ -25,9 +25,11 @@ const configureStore = (options = {}) => {
       track('Query History Favorite Added');
       options.actions.deleteRecent(recent); // If query shouldn't stay in recents after save
 
+      const now = Date.now();
       const attributes = recent.getAttributes({ props: true });
       attributes._name = name;
-      attributes._dateSaved = Date.now();
+      attributes._dateSaved = now;
+      attributes._dateModified = now;
 
       const query = new FavoriteQuery(attributes);
 

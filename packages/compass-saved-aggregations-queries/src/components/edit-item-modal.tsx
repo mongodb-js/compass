@@ -46,16 +46,25 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
       buttonText="Update"
       submitDisabled={isSubmitDisabled()}
     >
-      <TextInput
-        tabIndex={0}
-        aria-label="Name"
-        label="Name"
-        placeholder="Name"
-        onChange={(event) => {
-          setName(event.target.value);
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!isSubmitDisabled()) {
+            onConfirm();
+          }
         }}
-        value={name}
-      />
+      >
+        <TextInput
+          aria-label="Name"
+          label="Name"
+          name="name"
+          placeholder="Name"
+          onChange={(event) => {
+            setName(event.target.value);
+          }}
+          value={name}
+        />
+      </form>
     </ConfirmationModal>
   );
 };

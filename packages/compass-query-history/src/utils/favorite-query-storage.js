@@ -36,7 +36,10 @@ export class FavoriteQueryStorage {
 
     await fetch();
 
-    model.set(attributes);
+    model.set({
+      ...attributes,
+      _dateModified: Date.now(),
+    });
 
     const save = promisifyAmpersandMethod(
       model.save.bind(model)
