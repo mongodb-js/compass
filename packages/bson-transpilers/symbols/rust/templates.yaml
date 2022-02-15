@@ -85,7 +85,7 @@ Templates:
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
-            if (op.includes('!')) {
+            if (op.includes('!') || op.includes('not')) {
                 return `${lhs} != ${rhs}`;
             }
             else if (op === '==' || op === '===' || op === 'is') {
@@ -93,12 +93,44 @@ Templates:
             }
             return `${lhs} ${op} ${rhs}`;
         }
-    InSyntaxTemplate: &InSyntaxTemplate null # Args: lhs, operation, rhs
-    AndSyntaxTemplate: &AndSyntaxTemplate null # Args: items to compare as an array
-    OrSyntaxTemplate: &OrSyntaxTemplate  null # Args: items to compare as an array
-    NotSyntaxTemplate: &NotSyntaxTemplate null # Args: item to negate
+    InSyntaxTemplate: &InSyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            let prefix = '';
+            if (op.includes('!') || op.includes('not')) {
+                prefix = '!';
+            }
+            return `${prefix}${rhs}.contains(&${lhs})`
+        }
+    AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
+        (args) => {
+            return args.join(' && ');
+        }
+    OrSyntaxTemplate: &OrSyntaxTemplate !!js/function >
+        (args) => {
+            return args.join(' || ');
+        }
+    NotSyntaxTemplate: &NotSyntaxTemplate !!js/function >
+        (arg) => {
+            return `!${arg}`;
+        }
     UnarySyntaxTemplate: &UnarySyntaxTemplate null
-    BinarySyntaxTemplate: &BinarySyntaxTemplate null
+    BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((s, op, i, arr) => {
+                if (i % 2 === 0) {
+                    return s;
+                }
+                const rhs = arr[i + 1];
+                switch(op) {
+                    case '//':
+                        return `(${s} / ${rhs}).floor()`;
+                    case '**':
+                        return `${s}.pow(${rhs})`;
+                    default:
+                        return `${s} ${op} ${rhs}`;
+                }
+            }, args[0]);
+        }
     ParensSyntaxTemplate: &ParensSyntaxTemplate null
     EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
     EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
@@ -115,14 +147,27 @@ Templates:
     #############################################
     StringTypeTemplate: &StringTypeTemplate null # Args: literal (can be w/w/out quotes and unescaped interior quotes.)
     RegexTypeTemplate: &RegexTypeTemplate null # Args: pattern, flag
-    BoolTypeTemplate: &BoolTypeTemplate null # Args: literal
+    BoolTypeTemplate: &BoolTypeTemplate !!js/function >
+        (literal) => {
+            return literal.toLowerCase();
+        }
     IntegerTypeTemplate: &IntegerTypeTemplate null # args: literal, argType (i.e. '_string', '_decimal' etc)
     DecimalTypeTemplate: &DecimalTypeTemplate null # args: literal, argType
     LongBasicTypeTemplate: &LongBasicTypeTemplate null # args: literal, argType
     HexTypeTemplate: &HexTypeTemplate null # args: literal, argType
     OctalTypeTemplate: &OctalTypeTemplate null # args: literal, argType
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
-    ArrayTypeTemplate: &ArrayTypeTemplate null # Args: the interior of the array (i.e. '1, 2'), nestedness#
+    ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
+        (literal, depth) => {
+            depth++;
+            if (literal === '') {
+                return '[]'
+            }
+            const indent = '\n' + '  '.repeat(depth);
+            const closingIndent = '\n' + '  '.repeat(depth - 1);
+
+            return `[${indent}${literal}${closingIndent}]`;
+        }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate null # No args
     UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:

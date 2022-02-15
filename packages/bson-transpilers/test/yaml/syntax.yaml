@@ -20,6 +20,7 @@ tests:
           csharp: "1 + 2"
           object: "3"
           ruby: "1 + 2"
+          rust: "1 + 2"
     - input:
           javascript: "1 \n +2"
           shell: "1 \t\t +2"
@@ -32,6 +33,7 @@ tests:
           csharp: "1 + 2"
           object: "3"
           ruby: "1 + 2"
+          rust: "1 + 2"
     compare:
     - input:
           javascript: "1 === 2"
@@ -45,6 +47,7 @@ tests:
           csharp: "1 == 2"
           object: "false"
           ruby: "1 == 2"
+          rust: "1 == 2"
     - input:
           javascript: "1 !== 2"
           shell: "1 !== 2"
@@ -57,6 +60,7 @@ tests:
           csharp: "1 != 2"
           object: "true"
           ruby: "1 != 2"
+          rust: "1 != 2"
     - input:
           javascript: "true || false"
           shell: "true || false"
@@ -69,6 +73,7 @@ tests:
           csharp: "true || false"
           object: "true"
           ruby: "true || false"
+          rust: "true || false"
     - input:
           javascript: "true || false || true"
           shell: "true || false || true"
@@ -81,6 +86,7 @@ tests:
           csharp: "true || false || true"
           object: "true"
           ruby: "true || false || true"
+          rust: "true || false || true"
     - input:
           javascript: "true && false"
           shell: "true && false"
@@ -93,6 +99,7 @@ tests:
           csharp: "true && false"
           object: "false"
           ruby: "true && false"
+          rust: "true && false"
     - input:
           javascript: "true && false && true"
           shell: "true && false && true"
@@ -105,6 +112,7 @@ tests:
           csharp: "true && false && true"
           object: "false"
           ruby: "true && false && true"
+          rust: "true && false && true"
     - input:
           javascript: "!true"
           shell: "!true"
@@ -117,6 +125,7 @@ tests:
           csharp: "!true"
           object: "false"
           ruby: "!true"
+          rust: "!true"
     - input:
           javascript: "1 > 2 < 3 >= 4 <= 6"
           shell: "1 > 2 < 3 >= 4 <= 6"
@@ -129,6 +138,7 @@ tests:
           csharp: "1 > 2 < 3 >= 4 <= 6"
           object: "true"
           # ruby: this is invalid syntax in ruby
+          # rust: this is invalid syntax in rust
     - input:
           python: "4 is 5"
       output:
@@ -139,6 +149,7 @@ tests:
           csharp: "4 == 5"
           object: "false"
           ruby: "4.equal?(5)"
+          rust: "4 == 5"
     - input:
           python: "4 is not 5"
       output:
@@ -149,6 +160,7 @@ tests:
           csharp: "4 != 5"
           object: "true"
           ruby: "!4.equal?(5)"
+          rust: "4 != 5"
     - input:
           python: "4 in [1, 2]"
       output:
@@ -159,6 +171,7 @@ tests:
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) != -1"
           object: "false"
           ruby: "[\n  1, 2\n].include?(4)"
+          rust: "[\n  1, 2\n].contains(&4)"
     - input:
           python: "4 not in [1, 2]"
       output:
@@ -169,6 +182,7 @@ tests:
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) == -1"
           object: "true"
           ruby: "![\n  1, 2\n].include?(4)"
+          rust: "![\n  1, 2\n].contains(&4)"
     comments:
     - input:
           javascript: "1 // a comment"
@@ -182,6 +196,7 @@ tests:
           csharp: "1"
           object: "1"
           ruby: "1"
+          rust: "1"
     - input:
           javascript: "1 /* a comment*/"
           shell: "1 /* a comment*/"
@@ -193,6 +208,7 @@ tests:
           csharp: "1"
           object: "1"
           ruby: "1"
+          rust: "1"
     - input:
           javascript: "1 /* a \ncom\nmen\nt*/+2"
           shell: "1 /* a \ncom\nmen\nt*/+2"
@@ -204,6 +220,7 @@ tests:
           csharp: "1 + 2"
           object: "3"
           ruby: "1 + 2"
+          rust: "1 + 2"
     - input:
           javascript: "1 /* a \ncom\nmen\nt*/"
           shell: "1 /* a \ncom\nmen\nt*/"
@@ -215,6 +232,7 @@ tests:
           csharp: "1"
           object: "1"
           ruby: "1"
+          rust: "1"
     - input:
           javascript: "1 /* a comment*/+2"
           shell: "1 /* a comment*/+2"
@@ -226,6 +244,7 @@ tests:
           csharp: "1 + 2"
           object: "3"
           ruby: "1 + 2"
+          rust: "1 + 2"
     parens:
     - input:
           javascript: "(1 === 1)"
@@ -239,6 +258,7 @@ tests:
           csharp: "(1 == 1)"
           object: "true"
           ruby: "(1 == 1)"
+          rust: "(1 == 1)"
     - input:
           javascript: "((1 === (1)))"
           shell: "((1 === (1)))"
@@ -251,3 +271,4 @@ tests:
           csharp: "((1 == (1)))"
           object: "true"
           ruby: "((1 == (1)))"
+          rust: "((1 == (1)))"
