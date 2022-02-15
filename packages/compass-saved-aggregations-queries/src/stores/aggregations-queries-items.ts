@@ -116,7 +116,7 @@ const getQueryItems = async (): Promise<Item[]> => {
     return {
       id: query._id,
       name: query._name,
-      lastModified: query._dateModified,
+      lastModified: query._dateModified ?? query._dateSaved,
       database,
       collection,
       type: 'query',

@@ -2,7 +2,10 @@ interface Query {
   _id: string;
   _name: string;
   _ns: string;
-  _dateModified: number;
+  _dateSaved: number;
+  // Introduced this field in this PR and already
+  // saved Queries will not have this field.
+  _dateModified?: number;
   collation?: Record<string, unknown>;
   filter?: Record<string, unknown>;
   limit?: number;

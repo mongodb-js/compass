@@ -9,6 +9,9 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
+import type { Query } from '@mongodb-js/compass-query-history';
+import type { Aggregation } from '@mongodb-js/compass-aggregations';
+
 import { createProxyquireMockForQueriesAndAggregationsPlugins } from '../../test/mock';
 import { queries, pipelines } from '../../test/fixtures';
 
@@ -30,7 +33,7 @@ describe('AggregationsQueriesList', function () {
             _name: 'Query',
             _ns: 'bar.foo',
             _dateSaved: 0,
-          },
+          } as Query,
         ]
       ) as any),
       // XXX: It's important that the proxyquire required module has the same
@@ -57,7 +60,7 @@ describe('AggregationsQueriesList', function () {
             name: 'Aggregation',
             namespace: 'foo.bar',
             lastModified: 0,
-          },
+          } as Aggregation,
         ],
         []
       ) as any),
@@ -89,7 +92,7 @@ describe('AggregationsQueriesList', function () {
               _dateSaved: 0,
               filter: { foo: 'bar' },
               sort: { bar: -1 },
-            },
+            } as unknown as Query,
           ]
         ) as any),
         // XXX: It's important that the proxyquire required module has the same
@@ -140,7 +143,7 @@ describe('AggregationsQueriesList', function () {
                   stage: '{\n  "field": 42\n}',
                 },
               ],
-            },
+            } as Aggregation,
           ],
           []
         ) as any),

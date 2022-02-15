@@ -12,6 +12,7 @@ export const queries: Item[] = [
       _name: 'spaces in berlin',
       _ns: 'airbnb.listings',
       _dateSaved: 123456,
+      _dateModified: 123456,
       filter: {
         host_location: RegExp('berlin'),
       },
@@ -42,6 +43,7 @@ export const queries: Item[] = [
       _name: 'best spaces in berlin',
       _ns: 'airbnb.listings',
       _dateSaved: 123456,
+      _dateModified: 123456,
       filter: {
         host_location: RegExp('berlin'),
       },
@@ -73,6 +75,7 @@ export const queries: Item[] = [
       _name: 'best hosts in berlin',
       _ns: 'airbnb.hosts',
       _dateSaved: 123456,
+      _dateModified: 123456,
       filter: {
         host_location: RegExp('berlin'),
       },
