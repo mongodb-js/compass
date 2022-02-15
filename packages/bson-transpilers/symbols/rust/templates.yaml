@@ -178,7 +178,10 @@ Templates:
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate null # No args
-    UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
+    UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
+        () => {
+            return 'Bson::Undefined';
+        }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
             return `doc! {${literal}}`;
