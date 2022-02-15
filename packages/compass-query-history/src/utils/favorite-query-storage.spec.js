@@ -75,7 +75,9 @@ describe('favorite-query-storage [Utils]', function() {
     await createNewQuery(data);
     await favoriteQueryStorage.updateAttributes(data._id, {_name: 'updated name'});
     const query = await loadById(data._id);
-    expect(query.getAttributes({props: true})).to.deep.equal({
+    const attrs = query.getAttributes({ props: true });
+    delete attrs._dateModified;
+    expect(attrs).to.deep.equal({
       ...data,
       _name: 'updated name',
     });
