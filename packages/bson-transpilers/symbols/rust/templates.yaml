@@ -174,7 +174,7 @@ Templates:
             const indent = '\n' + '  '.repeat(depth);
             const closingIndent = '\n' + '  '.repeat(depth - 1);
 
-            return `[${indent}${literal}${closingIndent}]`;
+            return `bson!([${indent}${literal}${closingIndent}])`;
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate null # No args

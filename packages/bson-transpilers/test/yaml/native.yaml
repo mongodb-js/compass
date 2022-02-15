@@ -46,7 +46,7 @@ tests:
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
           ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
-          rust: "doc! {\n  \"x\": [\n    \"1\", \"2\"\n  ]\n}"
+          rust: "doc! {\n  \"x\": bson!([\n    \"1\", \"2\"\n  ])\n}"
     - input:
           javascript: "{x: {y: 2}}"
           shell: "{x: {y: 2}}"
@@ -85,6 +85,7 @@ tests:
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
           ruby: "{\n  'x' => '1',\n  'n' => '4'\n}"
+          rust: "doc! {\n  \"x\": \"1\",\n  \"n\": \"4\"\n}"
     - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
@@ -97,6 +98,7 @@ tests:
           shell: "{\n  'graphLookup': {\n    'from': 'raw_data', \n    'startWith': '$_id', \n    'connectFromField': '_id', \n    'connectToField': 'manager', \n    'as': 'reports'\n  }\n}"
           object: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           ruby: "{\n  'graphLookup' => {\n    'from' => 'raw_data',\n    'startWith' => '$_id',\n    'connectFromField' => '_id',\n    'connectToField' => 'manager',\n    'as' => 'reports'\n  }\n}"
+          rust: "doc! {\n  \"graphLookup\": doc! {\n    \"from\": \"raw_data\",\n    \"startWith\": \"$_id\",\n    \"connectFromField\": \"_id\",\n    \"connectToField\": \"manager\",\n    \"as\": \"reports\"\n  }\n}"
     - input:
           javascript: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
           shell: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
@@ -109,6 +111,7 @@ tests:
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
+          rust: "doc! {\n  \"status\": \"A\",\n  \"$or\": bson!([\n    doc! {\n      \"qty\": doc! {\n        \"$lt\": 30\n      }\n    }, doc! {\n      \"item\": doc! {\n        \"$regex\": \"^p\"\n      }\n    }\n  ])\n}"
     - input:
           python: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
       output:
@@ -119,6 +122,7 @@ tests:
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
+          rust: "doc! {\n  \"status\": \"A\",\n  \"$or\": bson!([\n    doc! {\n      \"qty\": doc! {\n        \"$lt\": 30\n      }\n    }, doc! {\n      \"item\": doc! {\n        \"$regex\": \"^p\"\n      }\n    }\n  ])\n}"
     Array:
     - input:
           python: "['1', '2']"
@@ -132,6 +136,7 @@ tests:
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
+          rust: "bson!([\n  \"1\", \"2\"\n])"
     - input:
           python: "['1', '2',]"
           javascript: "['1', '2',]"
@@ -144,6 +149,7 @@ tests:
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
+          rust: "bson!([\n  \"1\", \"2\"\n])"
     - input:
           python: "['1', { 'settings': 'http2' }]"
           javascript: "['1', { settings: 'http2' }]"
@@ -156,6 +162,7 @@ tests:
           python: "[\n    '1', {\n        'settings': 'http2'\n    }\n]"
           object: "['1', { settings: 'http2' }]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
+          rust: "bson!([\n  \"1\", doc! {\n    \"settings\": \"http2\"\n  }\n])"
     - input:
           python: "{ 'pipeline': [{'$match': {'$expr': { '$eq': [ '$manager', '$$me' ] } } }, { '$project': { 'managers': 0}}, {'$sort': { 'startQuarter': 1, 'notes': 1, 'job_code': 1}}]}"
           javascript: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
