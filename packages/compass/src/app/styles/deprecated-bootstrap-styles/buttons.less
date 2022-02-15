@@ -8,13 +8,17 @@
   text-align: center;
   color: #464C4F;
 
+  &:hover {
+    cursor: pointer;
+  }
+
   &.disabled,
   &[disabled],
   &[disabled]:hover,
   fieldset[disabled] & {
-    cursor: @cursor-disabled;
-    .opacity(.65);
-    .box-shadow(none);
+    cursor: not-allowed;
+    opacity: .65;
+    box-shadow: none;
   }
 
   & {
@@ -189,7 +193,7 @@
 
 // REMOVE BLUE SELECTOR
 
-.btn, button {
+.btn {
   outline: none;
 }
 

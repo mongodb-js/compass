@@ -1,7 +1,11 @@
+@import './reset.less';
+
+@import './deprecated-bootstrap-styles/buttons.less';
+@import './deprecated-bootstrap-styles/caret.less';
+@import './deprecated-bootstrap-styles/dropdowns.less';
+@import './deprecated-bootstrap-styles/utilities.less';
+
 // Dependencies
-@import './bootstrap.less';
-@import './caret.less';
-@import './buttons.less';
 @import './react-select.less';
 @import './zero-state.less';
 
@@ -9,11 +13,6 @@
 @import './fontawesome.less';
 @import './fonts.less';
 @import './mms-icons.less';
-
-// Configuration
-@import './palette.less';
-
-@sidebar-width: 250px;
 
 // Tweaks to bootstrap
 @import './message-background.less';
@@ -33,6 +32,8 @@ body {
   height: 100vh;
   overflow: hidden;
   font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  font-style: normal;
   color: @gray1;
   background-color: @gray8;
   -webkit-font-smoothing: antialiased;
