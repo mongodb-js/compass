@@ -457,7 +457,7 @@ tests:
           csharp: (int) 2
           object: Number(2)
           ruby: 2.to_f
-          rust: 2i32
+          rust: '2'
     - input:
           javascript: Number(2)
           shell: Number(2)
@@ -469,7 +469,7 @@ tests:
           csharp: (int) 2
           object: Number(2)
           ruby: 2.to_f
-          rust: 2i32
+          rust: '2'
     - input:
           javascript: Number('2')
           shell: Number('2')
@@ -492,7 +492,7 @@ tests:
           csharp: (int) 0
           object: '0'
           ruby: 0.to_f
-          rust: 0i32
+          rust: '0'
     numeric_literals:
     - input:
           javascript: '2'
@@ -821,6 +821,7 @@ tests:
           csharp: '3'
           object: 'new Int32(3)'
           ruby: '3'
+          rust: '3'
     - input:
           python: int('3')
       output:
@@ -831,6 +832,7 @@ tests:
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
           ruby: "'3'.to_i"
+          rust: "\"3\".parse::<i32>()?"
     - input:
           python: int(3.001)
       output:
@@ -841,6 +843,7 @@ tests:
           csharp: Convert.ToInt32(3.001)
           object: 'new Int32(3.001)'
           ruby: '3.001.to_i'
+          rust: 'i32::try_from(3.001)?'
     - input:
           python: int(0x3)
       output:
@@ -851,6 +854,7 @@ tests:
           csharp: Convert.ToInt32(0x3)
           object: 'new Int32(0x3)'
           ruby: '0x3.to_i'
+          rust: '0x3'
     - input:
           python: int(0o3)
       output:
@@ -861,6 +865,7 @@ tests:
           csharp: '3'
           object: 'new Int32(0o3)'
           ruby: '0o3.to_i'
+          rust: '0o3'
     - input:
           python: float(3)
       output:
@@ -871,6 +876,7 @@ tests:
           csharp: '3.0'
           object: new Double(3)
           ruby: 3.to_f
+          rust: '3.0'
     - input:
           python: float('3')
       output:
@@ -881,6 +887,7 @@ tests:
           csharp: Convert.ToDouble("3")
           object: new Double('3')
           ruby: "'3'.to_f"
+          rust: "\"3\".parse::<f32>()?"
     - input:
           python: float(3.001)
       output:
@@ -891,6 +898,7 @@ tests:
           csharp: '3.001'
           object: new Double(3.001)
           ruby: '3.001'
+          rust: '3.001'
     - input:
           python: float(0x3)
       output:
@@ -901,6 +909,7 @@ tests:
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
           ruby: 0x3.to_f
+          rust: 'f32::try_from(0x3)?'
     - input:
           python: float(0o3)
       output:
@@ -911,6 +920,7 @@ tests:
           csharp: '3.0'
           object: new Double(0o3)
           ruby: 0o3.to_f
+          rust: 'f32::try_from(0o3)?'
     Date:
     - description: now date
       input:

@@ -285,10 +285,29 @@ Templates:
             if (type === '_decimal' || type === '_double') {
                 return arg;
             }
-            return `${arg}f32`;
+            if (type === '_integer' || type === '_long') {
+                return `${arg}.0`;
+            }
+            if (type === '_string') {
+                return `${arg}.parse::<f32>()?`;
+            }
+            return `f32::try_from(${arg})?`;
         }
-    Int32SymbolTemplate: &Int32SymbolTemplate null # No args
-    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Args: lhs, arg, argType
+    Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
+        () => {
+            return '';
+        }
+    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            arg = arg === undefined ? 0 : arg;
+            if (type === '_integer' || type === '_long' || type === '_hex' || type === '_octal') {
+                return arg;
+            }
+            if (type === '_string') {
+                return `${arg}.parse::<i32>()?`;
+            }
+            return `i32::try_from(${arg})?`;
+        }
     LongSymbolTemplate: &LongSymbolTemplate null # No args
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Args: lhs, arg, argType
     RegExpSymbolTemplate: &RegExpSymbolTemplate null # No args
@@ -322,9 +341,8 @@ Templates:
                     return `${arg}.parse::<i32>()?`;
                 case '_integer':
                 case '_long':
-                    return `${arg}i32`;
                 case '_decimal':
-                    return `${arg}f32`;
+                    return `${arg}`;
                 default:
                     return `f32::try_from(${arg})?`;
             }
