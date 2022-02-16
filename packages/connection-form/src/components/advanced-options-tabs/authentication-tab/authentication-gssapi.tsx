@@ -22,7 +22,6 @@ const GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS: Record<
   string,
   { label: string; value: string }
 > = {
-  default: { label: 'Default', value: '' },
   none: { label: 'None', value: 'none' },
   forward: { label: 'Forward', value: 'forward' },
   forwardAndReverse: {
@@ -52,7 +51,7 @@ function AuthenticationGSSAPI({
   const serviceName = authMechanismProperties.get('SERVICE_NAME');
   const serviceRealm = authMechanismProperties.get('SERVICE_REALM');
   const canonicalizeHostname =
-    authMechanismProperties.get('CANONICALIZE_HOST_NAME') || '';
+    authMechanismProperties.get('CANONICALIZE_HOST_NAME') || 'none';
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -111,11 +110,11 @@ function AuthenticationGSSAPI({
           name="canonicalize-hostname"
           id="canonicalize-hostname-select"
           aria-labelledby="canonicalize-hostname-label"
-          onChange={(event): void => {
+          onChange={({ target: { value } }): void => {
             updateConnectionFormField({
               type: 'update-auth-mechanism-property',
               key: 'CANONICALIZE_HOST_NAME',
-              value: event.target.value,
+              value: value === 'none' ? '' : value,
             });
           }}
           value={canonicalizeHostname}

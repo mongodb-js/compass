@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  fireEvent,
-  cleanup,
-  waitFor,
-} from '@testing-library/react';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -114,16 +108,12 @@ describe('AuthenticationGssapi Component', function () {
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
     });
 
-    it('updates the form field with CANONICALIZE_HOST_NAME none', function () {
-      const button = screen.getByTestId('gssapi-canonicalize-host-name-none');
-      fireEvent.click(button);
+    it('selects None', function () {
+      const radio = screen
+        .getByTestId('gssapi-canonicalize-host-name-none')
+        .closest('input');
 
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        key: 'CANONICALIZE_HOST_NAME',
-        type: 'update-auth-mechanism-property',
-        value: 'none',
-      });
+      expect(radio.checked).to.be.true;
     });
 
     it('updates the form field with CANONICALIZE_HOST_NAME forward', function () {
@@ -167,10 +157,8 @@ describe('AuthenticationGssapi Component', function () {
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
     });
 
-    it('resets CANONICALIZE_HOST_NAME when Default is selected', function () {
-      const button = screen.getByTestId(
-        'gssapi-canonicalize-host-name-default'
-      );
+    it('resets CANONICALIZE_HOST_NAME when None is selected', function () {
+      const button = screen.getByTestId('gssapi-canonicalize-host-name-none');
       fireEvent.click(button);
 
       expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
