@@ -65,6 +65,7 @@ describe('connection secrets', function () {
       const newConnectionInfo = mergeSecrets(originalConnectionInfo, {
         awsSessionToken: 'sessionToken',
         password: 'userPassword',
+        sshTunnelPassword: 'password',
         sshTunnelPassphrase: 'passphrase',
         tlsCertificateKeyFilePassword: 'tlsCertPassword',
         proxyPassword: 'bar',
@@ -81,6 +82,7 @@ describe('connection secrets', function () {
           sshTunnel: {
             host: 'localhost',
             username: 'user',
+            password: 'password',
             port: 22,
             identityKeyPassphrase: 'passphrase',
           },
@@ -141,6 +143,7 @@ describe('connection secrets', function () {
           sshTunnel: {
             host: 'localhost',
             username: 'user',
+            password: 'password',
             port: 22,
             identityKeyPassphrase: 'passphrase',
           },
@@ -166,6 +169,7 @@ describe('connection secrets', function () {
       expect(secrets).to.be.deep.equal({
         awsSessionToken: 'sessionToken',
         password: 'userPassword',
+        sshTunnelPassword: 'password',
         sshTunnelPassphrase: 'passphrase',
         tlsCertificateKeyFilePassword: 'tlsCertPassword',
         proxyPassword: 'bar',
