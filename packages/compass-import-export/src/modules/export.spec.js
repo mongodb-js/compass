@@ -1,3 +1,8 @@
+import { Readable } from 'stream';
+import path from 'path';
+import os from 'os';
+import fs from 'fs';
+import rimraf from 'rimraf';
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
 import AppRegistry from 'hadron-app-registry';
@@ -7,36 +12,62 @@ import configureExportStore from '../stores/export-store';
 
 describe('export [module]', () => {
   describe('#reducer', () => {
+    let tempFile;
+    beforeEach(async function () {
+      tempFile = path.join(
+        os.tmpdir(),
+        `test-${Date.now()}.csv`
+      );
+    });
+
+    afterEach(function(done) {
+      // rimraf(tempFile, done);
+      done();
+    });
     context('#startExport', () => {
       let store;
       const localAppRegistry = new AppRegistry();
       const globalAppRegistry = new AppRegistry();
 
       beforeEach(() => {
+        const mockDocuments = [
+          {
+            _id: 'foo',
+            name: 'john'
+          }
+        ];
         store = configureExportStore({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataProvider: {
-            error: function() { console.log('errrorrrrrrrr'); },
+            error: function(err) { throw err; },
             dataProvider: {
+              estimatedCount: function(ns, options, callback) { return callback(null, mockDocuments.length); },
+              count: function(ns, filter, options, callback ) { return callback(null, mockDocuments.length); },
               fetch: function() {
-                console.log('FETCHING', arguments);
                 return {
                   stream: function() {
-                    console.log('streaming');
+                    return Readable.from(JSON.stringify(mockDocuments));
                   }
-                }
+                };
               }
             }
           }
         });
       });
-      it('should set the correct fields to export', () => {
-        const fields = { 'field': 1, 'field2': 0 };
-        const action = actions.updateSelectedFields(fields);
-        reducer(undefined, action);
+      it('should set the correct fields to export', (done) => {
+        const fields = { 'name': 1, '_id': 1, 'foobar': 1};
+        store.dispatch(actions.updateSelectedFields(fields));
+        store.dispatch(actions.selectExportFileName(tempFile));
+        store.dispatch(actions.selectExportFileType('csv'));
+        store.dispatch(actions.toggleFullCollection());
+
         store.dispatch(actions.startExport());
-        console.log(store.getState());
+        // console.log(store.getState());
+        setTimeout(() => {
+          console.log(fs.readFileSync(tempFile, 'utf-8'));
+          done();
+        }, 1 * 1000);
       });
     });
     context('when the action type is FINISHED', () => {

@@ -437,20 +437,17 @@ export const startExport = () => {
       exportData,
       dataService: { dataService }
     } = getState();
-
     const spec = exportData.isFullCollection
       ? { filter: {} }
       : exportData.query;
-
+    
     const numDocsToExport = exportData.isFullCollection
       ? await fetchDocumentCount(dataService, ns, spec)
       : exportData.count;
-
     // filter out only the fields we want to include in our export data
     const projection = Object.fromEntries(
       Object.entries(exportData.fields)
         .filter((keyAndValue) => keyAndValue[1] === 1));
-
     log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
       ns,
       numDocsToExport,
@@ -458,7 +455,6 @@ export const startExport = () => {
       projection
     });
     const source = createReadableCollectionStream(dataService, ns, spec, projection);
-
     const progress = createProgressStream({
       objectMode: true,
       length: numDocsToExport,
@@ -489,7 +485,7 @@ export const startExport = () => {
     }
 
     const dest = fs.createWriteStream(exportData.fileName);
-
+    
     debug('executing pipeline');
     dispatch(onStarted(source, dest, numDocsToExport));
     stream.pipeline(source, progress, formatter, dest, function(err) {
@@ -549,6 +545,13 @@ export const startExport = () => {
   };
 };
 
+export function getExportableFields(exportData, projection) {
+  // has an entry in the projection object.
+  const columns = Object.keys(exportData.fields)
+  .filter(field => field.split('.').some(
+    (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]));
+  return columns;
+}
 /**
  * Cancel the currently running export operation, if any.
  * @api public
