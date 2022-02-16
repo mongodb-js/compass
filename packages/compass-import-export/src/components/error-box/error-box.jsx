@@ -25,7 +25,8 @@ function getPrettyErrorMessage(message) {
 
 class ErrorBox extends PureComponent {
   static propTypes = {
-    message: PropTypes.string
+    message: PropTypes.string,
+    dataTestId: PropTypes.string
   };
   render() {
     if (!this.props.message) {
@@ -34,6 +35,7 @@ class ErrorBox extends PureComponent {
     const prettyError = getPrettyErrorMessage(this.props.message);
     return (
       <div
+        data-test-id={this.props.dataTestId}
         className={style()}
         dangerouslySetInnerHTML={{ __html: prettyError }}
       />

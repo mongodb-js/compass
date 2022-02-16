@@ -285,21 +285,52 @@ export const DocumentListFetchingStopButton =
 export const DocumentListError =
   '[data-test-id="documents-content"] .status-row-has-error';
 export const AddDataButton = '#insert-data-dropdown';
-export const InsertDialog = '.insert-document-dialog';
 export const InsertDocumentOption =
   '[data-test-id="insert-data-dropdown-insert-document"]';
 export const ImportFileOption =
   '[data-test-id="insert-data-dropdown-import-file"]';
+
+// Insert Document modal
+
+export const InsertDialog = '.insert-document-dialog';
+export const InsertDialogErrorMessage =
+  '[trackingid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
 export const InsertJSONEditor = '.insert-document-dialog #ace-editor';
 export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
+export const InsertCancel =
+  '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
+
+// Import File modal
+
 export const ImportModal = '[data-test-id="import-modal"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-test-id="select-file-type-json"]';
+export const FileTypeCSV = '[data-test-id="select-file-type-csv"]';
 export const ImportConfirm =
   '[data-test-id="import-modal"] [data-test-id="import-button"]';
+export const ImportCancel =
+  '[data-test-id="import-modal"] [data-test-id="cancel-button"]';
 export const ImportDone =
   '[data-test-id="import-modal"] [data-test-id="done-button"]';
+export const ImportErrorBox = '[data-test-id="import-error-box"]';
+
+export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
+  return `[data-test-id="preview-field-header-${fieldName}"] select`;
+};
+
+export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
+  return `[data-test-id="preview-field-header-${fieldName}"] input[type="checkbox"]`;
+};
+
+// Document list view
+
+export const DocumentListFirstItemFields =
+  '[data-test-id="document-list-item"]:first-child .editable-element-field';
+export const DocumentListFirstItemValues =
+  '[data-test-id="document-list-item"]:first-child .element-value, [data-test-id="document-list-item"]:first-child .editable-expandable-element-header-label';
+
+// Query bar history
 
 export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
 export const QueryBarHistory = '[data-test-id="query-history"]';
