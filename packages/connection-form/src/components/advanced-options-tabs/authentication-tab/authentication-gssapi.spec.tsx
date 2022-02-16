@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -27,6 +27,8 @@ function renderComponent({
 }
 
 describe('AuthenticationGssapi Component', function () {
+  afterEach(cleanup);
+
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
   beforeEach(function () {
     updateConnectionFormFieldSpy = sinon.spy();
@@ -172,6 +174,77 @@ describe('AuthenticationGssapi Component', function () {
         value: '',
       });
     });
+  });
+
+  describe('when password is not in the connection string', function () {
+    beforeEach(function () {
+      renderComponent({
+        updateConnectionFormField: updateConnectionFormFieldSpy,
+      });
+
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+    });
+
+    it('allows to edit the password when enter password directly is enabled', function () {
+      expect(screen.queryByTestId('gssapi-password-input')).to.not.exist;
+      const checkbox = screen.getByTestId('gssapi-password-checkbox');
+      expect(checkbox.closest('input').checked).to.be.false;
+
+      fireEvent.click(checkbox);
+
+      const passwordInput = screen.getByTestId('gssapi-password-input');
+
+      fireEvent.change(passwordInput, {
+        target: { value: 'some-password' },
+      });
+
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+        type: 'update-password',
+        password: 'some-password',
+      });
+    });
+  });
+
+  describe('when password is in the connection string', function () {
+    beforeEach(function () {
+      renderComponent({
+        connectionStringUrl: new ConnectionStringUrl(
+          'mongodb://user:password@localhost:27017'
+        ),
+        updateConnectionFormField: updateConnectionFormFieldSpy,
+      });
+
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+    });
+
+    it('enables the checkbox and shows the password input', function () {
+      const checkbox = screen.getByTestId('gssapi-password-checkbox');
+      expect(checkbox.closest('input').checked).to.be.true;
+      const passwordInput = screen.queryByTestId('gssapi-password-input');
+      expect(passwordInput).to.exist;
+      expect(passwordInput.closest('input').value).to.equal('password');
+    });
+
+    it('resets the password and hides the input when the checkbox is unchecked', function () {
+      const checkbox = screen.getByTestId('gssapi-password-checkbox');
+      expect(checkbox.closest('input').checked).to.be.true;
+      fireEvent.click(checkbox);
+
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+        type: 'update-password',
+        password: '',
+      });
+    });
+
+    // it('shows the password input', function () {
+    //   expect(screen.queryByTestId('gssapi-password-input')).to.not.exist;
+    //   const checkbox = screen.getByTestId('gssapi-password-checkbox');
+    //   fireEvent.click(checkbox);
+
+    //   expect(screen.queryByTestId('gssapi-password-input')).to.exist;
+    // });
   });
 
   it('renders an error when there is a kerberosPrincipal error', function () {
