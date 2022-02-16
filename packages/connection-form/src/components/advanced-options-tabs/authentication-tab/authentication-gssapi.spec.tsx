@@ -4,14 +4,13 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import AuthenticationGssapi from './authentication-gssapi';
+import AuthenticationGssapi, {
+  GSSAPI_PRINCIPAL_NAME_LABEL,
+  GSSAPI_SERVICE_NAME_LABEL,
+  GSSAPI_SERVICE_REALM_LABEL,
+} from './authentication-gssapi';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-
-const GSSAPI_PRINCIPAL_NAME_LABEL = 'Principal';
-const GSSAPI_SERVICE_NAME_LABEL = 'Service Name';
-const GSSAPI_CANONICALIZE_HOST_NAME_LABEL = 'Canonicalize Host Name';
-const GSSAPI_SERVICE_REALM_LABEL = 'Service Realm';
 
 function renderComponent({
   errors = [],
@@ -102,25 +101,79 @@ describe('AuthenticationGssapi Component', function () {
     });
   });
 
-  describe('when the canoncalize hostname is changed', function () {
+  describe.only('when canoncalize hostname is empty', function () {
     beforeEach(function () {
       renderComponent({
         updateConnectionFormField: updateConnectionFormFieldSpy,
       });
 
       expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
-      const checkbox = screen.getByLabelText(
-        GSSAPI_CANONICALIZE_HOST_NAME_LABEL
-      );
-      fireEvent.click(checkbox);
     });
 
-    it('calls to update the form field', function () {
+    it('updates the form field with CANONICALIZE_HOST_NAME none', function () {
+      const button = screen.getByTestId('gssapi-canonicalize-host-name-none');
+      fireEvent.click(button);
+
       expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
       expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
         key: 'CANONICALIZE_HOST_NAME',
         type: 'update-auth-mechanism-property',
-        value: 'true',
+        value: 'none',
+      });
+    });
+
+    it('updates the form field with CANONICALIZE_HOST_NAME forward', function () {
+      const button = screen.getByTestId(
+        'gssapi-canonicalize-host-name-forward'
+      );
+      fireEvent.click(button);
+
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+        key: 'CANONICALIZE_HOST_NAME',
+        type: 'update-auth-mechanism-property',
+        value: 'forward',
+      });
+    });
+
+    it('updates the form field with CANONICALIZE_HOST_NAME forwardAndReverse', function () {
+      const button = screen.getByTestId(
+        'gssapi-canonicalize-host-name-forwardAndReverse'
+      );
+      fireEvent.click(button);
+
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+        key: 'CANONICALIZE_HOST_NAME',
+        type: 'update-auth-mechanism-property',
+        value: 'forwardAndReverse',
+      });
+    });
+  });
+
+  describe('when canoncalize hostname is set', function () {
+    beforeEach(function () {
+      renderComponent({
+        updateConnectionFormField: updateConnectionFormFieldSpy,
+        connectionStringUrl: new ConnectionStringUrl(
+          'mongodb://localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Anone'
+        ),
+      });
+
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+    });
+
+    it('resets CANONICALIZE_HOST_NAME when Default is selected', function () {
+      const button = screen.getByTestId(
+        'gssapi-canonicalize-host-name-default'
+      );
+      fireEvent.click(button);
+
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+        key: 'CANONICALIZE_HOST_NAME',
+        type: 'update-auth-mechanism-property',
+        value: '',
       });
     });
   });
@@ -129,6 +182,7 @@ describe('AuthenticationGssapi Component', function () {
     renderComponent({
       errors: [
         {
+          fieldTab: 'authentication',
           fieldName: 'kerberosPrincipal',
           message: 'kerberosPrincipal error',
         },
