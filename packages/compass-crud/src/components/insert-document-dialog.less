@@ -1,4 +1,4 @@
-  .insert-document-views {
+.insert-document-views {
   display: flex;
   align-items: center;
   margin: 0 0 10px 0;
@@ -10,7 +10,7 @@
       font-weight: bold;
       font-size: 12px;
       margin: 8px 0;
-      color: #AAAAAA;
+      color: #aaaaaa;
     }
 
     .curly-bracket {
@@ -37,7 +37,15 @@
     max-width: 80%;
   }
 }
+.insert-document-dialog {
+  .editable-element-field {
+    max-width: 10vw;
+  }
 
+  .editable-element-value {
+    max-width: 20vw;
+  }
+}
 .document {
   .document-elements {
     width: 100%;
@@ -53,33 +61,25 @@
       color: #807f7f;
     }
 
-    .editable-element-field {
-      max-width: 10vw;
-    }
-
-    .editable-element-value {
-      max-width: 20vw; 
-    }
-
-    .editable-element-is-added, .editable-expandable-element-header-is-added {
-      background-color: #FFFFFF;
+    .editable-element-is-added,
+    .editable-expandable-element-header-is-added {
+      background-color: #ffffff;
 
       input {
-        background-color: #FFFFFF;
+        background-color: #ffffff;
 
         &:focus {
-          background-color: #FFFFFF;
+          background-color: #ffffff;
         }
       }
 
       .line-number {
-        background-color: #FFFFFF;
+        background-color: #ffffff;
         color: #807f7f;
       }
     }
 
     .editable-element {
-
       &:hover {
         background-color: #f5f6f7;
 
@@ -91,7 +91,7 @@
           background-color: #f5f6f7;
 
           &:focus {
-            background-color: #FFFFFF;
+            background-color: #ffffff;
           }
         }
 
@@ -119,7 +119,6 @@
     }
 
     .editable-expandable-element-header {
-
       &:hover {
         background-color: #f5f6f7;
 
@@ -131,7 +130,7 @@
           background-color: #f5f6f7;
 
           &:focus {
-            background-color: #FFFFFF;
+            background-color: #ffffff;
           }
         }
 
