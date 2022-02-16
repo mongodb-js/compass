@@ -18,13 +18,7 @@ import {
   parseAuthMechanismProperties,
 } from '../../../utils/connection-string-helpers';
 
-export const GSSAPI_PRINCIPAL_NAME_LABEL = 'Principal';
-export const GSSAPI_SERVICE_NAME_LABEL = 'Service Name';
-export const GSSAPI_CANONICALIZE_HOST_NAME_LABEL = 'Canonicalize Host Name';
-export const GSSAPI_SERVICE_REALM_LABEL = 'Service Realm';
-export const GSSAPI_SHOW_PASSWORD_LABEL = 'Provide password directly';
-export const GSSAPI_PASSWORD_LABEL = 'Password';
-export const GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS: Record<
+const GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS: Record<
   string,
   { label: string; value: string }
 > = {
@@ -80,7 +74,8 @@ function AuthenticationGSSAPI({
               username: value,
             });
           }}
-          label={GSSAPI_PRINCIPAL_NAME_LABEL}
+          data-testid="gssapi-principal-input"
+          label="Principal"
           errorMessage={kerberosPrincipalError}
           state={kerberosPrincipalError ? 'error' : undefined}
           value={principal || ''}
@@ -89,6 +84,7 @@ function AuthenticationGSSAPI({
 
       <FormFieldContainer>
         <TextInput
+          data-testid="gssapi-service-name-input"
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +95,7 @@ function AuthenticationGSSAPI({
             });
           }}
           optional
-          label={GSSAPI_SERVICE_NAME_LABEL}
+          label="Service Name"
           value={serviceName || ''}
         />
       </FormFieldContainer>
@@ -109,7 +105,7 @@ function AuthenticationGSSAPI({
           id="canonicalize-hostname-label"
           htmlFor="canonicalize-hostname-select"
         >
-          {GSSAPI_CANONICALIZE_HOST_NAME_LABEL}
+          Canonicalize Host Name
         </Label>
         <RadioBoxGroup
           name="canonicalize-hostname"
@@ -148,15 +144,17 @@ function AuthenticationGSSAPI({
               value: value,
             });
           }}
-          label={GSSAPI_SERVICE_REALM_LABEL}
+          data-testid="gssapi-service-realm-input"
+          label="Service Realm"
           value={serviceRealm || ''}
           optional
         />
       </FormFieldContainer>
       <FormFieldContainer>
         <Checkbox
+          data-testid="gssapi-password-checkbox"
           checked={showPassword}
-          label={GSSAPI_SHOW_PASSWORD_LABEL}
+          label="Provide password directly"
           onChange={({ target: { checked } }) => {
             if (!checked) {
               updateConnectionFormField({
@@ -178,7 +176,8 @@ function AuthenticationGSSAPI({
                 password: value,
               });
             }}
-            label={GSSAPI_PASSWORD_LABEL}
+            data-testid="gssapi-password-input"
+            label="Password"
             value={password}
             type="password"
             optional
