@@ -109,7 +109,7 @@ export const saveCurrentPipeline = () => {
     const pipeline = state.pipeline.map((stage) => {
       return { ...stage, previewDocuments: [] };
     });
-    track('Aggregation Saved', { num_stages: pipeline.length });
+    track('Aggregation Saved', { id, num_stages: pipeline.length });
 
     const stateRecord = Object.assign({}
       , { namespace: state.namespace }
