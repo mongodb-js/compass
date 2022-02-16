@@ -4,8 +4,8 @@ import {
   H3,
   TextInput,
   spacing,
+  Button,
   css,
-  FormFooter,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -21,12 +21,18 @@ type EditItemModalProps = {
   onCancel: () => void;
 };
 
-const modalStyles = css({
-  paddingBottom: 0,
+const formTitleStyles = css({
+  marginBottom: spacing[5],
 });
 
-const formTitleStyles = css({
-  marginBottom: spacing[3],
+const formFooterStyles = css({
+  marginTop: spacing[5],
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
+const cancelButtonStyles = css({
+  marginRight: spacing[2],
 });
 
 const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
@@ -55,12 +61,7 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
   };
 
   return (
-    <Modal
-      className={modalStyles}
-      setOpen={onCancel}
-      open={isModalOpen}
-      data-testid="edit-item-modal"
-    >
+    <Modal setOpen={onCancel} open={isModalOpen} data-testid="edit-item-modal">
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -77,20 +78,26 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
             setName(event.target.value);
           }}
         />
-        <FormFooter
-          onCancel={onCancel}
-          primaryButton={{
-            disabled: isSubmitDisabled(),
-            text: 'Submit',
-            variant: 'primary',
-            onClick: (
-              event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-            ) => {
+        <div className={formFooterStyles}>
+          <Button
+            className={cancelButtonStyles}
+            variant="default"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            disabled={isSubmitDisabled()}
+            variant="primary"
+            onClick={(event) => {
               event.preventDefault();
               onSubmitForm();
-            },
-          }}
-        />
+            }}
+            type="submit"
+          >
+            Update
+          </Button>
+        </div>
       </form>
     </Modal>
   );
