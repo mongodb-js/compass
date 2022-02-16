@@ -29,9 +29,6 @@
     margin-bottom: 5px;
     font-weight: bold;
   }
-  // input {
-  //   line-height: normal;
-  // }
   h1 {
     font-size: 2em;
     margin: 0.67em 0;
@@ -53,28 +50,6 @@
   textarea {
     overflow: auto;
   }
-  input, button, select, textarea {
-    // font-family: inherit;
-    // font-size: inherit;
-    // line-height: inherit;
-    // color: #333333;
-  }
-  // button,
-  // input,
-  // optgroup,
-  // select,
-  // textarea {
-  //   color: inherit;
-  //   font: inherit;
-  //   margin: 0;
-  // }
-  // button {
-  //   overflow: visible;
-  // }
-  // button,
-  // select {
-  //   text-transform: none;
-  // }
   button,
   html input[type="button"],
   input[type="reset"],
@@ -144,6 +119,36 @@
     white-space: pre-wrap;
     background-color: transparent;
     border-radius: 0;
+  }
+  .checkbox {
+    position: relative;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  .checkbox label {
+    min-height: 20px;
+    padding-left: 20px;
+    margin-bottom: 0;
+    font-weight: normal;
+    cursor: pointer;
+  }
+  .checkbox input[type="checkbox"] {
+    position: absolute;
+    margin-left: -20px;
+    margin-top: 4px \\9;
+  }
+  .checkbox + .checkbox {
+    margin-top: -5px;
+  }
+  input[type="checkbox"][disabled],
+  input[type="checkbox"].disabled,
+  fieldset[disabled] input[type="checkbox"] {
+    cursor: not-allowed;
+  }
+  .checkbox.disabled label,
+  fieldset[disabled] .checkbox label {
+    cursor: not-allowed;
   }
 }
 // -- End bootstrap styles --
