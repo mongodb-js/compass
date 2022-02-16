@@ -1,7 +1,6 @@
 // We're in the process of removing bootstrap's global styles from
 // Compass. These styles are globals from bootstrap which we have removed
 // from the global namespace and are isolated to this plugin.
-// -- Start bootstrap styles --
 .with-global-bootstrap-styles {
   line-height: 1.428571429; // 20/14
   font-size: 14px;
@@ -33,13 +32,12 @@
     font-size: 2em;
     margin: 0.67em 0;
   }
-  table {
-    border-collapse: collapse;
-    border-spacing: 0;
-  }
-  td,
   th {
-    padding: 0;
+    font-weight: bold;
+    text-align: left;
+  }
+  tr {
+    border-spacing: 0 3px;
   }
   fieldset {
     padding: 0;
@@ -126,4 +124,3 @@
     cursor: not-allowed;
   }
 }
-// -- End bootstrap styles --
