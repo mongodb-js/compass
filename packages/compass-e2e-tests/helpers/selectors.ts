@@ -306,10 +306,29 @@ export const InsertCancel =
 export const ImportModal = '[data-test-id="import-modal"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-test-id="select-file-type-json"]';
+export const FileTypeCSV = '[data-test-id="select-file-type-csv"]';
 export const ImportConfirm =
   '[data-test-id="import-modal"] [data-test-id="import-button"]';
+export const ImportCancel =
+  '[data-test-id="import-modal"] [data-test-id="cancel-button"]';
 export const ImportDone =
   '[data-test-id="import-modal"] [data-test-id="done-button"]';
+export const ImportErrorBox = '[data-test-id="import-error-box"]';
+
+export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
+  return `[data-test-id="preview-field-header-${fieldName}"] select`;
+};
+
+export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
+  return `[data-test-id="preview-field-header-${fieldName}"] input[type="checkbox"]`;
+};
+
+// Document list view
+
+export const DocumentListFirstItemFields =
+  '[data-test-id="document-list-item"]:first-child .editable-element-field';
+export const DocumentListFirstItemValues =
+  '[data-test-id="document-list-item"]:first-child .element-value, [data-test-id="document-list-item"]:first-child .editable-expandable-element-header-label';
 
 // Query bar history
 
