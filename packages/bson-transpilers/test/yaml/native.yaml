@@ -622,6 +622,7 @@ tests:
           csharp: 'true'
           object: 'true'
           ruby: 'true'
+          rust: 'true'
     - input:
           javascript: 'false'
           shell: 'false'
@@ -634,6 +635,7 @@ tests:
           csharp: 'false'
           object: 'false'
           ruby: 'false'
+          rust: 'false'
     - input:
           javascript: 'null'
           shell: 'null'
@@ -646,6 +648,7 @@ tests:
           csharp: 'BsonNull.Value'
           object: 'null'
           ruby: 'nil'
+          rust: 'Bson::Null'
     - input:
           javascript: 'undefined'
           shell: 'undefined'
@@ -657,6 +660,7 @@ tests:
           csharp: 'BsonUndefined.Value'
           object: 'undefined'
           ruby: 'nil'
+          rust: 'Bson::Undefined'
     string_literals:
     - input:
           javascript: "'string'"
@@ -670,6 +674,7 @@ tests:
           csharp: "\"string\""
           object: "'string'"
           ruby: "'string'"
+          rust: "\"string\""
     - input:
           javascript: "\"string\""
           shell: "\"string\""
@@ -682,6 +687,7 @@ tests:
           csharp: "\"string\""
           object: "\"string\""
           ruby: "'string'"
+          rust: "\"string\""
     python_strings:
     - input:
           python: "'''string'''"
@@ -692,6 +698,7 @@ tests:
           shell": "'string'"
           object: "\"string\""
           ruby: "'string'"
+          rust: "\"string\""
     - input:
           python: "\"\"\"string\"\"\""
       output:
@@ -701,6 +708,7 @@ tests:
           shell: "'string'"
           object: "\"string\""
           ruby: "'string'"
+          rust: "\"string\""
     - input:
         python: "b'abc'"
       output:
@@ -710,6 +718,7 @@ tests:
           shell: "'abc'"
           object: "'abc'"
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
         python: "B'abc'"
       output:
@@ -719,6 +728,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
         python: "b\"abc\""
       output:
@@ -728,6 +738,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
           python: "B'abc'"
       output:
@@ -737,6 +748,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
           python: "u'abc'"
       output:
@@ -746,6 +758,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
           python: "U'abc'"
       output:
@@ -755,6 +768,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
           python: "u\"abc\""
       output:
@@ -764,6 +778,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
           python: "U'abc'"
       output:
@@ -773,6 +788,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
           python: "fR'abc'"
       output:
@@ -782,6 +798,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     - input:
           python: "rB'abc'"
       output:
@@ -791,6 +808,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          rust: "\"abc\""
     # TODO: unescape escaped quotes
     number_methods:
     - input:

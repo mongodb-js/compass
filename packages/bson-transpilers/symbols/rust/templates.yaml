@@ -206,7 +206,10 @@ Templates:
             return `bson!([${indent}${literal}${closingIndent}])`;
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
-    NullTypeTemplate: &NullTypeTemplate null # No args
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => {
+            return 'Bson::Null';
+        }
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
         () => {
             return 'Bson::Undefined';
