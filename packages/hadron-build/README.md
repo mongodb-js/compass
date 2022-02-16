@@ -61,8 +61,6 @@ Options:
         "darwin": {
           "icon": "resources/darwin/<your-project-id>.icns",
           "dmg_background": "resources/darwin/background.png",
-          "codesign_identity": "Developer ID Application: <your-name> (<your-apple-developer-id>)",
-          "codesign_sha1": "<your-certs-sha1>",
           "app_bundle_id": "com.<your-company>.<your-project-id>",
           "app_category_type": "public.app-category.productivity"
         },
