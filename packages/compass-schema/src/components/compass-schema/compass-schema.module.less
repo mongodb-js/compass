@@ -321,13 +321,15 @@
 
     dl.dl-horizontal {
       margin-left: -32px;
-      padding-top: 12px;
-      max-height: 112px;
       overflow: hidden;
+
+      display: grid;
+      grid-template-columns: 36px auto;
+      grid-template-areas: 'sidebar content';
 
       dt {
         color: @gray3;
-        width: 20px;
+        padding-top: 12px;
 
         a {
           color: @gray5;
@@ -348,11 +350,13 @@
         }
       }
       dd {
-        margin-left: 30px;
-        overflow: hidden;
+        overflow: auto;
+        max-height: 112px;
 
         ul li {
-          margin-bottom: 6px;
+          margin: 5px;
+          margin-top: 0;
+          display: inline-block;
 
           code {
             cursor: pointer;

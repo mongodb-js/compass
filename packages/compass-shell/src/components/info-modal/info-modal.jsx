@@ -83,7 +83,15 @@ export class InfoModal extends PureComponent {
     } = this.props;
 
     return (
-      <Modal restoreFocus={false} onEscapeKeyDown={hideInfoModal} show={show} onShow={this.showHandler}>
+      <Modal
+        restoreFocus={false}
+        onEscapeKeyDown={hideInfoModal}
+        show={show}
+        onShow={this.showHandler}
+        // Because this modal is rendered outside of the
+        // react root we need to apply the deprecated bootstrap styles here.
+        className="with-global-bootstrap-styles"
+      >
         <Modal.Header closeButton onHide={hideInfoModal}>
           <h4>mongosh {mongoshVersion}</h4>
         </Modal.Header>

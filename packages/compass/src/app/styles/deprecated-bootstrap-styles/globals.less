@@ -1,0 +1,149 @@
+// We're in the process of removing bootstrap's global styles from
+// Compass. These styles are globals from bootstrap which we have removed
+// from the global namespace and are isolated to this plugin.
+// -- Start bootstrap styles --
+.with-global-bootstrap-styles {
+  line-height: 1.428571429; // 20/14
+  font-size: 14px;
+
+  p {
+    margin: 1em 0;
+  }
+  a {
+    color: #337ab7;
+    text-decoration: none;
+  }
+  a:hover,
+  a:focus {
+    color: #23527c;
+    text-decoration: underline;
+  }
+  a:focus {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+  }
+  label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  // input {
+  //   line-height: normal;
+  // }
+  h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+  }
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+  td,
+  th {
+    padding: 0;
+  }
+  fieldset {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    min-width: 0;
+  }
+  textarea {
+    overflow: auto;
+  }
+  input, button, select, textarea {
+    // font-family: inherit;
+    // font-size: inherit;
+    // line-height: inherit;
+    // color: #333333;
+  }
+  // button,
+  // input,
+  // optgroup,
+  // select,
+  // textarea {
+  //   color: inherit;
+  //   font: inherit;
+  //   margin: 0;
+  // }
+  // button {
+  //   overflow: visible;
+  // }
+  // button,
+  // select {
+  //   text-transform: none;
+  // }
+  button,
+  html input[type="button"],
+  input[type="reset"],
+  input[type="submit"] {
+    -webkit-appearance: button;
+    cursor: pointer;
+  }
+  button[disabled],
+  html input[disabled] {
+    cursor: default;
+  }
+  input[type="radio"],
+  input[type="checkbox"] {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 4px 0 0;
+    margin-top: 1px \\9;
+    line-height: normal;
+  }
+  input[type="file"] {
+    display: block;
+  }
+  input[type="range"] {
+    display: block;
+    width: 100%;
+  }
+  select[multiple],
+  select[size] {
+    height: auto;
+  }
+  input[type="file"]:focus,
+  input[type="radio"]:focus,
+  input[type="checkbox"]:focus {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+  }
+  code,
+  pre {
+    font-size: 1em;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  }
+  code {
+    padding: 2px 4px;
+    font-size: 90%;
+    color: #c7254e;
+    background-color: #f9f2f4;
+    border-radius: 4px;
+  }
+  pre {
+    display: block;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.42857143;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: #333333;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  pre code {
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    white-space: pre-wrap;
+    background-color: transparent;
+    border-radius: 0;
+  }
+}
+// -- End bootstrap styles --
