@@ -1,13 +1,20 @@
+// eslint-disable-next-line strict
+'use strict';
+const chalk = require('chalk');
+const childProcess = require('child_process');
+const download = require('download');
 const fs = require('fs');
 const _ = require('lodash');
 const semver = require('semver');
 const path = require('path');
+const { promisify } = require('util');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
 const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg')
   .default;
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
+const execFile = promisify(childProcess.execFile);
 
 const notary = require('@mongodb-js/mongodb-notary-service-client');
 
@@ -153,6 +160,7 @@ class Target {
 
     this.asar = { unpack: [], ...pkg.config.hadron.asar };
     this.rebuild = { ...pkg.config.hadron.rebuild };
+    this.macosEntitlements = this.src(pkg.config.hadron.macosEntitlements);
 
     // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
     const mtch = this.version.match(/-([a-z]+)(\.\d+)?$/);
@@ -232,9 +240,8 @@ class Target {
    * @return {String}
    */
   src(...args) {
-    if (_.first(args) === undefined) return undefined;
-    args.unshift(this.dir);
-    return path.join.apply(path, args);
+    if (args[0] === undefined) return undefined;
+    return path.join(this.dir, ...args);
   }
 
   /**
@@ -242,9 +249,8 @@ class Target {
    * @return {String}
    */
   dest(...args) {
-    if (_.first(args) === undefined) return undefined;
-    args.unshift(this.out);
-    return path.join.apply(path, args);
+    if (args[0] === undefined) return undefined;
+    return path.join(this.out, ...args);
   }
 
   distRoot() {
@@ -255,22 +261,15 @@ class Target {
     return path.join(this.appPath);
   }
 
-  write(filename, contents) {
-    return new Promise((resolve, reject) => {
-      let dest = '';
-      if (this.platform === 'darwin') {
-        dest = path.join(this.appPath, '..', filename);
-      } else {
-        dest = path.join(this.appPath, filename);
-      }
-      debug(`Writing ${contents.length} bytes to ${dest}`);
-      fs.writeFile(dest, contents, (err) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(dest);
-      });
-    });
+  async write(filename, contents) {
+    let dest = '';
+    if (this.platform === 'darwin') {
+      dest = path.join(this.appPath, '..', filename);
+    } else {
+      dest = path.join(this.appPath, filename);
+    }
+    debug(`Writing ${contents.length} bytes to ${dest}`);
+    await fs.promises.writeFile(dest, contents);
   }
 
   /**
@@ -544,78 +543,64 @@ class Target {
     // end`;
     // // write caskContents to `${CONFIG.id}.rb` asset
 
-    this.createInstaller = () => {
-      return new Promise((resolve, reject) => {
-        const tasks = [];
-        const opts = this.installerOptions;
-        const async = require('async');
-        const createDMG = require('electron-installer-dmg');
-        const codesign = require('./codesign');
-        const { notarize } = require('electron-notarize');
-        codesign.isIdentityAvailable(
-          opts.identity_display,
-          (err, available) => {
-            if (err) {
-              return reject(err);
-            }
-            if (available) {
-              tasks.push(
-                _.partial(codesign, {
-                  identity: opts.identity_display,
-                  appPath: this.dest(
-                    `${this.productName}-darwin-x64`,
-                    `${this.productName}.app`
-                  )
-                })
-              );
-            } else {
-              console.info(`Identity is not available: "${opts.identity_display}"`);
-              codesign.printWarning();
-            }
-
-            async.series(tasks, (_err) => {
-              if (_err) {
-                return reject(_err);
-              }
-              let appleUsername = process.env.APPLE_USERNAME;
-              let applePassword = process.env.APPLE_PASSWORD;
-              const appleCredentialsFile = process.env.APPLE_CREDENTIALS_FILE;
-              if ((!appleUsername || !applePassword) && appleCredentialsFile) {
-                try {
-                  /* eslint no-sync: 0 */
-                  const credentials = JSON.parse(fs.readFileSync(appleCredentialsFile, 'utf8'));
-                  appleUsername = credentials.appleUsername;
-                  applePassword = credentials.applePassword;
-                } catch (credentialsErr) {
-                  return reject(credentialsErr);
-                }
-              }
-
-              if (appleUsername && applePassword) {
-                notarize({
-                  appBundleId: this.bundleId,
-                  appPath: this.dest(`${this.productName}-darwin-x64`, `${this.productName}.app`),
-                  appleId: appleUsername,
-                  appleIdPassword: applePassword
-                }).then(() => {
-                  createDMG(opts).then(() => {
-                    resolve();
-                  }).catch((_e) => { reject(_e); });
-                }).catch((_e) => { reject(_e); });
-              } else {
-                debug('skipping notarization because APPLE_USERNAME or APPLE_PASSWORD is not set');
-                createDMG(opts).
-                  then(() => {
-                    resolve();
-                  }).
-                  catch((_e) => {
-                    reject(_e);
-                  });
-              }
-            });
-          }
+    this.createInstaller = async() => {
+      if (process.env.MACOS_NOTARY_KEY &&
+          process.env.MACOS_NOTARY_SECRET &&
+          process.env.MACOS_NOTARY_CLIENT_URL &&
+          process.env.MACOS_NOTARY_API_URL) {
+        const appDirectoryName = `${this.productName}.app`;
+        const appPath = this.dest(
+          `${this.productName}-darwin-x64`,
+          appDirectoryName
         );
-      });
+        debug(`Signing and notarizing "${appPath}"`);
+        // https://wiki.corp.mongodb.com/display/BUILD/How+to+use+MacOS+notary+service
+        debug(`Downloading the notary client from ${process.env.MACOS_NOTARY_CLIENT_URL} to ${path.resolve('macnotary')}`);
+        await download(process.env.MACOS_NOTARY_CLIENT_URL, 'macnotary', {
+          extract: true,
+          strip: 1 // remove leading platform + arch directory
+        });
+        await fs.promises.chmod('macnotary/macnotary', 0o755); // ensure +x is set
+
+        debug(`running "zip -y -r '${appDirectoryName}.zip' '${appDirectoryName}'"`);
+        await execFile('zip', ['-y', '-r', `${appDirectoryName}.zip`, appDirectoryName], {
+          cwd: path.dirname(appPath)
+        });
+        debug(`sending file to notary service (bundle id = ${this.bundleId})`);
+        const macnotaryResult = await execFile(path.resolve('macnotary/macnotary'), [
+          '-t', 'app',
+          '-m', 'notarizeAndSign',
+          '-u', process.env.MACOS_NOTARY_API_URL,
+          '-b', this.bundleId,
+          '-f', `${appDirectoryName}.zip`,
+          '-o', `${appDirectoryName}.signed.zip`,
+          // '--verify',
+          ...(this.macosEntitlements ? ['-e', this.macosEntitlements] : [])
+        ], {
+          cwd: path.dirname(appPath),
+          encoding: 'utf8'
+        });
+        debug('macnotary result:', macnotaryResult.stdout, macnotaryResult.stderr);
+        debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(appPath), encoding: 'utf8' })).stdout);
+        debug('removing existing directory contents');
+        await execFile('rm', ['-r', appDirectoryName], {
+          cwd: path.dirname(appPath)
+        });
+        debug(`unzipping with "unzip -u '${appDirectoryName}.signed.zip'"`);
+        await execFile('unzip', ['-u', `${appDirectoryName}.signed.zip`], {
+          cwd: path.dirname(appPath),
+          encoding: 'utf8'
+        });
+        debug('ls', (await execFile('ls', ['-lh'], { cwd: path.dirname(appPath), encoding: 'utf8' })).stdout);
+        debug(`removing '${appDirectoryName}.signed.zip' and '${appDirectoryName}.zip'`);
+        await fs.promises.unlink(`${appPath}.signed.zip`);
+        await fs.promises.unlink(`${appPath}.zip`);
+      } else {
+        console.error(chalk.yellow.bold(
+          'WARNING: macos notary service credentials not set -- skipping signing and notarization!'));
+      }
+      const createDMG = require('electron-installer-dmg');
+      await createDMG(this.installerOptions);
     };
   }
 

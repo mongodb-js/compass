@@ -17,8 +17,6 @@
         "darwin": {
           "icon": "resources/darwin/hadron-app.icns",
           "dmg_background": "resources/darwin/background.png",
-          "codesign_identity": "Developer ID Application: Hadron Fixture (1234567890A)",
-          "codesign_sha1": "1111111111111111111111111111111111111111",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {

@@ -23,7 +23,6 @@ variables:
       content_type: application/octet-stream
   - &compass-env
     # NOTE: anything added here should probably also be added to the list
-    # in .evergreen/export-compass-env.js
     WORKDIR: ${workdir}
     CI: '1'
     EVERGREEN: '1'
@@ -60,7 +59,10 @@ variables:
     NOTARY_AUTH_TOKEN: ${signing_auth_token}
     NOTARY_SIGNING_KEY: ${signing_key_name}
     NOTARY_SIGNING_COMMENT: Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}
-    APPLE_CREDENTIALS: '{\"appleUsername\": \"${apple_username}\", \"applePassword\": \"${apple_password}\"}'
+    MACOS_NOTARY_KEY: ${macos_notary_key}
+    MACOS_NOTARY_SECRET: ${macos_notary_secret}
+    MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/v3.1.0/darwin_amd64.zip'
+    MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
     GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
@@ -191,7 +193,7 @@ functions:
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          # 
+          #
           # compass-e2e-tests are ignored as we are running this test suite
           # separately in the test-packaged-app task
           DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm test-ci -- --stream --ignore compass-e2e-tests
@@ -227,7 +229,6 @@ functions:
         shell: bash
         env:
           <<: *compass-env
-          # NOTE: anything added here should also be added to export-compass-env.js
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
           COMPASS_DISTRIBUTION: ${compass_distribution}
@@ -235,18 +236,7 @@ functions:
           set -e
 
           eval $(.evergreen/print-compass-env.sh)
-
-          if [ `uname` == Darwin ]; then
-            # write env vars (including secrets) to a script so we can restore them after running ssh
-            .evergreen/export-compass-env.js >> env-vars.sh
-
-            echo "Signing via ssh tunnel..."
-            ssh -v -p 2222 localhost "cd ${workdir}/src/; .evergreen/package_mac.sh"
-
-            rm env-vars.sh
-          else
-            .evergreen/package_notmac.sh
-          fi
+          .evergreen/compass_package.sh
 
   publish:
     - command: shell.exec
@@ -460,7 +450,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass
-        variants: [macos]
+        variants: [macos_package]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass
@@ -492,7 +482,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass-isolated
-        variants: [macos]
+        variants: [macos_package]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-isolated
@@ -524,7 +514,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass-readonly
-        variants: [macos]
+        variants: [macos_package]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-readonly
@@ -534,10 +524,34 @@ tasks:
           compass_distribution: compass-readonly
         variants: [ubuntu]
 
+  # copied as test-packaged-app-macos due to depends_on variation
   - name: test-packaged-app
     tags: ['required-for-publish']
     depends_on:
       - name: package
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars:
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+  # same as test-packaged-app except for depends_on
+  - name: test-packaged-app-macos
+    tags: ['required-for-publish']
+    depends_on:
+      - name: package
+        variant: macos_package
     commands:
       - func: prepare
       - func: install
@@ -663,10 +677,16 @@ buildvariants:
     tasks:
       - name: test
       - name: check
+      - name: test-packaged-app-macos
+
+  - name: macos_package
+    display_name: MacOS (Packaging)
+    # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
+    run_on: macos-1014
+    tasks:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: test-packaged-app
 
   - name: windows
     display_name: Windows
