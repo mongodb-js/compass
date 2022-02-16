@@ -79,7 +79,7 @@ const containerStyles = css({
 
 const contentStyles = css({
   marginTop: spacing[3],
-  width: '50%',
+  width: spacing[7] * 5,
 });
 
 function getSelectedAuthTabForConnectionString(
@@ -151,11 +151,7 @@ function AuthenticationTab({
       <Label htmlFor="authentication-method-radio-box-group">
         Authentication Method
       </Label>
-      <RadioBoxGroup
-        onChange={optionSelected}
-        className="radio-box-group-style"
-        value={selectedAuthTab.id}
-      >
+      <RadioBoxGroup onChange={optionSelected} value={selectedAuthTab.id}>
         {options.map(({ title, id }) => {
           return (
             <RadioBox
