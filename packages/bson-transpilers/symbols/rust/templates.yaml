@@ -347,8 +347,20 @@ Templates:
                     return `f32::try_from(${arg})?`;
             }
         }
-    DateSymbolTemplate: &DateSymbolTemplate null # No args
-    DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Args: lhs, date (Date object), isString? (if the result needs to be a date string instead of a date instance)
+    DateSymbolTemplate: &DateSymbolTemplate !!js/function >
+        () => {
+            return 'Utc'
+        }
+    DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
+        (lhs, date, isString) => {
+            let toStr = isString ? '.to_rfc2822()' : '';
+            if (date === null) {
+                return `${lhs}::now()${toStr}`;
+            }
+            let ymd = `.ymd(${date.getUTCFullYear()}, ${date.getUTCMonth()+1}, ${date.getUTCDate()})`;
+            let hms = `.and_hms(${date.getUTCHours()}, ${date.getUTCMinutes()}, ${date.getUTCSeconds()})`;
+            return `${lhs}${ymd}${hms}${toStr}`;
+        }
 
     #############################################
     #         Object Attributes/Methods         #
@@ -485,8 +497,14 @@ Templates:
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # non bson-specific
-    DateSymbolNowTemplate: &DateSymbolNowTemplate null
-    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
+    DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
+        () => {
+            return 'Utc::now()';
+        }
+    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
 
     #############################################
     #         Symbol Attributes/Methods         #

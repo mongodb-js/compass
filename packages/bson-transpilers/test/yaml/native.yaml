@@ -935,6 +935,7 @@ tests:
           csharp: DateTime.Now
           object: "new Date()"
           ruby: Time.new.utc
+          rust: Utc::now()
     - description: date.now
       input:
           javascript: Date.now()
@@ -947,6 +948,7 @@ tests:
           csharp: DateTime.Now
           object: "1" # just checks type and not value
           ruby: Time.now.utc
+          rust: "Utc::now()"
     - input:
           javascript: new Date(1995, 11, 17)
           shell: new Date(1995, 11, 17)
@@ -959,6 +961,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 0, 0, 0)
           object: new Date(1995, 11, 17)
           ruby: Time.utc(1995, 12, 17, 0, 0, 0)
+          rust: Utc.ymd(1995, 12, 17).and_hms(0, 0, 0)
     - input:
           javascript: new Date(1995, 11, 17, 3, 24)
           shell: new Date(1995, 11, 17, 3, 24)
@@ -971,6 +974,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           object: new Date(1995, 11, 17, 3, 24)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
+          rust: Utc.ymd(1995, 12, 17).and_hms(3, 24, 0)
     - input:
           javascript: new Date(1995, 11, 17, 3, 24, 55)
           shell: new Date(1995, 11, 17, 3, 24, 55)
@@ -983,6 +987,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 55)
           object: new Date('Sun, 17 Dec 1995 03:24:55 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 55)
+          rust: Utc.ymd(1995, 12, 17).and_hms(3, 24, 55)
     - input:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -994,6 +999,7 @@ tests:
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
+          rust: Utc.ymd(1995, 12, 17).and_hms(3, 24, 0)
     - input:
           javascript: new Date(819167040000)
           shell: new Date(819167040000)
@@ -1005,6 +1011,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 2, 24, 0)
           object: new Date(819167040000)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0)
+          rust: Utc.ymd(1995, 12, 17).and_hms(2, 24, 0)
     date_string:
     - input:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -1017,6 +1024,7 @@ tests:
           shell: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
+          rust: Utc.ymd(1995, 12, 17).and_hms(3, 24, 0).to_rfc2822()
     - input:
           javascript: Date(819167040000)
           shell: Date(819167040000)
@@ -1028,6 +1036,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 2, 24, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(819167040000)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
+          rust: Utc.ymd(1995, 12, 17).and_hms(2, 24, 0).to_rfc2822()
     - input:
           javascript: Date(1995, 11, 17)
           shell: Date(1995, 11, 17)
@@ -1039,6 +1048,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 0, 0, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(1995, 11, 17)
           ruby: Time.utc(1995, 12, 17, 0, 0, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
+          rust: Utc.ymd(1995, 12, 17).and_hms(0, 0, 0).to_rfc2822()
     ISODate:
     - input:
           shell: new ISODate('1995-12-17T03:24:00.000Z')
@@ -1049,6 +1059,7 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
+          rust: Utc.ymd(1995, 12, 17).and_hms(3, 24, 0)
     - input:
           shell: ISODate('1995-12-17T03:24:00.000Z')
       output:
@@ -1058,6 +1069,7 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
+          rust: Utc.ymd(1995, 12, 17).and_hms(3, 24, 0)
     - description: now date
       input:
           shell: ISODate()
@@ -1068,6 +1080,7 @@ tests:
           csharp: DateTime.Now
           object: new Date()
           ruby: Time.new.utc
+          rust: Utc::now()
     - description: now date
       input:
           shell: new ISODate()
@@ -1078,6 +1091,7 @@ tests:
           csharp: DateTime.Now
           object: "new Date()"
           ruby: Time.new.utc
+          rust: Utc::now()
     regular_expressions:
     - description: "empty RegExp"
       input:
