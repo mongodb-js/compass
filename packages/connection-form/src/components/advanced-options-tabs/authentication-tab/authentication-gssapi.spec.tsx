@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -226,7 +232,7 @@ describe('AuthenticationGssapi Component', function () {
       expect(passwordInput.closest('input').value).to.equal('password');
     });
 
-    it('resets the password and hides the input when the checkbox is unchecked', function () {
+    it('resets the password when the checkbox is unchecked', function () {
       const checkbox = screen.getByTestId('gssapi-password-checkbox');
       expect(checkbox.closest('input').checked).to.be.true;
       fireEvent.click(checkbox);
@@ -237,14 +243,6 @@ describe('AuthenticationGssapi Component', function () {
         password: '',
       });
     });
-
-    // it('shows the password input', function () {
-    //   expect(screen.queryByTestId('gssapi-password-input')).to.not.exist;
-    //   const checkbox = screen.getByTestId('gssapi-password-checkbox');
-    //   fireEvent.click(checkbox);
-
-    //   expect(screen.queryByTestId('gssapi-password-input')).to.exist;
-    // });
   });
 
   it('renders an error when there is a kerberosPrincipal error', function () {
