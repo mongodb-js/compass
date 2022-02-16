@@ -264,7 +264,7 @@ export const collectionTab = (tabName: string, selected?: boolean): string => {
   return selector;
 };
 export const collectionContent = (tabName: string): string => {
-  const tn = tabName.toLowerCase().replace(/ /g, ' ');
+  const tn = tabName.toLowerCase().replace(/ /g, '-');
   return `[data-test-id="${tn}-content"]`;
 };
 export const collectionHeaderTitle = (
@@ -285,21 +285,55 @@ export const DocumentListFetchingStopButton =
 export const DocumentListError =
   '[data-test-id="documents-content"] .status-row-has-error';
 export const AddDataButton = '#insert-data-dropdown';
-export const InsertDialog = '.insert-document-dialog';
 export const InsertDocumentOption =
   '[data-test-id="insert-data-dropdown-insert-document"]';
 export const ImportFileOption =
   '[data-test-id="insert-data-dropdown-import-file"]';
+
+// Insert Document modal
+
+export const InsertDialog = '.insert-document-dialog';
+export const InsertDialogErrorMessage =
+  '[trackingid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
 export const InsertJSONEditor = '.insert-document-dialog #ace-editor';
 export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
+export const InsertCancel =
+  '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
+
+// Import File modal
+
 export const ImportModal = '[data-test-id="import-modal"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-test-id="select-file-type-json"]';
+export const FileTypeCSV = '[data-test-id="select-file-type-csv"]';
 export const ImportConfirm =
   '[data-test-id="import-modal"] [data-test-id="import-button"]';
+export const ImportCancel =
+  '[data-test-id="import-modal"] [data-test-id="cancel-button"]';
 export const ImportDone =
   '[data-test-id="import-modal"] [data-test-id="done-button"]';
+export const ImportErrorBox = '[data-test-id="import-error-box"]';
+
+export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
+  return `[data-test-id="preview-field-header-${fieldName}"] select`;
+};
+
+export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
+  return `[data-test-id="preview-field-header-${fieldName}"] input[type="checkbox"]`;
+};
+
+// Document list view
+
+export const DocumentListFirstItemFields =
+  '[data-test-id="document-list-item"]:first-child .editable-element-field';
+export const DocumentListFirstItemValues =
+  '[data-test-id="document-list-item"]:first-child .element-value, [data-test-id="document-list-item"]:first-child .editable-expandable-element-header-label';
+
+// Query bar history
+
+export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
+export const QueryBarHistory = '[data-test-id="query-history"]';
 
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
@@ -348,7 +382,8 @@ export const stageTextarea = (stageIndex: number): string => {
 // Schema tab
 export const AnalyzeSchemaButton = '[data-test-id="analyze-schema-button"]';
 export const SchemaFieldList = '.schema-field-list';
-export const AnalysisMessage = '.analysis-message';
+export const AnalysisMessage =
+  '[data-test-id="schema-content"] .analysis-message';
 export const SchemaField = '.schema-field';
 export const SchemaFieldName = '.schema-field-name';
 export const SchemaFieldTypeList = '.schema-field-type-list';
@@ -357,6 +392,8 @@ export const SchemaFieldTypeList = '.schema-field-type-list';
 export const ExecuteExplainButton = '[data-test-id="execute-explain-button"]';
 export const ExplainSummary = '[data-test-id="explain-summary"]';
 export const ExplainStage = '[data-test-id="explain-stage"]';
+export const ExplainDocumentsReturnedSummary =
+  '[data-test-id="documents-returned-summary"]';
 
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';
@@ -437,6 +474,10 @@ export const queryBarOptionsToggle = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-test-id="query-bar-options-toggle"]`;
 };
+export const queryBarResetFilterButton = (tabName: string): string => {
+  const tabSelector = collectionContent(tabName);
+  return `${tabSelector} [data-test-id="query-bar-reset-filter-button"]`;
+};
 
 // Tabs at the top
 export const CloseCollectionTab = '[data-test-id="close-collection-tab"]';
@@ -445,6 +486,8 @@ export const CloseCollectionTab = '[data-test-id="close-collection-tab"]';
 export const ExportModal = '[data-test-id="export-modal"]';
 export const ExportModalQueryText =
   '[data-test-id="export-modal"] [data-test-id="query-viewer-wrapper"] .ace_text-layer';
+export const ExportModalFullCollectionOption =
+  '[data-test-id="export-modal"] [data-test-id="export-full-collection"]';
 export const ExportModalSelectFieldsButton =
   '[data-test-id="export-modal"] [data-test-id="select-fields-button"]';
 export const ExportModalSelectOutputButton =
@@ -472,4 +515,8 @@ export const selectExportFileTypeButton = (
   }
 
   return selector;
+};
+
+export const exportModalExportField = (fieldName: string): string => {
+  return `[data-test-id="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };

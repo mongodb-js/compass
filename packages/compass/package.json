@@ -67,8 +67,6 @@
         "darwin": {
           "icon": "app-icons/darwin/mongodb-compass.icns",
           "dmg_background": "app-icons/darwin/background.png",
-          "codesign_identity": "Developer ID Application: MongoDB, Inc. (4XWMY46275)",
-          "codesign_sha1": "BBF6BCF14C4365D5632BA5E68B378DA4D8CBDF4C",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
@@ -101,6 +99,8 @@
           "**/file-uri-to-path/**",
           "**/bson/**",
           "**/os-dns-native/**",
+          "**/debug/**",
+          "**/ms/**",
           "**/bindings/**",
           "**/ipv6-normalize/**",
           "**/node-addon-api/**"
@@ -112,7 +112,8 @@
           "keytar",
           "kerberos"
         ]
-      }
+      },
+      "macosEntitlements": "./scripts/macos-entitlements.xml"
     }
   },
   "scripts": {
@@ -123,7 +124,7 @@
     "pretest": "npm run electron-rebuild",
     "test": "npm run test-main && npm run test-renderer",
     "test-main": "xvfb-maybe electron-mocha --no-sandbox \"./src/main/**/*.spec.*\"  \"./src/main/**/*.test.*\"",
-    "test-renderer": "xvfb-maybe electron-mocha --config ./.mocharc.renderer.js \"./src/app/**/*.spec.js\"",
+    "test-renderer": "xvfb-maybe electron-mocha --no-sandbox --config ./.mocharc.renderer.js \"./src/app/**/*.spec.js\"",
     "posttest": "node ../../scripts/rebuild.js kerberos keytar interruptor",
     "check": "npm run lint && npm run depcheck",
     "prewebpack": "rimraf ./build",
