@@ -101,6 +101,8 @@
           "**/file-uri-to-path/**",
           "**/bson/**",
           "**/os-dns-native/**",
+          "**/debug/**",
+          "**/ms/**",
           "**/bindings/**",
           "**/ipv6-normalize/**",
           "**/node-addon-api/**"

@@ -82,7 +82,7 @@ function ErrorsList({ errors }) {
   if (normalizedErrorMessages.length === 0) {
     return (
       <div className={style('errors')}>
-        <ErrorBox message={normalizedErrorMessages[0]} />
+        <ErrorBox dataTestId="import-error-box" message={normalizedErrorMessages[0]} />
       </div>
     );
   }
@@ -92,7 +92,7 @@ function ErrorsList({ errors }) {
       <ul className={style('errors-list')}>
         {normalizedErrorMessages.slice(0, visibleErrorsCount).map((message) => (
           <li key={message} className={style('errors-list-item')}>
-            <ErrorBox message={message} />
+            <ErrorBox dataTestId="import-error-box" message={message} />
           </li>
         ))}
       </ul>
