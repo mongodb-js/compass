@@ -270,8 +270,27 @@ Templates:
     # passed to the original function.          #
     #                                           #
     #############################################
-    CodeSymbolTemplate: &CodeSymbolTemplate null # No args
-    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate null # Args: code, scope
+    CodeSymbolTemplate: &CodeSymbolTemplate !!js/function >
+        () => {
+            return 'Bson::JavaScriptCode'
+        }
+    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
+        (lhs, code, scope) => {
+            // Double quote stringify
+            let newStr = code === undefined ? '' : code;
+            const str = newStr;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                newStr = str.substr(1, str.length - 2);
+            }
+            code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            if (scope === undefined) {
+                return `(${code})`;
+            } else {
+                return `WithScope(JavaScriptCodeWithScope { code: ${code}, scope: ${scope} })`;
+            }
+        }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # No args
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null # Args: lhs, string (can be empty or null for no arg)
     BinarySymbolTemplate: &BinarySymbolTemplate null
