@@ -342,6 +342,7 @@ tests:
           csharp: 2 + 5 - 1
           object: 2 + 5 - 1
           ruby: 2 + 5 - 1
+          rust: 2 + 5 - 1
     - input:
           javascript: 2 + (4 * 36) / 3
           shell: 2 + (4 * 36) / 3
@@ -355,6 +356,7 @@ tests:
           csharp: 2 + (4 * 36) / 3
           object: 2 + (4 * 36) / 3
           ruby: 2 + (4 * 36) / 3
+          rust: 2 + (4 * 36) / 3
     - input:
           python: 10 // 2 % 3
       output:
@@ -365,6 +367,7 @@ tests:
           csharp: Math.floor(10, 2) % 3
           object: Math.floor(10, 2)%3
           ruby: 10.div(2) % 3
+          rust: 10 / 2 % 3
     - input:
           python: 6 ** 7
       output:
@@ -375,6 +378,7 @@ tests:
           csharp: Math.pow(6, 7)
           object: Math.pow(6, 7)
           ruby: 6 ** 7
+          rust: 6.pow(7)
     - input:
           javascript: 1 | 2 ^ 3 & 4 << 6 >> 7
           shell: 1 | 2 ^ 3 & 4 << 6 >> 7
@@ -387,6 +391,7 @@ tests:
           csharp: 1 | 2 ^ 3 & 4 << 6 >> 7
           object: 1 | 2 ^ 3 & 4 << 6 >> 7
           ruby: 1 | 2 ^ 3 & 4 << 6 >> 7
+          rust: 1 | 2 ^ 3 & 4 << 6 >> 7
     - input:
           javascript: 2 + +5- -6
           shell: 2 + +5- -6
@@ -399,6 +404,7 @@ tests:
           csharp: 2 + +5 - -6
           object: 2 + +5 - -6
           ruby: 2 + +5 - -6
+          rust: 2 + 5 - -6
     unaryops:
     - input:
           javascript: '+1'
@@ -412,6 +418,7 @@ tests:
           csharp: '+1'
           object: '+1'
           ruby: '+1'
+          rust: '1'
     - input:
           javascript: '-1'
           shell: '-1'
@@ -424,6 +431,7 @@ tests:
           csharp: '-1'
           object: '-1'
           ruby: '-1'
+          rust: '-1'
     - input:
           javascript: '~1'
           shell: '~1'
@@ -436,6 +444,7 @@ tests:
           csharp: '~1'
           object: '~1'
           ruby: '~1'
+          rust: '!1'
     Number:
     - input:
           javascript: new Number(2)
@@ -448,6 +457,7 @@ tests:
           csharp: (int) 2
           object: Number(2)
           ruby: 2.to_f
+          rust: 2i32
     - input:
           javascript: Number(2)
           shell: Number(2)
@@ -459,6 +469,7 @@ tests:
           csharp: (int) 2
           object: Number(2)
           ruby: 2.to_f
+          rust: 2i32
     - input:
           javascript: Number('2')
           shell: Number('2')
@@ -470,6 +481,7 @@ tests:
           csharp: int.Parse("2")
           object: Number(2)
           ruby: "'2'.to_f"
+          rust: "\"2\".parse::<i32>()?"
     - input:
           shell: Number()
       output:
@@ -480,6 +492,7 @@ tests:
           csharp: (int) 0
           object: '0'
           ruby: 0.to_f
+          rust: 0i32
     numeric_literals:
     - input:
           javascript: '2'
@@ -493,6 +506,7 @@ tests:
           csharp: '2'
           object: '2'
           ruby: '2'
+          rust: '2'
     - input:
           javascript: '429496729601'
           shell: '429496729601'
@@ -505,6 +519,7 @@ tests:
           csharp: '429496729601'
           object: '429496729601'
           ruby: '429496729601'
+          rust: '429496729601'
     - input:
           javascript: '2.001'
           shell: '2.001'
@@ -517,6 +532,7 @@ tests:
           csharp: '2.001'
           object: '2.001'
           ruby: '2.001'
+          rust: '2.001'
     - input:
           javascript: '0X123ABC'
           shell: '0X123ABC'
@@ -529,6 +545,7 @@ tests:
           csharp: '0X123ABC'
           object: '0X123ABC'
           ruby: '0X123ABC'
+          rust: '0x123ABC'
     - input:
           javascript: '0x123abc'
           shell: '0x123abc'
@@ -541,6 +558,7 @@ tests:
           csharp: '0x123abc'
           object: '0x123abc'
           ruby: '0x123abc'
+          rust: '0x123abc'
     - input:
           javascript: '0o1234567'
           shell: '0o1234567'
@@ -553,6 +571,7 @@ tests:
           csharp: '342391'
           object: '0o1234567'
           ruby: '0o1234567'
+          rust: '0o1234567'
     - input:
           javascript: '01234567'
           shell: '01234567'
@@ -564,6 +583,7 @@ tests:
           csharp: '342391'
           object: '01234567'
           ruby: '0o1234567'
+          rust: '0o1234567'
     - input:
           javascript: '001234567'
           shell: '001234567'
@@ -575,6 +595,7 @@ tests:
           csharp: '342391'
           object: '001234567'
           ruby: '0o1234567'
+          rust: '0o1234567'
     - input:
           javascript: '0O1234567'
           shell: '0O1234567'
@@ -587,6 +608,7 @@ tests:
           csharp: '342391'
           object: '0O1234567'
           ruby: '0o1234567'
+          rust: '0o1234567'
     misc_literals:
     - input:
           javascript: 'true'

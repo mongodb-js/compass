@@ -113,7 +113,18 @@ Templates:
         (arg) => {
             return `!${arg}`;
         }
-    UnarySyntaxTemplate: &UnarySyntaxTemplate null
+    UnarySyntaxTemplate: &UnarySyntaxTemplate !!js/function >
+        (op, val) => {
+            switch(op) {
+                case '+':
+                    return val;
+                case '~':
+                    return `!${val}`;
+                default:
+                    return `${op}${val}`;
+            }
+            return `${op}${val}`;
+        }
     BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
         (args) => {
             return args.reduce((s, op, i, arr) => {
@@ -121,20 +132,21 @@ Templates:
                     return s;
                 }
                 const rhs = arr[i + 1];
-                return `${s} ${op} ${rhs}`;
+                switch(op) {
+                    case '//':
+                        return `${s} / ${rhs}`
+                    case '**':
+                        return `${s}.pow(${rhs})`
+                    default:
+                        return `${s} ${op} ${rhs}`;
+                }
             }, args[0]);
         }
     ParensSyntaxTemplate: &ParensSyntaxTemplate null
     EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
     EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
-    FloorDivTemplate: &FloorDivSyntaxTemplate !!js/function >
-        (lhs, rhs) => {
-            return `(${lhs} / {$rhs}).floor()`;
-        }
-    PowerTemplate: &PowerSyntaxTemplate !!js/function >
-        (lhs, rhs) => {
-            return `${lhs}.pow(${rhs})`;
-        }
+    FloorDivTemplate: &FloorDivSyntaxTemplate null # Args: lhs, rhs
+    PowerTemplate: &PowerSyntaxTemplate null # Args: lhs, rhs
     NewTemplate: &NewSyntaxTemplate null # Args: expression, skip?, code# [to check if meant to be skipped]
 
     #############################################
@@ -161,9 +173,26 @@ Templates:
         }
     IntegerTypeTemplate: &IntegerTypeTemplate null # args: literal, argType (i.e. '_string', '_decimal' etc)
     DecimalTypeTemplate: &DecimalTypeTemplate null # args: literal, argType
-    LongBasicTypeTemplate: &LongBasicTypeTemplate null # args: literal, argType
-    HexTypeTemplate: &HexTypeTemplate null # args: literal, argType
-    OctalTypeTemplate: &OctalTypeTemplate null # args: literal, argType
+    LongBasicTypeTemplate: &LongBasicTypeTemplate null
+    HexTypeTemplate: &HexTypeTemplate !!js/function >
+        (literal, type) => {
+            if (literal.charAt(1) === 'X') {
+                return literal.charAt(0) + 'x' + literal.substring(2);
+            }
+            return literal;
+        }
+    OctalTypeTemplate: &OctalTypeTemplate !!js/function >
+        (literal, type) => {
+            switch(literal.charAt(1)) {
+                case 'o':
+                    return literal;
+                case 'O':
+                case '0':
+                    return literal.charAt(0) + 'o' + literal.substring(2);
+                default:
+                    return literal.charAt(0) + 'o' + literal.substring(1);
+            }
+        }
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal, depth) => {
@@ -243,8 +272,18 @@ Templates:
     BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate null
     DBRefSymbolTemplate: &DBRefSymbolTemplate null # No args
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null # Args: lhs, coll, id, db
-    DoubleSymbolTemplate: &DoubleSymbolTemplate null # No args
-    DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate null # Args: lhs, arg, argType (i.e. '_string', '_double')
+    DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
+        () => {
+            return '';
+        }
+    DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            arg = arg === undefined ? 0 : arg;
+            if (type === '_decimal' || type === '_double') {
+                return arg;
+            }
+            return `${arg}f32`;
+        }
     Int32SymbolTemplate: &Int32SymbolTemplate null # No args
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Args: lhs, arg, argType
     LongSymbolTemplate: &LongSymbolTemplate null # No args
@@ -264,8 +303,29 @@ Templates:
     TimestampSymbolTemplate: &TimestampSymbolTemplate null # No args
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null # Args: lhs, low, high
     # non bson-specific
-    NumberSymbolTemplate: &NumberSymbolTemplate null # No args
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null # Args: lhs, arg, argType
+    NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
+        () => {
+            return '';
+        }
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            arg = arg === undefined ? 0 : arg;
+
+            switch(type) {
+                case '_string':
+                    if (arg.indexOf('.') !== -1) {
+                        return `${arg}.parse::<f32>()?`;
+                    }
+                    return `${arg}.parse::<i32>()?`;
+                case '_integer':
+                case '_long':
+                    return `${arg}i32`;
+                case '_decimal':
+                    return `${arg}f32`;
+                default:
+                    return `f32::try_from(${arg})?`;
+            }
+        }
     DateSymbolTemplate: &DateSymbolTemplate null # No args
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Args: lhs, date (Date object), isString? (if the result needs to be a date string instead of a date instance)
 
