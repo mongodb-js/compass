@@ -150,7 +150,7 @@ describe('AuthenticationGssapi Component', function () {
       renderComponent({
         updateConnectionFormField: updateConnectionFormFieldSpy,
         connectionStringUrl: new ConnectionStringUrl(
-          'mongodb://localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Anone'
+          'mongodb://localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Aforward'
         ),
       });
 
