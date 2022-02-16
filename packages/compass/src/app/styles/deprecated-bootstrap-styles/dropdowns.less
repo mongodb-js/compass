@@ -16,6 +16,25 @@
 .dropdown-toggle:focus {
   outline: 0;
 }
+
+.dropdown {
+  &-toggle {
+    padding: 0 10px 1px 10px;
+    font-size: 13px;
+  }
+
+  &-menu {
+    > li > a {
+      padding: 3px 8px;
+
+      &:focus, &:hover, &:active {
+        background: #E7EEEC;
+        border-radius: 2px;
+        outline: none;
+      }
+    }
+  }
+}
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -24,7 +43,7 @@
   display: none;
   float: left;
   min-width: 160px;
-  padding: 5px 0;
+  padding: 2px;
   margin: 2px 0 0;
   list-style: none;
   font-size: 14px;
