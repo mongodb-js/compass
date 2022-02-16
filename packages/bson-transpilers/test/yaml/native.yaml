@@ -1106,6 +1106,7 @@ tests:
           csharp: "new Regex(\"(?:)\")"
           object: "RegExp('')"
           ruby: "/(?:)/"
+          rust: "Regex { pattern: \"(?:)\", flags: \"\" }"
     - description: "RegExp without options"
       input:
           javascript: "new RegExp('abc')"
@@ -1119,6 +1120,7 @@ tests:
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
           ruby: "/abc/"
+          rust: "Regex { pattern: \"abc\", flags: \"\" }"
     - description: "RegExp with named but only A flag"
       input:
           python: "re.compile('abc', flags=re.A)"
@@ -1129,6 +1131,7 @@ tests:
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
           ruby: "/abc/"
+          rust: "Regex { pattern: \"abc\", flags: \"\" }"
     - description: "regex object with im flags as args"
       input:
           javascript: "new RegExp('ab+c', 'im')"
@@ -1142,6 +1145,7 @@ tests:
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
           ruby: "/ab+c/im"
+          rust: "Regex { pattern: \"ab+c\", flags: \"im\" }"
     - description: "regex object with named flags as args"
       input:
           python: "re.compile('ab+c', flags=re.I | re.M | re.A)"
@@ -1152,6 +1156,7 @@ tests:
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
           ruby: "/ab+c/im"
+          rust: "Regex { pattern: \"ab+c\", flags: \"im\" }"
     - description: "regex object with ig flags as args"
       input:
           javascript: "new RegExp('ab+c', 'ig')"
@@ -1164,6 +1169,7 @@ tests:
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
+          rust: "Regex { pattern: \"ab+c\", flags: \"i\" }"
     - description: "regex object with forward slash"
       input:
           javascript: "new RegExp('ab/cd')"
@@ -1177,6 +1183,7 @@ tests:
           shell: "new RegExp('ab\\/cd')"
           object: "new RegExp('ab\\/cd')"
           ruby: "/ab\\/cd/"
+          rust: "Regex { pattern: \"ab\\/cd\", flags: \"\" }"
     - description: "regex object with escaped double quote"
       input:
           javascript: "new RegExp('ab\\\"ab')"
@@ -1190,6 +1197,7 @@ tests:
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
           ruby: "/ab\"ab/"
+          rust: "Regex { pattern: \"ab\\\"ab\", flags: \"\" }"
     - description: "regex object with nonescaped double quote"
       input:
           javascript: "new RegExp('ab\"ab')"
@@ -1203,6 +1211,7 @@ tests:
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
           ruby: "/ab\"ab/"
+          rust: "Regex { pattern: \"ab\\\"ab\", flags: \"\" }"
     - description: "regex object with escaped single quote"
       input:
           javascript: "new RegExp('ab\\'ab')"
@@ -1216,6 +1225,7 @@ tests:
           shell: "new RegExp('ab\\'ab')"
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
+          rust: "Regex { pattern: \"ab'ab\", flags: \"\" }"
     - description: "regex object with nonescaped single quote"
       input:
           javascript: "new RegExp(\"ab'ab\")"
@@ -1229,6 +1239,7 @@ tests:
           csharp: "new Regex(\"ab'ab\")"
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
+          rust: "Regex { pattern: \"ab'ab\", flags: \"\" }"
     - description: "regex object with newline"
       input:
           javascript: "new RegExp(\"\\\\n\")"
@@ -1242,6 +1253,7 @@ tests:
           csharp: "new Regex(\"\\n\")"
           object: /\n/
           ruby: /\n/
+          rust: "Regex { pattern: \"\\n\", flags: \"\" }"
     - description: "regex literal with ig flags"
       input:
           javascript: "/ab+c/ig"
@@ -1254,6 +1266,7 @@ tests:
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
+          rust: "Regex { pattern: \"ab+c\", flags: \"i\" }"
     - description: "regex object with regex literal arg"
       input:
           javascript: "new RegExp(/ab+c/, 'i')"
@@ -1267,6 +1280,7 @@ tests:
           shell: "new RegExp('ab+c', 'i')"
           object: "new RegExp('ab+c', 'i')"
           ruby: "/ab+c/i"
+          rust: "Regex { pattern: \"ab+c\", flags: \"i\" }"
     - description: "python regex without ascii flag defaults to unicode"
       input:
           python: "re.compile('ab+c')"
@@ -1278,4 +1292,5 @@ tests:
           shell: "new RegExp('ab+c', 'u')"
           object: "new RegExp('ab+c', 'u')"
           ruby: "/ab+c/"
+          rust: "Regex { pattern: \"ab+c\", flags: \"u\" }"
 

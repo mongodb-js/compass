@@ -27,8 +27,8 @@ Templates:
         i: 'i'
         m: 'm'
         u: 'u'
-        y: 'y'
-        g: 'g'
+        y: ''
+        g: ''
     BSONRegexFlags: &BSONRegexFlags
         i: 'i'
         m: 'm'
@@ -166,7 +166,17 @@ Templates:
           }
           return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
         }
-    RegexTypeTemplate: &RegexTypeTemplate null # Args: pattern, flag
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+        (pattern, flags) => {
+            // Double-quote stringify
+            let newPat = pattern;
+            if (
+                (pattern.charAt(0) === '\'' && pattern.charAt(str.length - 1) === '\'') ||
+                (pattern.charAt(0) === '"' && pattern.charAt(str.length - 1) === '"')) {
+                    newPat = pattern.substr(1, pattern.length - 2);
+            }
+            return `Regex { pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", flags: "${flags}" }`;
+        }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
             return literal.toLowerCase();
@@ -310,7 +320,10 @@ Templates:
         }
     LongSymbolTemplate: &LongSymbolTemplate null # No args
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Args: lhs, arg, argType
-    RegExpSymbolTemplate: &RegExpSymbolTemplate null # No args
+    RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
+        () => {
+            return 'Regex'
+        }
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate null # No args
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null # Args: lhs, arg
