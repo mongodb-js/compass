@@ -387,7 +387,12 @@ Templates:
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (_, pattern, flags) => {
             if (flags === null || flags === undefined) {
-                flags = '""';
+                flags = '';
+            }
+            if (
+                (flags.charAt(0) === '\'' && flags.charAt(flags.length - 1) === '\'') ||
+                (flags.charAt(0) === '"' && flags.charAt(flags.length - 1) === '"')) {
+                    flags = flags.substr(1, flags.length - 2);
             }
             // Double-quote stringify
             let newPat = pattern;
