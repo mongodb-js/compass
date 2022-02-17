@@ -440,7 +440,7 @@ export const startExport = () => {
     const spec = exportData.isFullCollection
       ? { filter: {} }
       : exportData.query;
-    
+
     const numDocsToExport = exportData.isFullCollection
       ? await fetchDocumentCount(dataService, ns, spec)
       : exportData.count;
@@ -485,7 +485,6 @@ export const startExport = () => {
     }
 
     const dest = fs.createWriteStream(exportData.fileName);
-    
     debug('executing pipeline');
     dispatch(onStarted(source, dest, numDocsToExport));
     stream.pipeline(source, progress, formatter, dest, function(err) {
@@ -545,13 +544,6 @@ export const startExport = () => {
   };
 };
 
-export function getExportableFields(exportData, projection) {
-  // has an entry in the projection object.
-  const columns = Object.keys(exportData.fields)
-  .filter(field => field.split('.').some(
-    (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]));
-  return columns;
-}
 /**
  * Cancel the currently running export operation, if any.
  * @api public
