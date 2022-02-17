@@ -481,7 +481,7 @@ export const startExport = () => {
     if (exportData.fileType === 'csv') {
       formatter = createCSVFormatter({ columns });
     } else {
-      formatter = createJSONFormatter();
+      formatter = createJSONFormatter({ columns });
     }
 
     const dest = fs.createWriteStream(exportData.fileName);
