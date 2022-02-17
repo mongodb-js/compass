@@ -1,9 +1,4 @@
-import React, {
-  useEffect,
-  useCallback,
-  useContext,
-  useRef,
-} from 'react';
+import React, { useEffect, useCallback, useContext, useRef } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import {
