@@ -642,6 +642,7 @@ tests:
             shell: "'2'"
             object: "'2'"
             ruby: ":'2'"
+            rust: Bson::Symbol("2").as_symbol().unwrap()
     -   input:
             javascript: new BSONSymbol('2').toString()
         output:
@@ -651,6 +652,7 @@ tests:
             shell: "'2'"
             output: "'2'"
             ruby: "'2'"
+            rust: Bson::Symbol("2").as_symbol().unwrap()
     -   input:
             javascript: new BSONSymbol('2').inspect()
         output:
@@ -660,6 +662,7 @@ tests:
             shell: "'2'"
             output: "'2'"
             ruby: ":'2'.inspect"
+            rust: format!("{:?}", Bson::Symbol("2"))
     ObjectId-utils:
     - input:
           javascript: ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9')

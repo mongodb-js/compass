@@ -632,12 +632,18 @@ Templates:
         (lhs) => `${lhs} <= `
     TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
         (_, rhs) => rhs
-    SymbolValueOfTemplate: &SymbolValueOfTemplate null
-    SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
-    SymbolInspectTemplate: &SymbolInspectTemplate null
-    SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
-    SymbolToStringTemplate: &SymbolToStringTemplate null
-    SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
+    SymbolValueOfTemplate: &SymbolValueOfTemplate !!js/function >
+        (arg) => `${arg}.as_symbol().unwrap()`
+    SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate !!js/function >
+        () => ''
+    SymbolInspectTemplate: &SymbolInspectTemplate !!js/function >
+        (arg) => `format!("{:?}", ${arg})`
+    SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate !!js/function >
+        () => ''
+    SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
+        (arg) => `${arg}.as_symbol().unwrap()`
+    SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate !!js/function >
+        () => ''
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # non bson-specific
