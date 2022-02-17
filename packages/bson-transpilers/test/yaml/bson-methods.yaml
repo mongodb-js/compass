@@ -204,6 +204,7 @@ tests:
             python: Int64(429496729601) >> 32
             object: '100'
             ruby: 429496729601 >> 32
+            rust: 429496729601i64 >> 32
     -   input:
             shell: NumberLong(429496729601).bottom
         output:
@@ -213,6 +214,7 @@ tests:
             python: Int64(429496729601) & 0x0000ffff
             object: '1'
             ruby: 429496729601 & 0x0000ffff
+            rust: 429496729601i64 & 0x0000ffff
     -  input:
             shell: NumberLong(429496729601).floatApprox
        output:
@@ -222,6 +224,7 @@ tests:
             python: float(Int64(429496729601))
             object: '429496729601'
             ruby: 429496729601.to_f
+            rust: 429496729601i64 as f32
     -   input:
             javascript: new Long(1, 100).toInt()
         output:
@@ -231,6 +234,7 @@ tests:
             shell: new NumberLong(429496729601).valueOf()
             object: '1'
             ruby: '429496729601'
+            rust: 429496729601i64 as i32
     -   input:
             javascript: new Long(1, 100).toNumber()
         output:
@@ -240,6 +244,7 @@ tests:
             shell: new NumberLong(429496729601).floatApprox
             object: '429496729601'
             ruby: 429496729601.to_f
+            rust: 429496729601i64 as f64
     -   input:
             javascript: new Long(1, 100).toString()
             shell: NumberLong(429496729601).toString()
@@ -250,6 +255,7 @@ tests:
             shell: "'429496729601'"
             object: "'429496729601'"
             ruby: "'429496729601'"
+            rust: '"429496729601"'
     -   input:
             javascript: new Long(1, 100).toString(10)
         output:
@@ -259,6 +265,7 @@ tests:
             shell: "'429496729601'"
             object: "'429496729601'"
             ruby: "'429496729601'"
+            rust: '"429496729601"'
     -   input:
             javascript: new Long(1, 100).isZero()
         output:
@@ -268,6 +275,7 @@ tests:
             shell: new NumberLong(429496729601) === 0
             object: 'false'
             ruby: 429496729601 == 0
+            rust: 429496729601i64 == 0
     -   input:
             javascript: new Long(1, 100).isNegative()
         output:
@@ -277,6 +285,7 @@ tests:
             shell: new NumberLong(429496729601) < 0
             object: 'false'
             ruby: 429496729601 < 0
+            rust: 429496729601i64 < 0
     -   input:
             javascript: new Long(1, 100).isOdd()
         output:
@@ -286,6 +295,7 @@ tests:
             shell: "(new NumberLong(429496729601) % 2) === 1"
             object: 'true'
             ruby: "(429496729601 % 2) == 1"
+            rust: 429496729601i64 % 2 == 1
     -   input:
             javascript: new Long(1, 100).equals(new Long(9, 1))
         output:
@@ -295,6 +305,7 @@ tests:
             shell: new NumberLong(429496729601) === new NumberLong(4294967305)
             object: 'false'
             ruby: 429496729601 == 4294967305
+            rust: 429496729601i64 == 4294967305i64
     -   input:
             javascript: new Long(1, 100).notEquals(Long(9, 1))
         output:
@@ -304,6 +315,7 @@ tests:
             shell: new NumberLong(429496729601) !== new NumberLong(4294967305)
             object: 'true'
             ruby: 429496729601 != 4294967305
+            rust: 429496729601i64 != 4294967305i64
     -   input:
             javascript: new Long(1, 100).compare(new Long(9, 1))
         output:
@@ -313,6 +325,7 @@ tests:
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: "1"
             ruby: 429496729601 - 4294967305
+            rust: 429496729601i64 - 4294967305i64
     -   input:
             javascript: new Long(1, 100).greaterThan(new Long(9, 1))
         output:
@@ -322,6 +335,7 @@ tests:
             shell: new NumberLong(429496729601) > new NumberLong(4294967305)
             object: 'true'
             ruby: 429496729601 > 4294967305
+            rust: 429496729601i64 > 4294967305i64
     -   input:
             javascript: new Long(1, 100).greaterThanOrEqual(new Long(9, 1))
         output:
@@ -331,6 +345,7 @@ tests:
             shell: new NumberLong(429496729601) >= new NumberLong(4294967305)
             object: 'true'
             ruby: 429496729601 >= 4294967305
+            rust: 429496729601i64 >= 4294967305i64
     -   input:
             javascript: new Long(1, 100).lessThan(new Long(9, 1))
         output:
@@ -340,6 +355,7 @@ tests:
             shell: new NumberLong(429496729601) < new NumberLong(4294967305)
             object: 'false'
             ruby: 429496729601 < 4294967305
+            rust: 429496729601i64 < 4294967305i64
     -   input:
             javascript: new Long(1, 100).lessThanOrEqual(new Long(9, 1))
         output:
@@ -349,6 +365,7 @@ tests:
             shell: new NumberLong(429496729601) <= new NumberLong(4294967305)
             object: 'false'
             ruby: 429496729601 <= 4294967305
+            rust: 429496729601i64 <= 4294967305i64
     -   input:
             javascript: new Long(1, 100).negate()
         output:
@@ -358,6 +375,7 @@ tests:
             shell: "-new NumberLong(429496729601)"
             output: "-429496729601"
             ruby: "-429496729601"
+            rust: "-429496729601i64"
     -   input:
             javascript: new Long(1, 100).add(new Long(9, 1))
         output:
@@ -367,6 +385,7 @@ tests:
             shell: new NumberLong(429496729601) + new NumberLong(4294967305)
             object: new Long(10, 101)
             ruby: 429496729601 + 4294967305
+            rust: 429496729601i64 + 4294967305i64
     -   input:
             javascript: new Long(1, 100).subtract(new Long(9, 1))
         output:
@@ -376,6 +395,7 @@ tests:
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: new Long(-8, 98)
             ruby: 429496729601 - 4294967305
+            rust: 429496729601i64 - 4294967305i64
     -   input:
             javascript: new Long(1, 100).multiply(new Long(9, 1))
         output:
@@ -385,6 +405,7 @@ tests:
             shell: new NumberLong(429496729601) * new NumberLong(4294967305)
             object: new Long(9, 901)
             ruby: 429496729601 * 4294967305
+            rust: 429496729601i64 * 4294967305i64
     -   input:
             javascript: new Long(1, 100).div(new Long(9, 1))
         output:
@@ -394,6 +415,7 @@ tests:
             shell: new NumberLong(429496729601) / new NumberLong(4294967305)
             object: new Long(99, 0)
             ruby: 429496729601 / 4294967305
+            rust: 429496729601i64 / 4294967305i64
     -   input:
             javascript: new Long(1, 100).modulo(new Long(9, 1))
         output:
@@ -403,6 +425,7 @@ tests:
             shell: new NumberLong(429496729601) % new NumberLong(4294967305)
             object: new Long(-890, 0)
             ruby: 429496729601 % 4294967305
+            rust: 429496729601i64 % 4294967305i64
     -   input:
             javascript: new Long(1, 100).not()
         output:
@@ -412,6 +435,7 @@ tests:
             shell: "~new NumberLong(429496729601)"
             object: new Long(-1, -101)
             ruby: "~429496729601"
+            rust: "~429496729601i64"
     -   input:
             javascript: new Long(1, 100).and(new Long(9, 1))
         output:
@@ -421,6 +445,7 @@ tests:
             shell: new NumberLong(429496729601) & new NumberLong(4294967305)
             object: new Long(1, 0)
             ruby: 429496729601 & 4294967305
+            rust: 429496729601i64 & 4294967305i64
     -   input:
             javascript: new Long(1, 100).or(new Long(9, 1))
         output:
@@ -430,6 +455,7 @@ tests:
             shell: new NumberLong(429496729601) | new NumberLong(4294967305)
             object: new Long(9, 101)
             ruby: 429496729601 | 4294967305
+            rust: 429496729601i64 | 4294967305i64
     -   input:
             javascript: new Long(1, 100).xor(new Long(9, 1))
         output:
@@ -439,6 +465,7 @@ tests:
             shell: new NumberLong(429496729601) ^ new NumberLong(4294967305)
             object: new Long(8, 101)
             ruby: 429496729601 ^ 4294967305
+            rust: 429496729601i64 ^ 4294967305i64
     -   input:
             javascript: new Long(1, 100).shiftLeft(10)
         output:
@@ -448,6 +475,7 @@ tests:
             shell: new NumberLong(429496729601) << 10
             object: new Long(1024, 102400)
             ruby: 429496729601 << 10
+            rust: 429496729601i64 << 10
     -   input:
             javascript: new Long(1, 100).shiftRight(10)
         output:
@@ -457,6 +485,7 @@ tests:
             shell: new NumberLong(429496729601) >> 10
             object: new Long(419430400, 0)
             ruby: 429496729601 >> 10
+            rust: 429496729601i64 >> 10
     Decimal128-methods:
     -   input:
             javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).toString()

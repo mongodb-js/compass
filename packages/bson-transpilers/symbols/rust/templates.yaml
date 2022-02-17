@@ -477,61 +477,113 @@ Templates:
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
     Int32ToStringTemplate: &Int32ToStringTemplate null
     Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
-    LongEqualsTemplate: &LongEqualsTemplate null
-    LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
-    LongToStringTemplate: &LongToStringTemplate null
+    LongEqualsTemplate: &LongEqualsTemplate !!js/function >
+        (lhs) => `${lhs} == `
+    LongEqualsArgsTemplate: &LongEqualsArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongToStringTemplate: &LongToStringTemplate !!js/function >
+        (arg) => arg
     LongToStringArgsTemplate: &LongToStringArgsTemplate null
-    LongToIntTemplate: &LongToIntTemplate null
-    LongToIntArgsTemplate: &LongToIntArgsTemplate null
+    LongToIntTemplate: &LongToIntTemplate !!js/function >
+        (arg) => `${arg} as i32`
+    LongToIntArgsTemplate: &LongToIntArgsTemplate !!js/function >
+        () => ''
     LongValueOfTemplate: &LongValueOfTemplate null
     LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
-    LongToNumberTemplate: &LongToNumberTemplate null
-    LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
-    LongAddTemplate: &LongAddTemplate null
-    LongAddArgsTemplate: &LongAddArgsTemplate null
-    LongSubtractTemplate: &LongSubtractTemplate null
-    LongSubtractArgsTemplate: &LongSubtractArgsTemplate null
-    LongMultiplyTemplate: &LongMultiplyTemplate null
-    LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate null
-    LongDivTemplate: &LongDivTemplate null
-    LongDivArgsTemplate: &LongDivArgsTemplate null
-    LongModuloTemplate: &LongModuloTemplate null
-    LongModuloArgsTemplate: &LongModuloArgsTemplate null
-    LongAndTemplate: &LongAndTemplate null
-    LongAndArgsTemplate: &LongAndArgsTemplate null
-    LongOrTemplate: &LongOrTemplate null
-    LongOrArgsTemplate: &LongOrArgsTemplate null
-    LongXorTemplate: &LongXorTemplate null
-    LongXorArgsTemplate: &LongXorArgsTemplate null
-    LongShiftLeftTemplate: &LongShiftLeftTemplate null
-    LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate null
-    LongShiftRightTemplate: &LongShiftRightTemplate null
-    LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate null
-    LongCompareTemplate: &LongCompareTemplate null
-    LongCompareArgsTemplate: &LongCompareArgsTemplate null
-    LongIsOddTemplate: &LongIsOddTemplate null
-    LongIsOddArgsTemplate: &LongIsOddArgsTemplate null
-    LongIsZeroTemplate: &LongIsZeroTemplate null
-    LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate null
-    LongIsNegativeTemplate: &LongIsNegativeTemplate null
-    LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate null
-    LongNegateTemplate: &LongNegateTemplate null
-    LongNegateArgsTemplate: &LongNegateArgsTemplate null
-    LongNotTemplate: &LongNotTemplate null
-    LongNotArgsTemplate: &LongNotArgsTemplate null
-    LongNotEqualsTemplate: &LongNotEqualsTemplate null
-    LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate null
-    LongGreaterThanTemplate: &LongGreaterThanTemplate null
-    LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate null
-    LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate null
-    LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate null
-    LongLessThanTemplate: &LongLessThanTemplate null
-    LongLessThanArgsTemplate: &LongLessThanArgsTemplate null
-    LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate null
-    LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate null
-    LongFloatApproxTemplate: &LongFloatApproxTemplate null
-    LongTopTemplate: &LongTopTemplate null
-    LongBottomTemplate: &LongBottomTemplate null
+    LongToNumberTemplate: &LongToNumberTemplate !!js/function >
+        (arg) => `${arg} as f64`
+    LongToNumberArgsTemplate: &LongToNumberArgsTemplate !!js/function >
+        () => ''
+    LongAddTemplate: &LongAddTemplate !!js/function >
+        (lhs) => `${lhs} + `
+    LongAddArgsTemplate: &LongAddArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongSubtractTemplate: &LongSubtractTemplate !!js/function >
+        (lhs) => `${lhs} - `
+    LongSubtractArgsTemplate: &LongSubtractArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongMultiplyTemplate: &LongMultiplyTemplate !!js/function >
+        (lhs) => `${lhs} * `
+    LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongDivTemplate: &LongDivTemplate !!js/function >
+        (lhs) => `${lhs} / `
+    LongDivArgsTemplate: &LongDivArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongModuloTemplate: &LongModuloTemplate !!js/function >
+        (lhs) => `${lhs} % `
+    LongModuloArgsTemplate: &LongModuloArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongAndTemplate: &LongAndTemplate !!js/function >
+        (lhs) => `${lhs} & `
+    LongAndArgsTemplate: &LongAndArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongOrTemplate: &LongOrTemplate !!js/function >
+        (lhs) => `${lhs} | `
+    LongOrArgsTemplate: &LongOrArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongXorTemplate: &LongXorTemplate !!js/function >
+        (lhs) => `${lhs} ^ `
+    LongXorArgsTemplate: &LongXorArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongShiftLeftTemplate: &LongShiftLeftTemplate !!js/function >
+        (lhs) => `${lhs} << `
+    LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongShiftRightTemplate: &LongShiftRightTemplate !!js/function >
+        (lhs) => `${lhs} >> `
+    LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongCompareTemplate: &LongCompareTemplate !!js/function >
+        (lhs) => `${lhs} - `
+    LongCompareArgsTemplate: &LongCompareArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongIsOddTemplate: &LongIsOddTemplate !!js/function >
+        (arg) => `${arg} % 2 == 1`
+    LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
+        () => ''
+    LongIsZeroTemplate: &LongIsZeroTemplate !!js/function >
+        (arg) => `${arg} == 0`
+    LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate !!js/function >
+        () => ''
+    LongIsNegativeTemplate: &LongIsNegativeTemplate !!js/function >
+        (arg) => `${arg} < 0`
+    LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate !!js/function >
+        () => ''
+    LongNegateTemplate: &LongNegateTemplate !!js/function >
+        (arg) => `-${arg}`
+    LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
+        () => ''
+    LongNotTemplate: &LongNotTemplate !!js/function >
+        (arg) => `~${arg}`
+    LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
+        () => ''
+    LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
+        (lhs) => `${lhs} != `
+    LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongGreaterThanTemplate: &LongGreaterThanTemplate !!js/function >
+        (lhs) => `${lhs} > `
+    LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate !!js/function >
+        (lhs) => `${lhs} >= `
+    LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongLessThanTemplate: &LongLessThanTemplate !!js/function >
+        (lhs) => `${lhs} < `
+    LongLessThanArgsTemplate: &LongLessThanArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate !!js/function >
+        (lhs) => `${lhs} <= `
+    LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
+        (arg) => `${arg} as f32`
+    LongTopTemplate: &LongTopTemplate !!js/function >
+        (arg) => `${arg} >> 32`
+    LongBottomTemplate: &LongBottomTemplate !!js/function >
+        (arg) => `${arg} & 0x0000ffff`
     TimestampToStringTemplate: &TimestampToStringTemplate null
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
     TimestampEqualsTemplate: &TimestampEqualsTemplate null
