@@ -560,6 +560,7 @@ tests:
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
           ruby: BSON::Timestamp.new(10, 100)
+          rust: "Timestamp { time: 10, increment: 100 }"
     - description: 'Timestamp'
       input:
           javascript: Timestamp(10, 100)
@@ -573,6 +574,7 @@ tests:
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
           ruby: BSON::Timestamp.new(10, 100)
+          rust: "Timestamp { time: 10, increment: 100 }"
     BSONRegExp:
     - description: 'no flags'
       input:

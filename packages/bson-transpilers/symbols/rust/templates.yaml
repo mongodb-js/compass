@@ -370,8 +370,16 @@ Templates:
         () => 'Bson::MaxKey'
     MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate !!js/function >
         () => ''
-    TimestampSymbolTemplate: &TimestampSymbolTemplate null # No args
-    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null # Args: lhs, low, high
+    TimestampSymbolTemplate: &TimestampSymbolTemplate !!js/function >
+        () => 'Timestamp'
+    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
+        (lhs, low, high) => {
+            if (low === undefined) {
+                low = 0;
+                high = 0;
+            }
+            return ` { time: ${low}, increment: ${high} }`
+        }
     # non bson-specific
     NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
         () => ''
