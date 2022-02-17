@@ -28,18 +28,31 @@ describe('Collection aggregations tab', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  // TODO
-  it.skip('supports the right stages for the environment', async function () {
+  it('supports the right stages for the environment', async function () {
     // sanity check to make sure there's only one
     const stageContainers = await browser.$$(Selectors.StageContainer);
     expect(stageContainers).to.have.lengthOf(1);
 
     await browser.focusStageOperator(0);
 
-    const stageOperatorOptionsElement = await browser.$(
+    const stageOperatorOptionsElements = await browser.$$(
       Selectors.stageOperatorOptions(0)
     );
-    const options = await stageOperatorOptionsElement.getText(0);
+    const options = await Promise.all(
+      stageOperatorOptionsElements.map((element) => element.getText())
+    );
+
+    /*
+    TODO: The expected options depend on the mongodb version and probably type
+    (ie. atlas or data lake could have different options). Right now there isn't
+    a reliable way for the tests to know which version of mongodb it is expected
+    to be connected to, but soon when we add tests for all current versions of
+    mongodb we'll deal with that and then we can determine the correct expected
+    options.
+
+    In the meantime this is just checking the subset of options that appear on
+    all supported mongodb versions this test might run against.
+    */
     expect(_.without(options, '$setWindowFields')).to.deep.equal([
       '$addFields',
       '$bucket',
