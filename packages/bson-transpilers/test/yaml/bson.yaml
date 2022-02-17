@@ -625,6 +625,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           ruby: /^[a-z0-9_-]{3,16}$/imx
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'
     Symbol:
     - description: from string
       input:
@@ -638,6 +639,7 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          rust: '"abc"'
     - description: from shell symbol
       input:
           shell: Symbol('abc')
@@ -649,6 +651,7 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          rust: '"abc"'
     - description: NEW from string
       input:
           javascript: new BSONSymbol('abc')
@@ -660,3 +663,4 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          rust: '"abc"'

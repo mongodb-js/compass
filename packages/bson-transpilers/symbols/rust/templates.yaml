@@ -356,8 +356,10 @@ Templates:
     RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
         () => 'Regex'
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
-    SymbolSymbolTemplate: &SymbolSymbolTemplate null # No args
-    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null # Args: lhs, arg
+    SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
+        () => ''
+    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate !!js/function >
+        (_, arg) => arg
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
         () => 'Regex'
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
