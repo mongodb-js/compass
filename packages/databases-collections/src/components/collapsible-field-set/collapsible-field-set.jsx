@@ -28,7 +28,12 @@ function CollapsibleFieldSet({
         bold={false}
         id={dataTestId ? `toggle-${dataTestId}` : undefined}
       />
-      {!description ? '' : description}
+      {!description
+        ? ''
+        : (
+          <span className={styles.description}>{description}</span>
+        )
+      }
       {!!helpUrl && !!openLink && (
         <IconButton
           className={styles['info-btn']}
