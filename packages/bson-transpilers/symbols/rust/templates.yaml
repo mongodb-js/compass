@@ -721,8 +721,20 @@ Templates:
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate null
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate null
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
-    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
-    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
+    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
+        (lhs) => lhs
+    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
+        (lhs, arg) => {
+            // Double quote stringify
+            let newArg = arg;
+            if (
+                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
+                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
+                newArg = arg.substr(1, arg.length - 2);
+            }
+            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            return `::parse_str(${newArg})?`;
+        }
     ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate null
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
     # non bson-specific would go here, but there aren't any atm.

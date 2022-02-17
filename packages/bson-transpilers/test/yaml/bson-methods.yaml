@@ -673,6 +673,7 @@ tests:
           python: ObjectId('5ab901c29ee65f5c8550c5b9')
           object: new ObjectId('5ab901c29ee65f5c8550c5b9')
           ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
+          rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
     - input:
           python: ObjectId.from_datetime(datetime(1972, 2, 3))
           shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT')) # TODO: just takes in number?
