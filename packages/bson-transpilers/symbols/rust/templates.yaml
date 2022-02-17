@@ -787,7 +787,14 @@ Templates:
     #                                           #
     #############################################
     ImportTemplate: &ImportTemplate null
-    DriverImportTemplate: &DriverImportTemplate null
+    DriverImportTemplate: &DriverImportTemplate !!js/function >
+        () => `use mongodb::Client;
+        use bson::{
+            *,
+            oid::ObjectId,
+            spec::BinarySubtype,
+        };
+        use chrono::Utc;`
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null
