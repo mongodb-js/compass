@@ -308,6 +308,7 @@ class PipelineBuilderToolbar extends PureComponent {
         data-place="top"
         data-html="true">
         <IconButton
+          dataTestId="export-to-language"
           className="btn btn-xs btn-default"
           iconClassName={classnames(styles['export-icon'])}
           clickHandler={this.props.exportToLanguage}

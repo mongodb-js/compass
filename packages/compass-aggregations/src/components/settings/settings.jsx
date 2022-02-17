@@ -84,6 +84,7 @@ class Settings extends PureComponent {
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
+              id="aggregation-limit"
               type="number"
               min="0"
               placeholder={DEFAULT_LARGE_LIMIT}
@@ -132,6 +133,7 @@ class Settings extends PureComponent {
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
+              id="aggregation-sample-size"
               type="number"
               min="0"
               placeholder={DEFAULT_SAMPLE_SIZE}
@@ -150,6 +152,7 @@ class Settings extends PureComponent {
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
+              id="aggregation-max-time-ms"
               type="number"
               placeholder={DEFAULT_MAX_TIME_MS}
               min="0"

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import chai from 'chai';
+import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -88,7 +89,6 @@ describe('Collection aggregations tab', function () {
     ]);
   });
 
-  // the aggregation runs and the preview is shown
   it('supports creating an aggregation', async function () {
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
@@ -127,33 +127,95 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  // comment mode
-  // number of preview documents
-  // max time
-  // limit
-  // sample mode
-  // auto preview
-  it('supports tweaking settings of an aggregation');
+  it('supports tweaking settings of an aggregation', async function () {
+    // set a collation
+    await browser.clickVisible('[data-test-id="toggle-collation"]');
+    const collationInput = await browser.$('[data-test-id="collation-string"]');
+    await collationInput.waitForDisplayed();
+    await collationInput.setValue('{ locale: "af" }');
 
-  // the result is stored in the destination collection
-  it('supports aggregations that end in $out and $merge');
+    // select $match
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$match');
+    // check that it included the comment by default
+    const contentElement = await browser.$(Selectors.stageContent(0));
+    expect(await contentElement.getText()).to.equal(`/**
+ * query: The query in MQL.
+ */
+{
+  query
+}`);
 
-  // stages can be re-arranged and the preview is refreshed after rearranging them
-  it('supports drag and drop of stages');
+    //change $match
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
 
-  // stages can be disabled and the preview is refreshed after disabling them
-  it('allows stages to be disabled');
+    // open settings
+    await browser.clickVisible('[data-test-id="aggregation-settings"]');
 
-  // stages can be deleted and the preview is refreshed after disabling them
-  it('allows stages to be deleted');
+    // turn off comment mode
+    await browser.clickVisible('#aggregation-comment-mode');
 
-  // this requires closing compass and opening it again..
-  it('allows pipelines to be saved and loaded');
+    // set number of preview documents to 100
+    const sampleSizeElement = await browser.$('#aggregation-sample-size');
+    await sampleSizeElement.setValue('100');
 
-  it('supports creating a view');
+    // apply settings
+    await browser.clickVisible('#aggregation-settings-apply');
 
-  // different languages, with and without imports, with and without driver usage
-  it('can export to language');
+    // add a $project
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$project');
 
-  it('supports specifying collation');
+    // delete it
+    await browser.clickVisible(Selectors.stageDelete(1));
+
+    // add a $project
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$project');
+    // TODO: check that it has no comment
+    await browser.setAceValue(Selectors.stageEditor(1), '{ _id: 0 }');
+
+    // disable it
+    await browser.clickVisible(Selectors.stageToggle(1));
+
+    // export to language
+    // TODO: select some stuff?
+    // TODO: also factor out the selectors in collection-documents-tab. Or maybe the code as well.
+    await browser.clickVisible(Selectors.ExportAggregationToLanguage);
+    const exportModal = await browser.$(
+      '[data-test-id="export-to-lang-modal"]'
+    );
+    await exportModal.waitForDisplayed();
+    await browser.clickVisible('[data-test-id="export-to-lang-copy-output"]');
+    expect(await clipboard.read()).to.equal(`[
+    {
+        '$match': {
+            'i': 0
+        }
+    }
+]`);
+
+    // close the modal again
+    await browser.clickVisible(
+      '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default'
+    );
+    await exportModal.waitForDisplayed({ reverse: true });
+
+    // TODO: check that the preview is using 100 docs
+
+    // save as a view
+    // TODO
+
+    // browse to the view
+    // TODO
+  });
+
+  // TODO: test $out
+  // TODO: test $merge
+  // TODO: test max time
+  // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
+  // TODO: test auto-preview and limit
+  // TODO: save a pipeline, close compass, re-open compass, load the pipeline
 });

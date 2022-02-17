@@ -306,6 +306,9 @@ export const QueryBarHistory = '[data-test-id="query-history"]';
 
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
+export const AddStageButton = '[data-test-id="add-stage"]';
+export const ExportAggregationToLanguage =
+  '[data-test-id="aggregations-content"] [data-test-id="export-to-language"]';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [role="option"]`;
@@ -346,6 +349,18 @@ export const stageSelectControlInput = (
 };
 export const stageTextarea = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] .ace_editor textarea`; // .ace_text-input
+};
+export const stageContent = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] .ace_content`;
+};
+export const stageAdd = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="add-after-stage"]`;
+};
+export const stageToggle = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
+};
+export const stageDelete = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="delete-stage"]`;
 };
 
 // Schema tab
