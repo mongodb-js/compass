@@ -99,6 +99,7 @@ tests:
           csharp: new ObjectId()
           object: new ObjectId()
           ruby: BSON::ObjectId.new
+          rust: ObjectId::new()
     - description: 'NEW no arg'
       input:
           javascript: new ObjectId()
@@ -111,6 +112,7 @@ tests:
           csharp: new ObjectId()
           object: new ObjectId()
           ruby: BSON::ObjectId.new
+          rust: ObjectId::new()
     - description: 'hex string arg'
       input:
           javascript: new ObjectId('5a7382114ec1f67ae445f778')
@@ -124,6 +126,7 @@ tests:
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
+          rust: ObjectId::parse_str("5a7382114ec1f67ae445f778")?
     - description: 'hex string arg named'
       input:
           python: ObjectId(oid='5a7382114ec1f67ae445f778')
@@ -135,6 +138,7 @@ tests:
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
+          rust: ObjectId::parse_str("5a7382114ec1f67ae445f778")?
     DBRef:
     - description: 'NEW (string, ObjectID) args'
       input:
@@ -216,6 +220,7 @@ tests:
           csharp: '3'
           object: new Int32(3)
           ruby: '3'
+          rust: '3'
     - description: 'number arg'
       input:
           javascript: Int32(3)
@@ -229,6 +234,7 @@ tests:
           csharp: '3'
           object: new Int32(3)
           ruby: '3'
+          rust: '3'
     - description: 'string arg'
       input:
           javascript: new Int32('3')
@@ -242,6 +248,7 @@ tests:
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
           ruby: "'3'.to_i"
+          rust: '"3".parse::<i32>()?'
     - description: 'no arg'
       input:
           shell: NumberInt()
@@ -254,6 +261,7 @@ tests:
           csharp: '0'
           object: new Int32('0')
           ruby: '0'
+          rust: '0'
     - description: 'hex arg'
       input:
           javascript: new Int32(0x3)
@@ -267,6 +275,7 @@ tests:
           csharp: Convert.ToInt32(0x3)
           object: new Int32(0x3)
           ruby: 0x3.to_i
+          rust: '0x3'
     - description: 'decimal arg'
       input:
           javascript: new Int32(3.0001)
@@ -280,6 +289,7 @@ tests:
           csharp: Convert.ToInt32(3.0001)
           object: new Int32(3.0001)
           ruby: 3.0001.to_i
+          rust: i32::try_from(3.0001)?
     - description: 'octal arg'
       input:
           javascript: new Int32(0o3)
@@ -293,6 +303,7 @@ tests:
           csharp: '3'
           object: new Int32(0o3)
           ruby: 0o3.to_i
+          rust: 0o3
     Double:
     - description: 'number arg'
       input:
@@ -306,6 +317,7 @@ tests:
           csharp: '3.0'
           object: new Double(3)
           ruby: 3.to_f
+          rust: '3.0'
     - description: 'NEW number arg'
       input:
           javascript: new Double(3)
@@ -317,6 +329,7 @@ tests:
           csharp: '3.0'
           object: new Double(3)
           ruby: 3.to_f
+          rust: '3.0'
     - description: 'string arg'
       input:
           javascript: Double('3')
@@ -329,6 +342,7 @@ tests:
           csharp: Convert.ToDouble("3")
           object: new Double('3')
           ruby: "'3'.to_f"
+          rust: '"3".parse::<f32>()?'
     - description: 'decimal arg'
       input:
           javascript: Double(3.0001)
@@ -341,6 +355,7 @@ tests:
           csharp: '3.0001'
           object: new Double(3.0001)
           ruby: '3.0001'
+          rust: '3.0001'
     - description: 'hex arg'
       input:
           javascript: Double(0x3)
@@ -353,6 +368,7 @@ tests:
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
           ruby: 0x3.to_f
+          rust: f32::try_from(0x3)?
     - description: 'octal arg'
       input:
           javascript: Double(0o3)
@@ -365,6 +381,7 @@ tests:
           csharp: '3.0'
           object: new Double(0o3)
           ruby: 0o3.to_f
+          rust: f32::try_from(0o3)?
     Long:
     - description: 'number arg'
       input:
@@ -379,6 +396,7 @@ tests:
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
           ruby: '9223372036854775807'
+          rust: 9223372036854775807i64
     - description: 'NEW number arg'
       input:
           javascript: Long(-1, 2147483647)
@@ -391,6 +409,7 @@ tests:
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
           ruby: '9223372036854775807'
+          rust: 9223372036854775807i64
     - description: 'no arg'
       input:
           shell: NumberLong()
@@ -403,6 +422,7 @@ tests:
           csharp: 0L
           object: Long.fromNumber(0)
           ruby: '0'
+          rust: 0i64
     - description: 'string arg'
       input:
           shell: NumberLong('9223372036854775807')
@@ -415,6 +435,7 @@ tests:
           csharp: Convert.ToInt64("9223372036854775807")
           object: Long.fromString('9223372036854775807')
           ruby: "'9223372036854775807'.to_i"
+          rust: '"9223372036854775807".parse::<i64>()?'
     Decimal128:
     - description: 'buffer arg'
       input:
@@ -485,6 +506,7 @@ tests:
           csharp: BsonMinKey.Value
           object: new MinKey()
           ruby: BSON::MinKey.new
+          rust: Bson::MinKey
     - description: 'NEW MinKey'
       input:
           javascript: new MinKey()
@@ -497,6 +519,7 @@ tests:
           csharp: BsonMinKey.Value
           object: new MinKey()
           ruby: BSON::MinKey.new
+          rust: Bson::MinKey
     - description: 'MaxKey'
       input:
           javascript: MaxKey()
@@ -510,6 +533,7 @@ tests:
           csharp: BsonMaxKey.Value
           object: new MaxKey()
           ruby: BSON::MaxKey.new
+          rust: Bson::MaxKey
     - description: 'NEW MaxKey'
       input:
           javascript: new MaxKey()
@@ -522,6 +546,7 @@ tests:
           csharp: BsonMaxKey.Value
           object: new MaxKey()
           ruby: BSON::MaxKey.new
+          rust: Bson::MaxKey
     Timestamp:
     - description: 'NEW Timestamp'
       input:

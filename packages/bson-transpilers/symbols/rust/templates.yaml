@@ -217,17 +217,11 @@ Templates:
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate !!js/function >
-        () => {
-            return 'Bson::Null';
-        }
+        () => 'Bson::Null'
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
-        () => {
-            return 'Bson::Undefined';
-        }
+        () => 'Bson::Undefined'
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
-        (literal) => {
-            return `doc! {${literal}}`;
-        }
+        (literal) => `doc! {${literal}}`
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args, depth) => {
             if (args.length === 0) {
@@ -271,9 +265,7 @@ Templates:
     #                                           #
     #############################################
     CodeSymbolTemplate: &CodeSymbolTemplate !!js/function >
-        () => {
-            return 'Bson::JavaScriptCode'
-        }
+        () => 'Bson::JavaScriptCode'
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
             // Double quote stringify
@@ -291,8 +283,23 @@ Templates:
                 return `WithScope(JavaScriptCodeWithScope { code: ${code}, scope: ${scope} })`;
             }
         }
-    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # No args
-    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null # Args: lhs, string (can be empty or null for no arg)
+    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
+        () => 'ObjectId'
+    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            if (arg === undefined || arg === '') {
+                return '::new()';
+            }
+            // Double quote stringify
+            let newArg = arg;
+            if (
+                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
+                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
+                newArg = arg.substr(1, arg.length - 2);
+            }
+            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            return `::parse_str(${newArg})?`;
+        }
     BinarySymbolTemplate: &BinarySymbolTemplate null
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null
@@ -305,9 +312,7 @@ Templates:
     DBRefSymbolTemplate: &DBRefSymbolTemplate null # No args
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null # Args: lhs, coll, id, db
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
-        () => {
-            return '';
-        }
+        () => ''
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
@@ -323,9 +328,7 @@ Templates:
             return `f32::try_from(${arg})?`;
         }
     Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
-        () => {
-            return '';
-        }
+        () => ''
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
@@ -337,12 +340,21 @@ Templates:
             }
             return `i32::try_from(${arg})?`;
         }
-    LongSymbolTemplate: &LongSymbolTemplate null # No args
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Args: lhs, arg, argType
-    RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
-        () => {
-            return 'Regex'
+    LongSymbolTemplate: &LongSymbolTemplate !!js/function >
+        () => ''
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            arg = arg === undefined ? 0 : arg;
+            if (type === '_integer' || type === '_long' || type === '_hex' || type === '_octal') {
+                return `${arg}i64`;
+            }
+            if (type === '_string') {
+                return `${arg}.parse::<i64>()?`;
+            }
+            return `i64::try_from(${arg})?`;
         }
+    RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
+        () => 'Regex'
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate null # No args
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null # Args: lhs, arg
@@ -350,17 +362,19 @@ Templates:
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # No args
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null # Args: lhs, arg
-    MinKeySymbolTemplate: &MinKeySymbolTemplate null # No args
-    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null # No args
-    MaxKeySymbolTemplate: &MaxKeySymbolTemplate null # No args
-    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null # No args
+    MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
+        () => 'Bson::MinKey'
+    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate !!js/function >
+        () => ''
+    MaxKeySymbolTemplate: &MaxKeySymbolTemplate !!js/function >
+        () => 'Bson::MaxKey'
+    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate !!js/function >
+        () => ''
     TimestampSymbolTemplate: &TimestampSymbolTemplate null # No args
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null # Args: lhs, low, high
     # non bson-specific
     NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
-        () => {
-            return '';
-        }
+        () => ''
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
@@ -380,9 +394,7 @@ Templates:
             }
         }
     DateSymbolTemplate: &DateSymbolTemplate !!js/function >
-        () => {
-            return 'Utc'
-        }
+        () => 'Utc'
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
         (lhs, date, isString) => {
             let toStr = isString ? '.to_rfc2822()' : '';
@@ -530,13 +542,9 @@ Templates:
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # non bson-specific
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
-        () => {
-            return 'Utc::now()';
-        }
+        () => 'Utc::now()'
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
+        () => ''
 
     #############################################
     #         Symbol Attributes/Methods         #
