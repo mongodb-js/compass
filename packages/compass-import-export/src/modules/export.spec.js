@@ -1,3 +1,8 @@
+import { Readable } from 'stream';
+import path from 'path';
+import os from 'os';
+import fs from 'fs';
+import rimraf from 'rimraf';
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
 import AppRegistry from 'hadron-app-registry';
@@ -7,6 +12,66 @@ import configureExportStore from '../stores/export-store';
 
 describe('export [module]', () => {
   describe('#reducer', () => {
+    context('#startExport', () => {
+      let tempFile;
+      let store;
+      const localAppRegistry = new AppRegistry();
+      const globalAppRegistry = new AppRegistry();
+
+      beforeEach(async function() {
+        tempFile = path.join(
+          os.tmpdir(),
+          `test-${Date.now()}.csv`
+        );
+        const mockDocuments = [
+          {
+            _id: 'foo',
+            first_name: 'John',
+            last_name: 'Appleseed'
+          }
+        ];
+        store = configureExportStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          dataProvider: {
+            error: function(err) { throw err; },
+            dataProvider: {
+              estimatedCount: function(ns, options, callback) { return callback(null, mockDocuments.length); },
+              count: function(ns, filter, options, callback ) { return callback(null, mockDocuments.length); },
+              fetch: function() {
+                return {
+                  stream: function() {
+                    return Readable.from(mockDocuments);
+                  }
+                };
+              }
+            }
+          }
+        });
+      });
+
+      afterEach(function(done) {
+        rimraf(tempFile, done);
+      });
+      it('should set the correct fields to export', (done) => {
+        const fields = { 'first_name': 1, '_id': 1, 'foobar': 1, 'last_name': 0};
+        store.dispatch(actions.updateSelectedFields(fields));
+        store.dispatch(actions.selectExportFileName(tempFile));
+        store.dispatch(actions.selectExportFileType('csv'));
+        store.dispatch(actions.toggleFullCollection());
+
+        store.dispatch(actions.startExport());
+        localAppRegistry.addListener('export-finished', function() {
+          fs.readFile(tempFile, 'utf-8', function(err, data) {
+            if (err) { return done(err); }
+            const writtenData = data.split('\n');
+            expect(writtenData[0]).to.equal('first_name,_id,foobar');
+            expect(writtenData[1]).to.equal('John,foo,');
+            done();
+          });
+        });
+      });
+    });
     context('when the action type is FINISHED', () => {
       let store;
       const localAppRegistry = new AppRegistry();
