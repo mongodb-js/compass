@@ -265,7 +265,7 @@ Templates:
     #                                           #
     #############################################
     CodeSymbolTemplate: &CodeSymbolTemplate !!js/function >
-        () => 'Bson::JavaScriptCode'
+        () => ''
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
             // Double quote stringify
@@ -278,9 +278,9 @@ Templates:
             }
             code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             if (scope === undefined) {
-                return `(${code})`;
+                return `Bson::JavaScriptCode(${code})`;
             } else {
-                return `WithScope(JavaScriptCodeWithScope { code: ${code}, scope: ${scope} })`;
+                return `JavaScriptCodeWithScope { code: ${code}, scope: ${scope} }`;
             }
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
@@ -357,9 +357,9 @@ Templates:
         () => 'Regex'
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
-        () => ''
+        () => 'Bson::Symbol'
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate !!js/function >
-        (_, arg) => arg
+        (_, arg) => `(${arg})`
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
         () => 'Regex'
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
@@ -438,14 +438,21 @@ Templates:
     #############################################
     CodeCodeTemplate: &CodeCodeTemplate null
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
-    CodeScopeTemplate: &CodeScopeTemplate null
+    CodeScopeTemplate: &CodeScopeTemplate !!js/function >
+        (lhs) => `${lhs}.scope`
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
-    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
-    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
-    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
-    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
-    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
+        (lhs) => `${lhs}.bytes()`
+    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
+        () => ''
+    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
+        (lhs) => `${lhs} == `
+    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
+        (_, arg) => arg
+    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
+        (lhs) => `${lhs}.timestamp()`
+    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate !!js/function >
+        () => ''
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate null

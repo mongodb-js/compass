@@ -48,7 +48,10 @@ tests:
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: 'new Code("string", {"x": 1})'
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
-          rust: "Bson::JavaScriptCodeWithScope(JavaScriptCodeWithScope { code: \"string\", scope: doc! {\n  \"x\": \"1\"\n} })"
+          rust: |-
+            JavaScriptCodeWithScope { code: "string", scope: doc! {
+              "x": "1"
+            } }
     - description: 'no args'
       input:
           shell: Code()
@@ -84,7 +87,10 @@ tests:
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: "new Code('string', {'x': '1'})"
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
-          rust: "Bson::JavaScriptCodeWithScope(JavaScriptCodeWithScope { code: \"string\", scope: doc! {\n  \"x\": \"1\"\n} })"
+          rust: |-
+            JavaScriptCodeWithScope { code: "string", scope: doc! {
+              "x": "1"
+            } }
     ObjectId:
     - description: 'no arg'
       input:
@@ -639,7 +645,7 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
-          rust: '"abc"'
+          rust: 'Bson::Symbol("abc")'
     - description: from shell symbol
       input:
           shell: Symbol('abc')
@@ -651,7 +657,7 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
-          rust: '"abc"'
+          rust: 'Bson::Symbol("abc")'
     - description: NEW from string
       input:
           javascript: new BSONSymbol('abc')
@@ -663,4 +669,4 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
-          rust: '"abc"'
+          rust: 'Bson::Symbol("abc")'
