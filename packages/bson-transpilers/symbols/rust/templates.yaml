@@ -385,11 +385,18 @@ Templates:
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
         () => 'Regex'
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
-        (lhs, pattern, flags) => {
+        (_, pattern, flags) => {
             if (flags === null || flags === undefined) {
                 flags = '""';
             }
-            return ` { pattern: ${pattern}, flags: ${flags} }`;
+            // Double-quote stringify
+            let newPat = pattern;
+            if (
+                (pattern.charAt(0) === '\'' && pattern.charAt(pattern.length - 1) === '\'') ||
+                (pattern.charAt(0) === '"' && pattern.charAt(pattern.length - 1) === '"')) {
+                    newPat = pattern.substr(1, pattern.length - 2);
+            }
+            return ` { pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", flags: "${flags}" }`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # No args
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null # Args: lhs, arg

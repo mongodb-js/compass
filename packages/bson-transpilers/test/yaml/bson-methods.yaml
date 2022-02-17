@@ -870,6 +870,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
           ruby: /^[a-z0-9_-]{3,16}$/imx
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsux" }'
     - input:
           python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L | re.A))
       output:
@@ -879,6 +880,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
           ruby: /^[a-z0-9_-]{3,16}$/imx
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsx" }'
 
 
 
