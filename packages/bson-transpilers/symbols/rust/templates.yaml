@@ -213,7 +213,7 @@ Templates:
             const indent = '\n' + '  '.repeat(depth);
             const closingIndent = '\n' + '  '.repeat(depth - 1);
 
-            return `bson!([${indent}${literal}${closingIndent}])`;
+            return `[${indent}${literal}${closingIndent}]`;
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate !!js/function >
@@ -363,19 +363,9 @@ Templates:
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (lhs, pattern, flags) => {
             if (flags === null || flags === undefined) {
-                flags = '';
+                flags = '""';
             }
-            // Double-quote stringify
-            let dq = (str) => {
-                let newStr = str;
-                if (
-                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                        newStr = str.substr(1, str.length - 2);
-                }
-                return newStr.replace(/\\([\s\S])|(")/g, '\\$1$2');
-            };
-            return ` { pattern: "${dq(pattern)}", flags: "${dq(flags)}" }`;
+            return ` { pattern: ${pattern}, flags: ${flags} }`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # No args
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null # Args: lhs, arg
