@@ -584,30 +584,54 @@ Templates:
         (arg) => `${arg} >> 32`
     LongBottomTemplate: &LongBottomTemplate !!js/function >
         (arg) => `${arg} & 0x0000ffff`
-    TimestampToStringTemplate: &TimestampToStringTemplate null
-    TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
-    TimestampEqualsTemplate: &TimestampEqualsTemplate null
-    TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate null
-    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate null
-    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
-    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate null
-    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
-    TimestampTTemplate: &TimestampTTemplate null
-    TimestampITemplate: &TimestampITemplate null
-    TimestampAsDateTemplate: &TimestampAsDateTemplate null
-    TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate null
-    TimestampCompareTemplate: &TimestampCompareTemplate null
-    TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
-    TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate null
-    TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate null
-    TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate null
-    TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate null
-    TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate null
-    TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate null
-    TimestampLessThanTemplate: &TimestampLessThanTemplate null
-    TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate null
-    TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate null
-    TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate null
+    TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
+        (arg) => `${arg}.to_string()`
+    TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate !!js/function >
+        () => ''
+    TimestampEqualsTemplate: &TimestampEqualsTemplate !!js/function >
+        (lhs) => `${lhs} == `
+    TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
+        (arg) => `${arg}.time`
+    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate !!js/function >
+        () => ''
+    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
+        (arg) => `${arg}.increment`
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate !!js/function >
+        () => ''
+    TimestampTTemplate: &TimestampTTemplate !!js/function >
+        (arg) => `${arg}.time`
+    TimestampITemplate: &TimestampITemplate !!js/function >
+        (arg) => `${arg}.increment`
+    TimestampAsDateTemplate: &TimestampAsDateTemplate !!js/function >
+        (arg) => `Utc.timestamp(${arg}.time, 0)`
+    TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate !!js/function >
+        () => ''
+    TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
+        (arg) => `${arg}.cmp`
+    TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate !!js/function >
+        (_, rhs) => `(${rhs})`
+    TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate !!js/function >
+        (lhs) => `${lhs} != `
+    TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate !!js/function >
+        (lhs) => `${lhs} > `
+    TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate !!js/function >
+        (lhs) => `${lhs} >= `
+    TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    TimestampLessThanTemplate: &TimestampLessThanTemplate !!js/function >
+        (lhs) => `${lhs} < `
+    TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate !!js/function >
+        (lhs) => `${lhs} <= `
+    TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
+        (_, rhs) => rhs
     SymbolValueOfTemplate: &SymbolValueOfTemplate null
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
     SymbolInspectTemplate: &SymbolInspectTemplate null
