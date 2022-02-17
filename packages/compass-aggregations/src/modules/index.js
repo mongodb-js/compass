@@ -685,7 +685,6 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
     fs.readFile(file, 'utf8', (error, data) => {
       if (!error) {
         const pipe = JSON.parse(data);
-        track('Aggregation Opened', { num_stages: pipe.pipeline.length });
         dispatch(clearPipeline());
         dispatch(restoreSavedPipeline(pipe));
         dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));

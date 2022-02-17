@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import RestoreButton from './restore-pipeline-button';
 import DeleteButton from './delete-pipeline-button';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import styles from './save-pipeline-card.module.less';
 
@@ -22,6 +25,10 @@ class SavePipelineCard extends PureComponent {
 
   handleDelete = () => {
     this.props.deletePipeline(this.props.objectID);
+    track('Aggregation Deleted', {
+      id: this.props.objectID,
+      screen: 'aggregations',
+    });
   }
 
   restoreClickHandler = () => {

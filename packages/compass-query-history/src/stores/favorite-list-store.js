@@ -45,7 +45,10 @@ const configureStore = (options = {}) => {
     },
 
     deleteFavorite(query) {
-      track('Query History Favorite Removed');
+      track('Query History Favorite Removed', {
+        id: query._id,
+        screen: 'documents',
+      });
       query.destroy({
         success: () => {
           this.state.items.remove(query._id);
@@ -61,10 +64,16 @@ const configureStore = (options = {}) => {
       // (because there are more options than just .filter), but that
       // is probably fine as a temporary measure.
       // https://jira.mongodb.org/browse/COMPASS-5243
-      if (this.state.items.map(item => item.serialize()).some(item => {
-        return isDeepStrictEqual(item.filter, query.filter);
-      })) {
-        track('Query History Favorite Used');
+      const item = this.state.items
+        .map((_item) => _item.serialize())
+        .find((_item) => {
+          return isDeepStrictEqual(_item.filter, query.filter);
+        });
+      if (item) {
+        track('Query History Favorite Used', {
+          id: item._id,
+          screen: 'documents'
+        });
       }
       this.localAppRegistry.emit('compass:query-history:run-query', query);
     },
