@@ -171,8 +171,8 @@ Templates:
             // Double-quote stringify
             let newPat = pattern;
             if (
-                (pattern.charAt(0) === '\'' && pattern.charAt(str.length - 1) === '\'') ||
-                (pattern.charAt(0) === '"' && pattern.charAt(str.length - 1) === '"')) {
+                (pattern.charAt(0) === '\'' && pattern.charAt(pattern.length - 1) === '\'') ||
+                (pattern.charAt(0) === '"' && pattern.charAt(pattern.length - 1) === '"')) {
                     newPat = pattern.substr(1, pattern.length - 2);
             }
             return `Regex { pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", flags: "${flags}" }`;
@@ -358,8 +358,25 @@ Templates:
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate null # No args
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null # Args: lhs, arg
-    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # No args
-    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
+    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
+        () => 'Regex'
+    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
+        (lhs, pattern, flags) => {
+            if (flags === null || flags === undefined) {
+                flags = '';
+            }
+            // Double-quote stringify
+            let dq = (str) => {
+                let newStr = str;
+                if (
+                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                        newStr = str.substr(1, str.length - 2);
+                }
+                return newStr.replace(/\\([\s\S])|(")/g, '\\$1$2');
+            };
+            return ` { pattern: "${dq(pattern)}", flags: "${dq(flags)}" }`;
+        }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # No args
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null # Args: lhs, arg
     MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >

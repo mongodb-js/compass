@@ -588,6 +588,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
           ruby: /^[a-z0-9_-]{3,16}$/
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
     - description: 'NEW no flags'
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$')
@@ -599,6 +600,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
           ruby: /^[a-z0-9_-]{3,16}$/
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
     - description: 'with flags'
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
@@ -611,6 +613,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           ruby: /^[a-z0-9_-]{3,16}$/imx
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'
     - description: 'with flags named'
       input:
           python: Regex('^[a-z0-9_-]{3,16}$', flags='imuxls')
