@@ -701,24 +701,47 @@ Templates:
     # don't overlap.                            #
     #                                           #
     #############################################
-    LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
-    LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
-    LongSymbolMinTemplate: &LongSymbolMinTemplate null
-    LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate null
-    LongSymbolZeroTemplate: &LongSymbolZeroTemplate null
-    LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate null
-    LongSymbolOneTemplate: &LongSymbolOneTemplate null
-    LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate null
-    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate null
-    LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
-    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null
-    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate null
-    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate null
-    LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
-    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
-    LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
-    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate null
-    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate null
+    LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
+        () => 'i64::MAX'
+    LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate !!js/function >
+        () => ''
+    LongSymbolMinTemplate: &LongSymbolMinTemplate !!js/function >
+        () => 'i64::MIN'
+    LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate !!js/function >
+        () => ''
+    LongSymbolZeroTemplate: &LongSymbolZeroTemplate !!js/function >
+        () => '0i64'
+    LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate !!js/function >
+        () => ''
+    LongSymbolOneTemplate: &LongSymbolOneTemplate !!js/function >
+        () => '1i64'
+    LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate !!js/function >
+        () => ''
+    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate !!js/function >
+        () => '-1i64'
+    LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate !!js/function >
+        () => ''
+    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate !!js/function >
+        () => ''
+    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate !!js/function >
+        (_, arg) => `${arg}i64`
+    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function >
+        () => ''
+    LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate !!js/function >
+        (_, arg) => `${arg}i64`
+    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate !!js/function >
+        () => ''
+    LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate !!js/function >
+        (_, arg) => `${arg} as i64`
+    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
+        () => ''
+    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
+        (_, arg, radix) => {
+            if (radix) {
+                return `i64::from_str_radix(${arg}, ${radix})?`;
+            }
+            return `${arg}.parse::<i64>()?`;
+        }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate null
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >

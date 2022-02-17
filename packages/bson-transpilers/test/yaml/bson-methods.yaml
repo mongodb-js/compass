@@ -765,6 +765,7 @@ tests:
           python: sys.maxsize
           object: new Long(-1, 2147483647)
           ruby: '9223372036854775807'
+          rust: i64::MAX
     - input:
           javascript: Long.MIN_VALUE
       output:
@@ -774,6 +775,7 @@ tests:
           python: "-sys.maxsize -1"
           object: new Long(0, -2147483648)
           ruby: '-9223372036854775808'
+          rust: i64::MIN
     - input:
           javascript: Long.ZERO
       output:
@@ -783,6 +785,7 @@ tests:
           python: Int64(0)
           object: new Long(0, 0)
           ruby: '0'
+          rust: 0i64
     - input:
           javascript: Long.ONE
       output:
@@ -792,6 +795,7 @@ tests:
           python: Int64(1)
           object: new Long(1, 0)
           ruby: '1'
+          rust: 1i64
     - input:
           javascript: Long.NEG_ONE
       output:
@@ -801,6 +805,7 @@ tests:
           python: Int64(-1)
           object: new Long(-1, -1)
           ruby: '-1'
+          rust: -1i64
     - input:
           javascript: Long.fromInt(5)
       output:
@@ -810,6 +815,7 @@ tests:
           python: Int64(5)
           object: new Long(5, 0)
           ruby: '5'
+          rust: 5i64
     - input:
           javascript: Long.fromString('5')
       output:
@@ -819,6 +825,7 @@ tests:
           python: Int64(int('5'))
           object: new Long(5, 0)
           ruby: "'5'.to_i"
+          rust: '"5".parse::<i64>()?'
     - input:
           javascript: Long.fromString('5', 10)
       output:
@@ -828,6 +835,7 @@ tests:
           python: Int64(int('5'))
           object: new Long(5, 0)
           ruby: "'5'.to_i"
+          rust: i64::from_str_radix("5", 10)?
     - input:
           javascript: Long.fromBits(-1, 2147483647)
       output:
@@ -837,6 +845,7 @@ tests:
           python: Int64(9223372036854775807)
           object: new Long(-1, 2147483647)
           ruby: '9223372036854775807'
+          rust: 9223372036854775807i64
     - input:
           javascript: Long.fromNumber(429496729601)
       output:
