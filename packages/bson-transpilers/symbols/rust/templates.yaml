@@ -300,15 +300,37 @@ Templates:
             newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             return `::parse_str(${newArg})?`;
         }
-    BinarySymbolTemplate: &BinarySymbolTemplate null
-    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
-    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null
-    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate null
-    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate null
-    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate null
-    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate null
-    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template null
-    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate null
+    BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
+        () => 'Binary'
+    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
+        (_, bytes, type) => {
+            // Double quote stringify
+            let newBytes = bytes;
+            if (
+                (bytes.charAt(0) === '\'' && bytes.charAt(bytes.length - 1) === '\'') ||
+                (bytes.charAt(0) === '"' && bytes.charAt(bytes.length - 1) === '"')) {
+                newBytes = bytes.substr(1, bytes.length - 2);
+            }
+            newBytes = `"${newBytes.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            if (type === null) {
+                type = 'BinarySubtype::Generic';
+            }
+            return ` { subtype: ${type}, bytes: ${bytes}.into_bytes() }`
+        }
+    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
+        () => 'BinarySubtype::Generic'
+    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate !!js/function >
+        () => 'BinarySubtype::Function'
+    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate !!js/function >
+        () => 'BinarySubtype::BinaryOld'
+    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate !!js/function >
+        () => 'BinarySubtype::UuidOld'
+    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate !!js/function >
+        () => 'BinarySubtype::Uuid'
+    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template !!js/function >
+        () => 'BinarySubtype::Md5'
+    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate !!js/function >
+        (arg) => `BinarySubtype::UserDefined(${arg})`
     DBRefSymbolTemplate: &DBRefSymbolTemplate null # No args
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null # Args: lhs, coll, id, db
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
@@ -455,14 +477,22 @@ Templates:
         () => ''
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
-    BinaryValueTemplate: &BinaryValueTemplate null
-    BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
-    BinaryLengthTemplate: &BinaryLengthTemplate null
-    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
-    BinaryToStringTemplate: &BinaryToStringTemplate null
-    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
-    BinarySubtypeTemplate: &BinarySubtypeTemplate null
-    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
+    BinaryValueTemplate: &BinaryValueTemplate !!js/function >
+        (arg) => `${arg}.bytes`
+    BinaryValueArgsTemplate: &BinaryValueArgsTemplate !!js/function >
+        () => ''
+    BinaryLengthTemplate: &BinaryLengthTemplate !!js/function >
+        (arg) => `${arg}.bytes.len()`
+    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate !!js/function >
+        () => ''
+    BinaryToStringTemplate: &BinaryToStringTemplate !!js/function >
+        (arg) => `std::string::from_utf8(${arg})?`
+    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate !!js/function >
+        () => ''
+    BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
+        (arg) => `${arg}.subtype`
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate !!js/function >
+        () => ''
     DBRefGetDBTemplate: &DBRefGetDBTemplate null
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
     DBRefGetIdTemplate: &DBRefGetIdTemplate null
