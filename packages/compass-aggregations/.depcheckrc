@@ -3,7 +3,6 @@ ignores: [
   "@hot-loader/react-dom",
   "@babel/cli",
   "@babel/register",
-  "bootstrap",
   "chai-as-promised",
   "core-js",
   "font-awesome",

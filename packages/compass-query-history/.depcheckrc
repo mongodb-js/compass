@@ -1,5 +1,4 @@
 ignores: [
-  "bootstrap",
   "@babel/cli",
   "@babel/register",
   "core-js",
