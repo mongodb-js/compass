@@ -600,11 +600,11 @@ Templates:
     LongNegateTemplate: &LongNegateTemplate !!js/function >
         () => '-'
     LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
-        (_, rhs) => rhs
+        (arg) => arg
     LongNotTemplate: &LongNotTemplate !!js/function >
         () => '~'
     LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
-        (_, rhs) => rhs
+        (arg) => arg
     LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
         (lhs) => `${lhs} != `
     LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
