@@ -74,7 +74,7 @@ Templates:
                         break;
                     case 'maxTimeMS':
                         optName = 'max_time';
-                        optValue = `Duration::from_millis(${optValue})`;
+                        optValue = `std::time::Duration::from_millis(${optValue})`;
                         break;
                 }
                 findOpts.push(`    .${optName}(${optValue})`);
@@ -791,23 +791,13 @@ Templates:
     # into one statement.                       #
     #                                           #
     #############################################
-    ImportTemplate: &ImportTemplate null
-    DriverImportTemplate: &DriverImportTemplate !!js/function >
-        () => {
-            return [
-                'use std::time::Duration;',
-                'use mongodb::{',
-                '    Client,',
-                '    options::FindOptions,',
-                '};',
-                'use bson::{',
-                '    *,',
-                '    oid::ObjectId,',
-                '    spec::BinarySubtype,',
-                '};',
-                'use chrono::Utc;',
-            ].join('\n');
+    ImportTemplate: &ImportTemplate !!js/function >
+        (args) => {
+            let merged = new Set(Object.values(args));
+            return [...merged].sort().join('\n');
         }
+    DriverImportTemplate: &DriverImportTemplate !!js/function >
+        () => 'use mongodb::Client;'
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null
@@ -816,27 +806,46 @@ Templates:
     5ImportTemplate: &5ImportTemplate null
     6ImportTemplate: &6ImportTemplate null
     7ImportTemplate: &7ImportTemplate null
-    8ImportTemplate: &8ImportTemplate null
+    8ImportTemplate: &8ImportTemplate !!js/function >
+        () => 'use bson::Regex;'
     9ImportTemplate: &9ImportTemplate null
-    10ImportTemplate: &10ImportTemplate null
-    11ImportTemplate: &11ImportTemplate null
-    12ImportTemplate: &12ImportTemplate null
-    100ImportTemplate: &100ImportTemplate null
-    101ImportTemplate: &101ImportTemplate null
-    102ImportTemplate: &102ImportTemplate null
+    10ImportTemplate: &10ImportTemplate !!js/function >
+        () => 'use bson::doc;'
+    # Null
+    11ImportTemplate: &11ImportTemplate !!js/function >
+        () => 'use bson::Bson;'
+    # Undefined
+    12ImportTemplate: &12ImportTemplate !!js/function >
+        () => 'use bson::Bson;'
+    # Code
+    100ImportTemplate: &100ImportTemplate !!js/function >
+        () => 'use bson::Bson;'
+    101ImportTemplate: &101ImportTemplate !!js/function >
+        () => 'use bson::oid::ObjectId;'
+    102ImportTemplate: &102ImportTemplate !!js/function >
+        () => 'use bson::Binary;'
     103ImportTemplate: &103ImportTemplate null
     104ImportTemplate: &104ImportTemplate null
     105ImportTemplate: &105ImportTemplate null
     106ImportTemplate: &106ImportTemplate null
-    107ImportTemplate: &107ImportTemplate null
-    108ImportTemplate: &108ImportTemplate null
-    109ImportTemplate: &109ImportTemplate null
-    110ImportTemplate: &110ImportTemplate null
+    # MinKey
+    107ImportTemplate: &107ImportTemplate !!js/function >
+        () => 'use bson::Bson;'
+    # MaxKey
+    108ImportTemplate: &108ImportTemplate !!js/function >
+        () => 'use bson::Bson;'
+    109ImportTemplate: &109ImportTemplate !!js/function >
+        () => 'use bson::Regex;'
+    110ImportTemplate: &110ImportTemplate !!js/function >
+        () => 'use bson::Timestamp;'
     111ImportTemplate: &111ImportTemplate null
     112ImportTemplate: &112ImportTemplate null
-    113ImportTemplate: &113ImportTemplate null
-    114ImportTemplate: &114ImportTemplate null
-    200ImportTemplate: &200ImportTemplate null
+    113ImportTemplate: &113ImportTemplate !!js/function >
+        () => 'use bson::JavaScriptCodeWithScope;'
+    114ImportTemplate: &114ImportTemplate !!js/function >
+        () => 'use bson::spec::BinarySubtype;'
+    200ImportTemplate: &200ImportTemplate !!js/function >
+        () => 'use chrono::Utc;'
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null
     301ImportTemplate: &301ImportTemplate null
