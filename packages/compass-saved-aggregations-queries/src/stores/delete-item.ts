@@ -3,6 +3,9 @@ import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
 export enum ActionTypes {
   DeleteItem = 'compass-saved-aggregations-queries/deleteItem',
@@ -76,6 +79,17 @@ export const deleteItemConfirm = (): ThunkAction<
     if (!item) {
       return;
     }
+
+    track(
+      item.type == 'aggregation'
+        ? 'Aggregation Deleted'
+        : 'Query History Favorite Removed',
+      {
+        id: item.id,
+        screen: 'my_queries',
+      }
+    );
+
     const deleteAction =
       item.type === 'query'
         ? favoriteQueryStorage.delete.bind(favoriteQueryStorage)

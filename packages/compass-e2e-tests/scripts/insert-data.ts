@@ -59,6 +59,8 @@ if (require.main === module) {
     // (named loosely after the relevant test)
     await createBlankCollection(db, 'json-array');
     await createBlankCollection(db, 'json-file');
+    await createBlankCollection(db, 'extended-json-file');
+    await createBlankCollection(db, 'csv-file');
 
     console.log(`Creating test.numbers`);
     await dropCollection(db, 'numbers');

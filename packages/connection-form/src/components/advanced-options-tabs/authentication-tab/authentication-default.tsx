@@ -167,7 +167,6 @@ function AuthenticationDefault({
         <RadioBoxGroup
           onChange={onAuthMechanismSelected}
           id="authentication-mechanism-radio-box-group"
-          size="default"
           value={selectedAuthTab.value}
         >
           {defaultAuthMechanismOptions.map(({ title, value }) => {
@@ -177,7 +176,6 @@ function AuthenticationDefault({
                 checked={selectedAuthTab.value === value}
                 value={value}
                 key={value}
-                size="default"
               >
                 {title}
               </RadioBox>
