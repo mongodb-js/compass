@@ -420,6 +420,91 @@ describe('Collection import', function () {
     });
   });
 
+  it('supports CSV files with BOM', async function () {
+    const csvPath = path.resolve(
+      __dirname,
+      '..',
+      'fixtures',
+      'source-with-bom.csv'
+    );
+
+    await browser.navigateToCollectionTab('test', 'bom-csv-file', 'Documents');
+
+    // open the import modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.ImportFileOption);
+
+    // wait for the modal to appear and select the file
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed({ timeout: 10_000 });
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+
+    // make sure it auto-selected CSV
+    const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
+    await browser.waitUntil(async () => {
+      const selected = await fileTypeCSV.getAttribute('aria-selected');
+      return selected === 'true';
+    });
+
+    const selectImportDelimiter = await browser.$(Selectors.ImportDelimiter);
+    await selectImportDelimiter.waitForDisplayed();
+    await selectImportDelimiter.scrollIntoView();
+    await selectImportDelimiter.selectByAttribute('value', ';');
+
+    // pick some types
+    const typeMapping = {
+      amount: 'Number',
+      description: 'String',
+      category: 'Number',
+      name: 'String',
+      order: 'String',
+      color: 'String',
+      date: 'String',
+    };
+
+    for (const [fieldName, fieldType] of Object.entries(typeMapping)) {
+      await selectFieldType(browser, fieldName, fieldType);
+    }
+
+    // confirm
+    await browser.clickVisible(Selectors.ImportConfirm);
+
+    // wait for the done button to appear and then click it
+    const doneButton = await browser.$(Selectors.ImportDone);
+    await doneButton.waitForDisplayed({ timeout: 60_000 });
+
+    await browser.clickVisible(Selectors.ImportDone);
+
+    // wait for the modal to go away
+    await importModal.waitForDisplayed({ reverse: false });
+
+    const messageElement = await browser.$(
+      Selectors.DocumentListActionBarMessage
+    );
+    const text = await messageElement.getText();
+    expect(text).to.equal('Displaying documents 1 - 1 of 1');
+
+    const result = await getFirstListDocument(browser);
+
+    // _id is different every time
+    expect(result._id).to.exist;
+    delete result._id;
+
+    // The values are the text as they appear in the page, so numbers are
+    // strings, strings have double-quotes inside them and the date got
+    // formatted.
+    expect(result).to.deep.equal({
+      amount: '18080',
+      category: '9',
+      name: '"anything"',
+      order: '"9"',
+      date: '"12-01-2016"',
+      // NOTE: amount is a number.
+    });
+  });
+
   it('displays an error if an incompatible type is chosen for a column', async function () {
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
