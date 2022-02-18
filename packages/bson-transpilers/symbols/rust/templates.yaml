@@ -48,6 +48,11 @@ Templates:
         (spec) => {
             const comment = `// Requires the MongoDB crate.\n// https://crates.io/crates/mongodb`;
             
+            const getKey = k => {
+                let translateKey = {
+                };
+                return k in translateKey ? translateKey[k] : k
+            };
             const options = spec.options;
             const filter = spec.filter || {};
             delete spec.options;
@@ -57,15 +62,16 @@ Templates:
             const coll = `client.database("${options.database}").collection("${options.collection}")`;
 
             if ('aggregation' in spec) {
-                return `${comment}\n\n${connect}\nlet result = ${coll}.aggregate(${spec.aggregation}, None).await?;`;
+                let agg = spec.aggregation;
+                if (agg.charAt(0) != '[') {
+                    agg = `[${agg}]`;
+                }
+                return `${comment}\n\n${connect}\nlet result = ${coll}.aggregate(${agg}, None).await?;`;
             }
 
             const vars = Object.keys(spec).reduce(
                 (result, k) => {
-                    if (k === 'sort') {
-                        return `${result}\n${k}=list(${spec[k]}.items())`;
-                    }
-                    return `${result}\n${k}=${spec[k]}`;
+                    return `${result}\nlet ${getKey(k)} = ${spec[k]};`;
                 },
                 connect
             );
@@ -73,13 +79,12 @@ Templates:
             const args = Object.keys(spec).reduce(
                 (result, k) => {
                     const divider = result === '' ? '' : ',\n';
-                    return `${result}${divider}  ${
-                        k in translateKey ? translateKey[k] : k
-                    }=${k}`;
+                    return `${result}${divider}  ${getKey(k)}: ${getKey(k)}`;
                 },
                 ''
             );
-            const cmd = `result = ${coll}.find(\n${args}\n)`;
+
+            const cmd = `let result = ${coll}.find(\n${args}\n);`;
 
             return `${comment}\n\n${vars}\n\n${cmd}`;
         }

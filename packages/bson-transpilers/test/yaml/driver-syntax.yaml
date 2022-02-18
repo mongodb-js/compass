@@ -81,6 +81,15 @@ tests:
                       'x' => 0,
                       'y' => BSON::ObjectId.new
                     })
+                rust: |-
+                    // Requires the MongoDB crate.
+                    // https://crates.io/crates/mongodb
+
+                    let client = Client::with_uri_str("mongodb://localhost:27017").await?;
+                    let result = client.database("db").collection("collection").aggregate([doc! {
+                      "x": 0i64,
+                      "y": ObjectId::new()
+                    }], None).await?;
             imports:
                 python: |-
                     from pymongo import MongoClient
