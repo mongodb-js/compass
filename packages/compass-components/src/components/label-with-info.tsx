@@ -6,7 +6,6 @@ import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
 
 const infoButtonStyles = css({
-  verticalAlign: 'middle',
   marginTop: -spacing[2],
   marginBottom: -spacing[2],
 });
