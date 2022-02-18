@@ -81,7 +81,7 @@ Templates:
             }
             let optStr = '';
             if (findOpts.length > 0) {
-                optStr = `let options = FindOptions::builder()\n${findOpts.join('\n')}\n    .build();\n`;
+                optStr = `let options = mongodb::options::FindOptions::builder()\n${findOpts.join('\n')}\n    .build();\n`;
             }
             let optRef = optStr ? 'options' : 'None';
             const cmd = `let result = ${coll}.find(${filter}, ${optRef}).await?;`;

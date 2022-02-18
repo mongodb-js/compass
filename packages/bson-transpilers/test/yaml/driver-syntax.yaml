@@ -116,17 +116,9 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
-                    use std::time::Duration;
-                    use mongodb::{
-                        Client,
-                        options::FindOptions,
-                    };
-                    use bson::{
-                        *,
-                        oid::ObjectId,
-                        spec::BinarySubtype,
-                    };
-                    use chrono::Utc;
+                    use bson::doc;
+                    use bson::oid::ObjectId;
+                    use mongodb::Client;
     query:
         -
             description: 'generate driver syntax with only filter'
@@ -229,17 +221,8 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
-                    use std::time::Duration;
-                    use mongodb::{
-                        Client,
-                        options::FindOptions,
-                    };
-                    use bson::{
-                        *,
-                        oid::ObjectId,
-                        spec::BinarySubtype,
-                    };
-                    use chrono::Utc;
+                    use bson::doc;
+                    use mongodb::Client;
         -
             description: 'generate driver syntax with filter and other options'
             input:
@@ -412,7 +395,7 @@ tests:
                     // https://crates.io/crates/mongodb
 
                     let client = Client::with_uri_str("mongodb://localhost:27017").await?;
-                    let options = FindOptions::builder()
+                    let options = mongodb::options::FindOptions::builder()
                         .projection(doc! {
                       "y": ObjectId::new()
                     })
@@ -421,7 +404,7 @@ tests:
                     })
                         .skip(5)
                         .limit(10)
-                        .max_time(Duration::from_millis(100))
+                        .max_time(std::time::Duration::from_millis(100))
                         .collation(doc! {
                       "locale": "zh"
                     })
@@ -454,14 +437,6 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
-                    use std::time::Duration;
-                    use mongodb::{
-                        Client,
-                        options::FindOptions,
-                    };
-                    use bson::{
-                        *,
-                        oid::ObjectId,
-                        spec::BinarySubtype,
-                    };
-                    use chrono::Utc;
+                    use bson::doc;
+                    use bson::oid::ObjectId;
+                    use mongodb::Client;
