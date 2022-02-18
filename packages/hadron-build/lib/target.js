@@ -574,7 +574,7 @@ class Target {
           '-b', this.bundleId,
           '-f', `${appDirectoryName}.zip`,
           '-o', `${appDirectoryName}.signed.zip`,
-          // '--verify',
+          '--verify',
           ...(this.macosEntitlements ? ['-e', this.macosEntitlements] : [])
         ], {
           cwd: path.dirname(appPath),
