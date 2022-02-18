@@ -598,13 +598,13 @@ Templates:
     LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate !!js/function >
         () => ''
     LongNegateTemplate: &LongNegateTemplate !!js/function >
-        (arg) => `-${arg}`
+        () => '-'
     LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
-        () => ''
+        (_, rhs) => rhs
     LongNotTemplate: &LongNotTemplate !!js/function >
-        (arg) => `~${arg}`
+        () => '~'
     LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
-        () => ''
+        (_, rhs) => rhs
     LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
         (lhs) => `${lhs} != `
     LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
