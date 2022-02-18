@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import chai from 'chai';
-import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -89,6 +88,7 @@ describe('Collection aggregations tab', function () {
     ]);
   });
 
+  // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
   it('supports creating an aggregation', async function () {
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
@@ -127,7 +127,7 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  it('supports tweaking settings of an aggregation', async function () {
+  it.only('supports tweaking settings of an aggregation', async function () {
     // set a collation
     await browser.clickVisible('[data-test-id="toggle-collation"]');
     const collationInput = await browser.$('[data-test-id="collation-string"]');
@@ -138,8 +138,8 @@ describe('Collection aggregations tab', function () {
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     // check that it included the comment by default
-    const contentElement = await browser.$(Selectors.stageContent(0));
-    expect(await contentElement.getText()).to.equal(`/**
+    const contentElement0 = await browser.$(Selectors.stageContent(0));
+    expect(await contentElement0.getText()).to.equal(`/**
  * query: The query in MQL.
  */
 {
@@ -147,7 +147,7 @@ describe('Collection aggregations tab', function () {
 }`);
 
     //change $match
-    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gt: 5 } }');
 
     // open settings
     await browser.clickVisible('[data-test-id="aggregation-settings"]');
@@ -174,36 +174,39 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AddStageButton);
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$project');
-    // TODO: check that it has no comment
+
+    // check that it has no comment
+    const contentElement1 = await browser.$(Selectors.stageContent(1));
+    expect(await contentElement1.getText()).to.equal(`{
+  specification(s)
+}`);
     await browser.setAceValue(Selectors.stageEditor(1), '{ _id: 0 }');
 
     // disable it
     await browser.clickVisible(Selectors.stageToggle(1));
 
     // export to language
-    // TODO: select some stuff?
     // TODO: also factor out the selectors in collection-documents-tab. Or maybe the code as well.
     await browser.clickVisible(Selectors.ExportAggregationToLanguage);
-    const exportModal = await browser.$(
-      '[data-test-id="export-to-lang-modal"]'
-    );
-    await exportModal.waitForDisplayed();
-    await browser.clickVisible('[data-test-id="export-to-lang-copy-output"]');
-    expect(await clipboard.read()).to.equal(`[
-    {
-        '$match': {
-            'i': 0
-        }
+    const text = await browser.exportToLanguage('Ruby');
+    expect(text).to.equal(`[
+  {
+    '$match' => {
+      'i' => {
+        '$gt' => 5
+      }
     }
+  }
 ]`);
 
-    // close the modal again
-    await browser.clickVisible(
-      '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default'
-    );
-    await exportModal.waitForDisplayed({ reverse: true });
-
-    // TODO: check that the preview is using 100 docs
+    // check that the preview is using 100 docs
+    await browser.waitUntil(async function () {
+      const textElement = await browser.$(
+        Selectors.stagePreviewToolbarTooltip(0)
+      );
+      const text = await textElement.getText();
+      return text === '(Sample of 100 documents)';
+    });
 
     // save as a view
     // TODO
