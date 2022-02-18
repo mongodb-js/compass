@@ -344,9 +344,54 @@ describe('Collection aggregations tab', function () {
     // TODO: clicking this button crashes at the moment
   });
 
+  it('allows creating a new pipeline from text', async function () {
+    await browser.clickVisible(Selectors.NewPipelineActions);
+    const menuElement = await browser.$(Selectors.NewPipelineActionsMenu);
+    await menuElement.waitForDisplayed();
+    const linkElement = await menuElement.$('a=New Pipeline From Text');
+    await linkElement.click();
+
+    const createModal = await browser.$(Selectors.NewPipelineFromTextModal);
+    await createModal.waitForDisplayed();
+
+    await browser.setAceValue(
+      Selectors.NewPipelineFromTextEditor,
+      `[
+  { $match: { i: 5 } }
+]`
+    );
+
+    const confirmButton = await browser.$(
+      Selectors.NewPipelineFromTextConfirmButton
+    );
+    await confirmButton.waitForEnabled();
+    await confirmButton.click();
+
+    await createModal.waitForDisplayed({ reverse: true });
+
+    const confirmModal = await browser.$(Selectors.ConfirmImportPipelineModal);
+    await confirmModal.waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.ConfirmImportPipelineModalConfirmButton
+    );
+    await confirmModal.waitForDisplayed({ reverse: true });
+
+    const contentElement = await browser.$(Selectors.stageContent(0));
+    expect(await contentElement.getText()).to.equal(`{
+  i: 5
+}`);
+
+    await browser.waitUntil(async function () {
+      const textElement = await browser.$(
+        Selectors.stagePreviewToolbarTooltip(0)
+      );
+      const text = await textElement.getText();
+      return text === '(Sample of 1 document)';
+    });
+  });
+
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
   // TODO: test auto-preview and limit
   // TODO: save a pipeline, close compass, re-open compass, load the pipeline
-  // TODO: create new pipeline from text
   // TODO: test Collapse/Expand all stages button (currently broken)
 });
