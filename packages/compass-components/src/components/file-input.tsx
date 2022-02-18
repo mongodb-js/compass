@@ -153,9 +153,7 @@ function FileInput({
     }
     if (!link) {
       return (
-        <Description
-          data-testid={'file-input-description'}
-        >
+        <Description data-testid={'file-input-description'}>
           {description}
         </Description>
       );
@@ -164,9 +162,7 @@ function FileInput({
       <Link
         data-testid={'file-input-link'}
         href={link}
-        className={cx(
-          description ? infoLinkStyles : labelIconStyles
-        )}
+        className={cx(description ? infoLinkStyles : labelIconStyles)}
         hideExternalIcon={!description}
       >
         {description ?? ''}
