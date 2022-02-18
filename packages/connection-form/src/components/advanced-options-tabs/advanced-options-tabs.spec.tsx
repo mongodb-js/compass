@@ -60,10 +60,12 @@ describe('AdvancedOptionsTabs Component', function () {
       />
     );
 
-    tabs.forEach(({ id }) => {
-      const tab = screen.getAllByTestId(`connection-${id}-tab`)[0];
-      expect(tab.getAttribute('data-has-error')).to.equal('false');
-    });
+    tabs
+      .filter(({ id }) => id !== 'advanced')
+      .forEach(({ id }) => {
+        const tab = screen.getAllByTestId(`connection-${id}-tab`)[0];
+        expect(tab.getAttribute('data-has-error')).to.equal('false');
+      });
     expect(
       screen
         .getAllByTestId('connection-advanced-tab')[0]
@@ -93,10 +95,12 @@ describe('AdvancedOptionsTabs Component', function () {
       />
     );
 
-    tabs.forEach(({ id, name }) => {
-      const tab = screen.getAllByTestId(`connection-${id}-tab`)[0];
-      expect(tab.getAttribute('aria-label')).to.equal(name);
-    });
+    tabs
+      .filter(({ id }) => id !== 'tls')
+      .forEach(({ id, name }) => {
+        const tab = screen.getAllByTestId(`connection-${id}-tab`)[0];
+        expect(tab.getAttribute('aria-label')).to.equal(name);
+      });
     expect(
       screen.getAllByTestId('connection-tls-tab')[0].getAttribute('aria-label')
     ).to.equal('TLS/SSL (2 errors)');
