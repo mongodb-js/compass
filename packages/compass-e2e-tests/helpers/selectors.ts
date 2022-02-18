@@ -160,8 +160,6 @@ export const ShellLoader =
   '[data-test-id="shell-content"] [class~=mongosh-shell-loader-shell-loader]';
 
 // Query bar (Find, Schema, Explain Plan)
-export const QueryBarApplyFilterButton =
-  '[data-test-id="query-bar-apply-filter-button"]';
 export const QueryBarMenuActions = '#query-bar-menu-actions';
 
 // Instance screen
@@ -338,6 +336,7 @@ export const QueryBarHistory = '[data-test-id="query-history"]';
 
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
+export const CreateNewPipelineButton = 'button#create-new-pipeline';
 export const ToggleAggregationCollation = '[data-test-id="toggle-collation"]';
 export const AggregationCollationInput = '[data-test-id="collation-string"]';
 export const AggregationSettingsButton =
@@ -349,8 +348,6 @@ export const AggregationSettingsApplyButton = '#aggregation-settings-apply';
 export const AddStageButton = '[data-test-id="add-stage"]';
 export const ExportAggregationToLanguage =
   '[data-test-id="aggregations-content"] [data-test-id="export-to-language"]';
-export const StageEditorErrorMessage =
-  '[data-test-id="stage-editor-error-message"]';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [role="option"]`;
@@ -403,6 +400,21 @@ export const stageToggle = (stageIndex: number): string => {
 };
 export const stageDelete = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-test-id="delete-stage"]`;
+};
+export const stageOutSaveButton = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="save-out-documents"]`;
+};
+export const stageOutCollectionLink = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="go-to-out-collection"]`;
+};
+export const stageMergeSaveButton = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="save-merge-documents"]`;
+};
+export const stageMergeCollectionLink = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="go-to-merge-collection"]`;
+};
+export const stageEditorErrorMessage = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="stage-editor-error-message"]`;
 };
 
 // Schema tab
@@ -494,7 +506,7 @@ export const queryBarOptionInputLimit = (tabName: string): string => {
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarApplyFilterButton}`;
+  return `${tabSelector} [data-test-id="query-bar-apply-filter-button"]`;
 };
 export const queryBarOptionsToggle = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
@@ -571,3 +583,9 @@ export const ExportToLanguageCopyOutputButton =
   '[data-test-id="export-to-lang-copy-output"]';
 export const ExportToLanguageCloseButton =
   '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';
+
+// Confirm new pipeline modal
+export const ConfirmNewPipelineModal =
+  '[trackingid="confirm_new_pipeline_modal"]';
+export const ConfirmNewPipelineModalConfirmButton =
+  '[trackingid="confirm_new_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';

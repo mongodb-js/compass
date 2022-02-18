@@ -80,6 +80,7 @@ class StagePreview extends Component {
               Documents persisted to collection specified by $merge.
             </div>
             <div
+              data-test-id="go-to-merge-collection"
               className={styles['stage-preview-out-link']}
               onClick={this.onGotoMergeResults}>
               Go to collection.
@@ -97,6 +98,7 @@ class StagePreview extends Component {
         </div>
         <div className={styles['stage-preview-out-button']}>
           <TextButton
+            dataTestId="save-merge-documents"
             text="Merge Documents"
             className="btn btn-xs btn-primary"
             clickHandler={this.onSaveDocuments} />
@@ -119,6 +121,7 @@ class StagePreview extends Component {
               Documents persisted to collection: {decomment(this.props.stage)}.
             </div>
             <div
+              data-test-id="go-to-out-collection"
               className={styles['stage-preview-out-link']}
               onClick={this.onGotoOutResults}>
               Go to collection.
@@ -137,6 +140,7 @@ class StagePreview extends Component {
         </div>
         <div className={styles['stage-preview-out-button']}>
           <TextButton
+            dataTestId="save-out-documents"
             text="Save Documents"
             className="btn btn-xs btn-primary"
             clickHandler={this.onSaveDocuments}

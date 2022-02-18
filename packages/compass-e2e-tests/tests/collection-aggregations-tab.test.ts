@@ -7,7 +7,7 @@ import * as Selectors from '../helpers/selectors';
 
 const { expect } = chai;
 
-describe('Collection aggregations tab', function () {
+describe.only('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -18,6 +18,16 @@ describe('Collection aggregations tab', function () {
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
 
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+  });
+
+  beforeEach(async function () {
+    // Get us back to the empty stage every time. Also test the Create New
+    // Pipeline flow while at it.
+    await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
+    await modalElement.waitForDisplayed();
+    await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
+    await modalElement.waitForDisplayed({ reverse: true });
   });
 
   after(async function () {
@@ -251,7 +261,9 @@ describe('Collection aggregations tab', function () {
     );
 
     // make sure we got the timeout error
-    const messageElement = await browser.$(Selectors.StageEditorErrorMessage);
+    const messageElement = await browser.$(
+      Selectors.stageEditorErrorMessage(0)
+    );
     await messageElement.waitForDisplayed();
     // The exact error we get depends on the version of mongodb
     /*
@@ -261,10 +273,77 @@ describe('Collection aggregations tab', function () {
     */
   });
 
-  // TODO: test $out
-  // TODO: test $merge
+  it('supports $out as the last stage', async function () {
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$out');
+    await browser.setAceValue(Selectors.stageEditor(0), "'my-out-collection'");
+
+    await browser.clickVisible(Selectors.AddStageButton);
+
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$match');
+    await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
+
+    // make sure it complains that it must be the last stage
+    const messageElement = await browser.$(
+      Selectors.stageEditorErrorMessage(1)
+    );
+    await messageElement.waitForDisplayed();
+    expect(await messageElement.getText()).to.equal(
+      '$out can only be the final stage in the pipeline'
+    );
+
+    // delete the stage after $out
+    await browser.clickVisible(Selectors.stageDelete(1));
+
+    // run the $out stage
+    await browser.clickVisible(Selectors.stageOutSaveButton(0));
+
+    // go to the new collection
+    const linkElement = await browser.$(Selectors.stageOutCollectionLink(0));
+    await linkElement.waitForDisplayed();
+    // TODO: clicking this button crashes at the moment
+  });
+
+  it('supports $merge as the last stage', async function () {
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$merge');
+    await browser.setAceValue(
+      Selectors.stageEditor(0),
+      `{
+  into: 'my-merge-collection'
+}`
+    );
+
+    await browser.clickVisible(Selectors.AddStageButton);
+
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$match');
+    await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
+
+    // make sure it complains that it must be the last stage
+    const messageElement = await browser.$(
+      Selectors.stageEditorErrorMessage(1)
+    );
+    await messageElement.waitForDisplayed();
+    expect(await messageElement.getText()).to.equal(
+      '$merge can only be the final stage in the pipeline'
+    );
+
+    // delete the stage after $out
+    await browser.clickVisible(Selectors.stageDelete(1));
+
+    // run the $out stage
+    await browser.clickVisible(Selectors.stageMergeSaveButton(0));
+
+    // go to the new collection
+    const linkElement = await browser.$(Selectors.stageMergeCollectionLink(0));
+    await linkElement.waitForDisplayed();
+    // TODO: clicking this button crashes at the moment
+  });
 
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
   // TODO: test auto-preview and limit
   // TODO: save a pipeline, close compass, re-open compass, load the pipeline
+  // TODO: create new pipeline from text
 });

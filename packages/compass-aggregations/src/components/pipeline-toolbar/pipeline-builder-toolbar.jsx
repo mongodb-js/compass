@@ -223,6 +223,7 @@ class PipelineBuilderToolbar extends PureComponent {
         <div>
           <Dropdown id="new-pipeline-actions" className="btn-group">
             <Button
+              id="create-new-pipeline"
               variant="default"
               className={classnames(
                 'btn-xs',
