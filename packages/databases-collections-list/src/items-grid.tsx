@@ -18,7 +18,7 @@ const { track } = createLoggerAndTelemetry(
   'COMPASS-DATABASES-COLLECTIONS-LIST-UI'
 );
 
-type Item = Record<string, unknown>;
+type Item = { _id: string } & Record<string, unknown>;
 
 const row = css({
   paddingLeft: spacing[3],
@@ -88,7 +88,7 @@ type ItemsGridProps<T> = {
   renderItem: RenderItem<T>;
 };
 
-const CONTROLS_HEIGHT = spacing[5] + 36;
+const CONTROLS_HEIGHT = (spacing[5] as number) + 36;
 
 const pushRight = css({
   marginLeft: 'auto',
@@ -182,10 +182,11 @@ export const ItemsGrid = <T extends Item>({
     >
       <VirtualGrid
         itemMinWidth={itemWidth}
-        itemHeight={itemHeight + spacing[2]}
+        itemHeight={itemHeight + (spacing[2] as number)}
         itemsCount={sortedItems.length}
         colCount={viewType === 'list' ? 1 : undefined}
         renderItem={renderItem}
+        itemKey={(index: number) => sortedItems[index]._id}
         headerHeight={CONTROLS_HEIGHT}
         renderHeader={GridControls}
         classNames={{
