@@ -7,7 +7,7 @@ import * as Selectors from '../helpers/selectors';
 
 const { expect } = chai;
 
-describe.only('Collection aggregations tab', function () {
+describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -158,6 +158,8 @@ describe.only('Collection aggregations tab', function () {
 
     //change $match
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gt: 5 } }');
+
+    // TODO: click collapse and then expand again
 
     // open settings
     await browser.clickVisible(Selectors.AggregationSettingsButton);
@@ -346,4 +348,5 @@ describe.only('Collection aggregations tab', function () {
   // TODO: test auto-preview and limit
   // TODO: save a pipeline, close compass, re-open compass, load the pipeline
   // TODO: create new pipeline from text
+  // TODO: test Collapse/Expand all stages button (currently broken)
 });
