@@ -115,6 +115,14 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
+                rust: |-
+                    use mongodb::Client;
+                    use bson::{
+                        *,
+                        oid::ObjectId,
+                        spec::BinarySubtype,
+                    };
+                    use chrono::Utc;
     query:
         -
             description: 'generate driver syntax with only filter'
