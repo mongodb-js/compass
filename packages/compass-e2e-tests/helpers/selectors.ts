@@ -337,6 +337,13 @@ export const QueryBarHistory = '[data-test-id="query-history"]';
 
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
+export const ToggleAggregationCollation = '[data-test-id="toggle-collation"]';
+export const AggregationCollationInput = '[data-test-id="collation-string"]';
+export const AggregationSettingsButton =
+  '[data-test-id="aggregation-settings"]';
+export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
+export const AggregationSampleSizeInput = '#aggregation-sample-size';
+export const AggregationSettingsApplyButton = '#aggregation-settings-apply';
 export const AddStageButton = '[data-test-id="add-stage"]';
 export const ExportAggregationToLanguage =
   '[data-test-id="aggregations-content"] [data-test-id="export-to-language"]';
@@ -535,3 +542,20 @@ export const selectExportFileTypeButton = (
 export const exportModalExportField = (fieldName: string): string => {
   return `[data-test-id="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
+
+// Export to language modal
+export const ExportToLanguageModal = '[data-test-id="export-to-lang-modal"]';
+export const ExportToLanguageLanguageField =
+  '[data-test-id="select-lang-field"]';
+export const ExportToLanguageLanguageListbox =
+  '[data-test-id="select-lang-field"] [role="listbox"]';
+export const ExportToLanguageImportsCheckbox =
+  '[data-test-id="export-to-lang-checkbox-imports"]';
+export const ExportToLanguageDriverCheckbox =
+  '[data-test-id="export-to-lang-checkbox-driver"]';
+export const ExportToLanguageBuildersCheckbox =
+  '[data-test-id="export-to-lang-checkbox-builders"]';
+export const ExportToLanguageCopyOutputButton =
+  '[data-test-id="export-to-lang-copy-output"]';
+export const ExportToLanguageCloseButton =
+  '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';

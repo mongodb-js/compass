@@ -127,10 +127,10 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  it.only('supports tweaking settings of an aggregation', async function () {
+  it('supports tweaking settings of an aggregation', async function () {
     // set a collation
-    await browser.clickVisible('[data-test-id="toggle-collation"]');
-    const collationInput = await browser.$('[data-test-id="collation-string"]');
+    await browser.clickVisible(Selectors.ToggleAggregationCollation);
+    const collationInput = await browser.$(Selectors.AggregationCollationInput);
     await collationInput.waitForDisplayed();
     await collationInput.setValue('{ locale: "af" }');
 
@@ -150,17 +150,19 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gt: 5 } }');
 
     // open settings
-    await browser.clickVisible('[data-test-id="aggregation-settings"]');
+    await browser.clickVisible(Selectors.AggregationSettingsButton);
 
     // turn off comment mode
-    await browser.clickVisible('#aggregation-comment-mode');
+    await browser.clickVisible(Selectors.AggregationCommentModeCheckbox);
 
     // set number of preview documents to 100
-    const sampleSizeElement = await browser.$('#aggregation-sample-size');
+    const sampleSizeElement = await browser.$(
+      Selectors.AggregationSampleSizeInput
+    );
     await sampleSizeElement.setValue('100');
 
     // apply settings
-    await browser.clickVisible('#aggregation-settings-apply');
+    await browser.clickVisible(Selectors.AggregationSettingsApplyButton);
 
     // add a $project
     await browser.clickVisible(Selectors.AddStageButton);
@@ -186,7 +188,6 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.stageToggle(1));
 
     // export to language
-    // TODO: also factor out the selectors in collection-documents-tab. Or maybe the code as well.
     await browser.clickVisible(Selectors.ExportAggregationToLanguage);
     const text = await browser.exportToLanguage('Ruby');
     expect(text).to.equal(`[
@@ -209,7 +210,14 @@ describe('Collection aggregations tab', function () {
     });
 
     // save as a view
-    // TODO
+    // TODO: This is currently broken, so will have to test at a later stage
+    /*
+    //#save-pipeline-actions
+    //a=Create a view'
+    '[trackingid="create_view_modal"]'
+    '#create-view-name'
+    '[trackingid="create_view_modal"] [role=dialog] > div:nth-child(2) button:first-child'
+    */
 
     // browse to the view
     // TODO

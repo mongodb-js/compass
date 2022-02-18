@@ -3,9 +3,9 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 type ExportToLanguageOptions = {
-  includeImportStatements?: boolean,
-  includeDriverSyntax?: boolean,
-  useBuilders?: boolean
+  includeImportStatements?: boolean;
+  includeDriverSyntax?: boolean;
+  useBuilders?: boolean;
 };
 
 export async function exportToLanguage(
@@ -13,26 +13,20 @@ export async function exportToLanguage(
   language: string,
   options?: ExportToLanguageOptions
 ): Promise<string> {
-
-  const exportModal = await browser.$(
-    '[data-test-id="export-to-lang-modal"]'
-  );
+  const exportModal = await browser.$(Selectors.ExportToLanguageModal);
   await exportModal.waitForDisplayed();
 
-  await browser.clickVisible('[data-test-id="select-lang-field"]');
-
-  const listBox = await browser.$(
-    '[data-test-id="select-lang-field"] [role="listbox"]'
-  );
+  // pick the language
+  await browser.clickVisible(Selectors.ExportToLanguageLanguageField);
+  const listBox = await browser.$(Selectors.ExportToLanguageLanguageListbox);
   await listBox.waitForDisplayed();
-
-  const javaElement = await listBox.$(`div=${language}`);
-  await javaElement.waitForDisplayed();
-  await javaElement.click();
+  const languageElement = await listBox.$(`div=${language}`);
+  await languageElement.waitForDisplayed();
+  await languageElement.click();
 
   if (options?.includeImportStatements === true) {
     const importsCheckbox = await browser.$(
-      '[data-test-id="export-to-lang-checkbox-imports"]'
+      Selectors.ExportToLanguageImportsCheckbox
     );
     await importsCheckbox.waitForDisplayed();
     if (!(await importsCheckbox.isSelected())) {
@@ -43,7 +37,7 @@ export async function exportToLanguage(
   // not C#
   if (options?.includeDriverSyntax === true) {
     const driverCheckbox = await browser.$(
-      '[data-test-id="export-to-lang-checkbox-driver"]'
+      Selectors.ExportToLanguageDriverCheckbox
     );
     await driverCheckbox.waitForDisplayed();
     if (!(await driverCheckbox.isSelected())) {
@@ -54,7 +48,7 @@ export async function exportToLanguage(
   // only Java, only when exporting from Documents tab
   if (options?.useBuilders === true) {
     const buildersCheckbox = await browser.$(
-      '[data-test-id="export-to-lang-checkbox-builders"]'
+      Selectors.ExportToLanguageBuildersCheckbox
     );
     await buildersCheckbox.waitForDisplayed();
     if (!(await buildersCheckbox.isSelected())) {
@@ -62,14 +56,12 @@ export async function exportToLanguage(
     }
   }
 
-  await browser.clickVisible('[data-test-id="export-to-lang-copy-output"]');
-
+  // copy the text to and from the clipboard so we can return it later
+  await browser.clickVisible(Selectors.ExportToLanguageCopyOutputButton);
   const text = await clipboard.read();
 
   // close the modal again
-  await browser.clickVisible(
-    '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default'
-  );
+  await browser.clickVisible(Selectors.ExportToLanguageCloseButton);
   await exportModal.waitForDisplayed({ reverse: true });
 
   return text;

@@ -261,7 +261,7 @@ describe('Collection documents tab', function () {
     const text = await browser.exportToLanguage('Java', {
       includeImportStatements: true,
       includeDriverSyntax: true,
-      useBuilders: true
+      useBuilders: true,
     });
 
     expect(text).to.equal(`import static com.mongodb.client.model.Filters.eq;
