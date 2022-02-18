@@ -90,7 +90,12 @@ describe('Home [Component]', function () {
 
     describe('with the old connect form', function () {
       beforeEach(function () {
+        process.env.USE_NEW_CONNECT_FORM = 'false';
         return renderHome();
+      });
+
+      afterEach(function () {
+        delete process.env.USE_NEW_CONNECT_FORM;
       });
 
       it('renders instance workspace', function () {
@@ -136,13 +141,11 @@ describe('Home [Component]', function () {
       });
     });
 
-    describe('with the new connect form (USE_NEW_CONNECT_FORM=true) and UI status is complete', function () {
+    describe('when UI status is complete', function () {
       let dataServiceDisconnectedSpy: sinon.SinonSpy;
       let listenForDisconnectFake: sinon.SinonSpy;
 
       beforeEach(async function () {
-        process.env.USE_NEW_CONNECT_FORM = 'true';
-
         listenForDisconnectFake = sinon.fake();
         testAppRegistry.on(
           'data-service-disconnected',
@@ -157,7 +160,6 @@ describe('Home [Component]', function () {
       });
 
       afterEach(function () {
-        delete process.env.USE_NEW_CONNECT_FORM;
         testAppRegistry.removeListener(
           'data-service-disconnected',
           listenForDisconnectFake
