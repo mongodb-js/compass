@@ -252,11 +252,18 @@ describe('Collection documents tab', function () {
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
-    // TODO: use a selector
-    await browser.clickVisible('#query-bar-menu-actions');
+    await browser.clickVisible(
+      Selectors.queryBarMenuActionsButton('Documents')
+    );
 
-    // TODO: use a selector
-    await browser.clickVisible('a=Export To Language');
+    const queryBarActionsMenu = await browser.$(
+      Selectors.queryBarActionsMenu('Documents')
+    );
+    const exportToLanguageButton = await queryBarActionsMenu.$(
+      'a=Export To Language'
+    );
+    await exportToLanguageButton.waitForDisplayed();
+    await exportToLanguageButton.click();
 
     const text = await browser.exportToLanguage('Java', {
       includeImportStatements: true,

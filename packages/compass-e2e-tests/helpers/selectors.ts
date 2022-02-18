@@ -162,6 +162,7 @@ export const ShellLoader =
 // Query bar (Find, Schema, Explain Plan)
 export const QueryBarApplyFilterButton =
   '[data-test-id="query-bar-apply-filter-button"]';
+export const QueryBarMenuActions = '#query-bar-menu-actions';
 
 // Instance screen
 export const InstanceTabs = '[data-test-id="instance-tabs"]';
@@ -499,6 +500,14 @@ export const queryBarOptionsToggle = (tabName: string): string => {
 export const queryBarResetFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-test-id="query-bar-reset-filter-button"]`;
+};
+export const queryBarMenuActionsButton = (tabName: string): string => {
+  const tabSelector = collectionContent(tabName);
+  return `${tabSelector} ${QueryBarMenuActions}`;
+};
+export const queryBarActionsMenu = (tabName: string): string => {
+  const tabSelector = collectionContent(tabName);
+  return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
 };
 
 // Tabs at the top
