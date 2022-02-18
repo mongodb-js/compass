@@ -344,10 +344,13 @@ export const AggregationSettingsButton =
   '[data-test-id="aggregation-settings"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
 export const AggregationSampleSizeInput = '#aggregation-sample-size';
+export const AggregationMaxTimeMS = '#aggregation-max-time-ms';
 export const AggregationSettingsApplyButton = '#aggregation-settings-apply';
 export const AddStageButton = '[data-test-id="add-stage"]';
 export const ExportAggregationToLanguage =
   '[data-test-id="aggregations-content"] [data-test-id="export-to-language"]';
+export const StageEditorErrorMessage =
+  '[data-test-id="stage-editor-error-message"]';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [role="option"]`;

@@ -223,6 +223,41 @@ describe('Collection aggregations tab', function () {
     // TODO
   });
 
+  it('supports maxTimeMS', async function () {
+    // open settings
+    await browser.clickVisible(Selectors.AggregationSettingsButton);
+
+    // set maxTimeMS
+    const sampleSizeElement = await browser.$(Selectors.AggregationMaxTimeMS);
+    await sampleSizeElement.setValue('1');
+
+    // apply settings
+    await browser.clickVisible(Selectors.AggregationSettingsApplyButton);
+
+    // run a projection that will take lots of time
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$project');
+    await browser.setAceValue(
+      Selectors.stageEditor(0),
+      `{
+      foo: {
+        $function: {
+          body: 'function() { sleep(1000) }',
+          args: [],
+          lang: 'js'
+        }
+      }
+    }`
+    );
+
+    // make sure we got the timeout error
+    const messageElement = await browser.$(Selectors.StageEditorErrorMessage);
+    await messageElement.waitForDisplayed();
+    expect(await messageElement.getText()).to.include(
+      'operation exceeded time limit'
+    );
+  });
+
   // TODO: test $out
   // TODO: test $merge
   // TODO: test max time
