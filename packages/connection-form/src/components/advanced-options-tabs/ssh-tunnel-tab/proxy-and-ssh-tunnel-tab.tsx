@@ -2,7 +2,6 @@ import type { ChangeEvent } from 'react';
 import React, { useState, useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
-  Label,
   RadioBox,
   RadioBoxGroup,
   spacing,
@@ -166,10 +165,9 @@ function ProxyAndSshTunnelTab({
 
   return (
     <div className={containerStyles}>
-      <Label htmlFor="ssh-options-radio-box-group">
-        SSH Tunnel/Proxy Method
-      </Label>
       <RadioBoxGroup
+        label="SSH Tunnel/Proxy Method"
+        id="ssh-options-radio-box-group"
         onChange={optionSelected}
         className="radio-box-group-style"
       >

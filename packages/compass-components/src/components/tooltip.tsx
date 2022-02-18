@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useTooltipTriggerState } from '@react-stately/tooltip';
 import { useTooltipTrigger } from '@react-aria/tooltip';
-import LeafyGreenTooltip from '@leafygreen-ui/tooltip';
+import LeafygreenTooltip from '@leafygreen-ui/tooltip';
 import React, { useCallback, useRef } from 'react';
 import { mergeProps } from '../utils/merge-props';
 
@@ -17,15 +17,15 @@ type TooltipTriggerProps = {
 /**
  * @see {@link https://www.mongodb.design/component/tooltip/documentation/}
  */
-type LeafyGreenTooltipProps = React.ComponentPropsWithoutRef<
-  typeof LeafyGreenTooltip
+type LeafygreenTooltipProps = React.ComponentPropsWithoutRef<
+  typeof LeafygreenTooltip
 >;
 
 type TooltipTrigger = React.FunctionComponent;
 
 const Tooltip: React.FunctionComponent<
   TooltipTriggerProps &
-    Omit<LeafyGreenTooltipProps, 'open' | 'setOpen' | 'trigger'> & {
+    Omit<LeafygreenTooltipProps, 'open' | 'setOpen' | 'trigger'> & {
       trigger: TooltipTrigger;
     }
 > = ({ isDisabled, triggerOn, delay, trigger, ...rest }) => {
@@ -51,7 +51,7 @@ const Tooltip: React.FunctionComponent<
     [tooltipState]
   );
   return (
-    <LeafyGreenTooltip
+    <LeafygreenTooltip
       open={tooltipState.isOpen}
       setOpen={setOpen}
       trigger={({ children, className }: React.HTMLProps<HTMLElement>) => {
@@ -59,7 +59,7 @@ const Tooltip: React.FunctionComponent<
       }}
       {...rest}
       {...tooltipProps}
-    ></LeafyGreenTooltip>
+    ></LeafygreenTooltip>
   );
 };
 

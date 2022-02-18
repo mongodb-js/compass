@@ -1,13 +1,9 @@
 import React, { useCallback } from 'react';
 import {
-  Icon,
-  IconButton,
-  Label,
+  LabelWithInfo,
   RadioBox,
   RadioBoxGroup,
   TextInput,
-  css,
-  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
@@ -20,17 +16,6 @@ import {
   getConnectionStringPassword,
   getConnectionStringUsername,
 } from '../../../utils/connection-string-helpers';
-
-const authSourceLabelStyles = css({
-  padding: 0,
-  margin: 0,
-  flexGrow: 1,
-});
-
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[1],
-});
 
 const defaultAuthMechanismOptions: {
   title: string;
@@ -121,21 +106,14 @@ function AuthenticationDefault({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Label
-          className={authSourceLabelStyles}
+        <LabelWithInfo
           htmlFor="authSourceInput"
           id="authSourceLabel"
+          aria-label="Authentication Database Documentation"
+          href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
         >
           Authentication Database
-          <IconButton
-            className={infoButtonStyles}
-            aria-label="Authentication Database Documentation"
-            href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
-            target="_blank"
-          >
-            <Icon glyph="InfoWithCircle" size="small" />
-          </IconButton>
-        </Label>
+        </LabelWithInfo>
 
         <TextInput
           onChange={({
@@ -161,13 +139,11 @@ function AuthenticationDefault({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Label htmlFor="authentication-mechanism-radio-box-group">
-          Authentication Mechanism
-        </Label>
         <RadioBoxGroup
           onChange={onAuthMechanismSelected}
           id="authentication-mechanism-radio-box-group"
           value={selectedAuthTab.value}
+          label="Authentication Mechanism"
         >
           {defaultAuthMechanismOptions.map(({ title, value }) => {
             return (

@@ -14,7 +14,7 @@ export {
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
-import SpinLoader from './components/spin-loader';
+import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import Accordion from './components/accordion';
 export { FavoriteIcon } from './components/icons/favorite-icon';
@@ -46,11 +46,8 @@ export { default as Modal } from '@leafygreen-ui/modal';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
-export {
-  RadioBox,
-  RadioBoxGroup,
-  Size as RadioBoxSize,
-} from '@leafygreen-ui/radio-box-group';
+export { RadioBox, Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
+export { RadioBoxGroup } from './components/radio-box-group';
 export { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
 export {
   Select,
@@ -71,6 +68,7 @@ export { useToast, ToastArea } from './hooks/use-toast';
 export { Toggle } from './components/toggle';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
+export { LabelWithInfo } from './components/label-with-info';
 export { Tooltip } from './components/tooltip';
 export {
   H1,
