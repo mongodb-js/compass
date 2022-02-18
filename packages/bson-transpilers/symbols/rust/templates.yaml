@@ -48,11 +48,6 @@ Templates:
         (spec) => {
             const comment = `// Requires the MongoDB crate.\n// https://crates.io/crates/mongodb`;
             
-            const getKey = k => {
-                let translateKey = {
-                };
-                return k in translateKey ? translateKey[k] : k
-            };
             const options = spec.options;
             const filter = spec.filter || 'None';
             delete spec.options;
@@ -71,7 +66,18 @@ Templates:
 
             const findOpts = [];
             for (const k in spec) {
-                findOpts.push(`    .${getKey(k)}(${spec[k]})`);
+                let optName = k;
+                let optValue = spec[k];
+                switch(k) {
+                    case 'project':
+                        optName = 'projection';
+                        break;
+                    case 'maxTimeMS':
+                        optName = 'max_time';
+                        optValue = `Duration::from_millis(${optValue})`;
+                        break;
+                }
+                findOpts.push(`    .${optName}(${optValue})`);
             }
             let optStr = '';
             if (findOpts.length > 0) {
@@ -789,6 +795,7 @@ Templates:
     DriverImportTemplate: &DriverImportTemplate !!js/function >
         () => {
             return [
+                'use std::time::Duration;',
                 'use mongodb::{',
                 '    Client,',
                 '    options::FindOptions,',

@@ -116,6 +116,7 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
+                    use std::time::Duration;
                     use mongodb::{
                         Client,
                         options::FindOptions,
@@ -228,6 +229,7 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
+                    use std::time::Duration;
                     use mongodb::{
                         Client,
                         options::FindOptions,
@@ -405,6 +407,28 @@ tests:
                       max_time_ms: max_time_ms,
                       collation: collation
                     })
+                rust: |-
+                    // Requires the MongoDB crate.
+                    // https://crates.io/crates/mongodb
+
+                    let client = Client::with_uri_str("mongodb://localhost:27017").await?;
+                    let options = FindOptions::builder()
+                        .projection(doc! {
+                      "y": ObjectId::new()
+                    })
+                        .sort(doc! {
+                      "name": 1
+                    })
+                        .skip(5)
+                        .limit(10)
+                        .max_time(Duration::from_millis(100))
+                        .collation(doc! {
+                      "locale": "zh"
+                    })
+                        .build();
+                    let result = client.database("db").collection("collection").find(doc! {
+                      "x": 0i64
+                    }, options).await?;
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -429,3 +453,15 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
+                rust: |-
+                    use std::time::Duration;
+                    use mongodb::{
+                        Client,
+                        options::FindOptions,
+                    };
+                    use bson::{
+                        *,
+                        oid::ObjectId,
+                        spec::BinarySubtype,
+                    };
+                    use chrono::Utc;
