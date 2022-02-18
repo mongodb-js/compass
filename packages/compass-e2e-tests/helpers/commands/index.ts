@@ -1,4 +1,5 @@
 export * from './exists-eventually';
+export * from './click';
 export * from './click-visible';
 export * from './set-value-visible';
 export * from './wait-for-connection-screen';

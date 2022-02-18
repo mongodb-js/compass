@@ -48,7 +48,7 @@ export async function connectWithConnectionForm(
   }
 
   if (srvRecord === true) {
-    await browser.clickVisible(Selectors.ConnectionFormInputSrvRecord);
+    await browser.click(Selectors.ConnectionFormInputSrvRecord);
   }
 
   if (authMechanism === 'DEFAULT') {
@@ -63,7 +63,10 @@ async function fillAuthMechanismDefaultFields(
   { username, password }: Pick<ConnectOptions, 'username' | 'password'>
 ): Promise<void> {
   await browser.clickVisible(Selectors.ConnectionFormAuthenticationTabButton);
-  await browser.clickVisible(Selectors.ConnectionFormDefaultAuthMethodButton);
-  (await browser.$(Selectors.ConnectionFormInputUsername)).setValue(username);
-  (await browser.$(Selectors.ConnectionFormInputPassword)).setValue(password);
+  await browser.click(Selectors.ConnectionFormDefaultAuthMethodButton);
+  const usernameInput = await browser.$(Selectors.ConnectionFormInputUsername);
+  await usernameInput.setValue(username);
+
+  const passwordInput = await browser.$(Selectors.ConnectionFormInputPassword);
+  await passwordInput.setValue(password);
 }
