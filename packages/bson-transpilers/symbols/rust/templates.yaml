@@ -54,7 +54,7 @@ Templates:
                 return k in translateKey ? translateKey[k] : k
             };
             const options = spec.options;
-            const filter = spec.filter || {};
+            const filter = spec.filter || 'None';
             delete spec.options;
             delete spec.filter;
 
@@ -69,24 +69,18 @@ Templates:
                 return `${comment}\n\n${connect}\nlet result = ${coll}.aggregate(${agg}, None).await?;`;
             }
 
-            const vars = Object.keys(spec).reduce(
-                (result, k) => {
-                    return `${result}\nlet ${getKey(k)} = ${spec[k]};`;
-                },
-                connect
-            );
+            const findOpts = [];
+            for (const k in spec) {
+                findOpts.push(`    .${getKey(k)}(${spec[k]})`);
+            }
+            let optStr = '';
+            if (findOpts.length > 0) {
+                optStr = `let options = FindOptions::builder()\n${findOpts.join('\n')}\n    .build();\n`;
+            }
+            let optRef = optStr ? 'options' : 'None';
+            const cmd = `let result = ${coll}.find(${filter}, ${optRef}).await?;`;
 
-            const args = Object.keys(spec).reduce(
-                (result, k) => {
-                    const divider = result === '' ? '' : ',\n';
-                    return `${result}${divider}  ${getKey(k)}: ${getKey(k)}`;
-                },
-                ''
-            );
-
-            const cmd = `let result = ${coll}.find(\n${args}\n);`;
-
-            return `${comment}\n\n${vars}\n\n${cmd}`;
+            return `${comment}\n\n${connect}\n${optStr}${cmd}`;
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
@@ -795,7 +789,10 @@ Templates:
     DriverImportTemplate: &DriverImportTemplate !!js/function >
         () => {
             return [
-                'use mongodb::Client;',
+                'use mongodb::{',
+                '    Client,',
+                '    options::FindOptions,',
+                '};',
                 'use bson::{',
                 '    *,',
                 '    oid::ObjectId,',

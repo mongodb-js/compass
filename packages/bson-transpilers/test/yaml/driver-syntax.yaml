@@ -116,7 +116,10 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
-                    use mongodb::Client;
+                    use mongodb::{
+                        Client,
+                        options::FindOptions,
+                    };
                     use bson::{
                         *,
                         oid::ObjectId,
@@ -194,6 +197,14 @@ tests:
                     result = client.database['collection'].find({
                       'x' => 0
                     })
+                rust: |-
+                    // Requires the MongoDB crate.
+                    // https://crates.io/crates/mongodb
+
+                    let client = Client::with_uri_str("mongodb://localhost:27017").await?;
+                    let result = client.database("db").collection("collection").find(doc! {
+                      "x": 0i64
+                    }, None).await?;
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -216,6 +227,17 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
+                rust: |-
+                    use mongodb::{
+                        Client,
+                        options::FindOptions,
+                    };
+                    use bson::{
+                        *,
+                        oid::ObjectId,
+                        spec::BinarySubtype,
+                    };
+                    use chrono::Utc;
         -
             description: 'generate driver syntax with filter and other options'
             input:
