@@ -98,6 +98,7 @@ function AuthenticationDefault({
             });
           }}
           label="Username"
+          data-testid="connection-username-input"
           errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
           value={username || ''}
@@ -115,6 +116,7 @@ function AuthenticationDefault({
           }}
           label="Password"
           type="password"
+          data-testid="connection-password-input"
           value={password || ''}
           errorMessage={passwordError}
           state={passwordError ? 'error' : undefined}

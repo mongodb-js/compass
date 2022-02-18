@@ -21,7 +21,7 @@ async function disconnect(browser: CompassBrowser) {
 /**
  * Connection tests
  */
-describe.only('Connection screen', function () {
+describe('Connection screen', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -50,8 +50,7 @@ describe.only('Connection screen', function () {
 
   it('can connect using connection form', async function () {
     await browser.connectWithConnectionForm({
-      host: 'localhost',
-      port: 27018,
+      host: 'localhost:27018',
     });
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',

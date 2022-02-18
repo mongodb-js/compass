@@ -42,10 +42,11 @@ function Accordion(
   const regionId = useId('region-');
   const labelId = useId('label-');
   return (
-    <div data-testid={props['data-testid']}>
+    <div>
       <div className={containerStyles}>
         <p className={labelStyles} id={labelId}>
           <button
+            data-testid={props['data-testid']}
             className={buttonStyles}
             type="button"
             aria-expanded={open ? 'true' : 'false'}

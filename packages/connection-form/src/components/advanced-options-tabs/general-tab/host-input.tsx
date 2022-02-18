@@ -82,7 +82,10 @@ function HostInput({
   return (
     <>
       <FormFieldContainer className={inputFieldStyles}>
-        <Label htmlFor="connection-host-input" id="connection-host-input-label">
+        <Label
+          htmlFor="connection-host-input-0"
+          id="connection-host-input-label"
+        >
           {isSRV ? 'Hostname' : 'Host'}
         </Label>
         {hosts.map((host, index) => (
@@ -90,7 +93,8 @@ function HostInput({
             <TextInput
               className={hostInputStyles}
               type="text"
-              id="connection-host-input"
+              data-testid={`connection-host-input-${index}`}
+              id={`connection-host-input-${index}`}
               aria-labelledby="connection-host-input-label"
               state={fieldNameHasError(errors, 'hosts') ? 'error' : undefined}
               errorMessage={errorMessageByFieldNameAndIndex(
@@ -105,6 +109,7 @@ function HostInput({
               <IconButton
                 className={hostActionButtonStyles}
                 aria-label="Add new host"
+                data-testid="connection-add-host-button"
                 onClick={() =>
                   updateConnectionFormField({
                     type: 'add-new-host',
@@ -119,6 +124,7 @@ function HostInput({
               <IconButton
                 className={hostActionButtonStyles}
                 aria-label="Remove host"
+                data-testid="connection-remove-host-button"
                 onClick={() =>
                   updateConnectionFormField({
                     type: 'remove-host',

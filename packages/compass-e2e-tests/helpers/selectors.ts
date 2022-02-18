@@ -18,44 +18,21 @@ export const ConnectionStatusModalContent =
 export const ShowConnectionFormButton =
   '[data-testid="advanced-connection-options"]';
 export const ConnectionForm = '[data-testid="connection-form"]';
-export const ConnectionFormHostnameTabButton =
-  '[data-testid="advanced-connection-options"] #Hostname';
-export const ConnectionFormMoreOptionsTabButton =
-  '[data-testid="connection-form"] #More_Options';
+export const ConnectionFormGeneralTabButton =
+  '[data-testid="connection-general-tab"]';
+export const ConnectionFormAuthenticationTabButton =
+  '[data-testid="connection-authentication-tab"]';
 export const ConnectionFormInputHostname =
-  '[data-testid="connection-form"] [name="hostname"]';
-export const ConnectionFormInputPort =
-  '[data-testid="connection-form"] [name="port"]';
+  '[data-testid="connection-host-input-0"]';
 export const ConnectionFormInputSrvRecord =
-  '[data-testid="connection-form"] [name="srvRecord"]';
-export const ConnectionFormInputAuthStrategy =
-  '[data-testid="connection-form"] [name="authStrategy"]';
-export const ConnectionFormInputKerberosPrincipal =
-  '[data-testid="connection-form"] [name="kerberos-principal"]';
-export const ConnectionFormInputLDAPUsername =
-  '[data-testid="connection-form"] [name="ldap-username"]';
+  '[data-testid="connection-scheme-srv-radiobox"]';
+export const ConnectionFormDefaultAuthMethodButton =
+  '[data-testid="connection-authentication-method-DEFAULT-button"]';
 export const ConnectionFormInputUsername =
-  '[data-testid="connection-form"] [name="username"]';
-export const ConnectionFormInputLDAPPassword =
-  '[data-testid="connection-form"] [name="ldap-password"]';
+  '[data-testid="connection-username-input"]';
 export const ConnectionFormInputPassword =
-  '[data-testid="connection-form"] [name="password"]';
-export const ConnectionFormInputKerberosServiceName =
-  '[data-testid="connection-form"] [name="kerberos-service-name"]';
-export const ConnectionFormInputReplicaSet =
-  '[data-testid="connection-form"] [name="replicaSet"]';
-export const ConnectionFormInputSSLMethod =
-  '[data-testid="connection-form"] [name="sslMethod"]';
-export const ConnectionFormInputSSHTunnel =
-  '[data-testid="connection-form"] [name="sshTunnel"]';
-export const ConnectionFormInputSSHTunnelHostname =
-  '[data-testid="connection-form"] [name="sshTunnelHostname"]';
-export const ConnectionFormInputSSHTunnelPort =
-  '[data-testid="connection-form"] [name="sshTunnelPort"]';
-export const ConnectionFormInputSSHTunnelUsername =
-  '[data-testid="connection-form"] [name="sshTunnelUsername"]';
-export const ConnectionFormInputSSHTunnelPassword =
-  '[data-testid="connection-form"] [name="sshTunnelPassword"]';
+  '[data-testid="connection-password-input"]';
+
 export const ConnectionFormMessage = '[data-test-id="connection-message"]';
 
 // Connection Sidebar
