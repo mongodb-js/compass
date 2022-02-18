@@ -155,7 +155,6 @@ function FileInput({
       return (
         <Description
           data-testid={'file-input-description'}
-          style={{ gridArea: 'description' }}
         >
           {description}
         </Description>
@@ -167,9 +166,6 @@ function FileInput({
         href={link}
         className={cx(
           description ? infoLinkStyles : labelIconStyles
-          // css({
-          //   display: description ? 'block' : 'inline-block',
-          // })
         )}
         hideExternalIcon={!description}
       >
@@ -196,7 +192,6 @@ function FileInput({
               className={cx({
                 [disabledDescriptionStyles]: disabled,
               })}
-              style={{ gridArea: 'label' }}
             >
               {label}
             </span>
