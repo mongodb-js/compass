@@ -165,6 +165,7 @@ function ConnectionList({
           className={newConnectionButtonStyles}
           darkMode
           onClick={createNewConnection}
+          data-testid="new-connection-button"
         >
           <div className={newConnectionButtonContent}>
             <span>New Connection</span>

@@ -130,7 +130,7 @@ function ConnectForm({
 
   return (
     <>
-      <div className={formContainerStyles} data-testid="new-connect-form">
+      <div className={formContainerStyles} data-testid="connection-form">
         <Card className={formCardStyles}>
           <div className={formContentContainerStyles}>
             <H3 className={formHeaderStyles}>

@@ -32,7 +32,7 @@ const buttonIconStyles = css({
   marginRight: spacing[1],
 });
 interface AccordionProps {
-  dataTestId?: string;
+  'data-testid'?: string;
   text: string;
 }
 function Accordion(
@@ -42,7 +42,7 @@ function Accordion(
   const regionId = useId('region-');
   const labelId = useId('label-');
   return (
-    <div data-testid={props.dataTestId}>
+    <div data-testid={props['data-testid']}>
       <div className={containerStyles}>
         <p className={labelStyles} id={labelId}>
           <button
