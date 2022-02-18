@@ -424,6 +424,7 @@ tests:
           csharp: ''
           javascript: ''
           ruby: ''
+          rust: ''
     - description: Multiple imports
       input:
           shell: "{  0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
@@ -479,6 +480,14 @@ tests:
                 Decimal128
               } = require('mongodb');
           ruby: require 'bson'
+          rust: |-
+              use bson::Bson;
+              use bson::JavaScriptCodeWithScope;
+              use bson::Regex;
+              use bson::Timestamp;
+              use bson::doc;
+              use bson::oid::ObjectId;
+              use chrono::Utc;
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:
