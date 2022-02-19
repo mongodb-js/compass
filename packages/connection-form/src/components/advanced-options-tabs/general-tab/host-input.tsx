@@ -105,6 +105,7 @@ function HostInput({
               <IconButton
                 className={hostActionButtonStyles}
                 aria-label="Add new host"
+                type="button"
                 onClick={() =>
                   updateConnectionFormField({
                     type: 'add-new-host',
@@ -119,6 +120,7 @@ function HostInput({
               <IconButton
                 className={hostActionButtonStyles}
                 aria-label="Remove host"
+                type="button"
                 onClick={() =>
                   updateConnectionFormField({
                     type: 'remove-host',
