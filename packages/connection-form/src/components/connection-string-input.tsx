@@ -143,13 +143,13 @@ function ConnectStringInput({
             <Icon glyph="InfoWithCircle" size="small" />
           </IconButton>
         </Label>
-        <label
+        <Label
           className={editToggleLabelStyles}
           id="edit-connection-string-label"
           htmlFor="toggle-edit-connection-string"
         >
           Edit Connection String
-        </label>
+        </Label>
         <Toggle
           className={editToggleStyles}
           id="toggle-edit-connection-string"

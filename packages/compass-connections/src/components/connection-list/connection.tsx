@@ -65,6 +65,7 @@ const connectionButtonStyles = css({
   borderRadius: 0,
   background: 'none',
   '&:hover': {
+    cursor: 'pointer',
     border: 'none',
     background: uiColors.gray.dark2,
   },

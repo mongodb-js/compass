@@ -19,6 +19,9 @@ const buttonStyles = css({
   borderRadius: '6px',
   boxShadow: 'none',
   transition: 'box-shadow 150ms ease-in-out',
+  '&:hover': {
+    cursor: 'pointer',
+  },
   '&:focus-visible': {
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
