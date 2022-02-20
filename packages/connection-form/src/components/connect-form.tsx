@@ -49,7 +49,7 @@ const descriptionStyles = css({
 });
 
 const formStyles = css({
-  display: 'contents'
+  display: 'contents',
 });
 
 const formContentContainerStyles = css({
@@ -145,7 +145,7 @@ function ConnectForm({
       ...initialConnectionInfo,
       connectionOptions: updatedConnectionOptions,
     });
-  }, [initialConnectionInfo, onConnectClicked, connectionOptions]);
+  }, [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]);
 
   return (
     <>

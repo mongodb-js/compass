@@ -1,4 +1,3 @@
-import type { ChangeEvent } from 'react';
 import React, {
   Fragment,
   useCallback,
