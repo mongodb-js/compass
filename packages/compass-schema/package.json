@@ -103,7 +103,7 @@
     "lodash": "^4.17.21",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "^4.3.0",
+    "mongodb": "^4.4.0",
     "mongodb-connection-model": "^21.12.0",
     "mongodb-data-service": "^21.16.0",
     "mongodb-ns": "^2.3.0",

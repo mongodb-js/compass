@@ -61,6 +61,7 @@ if (require.main === module) {
     await createBlankCollection(db, 'json-file');
     await createBlankCollection(db, 'extended-json-file');
     await createBlankCollection(db, 'csv-file');
+    await createBlankCollection(db, 'bom-csv-file');
 
     console.log(`Creating test.numbers`);
     await dropCollection(db, 'numbers');
