@@ -113,6 +113,7 @@ function AdvancedOptionsTabs({
                   })`
                 : ''
             }`}
+            type="button"
             data-testid={`${tabObject.name}-tab`}
             data-has-error={showTabErrorIndicator}
           >

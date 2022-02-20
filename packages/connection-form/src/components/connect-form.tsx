@@ -48,6 +48,10 @@ const descriptionStyles = css({
   marginTop: spacing[2],
 });
 
+const formStyles = css({
+  display: 'contents'
+});
+
 const formContentContainerStyles = css({
   padding: spacing[4],
   overflowY: 'auto',
@@ -148,10 +152,14 @@ function ConnectForm({
       <div className={formContainerStyles} data-testid="new-connect-form">
         <Card className={formCardStyles}>
           <form
+            className={formStyles}
             onSubmit={(e) => {
               // Prevent default html page refresh.
               e.preventDefault();
+              onSubmitForm();
             }}
+            // Prevent default html tooltip popups.
+            noValidate
           >
             <div className={formContentContainerStyles}>
               <H3 className={formHeaderStyles}>
