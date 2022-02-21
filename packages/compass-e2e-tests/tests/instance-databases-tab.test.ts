@@ -43,7 +43,9 @@ describe('Instance databases tab', function () {
     // tighter control over where it clicks, because clicking in the center of
     // the last card if all cards don't fit on screen can silently do nothing
     // even after scrolling it into view.
-    await browser.clickVisible(Selectors.databaseCardClickable('test'));
+    await browser.clickVisible(Selectors.databaseCardClickable('test'), {
+      scroll: true,
+    });
 
     const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(
       (collectionName) => Selectors.collectionCard('test', collectionName)
