@@ -1,9 +1,9 @@
 import React from 'react';
-import { RadioBoxGroup as LeafygreenRadioBoxGroup } from '@leafygreen-ui/radio-box-group';
+import { RadioBoxGroup as LeafyGreenRadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import { Label } from '@leafygreen-ui/typography';
 
 type BasicRadioGroupProps = React.ComponentProps<
-  typeof LeafygreenRadioBoxGroup
+  typeof LeafyGreenRadioBoxGroup
 >;
 
 interface RadioBoxGroupWithoutLabel extends BasicRadioGroupProps {
@@ -18,12 +18,12 @@ interface RadioBoxGroupWithLabel extends BasicRadioGroupProps {
 
 type RadioBoxGroupProps = RadioBoxGroupWithoutLabel | RadioBoxGroupWithLabel;
 
-function RadioBoxGroup(props: RadioBoxGroupProps): JSX.Element {
-  if (!props.label || !props.id) {
-    return <LeafygreenRadioBoxGroup {...props} />;
-  }
+function RadioBoxGroup({ label, ...props }: RadioBoxGroupProps): JSX.Element {
+  const { id } = props;
 
-  const { id, label } = props;
+  if (!label || !id) {
+    return <LeafyGreenRadioBoxGroup {...props} />;
+  }
 
   if (typeof label === 'string') {
     const labelId = `${id}-label`;
@@ -32,7 +32,7 @@ function RadioBoxGroup(props: RadioBoxGroupProps): JSX.Element {
         <Label htmlFor={id} id={labelId}>
           {label}
         </Label>
-        <LeafygreenRadioBoxGroup aria-labelledby={labelId} {...props} />
+        <LeafyGreenRadioBoxGroup aria-labelledby={labelId} {...props} />
       </>
     );
   }
@@ -40,7 +40,7 @@ function RadioBoxGroup(props: RadioBoxGroupProps): JSX.Element {
   return (
     <>
       {label}
-      <LeafygreenRadioBoxGroup {...props} />
+      <LeafyGreenRadioBoxGroup {...props} />
     </>
   );
 }

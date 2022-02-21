@@ -68,7 +68,6 @@ export { useToast, ToastArea } from './hooks/use-toast';
 export { Toggle } from './components/toggle';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-export { LabelWithInfo } from './components/label-with-info';
 export { Tooltip } from './components/tooltip';
 export {
   H1,
@@ -111,6 +110,7 @@ export {
   SegmentedControlOption,
 } from '@leafygreen-ui/segmented-control';
 export { ErrorBoundary } from './components/error-boundary';
+export { InlineInfoLink } from './components/inline-info-link';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';

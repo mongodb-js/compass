@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import {
-  LabelWithInfo,
+  InlineInfoLink,
+  Label,
   RadioBox,
   RadioBoxGroup,
   TextInput,
@@ -106,14 +107,13 @@ function AuthenticationDefault({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <LabelWithInfo
-          htmlFor="authSourceInput"
-          id="authSourceLabel"
+        <Label htmlFor="authSourceInput" id="authSourceLabel">
+          Authentication Database
+        </Label>
+        <InlineInfoLink
           aria-label="Authentication Database Documentation"
           href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
-        >
-          Authentication Database
-        </LabelWithInfo>
+        />
 
         <TextInput
           onChange={({

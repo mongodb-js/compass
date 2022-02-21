@@ -2,7 +2,8 @@ import React, { useCallback } from 'react';
 import {
   Checkbox,
   Description,
-  LabelWithInfo,
+  InlineInfoLink,
+  Label,
   RadioBox,
   RadioBoxGroup,
   uiColors,
@@ -144,13 +145,15 @@ function TLSTab({
           value={tlsOption || ''}
           onChange={onChangeTLS}
           label={
-            <LabelWithInfo
-              href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
-              htmlFor="connection-schema-radio-box-group"
-              aria-label="TLS/SSL Option Documentation"
-            >
-              SSL/TLS Connection
-            </LabelWithInfo>
+            <>
+              <Label htmlFor="connection-schema-radio-box-group">
+                SSL/TLS Connection
+              </Label>
+              <InlineInfoLink
+                href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
+                aria-label="TLS/SSL Option Documentation"
+              />
+            </>
           }
         >
           {TLS_TYPES.map((tlsType) => (

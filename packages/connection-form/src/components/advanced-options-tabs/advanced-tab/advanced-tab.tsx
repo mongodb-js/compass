@@ -2,12 +2,13 @@ import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
+  InlineInfoLink,
+  Label,
   RadioBox,
   RadioBoxGroup,
-  spacing,
   TextInput,
-  LabelWithInfo,
   css,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -81,13 +82,13 @@ function AdvancedTab({
         data-testid="read-preferences"
         id="read-preferences"
         label={
-          <LabelWithInfo
-            htmlFor="read-preferences"
-            aria-label="Read Preference Documentation"
-            href="https://docs.mongodb.com/manual/reference/connection-string/#read-preference-options"
-          >
-            Read Preference
-          </LabelWithInfo>
+          <>
+            <Label htmlFor="read-preferences">Read Preference</Label>
+            <InlineInfoLink
+              aria-label="Read Preference Documentation"
+              href="https://docs.mongodb.com/manual/reference/connection-string/#read-preference-options"
+            />
+          </>
         }
       >
         {readPreferences.map(({ title, id }) => {
