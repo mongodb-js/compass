@@ -127,6 +127,7 @@
     "@mongodb-js/compass-logging": "^0.7.0",
     "@mongodb-js/mongodb-redux-common": "^1.8.0",
     "js-beautify": "^1.10.2",
+    "mongodb-connection-string-url": "^2.4.2",
     "react-select-plus": "^1.2.0",
     "redux-thunk": "^2.3.0"
   },
