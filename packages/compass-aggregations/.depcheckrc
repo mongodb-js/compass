@@ -1,25 +1,6 @@
-ignores: [
-  "storage-mixin",
-  "@hot-loader/react-dom",
-  "@babel/cli",
-  "@babel/register",
-  "bootstrap",
-  "chai-as-promised",
-  "core-js",
-  "font-awesome",
-  "jquery",
-  "karma-chai",
-  "karma-chai-sinon",
-  "karma-electron",
-  "karma-mocha",
-  "karma-mocha-reporter",
-  "karma-sinon",
-  "karma-sourcemap-loader",
-  "karma-webpack",
-  "mongodb-schema",
-  "mongodb-stitch-browser-sdk",
-  "nise",
-  "resolve",
-  "webpack-cli",
-  "mongodb-compass"
-]
+ignores:
+  - '@mongodb-js/prettier-config-compass'
+  - '@mongodb-js/tsconfig-compass'
+  - '@mongodb-js/tsconfig-compass'
+  - 'mongodb-compass'
+  

@@ -17,6 +17,8 @@
     "eslint": "^7.25.0"
   },
   "dependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/eslint-parser": "^7.17.0",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
     "eslint-config-prettier": "^8.3.0",

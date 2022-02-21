@@ -1,9 +1,10 @@
 import { generateStage, generateStageAsString} from './stage';
 import bson from 'bson';
+import { expect } from 'chai';
 
-describe('Stage module', () => {
-  describe('#generateStage + #generateStageAsString', () => {
-    context('when the stage text is empty', () => {
+describe('Stage module', function() {
+  describe('#generateStage + #generateStageAsString', function() {
+    context('when the stage text is empty', function() {
       const stage = {
         id: new Date().getTime(),
         stageOperator: '$bucket',
@@ -13,16 +14,16 @@ describe('Stage module', () => {
         isExpanded: true
       };
 
-      it('returns an empty object', () => {
+      it('returns an empty object', function() {
         expect(generateStage(stage)).to.deep.equal({});
       });
 
-      it('returns an empty object string', () => {
+      it('returns an empty object string', function() {
         expect(generateStageAsString(stage)).to.equal('{}');
       });
     });
 
-    context('when the stage has no operator', () => {
+    context('when the stage has no operator', function() {
       const stage = {
         id: new Date().getTime(),
         stageOperator: null,
@@ -32,16 +33,16 @@ describe('Stage module', () => {
         isExpanded: true
       };
 
-      it('returns an empty object', () => {
+      it('returns an empty object', function() {
         expect(generateStage(stage)).to.deep.equal({});
       });
 
-      it('returns an empty object string', () => {
+      it('returns an empty object string', function() {
         expect(generateStageAsString(stage)).to.equal('{}');
       });
     });
 
-    context('when the stage is not enabled', () => {
+    context('when the stage is not enabled', function() {
       const stage = {
         id: new Date().getTime(),
         stageOperator: null,
@@ -51,16 +52,16 @@ describe('Stage module', () => {
         isExpanded: true
       };
 
-      it('returns an empty object', () => {
+      it('returns an empty object', function() {
         expect(generateStage(stage)).to.deep.equal({});
       });
 
-      it('returns an empty object string', () => {
+      it('returns an empty object string', function() {
         expect(generateStageAsString(stage)).to.equal('{}');
       });
     });
 
-    context('when the stage syntax is invalid', () => {
+    context('when the stage syntax is invalid', function() {
       const stage = {
         id: new Date().getTime(),
         stageOperator: '$match',
@@ -70,20 +71,20 @@ describe('Stage module', () => {
         isExpanded: true
       };
 
-      before(() => {
+      before(function() {
         generateStage(stage);
       });
 
-      it('sets isValid to false', () => {
+      it('sets isValid to false', function() {
         expect(stage.isValid).to.equal(false);
       });
 
-      it('sets the syntax error', () => {
+      it('sets the syntax error', function() {
         expect(stage.syntaxError).to.equal('Stage must be a properly formatted document.');
       });
     });
 
-    context('when the stage syntax is invalid for #generateStageAsString', () => {
+    context('when the stage syntax is invalid for #generateStageAsString', function() {
       const stage = {
         id: new Date().getTime(),
         stageOperator: '$match',
@@ -93,20 +94,20 @@ describe('Stage module', () => {
         isExpanded: true
       };
 
-      before(() => {
+      before(function() {
         expect(generateStageAsString(stage)).to.equal('{}');
       });
 
-      it('sets isValid to false', () => {
+      it('sets isValid to false', function() {
         expect(stage.isValid).to.equal(false);
       });
 
-      it('sets the syntax error', () => {
+      it('sets the syntax error', function() {
         expect(stage.syntaxError).to.equal('Stage must be a properly formatted document.');
       });
     });
 
-    context('when the stage contains comments', () => {
+    context('when the stage contains comments', function() {
       const stage = {
         id: new Date().getTime(),
         stageOperator: '$match',
@@ -116,18 +117,18 @@ describe('Stage module', () => {
         isExpanded: true
       };
 
-      it('returns the decommented stage', () => {
+      it('returns the decommented stage', function() {
         expect(generateStage(stage)).to.deep.equal({ '$match': { x: 1 }});
       });
 
-      it('returns the decommented string', () => {
+      it('returns the decommented string', function() {
         expect(generateStageAsString(stage)).to.deep.equal(`{$match: {
  x: 1
 }}`);
       });
     });
 
-    context('when the stage has an embedded document', () => {
+    context('when the stage has an embedded document', function() {
       const stage = {
         id: 0,
         isEnabled: true,
@@ -141,7 +142,7 @@ describe('Stage module', () => {
 }`
       };
 
-      it('returns the stage', () => {
+      it('returns the stage', function() {
         expect(generateStage(stage)).to.deep.equal({
           '$addFields': {
             totalHomework: { $sum: '$homework' },
@@ -150,7 +151,7 @@ describe('Stage module', () => {
         });
       });
 
-      it('returns the stage string', () => {
+      it('returns the stage string', function() {
         expect(generateStageAsString(stage)).to.deep.equal(`{$addFields: {
  totalHomework: {
   $sum: '$homework'
@@ -162,7 +163,7 @@ describe('Stage module', () => {
       });
     });
 
-    describe('when the stage is $project', () => {
+    describe('when the stage is $project', function() {
       const stage = {
         id: 0,
         isEnabled: true,
@@ -174,7 +175,7 @@ describe('Stage module', () => {
       };
       const res = generateStage(stage);
 
-      it('returns the stage', () => {
+      it('returns the stage', function() {
         expect(res).to.deep.equal({
           '$project': {
             _id: 0,
@@ -185,16 +186,16 @@ describe('Stage module', () => {
         });
       });
 
-      it('does not include dropped projections', () => {
+      it('does not include dropped projections', function() {
         expect(stage.projections.length).to.equal(1);
       });
 
-      it('detects the avg_price projection', () => {
+      it('detects the avg_price projection', function() {
         expect(stage.projections[0].name).to.equal('avg_price');
       });
     });
 
-    context('when the stage has multiple types', () => {
+    context('when the stage has multiple types', function() {
       const stage = {
         id: 0,
         isEnabled: true,
@@ -213,7 +214,7 @@ describe('Stage module', () => {
    }`
       };
 
-      it('returns the stage', () => {
+      it('returns the stage', function() {
         expect(generateStage(stage)).to.deep.equal({
           '$bucket': {
             groupBy: '$price',
@@ -227,7 +228,7 @@ describe('Stage module', () => {
         });
       });
 
-      it('returns the stage string', () => {
+      it('returns the stage string', function() {
         expect(generateStageAsString(stage)).to.deep.equal(`{$bucket: {
  groupBy: '$price',
  boundaries: [
@@ -248,7 +249,7 @@ describe('Stage module', () => {
       });
     });
 
-    context('when the stage text is a string', () => {
+    context('when the stage text is a string', function() {
       const stage = {
         id: 0,
         isEnabled: true,
@@ -259,16 +260,16 @@ describe('Stage module', () => {
         stage: '"fieldname"'
       };
 
-      it('returns the stage', () => {
+      it('returns the stage', function() {
         expect(generateStage(stage)).to.deep.equal({'$count': 'fieldname'});
       });
 
-      it('returns the stage string', () => {
+      it('returns the stage string', function() {
         expect(generateStageAsString(stage)).to.deep.equal('{$count: \'fieldname\'}');
       });
     });
 
-    context('when the stage contains functions', () => {
+    context('when the stage contains functions', function() {
       const stage = {
         id: 0,
         isEnabled: true,
@@ -301,7 +302,7 @@ describe('Stage module', () => {
        }`
       };
 
-      it('returns the stage', () => {
+      it('returns the stage', function() {
         const generated = generateStage(stage);
         expect(stage.isValid).to.equal(true);
         expect(generated).to.deep.equal({
@@ -329,7 +330,7 @@ describe('Stage module', () => {
         });
       });
 
-      it('returns the stage string', () => {
+      it('returns the stage string', function() {
         const generated = generateStageAsString(stage);
         expect(stage.isValid).to.equal(true);
         expect(generated).to.deep.equal(`{$addFields: {
@@ -356,7 +357,7 @@ describe('Stage module', () => {
       });
     });
 
-    context('when the stage has BSON types', () => {
+    context('when the stage has BSON types', function() {
       const stage = {
         id: 0, isEnabled: true, isExpanded: true, isValid: true, snippet: '',
         stageOperator: '$match',
@@ -379,60 +380,60 @@ describe('Stage module', () => {
       // bson.Timestamp.fromString(Date.now(), 10)
       let generated;
 
-      before(() => {
+      before(function() {
         generated = generateStage(stage).$match;
       });
 
-      it('generates code', () => {
+      it('generates code', function() {
         expect(generated.code.code).to.equal('some code');
       });
 
-      it('generates object id', () => {
+      it('generates object id', function() {
         expect(generated.oid.toString()).to.equal('5a7382114ec1f67ae445f778');
       });
 
-      it('generates binary', () => {
+      it('generates binary', function() {
         expect(generated.bin.sub_type).to.equal('1');
       });
 
-      it('generates dbrefs', () => {
+      it('generates dbrefs', function() {
         expect(generated.dbref.collection).to.equal('coll');
         expect(generated.dbref.db).to.equal('db');
       });
 
-      it('generates number long', () => {
+      it('generates number long', function() {
         expect(generated.nl.toNumber()).to.equal(3);
       });
 
-      it('generates number decimal', () => {
+      it('generates number decimal', function() {
         expect(generated.nd.toString()).to.equal('5.00000001');
       });
 
-      it('generates number int', () => {
+      it('generates number int', function() {
         expect(generated.ni).to.equal(5);
       });
 
-      it('generates min key', () => {
+      it('generates min key', function() {
         expect(generated.minkey._bsontype).to.deep.equal(new bson.MinKey()._bsontype);
       });
 
-      it('generates max key', () => {
+      it('generates max key', function() {
         expect(generated.maxkey._bsontype).to.deep.equal(new bson.MaxKey()._bsontype);
       });
 
-      it('generates isodate', () => {
+      it('generates isodate', function() {
         expect(generated.isodate).to.deep.equal(new Date('1999-01-01'));
       });
 
-      it('generates regexp', () => {
+      it('generates regexp', function() {
         expect(generated.regexp).to.deep.equal(new RegExp('^[a-z0-9_-]{3,16}$'));
       });
 
-      it('generates timestamp', () => {
+      it('generates timestamp', function() {
         expect(generated.ts.low).to.equal(-321469502);
       });
 
-      it('returns the stage string', () => {
+      it('returns the stage string', function() {
         expect(generateStageAsString(stage)).to.deep.equal(`{$match: {
  code: Code('some code'),
  oid: ObjectId('5a7382114ec1f67ae445f778'),
