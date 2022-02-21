@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
@@ -11,7 +11,7 @@ describe('StagePreviewToolbar [Component]', function() {
     let component;
 
     beforeEach(function() {
-      component = shallow(
+      component = mount(
         <StagePreviewToolbar
           openLink={sinon.spy()}
           stageOperator="$match"
@@ -22,7 +22,10 @@ describe('StagePreviewToolbar [Component]', function() {
     });
 
     afterEach(function() {
-      component = null;
+      if (component) {
+        component.unmount();
+        component = null;
+      }
     });
 
     it('renders the stage text', function() {
@@ -31,8 +34,8 @@ describe('StagePreviewToolbar [Component]', function() {
     });
 
     it('renders the stage text with the right link', function() {
-      expect(component.find(`.${styles['stage-preview-toolbar-link']}`)).
-        to.have.text('$match');
+      expect(component.text()).
+        to.include('Output after $match stage');
     });
 
     it('renders the info sprinkle', function() {

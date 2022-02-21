@@ -158,7 +158,7 @@ describe('StagePreview [Component]', function() {
 
       context('when clicking on the link', function() {
         it('correctly decomments the collection name', function() {
-          component.find(`.${styles['stage-preview-out-link']}`).simulate('click');
+          component.find(`button`).simulate('click');
           expect(gotoSpy.calledWith('testing')).to.equal(true);
         });
       });
