@@ -12,13 +12,14 @@ export async function clickVisible(
   const displayElement = await browser.$(selector);
   await displayElement.waitForDisplayed();
 
+  // Clicking a thing that's still animating is unreliable at best.
+  await browser.waitForAnimations(selector);
+
   if (options?.scroll) {
     const scrollElement = await browser.$(selector);
     await scrollElement.scrollIntoView();
+    await browser.pause(1000);
   }
-
-  // Clicking a thing that's still animating is unreliable at best.
-  await browser.waitForAnimations(selector);
 
   const clickElement = await browser.$(selector);
   await clickElement.click();
