@@ -2,6 +2,7 @@ import type { CompassBrowser } from '../compass-browser';
 
 interface ClickOptions {
   scroll?: boolean;
+  screenshot?: string;
 }
 
 export async function clickVisible(
@@ -22,5 +23,8 @@ export async function clickVisible(
   }
 
   const clickElement = await browser.$(selector);
+  if (options?.screenshot) {
+    await browser.screenshot(options.screenshot);
+  }
   await clickElement.click();
 }
