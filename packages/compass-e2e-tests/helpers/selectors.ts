@@ -303,6 +303,7 @@ export const InsertCancel =
 // Import File modal
 
 export const ImportModal = '[data-test-id="import-modal"]';
+export const ImportDelimiter = '[id="import-delimiter-select"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-test-id="select-file-type-json"]';
 export const FileTypeCSV = '[data-test-id="select-file-type-csv"]';

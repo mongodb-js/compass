@@ -31,7 +31,7 @@ You'll need node `^14.17.5` and npm `7` installed on your machine to work with t
 
 After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
 
-This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) an [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
+This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
 
 ### Working on Plugins
 
