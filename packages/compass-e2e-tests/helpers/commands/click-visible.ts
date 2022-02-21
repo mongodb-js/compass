@@ -24,7 +24,7 @@ export async function clickVisible(
 
   const clickElement = await browser.$(selector);
   if (options?.screenshot) {
-    await browser.screenshot(options.screenshot);
+    await browser.saveScreenshot(options.screenshot);
   }
   await clickElement.click();
 }

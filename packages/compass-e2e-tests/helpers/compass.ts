@@ -162,6 +162,7 @@ export class Compass {
 
         let result;
         try {
+          // eslint-disable-next-line prefer-const
           result = origFn.call(this, ...args);
         } catch (error) {
           // In this case the method threw synchronously
