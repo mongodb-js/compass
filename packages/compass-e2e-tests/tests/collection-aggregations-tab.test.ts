@@ -149,6 +149,13 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(0, '$match');
     // check that it included the comment by default
     const contentElement0 = await browser.$(Selectors.stageContent(0));
+
+    // It starts out empty
+    await browser.waitUntil(async () => {
+      const text = await contentElement0.getText();
+      return text !== '';
+    });
+
     expect(await contentElement0.getText()).to.equal(`/**
  * query: The query in MQL.
  */
@@ -191,6 +198,13 @@ describe('Collection aggregations tab', function () {
 
     // check that it has no comment
     const contentElement1 = await browser.$(Selectors.stageContent(1));
+
+    // starts empty
+    await browser.waitUntil(async () => {
+      const text = await contentElement1.getText();
+      return text !== '';
+    });
+
     expect(await contentElement1.getText()).to.equal(`{
   specification(s)
 }`);

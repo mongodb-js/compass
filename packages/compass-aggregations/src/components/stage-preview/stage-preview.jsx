@@ -80,7 +80,7 @@ class StagePreview extends Component {
               Documents persisted to collection specified by $merge.
             </div>
             <Link
-              data-test-id="go-to-merge-collection">
+              data-test-id="go-to-merge-collection"
               as="button"
               className={styles['stage-preview-out-link']}
               onClick={this.onGotoMergeResults}
