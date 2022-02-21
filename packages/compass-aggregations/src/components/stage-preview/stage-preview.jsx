@@ -1,4 +1,4 @@
-import { AtlasLogoMark } from '@mongodb-js/compass-components';
+import { AtlasLogoMark, Link } from '@mongodb-js/compass-components';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
@@ -79,11 +79,13 @@ class StagePreview extends Component {
             <div className={styles['stage-preview-out-text']}>
               Documents persisted to collection specified by $merge.
             </div>
-            <div
+            <Link
+              as="button"
               className={styles['stage-preview-out-link']}
-              onClick={this.onGotoMergeResults}>
+              onClick={this.onGotoMergeResults}
+            >
               Go to collection.
-            </div>
+            </Link>
           </div>
         );
       }
@@ -118,11 +120,13 @@ class StagePreview extends Component {
             <div className={styles['stage-preview-out-text']}>
               Documents persisted to collection: {decomment(this.props.stage)}.
             </div>
-            <div
+            <Link
+              as="button"
               className={styles['stage-preview-out-link']}
-              onClick={this.onGotoOutResults}>
+              onClick={this.onGotoOutResults}
+            >
               Go to collection.
-            </div>
+            </Link>
           </div>
         );
       }

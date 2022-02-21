@@ -2,15 +2,15 @@
 // import { mount } from 'enzyme';
 // import AggregationsPlugin from './plugin';
 
-describe('Aggregations [Plugin]', () => {
+describe('Aggregations [Plugin]', function() {
   // let component;
 
-  beforeEach((done) => {
+  beforeEach(function(done) {
     // component = mount(<AggregationsPlugin />);
     done();
   });
 
-  afterEach((done) => {
+  afterEach(function(done) {
     // component = null;
     done();
   });
