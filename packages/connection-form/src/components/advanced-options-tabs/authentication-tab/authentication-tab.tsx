@@ -155,6 +155,7 @@ function AuthenticationTab({
         {options.map(({ title, id }) => {
           return (
             <RadioBox
+              id={`connection-authentication-method-${id}-button`}
               data-testid={`connection-authentication-method-${id}-button`}
               checked={selectedAuthTab.id === id}
               value={id}

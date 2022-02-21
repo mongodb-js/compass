@@ -174,6 +174,7 @@ function AuthenticationDefault({
           {defaultAuthMechanismOptions.map(({ title, value }) => {
             return (
               <RadioBox
+                id={`${value}-tab-button`}
                 data-testid={`${value}-tab-button`}
                 checked={selectedAuthTab.value === value}
                 value={value}

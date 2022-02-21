@@ -64,12 +64,14 @@ function SchemaInput({
         onChange={onChangeConnectionSchema}
       >
         <RadioBox
+          id="connection-scheme-mongodb-radiobox"
           data-testid="connection-scheme-mongodb-radiobox"
           value={MONGODB_SCHEMA.MONGODB}
         >
           mongodb
         </RadioBox>
         <RadioBox
+          id="connection-scheme-srv-radiobox"
           data-testid="connection-scheme-srv-radiobox"
           value={MONGODB_SCHEMA.MONGODB_SRV}
         >
