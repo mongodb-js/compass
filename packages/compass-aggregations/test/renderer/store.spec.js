@@ -7,9 +7,10 @@
  */
 
 // import Store from '../../src/stores';
+import { expect } from 'chai';
 
-describe('AggregationsStore [Store]', () => {
-  it('placeholder test', () => {
+describe('AggregationsStore [Store]', function() {
+  it('placeholder test', function() {
     expect(true).to.equal(true);
   });
 });
