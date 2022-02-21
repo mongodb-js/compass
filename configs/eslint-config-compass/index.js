@@ -34,8 +34,7 @@ const testRules = {
   '@typescript-eslint/no-empty-function': 'off',
 };
 
-module.exports = {
-  plugins: ['@typescript-eslint', 'jsx-a11y', 'mocha', 'react', 'react-hooks'],
+const javascriptParserOptions = {
   parser: '@babel/eslint-parser',
   parserOptions: {
     ecmaVersion: 'latest',
@@ -47,32 +46,42 @@ module.exports = {
       ],
     },
   },
+};
+
+const typescriptParserOptions = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+};
+
+module.exports = {
+  plugins: ['@typescript-eslint', 'jsx-a11y', 'mocha', 'react', 'react-hooks'],
   env: { node: true },
   overrides: [
     {
       files: ['**/*.js'],
+      ...javascriptParserOptions,
       env: { node: true, es6: true },
       extends: [...jsConfigurations, 'prettier'],
     },
     {
       files: ['**/*.jsx'],
+      ...javascriptParserOptions,
       env: { node: true, browser: true, es6: true },
       extends: [...jsConfigurations, ...reactConfigurations, 'prettier'],
     },
     {
-      parser: '@typescript-eslint/parser',
       files: ['**/*.ts'],
+      ...typescriptParserOptions,
       extends: [...tsConfigurations, 'prettier'],
       rules: { ...tsRules },
     },
     {
-      parser: '@typescript-eslint/parser',
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
       files: ['**/*.tsx'],
+      ...typescriptParserOptions,
       env: { node: true, browser: true },
       extends: [...tsConfigurations, ...reactConfigurations, 'prettier'],
       rules: {
