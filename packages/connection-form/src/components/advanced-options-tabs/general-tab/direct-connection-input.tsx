@@ -1,9 +1,18 @@
 import React, { useCallback } from 'react';
-import { Checkbox, Description } from '@mongodb-js/compass-components';
+import {
+  Checkbox,
+  Description,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+
+const descriptionStyles = css({
+  marginTop: spacing[1],
+});
 
 function DirectConnectionInput({
   connectionStringUrl,
@@ -42,7 +51,7 @@ function DirectConnectionInput({
         checked={isDirectConnection}
         bold={false}
       />
-      <Description>
+      <Description className={descriptionStyles}>
         Specifies whether to force dispatch all operations to the specified
         host.
       </Description>

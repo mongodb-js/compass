@@ -53,10 +53,10 @@ export default function Workspace({
   return (
     <div data-test-id="home-view" className={homeViewStyles}>
       <div className={homePageStyles}>
+        {SidebarComponent && <SidebarComponent />}
         <div className={homePageContentStyles}>
           <WorkspaceContent namespace={namespace} />
         </div>
-        {SidebarComponent && <SidebarComponent />}
         {FindInPage && <FindInPage />}
       </div>
       {globalModals &&

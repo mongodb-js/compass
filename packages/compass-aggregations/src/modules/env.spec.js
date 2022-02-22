@@ -1,8 +1,9 @@
 import reducer, { envChanged, ENV_CHANGED } from './env';
+import { expect } from 'chai';
 
-describe('env module', () => {
-  describe('#envChanged', () => {
-    it('returns the ENV_CHANGED action', () => {
+describe('env module', function() {
+  describe('#envChanged', function() {
+    it('returns the ENV_CHANGED action', function() {
       expect(envChanged('atlas')).to.deep.equal({
         type: ENV_CHANGED,
         env: 'atlas'
@@ -10,15 +11,15 @@ describe('env module', () => {
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is not env changed', () => {
-      it('returns the default state', () => {
+  describe('#reducer', function() {
+    context('when the action is not env changed', function() {
+      it('returns the default state', function() {
         expect(reducer(undefined, { type: 'test' })).to.equal('on-prem');
       });
     });
 
-    context('when the action is env changed', () => {
-      it('returns the new state', () => {
+    context('when the action is env changed', function() {
+      it('returns the new state', function() {
         expect(reducer(undefined, envChanged('atlas'))).to.equal('atlas');
       });
     });

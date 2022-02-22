@@ -1,7 +1,17 @@
+@import './reset.less';
+
+// Bootstrap styles we are in the process of removing
+// from Compass.
+@import './deprecated-bootstrap-styles/buttons.less';
+@import './deprecated-bootstrap-styles/caret.less';
+@import './deprecated-bootstrap-styles/dropdowns.less';
+@import './deprecated-bootstrap-styles/utilities.less';
+@import './deprecated-bootstrap-styles/forms.less';
+@import './deprecated-bootstrap-styles/globals.less';
+@import './deprecated-bootstrap-styles/modals.less';
+@import './deprecated-bootstrap-styles/grid.less';
+
 // Dependencies
-@import './bootstrap.less';
-@import './caret.less';
-@import './buttons.less';
 @import './react-select.less';
 @import './zero-state.less';
 
@@ -9,11 +19,6 @@
 @import './fontawesome.less';
 @import './fonts.less';
 @import './mms-icons.less';
-
-// Configuration
-@import './palette.less';
-
-@sidebar-width: 250px;
 
 // Tweaks to bootstrap
 @import './message-background.less';
@@ -33,6 +38,9 @@ body {
   height: 100vh;
   overflow: hidden;
   font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font: 100% 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: @gray1;
   background-color: @gray8;
   -webkit-font-smoothing: antialiased;
@@ -139,12 +147,6 @@ i.syntax-help {
   }
   &:before {
     content: @fa-var-info-circle;
-  }
-}
-
-.input-group.has-error {
-  i.syntax-help {
-    color: #a94442; // same color as bootstrap validation error borders
   }
 }
 

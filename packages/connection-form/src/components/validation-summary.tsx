@@ -28,7 +28,11 @@ export function ErrorSummary({
   if (!errors || !errors.length) return null;
 
   return (
-    <Banner variant={BannerVariant.Danger} className={bannerStyle}>
+    <Banner
+      data-testid="connection-error-summary"
+      variant={BannerVariant.Danger}
+      className={bannerStyle}
+    >
       <Summary messages={errors.map((err) => err.message)}></Summary>
     </Banner>
   );

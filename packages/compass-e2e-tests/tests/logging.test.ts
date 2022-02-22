@@ -217,7 +217,7 @@ describe('Logging and Telemetry integration', function () {
           attr: {
             isMongos: false,
             isWritable: false,
-            newType: 'Single',
+            newType: 'Unknown',
             previousType: 'Unknown',
           },
         },
@@ -254,7 +254,7 @@ describe('Logging and Telemetry integration', function () {
             isMongos: false,
             isWritable: true,
             newType: 'Single',
-            previousType: 'Single',
+            previousType: 'Unknown',
           },
         },
         {

@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import {
-  Icon,
-  IconButton,
+  InlineInfoLink,
   Label,
   RadioBox,
   RadioBoxGroup,
@@ -21,15 +20,8 @@ import {
   getConnectionStringUsername,
 } from '../../../utils/connection-string-helpers';
 
-const authSourceLabelStyles = css({
-  padding: 0,
-  margin: 0,
-  flexGrow: 1,
-});
-
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[1],
+const textInputWithLabelStyles = css({
+  marginTop: spacing[1],
 });
 
 const defaultAuthMechanismOptions: {
@@ -98,6 +90,7 @@ function AuthenticationDefault({
             });
           }}
           label="Username"
+          data-testid="connection-username-input"
           errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
           value={username || ''}
@@ -115,29 +108,22 @@ function AuthenticationDefault({
           }}
           label="Password"
           type="password"
+          data-testid="connection-password-input"
           value={password || ''}
           errorMessage={passwordError}
           state={passwordError ? 'error' : undefined}
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Label
-          className={authSourceLabelStyles}
-          htmlFor="authSourceInput"
-          id="authSourceLabel"
-        >
+        <Label htmlFor="authSourceInput" id="authSourceLabel">
           Authentication Database
-          <IconButton
-            className={infoButtonStyles}
-            aria-label="Authentication Database Documentation"
-            href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
-            target="_blank"
-          >
-            <Icon glyph="InfoWithCircle" size="small" />
-          </IconButton>
         </Label>
-
+        <InlineInfoLink
+          aria-label="Authentication Database Documentation"
+          href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
+        />
         <TextInput
+          className={textInputWithLabelStyles}
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,6 +158,7 @@ function AuthenticationDefault({
           {defaultAuthMechanismOptions.map(({ title, value }) => {
             return (
               <RadioBox
+                id={`${value}-tab-button`}
                 data-testid={`${value}-tab-button`}
                 checked={selectedAuthTab.value === value}
                 value={value}

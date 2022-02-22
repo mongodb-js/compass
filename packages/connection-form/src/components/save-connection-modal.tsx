@@ -1,18 +1,9 @@
 import React, { useState } from 'react';
-import {
-  ConfirmationModal,
-  TextInput,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { ConfirmationModal, TextInput } from '@mongodb-js/compass-components';
 import type { ConnectionFavoriteOptions } from 'mongodb-data-service';
 
 import FormFieldContainer from './form-field-container';
 import { FavoriteColorPicker } from './favorite-color-picker';
-
-const connectionNameInputStyles = css({
-  marginTop: spacing[5],
-});
 
 function SaveConnectionModal({
   initialFavoriteInfo,
@@ -47,7 +38,6 @@ function SaveConnectionModal({
     >
       <FormFieldContainer>
         <TextInput
-          className={connectionNameInputStyles}
           spellCheck={false}
           onChange={({
             target: { value },

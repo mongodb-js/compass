@@ -440,7 +440,6 @@ export const startExport = () => {
     const spec = exportData.isFullCollection
       ? { filter: {} }
       : exportData.query;
-
     const numDocsToExport = exportData.isFullCollection
       ? await fetchDocumentCount(dataService, ns, spec)
       : exportData.count;
@@ -448,6 +447,9 @@ export const startExport = () => {
     const projection = Object.fromEntries(
       Object.entries(exportData.fields)
         .filter((keyAndValue) => keyAndValue[1] === 1));
+    if (Object.keys(projection).length > 0 && (undefined === exportData.fields._id || exportData.fields._id === 0)) {
+      projection._id = 0;
+    }
     log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
       ns,
       numDocsToExport,

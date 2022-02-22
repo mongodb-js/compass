@@ -20,6 +20,16 @@ describe('Collection aggregations tab', function () {
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
   });
 
+  beforeEach(async function () {
+    // Get us back to the empty stage every time. Also test the Create New
+    // Pipeline flow while at it.
+    await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
+    await modalElement.waitForDisplayed();
+    await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
+    await modalElement.waitForDisplayed({ reverse: true });
+  });
+
   after(async function () {
     await afterTests(compass, this.currentTest);
   });
@@ -28,18 +38,31 @@ describe('Collection aggregations tab', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  // TODO
-  it.skip('supports the right stages for the environment', async function () {
+  it('supports the right stages for the environment', async function () {
     // sanity check to make sure there's only one
     const stageContainers = await browser.$$(Selectors.StageContainer);
     expect(stageContainers).to.have.lengthOf(1);
 
     await browser.focusStageOperator(0);
 
-    const stageOperatorOptionsElement = await browser.$(
+    const stageOperatorOptionsElements = await browser.$$(
       Selectors.stageOperatorOptions(0)
     );
-    const options = await stageOperatorOptionsElement.getText(0);
+    const options = await Promise.all(
+      stageOperatorOptionsElements.map((element) => element.getText())
+    );
+
+    /*
+    TODO: The expected options depend on the mongodb version and probably type
+    (ie. atlas or data lake could have different options). Right now there isn't
+    a reliable way for the tests to know which version of mongodb it is expected
+    to be connected to, but soon when we add tests for all current versions of
+    mongodb we'll deal with that and then we can determine the correct expected
+    options.
+
+    In the meantime this is just checking the subset of options that appear on
+    all supported mongodb versions this test might run against.
+    */
     expect(_.without(options, '$setWindowFields')).to.deep.equal([
       '$addFields',
       '$bucket',
@@ -75,7 +98,7 @@ describe('Collection aggregations tab', function () {
     ]);
   });
 
-  // the aggregation runs and the preview is shown
+  // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
   it('supports creating an aggregation', async function () {
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
@@ -114,33 +137,275 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  // comment mode
-  // number of preview documents
-  // max time
-  // limit
-  // sample mode
-  // auto preview
-  it('supports tweaking settings of an aggregation');
+  it('supports tweaking settings of an aggregation', async function () {
+    // set a collation
+    await browser.clickVisible(Selectors.ToggleAggregationCollation);
+    const collationInput = await browser.$(Selectors.AggregationCollationInput);
+    await collationInput.waitForDisplayed();
+    await collationInput.setValue('{ locale: "af" }');
 
-  // the result is stored in the destination collection
-  it('supports aggregations that end in $out and $merge');
+    // select $match
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$match');
+    // check that it included the comment by default
+    const contentElement0 = await browser.$(Selectors.stageContent(0));
 
-  // stages can be re-arranged and the preview is refreshed after rearranging them
-  it('supports drag and drop of stages');
+    // It starts out empty
+    await browser.waitUntil(async () => {
+      const text = await contentElement0.getText();
+      return text !== '';
+    });
 
-  // stages can be disabled and the preview is refreshed after disabling them
-  it('allows stages to be disabled');
+    expect(await contentElement0.getText()).to.equal(`/**
+ * query: The query in MQL.
+ */
+{
+  query
+}`);
 
-  // stages can be deleted and the preview is refreshed after disabling them
-  it('allows stages to be deleted');
+    //change $match
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gt: 5 } }');
 
-  // this requires closing compass and opening it again..
-  it('allows pipelines to be saved and loaded');
+    // TODO: click collapse and then expand again
 
-  it('supports creating a view');
+    // open settings
+    await browser.clickVisible(Selectors.AggregationSettingsButton);
 
-  // different languages, with and without imports, with and without driver usage
-  it('can export to language');
+    // turn off comment mode
+    await browser.clickVisible(Selectors.AggregationCommentModeCheckbox);
 
-  it('supports specifying collation');
+    // set number of preview documents to 100
+    const sampleSizeElement = await browser.$(
+      Selectors.AggregationSampleSizeInput
+    );
+    await sampleSizeElement.setValue('100');
+
+    // apply settings
+    await browser.clickVisible(Selectors.AggregationSettingsApplyButton);
+
+    // add a $project
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$project');
+
+    // delete it
+    await browser.clickVisible(Selectors.stageDelete(1));
+
+    // add a $project
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$project');
+
+    // check that it has no comment
+    const contentElement1 = await browser.$(Selectors.stageContent(1));
+
+    // starts empty
+    await browser.waitUntil(async () => {
+      const text = await contentElement1.getText();
+      return text !== '';
+    });
+
+    expect(await contentElement1.getText()).to.equal(`{
+  specification(s)
+}`);
+    await browser.setAceValue(Selectors.stageEditor(1), '{ _id: 0 }');
+
+    // disable it
+    await browser.clickVisible(Selectors.stageToggle(1));
+
+    // export to language
+    await browser.clickVisible(Selectors.ExportAggregationToLanguage);
+    const text = await browser.exportToLanguage('Ruby');
+    expect(text).to.equal(`[
+  {
+    '$match' => {
+      'i' => {
+        '$gt' => 5
+      }
+    }
+  }
+]`);
+
+    // check that the preview is using 100 docs
+    await browser.waitUntil(async function () {
+      const textElement = await browser.$(
+        Selectors.stagePreviewToolbarTooltip(0)
+      );
+      const text = await textElement.getText();
+      return text === '(Sample of 100 documents)';
+    });
+
+    // save as a view
+    // TODO: This is currently broken, so will have to test at a later stage
+    /*
+    //#save-pipeline-actions
+    //a=Create a view'
+    '[trackingid="create_view_modal"]'
+    '#create-view-name'
+    '[trackingid="create_view_modal"] [role=dialog] > div:nth-child(2) button:first-child'
+    */
+
+    // browse to the view
+    // TODO
+  });
+
+  it('supports maxTimeMS', async function () {
+    // open settings
+    await browser.clickVisible(Selectors.AggregationSettingsButton);
+
+    // set maxTimeMS
+    const sampleSizeElement = await browser.$(Selectors.AggregationMaxTimeMS);
+    await sampleSizeElement.setValue('1');
+
+    // apply settings
+    await browser.clickVisible(Selectors.AggregationSettingsApplyButton);
+
+    // run a projection that will take lots of time
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$project');
+    await browser.setAceValue(
+      Selectors.stageEditor(0),
+      `{
+      foo: {
+        $function: {
+          body: 'function() { sleep(1000) }',
+          args: [],
+          lang: 'js'
+        }
+      }
+    }`
+    );
+
+    // make sure we got the timeout error
+    const messageElement = await browser.$(
+      Selectors.stageEditorErrorMessage(0)
+    );
+    await messageElement.waitForDisplayed();
+    // The exact error we get depends on the version of mongodb
+    /*
+    expect(await messageElement.getText()).to.include(
+      'operation exceeded time limit'
+    );
+    */
+  });
+
+  it('supports $out as the last stage', async function () {
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$out');
+    await browser.setAceValue(Selectors.stageEditor(0), "'my-out-collection'");
+
+    await browser.clickVisible(Selectors.AddStageButton);
+
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$match');
+    await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
+
+    // make sure it complains that it must be the last stage
+    const messageElement = await browser.$(
+      Selectors.stageEditorErrorMessage(1)
+    );
+    await messageElement.waitForDisplayed();
+    expect(await messageElement.getText()).to.equal(
+      '$out can only be the final stage in the pipeline'
+    );
+
+    // delete the stage after $out
+    await browser.clickVisible(Selectors.stageDelete(1));
+
+    // run the $out stage
+    await browser.clickVisible(Selectors.stageOutSaveButton(0));
+
+    // go to the new collection
+    const linkElement = await browser.$(Selectors.stageOutCollectionLink(0));
+    await linkElement.waitForDisplayed();
+    // TODO: clicking this button crashes at the moment
+  });
+
+  it('supports $merge as the last stage', async function () {
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$merge');
+    await browser.setAceValue(
+      Selectors.stageEditor(0),
+      `{
+  into: 'my-merge-collection'
+}`
+    );
+
+    await browser.clickVisible(Selectors.AddStageButton);
+
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$match');
+    await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
+
+    // make sure it complains that it must be the last stage
+    const messageElement = await browser.$(
+      Selectors.stageEditorErrorMessage(1)
+    );
+    await messageElement.waitForDisplayed();
+    expect(await messageElement.getText()).to.equal(
+      '$merge can only be the final stage in the pipeline'
+    );
+
+    // delete the stage after $out
+    await browser.clickVisible(Selectors.stageDelete(1));
+
+    // run the $out stage
+    await browser.clickVisible(Selectors.stageMergeSaveButton(0));
+
+    // go to the new collection
+    const linkElement = await browser.$(Selectors.stageMergeCollectionLink(0));
+    await linkElement.waitForDisplayed();
+    // TODO: clicking this button crashes at the moment
+  });
+
+  it('allows creating a new pipeline from text', async function () {
+    await browser.clickVisible(Selectors.NewPipelineActions);
+    const menuElement = await browser.$(Selectors.NewPipelineActionsMenu);
+    await menuElement.waitForDisplayed();
+    const linkElement = await menuElement.$('a=New Pipeline From Text');
+    await linkElement.click();
+
+    const createModal = await browser.$(Selectors.NewPipelineFromTextModal);
+    await createModal.waitForDisplayed();
+
+    await browser.setAceValue(
+      Selectors.NewPipelineFromTextEditor,
+      `[
+  { $match: { i: 5 } }
+]`
+    );
+
+    const confirmButton = await browser.$(
+      Selectors.NewPipelineFromTextConfirmButton
+    );
+    await confirmButton.waitForEnabled();
+    await confirmButton.click();
+
+    await createModal.waitForDisplayed({ reverse: true });
+
+    const confirmModal = await browser.$(Selectors.ConfirmImportPipelineModal);
+    await confirmModal.waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.ConfirmImportPipelineModalConfirmButton
+    );
+    await confirmModal.waitForDisplayed({ reverse: true });
+
+    const contentElement = await browser.$(Selectors.stageContent(0));
+    expect(await contentElement.getText()).to.equal(`{
+  i: 5
+}`);
+
+    await browser.waitUntil(async function () {
+      const textElement = await browser.$(
+        Selectors.stagePreviewToolbarTooltip(0)
+      );
+      const text = await textElement.getText();
+      return text === '(Sample of 1 document)';
+    });
+  });
+
+  // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
+  // TODO: test auto-preview and limit
+  // TODO: save a pipeline, close compass, re-open compass, load the pipeline
+  // TODO: test Collapse/Expand all stages button (currently broken)
 });

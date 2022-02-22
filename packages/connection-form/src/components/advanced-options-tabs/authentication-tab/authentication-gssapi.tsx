@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
-  TextInput,
   Label,
+  TextInput,
   RadioBoxGroup,
   RadioBox,
   Checkbox,
@@ -100,16 +100,12 @@ function AuthenticationGSSAPI({
       </FormFieldContainer>
 
       <FormFieldContainer>
-        <Label
-          id="canonicalize-hostname-label"
-          htmlFor="canonicalize-hostname-select"
-        >
+        <Label htmlFor="canonicalize-hostname-select">
           Canonicalize Host Name
         </Label>
         <RadioBoxGroup
           name="canonicalize-hostname"
           id="canonicalize-hostname-select"
-          aria-labelledby="canonicalize-hostname-label"
           onChange={({ target: { value } }): void => {
             updateConnectionFormField({
               type: 'update-auth-mechanism-property',
@@ -122,6 +118,7 @@ function AuthenticationGSSAPI({
           {Object.entries(GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS).map(
             ([key, { label, value }]) => (
               <RadioBox
+                id={`gssapi-canonicalize-host-name-${key}`}
                 data-testid={`gssapi-canonicalize-host-name-${key}`}
                 key={value}
                 value={value}

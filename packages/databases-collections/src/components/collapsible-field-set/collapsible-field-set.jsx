@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox } from '@mongodb-js/compass-components';
-import { IconButton } from '@mongodb-js/compass-components';
-import { Icon } from '@mongodb-js/compass-components';
+import { Checkbox, Description, IconButton, Icon } from '@mongodb-js/compass-components';
 
 import FieldSet from '../field-set/field-set';
 import styles from './collapsible-field-set.module.less';
@@ -27,24 +25,34 @@ function CollapsibleFieldSet({
         disabled={disabled}
         label={label}
         checked={toggled}
-        bold={false}
+        bold
         id={dataTestId ? `toggle-${dataTestId}` : undefined}
       />
-      {!description ? '' : description}
-      {!!helpUrl && !!openLink && (
-        <IconButton
-          className={styles['info-btn']}
-          aria-label="Time-series collections documentation"
-          onClick={() => {
-            openLink(helpUrl);
-          }}
-        >
-          <Icon
-            glyph="InfoWithCircle"
-            size="small"
-          />
-        </IconButton>
-      )}
+      {!description
+        ? ''
+        : (
+          <Description
+            className={styles.description}
+          >
+            {description}
+            {!!helpUrl && !!openLink && (
+              <IconButton
+                className={styles['info-btn']}
+                aria-label="Time-series collections documentation"
+                onClick={() => {
+                  openLink(helpUrl);
+                }}
+              >
+                <Icon
+                  glyph="InfoWithCircle"
+                  size="small"
+                />
+              </IconButton>
+            )}
+          </Description>
+        )
+      }
+
       {!toggled ? '' : children}
     </FieldSet>
   );

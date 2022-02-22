@@ -9,22 +9,23 @@ import {
   stageToggled
 } from '../modules/pipeline';
 import { INITIAL_STATE } from '../modules/index';
+import { expect } from 'chai';
 
-describe('Aggregation Store', () => {
-  describe('#configureStore', () => {
-    context('when providing an app registry', () => {
+describe('Aggregation Store', function() {
+  describe('#configureStore', function() {
+    context('when providing an app registry', function() {
       let store;
       const localAppRegistry = new AppRegistry();
       const globalAppRegistry = new AppRegistry();
 
-      beforeEach(() => {
+      beforeEach(function() {
         store = configureStore({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry
         });
       });
 
-      it('sets the app registry the state', () => {
+      it('sets the app registry the state', function() {
         expect(store.getState().appRegistry).to.deep.equal({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry
@@ -32,53 +33,53 @@ describe('Aggregation Store', () => {
       });
     });
 
-    context('when providing a serverVersion', () => {
+    context('when providing a serverVersion', function() {
       let store;
 
-      beforeEach(() => {
+      beforeEach(function() {
         store = configureStore({
           serverVersion: '4.2.0'
         });
       });
 
-      it('sets the server version the state', () => {
+      it('sets the server version the state', function() {
         expect(store.getState().serverVersion).to.equal('4.2.0');
       });
     });
 
-    context('when providing an env', () => {
+    context('when providing an env', function() {
       let store;
 
-      beforeEach(() => {
+      beforeEach(function() {
         store = configureStore({
           env: 'atlas'
         });
       });
 
-      it('sets the env in the state', () => {
+      it('sets the env in the state', function() {
         expect(store.getState().env).to.equal('atlas');
       });
     });
 
-    context('when providing fields', () => {
+    context('when providing fields', function() {
       let store;
       const fields = [ 1, 2, 3 ];
 
-      beforeEach(() => {
+      beforeEach(function() {
         store = configureStore({
           fields: fields
         });
       });
 
-      it('sets the server version the state', () => {
+      it('sets the server version the state', function() {
         expect(store.getState().fields).to.deep.equal(fields);
       });
     });
 
-    context('when providing a data provider', () => {
+    context('when providing a data provider', function() {
       let store;
 
-      beforeEach(() => {
+      beforeEach(function() {
         store = configureStore({
           dataProvider: {
             error: 'error',
@@ -87,137 +88,137 @@ describe('Aggregation Store', () => {
         });
       });
 
-      it('sets the data service in the state', () => {
+      it('sets the data service in the state', function() {
         expect(store.getState().dataService.dataService).to.equal('ds');
       });
 
-      it('sets the error in the state', () => {
+      it('sets the error in the state', function() {
         expect(store.getState().dataService.error).to.equal('error');
       });
     });
 
-    context('when providing a namespace', () => {
-      context('when there is no collection', () => {
+    context('when providing a namespace', function() {
+      context('when there is no collection', function() {
         let state;
 
-        beforeEach(() => {
+        beforeEach(function() {
           const store = configureStore({ namespace: 'db' });
           state = store.getState();
         });
 
-        it('does not update the namespace in the store', () => {
+        it('does not update the namespace in the store', function() {
           expect(state.namespace).to.equal('');
         });
 
-        it('resets the app registry', () => {
+        it('resets the app registry', function() {
           expect(state.appRegistry).to.equal(INITIAL_STATE.appRegistry);
         });
 
-        it('resets the comments', () => {
+        it('resets the comments', function() {
           expect(state.comments).to.equal(INITIAL_STATE.comments);
         });
 
-        it('resets the sample', () => {
+        it('resets the sample', function() {
           expect(state.sample).to.equal(INITIAL_STATE.sample);
         });
 
-        it('resets auto preview', () => {
+        it('resets auto preview', function() {
           expect(state.autoPreview).to.equal(INITIAL_STATE.autoPreview);
         });
 
-        it('resets the name', () => {
+        it('resets the name', function() {
           expect(state.name).to.equal(INITIAL_STATE.name);
         });
 
-        it('resets restore', () => {
+        it('resets restore', function() {
           expect(state.restorePipeline).to.equal(INITIAL_STATE.restorePipeline);
         });
 
-        it('resets the saved pipeline', () => {
+        it('resets the saved pipeline', function() {
           expect(state.savedPipeline).to.equal(INITIAL_STATE.savedPipeline);
         });
 
-        it('resets the data service', () => {
+        it('resets the data service', function() {
           expect(state.dataService).to.equal(INITIAL_STATE.dataService);
         });
 
-        it('resets the fields', () => {
+        it('resets the fields', function() {
           expect(state.fields).to.equal(INITIAL_STATE.fields);
         });
 
-        it('resets the input douments', () => {
+        it('resets the input douments', function() {
           expect(state.inputDocuments).to.equal(INITIAL_STATE.inputDocuments);
         });
 
-        it('resets the server version', () => {
+        it('resets the server version', function() {
           expect(state.serverVersion).to.equal(INITIAL_STATE.serverVersion);
         });
 
-        it('resets the pipeline with a new id', () => {
+        it('resets the pipeline with a new id', function() {
           expect(state.pipeline[0].id).to.not.equal(INITIAL_STATE.pipeline[0].id);
         });
 
-        it('resets is modified', () => {
+        it('resets is modified', function() {
           expect(state.isModified).to.equal(INITIAL_STATE.isModified);
         });
 
-        it('resets import pipeline', () => {
+        it('resets import pipeline', function() {
           expect(state.importPipeline).to.equal(INITIAL_STATE.importPipeline);
         });
 
-        it('resets collation', () => {
+        it('resets collation', function() {
           expect(state.collation).to.equal(INITIAL_STATE.collation);
         });
 
-        it('resets collation string', () => {
+        it('resets collation string', function() {
           expect(state.collationString).to.equal(INITIAL_STATE.collationString);
         });
 
-        it('resets is collation expanded', () => {
+        it('resets is collation expanded', function() {
           expect(state.isCollationExpanded).to.equal(INITIAL_STATE.isCollationExpanded);
         });
 
-        it('resets is overview on', () => {
+        it('resets is overview on', function() {
           expect(state.isOverviewOn).to.equal(INITIAL_STATE.isOverviewOn);
         });
 
-        it('resets settings', () => {
+        it('resets settings', function() {
           expect(state.settings).to.equal(INITIAL_STATE.settings);
         });
 
-        it('resets limit', () => {
+        it('resets limit', function() {
           expect(state.limit).to.equal(INITIAL_STATE.limit);
         });
 
-        it('resets large limit', () => {
+        it('resets large limit', function() {
           expect(state.largeLimit).to.equal(INITIAL_STATE.largeLimit);
         });
 
-        it('resets maxTimeMS', () => {
+        it('resets maxTimeMS', function() {
           expect(state.maxTimeMS).to.equal(INITIAL_STATE.maxTimeMS);
         });
 
-        it('resets isFullscreenOn', () => {
+        it('resets isFullscreenOn', function() {
           expect(state.isFullscreenOn).to.equal(INITIAL_STATE.isFullscreenOn);
         });
 
-        it('resets saving pipeline', () => {
+        it('resets saving pipeline', function() {
           expect(state.savingPipeline).to.equal(INITIAL_STATE.savingPipeline);
         });
       });
 
-      context('when there is a collection', () => {
+      context('when there is a collection', function() {
         let store;
 
-        beforeEach(() => {
+        beforeEach(function() {
           store = configureStore({ namespace: 'db.coll' });
         });
 
-        it('updates the namespace in the store', () => {
+        it('updates the namespace in the store', function() {
           expect(store.getState().namespace).to.equal('db.coll');
         });
 
-        it('resets the rest of the state to initial state', () => {
+        it('resets the rest of the state to initial state', function() {
           expect(store.getState()).to.deep.equal({
             allowWrites: INITIAL_STATE.allowWrites,
             outResultsFn: INITIAL_STATE.outResultsFn,
@@ -262,20 +263,20 @@ describe('Aggregation Store', () => {
     });
   });
 
-  describe('#onActivated', () => {
+  describe('#onActivated', function() {
     let store;
     const localAppRegistry = new AppRegistry();
     const globalAppRegistry = new AppRegistry();
 
-    beforeEach(() => {
+    beforeEach(function() {
       store = configureStore({
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry
       });
     });
 
-    context('when the fields change', () => {
-      it('updates the fields', (done) => {
+    context('when the fields change', function() {
+      it('updates the fields', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().fields).to.deep.equal([
@@ -334,15 +335,15 @@ describe('Aggregation Store', () => {
     });
   });
 
-  describe('#dispatch', () => {
+  describe('#dispatch', function() {
     let store;
 
-    beforeEach(() => {
+    beforeEach(function() {
       store = configureStore();
     });
 
-    context('when the action is unknown', () => {
-      it('returns the initial state', (done) => {
+    context('when the action is unknown', function() {
+      it('returns the initial state', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].stage).to.equal('');
@@ -352,10 +353,10 @@ describe('Aggregation Store', () => {
       });
     });
 
-    context('when the action is STAGE_CHANGED', () => {
+    context('when the action is STAGE_CHANGED', function() {
       const stage = '{ $match: {}}';
 
-      it('updates the stage in state', (done) => {
+      it('updates the stage in state', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].stage).to.equal(stage);
@@ -365,8 +366,8 @@ describe('Aggregation Store', () => {
       });
     });
 
-    context('when the action is STAGE_DELETED', () => {
-      it('deletes the stage in state', (done) => {
+    context('when the action is STAGE_DELETED', function() {
+      it('deletes the stage in state', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline).to.deep.equal([]);
@@ -376,8 +377,8 @@ describe('Aggregation Store', () => {
       });
     });
 
-    context('when the action is STAGE_ADDED', () => {
-      it('updates the stage in state', (done) => {
+    context('when the action is STAGE_ADDED', function() {
+      it('updates the stage in state', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline.length).to.equal(2);
@@ -387,8 +388,8 @@ describe('Aggregation Store', () => {
       });
     });
 
-    context('when the action is STAGE_ADDED_AFTER', () => {
-      it('updates the stage in state', (done) => {
+    context('when the action is STAGE_ADDED_AFTER', function() {
+      it('updates the stage in state', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline.length).to.equal(2);
@@ -398,8 +399,8 @@ describe('Aggregation Store', () => {
       });
     });
 
-    context('when the action is STAGE_TOGGLED', () => {
-      it('updates the stage in state', (done) => {
+    context('when the action is STAGE_TOGGLED', function() {
+      it('updates the stage in state', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].isEnabled).to.equal(false);
@@ -409,8 +410,8 @@ describe('Aggregation Store', () => {
       });
     });
 
-    context('when the action is STAGE_COLLAPSE_TOGGLED', () => {
-      it('updates the stage in state', (done) => {
+    context('when the action is STAGE_COLLAPSE_TOGGLED', function() {
+      it('updates the stage in state', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().pipeline[0].isExpanded).to.equal(false);

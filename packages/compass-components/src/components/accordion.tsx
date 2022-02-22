@@ -19,7 +19,11 @@ const buttonStyles = css({
   borderRadius: '6px',
   boxShadow: 'none',
   transition: 'box-shadow 150ms ease-in-out',
+  '&:hover': {
+    cursor: 'pointer',
+  },
   '&:focus-visible': {
+    outline: 'none',
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
 });
@@ -32,7 +36,7 @@ const buttonIconStyles = css({
   marginRight: spacing[1],
 });
 interface AccordionProps {
-  dataTestId?: string;
+  'data-testid'?: string;
   text: string;
 }
 function Accordion(
@@ -42,10 +46,11 @@ function Accordion(
   const regionId = useId('region-');
   const labelId = useId('label-');
   return (
-    <div data-testid={props.dataTestId}>
+    <div>
       <div className={containerStyles}>
         <p className={labelStyles} id={labelId}>
           <button
+            data-testid={props['data-testid']}
             className={buttonStyles}
             type="button"
             aria-expanded={open ? 'true' : 'false'}
