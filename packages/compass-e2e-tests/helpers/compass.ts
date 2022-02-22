@@ -19,6 +19,7 @@ import * as Commands from './commands';
 import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
+import type { AuthMechanism } from 'mongodb';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -39,6 +40,7 @@ export function getAtlasConnectionOptions(): {
   username: string;
   password: string;
   srvRecord: boolean;
+  authMechanism: AuthMechanism;
 } | null {
   const missingKeys = [
     'E2E_TESTS_ATLAS_HOST',
@@ -58,7 +60,13 @@ export function getAtlasConnectionOptions(): {
   const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
   const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
 
-  return { host, username, password, srvRecord: true };
+  return {
+    host,
+    username,
+    password,
+    authMechanism: 'DEFAULT',
+    srvRecord: true,
+  };
 }
 
 // For the tmpdirs

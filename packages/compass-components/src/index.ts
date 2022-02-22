@@ -14,7 +14,8 @@ export {
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
-import SpinLoader from './components/spin-loader';
+import { RadioBoxGroup } from './components/radio-box-group';
+import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import Accordion from './components/accordion';
 export { FavoriteIcon } from './components/icons/favorite-icon';
@@ -46,11 +47,7 @@ export { default as Modal } from '@leafygreen-ui/modal';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
-export {
-  RadioBox,
-  RadioBoxGroup,
-  Size as RadioBoxSize,
-} from '@leafygreen-ui/radio-box-group';
+export { RadioBox, Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
 export {
   Select,
@@ -82,8 +79,8 @@ export {
   InlineKeyCode,
   Disclaimer,
   Overline,
-  Link,
   Label,
+  Link,
   Description,
 } from '@leafygreen-ui/typography';
 export {
@@ -91,6 +88,7 @@ export {
   CancelLoader,
   ConfirmationModal,
   FileInput,
+  RadioBoxGroup,
   SpinLoader,
   ResizeHandle,
   ResizeDirection,
@@ -113,6 +111,7 @@ export {
   SegmentedControlOption,
 } from '@leafygreen-ui/segmented-control';
 export { ErrorBoundary } from './components/error-boundary';
+export { InlineInfoLink } from './components/inline-info-link';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';

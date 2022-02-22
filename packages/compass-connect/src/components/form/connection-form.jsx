@@ -142,7 +142,7 @@ class ConnectionForm extends React.Component {
       return (
         <div className={classnames(styles['tabs-view'])}>
           <div className={classnames(styles['tabs-view-content'])}>
-            <div className={classnames(styles['tabs-view-content-form'])}>
+            <div className={classnames(styles['tabs-view-content-form'], styles['align-right'])}>
               <FormGroup id="read-preference" separator>
                 <ReplicaSetInput
                   sshTunnel={this.props.connectionModel.sshTunnel}

@@ -1,6 +1,11 @@
 import React, { useReducer, useMemo } from 'react';
 import { useId } from '@react-aria/utils';
-import { css, Icon, spacing, Button, Select, Option, Label, cx } from '..';
+import { css, cx } from '@leafygreen-ui/emotion';
+import Icon from '@leafygreen-ui/icon';
+import Button from '@leafygreen-ui/button';
+import { Select, Option } from '@leafygreen-ui/select';
+import { spacing } from '@leafygreen-ui/tokens';
+import { Label } from '@leafygreen-ui/typography';
 
 const controlsContainer = css({
   display: 'flex',

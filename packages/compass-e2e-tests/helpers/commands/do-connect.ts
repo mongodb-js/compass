@@ -10,13 +10,13 @@ export async function doConnect(
   let selector: string;
   if (connectionStatus === 'either') {
     // For the rare cases where we don't care whether it fails or succeeds
-    selector = `${Selectors.DatabasesTable},${Selectors.ConnectionFormMessage}`;
+    selector = `${Selectors.DatabasesTable},${Selectors.ConnectionFormErrorMessage}`;
   } else if (connectionStatus === 'success') {
     // First meaningful thing on the screen after being connected, good enough
     // indicator that we are connected to the server
     selector = Selectors.DatabasesTable;
   } else {
-    selector = Selectors.ConnectionFormMessage;
+    selector = Selectors.ConnectionFormErrorMessage;
   }
   const element = await browser.$(selector);
   await element.waitForDisplayed({

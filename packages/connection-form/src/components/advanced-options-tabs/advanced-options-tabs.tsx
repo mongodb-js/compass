@@ -113,7 +113,7 @@ function AdvancedOptionsTabs({
                   })`
                 : ''
             }`}
-            data-testid={`${tabObject.name}-tab`}
+            data-testid={`connection-${tabObject.id}-tab`}
             data-has-error={showTabErrorIndicator}
           >
             <TabComponent

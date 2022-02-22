@@ -290,7 +290,7 @@ Bson filter = eq("i", 5L);
 
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
-        "mongodb://localhost:27018/test?readPreference=primary&directConnection=true&ssl=false"
+        "mongodb://localhost:27018/test"
     )
 );
 MongoDatabase database = mongoClient.getDatabase("test");

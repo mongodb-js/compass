@@ -8,62 +8,40 @@ export const FeatureTourModal = '[data-test-id="feature-tour-modal"]';
 export const CloseFeatureTourModal = '[data-test-id="close-tour-button"]';
 
 // Connection screen
-export const ConnectSection = '[data-test-id="connect-section"]';
-export const ConnectButton = '[data-test-id="connect-button"]';
-export const ConnectionStringInput = 'input[name="connectionString"]';
+export const ConnectSection = '[data-testid="connections-disconnected"]';
+export const ConnectButton = '[data-testid="connect-button"]';
+export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
 export const CancelConnectionButton =
-  '[data-test-id="cancel-connection-button"]';
+  '[data-testid="cancel-connection-button"]';
 export const ConnectionStatusModalContent =
-  '[data-test-id="connecting-modal-content"]';
+  '[data-testid="connecting-modal-content"]';
 export const ShowConnectionFormButton =
-  '[data-test-id="show-connection-form-button"]';
-export const ConnectionForm = '[data-test-id="connection-form"]';
-export const ConnectionFormHostnameTabButton =
-  '[data-test-id="connection-form"] #Hostname';
-export const ConnectionFormMoreOptionsTabButton =
-  '[data-test-id="connection-form"] #More_Options';
-export const ConnectionFormInputHostname =
-  '[data-test-id="connection-form"] [name="hostname"]';
-export const ConnectionFormInputPort =
-  '[data-test-id="connection-form"] [name="port"]';
+  '[data-testid="advanced-connection-options"]';
+export const ConnectionForm = '[data-testid="connection-form"]';
+export const ConnectionFormGeneralTabButton =
+  '[data-testid="connection-general-tab"]';
+export const ConnectionFormAuthenticationTabButton =
+  '[data-testid="connection-authentication-tab"]';
+export const ConnectionFormInputHost =
+  '[data-testid="connection-host-input-0"]';
 export const ConnectionFormInputSrvRecord =
-  '[data-test-id="connection-form"] [name="srvRecord"]';
-export const ConnectionFormInputAuthStrategy =
-  '[data-test-id="connection-form"] [name="authStrategy"]';
-export const ConnectionFormInputKerberosPrincipal =
-  '[data-test-id="connection-form"] [name="kerberos-principal"]';
-export const ConnectionFormInputLDAPUsername =
-  '[data-test-id="connection-form"] [name="ldap-username"]';
+  'label[for="connection-scheme-srv-radiobox"]';
+export const ConnectionFormDefaultAuthMethodButton =
+  'label[for="connection-authentication-method-DEFAULT-button"]';
 export const ConnectionFormInputUsername =
-  '[data-test-id="connection-form"] [name="username"]';
-export const ConnectionFormInputLDAPPassword =
-  '[data-test-id="connection-form"] [name="ldap-password"]';
+  '[data-testid="connection-username-input"]';
 export const ConnectionFormInputPassword =
-  '[data-test-id="connection-form"] [name="password"]';
-export const ConnectionFormInputKerberosServiceName =
-  '[data-test-id="connection-form"] [name="kerberos-service-name"]';
-export const ConnectionFormInputReplicaSet =
-  '[data-test-id="connection-form"] [name="replicaSet"]';
-export const ConnectionFormInputSSLMethod =
-  '[data-test-id="connection-form"] [name="sslMethod"]';
-export const ConnectionFormInputSSHTunnel =
-  '[data-test-id="connection-form"] [name="sshTunnel"]';
-export const ConnectionFormInputSSHTunnelHostname =
-  '[data-test-id="connection-form"] [name="sshTunnelHostname"]';
-export const ConnectionFormInputSSHTunnelPort =
-  '[data-test-id="connection-form"] [name="sshTunnelPort"]';
-export const ConnectionFormInputSSHTunnelUsername =
-  '[data-test-id="connection-form"] [name="sshTunnelUsername"]';
-export const ConnectionFormInputSSHTunnelPassword =
-  '[data-test-id="connection-form"] [name="sshTunnelPassword"]';
-export const ConnectionFormMessage = '[data-test-id="connection-message"]';
+  '[data-testid="connection-password-input"]';
+
+export const ConnectionFormErrorMessage =
+  '[data-testid="connection-error-summary"]';
 
 // Connection Sidebar
 export const SidebarTreeItems =
   '[data-test-id="databases-and-collections"] [role="treeitem"]';
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
-  '[data-test-id="new-connection-button"]';
+  '[data-testid="new-connection-button"]';
 export const TopologySingleHostAddress =
   '[data-test-id="topology-single-host-address"]';
 export const SingleClusterType =
