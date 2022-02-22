@@ -4,9 +4,10 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
-const PREFIX = 'aggregations/saved-pipeline';
+import { getDirectory } from '../utils/getDirectory';
+import { PipelineStorage } from '../utils/pipelineStorage';
 
-const DIRNAME = 'SavedPipelines';
+const PREFIX = 'aggregations/saved-pipeline';
 
 // constants for save state modal
 export const SAVED_PIPELINES_LIST_TOGGLED = `${PREFIX}/LIST_TOGGLED`;
@@ -66,56 +67,15 @@ export const getSavedPipelines = () => {
 };
 
 /**
- * Get the directory pipelines are stored in.
- *
- * @returns {String} The directory.
- */
-export const getDirectory = () => {
-  const { remote } = require('electron');
-  const path = require('path');
-  const userDataDir = remote ? remote.app.getPath('userData') : process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH;
-  return path.join(userDataDir, DIRNAME);
-};
-
-export const readPipelinesFromStorage = async() => {
-  const { promises: fs } = require('fs');
-  const path = require('path');
-
-  const dir = getDirectory();
-  const files = (await fs.readdir(dir))
-    .filter((file) => file.endsWith('.json'))
-    .map((file) => path.join(dir, file));
-
-  const getFileData = async(filePath) => {
-    try {
-      const [file, stats] = await Promise.all([
-        fs.readFile(filePath, 'utf8'),
-        fs.stat(filePath),
-      ]);
-      return {
-        ...JSON.parse(file),
-        lastModified: stats.mtimeMs,
-      };
-    } catch (err) {
-      debug(`Failed to load pipeline ${path.basename(filePath)}`, err);
-      return null;
-    }
-  };
-
-  return (
-    await Promise.all(files.map((filePath) => getFileData(filePath)))
-  ).filter(Boolean);
-};
-
-/**
  * Update the pipeline list.
  *
  * @returns {Function} The thunk function.
  */
 export const updatePipelineList = () => {
   return (dispatch, getState) => {
+    const pipelineStorage = new PipelineStorage();
     const state = getState();
-    readPipelinesFromStorage()
+    pipelineStorage.loadAll()
       .then(pipelines => {
         const thisNamespacePipelines = pipelines.filter(({namespace}) => namespace === state.namespace);
         dispatch(setIsModified(false));
@@ -149,7 +109,7 @@ export const saveCurrentPipeline = () => {
     const pipeline = state.pipeline.map((stage) => {
       return { ...stage, previewDocuments: [] };
     });
-    track('Aggregation Saved', { num_stages: pipeline.length });
+    track('Aggregation Saved', { id, num_stages: pipeline.length });
 
     const stateRecord = Object.assign({}
       , { namespace: state.namespace }

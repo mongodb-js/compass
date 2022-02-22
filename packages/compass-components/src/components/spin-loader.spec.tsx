@@ -2,7 +2,7 @@ import React from 'react';
 
 import { render, cleanup } from '@testing-library/react';
 
-import SpinLoader from './spin-loader';
+import { SpinLoader } from './spin-loader';
 
 function renderLoader() {
   return render(<SpinLoader size="12px" />);

@@ -11,6 +11,7 @@ class SummaryStat extends Component {
   static displayName = 'SummaryStatComponent';
 
   static propTypes = {
+    dataTestId: PropTypes.string,
     dataLink: PropTypes.string, // Info sprinkle (optional)
     label: PropTypes.string.isRequired, // Label of the stat
     value: PropTypes.any,
@@ -26,6 +27,7 @@ class SummaryStat extends Component {
     const label = this.props.label;
     const value = String(this.props.value);
     const dataLink = this.props.dataLink;
+    const dataTestId = this.props.dataTestId;
 
     // Only render info sprinkle if data link was provided
     const infoSprinkle = dataLink
@@ -42,7 +44,7 @@ class SummaryStat extends Component {
       : '';
 
     return (
-      <div className={classnames(styles['summary-stat'], styles[modifier])}>
+      <div className={classnames(styles['summary-stat'], styles[modifier])} data-test-id={dataTestId}>
         {infoSprinkle}
         <span className={classnames(styles['summary-stat-label'])}>{label}</span>
         <span className={classnames(styles['summary-stat-value'])}>{value}</span>

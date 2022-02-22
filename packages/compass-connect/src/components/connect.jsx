@@ -135,7 +135,7 @@ class Connect extends React.Component {
   }
 
   render() {
-    const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
+    const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM !== 'false';
 
     return (
       <div>

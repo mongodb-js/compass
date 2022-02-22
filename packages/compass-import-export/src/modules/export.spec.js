@@ -1,12 +1,165 @@
+import { Readable } from 'stream';
+import path from 'path';
+import os from 'os';
+import fs from 'fs';
+import rimraf from 'rimraf';
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
 import AppRegistry from 'hadron-app-registry';
 import FILE_TYPES from '../constants/file-types';
 import reducer, * as actions from './export';
 import configureExportStore from '../stores/export-store';
-
+import { ConnectionOptions, DataService } from 'mongodb-data-service';
+import { promisify } from 'util';
+import { once } from 'events';
 describe('export [module]', () => {
   describe('#reducer', () => {
+    context('#startExport', () => {
+      let store;
+      const localAppRegistry = new AppRegistry();
+      const globalAppRegistry = new AppRegistry();
+      const dataService = new DataService({ connectionString: 'mongodb://localhost:27018/local'});
+      const createCollection = promisify(dataService.createCollection).bind(dataService);
+      const dropCollection = promisify(dataService.dropCollection).bind(dataService);
+      const insertMany = promisify(dataService.insertMany).bind(dataService);
+      const TEST_COLLECTION_NAME = 'local.foobar';
+      
+      afterEach(async function() {
+        await dropCollection(TEST_COLLECTION_NAME);
+      });
+
+      beforeEach(async function() {
+        await dataService.connect();
+        try {
+          await createCollection(TEST_COLLECTION_NAME);
+          await insertMany(TEST_COLLECTION_NAME, [
+            {
+              _id: 'foo',
+              first_name: 'John',
+              last_name: 'Appleseed'
+            }
+          ]);
+        } catch (err) {
+          console.log(err);
+        }
+
+        store = configureExportStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          namespace: TEST_COLLECTION_NAME,
+          dataProvider: {
+            error: function(err) { throw err; },
+            dataProvider: dataService
+          }
+        });
+      });
+      async function configureAndStartExport(selectedFields, fileType, tempFile) {
+        store.dispatch(actions.updateSelectedFields(selectedFields));
+        store.dispatch(actions.selectExportFileName(tempFile));
+        store.dispatch(actions.selectExportFileType(fileType));
+        store.dispatch(actions.toggleFullCollection());
+        store.dispatch(actions.startExport());
+        await once(localAppRegistry, 'export-finished');
+        const writtenData = fs.readFileSync(tempFile, 'utf-8');
+        return writtenData;
+      }
+      describe('CSV Export', () => {
+        let tempFile;
+        beforeEach(() => {
+          tempFile = path.join(
+            os.tmpdir(),
+            `test-${Date.now()}.csv`
+          );
+        });
+        afterEach(() => {
+          fs.unlinkSync(tempFile);
+        });
+        it('should set the correct fields to CSV export', async() => {
+          const fields = { 'first_name': 1, 'foobar': 1, 'last_name': 0};
+          const data = await configureAndStartExport(fields, 'csv', tempFile);
+          const writtenData = data.split('\n');
+          expect(writtenData[0]).to.equal('first_name,foobar');
+          expect(writtenData[1]).to.equal('John,');
+        });
+        it('should not include _id if not specified', async() => {
+          const fields = { 'first_name': 1, 'foobar': 1 };
+          const data = await configureAndStartExport(fields, 'csv', tempFile);
+          const writtenData = data.split('\n');
+          expect(writtenData[0]).to.equal('first_name,foobar');
+          expect(writtenData[1]).to.equal('John,');
+        });
+      });
+      describe('JSON Export', () => {
+        let tempFile;
+        beforeEach(() => {
+          tempFile = path.join(
+            os.tmpdir(),
+            `test-${Date.now()}.json`
+          );
+        });
+        afterEach(() => {
+          fs.unlinkSync(tempFile);
+        });
+        it('should not include _id if omitted', async() => {
+          const fields = { 'first_name': 1, 'last_name': 0 };
+          const data = await configureAndStartExport(fields, 'json', tempFile);
+          const writtenData = JSON.parse(data);
+          expect(writtenData).to.deep.equal([
+            {
+              first_name: 'John',
+            }
+          ]);
+        });
+
+        it('should not include _id if is set to 0', async() => {
+          const fields = { 'first_name': 1, 'last_name': 0, _id: 0 };
+          const data = await configureAndStartExport(fields, 'json', tempFile);
+          const writtenData = JSON.parse(data);
+          expect(writtenData).to.deep.equal([
+            {
+              first_name: 'John',
+            }
+          ]);
+        });
+
+        it('should include _id if is set to 1', async() => {
+          const fields = { 'first_name': 1, 'last_name': 0, _id: 1 };
+          const data = await configureAndStartExport(fields, 'json', tempFile);
+          const writtenData = JSON.parse(data);
+          expect(writtenData).to.deep.equal([
+            {
+              _id: 'foo',
+              first_name: 'John',
+            }
+          ]);
+        });
+
+        it('should include all fields if projection is empty', async() => {
+          const fields = {};
+          const data = await configureAndStartExport(fields, 'json', tempFile);
+          const writtenData = JSON.parse(data);
+          expect(writtenData).to.deep.equal([
+            {
+              _id: 'foo',
+              first_name: 'John',
+              last_name: 'Appleseed'
+            }
+          ]);
+        });
+        it('should include all fields all fields are set to 0', async() => {
+          const fields = { first_name: 0, last_name: 0, _id: 0};
+          const data = await configureAndStartExport(fields, 'json', tempFile);
+          const writtenData = JSON.parse(data);
+          expect(writtenData).to.deep.equal([
+            {
+              _id: 'foo',
+              first_name: 'John',
+              last_name: 'Appleseed'
+            }
+          ]);
+        });
+      });
+    });
     context('when the action type is FINISHED', () => {
       let store;
       const localAppRegistry = new AppRegistry();

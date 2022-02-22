@@ -1,7 +1,6 @@
-import React, { useEffect, useCallback, useContext } from 'react';
+import React, { useEffect, useCallback, useContext, useRef } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import type { ThunkDispatch } from 'redux-thunk';
 import {
   VirtualGrid,
   css,
@@ -12,11 +11,42 @@ import {
 import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
-import type { RootActions, RootState } from '../stores/index';
+import type { RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
-import type { SavedItemCardProps, Action } from './saved-item-card';
+import type { Action } from './saved-item-card';
 import OpenItemModal from './open-item-modal';
+import DeleteItemModal from './delete-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
+import { deleteItem } from '../stores/delete-item';
+import { copyToClipboard } from '../stores/copy-to-clipboard';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
+
+/**
+ * Runs an effect, but only after the value changes for the first time (skipping
+ * the first "onMount" effect)
+ */
+function useEffectOnChange<T>(fn: React.EffectCallback, val: T) {
+  // Keep the initial value as a ref so we can check against it in effect when
+  // the current value changes
+  const initial = useRef<T | symbol>(val);
+  if (!initial.current) {
+    initial.current = val;
+  }
+  const effect = useRef(fn);
+  effect.current = fn;
+  useEffect(() => {
+    // We check if value doesn't match the initial one to avoid running effect
+    // for the first mount
+    if (val !== initial.current) {
+      // After we detected at least one change in value, we set the initial to a
+      // symbol so that the current value is never equal to it anymore
+      initial.current = Symbol();
+      return effect.current();
+    }
+  }, [val]);
+}
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {
@@ -64,8 +94,10 @@ const GridControls = () => {
 const AggregationsQueriesList = ({
   loading,
   items,
-  onAction,
   onMount,
+  onOpenItem,
+  onDeleteItem,
+  onCopyToClipboard,
 }: AggregationsQueriesListProps) => {
   useEffect(() => {
     void onMount();
@@ -76,28 +108,73 @@ const AggregationsQueriesList = ({
     conditions: filters,
     search,
   } = useGridFilters(items);
+
   const filteredItems = useFilteredItems(items, filters, search)
     .sort((a, b) => {
       return a.score - b.score;
     })
     .map((x) => x.item);
 
+  useEffectOnChange(() => {
+    if (filters.database) {
+      track('My Queries Filter', { type: 'database' });
+    }
+  }, filters.database);
+
+  useEffectOnChange(() => {
+    if (filters.collection) {
+      track('My Queries Filter', { type: 'collection' });
+    }
+  }, filters.collection);
+
   // If a user is searching, we disable the sort as
   // search results are sorted by match score
-  const [sortControls, sortState] = useSortControls<keyof Item>(sortBy, {
+  const [sortControls, sortState] = useSortControls(sortBy, {
     isDisabled: Boolean(search),
   });
+
+  useEffectOnChange(() => {
+    track('My Queries Sort', {
+      sort_by: sortState.name,
+      order: sortState.order === 1 ? 'ascending' : 'descending',
+    });
+  }, sortState);
+
   const sortedItems = useSortedItems(filteredItems, sortState);
+
+  const onAction = useCallback(
+    (id: string, actionName: Action) => {
+      switch (actionName) {
+        case 'open':
+          return onOpenItem(id);
+        case 'delete':
+          return onDeleteItem(id);
+        case 'copy':
+          return onCopyToClipboard(id);
+      }
+    },
+    [onOpenItem, onDeleteItem, onCopyToClipboard]
+  );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
     useCallback(
-      ({ index }: { index: number }) => {
-        const item: Omit<SavedItemCardProps, 'onAction'> = sortedItems[index];
+      ({
+        index,
+        ...props
+      }: Omit<React.HTMLProps<HTMLDivElement>, 'type'> & { index: number }) => {
+        const item = sortedItems[index];
+
         return (
           <SavedItemCard
-            {...item}
+            id={item.id}
+            type={item.type}
+            name={item.name}
+            database={item.database}
+            collection={item.collection}
+            lastModified={item.lastModified}
             onAction={onAction}
             data-testid={`grid-item-${index}`}
+            {...props}
           />
         );
       },
@@ -120,11 +197,13 @@ const AggregationsQueriesList = ({
         itemHeight={CARD_HEIGHT + spacing[2]}
         itemsCount={sortedItems.length}
         renderItem={renderItem}
+        itemKey={(index: number) => sortedItems[index].id}
         renderHeader={GridControls}
         headerHeight={spacing[5] + 36}
         classNames={{ row: rowStyles }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
+      <DeleteItemModal></DeleteItemModal>
     </ControlsContext.Provider>
   );
 };
@@ -136,17 +215,9 @@ const mapState = ({ savedItems: { items, loading } }: RootState) => ({
 
 const mapDispatch = {
   onMount: fetchItems,
-  onAction(id: string, actionName: Action) {
-    return (
-      dispatch: ThunkDispatch<RootState, void, RootActions>,
-      getState: () => RootState
-    ) => {
-      switch (actionName) {
-        case 'open':
-          return openSavedItem(id)(dispatch, getState);
-      }
-    };
-  },
+  onOpenItem: openSavedItem,
+  onDeleteItem: deleteItem,
+  onCopyToClipboard: copyToClipboard,
 };
 
 const connector = connect(mapState, mapDispatch);

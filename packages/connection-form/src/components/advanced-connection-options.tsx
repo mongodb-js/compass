@@ -39,7 +39,10 @@ function AdvancedConnectionOptions({
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
   return (
-    <Accordion text="Advanced Connection Options">
+    <Accordion
+      data-testid="advanced-connection-options"
+      text="Advanced Connection Options"
+    >
       <div className={connectionTabsContainer}>
         {disabled && (
           <div

@@ -31,6 +31,9 @@ function makeDropTarget(component) {
 
       if (fromIndex !== toIndex) {
         // Determine rectangle on screen
+        // TODO: findDOMNode is deprecated and will be a blocker for react 
+        // update in the future https://jira.mongodb.org/browse/COMPASS-5523
+        // eslint-disable-next-line react/no-find-dom-node
         const hoverBoundingRect = findDOMNode(hoverComponent).getBoundingClientRect();
         // Get vertical middle
         const hoverMiddleY =

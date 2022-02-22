@@ -20,26 +20,27 @@ import {
   maxTimeMSChanged,
   MAX_TIME_MS_CHANGED
 } from './max-time-ms';
+import { expect } from 'chai';
 
-describe('root [ module ]', () => {
-  describe('#reset', () => {
-    it('returns the action', () => {
+describe('root [ module ]', function() {
+  describe('#reset', function() {
+    it('returns the action', function() {
       expect(reset()).to.deep.equal({
         type: RESET
       });
     });
   });
 
-  describe('#clearPipeline', () => {
-    it('returns the action', () => {
+  describe('#clearPipeline', function() {
+    it('returns the action', function() {
       expect(clearPipeline()).to.deep.equal({
         type: CLEAR_PIPELINE
       });
     });
   });
 
-  describe('#restoreSavedPipeline', () => {
-    it('returns the action', () => {
+  describe('#restoreSavedPipeline', function() {
+    it('returns the action', function() {
       expect(restoreSavedPipeline({ name: 'test' })).to.deep.equal({
         type: RESTORE_PIPELINE,
         restoreState: { name: 'test' }
@@ -47,32 +48,32 @@ describe('root [ module ]', () => {
     });
   });
 
-  describe('#newPipeline', () => {
-    it('returns the NEW_PIPELINE action', () => {
+  describe('#newPipeline', function() {
+    it('returns the NEW_PIPELINE action', function() {
       expect(newPipeline()).to.deep.equal({
         type: NEW_PIPELINE
       });
     });
   });
 
-  describe('#clonePipeline', () => {
-    it('returns the CLONE_PIPELINE action', () => {
+  describe('#clonePipeline', function() {
+    it('returns the CLONE_PIPELINE action', function() {
       expect(clonePipeline()).to.deep.equal({
         type: CLONE_PIPELINE
       });
     });
   });
 
-  describe('#toggleOverview', () => {
-    it('returns the TOGGLE_OVERVIEW action', () => {
+  describe('#toggleOverview', function() {
+    it('returns the TOGGLE_OVERVIEW action', function() {
       expect(toggleOverview()).to.deep.equal({
         type: TOGGLE_OVERVIEW
       });
     });
   });
 
-  describe('#maxTimeMS', () => {
-    it('returns the MAX_TIME_MS_CHANGED action', () => {
+  describe('#maxTimeMS', function() {
+    it('returns the MAX_TIME_MS_CHANGED action', function() {
       expect(maxTimeMSChanged(100)).to.deep.equal({
         type: MAX_TIME_MS_CHANGED,
         maxTimeMS: 100
@@ -80,8 +81,8 @@ describe('root [ module ]', () => {
     });
   });
 
-  describe('#modifySource', () => {
-    it('returns the MODIFY_VIEW action', () => {
+  describe('#modifySource', function() {
+    it('returns the MODIFY_VIEW action', function() {
       expect(modifySource('db.testing', [], true, 'db.test')).to.deep.equal({
         type: MODIFY_VIEW,
         name: 'db.testing',
@@ -92,8 +93,8 @@ describe('root [ module ]', () => {
     });
   });
 
-  describe('#limit', () => {
-    it('returns the LIMIT_CHANGED action', () => {
+  describe('#limit', function() {
+    it('returns the LIMIT_CHANGED action', function() {
       expect(limitChanged(100)).to.deep.equal({
         type: LIMIT_CHANGED,
         limit: 100
@@ -101,8 +102,8 @@ describe('root [ module ]', () => {
     });
   });
 
-  describe('#largeLimit', () => {
-    it('returns the LARGE_LIMIT_CHANGED action', () => {
+  describe('#largeLimit', function() {
+    it('returns the LARGE_LIMIT_CHANGED action', function() {
       expect(largeLimitChanged(100)).to.deep.equal({
         type: LARGE_LIMIT_CHANGED,
         largeLimit: 100
@@ -110,8 +111,8 @@ describe('root [ module ]', () => {
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is NEW_PIPELINE', () => {
+  describe('#reducer', function() {
+    context('when the action is NEW_PIPELINE', function() {
       const prevState = {
         dataService: 'test-ds',
         namespace: 'test.test',
@@ -124,36 +125,36 @@ describe('root [ module ]', () => {
 
       let state;
 
-      before(() => {
+      before(function() {
         state = reducer(prevState, newPipeline());
       });
 
-      it('keeps the data service', () => {
+      it('keeps the data service', function() {
         expect(state.dataService).to.equal('test-ds');
       });
 
-      it('keeps the namespace', () => {
+      it('keeps the namespace', function() {
         expect(state.namespace).to.equal('test.test');
       });
 
-      it('keeps the fields', () => {
+      it('keeps the fields', function() {
         expect(state.fields).to.equal('test-fields');
       });
 
-      it('keeps the server version', () => {
+      it('keeps the server version', function() {
         expect(state.serverVersion).to.equal('3.6.0');
       });
 
-      it('keeps the input documents', () => {
+      it('keeps the input documents', function() {
         expect(state.inputDocuments).to.deep.equal({ documents: [] });
       });
 
-      it('sets id to null', () => {
+      it('sets id to null', function() {
         expect(state.id).to.equal('');
       });
     });
 
-    context('when the action is CLONE_PIPELINE', () => {
+    context('when the action is CLONE_PIPELINE', function() {
       const prevState = {
         id: 'testing',
         name: 'test'
@@ -161,60 +162,39 @@ describe('root [ module ]', () => {
 
       let state;
 
-      before(() => {
+      before(function() {
         state = reducer(prevState, clonePipeline());
       });
 
-      it('sets id to a new id', () => {
+      it('sets id to a new id', function() {
         expect(state.id).to.not.equal('testing');
       });
 
-      it('updates the name', () => {
+      it('updates the name', function() {
         expect(state.name).to.equal('test (copy)');
       });
     });
 
-    context('when the action is CLONE_PIPELINE', () => {
-      const prevState = {
-        id: 'testing',
-        name: 'test'
-      };
-
-      let state;
-
-      before(() => {
-        state = reducer(prevState, clonePipeline());
-      });
-
-      it('sets id to a new id', () => {
-        expect(state.id).to.not.equal('testing');
-      });
-
-      it('updates the name', () => {
-        expect(state.name).to.equal('test (copy)');
-      });
-    });
-
-    describe('when the action is TOGGLE_OVERVIEW', () => {
-      describe('#overview', () => {
+    describe('when the action is TOGGLE_OVERVIEW', function() {
+      describe('#overview', function() {
         const prevState = {
           isOverviewOn: false
         };
 
         let state;
 
-        it('first toggle turns it on', () => {
+        it('first toggle turns it on', function() {
           state = reducer(prevState, toggleOverview());
           expect(state.isOverviewOn).to.equal(true);
         });
 
-        it('second toggle turns it back off', () => {
+        it('second toggle turns it back off', function() {
           state = reducer(state, toggleOverview());
           expect(state.isOverviewOn).to.equal(false);
         });
       });
 
-      describe('#pipeline[].isExpanded', () => {
+      describe('#pipeline[].isExpanded', function() {
         const prevState = {
           isOverviewOn: false,
           pipeline: [
@@ -226,18 +206,18 @@ describe('root [ module ]', () => {
 
         let state;
 
-        it('first toggle collapses the opened stage', () => {
+        it('first toggle collapses the opened stage', function() {
           state = reducer(prevState, toggleOverview());
           expect(state.pipeline[0].isExpanded).to.equal(false);
         });
 
-        it('second toggle expands the stage', () => {
+        it('second toggle expands the stage', function() {
           state = reducer(state, toggleOverview());
           expect(state.pipeline[0].isExpanded).to.equal(true);
         });
       });
 
-      describe('#inputDocuments.isExpanded', () => {
+      describe('#inputDocuments.isExpanded', function() {
         const prevState = {
           isOverviewOn: false,
           inputDocuments: {
@@ -248,12 +228,12 @@ describe('root [ module ]', () => {
 
         let state;
 
-        it('first toggle collapses it', () => {
+        it('first toggle collapses it', function() {
           state = reducer(prevState, toggleOverview());
           expect(state.inputDocuments.isExpanded).to.equal(false);
         });
 
-        it('second toggle expands the stage', () => {
+        it('second toggle expands the stage', function() {
           state = reducer(state, toggleOverview());
           expect(state.inputDocuments.isExpanded).to.equal(true);
         });
@@ -261,8 +241,8 @@ describe('root [ module ]', () => {
     });
   });
 
-  describe('#makeViewPipeline', () => {
-    it('filters out empty stages', () => {
+  describe('#makeViewPipeline', function() {
+    it('filters out empty stages', function() {
       const pipeline = [
         // executor preferred
         { executor: { a: 1 } },

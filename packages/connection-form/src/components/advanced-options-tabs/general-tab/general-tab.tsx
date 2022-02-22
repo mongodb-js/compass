@@ -1,7 +1,7 @@
 import React from 'react';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import SchemaInput from './schema-input';
+import SchemeInput from './scheme-input';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
 import HostInput from './host-input';
@@ -19,7 +19,7 @@ function GeneralTab({
   return (
     <div>
       <FormFieldContainer>
-        <SchemaInput
+        <SchemeInput
           errors={errors}
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}

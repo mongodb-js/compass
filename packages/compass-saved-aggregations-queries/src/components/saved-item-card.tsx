@@ -239,7 +239,7 @@ export const SavedItemCard: React.FunctionComponent<
     // @ts-expect-error the error here is caused by passing children to Card
     // component, even though it's allowed on the implementation level the types
     // are super confused and don't allow that
-    <Card key={id} contentStyle="clickable" {...cardProps}>
+    <Card key={id} contentStyle="clickable" data-id={id} {...cardProps}>
       <div className={actionsRow}>
         <Badge variant="darkgray" className={cardBadge}>
           .{type === 'query' ? 'find' : 'aggregate'}

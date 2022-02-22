@@ -64,7 +64,6 @@ import autoPreview, {
 import id, { INITIAL_STATE as ID_INITIAL_STATE } from './id';
 import savedPipeline, {
   updatePipelineList,
-  getDirectory,
   INITIAL_STATE as SP_INITIAL_STATE
 } from './saved-pipeline';
 import restorePipeline, {
@@ -113,6 +112,9 @@ import updateViewError, {
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+
+import { getDirectory } from '../utils/getDirectory';
+import { PipelineStorage } from '../utils/pipelineStorage';
 
 /**
  * The intial state of the root reducer.
@@ -654,19 +656,17 @@ export const newPipelineFromPaste = (text) => {
  */
 export const deletePipeline = (pipelineId) => {
   return (dispatch, getState) => {
-    track('Aggregation Deleted');
-    const fs = require('fs');
-    const path = require('path');
-    const file = path.join(getDirectory(), `${pipelineId}.json`);
-    fs.unlink(file, () => {
-      dispatch(updatePipelineList());
-      dispatch(clearPipeline());
-      dispatch(
-        globalAppRegistryEmit('agg-pipeline-deleted', {
-          name: getState().name
-        })
-      );
-    });
+    const pipelineStorage = new PipelineStorage();
+    pipelineStorage.delete(pipelineId)
+      .then(() => {
+        dispatch(updatePipelineList());
+        dispatch(clearPipeline());
+        dispatch(
+          globalAppRegistryEmit('agg-pipeline-deleted', {
+            name: getState().name
+          })
+        );
+      });
   };
 };
 
@@ -685,7 +685,6 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
     fs.readFile(file, 'utf8', (error, data) => {
       if (!error) {
         const pipe = JSON.parse(data);
-        track('Aggregation Opened', { num_stages: pipe.pipeline.length });
         dispatch(clearPipeline());
         dispatch(restoreSavedPipeline(pipe));
         dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));

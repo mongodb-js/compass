@@ -437,20 +437,19 @@ export const startExport = () => {
       exportData,
       dataService: { dataService }
     } = getState();
-
     const spec = exportData.isFullCollection
       ? { filter: {} }
       : exportData.query;
-
     const numDocsToExport = exportData.isFullCollection
       ? await fetchDocumentCount(dataService, ns, spec)
       : exportData.count;
-
     // filter out only the fields we want to include in our export data
     const projection = Object.fromEntries(
       Object.entries(exportData.fields)
         .filter((keyAndValue) => keyAndValue[1] === 1));
-
+    if (Object.keys(projection).length > 0 && (undefined === exportData.fields._id || exportData.fields._id === 0)) {
+      projection._id = 0;
+    }
     log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
       ns,
       numDocsToExport,
@@ -458,7 +457,6 @@ export const startExport = () => {
       projection
     });
     const source = createReadableCollectionStream(dataService, ns, spec, projection);
-
     const progress = createProgressStream({
       objectMode: true,
       length: numDocsToExport,
@@ -478,7 +476,7 @@ export const startExport = () => {
     // Pick the columns that are going to be matched by the projection,
     // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
     // has an entry in the projection object.
-    const columns = Object.keys(exportData.allFields)
+    const columns = Object.keys(exportData.fields)
       .filter(field => field.split('.').some(
         (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]));
     let formatter;
@@ -489,7 +487,6 @@ export const startExport = () => {
     }
 
     const dest = fs.createWriteStream(exportData.fileName);
-
     debug('executing pipeline');
     dispatch(onStarted(source, dest, numDocsToExport));
     stream.pipeline(source, progress, formatter, dest, function(err) {

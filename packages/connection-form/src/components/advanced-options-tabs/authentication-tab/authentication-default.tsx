@@ -1,13 +1,10 @@
 import React, { useCallback } from 'react';
 import {
-  Icon,
-  IconButton,
+  InlineInfoLink,
   Label,
   RadioBox,
   RadioBoxGroup,
   TextInput,
-  css,
-  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
@@ -20,17 +17,6 @@ import {
   getConnectionStringPassword,
   getConnectionStringUsername,
 } from '../../../utils/connection-string-helpers';
-
-const authSourceLabelStyles = css({
-  padding: 0,
-  margin: 0,
-  flexGrow: 1,
-});
-
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[1],
-});
 
 const defaultAuthMechanismOptions: {
   title: string;
@@ -98,6 +84,7 @@ function AuthenticationDefault({
             });
           }}
           label="Username"
+          data-testid="connection-username-input"
           errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
           value={username || ''}
@@ -115,27 +102,20 @@ function AuthenticationDefault({
           }}
           label="Password"
           type="password"
+          data-testid="connection-password-input"
           value={password || ''}
           errorMessage={passwordError}
           state={passwordError ? 'error' : undefined}
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Label
-          className={authSourceLabelStyles}
-          htmlFor="authSourceInput"
-          id="authSourceLabel"
-        >
+        <Label htmlFor="authSourceInput" id="authSourceLabel">
           Authentication Database
-          <IconButton
-            className={infoButtonStyles}
-            aria-label="Authentication Database Documentation"
-            href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
-            target="_blank"
-          >
-            <Icon glyph="InfoWithCircle" size="small" />
-          </IconButton>
         </Label>
+        <InlineInfoLink
+          aria-label="Authentication Database Documentation"
+          href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
+        />
 
         <TextInput
           onChange={({
@@ -167,17 +147,16 @@ function AuthenticationDefault({
         <RadioBoxGroup
           onChange={onAuthMechanismSelected}
           id="authentication-mechanism-radio-box-group"
-          size="default"
           value={selectedAuthTab.value}
         >
           {defaultAuthMechanismOptions.map(({ title, value }) => {
             return (
               <RadioBox
+                id={`${value}-tab-button`}
                 data-testid={`${value}-tab-button`}
                 checked={selectedAuthTab.value === value}
                 value={value}
                 key={value}
-                size="default"
               >
                 {title}
               </RadioBox>

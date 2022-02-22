@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { css, keyframes } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 
 interface SpinLoaderProps {
-  className: string;
   size?: string;
 }
 
@@ -24,22 +23,16 @@ const spinLoaderStyle = css`
   animation: ${shellLoaderSpin} 700ms ease infinite;
 `;
 
-export default class SpinLoader extends Component<SpinLoaderProps> {
-  static defaultProps = {
-    size: '12px',
-  };
-
-  render(): JSX.Element {
-    const { size } = this.props;
-
-    return (
-      <div
-        className={spinLoaderStyle}
-        style={{
-          width: size,
-          height: size,
-        }}
-      />
-    );
-  }
+function SpinLoader({ size = '12px' }: SpinLoaderProps): JSX.Element {
+  return (
+    <div
+      className={spinLoaderStyle}
+      style={{
+        width: size,
+        height: size,
+      }}
+    />
+  );
 }
+
+export { SpinLoader };

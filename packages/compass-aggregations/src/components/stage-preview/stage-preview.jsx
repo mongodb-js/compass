@@ -1,4 +1,4 @@
-import { AtlasLogoMark } from '@mongodb-js/compass-components';
+import { AtlasLogoMark, Link } from '@mongodb-js/compass-components';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
@@ -79,11 +79,14 @@ class StagePreview extends Component {
             <div className={styles['stage-preview-out-text']}>
               Documents persisted to collection specified by $merge.
             </div>
-            <div
+            <Link
+              data-test-id="go-to-merge-collection"
+              as="button"
               className={styles['stage-preview-out-link']}
-              onClick={this.onGotoMergeResults}>
+              onClick={this.onGotoMergeResults}
+            >
               Go to collection.
-            </div>
+            </Link>
           </div>
         );
       }
@@ -97,6 +100,7 @@ class StagePreview extends Component {
         </div>
         <div className={styles['stage-preview-out-button']}>
           <TextButton
+            dataTestId="save-merge-documents"
             text="Merge Documents"
             className="btn btn-xs btn-primary"
             clickHandler={this.onSaveDocuments} />
@@ -118,11 +122,14 @@ class StagePreview extends Component {
             <div className={styles['stage-preview-out-text']}>
               Documents persisted to collection: {decomment(this.props.stage)}.
             </div>
-            <div
+            <Link
+              data-test-id="go-to-out-collection"
+              as="button"
               className={styles['stage-preview-out-link']}
-              onClick={this.onGotoOutResults}>
+              onClick={this.onGotoOutResults}
+            >
               Go to collection.
-            </div>
+            </Link>
           </div>
         );
       }
@@ -137,6 +144,7 @@ class StagePreview extends Component {
         </div>
         <div className={styles['stage-preview-out-button']}>
           <TextButton
+            dataTestId="save-out-documents"
             text="Save Documents"
             className="btn btn-xs btn-primary"
             clickHandler={this.onSaveDocuments}

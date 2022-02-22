@@ -8,6 +8,9 @@ import {
   Option,
   TextInput,
 } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
 import type { Item } from '../stores/aggregations-queries-items';
 
@@ -83,6 +86,11 @@ function useSearchFilter(): [React.ReactElement, string] {
         onChange={(e) => {
           setSearch(e.target.value);
         }}
+        onBlur={() => {
+          if (search.length > 0) {
+            track('My Queries Search');
+          }
+        }}
         spellCheck={false}
       />
     );
@@ -92,35 +100,37 @@ function useSearchFilter(): [React.ReactElement, string] {
 }
 
 function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
-  const [selectState, setSelectState] = useState<SelectState>({});
+  const [selectedDatabase, setSelectedDatabase] = useState<
+    string | undefined
+  >();
+  const [selectedCollection, setSelectedCollection] = useState<
+    string | undefined
+  >();
   const [collections, setCollections] = useState<string[]>([]);
 
   const databases = items
     .map((x) => x.database)
     .filter((x, i, arr) => arr.indexOf(x) === i);
 
-  const selectDatabase = useMemo(() => {
+  const onDatabaseSelect = useMemo(() => {
     return (database: string): void => {
-      setSelectState({
-        database: database ?? undefined,
-      });
+      setSelectedDatabase(database);
+      setSelectedCollection(undefined);
 
       const collections = items
         .filter((x) => x.database === database)
         .map((x) => x.collection)
         .filter((x, i, arr) => arr.indexOf(x) === i);
+
       setCollections(collections);
     };
   }, [items]);
 
-  const selectCollection = useMemo(() => {
+  const onCollectionSelect = useMemo(() => {
     return (collection: string): void => {
-      setSelectState({
-        ...selectState,
-        collection: collection ?? undefined,
-      });
+      setSelectedCollection(collection);
     };
-  }, [selectState]);
+  }, []);
 
   const selectControls = useMemo(() => {
     return (
@@ -128,18 +138,32 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
         <FilterSelect
           options={databases}
           placeholder={'All databases'}
-          onSelect={selectDatabase}
-          value={selectState.database}
+          onSelect={onDatabaseSelect}
+          value={selectedDatabase ?? ''}
         />
         <FilterSelect
           options={collections}
           placeholder={'All collections'}
-          onSelect={selectCollection}
-          value={selectState.collection}
+          onSelect={onCollectionSelect}
+          value={selectedCollection ?? ''}
         />
       </div>
     );
-  }, [databases, selectDatabase, selectState, collections, selectCollection]);
+  }, [
+    databases,
+    onDatabaseSelect,
+    selectedDatabase,
+    collections,
+    onCollectionSelect,
+    selectedCollection,
+  ]);
+
+  const selectState = useMemo(() => {
+    return {
+      database: selectedDatabase,
+      collection: selectedCollection,
+    };
+  }, [selectedDatabase, selectedCollection]);
 
   return [selectControls, selectState];
 }
@@ -189,28 +213,35 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
       },
     ],
     getFn: (item: Item, path) => {
-      const key = Array.isArray(path) ? path[0] : path;
+      // The `path` here can only be names from the `keys` configuration option
+      // so it is safe to assert the type here. Additionally the argument value
+      // is typed by the library as string | string[]. Even though the library
+      // seem to always return an array, we will handle it as if we are not sure
+      // excatly what is passed here
+      const key = (Array.isArray(path) ? path[0] : path) as
+        | 'name'
+        | 'namespace'
+        | 'tags'
+        | 'data';
+
       if (key === 'namespace') {
         return `${item.database}.${item.collection}`;
       }
 
-      if (item.type === 'query') {
-        if (key === 'tags') {
+      if (key === 'tags') {
+        if (item.type === 'query') {
           return ['find', 'query'];
-        }
-        if (key === 'data') {
-          return JSON.stringify({
-            filter: item.query.filter,
-          });
+        } else {
+          return ['aggregate', 'aggregation', 'pipeline'];
         }
       }
 
-      if (item.type === 'aggregation') {
-        if (key === 'tags') {
-          return ['aggregate', 'aggregation', 'pipeline'];
-        }
-
-        if (key === 'data') {
+      if (key === 'data') {
+        if (item.type === 'query') {
+          return JSON.stringify({
+            filter: item.query.filter,
+          });
+        } else {
           const stages = item.aggregation.pipeline
             .filter((p) => p.stageOperator && p.stage)
             .map((p) => `${p.stageOperator}: ${p.stage}`)
@@ -219,7 +250,7 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
         }
       }
 
-      return item[key as keyof Item] as any;
+      return item[key];
     },
   });
   return fuse.search(text).map((x) => ({ item: x.item, score: x.score ?? 0 }));
