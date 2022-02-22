@@ -197,6 +197,7 @@ const AggregationsQueriesList = ({
         itemHeight={CARD_HEIGHT + spacing[2]}
         itemsCount={sortedItems.length}
         renderItem={renderItem}
+        itemKey={(index: number) => sortedItems[index].id}
         renderHeader={GridControls}
         headerHeight={spacing[5] + 36}
         classNames={{ row: rowStyles }}

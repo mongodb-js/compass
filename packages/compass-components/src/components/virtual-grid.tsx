@@ -71,6 +71,8 @@ type VirtualGridProps = {
     row?: string;
     cell?: string;
   };
+
+  itemKey?: (index: number) => React.Key | null | undefined;
 };
 
 const GridContext = createContext<
@@ -78,7 +80,7 @@ const GridContext = createContext<
     Required<VirtualGridProps>,
     'headerHeight' | 'renderHeader' | 'renderItem' | 'itemsCount'
   > &
-    Pick<VirtualGridProps, 'classNames'> & {
+    Pick<VirtualGridProps, 'classNames' | 'itemKey'> & {
       rowCount: number;
       colCount: number;
       currentTabbable: number;
@@ -142,8 +144,14 @@ const Row: React.FunctionComponent<{
   style: React.CSSProperties;
   index: number;
 }> = ({ style, index }) => {
-  const { colCount, itemsCount, renderItem, currentTabbable, classNames } =
-    useContext(GridContext);
+  const {
+    colCount,
+    itemsCount,
+    renderItem,
+    currentTabbable,
+    classNames,
+    itemKey,
+  } = useContext(GridContext);
   const rowStart = index * colCount;
   const cells = useMemo(() => {
     return Array.from({ length: colCount }, (_, cellIdx) => {
@@ -156,6 +164,7 @@ const Row: React.FunctionComponent<{
         ></div>
       ) : (
         React.createElement(renderItem, {
+          key: itemKey?.(index) ?? index,
           role: 'gridcell',
           className: cx(cell, classNames?.cell),
           tabIndex: itemIdx === currentTabbable ? 0 : -1,
@@ -170,6 +179,8 @@ const Row: React.FunctionComponent<{
     itemsCount,
     classNames?.cell,
     renderItem,
+    itemKey,
+    index,
     currentTabbable,
   ]);
 
@@ -217,6 +228,7 @@ export const VirtualGrid = forwardRef<
     renderHeader = () => null,
     overscanCount = 3,
     classNames,
+    itemKey,
     ...containerProps
   },
   ref
@@ -274,6 +286,7 @@ export const VirtualGrid = forwardRef<
           navigationProps,
           rovingFocusProps
         ),
+        itemKey,
       }}
     >
       <div {...gridContainerProps}>

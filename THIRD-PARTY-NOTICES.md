@@ -1,18 +1,18 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Mon Feb 21 2022.
+This document was automatically generated on Tue Feb 22 2022.
 
 ## List of dependencies
 
 Package|Version|License
 -------|-------|-------
-**[@babel/code-frame](#dea6fe272a8be0be87f52431bf1387ed6bacdd218d2b8949a4d6363f41a6f142)**|7.16.7|MIT
-**[@babel/helper-module-imports](#5b3ed0e4d091f6a78f09fba121306e08316ab61a4a21eb9dc3c9acb6a2f3d5ef)**|7.16.7|MIT
+**[@babel/code-frame](#964c49eaca6945b6519172222dd8f79aef744d6e4974d1652ba534467e0cd8db)**|7.14.5|MIT
+**[@babel/helper-module-imports](#91c8c7666de2449943614b3e15d86f3862f9b557983210191dbf265a53363ab6)**|7.15.4|MIT
 **[@babel/helper-plugin-utils](#7c5ad2edf94fb7dacba62b1b900902f9af9c9364e64b91102331ca32c3966276)**|7.14.5|MIT
-**[@babel/helper-validator-identifier](#6651a54028b843f6b152e84ca92e2c440687ccbebb78835f94dc5b9e314d72bd)**|7.16.7|MIT
-**[@babel/highlight](#547e8256857983618a9bb7601fb8930acb158d64af94a1975fa2761d7798229c)**|7.16.10|MIT
+**[@babel/helper-validator-identifier](#433f3379dd7033391d15f58d21054c8ce6651116d7ef0b0f7c9102d13502fef5)**|7.14.9|MIT
+**[@babel/highlight](#dbc6155fe656d9d71de721f31aa5508d54057d5cf4d61387559432eee493f246)**|7.14.5|MIT
 **[@babel/plugin-syntax-jsx](#c3a8bc17690a7aff72c22918370e177c0c1689293c9572d34a5b7463f043fa27)**|7.14.5|MIT
 **[@babel/runtime](#7a04e03d0d66983ac33ce3c54165a4174445b7858ec49fbfd215b8bfad932b6f)**|7.17.0|MIT
-**[@babel/types](#d6a52ead12b395f05c1cfc1b9b2864802bdba224434b5651bf7a250eb5d4e26b)**|7.17.0|MIT
+**[@babel/types](#15332e582d43a18f9e4b89b48e4485ba7069a4a7d27b5e93dadfb89e9b7f9e92)**|7.15.6|MIT
 **[@emotion/babel-plugin](#03ca1a86566ba12f306ee068149dd414f4eae0649af1c805daee344dd7d05176)**|11.7.2|MIT
 **[@emotion/cache](#abefd7c5ed45552ff224f27f625ade54ec500c18f3ee5f4c4578fc9870b954d6)**|11.7.1|MIT
 **[@emotion/cache](#db428d77c9ae4b98785a11de76cd7dd9ff5828a1f362602862e1b768c201d0ed)**|11.4.0|MIT
@@ -240,8 +240,8 @@ Package|Version|License
 
 ## Package details
 
-<a id="dea6fe272a8be0be87f52431bf1387ed6bacdd218d2b8949a4d6363f41a6f142"></a>
-### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.16.7)
+<a id="964c49eaca6945b6519172222dd8f79aef744d6e4974d1652ba534467e0cd8db"></a>
+### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.14.5)
 <!-- initially found at node_modules/@babel/code-frame -->
 > Generate errors that contain a code frame that point to source locations.
 
@@ -278,8 +278,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="5b3ed0e4d091f6a78f09fba121306e08316ab61a4a21eb9dc3c9acb6a2f3d5ef"></a>
-### [@babel/helper-module-imports](https://www.npmjs.com/package/@babel/helper-module-imports) (version 7.16.7)
+<a id="91c8c7666de2449943614b3e15d86f3862f9b557983210191dbf265a53363ab6"></a>
+### [@babel/helper-module-imports](https://www.npmjs.com/package/@babel/helper-module-imports) (version 7.15.4)
 <!-- initially found at node_modules/@babel/helper-module-imports -->
 > Babel helper functions for inserting module loads
 
@@ -354,8 +354,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="6651a54028b843f6b152e84ca92e2c440687ccbebb78835f94dc5b9e314d72bd"></a>
-### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.16.7)
+<a id="433f3379dd7033391d15f58d21054c8ce6651116d7ef0b0f7c9102d13502fef5"></a>
+### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.14.9)
 <!-- initially found at node_modules/@babel/helper-validator-identifier -->
 > Validate identifier/keywords name
 
@@ -392,8 +392,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="547e8256857983618a9bb7601fb8930acb158d64af94a1975fa2761d7798229c"></a>
-### [@babel/highlight](https://www.npmjs.com/package/@babel/highlight) (version 7.16.10)
+<a id="dbc6155fe656d9d71de721f31aa5508d54057d5cf4d61387559432eee493f246"></a>
+### [@babel/highlight](https://www.npmjs.com/package/@babel/highlight) (version 7.14.5)
 <!-- initially found at node_modules/@babel/highlight -->
 > Syntax highlight JavaScript strings for output in terminals.
 
@@ -506,8 +506,8 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="d6a52ead12b395f05c1cfc1b9b2864802bdba224434b5651bf7a250eb5d4e26b"></a>
-### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.17.0)
+<a id="15332e582d43a18f9e4b89b48e4485ba7069a4a7d27b5e93dadfb89e9b7f9e92"></a>
+### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.15.6)
 <!-- initially found at node_modules/@babel/types -->
 > Babel Types is a Lodash-esque utility library for AST nodes
 
