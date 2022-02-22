@@ -69,17 +69,17 @@ const isValidLatLng = value => {
 };
 
 /**
- * Transforms an array `[lat,long]` coordinates into a GeoJSON Point.
+ * Transforms an array `[long, lat]` coordinates into a GeoJSON Point.
  * @param {Array} value `[long, lat]`
  * @returns {Object}
  */
 const valueToGeoPoint = value => {
-  const [lat, lng] = [+value[0], +value[1]];
+  const [lng, lat] = [+value[0], +value[1]];
 
   const point = {
     type: 'Point',
-    coordinates: [lng, lat],
-    center: [lng, lat],
+    coordinates: [lat, lng],
+    center: [lat, lng],
     color: UNSELECTED_COLOR,
     /**
      * Passed to `<CustomPopup />`
@@ -87,7 +87,7 @@ const valueToGeoPoint = value => {
     fields: [
       {
         key: '[longitude, latitude]',
-        value: `[${[lng, lat].toString()}]`
+        value: `[Lat = ${lat}, Long = ${lng}]`
       }
     ]
   };
