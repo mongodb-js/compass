@@ -110,10 +110,10 @@ describe('SRV connectivity', function () {
     toCS.searchParams.delete('appname');
     toCS.hosts.sort();
     expect(fromCS.href).to.equal(
-      'mongodb+srv://test1.test.build.10gen.cc/test?readPreference=primary&ssl=false'
+      'mongodb+srv://test1.test.build.10gen.cc/test?tls=false'
     );
     expect(toCS.href).to.equal(
-      'mongodb://localhost.test.build.10gen.cc,localhost.test.build.10gen.cc:27018/test?readPreference=primary&ssl=false'
+      'mongodb://localhost.test.build.10gen.cc,localhost.test.build.10gen.cc:27018/test?tls=false'
     );
 
     expect(resolutionDetails).to.have.lengthOf(2);
