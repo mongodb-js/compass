@@ -1,6 +1,6 @@
 const {
   collectWorkspacesMeta,
-  collectWorkspacesDependencies
+  collectWorkspacesDependencies,
 } = require('./workspace-dependencies');
 
 const compassComponentsWorkspaceName = '@mongodb-js/compass-components';
@@ -10,18 +10,22 @@ const compassComponentsWorkspaceName = '@mongodb-js/compass-components';
 async function main() {
   const workspaces = await collectWorkspacesMeta();
   const dependencies = collectWorkspacesDependencies(workspaces);
-  const leafyGreenDependencies = [...dependencies].filter(
-    ([depName]) => depName.includes('leafygreen')
+  const leafyGreenDependencies = [...dependencies].filter(([depName]) =>
+    depName.includes('leafygreen')
   );
 
   for (const [depName, versionsInUse] of leafyGreenDependencies) {
     for (const dependencyEntry of versionsInUse)
-    if (dependencyEntry.workspace !== compassComponentsWorkspaceName) {
-      process.exitCode = 1;
-      console.error(`The package "${dependencyEntry.workspace}" has the LeafyGreen dependency "${depName}" in its ${dependencyEntry.type} dependencies.`);
-      console.error(`LeafyGreen dependencies should be limited to the "${compassComponentsWorkspaceName}" workspace so that they can be more easily deduped and versions can be shared.`);
-      console.error(`"${depName}": "${dependencyEntry.version}"`);
-    }
+      if (dependencyEntry.workspace !== compassComponentsWorkspaceName) {
+        process.exitCode = 1;
+        console.error(
+          `The package "${dependencyEntry.workspace}" has the LeafyGreen dependency "${depName}" in its ${dependencyEntry.type} dependencies.`
+        );
+        console.error(
+          `LeafyGreen dependencies should be limited to the "${compassComponentsWorkspaceName}" workspace so that they can be more easily deduped and versions can be shared.`
+        );
+        console.error(`"${depName}": "${dependencyEntry.version}"`);
+      }
   }
 }
 
