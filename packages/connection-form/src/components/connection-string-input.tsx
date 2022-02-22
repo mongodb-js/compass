@@ -21,6 +21,7 @@ import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const textAreaContainerStyle = css({
   position: 'relative',
+  marginTop: spacing[1],
   marginBottom: spacing[2],
 });
 
