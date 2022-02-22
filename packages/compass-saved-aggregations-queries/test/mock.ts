@@ -14,7 +14,10 @@ interface FavoriteQueryStorage {
 interface PipelineStorageClass {
   new (): {
     loadAll(): Promise<Aggregation[]>;
-    updateAttributes(id: string, attributes: UpdateAttributes): Promise<Aggregation>;
+    updateAttributes(
+      id: string,
+      attributes: UpdateAttributes
+    ): Promise<Aggregation>;
     delete(id: string): Promise<void>;
   };
 }
@@ -32,11 +35,11 @@ export function createCompassAggregationsMock(aggregations: Aggregation[]): {
         id: string,
         attributes: UpdateAttributes
       ): Promise<Aggregation> {
-        const index = data.findIndex(x => x.id === id);
+        const index = data.findIndex((x) => x.id === id);
         if (index >= 0) {
           data[index] = {
             ...data[index],
-            ...attributes
+            ...attributes,
           };
           return Promise.resolve(data[index]);
         }
@@ -63,11 +66,11 @@ export function createCompassQueryHistoryMock(queries: Query[]): {
         id: string,
         attributes: UpdateAttributes
       ): Promise<Query> {
-        const index = data.findIndex(x => x._id === id);
+        const index = data.findIndex((x) => x._id === id);
         if (index >= 0) {
           data[index] = {
             ...data[index],
-            ...attributes
+            ...attributes,
           };
           return Promise.resolve(data[index]);
         }
