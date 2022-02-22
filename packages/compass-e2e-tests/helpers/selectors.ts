@@ -33,7 +33,8 @@ export const ConnectionFormInputUsername =
 export const ConnectionFormInputPassword =
   '[data-testid="connection-password-input"]';
 
-export const ConnectionFormMessage = '[data-test-id="connection-message"]';
+export const ConnectionFormErrorMessage =
+  '[data-testid="connection-error-summary"]';
 
 // Connection Sidebar
 export const SidebarTreeItems =
