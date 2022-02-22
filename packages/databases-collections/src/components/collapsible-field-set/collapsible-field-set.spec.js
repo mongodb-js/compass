@@ -15,6 +15,7 @@ describe('CollapsibleFieldSet [Component]', () => {
         <CollapsibleFieldSet
           withDatabase
           label="aa"
+          description="ah"
           helpUrl="aaa"
           openLink={() => {}}
           onToggle={() => {}}

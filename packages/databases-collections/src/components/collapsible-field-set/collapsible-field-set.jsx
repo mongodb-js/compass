@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, Description, IconButton, Icon, InlineInfoLink } from '@mongodb-js/compass-components';
+import { Checkbox, Description, IconButton, Icon } from '@mongodb-js/compass-components';
 
 import FieldSet from '../field-set/field-set';
 import styles from './collapsible-field-set.module.less';
@@ -25,7 +25,6 @@ function CollapsibleFieldSet({
         disabled={disabled}
         label={label}
         checked={toggled}
-        // bold={false}
         bold
         id={dataTestId ? `toggle-${dataTestId}` : undefined}
       />
