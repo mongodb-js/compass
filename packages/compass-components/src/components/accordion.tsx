@@ -23,6 +23,7 @@ const buttonStyles = css({
     cursor: 'pointer',
   },
   '&:focus-visible': {
+    outline: 'none',
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
 });
