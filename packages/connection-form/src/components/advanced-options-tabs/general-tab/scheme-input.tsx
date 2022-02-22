@@ -63,8 +63,20 @@ function SchemaInput({
         value={isSRV ? MONGODB_SCHEMA.MONGODB_SRV : MONGODB_SCHEMA.MONGODB}
         onChange={onChangeConnectionSchema}
       >
-        <RadioBox value={MONGODB_SCHEMA.MONGODB}>mongodb</RadioBox>
-        <RadioBox value={MONGODB_SCHEMA.MONGODB_SRV}>mongodb+srv</RadioBox>
+        <RadioBox
+          id="connection-scheme-mongodb-radiobox"
+          data-testid="connection-scheme-mongodb-radiobox"
+          value={MONGODB_SCHEMA.MONGODB}
+        >
+          mongodb
+        </RadioBox>
+        <RadioBox
+          id="connection-scheme-srv-radiobox"
+          data-testid="connection-scheme-srv-radiobox"
+          value={MONGODB_SCHEMA.MONGODB_SRV}
+        >
+          mongodb+srv
+        </RadioBox>
       </RadioBoxGroup>
       <Description className={descriptionStyles}>
         {isSRV ? srvSchemaDescription : regularSchemaDescription}

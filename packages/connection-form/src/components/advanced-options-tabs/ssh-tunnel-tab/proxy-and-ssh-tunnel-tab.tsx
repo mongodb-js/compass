@@ -176,6 +176,7 @@ function ProxyAndSshTunnelTab({
         {options.map(({ title, id, type }) => {
           return (
             <RadioBox
+              id={`${type}-tab-button`}
               data-testid={`${type}-tab-button`}
               checked={selectedOption.id === id}
               value={id}

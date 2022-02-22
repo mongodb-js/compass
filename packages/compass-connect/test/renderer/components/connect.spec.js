@@ -47,7 +47,7 @@ describe('Connect [Component]', () => {
       expect(component.find(`.${styles.connect}`)).to.be.present();
     });
 
-    it('renders the header', () => {
+    it.skip('renders the header', () => {
       expect(component.find('h2').text()).to.be.equal('New Connection');
     });
 

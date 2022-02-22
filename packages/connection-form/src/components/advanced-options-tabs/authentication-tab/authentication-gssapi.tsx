@@ -122,6 +122,7 @@ function AuthenticationGSSAPI({
           {Object.entries(GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS).map(
             ([key, { label, value }]) => (
               <RadioBox
+                id={`gssapi-canonicalize-host-name-${key}`}
                 data-testid={`gssapi-canonicalize-host-name-${key}`}
                 key={value}
                 value={value}

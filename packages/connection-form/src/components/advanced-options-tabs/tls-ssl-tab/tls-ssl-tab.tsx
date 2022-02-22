@@ -161,7 +161,12 @@ function TLSTab({
         </Label>
         <RadioBoxGroup value={tlsOption || ''} onChange={onChangeTLS}>
           {TLS_TYPES.map((tlsType) => (
-            <RadioBox value={tlsType.value} key={tlsType.value}>
+            <RadioBox
+              id={`connection-tls-enabled-${tlsType.value}-radio-button`}
+              data-testid={`connection-tls-enabled-${tlsType.value}-radio-button`}
+              value={tlsType.value}
+              key={tlsType.value}
+            >
               {tlsType.label}
             </RadioBox>
           ))}

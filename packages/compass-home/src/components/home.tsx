@@ -99,7 +99,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
   const connectedDataService = useRef<DataService>();
-  const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
+  const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM !== 'false';
 
   const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
     reducer,

@@ -65,7 +65,7 @@ function Connecting({
       <ConnectingBackground />
       <Modal open={showModal} setOpen={() => onCancelConnectionClicked()}>
         <div
-          data-test-id="connecting-modal-content"
+          data-testid="connecting-modal-content"
           className={modalContentStyles}
           id="connectingStatusText"
         >
@@ -74,6 +74,7 @@ function Connecting({
           <ConnectingAnimation />
           <Link
             as="button"
+            data-testid="cancel-connection-button"
             onClick={onCancelConnectionClicked}
             hideExternalIcon
             className={cancelButtonStyles}

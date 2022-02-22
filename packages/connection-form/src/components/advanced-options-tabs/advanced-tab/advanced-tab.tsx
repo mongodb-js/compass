@@ -102,6 +102,7 @@ function AdvancedTab({
         {readPreferences.map(({ title, id }) => {
           return (
             <RadioBox
+              id={`${id}-preference-button`}
               data-testid={`${id}-preference-button`}
               checked={readPreference === id}
               value={id}

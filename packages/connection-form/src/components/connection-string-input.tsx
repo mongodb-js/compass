@@ -172,6 +172,7 @@ function ConnectStringInput({
           className={connectionStringStyles}
           disabled={!enableEditingConnectionString}
           id={connectionStringInputId}
+          data-testid={connectionStringInputId}
           ref={textAreaEl}
           aria-labelledby={connectionStringLabelId}
           placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
