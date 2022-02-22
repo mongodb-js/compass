@@ -121,6 +121,7 @@ async function main() {
   const mocha = new Mocha({
     timeout: 120_000,
     bail,
+    fgrep: 'export',
   });
 
   tests.forEach((testPath: string) => {

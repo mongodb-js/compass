@@ -137,9 +137,6 @@ export const ShellOutput =
 export const ShellLoader =
   '[data-test-id="shell-content"] [class~=mongosh-shell-loader-shell-loader]';
 
-// Query bar (Find, Schema, Explain Plan)
-export const QueryBarMenuActions = '#query-bar-menu-actions';
-
 // Instance screen
 export const InstanceTabs = '[data-test-id="instance-tabs"]';
 export const InstanceTab = '.test-tab-nav-bar-tab';
@@ -497,13 +494,9 @@ export const queryBarResetFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-test-id="query-bar-reset-filter-button"]`;
 };
-export const queryBarMenuActionsButton = (tabName: string): string => {
+export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions}`;
-};
-export const queryBarActionsMenu = (tabName: string): string => {
-  const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
+  return `${tabSelector} [data-test-id="query-export-to-language-button"]`;
 };
 
 // Tabs at the top
