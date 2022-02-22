@@ -421,10 +421,9 @@ class QueryBar extends Component {
 
         {showExportToLanguageButton && (
           <button
-            // id="query_export_to_language_button"
-            // key="export-to-language-button"
+            id="query_export_to_language_button"
             className={_exportToLanguageClassName}
-            // data-test-id="query-export-to-language-button"
+            data-test-id="query-export-to-language-button"
             type="button"
             onClick={this.props.actions.exportToLanguage}
             title="Export Query to Language"

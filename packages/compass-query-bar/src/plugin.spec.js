@@ -143,10 +143,10 @@ describe('QueryBar [Plugin]', () => {
           expanded
           serverVersion="3.4.0" />
       );
-      expect(component.find('#query-bar-menu-actions')).to.exist;
+      expect(component.find('button[id="query_export_to_language_button"]')).to.exist;
     });
 
-    it('export to language button renderes when showExportToLanguageButton prop is passed and set to true', function() {
+    it('export to language button renders when showExportToLanguageButton prop is passed and set to true', function() {
       component = mount(
         <QueryBarPlugin
           store={store}
@@ -156,7 +156,7 @@ describe('QueryBar [Plugin]', () => {
           expanded
           serverVersion="3.4.0" />
       );
-      expect(component.find('#query-bar-menu-actions')).to.exist;
+      expect(component.find('button[id="query_export_to_language_button"]')).to.exist;
     });
 
     it('export to language button does not render when showExportToLanguageButton prop is passed and set to false', function() {
@@ -169,7 +169,7 @@ describe('QueryBar [Plugin]', () => {
           expanded
           serverVersion="3.4.0" />
       );
-      expect(component.find('#query-bar-menu-actions')).to.not.exist;
+      expect(component.find('button[id="query_export_to_language_button"]')).to.not.exist;
     });
   });
 
