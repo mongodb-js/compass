@@ -58,6 +58,8 @@ class DuplicateViewModal extends PureComponent {
    */
   render() {
     return (
+      // TODO: leafygreen doesn't allow to use confirmation modal for forms, we
+      // should fix that https://jira.mongodb.org/browse/COMPASS-5522
       <ConfirmationModal
         title={TITLE}
         open={this.props.isVisible}
@@ -72,7 +74,6 @@ class DuplicateViewModal extends PureComponent {
           data-test-id="create-view-modal"
         >
           <ModalInput
-            autoFocus
             id="create-view-name"
             name="Enter a View Name"
             value={this.props.name || ''}

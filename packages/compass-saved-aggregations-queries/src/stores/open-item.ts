@@ -2,6 +2,9 @@ import type { ActionCreator, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import type { Item } from './aggregations-queries-items';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
 export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
@@ -223,6 +226,16 @@ const openItem =
     }
 
     const metadata = await coll.fetchMetadata({ dataService });
+
+    track(
+      item.type == 'aggregation'
+        ? 'Aggregation Opened'
+        : 'Query History Favorite Used',
+      {
+        id: item.id,
+        screen: 'my_queries',
+      }
+    );
 
     appRegistry.emit('open-namespace-in-new-tab', {
       ...metadata,

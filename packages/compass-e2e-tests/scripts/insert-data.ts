@@ -53,6 +53,8 @@ if (require.main === module) {
     await dropCollection(db, 'my-capped-collection');
     await dropCollection(db, 'my-custom-collation-collection');
     await dropCollection(db, 'my-timeseries-collection');
+    await dropCollection(db, 'my-out-collection');
+    await dropCollection(db, 'my-merge-collection');
 
     // Create some empty collections for the import tests so each one won't have
     // to possibly drop and create via the UI every time.
@@ -61,6 +63,7 @@ if (require.main === module) {
     await createBlankCollection(db, 'json-file');
     await createBlankCollection(db, 'extended-json-file');
     await createBlankCollection(db, 'csv-file');
+    await createBlankCollection(db, 'bom-csv-file');
 
     console.log(`Creating test.numbers`);
     await dropCollection(db, 'numbers');

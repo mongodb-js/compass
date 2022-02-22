@@ -1,6 +1,9 @@
 import type { RootActions, RootState } from './index';
 import type { ThunkAction } from 'redux-thunk';
 import { EJSON } from 'bson';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
 function padLines(str: string, count = 2) {
   return str
@@ -59,6 +62,16 @@ export function copyToClipboard(
     if (!item) {
       return;
     }
+
+    track(
+      item.type === 'aggregation'
+        ? 'Aggregation Copied'
+        : 'Query History Favorite Copied',
+      {
+        id: item.id,
+        screen: 'my_queries',
+      }
+    );
 
     const copyStr =
       item.type === 'aggregation'

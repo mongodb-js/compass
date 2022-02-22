@@ -397,6 +397,7 @@ const loadPreviewDocs = (
       encoding: 'utf8',
       end: 20 * 1024
     });
+    const stripBOM = stripBomStream();
 
     const dest = createPreviewWritable({
       fileType,
@@ -406,6 +407,7 @@ const loadPreviewDocs = (
 
     stream.pipeline(
       source,
+      stripBOM,
       createPeekStream(fileType, delimiter, fileIsMultilineJSON),
       dest,
       function(err) {

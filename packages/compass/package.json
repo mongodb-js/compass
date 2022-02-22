@@ -238,7 +238,7 @@
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",
     "mocha": "^8.4.0",
-    "mongodb": "^4.3.0",
+    "mongodb": "^4.4.0",
     "mongodb-connection-model": "^21.12.0",
     "mongodb-data-service": "^21.16.0",
     "mongodb-instance-model": "^11.18.0",

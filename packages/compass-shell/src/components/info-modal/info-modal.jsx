@@ -2,6 +2,7 @@ import { TextButton } from 'hadron-react-buttons';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { Modal } from 'react-bootstrap';
+import { H3, Link } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
@@ -93,18 +94,17 @@ export class InfoModal extends PureComponent {
         className="with-global-bootstrap-styles"
       >
         <Modal.Header closeButton onHide={hideInfoModal}>
-          <h4>mongosh {mongoshVersion}</h4>
+          <H3>mongosh {mongoshVersion}</H3>
         </Modal.Header>
         <Modal.Body>
           <div className={styles['info-modal-banner']}>
             More information on this release of the&nbsp;
-            <a
-              className={styles['info-modal-banner-link']}
+            <Link
               id="mongosh-info-link"
               rel="noreopener"
               href="https://docs.mongodb.com/compass/beta/embedded-shell/"
               target="_blank"
-            >MongoDB Shell</a>
+            >MongoDB Shell</Link>
           </div>
           <div className={styles['info-modal-shortcuts-title']}>
             Keyboard Shortcuts

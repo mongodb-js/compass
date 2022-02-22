@@ -160,8 +160,7 @@ export const ShellLoader =
   '[data-test-id="shell-content"] [class~=mongosh-shell-loader-shell-loader]';
 
 // Query bar (Find, Schema, Explain Plan)
-export const QueryBarApplyFilterButton =
-  '[data-test-id="query-bar-apply-filter-button"]';
+export const QueryBarMenuActions = '#query-bar-menu-actions';
 
 // Instance screen
 export const InstanceTabs = '[data-test-id="instance-tabs"]';
@@ -304,6 +303,7 @@ export const InsertCancel =
 // Import File modal
 
 export const ImportModal = '[data-test-id="import-modal"]';
+export const ImportDelimiter = '[id="import-delimiter-select"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-test-id="select-file-type-json"]';
 export const FileTypeCSV = '[data-test-id="select-file-type-csv"]';
@@ -337,6 +337,20 @@ export const QueryBarHistory = '[data-test-id="query-history"]';
 
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
+export const CreateNewPipelineButton = 'button#create-new-pipeline';
+export const ToggleAggregationCollation = '[data-test-id="toggle-collation"]';
+export const AggregationCollationInput = '[data-test-id="collation-string"]';
+export const AggregationSettingsButton =
+  '[data-test-id="aggregation-settings"]';
+export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
+export const AggregationSampleSizeInput = '#aggregation-sample-size';
+export const AggregationMaxTimeMS = '#aggregation-max-time-ms';
+export const AggregationSettingsApplyButton = '#aggregation-settings-apply';
+export const AddStageButton = '[data-test-id="add-stage"]';
+export const ExportAggregationToLanguage =
+  '[data-test-id="aggregations-content"] [data-test-id="export-to-language"]';
+export const NewPipelineActions = '#new-pipeline-actions';
+export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
 
 export const stageOperatorOptions = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [role="option"]`;
@@ -377,6 +391,33 @@ export const stageSelectControlInput = (
 };
 export const stageTextarea = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] .ace_editor textarea`; // .ace_text-input
+};
+export const stageContent = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] .ace_content`;
+};
+export const stageAdd = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="add-after-stage"]`;
+};
+export const stageToggle = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
+};
+export const stageDelete = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="delete-stage"]`;
+};
+export const stageOutSaveButton = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="save-out-documents"]`;
+};
+export const stageOutCollectionLink = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="go-to-out-collection"]`;
+};
+export const stageMergeSaveButton = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="save-merge-documents"]`;
+};
+export const stageMergeCollectionLink = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="go-to-merge-collection"]`;
+};
+export const stageEditorErrorMessage = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-test-id="stage-editor-error-message"]`;
 };
 
 // Schema tab
@@ -468,7 +509,7 @@ export const queryBarOptionInputLimit = (tabName: string): string => {
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarApplyFilterButton}`;
+  return `${tabSelector} [data-test-id="query-bar-apply-filter-button"]`;
 };
 export const queryBarOptionsToggle = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
@@ -477,6 +518,14 @@ export const queryBarOptionsToggle = (tabName: string): string => {
 export const queryBarResetFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-test-id="query-bar-reset-filter-button"]`;
+};
+export const queryBarMenuActionsButton = (tabName: string): string => {
+  const tabSelector = collectionContent(tabName);
+  return `${tabSelector} ${QueryBarMenuActions}`;
+};
+export const queryBarActionsMenu = (tabName: string): string => {
+  const tabSelector = collectionContent(tabName);
+  return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
 };
 
 // Tabs at the top
@@ -520,3 +569,38 @@ export const selectExportFileTypeButton = (
 export const exportModalExportField = (fieldName: string): string => {
   return `[data-test-id="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
+
+// Export to language modal
+export const ExportToLanguageModal = '[data-test-id="export-to-lang-modal"]';
+export const ExportToLanguageLanguageField =
+  '[data-test-id="select-lang-field"]';
+export const ExportToLanguageLanguageListbox =
+  '[data-test-id="select-lang-field"] [role="listbox"]';
+export const ExportToLanguageImportsCheckbox =
+  '[data-test-id="export-to-lang-checkbox-imports"]';
+export const ExportToLanguageDriverCheckbox =
+  '[data-test-id="export-to-lang-checkbox-driver"]';
+export const ExportToLanguageBuildersCheckbox =
+  '[data-test-id="export-to-lang-checkbox-builders"]';
+export const ExportToLanguageCopyOutputButton =
+  '[data-test-id="export-to-lang-copy-output"]';
+export const ExportToLanguageCloseButton =
+  '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';
+
+// Confirm new pipeline modal
+export const ConfirmNewPipelineModal =
+  '[trackingid="confirm_new_pipeline_modal"]';
+export const ConfirmNewPipelineModalConfirmButton =
+  '[trackingid="confirm_new_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+// New pipeline from text modal
+export const NewPipelineFromTextModal = '[trackingid="import_pipeline_modal"]';
+export const NewPipelineFromTextEditor = '#import-pipeline-editor';
+export const NewPipelineFromTextConfirmButton =
+  '[trackingid="import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+// Confirm import pipeline modal
+export const ConfirmImportPipelineModal =
+  '[trackingid="confirm_import_pipeline_modal"]';
+export const ConfirmImportPipelineModalConfirmButton =
+  '[trackingid="confirm_import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
