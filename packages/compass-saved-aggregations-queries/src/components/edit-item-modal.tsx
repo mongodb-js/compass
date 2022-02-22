@@ -22,7 +22,10 @@ type EditItemModalProps = {
 };
 
 const formTitleStyles = css({
-  marginBottom: spacing[5],
+  marginBottom: spacing[3],
+  lineHeight: '25px',
+  fontWeight: 'bold',
+  fontSize: '24px',
 });
 
 const formFooterStyles = css({
@@ -46,16 +49,12 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
     setName(item?.name ?? '');
   }, [item]);
 
-  if (!item) {
-    return <></>;
-  }
-
   const isSubmitDisabled = () => {
-    return !name || name === item.name;
+    return !name || name === item?.name;
   };
 
   const onSubmitForm = () => {
-    if (!isSubmitDisabled()) {
+    if (!isSubmitDisabled() && item) {
       onSubmit(item.id, { name });
     }
   };
@@ -68,7 +67,7 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
           onSubmitForm();
         }}
       >
-        <H3 className={formTitleStyles}>{`Edit ${item.type}`}</H3>
+        <H3 className={formTitleStyles}>{`Edit ${item?.type ?? ''}`}</H3>
         <TextInput
           aria-label="Name"
           label="Name"
@@ -86,15 +85,7 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
           >
             Cancel
           </Button>
-          <Button
-            disabled={isSubmitDisabled()}
-            variant="primary"
-            onClick={(event) => {
-              event.preventDefault();
-              onSubmitForm();
-            }}
-            type="submit"
-          >
+          <Button disabled={isSubmitDisabled()} variant="primary" type="submit">
             Update
           </Button>
         </div>

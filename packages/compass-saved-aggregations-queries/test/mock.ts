@@ -6,7 +6,7 @@ type UpdateAttributes = Record<string, unknown>;
 interface FavoriteQueryStorage {
   new (): {
     loadAll(): Promise<Query[]>;
-    updateAttributes(id: string, attributes: UpdateAttributes): Promise<void>;
+    updateAttributes(id: string, attributes: UpdateAttributes): Promise<Query>;
     delete(id: string): Promise<void>;
   };
 }
@@ -14,7 +14,7 @@ interface FavoriteQueryStorage {
 interface PipelineStorageClass {
   new (): {
     loadAll(): Promise<Aggregation[]>;
-    updateAttributes(id: string, attributes: UpdateAttributes): Promise<void>;
+    updateAttributes(id: string, attributes: UpdateAttributes): Promise<Aggregation>;
     delete(id: string): Promise<void>;
   };
 }
@@ -31,17 +31,16 @@ export function createCompassAggregationsMock(aggregations: Aggregation[]): {
       updateAttributes(
         id: string,
         attributes: UpdateAttributes
-      ): Promise<void> {
-        data = data.map((x: Aggregation) => {
-          if (x.id !== id) {
-            return x;
-          }
-          return {
-            ...x,
-            ...attributes,
+      ): Promise<Aggregation> {
+        const index = data.findIndex(x => x.id === id);
+        if (index >= 0) {
+          data[index] = {
+            ...data[index],
+            ...attributes
           };
-        });
-        return Promise.resolve();
+          return Promise.resolve(data[index]);
+        }
+        throw new Error('Can not find pipeline');
       }
       delete(id: string): Promise<void> {
         data = data.filter((x: Aggregation) => x.id !== id);
@@ -63,17 +62,16 @@ export function createCompassQueryHistoryMock(queries: Query[]): {
       updateAttributes(
         id: string,
         attributes: UpdateAttributes
-      ): Promise<void> {
-        data = data.map((x: Query) => {
-          if (x._id !== id) {
-            return x;
-          }
-          return {
-            ...x,
-            ...attributes,
+      ): Promise<Query> {
+        const index = data.findIndex(x => x._id === id);
+        if (index >= 0) {
+          data[index] = {
+            ...data[index],
+            ...attributes
           };
-        });
-        return Promise.resolve();
+          return Promise.resolve(data[index]);
+        }
+        throw new Error('Can not find query');
       }
       delete(id: string): Promise<void> {
         data = data.filter((x: Query) => x._id !== id);

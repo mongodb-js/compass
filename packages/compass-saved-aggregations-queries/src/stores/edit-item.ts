@@ -1,9 +1,10 @@
 import type { Reducer } from 'redux';
 import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
+import type { Query } from '@mongodb-js/compass-query-history';
+import type { Aggregation } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
-import { fetchItems } from './aggregations-queries-items';
 
 export type UpdateItemAttributes = {
   name: string;
@@ -34,9 +35,11 @@ type EditItemCancelledAction = {
 
 type EditItemUpdatedAction = {
   type: ActionTypes.EditItemUpdated;
+  id: string;
+  payload: Query | Aggregation;
 };
 
-type Actions =
+export type Actions =
   | EditItemClickedAction
   | EditItemCancelledAction
   | EditItemUpdatedAction;
@@ -80,23 +83,30 @@ export const updateItem =
     if (!item) {
       return;
     }
-
-    if (item.type === 'query') {
-      const favoriteQueryStorage = new FavoriteQueryStorage();
-      await favoriteQueryStorage.updateAttributes(id, {
-        _name: attributes.name,
-      });
-    } else {
-      const pipelineStorage = new PipelineStorage();
-      await pipelineStorage.updateAttributes(id, {
-        name: attributes.name,
-      });
-    }
+    const payload =
+      item.type === 'query'
+        ? await updateQuery(id, attributes)
+        : await updateAggregation(id, attributes);
 
     dispatch({
       type: ActionTypes.EditItemUpdated,
+      id,
+      payload,
     });
-    dispatch(fetchItems());
   };
+
+const updateQuery = (id: string, attributes: UpdateItemAttributes) => {
+  const favoriteQueryStorage = new FavoriteQueryStorage();
+  return favoriteQueryStorage.updateAttributes(id, {
+    _name: attributes.name,
+  });
+};
+
+const updateAggregation = (id: string, attributes: UpdateItemAttributes) => {
+  const pipelineStorage = new PipelineStorage();
+  return pipelineStorage.updateAttributes(id, {
+    name: attributes.name,
+  });
+};
 
 export default reducer;

@@ -357,9 +357,7 @@ describe('AggregationsQueriesList', function () {
         })
       );
 
-      await waitForElementToBeRemoved(() => {
-        return screen.queryByTestId('edit-item-modal');
-      });
+      await Promise.resolve();
 
       expect(screen.queryByText(item.name)).to.not.exist;
       expect(screen.getByText('the updated name')).to.exist;

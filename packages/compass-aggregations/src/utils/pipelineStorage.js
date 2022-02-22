@@ -5,7 +5,7 @@ const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { getDirectory } from './getDirectory';
 
-const ENCODING = 'utf8';
+const ENCODING_UTF8 = 'utf8';
 
 export class PipelineStorage {
   /**
@@ -41,7 +41,7 @@ export class PipelineStorage {
   }
 
   async _getFileData(filePath) {
-    const data = await fs.readFile(filePath, ENCODING);
+    const data = await fs.readFile(filePath, ENCODING_UTF8);
     return JSON.parse(data);
   }
 
@@ -59,10 +59,12 @@ export class PipelineStorage {
     const filePath = path.join(getDirectory(), `${id}.json`);
     const data = await this._getFileData(filePath);
 
-    return fs.writeFile(filePath, JSON.stringify({
+    await fs.writeFile(filePath, JSON.stringify({
       ...data,
       ...attributes,
-    }), ENCODING);
+    }), ENCODING_UTF8);
+
+    return this._loadOne(filePath);
   }
 
   /**

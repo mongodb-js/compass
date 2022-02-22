@@ -64,7 +64,7 @@ declare module '@mongodb-js/compass-query-history' {
     updateAttributes(
       id: string,
       attributes: QueryUpdateAttributes
-    ): Promise<void>;
+    ): Promise<Query>;
     delete(id: string): Promise<void>;
   }
 
@@ -76,7 +76,7 @@ declare module '@mongodb-js/compass-aggregations' {
     updateAttributes(
       id: string,
       attributes: PipelineUpdateAttributes
-    ): Promise<void>;
+    ): Promise<Aggregation>;
     delete(id: string): Promise<void>;
   }
 

@@ -8,21 +8,17 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
+import type { Actions as EditItemActions } from './edit-item';
+import { ActionTypes as EditItemActionTypes } from './edit-item';
 
 export enum ActionTypes {
   ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
-  ITEM_DELETED = 'compass-saved-aggregations-queries/itemDeleted',
 }
 
-export type Actions =
-  | {
-      type: ActionTypes.ITEMS_FETCHED;
-      payload: Item[];
-    }
-  | {
-      type: ActionTypes.ITEM_DELETED;
-      id: string;
-    };
+export type Actions = {
+  type: ActionTypes.ITEMS_FETCHED;
+  payload: Item[];
+};
 
 export type Item = {
   id: string;
@@ -54,7 +50,7 @@ const INITIAL_STATE: State = {
 const favoriteQueryStorage = new FavoriteQueryStorage();
 const pipelineStorage = new PipelineStorage();
 
-const reducer: Reducer<State, Actions | DeleteItemActions> = (
+const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
   state = INITIAL_STATE,
   action
 ) => {
@@ -70,6 +66,20 @@ const reducer: Reducer<State, Actions | DeleteItemActions> = (
       return {
         ...state,
         items: newItems,
+      };
+    }
+    case EditItemActionTypes.EditItemUpdated: {
+      const item = state.items.find((x) => x.id === action.id);
+      if (!item) {
+        return state;
+      }
+      const updatedItem =
+        item.type === 'query'
+          ? mapQueryToItem(action.payload as Query)
+          : mapAggregationToItem(action.payload as Aggregation);
+      return {
+        ...state,
+        items: [...state.items.filter((x) => x.id !== action.id), updatedItem],
       };
     }
   }
@@ -95,34 +105,38 @@ export const fetchItems = (): ThunkAction<void, RootState, void, Actions> => {
 
 const getAggregationItems = async (): Promise<Item[]> => {
   const aggregations = await pipelineStorage.loadAll();
-  return aggregations.map((aggregation) => {
-    const { database, collection } = toNS(aggregation.namespace);
-    return {
-      id: aggregation.id,
-      lastModified: aggregation.lastModified,
-      name: aggregation.name,
-      database,
-      collection,
-      type: 'aggregation',
-      aggregation,
-    };
-  });
+  return aggregations.map(mapAggregationToItem);
 };
 
 const getQueryItems = async (): Promise<Item[]> => {
   const queries = await favoriteQueryStorage.loadAll();
-  return queries.map((query) => {
-    const { database, collection } = toNS(query._ns);
-    return {
-      id: query._id,
-      name: query._name,
-      lastModified: query._dateModified ?? query._dateSaved,
-      database,
-      collection,
-      type: 'query',
-      query,
-    };
-  });
+  return queries.map(mapQueryToItem);
+};
+
+const mapAggregationToItem = (aggregation: Aggregation): Item => {
+  const { database, collection } = toNS(aggregation.namespace);
+  return {
+    id: aggregation.id,
+    lastModified: aggregation.lastModified,
+    name: aggregation.name,
+    database,
+    collection,
+    type: 'aggregation',
+    aggregation,
+  };
+};
+
+const mapQueryToItem = (query: Query): Item => {
+  const { database, collection } = toNS(query._ns);
+  return {
+    id: query._id,
+    name: query._name,
+    lastModified: query._dateModified ?? query._dateSaved,
+    database,
+    collection,
+    type: 'query',
+    query,
+  };
 };
 
 export default reducer;

@@ -45,6 +45,7 @@ export class FavoriteQueryStorage {
       model.save.bind(model)
     );
     await save(model);
+    return model.getAttributes({ props: true }, true);
   }
 
   /**
