@@ -170,6 +170,7 @@ function ProxyAndSshTunnelTab({
         SSH Tunnel/Proxy Method
       </Label>
       <RadioBoxGroup
+        id="ssh-options-radio-box-group"
         onChange={optionSelected}
         className="radio-box-group-style"
       >

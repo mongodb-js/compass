@@ -3,9 +3,9 @@ import {
   Banner,
   BannerVariant,
   Description,
-  Label,
   RadioBox,
   RadioBoxGroup,
+  Label,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
