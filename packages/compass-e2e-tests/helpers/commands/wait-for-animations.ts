@@ -11,10 +11,11 @@ export async function waitForAnimations(
     ...(await initialElement.getLocation()),
     ...(await initialElement.getSize()),
   };
-  // small delay to make sure that if it is busy animating it had time to move
-  // before the first check
-  await browser.pause(50);
   await browser.waitUntil(async function () {
+    // small delay to make sure that if it is busy animating it had time to move
+    // before the first check and between each two checks
+    await browser.pause(50);
+
     const currentElement = await browser.$(selector);
 
     const result = {

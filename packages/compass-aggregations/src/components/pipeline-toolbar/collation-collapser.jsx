@@ -49,6 +49,7 @@ class CollationCollapser extends PureComponent {
     return (
       <div className={classnames(styles['collation-collapser'])}>
         <button
+          data-test-id="toggle-collation"
           type="button"
           title={buttonTitle}
           onClick={this.props.collationCollapseToggled}

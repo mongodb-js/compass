@@ -35,6 +35,7 @@ class AddAfterStage extends PureComponent {
         data-place="top"
         data-for="add-after-stage">
         <button
+          data-test-id="add-after-stage"
           type="button"
           title="Add After Stage"
           className="btn btn-default btn-xs"

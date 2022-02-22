@@ -1,5 +1,4 @@
 import chai from 'chai';
-import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
@@ -253,54 +252,26 @@ describe('Collection documents tab', function () {
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
-    await browser.clickVisible('#query-bar-menu-actions');
-
-    await browser.clickVisible('a=Export To Language');
-
-    const exportModal = await browser.$(
-      '[data-test-id="export-to-lang-modal"]'
+    await browser.clickVisible(
+      Selectors.queryBarMenuActionsButton('Documents')
     );
-    await exportModal.waitForDisplayed();
 
-    await browser.clickVisible('[data-test-id="select-lang-field"]');
-
-    const listBox = await browser.$(
-      '[data-test-id="select-lang-field"] [role="listbox"]'
+    const queryBarActionsMenu = await browser.$(
+      Selectors.queryBarActionsMenu('Documents')
     );
-    await listBox.waitForDisplayed();
-
-    const javaElement = await listBox.$('div=Java');
-    await javaElement.waitForDisplayed();
-    await javaElement.click();
-
-    const importsCheckbox = await browser.$(
-      '[data-test-id="export-to-lang-checkbox-imports"]'
+    const exportToLanguageButton = await queryBarActionsMenu.$(
+      'a=Export To Language'
     );
-    await importsCheckbox.waitForDisplayed();
-    if (!(await importsCheckbox.isSelected())) {
-      await importsCheckbox.click();
-    }
+    await exportToLanguageButton.waitForDisplayed();
+    await exportToLanguageButton.click();
 
-    const driverCheckbox = await browser.$(
-      '[data-test-id="export-to-lang-checkbox-driver"]'
-    );
-    await driverCheckbox.waitForDisplayed();
-    if (!(await driverCheckbox.isSelected())) {
-      await driverCheckbox.click();
-    }
+    const text = await browser.exportToLanguage('Java', {
+      includeImportStatements: true,
+      includeDriverSyntax: true,
+      useBuilders: true,
+    });
 
-    const buildersCheckbox = await browser.$(
-      '[data-test-id="export-to-lang-checkbox-builders"]'
-    );
-    await buildersCheckbox.waitForDisplayed();
-    if (!(await buildersCheckbox.isSelected())) {
-      await buildersCheckbox.click();
-    }
-
-    await browser.clickVisible('[data-test-id="export-to-lang-copy-output"]');
-
-    expect(await clipboard.read()).to
-      .equal(`import static com.mongodb.client.model.Filters.eq;
+    expect(text).to.equal(`import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
