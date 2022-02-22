@@ -158,7 +158,6 @@ export const createView = () => {
         }
         debug('View created!');
         track('Aggregation Saved As View', { num_stages: viewPipeline.length });
-        dispatch(globalAppRegistryEmit('refresh-data'));
         dispatch(
           globalAppRegistryEmit(
             'compass:aggregations:create-view',
@@ -167,16 +166,8 @@ export const createView = () => {
         );
         dispatch(
           globalAppRegistryEmit(
-            'open-namespace-in-new-tab',
-            {
-              namespace: `${database}.${viewName}`,
-              isReadonly: true,
-              sourceName: viewSource,
-              editViewName: null,
-              sourceReadonly: state.isReadonly,
-              sourceViewOn: state.sourceName,
-              sourcePipeline: viewPipeline
-            }
+            'aggregations-open-result-namespace',
+            `${database}.${viewName}`
           )
         );
         dispatch(reset());
