@@ -139,6 +139,9 @@ class Connecting extends React.Component {
       <React.Fragment>
         {!!this.props.currentConnectionAttempt && this.renderConnectingBackground()}
         <Modal
+          // Because this modal is rendered outside of the
+          // react root we need to apply the deprecated bootstrap styles here.
+          className="with-global-bootstrap-styles"
           animation={false}
           show={this.state.showModal && !!this.props.currentConnectionAttempt}
           backdropClassName={styles['connecting-modal-backdrop']}

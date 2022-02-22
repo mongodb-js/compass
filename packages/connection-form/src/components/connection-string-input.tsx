@@ -21,6 +21,7 @@ import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const textAreaContainerStyle = css({
   position: 'relative',
+  marginTop: spacing[1],
   marginBottom: spacing[2],
 });
 
@@ -38,8 +39,8 @@ const connectionStringStyles = css({
 const editToggleStyles = css({
   height: 14,
   width: 26,
-  margin: spacing[1],
-  marginRight: 0,
+  margin: 0,
+  marginLeft: spacing[1],
 });
 
 const editToggleLabelStyles = css({
@@ -129,13 +130,13 @@ function ConnectStringInput({
             href="https://docs.mongodb.com/manual/reference/connection-string/"
           />
         </div>
-        <label
+        <Label
           className={editToggleLabelStyles}
           id="edit-connection-string-label"
           htmlFor="toggle-edit-connection-string"
         >
           Edit Connection String
-        </label>
+        </Label>
         <Toggle
           className={editToggleStyles}
           id="toggle-edit-connection-string"

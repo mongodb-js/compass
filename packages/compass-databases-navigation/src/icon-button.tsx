@@ -6,9 +6,11 @@ import {
   spacing,
   css,
   cx,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
 const iconContainer = css({
+  color: uiColors.white,
   display: 'block',
   flex: 'none',
   fontSize: 0,

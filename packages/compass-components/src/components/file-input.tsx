@@ -44,6 +44,7 @@ const labelHorizontalStyles = css({
 
 const optionalLabelStyles = css({
   color: uiColors.gray.base,
+  marginTop: spacing[1],
   fontStyle: 'italic',
   fontWeight: 'normal',
   fontSize: 12,

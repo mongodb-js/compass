@@ -14,6 +14,7 @@ export {
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
+import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import Accordion from './components/accordion';
@@ -32,7 +33,7 @@ export {
   Variant as ButtonVariant,
 } from '@leafygreen-ui/button';
 export { default as Card } from '@leafygreen-ui/card';
-export { default as Checkbox } from '@leafygreen-ui/checkbox';
+export { Checkbox } from './components/checkbox';
 export { default as Icon } from '@leafygreen-ui/icon';
 export { default as IconButton } from '@leafygreen-ui/icon-button';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
@@ -46,11 +47,7 @@ export { default as Modal } from '@leafygreen-ui/modal';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
-export {
-  RadioBoxGroup,
-  RadioBox,
-  Size as RadioBoxSize,
-} from '@leafygreen-ui/radio-box-group';
+export { RadioBox, Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
 export {
   Select,
@@ -82,8 +79,8 @@ export {
   InlineKeyCode,
   Disclaimer,
   Overline,
-  Link,
   Label,
+  Link,
   Description,
 } from '@leafygreen-ui/typography';
 export {
@@ -91,6 +88,7 @@ export {
   CancelLoader,
   ConfirmationModal,
   FileInput,
+  RadioBoxGroup,
   SpinLoader,
   ResizeHandle,
   ResizeDirection,

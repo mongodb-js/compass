@@ -5,7 +5,6 @@ ignores: [
   "@babel/cli",
   "@babel/register",
   "@hot-loader/react-dom",
-  "bootstrap",
   "browserfs",
   "core-js",
   "font-awesome",

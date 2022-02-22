@@ -30,17 +30,13 @@ class ExplainJSON extends Component {
 
     return (
       <div className={styles['explain-json']}>
-        <div className="panel panel-default">
-          <div className={styles['panel-body']}>
-            <ol className={styles['document-list']}>
-              <Document
-                copyToClipboard={this.copyToClipboard}
-                doc={doc}
-                expandAll
-              />
-            </ol>
-          </div>
-        </div>
+        <ol className={styles['document-list']}>
+          <Document
+            copyToClipboard={this.copyToClipboard}
+            doc={doc}
+            expandAll
+          />
+        </ol>
       </div>
     );
   }

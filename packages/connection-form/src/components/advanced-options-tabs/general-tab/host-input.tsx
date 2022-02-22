@@ -24,6 +24,7 @@ const hostInputContainerStyles = css({
   flexDirection: 'row',
   width: '100%',
   marginBottom: spacing[2],
+  marginTop: spacing[1],
 });
 
 const hostInputStyles = css({
