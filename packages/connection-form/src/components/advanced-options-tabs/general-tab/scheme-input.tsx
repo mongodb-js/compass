@@ -5,6 +5,7 @@ import {
   Description,
   RadioBox,
   RadioBoxGroup,
+  Label,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
@@ -54,8 +55,10 @@ function SchemaInput({
 
   return (
     <>
+      <Label htmlFor="connection-schema-radio-box-group">
+        Connection String Scheme
+      </Label>
       <RadioBoxGroup
-        label="Connection String Scheme"
         id="connection-schema-radio-box-group"
         value={isSRV ? MONGODB_SCHEMA.MONGODB_SRV : MONGODB_SCHEMA.MONGODB}
         onChange={onChangeConnectionSchema}

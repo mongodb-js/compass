@@ -140,21 +140,17 @@ function TLSTab({
   return (
     <div>
       <FormFieldContainer>
+        <Label htmlFor="connection-schema-radio-box-group">
+          SSL/TLS Connection
+        </Label>
+        <InlineInfoLink
+          href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
+          aria-label="TLS/SSL Option Documentation"
+        />
         <RadioBoxGroup
           id="connection-schema-radio-box-group"
           value={tlsOption || ''}
           onChange={onChangeTLS}
-          label={
-            <>
-              <Label htmlFor="connection-schema-radio-box-group">
-                SSL/TLS Connection
-              </Label>
-              <InlineInfoLink
-                href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
-                aria-label="TLS/SSL Option Documentation"
-              />
-            </>
-          }
         >
           {TLS_TYPES.map((tlsType) => (
             <RadioBox value={tlsType.value} key={tlsType.value}>

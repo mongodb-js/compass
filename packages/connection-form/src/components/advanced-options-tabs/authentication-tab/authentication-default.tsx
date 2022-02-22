@@ -139,11 +139,13 @@ function AuthenticationDefault({
         />
       </FormFieldContainer>
       <FormFieldContainer>
+        <Label htmlFor="authentication-mechanism-radio-box-group">
+          Authentication Mechanism
+        </Label>
         <RadioBoxGroup
           onChange={onAuthMechanismSelected}
           id="authentication-mechanism-radio-box-group"
           value={selectedAuthTab.value}
-          label="Authentication Mechanism"
         >
           {defaultAuthMechanismOptions.map(({ title, value }) => {
             return (

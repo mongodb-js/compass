@@ -2,7 +2,6 @@ import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
-  InlineInfoLink,
   Label,
   RadioBox,
   RadioBoxGroup,
@@ -74,6 +73,7 @@ function AdvancedTab({
   return (
     <div className={containerStyles}>
       {/* Read Preferences */}
+      <Label htmlFor="read-preferences">Read Preference</Label>
       <RadioBoxGroup
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
           handleFieldChanged('readPreference', value);
@@ -81,15 +81,6 @@ function AdvancedTab({
         value={readPreference ?? ''}
         data-testid="read-preferences"
         id="read-preferences"
-        label={
-          <>
-            <Label htmlFor="read-preferences">Read Preference</Label>
-            <InlineInfoLink
-              aria-label="Read Preference Documentation"
-              href="https://docs.mongodb.com/manual/reference/connection-string/#read-preference-options"
-            />
-          </>
-        }
       >
         {readPreferences.map(({ title, id }) => {
           return (

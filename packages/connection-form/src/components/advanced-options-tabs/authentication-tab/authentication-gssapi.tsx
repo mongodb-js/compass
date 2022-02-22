@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Label,
   TextInput,
   RadioBoxGroup,
   RadioBox,
@@ -99,8 +100,10 @@ function AuthenticationGSSAPI({
       </FormFieldContainer>
 
       <FormFieldContainer>
+        <Label htmlFor="canonicalize-hostname-select">
+          Canonicalize Host Name
+        </Label>
         <RadioBoxGroup
-          label="Canonicalize Host Name"
           name="canonicalize-hostname"
           id="canonicalize-hostname-select"
           onChange={({ target: { value } }): void => {

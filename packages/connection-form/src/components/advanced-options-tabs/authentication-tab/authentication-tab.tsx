@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
 import {
+  Label,
   RadioBox,
   RadioBoxGroup,
   spacing,
@@ -147,8 +148,10 @@ function AuthenticationTab({
 
   return (
     <div className={containerStyles}>
+      <Label htmlFor="authentication-method-radio-box-group">
+        Authentication Method
+      </Label>
       <RadioBoxGroup
-        label="Authentication Method"
         id="authentication-method-radio-box-group"
         onChange={optionSelected}
         value={selectedAuthTab.id}
