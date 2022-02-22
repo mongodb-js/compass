@@ -68,7 +68,7 @@ export class PipelineStorage {
   }
 
   /**
-   * Deletes an pipeline from the storage.
+   * Deletes a pipeline from the storage.
    *
    * @param {string} id Pipeline ID
    */

@@ -78,12 +78,18 @@ describe('PipelineStorage', function() {
     delete aggregations[0].lastModified;
     expect(aggregations[0]).to.deep.equal(data);
 
-    await pipelineStorage.updateAttributes(data.id, {name: 'updated', namespace: 'airbnb.users'});
+    const updatedAggregation = await pipelineStorage.updateAttributes(data.id, {name: 'updated', namespace: 'airbnb.users'});
 
     aggregations = await pipelineStorage.loadAll();
     expect(aggregations).to.have.length(1);
     delete aggregations[0].lastModified;
-    expect(aggregations[0]).to.deep.equal({
+    expect(aggregations[0], 'updates in storage').to.deep.equal({
+      ...data,
+      name: 'updated',
+    });
+
+    delete updatedAggregation.lastModified;
+    expect(updatedAggregation, 'returns updated pipeline').to.deep.equal({
       ...data,
       name: 'updated',
     });
