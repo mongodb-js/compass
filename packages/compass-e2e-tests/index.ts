@@ -85,13 +85,6 @@ async function main() {
     return;
   }
 
-  if (process.env.GITHUB_ACTIONS && process.platform === 'darwin') {
-    console.warn(
-      'temporarily skipping macOS on github actions to get faster feedback'
-    );
-    return;
-  }
-
   await setup();
 
   const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');

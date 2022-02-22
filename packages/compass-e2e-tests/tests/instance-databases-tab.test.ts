@@ -42,7 +42,7 @@ describe('Instance databases tab', function () {
     }
   });
 
-  it('links database cards to the database collections tab', async function () {
+  it.skip('links database cards to the database collections tab', async function () {
     // Click on the db name text inside the card specifically to try and have
     // tighter control over where it clicks, because clicking in the center of
     // the last card if all cards don't fit on screen can silently do nothing
