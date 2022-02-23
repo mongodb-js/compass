@@ -19,7 +19,7 @@ import {
 import type { Item } from '../stores/aggregations-queries-items';
 import { formatDate } from '../utlis/format-date';
 
-export type Action = 'open' | 'delete' | 'copy' | 'edit';
+export type Action = 'open' | 'delete' | 'copy' | 'rename';
 
 export type SavedItemCardProps = Pick<
   Item,
@@ -195,8 +195,8 @@ const CardActions: React.FunctionComponent<{
       <MenuItem data-action="copy" onClick={onMenuItemClick}>
         Copy
       </MenuItem>
-      <MenuItem data-action="edit" onClick={onMenuItemClick}>
-        Edit
+      <MenuItem data-action="rename" onClick={onMenuItemClick}>
+        Rename
       </MenuItem>
       <MenuItem data-action="delete" onClick={onMenuItemClick}>
         Delete

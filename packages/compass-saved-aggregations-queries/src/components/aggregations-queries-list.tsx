@@ -150,7 +150,7 @@ const AggregationsQueriesList = ({
       switch (actionName) {
         case 'open':
           return onOpenItem(id);
-        case 'edit':
+        case 'rename':
           return onEditItem(id);
         case 'delete':
           return onDeleteItem(id);

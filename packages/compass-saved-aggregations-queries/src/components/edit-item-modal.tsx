@@ -67,7 +67,7 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
           onSubmitForm();
         }}
       >
-        <H3 className={formTitleStyles}>{`Edit ${item?.type ?? ''}`}</H3>
+        <H3 className={formTitleStyles}>{`Rename ${item?.type ?? ''}`}</H3>
         <TextInput
           aria-label="Name"
           label="Name"

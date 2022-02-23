@@ -306,7 +306,7 @@ describe('AggregationsQueriesList', function () {
       expect(screen.queryByText(item.name)).to.exist;
     });
 
-    it('should edit an item', async function () {
+    it('should rename an item', async function () {
       const item = queries[0];
       const card = document.querySelector<HTMLElement>(
         `[data-id="${item.id}"]`
@@ -318,12 +318,12 @@ describe('AggregationsQueriesList', function () {
 
       userEvent.hover(card);
       userEvent.click(within(card).getByLabelText('Show actions'));
-      userEvent.click(within(card).getByText('Edit'));
+      userEvent.click(within(card).getByText('Rename'));
 
       const modal = screen.getByTestId('edit-item-modal');
 
       const title = new RegExp(
-        `edit ${item.type === 'query' ? 'query' : 'aggregation'}`,
+        `rename ${item.type === 'query' ? 'query' : 'aggregation'}`,
         'i'
       );
       expect(within(modal).getByText(title), 'show title').to.exist;
@@ -363,7 +363,7 @@ describe('AggregationsQueriesList', function () {
       expect(screen.getByText('the updated name')).to.exist;
     });
 
-    it('should not update an item if edit was not confirmed', async function () {
+    it('should not update an item if rename was not confirmed', async function () {
       const item = queries[0];
       const card = document.querySelector<HTMLElement>(
         `[data-id="${item.id}"]`
@@ -375,7 +375,7 @@ describe('AggregationsQueriesList', function () {
 
       userEvent.hover(card);
       userEvent.click(within(card).getByLabelText('Show actions'));
-      userEvent.click(within(card).getByText('Edit'));
+      userEvent.click(within(card).getByText('Rename'));
 
       const modal = await screen.findByTestId('edit-item-modal');
 
