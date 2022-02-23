@@ -4,6 +4,7 @@ import {
   screen,
   cleanup,
   within,
+  waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -226,13 +227,14 @@ describe('AggregationsQueriesList', function () {
         { skipPointerEventsCheck: true }
       );
 
-      await Promise.resolve();
-
       const expectedItems = [...queries, ...pipelines].filter(
         (item) => item.database === database && item.collection === collection
       );
-      expectedItems.forEach((item) => {
-        expect(screen.getByText(item.name)).to.exist;
+
+      await waitFor(() => {
+        expectedItems.forEach((item) => {
+          expect(screen.getByText(item.name)).to.exist;
+        });
       });
     });
 
