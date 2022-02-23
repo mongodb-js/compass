@@ -164,7 +164,7 @@ const Row: React.FunctionComponent<{
         ></div>
       ) : (
         React.createElement(renderItem, {
-          key: itemKey?.(index) ?? index,
+          key: itemKey?.(cellIdx) ?? cellIdx,
           role: 'gridcell',
           className: cx(cell, classNames?.cell),
           tabIndex: itemIdx === currentTabbable ? 0 : -1,
@@ -180,7 +180,6 @@ const Row: React.FunctionComponent<{
     classNames?.cell,
     renderItem,
     itemKey,
-    index,
     currentTabbable,
   ]);
 
