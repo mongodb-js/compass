@@ -31,6 +31,7 @@ const uriLabelContainerStyles = css({
 
 const connectionStringStyles = css({
   textarea: {
+    fontSize: spacing[2] * 1.75,
     minHeight: spacing[7],
     resize: 'vertical',
   },
