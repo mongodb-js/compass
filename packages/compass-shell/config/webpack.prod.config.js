@@ -1,7 +1,6 @@
 const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const PeerDepsExternalsPlugin = require('peer-deps-externals-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -67,12 +66,6 @@ const config = {
     // Auto-create webpack externals for any dependency listed as a peerDependency in package.json
     // so that the external vendor JavaScript is not part of our compiled bundle
     new PeerDepsExternalsPlugin(),
-    // Configure Extract Plugin for dependent global styles into a single CSS file
-    new MiniCssExtractPlugin({
-      filename: 'assets/css/index.css',
-      allChunks: true,
-      ignoreOrder: true // When using CSS modules import order of CSS no longer needs to be preserved
-    }),
     // Creates HTML page for us at build time
     new HtmlWebpackPlugin()
     // Uncomment to Analyze the output bundle size of the plugin. Useful for optimizing the build.

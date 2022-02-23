@@ -6,7 +6,6 @@ import { IconButton } from '@mongodb-js/compass-components';
 import { ShellLoader } from '@mongosh/browser-repl';
 
 import { ShellHeader } from './shell-header';
-import styles from './shell-header.module.less';
 
 describe('ShellHeader', () => {
   context('when isExpanded prop is true', () => {
@@ -29,10 +28,6 @@ describe('ShellHeader', () => {
     it('renders an info button', () => {
       expect(wrapper.find(IconButton).exists()).to.equal(true);
       expect(wrapper.find(Icon).at(0).prop('glyph')).to.equal('InfoWithCircle');
-    });
-
-    it('renders an actions area', () => {
-      expect(wrapper.find(`.${styles['compass-shell-header-right-actions']}`).exists()).to.equal(true);
     });
 
     it('does not render the loader', () => {
@@ -84,7 +79,7 @@ describe('ShellHeader', () => {
       />);
 
       expect(wrapper.find('button').exists()).to.equal(true);
-      expect(wrapper.find(`.${styles['compass-shell-header-toggle']}`)).to.be.present();
+      expect(wrapper.find('[data-test-id="shell-expand-button"]')).to.be.present();
     });
   });
 });

@@ -235,12 +235,12 @@ store.onActivated = (appRegistry) => {
     store.refreshNamespace(ns);
   });
 
-  appRegistry.on('sidebar-select-collection', async({ ns }) => {
+  appRegistry.on('collections-list-select-collection', async({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
 
-  appRegistry.on('collections-list-select-collection', async({ ns }) => {
+  appRegistry.on('sidebar-select-collection', async({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
@@ -287,6 +287,21 @@ store.onActivated = (appRegistry) => {
       );
     }
   });
+
+  appRegistry.on(
+    'aggregations-open-result-namespace',
+    async function(namespace) {
+      // Force-refresh specified namespace to update collections list and get
+      // collection info / stats (in case of opening result collection we're
+
+      // always assuming the namespace wasn't yet updated)
+      await store.refreshNamespace(toNS(namespace));
+      // Now we can get the metadata from already fetched collection and open a
+      // tab for it
+      const metadata = await store.fetchCollectionMetadata(namespace);
+      appRegistry.emit('open-namespace-in-new-tab', metadata);
+    }
+  );
 };
 
 store.subscribe(() => {

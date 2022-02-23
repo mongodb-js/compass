@@ -701,11 +701,8 @@ export const gotoMergeResults = (index) => {
     } else {
       dispatch(
         globalAppRegistryEmit(
-          'open-namespace-in-new-tab',
-          {
-            namespace: outNamespace,
-            isReadonly: false
-          }
+          'aggregations-open-result-namespace',
+          outNamespace
         )
       );
     }
@@ -729,11 +726,8 @@ export const gotoOutResults = collection => {
     } else {
       dispatch(
         globalAppRegistryEmit(
-          'open-namespace-in-new-tab',
-          {
-            namespace: outNamespace,
-            isReadonly: false
-          }
+          'aggregations-open-result-namespace',
+          outNamespace
         )
       );
     }

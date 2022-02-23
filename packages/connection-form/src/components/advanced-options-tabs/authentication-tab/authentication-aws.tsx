@@ -11,9 +11,9 @@ import {
   parseAuthMechanismProperties,
 } from '../../../utils/connection-string-helpers';
 
-export const AWS_ACCESS_KEY_ID_LABEL = 'Aws Access Key Id';
-export const AWS_SECRET_ACCESS_KEY_LABEL = 'Aws Secret Access Key';
-export const AWS_SESSION_TOKEN_LABEL = 'Aws Session Token';
+export const AWS_ACCESS_KEY_ID_LABEL = 'AWS Access Key Id';
+export const AWS_SECRET_ACCESS_KEY_LABEL = 'AWS Secret Access Key';
+export const AWS_SESSION_TOKEN_LABEL = 'AWS Session Token';
 
 function AuthenticationAWS({
   connectionStringUrl,

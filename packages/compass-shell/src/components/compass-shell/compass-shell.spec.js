@@ -7,7 +7,6 @@ import { ResizeHandle } from '@mongodb-js/compass-components';
 import { CompassShell } from './compass-shell';
 import ShellHeader from '../shell-header';
 import InfoModal from '../info-modal';
-import styles from './compass-shell.module.less';
 
 function updateAndWaitAsync(wrapper) {
   wrapper.update();
@@ -38,7 +37,9 @@ describe('CompassShell', () => {
     });
 
     it('has the shell display none', () => {
-      expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(false);
+      const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+      const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
+      expect(shellDisplayStyle).to.equal('none');
     });
 
     context('when is it expanded', () => {
@@ -85,7 +86,10 @@ describe('CompassShell', () => {
 
       it('renders the Shell', () => {
         expect(wrapper.find(Shell).prop('runtime')).to.equal(fakeRuntime);
-        expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(true);
+
+        const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+        const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
+        expect(shellDisplayStyle).to.equal('flex');
       });
 
       it('renders the ShellHeader component', () => {
@@ -262,7 +266,9 @@ describe('CompassShell', () => {
         });
 
         it('does not collapse the component', () => {
-          expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(true);
+          const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+          const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
+          expect(shellDisplayStyle).to.equal('flex');
         });
 
         context('when it hits the lower bound', () => {
@@ -273,7 +279,9 @@ describe('CompassShell', () => {
 
           it('collapses the shell', () => {
             expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(32);
-            expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(false);
+            const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+            const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
+            expect(shellDisplayStyle).to.equal('none');
           });
         });
       });
@@ -292,7 +300,9 @@ describe('CompassShell', () => {
         });
 
         it('does not expand the component', () => {
-          expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(false);
+          const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+          const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
+          expect(shellDisplayStyle).to.equal('none');
         });
 
         it('does not calls the function prop emitShellPluginOpened', () => {
@@ -307,7 +317,9 @@ describe('CompassShell', () => {
 
           it('expands the shell', () => {
             expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(151);
-            expect(wrapper.find(`.${styles['compass-shell-shell-container-visible']}`).exists()).to.equal(true);
+            const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+            const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
+            expect(shellDisplayStyle).to.equal('flex');
           });
 
           it('calls the function prop emitShellPluginOpened', () => {
