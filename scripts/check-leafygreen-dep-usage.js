@@ -6,12 +6,13 @@ const {
 const compassComponentsWorkspaceName = '@mongodb-js/compass-components';
 
 // Checks if any package except "compass-components" try to require
-// a leafygreen-ui dependency.
+// a `leafygreen-ui` or `emotion` dependency.
 async function main() {
   const workspaces = await collectWorkspacesMeta();
   const dependencies = collectWorkspacesDependencies(workspaces);
-  const leafyGreenDependencies = [...dependencies].filter(([depName]) =>
-    depName.includes('leafygreen')
+  const leafyGreenDependencies = [...dependencies].filter(
+    ([depName]) =>
+      depName.includes('@leafygreen') || depName.includes('@emotion')
   );
 
   for (const [depName, versionsInUse] of leafyGreenDependencies) {
@@ -19,10 +20,10 @@ async function main() {
       if (dependencyEntry.workspace !== compassComponentsWorkspaceName) {
         process.exitCode = 1;
         console.error(
-          `The package "${dependencyEntry.workspace}" has the LeafyGreen dependency "${depName}" in its ${dependencyEntry.type} dependencies.`
+          `The package "${dependencyEntry.workspace}" has the dependency "${depName}" in its ${dependencyEntry.type} dependencies.`
         );
         console.error(
-          `LeafyGreen dependencies should be limited to the "${compassComponentsWorkspaceName}" workspace so that they can be more easily deduped and versions can be shared.`
+          `LeafyGreen and Emotion dependencies should be limited to the "${compassComponentsWorkspaceName}" workspace so that they can be more easily deduped and versions can be shared.`
         );
         console.error(`"${depName}": "${dependencyEntry.version}"`);
       }
