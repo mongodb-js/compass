@@ -79,7 +79,8 @@ function InfoModal({
           Keyboard Shortcuts
         </Subtitle>
         <div className={shortcutsTableContainerStyles}>
-          <KeyboardShortcutsTable /></div>
+          <KeyboardShortcutsTable />
+        </div>
       </div>
       <Footer>
         <Button
