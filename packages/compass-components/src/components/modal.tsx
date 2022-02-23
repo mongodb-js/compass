@@ -13,7 +13,7 @@ function Modal({
     if (props.open && trackingId) {
       track('Screen', { name: trackingId });
     }
-  }, [props.open, trackingId])
+  }, [props.open, trackingId]);
   return <LeafyGreenModal {...props} />;
 }
 
