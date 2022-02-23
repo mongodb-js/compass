@@ -1,14 +1,35 @@
 import React, { Component, Fragment } from 'react';
-import classnames from 'classnames';
-import styles from './compass-shell.module.less';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { Shell } from '@mongosh/browser-repl';
-import { ResizeHandle, ResizeDirection } from '@mongodb-js/compass-components';
+import { ResizeHandle, ResizeDirection, css, cx, uiColors } from '@mongodb-js/compass-components';
 
 import InfoModal from '../info-modal';
 import ShellHeader from '../shell-header';
+
+const compassShellStyles = css({
+  backgroundColor: uiColors.gray.dark3,
+  display: 'flex',
+  flexBasis: 'auto',
+  position: 'relative',
+  flexDirection: 'column',
+  maxHeight: '95%'
+});
+
+const compassShellContainerStyles = css({
+  flexGrow: 1,
+  display: 'none',
+  overflow: 'auto',
+  borderTop: `1px solid ${uiColors.gray.dark2}`,
+  '*::-webkit-scrollbar-thumb': {
+    background: 'rgba(180, 180, 180, 0.5)'
+  }
+});
+
+const compassShellContainerVisibleStyles = css({
+  display: 'flex'
+});
 
 const defaultShellHeightOpened = 240;
 const shellHeightClosed = 32;
@@ -173,7 +194,7 @@ export class CompassShell extends Component {
         />
         <div
           data-test-id="shell-section"
-          className={styles['compass-shell']}
+          className={compassShellStyles}
           style={{ height: renderedHeight }}
           id="content"
         >
@@ -196,9 +217,9 @@ export class CompassShell extends Component {
           />
           <div
             data-test-id="shell-content"
-            className={classnames(
-              styles['compass-shell-shell-container'], {
-                [styles['compass-shell-shell-container-visible']]: isExpanded
+            className={cx(
+              compassShellContainerStyles, {
+                [compassShellContainerVisibleStyles]: isExpanded
               }
             )}
           >

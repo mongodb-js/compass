@@ -14,6 +14,7 @@ export {
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
+import { Modal } from './components/modal';
 import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
@@ -23,6 +24,7 @@ export {
   default as Badge,
   Variant as BadgeVariant,
 } from '@leafygreen-ui/badge';
+export { Footer } from '@leafygreen-ui/modal';
 export {
   default as Banner,
   Variant as BannerVariant,
@@ -43,7 +45,6 @@ export {
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 export { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
-export { default as Modal } from '@leafygreen-ui/modal';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
@@ -88,6 +89,7 @@ export {
   CancelLoader,
   ConfirmationModal,
   FileInput,
+  Modal,
   RadioBoxGroup,
   SpinLoader,
   ResizeHandle,
