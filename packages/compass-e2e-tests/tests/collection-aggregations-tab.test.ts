@@ -1,11 +1,22 @@
 import _ from 'lodash';
 import chai from 'chai';
+import type { Element } from 'webdriverio';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
 const { expect } = chai;
+
+async function waitForAnyText(
+  browser: CompassBrowser,
+  element: Element<'async'>
+) {
+  await browser.waitUntil(async () => {
+    const text = await element.getText();
+    return text !== '';
+  });
+}
 
 describe('Collection aggregations tab', function () {
   let compass: Compass;
@@ -151,10 +162,7 @@ describe('Collection aggregations tab', function () {
     const contentElement0 = await browser.$(Selectors.stageContent(0));
 
     // It starts out empty
-    await browser.waitUntil(async () => {
-      const text = await contentElement0.getText();
-      return text !== '';
-    });
+    await waitForAnyText(browser, contentElement0);
 
     expect(await contentElement0.getText()).to.equal(`/**
  * query: The query in MQL.
@@ -200,10 +208,7 @@ describe('Collection aggregations tab', function () {
     const contentElement1 = await browser.$(Selectors.stageContent(1));
 
     // starts empty
-    await browser.waitUntil(async () => {
-      const text = await contentElement1.getText();
-      return text !== '';
-    });
+    await waitForAnyText(browser, contentElement1);
 
     expect(await contentElement1.getText()).to.equal(`{
   specification(s)
@@ -321,11 +326,14 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(1, '$match');
     await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
 
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+
     // make sure it complains that it must be the last stage
     const messageElement = await browser.$(
       Selectors.stageEditorErrorMessage(1)
     );
     await messageElement.waitForDisplayed();
+
     expect(await messageElement.getText()).to.equal(
       '$out can only be the final stage in the pipeline'
     );
@@ -366,6 +374,8 @@ describe('Collection aggregations tab', function () {
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
+
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
     // make sure it complains that it must be the last stage
     const messageElement = await browser.$(

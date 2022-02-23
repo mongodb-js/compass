@@ -80,6 +80,7 @@ post:
       local_files_include_filter:
         - src/packages/compass-e2e-tests/.log/**/*.log
         - src/packages/compass-e2e-tests/.log/**/*.json
+        - src/packages/compass-e2e-tests/.log/**/*.png
   - <<: *save-diagnostic-file
     params:
       local_files_include_filter:
