@@ -48,10 +48,10 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.8.0",
     "@mongodb-js/mongodb-redux-common": "^1.9.0",
-    "@mongosh/browser-repl": "^1.1.9",
-    "@mongosh/logging": "^1.1.9",
-    "@mongosh/node-runtime-worker-thread": "^1.1.9",
-    "@mongosh/service-provider-core": "^1.1.9"
+    "@mongosh/browser-repl": "^1.2.2",
+    "@mongosh/logging": "^1.2.2",
+    "@mongosh/node-runtime-worker-thread": "^1.2.2",
+    "@mongosh/service-provider-core": "^1.2.2"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.11.0",
