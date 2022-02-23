@@ -115,6 +115,7 @@ function AdvancedOptionsTabs({
             }`}
             type="button"
             data-testid={`connection-${tabObject.id}-tab`}
+            data-has-error={showTabErrorIndicator}
           >
             <TabComponent
               errors={errors}
