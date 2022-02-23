@@ -4,7 +4,6 @@ import {
   screen,
   cleanup,
   within,
-  waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
