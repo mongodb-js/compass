@@ -200,7 +200,7 @@ describe('AggregationsQueriesList', function () {
       await screen.findByText(queries[0].name);
     });
 
-    it('should filter items by database/collection', async function () {
+    it('should filter items by database/collection', function () {
       const { database, collection } = queries[0];
 
       // select database
@@ -231,10 +231,8 @@ describe('AggregationsQueriesList', function () {
         (item) => item.database === database && item.collection === collection
       );
 
-      await waitFor(() => {
-        expectedItems.forEach((item) => {
-          expect(screen.getByText(item.name)).to.exist;
-        });
+      expectedItems.forEach((item) => {
+        expect(screen.getByText(item.name)).to.exist;
       });
     });
 
