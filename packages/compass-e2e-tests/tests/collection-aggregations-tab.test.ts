@@ -137,7 +137,7 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  it('supports tweaking settings of an aggregation', async function () {
+  it('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
     // set a collation
     await browser.clickVisible(Selectors.ToggleAggregationCollation);
     const collationInput = await browser.$(Selectors.AggregationCollationInput);
@@ -234,27 +234,30 @@ describe('Collection aggregations tab', function () {
       const text = await textElement.getText();
       return text === '(Sample of 100 documents)';
     });
-  });
 
-  it('supports saving pipeline as a view', async function () {
-    await browser.focusStageOperator(0);
-    await browser.selectStageOperator(0, '$match');
-    await browser.setAceValue(Selectors.stageEditor(0), `{ i: 5 }`);
-
+    // open actions
     await browser.clickVisible(Selectors.SavePipelineActions);
 
+    // select create view
     await browser.clickVisible(Selectors.SavePipelineActionsCreateView);
 
+    // wait for the modal to appear
+    const createViewModal = await browser.$(Selectors.CreateViewModal);
+    await createViewModal.waitForDisplayed();
+
+    // set view name
     await browser.waitForAnimations(Selectors.CreateViewNameInput);
     const viewNameInput = await browser.$(Selectors.CreateViewNameInput);
     await viewNameInput.setValue('my-view-from-pipeline');
 
+    // click create button
     const createButton = await browser
       .$(Selectors.CreateViewModal)
       .$('button=Create');
 
     await createButton.click();
 
+    // wait until the active tab is the view that we just created
     await browser.waitUntil(
       async function () {
         const ns = await browser.getActiveTabNamespace();
