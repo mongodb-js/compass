@@ -1,148 +1,100 @@
-import { TextButton } from 'hadron-react-buttons';
 import PropTypes from 'prop-types';
-import React, { PureComponent } from 'react';
-import { Modal } from 'react-bootstrap';
-import { H3, Link } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+import React, { useCallback } from 'react';
+import {
+  css,
+  Banner,
+  Button,
+  H2,
+  Modal,
+  Link,
+  Subtitle,
+  Footer,
+  spacing
+} from '@mongodb-js/compass-components';
+
+import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
 
 import packageJson from '../../../package.json';
 
 const mongoshVersion = `v${packageJson.dependencies['@mongosh/browser-repl'].replace('^', '')}`;
 
-import styles from './info-modal.module.less';
+const modalContentWrapperStyles = css({
+  padding: 'initial'
+});
 
-const hotkeys = [
-  {
-    key: 'Ctrl+`',
-    description: 'Toggle shell.'
-  },
-  {
-    key: 'Ctrl+A',
-    description: 'Moves the cursor to the beginning of the line.'
-  },
-  {
-    key: 'Ctrl+B',
-    description: 'Moves the cursor Backward one character.'
-  },
-  {
-    key: 'Ctrl+C',
-    description: 'Stop currently running command.'
-  },
-  {
-    key: 'Ctrl+D',
-    description: 'Deletes the next character.'
-  },
-  {
-    key: 'Ctrl+E',
-    description: 'Moves the cursor to the end of the line.'
-  },
-  {
-    key: 'Ctrl+F',
-    description: 'Moves the cursor Forward one character.'
-  },
-  {
-    key: 'Ctrl+H',
-    description: 'Erases one character, similar to hitting backspace.'
-  },
-  {
-    key: 'Ctrl/Cmd+L',
-    description: 'Clears the screen, similar to the clear command.'
-  },
-  {
-    key: 'Ctrl+T',
-    description: 'Swap the last two characters before the cursor.'
-  },
-  {
-    key: 'Ctrl+U',
-    description: 'Changes the line to Uppercase.'
-  }
-];
+const bannerStyles = css({
+  marginTop: spacing[4]
+});
+
+const shortcutsTableContainerStyles = css({
+  marginTop: spacing[2],
+  maxHeight: '50vh',
+  overflow: 'auto'
+});
+
+const shortcutsTitleStyles = css({
+  marginTop: spacing[4]
+});
+
+const modalContentStyles = css({
+  padding: spacing[5]
+});
 
 /**
  * Show information on how to use the shell in compass.
  */
-export class InfoModal extends PureComponent {
-  static propTypes = {
-    hideInfoModal: PropTypes.func.isRequired,
-    show: PropTypes.bool.isRequired
-  };
+function InfoModal({
+  hideInfoModal,
+  show
+}) {
+  const onSetOpen = useCallback((open) => {
+    if (!open) {
+      hideInfoModal();
+    }
+  }, [hideInfoModal]);
 
-  showHandler = () => {
-    track('Screen', { name: 'shell_info_modal' });
-  };
-
-  /**
-   * Render the component.
-   *
-   * @returns {React.Component} The component.
-   */
-  render() {
-    const {
-      hideInfoModal,
-      show
-    } = this.props;
-
-    return (
-      <Modal
-        restoreFocus={false}
-        onEscapeKeyDown={hideInfoModal}
-        show={show}
-        onShow={this.showHandler}
-        // Because this modal is rendered outside of the
-        // react root we need to apply the deprecated bootstrap styles here.
-        className="with-global-bootstrap-styles"
-      >
-        <Modal.Header closeButton onHide={hideInfoModal}>
-          <H3>mongosh {mongoshVersion}</H3>
-        </Modal.Header>
-        <Modal.Body>
-          <div className={styles['info-modal-banner']}>
-            More information on this release of the&nbsp;
-            <Link
-              id="mongosh-info-link"
-              rel="noreopener"
-              href="https://docs.mongodb.com/compass/beta/embedded-shell/"
-              target="_blank"
-            >MongoDB Shell</Link>
-          </div>
-          <div className={styles['info-modal-shortcuts-title']}>
-            Keyboard Shortcuts
-          </div>
-          <div className={styles['info-modal-shortcuts']}>
-            {hotkeys.map(shortcut => (
-              <div
-                className={styles['info-modal-shortcuts-hotkey']}
-                key={`short-cut-${shortcut.key}`}
-              >
-                <span
-                  className={styles['info-modal-shortcuts-hotkey-key']}
-                >{shortcut.key}</span>{shortcut.description}
-              </div>
-            ))}
-            <div className={styles['info-modal-shortcuts-hotkey']}>
-              <span
-                className={styles['info-modal-shortcuts-hotkey-key']}
-              >&uarr;</span>Cycle backwards through command history.
-            </div>
-            <div className={styles['info-modal-shortcuts-hotkey']}>
-              <span
-                className={styles['info-modal-shortcuts-hotkey-key']}
-              >&darr;</span>Cycle forwards through command history.
-            </div>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <TextButton
-            id="close-info-modal"
-            className="btn btn-default btn-sm"
-            text="Close"
-            clickHandler={hideInfoModal}
-          />
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+  return (
+    <Modal
+      open={show}
+      trackingId="shell_info_modal"
+      setOpen={onSetOpen}
+      contentClassName={modalContentWrapperStyles}
+    >
+      <div className={modalContentStyles}>
+        <H2>mongosh {mongoshVersion}</H2>
+        <Banner
+          className={bannerStyles}
+        >
+          For more information please visit the&nbsp;
+          <Link
+            id="mongosh-info-link"
+            rel="noreopener"
+            href="https://docs.mongodb.com/compass/beta/embedded-shell/"
+            target="_blank"
+          >MongoDB Shell Documentation</Link>.
+        </Banner>
+        <Subtitle
+          className={shortcutsTitleStyles}
+        >
+          Keyboard Shortcuts
+        </Subtitle>
+        <div className={shortcutsTableContainerStyles}>
+          <KeyboardShortcutsTable /></div>
+      </div>
+      <Footer>
+        <Button
+          onClick={hideInfoModal}
+        >
+          Close
+        </Button>
+      </Footer>
+    </Modal>
+  );
 }
+
+InfoModal.propTypes = {
+  hideInfoModal: PropTypes.func.isRequired,
+  show: PropTypes.bool.isRequired
+};
 
 export default InfoModal;
