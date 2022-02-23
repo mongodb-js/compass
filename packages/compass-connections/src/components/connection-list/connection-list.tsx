@@ -153,15 +153,11 @@ function ConnectionList({
           className={newConnectionButtonStyles}
           darkMode
           onClick={createNewConnection}
-          // size="small"
           size="large"
           data-testid="new-connection-button"
           rightGlyph={<Icon glyph="Plus" />}
         >
-          {/* <div className={newConnectionButtonContent}> */}
-          <span>New Connection</span>
-          {/* <Icon glyph="Plus" className={newConnectionButtonIcon} /> */}
-          {/* </div> */}
+          New Connection
         </Button>
       </div>
       <div className={connectionListSectionStyles}>
