@@ -199,7 +199,7 @@ describe('AggregationsQueriesList', function () {
       await screen.findByText(queries[0].name);
     });
 
-    it('should filter items by database/collection', function () {
+    it('should filter items by database/collection', async function () {
       const { database, collection } = queries[0];
 
       // select database
@@ -226,10 +226,11 @@ describe('AggregationsQueriesList', function () {
         { skipPointerEventsCheck: true }
       );
 
+      await Promise.resolve();
+
       const expectedItems = [...queries, ...pipelines].filter(
         (item) => item.database === database && item.collection === collection
       );
-
       expectedItems.forEach((item) => {
         expect(screen.getByText(item.name)).to.exist;
       });
