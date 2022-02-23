@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { getDirectory } from './getDirectory';
 
@@ -73,7 +73,6 @@ export class PipelineStorage {
    * @param {string} id Pipeline ID
    */
   async delete(id) {
-    track('Aggregation Deleted');
     const file = path.join(getDirectory(), `${id}.json`);
     return fs.unlink(file);
   }

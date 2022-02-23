@@ -39,16 +39,12 @@ const errorMessageStyles = css({
 
 const labelHorizontalStyles = css({
   width: '90%',
-  display: 'grid',
-  gridTemplateAreas: `'label icon' 'description .'`,
-  gridTemplateColumns: '1fr auto',
-  alignItems: 'center',
-  columnGap: spacing[1],
   paddingRight: spacing[3],
 });
 
 const optionalLabelStyles = css({
   color: uiColors.gray.base,
+  marginTop: spacing[1],
   fontStyle: 'italic',
   fontWeight: 'normal',
   fontSize: 12,
@@ -83,12 +79,6 @@ const labelIconStyles = css({
   },
 });
 
-const disabledLabelStyles = css({
-  '&:first-child': {
-    pointerEvents: 'none',
-  },
-});
-
 const disabledDescriptionStyles = css({
   color: uiColors.gray.dark1,
 });
@@ -120,7 +110,6 @@ function FileInput({
   link,
   description,
   values,
-  labelAlignment = 'left',
 }: {
   id: string;
   label: string;
@@ -137,7 +126,6 @@ function FileInput({
   description?: string;
   showFileOnNewLine?: boolean;
   values?: string[];
-  labelAlignment?: 'right' | 'left' | 'center';
 }): React.ReactElement {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -166,10 +154,7 @@ function FileInput({
     }
     if (!link) {
       return (
-        <Description
-          data-testid={'file-input-description'}
-          style={{ gridArea: 'description' }}
-        >
+        <Description data-testid={'file-input-description'}>
           {description}
         </Description>
       );
@@ -178,12 +163,7 @@ function FileInput({
       <Link
         data-testid={'file-input-link'}
         href={link}
-        className={cx(
-          description ? infoLinkStyles : labelIconStyles,
-          css({
-            gridArea: description ? 'description' : 'icon',
-          })
-        )}
+        className={cx(description ? infoLinkStyles : labelIconStyles)}
         hideExternalIcon={!description}
       >
         {description ?? ''}
@@ -200,37 +180,24 @@ function FileInput({
         )}
       >
         <div
-          className={cx(
-            {
-              [labelHorizontalStyles]: variant === Variant.Horizontal,
-            },
-            css({
-              textAlign: labelAlignment,
-            })
-          )}
+          className={cx({
+            [labelHorizontalStyles]: variant === Variant.Horizontal,
+          })}
         >
-          <label
-            htmlFor={`${id}_file_input`}
-            className={cx({
-              [disabledLabelStyles]: disabled,
-            })}
-          >
-            <div>
-              <span
-                className={cx({
-                  [disabledDescriptionStyles]: disabled,
-                })}
-                style={{ gridArea: 'label' }}
-              >
-                {label}
-              </span>
+          <Label htmlFor={`${id}_file_input`} disabled={disabled}>
+            <span
+              className={cx({
+                [disabledDescriptionStyles]: disabled,
+              })}
+            >
+              {label}
+            </span>
+          </Label>
+          {optional && (
+            <div className={optionalLabelStyles}>
+              {optionalMessage ? optionalMessage : 'Optional'}
             </div>
-            {optional && (
-              <div className={optionalLabelStyles}>
-                {optionalMessage ? optionalMessage : 'Optional'}
-              </div>
-            )}
-          </label>
+          )}
           {renderDescription()}
         </div>
         <input

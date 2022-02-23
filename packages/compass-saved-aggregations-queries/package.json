@@ -59,6 +59,7 @@
   "dependencies": {
     "@mongodb-js/compass-aggregations": "^8.19.0",
     "@mongodb-js/compass-components": "^0.10.0",
+    "@mongodb-js/compass-logging": "^0.7.0",
     "@mongodb-js/compass-query-history": "^8.18.0",
     "@react-aria/utils": "^3.11.0",
     "bson": "^4.6.1",

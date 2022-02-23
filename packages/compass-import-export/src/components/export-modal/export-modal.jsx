@@ -343,7 +343,16 @@ class ExportModal extends PureComponent {
         : 'Cancel';
 
     return (
-      <Modal show={this.props.open} onShow={this.handleShow} onHide={this.handleClose} backdrop="static" data-test-id="export-modal">
+      <Modal
+        // Because this modal is rendered outside of the
+        // react root we need to apply the deprecated bootstrap styles here.
+        className="with-global-bootstrap-styles"
+        show={this.props.open}
+        onShow={this.handleShow}
+        onHide={this.handleClose}
+        backdrop="static"
+        data-test-id="export-modal"
+      >
         <Modal.Header closeButton>
           Export Collection {this.props.ns}
         </Modal.Header>

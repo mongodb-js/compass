@@ -24,7 +24,7 @@ describe('<ModalCheckbox />', () => {
     });
 
     it('renders the label name', () => {
-      expect(component.find('p')).to.have.text('testing');
+      expect(component.find('span')).to.have.text('testing');
     });
 
     it('checks properly', () => {

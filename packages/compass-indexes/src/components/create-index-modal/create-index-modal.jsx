@@ -7,7 +7,6 @@ import { TextButton } from 'hadron-react-buttons';
 import { ModalStatusMessage, ModalCheckbox, ModalInput } from 'hadron-react-components';
 import pluck from 'lodash.pluck';
 
-import classnames from 'classnames';
 import styles from './create-index-modal.module.less';
 
 import CreateIndexField from '../create-index-field';
@@ -188,13 +187,13 @@ class CreateIndexModal extends PureComponent {
     }
     return (
       <div
-        className={classnames(styles['create-index-modal-options'])}
+        className={styles['create-index-modal-options']}
         data-test-id="create-index-modal-options"
       >
         <ModalCheckbox
           name="Build index in the background"
           data-test-id="toggle-is-background"
-          titleClassName={classnames(styles['create-index-modal-options-checkbox'])}
+          titleClassName={styles['create-index-modal-options-checkbox']}
           checked={this.props.isBackground}
           helpUrl={getIndexHelpLink('BACKGROUND')}
           onClickHandler={() => (this.props.toggleIsBackground(!this.props.isBackground))}
@@ -202,7 +201,7 @@ class CreateIndexModal extends PureComponent {
         <ModalCheckbox
           name="Create unique index"
           data-test-id="toggle-is-unique"
-          titleClassName={classnames(styles['create-index-modal-options-checkbox'])}
+          titleClassName={styles['create-index-modal-options-checkbox']}
           checked={this.props.isUnique}
           helpUrl={getIndexHelpLink('UNIQUE')}
           onClickHandler={() => (this.props.toggleIsUnique(!this.props.isUnique))}
@@ -210,7 +209,7 @@ class CreateIndexModal extends PureComponent {
         <ModalCheckbox
           name="Create TTL"
           data-test-id="toggle-is-ttl"
-          titleClassName={classnames(styles['create-index-modal-options-param'])}
+          titleClassName={styles['create-index-modal-options-param']}
           checked={this.props.isTtl}
           helpUrl={getIndexHelpLink('TTL')}
           onClickHandler={() => (this.props.toggleIsTtl(!this.props.isTtl))}
@@ -219,7 +218,7 @@ class CreateIndexModal extends PureComponent {
         <ModalCheckbox
           name="Partial Filter Expression"
           data-test-id="toggle-is-pfe"
-          titleClassName={classnames(styles['create-index-modal-options-param'])}
+          titleClassName={styles['create-index-modal-options-param']}
           checked={this.props.isPartialFilterExpression}
           helpUrl={getIndexHelpLink('PARTIAL')}
           onClickHandler={() => (this.props.toggleIsPartialFilterExpression(!this.props.isPartialFilterExpression))}
@@ -228,7 +227,7 @@ class CreateIndexModal extends PureComponent {
         <ModalCheckbox
           name="Use Custom Collation"
           data-test-id="toggle-is-custom-collation"
-          titleClassName={classnames(styles['create-index-modal-options-param'])}
+          titleClassName={styles['create-index-modal-options-param']}
           checked={this.props.isCustomCollation}
           helpUrl={getIndexHelpLink('COLLATION_REF')}
           onClickHandler={() => (this.props.toggleIsCustomCollation(!this.props.isCustomCollation))}
@@ -237,7 +236,7 @@ class CreateIndexModal extends PureComponent {
         <ModalCheckbox
           name="Wildcard Projection"
           data-test-id="toggle-is-wildcard"
-          titleClassName={classnames(styles['create-index-modal-options-param'])}
+          titleClassName={styles['create-index-modal-options-param']}
           checked={this.props.isWildcard}
           helpUrl={getIndexHelpLink('WILDCARD')}
           onClickHandler={() => (this.props.toggleIsWildcard(!this.props.isWildcard))}
@@ -250,7 +249,7 @@ class CreateIndexModal extends PureComponent {
   renderTtl() {
     if (this.props.showOptions && this.props.isTtl) {
       return (
-        <div className={classnames(styles['create-index-modal-options-param-wrapper'])}>
+        <div className={styles['create-index-modal-options-param-wrapper']}>
           <ModalInput
             id="ttl-value"
             name="seconds"
@@ -263,7 +262,7 @@ class CreateIndexModal extends PureComponent {
   renderWildcard() {
     if (this.props.showOptions && this.props.isWildcard) {
       return (
-        <div className={classnames(styles['create-index-modal-options-param-wrapper'])}>
+        <div className={styles['create-index-modal-options-param-wrapper']}>
           <ModalInput
             id="wildcard-projection-value"
             name=""
@@ -276,7 +275,7 @@ class CreateIndexModal extends PureComponent {
   renderPartialFilterExpression() {
     if (this.props.showOptions && this.props.isPartialFilterExpression) {
       return (
-        <div className={classnames(styles['create-index-modal-options-param-wrapper'])}>
+        <div className={styles['create-index-modal-options-param-wrapper']}>
           <ModalInput
             id="partial-filter-expression-value"
             name=""
@@ -295,7 +294,7 @@ class CreateIndexModal extends PureComponent {
   renderCollation() {
     if (this.props.isCustomCollation) {
       return (
-        <div className={classnames(styles['create-index-modal-options-param-wrapper'])}>
+        <div className={styles['create-index-modal-options-param-wrapper']}>
           <this.CollationSelect
             collation={this.props.collation || {}}
             changeCollationOption={this.props.changeCollationOption}
@@ -312,12 +311,16 @@ class CreateIndexModal extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.isVisible}
+      <Modal
+        // Because this modal is rendered outside of the
+        // react root we need to apply the deprecated bootstrap styles here.
+        className="with-global-bootstrap-styles"
+        show={this.props.isVisible}
         backdrop="static"
-        dialogClassName={classnames(styles['create-index-modal'])}
+        dialogClassName={styles['create-index-modal']}
         onShow={this.handleShow.bind(this)}
-        onHide={this.handleClose.bind(this)} >
-
+        onHide={this.handleClose.bind(this)}
+      >
         <Modal.Header>
           <Modal.Title>Create Index</Modal.Title>
         </Modal.Header>
@@ -335,8 +338,8 @@ class CreateIndexModal extends PureComponent {
               value={this.props.name}
               onChangeHandler={(evt) => (this.props.changeName(evt.target.value))} />
 
-            <div className={classnames(styles['create-index-modal-fields'])}>
-              <p className={classnames(styles['create-index-modal-fields-description'])}>Configure the index definition</p>
+            <div className={styles['create-index-modal-fields']}>
+              <p className={styles['create-index-modal-fields-description']}>Configure the index definition</p>
               {this.renderIndexFields()}
 
               <button
@@ -347,13 +350,13 @@ class CreateIndexModal extends PureComponent {
               </button>
             </div>
 
-            <div className={classnames(styles['create-index-modal-toggle-bar'])}
+            <div className={styles['create-index-modal-toggle-bar']}
               onClick={this.handleToggleBarClick.bind(this)}>
-              <div className={classnames(styles['create-index-modal-toggle-bar-header'])}>
+              <div className={styles['create-index-modal-toggle-bar-header']}>
                 {this.props.showOptions ?
                   <i className="fa fa-angle-down"/> :
                   <i className="fa fa-angle-right"/>}
-                <p className={classnames(styles['create-index-modal-toggle-bar-header-text'])}> Options</p>
+                <p className={styles['create-index-modal-toggle-bar-header-text']}> Options</p>
               </div>
             </div>
 
@@ -364,7 +367,7 @@ class CreateIndexModal extends PureComponent {
                 icon="times"
                 message={this.props.error}
                 type="error"
-                className={classnames(styles['create-index-modal-message'])}/>
+                className={styles['create-index-modal-message']}/>
               : null}
 
             {this.props.inProgress && (this.props.error === null || this.props.error === undefined) ?
@@ -372,7 +375,7 @@ class CreateIndexModal extends PureComponent {
                 icon="spinner"
                 message="Create in Progress"
                 type="in-progress"
-                className={classnames(styles['create-index-modal-message'])}/>
+                className={styles['create-index-modal-message']}/>
               : null}
           </form>
         </Modal.Body>

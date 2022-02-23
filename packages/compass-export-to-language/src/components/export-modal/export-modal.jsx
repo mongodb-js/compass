@@ -119,8 +119,13 @@ class ExportModal extends PureComponent {
         onHide={this.closeHandler}
         onShow={this.showHandler}
         data-test-id="export-to-lang-modal"
-        className={classnames(styles['export-to-lang-modal'])}>
-
+        className={classnames(
+          // Because this modal is rendered outside of the react root
+          // we need to apply the deprecated bootstrap styles here.
+          'with-global-bootstrap-styles',
+          styles['export-to-lang-modal']
+        )}
+      >
         <Modal.Header>
           <Modal.Title data-test-id="export-to-lang-modal-title">
             {`Export ${this.props.mode} To Language`}

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useContext } from 'react';
+import React, { useEffect, useCallback, useContext, useRef } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import {
@@ -21,6 +21,34 @@ import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 import { editItem } from '../stores/edit-item';
 import { deleteItem } from '../stores/delete-item';
 import { copyToClipboard } from '../stores/copy-to-clipboard';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
+
+/**
+ * Runs an effect, but only after the value changes for the first time (skipping
+ * the first "onMount" effect)
+ */
+function useEffectOnChange<T>(fn: React.EffectCallback, val: T) {
+  // Keep the initial value as a ref so we can check against it in effect when
+  // the current value changes
+  const initial = useRef<T | symbol>(val);
+  if (!initial.current) {
+    initial.current = val;
+  }
+  const effect = useRef(fn);
+  effect.current = fn;
+  useEffect(() => {
+    // We check if value doesn't match the initial one to avoid running effect
+    // for the first mount
+    if (val !== initial.current) {
+      // After we detected at least one change in value, we set the initial to a
+      // symbol so that the current value is never equal to it anymore
+      initial.current = Symbol();
+      return effect.current();
+    }
+  }, [val]);
+}
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {
@@ -90,11 +118,30 @@ const AggregationsQueriesList = ({
     })
     .map((x) => x.item);
 
+  useEffectOnChange(() => {
+    if (filters.database) {
+      track('My Queries Filter', { type: 'database' });
+    }
+  }, filters.database);
+
+  useEffectOnChange(() => {
+    if (filters.collection) {
+      track('My Queries Filter', { type: 'collection' });
+    }
+  }, filters.collection);
+
   // If a user is searching, we disable the sort as
   // search results are sorted by match score
   const [sortControls, sortState] = useSortControls(sortBy, {
     isDisabled: Boolean(search),
   });
+
+  useEffectOnChange(() => {
+    track('My Queries Sort', {
+      sort_by: sortState.name,
+      order: sortState.order === 1 ? 'ascending' : 'descending',
+    });
+  }, sortState);
 
   const sortedItems = useSortedItems(filteredItems, sortState);
 
@@ -155,6 +202,7 @@ const AggregationsQueriesList = ({
         itemHeight={CARD_HEIGHT + spacing[2]}
         itemsCount={sortedItems.length}
         renderItem={renderItem}
+        itemKey={(index: number) => sortedItems[index].id}
         renderHeader={GridControls}
         headerHeight={spacing[5] + 36}
         classNames={{ row: rowStyles }}

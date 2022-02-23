@@ -82,7 +82,7 @@ function ErrorsList({ errors }) {
   if (normalizedErrorMessages.length === 0) {
     return (
       <div className={style('errors')}>
-        <ErrorBox message={normalizedErrorMessages[0]} />
+        <ErrorBox dataTestId="import-error-box" message={normalizedErrorMessages[0]} />
       </div>
     );
   }
@@ -92,7 +92,7 @@ function ErrorsList({ errors }) {
       <ul className={style('errors-list')}>
         {normalizedErrorMessages.slice(0, visibleErrorsCount).map((message) => (
           <li key={message} className={style('errors-list-item')}>
-            <ErrorBox message={message} />
+            <ErrorBox dataTestId="import-error-box" message={message} />
           </li>
         ))}
       </ul>
@@ -287,7 +287,15 @@ class ImportModal extends PureComponent {
     const isGuesstimated = docsTotal === -1;
 
     return (
-      <Modal show={this.props.open} onHide={this.handleClose} backdrop="static" data-test-id="import-modal">
+      <Modal
+        // Because this modal is rendered outside of the
+        // react root we need to apply the deprecated bootstrap styles here.
+        className="with-global-bootstrap-styles"
+        show={this.props.open}
+        onHide={this.handleClose}
+        backdrop="static"
+        data-test-id="import-modal"
+      >
         <Modal.Header closeButton>
           Import To Collection {this.props.ns}
         </Modal.Header>

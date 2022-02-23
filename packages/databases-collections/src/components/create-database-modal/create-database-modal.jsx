@@ -1,8 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
-import { Banner } from '@mongodb-js/compass-components';
+import { Banner, ConfirmationModal, Link } from '@mongodb-js/compass-components';
 
 import { createDatabase } from '../../modules/create-database';
 import { clearError } from '../../modules/error';
@@ -35,17 +34,6 @@ class CreateDatabaseModal extends PureComponent {
   state = {
     data: {}
   };
-
-  /**
-   * Called when info is clicked.
-   *
-   * @param {Object} evt - The event.
-   */
-  onInfoClicked = (evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-    this.props.openLink(INFO_URL_CREATE_DB);
-  }
 
   /**
    * Called when the error message close icon is clicked.
@@ -90,10 +78,10 @@ class CreateDatabaseModal extends PureComponent {
       >
         Before MongoDB can save your new database, a collection name
         must also be specified at the time of creation.&nbsp;
-        <a
-          href="#"
-          onClick={this.onInfoClicked}
-        >More Information</a>
+        <Link
+          href={INFO_URL_CREATE_DB}
+          target="_blank"
+        >More Information</Link>
       </Banner>
     );
   }

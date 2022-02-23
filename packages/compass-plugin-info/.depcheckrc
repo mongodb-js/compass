@@ -1,7 +1,6 @@
 ignores: [
   "@babel/cli",
   "@babel/register",
-  "bootstrap",
   "core-js",
   "debug",
   "font-awesome",

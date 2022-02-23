@@ -8,13 +8,6 @@
   display: flex;
 }
 
-.toolbar-component-label() {
-  margin: 0;
-  margin-left: 5px;
-  display: flex;
-  white-space: nowrap;
-}
-
 .container-right {
   display: flex;
   align-items: center;
@@ -25,7 +18,11 @@
 }
 
 .toggle-sample, .toggle-auto-preview {
- .toolbar-component();
+  .toolbar-component();
+  label {
+    margin: auto 0;
+    margin-left: 5px;
+  }
 }
 
 .toggle {
@@ -35,7 +32,8 @@
 }
 
 .toggle-sample-label, .toggle-auto-preview-label {
- .toolbar-component-label();
+  display: flex;
+  white-space: nowrap;
   font-size: 12px;
   text-transform: uppercase;
   color: @gray3;

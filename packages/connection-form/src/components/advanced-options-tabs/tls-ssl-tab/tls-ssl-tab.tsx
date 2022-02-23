@@ -2,15 +2,14 @@ import React, { useCallback } from 'react';
 import {
   Checkbox,
   Description,
-  Icon,
-  IconButton,
+  InlineInfoLink,
   Label,
   RadioBox,
   RadioBoxGroup,
-  spacing,
   uiColors,
   css,
   cx,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -21,10 +20,8 @@ import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
 import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
 
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[2],
-  marginBottom: -spacing[2],
+const checkboxDescriptionStyles = css({
+  marginTop: spacing[1],
 });
 
 const disabledCheckboxDescriptionStyles = css({
@@ -150,18 +147,23 @@ function TLSTab({
       <FormFieldContainer>
         <Label htmlFor="connection-schema-radio-box-group">
           SSL/TLS Connection
-          <IconButton
-            className={infoButtonStyles}
-            aria-label="TLS/SSL Option Documentation"
-            href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
-            target="_blank"
-          >
-            <Icon glyph="InfoWithCircle" size="small" />
-          </IconButton>
         </Label>
-        <RadioBoxGroup value={tlsOption || ''} onChange={onChangeTLS}>
+        <InlineInfoLink
+          href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
+          aria-label="TLS/SSL Option Documentation"
+        />
+        <RadioBoxGroup
+          id="connection-schema-radio-box-group"
+          value={tlsOption || ''}
+          onChange={onChangeTLS}
+        >
           {TLS_TYPES.map((tlsType) => (
-            <RadioBox value={tlsType.value} key={tlsType.value}>
+            <RadioBox
+              id={`connection-tls-enabled-${tlsType.value}-radio-button`}
+              data-testid={`connection-tls-enabled-${tlsType.value}-radio-button`}
+              value={tlsType.value}
+              key={tlsType.value}
+            >
               {tlsType.label}
             </RadioBox>
           ))}
@@ -205,7 +207,7 @@ function TLSTab({
             bold={false}
           />
           <Description
-            className={cx({
+            className={cx(checkboxDescriptionStyles, {
               [disabledCheckboxDescriptionStyles]: tlsOptionsDisabled,
             })}
           >

@@ -11,18 +11,19 @@ import reducer, {
   setSettingsLimit,
   INITIAL_STATE
 } from './settings';
+import { expect } from 'chai';
 
-describe('settings', () => {
-  describe('action creators', () => {
-    describe('#toggleSettingsIsExpanded', () => {
-      it('returns the action type', () => {
+describe('settings', function() {
+  describe('action creators', function() {
+    describe('#toggleSettingsIsExpanded', function() {
+      it('returns the action type', function() {
         expect(toggleSettingsIsExpanded()).to.deep.equal({
           type: TOGGLE_IS_EXPANDED
         });
       });
-      describe('#reducer', () => {
+      describe('#reducer', function() {
         let state;
-        it('isExpanded is set to true', () => {
+        it('isExpanded is set to true', function() {
           state = reducer(INITIAL_STATE, toggleSettingsIsExpanded());
           expect(state).to.deep.equal({
             ...INITIAL_STATE,
@@ -31,7 +32,7 @@ describe('settings', () => {
           });
         });
 
-        it('isExpanded is set to false', () => {
+        it('isExpanded is set to false', function() {
           state = {
             ...INITIAL_STATE,
             isExpanded: true,
@@ -45,15 +46,15 @@ describe('settings', () => {
       });
     });
 
-    describe('#toggleSettingsCommentMode', () => {
-      it('returns the action type', () => {
+    describe('#toggleSettingsCommentMode', function() {
+      it('returns the action type', function() {
         expect(toggleSettingsIsCommentMode()).to.deep.equal({
           type: TOGGLE_COMMENT_MODE
         });
       });
-      describe('#reducer', () => {
+      describe('#reducer', function() {
         let state;
-        it('first toggles to off', () => {
+        it('first toggles to off', function() {
           state = reducer(undefined, toggleSettingsIsCommentMode());
           expect(state).to.deep.equal({
             ...INITIAL_STATE,
@@ -62,7 +63,7 @@ describe('settings', () => {
           });
         });
 
-        it('next toggles to back on is set to false', () => {
+        it('next toggles to back on is set to false', function() {
           state = {
             ...INITIAL_STATE,
             isCommentMode: false,
@@ -77,16 +78,16 @@ describe('settings', () => {
       });
     });
 
-    describe('#setSettingsSampleSize', () => {
-      it('returns the action type', () => {
+    describe('#setSettingsSampleSize', function() {
+      it('returns the action type', function() {
         expect(setSettingsSampleSize(1)).to.deep.equal({
           type: SET_SAMPLE_SIZE,
           value: 1
         });
       });
-      describe('#reducer', () => {
+      describe('#reducer', function() {
         let state;
-        it('passes the value and flips isDefault', () => {
+        it('passes the value and flips isDefault', function() {
           state = reducer(undefined, setSettingsSampleSize(1000));
           expect(state).to.deep.equal({
             ...INITIAL_STATE,
@@ -94,7 +95,7 @@ describe('settings', () => {
             sampleSize: 1000
           });
         });
-        it('setting the value again back to a default flips it back', () => {
+        it('setting the value again back to a default flips it back', function() {
           state = reducer(
             state,
             setSettingsSampleSize(INITIAL_STATE.sampleSize)
@@ -108,16 +109,16 @@ describe('settings', () => {
       });
     });
 
-    describe('#setSettingsMaxTimeMS', () => {
-      it('returns the action type', () => {
+    describe('#setSettingsMaxTimeMS', function() {
+      it('returns the action type', function() {
         expect(setSettingsMaxTimeMS(10000)).to.deep.equal({
           type: SET_MAX_TIME_MS,
           value: 10000
         });
       });
-      describe('#reducer', () => {
+      describe('#reducer', function() {
         let state;
-        it('passes the value and flips isDefault', () => {
+        it('passes the value and flips isDefault', function() {
           state = reducer(undefined, setSettingsMaxTimeMS(10000));
           expect(state).to.deep.equal({
             ...INITIAL_STATE,
@@ -125,7 +126,7 @@ describe('settings', () => {
             maxTimeMS: 10000
           });
         });
-        it('setting the value again back to a default flips it back', () => {
+        it('setting the value again back to a default flips it back', function() {
           state = reducer(state, setSettingsMaxTimeMS(INITIAL_STATE.maxTimeMS));
           expect(state).to.deep.equal({
             ...INITIAL_STATE,
@@ -136,16 +137,16 @@ describe('settings', () => {
       });
     });
 
-    describe('#setSettingsLimit', () => {
-      it('returns the action type', () => {
+    describe('#setSettingsLimit', function() {
+      it('returns the action type', function() {
         expect(setSettingsLimit(10000)).to.deep.equal({
           type: SET_LIMIT,
           value: 10000
         });
       });
-      describe('#reducer', () => {
+      describe('#reducer', function() {
         let state;
-        it('passes the value and flips isDefault', () => {
+        it('passes the value and flips isDefault', function() {
           state = reducer(undefined, setSettingsLimit(10000));
           expect(state).to.deep.equal({
             ...INITIAL_STATE,
@@ -153,7 +154,7 @@ describe('settings', () => {
             isDirty: true
           });
         });
-        it('setting the value again back to a default flips it back', () => {
+        it('setting the value again back to a default flips it back', function() {
           state = reducer(state, setSettingsLimit(INITIAL_STATE.limit));
           expect(state).to.deep.equal({
             ...INITIAL_STATE,

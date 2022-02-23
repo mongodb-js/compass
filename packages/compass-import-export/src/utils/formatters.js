@@ -7,7 +7,6 @@ import { EJSON } from 'bson';
 import { serialize as flatten } from './bson-csv';
 import { Transform } from 'stream';
 import { EOL } from 'os';
-
 /**
  * @returns {Stream.Transform}
  */

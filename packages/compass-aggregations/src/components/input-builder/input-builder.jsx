@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from '@mongodb-js/compass-components';
 
 import styles from './input-builder.module.less';
 
@@ -19,10 +20,8 @@ class InputBuilder extends PureComponent {
   render() {
     return (
       <div className={styles['input-builder']}>
-        Select an operator to construct expressions used in the aggregation pipeline stages.
-        <span onClick={this.learnMore} className={styles['input-builder-link']}>
-          Learn more
-        </span>
+        Select an operator to construct expressions used in the aggregation
+        pipeline stages. <Link href={LINK}>Learn more</Link>
       </div>
     );
   }
