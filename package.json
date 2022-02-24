@@ -11,7 +11,7 @@
   "scripts": {
     "bootstrap": "npm install && lerna run bootstrap --stream",
     "bootstrap-ci": "npm ci && lerna run bootstrap",
-    "precheck": "npm run depcheck && npm run check-logids",
+    "precheck": "npm run depcheck && npm run check-logids && npm run check-leafygreen-dependency-usage",
     "changed": "node ./scripts/changed.js",
     "check": "lerna run check --stream",
     "check-changed": "npm run check -- --since origin/HEAD --exclude-dependents",
@@ -22,6 +22,7 @@
     "predepcheck": "npm run depalign",
     "depcheck": "depcheck",
     "check-logids": "node scripts/check-logids.js",
+    "check-leafygreen-dependency-usage": "node scripts/check-leafygreen-dep-usage.js",
     "electron-rebuild": "npm run electron-rebuild --workspace mongodb-compass",
     "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",
     "packages-publish": "lerna publish from-package --allow-branch main",
