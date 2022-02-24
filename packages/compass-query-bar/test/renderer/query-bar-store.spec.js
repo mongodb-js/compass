@@ -605,6 +605,71 @@ describe('QueryBarStore [Store]', function() {
     });
   });
 
+  describe('addDistinctValue', function() {
+    afterEach(function() {
+      unsubscribe();
+    });
+
+    it('should add a distinct value to the filter state', function(done) {
+      unsubscribe = store.listen(state => {
+        expect(state.filter.name).to.equal('pineapple');
+        done();
+      });
+
+      store.addDistinctValue({
+        field: 'name',
+        value: 'pineapple'
+      });
+    });
+
+    it('should start a $in if the field already exists with one primitive', function(done) {
+      expect(store.state.userTyping).to.be.false;
+
+      store.addDistinctValue({
+        field: 'name',
+        value: 'winter'
+      });
+
+      unsubscribe = store.listen(state => {
+        expect(state.filter.name).to.deep.equal({
+          $in: ['winter', 'tomatoes']
+        });
+
+        done();
+      });
+
+      store.addDistinctValue({
+        field: 'name',
+        value: 'tomatoes'
+      });
+    });
+
+    it('should add a value to an array if it already exists', function(done) {
+      expect(store.state.userTyping).to.be.false;
+
+      store.addDistinctValue({
+        field: 'name',
+        value: 'e.t.'
+      });
+      store.addDistinctValue({
+        field: 'name',
+        value: 'phone'
+      });
+
+      unsubscribe = store.listen(state => {
+        expect(state.filter.name).to.deep.equal({
+          $in: ['e.t.', 'phone', 'home']
+        });
+        done();
+      });
+
+      store.addDistinctValue({
+        field: 'name',
+        value: 'home'
+      });
+    });
+  });
+
   describe('setQueryString', function() {
     afterEach(function() {
       unsubscribe();

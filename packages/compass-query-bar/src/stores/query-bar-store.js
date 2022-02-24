@@ -5,7 +5,7 @@ import assert from 'assert';
 import diff from 'object-diff';
 import {
   clone,
-  contains,
+  includes,
   every,
   get,
   has,
@@ -508,7 +508,7 @@ const configureStore = (options = {}) => {
         if (has(field, '$in')) {
           // add value to $in array if it is not present yet
           const inArray = filter[args.field].$in;
-          if (!contains(inArray, args.value)) {
+          if (!includes(inArray, args.value)) {
             filter[args.field].$in.push(args.value);
             this.setQuery({ filter: filter }, true);
           }
