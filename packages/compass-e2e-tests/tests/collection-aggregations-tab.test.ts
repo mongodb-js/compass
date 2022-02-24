@@ -320,6 +320,8 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(0, '$out');
     await browser.setAceValue(Selectors.stageEditor(0), "'my-out-collection'");
 
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+
     await browser.clickVisible(Selectors.AddStageButton);
 
     await browser.focusStageOperator(1);
@@ -368,6 +370,8 @@ describe('Collection aggregations tab', function () {
   into: 'my-merge-collection'
 }`
     );
+
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
 
     await browser.clickVisible(Selectors.AddStageButton);
 
