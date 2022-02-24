@@ -46,6 +46,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@leafygreen-ui/code": "^9.4.0",
     "@mongodb-js/compass-logging": "^0.8.0",
     "@mongodb-js/mongodb-redux-common": "^1.9.0",
     "@mongosh/browser-repl": "^1.2.2",
