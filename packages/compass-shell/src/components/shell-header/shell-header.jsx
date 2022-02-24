@@ -30,7 +30,7 @@ const shellHeaderToggleStyles = css({
   margin: 'auto 0',
   fontWeight: 'bold',
   fontSize: spacing[2] * 1.5,
-  lineHeight: spacing[5],
+  lineHeight: `${spacing[5]}px`,
   transition: 'all 200ms',
   userSelect: 'none',
   textTransform: 'uppercase',
