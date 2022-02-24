@@ -75,7 +75,8 @@ export function errorMessageByFieldNameAndIndex(
 export function validateConnectionOptionsErrors(
   connectionOptions: ConnectionOptions
 ): ConnectionFormError[] {
-  const connectionString = getConnectionString(connectionOptions);
+  const connectionString =
+    new ConnectionString(connectionOptions.connectionString, { looseValidation: true });
 
   return [
     ...validateAuthMechanismErrors(connectionString),
@@ -239,12 +240,6 @@ function validateSocksProxyErrors(
   return errors;
 }
 
-export function getConnectionString(
-  connectionOptions: ConnectionOptions
-): ConnectionString {
-  return new ConnectionString(connectionOptions.connectionString);
-}
-
 export function isSecure(connectionString: ConnectionString): boolean {
   const sslParam = connectionString.searchParams.get('ssl');
   const tlsParam = connectionString.searchParams.get('tls');
@@ -258,8 +253,19 @@ export function isSecure(connectionString: ConnectionString): boolean {
 export function validateConnectionOptionsWarnings(
   connectionOptions: ConnectionOptions
 ): ConnectionFormWarning[] {
-  const connectionString = getConnectionString(connectionOptions);
+  let connectionString: ConnectionString;
+  let parserWarning: ConnectionFormWarning[] = [];
+  try {
+    connectionString = new ConnectionString(connectionOptions.connectionString);
+  } catch (err: any) {
+    parserWarning = [{ message: err.message }];
+    connectionString = new ConnectionString(connectionOptions.connectionString, {
+      looseValidation: true
+    });
+  }
+
   return [
+    ...parserWarning,
     ...validateReadPreferenceWarnings(connectionString),
     ...validateDeprecatedOptionsWarnings(connectionString),
     ...validateCertificateValidationWarnings(connectionString),

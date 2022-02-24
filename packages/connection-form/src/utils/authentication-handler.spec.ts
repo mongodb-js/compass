@@ -67,7 +67,7 @@ describe('Authentication Handler', function () {
       expect(res.errors).to.equal(undefined);
     });
 
-    it('should return an error if the connection string has a password and the username is being set to empty', function () {
+    it('should not return an error if the connection string has a password and the username is being set to empty', function () {
       const res = handleUpdateUsername({
         action: {
           type: 'update-username',
@@ -87,7 +87,7 @@ describe('Authentication Handler', function () {
           fieldName: 'username',
           fieldTab: 'authentication',
           message:
-            'Username cannot be empty: "URI contained empty userinfo section"',
+            'Username cannot be empty if password is present',
         },
       ]);
     });
@@ -190,7 +190,7 @@ describe('Authentication Handler', function () {
           fieldName: 'username',
           fieldTab: 'authentication',
           message:
-            'Username cannot be empty: "URI contained empty userinfo section"',
+            'Username cannot be empty if password is present',
         },
         {
           fieldName: 'password',

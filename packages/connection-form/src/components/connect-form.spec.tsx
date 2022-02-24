@@ -60,7 +60,7 @@ describe('ConnectForm Component', function () {
     );
     expect(
       screen.getByText(
-        'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
+        'Invalid connection string "pineapples"'
       )
     ).to.be.visible;
   });
