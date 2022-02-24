@@ -220,7 +220,7 @@
     "electron": "^13.5.1",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^10.1.0",
-    "electron-rebuild": "^2.3.5",
+    "electron-rebuild": "^3.2.7",
     "electron-squirrel-startup": "^1.0.0",
     "ensure-error": "^3.0.1",
     "eslint": "^7.25.0",
