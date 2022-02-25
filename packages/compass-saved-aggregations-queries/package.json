@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -57,10 +57,10 @@
     "redux-thunk": "^2.4.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-aggregations": "^8.19.1",
+    "@mongodb-js/compass-aggregations": "^8.19.2",
     "@mongodb-js/compass-components": "^0.10.1",
     "@mongodb-js/compass-logging": "^0.7.1",
-    "@mongodb-js/compass-query-history": "^8.18.1",
+    "@mongodb-js/compass-query-history": "^8.18.2",
     "@react-aria/utils": "^3.11.0",
     "bson": "^4.6.1",
     "fuse.js": "^6.5.3",
@@ -92,8 +92,8 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^8.8.1",
     "mocha": "^8.4.0",
-    "mongodb-data-service": "^21.16.1",
-    "mongodb-instance-model": "^11.18.1",
+    "mongodb-data-service": "^21.16.2",
+    "mongodb-instance-model": "^11.18.2",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
     "proxyquire": "^2.1.3",
