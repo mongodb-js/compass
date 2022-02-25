@@ -32,6 +32,7 @@ function AuthenticationPlain({
     <>
       <FormFieldContainer>
         <TextInput
+          data-testid="connection-plain-username-input"
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +49,7 @@ function AuthenticationPlain({
       </FormFieldContainer>
       <FormFieldContainer>
         <TextInput
+          data-testid="connection-plain-password-input"
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {

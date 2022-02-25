@@ -46,6 +46,7 @@ function DirectConnectionInput({
   return (
     <>
       <Checkbox
+        data-testid="direct-connection"
         onChange={updateDirectConnection}
         label="Direct Connection"
         checked={isDirectConnection}
