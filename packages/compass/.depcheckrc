@@ -4,4 +4,6 @@ ignores: [
     # peer dependency of compass-shell
     '@mongosh/node-runtime-worker-thread',
     'os-dns-native',
+    # webpack always externalizes 'clipboard' for legacy reasons
+    'clipboard'
   ]

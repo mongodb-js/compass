@@ -152,10 +152,11 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^0.11.0",
-    "@mongosh/node-runtime-worker-thread": "^1.1.9",
-    "kerberos": "^2.0.0-beta.0",
+    "@mongosh/node-runtime-worker-thread": "^1.2.2",
+    "clipboard": "^2.0.6",
+    "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
-    "os-dns-native": "^1.1.2"
+    "os-dns-native": "^1.2.0"
   },
   "devDependencies": {
     "@mongodb-js/compass-aggregations": "^8.20.0",
@@ -220,7 +221,7 @@
     "electron": "^13.5.1",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^10.1.0",
-    "electron-rebuild": "^2.3.5",
+    "electron-rebuild": "^3.2.7",
     "electron-squirrel-startup": "^1.0.0",
     "ensure-error": "^3.0.1",
     "eslint": "^7.25.0",
