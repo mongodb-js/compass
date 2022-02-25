@@ -75,8 +75,10 @@ export function errorMessageByFieldNameAndIndex(
 export function validateConnectionOptionsErrors(
   connectionOptions: ConnectionOptions
 ): ConnectionFormError[] {
-  const connectionString =
-    new ConnectionString(connectionOptions.connectionString, { looseValidation: true });
+  const connectionString = new ConnectionString(
+    connectionOptions.connectionString,
+    { looseValidation: true }
+  );
 
   return [
     ...validateAuthMechanismErrors(connectionString),
@@ -259,9 +261,12 @@ export function validateConnectionOptionsWarnings(
     connectionString = new ConnectionString(connectionOptions.connectionString);
   } catch (err: any) {
     parserWarning = [{ message: err.message }];
-    connectionString = new ConnectionString(connectionOptions.connectionString, {
-      looseValidation: true
-    });
+    connectionString = new ConnectionString(
+      connectionOptions.connectionString,
+      {
+        looseValidation: true,
+      }
+    );
   }
 
   return [

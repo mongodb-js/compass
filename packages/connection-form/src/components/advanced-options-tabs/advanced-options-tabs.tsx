@@ -75,7 +75,7 @@ function AdvancedOptionsTabs({
   const connectionStringUrl = useMemo(() => {
     try {
       return new ConnectionStringUrl(connectionOptions.connectionString, {
-        looseValidation: true
+        looseValidation: true,
       });
     } catch (e) {
       // Return default connection string url when can't be parsed.

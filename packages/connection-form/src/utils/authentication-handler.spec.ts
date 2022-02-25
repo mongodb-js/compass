@@ -86,8 +86,7 @@ describe('Authentication Handler', function () {
         {
           fieldName: 'username',
           fieldTab: 'authentication',
-          message:
-            'Username cannot be empty if password is present',
+          message: 'Username cannot be empty if password is present',
         },
       ]);
     });
@@ -189,8 +188,7 @@ describe('Authentication Handler', function () {
         {
           fieldName: 'username',
           fieldTab: 'authentication',
-          message:
-            'Username cannot be empty if password is present',
+          message: 'Username cannot be empty if password is present',
         },
         {
           fieldName: 'password',

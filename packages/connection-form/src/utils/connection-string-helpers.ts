@@ -31,7 +31,7 @@ export function tryToParseConnectionString(
 ): [ConnectionStringUrl, undefined] | [undefined, Error] {
   try {
     const connectionStringUrl = new ConnectionStringUrl(connectionString, {
-      looseValidation: true
+      looseValidation: true,
     });
     return [connectionStringUrl, undefined];
   } catch (err) {

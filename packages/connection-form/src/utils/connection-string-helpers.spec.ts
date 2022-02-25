@@ -69,7 +69,9 @@ describe('connection-string-helpers', function () {
         'mongos://pineapple:27099/?directConnection=true'
       );
 
-      expect(connectionString.href).to.equal('mongos://pineapple:27099/?directConnection=true');
+      expect(connectionString.href).to.equal(
+        'mongos://pineapple:27099/?directConnection=true'
+      );
       expect(error).to.equal(undefined);
     });
   });
