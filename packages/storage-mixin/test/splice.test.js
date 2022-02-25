@@ -310,6 +310,9 @@ describe('storage backend splice', function() {
                 name: 'Kara Thrace',
                 email: 'kara@galactica.com',
                 password: 'caprica'
+                salt: "WquZ012C",
+  hash: "c5e635ec235a51e89f6ed7d4857afe58663d54f5",
+  links: ""
               },
               {
                 success: function(res) {
