@@ -77,9 +77,7 @@ jobs:
           docker-compose -f docker/kerberos/docker-compose.yaml up -d
 
       - name: Install npm@8.3.1
-        run: |
-          npm install -g npm@8.3.1
-          npx --yes rimraf $LOCALAPPDATA/node-gyp/Cache || true
+        run: npm install -g npm@8.3.1
 
       - name: Install Dependencies
         run: |
