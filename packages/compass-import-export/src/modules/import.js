@@ -287,13 +287,6 @@ export const startImport = () => {
           number_of_docs: dest.docsWritten,
           success: !err,
         });
-
-        /**
-         * Refresh data (docs, aggregations) regardless of whether we have a
-         * partial import or full import
-         */
-        // TODO: lucas: should be done on both?
-        dispatch(globalAppRegistryEmit('refresh-data'));
         /**
          * TODO: lucas: Decorate with a codeframe if not already
          * json parsing errors already are.

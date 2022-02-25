@@ -194,13 +194,6 @@ const configureStore = (options = {}) => {
     setLocalAppRegistry(store, localAppRegistry);
 
     /**
-     * When the collection is changed, update the store.
-     */
-    localAppRegistry.on('import-finished', () => {
-      refreshInput(store);
-    });
-
-    /**
      * Refresh documents on data refresh.
      */
     localAppRegistry.on('refresh-data', () => {
@@ -227,6 +220,13 @@ const configureStore = (options = {}) => {
      */
     globalAppRegistry.on('refresh-data', () => {
       refreshInput(store);
+    });
+
+    globalAppRegistry.on('import-finished', ({ ns }) => {
+      const { namespace } = store.getState();
+      if (ns === namespace) {
+        refreshInput(store);
+      }
     });
 
     /**

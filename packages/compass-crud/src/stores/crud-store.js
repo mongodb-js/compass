@@ -1234,7 +1234,6 @@ const configureStore = (options = {}) => {
     const localAppRegistry = options.localAppRegistry;
 
     localAppRegistry.on('query-changed', store.onQueryChanged.bind(store));
-    localAppRegistry.on('import-finished', store.refreshDocuments.bind(store));
     localAppRegistry.on('refresh-data', store.refreshDocuments.bind(store));
 
     setLocalAppRegistry(store, options.localAppRegistry);
@@ -1247,8 +1246,15 @@ const configureStore = (options = {}) => {
     globalAppRegistry.on('instance-created', ({ instance }) => {
       store.onInstanceCreated(instance);
     });
+
     globalAppRegistry.on('refresh-data', () => {
       store.refreshDocuments();
+    });
+
+    globalAppRegistry.on('import-finished', ({ ns }) => {
+      if (ns === store.state.ns) {
+        store.refreshDocuments();
+      }
     });
 
     setGlobalAppRegistry(store, globalAppRegistry);
