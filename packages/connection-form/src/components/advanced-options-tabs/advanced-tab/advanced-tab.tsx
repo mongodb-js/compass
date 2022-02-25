@@ -14,7 +14,10 @@ import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { readPreferences } from '../../../utils/read-preferences';
+import {
+  readPreferences,
+  defaultReadPreference,
+} from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -76,9 +79,13 @@ function AdvancedTab({
       <Label htmlFor="read-preferences">Read Preference</Label>
       <RadioBoxGroup
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-          handleFieldChanged('readPreference', value);
+          handleFieldChanged(
+            'readPreference',
+            // Unset the read preference when default is selected.
+            value === defaultReadPreference ? undefined : value
+          );
         }}
-        value={readPreference ?? ''}
+        value={readPreference ?? defaultReadPreference}
         data-testid="read-preferences"
         id="read-preferences"
       >
@@ -87,7 +94,10 @@ function AdvancedTab({
             <RadioBox
               id={`${id}-preference-button`}
               data-testid={`${id}-preference-button`}
-              checked={readPreference === id}
+              checked={
+                readPreference === id ||
+                (!readPreference && id === defaultReadPreference)
+              }
               value={id}
               key={id}
             >
