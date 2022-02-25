@@ -717,7 +717,7 @@ const configureStore = (options = {}) => {
      * Emits a global app registry event the plugin listens to.
      */
     openImportFileDialog() {
-      this.localAppRegistry.emit('open-import');
+      this.globalAppRegistry.emit('open-import', { namespace: this.state.ns });
     },
 
     /**
@@ -725,8 +725,14 @@ const configureStore = (options = {}) => {
      * Emits a global app registry event the plugin listens to.
      */
     openExportFileDialog() {
-      // Pass the doc count to the export modal so we can avoid re-counting.
-      this.localAppRegistry.emit('open-export', this.state.count);
+      // Only three query fields that export modal will handle
+      const { filter, limit, skip } = this.state.query;
+      this.globalAppRegistry.emit('open-export', {
+        namespace: this.state.ns,
+        query: { filter, limit, skip },
+        // Pass the doc count to the export modal so we can avoid re-counting.
+        count: this.state.count
+      });
     },
 
     /**
@@ -1228,7 +1234,6 @@ const configureStore = (options = {}) => {
     const localAppRegistry = options.localAppRegistry;
 
     localAppRegistry.on('query-changed', store.onQueryChanged.bind(store));
-    localAppRegistry.on('import-finished', store.refreshDocuments.bind(store));
     localAppRegistry.on('refresh-data', store.refreshDocuments.bind(store));
 
     setLocalAppRegistry(store, options.localAppRegistry);
@@ -1241,8 +1246,15 @@ const configureStore = (options = {}) => {
     globalAppRegistry.on('instance-created', ({ instance }) => {
       store.onInstanceCreated(instance);
     });
+
     globalAppRegistry.on('refresh-data', () => {
       store.refreshDocuments();
+    });
+
+    globalAppRegistry.on('import-finished', ({ ns }) => {
+      if (ns === store.state.ns) {
+        store.refreshDocuments();
+      }
     });
 
     setGlobalAppRegistry(store, globalAppRegistry);

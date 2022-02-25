@@ -4,17 +4,6 @@ import fs from 'fs';
 import path from 'path';
 
 const TEST_DIR = path.join(__dirname, '..', '..', '..', 'test');
-const FIXTURES = {
-  GOOD_CSV: path.join(TEST_DIR, 'good-commas.csv'),
-  BAD_CSV: path.join(TEST_DIR, 'mongoimport', 'test_bad.csv'),
-  JS_I_THINK_IS_JSON: path.join(TEST_DIR, 'js-i-think-is.json'),
-  GOOD_JSON: path.join(TEST_DIR, 'docs.json'),
-  LINE_DELIMITED_JSON: path.join(TEST_DIR, 'docs.jsonl'),
-  LINE_DELIMITED_JSON_EXTRA_LINE: path.join(
-    TEST_DIR,
-    'docs-with-newline-ending.jsonl'
-  )
-};
 
 describe('import-preview', () => {
   describe('createPreviewWritable', () => {
@@ -83,7 +72,7 @@ describe('import-preview', () => {
 
   describe('func', () => {
     it('should return 2 docs for a csv containing 3 docs', (done) => {
-      const src = fs.createReadStream(FIXTURES.GOOD_CSV);
+      const src = fs.createReadStream(path.join(TEST_DIR, 'good-commas.csv'));
       const dest = createPreviewWritable({ MAX_SIZE: 2 });
 
       pipeline(src, createPeekStream('csv'), dest, () => {

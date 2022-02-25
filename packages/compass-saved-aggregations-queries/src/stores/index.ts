@@ -9,6 +9,7 @@ import dataServiceReducer, {
   resetDataService,
 } from './data-service';
 import openItemReducer from './open-item';
+import editItemReducer from './edit-item';
 import deleteItemReducer from './delete-item';
 import appRegistryReducer, { setAppRegistry } from './app-registry';
 
@@ -18,6 +19,7 @@ const _store = createStore(
     instance: instanceReducer,
     dataService: dataServiceReducer,
     openItem: openItemReducer,
+    editItem: editItemReducer,
     deleteItem: deleteItemReducer,
     appRegistry: appRegistryReducer,
   }),

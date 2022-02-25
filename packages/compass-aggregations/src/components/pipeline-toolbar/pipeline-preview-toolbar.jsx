@@ -110,6 +110,7 @@ class PipelinePreviewToolbar extends PureComponent {
       <div className={styles.settings}>
         <IconButton
           title="Settings"
+          dataTestId="aggregation-settings"
           className="btn btn-xs btn-default"
           iconClassName="fa fa-gear"
           clickHandler={this.props.toggleSettingsIsExpanded}

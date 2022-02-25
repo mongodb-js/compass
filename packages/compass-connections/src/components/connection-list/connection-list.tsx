@@ -17,14 +17,8 @@ import Connection from './connection';
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-evenly',
-  alignItems: 'stretch',
   background: uiColors.gray.dark2,
   position: 'relative',
-  fontWeight: 'bold',
-  color: uiColors.white,
-  height: spacing[6] + spacing[2],
-  overflow: 'hidden',
 });
 
 const newConnectionButtonStyles = css({
@@ -37,10 +31,14 @@ const newConnectionButtonStyles = css({
   },
 });
 
+const newConnectionButtonIcon = css({
+  fill: uiColors.white,
+  marginLeft: spacing[3],
+});
+
 const newConnectionButtonContent = css({
-  fontSize: '18px',
-  lineHeight: '24px',
-  width: '100%',
+  fontWeight: 'bold',
+  height: spacing[6],
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -165,10 +163,12 @@ function ConnectionList({
           className={newConnectionButtonStyles}
           darkMode
           onClick={createNewConnection}
+          size="large"
+          data-testid="new-connection-button"
         >
           <div className={newConnectionButtonContent}>
             <span>New Connection</span>
-            <Icon fill={uiColors.white} glyph="Plus" />
+            <Icon glyph="Plus" className={newConnectionButtonIcon} />
           </div>
         </Button>
       </div>

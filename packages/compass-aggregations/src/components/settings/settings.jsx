@@ -76,14 +76,16 @@ class Settings extends PureComponent {
       return (
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label>Limit</label>
-            <p>
+            <label htmlFor='aggregation-limit'>Limit</label>
+            <p id="aggregation-limit-description">
               Limits input documents before $group, $bucket, and $bucketAuto
               stages. Set a limit to make the collection run faster.
             </p>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
+              id="aggregation-limit"
+              aria-describedby="aggregation-limit-description"
               type="number"
               min="0"
               placeholder={DEFAULT_LARGE_LIMIT}
@@ -110,8 +112,8 @@ class Settings extends PureComponent {
       <div className={classnames(styles.body)}>
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label>Comment Mode</label>
-            <p>
+            <label htmlFor="aggregation-comment-mode">Comment Mode</label>
+            <p id="aggregation-comment-mode-description">
               When enabled, adds helper comments to each stage. Only applies to
               new stages.
             </p>
@@ -119,6 +121,7 @@ class Settings extends PureComponent {
           <div className={classnames(styles['input-control'])}>
             <input
               id="aggregation-comment-mode"
+              aria-describedby="aggregation-comment-mode-description"
               type="checkbox"
               checked={commentModeChecked}
               onChange={this.onCommentModeClicked.bind(this)}
@@ -127,11 +130,13 @@ class Settings extends PureComponent {
         </div>
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label>Number of Preview Documents</label>
-            <p>Specify the number of documents to show in the preview.</p>
+            <label htmlFor="aggregation-sample-size">Number of Preview Documents</label>
+            <p id="aggregation-sample-size-description">Specify the number of documents to show in the preview.</p>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
+              id="aggregation-sample-size"
+              aria-describedby="aggregation-sample-size-description"
               type="number"
               min="0"
               placeholder={DEFAULT_SAMPLE_SIZE}
@@ -142,14 +147,16 @@ class Settings extends PureComponent {
         </div>
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label>Max Time</label>
-            <p>
+            <label htmlFor="aggregation-max-time-ms">Max Time</label>
+            <p id="aggregation-max-time-ms-description">
               Specifies a cumulative time limit in milliseconds for processing
               operations on a cursor. Max timeout prevents long hang times.
             </p>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
+              id="aggregation-max-time-ms"
+              aria-describedby="aggregation-max-time-ms-description"
               type="number"
               placeholder={DEFAULT_MAX_TIME_MS}
               min="0"

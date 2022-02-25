@@ -45,6 +45,7 @@ class ToggleStage extends PureComponent {
         data-place="top"
       >
         <Toggle
+          id="toggle-stage-button"
           checked={this.props.isEnabled}
           onChange={this.onStageToggled}
           className={styles['toggle-stage-button']}

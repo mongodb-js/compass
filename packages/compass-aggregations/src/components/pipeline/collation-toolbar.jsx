@@ -78,6 +78,7 @@ class CollationToolbar extends PureComponent {
             Collation
           </div>
           <input
+            data-test-id="collation-string"
             placeholder="{ locale: 'simple' }"
             type="text"
             onChange={this.onCollationChange}

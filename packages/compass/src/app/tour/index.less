@@ -31,6 +31,18 @@
   background-color: @pw;
   -webkit-transform: translate(-50%, -50%);
 
+  h2 {
+    font-size: 1.5em;
+    margin: 10px;
+  }
+
+  .hide {
+    display: none !important;
+  }
+  .show {
+    display: block !important;
+  }
+
   button.tour-close-button {
     position: absolute;
     right: 10px;
@@ -65,6 +77,11 @@
   #features {
     width: 30%;
 
+    .feature-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin: 20px 0;
+    }
     .feature-content {
       display: none;
       animation: fade-in 500ms ease-out;
@@ -75,6 +92,7 @@
     }
     .feature-description {
       color: @gray4;
+      font-size: 14px;
       height: 120px;
     }
     .get-started-button-holder {
@@ -87,10 +105,47 @@
       }
     }
   }
+  .pager li {
+    display: inline;
+  }
+  .pager li > a,
+  .pager li > span {
+    display: inline-block;
+    padding: 5px 14px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+  }
+  .pager li > a:hover,
+  .pager li > a:focus {
+    text-decoration: none;
+    background-color: #eeeeee;
+  }
+  .pager .next > a,
+  .pager .next > span {
+    float: right;
+  }
+  .pager .previous > a,
+  .pager .previous > span {
+    float: left;
+  }
+  .pager .disabled > a,
+  .pager .disabled > a:hover,
+  .pager .disabled > a:focus,
+  .pager .disabled > span {
+    color: #777777;
+    background-color: #fff;
+    cursor: not-allowed;
+  }
   .pager {
+    padding-left: 0;
+    margin: 0;
+    margin-bottom: 20px;
+    padding: 20px;
+    list-style: none;
+    text-align: center;
     position: relative;
     -webkit-user-select: none;
-    margin-top: 0;
 
     button {
       position: absolute;

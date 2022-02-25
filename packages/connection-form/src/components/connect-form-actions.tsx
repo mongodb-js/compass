@@ -54,7 +54,11 @@ function ConnectFormActions({
           </Button>
         )}
 
-        <Button variant={ButtonVariant.Primary} onClick={onConnectClicked}>
+        <Button
+          data-testid="connect-button"
+          variant={ButtonVariant.Primary}
+          onClick={onConnectClicked}
+        >
           Connect
         </Button>
       </div>

@@ -1,9 +1,11 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { getDirectory } from './getDirectory';
+
+const ENCODING_UTF8 = 'utf8';
 
 export class PipelineStorage {
   /**
@@ -18,18 +20,18 @@ export class PipelineStorage {
       .map((file) => path.join(dir, file));
 
     return (
-      await Promise.all(files.map((filePath) => this._getFileData(filePath)))
+      await Promise.all(files.map((filePath) => this._loadOne(filePath)))
     ).filter(Boolean);
   }
 
-  async _getFileData(filePath) {
+  async _loadOne(filePath) {
     try {
-      const [file, stats] = await Promise.all([
-        fs.readFile(filePath, 'utf8'),
+      const [data, stats] = await Promise.all([
+        this._getFileData(filePath),
         fs.stat(filePath),
       ]);
       return {
-        ...JSON.parse(file),
+        ...data,
         lastModified: stats.mtimeMs,
       };
     } catch (err) {
@@ -38,13 +40,39 @@ export class PipelineStorage {
     }
   }
 
+  async _getFileData(filePath) {
+    const data = await fs.readFile(filePath, ENCODING_UTF8);
+    return JSON.parse(data);
+  }
+
   /**
-   * Deletes an aggregation from the storage.
+   * Updates attributes of an pipeline.
    *
-   * @param {string} id Aggregation ID
+   * @param {string} id ID of the pipeline to update
+   * @param {object} attributes Attributes of pipeline to update
+   */
+  async updateAttributes(id, attributes) {
+    if (!id) {
+      throw new Error('pipelineId is required');
+    }
+
+    const filePath = path.join(getDirectory(), `${id}.json`);
+    const data = await this._getFileData(filePath);
+
+    await fs.writeFile(filePath, JSON.stringify({
+      ...data,
+      ...attributes,
+    }), ENCODING_UTF8);
+
+    return this._loadOne(filePath);
+  }
+
+  /**
+   * Deletes a pipeline from the storage.
+   *
+   * @param {string} id Pipeline ID
    */
   async delete(id) {
-    track('Aggregation Deleted');
     const file = path.join(getDirectory(), `${id}.json`);
     return fs.unlink(file);
   }

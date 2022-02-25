@@ -170,12 +170,14 @@ function ProxyAndSshTunnelTab({
         SSH Tunnel/Proxy Method
       </Label>
       <RadioBoxGroup
+        id="ssh-options-radio-box-group"
         onChange={optionSelected}
         className="radio-box-group-style"
       >
         {options.map(({ title, id, type }) => {
           return (
             <RadioBox
+              id={`${type}-tab-button`}
               data-testid={`${type}-tab-button`}
               checked={selectedOption.id === id}
               value={id}

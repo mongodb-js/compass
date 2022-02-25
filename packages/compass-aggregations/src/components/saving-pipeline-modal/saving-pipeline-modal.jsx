@@ -78,7 +78,7 @@ class SavingPipelineModal extends PureComponent {
             type="text"
             value={this.props.name}
             onChange={this.onNameChanged.bind(this)}
-            className="form-control input-lg"
+            className="form-control"
             placeholder="Untitled"
           />
         </form>

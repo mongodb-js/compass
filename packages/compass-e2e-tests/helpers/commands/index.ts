@@ -30,3 +30,5 @@ export * from './drop-database';
 export * from './drop-collection';
 export * from './get-query-id';
 export * from './run-find';
+export * from './export-to-language';
+export * from './get-active-tab-namespace';

@@ -28,7 +28,7 @@ const FIXTURES = {
 
 describe('formatters', () => {
   describe('json', () => {
-    it('should format a single docment in an array', () => {
+    it('should format a single document in an array', () => {
       const source = stream.Readable.from([{_id: new ObjectID('5e5ea7558d35931a05eafec0')}]);
       const formatter = createJSONFormatter({brackets: true});
       const dest = fs.createWriteStream(FIXTURES.JSON_SINGLE_DOC);
@@ -41,7 +41,7 @@ describe('formatters', () => {
         })
         .then(() => rm(FIXTURES.JSON_SINGLE_DOC));
     });
-    it('should format more than 2 docments in an array', () => {
+    it('should format more than 2 documents in an array', () => {
       const docs = [
         {_id: new ObjectID('5e5ea7558d35931a05eafec0')},
         {_id: new ObjectID('5e6bafc438e060f695591713')},

@@ -24,7 +24,7 @@ describe('Time to first query', function () {
 
     await browser.keys('{ i: 42 }');
     const filterButtonElement = await browser.$(
-      Selectors.QueryBarApplyFilterButton
+      Selectors.queryBarApplyFilterButton('Documents')
     );
     await filterButtonElement.click();
     await browser.waitUntil(async () => {

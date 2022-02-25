@@ -158,7 +158,9 @@ class PipelineBuilderToolbar extends PureComponent {
     const children = [
       <MenuItem
         key="save-pipeline-as"
-        onClick={this.onSaveAsClicked.bind(this)}>
+        data-testid="save-pipeline-as"
+        onClick={this.onSaveAsClicked.bind(this)}
+      >
         Save pipeline as&hellip;
       </MenuItem>
     ];
@@ -170,7 +172,11 @@ class PipelineBuilderToolbar extends PureComponent {
 
     if (serverViewsAvailable) {
       children.push(
-        <MenuItem key="create-a-view" onClick={this.props.openCreateView}>
+        <MenuItem
+          key="create-a-view"
+          data-testid="create-a-view"
+          onClick={this.props.openCreateView}
+        >
           Create a view
         </MenuItem>
       );
@@ -223,6 +229,7 @@ class PipelineBuilderToolbar extends PureComponent {
         <div>
           <Dropdown id="new-pipeline-actions" className="btn-group">
             <Button
+              id="create-new-pipeline"
               variant="default"
               className={classnames(
                 'btn-xs',
@@ -308,6 +315,7 @@ class PipelineBuilderToolbar extends PureComponent {
         data-place="top"
         data-html="true">
         <IconButton
+          dataTestId="export-to-language"
           className="btn btn-xs btn-default"
           iconClassName={classnames(styles['export-icon'])}
           clickHandler={this.props.exportToLanguage}

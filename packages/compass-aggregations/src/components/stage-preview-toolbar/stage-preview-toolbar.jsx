@@ -5,6 +5,7 @@ import decomment from 'decomment';
 import { InfoSprinkle } from 'hadron-react-components';
 import { Tooltip } from 'hadron-react-components';
 import { OUT } from '../../modules/pipeline';
+import { Link } from '@mongodb-js/compass-components';
 
 import styles from './stage-preview-toolbar.module.less';
 
@@ -22,8 +23,8 @@ const OUT_COLL = 'Documents will be saved to the collection:';
 const OUT_S3 = 'Documents will be saved to S3.';
 const OUT_ATLAS = 'Documents will be saved to Atlas cluster.';
 
-const S3_MATCH = /s3\:/;
-const ATLAS_MATCH = /atlas\:/;
+const S3_MATCH = /s3:/;
+const ATLAS_MATCH = /atlas:/;
 
 import {
   STAGE_SPRINKLE_MAPPINGS
@@ -56,8 +57,8 @@ class StagePreviewToolbar extends PureComponent {
   getOutText() {
     try {
       const value = decomment(this.props.stageValue);
-      if (!!value.match(S3_MATCH)) return OUT_S3;
-      if (!!value.match(ATLAS_MATCH)) return OUT_ATLAS;
+      if (value.match(S3_MATCH)) return OUT_S3;
+      if (value.match(ATLAS_MATCH)) return OUT_ATLAS;
       return `${OUT_COLL} ${value}`;
     } catch (err) {
       // The validity check may not have been run yet, in which
@@ -78,15 +79,33 @@ class StagePreviewToolbar extends PureComponent {
         if (this.props.stageOperator === OUT && this.props.isValid) {
           return this.getOutText();
         }
+        
         const stageInfo = STAGE_SPRINKLE_MAPPINGS[this.props.stageOperator];
+
+        let stageInfoButton = null
+
+        if (stageInfo) {
+          stageInfoButton = (
+            <Link
+              as="button"
+              className={styles['stage-preview-toolbar-link']}
+              onClick={this.props.openLink.bind(this, stageInfo.link)}
+            >
+              {this.props.stageOperator}
+            </Link>
+          );
+        } else {
+          stageInfoButton = (
+            <span className={styles['stage-preview-toolbar-link-invalid']}>
+              {this.props.stageOperator}
+            </span>
+          );
+        }
+
         return (
           <div>
             <span>
-              Output after <span
-                onClick={stageInfo ? this.props.openLink.bind(this, stageInfo.link) : null}
-                className={classnames(stageInfo ? styles['stage-preview-toolbar-link'] : 'stage-preview-toolbar-link-invalid')}>
-                {this.props.stageOperator}
-              </span> stage
+              Output after {stageInfoButton} stage
             </span>
             {this.renderInfoSprinkle(stageInfo)}
             <span data-test-id="stage-preview-toolbar-tooltip">(Sample of {this.props.count} {this.getWord()})</span>

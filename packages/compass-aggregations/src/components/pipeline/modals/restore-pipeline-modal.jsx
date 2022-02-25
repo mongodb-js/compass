@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const TITLE = 'Are you sure you want to open this pipeline?';
 
@@ -19,7 +22,9 @@ class RestorePipelineModal extends Component {
   }
 
   openPipeline = () => {
-    this.props.getPipelineFromIndexedDB(this.props.restorePipeline.pipelineObjectID);
+    const id = this.props.restorePipeline.pipelineObjectID;
+    track('Aggregation Opened', { id, screen: 'aggregations' });
+    this.props.getPipelineFromIndexedDB(id);
   }
 
   /**

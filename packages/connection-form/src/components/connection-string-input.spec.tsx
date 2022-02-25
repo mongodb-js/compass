@@ -147,8 +147,8 @@ describe('ConnectionStringInput Component', function () {
     });
 
     it('has a link to docs', function () {
-      const button = screen.getByTestId('connectionStringDocsButton');
-      expect(button.getAttribute('href')).to.equal(
+      const link = screen.getByRole('link');
+      expect(link.getAttribute('href')).to.equal(
         'https://docs.mongodb.com/manual/reference/connection-string/'
       );
     });

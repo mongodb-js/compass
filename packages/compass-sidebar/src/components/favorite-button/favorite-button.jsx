@@ -13,9 +13,8 @@ const FavoriteButton = ({
   toggleIsFavoriteModalVisible
 }) => {
   const isFavorite = !!favoriteOptions;
-  const hex = favoriteOptions?.color;
   const style = {
-    backgroundColor: hex || '#243642',
+    backgroundColor: '#243642',
     color: isFavorite ? '#ffffff' : '#88989a'
   };
 

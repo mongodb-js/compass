@@ -63,6 +63,7 @@ class ImportOptions extends PureComponent {
               <label className={style('option-select-label')}>
                 Select delimiter
                 <select
+                  id="import-delimiter-select"
                   onChange={(evt) => {
                     this.props.setDelimiter(evt.currentTarget.value);
                   }}

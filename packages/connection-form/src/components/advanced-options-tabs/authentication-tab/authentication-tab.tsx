@@ -151,11 +151,16 @@ function AuthenticationTab({
       <Label htmlFor="authentication-method-radio-box-group">
         Authentication Method
       </Label>
-      <RadioBoxGroup onChange={optionSelected} value={selectedAuthTab.id}>
+      <RadioBoxGroup
+        id="authentication-method-radio-box-group"
+        onChange={optionSelected}
+        value={selectedAuthTab.id}
+      >
         {options.map(({ title, id }) => {
           return (
             <RadioBox
-              data-testid={`${id}-tab-button`}
+              id={`connection-authentication-method-${id}-button`}
+              data-testid={`connection-authentication-method-${id}-button`}
               checked={selectedAuthTab.id === id}
               value={id}
               key={id}

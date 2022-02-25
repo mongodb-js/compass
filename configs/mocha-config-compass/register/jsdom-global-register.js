@@ -16,7 +16,7 @@ if (!globalThis.DOMRectReadOnly) {
 }
 
 if (!globalThis.ResizeObserver) {
-  globalThis.ResizeObserver = class ResizeObserver {
+  globalThis.ResizeObserver = window.ResizeObserver = class ResizeObserver {
     observe() {}
     unobserve() {}
     disconnect() {}

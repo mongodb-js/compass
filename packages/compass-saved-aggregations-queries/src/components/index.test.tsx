@@ -9,6 +9,9 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
+import type { Query } from '@mongodb-js/compass-query-history';
+import type { Aggregation } from '@mongodb-js/compass-aggregations';
+
 import { createProxyquireMockForQueriesAndAggregationsPlugins } from '../../test/mock';
 import { queries, pipelines } from '../../test/fixtures';
 
@@ -30,7 +33,7 @@ describe('AggregationsQueriesList', function () {
             _name: 'Query',
             _ns: 'bar.foo',
             _dateSaved: 0,
-          },
+          } as Query,
         ]
       ) as any),
       // XXX: It's important that the proxyquire required module has the same
@@ -57,7 +60,7 @@ describe('AggregationsQueriesList', function () {
             name: 'Aggregation',
             namespace: 'foo.bar',
             lastModified: 0,
-          },
+          } as Aggregation,
         ],
         []
       ) as any),
@@ -89,7 +92,7 @@ describe('AggregationsQueriesList', function () {
               _dateSaved: 0,
               filter: { foo: 'bar' },
               sort: { bar: -1 },
-            },
+            } as unknown as Query,
           ]
         ) as any),
         // XXX: It's important that the proxyquire required module has the same
@@ -140,7 +143,7 @@ describe('AggregationsQueriesList', function () {
                   stage: '{\n  "field": 42\n}',
                 },
               ],
-            },
+            } as Aggregation,
           ],
           []
         ) as any),
@@ -298,6 +301,86 @@ describe('AggregationsQueriesList', function () {
 
       await waitForElementToBeRemoved(() => {
         return screen.queryByTestId('delete-item-modal');
+      });
+
+      expect(screen.queryByText(item.name)).to.exist;
+    });
+
+    it('should rename an item', async function () {
+      const item = queries[0];
+      const card = document.querySelector<HTMLElement>(
+        `[data-id="${item.id}"]`
+      );
+
+      if (!card) {
+        throw new Error('Expected card to exist');
+      }
+
+      userEvent.hover(card);
+      userEvent.click(within(card).getByLabelText('Show actions'));
+      userEvent.click(within(card).getByText('Rename'));
+
+      const modal = screen.getByTestId('edit-item-modal');
+
+      const title = new RegExp(
+        `rename ${item.type === 'query' ? 'query' : 'aggregation'}`,
+        'i'
+      );
+      expect(within(modal).getByText(title), 'show title').to.exist;
+
+      const nameInput = within(modal).getByRole<HTMLInputElement>('textbox', {
+        name: /name/i,
+      });
+
+      expect(nameInput, 'show name input').to.exist;
+      expect(nameInput.value, 'input with item name').to.equal(item.name);
+
+      expect(
+        within(modal).getByRole<HTMLButtonElement>('button', {
+          name: /update/i,
+        }).disabled,
+        'submit button is disabled when user has not changed field value'
+      ).to.be.true;
+
+      userEvent.clear(nameInput);
+      expect(
+        within(modal).getByRole<HTMLButtonElement>('button', {
+          name: /update/i,
+        }).disabled,
+        'submit button is disabled when field value is empty'
+      ).to.be.true;
+
+      userEvent.type(nameInput, 'the updated name');
+      userEvent.click(
+        within(modal).getByRole<HTMLButtonElement>('button', {
+          name: /update/i,
+        })
+      );
+
+      await Promise.resolve();
+
+      expect(screen.queryByText(item.name)).to.not.exist;
+      expect(screen.getByText('the updated name')).to.exist;
+    });
+
+    it('should not update an item if rename was not confirmed', async function () {
+      const item = queries[0];
+      const card = document.querySelector<HTMLElement>(
+        `[data-id="${item.id}"]`
+      );
+
+      if (!card) {
+        throw new Error('Expected card to exist');
+      }
+
+      userEvent.hover(card);
+      userEvent.click(within(card).getByLabelText('Show actions'));
+      userEvent.click(within(card).getByText('Rename'));
+
+      const modal = await screen.findByTestId('edit-item-modal');
+
+      userEvent.click(within(modal).getByText('Cancel'), undefined, {
+        skipPointerEventsCheck: true,
       });
 
       expect(screen.queryByText(item.name)).to.exist;

@@ -2,14 +2,12 @@ import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
+  Label,
   RadioBox,
   RadioBoxGroup,
-  spacing,
   TextInput,
-  Label,
-  IconButton,
-  Icon,
   css,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -20,11 +18,6 @@ import { readPreferences } from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
 import type { ConnectionFormError } from '../../../utils/validation';
-
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[1],
-});
 
 const containerStyles = css({
   marginTop: spacing[3],
@@ -80,17 +73,7 @@ function AdvancedTab({
   return (
     <div className={containerStyles}>
       {/* Read Preferences */}
-      <Label htmlFor="read-preferences">
-        Read Preference
-        <IconButton
-          className={infoButtonStyles}
-          aria-label="Read Preference Documentation"
-          href="https://docs.mongodb.com/manual/reference/connection-string/#read-preference-options"
-          target="_blank"
-        >
-          <Icon glyph="InfoWithCircle" size="small" />
-        </IconButton>
-      </Label>
+      <Label htmlFor="read-preferences">Read Preference</Label>
       <RadioBoxGroup
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
           handleFieldChanged('readPreference', value);
@@ -102,6 +85,7 @@ function AdvancedTab({
         {readPreferences.map(({ title, id }) => {
           return (
             <RadioBox
+              id={`${id}-preference-button`}
               data-testid={`${id}-preference-button`}
               checked={readPreference === id}
               value={id}

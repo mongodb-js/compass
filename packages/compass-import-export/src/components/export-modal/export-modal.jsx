@@ -343,7 +343,16 @@ class ExportModal extends PureComponent {
         : 'Cancel';
 
     return (
-      <Modal show={this.props.open} onShow={this.handleShow} onHide={this.handleClose} backdrop="static" data-test-id="export-modal">
+      <Modal
+        // Because this modal is rendered outside of the
+        // react root we need to apply the deprecated bootstrap styles here.
+        className="with-global-bootstrap-styles"
+        show={this.props.open}
+        onShow={this.handleShow}
+        onHide={this.handleClose}
+        backdrop="static"
+        data-test-id="export-modal"
+      >
         <Modal.Header closeButton>
           Export Collection {this.props.ns}
         </Modal.Header>
@@ -377,12 +386,6 @@ class ExportModal extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => {
-  const exportCount = state.exportData.count;
-  const rawCount = state.stats.rawDocumentCount;
-
-  // 0 is a valid number of documents
-  const count = typeof exportCount === 'number' ? exportCount : rawCount;
-
   return {
     ns: state.ns,
     error: state.exportData.error,
@@ -396,7 +399,8 @@ const mapStateToProps = (state) => {
     exportStep: state.exportData.exportStep,
     isFullCollection: state.exportData.isFullCollection,
     exportedDocsCount: state.exportData.exportedDocsCount,
-    count
+    // 0 is a valid number of documents, only ignore null or undefined
+    count: state.exportData.count ?? null
   };
 };
 

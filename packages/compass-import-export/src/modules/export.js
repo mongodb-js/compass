@@ -6,7 +6,7 @@ import { promisify } from 'util';
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
 import FILE_TYPES from '../constants/file-types';
-import { appRegistryEmit, globalAppRegistryEmit } from './compass';
+import { globalAppRegistryEmit, nsChanged } from './compass';
 
 import { createReadableCollectionStream } from '../utils/collection-stream';
 
@@ -42,6 +42,8 @@ export const UPDATE_SELECTED_FIELDS = `${PREFIX}/UPDATE_SELECTED_FIELDS`;
 
 export const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
 export const TOGGLE_FULL_COLLECTION = `${PREFIX}/TOGGLE_FULL_COLLECTION`;
+
+export const RESET = `${PREFIX}/RESET`;
 
 /**
  * A full collection query.
@@ -110,21 +112,20 @@ export const onError = error => ({
   error: error
 });
 
-// TODO: Refactor this so import and export reuse as much
-// base logic as possible.
+export const reset = () => {
+  return { type: RESET };
+};
+
 // eslint-disable-next-line complexity
 const reducer = (state = INITIAL_STATE, action) => {
+  if (action.type === RESET) {
+    return { ...INITIAL_STATE };
+  }
+
   if (action.type === TOGGLE_FULL_COLLECTION) {
     return {
       ...state,
       isFullCollection: !state.isFullCollection
-    };
-  }
-
-  if (action.type === QUERY_CHANGED) {
-    return {
-      ...state,
-      query: action.query
     };
   }
 
@@ -281,10 +282,11 @@ export const queryChanged = query => ({
  * @param {Number} document count given current query.
  * @param {Object} current query.
  */
-export const onModalOpen = (count, query) => ({
+export const onModalOpen = ({ namespace, count, query }) => ({
   type: ON_MODAL_OPEN,
-  count: count,
-  query: query
+  namespace,
+  count,
+  query
 });
 
 /**
@@ -367,24 +369,19 @@ const fetchDocumentCount = async(dataService, ns, query) => {
  *
  * @api public
  */
-export const openExport = (count) => {
+export const openExport = ({ namespace, query, count: maybeCount }) => {
   return async(dispatch, getState) => {
     track('Export Opened');
     const {
-      ns,
-      exportData,
-      dataService: { dataService }
+      dataService: { dataService },
     } = getState();
 
-    const spec = exportData.query;
-
-    if (typeof count === 'number') {
-      return dispatch(onModalOpen(count, spec));
-    }
-
     try {
-      const docCount = await fetchDocumentCount(dataService, ns, spec);
-      dispatch(onModalOpen(docCount, spec));
+      const count =
+        maybeCount ?? (await fetchDocumentCount(dataService, namespace, query));
+
+      dispatch(nsChanged(namespace));
+      dispatch(onModalOpen({ namespace, query, count }));
     } catch (e) {
       dispatch(onError(e));
     }
@@ -437,20 +434,19 @@ export const startExport = () => {
       exportData,
       dataService: { dataService }
     } = getState();
-
     const spec = exportData.isFullCollection
       ? { filter: {} }
       : exportData.query;
-
     const numDocsToExport = exportData.isFullCollection
       ? await fetchDocumentCount(dataService, ns, spec)
       : exportData.count;
-
     // filter out only the fields we want to include in our export data
     const projection = Object.fromEntries(
       Object.entries(exportData.fields)
         .filter((keyAndValue) => keyAndValue[1] === 1));
-
+    if (Object.keys(projection).length > 0 && (undefined === exportData.fields._id || exportData.fields._id === 0)) {
+      projection._id = 0;
+    }
     log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
       ns,
       numDocsToExport,
@@ -458,7 +454,6 @@ export const startExport = () => {
       projection
     });
     const source = createReadableCollectionStream(dataService, ns, spec, projection);
-
     const progress = createProgressStream({
       objectMode: true,
       length: numDocsToExport,
@@ -478,7 +473,7 @@ export const startExport = () => {
     // Pick the columns that are going to be matched by the projection,
     // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
     // has an entry in the projection object.
-    const columns = Object.keys(exportData.allFields)
+    const columns = Object.keys(exportData.fields)
       .filter(field => field.split('.').some(
         (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]));
     let formatter;
@@ -489,7 +484,6 @@ export const startExport = () => {
     }
 
     const dest = fs.createWriteStream(exportData.fileName);
-
     debug('executing pipeline');
     dispatch(onStarted(source, dest, numDocsToExport));
     stream.pipeline(source, progress, formatter, dest, function(err) {
@@ -516,14 +510,6 @@ export const startExport = () => {
         fileName: exportData.fileName,
       });
       dispatch(onFinished(numDocsToExport));
-      dispatch(
-        appRegistryEmit(
-          'export-finished',
-          numDocsToExport,
-          exportData.fileType
-        )
-      );
-
       /**
        * TODO: lucas: For metrics:
        *

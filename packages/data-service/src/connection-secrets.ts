@@ -7,6 +7,7 @@ import type { MongoClientOptions, AuthMechanismProperties } from 'mongodb';
 
 export interface ConnectionSecrets {
   password?: string;
+  sshTunnelPassword?: string;
   sshTunnelPassphrase?: string;
   awsSessionToken?: string;
   tlsCertificateKeyFilePassword?: string;
@@ -33,6 +34,10 @@ export function mergeSecrets(
 
   if (secrets.password) {
     uri.password = secrets.password;
+  }
+
+  if (secrets.sshTunnelPassword && connectionOptions.sshTunnel) {
+    connectionOptions.sshTunnel.password = secrets.sshTunnelPassword;
   }
 
   if (secrets.sshTunnelPassphrase && connectionOptions.sshTunnel) {
@@ -87,6 +92,11 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
   if (uri.password) {
     secrets.password = uri.password;
     uri.password = '';
+  }
+
+  if (connectionOptions.sshTunnel?.password) {
+    secrets.sshTunnelPassword = connectionOptions.sshTunnel.password;
+    delete connectionOptions.sshTunnel.password;
   }
 
   if (connectionOptions.sshTunnel?.identityKeyPassphrase) {

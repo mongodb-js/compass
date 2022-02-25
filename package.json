@@ -11,7 +11,7 @@
   "scripts": {
     "bootstrap": "npm install && lerna run bootstrap --stream",
     "bootstrap-ci": "npm ci && lerna run bootstrap",
-    "precheck": "npm run depcheck && npm run check-logids",
+    "precheck": "npm run depcheck && npm run check-logids && npm run check-leafygreen-dependency-usage",
     "changed": "node ./scripts/changed.js",
     "check": "lerna run check --stream",
     "check-changed": "npm run check -- --since origin/HEAD --exclude-dependents",
@@ -22,6 +22,7 @@
     "predepcheck": "npm run depalign",
     "depcheck": "depcheck",
     "check-logids": "node scripts/check-logids.js",
+    "check-leafygreen-dependency-usage": "node scripts/check-leafygreen-dep-usage.js",
     "electron-rebuild": "npm run electron-rebuild --workspace mongodb-compass",
     "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",
     "packages-publish": "lerna publish from-package --allow-branch main",
@@ -49,14 +50,14 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
   },
-  "//": "TODO: We keep webpack-cli/serve and testing-library/dom at the root to ",
-  "//": "      work around weird npm workspace hoising issues caused by outdated",
-  "//": "      transient dependencies. This can go away when we update webpack  ",
-  "//": "      and leafygreen to the same version everywhere",
+  "//": "See depcheck for why we have some of these dependencies at the root of the monorepo",
   "devDependencies": {
+    "@babel/core": "7.16.0",
+    "@babel/parser": "7.16.0",
     "@testing-library/dom": "^8.11.1",
     "@webpack-cli/serve": "^0.2.0",
     "lerna": "^4.0.0",
+    "node-gyp": "^8.4.1",
     "npm-cli-adduser": "^1.1.4",
     "wait-on": "^5.3.0"
   },

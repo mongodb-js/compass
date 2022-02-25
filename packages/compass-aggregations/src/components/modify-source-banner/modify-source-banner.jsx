@@ -17,7 +17,7 @@ const ModifySourceBanner = (props) => {
       className={styles['modify-source-banner']}
       variant={BadgeVariant.Blue}
     >
-      Modifying pipeline backing "{props.editViewName}"
+      Modifying pipeline backing &quot;{props.editViewName}&quot;
     </Badge>
   );
 };

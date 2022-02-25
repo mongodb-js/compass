@@ -7,8 +7,7 @@ import React, {
   useRef,
 } from 'react';
 import {
-  Icon,
-  IconButton,
+  InlineInfoLink,
   Label,
   TextArea,
   Toggle,
@@ -20,24 +19,19 @@ import { redactConnectionString } from 'mongodb-connection-string-url';
 import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
-const uriLabelStyles = css({
-  padding: 0,
-  margin: 0,
-  flexGrow: 1,
-});
-
-const infoButtonStyles = css({
-  verticalAlign: 'middle',
-  marginTop: -spacing[1],
-});
-
 const textAreaContainerStyle = css({
   position: 'relative',
+  marginTop: spacing[1],
   marginBottom: spacing[2],
+});
+
+const uriLabelContainerStyles = css({
+  flexGrow: 1,
 });
 
 const connectionStringStyles = css({
   textarea: {
+    fontSize: spacing[2] * 1.75,
     minHeight: spacing[7],
     resize: 'vertical',
   },
@@ -46,8 +40,8 @@ const connectionStringStyles = css({
 const editToggleStyles = css({
   height: 14,
   width: 26,
-  margin: spacing[1],
-  marginRight: 0,
+  margin: 0,
+  marginLeft: spacing[1],
 });
 
 const editToggleLabelStyles = css({
@@ -127,29 +121,23 @@ function ConnectStringInput({
   return (
     <Fragment>
       <div className={textAreaLabelContainerStyles}>
-        <Label
-          className={uriLabelStyles}
-          htmlFor={connectionStringInputId}
-          id={connectionStringLabelId}
-        >
-          URI
-          <IconButton
-            className={infoButtonStyles}
+        <div className={uriLabelContainerStyles}>
+          <Label htmlFor={connectionStringInputId} id={connectionStringLabelId}>
+            URI
+          </Label>
+          <InlineInfoLink
             aria-label="Connection String Documentation"
             data-testid="connectionStringDocsButton"
             href="https://docs.mongodb.com/manual/reference/connection-string/"
-            target="_blank"
-          >
-            <Icon glyph="InfoWithCircle" size="small" />
-          </IconButton>
-        </Label>
-        <label
+          />
+        </div>
+        <Label
           className={editToggleLabelStyles}
           id="edit-connection-string-label"
           htmlFor="toggle-edit-connection-string"
         >
           Edit Connection String
-        </label>
+        </Label>
         <Toggle
           className={editToggleStyles}
           id="toggle-edit-connection-string"
@@ -172,6 +160,7 @@ function ConnectStringInput({
           className={connectionStringStyles}
           disabled={!enableEditingConnectionString}
           id={connectionStringInputId}
+          data-testid={connectionStringInputId}
           ref={textAreaEl}
           aria-labelledby={connectionStringLabelId}
           placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"

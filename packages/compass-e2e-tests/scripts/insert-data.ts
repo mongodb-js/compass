@@ -47,12 +47,8 @@ if (require.main === module) {
 
     const db = client.db('test');
 
-    // Drop the collections that get created by tests
-    await dropCollection(db, 'my-sidebar-collection');
-    await dropCollection(db, 'my-database-collection');
-    await dropCollection(db, 'my-capped-collection');
-    await dropCollection(db, 'my-custom-collation-collection');
-    await dropCollection(db, 'my-timeseries-collection');
+    // Drop the entire test db where we create lots of collections during test runs
+    await dropDatabase(client.db('test'));
 
     // Create some empty collections for the import tests so each one won't have
     // to possibly drop and create via the UI every time.
@@ -61,6 +57,7 @@ if (require.main === module) {
     await createBlankCollection(db, 'json-file');
     await createBlankCollection(db, 'extended-json-file');
     await createBlankCollection(db, 'csv-file');
+    await createBlankCollection(db, 'bom-csv-file');
 
     console.log(`Creating test.numbers`);
     await dropCollection(db, 'numbers');

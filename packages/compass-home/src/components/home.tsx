@@ -99,7 +99,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
   const connectedDataService = useRef<DataService>();
-  const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM === 'true';
+  const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM !== 'false';
 
   const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
     reducer,
@@ -250,7 +250,11 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }, [appRegistry, onDataServiceDisconnected]);
 
   if (isConnected) {
-    return <Workspace namespace={namespace} />;
+    return (
+      <div className="with-global-bootstrap-styles">
+        <Workspace namespace={namespace} />
+      </div>
+    );
   }
 
   if (showNewConnectForm) {
@@ -269,7 +273,10 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 
   const Connect = connectRole[0].component;
   return (
-    <div className={homeViewStyles} data-test-id="home-view">
+    <div
+      className={`with-global-bootstrap-styles ${homeViewStyles}`}
+      data-test-id="home-view"
+    >
       <div className={homePageStyles}>
         <Connect />
       </div>

@@ -7,6 +7,17 @@ import AdvancedOptionsTabs from './advanced-options-tabs';
 
 const testUrl = 'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true';
 
+const tabs = [
+  { name: 'General', id: 'general' },
+  {
+    name: 'Authentication',
+    id: 'authentication',
+  },
+  { name: 'TLS/SSL', id: 'tls' },
+  { name: 'Proxy/SSH Tunnel', id: 'proxy' },
+  { name: 'Advanced', id: 'advanced' },
+];
+
 describe('AdvancedOptionsTabs Component', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
@@ -27,14 +38,8 @@ describe('AdvancedOptionsTabs Component', function () {
       />
     );
 
-    [
-      'General',
-      'Authentication',
-      'TLS/SSL',
-      'Proxy/SSH Tunnel',
-      'Advanced',
-    ].forEach((tabName) => {
-      expect(screen.getByText(tabName)).to.be.visible;
+    tabs.forEach((tab) => {
+      expect(screen.getByText(tab.name)).to.be.visible;
     });
   });
 
@@ -55,14 +60,16 @@ describe('AdvancedOptionsTabs Component', function () {
       />
     );
 
-    ['General', 'Authentication', 'TLS/SSL', 'Proxy/SSH Tunnel'].forEach(
-      (tabName) => {
-        const tab = screen.getAllByTestId(`${tabName}-tab`)[0];
+    tabs
+      .filter(({ id }) => id !== 'advanced')
+      .forEach(({ id }) => {
+        const tab = screen.getAllByTestId(`connection-${id}-tab`)[0];
         expect(tab.getAttribute('data-has-error')).to.equal('false');
-      }
-    );
+      });
     expect(
-      screen.getAllByTestId('Advanced-tab')[0].getAttribute('data-has-error')
+      screen
+        .getAllByTestId('connection-advanced-tab')[0]
+        .getAttribute('data-has-error')
     ).to.equal('true');
   });
 
@@ -88,14 +95,14 @@ describe('AdvancedOptionsTabs Component', function () {
       />
     );
 
-    ['General', 'Authentication', 'Proxy/SSH Tunnel', 'Advanced'].forEach(
-      (tabName) => {
-        const tab = screen.getAllByTestId(`${tabName}-tab`)[0];
-        expect(tab.getAttribute('aria-label')).to.equal(tabName);
-      }
-    );
+    tabs
+      .filter(({ id }) => id !== 'tls')
+      .forEach(({ id, name }) => {
+        const tab = screen.getAllByTestId(`connection-${id}-tab`)[0];
+        expect(tab.getAttribute('aria-label')).to.equal(name);
+      });
     expect(
-      screen.getAllByTestId('TLS/SSL-tab')[0].getAttribute('aria-label')
+      screen.getAllByTestId('connection-tls-tab')[0].getAttribute('aria-label')
     ).to.equal('TLS/SSL (2 errors)');
   });
 });

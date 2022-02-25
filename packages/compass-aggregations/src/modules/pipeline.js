@@ -701,11 +701,8 @@ export const gotoMergeResults = (index) => {
     } else {
       dispatch(
         globalAppRegistryEmit(
-          'open-namespace-in-new-tab',
-          {
-            namespace: outNamespace,
-            isReadonly: false
-          }
+          'aggregations-open-result-namespace',
+          outNamespace
         )
       );
     }
@@ -723,17 +720,14 @@ export const gotoOutResults = collection => {
   return (dispatch, getState) => {
     const state = getState();
     const database = toNS(state.namespace).database;
-    const outNamespace = `${database}.${collection.replace(/\"/g, '')}`;
+    const outNamespace = `${database}.${collection.replace(/"/g, '')}`;
     if (state.outResultsFn) {
       state.outResultsFn(outNamespace);
     } else {
       dispatch(
         globalAppRegistryEmit(
-          'open-namespace-in-new-tab',
-          {
-            namespace: outNamespace,
-            isReadonly: false
-          }
+          'aggregations-open-result-namespace',
+          outNamespace
         )
       );
     }
