@@ -16,7 +16,7 @@ npm install --save mongodb-connection-model
 
 ```javascript
 const Connection = require('mongodb-connection-model');
-const c = new Connection({ appname: 'My App' });
+const c = new Connection({ appname: 'My App Name' });
 
 console.log(c.driverUrl)
 >>> 'mongodb://localhost:27017/?readPreference=primary&appname=My%20App&ssl=false'
