@@ -3,6 +3,9 @@ interface Query {
   _name: string;
   _ns: string;
   _dateSaved: number;
+  // Introduced this field in this PR and already
+  // saved Queries will not have this field.
+  _dateModified?: number;
   collation?: Record<string, unknown>;
   filter?: Record<string, unknown>;
   limit?: number;
@@ -47,9 +50,21 @@ interface Pipeline {
   snippet?: string;
 }
 
+type QueryUpdateAttributes = {
+  _name: string;
+};
+
+type PipelineUpdateAttributes = {
+  name: string;
+};
+
 declare module '@mongodb-js/compass-query-history' {
   class FavoriteQueryStorage {
     loadAll(): Promise<Query[]>;
+    updateAttributes(
+      id: string,
+      attributes: QueryUpdateAttributes
+    ): Promise<Query>;
     delete(id: string): Promise<void>;
   }
 
@@ -58,6 +73,10 @@ declare module '@mongodb-js/compass-query-history' {
 declare module '@mongodb-js/compass-aggregations' {
   class PipelineStorage {
     loadAll(): Promise<Aggregation[]>;
+    updateAttributes(
+      id: string,
+      attributes: PipelineUpdateAttributes
+    ): Promise<Aggregation>;
     delete(id: string): Promise<void>;
   }
 

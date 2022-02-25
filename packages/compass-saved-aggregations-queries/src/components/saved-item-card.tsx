@@ -155,8 +155,6 @@ const CardActions: React.FunctionComponent<{
       evt.stopPropagation();
       setIsMenuOpen(false);
       onAction(itemId, evt.currentTarget.dataset.action);
-      // Workaround for https://jira.mongodb.org/browse/PD-1674
-      menuTriggerRef.current?.focus();
     },
     [itemId, onAction]
   );
@@ -197,8 +195,8 @@ const CardActions: React.FunctionComponent<{
       <MenuItem data-action="copy" onClick={onMenuItemClick}>
         Copy
       </MenuItem>
-      <MenuItem data-action="edit" onClick={onMenuItemClick}>
-        Edit
+      <MenuItem data-action="rename" onClick={onMenuItemClick}>
+        Rename
       </MenuItem>
       <MenuItem data-action="delete" onClick={onMenuItemClick}>
         Delete
