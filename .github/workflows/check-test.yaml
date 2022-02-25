@@ -47,7 +47,9 @@ jobs:
           cache: 'npm'
 
       - name: Install npm@8.3.1
-        run: npm install -g npm@8.3.1
+        run: |
+          npm install -g npm@8.3.1
+          npx --yes rimraf $LOCALAPPDATA/node-gyp/Cache || true
 
       - name: Install Dependencies
         run: |
