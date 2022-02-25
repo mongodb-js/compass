@@ -104,18 +104,14 @@ export function handleUpdateUsername({
     updatedConnectionString.toString()
   );
 
-  const hasPasswordWithoutUsername =
-    updatedConnectionString.password && !action.username;
-  if (parsingError || hasPasswordWithoutUsername) {
+  if (parsingError) {
     return {
       connectionOptions,
       errors: [
         {
           fieldName: 'username',
           fieldTab: 'authentication',
-          message: parsingError
-            ? parsingError.message
-            : 'Username cannot be empty if password is present',
+          message: parsingError.message,
         },
       ],
     };
@@ -150,31 +146,16 @@ export function handleUpdatePassword({
     updatedConnectionString.toString()
   );
 
-  const hasPasswordWithoutUsername =
-    action.password && !updatedConnectionString.username;
-  if (parsingError || hasPasswordWithoutUsername) {
+  if (parsingError) {
     return {
       connectionOptions,
-      errors: parsingError
-        ? [
-            {
-              fieldName: 'password',
-              fieldTab: 'authentication',
-              message: parsingError.message,
-            },
-          ]
-        : [
-            {
-              fieldName: 'username',
-              fieldTab: 'authentication',
-              message: 'Username cannot be empty if password is present',
-            },
-            {
-              fieldName: 'password',
-              fieldTab: 'authentication',
-              message: 'Please enter a username first',
-            },
-          ],
+      errors: [
+        {
+          fieldName: 'password',
+          fieldTab: 'authentication',
+          message: parsingError.message,
+        },
+      ],
     };
   }
 

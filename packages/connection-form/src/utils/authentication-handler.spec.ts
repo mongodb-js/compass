@@ -80,15 +80,9 @@ describe('Authentication Handler', function () {
       });
 
       expect(res.connectionOptions.connectionString).to.equal(
-        'mongodb://a123:b123@localhost'
+        'mongodb://:b123@localhost/'
       );
-      expect(res.errors).to.deep.equal([
-        {
-          fieldName: 'username',
-          fieldTab: 'authentication',
-          message: 'Username cannot be empty if password is present',
-        },
-      ]);
+      expect(res.errors).to.equal(undefined);
     });
 
     it('should remove the username field when being set to empty with no password', function () {
@@ -182,20 +176,9 @@ describe('Authentication Handler', function () {
       });
 
       expect(res.connectionOptions.connectionString).to.equal(
-        'mongodb://localhost/?authMechanism=DEFAULT'
+        'mongodb://:pineapple@localhost/?authMechanism=DEFAULT'
       );
-      expect(res.errors).to.deep.equal([
-        {
-          fieldName: 'username',
-          fieldTab: 'authentication',
-          message: 'Username cannot be empty if password is present',
-        },
-        {
-          fieldName: 'password',
-          fieldTab: 'authentication',
-          message: 'Please enter a username first',
-        },
-      ]);
+      expect(res.errors).to.equal(undefined);
     });
 
     it('should remove the password field when being set to empty with a username', function () {
