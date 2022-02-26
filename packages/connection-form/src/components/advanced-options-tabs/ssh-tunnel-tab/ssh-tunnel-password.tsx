@@ -35,7 +35,15 @@ function SshTunnelPassword({
     [updateConnectionFormField]
   );
 
-  const fields = [
+  const fields: {
+    name: string;
+    label: string;
+    type: 'text' | 'number' | 'password';
+    optional: boolean;
+    value?: string;
+    errorMessage: string | undefined;
+    state: 'error' | 'none';
+  }[] = [
     {
       name: 'host',
       label: 'SSH Hostname',
@@ -90,9 +98,9 @@ function SshTunnelPassword({
               label={label}
               type={type}
               optional={optional}
-              value={value}
+              value={value || ''}
               errorMessage={errorMessage}
-              state={state as 'error' | 'none'}
+              state={state}
               spellCheck={false}
             />
           </FormFieldContainer>

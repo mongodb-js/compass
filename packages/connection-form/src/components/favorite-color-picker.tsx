@@ -29,6 +29,9 @@ const colorOptionStyles = css({
   transition: 'box-shadow .16s ease-in',
   position: 'relative',
   overflow: 'hidden',
+  '&:hover': {
+    cursor: 'pointer',
+  },
 });
 
 const activeColorOptionStyles = css({

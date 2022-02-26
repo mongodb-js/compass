@@ -81,6 +81,7 @@ function AdvancedTab({
         value={readPreference ?? ''}
         data-testid="read-preferences"
         id="read-preferences"
+        size="compact"
       >
         {readPreferences.map(({ title, id }) => {
           return (
