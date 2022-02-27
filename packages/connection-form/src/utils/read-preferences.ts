@@ -1,18 +1,12 @@
 import type { ReadPreferenceMode } from 'mongodb';
 import { ReadPreference as MongoReadPreference } from 'mongodb';
 
-export const defaultReadPreference = 'default';
-
 interface ReadPreference {
   title: string;
-  id: ReadPreferenceMode | typeof defaultReadPreference;
+  id: ReadPreferenceMode;
 }
 
 export const readPreferences: ReadPreference[] = [
-  {
-    title: 'Default',
-    id: defaultReadPreference,
-  },
   {
     title: 'Primary',
     id: MongoReadPreference.PRIMARY,

@@ -38,18 +38,20 @@ describe('AdvancedTab', function () {
       it(`handles changes on readPreference radio button - ${id}`, function () {
         fireEvent.click(screen.getByTestId(`${id}-preference-button`));
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-        if (id === 'default') {
-          expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-            type: 'delete-search-param',
-            key: 'readPreference',
-          });
-        } else {
-          expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-            type: 'update-search-param',
-            currentKey: 'readPreference',
-            value: id,
-          });
-        }
+        expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
+          type: 'update-search-param',
+          currentKey: 'readPreference',
+          value: id,
+        });
+      });
+    });
+
+    it('handles a click on the default readPreference radio button', function () {
+      fireEvent.click(screen.getByTestId('default-preference-button'));
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+      expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
+        type: 'delete-search-param',
+        key: 'readPreference',
       });
     });
 

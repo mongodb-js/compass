@@ -14,13 +14,12 @@ import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import {
-  readPreferences,
-  defaultReadPreference,
-} from '../../../utils/read-preferences';
+import { readPreferences } from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
 import type { ConnectionFormError } from '../../../utils/validation';
+
+const defaultReadPreference = 'defaultReadPreference';
 
 const containerStyles = css({
   marginTop: spacing[3],
@@ -89,15 +88,21 @@ function AdvancedTab({
         data-testid="read-preferences"
         id="read-preferences"
       >
+        <RadioBox
+          id="default-preference-button"
+          data-testid="default-preference-button"
+          key="defaultReadPreference"
+          value={defaultReadPreference}
+          checked={!readPreference}
+        >
+          Default
+        </RadioBox>
         {readPreferences.map(({ title, id }) => {
           return (
             <RadioBox
               id={`${id}-preference-button`}
               data-testid={`${id}-preference-button`}
-              checked={
-                readPreference === id ||
-                (!readPreference && id === defaultReadPreference)
-              }
+              checked={readPreference === id}
               value={id}
               key={id}
             >
