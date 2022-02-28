@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 
-export enum Theme {
+enum Theme {
   Light = 'Light',
   Dark = 'Dark',
 }
@@ -29,4 +29,27 @@ function useTheme(): ThemeState {
   return useContext(ThemeContext);
 }
 
-export { useTheme, ThemeProvider };
+// High Order Component(HOC) used to inject Compass' theme pulled from the
+// available ThemeProvider on the React context into the wrapped component.
+function withTheme<T>(
+  WrappedComponent: React.ComponentType<T>
+): (props: T) => JSX.Element {
+  const ComponentWithTheme = (props: T) => {
+    const theme = useTheme();
+
+    return <WrappedComponent
+      // Set the darkMode before the props so that the props can
+      // override the theme if needed.
+      darkMode={theme?.theme === Theme.Dark}
+      {...(props )}
+    />;
+  };
+
+  const displayName =
+    WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  ComponentWithTheme.displayName = `withTheme(${displayName})`;
+
+  return ComponentWithTheme;
+}
+
+export { Theme, ThemeProvider, useTheme, withTheme };
