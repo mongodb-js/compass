@@ -27,8 +27,6 @@ describe('Instance my queries tab', function () {
   it('opens a saved query', async function () {
     const favoriteQueryName = 'list of numbers greater than 10 - query';
 
-    await browser.navigateToInstanceTab('My Queries');
-
     // Run a query
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
     await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
@@ -45,13 +43,10 @@ describe('Instance my queries tab', function () {
     await favoriteQueryNameField.setValue(favoriteQueryName);
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
+    await browser.closeCollectionTabs();
     await browser.navigateToInstanceTab('My Queries');
 
-    const savedItemElement = await browser.$(Selectors.myQueriesItem(0));
-    const text = await savedItemElement.getText();
-    expect(text).to.contain(favoriteQueryName);
-
-    await browser.clickVisible(Selectors.myQueriesItem(0));
+    await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
     const namespace = await browser.getActiveTabNamespace();
     expect(namespace).to.equal('test.numbers');
   });
@@ -85,13 +80,10 @@ describe('Instance my queries tab', function () {
 
     await createButton.click();
 
+    await browser.closeCollectionTabs();
     await browser.navigateToInstanceTab('My Queries');
-      
-    const savedItemElement = await browser.$(Selectors.myQueriesItem(0));
-    const text = await savedItemElement.getText();
-    expect(text).to.contain(savedAggregationName);
 
-    await browser.clickVisible(Selectors.myQueriesItem(0));
+    await browser.clickVisible(Selectors.myQueriesItem(savedAggregationName));
     const namespace = await browser.getActiveTabNamespace();
     expect(namespace).to.equal('test.numbers');
   });

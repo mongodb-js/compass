@@ -315,7 +315,7 @@ export const DocumentListFirstItemValues =
 export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
 export const QueryBarHistory = '[data-test-id="query-history"]';
 
-export const QueryHistoryRecentItem = '[data-test-id="recent-query-list-item"]';
+export const QueryHistoryRecentItem = '[data-testid="recent-query-list-item"]';
 export const QueryHistoryFavoriteAnItemButton =
   '[data-test-id="query-history-button-fav"]';
 export const QueryHistoryFavoriteItemNameField =
@@ -323,9 +323,8 @@ export const QueryHistoryFavoriteItemNameField =
 export const QueryHistorySaveFavoriteItemButton =
   '[data-test-id="query-history-saving-form-button-save"]';
 
-// My Queries
-export const myQueriesItem = (index: number): string => {
-  return `[data-test-id="grid-item-${index}"]`;
+export const myQueriesItem = (title: string): string => {
+  return `[title="${title}"]`;
 };
 
 // Aggregations tab
