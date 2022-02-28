@@ -192,7 +192,11 @@ const AggregationsQueriesList = ({
   }
 
   if (items.length === 0) {
-    return <NoSavedItems />;
+    return (
+      <div data-testid="my-queries-list">
+        <NoSavedItems />
+      </div>
+    );
   }
 
   return (
@@ -203,7 +207,7 @@ const AggregationsQueriesList = ({
       }}
     >
       <VirtualGrid
-        data-testid="my-queries-grid"
+        data-testid="my-queries-list"
         itemMinWidth={CARD_WIDTH}
         itemHeight={CARD_HEIGHT + spacing[2]}
         itemsCount={sortedItems.length}

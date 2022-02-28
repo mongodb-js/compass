@@ -327,7 +327,7 @@ export const myQueriesItem = (title: string): string => {
   return `[title="${title}"]`;
 };
 
-export const MyQueriesGrid = '[data-testid="my-queries-grid"]';
+export const MyQueriesList = '[data-testid="my-queries-list"]';
 
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
