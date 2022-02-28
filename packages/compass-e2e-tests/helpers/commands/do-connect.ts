@@ -23,7 +23,6 @@ export async function doConnect(
   } else {
     selector = Selectors.ConnectionFormErrorMessage;
   }
-  console.log(selector);
   const element = await browser.$(selector);
   await element.waitForDisplayed({
     timeout,
