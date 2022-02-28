@@ -1,7 +1,8 @@
 import type { MongoClientOptions } from 'mongodb';
 import { isLocalhost } from 'mongodb-build-info';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import { ConnectionString, ConnectionStringParsingOptions } from 'mongodb-connection-string-url';
+import ConnectionString from 'mongodb-connection-string-url';
+import type { ConnectionStringParsingOptions } from 'mongodb-connection-string-url';
 
 export type FieldName =
   | 'connectionString'

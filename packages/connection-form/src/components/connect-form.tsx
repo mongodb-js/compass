@@ -128,24 +128,27 @@ function ConnectForm({
     (error) => error.fieldName === 'connectionString'
   );
 
-  const callOnSaveConnectionClickedAndStoreErrors =
-    async(connectionInfo: ConnectionInfo): Promise<void> => {
-      try {
-        const formErrors = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions,
-          { looseValidation: false }
-        );
-        if (formErrors.length) {
-          setErrors(formErrors);
-          return;
-        }
-        await onSaveConnectionClicked?.(connectionInfo);
-      } catch (err) {
-        setErrors([{
-          message: `Unable to save connection: ${(err as Error).message}`
-        }]);
+  const callOnSaveConnectionClickedAndStoreErrors = async (
+    connectionInfo: ConnectionInfo
+  ): Promise<void> => {
+    try {
+      const formErrors = validateConnectionOptionsErrors(
+        connectionInfo.connectionOptions,
+        { looseValidation: false }
+      );
+      if (formErrors.length) {
+        setErrors(formErrors);
+        return;
       }
-    };
+      await onSaveConnectionClicked?.(connectionInfo);
+    } catch (err) {
+      setErrors([
+        {
+          message: `Unable to save connection: ${(err as Error).message}`,
+        },
+      ]);
+    }
+  };
 
   return (
     <>
