@@ -4,7 +4,7 @@ import {
   ButtonSize,
   ButtonVariant,
   Subtitle,
-  Description,
+  Body,
   Link,
   spacing,
   uiColors,
@@ -35,13 +35,11 @@ const sectionContainerStyles = css({
 });
 
 const titleStyles = css({
-  fontWeight: 'bold',
-  fontSize: 14,
+  fontSize: '14px'
 });
 
 const descriptionStyles = css({
   marginTop: spacing[2],
-  fontSize: 14,
 });
 
 const createClusterContainerStyles = css({
@@ -66,13 +64,13 @@ function FormHelp(): React.ReactElement {
         <Subtitle className={titleStyles}>
           New to Compass and don&apos;t have a cluster?
         </Subtitle>
-        <Description className={descriptionStyles}>
+        <Body className={descriptionStyles}>
           If you don&apos;t already have a cluster, you can create one for free
           using{' '}
           <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
             MongoDB Atlas
           </Link>
-        </Description>
+        </Body>
         <div className={createClusterContainerStyles}>
           <Button
             data-testid="atlas-cta-link"
@@ -91,11 +89,11 @@ function FormHelp(): React.ReactElement {
         <Subtitle className={titleStyles}>
           How do I find my connection string in Atlas?
         </Subtitle>
-        <Description className={descriptionStyles}>
+        <Body className={descriptionStyles}>
           If you have an Atlas cluster, go to the Cluster view. Click the
           &apos;Connect&apos; button for the cluster to which you wish to
           connect.
-        </Description>
+        </Body>
         <Link
           href="https://docs.atlas.mongodb.com/compass-connection/"
           target="_blank"

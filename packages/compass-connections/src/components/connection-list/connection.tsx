@@ -76,7 +76,6 @@ const connectionButtonStyles = css({
 
 const connectionTitleStyles = css({
   color: uiColors.white,
-  fontWeight: 'bold',
   fontSize: '14px',
   lineHeight: '20px',
   margin: 0,

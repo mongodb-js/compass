@@ -7,7 +7,7 @@ import { useId } from '@react-aria/utils';
 
 const buttonStyles = css({
   fontWeight: 'bold',
-  fontSize: 14,
+  fontSize: '14px',
   display: 'flex',
   alignItems: 'center',
   border: 'none',
