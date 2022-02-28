@@ -46,12 +46,13 @@
     "access": "public"
   },
   "dependencies": {
+    "@leafygreen-ui/code": "^9.4.0",
     "@mongodb-js/compass-logging": "^0.8.0",
     "@mongodb-js/mongodb-redux-common": "^1.9.0",
-    "@mongosh/browser-repl": "^1.1.9",
-    "@mongosh/logging": "^1.1.9",
-    "@mongosh/node-runtime-worker-thread": "^1.1.9",
-    "@mongosh/service-provider-core": "^1.1.9"
+    "@mongosh/browser-repl": "^1.2.2",
+    "@mongosh/logging": "^1.2.2",
+    "@mongosh/node-runtime-worker-thread": "^1.2.2",
+    "@mongosh/service-provider-core": "^1.2.2"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.11.0",
@@ -83,7 +84,7 @@
     "depcheck": "^1.4.1",
     "electron": "^13.5.1",
     "electron-devtools-installer": "^3.2.0",
-    "electron-rebuild": "^2.3.5",
+    "electron-rebuild": "^3.2.7",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.25.0",

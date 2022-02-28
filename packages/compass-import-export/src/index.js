@@ -1,8 +1,8 @@
 import Plugin from './plugin';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
-import configureExportStore from './stores/export-store';
-import configureImportStore from './stores/import-store';
+import exportStore from './stores/export-store';
+import importStore from './stores/import-store';
 
 /**
  * The import plugin.
@@ -10,9 +10,6 @@ import configureImportStore from './stores/import-store';
 const IMPORT_ROLE = {
   name: 'Import',
   component: ImportPlugin,
-  configureStore: configureImportStore,
-  configureActions: () => {},
-  storeName: 'Import.Store'
 };
 
 /**
@@ -21,9 +18,6 @@ const IMPORT_ROLE = {
 const EXPORT_ROLE = {
   name: 'Export',
   component: ExportPlugin,
-  configureStore: configureExportStore,
-  configureActions: () => {},
-  storeName: 'Export.Store'
 };
 
 /**
@@ -31,8 +25,10 @@ const EXPORT_ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerRole('Collection.ScopedModal', IMPORT_ROLE);
-  appRegistry.registerRole('Collection.ScopedModal', EXPORT_ROLE);
+  appRegistry.registerRole('Global.Modal', EXPORT_ROLE);
+  appRegistry.registerStore('ExportModal.Store', exportStore);
+  appRegistry.registerRole('Global.Modal', IMPORT_ROLE);
+  appRegistry.registerStore('ImportModal.Store', importStore);
 }
 
 /**
@@ -40,17 +36,12 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Collection.ScopedModal', IMPORT_ROLE);
-  appRegistry.deregisterRole('Collection.ScopedModal', EXPORT_ROLE);
+  appRegistry.deregisterRole('Global.Modal', EXPORT_ROLE);
+  appRegistry.deregisterStore('ExportModal.Store', exportStore);
+  appRegistry.deregisterRole('Global.Modal', IMPORT_ROLE);
+  appRegistry.deregisterStore('ImportModal.Store', importStore);
 }
 
 export default Plugin;
-export {
-  activate,
-  deactivate,
-  ImportPlugin,
-  ExportPlugin,
-  configureExportStore,
-  configureImportStore
-};
+export { activate, deactivate, ImportPlugin, ExportPlugin };
 export { default as metadata } from '../package.json';
