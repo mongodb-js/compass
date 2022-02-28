@@ -12,6 +12,25 @@ import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form'
 
 type IdentityFormKeys = keyof SSHConnectionOptions;
 
+type FileInputField = {
+  name: string;
+  label: string;
+  type: 'file';
+  optional?: boolean;
+  value: string[] | undefined;
+  errorMessage: string | undefined;
+  state: 'error' | 'none';
+};
+type TextInputField = {
+  name: string;
+  label: string;
+  type: 'text' | 'number' | 'password';
+  optional?: boolean;
+  value: string | undefined;
+  errorMessage: string | undefined;
+  state: 'error' | 'none';
+};
+
 function SshTunnelIdentity({
   sshTunnelOptions,
   updateConnectionFormField,
@@ -32,7 +51,7 @@ function SshTunnelIdentity({
     [updateConnectionFormField]
   );
 
-  const fields = [
+  const fields: Array<TextInputField | FileInputField> = [
     {
       name: 'host',
       label: 'SSH Hostname',
@@ -84,9 +103,11 @@ function SshTunnelIdentity({
 
   return (
     <>
-      {fields.map(
-        ({ name, label, type, optional, value, errorMessage, state }) => {
-          if (type === 'file') {
+      {fields.map((field) => {
+        const { name, label, optional, value, errorMessage, state } = field;
+
+        switch (field.type) {
+          case 'file':
             return (
               <FormFieldContainer key={name}>
                 <FileInput
@@ -104,29 +125,31 @@ function SshTunnelIdentity({
                 />
               </FormFieldContainer>
             );
-          }
-          return (
-            <FormFieldContainer key={name}>
-              <TextInput
-                onChange={({
-                  target: { value },
-                }: ChangeEvent<HTMLInputElement>) => {
-                  formFieldChanged(name as IdentityFormKeys, value);
-                }}
-                name={name}
-                data-testid={name}
-                label={label}
-                type={type}
-                optional={optional}
-                value={value as string | undefined}
-                errorMessage={errorMessage}
-                state={state as 'error' | 'none'}
-                spellCheck={false}
-              />
-            </FormFieldContainer>
-          );
+          case 'text':
+          case 'password':
+          case 'number':
+            return (
+              <FormFieldContainer key={name}>
+                <TextInput
+                  onChange={({
+                    target: { value },
+                  }: ChangeEvent<HTMLInputElement>) => {
+                    formFieldChanged(name as IdentityFormKeys, value);
+                  }}
+                  name={name}
+                  data-testid={name}
+                  label={label}
+                  type={field.type}
+                  optional={optional}
+                  value={value as string | undefined}
+                  errorMessage={errorMessage}
+                  state={state}
+                  spellCheck={false}
+                />
+              </FormFieldContainer>
+            );
         }
-      )}
+      })}
     </>
   );
 }
