@@ -313,8 +313,6 @@ functions:
         shell: bash
         env:
           <<: *compass-env
-          COMPASS_APP_PATH: ${appPath}
-          COMPASS_APP_NAME: ${packagerOptions.name}
         script: |
           set -e
           # Load environment variables
