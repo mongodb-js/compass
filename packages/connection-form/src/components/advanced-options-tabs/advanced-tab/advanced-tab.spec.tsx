@@ -4,9 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import { readPreferences } from './../../../utils/read-preferences';
-
-import AdvancedTab from './advanced-tab';
+import AdvancedTab, { readPreferences } from './advanced-tab';
 
 let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
