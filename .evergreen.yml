@@ -313,6 +313,8 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          COMPASS_SKIP_KERBEROS_TESTS: 'true'
+          COMPASS_RUN_DOCKER_TESTS: 'true'
         script: |
           set -e
           # Load environment variables
@@ -344,8 +346,6 @@ functions:
 
           DEBUG=${debug} \
             MONGODB_VERSION=${mongodb_version|4} \
-            SKIP_KERBEROS_TESTS=true \
-            COMPASS_RUN_DOCKER_TESTS=true \
             npm run test --workspace mongodb-data-service
 
           stop_all_docker_containers

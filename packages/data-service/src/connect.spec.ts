@@ -582,7 +582,7 @@ describe('connect', function () {
 
     describe('kerberos', function () {
       before(function () {
-        if (process.env.SKIP_KERBEROS_TESTS === 'true') {
+        if (process.env.COMPASS_SKIP_KERBEROS_TESTS === 'true') {
           this.skip();
         }
       });
