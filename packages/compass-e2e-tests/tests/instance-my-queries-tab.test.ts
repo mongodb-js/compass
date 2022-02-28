@@ -6,7 +6,7 @@ import * as Selectors from '../helpers/selectors';
 
 const initialShowYourQueriesValue = process.env.COMPASS_SHOW_YOUR_QUERIES_TAB;
 
-describe.only('Instance my queries tab', function () {
+describe('Instance my queries tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
