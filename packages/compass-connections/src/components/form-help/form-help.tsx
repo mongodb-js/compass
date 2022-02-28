@@ -6,6 +6,7 @@ import {
   Subtitle,
   Body,
   Link,
+  compassFontSizes,
   spacing,
   uiColors,
   css,
@@ -35,7 +36,7 @@ const sectionContainerStyles = css({
 });
 
 const titleStyles = css({
-  fontSize: '14px'
+  fontSize: compassFontSizes.defaultFontSize,
 });
 
 const descriptionStyles = css({

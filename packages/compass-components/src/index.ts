@@ -46,6 +46,7 @@ export {
 } from '@leafygreen-ui/logo';
 export { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 export { uiColors } from '@leafygreen-ui/palette';
+export * as compassFontSizes from './compass-font-sizes';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { RadioBox, Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
