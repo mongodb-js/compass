@@ -16,22 +16,17 @@ Package|Version|License
 **[@emotion/babel-plugin](#03ca1a86566ba12f306ee068149dd414f4eae0649af1c805daee344dd7d05176)**|11.7.2|MIT
 **[@emotion/cache](#abefd7c5ed45552ff224f27f625ade54ec500c18f3ee5f4c4578fc9870b954d6)**|11.7.1|MIT
 **[@emotion/cache](#db428d77c9ae4b98785a11de76cd7dd9ff5828a1f362602862e1b768c201d0ed)**|11.4.0|MIT
-**[@emotion/cache](#83e9fbfd8abcd4e9034b208ea613039b259c587c764894dcb9346c98dcb6009c)**|10.0.29|MIT
 **[@emotion/css](#834e3b5222a0a64c5b9671e61fad63e65365217575992afa291597bdeca63792)**|11.7.1|MIT
 **[@emotion/hash](#28d888fd2b55ad544152d8e1106f9fb67ebaf8e8ab3bf63836ce4f513f8a4fd6)**|0.8.0|MIT
 **[@emotion/memoize](#58c206ceffd0c234aa21f4649556e9ad7225fd69680027f6d98b5e4a1ad594b5)**|0.7.5|MIT
 **[@emotion/memoize](#3f033eea7eb32720fd1d4eb19167d11e51fe669790ea38401082693ee10db2cc)**|0.7.4|MIT
 **[@emotion/react](#9c9cd65d960bd165335e812a91206944ba9fd065baed767faf75398fc8c0b05f)**|11.4.1|MIT
 **[@emotion/serialize](#24090d55b03a9df9b0ff621a694b47543ae6cf09062933305cf43282f97ee420)**|1.0.2|MIT
-**[@emotion/serialize](#1bcfa0571b766b885accb308c5618892e9d544d9b1536d4683add3463fb3fd1d)**|0.11.16|MIT
 **[@emotion/server](#b8ddfcaf14564b337d4339d4703bac7920a3846834eb3b5307072901a91de1ff)**|11.4.0|MIT
 **[@emotion/sheet](#21b942a9f0f46c8e0585df700dd5bf57ed7a4624abcde13c2bba1a4ad77a44de)**|1.1.0|MIT
 **[@emotion/sheet](#7f72a734a4a784c04ade0ffc7dc54cf0e1df030cd2492491bae785a18d4ff1ce)**|1.0.2|MIT
-**[@emotion/sheet](#fd1fbd25c2afb1c3d264edfd8938239c14e6d63c10dacc8faf036e7cf9d237a4)**|0.9.4|MIT
-**[@emotion/stylis](#1e9d44a31b919b71fb7d8f1df8c904dfab9a4302534449b8f066e31c24556171)**|0.8.5|MIT
 **[@emotion/unitless](#33c90c27ba47755f07747bb9ca066ce37fc3622fd4aa8c03303d05afa45ff355)**|0.7.5|MIT
 **[@emotion/utils](#5c13d0480f06a0f7d52c4fdcae5f74014319f43b15326ebd2cb9339558088f4e)**|1.0.0|MIT
-**[@emotion/utils](#f5b8ec1a4cd5741ab4eecacf65413eec0339fbf5ae97fc7d1cccdd94d701b093)**|0.11.3|MIT
 **[@emotion/weak-memoize](#fe4943b1984d0fa6afec91f0a6f279a514f9bb02ad3f95aa3b8e13c1e2883086)**|0.2.5|MIT
 **[@leafygreen-ui/a11y](#475380b9a40fd66894724c2afb2ab50a27cf2020137c106592e824812fa38639)**|1.2.2|Apache-2.0
 **[@leafygreen-ui/badge](#10076ba8ce29571fcbad699740ae1140664c486808efdf7facb7165dc96919e0)**|4.0.5|Apache-2.0
@@ -40,39 +35,32 @@ Package|Version|License
 **[@leafygreen-ui/button](#0befa4a3f683a611fe7c02f8bf3a0ff60b6b2c1000dfb22e977c294bd25b1814)**|12.0.5|Apache-2.0
 **[@leafygreen-ui/card](#d4271ba204e524443a4fd9c901389bf92101dc22e74f3f129f279ca6ef2cfcf2)**|5.1.4|Apache-2.0
 **[@leafygreen-ui/checkbox](#65737ca54fc90f272029a163fbd93683031155f00d1aa9f887bccccddb466dad)**|6.0.6|Apache-2.0
-**[@leafygreen-ui/confirmation-modal](#90b2e2f759b658dfc5f450239c0f720dfbcb257e51562159751f45930a204104)**|2.2.1|Apache-2.0
+**[@leafygreen-ui/confirmation-modal](#e9ba918e811098b97a40856a74086672fd74a10c0f2c91d34a864f5b76ec602d)**|2.2.3|Apache-2.0
 **[@leafygreen-ui/emotion](#7d43f41cd846021cad693374c81facede1eba829964a24f550678fc16ec04b0d)**|4.0.0|Apache-2.0
-**[@leafygreen-ui/emotion](#005656bd4139276fde949cd423ff6c3333044dc142e11f404f1bc6cdd3169214)**|3.0.1|Apache-2.0
-**[@leafygreen-ui/form-footer](#2252d5fc492de386da3df601d2677797f3f64c673bba32838b0780073599eae1)**|0.9.0|Apache-2.0
 **[@leafygreen-ui/hooks](#ac47098a702409f9f421662075dd14449f68c1eb6ad71c28f6ae7229c4a9f653)**|7.1.1|Apache-2.0
 **[@leafygreen-ui/icon](#563661da46c84ac06b1464743beea980f6bf08d689c1e934a903518567799f93)**|11.6.1|Apache-2.0
-**[@leafygreen-ui/icon-button](#bd7823878cc7402abcdd646ebfcaafb1af57811817fa976309103ba6fce95993)**|9.1.6|Apache-2.0
-**[@leafygreen-ui/interaction-ring](#b5e1b7ade779a3b82b39ff76b20ebce84f01ef5934829644bd42dcf038af82e5)**|1.1.0|Apache-2.0
+**[@leafygreen-ui/icon-button](#1bd2e9c1575bd68f10b9a7cafdd4c59f729990df9020cdb5a2d13b258eab993e)**|9.1.7|Apache-2.0
+**[@leafygreen-ui/interaction-ring](#bdaa252eb3d947596a5e1f10bc0854a2e23d189834a808c75c83545222fd004c)**|1.1.1|Apache-2.0
 **[@leafygreen-ui/leafygreen-provider](#36a54088ae5d34fa5e9a732e9cfeff6cc45d623039000fed562decf0ff81dd3a)**|2.1.3|Apache-2.0
 **[@leafygreen-ui/lib](#f0736415f2cebf04e589137da890e0a0f325413c995ad95b7af418f6b52189d2)**|9.1.0|Apache-2.0
-**[@leafygreen-ui/lib](#d4dacc75a2d92015b981a6a4ffb12c593e57dbb107a7f2996e18af9841ec2251)**|9.0.1|Apache-2.0
-**[@leafygreen-ui/lib](#35c4bed27ba37ac1f2211977d15b81d1ac62ee14e5f3dd4684fef2b8e3fb9737)**|8.0.0|Apache-2.0
-**[@leafygreen-ui/lib](#936d164b5846b8694335ede4f04565f13c434f37d15a66b56544e661680aa7a9)**|6.3.0|Apache-2.0
-**[@leafygreen-ui/lib](#30e9ed6c2e550dfed8b9be8d41b5b9b5ea99c892204ce640e4ca75702c6d003b)**|9.0.0|Apache-2.0
 **[@leafygreen-ui/logo](#f2c52e3a8fc4b6d67b3626ae9a2a442db3f9e84c68990585a382f2746f35f98b)**|6.1.0|Apache-2.0
 **[@leafygreen-ui/menu](#b21059d786dc39feb212fb56c5d146547416378f700e5248909bcb1d713c7e16)**|11.0.1|Apache-2.0
 **[@leafygreen-ui/modal](#c1a56a77fd926fc33545367356eb266d7361d352767ace98306b677b86219694)**|7.0.0|Apache-2.0
-**[@leafygreen-ui/modal](#56f100d1c57d3b9c34679fdabcc402d3e4353712335c2034a546ad25502f38e3)**|6.1.1|Apache-2.0
-**[@leafygreen-ui/palette](#aac301506921cf8ea69e201d03f69e56d0c7b6c6819939404b0b01de26937833)**|3.2.2|Apache-2.0
+**[@leafygreen-ui/palette](#625c4dcf9ad19b6a0b4d94da9a2d587d1914e2c6b4f21ef4c1d4d514329c44fc)**|3.3.1|Apache-2.0
+**[@leafygreen-ui/palette](#a4658dfbc66feca30c8f560f7e3e11d99a2cfaab4f227b9f51e07143dc095185)**|3.3.0|Apache-2.0
 **[@leafygreen-ui/popover](#0c36e4ffc2ab1dfcce3fc39e142dc685cba20b488e7d8240ea0c8b7a718794d9)**|7.2.2|Apache-2.0
-**[@leafygreen-ui/portal](#f034d37a474782ff139d05e98f6e299b10ec4fd40f4e86c8ff2388e548ef0dda)**|3.1.3|Apache-2.0
-**[@leafygreen-ui/portal](#f1cd6ea02d9664a94e946d9bfb9878845fae22c2c2171dcea749d4871778a508)**|4.0.1|Apache-2.0
+**[@leafygreen-ui/portal](#6ca72b99b4b1694db669bbc697977d4eabca64ab4a3897611ea97c6f0b559dad)**|4.0.2|Apache-2.0
 **[@leafygreen-ui/radio-box-group](#aa53cd3fd908526e6a190e2413b59b9735f7b8ee27cbe67d27cd918b561462b3)**|6.1.5|Apache-2.0
 **[@leafygreen-ui/radio-group](#daf1969ab1222c428fcfa4e4a2c82b5931bc270cb7a2a7c26b9425cf418fed99)**|7.0.6|Apache-2.0
 **[@leafygreen-ui/ripple](#7767b150d9e89f8ac4cd94c4ebd4cd5df3fb05ee34a3b9203c694b8716d69e6c)**|1.1.1|Apache-2.0
 **[@leafygreen-ui/segmented-control](#c75273e603c55ffd6c8785908aa7382313bd21307a9b08b7b724d0258baedccc)**|0.9.1|Apache-2.0
 **[@leafygreen-ui/select](#1931743100c760aa6910ec7a01fd60585685d78827cd8034ac029e22d8c59ebb)**|3.1.0|Apache-2.0
-**[@leafygreen-ui/table](#44a25dd418eefbc3fbaf3e3440d8bcbbf3e94fe413e01903737ab942573ef9b6)**|2.0.5|Apache-2.0
+**[@leafygreen-ui/table](#aa6d949a985bd674b57ddabec91b96fa05bd1b2070fa2dc5793d340e151b3cff)**|2.0.6|Apache-2.0
 **[@leafygreen-ui/tabs](#996cd7d947bf6d52591dce9d953cb7ab5d61741ba8e29c8bea5287c4cc593188)**|5.1.5|Apache-2.0
-**[@leafygreen-ui/text-area](#20a2f9aff827f38f287eeb2b4da2c3dd69be252b487d9614b30af6a3c5c9c9ed)**|4.0.3|Apache-2.0
-**[@leafygreen-ui/text-input](#7d4813ea1bdfe3adb68adcefab312bec90dcf201093c2307db92c5b975e7bd57)**|6.0.3|Apache-2.0
+**[@leafygreen-ui/text-area](#2d711125a847196192f594bec2cec7575977d5e53f4079052389e328772b39e0)**|4.1.1|Apache-2.0
+**[@leafygreen-ui/text-input](#f61ac6601418eca05bd9618dada761d82489d81d9d7bc6d320d51f0eb0d8c0de)**|6.2.1|Apache-2.0
 **[@leafygreen-ui/toast](#4d9d29823900cdb10ef9c101a63821b17edda16734ba0308ab1f556aa16896d5)**|0.4.10|Apache-2.0
-**[@leafygreen-ui/toggle](#4b9d37b29cb36fa38eb01a04d0a9b1fd53f0a973e5989212400f122346d3c4d4)**|7.0.4|Apache-2.0
+**[@leafygreen-ui/toggle](#93c18c2efdf14c284233ce8a38a8aa047016f42094e682ce9bd8ba0b719a8658)**|7.0.5|Apache-2.0
 **[@leafygreen-ui/tokens](#8d64a446d42012738c5f1314d234630346cac498cc92384f3f51fe54a09d14ff)**|0.5.3|Apache-2.0
 **[@leafygreen-ui/tooltip](#12ce56de7f479eb8abccc40a4e9d97cd6db628c0d8fac6f752f756809cebc749)**|6.3.1|Apache-2.0
 **[@leafygreen-ui/typography](#6fe50b20beb48fc92d444350ce75c70bd9429803ad6acbd7192f5c2a54271861)**|8.1.0|Apache-2.0
@@ -100,9 +88,7 @@ Package|Version|License
 **[ansi-styles](#3d188f4ce9ad01e2061b3dafeb74005547429b09fb5b114980303db9cf34f4ee)**|3.2.1|MIT
 **[aproba](#b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e)**|1.2.0|ISC
 **[are-we-there-yet](#1370d475c62d2fa9bb9d34573e067fe045672d7fdf86cb1449b73fed67d42278)**|1.1.5|ISC
-**[babel-plugin-emotion](#6bf6b63204abda4a601e8c445f3361a6018ef97389c85f36885019fea740f5a2)**|10.2.2|MIT
 **[babel-plugin-macros](#381b55ca4f1b3f786f49dad941451748e8d5f96dbc8ee87f7bf9911414dbb43f)**|2.8.0|MIT
-**[babel-plugin-syntax-jsx](#50e535a9bb055f6fbfb2a37365dbea2ad87c775f231fc50431103e3ac0b00db7)**|6.18.0|MIT
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
 **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
 **[bson](#557634fece5f706ac8fc33cab6c5d342acfd6c83984502bcb9a73839d6a15952)**|4.6.1|Apache-2.0
@@ -119,10 +105,7 @@ Package|Version|License
 **[convert-source-map](#0acf0ab7734deb5e364e5150eb235062022893835b113aa11e0c7e9065fa5073)**|1.8.0|MIT
 **[core-util-is](#ab5cbd313ac7ce6a02ce0c800c05b4e77771c80c411d95438946ce15408bbd4f)**|1.0.2|MIT
 **[cosmiconfig](#9bff48b51aa564b33364ba0a6709ca9bec12359edacf6db4e73dfd6bf9c56fb1)**|6.0.0|MIT
-**[create-emotion](#e04c1c140df8427eb67b7d765974acbebf667dd744d85551eaf4dd81387362c9)**|10.0.27|MIT
-**[create-emotion-server](#6087e44eb0d8159c1debebc6f5f8c9e595f4b6e083b787bfba1169942027ce91)**|10.0.27|MIT
 **[csstype](#135c62e71c5e2b1389e80e2a7898d2b4261701f6af1e429c83420910af7a156b)**|3.0.8|MIT
-**[csstype](#bb9397f08ccc3a3d4aaac00c87c70ba4f2e7cebed8c6997b55383a033821e748)**|2.6.17|MIT
 **[debug](#f9ec34d64c9fa14faae00f8f6f1b768e0e2ccadbeb4bc9414e1786213dab82ed)**|4.3.3|MIT
 **[debug](#466cfdc0222c811ec8b440c24babef1f28f859c6266ac7351f3b6dad65364287)**|4.3.0|MIT
 **[decompress-response](#64c777c1b9075eb1d4fc1a0e1ea86130393649a9a01a8e42c16eb14c59b5b8da)**|6.0.0|MIT
@@ -134,7 +117,6 @@ Package|Version|License
 **[detect-libc](#b333f3855f39aa2e155d1719cc7e259e162221a57ab82807ab01a138b6213594)**|1.0.3|Apache-2.0
 **[dom-helpers](#8d51cc2c2eba67a9ee7b80bdbca48b1102ceeb0618178fae05b1a82522a80e6e)**|5.2.1|MIT
 **[duplexer2](#3eac36135919b70a98a617cdde9cbe568a009948d4020853e0ba4eee6444a5c3)**|0.1.4|BSD-3-Clause
-**[emotion](#70803f37575de31a75cc6d56ad6c64d1368178992a4d8b328d6ac7cd3cd789c1)**|10.0.27|MIT
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
 **[error-ex](#8d74a33ba70573b2c76da017b416914cdcb4b3dcfcc49e670ddab2bf1b61f54a)**|1.3.2|MIT
 **[escape-string-regexp](#8c51af36cd574fcb38fb535dd3e485948143a1b5e8580efe21fcbf259b54c87c)**|4.0.0|MIT
@@ -200,8 +182,7 @@ Package|Version|License
 **[parse-json](#733108d734e2df2ea9921114dffa1101a8fad17691457bb8cd3bd49667a94d48)**|5.2.0|MIT
 **[path-parse](#bb7410d6076ae1fa569358e03bcf4baedd135f339480e5adcbe34805d5a0245c)**|1.0.7|MIT
 **[path-type](#ab411465d0e653a776660d583b19565cc0d496256cc6b1946396bef9b21cf0f3)**|4.0.0|MIT
-**[polished](#47b4e8e885d03368eebeacac0d713327742dbf9ceb426a2898b5b375c87eaab6)**|4.1.3|MIT
-**[polished](#49d731fc8e2d58caa864571a271131a9ee3804c43f97a57b4b31b45965c5c31d)**|2.3.3|MIT
+**[polished](#79a6d17425d875eed87e2c53268941a9396eab29baa4d05c6ee5b48e29fb52bd)**|4.1.4|MIT
 **[prebuild-install](#e755204a5da2a0c525c1c306c36568e122273f24c0cac31a68cd274b9401771f)**|7.0.1|MIT
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
@@ -663,40 +644,6 @@ License files:
       
 
 
-<a id="83e9fbfd8abcd4e9034b208ea613039b259c587c764894dcb9346c98dcb6009c"></a>
-### [@emotion/cache](https://www.npmjs.com/package/@emotion/cache) (version 10.0.29)
-<!-- initially found at node_modules/@emotion/cache -->
-> emotion's cache
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
 <a id="834e3b5222a0a64c5b9671e61fad63e65365217575992afa291597bdeca63792"></a>
 ### [@emotion/css](https://www.npmjs.com/package/@emotion/css) (version 11.7.1)
 <!-- initially found at node_modules/@emotion/css -->
@@ -905,40 +852,6 @@ License files:
       
 
 
-<a id="1bcfa0571b766b885accb308c5618892e9d544d9b1536d4683add3463fb3fd1d"></a>
-### [@emotion/serialize](https://www.npmjs.com/package/@emotion/serialize) (version 0.11.16)
-<!-- initially found at node_modules/@emotion/serialize -->
-> serialization utils for emotion
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
 <a id="b8ddfcaf14564b337d4339d4703bac7920a3846834eb3b5307072901a91de1ff"></a>
 ### [@emotion/server](https://www.npmjs.com/package/@emotion/server) (version 11.4.0)
 <!-- initially found at node_modules/@emotion/server -->
@@ -1044,74 +957,6 @@ License files:
       
 
 
-<a id="fd1fbd25c2afb1c3d264edfd8938239c14e6d63c10dacc8faf036e7cf9d237a4"></a>
-### [@emotion/sheet](https://www.npmjs.com/package/@emotion/sheet) (version 0.9.4)
-<!-- initially found at node_modules/@emotion/sheet -->
-> emotion's stylesheet
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
-<a id="1e9d44a31b919b71fb7d8f1df8c904dfab9a4302534449b8f066e31c24556171"></a>
-### [@emotion/stylis](https://www.npmjs.com/package/@emotion/stylis) (version 0.8.5)
-<!-- initially found at node_modules/@emotion/stylis -->
-> A custom build of Stylis
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
 <a id="33c90c27ba47755f07747bb9ca066ce37fc3622fd4aa8c03303d05afa45ff355"></a>
 ### [@emotion/unitless](https://www.npmjs.com/package/@emotion/unitless) (version 0.7.5)
 <!-- initially found at node_modules/@emotion/unitless -->
@@ -1149,40 +994,6 @@ License files:
 <a id="5c13d0480f06a0f7d52c4fdcae5f74014319f43b15326ebd2cb9339558088f4e"></a>
 ### [@emotion/utils](https://www.npmjs.com/package/@emotion/utils) (version 1.0.0)
 <!-- initially found at node_modules/@emotion/css/node_modules/@emotion/utils -->
-> internal utils for emotion
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
-<a id="f5b8ec1a4cd5741ab4eecacf65413eec0339fbf5ae97fc7d1cccdd94d701b093"></a>
-### [@emotion/utils](https://www.npmjs.com/package/@emotion/utils) (version 0.11.3)
-<!-- initially found at node_modules/@emotion/utils -->
 > internal utils for emotion
 
 License tags: MIT
@@ -1304,8 +1115,8 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="90b2e2f759b658dfc5f450239c0f720dfbcb257e51562159751f45930a204104"></a>
-### [@leafygreen-ui/confirmation-modal](https://www.npmjs.com/package/@leafygreen-ui/confirmation-modal) (version 2.2.1)
+<a id="e9ba918e811098b97a40856a74086672fd74a10c0f2c91d34a864f5b76ec602d"></a>
+### [@leafygreen-ui/confirmation-modal](https://www.npmjs.com/package/@leafygreen-ui/confirmation-modal) (version 2.2.3)
 <!-- initially found at node_modules/@leafygreen-ui/confirmation-modal -->
 > leafyGreen UI Kit Confirmation Modal
 
@@ -1314,24 +1125,8 @@ License tags: Apache-2.0
 
 <a id="7d43f41cd846021cad693374c81facede1eba829964a24f550678fc16ec04b0d"></a>
 ### [@leafygreen-ui/emotion](https://www.npmjs.com/package/@leafygreen-ui/emotion) (version 4.0.0)
-<!-- initially found at packages/compass-components/node_modules/@leafygreen-ui/emotion -->
-> leafyGreen UI Kit's Custom Instance of Emotion
-
-License tags: Apache-2.0
-
-
-<a id="005656bd4139276fde949cd423ff6c3333044dc142e11f404f1bc6cdd3169214"></a>
-### [@leafygreen-ui/emotion](https://www.npmjs.com/package/@leafygreen-ui/emotion) (version 3.0.1)
 <!-- initially found at node_modules/@leafygreen-ui/emotion -->
 > leafyGreen UI Kit's Custom Instance of Emotion
-
-License tags: Apache-2.0
-
-
-<a id="2252d5fc492de386da3df601d2677797f3f64c673bba32838b0780073599eae1"></a>
-### [@leafygreen-ui/form-footer](https://www.npmjs.com/package/@leafygreen-ui/form-footer) (version 0.9.0)
-<!-- initially found at node_modules/@leafygreen-ui/form-footer -->
-> leafyGreen UI Kit Form Footer
 
 License tags: Apache-2.0
 
@@ -1352,16 +1147,16 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="bd7823878cc7402abcdd646ebfcaafb1af57811817fa976309103ba6fce95993"></a>
-### [@leafygreen-ui/icon-button](https://www.npmjs.com/package/@leafygreen-ui/icon-button) (version 9.1.6)
+<a id="1bd2e9c1575bd68f10b9a7cafdd4c59f729990df9020cdb5a2d13b258eab993e"></a>
+### [@leafygreen-ui/icon-button](https://www.npmjs.com/package/@leafygreen-ui/icon-button) (version 9.1.7)
 <!-- initially found at node_modules/@leafygreen-ui/icon-button -->
 > LeafyGreen UI Kit Icon Buttons
 
 License tags: Apache-2.0
 
 
-<a id="b5e1b7ade779a3b82b39ff76b20ebce84f01ef5934829644bd42dcf038af82e5"></a>
-### [@leafygreen-ui/interaction-ring](https://www.npmjs.com/package/@leafygreen-ui/interaction-ring) (version 1.1.0)
+<a id="bdaa252eb3d947596a5e1f10bc0854a2e23d189834a808c75c83545222fd004c"></a>
+### [@leafygreen-ui/interaction-ring](https://www.npmjs.com/package/@leafygreen-ui/interaction-ring) (version 1.1.1)
 <!-- initially found at node_modules/@leafygreen-ui/interaction-ring -->
 > leafyGreen UI Kit Interaction Ring
 
@@ -1378,39 +1173,7 @@ License tags: Apache-2.0
 
 <a id="f0736415f2cebf04e589137da890e0a0f325413c995ad95b7af418f6b52189d2"></a>
 ### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 9.1.0)
-<!-- initially found at node_modules/@leafygreen-ui/badge/node_modules/@leafygreen-ui/lib -->
-> leafyGreen UI Kit Internal Library
-
-License tags: Apache-2.0
-
-
-<a id="d4dacc75a2d92015b981a6a4ffb12c593e57dbb107a7f2996e18af9841ec2251"></a>
-### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 9.0.1)
-<!-- initially found at node_modules/@leafygreen-ui/button/node_modules/@leafygreen-ui/lib -->
-> leafyGreen UI Kit Internal Library
-
-License tags: Apache-2.0
-
-
-<a id="35c4bed27ba37ac1f2211977d15b81d1ac62ee14e5f3dd4684fef2b8e3fb9737"></a>
-### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 8.0.0)
 <!-- initially found at node_modules/@leafygreen-ui/lib -->
-> leafyGreen UI Kit Internal Library
-
-License tags: Apache-2.0
-
-
-<a id="936d164b5846b8694335ede4f04565f13c434f37d15a66b56544e661680aa7a9"></a>
-### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 6.3.0)
-<!-- initially found at node_modules/@leafygreen-ui/form-footer/node_modules/@leafygreen-ui/lib -->
-> leafyGreen UI Kit Internal Library
-
-License tags: Apache-2.0
-
-
-<a id="30e9ed6c2e550dfed8b9be8d41b5b9b5ea99c892204ce640e4ca75702c6d003b"></a>
-### [@leafygreen-ui/lib](https://www.npmjs.com/package/@leafygreen-ui/lib) (version 9.0.0)
-<!-- initially found at node_modules/@leafygreen-ui/icon-button/node_modules/@leafygreen-ui/lib -->
 > leafyGreen UI Kit Internal Library
 
 License tags: Apache-2.0
@@ -1434,22 +1197,22 @@ License tags: Apache-2.0
 
 <a id="c1a56a77fd926fc33545367356eb266d7361d352767ace98306b677b86219694"></a>
 ### [@leafygreen-ui/modal](https://www.npmjs.com/package/@leafygreen-ui/modal) (version 7.0.0)
-<!-- initially found at packages/compass-components/node_modules/@leafygreen-ui/modal -->
-> LeafyGreen UI Kit Modal
-
-License tags: Apache-2.0
-
-
-<a id="56f100d1c57d3b9c34679fdabcc402d3e4353712335c2034a546ad25502f38e3"></a>
-### [@leafygreen-ui/modal](https://www.npmjs.com/package/@leafygreen-ui/modal) (version 6.1.1)
 <!-- initially found at node_modules/@leafygreen-ui/modal -->
 > LeafyGreen UI Kit Modal
 
 License tags: Apache-2.0
 
 
-<a id="aac301506921cf8ea69e201d03f69e56d0c7b6c6819939404b0b01de26937833"></a>
-### [@leafygreen-ui/palette](https://www.npmjs.com/package/@leafygreen-ui/palette) (version 3.2.2)
+<a id="625c4dcf9ad19b6a0b4d94da9a2d587d1914e2c6b4f21ef4c1d4d514329c44fc"></a>
+### [@leafygreen-ui/palette](https://www.npmjs.com/package/@leafygreen-ui/palette) (version 3.3.1)
+<!-- initially found at packages/compass-components/node_modules/@leafygreen-ui/palette -->
+> LeafyGreen UI Palettes
+
+License tags: Apache-2.0
+
+
+<a id="a4658dfbc66feca30c8f560f7e3e11d99a2cfaab4f227b9f51e07143dc095185"></a>
+### [@leafygreen-ui/palette](https://www.npmjs.com/package/@leafygreen-ui/palette) (version 3.3.0)
 <!-- initially found at node_modules/@leafygreen-ui/palette -->
 > LeafyGreen UI Palettes
 
@@ -1464,17 +1227,9 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="f034d37a474782ff139d05e98f6e299b10ec4fd40f4e86c8ff2388e548ef0dda"></a>
-### [@leafygreen-ui/portal](https://www.npmjs.com/package/@leafygreen-ui/portal) (version 3.1.3)
+<a id="6ca72b99b4b1694db669bbc697977d4eabca64ab4a3897611ea97c6f0b559dad"></a>
+### [@leafygreen-ui/portal](https://www.npmjs.com/package/@leafygreen-ui/portal) (version 4.0.2)
 <!-- initially found at node_modules/@leafygreen-ui/portal -->
-> LeafyGreen UI Kit Portal
-
-License tags: Apache-2.0
-
-
-<a id="f1cd6ea02d9664a94e946d9bfb9878845fae22c2c2171dcea749d4871778a508"></a>
-### [@leafygreen-ui/portal](https://www.npmjs.com/package/@leafygreen-ui/portal) (version 4.0.1)
-<!-- initially found at packages/compass-components/node_modules/@leafygreen-ui/modal/node_modules/@leafygreen-ui/portal -->
 > LeafyGreen UI Kit Portal
 
 License tags: Apache-2.0
@@ -1520,8 +1275,8 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="44a25dd418eefbc3fbaf3e3440d8bcbbf3e94fe413e01903737ab942573ef9b6"></a>
-### [@leafygreen-ui/table](https://www.npmjs.com/package/@leafygreen-ui/table) (version 2.0.5)
+<a id="aa6d949a985bd674b57ddabec91b96fa05bd1b2070fa2dc5793d340e151b3cff"></a>
+### [@leafygreen-ui/table](https://www.npmjs.com/package/@leafygreen-ui/table) (version 2.0.6)
 <!-- initially found at node_modules/@leafygreen-ui/table -->
 > leafyGreen UI Kit Table
 
@@ -1536,16 +1291,16 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="20a2f9aff827f38f287eeb2b4da2c3dd69be252b487d9614b30af6a3c5c9c9ed"></a>
-### [@leafygreen-ui/text-area](https://www.npmjs.com/package/@leafygreen-ui/text-area) (version 4.0.3)
+<a id="2d711125a847196192f594bec2cec7575977d5e53f4079052389e328772b39e0"></a>
+### [@leafygreen-ui/text-area](https://www.npmjs.com/package/@leafygreen-ui/text-area) (version 4.1.1)
 <!-- initially found at node_modules/@leafygreen-ui/text-area -->
 > leafyGreen UI Kit Text Area
 
 License tags: Apache-2.0
 
 
-<a id="7d4813ea1bdfe3adb68adcefab312bec90dcf201093c2307db92c5b975e7bd57"></a>
-### [@leafygreen-ui/text-input](https://www.npmjs.com/package/@leafygreen-ui/text-input) (version 6.0.3)
+<a id="f61ac6601418eca05bd9618dada761d82489d81d9d7bc6d320d51f0eb0d8c0de"></a>
+### [@leafygreen-ui/text-input](https://www.npmjs.com/package/@leafygreen-ui/text-input) (version 6.2.1)
 <!-- initially found at node_modules/@leafygreen-ui/text-input -->
 > leafyGreen UI Kit Text Input
 
@@ -1560,8 +1315,8 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="4b9d37b29cb36fa38eb01a04d0a9b1fd53f0a973e5989212400f122346d3c4d4"></a>
-### [@leafygreen-ui/toggle](https://www.npmjs.com/package/@leafygreen-ui/toggle) (version 7.0.4)
+<a id="93c18c2efdf14c284233ce8a38a8aa047016f42094e682ce9bd8ba0b719a8658"></a>
+### [@leafygreen-ui/toggle](https://www.npmjs.com/package/@leafygreen-ui/toggle) (version 7.0.5)
 <!-- initially found at node_modules/@leafygreen-ui/toggle -->
 > LeafyGreen UI Kit Toggle
 
@@ -4524,43 +4279,6 @@ Authors:
 * Rebecca Turner (http://re-becca.org)
 
 
-<a id="6bf6b63204abda4a601e8c445f3361a6018ef97389c85f36885019fea740f5a2"></a>
-### [babel-plugin-emotion](https://www.npmjs.com/package/babel-plugin-emotion) (version 10.2.2)
-<!-- initially found at node_modules/babel-plugin-emotion -->
-> A recommended babel preprocessing plugin for emotion, The Next Generation of CSS-in-JS.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Kye Hohenberger
-
-
 <a id="381b55ca4f1b3f786f49dad941451748e8d5f96dbc8ee87f7bf9911414dbb43f"></a>
 ### [babel-plugin-macros](https://www.npmjs.com/package/babel-plugin-macros) (version 2.8.0)
 <!-- initially found at node_modules/babel-plugin-macros -->
@@ -4595,14 +4313,6 @@ License files:
 
 Authors:
 * Kent C. Dodds <kent@doddsfamily.us> (http://kentcdodds.com/)
-
-
-<a id="50e535a9bb055f6fbfb2a37365dbea2ad87c775f231fc50431103e3ac0b00db7"></a>
-### [babel-plugin-syntax-jsx](https://www.npmjs.com/package/babel-plugin-syntax-jsx) (version 6.18.0)
-<!-- initially found at node_modules/babel-plugin-syntax-jsx -->
-> Allow parsing of jsx
-
-License tags: MIT
 
 
 <a id="acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44"></a>
@@ -5269,118 +4979,9 @@ Authors:
 * Suhas Karanth <sudo.suhas@gmail.com>
 
 
-<a id="e04c1c140df8427eb67b7d765974acbebf667dd744d85551eaf4dd81387362c9"></a>
-### [create-emotion](https://www.npmjs.com/package/create-emotion) (version 10.0.27)
-<!-- initially found at node_modules/create-emotion -->
-> The Next Generation of CSS-in-JS.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Kye Hohenberger
-
-
-<a id="6087e44eb0d8159c1debebc6f5f8c9e595f4b6e083b787bfba1169942027ce91"></a>
-### [create-emotion-server](https://www.npmjs.com/package/create-emotion-server) (version 10.0.27)
-<!-- initially found at node_modules/create-emotion-server -->
-> SSR and style extraction tooling for emotion, The Next Generation of CSS-in-JS.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Kye Hohenberger
-
-
 <a id="135c62e71c5e2b1389e80e2a7898d2b4261701f6af1e429c83420910af7a156b"></a>
 ### [csstype](https://www.npmjs.com/package/csstype) (version 3.0.8)
 <!-- initially found at node_modules/csstype -->
-> Strict TypeScript and Flow types for style based on MDN data
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2017-2018 Fredrik Nicol
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Fredrik Nicol <fredrik.nicol@gmail.com>
-
-
-<a id="bb9397f08ccc3a3d4aaac00c87c70ba4f2e7cebed8c6997b55383a033821e748"></a>
-### [csstype](https://www.npmjs.com/package/csstype) (version 2.6.17)
-<!-- initially found at node_modules/@emotion/serialize/node_modules/csstype -->
 > Strict TypeScript and Flow types for style based on MDN data
 
 License tags: MIT
@@ -6133,43 +5734,6 @@ License files:
 
 Authors:
 * Conrad Pankoff <deoxxa@fknsrs.biz> (http://www.fknsrs.biz/)
-
-
-<a id="70803f37575de31a75cc6d56ad6c64d1368178992a4d8b328d6ac7cd3cd789c1"></a>
-### [emotion](https://www.npmjs.com/package/emotion) (version 10.0.27)
-<!-- initially found at node_modules/emotion -->
-> The Next Generation of CSS-in-JS.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Kye Hohenberger
 
 
 <a id="fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563"></a>
@@ -9389,45 +8953,8 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="47b4e8e885d03368eebeacac0d713327742dbf9ceb426a2898b5b375c87eaab6"></a>
-### [polished](https://www.npmjs.com/package/polished) (version 4.1.3)
-<!-- initially found at node_modules/@leafygreen-ui/select/node_modules/polished -->
-> A lightweight toolset for writing styles in Javascript.
-
-License tags: MIT
-
-License files:
-* LICENSE.md:
-
-      MIT License
-      
-      Copyright (c) 2016 - 2021 Brian Hough and Maximilian Stoiber
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Brian Hough <hello@brianhough.net> (https://polished.js.org)
-
-
-<a id="49d731fc8e2d58caa864571a271131a9ee3804c43f97a57b4b31b45965c5c31d"></a>
-### [polished](https://www.npmjs.com/package/polished) (version 2.3.3)
+<a id="79a6d17425d875eed87e2c53268941a9396eab29baa4d05c6ee5b48e29fb52bd"></a>
+### [polished](https://www.npmjs.com/package/polished) (version 4.1.4)
 <!-- initially found at node_modules/polished -->
 > A lightweight toolset for writing styles in Javascript.
 
@@ -9438,7 +8965,7 @@ License files:
 
       MIT License
       
-      Copyright (c) 2016 - 2018 Brian Hough and Maximilian Stoiber
+      Copyright (c) 2016 - 2021 Brian Hough and Maximilian Stoiber
       
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
