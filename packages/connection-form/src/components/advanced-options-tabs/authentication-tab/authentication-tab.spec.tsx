@@ -76,7 +76,7 @@ describe('AuthenticationTab Component', function () {
     });
   });
 
-  it('does not render the username/password tab when auth is set', function () {
+  it('does not render the username/password tab when auth is not set', function () {
     renderComponent({
       connectionStringUrl: new ConnectionStringUrl('mongodb://localhost'),
       updateConnectionFormField: updateConnectionFormFieldSpy,
@@ -91,6 +91,20 @@ describe('AuthenticationTab Component', function () {
       errors: [],
       connectionStringUrl: new ConnectionStringUrl(
         'mongodb://a123:b123@localhost'
+      ),
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    expect(screen.getByLabelText('Username')).to.be.visible;
+    expect(screen.getByLabelText('Password')).to.be.visible;
+  });
+
+  it('renders the username/password tab when only password is set', function () {
+    renderComponent({
+      errors: [],
+      connectionStringUrl: new ConnectionStringUrl(
+        'mongodb://:b123@localhost',
+        { looseValidation: true }
       ),
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
