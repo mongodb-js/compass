@@ -42,7 +42,7 @@
     "bootstrap": "npm run compile"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.10.0",
+    "@mongodb-js/compass-components": "^0.11.0",
     "ace-builds": "^1.4.3",
     "debug": "*",
     "hadron-react-components": "^5.11.0",
@@ -67,7 +67,7 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@mongodb-js/compass-components": "^0.10.0",
+    "@mongodb-js/compass-components": "^0.11.0",
     "ace-builds": "^1.4.3",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
