@@ -178,7 +178,7 @@ const AggregationsQueriesList = ({
             collection={item.collection}
             lastModified={item.lastModified}
             onAction={onAction}
-            data-testid={`grid-item-${index}`}
+            data-test-id={`grid-item-${index}`}
             {...props}
           />
         );

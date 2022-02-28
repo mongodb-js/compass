@@ -44,7 +44,7 @@ class RecentListItem extends PureComponent {
       .forEach(key => delete attributes[key]);
 
     return (
-      <Card className={className}>
+      <Card data-test-id="recent-query-list-item" className={className}>
         <CardHeader title={model._lastExecuted.toString()}>
           <button
             title="Favorite Query"
