@@ -22,6 +22,7 @@ type RenderItem = React.FunctionComponent<
   }
 >;
 type RenderHeader = React.FunctionComponent;
+type RenderEmptyList = React.FunctionComponent;
 
 type VirtualGridProps = {
   /**
@@ -58,6 +59,10 @@ type VirtualGridProps = {
    */
   renderHeader?: RenderHeader;
   /**
+   * Render method for empty list items.
+   */
+  renderEmptyList?: RenderEmptyList;
+  /**
    * Number of rows rendered off-screen (default: 3)
    */
   overscanCount?: number;
@@ -78,7 +83,11 @@ type VirtualGridProps = {
 const GridContext = createContext<
   Pick<
     Required<VirtualGridProps>,
-    'headerHeight' | 'renderHeader' | 'renderItem' | 'itemsCount'
+    | 'headerHeight'
+    | 'renderHeader'
+    | 'renderItem'
+    | 'itemsCount'
+    | 'renderEmptyList'
   > &
     Pick<VirtualGridProps, 'classNames' | 'itemKey'> & {
       rowCount: number;
@@ -90,6 +99,7 @@ const GridContext = createContext<
   headerHeight: 0,
   renderHeader: () => null,
   renderItem: () => null,
+  renderEmptyList: () => null,
   itemsCount: 0,
   rowCount: 0,
   colCount: 0,
@@ -107,8 +117,14 @@ const GridWithHeader = forwardRef<
     style: React.CSSProperties & { height: number };
   }
 >(function GridHeader({ style, children, ...props }, ref) {
-  const { headerHeight, renderHeader, gridProps, classNames } =
-    useContext(GridContext);
+  const {
+    headerHeight,
+    renderHeader,
+    gridProps,
+    classNames,
+    renderEmptyList,
+    itemsCount,
+  } = useContext(GridContext);
   return (
     <div
       ref={ref}
@@ -121,7 +137,7 @@ const GridWithHeader = forwardRef<
       <div className={classNames?.header}>
         {React.createElement(renderHeader, {})}
       </div>
-      <div {...gridProps}>{children}</div>
+      <div {...gridProps}>{itemsCount === 0 ? renderEmptyList : children}</div>
     </div>
   );
 });
@@ -225,6 +241,7 @@ export const VirtualGrid = forwardRef<
     renderItem,
     headerHeight = 0,
     renderHeader = () => null,
+    renderEmptyList = () => null,
     overscanCount = 3,
     classNames,
     itemKey,
@@ -286,6 +303,7 @@ export const VirtualGrid = forwardRef<
           rovingFocusProps
         ),
         itemKey,
+        renderEmptyList,
       }}
     >
       <div {...gridContainerProps}>
