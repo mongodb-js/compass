@@ -1,7 +1,7 @@
 import type { MongoClientOptions } from 'mongodb';
 import { isLocalhost } from 'mongodb-build-info';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import ConnectionString from 'mongodb-connection-string-url';
+import { ConnectionString, ConnectionStringParsingOptions } from 'mongodb-connection-string-url';
 
 export type FieldName =
   | 'connectionString'
@@ -73,11 +73,12 @@ export function errorMessageByFieldNameAndIndex(
 }
 
 export function validateConnectionOptionsErrors(
-  connectionOptions: ConnectionOptions
+  connectionOptions: ConnectionOptions,
+  parsingOptions?: ConnectionStringParsingOptions
 ): ConnectionFormError[] {
   const connectionString = new ConnectionString(
     connectionOptions.connectionString,
-    { looseValidation: true }
+    { looseValidation: true, ...parsingOptions }
   );
 
   return [
