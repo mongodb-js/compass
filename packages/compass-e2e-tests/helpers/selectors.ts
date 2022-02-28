@@ -327,6 +327,8 @@ export const myQueriesItem = (title: string): string => {
   return `[title="${title}"]`;
 };
 
+export const MyQueriesGrid = '[data-testid="my-queries-grid"]';
+
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
 export const CreateNewPipelineButton = 'button#create-new-pipeline';
