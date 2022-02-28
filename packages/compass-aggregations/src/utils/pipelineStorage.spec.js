@@ -64,6 +64,38 @@ describe('PipelineStorage', function() {
     expect(aggregations.find(x => x.id === data[1].id)).to.deep.equal(data[1]);
   });
 
+  it('should update a pipeline', async function() {
+    const data = {
+      id: 1234567890,
+      name: 'hello',
+      namespace: 'airbnb.users',
+    };
+    createPipeline(tmpDir, data);
+
+    let aggregations = await pipelineStorage.loadAll();
+
+    expect(aggregations).to.have.length(1);
+    // loads lastModified from the file stats as well.
+    delete aggregations[0].lastModified;
+    expect(aggregations[0]).to.deep.equal(data);
+
+    const updatedAggregation = await pipelineStorage.updateAttributes(data.id, {name: 'updated', namespace: 'airbnb.users'});
+
+    aggregations = await pipelineStorage.loadAll();
+    expect(aggregations).to.have.length(1);
+    delete aggregations[0].lastModified;
+    expect(aggregations[0], 'updates in storage').to.deep.equal({
+      ...data,
+      name: 'updated',
+    });
+
+    delete updatedAggregation.lastModified;
+    expect(updatedAggregation, 'returns updated pipeline').to.deep.equal({
+      ...data,
+      name: 'updated',
+    });
+  });
+
   it('should delete a pipeline', async function() {
     const data = {
       id: 1234567890,

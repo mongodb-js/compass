@@ -45,7 +45,7 @@ function getDepType(dependency, version, pkgJson) {
 /**
  *
  * @param {Map<string, { dependencies?: any, devDependencies?: any, peerDependencies?: any, optionalDependencies?: any }>} workspaces
- * @returns {Map<string, { version: string, from: string, type: 'prod' | 'dev' | 'optional' | 'peer' }[]>}
+ * @returns {Map<string, { version: string, from: string, workspace: string, type: 'prod' | 'dev' | 'optional' | 'peer' }[]>}
  */
 function collectWorkspacesDependencies(workspaces) {
   const dependencies = new Map();
@@ -59,6 +59,7 @@ function collectWorkspacesDependencies(workspaces) {
     ]) {
       const item = {
         version: versionRange,
+        workspace: pkgJson.name,
         from: location,
         type: getDepType(dependency, versionRange, pkgJson),
       };

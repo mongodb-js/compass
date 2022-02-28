@@ -17,6 +17,10 @@ const urlOptionsContainerStyles = css({
   width: '70%',
 });
 
+const urlOptionsTableDescriptionStyles = css({
+  marginTop: spacing[1],
+});
+
 function UrlOptions({
   updateConnectionFormField,
   connectionStringUrl,
@@ -27,7 +31,7 @@ function UrlOptions({
   return (
     <div className={urlOptionsContainerStyles} data-testid="url-options">
       <Label htmlFor={''}>Url Options</Label>
-      <Description>
+      <Description className={urlOptionsTableDescriptionStyles}>
         Add additional MongoDB url options to customize your connection.&nbsp;
         <Link
           href={

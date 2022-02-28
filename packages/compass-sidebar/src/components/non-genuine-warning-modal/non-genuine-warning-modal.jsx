@@ -5,7 +5,6 @@ import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import FontAwesome from 'react-fontawesome';
 
-import classnames from 'classnames';
 import styles from './non-genuine-warning-modal.module.less';
 
 /**
@@ -48,22 +47,26 @@ class NonGenuineWarningModal extends PureComponent {
    */
   render() {
     return (
-      <Modal show={this.props.isVisible}
+      <Modal
+        // Because this modal is rendered outside of the
+        // react root we need to apply the deprecated bootstrap styles here.
+        className="with-global-bootstrap-styles"
+        show={this.props.isVisible}
         backdrop="static"
-        dialogClassName={classnames(styles['non-genuine-warning-modal'])}
-        onHide={this.handleClose.bind(this)} >
-
+        dialogClassName={styles['non-genuine-warning-modal']}
+        onHide={this.handleClose.bind(this)}
+      >
         <Modal.Header>
           <Modal.Title>{MODAL_TITLE}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <div className={classnames(styles['non-genuine-warning-modal-message'])}>
+          <div className={styles['non-genuine-warning-modal-message']}>
             <FontAwesome name="exclamation-circle"/>
             &nbsp; {WARNING_BANNER} &nbsp;
           </div>
 
-          <div className={classnames(styles['non-genuine-warning-modal-p1'])}>
+          <div className={styles['non-genuine-warning-modal-p1']}>
             {P1}
             <a
               onClick={() => this.props.openLink(LEARN_MORE_URL)}

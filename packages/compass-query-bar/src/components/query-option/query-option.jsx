@@ -125,7 +125,7 @@ class QueryOption extends Component {
         className={_className}
         data-test-id="query-bar-option">
         <div
-          className={classnames(styles.label)}
+          className={styles.label}
           data-test-id="query-bar-option-label">
           <InfoSprinkle helpLink={link} onClickHandler={this._openLink}/>
           {label}

@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 const items = [
-  { icon: 'Laptop', label: 'My Queries', tabName: 'My Queries' },
+  { icon: 'CurlyBraces', label: 'My Queries', tabName: 'My Queries' },
   { icon: 'Database', label: 'Databases', tabName: 'Databases' },
 ];
 

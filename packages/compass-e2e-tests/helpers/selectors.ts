@@ -71,24 +71,24 @@ export const sidebarCollection = (
 };
 
 // Create database modal
-export const CreateDatabaseModal = '[trackingid="create_database_modal"]';
+export const CreateDatabaseModal = '[data-testid="create_database_modal"]';
 export const CreateDatabaseDatabaseName = '[data-testid="database-name"]';
 export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
 export const CreateDatabaseCreateButton =
-  '[trackingid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Drop database modal
-export const DropDatabaseModal = '[trackingid="drop_database_modal"]';
+export const DropDatabaseModal = '[data-testid="drop_database_modal"]';
 export const DropDatabaseConfirmName =
   '[data-test-id="confirm-drop-database-name"]';
 export const DropDatabaseDropButton =
-  '[trackingid="drop_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="drop_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Create collection modal
-export const CreateCollectionModal = '[trackingid="create_collection_modal"]';
+export const CreateCollectionModal = '[data-testid="create_collection_modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
 export const CreateCollectionCreateButton =
-  '[trackingid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 export const CreateCollectionCappedCheckboxLabel =
   '[data-testid="capped-collection-fields"] #toggle-capped-collection-fields-label';
 export const CreateCollectionCappedSizeInput =
@@ -122,11 +122,11 @@ export const createCollectionCustomCollationFieldMenu = (
 };
 
 // Drop collection modal
-export const DropCollectionModal = '[trackingid="drop_collection_modal"]';
+export const DropCollectionModal = '[data-testid="drop_collection_modal"]';
 export const DropCollectionConfirmName =
   '[data-test-id="confirm-drop-collection-name"]';
 export const DropCollectionDropButton =
-  '[trackingid="drop_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="drop_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Shell
 export const ShellContent = '[data-test-id="shell-content"]';
@@ -216,7 +216,9 @@ export const collectionCardClickable = (
 
 // Collection screen
 export const CollectionTab = '.test-tab-nav-bar-tab';
-export const CollectionHeaderTitle = '[data-test-id="collection-header-title"]';
+export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
+export const CollectionHeaderNamespace =
+  '[data-testid="collection-header-namespace"]';
 export const DocumentCountValue = '[data-test-id="document-count-value"]';
 export const StorageSizeValue = '[data-test-id="storage-size-value"]';
 export const AvgDocumentSizeValue = '[data-test-id="avg-document-size-value"]';
@@ -268,7 +270,7 @@ export const ImportFileOption =
 
 export const InsertDialog = '.insert-document-dialog';
 export const InsertDialogErrorMessage =
-  '[trackingid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
+  '[data-testid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
 export const InsertJSONEditor = '.insert-document-dialog #ace-editor';
 export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
@@ -326,6 +328,12 @@ export const ExportAggregationToLanguage =
   '[data-test-id="aggregations-content"] [data-test-id="export-to-language"]';
 export const NewPipelineActions = '#new-pipeline-actions';
 export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
+export const SavePipelineActions = '#save-pipeline-actions';
+export const SavePipelineActionsCreateView = '[data-testid="create-a-view"]';
+
+// Create view from pipeline modal
+export const CreateViewModal = '[data-testid="create_view_modal"]';
+export const CreateViewNameInput = '#create-view-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [role="option"]`;
@@ -423,11 +431,11 @@ export const CreateIndexModalFieldSelect =
 export const CreateIndexModalTypeSelect =
   '[data-test-id="create-index-modal-type-select"]';
 export const CreateIndexConfirmButton = '[data-test-id="create-index-button"]';
-export const DropIndexModal = '[trackingid="drop_index_modal"]';
+export const DropIndexModal = '[data-testid="drop_index_modal"]';
 export const DropIndexModalConfirmName =
   '[data-test-id="confirm-drop-index-name"]';
 export const DropIndexModalConfirmButton =
-  '[trackingid="drop_index_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="drop_index_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 export const indexComponent = (indexName: string): string => {
   return `[data-test-id="index-component-${indexName}"]`;
@@ -560,18 +568,18 @@ export const ExportToLanguageCloseButton =
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =
-  '[trackingid="confirm_new_pipeline_modal"]';
+  '[data-testid="confirm_new_pipeline_modal"]';
 export const ConfirmNewPipelineModalConfirmButton =
-  '[trackingid="confirm_new_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="confirm_new_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // New pipeline from text modal
-export const NewPipelineFromTextModal = '[trackingid="import_pipeline_modal"]';
+export const NewPipelineFromTextModal = '[data-testid="import_pipeline_modal"]';
 export const NewPipelineFromTextEditor = '#import-pipeline-editor';
 export const NewPipelineFromTextConfirmButton =
-  '[trackingid="import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Confirm import pipeline modal
 export const ConfirmImportPipelineModal =
-  '[trackingid="confirm_import_pipeline_modal"]';
+  '[data-testid="confirm_import_pipeline_modal"]';
 export const ConfirmImportPipelineModalConfirmButton =
-  '[trackingid="confirm_import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="confirm_import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';

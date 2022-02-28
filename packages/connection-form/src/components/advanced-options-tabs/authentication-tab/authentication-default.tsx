@@ -5,6 +5,8 @@ import {
   RadioBox,
   RadioBoxGroup,
   TextInput,
+  css,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
@@ -17,6 +19,10 @@ import {
   getConnectionStringPassword,
   getConnectionStringUsername,
 } from '../../../utils/connection-string-helpers';
+
+const textInputWithLabelStyles = css({
+  marginTop: spacing[1],
+});
 
 const defaultAuthMechanismOptions: {
   title: string;
@@ -116,8 +122,8 @@ function AuthenticationDefault({
           aria-label="Authentication Database Documentation"
           href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
         />
-
         <TextInput
+          className={textInputWithLabelStyles}
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {

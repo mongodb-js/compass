@@ -9,6 +9,7 @@ import {
   uiColors,
   css,
   cx,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -18,6 +19,10 @@ import FormFieldContainer from '../../form-field-container';
 import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
 import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
+
+const checkboxDescriptionStyles = css({
+  marginTop: spacing[1],
+});
 
 const disabledCheckboxDescriptionStyles = css({
   color: uiColors.gray.light1,
@@ -202,7 +207,7 @@ function TLSTab({
             bold={false}
           />
           <Description
-            className={cx({
+            className={cx(checkboxDescriptionStyles, {
               [disabledCheckboxDescriptionStyles]: tlsOptionsDisabled,
             })}
           >

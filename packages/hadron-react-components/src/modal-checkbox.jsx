@@ -19,8 +19,11 @@ class ModalCheckbox extends React.Component {
             type="checkbox"
             onChange={this.props.onClickHandler}
             checked={this.props.checked}
-            className={this.props.inputClassName} />
-          <p className={this.props.titleClassName}>{this.props.name}</p>
+            className={this.props.inputClassName}
+          />
+          <span className={this.props.titleClassName}>
+            {this.props.name}
+          </span>
         </label>
         <InfoSprinkle
           helpLink={this.props.helpUrl}

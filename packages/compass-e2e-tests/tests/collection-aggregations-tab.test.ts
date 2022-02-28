@@ -1,11 +1,22 @@
 import _ from 'lodash';
 import chai from 'chai';
+import type { Element } from 'webdriverio';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
 const { expect } = chai;
+
+async function waitForAnyText(
+  browser: CompassBrowser,
+  element: Element<'async'>
+) {
+  await browser.waitUntil(async () => {
+    const text = await element.getText();
+    return text !== '';
+  });
+}
 
 describe('Collection aggregations tab', function () {
   let compass: Compass;
@@ -16,11 +27,11 @@ describe('Collection aggregations tab', function () {
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
-
-    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
   });
 
   beforeEach(async function () {
+    // Some tests navigate away from the numbers collection aggregations tab
+    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     // Get us back to the empty stage every time. Also test the Create New
     // Pipeline flow while at it.
     await browser.clickVisible(Selectors.CreateNewPipelineButton);
@@ -137,7 +148,7 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  it('supports tweaking settings of an aggregation', async function () {
+  it('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
     // set a collation
     await browser.clickVisible(Selectors.ToggleAggregationCollation);
     const collationInput = await browser.$(Selectors.AggregationCollationInput);
@@ -151,10 +162,7 @@ describe('Collection aggregations tab', function () {
     const contentElement0 = await browser.$(Selectors.stageContent(0));
 
     // It starts out empty
-    await browser.waitUntil(async () => {
-      const text = await contentElement0.getText();
-      return text !== '';
-    });
+    await waitForAnyText(browser, contentElement0);
 
     expect(await contentElement0.getText()).to.equal(`/**
  * query: The query in MQL.
@@ -200,10 +208,7 @@ describe('Collection aggregations tab', function () {
     const contentElement1 = await browser.$(Selectors.stageContent(1));
 
     // starts empty
-    await browser.waitUntil(async () => {
-      const text = await contentElement1.getText();
-      return text !== '';
-    });
+    await waitForAnyText(browser, contentElement1);
 
     expect(await contentElement1.getText()).to.equal(`{
   specification(s)
@@ -235,18 +240,39 @@ describe('Collection aggregations tab', function () {
       return text === '(Sample of 100 documents)';
     });
 
-    // save as a view
-    // TODO: This is currently broken, so will have to test at a later stage
-    /*
-    //#save-pipeline-actions
-    //a=Create a view'
-    '[trackingid="create_view_modal"]'
-    '#create-view-name'
-    '[trackingid="create_view_modal"] [role=dialog] > div:nth-child(2) button:first-child'
-    */
+    // open actions
+    await browser.clickVisible(Selectors.SavePipelineActions);
 
-    // browse to the view
-    // TODO
+    // select create view
+    await browser.clickVisible(Selectors.SavePipelineActionsCreateView);
+
+    // wait for the modal to appear
+    const createViewModal = await browser.$(Selectors.CreateViewModal);
+    await createViewModal.waitForDisplayed();
+
+    // set view name
+    await browser.waitForAnimations(Selectors.CreateViewNameInput);
+    const viewNameInput = await browser.$(Selectors.CreateViewNameInput);
+    await viewNameInput.setValue('my-view-from-pipeline');
+
+    // click create button
+    const createButton = await browser
+      .$(Selectors.CreateViewModal)
+      .$('button=Create');
+
+    await createButton.click();
+
+    // wait until the active tab is the view that we just created
+    await browser.waitUntil(
+      async function () {
+        const ns = await browser.getActiveTabNamespace();
+        return ns === 'test.my-view-from-pipeline';
+      },
+      {
+        timeoutMsg:
+          'Expected `test.my-view-from-pipeline` namespace tab to be visible',
+      }
+    );
   });
 
   it('supports maxTimeMS', async function () {
@@ -294,19 +320,30 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(0, '$out');
     await browser.setAceValue(Selectors.stageEditor(0), "'my-out-collection'");
 
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+
     await browser.clickVisible(Selectors.AddStageButton);
 
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
 
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+
     // make sure it complains that it must be the last stage
-    const messageElement = await browser.$(
-      Selectors.stageEditorErrorMessage(1)
-    );
-    await messageElement.waitForDisplayed();
-    expect(await messageElement.getText()).to.equal(
-      '$out can only be the final stage in the pipeline'
+    await browser.waitUntil(
+      async () => {
+        const messageElement = await browser.$(
+          Selectors.stageEditorErrorMessage(1)
+        );
+        await messageElement.waitForDisplayed();
+        const text = await messageElement.getText();
+        return text === '$out can only be the final stage in the pipeline';
+      },
+      {
+        timeoutMsg:
+          'Waited for the error "$out can only be the final stage in the pipeline"',
+      }
     );
 
     // delete the stage after $out
@@ -316,9 +353,18 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.stageOutSaveButton(0));
 
     // go to the new collection
-    const linkElement = await browser.$(Selectors.stageOutCollectionLink(0));
-    await linkElement.waitForDisplayed();
-    // TODO: clicking this button crashes at the moment
+    await browser.clickVisible(Selectors.stageOutCollectionLink(0));
+
+    await browser.waitUntil(
+      async function () {
+        const ns = await browser.getActiveTabNamespace();
+        return ns === 'test.my-out-collection';
+      },
+      {
+        timeoutMsg:
+          'Expected `test.my-out-collection` namespace tab to be visible',
+      }
+    );
   });
 
   it('supports $merge as the last stage', async function () {
@@ -331,19 +377,30 @@ describe('Collection aggregations tab', function () {
 }`
     );
 
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+
     await browser.clickVisible(Selectors.AddStageButton);
 
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
 
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+
     // make sure it complains that it must be the last stage
-    const messageElement = await browser.$(
-      Selectors.stageEditorErrorMessage(1)
-    );
-    await messageElement.waitForDisplayed();
-    expect(await messageElement.getText()).to.equal(
-      '$merge can only be the final stage in the pipeline'
+    await browser.waitUntil(
+      async () => {
+        const messageElement = await browser.$(
+          Selectors.stageEditorErrorMessage(1)
+        );
+        await messageElement.waitForDisplayed();
+        const text = await messageElement.getText();
+        return text === '$merge can only be the final stage in the pipeline';
+      },
+      {
+        timeoutMsg:
+          'Waited for the error "$merge can only be the final stage in the pipeline"',
+      }
     );
 
     // delete the stage after $out
@@ -353,9 +410,18 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.stageMergeSaveButton(0));
 
     // go to the new collection
-    const linkElement = await browser.$(Selectors.stageMergeCollectionLink(0));
-    await linkElement.waitForDisplayed();
-    // TODO: clicking this button crashes at the moment
+    await browser.clickVisible(Selectors.stageMergeCollectionLink(0));
+
+    await browser.waitUntil(
+      async function () {
+        const ns = await browser.getActiveTabNamespace();
+        return ns === 'test.my-merge-collection';
+      },
+      {
+        timeoutMsg:
+          'Expected `test.my-merge-collection` namespace tab to be visible',
+      }
+    );
   });
 
   it('allows creating a new pipeline from text', async function () {
