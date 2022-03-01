@@ -118,14 +118,12 @@
   },
   "scripts": {
     "install": "node scripts/download-akzidenz.js",
-    "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor",
+    "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor,os-dns-native --force --prebuild-tag-prefix not-real-prefix-to-force-rebuild",
     "prestart": "npm run electron-rebuild",
     "start": "npm run webpack serve -- --mode development",
-    "pretest": "npm run electron-rebuild",
-    "test": "npm run test-main && npm run test-renderer",
+    "test-electron": "npm run test-main && npm run test-renderer",
     "test-main": "xvfb-maybe electron-mocha --no-sandbox \"./src/main/**/*.spec.*\"  \"./src/main/**/*.test.*\"",
     "test-renderer": "xvfb-maybe electron-mocha --no-sandbox --config ./.mocharc.renderer.js \"./src/app/**/*.spec.js\"",
-    "posttest": "node ../../scripts/rebuild.js kerberos keytar interruptor",
     "check": "npm run lint && npm run depcheck",
     "prewebpack": "rimraf ./build",
     "webpack": "webpack-compass",
@@ -139,7 +137,8 @@
     "jsx": "babel ./src --out-dir ./lib",
     "lint": "eslint",
     "depcheck": "depcheck",
-    "test-ci": "npm run test-release-tasks && npm run test",
+    "test-ci": "npm run test-release-tasks",
+    "test-ci-electron": "npm run test-electron",
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "repository": {
