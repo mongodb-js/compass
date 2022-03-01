@@ -21,7 +21,7 @@ import { errorsByFieldTab } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
 
 const tabsStyles = css({
-  marginTop: spacing[1],
+  marginTop: spacing[2],
 });
 
 const tabWithErrorIndicatorStyles = css({
