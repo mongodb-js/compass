@@ -111,9 +111,7 @@ export function handleUpdateUsername({
         {
           fieldName: 'username',
           fieldTab: 'authentication',
-          message: action.username
-            ? parsingError.message
-            : `Username cannot be empty: "${parsingError.message}"`,
+          message: parsingError.message,
         },
       ],
     };
@@ -151,26 +149,13 @@ export function handleUpdatePassword({
   if (parsingError) {
     return {
       connectionOptions,
-      errors: connectionStringUrl.username
-        ? [
-            {
-              fieldName: 'password',
-              fieldTab: 'authentication',
-              message: parsingError.message,
-            },
-          ]
-        : [
-            {
-              fieldName: 'username',
-              fieldTab: 'authentication',
-              message: `Username cannot be empty: "${parsingError.message}"`,
-            },
-            {
-              fieldName: 'password',
-              fieldTab: 'authentication',
-              message: 'Please enter a username first',
-            },
-          ],
+      errors: [
+        {
+          fieldName: 'password',
+          fieldTab: 'authentication',
+          message: parsingError.message,
+        },
+      ],
     };
   }
 

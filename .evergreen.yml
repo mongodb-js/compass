@@ -440,7 +440,7 @@ tasks:
           compass_distribution: compass
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*'
+          debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass
       - func: save-windows-artifacts
         vars:
@@ -472,7 +472,7 @@ tasks:
           compass_distribution: compass-isolated
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*'
+          debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass-isolated
       - func: save-windows-artifacts
         vars:
@@ -504,7 +504,7 @@ tasks:
           compass_distribution: compass-readonly
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*'
+          debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass-readonly
       - func: save-windows-artifacts
         vars:

@@ -73,14 +73,17 @@ describe('SSHTunnelPassword', function () {
     const errors: ConnectionFormError[] = [
       {
         fieldName: 'sshHostname',
+        fieldTab: 'proxy',
         message: 'Invalid host',
       },
       {
         fieldName: 'sshUsername',
+        fieldTab: 'proxy',
         message: 'Invalid username',
       },
       {
         fieldName: 'sshPassword',
+        fieldTab: 'proxy',
         message: 'Invalid password',
       },
     ];

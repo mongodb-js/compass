@@ -114,6 +114,7 @@ function AuthenticationGSSAPI({
             });
           }}
           value={canonicalizeHostname}
+          size="compact"
         >
           {Object.entries(GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS).map(
             ([key, { label, value }]) => (
