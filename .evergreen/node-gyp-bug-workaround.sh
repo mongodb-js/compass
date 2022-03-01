@@ -37,12 +37,12 @@ CACHEDIR="$LOCALAPPDATA/node-gyp/Cache"
 rm -rvf "$CACHEDIR"
 mkdir -p "$CACHEDIR/$NODE_JS_VERSION"
 cd "$CACHEDIR/$NODE_JS_VERSION"
-curl -sSfLO "https://nodejs.org/download/release/$NODE_JS_VERSION/node-$NODE_JS_VERSION-headers.tar.gz"
-tar --strip-components=1 -xvzf "node-$NODE_JS_VERSION-headers.tar.gz"
+curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-headers.tar.gz"
+tar --strip-components=1 -xvzf "node-v$NODE_JS_VERSION-headers.tar.gz"
 for arch in x64 x86 arm64; do
   mkdir $arch
   cd $arch && \
-    curl -sSfLO "https://nodejs.org/download/release/$NODE_JS_VERSION/win-$ARCH/node.lib" || echo "no $ARCH $NODE_JS_VERSION .lib file"
+    curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/win-$arch/node.lib" || echo "no $arch v$NODE_JS_VERSION .lib file"
 done
 
 # Finally, store the right installVersion value for current node-gyp versions
