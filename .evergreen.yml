@@ -40,7 +40,7 @@ variables:
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
     NODE_JS_VERSION: '14.17.5'
-    NPM_VERSION: '7'
+    NPM_VERSION: '8.3.1'
     # secrets
     HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
@@ -304,6 +304,46 @@ functions:
 
           DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
+  test-connectivity:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          COMPASS_SKIP_KERBEROS_TESTS: 'true'
+          COMPASS_RUN_DOCKER_TESTS: 'true'
+          DEBUG: ${debug}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          git clone -b v1.2.4 https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
+          docker-compose -f test-envs/docker/enterprise/docker-compose.yaml up -d
+          docker-compose -f test-envs/docker/ldap/docker-compose.yaml up -d
+          docker-compose -f test-envs/docker/scram/docker-compose.yaml up -d
+          docker-compose -f test-envs/docker/sharded/docker-compose.yaml up -d
+          docker-compose -f test-envs/docker/ssh/docker-compose.yaml up -d
+          docker-compose -f test-envs/docker/tls/docker-compose.yaml up -d
+          docker-compose -f test-envs/docker/kerberos/docker-compose.yaml up -d
+
+          stop_all_docker_containers() {
+            docker-compose -f test-envs/docker/enterprise/docker-compose.yaml down -v --remove-orphans
+            docker-compose -f test-envs/docker/ldap/docker-compose.yaml down -v --remove-orphans
+            docker-compose -f test-envs/docker/scram/docker-compose.yaml down -v --remove-orphans
+            docker-compose -f test-envs/docker/sharded/docker-compose.yaml down -v --remove-orphans
+            docker-compose -f test-envs/docker/ssh/docker-compose.yaml down -v --remove-orphans
+            docker-compose -f test-envs/docker/tls/docker-compose.yaml down -v --remove-orphans
+            docker-compose -f test-envs/docker/kerberos/docker-compose.yaml down -v --remove-orphans
+          }
+
+          trap "stop_all_docker_containers" ERR
+          npm run test-connectivity --workspace mongodb-data-service
+          stop_all_docker_containers
+
   save-windows-artifacts:
     - <<: *save-artifact
       params:
@@ -440,7 +480,7 @@ tasks:
           compass_distribution: compass
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*'
+          debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass
       - func: save-windows-artifacts
         vars:
@@ -472,7 +512,7 @@ tasks:
           compass_distribution: compass-isolated
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*'
+          debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass-isolated
       - func: save-windows-artifacts
         vars:
@@ -504,7 +544,7 @@ tasks:
           compass_distribution: compass-readonly
       - func: package
         vars:
-          debug: 'hadron*,mongo*,compass*'
+          debug: 'hadron*,mongo*,compass*,electron*'
           compass_distribution: compass-readonly
       - func: save-windows-artifacts
         vars:
@@ -522,6 +562,16 @@ tasks:
         vars:
           compass_distribution: compass-readonly
         variants: [ubuntu]
+
+  - name: test-connectivity
+    tags: ['required-for-publish']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-connectivity
+        vars:
+          debug: 'compass*,electron*,hadron*,mongo*'
 
   # copied as test-packaged-app-macos due to depends_on variation
   - name: test-packaged-app
@@ -711,6 +761,12 @@ buildvariants:
       # Doesn't really matter what machine type does this step, we publish
       # everything in one go
       - name: publish
+
+  - name: ubuntu_connectivity_tests
+    display_name: Connectivity Tests
+    run_on: ubuntu1604-large
+    tasks:
+      - name: test-connectivity
 
   - name: rhel
     display_name: RHEL

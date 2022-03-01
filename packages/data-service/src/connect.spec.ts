@@ -581,6 +581,12 @@ describe('connect', function () {
     });
 
     describe('kerberos', function () {
+      before(function () {
+        if (process.env.COMPASS_SKIP_KERBEROS_TESTS === 'true') {
+          this.skip();
+        }
+      });
+
       it('connects to kerberos', async function () {
         await testConnection(envs.getConnectionOptions('kerberos'), {
           authenticatedUserRoles: [

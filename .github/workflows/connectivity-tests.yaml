@@ -76,11 +76,18 @@ jobs:
           docker-compose -f docker/tls/docker-compose.yaml up -d
           docker-compose -f docker/kerberos/docker-compose.yaml up -d
 
-      - name: Install npm@7
-        run: npm install -g npm@7
+      - name: Install npm@8.3.1
+        run: |
+          npm install -g npm@8.3.1
+
+      - name: Run node-gyp bug workaround script
+        run: |
+          bash .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
-        run: npm run bootstrap-ci
+        run: |
+          npm -v
+          npm run bootstrap-ci
 
       - name: Docker ps
         run: docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

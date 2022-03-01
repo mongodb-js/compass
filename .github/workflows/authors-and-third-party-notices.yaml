@@ -22,11 +22,18 @@ jobs:
       - name: Install Deps Ubuntu
         run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
 
-      - name: Install npm@7
-        run: npm install -g npm@7
+      - name: Install npm@8.3.1
+        run: |
+          npm install -g npm@8.3.1
+
+      - name: Run node-gyp bug workaround script
+        run: |
+          bash .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          npm -v
+          npm ci
 
       - name: Set up Git
         run: |

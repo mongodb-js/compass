@@ -28,9 +28,11 @@ export function parseAuthMechanismProperties(
 
 export function tryToParseConnectionString(
   connectionString: string
-): [ConnectionStringUrl | undefined, Error | undefined] {
+): [ConnectionStringUrl, undefined] | [undefined, Error] {
   try {
-    const connectionStringUrl = new ConnectionStringUrl(connectionString);
+    const connectionStringUrl = new ConnectionStringUrl(connectionString, {
+      looseValidation: true,
+    });
     return [connectionStringUrl, undefined];
   } catch (err) {
     return [undefined, err as Error];

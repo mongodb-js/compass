@@ -17,7 +17,15 @@ async function main() {
 
   for (const [depName, versionsInUse] of leafyGreenDependencies) {
     for (const dependencyEntry of versionsInUse)
-      if (dependencyEntry.workspace !== compassComponentsWorkspaceName) {
+      if (
+        [
+          compassComponentsWorkspaceName,
+          // TODO: compass-shell requires @leafygreen-ui/code to be installed as
+          // a dependency until we change how browser-repl is bundled
+          // https://jira.mongodb.org/browse/COMPASS-5535
+          '@mongodb-js/compass-shell',
+        ].includes(dependencyEntry.workspace) === false
+      ) {
         process.exitCode = 1;
         console.error(
           `The package "${dependencyEntry.workspace}" has the dependency "${depName}" in its ${dependencyEntry.type} dependencies.`

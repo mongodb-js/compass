@@ -36,7 +36,7 @@
     "electron-mocha": "^10.1.0",
     "electron-packager": "^14.2.0",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
-    "electron-rebuild": "^2.3.5",
+    "electron-rebuild": "^3.2.7",
     "flatnest": "^1.0.0",
     "fs-extra": "^8.1.0",
     "getos": "^3.1.4",

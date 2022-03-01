@@ -198,6 +198,7 @@ const AggregationsQueriesList = ({
       }}
     >
       <VirtualGrid
+        data-testid="my-queries-grid"
         itemMinWidth={CARD_WIDTH}
         itemHeight={CARD_HEIGHT + spacing[2]}
         itemsCount={sortedItems.length}
