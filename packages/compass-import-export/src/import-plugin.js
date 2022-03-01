@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import ImportModal from './components/import-modal';
+import importStore from './stores/import-store';
 
 class ImportPlugin extends Component {
-  static displayName = 'ImportPlugin';
-  static propTypes = {
-    store: PropTypes.object.isRequired
-  }
-
   /**
    * Connect the Plugin to the store and render.
    *
@@ -16,7 +11,7 @@ class ImportPlugin extends Component {
    */
   render() {
     return (
-      <Provider store={this.props.store}>
+      <Provider store={importStore}>
         <ImportModal />
       </Provider>
     );

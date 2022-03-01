@@ -147,6 +147,29 @@ function ConnectForm({
     });
   }, [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]);
 
+  const callOnSaveConnectionClickedAndStoreErrors = useCallback(
+    async (connectionInfo: ConnectionInfo): Promise<void> => {
+      try {
+        const formErrors = validateConnectionOptionsErrors(
+          connectionInfo.connectionOptions,
+          { looseValidation: false }
+        );
+        if (formErrors.length) {
+          setErrors(formErrors);
+          return;
+        }
+        await onSaveConnectionClicked?.(connectionInfo);
+      } catch (err) {
+        setErrors([
+          {
+            message: `Unable to save connection: ${(err as Error).message}`,
+          },
+        ]);
+      }
+    },
+    [onSaveConnectionClicked, setErrors]
+  );
+
   return (
     <>
       <div className={formContainerStyles} data-testid="connection-form">
@@ -232,12 +255,10 @@ function ConnectForm({
                     : 'hidden'
                 }
                 onSaveClicked={async () => {
-                  if (onSaveConnectionClicked) {
-                    await onSaveConnectionClicked({
-                      ...cloneDeep(initialConnectionInfo),
-                      connectionOptions: cloneDeep(connectionOptions),
-                    });
-                  }
+                  await callOnSaveConnectionClickedAndStoreErrors({
+                    ...cloneDeep(initialConnectionInfo),
+                    connectionOptions: cloneDeep(connectionOptions),
+                  });
                 }}
                 onConnectClicked={onSubmitForm}
               />
@@ -254,17 +275,13 @@ function ConnectForm({
           onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
             setShowSaveConnectionModal(false);
 
-            try {
-              await onSaveConnectionClicked({
-                ...cloneDeep(initialConnectionInfo),
-                connectionOptions: cloneDeep(connectionOptions),
-                favorite: {
-                  ...favoriteInfo,
-                },
-              });
-            } catch (err) {
-              setErrors([err as Error]);
-            }
+            await callOnSaveConnectionClickedAndStoreErrors({
+              ...cloneDeep(initialConnectionInfo),
+              connectionOptions: cloneDeep(connectionOptions),
+              favorite: {
+                ...favoriteInfo,
+              },
+            });
           }}
           key={initialConnectionInfo.id}
           initialFavoriteInfo={initialConnectionInfo.favorite}

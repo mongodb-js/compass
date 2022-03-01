@@ -79,18 +79,27 @@ class CollectionHeader extends Component {
     return (
       <div className={styles['collection-header']}>
         {!this.props.isReadonly && this.renderStats()}
-        <div className={styles['collection-header-title']} title={`${database}.${collection}`} data-test-id="collection-header-title">
-          <a
-            className={styles['collection-header-title-db']}
-            onClick={() => this.handleDBClick(database)}
-            href="#"
+        <div
+          title={`${database}.${collection}`}
+          className={styles['collection-header-title']}
+          data-testid="collection-header-title"
+        >
+          <div
+            data-testid="collection-header-namespace"
+            className={styles['collection-header-namespace']}
           >
-            {database}
-          </a>
-          <span>.</span>
-          <span className={styles['collection-header-title-collection']}>
-            {collection}
-          </span>
+            <a
+              className={styles['collection-header-title-db']}
+              onClick={() => this.handleDBClick(database)}
+              href="#"
+            >
+              {database}
+            </a>
+            <span>.</span>
+            <span className={styles['collection-header-title-collection']}>
+              {collection}
+            </span>
+          </div>
           {this.props.isReadonly && <ReadOnlyBadge />}
           {this.props.isTimeSeries && <TimeSeriesBadge />}
           {this.props.isReadonly && this.props.sourceName && <ViewBadge />}

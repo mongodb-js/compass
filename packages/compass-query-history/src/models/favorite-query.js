@@ -20,8 +20,12 @@ const FavoriteQuery = Query.extend(storageMixin, {
     /**
      * When was the favorite saved
      */
-    _dateSaved: 'date'
-  }
+    _dateSaved: 'date',
+    /**
+     * When was the favorite modified
+     */
+    _dateModified: 'date',
+  },
 });
 
 export default FavoriteQuery;

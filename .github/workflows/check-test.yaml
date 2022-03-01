@@ -46,11 +46,17 @@ jobs:
           node-version: ^14.17.5
           cache: 'npm'
 
-      - name: Install npm@7
-        run: npm install -g npm@7
+      - name: Install npm@8.3.1
+        run: |
+          npm install -g npm@8.3.1
+
+      - name: Run node-gyp bug workaround script
+        run: |
+          bash .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
         run: |
+          npm -v
           npm ci
           # Dependencies are included when installing as npm workspaces will
           # hoist every package in the repo and it's important that the

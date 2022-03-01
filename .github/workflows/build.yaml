@@ -49,11 +49,17 @@ jobs:
           node-version: ^14.17.5
           cache: 'npm'
 
-      - name: Install npm@7
-        run: npm install -g npm@7
+      - name: Install npm@8.3.1
+        run: |
+          npm install -g npm@8.3.1
+
+      - name: Run node-gyp bug workaround script
+        run: |
+          bash .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
         run: |
+          npm -v
           npm ci
           # We don't need to bootstrap anything else before running the e2e tests
           npx lerna run bootstrap -- --stream --scope @mongodb/webpack-config-compass

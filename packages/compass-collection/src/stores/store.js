@@ -139,6 +139,33 @@ store.onActivated = (appRegistry) => {
     }
   });
 
+  ipc.on('compass:open-export', () => {
+    const state = store.getState();
+    if (state.tabs) {
+      const activeTab = state.tabs.find((tab) => tab.isActive === true);
+      if (activeTab) {
+        const crudStore = activeTab.localAppRegistry.getStore('CRUD.Store');
+        const { query: crudQuery, count } = crudStore.state;
+        const { filter, limit, skip } = crudQuery;
+        appRegistry.emit('open-export', {
+          namespace: activeTab.namespace,
+          query: { filter, limit, skip },
+          count,
+        });
+      }
+    }
+  });
+
+  ipc.on('compass:open-import', () => {
+    const state = store.getState();
+    if (state.tabs) {
+      const activeTab = state.tabs.find((tab) => tab.isActive === true);
+      if (activeTab) {
+        appRegistry.emit('open-import', { namespace: activeTab.namespace });
+      }
+    }
+  });
+
   /**
    * Set the app registry to use later.
    */

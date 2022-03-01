@@ -1,21 +1,5 @@
 #!/usr/bin/env bash
 
-if [[ $OSTYPE == "cygwin" ]]; then
-    export PLATFORM='win32'
-    export IS_WINDOWS=true
-elif [[ `uname` == Darwin ]]; then
-    export PLATFORM='darwin'
-    export IS_OSX=true
-else
-    export PLATFORM='linux'
-    export IS_LINUX=true
-    if [[ `cat /etc/*release | grep ^NAME | grep Red` ]]; then
-        export IS_RHEL=true
-    elif [[ `cat /etc/*release | grep ^NAME | grep Ubuntu` ]]; then
-        export IS_UBUNTU=true
-    fi
-fi
-
 echo "========================="
 echo "Important Environment Variables"
 echo "========================="
@@ -51,6 +35,9 @@ if [ -n "$IS_WINDOWS" ]; then
     ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@$NPM_VERSION
     rm -rf node_modules/npm2/
     chmod +x npm.cmd npm
+
+    cd ..
+    .evergreen/node-gyp-bug-workaround.sh
 else
     echo "Installing nodejs v${NODE_JS_VERSION} for ${PLATFORM}..."
     curl -fs \

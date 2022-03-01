@@ -67,7 +67,7 @@ describe('Authentication Handler', function () {
       expect(res.errors).to.equal(undefined);
     });
 
-    it('should return an error if the connection string has a password and the username is being set to empty', function () {
+    it('should not return an error if the connection string has a password and the username is being set to empty', function () {
       const res = handleUpdateUsername({
         action: {
           type: 'update-username',
@@ -80,16 +80,9 @@ describe('Authentication Handler', function () {
       });
 
       expect(res.connectionOptions.connectionString).to.equal(
-        'mongodb://a123:b123@localhost'
+        'mongodb://:b123@localhost/'
       );
-      expect(res.errors).to.deep.equal([
-        {
-          fieldName: 'username',
-          fieldTab: 'authentication',
-          message:
-            'Username cannot be empty: "URI contained empty userinfo section"',
-        },
-      ]);
+      expect(res.errors).to.equal(undefined);
     });
 
     it('should remove the username field when being set to empty with no password', function () {
@@ -183,21 +176,9 @@ describe('Authentication Handler', function () {
       });
 
       expect(res.connectionOptions.connectionString).to.equal(
-        'mongodb://localhost/?authMechanism=DEFAULT'
+        'mongodb://:pineapple@localhost/?authMechanism=DEFAULT'
       );
-      expect(res.errors).to.deep.equal([
-        {
-          fieldName: 'username',
-          fieldTab: 'authentication',
-          message:
-            'Username cannot be empty: "URI contained empty userinfo section"',
-        },
-        {
-          fieldName: 'password',
-          fieldTab: 'authentication',
-          message: 'Please enter a username first',
-        },
-      ]);
+      expect(res.errors).to.equal(undefined);
     });
 
     it('should remove the password field when being set to empty with a username', function () {
