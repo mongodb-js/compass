@@ -36,7 +36,7 @@ tests:
                   'x' => 1
                 }).scope
             rust: |-
-                JavaScriptCodeWithScope { code: "test code", scope: doc! {
+                JavaScriptCodeWithScope { code: "test code".to_string(), scope: doc! {
                   "x": 1
                 } }.scope
     -   input:

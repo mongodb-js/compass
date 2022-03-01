@@ -281,7 +281,7 @@ Templates:
                 (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
                 newStr = str.substr(1, str.length - 2);
             }
-            code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}".to_string()`;
             if (scope === undefined) {
                 return `Bson::JavaScriptCode(${code})`;
             } else {

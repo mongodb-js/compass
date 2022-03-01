@@ -20,7 +20,7 @@ tests:
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
           ruby: BSON::Code.new('some code')
-          rust: Bson::JavaScriptCode("some code")
+          rust: Bson::JavaScriptCode("some code".to_string())
     - description: 'string code'
       input:
           javascript: Code('some code')
@@ -34,7 +34,7 @@ tests:
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
           ruby: BSON::Code.new('some code')
-          rust: Bson::JavaScriptCode("some code")
+          rust: Bson::JavaScriptCode("some code".to_string())
     - description: 'string code and object scope'
       input:
           javascript: "new Code('string', {x: '1'})"
@@ -49,7 +49,7 @@ tests:
           object: 'new Code("string", {"x": 1})'
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           rust: |-
-            JavaScriptCodeWithScope { code: "string", scope: doc! {
+            JavaScriptCodeWithScope { code: "string".to_string(), scope: doc! {
               "x": "1"
             } }
     - description: 'no args'
@@ -63,7 +63,7 @@ tests:
           csharp: new BsonJavaScript("")
           object: new Code('')
           ruby: BSON::Code.new
-          rust: Bson::JavaScriptCode("")
+          rust: Bson::JavaScriptCode("".to_string())
     - description: 'function arg'
       input:
           javascript: Code(function(test) { console.log(test); })
@@ -75,7 +75,7 @@ tests:
           csharp: new BsonJavaScript("function(test){console.log(test);}")
           object: new Code('function(test){console.log(test);}')
           ruby: BSON::Code.new('function(test){console.log(test);}')
-          rust: Bson::JavaScriptCode("function(test){console.log(test);}")
+          rust: Bson::JavaScriptCode("function(test){console.log(test);}".to_string())
     - description: 'named scope arg'
       input:
           python: "Code('string', scope={'x': '1'})"
@@ -88,7 +88,7 @@ tests:
           object: "new Code('string', {'x': '1'})"
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           rust: |-
-            JavaScriptCodeWithScope { code: "string", scope: doc! {
+            JavaScriptCodeWithScope { code: "string".to_string(), scope: doc! {
               "x": "1"
             } }
     ObjectId:
