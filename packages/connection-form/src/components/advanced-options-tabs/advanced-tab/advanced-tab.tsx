@@ -115,6 +115,7 @@ function AdvancedTab({
         value={readPreference ?? defaultReadPreference}
         data-testid="read-preferences"
         id="read-preferences"
+        size="compact"
       >
         <RadioBox
           id="default-preference-button"

@@ -35,6 +35,9 @@ if [ -n "$IS_WINDOWS" ]; then
     ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@$NPM_VERSION
     rm -rf node_modules/npm2/
     chmod +x npm.cmd npm
+
+    cd ..
+    .evergreen/node-gyp-bug-workaround.sh
 else
     echo "Installing nodejs v${NODE_JS_VERSION} for ${PLATFORM}..."
     curl -fs \

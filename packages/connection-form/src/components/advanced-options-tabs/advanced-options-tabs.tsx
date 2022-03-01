@@ -74,7 +74,9 @@ function AdvancedOptionsTabs({
 
   const connectionStringUrl = useMemo(() => {
     try {
-      return new ConnectionStringUrl(connectionOptions.connectionString);
+      return new ConnectionStringUrl(connectionOptions.connectionString, {
+        looseValidation: true,
+      });
     } catch (e) {
       // Return default connection string url when can't be parsed.
       return new ConnectionStringUrl(defaultConnectionString);
@@ -113,6 +115,7 @@ function AdvancedOptionsTabs({
                   })`
                 : ''
             }`}
+            type="button"
             data-testid={`connection-${tabObject.id}-tab`}
             data-has-error={showTabErrorIndicator}
           >

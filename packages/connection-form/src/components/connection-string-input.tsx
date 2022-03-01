@@ -1,4 +1,3 @@
-import type { ChangeEvent } from 'react';
 import React, {
   Fragment,
   useCallback,
@@ -73,11 +72,13 @@ function ConnectStringInput({
   enableEditingConnectionString,
   setEnableEditingConnectionString,
   updateConnectionFormField,
+  onSubmit,
 }: {
   connectionString: string;
   enableEditingConnectionString: boolean;
   setEnableEditingConnectionString: (enableEditing: boolean) => void;
   updateConnectionFormField: UpdateConnectionFormField;
+  onSubmit: () => void;
 }): React.ReactElement {
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
@@ -100,8 +101,21 @@ function ConnectStringInput({
     editingConnectionString,
   ]);
 
+  const onKeyPressedConnectionString = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // Act like a text input - submit the form when enter is
+      // pressed without shift.
+      if (event.which === 13 && !event.shiftKey) {
+        event.preventDefault();
+        onSubmit();
+        return;
+      }
+    },
+    [onSubmit]
+  );
+
   const onChangeConnectionString = useCallback(
-    (event: ChangeEvent<HTMLTextAreaElement>) => {
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       const newConnectionString = event.target.value;
 
       setEditingConnectionString(newConnectionString);
@@ -143,6 +157,7 @@ function ConnectStringInput({
           id="toggle-edit-connection-string"
           aria-labelledby="edit-connection-string-label"
           size="xsmall"
+          type="button"
           checked={enableEditingConnectionString}
           onChange={(checked: boolean) => {
             if (checked) {
@@ -156,6 +171,7 @@ function ConnectStringInput({
       <div className={textAreaContainerStyle}>
         <TextArea
           onChange={onChangeConnectionString}
+          onKeyPress={onKeyPressedConnectionString}
           value={displayedConnectionString}
           className={connectionStringStyles}
           disabled={!enableEditingConnectionString}
