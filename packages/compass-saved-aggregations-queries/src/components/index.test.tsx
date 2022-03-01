@@ -38,8 +38,7 @@ describe('AggregationsQueriesList', function () {
 
     render(<ConnectedList></ConnectedList>);
 
-    expect(await screen.findByText('This connection has no saved queries')).to
-      .exist;
+    expect(await screen.findByText('No saved queries yet.')).to.exist;
   });
 
   it('should load queries and display them in the list', async function () {
