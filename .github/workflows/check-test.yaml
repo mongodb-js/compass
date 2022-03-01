@@ -49,7 +49,10 @@ jobs:
       - name: Install npm@8.3.1
         run: |
           npm install -g npm@8.3.1
-          npx --yes rimraf $LOCALAPPDATA/node-gyp/Cache || true
+
+      - name: Run node-gyp bug workaround script
+        run: |
+          .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
         run: |
