@@ -218,7 +218,7 @@ tests:
           csharp: new ObjectId().ToString()
           shell: new ObjectId().toString()
           ruby: BSON::ObjectId.new.to_s
-          rust: ObjectId::new().bytes()
+          rust: ObjectId::new().to_hex()
     - input:
           javascript: ObjectId().getTimestamp
       output:

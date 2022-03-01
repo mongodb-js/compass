@@ -479,7 +479,7 @@ Templates:
         (lhs) => `${lhs}.scope`
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
-        (lhs) => `${lhs}.bytes()`
+        (lhs) => `${lhs}.to_hex()`
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
         () => ''
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >

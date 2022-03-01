@@ -65,7 +65,7 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             object: "'5ab901c29ee65f5c8550c5b9'"
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
-            rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?.bytes()
+            rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?.to_hex()
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
