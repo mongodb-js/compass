@@ -41,8 +41,9 @@ curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_J
 tar --strip-components=1 -xvzf "node-v$NODE_JS_VERSION-headers.tar.gz"
 for arch in x64 x86 arm64; do
   mkdir $arch
-  cd $arch && \
-    curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/win-$arch/node.lib" || echo "no $arch v$NODE_JS_VERSION .lib file"
+  pushd $arch
+  curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/win-$arch/node.lib" || echo "no $arch v$NODE_JS_VERSION .lib file"
+  popd
 done
 
 # Finally, store the right installVersion value for current node-gyp versions
