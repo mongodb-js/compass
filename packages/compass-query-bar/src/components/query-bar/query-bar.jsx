@@ -377,22 +377,6 @@ class QueryBar extends Component {
 
     return (
       <div className={_inputGroupClassName}>
-        {showQueryHistoryButton &&
-          <button
-            id="query_history_button"
-            key="query-history-button"
-            className={_queryHistoryClassName}
-            data-test-id="query-history-button"
-            type="button"
-            onClick={this.props.actions.toggleQueryHistory}
-            title="Toggle Query History"
-          >
-            <FontAwesome
-              data-test-id="query-history-button-icon"
-              name="history"
-            />
-          </button>
-        }
         <div
           onBlur={this._onBlur}
           onFocus={this._onFocus}
@@ -419,6 +403,22 @@ class QueryBar extends Component {
           </button>
         </div>
 
+        {showQueryHistoryButton &&
+          <button
+            id="query_history_button"
+            key="query-history-button"
+            className={_queryHistoryClassName}
+            data-test-id="query-history-button"
+            type="button"
+            onClick={this.props.actions.toggleQueryHistory}
+            title="Toggle Query History"
+          >
+            <FontAwesome
+              data-test-id="query-history-button-icon"
+              name="history"
+            />
+          </button>
+        }
         {showExportToLanguageButton && (
           <button
             id="query_export_to_language_button"
