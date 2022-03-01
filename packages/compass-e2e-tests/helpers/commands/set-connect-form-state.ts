@@ -176,6 +176,9 @@ export async function setConnectFormState(
       Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
     );
   }
+  if (state.useSystemCA) {
+    await browser.clickParent(Selectors.ConnectionFormTlsUseSystemCACheckbox);
+  }
 
   // Proxy/SSH Tunnel
   await browser.navigateToConnecTab('Proxy/SSH Tunnel');

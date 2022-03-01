@@ -8,6 +8,11 @@ export interface ConnectionOptions {
    * If present the connection should be established via an SSH tunnel according to the provided SSH options.
    */
   sshTunnel?: ConnectionSshOptions;
+
+  /**
+   * If true, the connection uses the system CA store instead of tlsCAFile or the default Node.js store.
+   */
+  useSystemCA?: boolean;
 }
 
 export interface ConnectionSshOptions {

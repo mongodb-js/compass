@@ -103,7 +103,10 @@
           "**/ms/**",
           "**/bindings/**",
           "**/ipv6-normalize/**",
-          "**/node-addon-api/**"
+          "**/node-addon-api/**",
+          "**/win-export-certificate-and-key/**",
+          "**/macos-export-certificate-and-key/**",
+          "**/system-ca/**"
         ]
       },
       "rebuild": {
@@ -111,7 +114,9 @@
           "interruptor",
           "keytar",
           "kerberos",
-          "os-dns-native"
+          "os-dns-native",
+          "win-export-certificate-and-key",
+          "macos-export-certificate-and-key"
         ]
       },
       "macosEntitlements": "./scripts/macos-entitlements.xml"
@@ -119,7 +124,7 @@
   },
   "scripts": {
     "install": "node scripts/download-akzidenz.js",
-    "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor,os-dns-native --force --prebuild-tag-prefix not-real-prefix-to-force-rebuild",
+    "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor,os-dns-native,win-export-certificate-and-key,macos-export-certificate-and-key --force --prebuild-tag-prefix not-real-prefix-to-force-rebuild",
     "prestart": "npm run electron-rebuild",
     "start": "npm run webpack serve -- --mode development",
     "test-electron": "npm run test-main && npm run test-renderer",
@@ -156,7 +161,8 @@
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
-    "os-dns-native": "^1.2.0"
+    "os-dns-native": "^1.2.0",
+    "system-ca": "^1.0.2"
   },
   "devDependencies": {
     "@mongodb-js/compass-aggregations": "^8.21.0",
@@ -261,7 +267,9 @@
     "web-vitals": "^2.1.2"
   },
   "optionalDependencies": {
-    "vscode-windows-registry": "1.0.2"
+    "vscode-windows-registry": "1.0.2",
+    "macos-export-certificate-and-key": "^1.1.1",
+    "win-export-certificate-and-key": "^1.1.1"
   },
   "engines": {
     "node": "^14.17.5",

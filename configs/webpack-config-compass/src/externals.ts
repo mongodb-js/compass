@@ -8,6 +8,9 @@ export const sharedExternals: string[] = [
   'kerberos',
   'interruptor',
   'os-dns-native',
+  'system-ca',
+  'win-export-certificate-and-key',
+  'macos-export-certificate-and-key',
   // MongoDB Node.js Driver stuff that is optional, but fails webpack builds
   // with "missing dependency" if not installed due to how driver imports those
   'bson-ext',

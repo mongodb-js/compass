@@ -13,6 +13,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
+import type { ConnectionOptions } from 'mongodb-data-service';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import FormFieldContainer from '../../form-field-container';
@@ -20,11 +21,11 @@ import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
 import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
 
-const checkboxDescriptionStyles = css({
+export const checkboxDescriptionStyles = css({
   marginTop: spacing[1],
 });
 
-const disabledCheckboxDescriptionStyles = css({
+export const disabledCheckboxDescriptionStyles = css({
   color: uiColors.gray.light1,
 });
 
@@ -84,9 +85,11 @@ export function getTLSOptionForConnectionString(
 
 function TLSTab({
   connectionStringUrl,
+  connectionOptions,
   updateConnectionFormField,
 }: {
   connectionStringUrl: ConnectionStringUrl;
+  connectionOptions: ConnectionOptions;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const tlsOption = getTLSOptionForConnectionString(connectionStringUrl);
@@ -169,9 +172,14 @@ function TLSTab({
       </FormFieldContainer>
       <TLSCertificateAuthority
         connectionStringUrl={connectionStringUrl}
+        useSystemCA={!!connectionOptions.useSystemCA}
         disabled={tlsOptionsDisabled}
-        updateCAFile={(newCertificatePath: string | null) => {
+        updateCAFile={(
+          newCertificatePath: string | null,
+          useSystemCA: boolean
+        ) => {
           handleTlsOptionChanged('tlsCAFile', newCertificatePath);
+          handleTlsOptionChanged('useSystemCA', useSystemCA ? 'true' : null);
         }}
       />
       <TLSClientCertificate
