@@ -45,6 +45,7 @@
     "check-ci": "npm run check",
     "pretest": "mongodb-runner start --port=27018 && node ../../scripts/rebuild.js keytar",
     "test": "mocha",
+    "test-connectivity": "mocha ./src/connect.spec.ts",
     "posttest": "mongodb-runner stop --port=27018",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",

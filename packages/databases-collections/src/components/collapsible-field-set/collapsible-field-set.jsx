@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, Description, IconButton, Icon } from '@mongodb-js/compass-components';
+import { Checkbox, Description, IconButton, Icon, Label } from '@mongodb-js/compass-components';
+import { useId } from '@react-aria/utils';
 
 import FieldSet from '../field-set/field-set';
 import styles from './collapsible-field-set.module.less';
@@ -16,6 +17,8 @@ function CollapsibleFieldSet({
   openLink,
   toggled
 }) {
+  const labelId = dataTestId ? `toggle-${dataTestId}` : useId();
+
   return (
     <FieldSet dataTestId={dataTestId}>
       <Checkbox
@@ -23,35 +26,39 @@ function CollapsibleFieldSet({
           onToggle(event.target.checked);
         }}
         disabled={disabled}
-        label={label}
+        label={(
+          <>
+            <Label htmlFor={labelId}>{label}</Label>
+            {!description
+              ? ''
+              : (
+                <Description
+                  className={styles.description}
+                >
+                  {description}
+                  {!!helpUrl && !!openLink && (
+                    <IconButton
+                      className={styles['info-btn']}
+                      aria-label="Time-series collections documentation"
+                      onClick={() => {
+                        openLink(helpUrl);
+                      }}
+                    >
+                      <Icon
+                        glyph="InfoWithCircle"
+                        size="small"
+                      />
+                    </IconButton>
+                  )}
+                </Description>
+              )
+            }
+          </>
+        )}
         checked={toggled}
         bold
-        id={dataTestId ? `toggle-${dataTestId}` : undefined}
+        id={labelId}
       />
-      {!description
-        ? ''
-        : (
-          <Description
-            className={styles.description}
-          >
-            {description}
-            {!!helpUrl && !!openLink && (
-              <IconButton
-                className={styles['info-btn']}
-                aria-label="Time-series collections documentation"
-                onClick={() => {
-                  openLink(helpUrl);
-                }}
-              >
-                <Icon
-                  glyph="InfoWithCircle"
-                  size="small"
-                />
-              </IconButton>
-            )}
-          </Description>
-        )
-      }
 
       {!toggled ? '' : children}
     </FieldSet>

@@ -48,6 +48,8 @@ const formContainerStyles = css({
   flexGrow: 1,
   display: 'flex',
   padding: spacing[4],
+  margin: 0,
+  paddingBottom: spacing[3],
   flexDirection: 'row',
   flexWrap: 'wrap',
   gap: spacing[4],

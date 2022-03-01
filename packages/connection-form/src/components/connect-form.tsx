@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -46,6 +46,10 @@ const formCardStyles = css({
 
 const descriptionStyles = css({
   marginTop: spacing[2],
+});
+
+const formStyles = css({
+  display: 'contents',
 });
 
 const formContentContainerStyles = css({
@@ -128,124 +132,138 @@ function ConnectForm({
     (error) => error.fieldName === 'connectionString'
   );
 
-  const callOnSaveConnectionClickedAndStoreErrors = async (
-    connectionInfo: ConnectionInfo
-  ): Promise<void> => {
-    try {
-      const formErrors = validateConnectionOptionsErrors(
-        connectionInfo.connectionOptions,
-        { looseValidation: false }
-      );
-      if (formErrors.length) {
-        setErrors(formErrors);
-        return;
-      }
-      await onSaveConnectionClicked?.(connectionInfo);
-    } catch (err) {
-      setErrors([
-        {
-          message: `Unable to save connection: ${(err as Error).message}`,
-        },
-      ]);
+  const onSubmitForm = useCallback(() => {
+    const updatedConnectionOptions = cloneDeep(connectionOptions);
+    const formErrors = validateConnectionOptionsErrors(
+      updatedConnectionOptions
+    );
+    if (formErrors.length) {
+      setErrors(formErrors);
+      return;
     }
-  };
+    onConnectClicked({
+      ...initialConnectionInfo,
+      connectionOptions: updatedConnectionOptions,
+    });
+  }, [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]);
+
+  const callOnSaveConnectionClickedAndStoreErrors = useCallback(
+    async (connectionInfo: ConnectionInfo): Promise<void> => {
+      try {
+        const formErrors = validateConnectionOptionsErrors(
+          connectionInfo.connectionOptions,
+          { looseValidation: false }
+        );
+        if (formErrors.length) {
+          setErrors(formErrors);
+          return;
+        }
+        await onSaveConnectionClicked?.(connectionInfo);
+      } catch (err) {
+        setErrors([
+          {
+            message: `Unable to save connection: ${(err as Error).message}`,
+          },
+        ]);
+      }
+    },
+    [onSaveConnectionClicked, setErrors]
+  );
 
   return (
     <>
       <div className={formContainerStyles} data-testid="connection-form">
         <Card className={formCardStyles}>
-          <div className={formContentContainerStyles}>
-            <H3 className={formHeaderStyles}>
-              {initialConnectionInfo.favorite?.name ?? 'New Connection'}
+          <form
+            className={formStyles}
+            onSubmit={(e) => {
+              // Prevent default html page refresh.
+              e.preventDefault();
+              onSubmitForm();
+            }}
+            // Prevent default html tooltip popups.
+            noValidate
+          >
+            <div className={formContentContainerStyles}>
+              <H3 className={formHeaderStyles}>
+                {initialConnectionInfo.favorite?.name ?? 'New Connection'}
+                {!!onSaveConnectionClicked && (
+                  <IconButton
+                    type="button"
+                    aria-label="Save Connection"
+                    className={editFavoriteButtonStyles}
+                    onClick={() => {
+                      setShowSaveConnectionModal(true);
+                    }}
+                  >
+                    <Icon glyph="Edit" />
+                  </IconButton>
+                )}
+              </H3>
+              <Description className={descriptionStyles}>
+                Connect to a MongoDB deployment
+              </Description>
               {!!onSaveConnectionClicked && (
                 <IconButton
                   aria-label="Save Connection"
-                  className={editFavoriteButtonStyles}
+                  type="button"
+                  className={favoriteButtonStyles}
+                  size="large"
                   onClick={() => {
                     setShowSaveConnectionModal(true);
                   }}
                 >
-                  <Icon glyph="Edit" />
+                  <div className={favoriteButtonContentStyles}>
+                    <FavoriteIcon
+                      isFavorite={!!initialConnectionInfo.favorite}
+                      size={spacing[5]}
+                    />
+                    <span className={favoriteButtonLabelStyles}>FAVORITE</span>
+                  </div>
                 </IconButton>
               )}
-            </H3>
-            <Description className={descriptionStyles}>
-              Connect to a MongoDB deployment
-            </Description>
-            {!!onSaveConnectionClicked && (
-              <IconButton
-                aria-label="Save Connection"
-                className={favoriteButtonStyles}
-                size="large"
-                onMouseDown={(event: React.MouseEvent) => {
-                  event.preventDefault();
-                }}
-                onClick={() => {
-                  setShowSaveConnectionModal(true);
-                }}
-              >
-                <div className={favoriteButtonContentStyles}>
-                  <FavoriteIcon
-                    isFavorite={!!initialConnectionInfo.favorite}
-                    size={spacing[5]}
-                  />
-                  <span className={favoriteButtonLabelStyles}>FAVORITE</span>
-                </div>
-              </IconButton>
-            )}
-            <ConnectionStringInput
-              connectionString={connectionOptions.connectionString}
-              enableEditingConnectionString={enableEditingConnectionString}
-              setEnableEditingConnectionString={
-                setEnableEditingConnectionString
-              }
-              updateConnectionFormField={updateConnectionFormField}
-            />
-            {connectionStringInvalidError && (
-              <Banner variant={BannerVariant.Danger}>
-                {connectionStringInvalidError.message}
-              </Banner>
-            )}
-            <AdvancedConnectionOptions
-              errors={connectionStringInvalidError ? [] : errors}
-              disabled={!!connectionStringInvalidError}
-              updateConnectionFormField={updateConnectionFormField}
-              connectionOptions={connectionOptions}
-            />
-          </div>
-          <div className={formFooterStyles}>
-            <ConnectFormActions
-              errors={connectionStringInvalidError ? [] : errors}
-              warnings={connectionStringInvalidError ? [] : warnings}
-              saveButton={
-                initialConnectionInfo.favorite
-                  ? isDirty
-                    ? 'enabled'
-                    : 'disabled'
-                  : 'hidden'
-              }
-              onSaveClicked={async () => {
-                await callOnSaveConnectionClickedAndStoreErrors({
-                  ...cloneDeep(initialConnectionInfo),
-                  connectionOptions: cloneDeep(connectionOptions),
-                });
-              }}
-              onConnectClicked={() => {
-                const updatedConnectionOptions = cloneDeep(connectionOptions);
-                const formErrors = validateConnectionOptionsErrors(
-                  updatedConnectionOptions
-                );
-                if (formErrors.length) {
-                  setErrors(formErrors);
-                  return;
+              <ConnectionStringInput
+                connectionString={connectionOptions.connectionString}
+                enableEditingConnectionString={enableEditingConnectionString}
+                setEnableEditingConnectionString={
+                  setEnableEditingConnectionString
                 }
-                onConnectClicked({
-                  ...initialConnectionInfo,
-                  connectionOptions: updatedConnectionOptions,
-                });
-              }}
-            />
-          </div>
+                onSubmit={onSubmitForm}
+                updateConnectionFormField={updateConnectionFormField}
+              />
+              {connectionStringInvalidError && (
+                <Banner variant={BannerVariant.Danger}>
+                  {connectionStringInvalidError.message}
+                </Banner>
+              )}
+              <AdvancedConnectionOptions
+                errors={connectionStringInvalidError ? [] : errors}
+                disabled={!!connectionStringInvalidError}
+                updateConnectionFormField={updateConnectionFormField}
+                connectionOptions={connectionOptions}
+              />
+            </div>
+            <div className={formFooterStyles}>
+              <ConnectFormActions
+                errors={connectionStringInvalidError ? [] : errors}
+                warnings={connectionStringInvalidError ? [] : warnings}
+                saveButton={
+                  initialConnectionInfo.favorite
+                    ? isDirty
+                      ? 'enabled'
+                      : 'disabled'
+                    : 'hidden'
+                }
+                onSaveClicked={async () => {
+                  await callOnSaveConnectionClickedAndStoreErrors({
+                    ...cloneDeep(initialConnectionInfo),
+                    connectionOptions: cloneDeep(connectionOptions),
+                  });
+                }}
+                onConnectClicked={onSubmitForm}
+              />
+            </div>
+          </form>
         </Card>
       </div>
       {!!onSaveConnectionClicked && (

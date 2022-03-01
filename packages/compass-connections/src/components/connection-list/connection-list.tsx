@@ -23,25 +23,15 @@ const newConnectionButtonContainerStyles = css({
 
 const newConnectionButtonStyles = css({
   border: 'none',
-  height: 'inherit',
+  fontWeight: 'bold',
   borderRadius: 0,
+  svg: {
+    color: uiColors.white,
+  },
   ':hover': {
     border: 'none',
     boxShadow: 'none',
   },
-});
-
-const newConnectionButtonIcon = css({
-  fill: uiColors.white,
-  marginLeft: spacing[3],
-});
-
-const newConnectionButtonContent = css({
-  fontWeight: 'bold',
-  height: spacing[6],
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
 });
 
 const sectionHeaderStyles = css({
@@ -165,11 +155,9 @@ function ConnectionList({
           onClick={createNewConnection}
           size="large"
           data-testid="new-connection-button"
+          rightGlyph={<Icon glyph="Plus" />}
         >
-          <div className={newConnectionButtonContent}>
-            <span>New Connection</span>
-            <Icon glyph="Plus" className={newConnectionButtonIcon} />
-          </div>
+          New Connection
         </Button>
       </div>
       <div className={connectionListSectionStyles}>

@@ -5,13 +5,11 @@ import Icon from '@leafygreen-ui/icon';
 import { uiColors } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
 
-const labelStyles = css({
-  padding: 0,
-  margin: 0,
-  fontWeight: 'bold',
-});
+import { defaultFontSize } from '../compass-font-sizes';
 
 const buttonStyles = css({
+  fontWeight: 'bold',
+  fontSize: defaultFontSize,
   display: 'flex',
   alignItems: 'center',
   border: 'none',
@@ -46,26 +44,25 @@ function Accordion(
   const regionId = useId('region-');
   const labelId = useId('label-');
   return (
-    <div>
+    <>
       <div className={containerStyles}>
-        <p className={labelStyles} id={labelId}>
-          <button
-            data-testid={props['data-testid']}
-            className={buttonStyles}
-            type="button"
-            aria-expanded={open ? 'true' : 'false'}
-            aria-controls={regionId}
-            onClick={() => {
-              setOpen((currentOpen) => !currentOpen);
-            }}
-          >
-            <Icon
-              className={buttonIconStyles}
-              glyph={open ? 'ChevronDown' : 'ChevronRight'}
-            />
-            {props.text}
-          </button>
-        </p>
+        <button
+          data-testid={props['data-testid']}
+          className={buttonStyles}
+          id={labelId}
+          type="button"
+          aria-expanded={open ? 'true' : 'false'}
+          aria-controls={regionId}
+          onClick={() => {
+            setOpen((currentOpen) => !currentOpen);
+          }}
+        >
+          <Icon
+            className={buttonIconStyles}
+            glyph={open ? 'ChevronDown' : 'ChevronRight'}
+          />
+          {props.text}
+        </button>
       </div>
 
       {open && (
@@ -73,7 +70,7 @@ function Accordion(
           {props.children}
         </div>
       )}
-    </div>
+    </>
   );
 }
 
