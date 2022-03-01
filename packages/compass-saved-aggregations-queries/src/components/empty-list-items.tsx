@@ -2,10 +2,10 @@ import React from 'react';
 import {
   css,
   spacing,
-  H2,
   Body,
   uiColors,
   Link,
+  Subtitle,
 } from '@mongodb-js/compass-components';
 
 const QuerySearchIcon = () => {
@@ -63,15 +63,27 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-});
-const iconStyles = css({
+  textAlign: 'center',
+  marginLeft: spacing[3],
+  marginRight: spacing[3],
   marginTop: spacing[7],
+});
+
+const iconStyles = css({
+  flex: 'none',
+  maxWidth: '80px',
+  maxHeight: '80px',
 });
 const titleStyles = css({
   color: uiColors.green.dark2,
 });
+const subTitleStyles = css({
+  marginTop: spacing[2],
+  maxWidth: '600px',
+});
 const callToActionStyles = css({
   marginTop: spacing[5],
+  maxWidth: '600px',
 });
 
 type EmptyContentProps = {
@@ -89,8 +101,8 @@ const EmptyContent: React.FunctionComponent<
       <div className={iconStyles}>
         <Icon />
       </div>
-      <H2 className={titleStyles}>{title}</H2>
-      <Body>{subTitle}</Body>
+      <Subtitle className={titleStyles}>{title}</Subtitle>
+      <Body className={subTitleStyles}>{subTitle}</Body>
       <Body className={callToActionStyles}>{callToAction}</Body>
     </div>
   );

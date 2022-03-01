@@ -83,13 +83,9 @@ type VirtualGridProps = {
 const GridContext = createContext<
   Pick<
     Required<VirtualGridProps>,
-    | 'headerHeight'
-    | 'renderHeader'
-    | 'renderItem'
-    | 'itemsCount'
-    | 'renderEmptyList'
+    'headerHeight' | 'renderHeader' | 'renderItem' | 'itemsCount'
   > &
-    Pick<VirtualGridProps, 'classNames' | 'itemKey'> & {
+    Pick<VirtualGridProps, 'classNames' | 'itemKey' | 'renderEmptyList'> & {
       rowCount: number;
       colCount: number;
       currentTabbable: number;
@@ -137,7 +133,11 @@ const GridWithHeader = forwardRef<
       <div className={classNames?.header}>
         {React.createElement(renderHeader, {})}
       </div>
-      <div {...gridProps}>{itemsCount === 0 ? renderEmptyList : children}</div>
+      <div {...gridProps}>
+        {itemsCount === 0 && renderEmptyList
+          ? React.createElement(renderEmptyList, {})
+          : children}
+      </div>
     </div>
   );
 });
@@ -241,7 +241,7 @@ export const VirtualGrid = forwardRef<
     renderItem,
     headerHeight = 0,
     renderHeader = () => null,
-    renderEmptyList = () => null,
+    renderEmptyList,
     overscanCount = 3,
     classNames,
     itemKey,
