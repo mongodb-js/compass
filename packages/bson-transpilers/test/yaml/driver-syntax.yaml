@@ -86,7 +86,7 @@ tests:
                     // https://crates.io/crates/mongodb
 
                     let client = Client::with_uri_str("mongodb://localhost:27017").await?;
-                    let result = client.database("db").collection("collection").aggregate([doc! {
+                    let result = client.database("db").collection::<Document>("collection").aggregate([doc! {
                       "x": 0i64,
                       "y": ObjectId::new()
                     }], None).await?;
@@ -195,7 +195,7 @@ tests:
                     // https://crates.io/crates/mongodb
 
                     let client = Client::with_uri_str("mongodb://localhost:27017").await?;
-                    let result = client.database("db").collection("collection").find(doc! {
+                    let result = client.database("db").collection::<Document>("collection").find(doc! {
                       "x": 0i64
                     }, None).await?;
             imports:
@@ -409,7 +409,7 @@ tests:
                       "locale": "zh"
                     })
                         .build();
-                    let result = client.database("db").collection("collection").find(doc! {
+                    let result = client.database("db").collection::<Document>("collection").find(doc! {
                       "x": 0i64
                     }, options).await?;
             imports:

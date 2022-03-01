@@ -188,7 +188,7 @@ tests:
           csharp: DateTime
           shell: Date
           ruby: Time
-          rust: Utc
+          rust: DateTime
     - input:
           javascript: ObjectId.createFromTime
           python: ObjectId.from_datetime

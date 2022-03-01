@@ -382,8 +382,8 @@ tests:
           javascript: ''
           ruby: ''
           rust: |-
+            use bson::DateTime;
             use bson::doc;
-            use chrono::Utc;
     - description: Single import Date() as object
       input:
           shell: "{x: new Date()}"
@@ -399,8 +399,8 @@ tests:
           javascript: ''
           ruby: ''
           rust: |-
+            use bson::DateTime;
             use bson::doc;
-            use chrono::Utc;
     - description: Single import ISODate
       input:
           shell: "{x: ISODate()}"
@@ -415,8 +415,8 @@ tests:
           javascript: ''
           ruby: ''
           rust: |-
+            use bson::DateTime;
             use bson::doc;
-            use chrono::Utc;
     - description: Multiple imports without Date to string
       input: {}
       output:
@@ -482,12 +482,12 @@ tests:
           ruby: require 'bson'
           rust: |-
               use bson::Bson;
+              use bson::DateTime;
               use bson::JavaScriptCodeWithScope;
               use bson::Regex;
               use bson::Timestamp;
               use bson::doc;
               use bson::oid::ObjectId;
-              use chrono::Utc;
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:

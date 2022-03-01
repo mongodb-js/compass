@@ -54,7 +54,7 @@ Templates:
             delete spec.filter;
 
             const connect = `let client = Client::with_uri_str("${options.uri}").await?;`
-            const coll = `client.database("${options.database}").collection("${options.collection}")`;
+            const coll = `client.database("${options.database}").collection::<Document>("${options.collection}")`;
 
             if ('aggregation' in spec) {
                 let agg = spec.aggregation;
@@ -450,16 +450,14 @@ Templates:
             }
         }
     DateSymbolTemplate: &DateSymbolTemplate !!js/function >
-        () => 'Utc'
+        () => 'DateTime'
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
         (lhs, date, isString) => {
-            let toStr = isString ? '.to_rfc2822()' : '';
+            let toStr = isString ? '.to_rfc3339_string()' : '';
             if (date === null) {
                 return `${lhs}::now()${toStr}`;
             }
-            let ymd = `.ymd(${date.getUTCFullYear()}, ${date.getUTCMonth()+1}, ${date.getUTCDate()})`;
-            let hms = `.and_hms(${date.getUTCHours()}, ${date.getUTCMinutes()}, ${date.getUTCSeconds()})`;
-            return `${lhs}${ymd}${hms}${toStr}`;
+            return `${lhs}::parse_rfc3339_str("${date.toISOString()}")?${toStr}`;
         }
 
     #############################################
@@ -695,7 +693,7 @@ Templates:
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # non bson-specific
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
-        () => 'Utc::now()'
+        () => 'DateTime::now()'
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate !!js/function >
         () => ''
 
@@ -845,7 +843,7 @@ Templates:
     114ImportTemplate: &114ImportTemplate !!js/function >
         () => 'use bson::spec::BinarySubtype;'
     200ImportTemplate: &200ImportTemplate !!js/function >
-        () => 'use chrono::Utc;'
+        () => 'use bson::DateTime;'
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null
     301ImportTemplate: &301ImportTemplate null
