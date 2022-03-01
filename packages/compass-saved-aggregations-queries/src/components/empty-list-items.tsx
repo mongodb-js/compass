@@ -112,7 +112,7 @@ export const NoSavedItems: React.FunctionComponent = () => {
   return (
     <EmptyContent
       icon={QuerySearchIcon}
-      title={'This connection has no saved queries'}
+      title={'No saved queries yet.'}
       subTitle={
         "Start saving your aggregations and find queries, you'll see them here."
       }
@@ -135,8 +135,8 @@ export const NoSearchResults: React.FunctionComponent = () => {
   return (
     <EmptyContent
       icon={SearchResultsIcon}
-      title={'No results found'}
-      subTitle={'We can’t find any item matching your search'}
+      title={'No results found.'}
+      subTitle={'We can’t find any item matching your search.'}
     />
   );
 };
