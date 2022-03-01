@@ -37,12 +37,14 @@ function withTheme<T>(
   const ComponentWithTheme = (props: T) => {
     const theme = useTheme();
 
-    return <WrappedComponent
-      // Set the darkMode before the props so that the props can
-      // override the theme if needed.
-      darkMode={theme?.theme === Theme.Dark}
-      {...(props )}
-    />;
+    return (
+      <WrappedComponent
+        // Set the darkMode before the props so that the props can
+        // override the theme if needed.
+        darkMode={theme?.theme === Theme.Dark}
+        {...props}
+      />
+    );
   };
 
   const displayName =
