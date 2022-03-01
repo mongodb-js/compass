@@ -19,9 +19,8 @@ import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const textAreaContainerStyle = css({
-  position: 'relative',
   marginTop: spacing[1],
-  marginBottom: spacing[2],
+  marginBottom: spacing[3],
 });
 
 const uriLabelContainerStyles = css({
