@@ -315,7 +315,6 @@ functions:
           <<: *compass-env
           COMPASS_SKIP_KERBEROS_TESTS: 'true'
           COMPASS_RUN_DOCKER_TESTS: 'true'
-          MONGODB_VERSION: ${mongodb_version|4}
           DEBUG: ${debug}
         script: |
           set -e
@@ -342,7 +341,7 @@ functions:
           }
 
           trap "stop_all_docker_containers" ERR
-          npm run test --workspace mongodb-data-service
+          npm run test-connectivity --workspace mongodb-data-service
           stop_all_docker_containers
 
   save-windows-artifacts:
@@ -765,7 +764,7 @@ buildvariants:
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu1604-large
     tasks:
       - name: test-connectivity
 
