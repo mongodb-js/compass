@@ -75,7 +75,7 @@ const callToActionStyles = css({
 });
 
 type EmptyContentProps = {
-  icon: 'query-search' | 'search-results';
+  icon: React.FunctionComponent;
   title: string;
   subTitle?: string;
   callToAction?: string | JSX.Element;
@@ -83,14 +83,7 @@ type EmptyContentProps = {
 
 const EmptyContent: React.FunctionComponent<
   EmptyContentProps & React.HTMLProps<HTMLDivElement>
-> = ({ icon, title, subTitle, callToAction }) => {
-  const Icon =
-    icon === 'query-search'
-      ? QuerySearchIcon
-      : icon === 'search-results'
-      ? SearchResultsIcon
-      : () => null;
-
+> = ({ icon: Icon, title, subTitle, callToAction }) => {
   return (
     <div className={containerStyles}>
       <div className={iconStyles}>
@@ -106,7 +99,7 @@ const EmptyContent: React.FunctionComponent<
 export const NoSavedItems: React.FunctionComponent = () => {
   return (
     <EmptyContent
-      icon={'query-search'}
+      icon={QuerySearchIcon}
       title={'This connection has no saved queries'}
       subTitle={
         "Start saving your aggregations and find queries, you'll see them here."
@@ -129,7 +122,7 @@ export const NoSavedItems: React.FunctionComponent = () => {
 export const NoSearchResults: React.FunctionComponent = () => {
   return (
     <EmptyContent
-      icon={'search-results'}
+      icon={SearchResultsIcon}
       title={'No results found'}
       subTitle={'We can’t find any item matching your search'}
     />

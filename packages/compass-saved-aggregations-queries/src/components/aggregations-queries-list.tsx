@@ -215,7 +215,7 @@ const AggregationsQueriesList = ({
         itemKey={(index: number) => sortedItems[index].id}
         renderHeader={GridControls}
         headerHeight={spacing[5] + 36}
-        renderEmptyList={<NoSearchResults />}
+        renderEmptyList={NoSearchResults}
         classNames={{ row: rowStyles }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
