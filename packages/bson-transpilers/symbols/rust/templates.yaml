@@ -180,7 +180,7 @@ Templates:
                 (pattern.charAt(0) === '"' && pattern.charAt(pattern.length - 1) === '"')) {
                     newPat = pattern.substr(1, pattern.length - 2);
             }
-            return `Regex { pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", flags: "${flags}" }`;
+            return `Regex { pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}".to_string(), options: "${flags}".to_string() }`;
         }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
