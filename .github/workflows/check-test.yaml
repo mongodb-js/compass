@@ -52,7 +52,7 @@ jobs:
 
       - name: Run node-gyp bug workaround script
         run: |
-          .evergreen/node-gyp-bug-workaround.sh
+          bash .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
         run: |

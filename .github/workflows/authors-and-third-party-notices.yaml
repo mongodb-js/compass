@@ -28,8 +28,7 @@ jobs:
 
       - name: Run node-gyp bug workaround script
         run: |
-          NODE_JS_VERSION=$(node -p 'process.version.slice(1)') \
-            .evergreen/node-gyp-bug-workaround.sh
+          bash .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
         run: |
