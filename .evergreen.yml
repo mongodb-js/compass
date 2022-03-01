@@ -322,10 +322,7 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          git clone https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
-          cd test-envs
-          git checkout v1.2.4
-          cd ..
+          git clone -b v1.2.4 https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
           docker-compose -f test-envs/docker/enterprise/docker-compose.yaml up -d
           docker-compose -f test-envs/docker/ldap/docker-compose.yaml up -d
           docker-compose -f test-envs/docker/scram/docker-compose.yaml up -d
