@@ -39,26 +39,24 @@ class Indexes extends PureComponent {
 
   renderComponent() {
     return (
-      <div className="column-container">
-        <div className="column main">
-          <table className={styles['indexes']}>
-            <IndexHeader
-              isWritable={this.props.isWritable}
-              isReadonly={this.props.isReadonly}
-              indexes={this.props.indexes}
-              sortColumn={this.props.sortColumn}
-              sortOrder={this.props.sortOrder}
-              sortIndexes={this.props.sortIndexes} />
-            <IndexList
-              isWritable={this.props.isWritable}
-              isReadonly={this.props.isReadonly}
-              indexes={this.props.indexes}
-              localAppRegistry={this.props.localAppRegistry}
-              changeName={this.props.changeName}
-              openLink={this.props.openLink}
-            />
-          </table>
-        </div>
+      <div className={styles['indexes']}>
+        <table className={styles['indexes-table']}>
+          <IndexHeader
+            isWritable={this.props.isWritable}
+            isReadonly={this.props.isReadonly}
+            indexes={this.props.indexes}
+            sortColumn={this.props.sortColumn}
+            sortOrder={this.props.sortOrder}
+            sortIndexes={this.props.sortIndexes} />
+          <IndexList
+            isWritable={this.props.isWritable}
+            isReadonly={this.props.isReadonly}
+            indexes={this.props.indexes}
+            localAppRegistry={this.props.localAppRegistry}
+            changeName={this.props.changeName}
+            openLink={this.props.openLink}
+          />
+        </table>
       </div>
     );
   }
@@ -96,7 +94,7 @@ class Indexes extends PureComponent {
    */
   render() {
     return (
-      <div className="index-container">
+      <div className={styles['indexes-container']}>
         <div className="controls-container">
           {this.renderCreateIndexButton()}
         </div>
