@@ -48,7 +48,7 @@ declare module 'process' {
         /**
          * Enable new aggregation pipeline toolbar
          */
-        SHOW_NEW_AGGREGATION_TOOLBAR?: 'true',
+        COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true',
       }
     }
   }

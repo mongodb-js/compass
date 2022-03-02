@@ -194,7 +194,7 @@ class Pipeline extends PureComponent {
   }
 
   renderPipelineToolbar() {
-    if (process.env.SHOW_NEW_AGGREGATION_TOOLBAR === 'true') {
+    if (process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true') {
       return <PipelineToolbarLG />;
     }
     return (
