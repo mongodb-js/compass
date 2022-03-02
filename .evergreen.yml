@@ -186,7 +186,6 @@ functions:
 
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           echo "Running tests"
 
@@ -300,6 +299,7 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+          source .evergreen/start-docker-envs.sh
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
