@@ -5,7 +5,7 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
-describe('Connection form', function () {
+describe.only('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -70,7 +70,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -98,7 +98,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -126,7 +126,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -161,7 +161,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -204,7 +204,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -241,7 +241,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -273,7 +273,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -307,7 +307,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -342,7 +342,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -379,7 +379,7 @@ describe('Connection form', function () {
 
     await setFormState(browser, expectedState);
     expect(
-      await browser.$('[data-testid="connectionString"]').getValue()
+      await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -468,9 +468,7 @@ async function getMultipleValues(
 async function maybeExpandAdvancedOptions(
   browser: CompassBrowser
 ): Promise<boolean> {
-  const advancedButton = await browser.$(
-    '[data-testid="advanced-connection-options"'
-  );
+  const advancedButton = await browser.$(Selectors.AdvancedConnectionOptions);
   await advancedButton.waitForDisplayed();
 
   if ((await advancedButton.getAttribute('aria-expanded')) === 'false') {
@@ -506,19 +504,17 @@ async function browseToTab(
   // return the initially active tab so we can return to it if we want to
 
   const initialTab = await browser
-    .$('[aria-label="Advanced Options Tabs"] [aria-selected="true"]')
+    .$(Selectors.SelectedAdvancedOptionsTab)
     .getAttribute('name');
   if (initialTab !== tabName) {
-    await browser.clickVisible(
-      `[aria-label="Advanced Options Tabs"] button[name="${tabName}"]`
-    );
+    await browser.clickVisible(Selectors.advancedOptionsTab(tabName));
     await browser
-      .$(`[role="tabpanel"][aria-label="${initialTab}"]`)
+      .$(Selectors.advancedOptionsTabPanel(initialTab))
       .waitForDisplayed({ reverse: true });
   }
 
   await browser
-    .$(`[role="tabpanel"][aria-label="${tabName}"]`)
+    .$(Selectors.advancedOptionsTabPanel(tabName))
     .waitForDisplayed();
 
   return initialTab;
@@ -528,24 +524,18 @@ async function getFormState(browser: CompassBrowser) {
   const wasExpanded = await maybeExpandAdvancedOptions(browser);
 
   const connectionString = await browser
-    .$('[data-testid="connectionString"]')
+    .$(Selectors.ConnectionStringInput)
     .getValue();
 
   // General
   const initialTab = await browseToTab(browser, 'General');
 
   const defaultState = await promiseMap({
-    scheme: getCheckedRadioValue(
-      browser,
-      '#connection-schema-radio-box-group input[type="radio"]'
-    ),
-    hosts: getMultipleValues(
-      browser,
-      '[aria-labelledby="connection-host-input-label"]'
-    ),
+    scheme: getCheckedRadioValue(browser, Selectors.ConnectionFormSchemeRadios),
+    hosts: getMultipleValues(browser, Selectors.ConnectionFormHostInputs),
     directConnection: getCheckboxValue(
       browser,
-      '[data-testid="direct-connection"]'
+      Selectors.ConnectionFormDirectConnectionCheckbox
     ),
   });
 
@@ -554,72 +544,63 @@ async function getFormState(browser: CompassBrowser) {
   const authenticationState = await promiseMap({
     authMethod: getCheckedRadioValue(
       browser,
-      '#authentication-method-radio-box-group input[type="radio"]'
+      Selectors.ConnectionFormAuthenticationMethodRadios
     ),
 
     // Username/Password
-    defaultUsername: getValue(
+    defaultUsername: getValue(browser, Selectors.ConnectionFormInputUsername),
+    defaultPassword: getValue(browser, Selectors.ConnectionFormInputPassword),
+    defaultAuthSource: getValue(
       browser,
-      '[data-testid="connection-username-input"]'
+      Selectors.ConnectionFormInputAuthSource
     ),
-    defaultPassword: getValue(
-      browser,
-      '[data-testid="connection-password-input"]'
-    ),
-    defaultAuthSource: getValue(browser, '#authSourceInput'),
     defaultAuthMechanism: getCheckedRadioValue(
       browser,
-      '#authentication-mechanism-radio-box-group input[type="radio"]'
+      Selectors.ConnectionFormAuthMechanismRadios
     ),
 
     // Kerberos
     kerberosPrincipal: getValue(
       browser,
-      '[data-testid="gssapi-principal-input"]'
+      Selectors.ConnectionFormInputGssApiPrincipal
     ),
     kerberosServiceName: getValue(
       browser,
-      '[data-testid="gssapi-service-name-input"]'
+      Selectors.ConnectionFormInputGssApiServiceName
     ),
     kerberosCanonicalizeHostname: getCheckedRadioValue(
       browser,
-      '#canonicalize-hostname-select input[type="radio"]'
+      Selectors.ConnectionFormCanonicalizeHostNameRadios
     ),
     kerberosServiceRealm: getValue(
       browser,
-      '[data-testid="gssapi-service-realm-input"]'
+      Selectors.ConnectionFormInputGssApiServiceRealm
     ),
     kerberosProvidePassword: getCheckboxValue(
       browser,
-      '[data-testid="gssapi-password-checkbox"]'
+      Selectors.ConnectionFormGssApiPasswordCheckbox
     ),
     kerberosPassword: getValue(
       browser,
-      '[data-testid="gssapi-password-input"]'
+      Selectors.ConnectionFormInputGssApiPassword
     ),
 
     // LDAP
-    ldapUsername: getValue(
-      browser,
-      '[data-testid="connection-plain-username-input"]'
-    ),
-    ldapPassword: getValue(
-      browser,
-      '[data-testid="connection-plain-password-input"]'
-    ),
+    ldapUsername: getValue(browser, Selectors.ConnectionFormInputPlainUsername),
+    ldapPassword: getValue(browser, Selectors.ConnectionFormInputPlainPassword),
 
     // AWS IAM
     awsAccessKeyId: getValue(
       browser,
-      '[data-testid="connection-form-aws-access-key-id-input"]'
+      Selectors.ConnectionFormInputAWSAccessKeyId
     ),
     awsSecretAccessKey: getValue(
       browser,
-      '[data-testid="connection-form-aws-secret-access-key-input"]'
+      Selectors.ConnectionFormInputAWSSecretAccessKey
     ),
     awsSessionToken: getValue(
       browser,
-      '[data-testid="connection-form-aws-secret-token-input"]'
+      Selectors.ConnectionFormInputAWSSessionToken
     ),
   });
 
@@ -628,25 +609,31 @@ async function getFormState(browser: CompassBrowser) {
   const tlsState = await promiseMap({
     sslConnection: getCheckedRadioValue(
       browser,
-      '#connection-schema-radio-box-group input[type="radio"]'
+      Selectors.ConnectionFormSSLConnectionRadios
     ),
 
     // these are just the button text, not actually the file path
-    tlsCAFile: getFilename(browser, '#tlsCAFile'),
-    tlsCertificateKeyFile: getFilename(browser, '#tlsCertificateKeyFile'),
+    tlsCAFile: getFilename(browser, Selectors.ConnectionFormTlsCaButton),
+    tlsCertificateKeyFile: getFilename(
+      browser,
+      Selectors.ConnectionFormTlsCertificateKeyButton
+    ),
 
     clientKeyPassword: getValue(
       browser,
-      '[data-testid="tlsCertificateKeyFilePassword-input"]'
+      Selectors.ConnectionFormInputTlsCertificateKeyFilePassword
     ),
-    tlsInsecure: getCheckboxValue(browser, '[data-testid="tlsInsecure-input"]'),
+    tlsInsecure: getCheckboxValue(
+      browser,
+      Selectors.ConnectionFormTlsInsecureCheckbox
+    ),
     tlsAllowInvalidHostnames: getCheckboxValue(
       browser,
-      '[data-testid="tlsAllowInvalidHostnames-input"]'
+      Selectors.ConnectionFormTlsAllowInvalidHostnamesCheckbox
     ),
     tlsAllowInvalidCertificates: getCheckboxValue(
       browser,
-      '[data-testid="tlsAllowInvalidCertificates-input"]'
+      Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
     ),
   });
 
@@ -656,67 +643,61 @@ async function getFormState(browser: CompassBrowser) {
   const proxyState = await promiseMap({
     proxyMethod: getCheckedRadioValue(
       browser,
-      '#ssh-options-radio-box-group input[type="radio"]'
+      Selectors.ConnectionFormProxyMethodRadios
     ),
 
     // SSH with Password
     // NOTE: these don't go in the URI so will likely never return values
     sshPasswordHost: getValue(
       browser,
-      '[data-testid="ssh-password-tab-content"] [data-testid="host"]'
+      Selectors.ConnectionFormInputSshPasswordHost
     ),
     sshPasswordPort: getValue(
       browser,
-      '[data-testid="ssh-password-tab-content"] [data-testid="port"'
+      Selectors.ConnectionFormInputSshPasswordPort
     ),
     sshPasswordUsername: getValue(
       browser,
-      '[data-testid="ssh-password-tab-content"] [data-testid="username"'
+      Selectors.ConnectionFormInputSshPasswordUsername
     ),
     sshPasswordPassword: getValue(
       browser,
-      '[data-testid="ssh-password-tab-content"] [data-testid="password"'
+      Selectors.ConnectionFormInputSshPasswordPassword
     ),
 
     // SSH with Identity File
     // NOTE: same as above these are unlikely ever return values in these tests
     sshIdentityHost: getValue(
       browser,
-      '[data-testid="ssh-identity-tab-content"] [data-testid="host"]'
+      Selectors.ConnectionFormInputSshIdentityHost
     ),
     sshIdentityPort: getValue(
       browser,
-      '[data-testid="ssh-identity-tab-content"] [data-testid="port"]'
+      Selectors.ConnectionFormInputSshIdentityPort
     ),
     sshIdentityUsername: getValue(
       browser,
-      '[data-testid="ssh-identity-tab-content"] [data-testid="username"]'
+      Selectors.ConnectionFormInputSshIdentityUsername
     ),
     // same as above: this is the button text, not the file path
     sshIdentityKeyFile: getFilename(
       browser,
-      '[data-testid="ssh-identity-tab-content"]  #identityKeyFile'
+      Selectors.ConnectionFormSshIdentityKeyButton
     ),
     sshIdentityPassword: getValue(
       browser,
-      '[data-testid="ssh-identity-tab-content"] [data-testid="password"]'
+      Selectors.ConnectionFormInputSshIdentityPassword
     ),
 
-    socksHost: getValue(
-      browser,
-      '[data-testid="socks-tab-content"] [data-testid="proxyHost"]'
-    ),
-    socksPort: getValue(
-      browser,
-      '[data-testid="socks-tab-content"] [data-testid="proxyPort"]'
-    ),
+    socksHost: getValue(browser, Selectors.ConnectionFormInputSocksHost),
+    socksPort: getValue(browser, Selectors.ConnectionFormInputSocksPort),
     socksUsername: getValue(
       browser,
-      '[data-testid="socks-tab-content"] [data-testid="proxyUsername"]'
+      Selectors.ConnectionFormInputSocksUsername
     ),
     socksPassword: getValue(
       browser,
-      '[data-testid="socks-tab-content"] [data-testid="proxyPassword"]'
+      Selectors.ConnectionFormInputSocksPassword
     ),
   });
 
@@ -725,23 +706,20 @@ async function getFormState(browser: CompassBrowser) {
   const advancedState = await promiseMap({
     readPreference: getCheckedRadioValue(
       browser,
-      '#read-preferences input[type="radio"]'
+      Selectors.ConnectionFormReadPreferenceRadios
     ),
-    replicaSet: getValue(
-      browser,
-      '[data-testid="connection-advanced-tab"] [data-testid="replica-set"]'
-    ),
+    replicaSet: getValue(browser, Selectors.ConnectionFormInputReplicaset),
     defaultDatabase: getValue(
       browser,
-      '[data-testid="connection-advanced-tab"] [data-testid="default-database"]'
+      Selectors.ConnectionFormInputDefaultDatabase
     ),
     urlOptionKeys: getMultipleValues(
       browser,
-      '[data-testid="connection-advanced-tab"] button[name="name"]'
+      Selectors.ConnectionFormUrlOptionKeys
     ),
     urlOptionValues: getMultipleValues(
       browser,
-      '[data-testid="connection-advanced-tab"] input[aria-labelledby="Enter value"'
+      Selectors.ConnectionFormUrlOptionValues
     ),
   });
 
@@ -772,11 +750,11 @@ async function getFormState(browser: CompassBrowser) {
     await browseToTab(browser, initialTab);
   } else {
     // collapse it again
-    await browser.clickVisible('[data-testid="advanced-connection-options"]');
+    await browser.clickVisible(Selectors.AdvancedConnectionOptions);
 
     await browser.waitUntil(async () => {
       const advancedButton = await browser.$(
-        '[data-testid="advanced-connection-options"'
+        Selectors.AdvancedConnectionOptions
       );
       return (await advancedButton.getAttribute('aria-expanded')) === 'false';
     });
@@ -790,7 +768,7 @@ async function resetForm(browser: CompassBrowser) {
 
   await browser.waitUntil(async () => {
     return (
-      (await browser.$('[data-testid="connectionString"]').getValue()) ===
+      (await browser.$(Selectors.ConnectionStringInput).getValue()) ===
       'mongodb://localhost:27017'
     );
   });
@@ -810,12 +788,7 @@ async function setFormState(browser: CompassBrowser, state: any) {
   // General
   await browseToTab(browser, 'General');
 
-  await clickParent(
-    browser,
-    `#connection-schema-radio-box-group input[value="${
-      state.scheme as string
-    }"]`
-  );
+  await clickParent(browser, Selectors.connectionFormSchemeRadio(state.scheme));
 
   for (let i = 0; i < state.hosts.length; ++i) {
     if (i > 0) {
@@ -830,7 +803,10 @@ async function setFormState(browser: CompassBrowser, state: any) {
   }
 
   if (state.directConnection) {
-    await clickParent(browser, '[data-testid="direct-connection"]');
+    await clickParent(
+      browser,
+      Selectors.ConnectionFormDirectConnectionCheckbox
+    );
   }
 
   // Authentication
@@ -838,67 +814,66 @@ async function setFormState(browser: CompassBrowser, state: any) {
 
   await clickParent(
     browser,
-    `#authentication-method-radio-box-group input[value="${
-      state.authMethod as string
-    }"]`
+    Selectors.connectionFormAuthenticationMethodRadio(state.authMethod)
   );
 
   // Username/Password
   if (state.defaultUsername) {
     await browser.setValueVisible(
-      '[data-testid="connection-username-input"]',
+      Selectors.ConnectionFormInputUsername,
       state.defaultUsername
     );
     await browser.setValueVisible(
-      '[data-testid="connection-password-input"]',
+      Selectors.ConnectionFormInputPassword,
       state.defaultPassword
     );
   }
   if (state.defaultAuthSource) {
-    await browser.setValueVisible('#authSourceInput', state.defaultAuthSource);
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputAuthSource,
+      state.defaultAuthSource
+    );
   }
   if (state.defaultAuthMechanism) {
     await clickParent(
       browser,
-      `#authentication-mechanism-radio-box-group input[value="${
-        state.defaultAuthMechanism as string
-      }"]`
+      Selectors.connectionFormAuthMechanismRadio(state.defaultAuthMechanism)
     );
   }
 
   // Kerberos
   if (state.kerberosPrincipal) {
     await browser.setValueVisible(
-      '[data-testid="gssapi-principal-input"]',
+      Selectors.ConnectionFormInputGssApiPrincipal,
       state.kerberosPrincipal
     );
   }
   if (state.kerberosServiceName) {
     await browser.setValueVisible(
-      '[data-testid="gssapi-service-name-input"]',
+      Selectors.ConnectionFormInputGssApiServiceName,
       state.kerberosServiceName
     );
   }
   if (state.kerberosCanonicalizeHostname) {
     await clickParent(
       browser,
-      `#canonicalize-hostname-select input[value="${
-        state.kerberosCanonicalizeHostname as string
-      }"]`
+      Selectors.connectionFormCanonicalizeHostNameRadio(
+        state.kerberosCanonicalizeHostname
+      )
     );
   }
   if (state.kerberosServiceRealm) {
     await browser.setValueVisible(
-      '[data-testid="gssapi-service-realm-input"]',
+      Selectors.ConnectionFormInputGssApiServiceRealm,
       state.kerberosServiceRealm
     );
   }
   if (state.kerberosServiceRealm) {
-    await clickParent(browser, '[data-testid="gssapi-password-checkbox"]');
+    await clickParent(browser, Selectors.ConnectionFormGssApiPasswordCheckbox);
   }
   if (state.kerberosPassword) {
     await browser.setValueVisible(
-      '[data-testid="gssapi-password-input"]',
+      Selectors.ConnectionFormInputGssApiPassword,
       state.kerberosPassword
     );
   }
@@ -906,11 +881,11 @@ async function setFormState(browser: CompassBrowser, state: any) {
   // LDAP
   if (state.ldapUsername) {
     await browser.setValueVisible(
-      '[data-testid="connection-plain-username-input"]',
+      Selectors.ConnectionFormInputPlainUsername,
       state.ldapUsername
     );
     await browser.setValueVisible(
-      '[data-testid="connection-plain-password-input"]',
+      Selectors.ConnectionFormInputPlainPassword,
       state.ldapPassword
     );
   }
@@ -918,17 +893,17 @@ async function setFormState(browser: CompassBrowser, state: any) {
   // AWS IAM
   if (state.awsAccessKeyId) {
     await browser.setValueVisible(
-      '[data-testid="connection-form-aws-access-key-id-input"]',
+      Selectors.ConnectionFormInputAWSAccessKeyId,
       state.awsAccessKeyId
     );
     await browser.setValueVisible(
-      '[data-testid="connection-form-aws-secret-access-key-input"]',
+      Selectors.ConnectionFormInputAWSSecretAccessKey,
       state.awsSecretAccessKey
     );
   }
   if (state.awsSessionToken) {
     await browser.setValueVisible(
-      '[data-testid="connection-form-aws-secret-token-input"]',
+      Selectors.ConnectionFormInputAWSSessionToken,
       state.awsSessionToken
     );
   }
@@ -938,42 +913,40 @@ async function setFormState(browser: CompassBrowser, state: any) {
 
   await clickParent(
     browser,
-    `#connection-schema-radio-box-group input[value="${
-      state.sslConnection as string
-    }"]`
+    Selectors.connectionFormSSLConnectionRadio(state.sslConnection)
   );
 
   if (state.tlsCAFile) {
     await browser.selectFile(
-      '[data-testid="tlsCAFile-input"]',
+      Selectors.ConnectionFormTlsCaFile,
       state.tlsCAFile
     );
   }
   if (state.tlsCertificateKeyFile) {
     await browser.selectFile(
-      '[data-testid="tlsCertificateKeyFile-input"]',
+      Selectors.ConnectionFormTlsCertificateKeyFile,
       state.tlsCertificateKeyFile
     );
   }
   if (state.clientKeyPassword) {
     await browser.setValueVisible(
-      '[data-testid="tlsCertificateKeyFilePassword-input"]',
+      Selectors.ConnectionFormInputTlsCertificateKeyFilePassword,
       state.clientKeyPassword
     );
   }
   if (state.tlsInsecure) {
-    await clickParent(browser, '[data-testid="tlsInsecure-input"]');
+    await clickParent(browser, Selectors.ConnectionFormTlsInsecureCheckbox);
   }
   if (state.tlsAllowInvalidHostnames) {
     await clickParent(
       browser,
-      '[data-testid="tlsAllowInvalidHostnames-input"]'
+      Selectors.ConnectionFormTlsAllowInvalidHostnamesCheckbox
     );
   }
   if (state.tlsAllowInvalidCertificates) {
     await clickParent(
       browser,
-      '[data-testid="tlsAllowInvalidCertificates-input"]'
+      Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
     );
   }
 
@@ -983,30 +956,30 @@ async function setFormState(browser: CompassBrowser, state: any) {
   //proxyMethod
   await clickParent(
     browser,
-    `#ssh-options-radio-box-group input[value="${state.proxyMethod as string}"]`
+    Selectors.connectionFormProxyMethodRadio(state.proxyMethod)
   );
 
   // SSH with Password
   // NOTE: these don't affect the URI
   if (state.sshPasswordHost) {
     await browser.setValueVisible(
-      '[data-testid="ssh-password-tab-content"] [data-testid="host"]',
+      Selectors.ConnectionFormInputSshPasswordHost,
       state.sshPasswordHost
     );
     await browser.setValueVisible(
-      '[data-testid="ssh-password-tab-content"] [data-testid="port"]',
+      Selectors.ConnectionFormInputSshPasswordPort,
       state.sshPasswordPort
     );
   }
   if (state.sshPasswordUsername) {
     await browser.setValueVisible(
-      '[data-testid="ssh-password-tab-content"] [data-testid="username"]',
+      Selectors.ConnectionFormInputSshPasswordUsername,
       state.sshPasswordUsername
     );
   }
   if (state.sshPasswordPassword) {
     await browser.setValueVisible(
-      '[data-testid="ssh-password-tab-content"] [data-testid="password"]',
+      Selectors.ConnectionFormInputSshPasswordPassword,
       state.sshPasswordPassword
     );
   }
@@ -1015,29 +988,29 @@ async function setFormState(browser: CompassBrowser, state: any) {
   // NOTE: these don't affect the URI
   if (state.sshIdentityHost) {
     await browser.setValueVisible(
-      '[data-testid="ssh-identity-tab-content"] [data-testid="host"]',
+      Selectors.ConnectionFormInputSshIdentityHost,
       state.sshIdentityHost
     );
     await browser.setValueVisible(
-      '[data-testid="ssh-identity-tab-content"] [data-testid="port"]',
+      Selectors.ConnectionFormInputSshIdentityPort,
       state.sshIdentityPort
     );
   }
   if (state.sshIdentityUsername) {
     await browser.setValueVisible(
-      '[data-testid="ssh-identity-tab-content"] [data-testid="username"]',
+      Selectors.ConnectionFormInputSshIdentityUsername,
       state.sshIdentityUsername
     );
   }
   if (state.sshIdentityKeyFile) {
     await browser.selectFile(
-      '[data-testid="ssh-identity-tab-content"] [data-testid="identityKeyFile"]',
+      Selectors.ConnectionFormSshIdentityKeyFile,
       state.sshIdentityKeyFile
     );
   }
   if (state.sshIdentityPassword) {
     await browser.setValueVisible(
-      '[data-testid="ssh-identity-tab-content"] [data-testid="password"]',
+      Selectors.ConnectionFormInputSshIdentityPassword,
       state.sshIdentityPassword
     );
   }
@@ -1045,25 +1018,25 @@ async function setFormState(browser: CompassBrowser, state: any) {
   // Socks5
   if (state.socksHost) {
     await browser.setValueVisible(
-      '[data-testid="socks-tab-content"] [data-testid="proxyHost"]',
+      Selectors.ConnectionFormInputSocksHost,
       state.socksHost
     );
   }
   if (state.socksPort) {
     await browser.setValueVisible(
-      '[data-testid="socks-tab-content"] [data-testid="proxyPort"]',
+      Selectors.ConnectionFormInputSocksPort,
       state.socksPort
     );
   }
   if (state.socksUsername) {
     await browser.setValueVisible(
-      '[data-testid="socks-tab-content"] [data-testid="proxyUsername"]',
+      Selectors.ConnectionFormInputSocksUsername,
       state.socksUsername
     );
   }
   if (state.socksPassword) {
     await browser.setValueVisible(
-      '[data-testid="socks-tab-content"] [data-testid="proxyPassword"]',
+      Selectors.ConnectionFormInputSocksPassword,
       state.socksPassword
     );
   }
@@ -1074,20 +1047,18 @@ async function setFormState(browser: CompassBrowser, state: any) {
   if (state.readPreference) {
     await clickParent(
       browser,
-      `[data-testid="read-preferences"] input[value="${
-        state.readPreference as string
-      }"]`
+      Selectors.connectionFormReadPreferenceRadio(state.readPreference)
     );
   }
   if (state.replicaSet) {
     await browser.setValueVisible(
-      '[data-testid="connection-advanced-tab"] [data-testid="replica-set"]',
+      Selectors.ConnectionFormInputReplicaset,
       state.replicaSet
     );
   }
   if (state.defaultDatabase) {
     await browser.setValueVisible(
-      '[data-testid="connection-advanced-tab"] [data-testid="default-database"]',
+      Selectors.ConnectionFormInputDefaultDatabase,
       state.defaultDatabase
     );
   }
@@ -1097,10 +1068,12 @@ async function setFormState(browser: CompassBrowser, state: any) {
     ).entries()) {
       // key
       await browser.clickVisible(
+        // TODO
         `[data-testid="url-options-table"] tr:nth-child(${
           index + 1
         }) button[name="name"]`
       );
+      // TODO
       const options = await browser.$$('#select-key-menu [role="option"]');
       for (const option of options) {
         const span = await option.$(`span=${key}`);
@@ -1113,6 +1086,7 @@ async function setFormState(browser: CompassBrowser, state: any) {
 
       // value
       await browser.setValueVisible(
+        // TODO
         `[data-testid="url-options-table"] tr:nth-child(${
           index + 1
         }) input[aria-labelledby="Enter value"]`,
