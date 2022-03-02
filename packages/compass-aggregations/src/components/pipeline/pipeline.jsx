@@ -199,7 +199,7 @@ class Pipeline extends PureComponent {
   }
 
   renderPipelineToolbar() {
-    if (global?process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true') {
+    if (global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true') {
       return (
         <LegacyPipelineToolbar
           isAtlasDeployed={this.props.isAtlasDeployed}
