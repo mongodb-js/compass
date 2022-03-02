@@ -76,7 +76,7 @@ function KeyboardShortcutsTable() {
       data={hotkeys}
       columns={[
         <TableHeader key={'name'} label="Key" />,
-        <TableHeader key={'value'} label="Value" />,
+        <TableHeader key={'value'} label="Description" />,
       ]}
     >
       {({ datum }) => (

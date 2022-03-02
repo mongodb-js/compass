@@ -201,18 +201,25 @@ function TLSTab({
               );
             }}
             data-testid={`${tlsOptionField.name}-input`}
-            label={tlsOptionField.name}
+            id={`${tlsOptionField.name}-input`}
+            label={
+              <>
+                <Label htmlFor={`${tlsOptionField.name}-input`}>
+                  {tlsOptionField.name}
+                </Label>
+                <Description
+                  className={cx(checkboxDescriptionStyles, {
+                    [disabledCheckboxDescriptionStyles]: tlsOptionsDisabled,
+                  })}
+                >
+                  {tlsOptionField.description}
+                </Description>
+              </>
+            }
             disabled={tlsOptionsDisabled}
             checked={tlsOptionField.checked}
             bold={false}
           />
-          <Description
-            className={cx(checkboxDescriptionStyles, {
-              [disabledCheckboxDescriptionStyles]: tlsOptionsDisabled,
-            })}
-          >
-            {tlsOptionField.description}
-          </Description>
         </FormFieldContainer>
       ))}
     </div>

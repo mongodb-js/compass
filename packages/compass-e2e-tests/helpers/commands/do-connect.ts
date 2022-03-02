@@ -18,7 +18,7 @@ export async function doConnect(
     // My Queries tab is the entry screen or else database tab
     selector =
       process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true'
-        ? Selectors.MyQueriesGrid
+        ? Selectors.MyQueriesList
         : Selectors.DatabasesTable;
   } else {
     selector = Selectors.ConnectionFormErrorMessage;
