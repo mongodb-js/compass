@@ -384,10 +384,10 @@ MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
 /**
  * Reducer function for handle state changes to pipeline.
  *
- * @param {Array} state - The pipeline state.
+ * @param {any} state - The pipeline state.
  * @param {Object} action - The action.
  *
- * @returns {Array} The new state.
+ * @returns {any} The new state.
  */
 export default function reducer(state, action) {
   const defaultState = state ? state : [ emptyStage() ];

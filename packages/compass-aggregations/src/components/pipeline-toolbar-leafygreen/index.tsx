@@ -6,22 +6,28 @@ import {
   Stage,
 } from '@mongodb-js/compass-components';
 
+import type { RootState } from '../../modules';
+
 const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   name,
   stages,
 }) => {
-  return <div>
-    <Pipeline size="small">
-      {stages.map(stage => <Stage key={stage}>{stage}</Stage>)}
-    </Pipeline>
-    {name}
-  </div>;
+  return (
+    <div>
+      <Pipeline size="small">
+        {stages.map((stage) => (
+          <Stage key={stage}>{stage}</Stage>
+        ))}
+      </Pipeline>
+      {name}
+    </div>
+  );
 };
 
-const mapState = (state: any) => {
+const mapState = (state: RootState) => {
   return {
     name: state.name,
-    stages: state.pipeline.map(x => x.stageOperator),
+    stages: state.pipeline.map((x) => x.stageOperator),
   };
 };
 const mapDispatch = { 

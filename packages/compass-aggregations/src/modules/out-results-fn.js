@@ -11,10 +11,10 @@ export const INITIAL_STATE = null;
 /**
  * Reducer function for handle state changes to the out results fn.
  *
- * @param {String} state - The fn state.
+ * @param {any} state - The fn state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {any} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === OUT_RESULTS_FN_CHANGED) {
