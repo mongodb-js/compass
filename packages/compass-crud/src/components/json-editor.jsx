@@ -310,7 +310,7 @@ class EditableJson extends React.Component {
       useWorker: false
     };
 
-    const value = this.state.json
+    const value = this.state.json !== null
       ? this.state.json
       : EJSON.stringify(this.props.doc.generateObject(), null, 2);
 
