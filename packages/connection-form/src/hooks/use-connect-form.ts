@@ -113,7 +113,7 @@ type ConnectionFormFieldActions =
   | UpdateAuthMechanismAction
   | UpdateHostAction
   | {
-      type: 'update-connection-schema';
+      type: 'update-connection-scheme';
       isSrv: boolean;
     }
   | UpdateSshOptions
@@ -375,7 +375,7 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: currentConnectionOptions,
       });
     }
-    case 'update-connection-schema': {
+    case 'update-connection-scheme': {
       const { isSrv } = action;
 
       try {

@@ -523,7 +523,7 @@ describe('use-connect-form hook', function () {
       });
     });
 
-    describe('update-connection-schema action', function () {
+    describe('update-connection-scheme action', function () {
       describe('setting standard to srv', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://a:b@cruiseship:123,backyard,cruiseship:1234,catch:22/?ssl=true'
@@ -533,7 +533,7 @@ describe('use-connect-form hook', function () {
         beforeEach(function () {
           updateResult = handleConnectionFormFieldUpdate(
             {
-              type: 'update-connection-schema',
+              type: 'update-connection-scheme',
               isSrv: true,
             },
             {
@@ -578,7 +578,7 @@ describe('use-connect-form hook', function () {
         beforeEach(function () {
           updateResult = handleConnectionFormFieldUpdate(
             {
-              type: 'update-connection-schema',
+              type: 'update-connection-scheme',
               isSrv: true,
             },
             {
@@ -619,7 +619,7 @@ describe('use-connect-form hook', function () {
         beforeEach(function () {
           updateResult = handleConnectionFormFieldUpdate(
             {
-              type: 'update-connection-schema',
+              type: 'update-connection-scheme',
               isSrv: false,
             },
             {
