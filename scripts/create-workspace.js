@@ -246,9 +246,8 @@ async function main(argv) {
       'test-cov':
         'nyc -x "**/*.spec.*" --reporter=lcov --reporter=text --reporter=html npm run test',
       'test-watch': 'npm run test -- --watch',
-      'test-ci': isPlugin
-        ? 'npm run test-electron && npm run test-cov'
-        : 'npm run test-cov',
+      'test-ci': 'npm run test-cov',
+      ...(isPlugin && { 'test-ci-electron': 'npm run test-electron' }),
       reformat: 'npm run prettier -- --write .',
     },
     ...(isReact && { peerDependencies: { react: '*', 'react-dom': '*' } }),
