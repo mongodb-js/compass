@@ -86,7 +86,7 @@ export const savingPipelineCancel = () => ({
  *
  * @param {String} [name] Default `''`
  * @param {Boolean} [isSaveAs] Default `false`
- * @returns {Object} The name changed action.
+ * @returns {import("redux").AnyAction} The name changed action.
  */
 export const savingPipelineOpen = ({name = '', isSaveAs = false} = {}) => {
   return {

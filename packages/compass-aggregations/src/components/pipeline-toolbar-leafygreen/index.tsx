@@ -1,38 +1,38 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
-import {
-  Pipeline,
-  Stage,
-} from '@mongodb-js/compass-components';
+import { css, spacing, uiColors } from '@mongodb-js/compass-components';
 
-import type { RootState } from '../../modules';
+import PipelineTitle from './pipeline-title';
+import PipelineStages from './pipeline-stages';
+import PipelineActions from './pipeline-actions';
 
-const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
-  name,
-  stages,
-}) => {
+const toolbarContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  paddingTop: spacing[2],
+  paddingRight: spacing[5],
+  paddingBottom: spacing[2],
+  paddingLeft: spacing[3],
+  borderBottom: `1px solid`,
+  borderBottomColor: uiColors.gray.light2,
+});
+
+const stagesAndActionRowStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+});
+
+const PipelineToolbar: React.FunctionComponent = () => {
   return (
-    <div>
-      <Pipeline size="small">
-        {stages.map((stage) => (
-          <Stage key={stage}>{stage}</Stage>
-        ))}
-      </Pipeline>
-      {name}
+    <div className={toolbarContainerStyles}>
+      <PipelineTitle />
+      <div className={stagesAndActionRowStyles}>
+        <PipelineStages />
+        <PipelineActions />
+      </div>
     </div>
   );
 };
 
-const mapState = (state: RootState) => {
-  return {
-    name: state.name,
-    stages: state.pipeline.map((x) => x.stageOperator),
-  };
-};
-const mapDispatch = { 
-};
-
-const connector = connect(mapState, mapDispatch);
-type PipelineToolbarProps = ConnectedProps<typeof connector>;
-export default connector(PipelineToolbar);
+export default PipelineToolbar;

@@ -398,7 +398,7 @@ export default function reducer(state, action) {
 /**
  * Action creator for adding a stage.
  *
- * @returns {Object} the stage added action.
+ * @returns {import('redux').AnyAction} the stage added action.
  */
 export const stageAdded = () => ({
   type: STAGE_ADDED
