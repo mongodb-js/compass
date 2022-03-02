@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import LeafyGreenModal from '@leafygreen-ui/modal';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-UI');
+
+import { Modal as LeafyGreenModal } from './leafygreen';
 
 function Modal({
   trackingId,

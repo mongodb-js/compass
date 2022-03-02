@@ -1,7 +1,8 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { RadioBoxGroup as LeafyGreenRadioBoxGroup } from '@leafygreen-ui/radio-box-group';
+
+import { RadioBoxGroup as LeafyGreenRadioBoxGroup } from './leafygreen';
 
 const radioBoxGroupStyles = css({
   marginTop: spacing[1],

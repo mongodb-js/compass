@@ -4,7 +4,14 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
-import { Button, Icon, IconButton, Label, Link, Description } from '..';
+import {
+  Button,
+  Icon,
+  IconButton,
+  Label,
+  Link,
+  Description,
+} from './leafygreen';
 
 const { base: redBaseColor } = uiColors.red;
 

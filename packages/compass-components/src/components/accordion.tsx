@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css } from '@leafygreen-ui/emotion';
-import Icon from '@leafygreen-ui/icon';
 import { uiColors } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
 
+import { Icon } from './leafygreen';
 import { defaultFontSize } from '../compass-font-sizes';
 
 const buttonStyles = css({

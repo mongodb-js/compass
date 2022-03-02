@@ -1,8 +1,9 @@
 import type { ErrorInfo } from 'react';
 import React from 'react';
-import Banner from '@leafygreen-ui/banner';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
+
+import { Banner } from './leafygreen';
 
 const errorContainerStyles = css({
   padding: spacing[3],

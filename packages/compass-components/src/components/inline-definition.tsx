@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { Body } from '@leafygreen-ui/typography';
 import { css } from '@leafygreen-ui/emotion';
+import { Body } from './leafygreen';
 import { Tooltip } from './tooltip';
 import { mergeProps } from '../utils/merge-props';
 

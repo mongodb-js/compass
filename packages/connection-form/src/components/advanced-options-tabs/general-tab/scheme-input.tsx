@@ -32,7 +32,7 @@ const regularSchemaDescription =
 const srvSchemaDescription =
   'DNS Seed List Connection Format. The +srv indicates to the client that the hostname that follows corresponds to a DNS SRV record.';
 
-function SchemaInput({
+function SchemeInput({
   connectionStringUrl,
   errors,
   updateConnectionFormField,
@@ -90,4 +90,4 @@ function SchemaInput({
   );
 }
 
-export default SchemaInput;
+export default SchemeInput;

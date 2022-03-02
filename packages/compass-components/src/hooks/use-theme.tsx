@@ -37,11 +37,13 @@ function withTheme<T>(
   const ComponentWithTheme = (props: T) => {
     const theme = useTheme();
 
+    const applyTheme = global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
+
     return (
       <WrappedComponent
         // Set the darkMode before the props so that the props can
         // override the theme if needed.
-        darkMode={theme?.theme === Theme.Dark}
+        darkMode={applyTheme ? theme?.theme === Theme.Dark : undefined}
         {...props}
       />
     );
