@@ -1,3 +1,5 @@
+import type React from 'react';
+
 import { withTheme } from '../hooks/use-theme';
 
 // This file exports `@leafygreen-ui` components and wraps some of
@@ -64,24 +66,64 @@ import {
 } from '@leafygreen-ui/typography';
 
 // 2. Wrap the components that accept darkMode with Compass' theme.
-const Button = withTheme(LeafyGreenButton);
-const Card = withTheme(LeafyGreenCard);
-const Checkbox = withTheme(LeafyGreenCheckbox);
-const ConfirmationModal = withTheme(LeafyGreenConfirmationModal);
-const IconButton = withTheme(LeafyGreenIconButton);
-const Footer = withTheme(LeafyGreenFooter);
-const Modal = withTheme(LeafyGreenModal);
-const RadioGroup = withTheme(LeafyGreenRadioGroup);
-const SegmentedControl = withTheme(LeafyGreenSegmentedControl);
-const Select = withTheme(LeafyGreenSelect);
-const Table = withTheme(LeafyGreenTable);
-const Tabs = withTheme(LeafyGreenTabs);
-const TextArea = withTheme(LeafyGreenTextArea);
-const TextInput = withTheme(LeafyGreenTextInput);
-const Toggle = withTheme(LeafyGreenToggle);
-const Tooltip = withTheme(LeafyGreenTooltip);
-const Label = withTheme(LeafyGreenLabel);
-const Description = withTheme(LeafyGreenDescription);
+const Button = withTheme(
+  LeafyGreenButton as React.ComponentType<typeof LeafyGreenButton>
+) as typeof LeafyGreenButton;
+const Card: typeof LeafyGreenCard = withTheme(
+  LeafyGreenCard as React.ComponentType<typeof LeafyGreenCard>
+) as typeof LeafyGreenCard;
+const Checkbox = withTheme(
+  LeafyGreenCheckbox as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenCheckbox>
+  >
+) as typeof LeafyGreenCheckbox;
+const ConfirmationModal: typeof LeafyGreenConfirmationModal = withTheme(
+  LeafyGreenConfirmationModal as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenConfirmationModal>
+  >
+) as typeof LeafyGreenConfirmationModal;
+const IconButton: typeof LeafyGreenIconButton = withTheme(
+  LeafyGreenIconButton as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenIconButton>
+  >
+) as typeof LeafyGreenIconButton;
+const Footer: typeof LeafyGreenFooter = withTheme(
+  LeafyGreenFooter
+) as typeof LeafyGreenFooter;
+const Modal = withTheme(
+  LeafyGreenModal as React.ComponentType<typeof LeafyGreenModal>
+) as typeof LeafyGreenModal;
+const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
+  LeafyGreenRadioGroup as React.ComponentType<typeof LeafyGreenRadioGroup>
+) as typeof LeafyGreenRadioGroup;
+const SegmentedControl: typeof LeafyGreenSegmentedControl = withTheme(
+  LeafyGreenSegmentedControl
+) as typeof LeafyGreenSegmentedControl;
+const Select: typeof LeafyGreenSelect = withTheme(
+  LeafyGreenSelect as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenSelect>
+  >
+) as typeof LeafyGreenSelect;
+const Table = withTheme(LeafyGreenTable) as typeof LeafyGreenTable;
+const Tabs = withTheme(
+  LeafyGreenTabs as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenTabs>
+  >
+) as typeof LeafyGreenTabs;
+const TextArea: typeof LeafyGreenTextArea = withTheme(LeafyGreenTextArea);
+const TextInput: typeof LeafyGreenTextInput = withTheme(LeafyGreenTextInput);
+const Toggle = withTheme(
+  LeafyGreenToggle as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenToggle>
+  >
+) as typeof LeafyGreenToggle;
+const Tooltip = withTheme(
+  LeafyGreenTooltip as React.ComponentType<typeof LeafyGreenTooltip>
+) as typeof LeafyGreenTooltip;
+const Label = withTheme(LeafyGreenLabel) as typeof LeafyGreenLabel;
+const Description = withTheme(
+  LeafyGreenDescription
+) as typeof LeafyGreenDescription;
 
 // 3. Export the leafygreen components.
 export {

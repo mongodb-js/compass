@@ -33,7 +33,7 @@ function useTheme(): ThemeState {
 // available ThemeProvider on the React context into the wrapped component.
 function withTheme<T>(
   WrappedComponent: React.ComponentType<T>
-): (props: T) => JSX.Element {
+): React.ComponentType<T> {
   const ComponentWithTheme = (props: T) => {
     const theme = useTheme();
 
@@ -48,10 +48,6 @@ function withTheme<T>(
       />
     );
   };
-
-  const displayName =
-    WrappedComponent.displayName || WrappedComponent.name || 'Component';
-  ComponentWithTheme.displayName = `withTheme(${displayName})`;
 
   return ComponentWithTheme;
 }
