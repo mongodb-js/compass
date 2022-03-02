@@ -156,6 +156,7 @@ function UrlOptionsTable({
           >
             <Cell className={optionNameCellStyles}>
               <Select
+                id="select-key"
                 className={optionSelectStyles}
                 placeholder="Select key"
                 name="name"

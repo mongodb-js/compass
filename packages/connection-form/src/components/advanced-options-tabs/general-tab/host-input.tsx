@@ -90,7 +90,7 @@ function HostInput({
           {isSRV ? 'Hostname' : 'Host'}
         </Label>
         {hosts.map((host, index) => (
-          <div className={hostInputContainerStyles} key={`host-${index}`}>
+          <div className={hostInputContainerStyles} key={`host-${index}`} data-testid="host-input-container">
             <TextInput
               className={hostInputStyles}
               type="text"

@@ -1,3 +1,4 @@
+import path from 'path';
 import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
@@ -43,15 +44,45 @@ describe('Connection form', function () {
 
   it('prompts when re-enabling Edit Connection String');
 
-  it('parses a URI for multiple hosts', async function () {
+  it('parses a URI for direct connection', async function () {
+    const connectionString = 'mongodb://localhost:27017/?directConnection=true';
+
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb://localhost:27017,localhost:27018/'
+      connectionString
     );
 
+    const expectedState = {
+      connectionString,
+      scheme: 'MONGODB',
+      hosts: ['localhost:27017'],
+      directConnection: true,
+      authMethod: 'AUTH_NONE',
+      proxyMethod: 'none',
+      sslConnection: 'DEFAULT',
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      tlsInsecure: false,
+    };
+
     const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString: 'mongodb://localhost:27017,localhost:27018/',
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
+  });
+
+  it('parses a URI for multiple hosts', async function () {
+    const connectionString = 'mongodb://localhost:27017,localhost:27018/';
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      connectionString
+    );
+
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017', 'localhost:27018'],
       authMethod: 'AUTH_NONE',
@@ -60,18 +91,26 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-    });
+    };
+
+    const state = await getFormState(browser);
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses a URI for mongodb+srv scheme', async function () {
+    const connectionString = 'mongodb+srv://localhost/';
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb+srv://localhost'
+      connectionString
     );
 
-    const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString: 'mongodb+srv://localhost',
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB_SRV',
       hosts: ['localhost'],
       authMethod: 'AUTH_NONE',
@@ -80,19 +119,28 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-    });
+    };
+
+    const state = await getFormState(browser);
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses a URI for username/password authentication', async function () {
+    const connectionString =
+      'mongodb://foo:bar@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=source';
+
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb://foo:bar@localhost:27017/?authSource=source&authMechanism=SCRAM-SHA-1'
+      connectionString
     );
 
-    const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString:
-        'mongodb://foo:bar@localhost:27017/?authSource=source&authMechanism=SCRAM-SHA-1',
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
@@ -106,44 +154,71 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-    });
+    };
+
+    const state = await getFormState(browser);
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses a URI for X.509 authentication', async function () {
-    await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
-      'mongodb://localhost:27017/?authMechanism=MONGODB-X509&tls=true&tlsCAFile=foo.pem&tlsCertificateKeyFile=bar.pem&tlsInsecure=true&tlsAllowInvalidHostnames=true&tlsAllowInvalidCertificates=true&tlsCertificateKeyFilePassword=password'
-    );
+    const fixturesPath = path.resolve(__dirname, '..', 'fixtures');
+    const tlsCAFile = path.join(fixturesPath, 'ca.pem');
+    const tlsCertificateKeyFile = path.join(fixturesPath, 'client.pem');
+    const connectionString = `mongodb://localhost:27017/?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCAFile=${encodeURIComponent(
+      tlsCAFile
+    )}&tlsCertificateKeyFile=${encodeURIComponent(
+      tlsCertificateKeyFile
+    )}&tlsCertificateKeyFilePassword=password&tlsInsecure=true&tlsAllowInvalidHostnames=true&tlsAllowInvalidCertificates=true`;
 
-    const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString:
-        'mongodb://localhost:27017/?authMechanism=MONGODB-X509&tls=true&tlsCAFile=foo.pem&tlsCertificateKeyFile=bar.pem&tlsInsecure=true&tlsAllowInvalidHostnames=true&tlsAllowInvalidCertificates=true&tlsCertificateKeyFilePassword=password',
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
       authMethod: 'MONGODB-X509',
       proxyMethod: 'none',
       sslConnection: 'ON',
-      tlsCAFile: 'foo.pem',
-      tlsCertificateKeyFile: 'bar.pem',
+      tlsCAFile: 'ca.pem',
+      tlsCertificateKeyFile: 'client.pem',
       clientKeyPassword: 'password',
       tlsInsecure: true,
       tlsAllowInvalidHostnames: true,
       tlsAllowInvalidCertificates: true,
-    });
-  });
+    };
 
-  it('parses a URI for Kerberos authentication', async function () {
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb://principal:password@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm'
+      connectionString
     );
 
     const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString:
-        'mongodb://principal:password@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm',
+    expect(state).to.deep.equal(expectedState);
+
+    expectedState.tlsCAFile = tlsCAFile;
+    expectedState.tlsCertificateKeyFile = tlsCertificateKeyFile;
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
+  });
+
+  it('parses a URI for Kerberos authentication', async function () {
+    const connectionString =
+      'mongodb://principal:password@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
+
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      connectionString
+    );
+
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
@@ -159,19 +234,27 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-    });
+    };
+
+    const state = await getFormState(browser);
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses a URI for LDAP authentication', async function () {
+    const connectionString =
+      'mongodb://username:password@localhost:27017/?authMechanism=PLAIN&authSource=%24external';
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb://username:password@localhost:27017/?authMechanism=PLAIN&authSource=%24external'
+      connectionString
     );
 
-    const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString:
-        'mongodb://username:password@localhost:27017/?authMechanism=PLAIN&authSource=%24external',
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
@@ -183,19 +266,28 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-    });
+    };
+
+    const state = await getFormState(browser);
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses a URI for AWS IAM authentication', async function () {
+    const connectionString =
+      'mongodb://id:key@localhost:27017/?authMechanism=MONGODB-AWS&authSource=%24external&authMechanismProperties=AWS_SESSION_TOKEN%3Atoken';
+
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb://id:key@localhost:27017/?authMechanism=MONGODB-AWS&authSource=%24external&authMechanismProperties=AWS_SESSION_TOKEN%3Atoken'
+      connectionString
     );
 
-    const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString:
-        'mongodb://id:key@localhost:27017/?authMechanism=MONGODB-AWS&authSource=%24external&authMechanismProperties=AWS_SESSION_TOKEN%3Atoken',
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
@@ -208,19 +300,28 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-    });
+    };
+
+    const state = await getFormState(browser);
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses a URI for Socks5 authentication', async function () {
+    const connectionString =
+      'mongodb://localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=password';
+
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb://localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=password'
+      connectionString
     );
 
-    const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString:
-        'mongodb://localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=password',
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
@@ -234,19 +335,27 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-    });
+    };
+
+    const state = await getFormState(browser);
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
   });
 
   it('parses a URI with advanced options', async function () {
+    const connectionString =
+      'mongodb://localhost:27017/default-db?readPreference=primary&replicaSet=replica-set&connectTimeoutMS=1234&maxPoolSize=100';
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
-      'mongodb://localhost:27017/default-db?readPreference=primary&replicaSet=replica-set&connectTimeoutMS=1234'
+      connectionString
     );
 
-    const state = await getFormState(browser);
-    expect(state).to.deep.equal({
-      connectionString:
-        'mongodb://localhost:27017/default-db?readPreference=primary&replicaSet=replica-set&connectTimeoutMS=1234',
+    const expectedState = {
+      connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
       directConnection: false,
@@ -261,8 +370,17 @@ describe('Connection form', function () {
       defaultDatabase: 'default-db',
       urlOptions: {
         connectTimeoutMS: '1234',
+        maxPoolSize: '100',
       },
-    });
+    };
+
+    const state = await getFormState(browser);
+    expect(state).to.deep.equal(expectedState);
+
+    await setFormState(browser, expectedState);
+    expect(
+      await browser.$('[data-testid="connectionString"]').getValue()
+    ).to.equal(connectionString);
   });
 
   it('does not update the URI for SSH tunnel with password authentication');
@@ -541,6 +659,8 @@ async function getFormState(browser: CompassBrowser) {
       '#ssh-options-radio-box-group input[type="radio"]'
     ),
 
+    // SSH with Password
+    // NOTE: these don't go in the URI so will likely never return values
     sshPasswordHost: getValue(
       browser,
       '[data-testid="ssh-password-tab-content"] [data-testid="host"]'
@@ -558,6 +678,8 @@ async function getFormState(browser: CompassBrowser) {
       '[data-testid="ssh-password-tab-content"] [data-testid="password"'
     ),
 
+    // SSH with Identity File
+    // NOTE: same as above these are unlikely ever return values in these tests
     sshIdentityHost: getValue(
       browser,
       '[data-testid="ssh-identity-tab-content"] [data-testid="host"]'
@@ -665,4 +787,337 @@ async function getFormState(browser: CompassBrowser) {
 
 async function resetForm(browser: CompassBrowser) {
   await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+
+  await browser.waitUntil(async () => {
+    return (
+      (await browser.$('[data-testid="connectionString"]').getValue()) ===
+      'mongodb://localhost:27017'
+    );
+  });
+}
+
+async function clickParent(browser: CompassBrowser, selector: string) {
+  const element = await browser.$(selector).parentElement();
+  await element.waitForExist();
+  await element.click();
+}
+
+async function setFormState(browser: CompassBrowser, state: any) {
+  await resetForm(browser);
+
+  await maybeExpandAdvancedOptions(browser);
+
+  // General
+  await browseToTab(browser, 'General');
+
+  await clickParent(
+    browser,
+    `#connection-schema-radio-box-group input[value="${
+      state.scheme as string
+    }"]`
+  );
+
+  for (let i = 0; i < state.hosts.length; ++i) {
+    if (i > 0) {
+      await browser.clickVisible(
+        '[data-testid="host-input-container"]:last-child [data-testid="connection-add-host-button"]'
+      );
+    }
+    await browser.setValueVisible(
+      `[data-testid="connection-host-input-${i}"]`,
+      state.hosts[i]
+    );
+  }
+
+  if (state.directConnection) {
+    await clickParent(browser, '[data-testid="direct-connection"]');
+  }
+
+  // Authentication
+  await browseToTab(browser, 'Authentication');
+
+  await clickParent(
+    browser,
+    `#authentication-method-radio-box-group input[value="${
+      state.authMethod as string
+    }"]`
+  );
+
+  // Username/Password
+  if (state.defaultUsername) {
+    await browser.setValueVisible(
+      '[data-testid="connection-username-input"]',
+      state.defaultUsername
+    );
+    await browser.setValueVisible(
+      '[data-testid="connection-password-input"]',
+      state.defaultPassword
+    );
+  }
+  if (state.defaultAuthSource) {
+    await browser.setValueVisible('#authSourceInput', state.defaultAuthSource);
+  }
+  if (state.defaultAuthMechanism) {
+    await clickParent(
+      browser,
+      `#authentication-mechanism-radio-box-group input[value="${
+        state.defaultAuthMechanism as string
+      }"]`
+    );
+  }
+
+  // Kerberos
+  if (state.kerberosPrincipal) {
+    await browser.setValueVisible(
+      '[data-testid="gssapi-principal-input"]',
+      state.kerberosPrincipal
+    );
+  }
+  if (state.kerberosServiceName) {
+    await browser.setValueVisible(
+      '[data-testid="gssapi-service-name-input"]',
+      state.kerberosServiceName
+    );
+  }
+  if (state.kerberosCanonicalizeHostname) {
+    await clickParent(
+      browser,
+      `#canonicalize-hostname-select input[value="${
+        state.kerberosCanonicalizeHostname as string
+      }"]`
+    );
+  }
+  if (state.kerberosServiceRealm) {
+    await browser.setValueVisible(
+      '[data-testid="gssapi-service-realm-input"]',
+      state.kerberosServiceRealm
+    );
+  }
+  if (state.kerberosServiceRealm) {
+    await clickParent(browser, '[data-testid="gssapi-password-checkbox"]');
+  }
+  if (state.kerberosPassword) {
+    await browser.setValueVisible(
+      '[data-testid="gssapi-password-input"]',
+      state.kerberosPassword
+    );
+  }
+
+  // LDAP
+  if (state.ldapUsername) {
+    await browser.setValueVisible(
+      '[data-testid="connection-plain-username-input"]',
+      state.ldapUsername
+    );
+    await browser.setValueVisible(
+      '[data-testid="connection-plain-password-input"]',
+      state.ldapPassword
+    );
+  }
+
+  // AWS IAM
+  if (state.awsAccessKeyId) {
+    await browser.setValueVisible(
+      '[data-testid="connection-form-aws-access-key-id-input"]',
+      state.awsAccessKeyId
+    );
+    await browser.setValueVisible(
+      '[data-testid="connection-form-aws-secret-access-key-input"]',
+      state.awsSecretAccessKey
+    );
+  }
+  if (state.awsSessionToken) {
+    await browser.setValueVisible(
+      '[data-testid="connection-form-aws-secret-token-input"]',
+      state.awsSessionToken
+    );
+  }
+
+  // TLS/SSL
+  await browseToTab(browser, 'TLS/SSL');
+
+  await clickParent(
+    browser,
+    `#connection-schema-radio-box-group input[value="${
+      state.sslConnection as string
+    }"]`
+  );
+
+  if (state.tlsCAFile) {
+    await browser.selectFile(
+      '[data-testid="tlsCAFile-input"]',
+      state.tlsCAFile
+    );
+  }
+  if (state.tlsCertificateKeyFile) {
+    await browser.selectFile(
+      '[data-testid="tlsCertificateKeyFile-input"]',
+      state.tlsCertificateKeyFile
+    );
+  }
+  if (state.clientKeyPassword) {
+    await browser.setValueVisible(
+      '[data-testid="tlsCertificateKeyFilePassword-input"]',
+      state.clientKeyPassword
+    );
+  }
+  if (state.tlsInsecure) {
+    await clickParent(browser, '[data-testid="tlsInsecure-input"]');
+  }
+  if (state.tlsAllowInvalidHostnames) {
+    await clickParent(
+      browser,
+      '[data-testid="tlsAllowInvalidHostnames-input"]'
+    );
+  }
+  if (state.tlsAllowInvalidCertificates) {
+    await clickParent(
+      browser,
+      '[data-testid="tlsAllowInvalidCertificates-input"]'
+    );
+  }
+
+  // Proxy/SSH Tunnel
+  await browseToTab(browser, 'Proxy/SSH Tunnel');
+
+  //proxyMethod
+  await clickParent(
+    browser,
+    `#ssh-options-radio-box-group input[value="${state.proxyMethod as string}"]`
+  );
+
+  // SSH with Password
+  // NOTE: these don't affect the URI
+  if (state.sshPasswordHost) {
+    await browser.setValueVisible(
+      '[data-testid="ssh-password-tab-content"] [data-testid="host"]',
+      state.sshPasswordHost
+    );
+    await browser.setValueVisible(
+      '[data-testid="ssh-password-tab-content"] [data-testid="port"]',
+      state.sshPasswordPort
+    );
+  }
+  if (state.sshPasswordUsername) {
+    await browser.setValueVisible(
+      '[data-testid="ssh-password-tab-content"] [data-testid="username"]',
+      state.sshPasswordUsername
+    );
+  }
+  if (state.sshPasswordPassword) {
+    await browser.setValueVisible(
+      '[data-testid="ssh-password-tab-content"] [data-testid="password"]',
+      state.sshPasswordPassword
+    );
+  }
+
+  // SSH with Identity File
+  // NOTE: these don't affect the URI
+  if (state.sshIdentityHost) {
+    await browser.setValueVisible(
+      '[data-testid="ssh-identity-tab-content"] [data-testid="host"]',
+      state.sshIdentityHost
+    );
+    await browser.setValueVisible(
+      '[data-testid="ssh-identity-tab-content"] [data-testid="port"]',
+      state.sshIdentityPort
+    );
+  }
+  if (state.sshIdentityUsername) {
+    await browser.setValueVisible(
+      '[data-testid="ssh-identity-tab-content"] [data-testid="username"]',
+      state.sshIdentityUsername
+    );
+  }
+  if (state.sshIdentityKeyFile) {
+    await browser.selectFile(
+      '[data-testid="ssh-identity-tab-content"] [data-testid="identityKeyFile"]',
+      state.sshIdentityKeyFile
+    );
+  }
+  if (state.sshIdentityPassword) {
+    await browser.setValueVisible(
+      '[data-testid="ssh-identity-tab-content"] [data-testid="password"]',
+      state.sshIdentityPassword
+    );
+  }
+
+  // Socks5
+  if (state.socksHost) {
+    await browser.setValueVisible(
+      '[data-testid="socks-tab-content"] [data-testid="proxyHost"]',
+      state.socksHost
+    );
+  }
+  if (state.socksPort) {
+    await browser.setValueVisible(
+      '[data-testid="socks-tab-content"] [data-testid="proxyPort"]',
+      state.socksPort
+    );
+  }
+  if (state.socksUsername) {
+    await browser.setValueVisible(
+      '[data-testid="socks-tab-content"] [data-testid="proxyUsername"]',
+      state.socksUsername
+    );
+  }
+  if (state.socksPassword) {
+    await browser.setValueVisible(
+      '[data-testid="socks-tab-content"] [data-testid="proxyPassword"]',
+      state.socksPassword
+    );
+  }
+
+  // Advanced
+  await browseToTab(browser, 'Advanced');
+
+  if (state.readPreference) {
+    await clickParent(
+      browser,
+      `[data-testid="read-preferences"] input[value="${
+        state.readPreference as string
+      }"]`
+    );
+  }
+  if (state.replicaSet) {
+    await browser.setValueVisible(
+      '[data-testid="connection-advanced-tab"] [data-testid="replica-set"]',
+      state.replicaSet
+    );
+  }
+  if (state.defaultDatabase) {
+    await browser.setValueVisible(
+      '[data-testid="connection-advanced-tab"] [data-testid="default-database"]',
+      state.defaultDatabase
+    );
+  }
+  if (state.urlOptions) {
+    for (const [index, [key, value]] of Object.entries(
+      state.urlOptions
+    ).entries()) {
+      // key
+      await browser.clickVisible(
+        `[data-testid="url-options-table"] tr:nth-child(${
+          index + 1
+        }) button[name="name"]`
+      );
+      const options = await browser.$$('#select-key-menu [role="option"]');
+      for (const option of options) {
+        const span = await option.$(`span=${key}`);
+        if (await span.isExisting()) {
+          await span.waitForDisplayed();
+          await span.click();
+          break;
+        }
+      }
+
+      // value
+      await browser.setValueVisible(
+        `[data-testid="url-options-table"] tr:nth-child(${
+          index + 1
+        }) input[aria-labelledby="Enter value"]`,
+        value as string
+      );
+    }
+  }
 }
