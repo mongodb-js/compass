@@ -23,7 +23,7 @@
   },
   "scripts": {
     "test-check-ci": "npm run check && npm test",
-    "pretest": "mongodb-runner install && mongodb-runner start --port=27018 && node ../../scripts/rebuild.js keytar",
+    "pretest": "mongodb-runner install && mongodb-runner start --port=27018",
     "test": "mocha",
     "posttest": "mongodb-runner stop --port=27018",
     "check": "npm run lint && npm run depcheck",
