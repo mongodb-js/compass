@@ -410,6 +410,7 @@ export const InsertDocumentOption =
   '[data-test-id="insert-data-dropdown-insert-document"]';
 export const ImportFileOption =
   '[data-test-id="insert-data-dropdown-import-file"]';
+export const DocumentListEntry = '[data-test-id="editable-document"]';
 
 // Insert Document modal
 
