@@ -110,7 +110,6 @@ const Tabs = withTheme(
     React.ComponentProps<typeof LeafyGreenTabs>
   >
 ) as typeof LeafyGreenTabs;
-// const TextArea = LeafyGreenTextArea;
 const TextArea: typeof LeafyGreenTextArea = withTheme(LeafyGreenTextArea);
 const TextInput: typeof LeafyGreenTextInput = withTheme(LeafyGreenTextInput);
 const Toggle = withTheme(
