@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import type { AnyAction } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash.isempty';
 import fs from 'fs';
 import path from 'path';
 
@@ -180,7 +180,7 @@ export const INITIAL_STATE = {
   maxTimeMS: MAX_TIME_MS_INITIAL_STATE,
   isFullscreenOn: FULLSCREEN_INITIAL_STATE,
   savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
-  projections: PROJECTIONS_INITIAL_STATE,
+  projections: PROJECTIONS_INITIAL_STATE as Projection[],
   outResultsFn: OUT_RESULTS_FN_INITIAL_STATE,
   editViewName: EDIT_VIEW_NAME_INITIAL_STATE,
   sourceName: SOURCE_NAME_INITIAL_STATE,
@@ -565,11 +565,11 @@ const doApplySavingPipeline = (state: RootState): RootState => {
 const doProjectionsChanged = (state: RootState): RootState => {
   const newState = {
     ...state,
-    projections: []
+    projections: [] as Projection[],
   };
 
   newState.pipeline.map((_stage, index) => {
-    _stage.projections = gatherProjections(_stage);
+    _stage.projections = gatherProjections(_stage, null);
     _stage.projections.map((projection) => {
       projection.index = index;
       newState.projections.push(projection);
