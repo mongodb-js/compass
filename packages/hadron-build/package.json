@@ -33,7 +33,6 @@
     "download": "^8.0.0",
     "electron": "^13.5.1",
     "electron-license": "^2.7.0",
-    "electron-mocha": "^10.1.0",
     "electron-packager": "^14.2.0",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
     "electron-rebuild": "^3.2.7",
