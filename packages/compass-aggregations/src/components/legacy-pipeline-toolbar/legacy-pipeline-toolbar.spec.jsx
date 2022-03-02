@@ -3,13 +3,13 @@ import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import PipelineToolbar from './pipeline-toolbar';
+import LegacyPipelineToolbar from './legacy-pipeline-toolbar';
 import PipelineBuilderToolbar from './pipeline-builder-toolbar';
 import PipelinePreviewToolbar from './pipeline-preview-toolbar';
 
 import styles from './pipeline-toolbar.module.less';
 
-describe('PipelineToolbar [Component]', function() {
+describe('LegacyPipelineToolbar [Component]', function () {
   let component;
   let savedPipelinesListToggleSpy;
   let getSavedPipelinesSpy;
@@ -33,7 +33,7 @@ describe('PipelineToolbar [Component]', function() {
   let isAtlasDeployedSpy;
   let updateViewSpy;
 
-  beforeEach(function() {
+  beforeEach(function () {
     savedPipelinesListToggleSpy = sinon.spy();
     getSavedPipelinesSpy = sinon.spy();
     stageAddedSpy = sinon.spy();
@@ -57,7 +57,7 @@ describe('PipelineToolbar [Component]', function() {
     updateViewSpy = sinon.spy();
 
     component = shallow(
-      <PipelineToolbar
+      <LegacyPipelineToolbar
         savedPipelinesListToggle={savedPipelinesListToggleSpy}
         getSavedPipelines={getSavedPipelinesSpy}
         stageAdded={stageAddedSpy}
@@ -93,21 +93,21 @@ describe('PipelineToolbar [Component]', function() {
     );
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the wrapper div', function() {
+  it('renders the wrapper div', function () {
     expect(component.find(`.${styles['pipeline-toolbar']}`)).to.be.present();
   });
 
-  it('renders the builder toolbar', function() {
+  it('renders the builder toolbar', function () {
     expect(
       component.find(`.${styles['pipeline-toolbar']}`)
     ).to.have.descendants(PipelineBuilderToolbar);
   });
 
-  it('renders the preview toolbar', function() {
+  it('renders the preview toolbar', function () {
     expect(
       component.find(`.${styles['pipeline-toolbar']}`)
     ).to.have.descendants(PipelinePreviewToolbar);
