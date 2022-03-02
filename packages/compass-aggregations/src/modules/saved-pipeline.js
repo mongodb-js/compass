@@ -91,7 +91,7 @@ export const updatePipelineList = () => {
 /**
  * Save the current state of your pipeline
  *
- * @returns {Object} The action.
+ * @returns {import('redux').AnyAction} The action.
  */
 export const saveCurrentPipeline = () => {
   return (dispatch, getState) => {

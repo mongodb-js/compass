@@ -9,7 +9,7 @@ import { Banner } from '@mongodb-js/compass-components';
 import PipelineWorkspace from '../pipeline-workspace';
 import SavePipeline from '../save-pipeline';
 import Settings from '../settings';
-import PipelineToolbar from '../pipeline-toolbar';
+import LegacyPipelineToolbar from '../legacy-pipeline-toolbar';
 import CollationToolbar from './collation-toolbar';
 import RestorePipelineModal from './modals/restore-pipeline-modal';
 import ImportPipeline from './modals/import-pipeline';
@@ -18,10 +18,12 @@ import SavingPipelineModal from '../saving-pipeline-modal';
 import ConfirmNewPipeline from './modals/confirm-new-pipeline';
 import styles from './pipeline.module.less';
 
+import PipelineToolbar from '../pipeline-toolbar';
+
 import {
   DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
-  DEFAULT_LARGE_LIMIT
+  DEFAULT_LARGE_LIMIT,
 } from '../../constants';
 
 /**
@@ -115,14 +117,14 @@ class Pipeline extends PureComponent {
     openCreateView: PropTypes.func.isRequired,
     isNewPipelineConfirm: PropTypes.bool.isRequired,
     setIsNewPipelineConfirm: PropTypes.func.isRequired,
-    inputDocuments: PropTypes.object.isRequired
+    inputDocuments: PropTypes.object.isRequired,
   };
 
   static defaultProps = {
     projections: [],
     maxTimeMS: DEFAULT_MAX_TIME_MS,
     limit: DEFAULT_SAMPLE_SIZE,
-    largeLimit: DEFAULT_LARGE_LIMIT
+    largeLimit: DEFAULT_LARGE_LIMIT,
   };
 
   /**
@@ -147,11 +149,15 @@ class Pipeline extends PureComponent {
 
   renderModifyingViewSourceError() {
     if (this.props.updateViewError) {
-      return (<Banner
-        variant="danger"
-        dismissible
-        onClose={this.props.dismissViewError}
-      >{this.props.updateViewError}</Banner>);
+      return (
+        <Banner
+          variant="danger"
+          dismissible
+          onClose={this.props.dismissViewError}
+        >
+          {this.props.updateViewError}
+        </Banner>
+      );
     }
   }
 
@@ -186,9 +192,51 @@ class Pipeline extends PureComponent {
           restorePipelineFrom={this.props.restorePipelineFrom}
           deletePipeline={this.props.deletePipeline}
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
-          savedPipeline={this.props.savedPipeline} />
+          savedPipeline={this.props.savedPipeline}
+        />
       );
     }
+  }
+
+  renderPipelineToolbar() {
+    if (global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true') {
+      return (
+        <LegacyPipelineToolbar
+          isAtlasDeployed={this.props.isAtlasDeployed}
+          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
+          updateView={this.props.updateView}
+          getSavedPipelines={this.props.getSavedPipelines}
+          exportToLanguage={this.props.exportToLanguage}
+          saveCurrentPipeline={this.props.saveCurrentPipeline}
+          savedPipeline={this.props.savedPipeline}
+          newPipelineFromText={this.props.newPipelineFromText}
+          clonePipeline={this.props.clonePipeline}
+          toggleComments={this.props.toggleComments}
+          toggleSample={this.props.toggleSample}
+          toggleAutoPreview={this.props.toggleAutoPreview}
+          nameChanged={this.props.nameChanged}
+          setIsModified={this.props.setIsModified}
+          editViewName={this.props.editViewName}
+          isModified={this.props.isModified}
+          isCommenting={this.props.isCommenting}
+          isSampling={this.props.isSampling}
+          isAutoPreviewing={this.props.isAutoPreviewing}
+          collationCollapseToggled={this.props.collationCollapseToggled}
+          isCollationExpanded={this.props.isCollationExpanded}
+          name={this.props.name}
+          isOverviewOn={this.props.isOverviewOn}
+          toggleOverview={this.props.toggleOverview}
+          toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
+          isFullscreenOn={this.props.isFullscreenOn}
+          toggleFullscreen={this.props.toggleFullscreen}
+          savingPipelineOpen={this.props.savingPipelineOpen}
+          serverVersion={this.props.serverVersion}
+          openCreateView={this.props.openCreateView}
+          setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
+        />
+      );
+    }
+    return <PipelineToolbar />;
   }
 
   /**
@@ -243,40 +291,9 @@ class Pipeline extends PureComponent {
         className={classnames(
           styles.pipeline,
           this.props.isFullscreenOn ? styles['pipeline-fullscreen'] : false
-        )}>
-        <PipelineToolbar
-          isAtlasDeployed={this.props.isAtlasDeployed}
-          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
-          updateView={this.props.updateView}
-          getSavedPipelines={this.props.getSavedPipelines}
-          exportToLanguage={this.props.exportToLanguage}
-          saveCurrentPipeline={this.props.saveCurrentPipeline}
-          savedPipeline={this.props.savedPipeline}
-          newPipelineFromText={this.props.newPipelineFromText}
-          clonePipeline={this.props.clonePipeline}
-          toggleComments={this.props.toggleComments}
-          toggleSample={this.props.toggleSample}
-          toggleAutoPreview={this.props.toggleAutoPreview}
-          nameChanged={this.props.nameChanged}
-          setIsModified={this.props.setIsModified}
-          editViewName={this.props.editViewName}
-          isModified={this.props.isModified}
-          isCommenting={this.props.isCommenting}
-          isSampling={this.props.isSampling}
-          isAutoPreviewing={this.props.isAutoPreviewing}
-          collationCollapseToggled={this.props.collationCollapseToggled}
-          isCollationExpanded={this.props.isCollationExpanded}
-          name={this.props.name}
-          isOverviewOn={this.props.isOverviewOn}
-          toggleOverview={this.props.toggleOverview}
-          toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
-          isFullscreenOn={this.props.isFullscreenOn}
-          toggleFullscreen={this.props.toggleFullscreen}
-          savingPipelineOpen={this.props.savingPipelineOpen}
-          serverVersion={this.props.serverVersion}
-          openCreateView={this.props.openCreateView}
-          setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
-        />
+        )}
+      >
+        {this.renderPipelineToolbar()}
         {this.renderCollationToolbar()}
         {this.renderModifyingViewSourceError()}
         <PipelineWorkspace {...this.props} />

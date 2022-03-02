@@ -11,10 +11,10 @@ export const INITIAL_STATE = false;
 /**
  * Reducer function for handle collation collapser state changes.
  *
- * @param {String} state - The collation collapser state.
+ * @param {Boolean} state - The collation collapser state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {Boolean} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === COLLATION_COLLAPSE_TOGGLED) {

@@ -18,10 +18,10 @@ export const INITIAL_STATE = {
 /**
  * Reducer function for handle state changes to name in the save pipeline modal.
  *
- * @param {String} state - The name state.
+ * @param {Object} state - The name state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {any} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SAVING_PIPELINE_NAME_CHANGED) {
@@ -86,7 +86,7 @@ export const savingPipelineCancel = () => ({
  *
  * @param {String} [name] Default `''`
  * @param {Boolean} [isSaveAs] Default `false`
- * @returns {Object} The name changed action.
+ * @returns {import("redux").AnyAction} The name changed action.
  */
 export const savingPipelineOpen = ({name = '', isSaveAs = false} = {}) => {
   return {
