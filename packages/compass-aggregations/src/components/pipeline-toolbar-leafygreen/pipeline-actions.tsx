@@ -30,7 +30,7 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         Save
       </Button>
       <Button className={buttonStyles}>Explain</Button>
-      <Button className={buttonStyles} onClick={onExportToLanguage}>
+      <Button className={buttonStyles} onClick={() => onExportToLanguage()}>
         Export Results
       </Button>
     </div>
