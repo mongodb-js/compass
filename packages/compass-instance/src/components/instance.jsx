@@ -6,6 +6,7 @@ const {
   ErrorBoundary,
   Tabs,
   Tab,
+  TabNavBar,
   WorkspaceContainer,
   css
 } = require('@mongodb-js/compass-components');
@@ -78,6 +79,14 @@ const InstanceComponent = ({
   if (status === 'ready' || status === 'refreshing') {
     return (
       <div className="rtss">
+        {/* <TabNavBar
+          data-test-id="instance-tabs"
+          aria-label="Instance Tabs"
+          setSelected={(tabIdx) => {
+            onTabClick(tabIdx, this.tabs[tabIdx]);
+          }}
+          selected={activeTabId}
+        />
         <Tabs
           data-test-id="instance-tabs"
           aria-label="Instance Tabs"
@@ -106,7 +115,30 @@ const InstanceComponent = ({
               <tab.component />
             </WorkspaceContainer>
           </ErrorBoundary>
-        ))}
+        ))} */}
+
+        <TabNavBar
+          data-test-id="instance-tabs"
+          aria-label="Instance Tabs"
+          tabs={filteredTabs.map((tab) => {
+            return tab.name;
+          })}
+          views={filteredTabs.map((tab) => {
+            return (
+              <ErrorBoundary
+                displayName={tab.displayName}
+                key={tab.name}
+                onError={(renderingError, errorInfo) => {
+                  debug('error rendering instance view', tab.name, renderingError, errorInfo);
+                }}
+              >
+                <tab.component />
+              </ErrorBoundary>
+            );
+          })}
+          activeTabIndex={activeTabId}
+          onTabClicked={onTabClick}
+        />
       </div>
     );
   }

@@ -14,7 +14,6 @@ const workspaceContainerStyles = css({
   // flexGrow: 1,
   // height: '100vh'
 
-
   // flex: 1,
   // overflow: 'hidden',
   // // display: 'grid',
@@ -31,35 +30,38 @@ const workspaceContainerStyles = css({
 });
 
 const lightThemeStyles = css({
-  backgroundColor: gray8
+  backgroundColor: gray8,
 });
 
 const darkThemeStyles = css({
-  backgroundColor: uiColors.gray.dark1
+  backgroundColor: uiColors.gray.dark1,
 });
 
 const workspaceStyles = css({
   height: '100%',
   flex: 1,
   marginBottom: spacing[5],
-  padding: 0
+  padding: 0,
 });
 
 function WorkspaceContainer({
-  children
+  children,
 }: {
-  children: JSX.Element
+  children: JSX.Element;
 }): JSX.Element {
   const theme = useTheme();
 
   return (
     <div
-      className={cx(workspaceContainerStyles, theme?.theme === Theme.Dark ? darkThemeStyles : lightThemeStyles)}
+      className={cx(
+        workspaceContainerStyles,
+        theme?.theme === Theme.Dark ? darkThemeStyles : lightThemeStyles
+      )}
     >
       {/* <div
         className={cx(workspaceStyles)}
       > */}
-        {children}
+      {children}
       {/* </div> */}
     </div>
   );

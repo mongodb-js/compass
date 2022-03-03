@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Tabs, Tab, compassUIColors, css, cx } from '@mongodb-js/compass-components';
+import { TabNavBar, Tabs, Tab, compassUIColors, css, cx } from '@mongodb-js/compass-components';
 import CollectionHeader from '../collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
@@ -94,7 +94,17 @@ function Collection({
             views={views}
             activeTabIndex={activeSubTab}
             onTabClicked={this.onSubTabClicked} /> */}
-        <Tabs
+
+        <TabNavBar
+          data-test-id="collection-tabs"
+          aria-label="Collection Tabs"
+          tabs={tabs}
+          views={views}
+          activeTabIndex={activeSubTab}
+          onTabClicked={(tabIdx) => onSubTabClicked(tabIdx, tabs[tabIdx])}
+          mountAllViews
+        />
+        {/* <Tabs
           data-test-id="collection-tabs"
           aria-label="Collection Tabs"
           className={containerStyles}
@@ -121,7 +131,7 @@ function Collection({
           >
             {view}
           </div>
-        ))}
+        ))} */}
       </div>
 
       {/* TODO: Skeleton container component compass-components */}

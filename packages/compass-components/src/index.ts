@@ -114,6 +114,7 @@ export {
   SegmentedControlOption,
 } from '@leafygreen-ui/segmented-control';
 export { ErrorBoundary } from './components/error-boundary';
+export { TabNavBar } from './components/tab-nav-bar';
 export { WorkspaceContainer } from './components/workspace-container';
 export { InlineInfoLink } from './components/inline-info-link';
 export { Placeholder } from './components/placeholder';
