@@ -128,7 +128,7 @@ function FileInput({
   label: string;
   dataTestId?: string;
   onChange: (files: string[]) => void;
-  darkMode: boolean;
+  darkMode?: boolean;
   disabled?: boolean;
   multi?: boolean;
   optional?: boolean;
