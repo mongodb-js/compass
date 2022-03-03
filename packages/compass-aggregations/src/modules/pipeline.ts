@@ -179,7 +179,7 @@ export const DOCUMENTS = '$documents';
  */
 export const emptyStage = (): Pipeline => ({
   id: new ObjectId().toHexString(),
-  stageOperator: '', // @todo (@mabaasit)
+  stageOperator: '', // todo (@mabaasit)
   stage: '',
   isValid: true,
   isEnabled: true,
@@ -546,7 +546,8 @@ export const stageToggled = (index: number): AnyAction => ({
  * @param {Number} index - The index.
  * @param {Error} error - The error.
  * @param {Boolean} isComplete - If the preview is complete.
- * @param {string} env - @todo(@mabaasit)
+ * @param {string} env -
+ * todo(@mabaasit): find usages of this function
  *
  * @returns {Object} The action.
  */
