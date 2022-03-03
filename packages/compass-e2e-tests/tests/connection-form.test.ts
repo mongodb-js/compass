@@ -5,7 +5,7 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
-describe('Connection form', function () {
+describe.only('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -39,6 +39,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     });
   });
 
@@ -61,6 +62,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     };
 
     const state = await getFormState(browser);
@@ -89,6 +91,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     };
 
     const state = await getFormState(browser);
@@ -117,6 +120,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     };
 
     const state = await getFormState(browser);
@@ -152,6 +156,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     };
 
     const state = await getFormState(browser);
@@ -187,6 +192,7 @@ describe('Connection form', function () {
       tlsInsecure: true,
       tlsAllowInvalidHostnames: true,
       tlsAllowInvalidCertificates: true,
+      readPreference: 'defaultReadPreference',
     };
 
     await browser.setValueVisible(
@@ -232,6 +238,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     };
 
     const state = await getFormState(browser);
@@ -264,6 +271,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     };
 
     const state = await getFormState(browser);
@@ -298,6 +306,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     };
 
     const state = await getFormState(browser);
@@ -333,6 +342,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     };
 
     const state = await getFormState(browser);
@@ -405,6 +415,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     });
   });
 
@@ -438,6 +449,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      readPreference: 'defaultReadPreference',
     });
   });
 });

@@ -46,7 +46,7 @@ export const ConnectionFormSchemeRadios =
 export const ConnectionFormHostInputs =
   '[aria-labelledby="connection-host-input-label"]';
 export const ConnectionFormDirectConnectionCheckbox =
-  '[data-testid="direct-connection-checkbox"]';
+  '#direct-connection-checkbox';
 export const ConnectionFormAuthenticationMethodRadios =
   '#authentication-method-radio-box-group input[type="radio"]';
 export const ConnectionFormInputAuthSource = '#authSourceInput';
