@@ -121,29 +121,7 @@ const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 import { getDirectory } from '../utils/getDirectory';
 import { PipelineStorage } from '../utils/pipelineStorage';
 
-type Projection = {
-  name: string;
-  value: string;
-  score: number;
-  meta: string;
-  version: string;
-  index?: number;
-};
-
-type Pipeline = {
-  id: string;
-  stageOperator: string;
-  stage: string;
-  isValid: boolean;
-  isEnabled: boolean;
-  isExpanded: boolean;
-  isLoading: boolean;
-  isComplete: boolean;
-  previewDocuments: unknown[];
-  syntaxError: Error;
-  error: Error;
-  projections: Projection[];
-}
+import type { Pipeline, Projection } from './pipeline';
 
 /**
  * The intial state of the root reducer.
@@ -158,11 +136,11 @@ export const INITIAL_STATE = {
   env: ENV_INITIAL_STATE,
   isTimeSeries: IS_TIME_SERIES_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
-  pipeline: PIPELINE_INITIAL_STATE as Pipeline[],
+  pipeline: PIPELINE_INITIAL_STATE,
   savedPipeline: SP_INITIAL_STATE,
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
-  collation: COLLATION_INITIAL_STATE as Record<string, unknown> | null,
+  collation: COLLATION_INITIAL_STATE,
   collationString: COLLATION_STRING_INITIAL_STATE,
   isCollationExpanded: COLLATION_COLLAPSER_INITIAL_STATE,
   isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
@@ -181,7 +159,7 @@ export const INITIAL_STATE = {
   isFullscreenOn: FULLSCREEN_INITIAL_STATE,
   savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
   projections: PROJECTIONS_INITIAL_STATE as Projection[],
-  outResultsFn: OUT_RESULTS_FN_INITIAL_STATE,
+  outResultsFn: OUT_RESULTS_FN_INITIAL_STATE as null | ((namespace: string) => void),
   editViewName: EDIT_VIEW_NAME_INITIAL_STATE,
   sourceName: SOURCE_NAME_INITIAL_STATE,
   isNewPipelineConfirm: IS_NEW_PIPELINE_CONFIRM_STATE,
@@ -438,7 +416,7 @@ const doConfirmNewFromText = (state: RootState): RootState => {
   return {
     ...state,
     name: '',
-    collation: {},
+    collation: null,
     collationString: '',
     isCollationExpanded: false,
     id: new ObjectId().toHexString(),
@@ -459,7 +437,7 @@ const doModifyView = (state: RootState, action: AnyAction): RootState => {
     editViewName: action.name,
     isReadonly: action.isReadonly,
     sourceName: action.sourceName,
-    collation: {},
+    collation: null,
     collationString: '',
     isCollationExpanded: false,
     id: new ObjectId().toHexString(),
@@ -502,7 +480,7 @@ const doNewFromPastedText = (state: RootState, action: AnyAction): RootState => 
   return {
     ...state,
     name: '',
-    collation: {},
+    collation: null,
     collationString: '',
     isCollationExpanded: false,
     id: new ObjectId().toHexString(),
