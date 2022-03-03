@@ -65,8 +65,8 @@ Package|Version|License
 **[@leafygreen-ui/tokens](#8d64a446d42012738c5f1314d234630346cac498cc92384f3f51fe54a09d14ff)**|0.5.3|Apache-2.0
 **[@leafygreen-ui/tooltip](#12ce56de7f479eb8abccc40a4e9d97cd6db628c0d8fac6f752f756809cebc749)**|6.3.1|Apache-2.0
 **[@leafygreen-ui/typography](#6fe50b20beb48fc92d444350ce75c70bd9429803ad6acbd7192f5c2a54271861)**|8.1.0|Apache-2.0
-**[@mongodb-js/compass-components](#dbf69cb6b34eafe964748f252289b2c6b2cf8a875152bd49ea8a6f894aab76c2)**|0.11.0|SSPL
-**[@mongodb-js/compass-logging](#f8e821293ed93ad8fdf611c40e4f48ac0ea3b0e62bf8e73de18d676a171dfd38)**|0.8.0|SSPL
+**[@mongodb-js/compass-components](#cbdd785ad8956da5324734a5b1f62875dfe32561f7e87e0118f8b8ec4fec7306)**|0.12.0|SSPL
+**[@mongodb-js/compass-logging](#1d42959892f805eb1ebe2a83905157e00cf9de66d749c974d68de7d7820e10ef)**|0.9.0|SSPL
 **[@mongosh/node-runtime-worker-thread](#7ccced8e514f066f396fe3f319cafc1c53f7268ead8514fffef473d5affedc71)**|1.2.2|Apache-2.0
 **[@react-aria/focus](#9cbdb21e880abb0ce77f98791c23a02bc3901ab41167a97fb20ed91827371b04)**|3.5.0|Apache-2.0
 **[@react-aria/interactions](#e9192398723deae3ba2f387ff5053bcf4806545f3996c50abd05d233c50fde8c)**|3.6.0|Apache-2.0
@@ -1360,16 +1360,16 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="dbf69cb6b34eafe964748f252289b2c6b2cf8a875152bd49ea8a6f894aab76c2"></a>
-### [@mongodb-js/compass-components](https://www.npmjs.com/package/@mongodb-js/compass-components) (version 0.11.0)
+<a id="cbdd785ad8956da5324734a5b1f62875dfe32561f7e87e0118f8b8ec4fec7306"></a>
+### [@mongodb-js/compass-components](https://www.npmjs.com/package/@mongodb-js/compass-components) (version 0.12.0)
 <!-- initially found at packages/compass-components -->
 > React Components used in Compass
 
 License tags: SSPL
 
 
-<a id="f8e821293ed93ad8fdf611c40e4f48ac0ea3b0e62bf8e73de18d676a171dfd38"></a>
-### [@mongodb-js/compass-logging](https://www.npmjs.com/package/@mongodb-js/compass-logging) (version 0.8.0)
+<a id="1d42959892f805eb1ebe2a83905157e00cf9de66d749c974d68de7d7820e10ef"></a>
+### [@mongodb-js/compass-logging](https://www.npmjs.com/package/@mongodb-js/compass-logging) (version 0.9.0)
 <!-- initially found at packages/compass-logging -->
 > Shared helpers for logging in Compass packages
 
