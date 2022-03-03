@@ -67,10 +67,14 @@ import {
 
 // 2. Wrap the components that accept darkMode with Compass' theme.
 const Button = withTheme(
-  LeafyGreenButton as React.ComponentType<typeof LeafyGreenButton>
+  LeafyGreenButton as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenButton>
+  >
 ) as typeof LeafyGreenButton;
 const Card: typeof LeafyGreenCard = withTheme(
-  LeafyGreenCard as React.ComponentType<typeof LeafyGreenCard>
+  LeafyGreenCard as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenCard>
+  >
 ) as typeof LeafyGreenCard;
 const Checkbox = withTheme(
   LeafyGreenCheckbox as React.ComponentType<
@@ -91,10 +95,14 @@ const Footer: typeof LeafyGreenFooter = withTheme(
   LeafyGreenFooter
 ) as typeof LeafyGreenFooter;
 const Modal = withTheme(
-  LeafyGreenModal as React.ComponentType<typeof LeafyGreenModal>
+  LeafyGreenModal as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenModal>
+  >
 ) as typeof LeafyGreenModal;
 const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
-  LeafyGreenRadioGroup as React.ComponentType<typeof LeafyGreenRadioGroup>
+  LeafyGreenRadioGroup as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenRadioGroup>
+  >
 ) as typeof LeafyGreenRadioGroup;
 const SegmentedControl: typeof LeafyGreenSegmentedControl = withTheme(
   LeafyGreenSegmentedControl
@@ -118,7 +126,9 @@ const Toggle = withTheme(
   >
 ) as typeof LeafyGreenToggle;
 const Tooltip = withTheme(
-  LeafyGreenTooltip as React.ComponentType<typeof LeafyGreenTooltip>
+  LeafyGreenTooltip as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenTooltip>
+  >
 ) as typeof LeafyGreenTooltip;
 const Label = withTheme(LeafyGreenLabel) as typeof LeafyGreenLabel;
 const Description = withTheme(

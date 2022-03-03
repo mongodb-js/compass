@@ -29,14 +29,22 @@ function useTheme(): ThemeState {
   return useContext(ThemeContext);
 }
 
+interface WithThemeProps {
+  darkMode?: boolean;
+}
+
 // High Order Component(HOC) used to inject Compass' theme pulled from the
 // available ThemeProvider on the React context into the wrapped component.
-const withTheme = function <ComponentProps>(
-  WrappedComponent: React.ComponentType<ComponentProps>
+const withTheme = function <
+  ComponentProps extends WithThemeProps = WithThemeProps
+>(
+  WrappedComponent: React.ComponentType<ComponentProps & WithThemeProps>
 ): React.ComponentType<ComponentProps> {
   const ComponentWithTheme = (
     props: ComponentProps,
-    ref: React.ForwardedRef<React.ComponentType<ComponentProps>>
+    ref: React.ForwardedRef<
+      React.ComponentType<ComponentProps & WithThemeProps>
+    >
   ) => {
     const theme = useTheme();
 
@@ -57,7 +65,7 @@ const withTheme = function <ComponentProps>(
     WrappedComponent.displayName || WrappedComponent.name || 'Component';
   ComponentWithTheme.displayName = `withTheme(${displayName})`;
 
-  return React.forwardRef<typeof WrappedComponent, any>(ComponentWithTheme);
+  return React.forwardRef(ComponentWithTheme) as typeof WrappedComponent;
 };
 
 export { Theme, ThemeProvider, useTheme, withTheme };
