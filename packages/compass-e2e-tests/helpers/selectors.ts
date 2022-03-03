@@ -35,7 +35,6 @@ export const ConnectionFormInputPassword =
 export const ConnectionFormErrorMessage =
   '[data-testid="connection-error-summary"]';
 
-// ======== TODO
 export const AdvancedConnectionOptions =
   '[data-testid="advanced-connection-options"]';
 export const AdvancedOptionsTabs = '[aria-label="Advanced Options Tabs"]';
@@ -171,8 +170,6 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
     index + 1
   }) input[aria-labelledby="Enter value"]`;
 };
-
-// ======== TODO
 
 // Connection Sidebar
 export const SidebarTreeItems =
