@@ -39,7 +39,7 @@ export const AdvancedOptionsTabs = '[aria-label="Advanced Options Tabs"]';
 export const SelectedAdvancedOptionsTab = `${AdvancedOptionsTabs} [aria-selected="true"]`;
 
 export const ConnectionFormSchemeRadios =
-  '#connection-schema-radio-box-group input[type="radio"]';
+  '#connection-scheme-radio-box-group input[type="radio"]';
 export const ConnectionFormHostInputs =
   '[aria-labelledby="connection-host-input-label"]';
 export const ConnectionFormDirectConnectionCheckbox =
@@ -72,7 +72,7 @@ export const ConnectionFormInputAWSSecretAccessKey =
 export const ConnectionFormInputAWSSessionToken =
   '[data-testid="connection-form-aws-secret-token-input"]';
 export const ConnectionFormSSLConnectionRadios =
-  '#connection-schema-radio-box-group input[type="radio"]';
+  '#connection-scheme-radio-box-group input[type="radio"]';
 export const ConnectionFormTlsCaButton = '#tlsCAFile';
 export const ConnectionFormTlsCertificateKeyButton = '#tlsCertificateKeyFile';
 export const ConnectionFormTlsCaFile = '[data-testid="tlsCAFile-input"]';
@@ -134,7 +134,7 @@ export const advancedOptionsTabPanel = (tabName: string): string => {
   return `[role="tabpanel"][aria-label="${tabName}"]`;
 };
 export const connectionFormSchemeRadio = (value: string): string => {
-  return `#connection-schema-radio-box-group input[value="${value}"]`;
+  return `#connection-scheme-radio-box-group input[value="${value}"]`;
 };
 export const connectionFormAuthenticationMethodRadio = (
   value: string
@@ -150,7 +150,7 @@ export const connectionFormCanonicalizeHostNameRadio = (
   return `#canonicalize-hostname-select input[value="${value}"]`;
 };
 export const connectionFormSSLConnectionRadio = (value: string): string => {
-  return `#connection-schema-radio-box-group input[value="${value}"]`;
+  return `#connection-scheme-radio-box-group input[value="${value}"]`;
 };
 export const connectionFormProxyMethodRadio = (value: string): string => {
   return `#ssh-options-radio-box-group input[value="${value}"]`;
