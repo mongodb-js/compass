@@ -2,48 +2,53 @@ import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 
-import { useTheme, Theme } from '../hooks/use-theme';
-// import { spacing } from '@leafygreen-ui/tokens';
+import { withTheme } from '../hooks/use-theme';
 import { gray8 } from '../compass-ui-colors';
 
 const workspaceContainerStyles = css({
   height: '100%',
-  flexGrow: 1,
-  flexShrink: 1,
-  flexBasis: 'auto',
+  width: '100%',
   display: 'flex',
-  overflowY: 'scroll',
+  overflow: 'auto',
 });
 
 const lightThemeStyles = css({
   backgroundColor: gray8,
+  color: uiColors.gray.dark2,
 });
 
 const darkThemeStyles = css({
-  backgroundColor: uiColors.gray.dark1,
+  backgroundColor: uiColors.gray.dark3,
+  color: uiColors.white,
 });
 
-function WorkspaceContainer({
-  children,
-}: {
+type WorkspaceContainerProps = {
+  className?: string;
+  darkMode?: boolean;
   children: JSX.Element;
-}): JSX.Element {
-  const theme = useTheme();
+  'data-test-id'?: string;
+};
 
+function UnthemedWorkspaceContainer({
+  className,
+  darkMode,
+  children,
+  'data-test-id': dataTestId,
+}: WorkspaceContainerProps) {
   return (
     <div
       className={cx(
         workspaceContainerStyles,
-        theme?.theme === Theme.Dark ? darkThemeStyles : lightThemeStyles
+        darkMode ? darkThemeStyles : lightThemeStyles,
+        className
       )}
+      data-test-id={dataTestId}
     >
-      {/* <div
-        className={cx(workspaceStyles)}
-      > */}
       {children}
-      {/* </div> */}
     </div>
   );
 }
+
+const WorkspaceContainer = withTheme(UnthemedWorkspaceContainer);
 
 export { WorkspaceContainer };

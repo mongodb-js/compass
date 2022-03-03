@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ErrorBoundary,
+  WorkspaceContainer,
   compassUIColors,
   spacing,
   css,
@@ -36,12 +37,12 @@ const connectStyles = css({
   background: compassUIColors.gray8,
 });
 
-const connectItemContainerStyles = css({
-  position: 'relative',
-  flexGrow: 1,
-  flexDirection: 'column',
-  overflow: 'auto',
-});
+// const connectItemContainerStyles = css({
+//   position: 'relative',
+//   flexGrow: 1,
+//   flexDirection: 'column',
+//   overflow: 'auto',
+// });
 
 const formContainerStyles = css({
   position: 'relative',
@@ -107,7 +108,8 @@ function Connections({
         removeConnection={removeConnection}
         duplicateConnection={duplicateConnection}
       />
-      <div className={connectItemContainerStyles}>
+      {/* <div className={connectItemContainerStyles}> */}
+      <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {
@@ -128,7 +130,8 @@ function Connections({
           </ErrorBoundary>
           <FormHelp />
         </div>
-      </div>
+        </WorkspaceContainer>
+      {/* </div> */}
       {(isConnected ||
         (!!connectionAttempt && !connectionAttempt.isClosed())) && (
         <Connecting
