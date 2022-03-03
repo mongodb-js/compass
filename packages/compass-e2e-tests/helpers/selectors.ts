@@ -72,7 +72,7 @@ export const ConnectionFormInputAWSSecretAccessKey =
 export const ConnectionFormInputAWSSessionToken =
   '[data-testid="connection-form-aws-secret-token-input"]';
 export const ConnectionFormSSLConnectionRadios =
-  '#connection-scheme-radio-box-group input[type="radio"]';
+  '#tls-radio-box-group input[type="radio"]';
 export const ConnectionFormTlsCaButton = '#tlsCAFile';
 export const ConnectionFormTlsCertificateKeyButton = '#tlsCertificateKeyFile';
 export const ConnectionFormTlsCaFile = '[data-testid="tlsCAFile-input"]';
@@ -150,7 +150,7 @@ export const connectionFormCanonicalizeHostNameRadio = (
   return `#canonicalize-hostname-select input[value="${value}"]`;
 };
 export const connectionFormSSLConnectionRadio = (value: string): string => {
-  return `#connection-scheme-radio-box-group input[value="${value}"]`;
+  return `#tls-radio-box-group input[value="${value}"]`;
 };
 export const connectionFormProxyMethodRadio = (value: string): string => {
   return `#ssh-options-radio-box-group input[value="${value}"]`;
