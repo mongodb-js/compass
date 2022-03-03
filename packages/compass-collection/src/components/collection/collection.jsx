@@ -97,7 +97,7 @@ function Collection({
         <Tabs
           data-test-id="collection-tabs"
           aria-label="Collection Tabs"
-          className={cx('test-tab-nav-bar-tabs', containerStyles)}
+          className={containerStyles}
           setSelected={(tabIdx) => {
             onSubTabClicked(tabIdx, tabs[tabIdx]);
           }}

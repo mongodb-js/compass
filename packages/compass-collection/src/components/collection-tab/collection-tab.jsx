@@ -37,9 +37,9 @@ class CollectionTab extends PureComponent {
   /**
    * Scroll into view on first mount if active.
    */
-  // componentDidMount() {
-  //   this.scrollTab();
-  // }
+  componentDidMount() {
+    this.scrollTab();
+  }
 
   /**
    * Scroll into view if tab was activated.
@@ -70,9 +70,9 @@ class CollectionTab extends PureComponent {
    * Scroll this tab into view.
    */
   scrollTab = () => {
-    // if (this.props.isActive && this.tabRef.current.scrollIntoView) {
-    //   this.tabRef.current.scrollIntoView();
-    // }
+    if (this.props.isActive && this.tabRef.current.scrollIntoView) {
+      this.tabRef.current.scrollIntoView();
+    }
   }
 
   renderReadonly() {

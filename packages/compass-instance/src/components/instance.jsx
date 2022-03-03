@@ -1,7 +1,14 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { TabNavBar } = require('hadron-react-components');
-const { Banner, BannerVariant, ErrorBoundary } = require('@mongodb-js/compass-components');
+const {
+  Banner,
+  BannerVariant,
+  ErrorBoundary,
+  Tabs,
+  Tab,
+  WorkspaceContainer,
+  css
+} = require('@mongodb-js/compass-components');
 const { track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry(
     'COMPASS-INSTANCE-UI'
@@ -71,29 +78,35 @@ const InstanceComponent = ({
   if (status === 'ready' || status === 'refreshing') {
     return (
       <div className="rtss">
-        <TabNavBar
+        <Tabs
           data-test-id="instance-tabs"
           aria-label="Instance Tabs"
-          tabs={filteredTabs.map((tab) => {
-            return tab.name;
-          })}
-          views={filteredTabs.map((tab) => {
-            return (
-              <ErrorBoundary
-                displayName={tab.displayName}
-                key={tab.name}
-                onError={(renderingError, errorInfo) => {
-                  debug('error rendering instance view', tab.name, renderingError, errorInfo);
-                }}
-              >
-                <tab.component />
-              </ErrorBoundary>
-            );
-          })}
-          activeTabIndex={activeTabId}
-          onTabClicked={onTabClick}
-          mountAllViews={false}
-        />
+          setSelected={(tabIdx) => {
+            onTabClick(tabIdx, this.tabs[tabIdx]);
+          }}
+          selected={activeTabId}
+        >
+          {filteredTabs.map((tab, idx) => (
+            <Tab
+              className="test-tab-nav-bar-tab"
+              key={`tab-${idx}`}
+              name={tab.name}
+            />
+          ))}
+        </Tabs>
+        {filteredTabs.map((tab, idx) => idx === activeTabId && (
+          <ErrorBoundary
+            displayName={tab.displayName}
+            key={tab.name}
+            onError={(renderingError, errorInfo) => {
+              debug('error rendering instance view', tab.name, renderingError, errorInfo);
+            }}
+          >
+            <WorkspaceContainer>
+              <tab.component />
+            </WorkspaceContainer>
+          </ErrorBoundary>
+        ))}
       </div>
     );
   }
