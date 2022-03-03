@@ -3,6 +3,7 @@ import path from 'path';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
+import { withTheme } from '../hooks/use-theme';
 
 import {
   Button,
@@ -86,8 +87,12 @@ const labelIconStyles = css({
   },
 });
 
-const disabledDescriptionStyles = css({
+const disabledDescriptionLightStyles = css({
   color: uiColors.gray.dark1,
+});
+
+const disabledDescriptionDarkStyles = css({
+  color: uiColors.gray.light1,
 });
 
 export enum Variant {
@@ -105,6 +110,7 @@ function FileInput({
   id,
   label,
   dataTestId,
+  darkMode,
   onChange,
   disabled,
   multi = false,
@@ -122,6 +128,7 @@ function FileInput({
   label: string;
   dataTestId?: string;
   onChange: (files: string[]) => void;
+  darkMode: boolean;
   disabled?: boolean;
   multi?: boolean;
   optional?: boolean;
@@ -178,6 +185,8 @@ function FileInput({
     );
   };
 
+  const applyTheme = global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
+
   return (
     <div>
       <div
@@ -194,7 +203,9 @@ function FileInput({
           <Label htmlFor={`${id}_file_input`} disabled={disabled}>
             <span
               className={cx({
-                [disabledDescriptionStyles]: disabled,
+                [applyTheme && darkMode
+                  ? disabledDescriptionDarkStyles
+                  : disabledDescriptionLightStyles]: disabled,
               })}
             >
               {label}
@@ -268,4 +279,4 @@ function FileInput({
   );
 }
 
-export default FileInput;
+export default withTheme(FileInput);
