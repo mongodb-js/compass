@@ -32,9 +32,142 @@ export const ConnectionFormInputUsername =
   '[data-testid="connection-username-input"]';
 export const ConnectionFormInputPassword =
   '[data-testid="connection-password-input"]';
-
 export const ConnectionFormErrorMessage =
   '[data-testid="connection-error-summary"]';
+
+export const AdvancedOptionsTabs = '[aria-label="Advanced Options Tabs"]';
+export const SelectedAdvancedOptionsTab = `${AdvancedOptionsTabs} [aria-selected="true"]`;
+
+export const ConnectionFormSchemeRadios =
+  '#connection-schema-radio-box-group input[type="radio"]';
+export const ConnectionFormHostInputs =
+  '[aria-labelledby="connection-host-input-label"]';
+export const ConnectionFormDirectConnectionCheckbox =
+  '#direct-connection-checkbox';
+export const ConnectionFormAuthenticationMethodRadios =
+  '#authentication-method-radio-box-group input[type="radio"]';
+export const ConnectionFormInputAuthSource = '#authSourceInput';
+export const ConnectionFormAuthMechanismRadios =
+  '#authentication-mechanism-radio-box-group input[type="radio"]';
+export const ConnectionFormInputGssApiPrincipal =
+  '[data-testid="gssapi-principal-input"]';
+export const ConnectionFormInputGssApiServiceName =
+  '[data-testid="gssapi-service-name-input"]';
+export const ConnectionFormCanonicalizeHostNameRadios =
+  '#canonicalize-hostname-select input[type="radio"]';
+export const ConnectionFormInputGssApiServiceRealm =
+  '[data-testid="gssapi-service-realm-input"]';
+export const ConnectionFormGssApiPasswordCheckbox =
+  '[data-testid="gssapi-password-checkbox"]';
+export const ConnectionFormInputGssApiPassword =
+  '[data-testid="gssapi-password-input"]';
+export const ConnectionFormInputPlainUsername =
+  '[data-testid="connection-plain-username-input"]';
+export const ConnectionFormInputPlainPassword =
+  '[data-testid="connection-plain-password-input"]';
+export const ConnectionFormInputAWSAccessKeyId =
+  '[data-testid="connection-form-aws-access-key-id-input"]';
+export const ConnectionFormInputAWSSecretAccessKey =
+  '[data-testid="connection-form-aws-secret-access-key-input"]';
+export const ConnectionFormInputAWSSessionToken =
+  '[data-testid="connection-form-aws-secret-token-input"]';
+export const ConnectionFormSSLConnectionRadios =
+  '#connection-schema-radio-box-group input[type="radio"]';
+export const ConnectionFormTlsCaButton = '#tlsCAFile';
+export const ConnectionFormTlsCertificateKeyButton = '#tlsCertificateKeyFile';
+export const ConnectionFormTlsCaFile = '[data-testid="tlsCAFile-input"]';
+export const ConnectionFormTlsCertificateKeyFile =
+  '[data-testid="tlsCertificateKeyFile-input"]';
+export const ConnectionFormInputTlsCertificateKeyFilePassword =
+  '[data-testid="tlsCertificateKeyFilePassword-input"]';
+export const ConnectionFormTlsInsecureCheckbox =
+  '[data-testid="tlsInsecure-input"]';
+export const ConnectionFormTlsAllowInvalidHostnamesCheckbox =
+  '[data-testid="tlsAllowInvalidHostnames-input"]';
+export const ConnectionFormTlsAllowInvalidCertificatesCheckbox =
+  '[data-testid="tlsAllowInvalidCertificates-input"]';
+export const ConnectionFormProxyMethodRadios =
+  '#ssh-options-radio-box-group input[type="radio"]';
+export const ConnectionFormInputSshPasswordHost =
+  '[data-testid="ssh-password-tab-content"] [data-testid="host"]';
+export const ConnectionFormInputSshPasswordPort =
+  '[data-testid="ssh-password-tab-content"] [data-testid="port"]';
+export const ConnectionFormInputSshPasswordUsername =
+  '[data-testid="ssh-password-tab-content"] [data-testid="username"]';
+export const ConnectionFormInputSshPasswordPassword =
+  '[data-testid="ssh-password-tab-content"] [data-testid="password"]';
+export const ConnectionFormInputSshIdentityHost =
+  '[data-testid="ssh-identity-tab-content"] [data-testid="host"]';
+export const ConnectionFormInputSshIdentityPort =
+  '[data-testid="ssh-identity-tab-content"] [data-testid="port"]';
+export const ConnectionFormInputSshIdentityUsername =
+  '[data-testid="ssh-identity-tab-content"] [data-testid="username"]';
+export const ConnectionFormSshIdentityKeyButton =
+  '[data-testid="ssh-identity-tab-content"]  #identityKeyFile';
+export const ConnectionFormSshIdentityKeyFile =
+  '[data-testid="ssh-identity-tab-content"] [data-testid="identityKeyFile"]';
+export const ConnectionFormInputSshIdentityPassword =
+  '[data-testid="ssh-identity-tab-content"] [data-testid="identityKeyPassphrase"]';
+export const ConnectionFormInputSocksHost =
+  '[data-testid="socks-tab-content"] [data-testid="proxyHost"]';
+export const ConnectionFormInputSocksPort =
+  '[data-testid="socks-tab-content"] [data-testid="proxyPort"]';
+export const ConnectionFormInputSocksUsername =
+  '[data-testid="socks-tab-content"] [data-testid="proxyUsername"]';
+export const ConnectionFormInputSocksPassword =
+  '[data-testid="socks-tab-content"] [data-testid="proxyPassword"]';
+export const ConnectionFormReadPreferenceRadios =
+  '#read-preferences input[type="radio"]';
+export const ConnectionFormInputReplicaset =
+  '[data-testid="connection-advanced-tab"] [data-testid="replica-set"]';
+export const ConnectionFormInputDefaultDatabase =
+  '[data-testid="connection-advanced-tab"] [data-testid="default-database"]';
+export const ConnectionFormUrlOptionKeys =
+  '[data-testid="connection-advanced-tab"] button[name="name"]';
+export const ConnectionFormUrlOptionValues =
+  '[data-testid="connection-advanced-tab"] input[aria-labelledby="Enter value"]';
+
+export const advancedOptionsTab = (tabName: string): string => {
+  return `${AdvancedOptionsTabs} button[name="${tabName}"]`;
+};
+export const advancedOptionsTabPanel = (tabName: string): string => {
+  return `[role="tabpanel"][aria-label="${tabName}"]`;
+};
+export const connectionFormSchemeRadio = (value: string): string => {
+  return `#connection-schema-radio-box-group input[value="${value}"]`;
+};
+export const connectionFormAuthenticationMethodRadio = (
+  value: string
+): string => {
+  return `#authentication-method-radio-box-group input[value="${value}"]`;
+};
+export const connectionFormAuthMechanismRadio = (value: string): string => {
+  return `#authentication-mechanism-radio-box-group input[value="${value}"]`;
+};
+export const connectionFormCanonicalizeHostNameRadio = (
+  value: string
+): string => {
+  return `#canonicalize-hostname-select input[value="${value}"]`;
+};
+export const connectionFormSSLConnectionRadio = (value: string): string => {
+  return `#connection-schema-radio-box-group input[value="${value}"]`;
+};
+export const connectionFormProxyMethodRadio = (value: string): string => {
+  return `#ssh-options-radio-box-group input[value="${value}"]`;
+};
+export const connectionFormReadPreferenceRadio = (value: string): string => {
+  return `#read-preferences input[value="${value}"]`;
+};
+export const connectionFormUrlOptionKeyButton = (index: number): string => {
+  return `[data-testid="url-options-table"] tr:nth-child(${
+    index + 1
+  }) button[name="name"]`;
+};
+export const connectionFormUrlOptionValueInput = (index: number): string => {
+  return `[data-testid="url-options-table"] tr:nth-child(${
+    index + 1
+  }) input[aria-labelledby="Enter value"]`;
+};
 
 // Connection Sidebar
 export const SidebarTreeItems =

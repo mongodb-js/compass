@@ -33,6 +33,7 @@ function AuthenticationAWS({
     <>
       <FormFieldContainer>
         <TextInput
+          data-testid="connection-form-aws-access-key-id-input"
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +49,7 @@ function AuthenticationAWS({
       </FormFieldContainer>
       <FormFieldContainer>
         <TextInput
+          data-testid="connection-form-aws-secret-access-key-input"
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +67,7 @@ function AuthenticationAWS({
 
       <FormFieldContainer>
         <TextInput
+          data-testid="connection-form-aws-secret-token-input"
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
