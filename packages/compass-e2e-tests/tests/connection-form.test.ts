@@ -5,7 +5,7 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
-describe.only('Connection form', function () {
+describe('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
