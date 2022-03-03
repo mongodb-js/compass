@@ -52,7 +52,7 @@
     "eslint": "*",
     "fast-glob": "^3.2.7",
     "glob": "^7.1.6",
-    "hadron-build": "^24.13.0",
+    "hadron-build": "^24.14.0",
     "lodash": "^4.17.21",
     "mocha": "*",
     "mongodb": "^4.4.0",

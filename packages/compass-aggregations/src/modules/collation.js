@@ -13,10 +13,10 @@ export const INITIAL_STATE = null;
 /**
  * Reducer function for handle collation state changes.
  *
- * @param {String} state - The collation state.
+ * @param {any} state - The collation state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {any} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === COLLATION_CHANGED) {

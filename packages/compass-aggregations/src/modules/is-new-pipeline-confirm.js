@@ -19,7 +19,7 @@ export const INITIAL_STATE = false;
  * @param {Boolean} state - The isNewPipelineConfirm state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {Boolean} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SET_IS_NEW_PIPELINE_CONFIRM) {
