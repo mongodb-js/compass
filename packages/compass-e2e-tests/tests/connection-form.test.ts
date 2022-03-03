@@ -5,7 +5,7 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
-describe.only('Connection form', function () {
+describe('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -42,9 +42,7 @@ describe.only('Connection form', function () {
     });
   });
 
-  it('prompts when re-enabling Edit Connection String');
-
-  it('parses a URI for direct connection', async function () {
+  it('parses and formats a URI for direct connection', async function () {
     const connectionString = 'mongodb://localhost:27017/?directConnection=true';
 
     await browser.setValueVisible(
@@ -74,7 +72,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI for multiple hosts', async function () {
+  it('parses and formats a URI for multiple hosts', async function () {
     const connectionString = 'mongodb://localhost:27017,localhost:27018/';
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
@@ -102,7 +100,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI for mongodb+srv scheme', async function () {
+  it('parses and formats a URI for mongodb+srv scheme', async function () {
     const connectionString = 'mongodb+srv://localhost/';
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
@@ -130,7 +128,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI for username/password authentication', async function () {
+  it('parses and formats a URI for username/password authentication', async function () {
     const connectionString =
       'mongodb://foo:bar@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=source';
 
@@ -165,7 +163,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI for X.509 authentication', async function () {
+  it('parses and formats a URI for X.509 authentication', async function () {
     const fixturesPath = path.resolve(__dirname, '..', 'fixtures');
     const tlsCAFile = path.join(fixturesPath, 'ca.pem');
     const tlsCertificateKeyFile = path.join(fixturesPath, 'client.pem');
@@ -208,7 +206,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI for Kerberos authentication', async function () {
+  it('parses and formats a URI for Kerberos authentication', async function () {
     const connectionString =
       'mongodb://principal:password@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
 
@@ -245,7 +243,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI for LDAP authentication', async function () {
+  it('parses and formats a URI for LDAP authentication', async function () {
     const connectionString =
       'mongodb://username:password@localhost:27017/?authMechanism=PLAIN&authSource=%24external';
     await browser.setValueVisible(
@@ -277,7 +275,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI for AWS IAM authentication', async function () {
+  it('parses and formats a URI for AWS IAM authentication', async function () {
     const connectionString =
       'mongodb://id:key@localhost:27017/?authMechanism=MONGODB-AWS&authSource=%24external&authMechanismProperties=AWS_SESSION_TOKEN%3Atoken';
 
@@ -311,7 +309,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI for Socks5 authentication', async function () {
+  it('parses and formats a URI for Socks5 authentication', async function () {
     const connectionString =
       'mongodb://localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=password';
 
@@ -346,7 +344,7 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses a URI with advanced options', async function () {
+  it('parses and formats a URI with advanced options', async function () {
     const connectionString =
       'mongodb://localhost:27017/default-db?readPreference=primary&replicaSet=replica-set&connectTimeoutMS=1234&maxPoolSize=100';
     await browser.setValueVisible(
@@ -383,10 +381,65 @@ describe.only('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('does not update the URI for SSH tunnel with password authentication');
-  it(
-    'does not update the URI for SSH tunnel with identity file authentication'
-  );
+  it('does not update the URI for SSH tunnel with password authentication', async function () {
+    const state = {
+      proxyMethod: 'password',
+      sshPasswordHost: 'host',
+      sshPasswordPort: '1234',
+      sshPasswordUsername: 'username',
+      sshPasswordPassword: 'password',
+    };
+    await setFormState(browser, state);
+    expect(await getFormState(browser)).to.deep.equal({
+      authMethod: 'AUTH_NONE',
+      connectionString: 'mongodb://localhost:27017/',
+      directConnection: false,
+      hosts: ['localhost:27017'],
+      proxyMethod: 'password',
+      scheme: 'MONGODB',
+      sshPasswordHost: 'host',
+      sshPasswordPassword: 'password',
+      sshPasswordPort: '1234',
+      sshPasswordUsername: 'username',
+      sslConnection: 'DEFAULT',
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      tlsInsecure: false,
+    });
+  });
+
+  it('does not update the URI for SSH tunnel with identity file authentication', async function () {
+    const fixturesPath = path.resolve(__dirname, '..', 'fixtures');
+    // reuse the .pem file from above. contents doesn't matter.
+    const sshIdentityKeyFile = path.join(fixturesPath, 'client.pem');
+
+    const state = {
+      proxyMethod: 'identity',
+      sshIdentityHost: 'host',
+      sshIdentityPort: '1234',
+      sshIdentityUsername: 'username',
+      sshIdentityKeyFile: sshIdentityKeyFile,
+      sshIdentityPassword: 'password',
+    };
+    await setFormState(browser, state);
+    expect(await getFormState(browser)).to.deep.equal({
+      authMethod: 'AUTH_NONE',
+      connectionString: 'mongodb://localhost:27017/',
+      directConnection: false,
+      hosts: ['localhost:27017'],
+      proxyMethod: 'identity',
+      sshIdentityHost: 'host',
+      sshIdentityKeyFile: 'client.pem',
+      sshIdentityPassword: 'password',
+      sshIdentityPort: '1234',
+      sshIdentityUsername: 'username',
+      scheme: 'MONGODB',
+      sslConnection: 'DEFAULT',
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      tlsInsecure: false,
+    });
+  });
 });
 
 async function getCheckedRadioValue(
@@ -774,12 +827,6 @@ async function resetForm(browser: CompassBrowser) {
   });
 }
 
-async function clickParent(browser: CompassBrowser, selector: string) {
-  const element = await browser.$(selector).parentElement();
-  await element.waitForExist();
-  await element.click();
-}
-
 async function setFormState(browser: CompassBrowser, state: any) {
   await resetForm(browser);
 
@@ -788,34 +835,38 @@ async function setFormState(browser: CompassBrowser, state: any) {
   // General
   await browseToTab(browser, 'General');
 
-  await clickParent(browser, Selectors.connectionFormSchemeRadio(state.scheme));
-
-  for (let i = 0; i < state.hosts.length; ++i) {
-    if (i > 0) {
-      await browser.clickVisible(
-        '[data-testid="host-input-container"]:last-child [data-testid="connection-add-host-button"]'
-      );
-    }
-    await browser.setValueVisible(
-      `[data-testid="connection-host-input-${i}"]`,
-      state.hosts[i]
+  if (state.scheme) {
+    await browser.clickParent(
+      Selectors.connectionFormSchemeRadio(state.scheme)
     );
   }
 
+  if (state.hosts) {
+    for (let i = 0; i < state.hosts.length; ++i) {
+      if (i > 0) {
+        await browser.clickVisible(
+          '[data-testid="host-input-container"]:last-child [data-testid="connection-add-host-button"]'
+        );
+      }
+      await browser.setValueVisible(
+        `[data-testid="connection-host-input-${i}"]`,
+        state.hosts[i]
+      );
+    }
+  }
+
   if (state.directConnection) {
-    await clickParent(
-      browser,
-      Selectors.ConnectionFormDirectConnectionCheckbox
-    );
+    await browser.clickParent(Selectors.ConnectionFormDirectConnectionCheckbox);
   }
 
   // Authentication
   await browseToTab(browser, 'Authentication');
 
-  await clickParent(
-    browser,
-    Selectors.connectionFormAuthenticationMethodRadio(state.authMethod)
-  );
+  if (state.authMethod) {
+    await browser.clickParent(
+      Selectors.connectionFormAuthenticationMethodRadio(state.authMethod)
+    );
+  }
 
   // Username/Password
   if (state.defaultUsername) {
@@ -835,8 +886,7 @@ async function setFormState(browser: CompassBrowser, state: any) {
     );
   }
   if (state.defaultAuthMechanism) {
-    await clickParent(
-      browser,
+    await browser.clickParent(
       Selectors.connectionFormAuthMechanismRadio(state.defaultAuthMechanism)
     );
   }
@@ -855,8 +905,7 @@ async function setFormState(browser: CompassBrowser, state: any) {
     );
   }
   if (state.kerberosCanonicalizeHostname) {
-    await clickParent(
-      browser,
+    await browser.clickParent(
       Selectors.connectionFormCanonicalizeHostNameRadio(
         state.kerberosCanonicalizeHostname
       )
@@ -869,7 +918,7 @@ async function setFormState(browser: CompassBrowser, state: any) {
     );
   }
   if (state.kerberosServiceRealm) {
-    await clickParent(browser, Selectors.ConnectionFormGssApiPasswordCheckbox);
+    await browser.clickParent(Selectors.ConnectionFormGssApiPasswordCheckbox);
   }
   if (state.kerberosPassword) {
     await browser.setValueVisible(
@@ -911,10 +960,11 @@ async function setFormState(browser: CompassBrowser, state: any) {
   // TLS/SSL
   await browseToTab(browser, 'TLS/SSL');
 
-  await clickParent(
-    browser,
-    Selectors.connectionFormSSLConnectionRadio(state.sslConnection)
-  );
+  if (state.sslConnection) {
+    await browser.clickParent(
+      Selectors.connectionFormSSLConnectionRadio(state.sslConnection)
+    );
+  }
 
   if (state.tlsCAFile) {
     await browser.selectFile(
@@ -935,17 +985,15 @@ async function setFormState(browser: CompassBrowser, state: any) {
     );
   }
   if (state.tlsInsecure) {
-    await clickParent(browser, Selectors.ConnectionFormTlsInsecureCheckbox);
+    await browser.clickParent(Selectors.ConnectionFormTlsInsecureCheckbox);
   }
   if (state.tlsAllowInvalidHostnames) {
-    await clickParent(
-      browser,
+    await browser.clickParent(
       Selectors.ConnectionFormTlsAllowInvalidHostnamesCheckbox
     );
   }
   if (state.tlsAllowInvalidCertificates) {
-    await clickParent(
-      browser,
+    await browser.clickParent(
       Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
     );
   }
@@ -954,10 +1002,11 @@ async function setFormState(browser: CompassBrowser, state: any) {
   await browseToTab(browser, 'Proxy/SSH Tunnel');
 
   //proxyMethod
-  await clickParent(
-    browser,
-    Selectors.connectionFormProxyMethodRadio(state.proxyMethod)
-  );
+  if (state.proxyMethod) {
+    await browser.clickParent(
+      Selectors.connectionFormProxyMethodRadio(state.proxyMethod)
+    );
+  }
 
   // SSH with Password
   // NOTE: these don't affect the URI
@@ -1045,8 +1094,7 @@ async function setFormState(browser: CompassBrowser, state: any) {
   await browseToTab(browser, 'Advanced');
 
   if (state.readPreference) {
-    await clickParent(
-      browser,
+    await browser.clickParent(
       Selectors.connectionFormReadPreferenceRadio(state.readPreference)
     );
   }
@@ -1068,12 +1116,9 @@ async function setFormState(browser: CompassBrowser, state: any) {
     ).entries()) {
       // key
       await browser.clickVisible(
-        // TODO
-        `[data-testid="url-options-table"] tr:nth-child(${
-          index + 1
-        }) button[name="name"]`
+        Selectors.connectionFormUrlOptionKeyButton(index)
       );
-      // TODO
+      // this is quite hacky, unfortunately
       const options = await browser.$$('#select-key-menu [role="option"]');
       for (const option of options) {
         const span = await option.$(`span=${key}`);
@@ -1086,10 +1131,7 @@ async function setFormState(browser: CompassBrowser, state: any) {
 
       // value
       await browser.setValueVisible(
-        // TODO
-        `[data-testid="url-options-table"] tr:nth-child(${
-          index + 1
-        }) input[aria-labelledby="Enter value"]`,
+        Selectors.connectionFormUrlOptionValueInput(index),
         value as string
       );
     }

@@ -110,7 +110,7 @@ export const ConnectionFormSshIdentityKeyButton =
 export const ConnectionFormSshIdentityKeyFile =
   '[data-testid="ssh-identity-tab-content"] [data-testid="identityKeyFile"]';
 export const ConnectionFormInputSshIdentityPassword =
-  '[data-testid="ssh-identity-tab-content"] [data-testid="password"]';
+  '[data-testid="ssh-identity-tab-content"] [data-testid="identityKeyPassphrase"]';
 export const ConnectionFormInputSocksHost =
   '[data-testid="socks-tab-content"] [data-testid="proxyHost"]';
 export const ConnectionFormInputSocksPort =
@@ -160,6 +160,16 @@ export const connectionFormProxyMethodRadio = (value: string): string => {
 };
 export const connectionFormReadPreferenceRadio = (value: string): string => {
   return `#read-preferences input[value="${value}"]`;
+};
+export const connectionFormUrlOptionKeyButton = (index: number): string => {
+  return `[data-testid="url-options-table"] tr:nth-child(${
+    index + 1
+  }) button[name="name"]`;
+};
+export const connectionFormUrlOptionValueInput = (index: number): string => {
+  return `[data-testid="url-options-table"] tr:nth-child(${
+    index + 1
+  }) input[aria-labelledby="Enter value"]`;
 };
 
 // ======== TODO
