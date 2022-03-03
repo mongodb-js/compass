@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import { ErrorBoundary, Tabs, Tab, WorkspaceContainer } from '@mongodb-js/compass-components';
 import { ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 
 import styles from './database.module.less';
@@ -58,42 +57,14 @@ class Database extends Component {
 
     return (
       <div className={styles.database}>
-        {/* <TabNavBar
-          data-test-id="database-tabs"
-          aria-label="Database Tabs"
-          tabs={this.tabs}
-          views={this.views}
-          mountAllViews={false}
-          activeTabIndex={this.state.activeTab}
-          onTabClicked={this.onTabClicked} /> */}
         <TabNavBar
           data-test-id="database-tabs"
           aria-label="Database Tabs"
           tabs={this.tabs}
           views={this.views}
-          activeTabIndex={this.state.activeTab}
+          activeTabIndex={activeTab}
           onTabClicked={this.onTabClicked}
         />
-        {/* <Tabs
-          data-test-id="database-tabs"
-          aria-label="Database Tabs"
-          setSelected={(tabIdx) => {
-            this.onTabClicked(tabIdx, this.tabs[tabIdx]);
-          }}
-          selected={activeTab}
-        >
-          {this.tabs.map((tab, idx) => (
-            <Tab
-              className="test-tab-nav-bar-tab"
-              key={`tab-${idx}`}
-              name={tab}
-            >
-              <WorkspaceContainer>
-                {this.views[idx]}
-              </WorkspaceContainer>
-            </Tab>
-          ))}
-        </Tabs> */}
       </div>
     );
   }

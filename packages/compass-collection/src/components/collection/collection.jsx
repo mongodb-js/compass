@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TabNavBar, Tabs, Tab, compassUIColors, css, cx } from '@mongodb-js/compass-components';
+import { TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from '../collection-header';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
@@ -10,20 +10,6 @@ function trackingIdForTabName(name) {
 }
 
 import styles from './collection.module.less';
-
-const containerStyles = css({
-  background: 'white',
-});
-
-const collectionWorkspaceContainerStyles = css({
-  height: '100%',
-  background: compassUIColors.gray8,
-  overflow: 'auto'
-});
-
-const hiddenStyles = css({
-  display: 'none'
-});
 
 function Collection({
   namespace,
@@ -71,7 +57,6 @@ function Collection({
 
   return (
     <div className={styles.collection}>
-      {/* <div className={cx(styles.collection, 'clearfix')}> */}
       <div className={styles['collection-container']}>
         <CollectionHeader
           globalAppRegistry={globalAppRegistry}
@@ -87,14 +72,6 @@ function Collection({
           pipeline={pipeline}
           sourceName={sourceName}
         />
-        {/* <TabNavBar
-            data-test-id="collection-tabs"
-            aria-label="Collection Tabs"
-            tabs={tabs}
-            views={views}
-            activeTabIndex={activeSubTab}
-            onTabClicked={this.onSubTabClicked} /> */}
-
         <TabNavBar
           data-test-id="collection-tabs"
           aria-label="Collection Tabs"
@@ -104,37 +81,7 @@ function Collection({
           onTabClicked={(tabIdx) => onSubTabClicked(tabIdx, tabs[tabIdx])}
           mountAllViews
         />
-        {/* <Tabs
-          data-test-id="collection-tabs"
-          aria-label="Collection Tabs"
-          className={containerStyles}
-          setSelected={(tabIdx) => {
-            onSubTabClicked(tabIdx, tabs[tabIdx]);
-          }}
-          selected={activeSubTab}
-        >
-          {tabs.map((tab, idx) => (
-            <Tab
-              className="test-tab-nav-bar-tab"
-              key={`tab-${idx}`}
-              name={tab}
-            />
-          ))}
-        </Tabs>
-        {views.map((view, idx) => (
-          <div
-            key={`tab-content-${idx}`}
-            data-test-id={`${tabs[idx].toLowerCase().replace(/ /g, '-')}-content`}
-            className={cx(collectionWorkspaceContainerStyles, {
-              [hiddenStyles]: idx !== activeSubTab
-            })}
-          >
-            {view}
-          </div>
-        ))} */}
       </div>
-
-      {/* TODO: Skeleton container component compass-components */}
 
       <div className={styles['collection-modal-container']}>
         {scopedModals.map((modal) => (

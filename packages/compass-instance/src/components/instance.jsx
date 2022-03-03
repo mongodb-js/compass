@@ -4,11 +4,7 @@ const {
   Banner,
   BannerVariant,
   ErrorBoundary,
-  Tabs,
-  Tab,
-  TabNavBar,
-  WorkspaceContainer,
-  css
+  TabNavBar
 } = require('@mongodb-js/compass-components');
 const { track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry(
@@ -79,44 +75,6 @@ const InstanceComponent = ({
   if (status === 'ready' || status === 'refreshing') {
     return (
       <div className="rtss">
-        {/* <TabNavBar
-          data-test-id="instance-tabs"
-          aria-label="Instance Tabs"
-          setSelected={(tabIdx) => {
-            onTabClick(tabIdx, this.tabs[tabIdx]);
-          }}
-          selected={activeTabId}
-        />
-        <Tabs
-          data-test-id="instance-tabs"
-          aria-label="Instance Tabs"
-          setSelected={(tabIdx) => {
-            onTabClick(tabIdx, this.tabs[tabIdx]);
-          }}
-          selected={activeTabId}
-        >
-          {filteredTabs.map((tab, idx) => (
-            <Tab
-              className="test-tab-nav-bar-tab"
-              key={`tab-${idx}`}
-              name={tab.name}
-            />
-          ))}
-        </Tabs>
-        {filteredTabs.map((tab, idx) => idx === activeTabId && (
-          <ErrorBoundary
-            displayName={tab.displayName}
-            key={tab.name}
-            onError={(renderingError, errorInfo) => {
-              debug('error rendering instance view', tab.name, renderingError, errorInfo);
-            }}
-          >
-            <WorkspaceContainer>
-              <tab.component />
-            </WorkspaceContainer>
-          </ErrorBoundary>
-        ))} */}
-
         <TabNavBar
           data-test-id="instance-tabs"
           aria-label="Instance Tabs"
