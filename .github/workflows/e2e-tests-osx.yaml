@@ -1,23 +1,24 @@
-# This action runs lint checks and tests against the code.
-name: Build Compass
+# Run e2e tests on osx since in EVG are currently disabled due
+# to issues with unlocking keytar.
+name: E2e Tests OSX
 
-# Controls when the action will run.
 on:
   pull_request:
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
-    name: Build Compass
+  build-and-test:
+    name: Package and Run E2e Tests on OSX
 
     timeout-minutes: 45
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [macos-latest]
 
       fail-fast: false
 
@@ -26,10 +27,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install Deps Ubuntu
-        if: ${{ runner.os == 'Linux' }}
-        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
-
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2
@@ -63,12 +60,6 @@ jobs:
           npm ci
           # We don't need to bootstrap anything else before running the e2e tests
           npx lerna run bootstrap -- --stream --scope @mongodb/webpack-config-compass
-
-      # https://github.community/t/set-path-for-wix-toolset-in-windows-runner/154708/3
-      - name: Set path for candle.exe and light.exe
-        if: ${{ runner.os == 'Windows' }}
-        run: echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH
-        shell: bash
 
       - name: Build Compass
         env:
