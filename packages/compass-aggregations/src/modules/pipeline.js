@@ -384,10 +384,10 @@ MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
 /**
  * Reducer function for handle state changes to pipeline.
  *
- * @param {Array} state - The pipeline state.
+ * @param {any} state - The pipeline state.
  * @param {Object} action - The action.
  *
- * @returns {Array} The new state.
+ * @returns {any} The new state.
  */
 export default function reducer(state, action) {
   const defaultState = state ? state : [ emptyStage() ];
@@ -398,7 +398,7 @@ export default function reducer(state, action) {
 /**
  * Action creator for adding a stage.
  *
- * @returns {Object} the stage added action.
+ * @returns {import('redux').AnyAction} the stage added action.
  */
 export const stageAdded = () => ({
   type: STAGE_ADDED

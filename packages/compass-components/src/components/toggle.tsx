@@ -1,6 +1,6 @@
 import React from 'react';
-import LeafyGreenToggle from '@leafygreen-ui/toggle';
 
+import { Toggle as LeafyGreenToggle } from './leafygreen';
 import { Theme, useTheme } from '../hooks/use-theme';
 
 function Toggle(
