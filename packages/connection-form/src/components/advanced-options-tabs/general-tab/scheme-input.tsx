@@ -18,7 +18,7 @@ import {
   fieldNameHasError,
 } from '../../../utils/validation';
 
-enum MONGODB_SCHEMA {
+enum MONGODB_SCHEME {
   MONGODB = 'MONGODB',
   MONGODB_SRV = 'MONGODB_SRV',
 }
@@ -27,12 +27,12 @@ const descriptionStyles = css({
   marginTop: spacing[2],
 });
 
-const regularSchemaDescription =
+const regularSchemeDescription =
   'Standard Connection String Format. The standard format of the MongoDB connection URI is used to connect to a MongoDB deployment: standalone, replica set, or a sharded cluster.';
-const srvSchemaDescription =
+const srvSchemeDescription =
   'DNS Seed List Connection Format. The +srv indicates to the client that the hostname that follows corresponds to a DNS SRV record.';
 
-function SchemaInput({
+function SchemeInput({
   connectionStringUrl,
   errors,
   updateConnectionFormField,
@@ -43,11 +43,11 @@ function SchemaInput({
 }): React.ReactElement {
   const { isSRV } = connectionStringUrl;
 
-  const onChangeConnectionSchema = useCallback(
+  const onChangeConnectionScheme = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       updateConnectionFormField({
-        type: 'update-connection-schema',
-        isSrv: event.target.value === MONGODB_SCHEMA.MONGODB_SRV,
+        type: 'update-connection-scheme',
+        isSrv: event.target.value === MONGODB_SCHEME.MONGODB_SRV,
       });
     },
     [updateConnectionFormField]
@@ -55,31 +55,31 @@ function SchemaInput({
 
   return (
     <>
-      <Label htmlFor="connection-schema-radio-box-group">
+      <Label htmlFor="connection-scheme-radio-box-group">
         Connection String Scheme
       </Label>
       <RadioBoxGroup
-        id="connection-schema-radio-box-group"
-        value={isSRV ? MONGODB_SCHEMA.MONGODB_SRV : MONGODB_SCHEMA.MONGODB}
-        onChange={onChangeConnectionSchema}
+        id="connection-scheme-radio-box-group"
+        value={isSRV ? MONGODB_SCHEME.MONGODB_SRV : MONGODB_SCHEME.MONGODB}
+        onChange={onChangeConnectionScheme}
       >
         <RadioBox
           id="connection-scheme-mongodb-radiobox"
           data-testid="connection-scheme-mongodb-radiobox"
-          value={MONGODB_SCHEMA.MONGODB}
+          value={MONGODB_SCHEME.MONGODB}
         >
           mongodb
         </RadioBox>
         <RadioBox
           id="connection-scheme-srv-radiobox"
           data-testid="connection-scheme-srv-radiobox"
-          value={MONGODB_SCHEMA.MONGODB_SRV}
+          value={MONGODB_SCHEME.MONGODB_SRV}
         >
           mongodb+srv
         </RadioBox>
       </RadioBoxGroup>
       <Description className={descriptionStyles}>
-        {isSRV ? srvSchemaDescription : regularSchemaDescription}
+        {isSRV ? srvSchemeDescription : regularSchemeDescription}
       </Description>
       {fieldNameHasError(errors, 'isSrv') && (
         <Banner variant={BannerVariant.Danger}>
@@ -90,4 +90,4 @@ function SchemaInput({
   );
 }
 
-export default SchemaInput;
+export default SchemeInput;
