@@ -35,8 +35,6 @@ export const ConnectionFormInputPassword =
 export const ConnectionFormErrorMessage =
   '[data-testid="connection-error-summary"]';
 
-export const AdvancedConnectionOptions =
-  '[data-testid="advanced-connection-options"]';
 export const AdvancedOptionsTabs = '[aria-label="Advanced Options Tabs"]';
 export const SelectedAdvancedOptionsTab = `${AdvancedOptionsTabs} [aria-selected="true"]`;
 

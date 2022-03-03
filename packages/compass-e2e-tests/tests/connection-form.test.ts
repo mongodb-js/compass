@@ -533,7 +533,7 @@ async function getMultipleValues(
 async function maybeExpandAdvancedOptions(
   browser: CompassBrowser
 ): Promise<boolean> {
-  const advancedButton = await browser.$(Selectors.AdvancedConnectionOptions);
+  const advancedButton = await browser.$(Selectors.ShowConnectionFormButton);
   await advancedButton.waitForDisplayed();
 
   if ((await advancedButton.getAttribute('aria-expanded')) === 'false') {
@@ -815,11 +815,11 @@ async function getFormState(browser: CompassBrowser) {
     await browseToTab(browser, initialTab);
   } else {
     // collapse it again
-    await browser.clickVisible(Selectors.AdvancedConnectionOptions);
+    await browser.clickVisible(Selectors.ShowConnectionFormButton);
 
     await browser.waitUntil(async () => {
       const advancedButton = await browser.$(
-        Selectors.AdvancedConnectionOptions
+        Selectors.ShowConnectionFormButton
       );
       return (await advancedButton.getAttribute('aria-expanded')) === 'false';
     });
