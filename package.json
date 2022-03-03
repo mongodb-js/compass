@@ -37,6 +37,7 @@
     "test": "lerna run test --concurrency 1 --stream",
     "test-changed": "lerna run test --stream --concurrency 1 --since origin/HEAD",
     "test-ci": "lerna run test-ci --concurrency 1",
+    "test-ci-electron": "lerna run test-ci-electron --concurrency 1",
     "pretest-packages-publish": "./scripts/monorepo/start-proxy-registry.sh && wait-on -t 3000 http://localhost:4873 && npm-cli-adduser -u test -p test -e test@test.test --registry http://localhost:4873 && echo $'\\n\\n!!! LOCAL REGISTRY DOCKER IMAGE IS RUNNING, DO NOT FORGET TO CLEAN IN UP WHEN YOU ARE DONE\\n\\n'",
     "test-packages-publish": "lerna publish from-package --registry http://localhost:4873",
     "test-packages-version": "lerna version --no-push --no-private -m \"tmp(release): Test release\"",
@@ -50,14 +51,14 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/compass.git"
   },
-  "//": "TODO: We keep webpack-cli/serve and testing-library/dom at the root to ",
-  "//": "      work around weird npm workspace hoising issues caused by outdated",
-  "//": "      transient dependencies. This can go away when we update webpack  ",
-  "//": "      and leafygreen to the same version everywhere",
+  "//": "See depcheck for why we have some of these dependencies at the root of the monorepo",
   "devDependencies": {
+    "@babel/core": "7.16.0",
+    "@babel/parser": "7.16.0",
     "@testing-library/dom": "^8.11.1",
     "@webpack-cli/serve": "^0.2.0",
     "lerna": "^4.0.0",
+    "node-gyp": "^8.4.1",
     "npm-cli-adduser": "^1.1.4",
     "wait-on": "^5.3.0"
   },

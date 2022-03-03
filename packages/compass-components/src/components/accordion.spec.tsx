@@ -26,4 +26,15 @@ describe('Accordion Component', function () {
     fireEvent.click(button);
     expect(screen.getByText('Hello World')).to.be.visible;
   });
+
+  it('should close the accordion after clicking to open then close', function () {
+    renderAccordion();
+
+    expect(screen.getByTestId('my-test-id')).to.exist;
+    const button = screen.getByText('Accordion Test');
+    fireEvent.click(button);
+    expect(screen.getByText('Hello World')).to.be.visible;
+    fireEvent.click(button);
+    expect(screen.queryByText('Hello World')).to.not.exist;
+  });
 });

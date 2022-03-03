@@ -22,7 +22,7 @@ export const INITIAL_STATE = {
  * @param {Object} state - The data service state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {any} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === DATA_SERVICE_CONNECTED) {

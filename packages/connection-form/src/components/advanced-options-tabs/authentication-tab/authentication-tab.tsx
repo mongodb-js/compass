@@ -155,6 +155,7 @@ function AuthenticationTab({
         id="authentication-method-radio-box-group"
         onChange={optionSelected}
         value={selectedAuthTab.id}
+        size="compact"
       >
         {options.map(({ title, id }) => {
           return (

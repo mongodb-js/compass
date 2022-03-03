@@ -46,7 +46,7 @@ export const ConnectionFormSchemeRadios =
 export const ConnectionFormHostInputs =
   '[aria-labelledby="connection-host-input-label"]';
 export const ConnectionFormDirectConnectionCheckbox =
-  '[data-testid="direct-connection"]';
+  '[data-testid="direct-connection-checkbox"]';
 export const ConnectionFormAuthenticationMethodRadios =
   '#authentication-method-radio-box-group input[type="radio"]';
 export const ConnectionFormInputAuthSource = '#authSourceInput';
@@ -453,6 +453,20 @@ export const DocumentListFirstItemValues =
 export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
 export const QueryBarHistory = '[data-test-id="query-history"]';
 
+export const QueryHistoryRecentItem = '[data-testid="recent-query-list-item"]';
+export const QueryHistoryFavoriteAnItemButton =
+  '[data-test-id="query-history-button-fav"]';
+export const QueryHistoryFavoriteItemNameField =
+  '[data-test-id="query-history-saving-form-input-name"]';
+export const QueryHistorySaveFavoriteItemButton =
+  '[data-test-id="query-history-saving-form-button-save"]';
+
+export const myQueriesItem = (title: string): string => {
+  return `[title="${title}"]`;
+};
+
+export const MyQueriesList = '[data-testid="my-queries-list"]';
+
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
 export const CreateNewPipelineButton = 'button#create-new-pipeline';
@@ -471,10 +485,15 @@ export const NewPipelineActions = '#new-pipeline-actions';
 export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
 export const SavePipelineActions = '#save-pipeline-actions';
 export const SavePipelineActionsCreateView = '[data-testid="create-a-view"]';
+export const SavePipelineActionsSaveAs = '[data-testid="save-pipeline-as"]';
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';
 export const CreateViewNameInput = '#create-view-name';
+
+// Save aggregation from pipeline modal
+export const SavePipelineModal = '[data-testid="save_pipeline_modal"]';
+export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [role="option"]`;

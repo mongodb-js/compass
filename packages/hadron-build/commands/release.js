@@ -295,7 +295,13 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     // dependencies inside project root, but outside of their dependants (e.g.
     // a transitive dependency that was hoisted by npm installation process)
     projectRootPath: appPackagePath,
-    force: true
+    force: true,
+    // We want to ensure that we are actually rebuilding native modules on the
+    // platform we are packaging. There is currently no direct way of passing a
+    // --build-from-source flag to rebuild-install package, but we can force
+    // rebuild by providing a tag prefix that will make prebuild think that
+    // prebuilt files don't exist
+    prebuildTagPrefix: 'totally-not-a-real-prefix-to-force-rebuild'
   });
 
   cli.debug('Native modules rebuilt against Electron.');

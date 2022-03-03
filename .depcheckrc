@@ -1,4 +1,16 @@
 ignores:
-  # TODO: See package.json. Remove when all packages use the same version
+  # TODO: We keep webpack-cli/serve and testing-library/dom at the root to work
+  # around weird npm workspace hoising issues caused by outdated transient
+  # dependencies. This can go away when we update webpack and leafygreen to the
+  # same version everywhere.
   - '@webpack-cli/serve'
   - '@testing-library/dom'
+  # TODO: To work around https://github.com/depcheck/depcheck/issues/688 we keep
+  # some babel dependencies at the root to guarantee that their version is not
+  # bumped higher than the version that breaks depcheck package
+  - '@babel/core'
+  - '@babel/parser'
+  # npm picks up the node-gyp installation in this repository rather than the
+  # one it ships with, so we install one of our own to get the version right
+  # (because we need one with vscode 2022 support for github actions CI)
+  - 'node-gyp'

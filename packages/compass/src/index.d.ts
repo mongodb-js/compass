@@ -44,6 +44,11 @@ declare module 'process' {
          * development
          */
         COMPASS_SHOW_YOUR_QUERIES_TAB?: 'true';
+
+        /**
+         * Enable new aggregation pipeline toolbar
+         */
+        COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true',
       }
     }
   }

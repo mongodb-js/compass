@@ -34,7 +34,7 @@ import mime from 'mime-types';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
-import { appRegistryEmit, globalAppRegistryEmit } from './compass';
+import { globalAppRegistryEmit, nsChanged } from './compass';
 
 import detectImportFile from '../utils/detect-import-file';
 import { createCollectionWriteStream } from '../utils/collection-stream';
@@ -287,14 +287,6 @@ export const startImport = () => {
           number_of_docs: dest.docsWritten,
           success: !err,
         });
-
-        /**
-         * Refresh data (docs, aggregations) regardless of whether we have a
-         * partial import or full import
-         */
-        dispatch(appRegistryEmit('refresh-data'));
-        // TODO: lucas: should be done on both?
-        dispatch(globalAppRegistryEmit('refresh-data'));
         /**
          * TODO: lucas: Decorate with a codeframe if not already
          * json parsing errors already are.
@@ -332,7 +324,6 @@ export const startImport = () => {
           hasExcluded: exclude.length > 0,
           hasTransformed: transform.length > 0
         };
-        dispatch(appRegistryEmit('import-finished', payload));
         dispatch(globalAppRegistryEmit('import-finished', payload));
         console.groupEnd();
         console.groupEnd();
@@ -620,11 +611,10 @@ export const setIgnoreBlanks = ignoreBlanks => ({
  * Open the import modal.
  * @api public
  */
-export const openImport = () => {
+export const openImport = (namespace) => (dispatch) => {
   track('Import Opened');
-  return {
-    type: OPEN,
-  };
+  dispatch(nsChanged(namespace));
+  dispatch({ type: OPEN });
 };
 
 /**

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useReducer } from 'react';
 import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep, isEqual } from 'lodash';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type {
   ConnectionFormError,
   ConnectionFormWarning,
@@ -219,9 +219,7 @@ function handleUpdateHost({
 
     // Build a new connection string url to ensure the
     // validity of the update.
-    const newConnectionStringUrl = new ConnectionStringUrl(
-      updatedConnectionString.toString()
-    );
+    const newConnectionStringUrl = updatedConnectionString.clone();
 
     return {
       connectionOptions: {

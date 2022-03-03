@@ -14,6 +14,7 @@ import { openSavedItem } from '../stores/open-item';
 import type { RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { Action } from './saved-item-card';
+import { NoSavedItems, NoSearchResults } from './empty-list-items';
 import OpenItemModal from './open-item-modal';
 import EditItemModal from './edit-item-modal';
 import DeleteItemModal from './delete-item-modal';
@@ -190,6 +191,14 @@ const AggregationsQueriesList = ({
     return null;
   }
 
+  if (items.length === 0) {
+    return (
+      <div data-testid="my-queries-list">
+        <NoSavedItems />
+      </div>
+    );
+  }
+
   return (
     <ControlsContext.Provider
       value={{
@@ -198,6 +207,7 @@ const AggregationsQueriesList = ({
       }}
     >
       <VirtualGrid
+        data-testid="my-queries-list"
         itemMinWidth={CARD_WIDTH}
         itemHeight={CARD_HEIGHT + spacing[2]}
         itemsCount={sortedItems.length}
@@ -205,6 +215,7 @@ const AggregationsQueriesList = ({
         itemKey={(index: number) => sortedItems[index].id}
         renderHeader={GridControls}
         headerHeight={spacing[5] + 36}
+        renderEmptyList={NoSearchResults}
         classNames={{ row: rowStyles }}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>

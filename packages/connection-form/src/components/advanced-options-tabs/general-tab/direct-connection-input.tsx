@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import {
   Checkbox,
   Description,
+  Label,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -44,19 +45,22 @@ function DirectConnectionInput({
   );
 
   return (
-    <>
-      <Checkbox
-        data-testid="direct-connection"
-        onChange={updateDirectConnection}
-        label="Direct Connection"
-        checked={isDirectConnection}
-        bold={false}
-      />
-      <Description className={descriptionStyles}>
-        Specifies whether to force dispatch all operations to the specified
-        host.
-      </Description>
-    </>
+    <Checkbox
+      onChange={updateDirectConnection}
+      id="direct-connection-checkbox"
+      label={
+        <>
+          <Label htmlFor="direct-connection-checkbox">Direct Connection</Label>
+
+          <Description className={descriptionStyles}>
+            Specifies whether to force dispatch all operations to the specified
+            host.
+          </Description>
+        </>
+      }
+      checked={isDirectConnection}
+      bold={false}
+    />
   );
 }
 

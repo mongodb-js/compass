@@ -4,23 +4,20 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import { readPreferences } from './../../../utils/read-preferences';
-
-import AdvancedTab from './advanced-tab';
+import AdvancedTab, { readPreferences } from './advanced-tab';
 
 let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
 describe('AdvancedTab', function () {
   describe('no searchParam', function () {
     const connectionStringUrl = new ConnectionStringUrl(
-      'mongodb+srv://0ranges:p!neapp1es@localhost/'
+      'mongodb+srv://0ranges:p!neapp1es@localhost/?readPreference=bananas'
     );
     beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();
       render(
         <AdvancedTab
           errors={[]}
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
           updateConnectionFormField={updateConnectionFormFieldSpy}
           connectionStringUrl={connectionStringUrl}
         />
@@ -47,6 +44,15 @@ describe('AdvancedTab', function () {
       });
     });
 
+    it('handles a click on the default readPreference radio button', function () {
+      fireEvent.click(screen.getByTestId('default-preference-button'));
+      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+      expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
+        type: 'delete-search-param',
+        key: 'readPreference',
+      });
+    });
+
     it(`handles changes on replicaSet field when user changes input`, function () {
       fireEvent.change(screen.getByTestId('replica-set'), {
         target: { value: 'hello' },
@@ -70,6 +76,28 @@ describe('AdvancedTab', function () {
     });
   });
 
+  describe('when there is no readPreference in the connectionStringUrl', function () {
+    const connectionStringUrl = new ConnectionStringUrl(
+      'mongodb+srv://0ranges:p!neapp1es@localhost/admin'
+    );
+    beforeEach(function () {
+      render(
+        <AdvancedTab
+          errors={[]}
+          updateConnectionFormField={() => {}}
+          connectionStringUrl={connectionStringUrl}
+        />
+      );
+    });
+    it('renders readPref default selected', function () {
+      expect(
+        screen
+          .getByTestId('default-preference-button')
+          .getAttribute('aria-checked')
+      ).to.equal('true');
+    });
+  });
+
   describe('renders selected values from connectionStringUrl', function () {
     const connectionStringUrl = new ConnectionStringUrl(
       'mongodb+srv://0ranges:p!neapp1es@localhost/admin'
@@ -81,11 +109,17 @@ describe('AdvancedTab', function () {
       render(
         <AdvancedTab
           errors={[]}
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
           updateConnectionFormField={updateConnectionFormFieldSpy}
           connectionStringUrl={connectionStringUrl}
         />
       );
+    });
+    it('does not render readPref default selected', function () {
+      expect(
+        screen
+          .getByTestId('default-preference-button')
+          .getAttribute('aria-checked')
+      ).to.equal('false');
     });
     it('renders selected values', function () {
       expect(
@@ -111,7 +145,6 @@ describe('AdvancedTab', function () {
       render(
         <AdvancedTab
           errors={[]}
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
           updateConnectionFormField={updateConnectionFormFieldSpy}
           connectionStringUrl={connectionStringUrl}
         />

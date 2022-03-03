@@ -19,10 +19,6 @@ function printVar(name, value) {
 }
 
 function printCompassEnv() {
-  const {
-    EVERGREEN_BUILD_VARIANT
-  } = process.env;
-
   let {
     // This is an env var set in bash that we exported in print-compass-env.sh
     OSTYPE
@@ -48,32 +44,39 @@ function printCompassEnv() {
   # - https://github.com/mongodb-js/compass/pull/2403
   # - https://github.com/mongodb-js/compass/pull/2410
   */
-  if (originalPWD.startsWith('\/cygdrive\/c')) {
+  if (originalPWD.startsWith('/cygdrive/c')) {
     // Change cygdrive from c to z without chanding rest of the path
-    newPWD = originalPWD.replace('\/cygdrive\/c', '\/cygdrive\/z');
+    newPWD = originalPWD.replace('/cygdrive/c', '/cygdrive/z');
     // we have to change the directory in the shell script we're outputting, not in this node process
     console.log(`cd "${newPWD}";`);
     console.log('echo "Changed cwd on cygwin. Current working dir: $PWD";');
   }
 
-  const pathsToPrepend = []
+  const pathsToPrepend = [];
 
   if (OSTYPE === 'cygwin') {
     // NOTE lucas: for git-core addition, See
     // https://jira.mongodb.org/browse/COMPASS-4122
     pathsToPrepend.unshift('/cygdrive/c/wixtools/bin');
     pathsToPrepend.unshift(`${newPWD}/.deps`);
-    pathsToPrepend.unshift('/cygdrive/c/Program Files/Git/mingw32/libexec/git-core');
-    printVar('APPDATA', 'Z:\\\;');
+    pathsToPrepend.unshift(
+      '/cygdrive/c/Program Files/Git/mingw32/libexec/git-core'
+    );
+    printVar('APPDATA', 'Z:\\;');
   } else {
     pathsToPrepend.unshift(`${newPWD}/.deps/bin`);
   }
 
-  if (EVERGREEN_BUILD_VARIANT === 'rhel') {
+  if (process.env.IS_RHEL === 'true') {
     // To build node modules on RHEL post electron 13 we need
     // a newer c++ compiler version, this adds it.
     // https://jira.mongodb.org/browse/COMPASS-5150
     pathsToPrepend.unshift('/opt/mongodbtoolchain/v3/bin');
+  }
+
+  if (process.env.PLATFORM === 'linux') {
+    // Make sure that linux is using python 3.6 (node-gyp requirement)
+    pathsToPrepend.unshift('/opt/python/3.6/bin');
   }
 
   PATH = maybePrependPaths(PATH, pathsToPrepend);
@@ -91,6 +94,13 @@ function printCompassEnv() {
   printVar('npm_config_cache', npmCacheDir);
   // npm tmp is deprecated, but let's keep it around just in case
   printVar('npm_config_tmp', npmTmpDir);
+
+  printVar('PLATFORM', process.env.PLATFORM);
+  printVar('IS_WINDOWS', process.env.IS_WINDOWS);
+  printVar('IS_OSX', process.env.IS_OSX);
+  printVar('IS_LINUX', process.env.IS_LINUX);
+  printVar('IS_RHEL', process.env.IS_RHEL);
+  printVar('IS_UBUNTU', process.env.IS_UBUNTU);
 }
 
 printCompassEnv();

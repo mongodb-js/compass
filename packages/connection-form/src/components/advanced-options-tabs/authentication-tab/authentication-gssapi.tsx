@@ -114,6 +114,7 @@ function AuthenticationGSSAPI({
             });
           }}
           value={canonicalizeHostname}
+          size="compact"
         >
           {Object.entries(GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS).map(
             ([key, { label, value }]) => (
@@ -162,7 +163,9 @@ function AuthenticationGSSAPI({
             setShowPassword(checked);
           }}
         />
-        {showPassword && (
+      </FormFieldContainer>
+      {showPassword && (
+        <FormFieldContainer>
           <TextInput
             onChange={({
               target: { value },
@@ -178,8 +181,8 @@ function AuthenticationGSSAPI({
             type="password"
             optional
           />
-        )}
-      </FormFieldContainer>
+        </FormFieldContainer>
+      )}
     </>
   );
 }

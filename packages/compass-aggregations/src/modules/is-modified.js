@@ -14,7 +14,7 @@ export const INITIAL_STATE = false;
  * @param {Boolean} state - The isModified state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {Boolean} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SET_IS_MODIFIED) {
@@ -28,7 +28,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @param {Boolean} isModified - The isModified value.
  *
- * @returns {Object} The set is modified action.
+ * @returns {import("redux").AnyAction} The set is modified action.
  */
 export const setIsModified = (isModified) => ({
   type: SET_IS_MODIFIED,

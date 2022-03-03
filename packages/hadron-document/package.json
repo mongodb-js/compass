@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.7.0",
+  "version": "7.8.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -36,7 +36,7 @@
   "dependencies": {
     "debug": "4.3.0",
     "eventemitter3": "^4.0.0",
-    "hadron-type-checker": "^6.6.0",
+    "hadron-type-checker": "^6.7.0",
     "lodash.foreach": "^4.5.0",
     "lodash.isarray": "^4.0.0",
     "lodash.isequal": "^4.5.0",

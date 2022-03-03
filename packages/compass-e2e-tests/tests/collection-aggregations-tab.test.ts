@@ -320,6 +320,8 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(0, '$out');
     await browser.setAceValue(Selectors.stageEditor(0), "'my-out-collection'");
 
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+
     await browser.clickVisible(Selectors.AddStageButton);
 
     await browser.focusStageOperator(1);
@@ -329,13 +331,19 @@ describe('Collection aggregations tab', function () {
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
     // make sure it complains that it must be the last stage
-    const messageElement = await browser.$(
-      Selectors.stageEditorErrorMessage(1)
-    );
-    await messageElement.waitForDisplayed();
-
-    expect(await messageElement.getText()).to.equal(
-      '$out can only be the final stage in the pipeline'
+    await browser.waitUntil(
+      async () => {
+        const messageElement = await browser.$(
+          Selectors.stageEditorErrorMessage(1)
+        );
+        await messageElement.waitForDisplayed();
+        const text = await messageElement.getText();
+        return text === '$out can only be the final stage in the pipeline';
+      },
+      {
+        timeoutMsg:
+          'Waited for the error "$out can only be the final stage in the pipeline"',
+      }
     );
 
     // delete the stage after $out
@@ -369,6 +377,8 @@ describe('Collection aggregations tab', function () {
 }`
     );
 
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+
     await browser.clickVisible(Selectors.AddStageButton);
 
     await browser.focusStageOperator(1);
@@ -378,12 +388,19 @@ describe('Collection aggregations tab', function () {
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
     // make sure it complains that it must be the last stage
-    const messageElement = await browser.$(
-      Selectors.stageEditorErrorMessage(1)
-    );
-    await messageElement.waitForDisplayed();
-    expect(await messageElement.getText()).to.equal(
-      '$merge can only be the final stage in the pipeline'
+    await browser.waitUntil(
+      async () => {
+        const messageElement = await browser.$(
+          Selectors.stageEditorErrorMessage(1)
+        );
+        await messageElement.waitForDisplayed();
+        const text = await messageElement.getText();
+        return text === '$merge can only be the final stage in the pipeline';
+      },
+      {
+        timeoutMsg:
+          'Waited for the error "$merge can only be the final stage in the pipeline"',
+      }
     );
 
     // delete the stage after $out

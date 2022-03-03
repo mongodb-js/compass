@@ -46,6 +46,7 @@ export {
 } from '@leafygreen-ui/logo';
 export { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 export { uiColors } from '@leafygreen-ui/palette';
+export * as compassFontSizes from './compass-font-sizes';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { RadioBox, Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
@@ -117,9 +118,9 @@ export { InlineInfoLink } from './components/inline-info-link';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';
-export { default as FormFooter } from '@leafygreen-ui/form-footer';
 export { VirtualGrid } from './components/virtual-grid';
 export { mergeProps } from './utils/merge-props';
 export { useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
+export { Pipeline, Stage } from '@leafygreen-ui/pipeline';

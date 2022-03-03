@@ -1,14 +1,15 @@
 {
   "name": "mongodb-js-metrics",
   "description": "Shareable metric recording.",
-  "version": "7.7.0",
+  "version": "7.8.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
-    "test": "mocha && npm run test:electron",
-    "test:electron": "xvfb-maybe electron-mocha --no-sandbox",
+    "test": "mocha",
+    "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "test-ci-electron": "npm run test-electron"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "repository": {

@@ -17,10 +17,12 @@ import ConnectionStringInput, {
 describe('ConnectionStringInput Component', function () {
   let setEnableEditingConnectionStringSpy: sinon.SinonSpy;
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
+  let submitConnectionFormSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     setEnableEditingConnectionStringSpy = sinon.spy();
     updateConnectionFormFieldSpy = sinon.spy();
+    submitConnectionFormSpy = sinon.spy();
   });
   afterEach(cleanup);
 
@@ -66,6 +68,7 @@ describe('ConnectionStringInput Component', function () {
       render(
         <ConnectionStringInput
           connectionString=""
+          onSubmit={submitConnectionFormSpy}
           enableEditingConnectionString={true}
           setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
           updateConnectionFormField={updateConnectionFormFieldSpy}
@@ -131,6 +134,18 @@ describe('ConnectionStringInput Component', function () {
           newConnectionStringValue: 'mongodb://localhost',
         });
       });
+
+      describe('when then enter key is inputted', function () {
+        beforeEach(function () {
+          expect(submitConnectionFormSpy.callCount).to.equal(0);
+
+          userEvent.keyboard('{enter}');
+        });
+
+        it('should call to submitConnectionForm', function () {
+          expect(submitConnectionFormSpy.callCount).to.equal(1);
+        });
+      });
     });
   });
 
@@ -140,6 +155,7 @@ describe('ConnectionStringInput Component', function () {
         <ConnectionStringInput
           connectionString="mongodb+srv://turtles:pineapples@localhost/"
           enableEditingConnectionString={true}
+          onSubmit={() => {}}
           setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
@@ -167,6 +183,7 @@ describe('ConnectionStringInput Component', function () {
         <ConnectionStringInput
           connectionString="mongodb+srv://turtles:pineapples@localhost/"
           enableEditingConnectionString={false}
+          onSubmit={() => {}}
           setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />

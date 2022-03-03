@@ -1,68 +1,69 @@
-import { Readable } from 'stream';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-import rimraf from 'rimraf';
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
 import AppRegistry from 'hadron-app-registry';
 import FILE_TYPES from '../constants/file-types';
 import reducer, * as actions from './export';
-import configureExportStore from '../stores/export-store';
-import { ConnectionOptions, DataService } from 'mongodb-data-service';
+import store from '../stores/export-store';
+import { DataService } from 'mongodb-data-service';
 import { promisify } from 'util';
 import { once } from 'events';
+import { dataServiceConnected, globalAppRegistryActivated } from './compass';
 describe('export [module]', () => {
+  beforeEach(() => {
+    store.dispatch(actions.reset());
+  });
+
   describe('#reducer', () => {
     context('#startExport', () => {
-      let store;
-      const localAppRegistry = new AppRegistry();
       const globalAppRegistry = new AppRegistry();
       const dataService = new DataService({ connectionString: 'mongodb://localhost:27018/local'});
       const createCollection = promisify(dataService.createCollection).bind(dataService);
       const dropCollection = promisify(dataService.dropCollection).bind(dataService);
       const insertMany = promisify(dataService.insertMany).bind(dataService);
       const TEST_COLLECTION_NAME = 'local.foobar';
-      
+
       afterEach(async function() {
         await dropCollection(TEST_COLLECTION_NAME);
       });
 
       beforeEach(async function() {
         await dataService.connect();
-        try {
-          await createCollection(TEST_COLLECTION_NAME);
-          await insertMany(TEST_COLLECTION_NAME, [
-            {
-              _id: 'foo',
-              first_name: 'John',
-              last_name: 'Appleseed'
-            }
-          ]);
-        } catch (err) {
-          console.log(err);
-        }
 
-        store = configureExportStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          namespace: TEST_COLLECTION_NAME,
-          dataProvider: {
-            error: function(err) { throw err; },
-            dataProvider: dataService
+        await createCollection(TEST_COLLECTION_NAME);
+        await insertMany(TEST_COLLECTION_NAME, [
+          {
+            _id: 'foo',
+            first_name: 'John',
+            last_name: 'Appleseed'
           }
-        });
+        ]);
+
+        store.dispatch(dataServiceConnected(null, dataService));
+        store.dispatch(globalAppRegistryActivated(globalAppRegistry));
+
+        // Manually awaiting a thunk to make sure that store is ready for the
+        // tests
+        await actions.openExport({
+          namespace: TEST_COLLECTION_NAME,
+          query: {},
+          count: 0,
+        })(store.dispatch, store.getState);
       });
+
       async function configureAndStartExport(selectedFields, fileType, tempFile) {
         store.dispatch(actions.updateSelectedFields(selectedFields));
         store.dispatch(actions.selectExportFileName(tempFile));
         store.dispatch(actions.selectExportFileType(fileType));
         store.dispatch(actions.toggleFullCollection());
         store.dispatch(actions.startExport());
-        await once(localAppRegistry, 'export-finished');
+        await once(globalAppRegistry, 'export-finished');
         const writtenData = fs.readFileSync(tempFile, 'utf-8');
         return writtenData;
       }
+
       describe('CSV Export', () => {
         let tempFile;
         beforeEach(() => {
@@ -161,20 +162,15 @@ describe('export [module]', () => {
       });
     });
     context('when the action type is FINISHED', () => {
-      let store;
-      const localAppRegistry = new AppRegistry();
-      const globalAppRegistry = new AppRegistry();
-
-      beforeEach(() => {
-        store = configureExportStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry
-        });
-      });
-
       context('when the state has an error', () => {
         it('returns the new state and stays open', () => {
-          store.dispatch(actions.onModalOpen(200, { filter: {} }));
+          store.dispatch(
+            actions.onModalOpen({
+              namespace: 'test',
+              count: 200,
+              query: { filter: {} },
+            })
+          );
           store.dispatch(actions.onError(true));
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
@@ -192,14 +188,20 @@ describe('export [module]', () => {
             fileName: '',
             fileType: FILE_TYPES.JSON,
             status: PROCESS_STATUS.FAILED,
-            count: 200
+            count: 200,
           });
         });
       });
 
       context('when the state has no error', () => {
         it('returns the new state and closes', () => {
-          store.dispatch(actions.onModalOpen(200, { filter: {} }));
+          store.dispatch(
+            actions.onModalOpen({
+              namespace: 'test',
+              count: 200,
+              query: { filter: {} },
+            })
+          );
           store.dispatch(actions.onFinished(10));
           store.dispatch(actions.closeExport());
           expect(store.getState().exportData).to.deep.equal({
@@ -217,14 +219,20 @@ describe('export [module]', () => {
             fileName: '',
             fileType: FILE_TYPES.JSON,
             status: PROCESS_STATUS.COMPLETED,
-            count: 200
+            count: 200,
           });
         });
       });
 
       context('when the status is canceled', () => {
         it('keeps the same status', () => {
-          store.dispatch(actions.onModalOpen(200, { filter: {} }));
+          store.dispatch(
+            actions.onModalOpen({
+              namespace: 'test',
+              count: 200,
+              query: { filter: {} },
+            })
+          );
           store.getState().exportData.status = PROCESS_STATUS.CANCELED;
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
@@ -242,14 +250,20 @@ describe('export [module]', () => {
             fileName: '',
             fileType: FILE_TYPES.JSON,
             status: PROCESS_STATUS.CANCELED,
-            count: 200
+            count: 200,
           });
         });
       });
 
       context('when the status is failed', () => {
         it('keeps the same status', () => {
-          store.dispatch(actions.onModalOpen(200, { filter: {} }));
+          store.dispatch(
+            actions.onModalOpen({
+              namespace: 'test',
+              count: 200,
+              query: { filter: {} },
+            })
+          );
           store.dispatch(actions.onError(true));
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
@@ -267,26 +281,21 @@ describe('export [module]', () => {
             fileName: '',
             fileType: FILE_TYPES.JSON,
             status: PROCESS_STATUS.FAILED,
-            count: 200
+            count: 200,
           });
         });
       });
     });
 
     context('when the action type is PROGRESS', () => {
-      let store;
-      const localAppRegistry = new AppRegistry();
-      const globalAppRegistry = new AppRegistry();
-
-      beforeEach(() => {
-        store = configureExportStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry
-        });
-      });
-
       it('returns the new state', () => {
-        store.dispatch(actions.onModalOpen(200, { filter: {} }));
+        store.dispatch(
+          actions.onModalOpen({
+            namespace: 'test',
+            count: 200,
+            query: { filter: {} },
+          })
+        );
         store.dispatch(actions.onProgress(0.7, 100));
         expect(store.getState().exportData).to.deep.equal({
           isOpen: true,
@@ -301,7 +310,7 @@ describe('export [module]', () => {
           fileName: '',
           fileType: FILE_TYPES.JSON,
           status: PROCESS_STATUS.UNSPECIFIED,
-          count: 200
+          count: 200,
         });
       });
     });
@@ -421,17 +430,6 @@ describe('export [module]', () => {
     });
 
     context('when the action type is CLOSE_EXPORT', () => {
-      let store;
-      const localAppRegistry = new AppRegistry();
-      const globalAppRegistry = new AppRegistry();
-
-      beforeEach(() => {
-        store = configureExportStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry
-        });
-      });
-
       it('returns the new state', () => {
         store.dispatch(actions.closeExport());
         expect(store.getState().exportData).to.deep.equal({
@@ -469,10 +467,17 @@ describe('export [module]', () => {
 
   describe('#onModalOpen', () => {
     it('returns the action', () => {
-      expect(actions.onModalOpen(100, { filter: {} })).to.deep.equal({
+      expect(
+        actions.onModalOpen({
+          namespace: 'test',
+          count: 100,
+          query: { filter: {} },
+        })
+      ).to.deep.equal({
         type: actions.ON_MODAL_OPEN,
+        namespace: 'test',
         count: 100,
-        query: { filter: {} }
+        query: { filter: {} },
       });
     });
   });

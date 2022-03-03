@@ -14,7 +14,7 @@ export const INITIAL_STATE = true;
  * @param {Boolean} state - The sample state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {Boolean} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === TOGGLE_SAMPLE) {

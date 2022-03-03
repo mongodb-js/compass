@@ -1,14 +1,13 @@
 {
   "name": "hadron-auto-update-manager",
   "description": "Atoms AutoUpdateManager class as a standalone module.",
-  "version": "4.6.0",
+  "version": "4.7.0",
   "scripts": {
-    "check": "npm run lint && npm run depcheck",
-    "test": "xvfb-maybe electron-mocha --no-sandbox",
-    "test-check-ci": "npm run check && npm test",
+    "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "check": "npm run lint && npm run depcheck",
+    "test-ci-electron": "npm run test-electron"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "repository": {

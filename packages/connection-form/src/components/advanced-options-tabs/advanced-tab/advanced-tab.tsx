@@ -10,14 +10,44 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import type { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions, ReadPreferenceMode } from 'mongodb';
+import { ReadPreference as MongoReadPreference } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { readPreferences } from '../../../utils/read-preferences';
 
 import UrlOptions from './url-options';
 import type { ConnectionFormError } from '../../../utils/validation';
+
+const defaultReadPreference = 'defaultReadPreference';
+
+interface ReadPreference {
+  title: string;
+  id: ReadPreferenceMode;
+}
+
+export const readPreferences: ReadPreference[] = [
+  {
+    title: 'Primary',
+    id: MongoReadPreference.PRIMARY,
+  },
+  {
+    title: 'Primary Preferred',
+    id: MongoReadPreference.PRIMARY_PREFERRED,
+  },
+  {
+    title: 'Secondary',
+    id: MongoReadPreference.SECONDARY,
+  },
+  {
+    title: 'Secondary Preferred',
+    id: MongoReadPreference.SECONDARY_PREFERRED,
+  },
+  {
+    title: 'Nearest',
+    id: MongoReadPreference.NEAREST,
+  },
+];
 
 const containerStyles = css({
   marginTop: spacing[3],
@@ -76,12 +106,26 @@ function AdvancedTab({
       <Label htmlFor="read-preferences">Read Preference</Label>
       <RadioBoxGroup
         onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-          handleFieldChanged('readPreference', value);
+          handleFieldChanged(
+            'readPreference',
+            // Unset the read preference when default is selected.
+            value === defaultReadPreference ? undefined : value
+          );
         }}
-        value={readPreference ?? ''}
+        value={readPreference ?? defaultReadPreference}
         data-testid="read-preferences"
         id="read-preferences"
+        size="compact"
       >
+        <RadioBox
+          id="default-preference-button"
+          data-testid="default-preference-button"
+          key="defaultReadPreference"
+          value={defaultReadPreference}
+          checked={!readPreference}
+        >
+          Default
+        </RadioBox>
         {readPreferences.map(({ title, id }) => {
           return (
             <RadioBox

@@ -75,6 +75,7 @@ class SavingPipelineModal extends PureComponent {
       >
         <form onSubmit={this.onSubmit.bind(this)}>
           <input
+            id="save-pipeline-name"
             type="text"
             value={this.props.name}
             onChange={this.onNameChanged.bind(this)}

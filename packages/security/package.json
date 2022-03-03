@@ -1,6 +1,6 @@
 {
   "name": "mongodb-security",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Portable business logic of MongoDB security model",
   "author": "Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)",
   "license": "SSPL",

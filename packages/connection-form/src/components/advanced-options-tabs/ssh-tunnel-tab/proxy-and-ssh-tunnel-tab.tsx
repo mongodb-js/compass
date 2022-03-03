@@ -172,6 +172,7 @@ function ProxyAndSshTunnelTab({
       <RadioBoxGroup
         id="ssh-options-radio-box-group"
         onChange={optionSelected}
+        size="compact"
         className="radio-box-group-style"
       >
         {options.map(({ title, id, type }) => {
