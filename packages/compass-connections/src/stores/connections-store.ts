@@ -32,6 +32,14 @@ export function createNewConnectionInfo(): ConnectionInfo {
   };
 }
 
+function ensureWellFormedConnectionString(connectionString: string) {
+  new ConnectionString(
+    connectionString,
+
+    { looseValidation: true }
+  );
+}
+
 function setAppNameParamIfMissing(
   connectionString: string,
   appName: string
@@ -232,10 +240,17 @@ export function useConnections({
   const connectedConnectionInfo = useRef<ConnectionInfo>();
   const connectedDataService = useRef<DataService>();
 
-  async function saveConnectionInfo(connectionInfo: ConnectionInfo) {
+  async function saveConnectionInfo(
+    connectionInfo: ConnectionInfo
+  ): Promise<boolean> {
     try {
+      ensureWellFormedConnectionString(
+        connectionInfo?.connectionOptions?.connectionString
+      );
       await connectionStorage.save(connectionInfo);
       debug(`saved connection with id ${connectionInfo.id || ''}`);
+
+      return true;
     } catch (err) {
       debug(
         `error saving connection with id ${connectionInfo.id || ''}: ${
@@ -250,6 +265,8 @@ export function useConnections({
           (err as Error).message
         }`,
       });
+
+      return false;
     }
   }
 
@@ -383,7 +400,11 @@ export function useConnections({
       });
     },
     async saveConnection(connectionInfo: ConnectionInfo) {
-      await saveConnectionInfo(connectionInfo);
+      const saved = await saveConnectionInfo(connectionInfo);
+
+      if (!saved) {
+        return;
+      }
 
       const existingConnectionIndex = connections.findIndex(
         (connection) => connection.id === connectionInfo.id

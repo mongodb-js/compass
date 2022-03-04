@@ -101,7 +101,7 @@ describe('use-connections hook', function () {
           await result.current.saveConnection({
             id: 'oranges',
             connectionOptions: {
-              connectionString: 'aba',
+              connectionString: 'mongodb://aba',
             },
             favorite: {
               name: 'not peaches',
@@ -121,7 +121,7 @@ describe('use-connections hook', function () {
         expect(hookResult.current.state.connections[1]).to.deep.equal({
           id: 'oranges',
           connectionOptions: {
-            connectionString: 'aba',
+            connectionString: 'mongodb://aba',
           },
           favorite: {
             name: 'not peaches',
@@ -155,7 +155,7 @@ describe('use-connections hook', function () {
           await result.current.saveConnection({
             id: 'pineapples',
             connectionOptions: {
-              connectionString: '',
+              connectionString: 'mongodb://bacon',
             },
             favorite: {
               name: 'bacon',
@@ -175,12 +175,48 @@ describe('use-connections hook', function () {
         expect(hookResult.current.state.connections[0]).to.deep.equal({
           id: 'pineapples',
           connectionOptions: {
-            connectionString: '',
+            connectionString: 'mongodb://bacon',
           },
           favorite: {
             name: 'bacon',
           },
         });
+      });
+    });
+
+    describe('saving an invalid connection', function () {
+      let hookResult: RenderResult<ReturnType<typeof useConnections>>;
+      beforeEach(async function () {
+        const { result } = renderHook(() =>
+          useConnections({
+            onConnected: noop,
+            connectionStorage: mockConnectionStorage,
+            connectFn: noop,
+            appName: 'Test App Name',
+          })
+        );
+
+        await act(async () => {
+          await result.current.saveConnection({
+            id: 'pineapples',
+            connectionOptions: {
+              connectionString: 'bacon',
+            },
+            favorite: {
+              name: 'bacon',
+            },
+          });
+        });
+
+        hookResult = result;
+      });
+
+      it('calls to save a connection on the store', function () {
+        expect(saveSpy.callCount).to.equal(0);
+      });
+
+      it('does not add the new connection to the current connections list', function () {
+        expect(hookResult.current.state.connections).to.be.undefined;
       });
     });
 
@@ -212,7 +248,7 @@ describe('use-connections hook', function () {
           await result.current.saveConnection({
             id: 'turtle',
             connectionOptions: {
-              connectionString: 'nice',
+              connectionString: 'mongodb://nice',
             },
             favorite: {
               name: 'snakes! ah!',
@@ -228,7 +264,7 @@ describe('use-connections hook', function () {
         expect(hookResult.current.state.activeConnectionInfo).to.deep.equal({
           id: 'turtle',
           connectionOptions: {
-            connectionString: 'nice',
+            connectionString: 'mongodb://nice',
           },
           favorite: {
             name: 'snakes! ah!',
@@ -241,7 +277,7 @@ describe('use-connections hook', function () {
         expect(hookResult.current.state.connections[0]).to.deep.equal({
           id: 'turtle',
           connectionOptions: {
-            connectionString: 'nice',
+            connectionString: 'mongodb://nice',
           },
           favorite: {
             name: 'snakes! ah!',
