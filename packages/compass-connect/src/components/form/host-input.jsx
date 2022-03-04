@@ -24,10 +24,9 @@ class HostInput extends React.PureComponent {
    * @returns {String} hostname.
    */
   getHostname() {
-    if (this.props.isHostChanged === false) {
-      return '';
-    }
-
+    if (this.props.hostname == '') {
+      return 'localhost';
+    } // little tweak :)
     return this.props.hostname;
   }
 
