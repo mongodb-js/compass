@@ -34,7 +34,6 @@ const connectStyles = css({
   top: 0,
   display: 'flex',
   flexDirection: 'row',
-  background: compassUIColors.gray8,
 });
 
 const formContainerStyles = css({
