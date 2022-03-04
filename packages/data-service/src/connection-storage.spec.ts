@@ -62,7 +62,7 @@ function writeFakeConnection(
   fs.writeFileSync(filePath, JSON.stringify(legacyConnection));
 }
 
-describe.only('ConnectionStorage', function () {
+describe('ConnectionStorage', function () {
   let tmpDir: string;
   beforeEach(function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connection-storage-tests'));
