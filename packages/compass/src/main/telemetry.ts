@@ -3,8 +3,9 @@ import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
+import type { EventEmitter } from 'events';
 
-const { log, mongoLogId, debug } =
+const { log, mongoLogId } =
   createLoggerAndTelemetry('COMPASS-TELEMETRY');
 
 interface EventInfo {
@@ -30,8 +31,9 @@ class CompassTelemetry {
   private static state: 'enabled' | 'disabled' | 'waiting-for-user-config' =
     'waiting-for-user-config';
   private static queuedEvents: EventInfo[] = []; // Events that happen before we fetch user preferences
-  private static currentUserId: string = '';
-  private static lastReportedScreen: string = '';
+  private static currentUserId?: string;
+  private static currentAnonymousId = '';
+  private static lastReportedScreen = '';
 
   private constructor() {
     // marking constructor as private to disallow usage
@@ -46,7 +48,7 @@ class CompassTelemetry {
       compass_channel: process.env.HADRON_CHANNEL,
     };
 
-    if (this.state === 'waiting-for-user-config' || !this.currentUserId) {
+    if (this.state === 'waiting-for-user-config' || !this.currentAnonymousId) {
       this.queuedEvents.push(info);
       return;
     }
@@ -64,6 +66,7 @@ class CompassTelemetry {
 
     this.analytics.track({
       userId: this.currentUserId,
+      anonymousId: this.currentAnonymousId,
       event: info.event,
       properties: { ...info.properties, ...commonProperties },
     });
@@ -78,13 +81,15 @@ class CompassTelemetry {
         telemetryCapableEnvironment,
         hasAnalytics: !!this.analytics,
         currentUserId: this.currentUserId,
+        currentAnonymousId: this.currentAnonymousId,
         state: this.state,
         queuedEvents: this.queuedEvents.length,
       }
     );
-    if (this.state === 'enabled' && this.analytics && this.currentUserId) {
+    if (this.state === 'enabled' && this.analytics && this.currentAnonymousId) {
       this.analytics.identify({
         userId: this.currentUserId,
+        anonymousId: this.currentAnonymousId,
         traits: {
           platform: process.platform,
           arch: process.arch,
@@ -98,7 +103,7 @@ class CompassTelemetry {
     }
   }
 
-  private static async _init(app: typeof CompassApplication) {
+  private static _init(app: typeof CompassApplication) {
     process.on('compass:track', (meta: EventInfo) => {
       this._track(meta);
     });
@@ -109,9 +114,10 @@ class CompassTelemetry {
 
     ipcMain.respondTo(
       'compass:usage:identify',
-      (evt, meta: { currentUserId: string }) => {
+      (evt, meta: { currentUserId?: string, currentAnonymousId: string }) => {
         // This always happens after the first enable/disable call.
         this.currentUserId = meta.currentUserId;
+        this.currentAnonymousId = meta.currentAnonymousId;
         this.identify();
       }
     );
@@ -153,7 +159,7 @@ class CompassTelemetry {
       this.analytics = new Analytics(SEGMENT_API_KEY, { host: SEGMENT_HOST });
 
       app.addExitHandler(async () => {
-        await new Promise((resolve) => this.analytics.flush(resolve));
+        await new Promise((resolve) => this.analytics?.flush(resolve));
       });
     }
   }

@@ -61,10 +61,18 @@ var preferencesProps = {
     default: THEMES.LIGHT
   },
   /**
-   * Stores a unique anonymous user ID (uuid) for the current user
+   * Stores a unique user ID (MongoDB) for the current user
    * @type {String}
    */
   currentUserId: {
+    type: 'string',
+    required: false
+  },
+  /**
+   * Stores a unique anonymous user ID (uuid) for the current user
+   * @type {String}
+   */
+  currentAnonymousId: {
     type: 'string',
     required: true,
     default: ''
