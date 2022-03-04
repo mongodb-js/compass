@@ -43,7 +43,9 @@ function setAppNameParamIfMissing(
   let connectionStringUrl;
 
   try {
-    connectionStringUrl = new ConnectionString(connectionString);
+    connectionStringUrl = new ConnectionString(connectionString, {
+      looseValidation: true,
+    });
   } catch (e) {
     //
   }

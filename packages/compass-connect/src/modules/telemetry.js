@@ -49,7 +49,7 @@ async function getHostInformation(host) {
 
 async function getConnectionData(connectionInfo) {
   const {connectionOptions: {connectionString, sshTunnel}} = connectionInfo;
-  const connectionStringData = new ConnectionString(connectionString);
+  const connectionStringData = new ConnectionString(connectionString, {looseValidation: true});
   const hostName = connectionStringData.hosts[0];
   const searchParams = connectionStringData.searchParams;
 
