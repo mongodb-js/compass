@@ -18,8 +18,8 @@ export * as Commands from './commands';
 import * as Commands from './commands';
 import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
+import type { ConnectFormState } from './connect-form-state';
 import Debug from 'debug';
-import type { AuthMechanism } from 'mongodb';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -35,13 +35,7 @@ const COMPASS_PATH = path.dirname(
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 
-export function getAtlasConnectionOptions(): {
-  host: string;
-  username: string;
-  password: string;
-  srvRecord: boolean;
-  authMechanism: AuthMechanism;
-} | null {
+export function getAtlasConnectionOptions(): ConnectFormState | null {
   const missingKeys = [
     'E2E_TESTS_ATLAS_HOST',
     'E2E_TESTS_ATLAS_USERNAME',
@@ -61,11 +55,12 @@ export function getAtlasConnectionOptions(): {
   const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
 
   return {
-    host,
-    username,
-    password,
-    authMechanism: 'DEFAULT',
-    srvRecord: true,
+    hosts: [host],
+    authMethod: 'DEFAULT',
+    defaultUsername: username,
+    defaultPassword: password,
+    defaultAuthMechanism: 'DEFAULT',
+    scheme: 'MONGODB_SRV',
   };
 }
 

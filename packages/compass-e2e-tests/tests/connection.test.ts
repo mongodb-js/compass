@@ -50,7 +50,7 @@ describe('Connection screen', function () {
 
   it('can connect using connection form', async function () {
     await browser.connectWithConnectionForm({
-      host: 'localhost:27018',
+      hosts: ['localhost:27018'],
     });
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',

@@ -1,10 +1,10 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
+import type { ConnectFormState } from '../connect-form-state';
 
-// TODO: type
 export async function setConnectFormState(
   browser: CompassBrowser,
-  state: any
+  state: ConnectFormState
 ): Promise<void> {
   await browser.resetConnectForm();
 
@@ -47,7 +47,7 @@ export async function setConnectFormState(
   }
 
   // Username/Password
-  if (state.defaultUsername) {
+  if (state.defaultUsername && state.defaultPassword) {
     await browser.setValueVisible(
       Selectors.ConnectionFormInputUsername,
       state.defaultUsername
@@ -106,7 +106,7 @@ export async function setConnectFormState(
   }
 
   // LDAP
-  if (state.ldapUsername) {
+  if (state.ldapUsername && state.ldapPassword) {
     await browser.setValueVisible(
       Selectors.ConnectionFormInputPlainUsername,
       state.ldapUsername
@@ -118,7 +118,7 @@ export async function setConnectFormState(
   }
 
   // AWS IAM
-  if (state.awsAccessKeyId) {
+  if (state.awsAccessKeyId && state.awsSecretAccessKey) {
     await browser.setValueVisible(
       Selectors.ConnectionFormInputAWSAccessKeyId,
       state.awsAccessKeyId
@@ -188,7 +188,7 @@ export async function setConnectFormState(
 
   // SSH with Password
   // NOTE: these don't affect the URI
-  if (state.sshPasswordHost) {
+  if (state.sshPasswordHost && state.sshPasswordPort) {
     await browser.setValueVisible(
       Selectors.ConnectionFormInputSshPasswordHost,
       state.sshPasswordHost
@@ -213,7 +213,7 @@ export async function setConnectFormState(
 
   // SSH with Identity File
   // NOTE: these don't affect the URI
-  if (state.sshIdentityHost) {
+  if (state.sshIdentityHost && state.sshIdentityPort) {
     await browser.setValueVisible(
       Selectors.ConnectionFormInputSshIdentityHost,
       state.sshIdentityHost
@@ -310,7 +310,7 @@ export async function setConnectFormState(
       // value
       await browser.setValueVisible(
         Selectors.connectionFormUrlOptionValueInput(index),
-        value as string
+        value
       );
     }
   }

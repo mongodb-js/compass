@@ -4,6 +4,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import type { ConnectFormState } from '../helpers/connect-form-state';
 
 describe('Connection form', function () {
   let compass: Compass;
@@ -51,7 +52,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -81,7 +82,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017', 'localhost:27018'],
@@ -110,7 +111,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB_SRV',
       hosts: ['localhost'],
@@ -141,7 +142,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -178,7 +179,7 @@ describe('Connection form', function () {
       tlsCertificateKeyFile
     )}&tlsCertificateKeyFilePassword=password&tlsInsecure=true&tlsAllowInvalidHostnames=true&tlsAllowInvalidCertificates=true`;
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -221,7 +222,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -258,7 +259,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -292,7 +293,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -327,7 +328,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -362,7 +363,7 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const expectedState = {
+    const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -392,7 +393,7 @@ describe('Connection form', function () {
   });
 
   it('does not update the URI for SSH tunnel with password authentication', async function () {
-    const state = {
+    const state: ConnectFormState = {
       proxyMethod: 'password',
       sshPasswordHost: 'host',
       sshPasswordPort: '1234',
@@ -424,7 +425,7 @@ describe('Connection form', function () {
     // reuse the .pem file from above. contents doesn't matter.
     const sshIdentityKeyFile = path.join(fixturesPath, 'client.pem');
 
-    const state = {
+    const state: ConnectFormState = {
       proxyMethod: 'identity',
       sshIdentityHost: 'host',
       sshIdentityPort: '1234',

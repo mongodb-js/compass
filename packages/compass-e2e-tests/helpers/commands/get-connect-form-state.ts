@@ -1,10 +1,10 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
+import type { ConnectFormState } from '../connect-form-state';
 
-// TODO: type
 export async function getConnectFormState(
   browser: CompassBrowser
-): Promise<any> {
+): Promise<ConnectFormState> {
   const wasExpanded = await browser.expandConnectFormOptions();
 
   const connectionString = await browser
