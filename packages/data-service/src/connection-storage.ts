@@ -67,6 +67,28 @@ export class ConnectionStorage {
     const model = await convertConnectionInfoToModel(connectionOptions);
     model.destroy();
   }
+
+  /**
+   * Updates attributes of the model.
+   *
+   * @param {string} id ID of the model to update
+   * @param {object} attributes Attributes of model to update
+   */
+  async load(id: string): Promise<ConnectionInfo | undefined> {
+    if (!id) {
+      return undefined;
+    }
+
+    // model.fetch doesn't seem to fail or return any useful info
+    // to determine if the model exists or not on disk
+    // this is why here we have to re-load all the connections in
+    // in order to ensure we can return undefined for a connection id
+    // that does not exist.
+
+    const connections = await this.loadAll();
+
+    return connections.find((connection) => id === connection.id);
+  }
 }
 
 export function promisifyAmpersandMethod<T>(

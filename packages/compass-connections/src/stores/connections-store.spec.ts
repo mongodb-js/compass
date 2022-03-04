@@ -4,8 +4,8 @@ import type { RenderResult } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
 
-import type { ConnectionStore } from './connections-store';
 import { useConnections } from './connections-store';
+import type { ConnectionStorage } from 'mongodb-data-service';
 
 const noop = (): any => {
   /* no-op */
@@ -33,20 +33,23 @@ const mockConnections = [
 ];
 
 describe('use-connections hook', function () {
-  let mockConnectionStorage: ConnectionStore;
+  let mockConnectionStorage: ConnectionStorage;
   let loadAllSpy: sinon.SinonSpy;
   let saveSpy: sinon.SinonSpy;
   let deleteSpy: sinon.SinonSpy;
+  let loadSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     loadAllSpy = sinon.spy();
     saveSpy = sinon.spy();
     deleteSpy = sinon.spy();
+    loadSpy = sinon.spy();
 
     mockConnectionStorage = {
       loadAll: loadAllSpy,
       save: saveSpy,
       delete: deleteSpy,
+      load: loadSpy,
     };
   });
 

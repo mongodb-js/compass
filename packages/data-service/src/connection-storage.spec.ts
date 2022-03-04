@@ -62,7 +62,7 @@ function writeFakeConnection(
   fs.writeFileSync(filePath, JSON.stringify(legacyConnection));
 }
 
-describe('ConnectionStorage', function () {
+describe.only('ConnectionStorage', function () {
   let tmpDir: string;
   beforeEach(function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connection-storage-tests'));
@@ -74,7 +74,7 @@ describe('ConnectionStorage', function () {
     fs.rmdirSync(tmpDir, { recursive: true });
   });
 
-  describe('load', function () {
+  describe('loadAll', function () {
     it('should load an empty array with no connections', async function () {
       const connectionStorage = new ConnectionStorage();
       const connections = await connectionStorage.loadAll();
@@ -108,6 +108,47 @@ describe('ConnectionStorage', function () {
       const connectionStorage = new ConnectionStorage();
       const connections = await connectionStorage.loadAll();
       expect(connections[0].lastUsed).to.deep.equal(lastUsed);
+    });
+  });
+
+  describe('load', function () {
+    it('should return undefined if id is undefined', async function () {
+      const connectionStorage = new ConnectionStorage();
+      expect(await connectionStorage.load(undefined)).to.be.undefined;
+      expect(await connectionStorage.load('')).to.be.undefined;
+    });
+
+    it('should return undefined if a connection does not exist', async function () {
+      const connectionStorage = new ConnectionStorage();
+      const connection = await connectionStorage.load('note-exis-stin-gone');
+      expect(connection).to.be.undefined;
+    });
+
+    it('should return an existing connection', async function () {
+      const id = uuid();
+      writeFakeConnection(tmpDir, { _id: id });
+      const connectionStorage = new ConnectionStorage();
+      const connection = await connectionStorage.load(id);
+      expect(connection).to.deep.equal({
+        id,
+        connectionOptions: {
+          connectionString:
+            'mongodb://localhost:27017/?readPreference=primary&ssl=false',
+        },
+      });
+    });
+
+    it('should convert lastUsed', async function () {
+      const id = uuid();
+      const lastUsed = new Date('2021-10-26T13:51:27.585Z');
+      writeFakeConnection(tmpDir, {
+        _id: id,
+        lastUsed,
+      });
+
+      const connectionStorage = new ConnectionStorage();
+      const connection = await connectionStorage.load(id);
+      expect(connection.lastUsed).to.deep.equal(lastUsed);
     });
   });
 

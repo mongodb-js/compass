@@ -17,7 +17,6 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
-import type { ConnectionStore } from '../stores/connections-store';
 import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
 
@@ -65,7 +64,7 @@ function Connections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  connectionStorage?: ConnectionStore;
+  connectionStorage?: ConnectionStorage;
   appName: string;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {

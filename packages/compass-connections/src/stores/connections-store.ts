@@ -2,6 +2,7 @@ import type {
   ConnectionInfo,
   ConnectionOptions,
   DataService,
+  ConnectionStorage,
 } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 import { useEffect, useReducer, useRef } from 'react';
@@ -29,11 +30,6 @@ export function createNewConnectionInfo(): ConnectionInfo {
       connectionString: 'mongodb://localhost:27017',
     },
   };
-}
-export interface ConnectionStore {
-  loadAll: () => Promise<ConnectionInfo[]>;
-  save: (connectionInfo: ConnectionInfo) => Promise<void>;
-  delete: (connectionInfo: ConnectionInfo) => Promise<void>;
 }
 
 function setAppNameParamIfMissing(
@@ -185,7 +181,7 @@ async function loadConnections(
     type: 'set-connections';
     connections: ConnectionInfo[];
   }>,
-  connectionStorage: ConnectionStore
+  connectionStorage: ConnectionStorage
 ) {
   try {
     const loadedConnections = await connectionStorage.loadAll();
@@ -209,7 +205,7 @@ export function useConnections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  connectionStorage: ConnectionStore;
+  connectionStorage: ConnectionStorage;
   connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
   appName: string;
 }): {
@@ -265,9 +261,15 @@ export function useConnections({
     try {
       onConnected(connectionInfo, dataService);
 
-      // Update lastUsed date as now and save the connection.
-      connectionInfo.lastUsed = new Date();
-      await saveConnectionInfo(connectionInfo);
+      // if a connection has been saved already we only want to update the lastUsed
+      // attribute, otherwise we are going to save the entire connection info.
+      const connectionInfoToBeSaved =
+        (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
+
+      await saveConnectionInfo({
+        ...cloneDeep(connectionInfoToBeSaved),
+        lastUsed: new Date(),
+      });
     } catch (err) {
       debug(
         `error occurred connection with id ${connectionInfo.id || ''}: ${
