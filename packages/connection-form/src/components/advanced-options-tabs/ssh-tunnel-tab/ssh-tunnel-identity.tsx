@@ -120,8 +120,6 @@ function SshTunnelIdentity({
                   error={Boolean(errorMessage)}
                   errorMessage={errorMessage}
                   values={value as string[] | undefined}
-                  description={'Learn More'}
-                  link={'https://mongodb.com'}
                 />
               </FormFieldContainer>
             );
