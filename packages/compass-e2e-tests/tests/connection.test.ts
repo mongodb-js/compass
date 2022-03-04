@@ -1,13 +1,9 @@
 import { expect } from 'chai';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import {
-  getAtlasConnectionOptions,
-  beforeTests,
-  afterTests,
-  afterTest,
-} from '../helpers/compass';
+import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
+import { ConnectFormState } from '../helpers/connect-form-state';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -16,6 +12,45 @@ async function disconnect(browser: CompassBrowser) {
     console.error('Error during disconnect:');
     console.error(err);
   }
+}
+
+function hasAtlasEnvironmentVariables(): boolean {
+  const missingKeys = [
+    'E2E_TESTS_ATLAS_HOST',
+    'E2E_TESTS_DATA_LAKE_HOST',
+    'E2E_TESTS_ANALYTICS_NODE_HOST',
+    'E2E_TESTS_SERVERLESS_HOST',
+    'E2E_TESTS_FREE_TIER_HOST',
+    'E2E_TESTS_ATLAS_USERNAME',
+    'E2E_TESTS_ATLAS_PASSWORD',
+    'E2E_TESTS_ATLAS_X509_PEM',
+  ].filter((key) => !process.env[key]);
+
+  if (missingKeys.length > 0) {
+    const keysStr = missingKeys.join(', ');
+    if (process.env.ci || process.env.CI) {
+      throw new Error(`Missing required environmental variable(s): ${keysStr}`);
+    }
+    return false;
+  }
+
+  return true;
+}
+
+function basicAtlasOptions(host: string): ConnectFormState {
+  const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+  const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+
+  const atlasConnectionOptions: ConnectFormState = {
+    hosts: [host],
+    authMethod: 'DEFAULT',
+    defaultUsername: username,
+    defaultPassword: password,
+    defaultAuthMechanism: 'DEFAULT',
+    scheme: 'MONGODB_SRV',
+  };
+
+  return atlasConnectionOptions;
 }
 
 /**
@@ -59,11 +94,15 @@ describe('Connection screen', function () {
     expect(result).to.have.property('ok', 1);
   });
 
-  it('can connect to Atlas cluster', async function () {
-    const atlasConnectionOptions = getAtlasConnectionOptions();
-    if (!atlasConnectionOptions) {
+  it('can connect to an Atlas cluster with username/password authentication', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
       return this.skip();
     }
+
+    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
+      process.env.E2E_TESTS_ATLAS_HOST ?? ''
+    );
+
     await browser.connectWithConnectionForm(atlasConnectionOptions);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -71,6 +110,93 @@ describe('Connection screen', function () {
     );
     expect(result).to.have.property('ok', 1);
   });
+
+  it('can connect to an Atlas cluster with X.509 authentication');
+  it('can connect to an Atlas cluster with AWS IAM authentication');
+
+  it('can connect to an Atlas cluster a direct connection');
+  it('can connect to an Atlas replicaset without srv');
+
+  it('can connect to Atlas Serverless', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
+      process.env.E2E_TESTS_SERVERLESS_HOST ?? ''
+    );
+
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect to Atlas Datalake', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
+      process.env.E2E_TESTS_DATA_LAKE_HOST ?? ''
+    );
+    atlasConnectionOptions.scheme = 'MONGODB';
+    atlasConnectionOptions.defaultDatabase = 'test';
+    atlasConnectionOptions.sslConnection = 'ON';
+    atlasConnectionOptions.defaultAuthSource = 'admin';
+
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect to Atlas Analytics Node', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
+      process.env.E2E_TESTS_ANALYTICS_NODE_HOST ?? ''
+    );
+
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect to Atlas Free Tier', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
+      process.env.E2E_TESTS_FREE_TIER_HOST ?? ''
+    );
+
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  });
+
+  // TODO: SCRAM-SHA-x?
+  // Kerberos?
+  // LDAP?
+  // Different authdb?
+  // SSH with password?
+  // SSH with identity file?
+  // Socks5?
+  // Advanced options?
 });
 
 // eslint-disable-next-line mocha/max-top-level-suites

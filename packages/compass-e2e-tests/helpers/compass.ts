@@ -18,7 +18,6 @@ export * as Commands from './commands';
 import * as Commands from './commands';
 import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
-import type { ConnectFormState } from './connect-form-state';
 import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests');
@@ -34,35 +33,6 @@ const COMPASS_PATH = path.dirname(
 );
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
-
-export function getAtlasConnectionOptions(): ConnectFormState | null {
-  const missingKeys = [
-    'E2E_TESTS_ATLAS_HOST',
-    'E2E_TESTS_ATLAS_USERNAME',
-    'E2E_TESTS_ATLAS_PASSWORD',
-  ].filter((key) => !process.env[key]);
-
-  if (missingKeys.length > 0) {
-    const keysStr = missingKeys.join(', ');
-    if (process.env.ci || process.env.CI) {
-      throw new Error(`Missing required environmental variable(s): ${keysStr}`);
-    }
-    return null;
-  }
-
-  const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
-  const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
-  const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
-
-  return {
-    hosts: [host],
-    authMethod: 'DEFAULT',
-    defaultUsername: username,
-    defaultPassword: password,
-    defaultAuthMechanism: 'DEFAULT',
-    scheme: 'MONGODB_SRV',
-  };
-}
 
 // For the tmpdirs
 let i = 0;
