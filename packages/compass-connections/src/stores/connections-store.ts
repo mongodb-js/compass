@@ -281,7 +281,9 @@ export function useConnections({
       // if a connection has been saved already we only want to update the lastUsed
       // attribute, otherwise we are going to save the entire connection info.
       const connectionInfoToBeSaved =
-        (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
+        (connectionInfo.lastUsed &&
+          (await connectionStorage.load(connectionInfo.id))) ??
+        connectionInfo;
 
       await saveConnectionInfo({
         ...cloneDeep(connectionInfoToBeSaved),

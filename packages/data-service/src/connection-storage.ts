@@ -69,10 +69,9 @@ export class ConnectionStorage {
   }
 
   /**
-   * Updates attributes of the model.
+   * Fetch one ConnectionInfo.
    *
-   * @param {string} id ID of the model to update
-   * @param {object} attributes Attributes of model to update
+   * @param {string} id Id of the ConnectionInfo to fetch
    */
   async load(id: string): Promise<ConnectionInfo | undefined> {
     if (!id) {
