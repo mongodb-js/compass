@@ -2,7 +2,6 @@ import React from 'react';
 import {
   ErrorBoundary,
   WorkspaceContainer,
-  compassUIColors,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
