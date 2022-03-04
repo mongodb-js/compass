@@ -3,7 +3,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { ConnectFormState } from '../helpers/connect-form-state';
+import type { ConnectFormState } from '../helpers/connect-form-state';
 
 async function disconnect(browser: CompassBrowser) {
   try {
