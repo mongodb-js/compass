@@ -345,8 +345,21 @@ describe('validation', function () {
         });
         expect(result[0]).to.deep.equal({
           message:
-            'Disabling certificate validation is not recommended as it may create a security vulnerability',
+            'TLS/SSL certificate validation is disabled. For a more secure connection enable certificate validation if possible.',
         });
+      });
+    });
+
+    it('should not return warnings when certificate validation is enabled', function () {
+      [
+        'tlsInsecure',
+        'tlsAllowInvalidHostnames',
+        'tlsAllowInvalidCertificates',
+      ].forEach((option) => {
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb+srv://myserver.com?${option}=false`,
+        });
+        expect(result).to.deep.equal([]);
       });
     });
 
@@ -438,7 +451,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             message:
-              'Connecting without tls is not recommended as it may create a security vulnerability.',
+              'Connecting to a remote server without TLS/SSL is not recommended. For a more secure connection enable TLS/SSL if possible.',
           },
         ]);
       }

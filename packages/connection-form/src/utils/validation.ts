@@ -296,17 +296,9 @@ function validateCertificateValidationWarnings(
   const tlsAllowInvalidCertificates =
     connectionString.searchParams.get('tlsAllowInvalidCertificates') === 'true';
 
-  const settings = [
-    tlsInsecure ? 'tlsInsecure' : undefined,
-    tlsAllowInvalidHostnames ? 'tlsAllowInvalidHostnames' : undefined,
-    tlsAllowInvalidCertificates ? 'tlsAllowInvalidCertificates' : undefined,
-  ].filter(Boolean);
-
   if (tlsInsecure || tlsAllowInvalidHostnames || tlsAllowInvalidCertificates) {
     warnings.push({
-      message: `Certificate validation is disabled on the TLS settings (${settings.join(
-        ', '
-      )}). For a more secure connection enable certificate validation if possible.`,
+      message: `TLS/SSL certificate validation is disabled. For a more secure connection enable certificate validation if possible.`,
     });
   }
 
@@ -402,7 +394,8 @@ function validateTLSAndHostWarnings(
 
   if (nonLocalhostsCount && !isSecure(connectionString)) {
     warnings.push({
-      message: 'For a more secure connection enable tls.',
+      message:
+        'Connecting to a remote server without TLS/SSL is not recommended. For a more secure connection enable TLS/SSL if possible.',
     });
   }
   return warnings;
