@@ -53,8 +53,6 @@ class Database extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const { activeTab } = this.state;
-
     return (
       <div className={styles.database}>
         <TabNavBar
@@ -62,7 +60,7 @@ class Database extends Component {
           aria-label="Database Tabs"
           tabs={this.tabs}
           views={this.views}
-          activeTabIndex={activeTab}
+          activeTabIndex={this.state.activeTab}
           onTabClicked={this.onTabClicked}
         />
       </div>

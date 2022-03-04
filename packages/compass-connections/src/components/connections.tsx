@@ -37,13 +37,6 @@ const connectStyles = css({
   background: compassUIColors.gray8,
 });
 
-// const connectItemContainerStyles = css({
-//   position: 'relative',
-//   flexGrow: 1,
-//   flexDirection: 'column',
-//   overflow: 'auto',
-// });
-
 const formContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
@@ -108,7 +101,6 @@ function Connections({
         removeConnection={removeConnection}
         duplicateConnection={duplicateConnection}
       />
-      {/* <div className={connectItemContainerStyles}> */}
       <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary
@@ -130,8 +122,7 @@ function Connections({
           </ErrorBoundary>
           <FormHelp />
         </div>
-        </WorkspaceContainer>
-      {/* </div> */}
+      </WorkspaceContainer>
       {(isConnected ||
         (!!connectionAttempt && !connectionAttempt.isClosed())) && (
         <Connecting
