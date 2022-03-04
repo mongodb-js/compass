@@ -104,7 +104,7 @@ const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
     React.ComponentProps<typeof LeafyGreenRadioGroup>
   >
 ) as typeof LeafyGreenRadioGroup;
-const SegmentedControl: typeof LeafyGreenSegmentedControl = withTheme(
+const SegmentedControl = withTheme(
   LeafyGreenSegmentedControl
 ) as typeof LeafyGreenSegmentedControl;
 const Select: typeof LeafyGreenSelect = withTheme(
