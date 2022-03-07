@@ -4,6 +4,7 @@ import { css, spacing, uiColors } from '@mongodb-js/compass-components';
 import PipelineTitle from './pipeline-title';
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
+import PipelineSettings from './pipeline-settings';
 
 const toolbarContainerStyles = css({
   display: 'flex',
@@ -31,6 +32,7 @@ const PipelineToolbar: React.FunctionComponent = () => {
         <PipelineStages />
         <PipelineActions />
       </div>
+      <PipelineSettings />
     </div>
   );
 };
