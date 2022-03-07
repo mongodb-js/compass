@@ -61,10 +61,10 @@ var preferencesProps = {
     default: THEMES.LIGHT
   },
   /**
-   * Stores a unique user ID (MongoDB) for the current user.
-   * Initially, we used this field to pass as Segment user identity,
+   * Stores a unique MongoDB ID for the current user.
+   * Initially, we used this field as telemetry user identifier,
    * but this usage is being deprecated.
-   * The currentSegmentAnonymousId should be used as a Segment user identity.
+   * The telemetryAnonymousId should be used instead.
    * @type {String}
    */
   currentUserId: {
@@ -72,10 +72,10 @@ var preferencesProps = {
     required: false
   },
   /**
-   * Stores a unique anonymous user ID (uuid) for the current user
+   * Stores a unique telemetry anonymous ID (uuid) for the current user.
    * @type {String}
    */
-  currentSegmentAnonymousId: {
+  telemetryAnonymousId: {
     type: 'string',
     required: true,
     default: ''

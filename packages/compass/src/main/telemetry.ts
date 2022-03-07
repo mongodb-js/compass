@@ -32,7 +32,7 @@ class CompassTelemetry {
     'waiting-for-user-config';
   private static queuedEvents: EventInfo[] = []; // Events that happen before we fetch user preferences
   private static currentUserId?: string; // Deprecated field. Should be used only for old users to keep their analytics in Segment.
-  private static currentSegmentAnonymousId = ''; // The randomly generated anonymous user id.
+  private static telemetryAnonymousId = ''; // The randomly generated anonymous user id.
   private static lastReportedScreen = '';
 
   private constructor() {
@@ -48,7 +48,7 @@ class CompassTelemetry {
       compass_channel: process.env.HADRON_CHANNEL,
     };
 
-    if (this.state === 'waiting-for-user-config' || !this.currentSegmentAnonymousId) {
+    if (this.state === 'waiting-for-user-config' || !this.telemetryAnonymousId) {
       this.queuedEvents.push(info);
       return;
     }
@@ -66,7 +66,7 @@ class CompassTelemetry {
 
     this.analytics.track({
       userId: this.currentUserId,
-      anonymousId: this.currentSegmentAnonymousId,
+      anonymousId: this.telemetryAnonymousId,
       event: info.event,
       properties: { ...info.properties, ...commonProperties },
     });
@@ -81,15 +81,15 @@ class CompassTelemetry {
         telemetryCapableEnvironment,
         hasAnalytics: !!this.analytics,
         currentUserId: this.currentUserId,
-        currentSegmentAnonymousId: this.currentSegmentAnonymousId,
+        telemetryAnonymousId: this.telemetryAnonymousId,
         state: this.state,
         queuedEvents: this.queuedEvents.length,
       }
     );
-    if (this.state === 'enabled' && this.analytics && this.currentSegmentAnonymousId) {
+    if (this.state === 'enabled' && this.analytics && this.telemetryAnonymousId) {
       this.analytics.identify({
         userId: this.currentUserId,
-        anonymousId: this.currentSegmentAnonymousId,
+        anonymousId: this.telemetryAnonymousId,
         traits: {
           platform: process.platform,
           arch: process.arch,
@@ -114,10 +114,10 @@ class CompassTelemetry {
 
     ipcMain.respondTo(
       'compass:usage:identify',
-      (evt, meta: { currentUserId?: string, currentSegmentAnonymousId: string }) => {
+      (evt, meta: { currentUserId?: string, telemetryAnonymousId: string }) => {
         // This always happens after the first enable/disable call.
         this.currentUserId = meta.currentUserId;
-        this.currentSegmentAnonymousId = meta.currentSegmentAnonymousId;
+        this.telemetryAnonymousId = meta.telemetryAnonymousId;
         this.identify();
       }
     );
