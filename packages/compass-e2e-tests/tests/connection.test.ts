@@ -1,3 +1,6 @@
+import { promises as fs } from 'fs';
+import os from 'os';
+import path from 'path';
 import { expect } from 'chai';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { CompassBrowser } from '../helpers/compass-browser';
@@ -111,10 +114,41 @@ describe('Connection screen', function () {
     expect(result).to.have.property('ok', 1);
   });
 
-  it('can connect to an Atlas cluster with X.509 authentication');
+  it('can connect to an Atlas cluster with X.509 authentication', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    let tempdir;
+    try {
+      tempdir = await fs.mkdtemp(path.join(os.tmpdir(), 'connect-tests-'));
+      const certPath = path.join(tempdir, 'x509.pem');
+      await fs.writeFile(certPath, process.env.E2E_TESTS_ATLAS_X509_PEM ?? '');
+
+      const atlasConnectionOptions: ConnectFormState = {
+        hosts: [process.env.E2E_TESTS_ATLAS_HOST ?? ''],
+        authMethod: 'MONGODB-X509',
+        scheme: 'MONGODB_SRV',
+        sslConnection: 'ON',
+        tlsCertificateKeyFile: certPath,
+      };
+
+      await browser.connectWithConnectionForm(atlasConnectionOptions);
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      expect(result).to.have.property('ok', 1);
+    } finally {
+      if (tempdir) {
+        await fs.rmdir(tempdir, { recursive: true });
+      }
+    }
+  });
+
   it('can connect to an Atlas cluster with AWS IAM authentication');
 
-  it('can connect to an Atlas cluster a direct connection');
+  it('can connect to an Atlas cluster with a direct connection');
   it('can connect to an Atlas replicaset without srv');
 
   it('can connect to Atlas Serverless', async function () {
