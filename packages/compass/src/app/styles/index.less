@@ -31,7 +31,6 @@
 @import './sortable-table.less';
 @import './status-row.less';
 
-html,
 body {
   width: 100vw;
   height: 100vh;
@@ -93,7 +92,7 @@ body {
 
   // Becomes not empty when the first render happens and the app is "ready"
   &:not(:empty) {
-    background-color: @gray8;
+    background-color: inherit;
     animation-name: fadein;
     animation-duration: 0.2s;
     animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
