@@ -81,6 +81,27 @@ tests:
                       'x' => 0,
                       'y' => BSON::ObjectId.new
                     })
+                swift: |-
+                    // Requires the MongoSwift package
+                    // https://github.com/mongodb/mongo-swift-driver
+
+                    let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
+                    let client = try MongoClient(
+                        "mongodb://localhost:27017",
+                        using: elg
+                    )
+                    defer {
+                        try? client.syncClose()
+                        cleanupMongoSwift()
+                        try? elg.syncShutdownGracefully()
+                    }
+
+                    let db = client.db("library")
+                    let collection = db.collection("books")
+                    let pipeline = [
+                        ["$match": ["x": 1, "y": BSONObjectID()]]
+                    ]
+                    let cursor = try await collection.aggregate(pipeline)
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -106,6 +127,7 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
+                swift: import MongoSwift
     query:
         -
             description: 'generate driver syntax with only filter'
@@ -177,6 +199,25 @@ tests:
                     result = client.database['collection'].find({
                       'x' => 0
                     })
+                swift: |-
+                    // Requires the MongoSwift package
+                    // https://github.com/mongodb/mongo-swift-driver
+
+                    let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
+                    let client = try MongoClient(
+                        "mongodb://localhost:27017",
+                        using: elg
+                    )
+                    defer {
+                        try? client.syncClose()
+                        cleanupMongoSwift()
+                        try? elg.syncShutdownGracefully()
+                    }
+
+                    let db = client.db("library")
+                    let collection = db.collection("books")
+                    let filter = ["x": 0]
+                    let cursor = try await collection.find(filter)
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -199,6 +240,7 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
+                swift: import MongoSwift
         -
             description: 'generate driver syntax with filter and other options'
             input:
@@ -366,6 +408,30 @@ tests:
                       max_time_ms: max_time_ms,
                       collation: collation
                     })
+                swift: |-
+                    // Requires the MongoSwift package
+                    // https://github.com/mongodb/mongo-swift-driver
+
+                    let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
+                    let client = try MongoClient("mongodb://localhost:27017", using: elg)
+                    defer {
+                        try? client.syncClose()
+                        cleanupMongoSwift()
+                        try? elg.syncShutdownGracefully()
+                    }
+
+                    let coll = client.db("db").collection("collection")
+                    let cursor = try await coll.find(
+                        ["x": .int64(0)],
+                        options: FindOptions(
+                            collation: ["locale": "zh"],
+                            limit: 10,
+                            maxTimeMS: 100,
+                            projection: ["y": .objectID()],
+                            skip: 5,
+                            sort: ["name": 1]
+                        )
+                    )
             imports:
                 python: |-
                     from pymongo import MongoClient
