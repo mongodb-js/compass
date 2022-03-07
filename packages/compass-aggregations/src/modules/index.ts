@@ -119,6 +119,10 @@ import aggregation, {
   INITIAL_STATE as AGGREGATION_INITIAL_STATE
 } from './aggregation';
 
+import aggregationView, {
+  INITIAL_STATE as AGGREGATION_VIEW_INITIAL_STATE
+} from './aggregation-view';
+
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -169,6 +173,7 @@ export const INITIAL_STATE = {
   isNewPipelineConfirm: IS_NEW_PIPELINE_CONFIRM_STATE,
   updateViewError: UPDATE_VIEW_ERROR_INITIAL_STATE,
   aggregation: AGGREGATION_INITIAL_STATE,
+  aggregationView: AGGREGATION_VIEW_INITIAL_STATE,
 };
 
 export type RootState = typeof INITIAL_STATE;
@@ -248,6 +253,7 @@ const appReducer = combineReducers<RootState>({
   isNewPipelineConfirm,
   updateViewError,
   aggregation,
+  aggregationView,
 });
 
 /**
