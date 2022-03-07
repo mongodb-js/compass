@@ -61,7 +61,10 @@ var preferencesProps = {
     default: THEMES.LIGHT
   },
   /**
-   * Stores a unique user ID (MongoDB) for the current user
+   * Stores a unique user ID (MongoDB) for the current user.
+   * Initially, we used this field to pass as Segment user identity,
+   * but this usage is being deprecated.
+   * The currentSegmentAnonymousId should be used as a Segment user identity.
    * @type {String}
    */
   currentUserId: {
@@ -72,7 +75,7 @@ var preferencesProps = {
    * Stores a unique anonymous user ID (uuid) for the current user
    * @type {String}
    */
-  currentAnonymousId: {
+  currentSegmentAnonymousId: {
     type: 'string',
     required: true,
     default: ''
