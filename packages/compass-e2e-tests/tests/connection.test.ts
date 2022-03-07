@@ -1,3 +1,4 @@
+import { spawnSync } from 'child_process';
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
@@ -27,6 +28,10 @@ function hasAtlasEnvironmentVariables(): boolean {
     'E2E_TESTS_ATLAS_USERNAME',
     'E2E_TESTS_ATLAS_PASSWORD',
     'E2E_TESTS_ATLAS_X509_PEM',
+    'E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID',
+    'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
+    'E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN',
+    'E2E_TESTS_ATLAS_IAM_USER_ARN',
   ].filter((key) => !process.env[key]);
 
   if (missingKeys.length > 0) {
@@ -54,6 +59,52 @@ function basicAtlasOptions(host: string): ConnectFormState {
   };
 
   return atlasConnectionOptions;
+}
+
+function generateIamSessionToken(): {
+  key: string;
+  secret: string;
+  token: string;
+} {
+  const result = spawnSync(
+    'aws',
+    [
+      'sts',
+      'assume-role',
+      '--role-arn',
+      process.env.E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN ?? '',
+      '--role-session-name',
+      'MONGODB-AWS-AUTH-TEST',
+    ],
+    {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        AWS_ACCESS_KEY_ID: process.env.E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID ?? '',
+        AWS_SECRET_ACCESS_KEY:
+          process.env.E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY ?? '',
+      },
+    }
+  );
+  if (result.status !== 0) {
+    console.error('Failed to run aws sts assume-role', result);
+    throw new Error('Failed to run aws sts assume-role');
+  }
+
+  const parsedToken = JSON.parse(result.stdout);
+  const key = parsedToken?.Credentials?.AccessKeyId;
+  const secret = parsedToken?.Credentials?.SecretAccessKey;
+  const token = parsedToken?.Credentials?.SessionToken;
+  if (!key || !secret || !token) {
+    throw new Error(
+      'Could not determine key, token, or secret from sts assume-role output'
+    );
+  }
+  return {
+    key,
+    secret,
+    token,
+  };
 }
 
 /**
@@ -146,7 +197,52 @@ describe('Connection screen', function () {
     }
   });
 
-  it('can connect to an Atlas cluster with AWS IAM authentication');
+  it('can connect to an Atlas cluster with AWS IAM authentication (without session token)', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const atlasConnectionOptions: ConnectFormState = {
+      hosts: [process.env.E2E_TESTS_FREE_TIER_HOST ?? ''],
+      authMethod: 'MONGODB-AWS',
+      scheme: 'MONGODB_SRV',
+      awsAccessKeyId: process.env.E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID ?? '',
+      awsSecretAccessKey:
+        process.env.E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY ?? '',
+    };
+
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect to an Atlas cluster with AWS IAM authentication (including session token)', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    console.log('generating session token');
+    const { key, secret, token } = generateIamSessionToken();
+
+    const atlasConnectionOptions: ConnectFormState = {
+      hosts: [process.env.E2E_TESTS_FREE_TIER_HOST ?? ''],
+      authMethod: 'MONGODB-AWS',
+      scheme: 'MONGODB_SRV',
+      awsAccessKeyId: key,
+      awsSecretAccessKey: secret,
+      awsSessionToken: token,
+    };
+
+    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  });
 
   it('can connect to an Atlas cluster with a direct connection');
   it('can connect to an Atlas replicaset without srv');
