@@ -21,8 +21,8 @@ variables:
       aws_secret: ${aws_secret}
       bucket: mciuploads
       content_type: application/octet-stream
-  - &compass-env
     # NOTE: anything added here should probably also be added to the list
+  - &compass-env
     WORKDIR: ${workdir}
     CI: '1'
     EVERGREEN: '1'
@@ -187,15 +187,42 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          echo "Running tests"
+          echo "Running tests in Node.js runtime"
+
+          # compass-e2e-tests are ignored as we are running this test suite
+          # separately in the test-packaged-app task
+          export IGNORE_TESTS="compass-e2e-tests"
 
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          #
-          # compass-e2e-tests are ignored as we are running this test suite
-          # separately in the test-packaged-app task
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm test-ci -- --stream --ignore compass-e2e-tests
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4} \
+              npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
+
+  test-electron:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          echo "Running tests in Electron runtime"
+
+          # Preparing native addons for electron runtime
+          npm run --unsafe-perm electron-rebuild
+
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4} \
+              npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
     - command: shell.exec
@@ -299,10 +326,30 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+          source .evergreen/start-docker-envs.sh
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
           DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+
+  test-connectivity:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          COMPASS_SKIP_KERBEROS_TESTS: 'true'
+          COMPASS_RUN_DOCKER_TESTS: 'true'
+          DEBUG: ${debug}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          source .evergreen/start-docker-envs.sh
+          npm run test-connectivity --workspace mongodb-data-service
 
   save-windows-artifacts:
     - <<: *save-artifact
@@ -410,7 +457,7 @@ functions:
 # Tasks
 tasks:
   - name: check
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare
       - func: install
@@ -418,7 +465,7 @@ tasks:
       - func: check
 
   - name: test
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare
       - func: install
@@ -427,8 +474,18 @@ tasks:
         vars:
           debug: 'hadron*,mongo*'
 
+  - name: test-electron
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-electron
+        vars:
+          debug: 'hadron*,mongo*'
+
   - name: package
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare
       - func: install
@@ -449,7 +506,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass
-        variants: [macos_package]
+        variants: [macos]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass
@@ -460,7 +517,7 @@ tasks:
         variants: [ubuntu]
 
   - name: package-isolated
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare
       - func: install
@@ -481,7 +538,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass-isolated
-        variants: [macos_package]
+        variants: [macos]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-isolated
@@ -492,7 +549,7 @@ tasks:
         variants: [ubuntu]
 
   - name: package-readonly
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare
       - func: install
@@ -513,7 +570,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass-readonly
-        variants: [macos_package]
+        variants: [macos]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-readonly
@@ -523,9 +580,19 @@ tasks:
           compass_distribution: compass-readonly
         variants: [ubuntu]
 
+  - name: test-connectivity
+    tags: ['required-for-publish']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-connectivity
+        vars:
+          debug: 'compass*,electron*,hadron*,mongo*'
+
   # copied as test-packaged-app-macos due to depends_on variation
   - name: test-packaged-app
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     depends_on:
       - name: package
     commands:
@@ -547,10 +614,10 @@ tasks:
 
   # same as test-packaged-app except for depends_on
   - name: test-packaged-app-macos
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     depends_on:
       - name: package
-        variant: macos_package
+        variant: macos
     commands:
       - func: prepare
       - func: install
@@ -669,29 +736,35 @@ tasks:
           target_platform: '--platform=darwin'
 
 buildvariants:
-  - name: macos
-    display_name: MacOS (GUI Session)
+  - name: macos_gui
+    display_name: MacOS (Test w/ GUI Session)
     # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
     run_on: macos-1014-codesign
     tasks:
-      - name: test
-      - name: check
-      - name: test-packaged-app-macos
+      - name: test-electron
+      # TODO: These tests are not currently running due to keychain access
+      #       missing. We disable this step to not block codesign machine time
+      #       with bootstrap / teardown that does nothing. We should be able to
+      #       enable these tests after https://jira.mongodb.org/browse/BUILD-14458
+      # - name: test-packaged-app-macos
 
-  - name: macos_package
-    display_name: MacOS (Packaging)
+  - name: macos
+    display_name: MacOS (Test and Package)
     # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
     run_on: macos-1014
     tasks:
+      - name: test
+      - name: check
       - name: package
       - name: package-readonly
       - name: package-isolated
 
   - name: windows
-    display_name: Windows
+    display_name: Windows (Test and Package)
     run_on: windows-vsCurrent-large
     tasks:
       - name: test
+      - name: test-electron
       - name: check
       - name: package
       - name: package-readonly
@@ -699,24 +772,35 @@ buildvariants:
       - name: test-packaged-app
 
   - name: ubuntu
-    display_name: Ubuntu
+    display_name: Ubuntu (Test and Package)
     run_on: ubuntu1604-large
     tasks:
       - name: test
+      - name: test-electron
       - name: check
       - name: package
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app
-      # Doesn't really matter what machine type does this step, we publish
-      # everything in one go
+
+  - name: ubuntu_publish
+    display_name: Publish Artifacts
+    run_on: ubuntu1604-large
+    tasks:
       - name: publish
 
+  - name: ubuntu_connectivity_tests
+    display_name: Connectivity Tests
+    run_on: ubuntu1604-large
+    tasks:
+      - name: test-connectivity
+
   - name: rhel
-    display_name: RHEL
+    display_name: RHEL (Test and Package)
     run_on: rhel76-large
     tasks:
       - name: test
+      - name: test-electron
       - name: check
       - name: package
       - name: package-readonly

@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { combineReducers } from 'redux';
+import type { AnyAction } from 'redux';
+import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import isEmpty from 'lodash.isempty';
+import fs from 'fs';
+import path from 'path';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
@@ -116,6 +121,30 @@ const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 import { getDirectory } from '../utils/getDirectory';
 import { PipelineStorage } from '../utils/pipelineStorage';
 
+type Projection = {
+  name: string;
+  value: string;
+  score: number;
+  meta: string;
+  version: string;
+  index?: number;
+};
+
+type Pipeline = {
+  id: string;
+  stageOperator: string;
+  stage: string;
+  isValid: boolean;
+  isEnabled: boolean;
+  isExpanded: boolean;
+  isLoading: boolean;
+  isComplete: boolean;
+  previewDocuments: unknown[];
+  syntaxError: Error;
+  error: Error;
+  projections: Projection[];
+}
+
 /**
  * The intial state of the root reducer.
  */
@@ -129,11 +158,11 @@ export const INITIAL_STATE = {
   env: ENV_INITIAL_STATE,
   isTimeSeries: IS_TIME_SERIES_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
-  pipeline: PIPELINE_INITIAL_STATE,
+  pipeline: PIPELINE_INITIAL_STATE as Pipeline[],
   savedPipeline: SP_INITIAL_STATE,
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
-  collation: COLLATION_INITIAL_STATE,
+  collation: COLLATION_INITIAL_STATE as Record<string, unknown> | null,
   collationString: COLLATION_STRING_INITIAL_STATE,
   isCollationExpanded: COLLATION_COLLAPSER_INITIAL_STATE,
   isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
@@ -151,13 +180,15 @@ export const INITIAL_STATE = {
   maxTimeMS: MAX_TIME_MS_INITIAL_STATE,
   isFullscreenOn: FULLSCREEN_INITIAL_STATE,
   savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
-  projections: PROJECTIONS_INITIAL_STATE,
+  projections: PROJECTIONS_INITIAL_STATE as Projection[],
   outResultsFn: OUT_RESULTS_FN_INITIAL_STATE,
   editViewName: EDIT_VIEW_NAME_INITIAL_STATE,
   sourceName: SOURCE_NAME_INITIAL_STATE,
   isNewPipelineConfirm: IS_NEW_PIPELINE_CONFIRM_STATE,
   updateViewError: UPDATE_VIEW_ERROR_INITIAL_STATE
 };
+
+export type RootState = typeof INITIAL_STATE;
 
 /**
  * Reset action constant.
@@ -195,7 +226,7 @@ export const MODIFY_VIEW = 'aggregations/MODIFY_VIEW';
  *
  * @returns {Function} The reducer function.
  */
-const appReducer = combineReducers({
+const appReducer = combineReducers<RootState, AnyAction>({
   appRegistry,
   allowWrites,
   comments,
@@ -243,7 +274,7 @@ const appReducer = combineReducers({
  *
  * @returns {Object} The new state.
  */
-const doNamespaceChanged = (state, action) => {
+const doNamespaceChanged = (state: RootState, action: AnyAction) => {
   const newState = {
     ...INITIAL_STATE,
     env: state.env,
@@ -265,7 +296,7 @@ const doNamespaceChanged = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const doReset = () => ({
+const doReset = (): RootState => ({
   ...INITIAL_STATE
 });
 
@@ -277,7 +308,7 @@ const doReset = () => ({
  *
  * @returns {Object} The new state.
  */
-const doRestorePipeline = (state, action) => {
+const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
   const savedState = action.restoreState;
   const commenting =
     savedState.comments === null || savedState.comments === undefined
@@ -338,7 +369,7 @@ const doRestorePipeline = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const doClearPipeline = (state) => ({
+const doClearPipeline = (state: RootState): RootState => ({
   ...state,
   pipeline: [],
   limit: LIMIT_INITIAL_STATE,
@@ -360,7 +391,7 @@ const doClearPipeline = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const createNewPipeline = (state) => ({
+const createNewPipeline = (state: RootState): RootState => ({
   ...INITIAL_STATE,
   appRegistry: state.appRegistry,
   namespace: state.namespace,
@@ -384,7 +415,7 @@ const createNewPipeline = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const createClonedPipeline = (state) => ({
+const createClonedPipeline = (state: RootState): RootState => ({
   ...state,
   id: new ObjectId().toHexString(),
   name: `${state.name} (copy)`,
@@ -398,7 +429,7 @@ const createClonedPipeline = (state) => ({
  *
  * @returns {Object} The new state.
  */
-const doConfirmNewFromText = (state) => {
+const doConfirmNewFromText = (state: RootState): RootState => {
   const pipe = createPipeline(state.importPipeline.text);
   const error = pipe.length > 0 ? pipe[0].syntaxError : null;
   if (!error) {
@@ -421,7 +452,7 @@ const doConfirmNewFromText = (state) => {
   };
 };
 
-const doModifyView = (state, action) => {
+const doModifyView = (state: RootState, action: AnyAction): RootState => {
   const pipe = createPipelineFromView(action.pipeline);
   return {
     ...state,
@@ -451,7 +482,7 @@ const doModifyView = (state, action) => {
  * @param {Object} action
  * @returns {Object}
  */
-const doNewFromPastedText = (state, action) => {
+const doNewFromPastedText = (state: RootState, action: AnyAction): RootState => {
   const pipe = createPipeline(action.text);
   const error = pipe.length > 0 ? pipe[0].syntaxError : null;
   /**
@@ -490,7 +521,7 @@ const doNewFromPastedText = (state, action) => {
  * @param {Object} state
  * @returns {Object} The new state.
  */
-const doToggleOverview = (state) => {
+const doToggleOverview = (state: RootState): RootState => {
   const newState = {
     ...state,
     isOverviewOn: !state.isOverviewOn
@@ -508,7 +539,7 @@ const doToggleOverview = (state) => {
   return newState;
 };
 
-const doApplySettings = (state) => {
+const doApplySettings = (state: RootState): RootState => {
   const newState = {
     ...state,
     limit: state.settings.sampleSize,
@@ -521,7 +552,7 @@ const doApplySettings = (state) => {
   return newState;
 };
 
-const doApplySavingPipeline = (state) => {
+const doApplySavingPipeline = (state: RootState): RootState => {
   const newState = {
     ...state,
     name: state.savingPipeline.name
@@ -531,14 +562,14 @@ const doApplySavingPipeline = (state) => {
   return newState;
 };
 
-const doProjectionsChanged = (state) => {
+const doProjectionsChanged = (state: RootState): RootState => {
   const newState = {
     ...state,
-    projections: []
+    projections: [] as Projection[],
   };
 
   newState.pipeline.map((_stage, index) => {
-    _stage.projections = gatherProjections(_stage);
+    _stage.projections = gatherProjections(_stage, null);
     _stage.projections.map((projection) => {
       projection.index = index;
       newState.projections.push(projection);
@@ -574,7 +605,7 @@ const MAPPINGS = {
  *
  * @returns {Object} The new state.
  */
-const rootReducer = (state, action) => {
+const rootReducer = (state: RootState, action: AnyAction): RootState => {
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : appReducer(state, action);
 };
@@ -586,7 +617,7 @@ export default rootReducer;
  *
  * @returns {Object} The action.
  */
-export const reset = () => ({
+export const reset = (): AnyAction => ({
   type: RESET
 });
 
@@ -595,7 +626,7 @@ export const reset = () => ({
  *
  * @returns {Object} The action.
  */
-export const clearPipeline = () => ({
+export const clearPipeline = (): AnyAction => ({
   type: CLEAR_PIPELINE
 });
 
@@ -606,7 +637,7 @@ export const clearPipeline = () => ({
  *
  * @returns {Object} The action.
  */
-export const restoreSavedPipeline = (restoreState) => ({
+export const restoreSavedPipeline = (restoreState: unknown): AnyAction => ({
   type: RESTORE_PIPELINE,
   restoreState: restoreState
 });
@@ -616,7 +647,7 @@ export const restoreSavedPipeline = (restoreState) => ({
  *
  * @returns {Object} The action.
  */
-export const newPipeline = () => ({
+export const newPipeline = (): AnyAction => ({
   type: NEW_PIPELINE
 });
 
@@ -625,11 +656,11 @@ export const newPipeline = () => ({
  *
  * @returns {Object} The action.
  */
-export const clonePipeline = () => ({
+export const clonePipeline = (): AnyAction => ({
   type: CLONE_PIPELINE
 });
 
-const pipelineActionFromPaste = (text) => ({
+const pipelineActionFromPaste = (text: string): AnyAction => ({
   type: NEW_FROM_PASTE,
   text: text
 });
@@ -640,7 +671,7 @@ const pipelineActionFromPaste = (text) => ({
  * @param {String} text
  * @returns {Object}
  */
-export const newPipelineFromPaste = (text) => {
+export const newPipelineFromPaste = (text: string): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch) => {
     dispatch(pipelineActionFromPaste(text));
     dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-imported'));
@@ -654,19 +685,17 @@ export const newPipelineFromPaste = (text) => {
  *
  * @returns {Function} The thunk function.
  */
-export const deletePipeline = (pipelineId) => {
-  return (dispatch, getState) => {
+export const deletePipeline = (pipelineId: string): ThunkAction<void, RootState, void, AnyAction> => {
+  return async (dispatch, getState) => {
     const pipelineStorage = new PipelineStorage();
-    pipelineStorage.delete(pipelineId)
-      .then(() => {
-        dispatch(updatePipelineList());
-        dispatch(clearPipeline());
-        dispatch(
-          globalAppRegistryEmit('agg-pipeline-deleted', {
-            name: getState().name
-          })
-        );
-      });
+    await pipelineStorage.delete(pipelineId);
+    dispatch(updatePipelineList() as any);
+    dispatch(clearPipeline());
+    dispatch(
+      globalAppRegistryEmit('agg-pipeline-deleted', {
+        name: getState().name
+      })
+    );
   };
 };
 
@@ -677,20 +706,19 @@ export const deletePipeline = (pipelineId) => {
  *
  * @returns {Function} The thunk function.
  */
-export const getPipelineFromIndexedDB = (pipelineId) => {
-  return (dispatch) => {
-    const fs = require('fs');
-    const path = require('path');
+export const getPipelineFromIndexedDB = (pipelineId: string): ThunkAction<void, RootState, void, AnyAction> => {
+  return async (dispatch) => {
     const file = path.join(getDirectory(), `${pipelineId}.json`);
-    fs.readFile(file, 'utf8', (error, data) => {
-      if (!error) {
-        const pipe = JSON.parse(data);
-        dispatch(clearPipeline());
-        dispatch(restoreSavedPipeline(pipe));
-        dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));
-        dispatch(runStage(0));
-      }
-    });
+    try {
+      const data = await fs.promises.readFile(file, 'utf8')
+      const pipe = JSON.parse(data);
+      dispatch(clearPipeline());
+      dispatch(restoreSavedPipeline(pipe));
+      dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));
+      dispatch(runStage(0) as any);
+    } catch (e: unknown) {
+      console.log(e);
+    }
   };
 };
 
@@ -702,7 +730,7 @@ export const getPipelineFromIndexedDB = (pipelineId) => {
  *
  * @returns {Array} The mapped/filtered view pipeline.
  */
-export const makeViewPipeline = (unfilteredPipeline) => {
+export const makeViewPipeline = (unfilteredPipeline: any[]) => {
   return unfilteredPipeline
     .map((p) => (p.executor || generateStage(p)))
     // generateStage can return {} under various conditions
@@ -716,7 +744,7 @@ export const makeViewPipeline = (unfilteredPipeline) => {
  * @see create-view src/stores/create-view.js
  * @returns {Function} The thunk function.
  */
-export const openCreateView = () => {
+export const openCreateView = (): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
     const state = getState();
     const sourceNs = state.namespace;
@@ -742,14 +770,24 @@ export const openCreateView = () => {
  *
  * @returns {Object} The action.
  */
-export const modifyView = (viewName, viewPipeline, readonly, source) => {
+export const modifyView = (
+  viewName: string,
+  viewPipeline: Pipeline[],
+  readonly: boolean,
+  source: string
+): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch) => {
     dispatch(modifySource(viewName, viewPipeline, readonly, source));
-    dispatch(runStage(0));
+    dispatch(runStage(0) as any);
   };
 };
 
-export const modifySource = (viewName, viewPipeline, readonly, source) => ({
+export const modifySource = (
+  viewName: string,
+  viewPipeline: unknown,
+  readonly: boolean,
+  source: string
+) => ({
   type: MODIFY_VIEW,
   name: viewName,
   pipeline: viewPipeline,

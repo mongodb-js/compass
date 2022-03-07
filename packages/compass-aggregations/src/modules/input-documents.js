@@ -42,7 +42,7 @@ export const INITIAL_STATE = {
  * @param {Object} state - The input documents state.
  * @param {Object} action - The action.
  *
- * @returns {Object} The new state.
+ * @returns {any} The new state.
  */
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === TOGGLE_INPUT_COLLAPSED) {

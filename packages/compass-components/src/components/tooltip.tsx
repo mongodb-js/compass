@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useTooltipTriggerState } from '@react-stately/tooltip';
 import { useTooltipTrigger } from '@react-aria/tooltip';
-import LeafyGreenTooltip from '@leafygreen-ui/tooltip';
 import React, { useCallback, useRef } from 'react';
+import { Tooltip as LeafyGreenTooltip } from './leafygreen';
 import { mergeProps } from '../utils/merge-props';
 
 /**

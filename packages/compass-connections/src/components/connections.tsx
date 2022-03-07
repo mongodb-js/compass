@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   ErrorBoundary,
-  compassUIColors,
+  WorkspaceContainer,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
@@ -33,14 +33,6 @@ const connectStyles = css({
   top: 0,
   display: 'flex',
   flexDirection: 'row',
-  background: compassUIColors.gray8,
-});
-
-const connectItemContainerStyles = css({
-  position: 'relative',
-  flexGrow: 1,
-  flexDirection: 'column',
-  overflow: 'auto',
 });
 
 const formContainerStyles = css({
@@ -48,6 +40,8 @@ const formContainerStyles = css({
   flexGrow: 1,
   display: 'flex',
   padding: spacing[4],
+  margin: 0,
+  paddingBottom: spacing[3],
   flexDirection: 'row',
   flexWrap: 'wrap',
   gap: spacing[4],
@@ -105,7 +99,7 @@ function Connections({
         removeConnection={removeConnection}
         duplicateConnection={duplicateConnection}
       />
-      <div className={connectItemContainerStyles}>
+      <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {
@@ -126,7 +120,7 @@ function Connections({
           </ErrorBoundary>
           <FormHelp />
         </div>
-      </div>
+      </WorkspaceContainer>
       {(isConnected ||
         (!!connectionAttempt && !connectionAttempt.isClosed())) && (
         <Connecting

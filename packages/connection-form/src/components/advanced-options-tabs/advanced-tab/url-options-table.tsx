@@ -156,6 +156,7 @@ function UrlOptionsTable({
           >
             <Cell className={optionNameCellStyles}>
               <Select
+                id="select-key"
                 className={optionSelectStyles}
                 placeholder="Select key"
                 name="name"
@@ -221,6 +222,7 @@ function UrlOptionsTable({
                     aria-label={`Delete option: ${datum.name ?? ''}`}
                     onClick={() => deleteUrlOption(datum.name)}
                     className={deleteOptionButtonStyle}
+                    type="button"
                   >
                     <Icon glyph="X" />
                   </IconButton>

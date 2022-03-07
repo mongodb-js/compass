@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Tue Mar 01 2022.
+This document was automatically generated on Sun Mar 06 2022.
 
 ## List of dependencies
 
@@ -48,6 +48,7 @@ Package|Version|License
 **[@leafygreen-ui/modal](#c1a56a77fd926fc33545367356eb266d7361d352767ace98306b677b86219694)**|7.0.0|Apache-2.0
 **[@leafygreen-ui/palette](#625c4dcf9ad19b6a0b4d94da9a2d587d1914e2c6b4f21ef4c1d4d514329c44fc)**|3.3.1|Apache-2.0
 **[@leafygreen-ui/palette](#a4658dfbc66feca30c8f560f7e3e11d99a2cfaab4f227b9f51e07143dc095185)**|3.3.0|Apache-2.0
+**[@leafygreen-ui/pipeline](#16f3dd5c8b1f753b780ae11f58acd54163eab556e2bc79852e7de90ae4e06e15)**|2.1.5|Apache-2.0
 **[@leafygreen-ui/popover](#0c36e4ffc2ab1dfcce3fc39e142dc685cba20b488e7d8240ea0c8b7a718794d9)**|7.2.2|Apache-2.0
 **[@leafygreen-ui/portal](#6ca72b99b4b1694db669bbc697977d4eabca64ab4a3897611ea97c6f0b559dad)**|4.0.2|Apache-2.0
 **[@leafygreen-ui/radio-box-group](#aa53cd3fd908526e6a190e2413b59b9735f7b8ee27cbe67d27cd918b561462b3)**|6.1.5|Apache-2.0
@@ -64,8 +65,8 @@ Package|Version|License
 **[@leafygreen-ui/tokens](#8d64a446d42012738c5f1314d234630346cac498cc92384f3f51fe54a09d14ff)**|0.5.3|Apache-2.0
 **[@leafygreen-ui/tooltip](#12ce56de7f479eb8abccc40a4e9d97cd6db628c0d8fac6f752f756809cebc749)**|6.3.1|Apache-2.0
 **[@leafygreen-ui/typography](#6fe50b20beb48fc92d444350ce75c70bd9429803ad6acbd7192f5c2a54271861)**|8.1.0|Apache-2.0
-**[@mongodb-js/compass-components](#dbf69cb6b34eafe964748f252289b2c6b2cf8a875152bd49ea8a6f894aab76c2)**|0.11.0|SSPL
-**[@mongodb-js/compass-logging](#f8e821293ed93ad8fdf611c40e4f48ac0ea3b0e62bf8e73de18d676a171dfd38)**|0.8.0|SSPL
+**[@mongodb-js/compass-components](#cbdd785ad8956da5324734a5b1f62875dfe32561f7e87e0118f8b8ec4fec7306)**|0.12.0|SSPL
+**[@mongodb-js/compass-logging](#1d42959892f805eb1ebe2a83905157e00cf9de66d749c974d68de7d7820e10ef)**|0.9.0|SSPL
 **[@mongosh/node-runtime-worker-thread](#7ccced8e514f066f396fe3f319cafc1c53f7268ead8514fffef473d5affedc71)**|1.2.2|Apache-2.0
 **[@react-aria/focus](#9cbdb21e880abb0ce77f98791c23a02bc3901ab41167a97fb20ed91827371b04)**|3.5.0|Apache-2.0
 **[@react-aria/interactions](#e9192398723deae3ba2f387ff5053bcf4806545f3996c50abd05d233c50fde8c)**|3.6.0|Apache-2.0
@@ -189,8 +190,11 @@ Package|Version|License
 **[prop-types](#1bb5d998442c1ad29bf786ce938c44374916c111ff4519999d3955f07e8f5a09)**|15.7.2|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
+**[react-children-utilities](#46268d53e209b048912c9f8486c94b71885b9cf5b1e04d44506d0d3c02e4c118)**|2.7.0|MIT
+**[react-intersection-observer](#0042e75a105026a5e7394e156831720f56fab7dd0524c2c3d4ca81c0920e7f98)**|8.25.1|MIT
 **[react-is](#5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b)**|17.0.2|MIT
 **[react-is](#7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a)**|16.13.1|MIT
+**[react-merge-refs](#199e758f7a3e0428051a026fdc1b8c797352039f4bc56dc234939c9868e95709)**|1.1.0|MIT
 **[react-transition-group](#c91b1891eae4ade2725e3dc6831a4871807d137f82d0fc4ad458d79e0e0a779d)**|4.4.2|BSD-3-Clause
 **[react-window](#fcf3bd62a73691dc82efaf23f7667fb5dfe4ce1cb5e8740f3d53a3a85086ead2)**|1.8.6|MIT
 **[readable-stream](#1a43c6d0d989d70bee45d514814640912b6da533d875c1c1cbfdf98138a9fbd7)**|1.0.34|MIT
@@ -223,6 +227,7 @@ Package|Version|License
 **[through](#7ce7e595c081fd8d101bc9b7b5233a4db3c677f852db4fcb461737c1bade4340)**|2.3.8|MIT
 **[through2](#cb629f174a305e3558be50fffeb142d45e2a6cb609cfba5ee17cf85460a018e9)**|0.4.2|MIT
 **[tiny-emitter](#43eb8db7345f328bbd03f484accbed64a06fa649df3ab59db7492e65d9361def)**|2.1.0|MIT
+**[tiny-invariant](#7a61a4247c0023d8127a0dd7bbdea39c4d913a19f5b391d150d4d35567b66931)**|1.2.0|MIT
 **[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
 **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**|0.6.0|Apache-2.0
 **[use-ssr](#4ca2caa989b6150791b62c9a87cac7739e5382a3d4e1617f822f6915c9d49b15)**|1.0.24|MIT
@@ -1219,6 +1224,14 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
+<a id="16f3dd5c8b1f753b780ae11f58acd54163eab556e2bc79852e7de90ae4e06e15"></a>
+### [@leafygreen-ui/pipeline](https://www.npmjs.com/package/@leafygreen-ui/pipeline) (version 2.1.5)
+<!-- initially found at node_modules/@leafygreen-ui/pipeline -->
+> LeafyGreen UI Kit Pipeline
+
+License tags: Apache-2.0
+
+
 <a id="0c36e4ffc2ab1dfcce3fc39e142dc685cba20b488e7d8240ea0c8b7a718794d9"></a>
 ### [@leafygreen-ui/popover](https://www.npmjs.com/package/@leafygreen-ui/popover) (version 7.2.2)
 <!-- initially found at node_modules/@leafygreen-ui/popover -->
@@ -1347,16 +1360,16 @@ License tags: Apache-2.0
 License tags: Apache-2.0
 
 
-<a id="dbf69cb6b34eafe964748f252289b2c6b2cf8a875152bd49ea8a6f894aab76c2"></a>
-### [@mongodb-js/compass-components](https://www.npmjs.com/package/@mongodb-js/compass-components) (version 0.11.0)
+<a id="cbdd785ad8956da5324734a5b1f62875dfe32561f7e87e0118f8b8ec4fec7306"></a>
+### [@mongodb-js/compass-components](https://www.npmjs.com/package/@mongodb-js/compass-components) (version 0.12.0)
 <!-- initially found at packages/compass-components -->
 > React Components used in Compass
 
 License tags: SSPL
 
 
-<a id="f8e821293ed93ad8fdf611c40e4f48ac0ea3b0e62bf8e73de18d676a171dfd38"></a>
-### [@mongodb-js/compass-logging](https://www.npmjs.com/package/@mongodb-js/compass-logging) (version 0.8.0)
+<a id="1d42959892f805eb1ebe2a83905157e00cf9de66d749c974d68de7d7820e10ef"></a>
+### [@mongodb-js/compass-logging](https://www.npmjs.com/package/@mongodb-js/compass-logging) (version 0.9.0)
 <!-- initially found at packages/compass-logging -->
 > Shared helpers for logging in Compass packages
 
@@ -9269,6 +9282,86 @@ Authors:
 * Dominic Tarr <dominic.tarr@gmail.com> (dominictarr.com)
 
 
+<a id="46268d53e209b048912c9f8486c94b71885b9cf5b1e04d44506d0d3c02e4c118"></a>
+### [react-children-utilities](https://www.npmjs.com/package/react-children-utilities) (version 2.7.0)
+<!-- initially found at node_modules/react-children-utilities -->
+> Recursive and extended utils for React children opaque data structure
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      The MIT License (MIT)
+      
+      Copyright (c) 2016 Fernando Pasik
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of
+      this software and associated documentation files (the "Software"), to deal in
+      the Software without restriction, including without limitation the rights to
+      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+      the Software, and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+      FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+      COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* Fernando Pasik <fernando@pasik.com.ar> (https://fernandopasik.com)
+* Brian Bartholomew (https://github.com/bcbrian)
+* Daniel Pinyol (https://github.com/dpinol)
+* iyegoroff (https://github.com/iyegoroff)
+* Mark Allen (https://github.com/TSMMark)
+* mrm007 (https://github.com/mrm007)
+* Ryosuke IWANAGA (https://github.com/riywo)
+* yosef langer (https://github.com/vasilevich)
+
+
+<a id="0042e75a105026a5e7394e156831720f56fab7dd0524c2c3d4ca81c0920e7f98"></a>
+### [react-intersection-observer](https://www.npmjs.com/package/react-intersection-observer) (version 8.25.1)
+<!-- initially found at node_modules/react-intersection-observer -->
+> Monitor if a component is inside the viewport, using IntersectionObserver API
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      The MIT License (MIT)
+      
+      Copyright (c) 2017 React Intersection Observer authors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Daniel Schmidt
+
+
 <a id="5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b"></a>
 ### [react-is](https://www.npmjs.com/package/react-is) (version 17.0.2)
 <!-- initially found at node_modules/react-is -->
@@ -9335,6 +9428,42 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
       
+
+
+<a id="199e758f7a3e0428051a026fdc1b8c797352039f4bc56dc234939c9868e95709"></a>
+### [react-merge-refs](https://www.npmjs.com/package/react-merge-refs) (version 1.1.0)
+<!-- initially found at node_modules/react-merge-refs -->
+> React utility to merge refs.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2020 Greg Bergé
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+Authors:
+* Greg Bergé <berge.greg@gmail.com>
 
 
 <a id="c91b1891eae4ade2725e3dc6831a4871807d137f82d0fc4ad458d79e0e0a779d"></a>
@@ -10539,6 +10668,42 @@ License files:
 
 Authors:
 * Scott Corgan
+
+
+<a id="7a61a4247c0023d8127a0dd7bbdea39c4d913a19f5b391d150d4d35567b66931"></a>
+### [tiny-invariant](https://www.npmjs.com/package/tiny-invariant) (version 1.2.0)
+<!-- initially found at node_modules/tiny-invariant -->
+> A tiny invariant function
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2019 Alexander Reardon
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+Authors:
+* Alex Reardon <alexreardon@gmail.com>
 
 
 <a id="79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954"></a>

@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "21.17.0",
+  "version": "21.18.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -43,8 +43,9 @@
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "pretest": "mongodb-runner start --port=27018 && node ../../scripts/rebuild.js keytar",
+    "pretest": "mongodb-runner start --port=27018",
     "test": "mocha",
+    "test-connectivity": "mocha ./src/connect.spec.ts",
     "posttest": "mongodb-runner stop --port=27018",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
@@ -56,14 +57,14 @@
     "mongodb": "^4.4.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.8.0",
+    "@mongodb-js/compass-logging": "^0.9.0",
     "@mongodb-js/devtools-connect": "^1.2.4",
     "@mongodb-js/ssh-tunnel": "^1.4.0",
     "async": "^3.2.0",
     "debug": "4.3.0",
     "lodash": "^4.17.20",
     "mongodb-build-info": "^1.3.0",
-    "mongodb-connection-model": "^21.13.0",
+    "mongodb-connection-model": "^21.14.0",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb-index-model": "^3.9.0",
     "mongodb-ns": "^2.3.0",
@@ -92,7 +93,7 @@
     "prettier": "2.3.2",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
-    "storage-mixin": "^4.11.0",
+    "storage-mixin": "^4.12.0",
     "typescript": "^4.3.5"
   }
 }

@@ -163,7 +163,9 @@ function AuthenticationGSSAPI({
             setShowPassword(checked);
           }}
         />
-        {showPassword && (
+      </FormFieldContainer>
+      {showPassword && (
+        <FormFieldContainer>
           <TextInput
             onChange={({
               target: { value },
@@ -179,8 +181,8 @@ function AuthenticationGSSAPI({
             type="password"
             optional
           />
-        )}
-      </FormFieldContainer>
+        </FormFieldContainer>
+      )}
     </>
   );
 }

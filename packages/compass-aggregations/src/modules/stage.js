@@ -19,7 +19,7 @@ function parse(...args) {
  * in the server.
  *
  * @param {Object} state The state of the stage.
- * @param {Object} stage The validated stage object.
+ * @param {Object | null} stage The validated stage object.
  * @returns {Array}
  */
 export function gatherProjections(state, stage) {

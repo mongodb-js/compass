@@ -9,8 +9,8 @@ import styles from './pipeline-toolbar.module.less';
 /**
  * The toolbar component.
  */
-class PipelineToolbar extends PureComponent {
-  static displayName = 'PipelineToolbarComponent';
+class LegacyPipelineToolbar extends PureComponent {
+  static displayName = 'LegacyPipelineToolbarComponent';
 
   static propTypes = {
     isAtlasDeployed: PropTypes.bool.isRequired,
@@ -43,13 +43,13 @@ class PipelineToolbar extends PureComponent {
     toggleFullscreen: PropTypes.func.isRequired,
     savingPipelineOpen: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
-    openCreateView: PropTypes.func.isRequired
+    openCreateView: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     savedPipeline: {
-      isNameValid: true
-    }
+      isNameValid: true,
+    },
   };
 
   /**
@@ -61,8 +61,9 @@ class PipelineToolbar extends PureComponent {
     return (
       <div
         className={classnames(styles['pipeline-toolbar'], {
-          [styles['pipeline-toolbar-border']]: !this.props.isCollationExpanded
-        })}>
+          [styles['pipeline-toolbar-border']]: !this.props.isCollationExpanded,
+        })}
+      >
         <PipelineBuilderToolbar
           isAtlasDeployed={this.props.isAtlasDeployed}
           savedPipelinesListToggle={this.props.savedPipelinesListToggle}
@@ -106,4 +107,4 @@ class PipelineToolbar extends PureComponent {
   }
 }
 
-export default PipelineToolbar;
+export default LegacyPipelineToolbar;

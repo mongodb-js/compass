@@ -37,6 +37,7 @@
     "test": "lerna run test --concurrency 1 --stream",
     "test-changed": "lerna run test --stream --concurrency 1 --since origin/HEAD",
     "test-ci": "lerna run test-ci --concurrency 1",
+    "test-ci-electron": "lerna run test-ci-electron --concurrency 1",
     "pretest-packages-publish": "./scripts/monorepo/start-proxy-registry.sh && wait-on -t 3000 http://localhost:4873 && npm-cli-adduser -u test -p test -e test@test.test --registry http://localhost:4873 && echo $'\\n\\n!!! LOCAL REGISTRY DOCKER IMAGE IS RUNNING, DO NOT FORGET TO CLEAN IN UP WHEN YOU ARE DONE\\n\\n'",
     "test-packages-publish": "lerna publish from-package --registry http://localhost:4873",
     "test-packages-version": "lerna version --no-push --no-private -m \"tmp(release): Test release\"",

@@ -23,6 +23,24 @@ describe('AggregationsQueriesList', function () {
 
   afterEach(cleanup);
 
+  it('should display no saved items when user has no saved queries/aggregations', async function () {
+    const { default: ConnectedList }: any = proxyquire.load('./index', {
+      ...(createProxyquireMockForQueriesAndAggregationsPlugins([], []) as any),
+      // XXX: It's important that the proxyquire required module has the same
+      // instance of react that the code in this scope has, otherwise we will
+      // get a "multiple React instances" error while trying to render the
+      // component
+      react: Object.assign(React, {
+        '@global': true,
+        '@noCallThru': true,
+      }),
+    });
+
+    render(<ConnectedList></ConnectedList>);
+
+    expect(await screen.findByText('No saved queries yet.')).to.exist;
+  });
+
   it('should load queries and display them in the list', async function () {
     const { default: ConnectedList }: any = proxyquire.load('./index', {
       ...(createProxyquireMockForQueriesAndAggregationsPlugins(

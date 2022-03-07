@@ -2,7 +2,7 @@
   "name": "mongodb-collection-model",
   "description": "MongoDB collection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "4.19.0",
+  "version": "4.20.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -24,11 +24,12 @@
   },
   "scripts": {
     "check": "npm run lint && npm run depcheck",
-    "test": "mocha && npm run test:electron",
-    "test:electron": "xvfb-maybe electron-mocha --no-sandbox",
+    "test": "mocha",
+    "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "test-ci-electron": "npm run test-electron"
   },
   "dependencies": {
     "ampersand-collection": "^2.0.2",
@@ -36,7 +37,7 @@
     "mongodb-ns": "^2.3.0"
   },
   "peerDependencies": {
-    "mongodb-data-service": "^21.17.0"
+    "mongodb-data-service": "^21.18.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.7.0",
@@ -45,7 +46,7 @@
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "mocha": "^8.4.0",
-    "mongodb-data-service": "^21.17.0",
+    "mongodb-data-service": "^21.18.0",
     "xvfb-maybe": "^0.2.1"
   }
 }

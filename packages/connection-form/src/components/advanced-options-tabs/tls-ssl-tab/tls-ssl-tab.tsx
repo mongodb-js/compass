@@ -145,15 +145,13 @@ function TLSTab({
   return (
     <div>
       <FormFieldContainer>
-        <Label htmlFor="connection-schema-radio-box-group">
-          SSL/TLS Connection
-        </Label>
+        <Label htmlFor="tls-radio-box-group">SSL/TLS Connection</Label>
         <InlineInfoLink
           href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
           aria-label="TLS/SSL Option Documentation"
         />
         <RadioBoxGroup
-          id="connection-schema-radio-box-group"
+          id="tls-radio-box-group"
           value={tlsOption || ''}
           onChange={onChangeTLS}
         >
@@ -201,18 +199,25 @@ function TLSTab({
               );
             }}
             data-testid={`${tlsOptionField.name}-input`}
-            label={tlsOptionField.name}
+            id={`${tlsOptionField.name}-input`}
+            label={
+              <>
+                <Label htmlFor={`${tlsOptionField.name}-input`}>
+                  {tlsOptionField.name}
+                </Label>
+                <Description
+                  className={cx(checkboxDescriptionStyles, {
+                    [disabledCheckboxDescriptionStyles]: tlsOptionsDisabled,
+                  })}
+                >
+                  {tlsOptionField.description}
+                </Description>
+              </>
+            }
             disabled={tlsOptionsDisabled}
             checked={tlsOptionField.checked}
             bold={false}
           />
-          <Description
-            className={cx(checkboxDescriptionStyles, {
-              [disabledCheckboxDescriptionStyles]: tlsOptionsDisabled,
-            })}
-          >
-            {tlsOptionField.description}
-          </Description>
         </FormFieldContainer>
       ))}
     </div>

@@ -1,8 +1,8 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import IconButton from '@leafygreen-ui/icon-button';
-import Icon from '@leafygreen-ui/icon';
+
+import { Icon, IconButton } from './leafygreen';
 
 const infoButtonStyles = css({
   marginTop: -spacing[2],

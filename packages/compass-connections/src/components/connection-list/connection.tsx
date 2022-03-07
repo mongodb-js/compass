@@ -2,6 +2,7 @@ import React from 'react';
 import {
   H3,
   Description,
+  compassFontSizes,
   spacing,
   uiColors,
   css,
@@ -76,8 +77,7 @@ const connectionButtonStyles = css({
 
 const connectionTitleStyles = css({
   color: uiColors.white,
-  fontWeight: 'bold',
-  fontSize: '14px',
+  fontSize: compassFontSizes.defaultFontSize,
   lineHeight: '20px',
   margin: 0,
   flexGrow: 1,

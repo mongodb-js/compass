@@ -90,7 +90,11 @@ function HostInput({
           {isSRV ? 'Hostname' : 'Host'}
         </Label>
         {hosts.map((host, index) => (
-          <div className={hostInputContainerStyles} key={`host-${index}`}>
+          <div
+            className={hostInputContainerStyles}
+            key={`host-${index}`}
+            data-testid="host-input-container"
+          >
             <TextInput
               className={hostInputStyles}
               type="text"
@@ -110,6 +114,7 @@ function HostInput({
               <IconButton
                 className={hostActionButtonStyles}
                 aria-label="Add new host"
+                type="button"
                 data-testid="connection-add-host-button"
                 onClick={() =>
                   updateConnectionFormField({
@@ -125,6 +130,7 @@ function HostInput({
               <IconButton
                 className={hostActionButtonStyles}
                 aria-label="Remove host"
+                type="button"
                 data-testid="connection-remove-host-button"
                 onClick={() =>
                   updateConnectionFormField({
