@@ -20,6 +20,7 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
+          swift: '["x": 1]'
     - input:
           javascript: "{x: '1',}"
           shell: "{x: '1',}"
@@ -32,6 +33,7 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
+          swift: '["x": 1]'
     - input:
           javascript: "{x: ['1', '2']}"
           shell: "{x: ['1', '2']}"
@@ -44,6 +46,7 @@ tests:
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
           ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
+          swift: '["x": ["1", "2"]]'
     - input:
           javascript: "{x: {y: 2}}"
           shell: "{x: {y: 2}}"
@@ -56,6 +59,7 @@ tests:
           shell: "{\n  'x': {\n    'y': 2\n  }\n}"
           object: "{x: {y: 2}}"
           ruby: "{\n  'x' => {\n    'y' => 2\n  }\n}"
+          swift: '["x": ["y": "2"]]'
     - input:
           javascript: "{}"
           shell: "{}"
@@ -68,6 +72,7 @@ tests:
           csharp: "new BsonDocument()"
           object: "{}"
           ruby: "{}"
+          swift: "[:]"
     - input:
           javascript: "{x: '1', n: '4'}"
           shell: "{x: '1', n: '4'}"
@@ -80,6 +85,7 @@ tests:
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
           ruby: "{\n  'x' => '1',\n  'n' => '4'\n}"
+          swift: '["x": "1", "n": "4"]'
     - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
@@ -114,6 +120,7 @@ tests:
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
+          swift: '[\n  "status": "A",\n  "$or": [\n    [\n      "qty": [\n        "$lt": 30\n      ]\n    ], [\n      "item": [\n        "$regex": "^p"\n      ]\n    ]\n  ]\n]'
     Array:
     - input:
           python: "['1', '2']"
@@ -127,6 +134,7 @@ tests:
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
+          swift: '[BSON.string("1"), BSON.string("2")]'
     - input:
           python: "['1', '2',]"
           javascript: "['1', '2',]"
@@ -139,6 +147,7 @@ tests:
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
+          swift: '[BSON.string("1"), BSON.string("2")]'
     - input:
           python: "['1', { 'settings': 'http2' }]"
           javascript: "['1', { settings: 'http2' }]"
@@ -151,6 +160,7 @@ tests:
           python: "[\n    '1', {\n        'settings': 'http2'\n    }\n]"
           object: "['1', { settings: 'http2' }]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
+          swift: '[BSON.string("1"), ["settings": "http2"]]'
     - input:
           python: "{ 'pipeline': [{'$match': {'$expr': { '$eq': [ '$manager', '$$me' ] } } }, { '$project': { 'managers': 0}}, {'$sort': { 'startQuarter': 1, 'notes': 1, 'job_code': 1}}]}"
           javascript: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
@@ -163,6 +173,29 @@ tests:
           python: "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}"
           object: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
           ruby: "{\n  'pipeline' => [\n    {\n      '$match' => {\n        '$expr' => {\n          '$eq' => [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project' => {\n        'managers' => 0\n      }\n    }, {\n      '$sort' => {\n        'startQuarter' => 1,\n        'notes' => 1,\n        'job_code' => 1\n      }\n    }\n  ]\n}"
+          swift: |-
+            [
+                "pipeline": [
+                    [
+                        "$match": [
+                            "$expr": [ "$eq": [ "$manager": "$$me"]]
+                        ]
+                    ],
+                    [
+                        "$project": [
+                            "managers": 0
+                        ]
+                    ],
+                    [
+                        "$sort": [
+                            "startQuarter": 1,
+                            "notes": 1,
+                            "job_code": 1
+                        ]
+                    ]
+                ]
+            ]
+
     - input:
           python: "['1', ['2', '3']]"
           javascript: "['1', ['2', '3']]"
@@ -175,6 +208,7 @@ tests:
           python: "[\n    '1', [\n        '2', '3'\n    ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
+          swift: '[BSON.string("1"), ["2", "3"]]'
     - input:
           python: "[]"
           javascript: "[]"
@@ -187,6 +221,7 @@ tests:
           python: "[]"
           object: "[]"
           ruby: "[]"
+          swift: "[]"
     - input:
           python: "['1', ('2', '3')]"
       output:
@@ -197,6 +232,7 @@ tests:
           python: "[\n    '1', [\n        '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
+          swift: '[BSON.string("1"), ["2", "3"]]'
     ArrayElision:
     - input:
           javascript: "[,'1', '2',]"
@@ -209,6 +245,7 @@ tests:
           javascript: "[\n  undefined, '1', '2'\n]"
           object: "[undefined, '1', '2']"
           ruby: "[\n  nil, '1', '2'\n]"
+          swift: '[BSON.null, "1", "2"]'
     - input:
           javascript: "[,]"
           shell: "[,]"
@@ -220,6 +257,7 @@ tests:
           javascript: "[\n  undefined\n]"
           object: "[undefined]"
           ruby: "[\n  nil\n]"
+          swift: "[BSON.null]"
     - input:
           javascript: "[,,]"
           shell: "[,,]"
@@ -231,6 +269,7 @@ tests:
           javascript: "[\n  undefined, undefined\n]"
           object: "[undefined, undefined]"
           ruby: "[\n  nil, nil\n]"
+          swift: "[BSON.null, BSON.null]"
     - input:
           javascript: "['1',,,,'2']"
           shell: "['1',,,,'2']"
@@ -242,6 +281,7 @@ tests:
           javascript: "[\n  '1', undefined, undefined, undefined, '2'\n]"
           object: "['1', undefined, undefined, undefined, '2']"
           ruby: "[\n  '1', nil, nil, nil, '2'\n]"
+          swift: '["1", BSON.null, BSON.null, BSON.null, "2"]'
     Tuple:
     - input:
           python: "()"
@@ -253,6 +293,7 @@ tests:
           shell: "[]"
           object: "[]"
           ruby: "[]"
+          swift: '[]'
     - input:
           python: "(1,)"
       output:
@@ -263,6 +304,7 @@ tests:
           shell: "[\n  1\n]"
           object: "[1]"
           ruby: "[\n  1\n]"
+          swift: '[1]'
     - input:
           python: "(1)"
       output:
@@ -273,6 +315,7 @@ tests:
           shell: "(1)"
           object: "(1)"
           ruby: "(1)"
+          swift: '[1]'
     - input:
           python: "('1', { 'settings': 'http2' })"
       output:
@@ -283,6 +326,7 @@ tests:
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           object: "['1', { 'settings': 'http2' }]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
+          swift: '[BSON.string("1"), ["settings": "http2"]]'
     - input:
           python: "('1', ['2', '3'])"
       output:
@@ -293,6 +337,7 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
+          swift: '[BSON.string("1"), ["2", "3"]]'
     - input:
           python: "['1', ('2', '3')]"
       output:
@@ -303,6 +348,7 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
+          swift: '[BSON.string("1"), ["2", "3"]]'
     binops:
     - input:
           javascript: 2 + 5 - 1
@@ -316,6 +362,7 @@ tests:
           csharp: 2 + 5 - 1
           object: 2 + 5 - 1
           ruby: 2 + 5 - 1
+          swift: 2 + 5 - 1
     - input:
           javascript: 2 + (4 * 36) / 3
           shell: 2 + (4 * 36) / 3
@@ -329,6 +376,7 @@ tests:
           csharp: 2 + (4 * 36) / 3
           object: 2 + (4 * 36) / 3
           ruby: 2 + (4 * 36) / 3
+          swift: 2 + (4 * 36) / 3
     - input:
           python: 10 // 2 % 3
       output:
@@ -339,6 +387,7 @@ tests:
           csharp: Math.floor(10, 2) % 3
           object: Math.floor(10, 2)%3
           ruby: 10.div(2) % 3
+          swift: 10 / 2 % 3
     - input:
           python: 6 ** 7
       output:
@@ -349,6 +398,7 @@ tests:
           csharp: Math.pow(6, 7)
           object: Math.pow(6, 7)
           ruby: 6 ** 7
+          swift: 6 ^^ 7
     - input:
           javascript: 1 | 2 ^ 3 & 4 << 6 >> 7
           shell: 1 | 2 ^ 3 & 4 << 6 >> 7
@@ -361,6 +411,7 @@ tests:
           csharp: 1 | 2 ^ 3 & 4 << 6 >> 7
           object: 1 | 2 ^ 3 & 4 << 6 >> 7
           ruby: 1 | 2 ^ 3 & 4 << 6 >> 7
+          swift: 1 | 2 ^ 3 & 4 << 6 >> 7
     - input:
           javascript: 2 + +5- -6
           shell: 2 + +5- -6
@@ -373,6 +424,7 @@ tests:
           csharp: 2 + +5 - -6
           object: 2 + +5 - -6
           ruby: 2 + +5 - -6
+          swift: 2 + +5 - -6
     unaryops:
     - input:
           javascript: '+1'
@@ -386,6 +438,7 @@ tests:
           csharp: '+1'
           object: '+1'
           ruby: '+1'
+          swift: '+1'
     - input:
           javascript: '-1'
           shell: '-1'
@@ -398,6 +451,7 @@ tests:
           csharp: '-1'
           object: '-1'
           ruby: '-1'
+          swift: '-1'
     - input:
           javascript: '~1'
           shell: '~1'
@@ -410,6 +464,7 @@ tests:
           csharp: '~1'
           object: '~1'
           ruby: '~1'
+          swift: '~1'
     Number:
     - input:
           javascript: new Number(2)
@@ -422,6 +477,7 @@ tests:
           csharp: (int) 2
           object: Number(2)
           ruby: 2.to_f
+          swift: 2.0
     - input:
           javascript: Number(2)
           shell: Number(2)
@@ -433,6 +489,7 @@ tests:
           csharp: (int) 2
           object: Number(2)
           ruby: 2.to_f
+          swift: 2.0
     - input:
           javascript: Number('2')
           shell: Number('2')
@@ -444,6 +501,7 @@ tests:
           csharp: int.Parse("2")
           object: Number(2)
           ruby: "'2'.to_f"
+          swift: 2.0
     - input:
           shell: Number()
       output:
@@ -454,6 +512,7 @@ tests:
           csharp: (int) 0
           object: '0'
           ruby: 0.to_f
+          swift: 0.0
     numeric_literals:
     - input:
           javascript: '2'
@@ -467,6 +526,7 @@ tests:
           csharp: '2'
           object: '2'
           ruby: '2'
+          swift: 2
     - input:
           javascript: '429496729601'
           shell: '429496729601'
@@ -479,6 +539,7 @@ tests:
           csharp: '429496729601'
           object: '429496729601'
           ruby: '429496729601'
+          swift: '429496729601'
     - input:
           javascript: '2.001'
           shell: '2.001'
@@ -491,6 +552,7 @@ tests:
           csharp: '2.001'
           object: '2.001'
           ruby: '2.001'
+          swift: 2.001
     - input:
           javascript: '0X123ABC'
           shell: '0X123ABC'
@@ -503,6 +565,7 @@ tests:
           csharp: '0X123ABC'
           object: '0X123ABC'
           ruby: '0X123ABC'
+          swift: '0X123ABC'
     - input:
           javascript: '0x123abc'
           shell: '0x123abc'
@@ -515,6 +578,7 @@ tests:
           csharp: '0x123abc'
           object: '0x123abc'
           ruby: '0x123abc'
+          swift: '0x123abc'
     - input:
           javascript: '0o1234567'
           shell: '0o1234567'
@@ -527,6 +591,7 @@ tests:
           csharp: '342391'
           object: '0o1234567'
           ruby: '0o1234567'
+          swift: '0o1234567'
     - input:
           javascript: '01234567'
           shell: '01234567'
@@ -538,6 +603,7 @@ tests:
           csharp: '342391'
           object: '01234567'
           ruby: '0o1234567'
+          swift: '0o1234567'
     - input:
           javascript: '001234567'
           shell: '001234567'
@@ -549,6 +615,7 @@ tests:
           csharp: '342391'
           object: '001234567'
           ruby: '0o1234567'
+          swift: '0o1234567'
     - input:
           javascript: '0O1234567'
           shell: '0O1234567'
@@ -561,6 +628,7 @@ tests:
           csharp: '342391'
           object: '0O1234567'
           ruby: '0o1234567'
+          swift: '0o1234567'
     misc_literals:
     - input:
           javascript: 'true'
@@ -574,6 +642,7 @@ tests:
           csharp: 'true'
           object: 'true'
           ruby: 'true'
+          swift: 'true'
     - input:
           javascript: 'false'
           shell: 'false'
@@ -586,6 +655,7 @@ tests:
           csharp: 'false'
           object: 'false'
           ruby: 'false'
+          swift: 'false'
     - input:
           javascript: 'null'
           shell: 'null'
@@ -598,6 +668,7 @@ tests:
           csharp: 'BsonNull.Value'
           object: 'null'
           ruby: 'nil'
+          swift: 'nil'
     - input:
           javascript: 'undefined'
           shell: 'undefined'
@@ -609,6 +680,7 @@ tests:
           csharp: 'BsonUndefined.Value'
           object: 'undefined'
           ruby: 'nil'
+          swift: nil
     string_literals:
     - input:
           javascript: "'string'"
@@ -622,6 +694,7 @@ tests:
           csharp: "\"string\""
           object: "'string'"
           ruby: "'string'"
+          swift: '"string"'
     - input:
           javascript: "\"string\""
           shell: "\"string\""
@@ -634,6 +707,7 @@ tests:
           csharp: "\"string\""
           object: "\"string\""
           ruby: "'string'"
+          swift: '"\"string\""'
     python_strings:
     - input:
           python: "'''string'''"
@@ -644,6 +718,7 @@ tests:
           shell": "'string'"
           object: "\"string\""
           ruby: "'string'"
+          swift: '"string"'
     - input:
           python: "\"\"\"string\"\"\""
       output:
@@ -652,7 +727,7 @@ tests:
           csharp: "\"string\""
           shell: "'string'"
           object: "\"string\""
-          ruby: "'string'"
+          swift: '"string"'
     - input:
         python: "b'abc'"
       output:
@@ -662,6 +737,7 @@ tests:
           shell: "'abc'"
           object: "'abc'"
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
         python: "B'abc'"
       output:
@@ -671,6 +747,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
         python: "b\"abc\""
       output:
@@ -680,6 +757,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
           python: "B'abc'"
       output:
@@ -689,6 +767,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
           python: "u'abc'"
       output:
@@ -698,6 +777,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
           python: "U'abc'"
       output:
@@ -707,6 +787,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
           python: "u\"abc\""
       output:
@@ -716,6 +797,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
           python: "U'abc'"
       output:
@@ -725,6 +807,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
           python: "fR'abc'"
       output:
@@ -734,6 +817,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     - input:
           python: "rB'abc'"
       output:
@@ -743,6 +827,7 @@ tests:
           shell: "'abc'"
           object: "\"abc\""
           ruby: "'abc'"
+          swift: '"abc"'
     # TODO: unescape escaped quotes
     number_methods:
     - input:
@@ -755,6 +840,7 @@ tests:
           csharp: '3'
           object: 'new Int32(3)'
           ruby: '3'
+          swift: '3'
     - input:
           python: int('3')
       output:
@@ -765,6 +851,7 @@ tests:
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
           ruby: "'3'.to_i"
+          swift: '3'
     - input:
           python: int(3.001)
       output:
@@ -775,6 +862,7 @@ tests:
           csharp: Convert.ToInt32(3.001)
           object: 'new Int32(3.001)'
           ruby: '3.001.to_i'
+          swift: 'Int(3.001)'
     - input:
           python: int(0x3)
       output:
@@ -785,6 +873,7 @@ tests:
           csharp: Convert.ToInt32(0x3)
           object: 'new Int32(0x3)'
           ruby: '0x3.to_i'
+          swift: '0x3'
     - input:
           python: int(0o3)
       output:
@@ -795,6 +884,7 @@ tests:
           csharp: '3'
           object: 'new Int32(0o3)'
           ruby: '0o3.to_i'
+          swift: '0o3'
     - input:
           python: float(3)
       output:
@@ -805,6 +895,7 @@ tests:
           csharp: '3.0'
           object: new Double(3)
           ruby: 3.to_f
+          swift: 3.0
     - input:
           python: float('3')
       output:
@@ -815,6 +906,7 @@ tests:
           csharp: Convert.ToDouble("3")
           object: new Double('3')
           ruby: "'3'.to_f"
+          swift: 3.0
     - input:
           python: float(3.001)
       output:
@@ -825,6 +917,7 @@ tests:
           csharp: '3.001'
           object: new Double(3.001)
           ruby: '3.001'
+          swift: 3.001
     - input:
           python: float(0x3)
       output:
@@ -835,6 +928,7 @@ tests:
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
           ruby: 0x3.to_f
+          swift: 0x3
     - input:
           python: float(0o3)
       output:
@@ -845,6 +939,7 @@ tests:
           csharp: '3.0'
           object: new Double(0o3)
           ruby: 0o3.to_f
+          swift: Double(0o3)
     Date:
     - description: now date
       input:
@@ -859,6 +954,7 @@ tests:
           csharp: DateTime.Now
           object: "new Date()"
           ruby: Time.new.utc
+          swift: Date()
     - description: date.now
       input:
           javascript: Date.now()
@@ -871,6 +967,7 @@ tests:
           csharp: DateTime.Now
           object: "1" # just checks type and not value
           ruby: Time.now.utc
+          swift: Date()
     - input:
           javascript: new Date(1995, 11, 17)
           shell: new Date(1995, 11, 17)
@@ -883,6 +980,13 @@ tests:
           csharp: new DateTime(1995, 12, 17, 0, 0, 0)
           object: new Date(1995, 11, 17)
           ruby: Time.utc(1995, 12, 17, 0, 0, 0)
+          swift: |-
+              DateComponents(
+                  calendar: Calendar(identifier: .gregorian),
+                  year: 1995,
+                  month: 12,
+                  day: 17
+              ).date!
     - input:
           javascript: new Date(1995, 11, 17, 3, 24)
           shell: new Date(1995, 11, 17, 3, 24)
@@ -895,6 +999,15 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           object: new Date(1995, 11, 17, 3, 24)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
+          swift: |-
+              DateComponents(
+                  calendar: Calendar(identifier: .gregorian),
+                  year: 1995,
+                  month: 12,
+                  day: 17,
+                  hour: 3,
+                  minute: 24
+              ).date!
     - input:
           javascript: new Date(1995, 11, 17, 3, 24, 55)
           shell: new Date(1995, 11, 17, 3, 24, 55)
@@ -907,6 +1020,16 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 55)
           object: new Date('Sun, 17 Dec 1995 03:24:55 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 55)
+          swift: |-
+              DateComponents(
+                  calendar: Calendar(identifier: .gregorian),
+                  year: 1995,
+                  month: 12,
+                  day: 17,
+                  hour: 3,
+                  minute: 24,
+                  second: 55
+              ).date!
     - input:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -918,6 +1041,16 @@ tests:
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
+          swift: |-
+              DateComponents(
+                  calendar: Calendar(identifier: .gregorian),
+                  year: 1995,
+                  month: 12,
+                  day: 17,
+                  hour: 3,
+                  minute: 24
+              ).date!
+            
     - input:
           javascript: new Date(819167040000)
           shell: new Date(819167040000)
@@ -929,6 +1062,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 2, 24, 0)
           object: new Date(819167040000)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0)
+          swift: Date(timeIntervalSince1970: 819167040000)
     date_string:
     - input:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -941,6 +1075,21 @@ tests:
           shell: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
+          swift: |-
+              let date = DateComponents(
+                  calendar: Calendar(identifier: .gregorian),
+                  timeZone: TimeZone(identifier: "GMT")!,
+                  year: 1995,
+                  month: 12,
+                  day: 17,
+                  hour: 3,
+                  minute: 24
+              ).date!
+              var formatter = DateFormatter()
+              formatter.dateFormat = "E, dd MMM YYYY hh:mm:ss zzz"
+              formatter.timeZone = TimeZone(identifier: "GMT")!
+              formatter.string(from: date)
+              
     - input:
           javascript: Date(819167040000)
           shell: Date(819167040000)
@@ -973,6 +1122,11 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
+          swift: |-
+              let formatter = ISO8601DateFormatter()
+              formatter.formatOptions.insert(.withFractionalSeconds)
+              formatter.date(from: "1995-12-17T03:24:00.000Z")!
+
     - input:
           shell: ISODate('1995-12-17T03:24:00.000Z')
       output:
@@ -982,6 +1136,11 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
+          swift: |-
+              let formatter = ISO8601DateFormatter()
+              formatter.formatOptions.insert(.withFractionalSeconds)
+              formatter.date(from: "1995-12-17T03:24:00.000Z")!
+
     - description: now date
       input:
           shell: ISODate()
@@ -992,6 +1151,8 @@ tests:
           csharp: DateTime.Now
           object: new Date()
           ruby: Time.new.utc
+          swift: Date()
+
     - description: now date
       input:
           shell: new ISODate()
@@ -1002,6 +1163,8 @@ tests:
           csharp: DateTime.Now
           object: "new Date()"
           ruby: Time.new.utc
+          swift: Date()
+
     regular_expressions:
     - description: "empty RegExp"
       input:
@@ -1016,6 +1179,7 @@ tests:
           csharp: "new Regex(\"(?:)\")"
           object: "RegExp('')"
           ruby: "/(?:)/"
+          swift: 'BSONRegularExpression(pattern: "", options: "")'
     - description: "RegExp without options"
       input:
           javascript: "new RegExp('abc')"
@@ -1029,6 +1193,7 @@ tests:
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
           ruby: "/abc/"
+          swift: 'BSONRegularExpression(pattern: "abc", options: "")'
     - description: "RegExp with named but only A flag"
       input:
           python: "re.compile('abc', flags=re.A)"
@@ -1039,6 +1204,7 @@ tests:
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
           ruby: "/abc/"
+          swift: 'BSONRegularExpression(pattern: "abc", options: "")'
     - description: "regex object with im flags as args"
       input:
           javascript: "new RegExp('ab+c', 'im')"
@@ -1052,6 +1218,7 @@ tests:
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
           ruby: "/ab+c/im"
+          swift: 'BSONRegularExpression(pattern: "ab+c", options: "im")'
     - description: "regex object with named flags as args"
       input:
           python: "re.compile('ab+c', flags=re.I | re.M | re.A)"
@@ -1062,6 +1229,7 @@ tests:
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
           ruby: "/ab+c/im"
+          swift: 'BSONRegularExpression(pattern: "ab+c", options: "im")'
     - description: "regex object with ig flags as args"
       input:
           javascript: "new RegExp('ab+c', 'ig')"
@@ -1074,6 +1242,7 @@ tests:
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
+          swift: 'BSONRegularExpression(pattern: "ab+c", options: "ig")'
     - description: "regex object with forward slash"
       input:
           javascript: "new RegExp('ab/cd')"
@@ -1087,6 +1256,7 @@ tests:
           shell: "new RegExp('ab\\/cd')"
           object: "new RegExp('ab\\/cd')"
           ruby: "/ab\\/cd/"
+          swift: 'BSONRegularExpression(pattern: "ab/c", options: "")'
     - description: "regex object with escaped double quote"
       input:
           javascript: "new RegExp('ab\\\"ab')"
@@ -1100,6 +1270,7 @@ tests:
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
           ruby: "/ab\"ab/"
+          swift: 'BSONRegularExpression(pattern: "ab\"ab", options: "")'
     - description: "regex object with nonescaped double quote"
       input:
           javascript: "new RegExp('ab\"ab')"
@@ -1113,6 +1284,7 @@ tests:
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
           ruby: "/ab\"ab/"
+          swift: 'BSONRegularExpression(pattern: "ab\"ab", options: "")'
     - description: "regex object with escaped single quote"
       input:
           javascript: "new RegExp('ab\\'ab')"
@@ -1126,6 +1298,7 @@ tests:
           shell: "new RegExp('ab\\'ab')"
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
+          swift: 'BSONRegularExpression(pattern: "ab\'ab", options: "")'
     - description: "regex object with nonescaped single quote"
       input:
           javascript: "new RegExp(\"ab'ab\")"
@@ -1139,6 +1312,7 @@ tests:
           csharp: "new Regex(\"ab'ab\")"
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
+          swift: 'BSONRegularExpression(pattern: "ab\'ab", options: "")'
     - description: "regex object with newline"
       input:
           javascript: "new RegExp(\"\\\\n\")"
@@ -1152,6 +1326,7 @@ tests:
           csharp: "new Regex(\"\\n\")"
           object: /\n/
           ruby: /\n/
+          swift: 'BSONRegularExpression(pattern: "\n", options: "")'
     - description: "regex literal with ig flags"
       input:
           javascript: "/ab+c/ig"
@@ -1164,6 +1339,7 @@ tests:
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
+          swift: 'BSONRegularExpression(pattern: "ab+c", options: "ig")'
     - description: "regex object with regex literal arg"
       input:
           javascript: "new RegExp(/ab+c/, 'i')"
@@ -1177,6 +1353,7 @@ tests:
           shell: "new RegExp('ab+c', 'i')"
           object: "new RegExp('ab+c', 'i')"
           ruby: "/ab+c/i"
+          swift: 'BSONRegularExpression(pattern: "ab+c", options: "i")'
     - description: "python regex without ascii flag defaults to unicode"
       input:
           python: "re.compile('ab+c')"
@@ -1188,4 +1365,5 @@ tests:
           shell: "new RegExp('ab+c', 'u')"
           object: "new RegExp('ab+c', 'u')"
           ruby: "/ab+c/"
+          swift: 'BSONRegularExpression(pattern: "ab+c", options: "u")'
 

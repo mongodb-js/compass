@@ -456,3 +456,4 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
+                swift: import MongoSwift
