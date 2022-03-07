@@ -16,7 +16,7 @@ import {
 } from '../constants';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
-import type { AggregateOptions } from 'mongodb';
+import type { AggregateOptions, Document } from 'mongodb';
 
 export type Projection = {
   name: string;
@@ -36,7 +36,7 @@ export type Pipeline = {
   isExpanded: boolean;
   isLoading: boolean;
   isComplete: boolean;
-  previewDocuments: unknown[];
+  previewDocuments: Document[];
   syntaxError: Error | null;
   error: Error | null;
   projections: Projection[];
@@ -179,7 +179,7 @@ export const DOCUMENTS = '$documents';
  */
 export const emptyStage = (): Pipeline => ({
   id: new ObjectId().toHexString(),
-  stageOperator: '', // todo (@mabaasit)
+  stageOperator: '',
   stage: '',
   isValid: true,
   isEnabled: true,
@@ -433,10 +433,9 @@ MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
 /**
  * Reducer function for handle state changes to pipeline.
  */
-export default function reducer(state: State, action: AnyAction): State {
-  const defaultState = state ? state : [ emptyStage() ];
+export default function reducer(state = [emptyStage()], action: AnyAction): State {
   const fn = MAPPINGS[action.type];
-  return fn ? fn(defaultState, action) : defaultState;
+  return fn ? fn(state, action) : state;
 }
 
 /**

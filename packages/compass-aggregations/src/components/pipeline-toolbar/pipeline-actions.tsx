@@ -1,14 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import type { Dispatch } from 'redux';
 import { Button, css, spacing } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { exportToLanguage } from '../../modules/export-to-language';
-import { setIsModified } from '../../modules/is-modified';
 import { savingPipelineOpen } from '../../modules/saving-pipeline';
 import { saveCurrentPipeline } from '../../modules/saved-pipeline';
+import { runAggregation } from '../../modules/aggregation';
+
 const pipelineActionsContainerStyles = css({});
 
 const buttonStyles = css({
@@ -19,11 +19,12 @@ const buttonStyles = css({
 const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   name,
   onExportToLanguage,
+  onRunAggregation,
   onSavePipeline,
 }) => {
   return (
     <div className={pipelineActionsContainerStyles}>
-      <Button className={buttonStyles} variant="primary">
+      <Button className={buttonStyles} variant="primary" onClick={() => onRunAggregation()}>
         Run
       </Button>
       <Button className={buttonStyles} onClick={() => onSavePipeline(name)}>
@@ -40,17 +41,14 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
 const mapState = (state: RootState) => ({
   name: state.name,
 });
-const mapDispatch = (dispatch: Dispatch) => ({
+const mapDispatch = ({
+  onRunAggregation: runAggregation,
   onExportToLanguage: exportToLanguage,
   onSavePipeline: (name: string) => {
-    if (name === '') {
-      dispatch(savingPipelineOpen());
-    } else {
-      saveCurrentPipeline();
-      dispatch(setIsModified(false));
-    }
+    return name === '' ? savingPipelineOpen() : saveCurrentPipeline();
   },
 });
+
 const connector = connect(mapState, mapDispatch);
 type PipelineActionsProps = ConnectedProps<typeof connector>;
 export default connector(PipelineActions);
