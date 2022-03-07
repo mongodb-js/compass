@@ -54,7 +54,7 @@ function basicAtlasOptions(host: string): ConnectFormState {
     authMethod: 'DEFAULT',
     defaultUsername: username,
     defaultPassword: password,
-    defaultAuthMechanism: 'DEFAULT',
+    defaultAuthMechanism: 'SCRAM-SHA-1',
     scheme: 'MONGODB_SRV',
   };
 
@@ -148,7 +148,7 @@ describe('Connection screen', function () {
     expect(result).to.have.property('ok', 1);
   });
 
-  it('can connect to an Atlas cluster with username/password authentication', async function () {
+  it('can connect to an Atlas cluster with username/password authentication (SCRAM-SHA-1)', async function () {
     if (!hasAtlasEnvironmentVariables()) {
       return this.skip();
     }
@@ -319,7 +319,7 @@ describe('Connection screen', function () {
     expect(result).to.have.property('ok', 1);
   });
 
-  // TODO: SCRAM-SHA-x?
+  // TODO:
   // Kerberos?
   // LDAP?
   // Different authdb?
