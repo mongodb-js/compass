@@ -44,8 +44,6 @@ const InstanceComponent = ({
       switch (tabRole.name) {
         case 'Performance':
           return !isDataLake;
-        case 'My Queries':
-          return process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true';
         default:
           return true;
       }
