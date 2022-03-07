@@ -8,7 +8,7 @@ import { exportToLanguage } from '../../modules/export-to-language';
 import { savingPipelineOpen } from '../../modules/saving-pipeline';
 import { saveCurrentPipeline } from '../../modules/saved-pipeline';
 import { runAggregation } from '../../modules/aggregation';
-import { changeAggregationView } from '../../modules/aggregation-view';
+import { changeWorkspace } from '../../modules/workspace';
 
 const pipelineActionsContainerStyles = css({});
 
@@ -19,33 +19,33 @@ const buttonStyles = css({
 
 const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   name,
-  aggregationView,
+  workspace,
   onExportToLanguage,
   onRunAggregation,
   onSavePipeline,
-  onChangeAggregationView,
+  onChangeWorkspace,
 }) => {
   return (
     <div className={pipelineActionsContainerStyles}>
-      {aggregationView === 'builder-view' && (
+      {workspace === 'builder' && (
         <Button
           data-testid="toolbar-run-action-button"
           className={buttonStyles}
           variant="primary"
           onClick={() => {
-            onChangeAggregationView('results-view');
+            onChangeWorkspace('results');
             onRunAggregation();
           }}
         >
           Run
         </Button>
       )}
-      {aggregationView === 'results-view' && (
+      {workspace === 'results' && (
         <Button
           data-testid="toolbar-run-action-button"
           className={buttonStyles}
           variant="primary"
-          onClick={() => onChangeAggregationView('builder-view')}
+          onClick={() => onChangeWorkspace('builder')}
         >
           Edit
         </Button>
@@ -74,12 +74,12 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   );
 };
 
-const mapState = (state: RootState) => ({
-  name: state.name,
-  aggregationView: state.aggregationView,
+const mapState = ({ name, workspace }: RootState) => ({
+  name,
+  workspace,
 });
 const mapDispatch = {
-  onChangeAggregationView: changeAggregationView,
+  onChangeWorkspace: changeWorkspace,
   onRunAggregation: runAggregation,
   onExportToLanguage: exportToLanguage,
   onSavePipeline: (name: string) => {

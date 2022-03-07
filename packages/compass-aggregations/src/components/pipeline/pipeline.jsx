@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Banner } from '@mongodb-js/compass-components';
 
-import PipelineWorkspace from '../pipeline-workspace';
 import SavePipeline from '../save-pipeline';
 import Settings from '../settings';
 import LegacyPipelineToolbar from '../legacy-pipeline-toolbar';
@@ -19,7 +18,8 @@ import ConfirmNewPipeline from './modals/confirm-new-pipeline';
 import styles from './pipeline.module.less';
 
 import PipelineToolbar from '../pipeline-toolbar';
-
+import PipelineBuilderWorkspace from '../pipeline-builder-workspace';
+import PipelineResultsWorkspace from '../pipeline-results-workspace';
 import {
   DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
@@ -118,6 +118,7 @@ class Pipeline extends PureComponent {
     isNewPipelineConfirm: PropTypes.bool.isRequired,
     setIsNewPipelineConfirm: PropTypes.func.isRequired,
     inputDocuments: PropTypes.object.isRequired,
+    workspace: PropTypes.string.isRequired,
   };
 
   static defaultProps = {
@@ -239,6 +240,14 @@ class Pipeline extends PureComponent {
     return <PipelineToolbar />;
   }
 
+  renderPipelineWorkspace() {
+    return this.props.workspace === 'results' ? (
+      <PipelineResultsWorkspace />
+    ) : (
+      <PipelineBuilderWorkspace {...this.props} />
+    );
+  }
+
   /**
    * Render the pipeline component.
    *
@@ -296,7 +305,7 @@ class Pipeline extends PureComponent {
         {this.renderPipelineToolbar()}
         {this.renderCollationToolbar()}
         {this.renderModifyingViewSourceError()}
-        <PipelineWorkspace {...this.props} />
+        {this.renderPipelineWorkspace()}
         {this.renderSavePipeline()}
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}

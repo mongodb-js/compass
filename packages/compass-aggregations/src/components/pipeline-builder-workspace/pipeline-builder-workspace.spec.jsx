@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-import PipelineWorkspace from './pipeline-workspace';
+import PipelineBuilderWorkspace from './pipeline-builder-workspace';
 import Stage from '../stage';
 
 const PIPELINE_1 = [
@@ -79,9 +79,10 @@ function createPipelineWorkspace({
   isOverviewOn = false,
   projections = [],
   projectionsChanged = () => {},
-  newPipelineFromPaste = () => {}
+  newPipelineFromPaste = () => {},
+  workspace = 'builder',
 } = {}) {
-  return (<PipelineWorkspace
+  return (<PipelineBuilderWorkspace
     allowWrites={allowWrites}
     pipeline={pipeline}
     env={env}
@@ -113,6 +114,7 @@ function createPipelineWorkspace({
     projections={projections}
     projectionsChanged={projectionsChanged}
     newPipelineFromPaste={newPipelineFromPaste}
+    workspace={workspace}
   />);
 }
 

@@ -258,7 +258,7 @@ describe('Aggregation Store', function() {
             isNewPipelineConfirm: INITIAL_STATE.isNewPipelineConfirm,
             updateViewError: INITIAL_STATE.updateViewError,
             aggregation: INITIAL_STATE.aggregation,
-            aggregationView: INITIAL_STATE.aggregationView,
+            workspace: INITIAL_STATE.workspace,
           });
         });
       });
