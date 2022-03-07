@@ -6,7 +6,7 @@ import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
 import PipelineSettings from './pipeline-settings';
 
-const toolbarContainerStyles = css({
+const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   paddingTop: spacing[2],
@@ -17,22 +17,33 @@ const toolbarContainerStyles = css({
   borderBottomColor: uiColors.gray.light2,
 });
 
-const stagesAndActionRowStyles = css({
+const stagesAndActionStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
 });
 
+const pipelineSettingsStyles = css({
+  paddingTop: spacing[1],
+  paddingRight: spacing[5],
+  paddingBottom: spacing[2],
+  paddingLeft: spacing[3],
+});
+
 const PipelineToolbar: React.FunctionComponent = () => {
   return (
-    <div className={toolbarContainerStyles}>
-      <PipelineTitle />
-      <div className={stagesAndActionRowStyles}>
-        <PipelineStages />
-        <PipelineActions />
+    <div>
+      <div className={containerStyles}>
+        <PipelineTitle />
+        <div className={stagesAndActionStyles}>
+          <PipelineStages />
+          <PipelineActions />
+        </div>
       </div>
-      <PipelineSettings />
+      <div className={pipelineSettingsStyles}>
+        <PipelineSettings />
+      </div>
     </div>
   );
 };

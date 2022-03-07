@@ -15,6 +15,7 @@ const pipelineTitleContainerStyles = css({
   flexDirection: 'row',
   alignItems: 'baseline',
   justifyContent: 'start',
+  marginLeft: spacing[1],
 });
 
 const pipelineNameStyles = css({

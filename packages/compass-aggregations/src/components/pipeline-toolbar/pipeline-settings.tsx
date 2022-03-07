@@ -11,6 +11,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../modules/settings';
 import { toggleAutoPreview } from '../../modules/auto-preview';
+import { newPipelineFromText } from '../../modules/import-pipeline';
+import { collationCollapseToggled } from '../../modules/collation-collapser';
+import type { RootState } from '../../modules';
 
 const containerStyles = css({
   display: 'flex',
@@ -47,6 +50,9 @@ const toggleLabelStyles = css({
 });
 
 const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
+  isCollationExpanded,
+  onNewPipelineFromText,
+  onCollationToggled,
   onToggleAutoPreview,
   onToggleSettings,
 }) => {
@@ -58,6 +64,7 @@ const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
           variant="primaryOutline"
           size="xsmall"
           leftGlyph={<Icon glyph="Plus" />}
+          onClick={() => onNewPipelineFromText()}
         >
           New pipeline from text
         </Button>
@@ -65,7 +72,12 @@ const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
           className={buttonStyles}
           variant="primaryOutline"
           size="xsmall"
-          leftGlyph={<Icon glyph="ChevronRight" />}
+          leftGlyph={
+            <Icon
+              glyph={isCollationExpanded ? 'ChevronDown' : 'ChevronRight'}
+            />
+          }
+          onClick={() => onCollationToggled()}
         >
           Collation
         </Button>
@@ -98,10 +110,14 @@ const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
   );
 };
 
-const mapState = () => ({});
+const mapState = ({ isCollationExpanded }: RootState) => ({
+  isCollationExpanded,
+});
 const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
   onToggleSettings: toggleSettingsIsExpanded,
+  onNewPipelineFromText: newPipelineFromText,
+  onCollationToggled: collationCollapseToggled,
 };
 
 const connector = connect(mapState, mapDispatch);

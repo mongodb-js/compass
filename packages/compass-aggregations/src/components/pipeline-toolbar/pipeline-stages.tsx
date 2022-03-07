@@ -6,8 +6,9 @@ import {
   Pipeline,
   Stage,
   Description,
-  css,
   Link,
+  css,
+  spacing,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
@@ -15,6 +16,11 @@ import { stageAdded } from '../../modules/pipeline';
 
 const noStagesTextStyles = css({
   margin: 0,
+});
+
+const pipelineStyles = css({
+  marginLeft: spacing[1],
+  marginRight: spacing[1],
 });
 
 const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
@@ -34,7 +40,7 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
     );
   }
   return (
-    <Pipeline size="small">
+    <Pipeline className={pipelineStyles} size="small">
       {stages.map((stage) => (
         <Stage key={stage}>{stage}</Stage>
       ))}
