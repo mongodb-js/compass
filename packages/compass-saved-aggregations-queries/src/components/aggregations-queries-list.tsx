@@ -75,6 +75,10 @@ const rowStyles = css({
   paddingBottom: spacing[2],
 });
 
+const noSavedItemsStyles = css({
+  width: '100%',
+});
+
 const ControlsContext = React.createContext<{
   filterControls: React.ReactElement | null;
   sortControls: React.ReactElement | null;
@@ -193,7 +197,7 @@ const AggregationsQueriesList = ({
 
   if (items.length === 0) {
     return (
-      <div data-testid="my-queries-list">
+      <div className={noSavedItemsStyles} data-testid="my-queries-list">
         <NoSavedItems />
       </div>
     );

@@ -115,7 +115,7 @@ describe('Logging and Telemetry integration', function () {
       });
 
       it('tracks an event for screens that were accessed', function () {
-        expect(telemetry.screens()).to.include('databases');
+        expect(telemetry.screens()).to.include('my_queries');
       });
     });
 
