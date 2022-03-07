@@ -18,9 +18,23 @@
 @index-quantity-bg: #EAEDF4;
 
 .indexes {
+  width: 100%;
+  padding: 15px;
+  flex-grow: 1;
+  overflow: auto; 
+}
+
+.indexes-table {
   table-layout: auto;
   border-collapse: separate;
   border-spacing: 0 3px;
   width: 100%;
 }
 
+.indexes-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+}

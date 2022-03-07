@@ -37,6 +37,13 @@ declare module 'process' {
 
         // Feature flags.
         USE_NEW_CONNECT_FORM?: 'true' | 'false';
+        /**
+         * Currently Compass uses `darkreader` to globally change the views of
+         * Compass to a dark theme. Turning on this feature flag stops darkreader
+         * from being used and instead components which have darkMode
+         * support will listen to the theme to change their styles.
+         */
+        COMPASS_LG_DARKMODE?: 'true' | 'false';
 
         /**
          * Enables new tab in the instance workspace that shows saved

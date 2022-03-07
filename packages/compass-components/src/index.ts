@@ -1,3 +1,5 @@
+export * from './components/leafygreen';
+
 export {
   default as emotion,
   flush,
@@ -20,50 +22,23 @@ import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import Accordion from './components/accordion';
 export { FavoriteIcon } from './components/icons/favorite-icon';
+export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
+export { Variant as BannerVariant } from '@leafygreen-ui/banner';
 export {
-  default as Badge,
-  Variant as BadgeVariant,
-} from '@leafygreen-ui/badge';
-export { Footer } from '@leafygreen-ui/modal';
-export {
-  default as Banner,
-  Variant as BannerVariant,
-} from '@leafygreen-ui/banner';
-export {
-  default as Button,
   Size as ButtonSize,
   Variant as ButtonVariant,
 } from '@leafygreen-ui/button';
-export { default as Card } from '@leafygreen-ui/card';
+
 export { Checkbox } from './components/checkbox';
-export { default as Icon } from '@leafygreen-ui/icon';
-export { default as IconButton } from '@leafygreen-ui/icon-button';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
-export {
-  AtlasLogoMark,
-  MongoDBLogoMark,
-  MongoDBLogo,
-} from '@leafygreen-ui/logo';
-export { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassFontSizes from './compass-font-sizes';
 export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
-export { RadioBox, Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
-export { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
-export {
-  Select,
-  Option,
-  OptionGroup,
-  Size as SelectSize,
-} from '@leafygreen-ui/select';
-export { Tabs, Tab } from '@leafygreen-ui/tabs';
-export { default as TextArea } from '@leafygreen-ui/text-area';
-export { default as TextInput } from '@leafygreen-ui/text-input';
-export {
-  default as Toast,
-  Variant as ToastVariant,
-} from '@leafygreen-ui/toast';
+export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
+export { Size as SelectSize } from '@leafygreen-ui/select';
+export { Variant as ToastVariant } from '@leafygreen-ui/toast';
 
 export { useToast, ToastArea } from './hooks/use-toast';
 
@@ -71,20 +46,7 @@ export { Toggle } from './components/toggle';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
-export {
-  H1,
-  H2,
-  H3,
-  Subtitle,
-  Body,
-  InlineCode,
-  InlineKeyCode,
-  Disclaimer,
-  Overline,
-  Label,
-  Link,
-  Description,
-} from '@leafygreen-ui/typography';
+
 export {
   Accordion,
   CancelLoader,
@@ -109,15 +71,13 @@ export {
 export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;
-export {
-  SegmentedControl,
-  SegmentedControlOption,
-} from '@leafygreen-ui/segmented-control';
+
 export { ErrorBoundary } from './components/error-boundary';
+export { TabNavBar } from './components/tab-nav-bar';
+export { WorkspaceContainer } from './components/workspace-container';
 export { InlineInfoLink } from './components/inline-info-link';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
-export { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';
 export { VirtualGrid } from './components/virtual-grid';
 export { mergeProps } from './utils/merge-props';
 export { useFocusRing } from './hooks/use-focus-ring';

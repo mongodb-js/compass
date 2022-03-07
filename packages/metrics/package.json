@@ -1,7 +1,7 @@
 {
   "name": "mongodb-js-metrics",
   "description": "Shareable metric recording.",
-  "version": "7.8.0",
+  "version": "7.9.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",

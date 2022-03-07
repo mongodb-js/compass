@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-components",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
@@ -64,7 +64,7 @@
     "@leafygreen-ui/tokens": "^0.5.3",
     "@leafygreen-ui/tooltip": "^6.3.1",
     "@leafygreen-ui/typography": "^8.1.0",
-    "@mongodb-js/compass-logging": "^0.8.0",
+    "@mongodb-js/compass-logging": "^0.9.0",
     "@react-aria/interactions": "^3.6.0",
     "@react-aria/tooltip": "^3.1.3",
     "@react-aria/utils": "^3.9.0",

@@ -15,15 +15,20 @@
 
 .root {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   flex-grow: 1;
-  background: @gray8;
   flex-shrink: 1;
 }
 
 .schema {
+  width: 100%;
+  padding: 15px;
+  flex-grow: 1;
+  overflow: auto; 
+
   &-zero-state {
     height: 100%;
     display: flex;
@@ -38,9 +43,8 @@
     }
 
     &-link {
-      cursor: pointer;
       display: block;
-      padding-top: 20px;
+      margin-top: 20px;
       font-size: 16px;
     }
   }

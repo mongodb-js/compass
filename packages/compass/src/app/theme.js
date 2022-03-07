@@ -12,7 +12,9 @@ function enableDarkTheme() {
   global.hadronApp.theme = Theme.Dark;
   global.hadronApp.appRegistry?.emit('darkmode-enable');
 
-  darkreader.enable(darkreaderOptions);
+  if (process?.env?.COMPASS_LG_DARKMODE !== 'true') {
+    darkreader.enable(darkreaderOptions);
+  }
 }
 
 function disableDarkTheme() {
