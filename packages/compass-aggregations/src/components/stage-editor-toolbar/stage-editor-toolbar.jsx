@@ -35,7 +35,6 @@ class StageEditorToolbar extends PureComponent {
     stageDeleted: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
-    openLink: PropTypes.func.isRequired,
     runStage: PropTypes.func.isRequired
   };
 

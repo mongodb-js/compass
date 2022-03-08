@@ -40,7 +40,7 @@ class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
   static propTypes = {
     instance: PropTypes.object.isRequired,
-    databases: PropTypes.object.isRequired,
+    databases: PropTypes.array.isRequired,
     isDetailsExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
