@@ -59,28 +59,28 @@ const tabsBottomBorderStyles = css({
 function useKeyboardNavigation<
   HTMLDivElement
 >({
-  defaultCurrentTabbable = 0,
+  // defaultCurrentTabbable = 0,
   tabsCount,
   onSelectTab,
-  // selectedTabIndex,
-  focusState
+  selectedTabIndex,
+  // focusState
 }: {
-  defaultCurrentTabbable: number;
+  // defaultCurrentTabbable: number;
   tabsCount: number;
   onSelectTab: (tabIndex: number) => void;
-  // selectedTabIndex: number;
-  focusState: FocusState;
-}): [React.HTMLProps<HTMLDivElement>, number] {
-  const rootNode = useRef<HTMLDivElement | null>(null);
-  const [currentTabbable, setCurrentTabbable] = useState(
-    defaultCurrentTabbable
-  );
+  selectedTabIndex: number;
+  // focusState: FocusState;
+}): [React.HTMLProps<HTMLDivElement>] {
+  // const rootNode = useRef<HTMLDivElement | null>(null);
+  // const [currentTabbable, setCurrentTabbable] = useState(
+  //   defaultCurrentTabbable
+  // );
 
-  useEffect(() => {
-    if (focusState === FocusState.NoFocus) {
-      setCurrentTabbable(defaultCurrentTabbable);
-    }
-  }, [focusState, defaultCurrentTabbable]);
+  // useEffect(() => {
+  //   if (focusState === FocusState.NoFocus) {
+  //     setCurrentTabbable(defaultCurrentTabbable);
+  //   }
+  // }, [focusState, defaultCurrentTabbable]);
 
 
   const onKeyDown = useCallback(
@@ -89,27 +89,26 @@ function useKeyboardNavigation<
 
       // tODO: We need to add ids to tabs and focus them
       // when the focus changes (so we can move between extra items in focus)
-      if (evt.key === 'Enter' || evt.code === 'Space') {
-        // TODO: First tab and activates
+      // if (evt.key === 'Enter' || evt.code === 'Space') {
+      //   // TODO: First tab and activates
 
-        console.log('heer');
-        evt.preventDefault();
-        evt.stopPropagation();
-        // nextTabbable = 0;
-        onSelectTab(currentTabbable);
-        return;
-      }
+      //   evt.preventDefault();
+      //   evt.stopPropagation();
+      //   // nextTabbable = 0;
+      //   onSelectTab(currentTabbable);
+      //   return;
+      // }
 
       let nextTabbable = -1;
 
       if (evt.key === 'ArrowLeft') {
         evt.stopPropagation();
-        nextTabbable = currentTabbable - 1;
+        nextTabbable = selectedTabIndex - 1;
       }
 
       if (evt.key === 'ArrowRight') {
         evt.stopPropagation();
-        nextTabbable = currentTabbable + 1;
+        nextTabbable = selectedTabIndex + 1;
       }
 
       if (evt.key === 'Home') {
@@ -131,18 +130,18 @@ function useKeyboardNavigation<
 
 
       if (
-        nextTabbable !== currentTabbable &&
+        nextTabbable !== selectedTabIndex &&
         nextTabbable >= 0 &&
         nextTabbable < tabsCount
       ) {
-        setCurrentTabbable(nextTabbable);
-        // onSelectTab(currentTabbable);
+        // setCurrentTabbable(nextTabbable);
+        onSelectTab(nextTabbable);
       }
     },
-    [currentTabbable, tabsCount, onSelectTab]
+    [selectedTabIndex, tabsCount, onSelectTab]
   );
 
-  return [{ ref: rootNode, onKeyDown }, currentTabbable];
+  return [{ onKeyDown }];
 }
 
 type TabProps = {
@@ -169,12 +168,12 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
   const selectedTabIndex = tabs.findIndex(tab => tab.isActive);
   const [focusProps, focusState] = useFocusState();
 
-  const [navigationProps, currentTabbable] = useKeyboardNavigation<HTMLDivElement>({
-    defaultCurrentTabbable: selectedTabIndex,
-    // selectedTabIndex,
+  const [navigationProps] = useKeyboardNavigation<HTMLDivElement>({
+    // defaultCurrentTabbable: selectedTabIndex,
+    selectedTabIndex,
     onSelectTab,
     tabsCount: tabs.length,
-    focusState
+    // focusState
   });
 
   // const [focusProps, focusState] = useFocusState();
@@ -224,7 +223,7 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
           <Tab
             activeSubTabName={tab.activeSubTabName}
             isSelected={tab.isActive}
-            isFocused={isTabListFocused && currentTabbable === tabIndex}
+            isFocused={isTabListFocused && tab.isActive}
             tabId={tab.id}
             // ref={t}
             namespace={tab.namespace}

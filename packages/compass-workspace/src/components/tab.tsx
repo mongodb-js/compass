@@ -19,15 +19,20 @@ const tabStyles = css({
   borderBottom: 'none',
   borderTopLeftRadius: spacing[1],
   borderTopRightRadius: spacing[1],
-  display: 'inline-block',
+  display: 'inline-flex',
+  flexDirection: 'row',
+  alignItems: 'center',
   margin: 0,
   marginLeft: spacing[1],
+  padding: 0,
   // overflow: 'hidden',
   // margin: `0 ${spacing[1]}px`,
-  paddingLeft: spacing[2],
-  paddingTop: spacing[2],
-  paddingBottom: spacing[2],
-  paddingRight: spacing[1],
+  // paddingLeft: spacing[2],
+  // paddingTop: spacing[2],
+  // paddingBottom: spacing[2],
+  // paddingRight: spacing[1],
+  height: spacing[5] + spacing[3],
+  // lineHeight: `${spacing[6]}px`,
   // alignContent: 'center',
   // alignItems: 'center',
 
@@ -71,7 +76,7 @@ const tabStyles = css({
 const selectedTabStyles = css({
   background: uiColors.white,
   borderColor: uiColors.gray.light1,
-  color: uiColors.green.base,
+  // color: uiColors.green.base,
   '&:hover': {
     backgroundColor: uiColors.white
   },
@@ -80,7 +85,7 @@ const selectedTabStyles = css({
 
 const selectedTabBorderCoverStyles = css({
   // overflow: 'visible',
-  position: 'relative',
+  // position: 'relative',
 
   '&::after': {
     zIndex: 5,
@@ -88,17 +93,21 @@ const selectedTabBorderCoverStyles = css({
     position: 'absolute',
     // bottom: '-8px',
     // TODO: Better variables for these
-    bottom: -1,
+    bottom: 0,
     // marginBottom: '-2px',
-    left: -spacing[2],
-    right: -spacing[1],
+    // left: -spacing[2],
+    // right: -spacing[1],
+    // // // Cover the border as well.
+    left: 0,
+    right: 0,
     height: '1px',
-    backgroundColor: uiColors.gray.light3
+    backgroundColor: uiColors.white
+    // backgroundColor: 'purple'
   }
 });
 
 const focusedTabStyles = css({
-  color: uiColors.focus,
+  // color: uiColors.focus,
   
   '&::after': {
     // boxShadow: `0 0 0 3px ${uiColors.focus}`,
@@ -114,27 +123,67 @@ const hiddenStyles = css({
   visibility: 'hidden'
 });
 
-const tabTitleContainerStyles = css({
-  display: 'inline-block',
+const tabIconStyles = css({
+  marginLeft: spacing[2]
+  // color: uiColors.green.dark2,
+  // gridArea: 'button'
+  // paddingTop: spacing[1]
+  // alignContent: 'normal'
+  // margin: 'auto 0'
 });
 
-const tabTitleStyles = css({
+const tabIconSelectedStyles = css({
+  color: uiColors.green.dark2,
+  // gridArea: 'button'
+  // paddingTop: spacing[1]
+  // alignContent: 'normal'
+  // margin: 'auto 0'
+});
+
+const tabIconFocusedStyles = css({
+  color: uiColors.focus,
+  // gridArea: 'button'
+  // paddingTop: spacing[1]
+  // alignContent: 'normal'
+  // margin: 'auto 0'
+});
+
+const tabTitleContainerStyles = css({
   marginLeft: spacing[2],
   marginRight: spacing[1],
-  display: 'grid',
+  display: 'inline-grid',
   gridTemplateColumns: '1fr',
+  color: uiColors.gray.dark1,
 });
+
+// const tabTitleStyles = css({
+//   display: 'grid',
+// });
 
 const tabNamespaceStyles = css({
   display: 'inline-block',
-  fontWeight: 'bold'
+  fontWeight: 'bold',
 })
 
-const tabIconStyles = css({
-  gridArea: 'button'
+const tabNamespaceFocusedStyles = css({
+  color: uiColors.focus
+})
+
+const tabNamespaceSelectedStyles = css({
+  display: 'inline-block',
+  fontWeight: 'bold',
+  color: uiColors.green.dark2
+})
+
+const tabCloseStyles = css({
+  marginRight: spacing[1]
+
+  // gridArea: 'button'
+  // color: uiColors.green.dark2
 });
 
 const tabSubtitleStyles = css({
+  // color: uiColors.gray.dark1
 });
 
 type TabProps = {
@@ -186,6 +235,9 @@ const Tab: React.FunctionComponent<TabProps> = ({
   //   tabsCount: tabs.length
   // });
 
+  // TODO: on select tab by clicking (in the tab), focus
+  // the container for key actions.
+
   const hasFocus = [FocusState.FocusVisible, FocusState.FocusWithinVisible].includes(
     focusState
   );
@@ -209,25 +261,32 @@ const Tab: React.FunctionComponent<TabProps> = ({
       {...tabProps}
     >
       <Icon
-        className={tabIconStyles}
+        className={cx(tabIconStyles, {
+          [tabIconSelectedStyles]: isSelected,
+          [tabIconFocusedStyles]: isFocused // || // isSelected && (focusState === FocusState.FocusVisible || isFocused)
+          // [focusedTabStyles]: (isSelected && isTabListFocused)
+        })}
         glyph="Folder"
       />
       <div className={tabTitleContainerStyles}>
-        <div
+        {/* <div
           className={tabTitleStyles}
-        >
-          <div className={tabNamespaceStyles}>
+        > */}
+          <div className={cx(tabNamespaceStyles, {
+            [tabNamespaceSelectedStyles]: isSelected,
+            [tabNamespaceFocusedStyles]: isFocused
+          })}>
             {namespace}
           </div>
-          <div>
+          <div className={tabSubtitleStyles}>
             {activeSubTabName}
           </div>
-        </div>
+        {/* </div> */}
       </div>
       
       {/* {isButtonVisible ? ( */}
         <IconButton
-          className={cx(tabIconStyles, ((isSelected && !isTabListFocused) || isFocused) ? undefined : hiddenStyles)}
+          className={cx(tabCloseStyles, ((isSelected && !isTabListFocused) || isFocused) ? undefined : hiddenStyles)}
           onClick={(e) => {
             e.stopPropagation();
             onCloseClicked();
