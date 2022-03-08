@@ -19,7 +19,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 const formHelpContainerStyles = css({
   position: 'relative',
   margin: 0,
-  width: 350,
+  width: spacing[5] * 10,
   display: 'inline-block',
 });
 

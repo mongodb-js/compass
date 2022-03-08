@@ -4,13 +4,14 @@ import {
   ResizeDirection,
   uiColors,
   css,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 
 import ConnectionList from './connection-list/connection-list';
 
-const initialSidebarWidth = 250;
-const minSidebarWidth = 164;
+const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
+const minSidebarWidth = spacing[4] * 7; // 168px
 
 const listContainerStyles = css({
   display: 'flex',
