@@ -56,6 +56,7 @@ tests:
           ruby: |-
             require 'mongo'
             require 'bson'
+          swift: "import MongoSwift"
     all:
     - description: Single import Code
       input:
@@ -75,6 +76,7 @@ tests:
                 Code
               } = require('mongodb');
           ruby: require 'bson'
+          swift: "import struct MongoSwift.BSONCode"
     - description: Single import Code with scope
       input:
           shell: "{x: Code('code', {x: 1})}"
@@ -95,6 +97,7 @@ tests:
                 Code
               } = require('mongodb');
           ruby: require 'bson'
+          swift: "import struct MongoSwift.BSONCodeWithScope"
     - description: Single import ObjectId
       input:
           shell: "{x: ObjectId()}"
@@ -113,6 +116,7 @@ tests:
                 ObjectId
               } = require('mongodb');
           ruby: require 'bson'
+          swift: "import struct MongoSwift.BSONObjectID"
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -130,6 +134,7 @@ tests:
               const {
                 Timestamp
               } = require('mongodb');
+          swift: "import struct MongoSwift.BSONTimestamp"
     - description: Single import DBRef
       input:
           shell: "{x: DBRef('db', ObjectId())}"
@@ -213,6 +218,7 @@ tests:
                 MinKey
               } = require('mongodb');
           ruby: require 'bson'
+          swift: "import struct MongoSwift.BSONMinKey"
     - description: Single import MaxKey
       input:
           shell: "{x: MaxKey()}"
@@ -231,6 +237,7 @@ tests:
                 MaxKey
               } = require('mongodb');
           ruby: require 'bson'
+          swift: "import struct MongoSwift.BSONMaxKey"
     - description: Single import RegExp
       input:
           shell: "{x: RegExp('abc')}"
@@ -247,6 +254,7 @@ tests:
           python: import re
           javascript: ''
           ruby: ''
+          swift: "import struct NSRegularExpression from Foundation"
     - description: Single import BSONRegExp
       input:
           javascript: "{x: BSONRegExp('abc')}"
@@ -259,6 +267,7 @@ tests:
               using MongoDB.Bson;
               using MongoDB.Driver;
           python: from bson import Regex
+          swift: "import struct MongoSwift.BSONRegularExpression"
     - description: Single import literal regex
       input:
           shell: "{x: /abc/g}"
@@ -292,6 +301,7 @@ tests:
                 Timestamp
               } = require('mongodb');
           ruby: require 'bson'
+          swift: "import struct MongoSwift.BSONTimestamp"
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
@@ -327,6 +337,7 @@ tests:
                 Decimal128
               } = require('mongodb');
           ruby: require 'bson'
+          swift: "import struct MongoSwift.BSONDecimal128"
     - description: Single import Date as string
       input:
           shell: "{x: Date()}"
@@ -342,6 +353,7 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
+          swift: "import Foundation.Date"
     - description: Single import Date() as object
       input:
           shell: "{x: new Date()}"
