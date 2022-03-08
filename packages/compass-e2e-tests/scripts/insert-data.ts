@@ -59,6 +59,14 @@ if (require.main === module) {
     await createBlankCollection(db, 'csv-file');
     await createBlankCollection(db, 'bom-csv-file');
 
+    // lots of collections to test virtual scrolling
+    for (let i = 0; i < 26; ++i) {
+      await createBlankCollection(
+        db,
+        'zzz' + String.fromCharCode('a'.charCodeAt(0) + i)
+      );
+    }
+
     console.log(`Creating test.numbers`);
     await dropCollection(db, 'numbers');
     await db
