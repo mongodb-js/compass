@@ -44,14 +44,130 @@ Templates:
     #                                           #
     #############################################
 
-    DriverTemplate: &DriverTemplate null
-    EqualitySyntaxTemplate: &EqualitySyntaxTemplate null # Args: lhs, operation, rhs
-    InSyntaxTemplate: &InSyntaxTemplate null # Args: lhs, operation, rhs
-    AndSyntaxTemplate: &AndSyntaxTemplate null # Args: items to compare as an array
-    OrSyntaxTemplate: &OrSyntaxTemplate  null # Args: items to compare as an array
-    NotSyntaxTemplate: &NotSyntaxTemplate null # Args: item to negate
-    UnarySyntaxTemplate: &UnarySyntaxTemplate null
-    BinarySyntaxTemplate: &BinarySyntaxTemplate null
+    DriverTemplate: &DriverTemplate !!js/function >
+      (spec) => {
+        const comment = '// Requres the MongoSwift package.\n// https://github.com/mongodb/mongo-swift-driver';
+
+        const options = spec.options;
+        const filter = spec.filter || '[:]';
+        delete spec.options;
+        delete spec.filter;
+
+        const connect = [
+          'let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)',
+          'let client = try MongoClient("${options.uri}", using: elg)',
+          'defer {',
+          '    try? client.syncClose()',
+          '    cleanupMongoSwift()',
+          '    try? elg.syncShutdownGracefully()',
+          '}',
+        ].join('\n');
+
+        const coll = `client.db("${options.database}").collection("${options.collection}")`;
+
+        if ('aggregation' in spec) {
+          let agg = spec.aggregation;
+          if (agg.charAt(0) != '[') {
+            agg = `[${agg}]`;
+          }
+
+          return [
+            `${comment}\n`,
+            `${connect}`,
+            `let cursor = try await ${coll}.aggregate(${agg})`
+          ].join('\n')
+        }
+
+        const findOpts = [];
+        for (let optName in spec) {
+          let optValue = spec[optName];
+          switch(optName) {
+          case 'project':
+            optName = 'projection';
+            break;
+          }
+          findOpts.push([optName, optValue])
+        }
+
+        findOpts.sort()
+
+        const optsDecl = 'let options = FindOptions(';
+        let optPairs = [];
+        for (const kvp of findOpts) {
+          optPairs.push(`    ${kvp[0]}: ${kvp[1]}`)
+        }
+
+        const optionsLet = [
+          optsDecl,
+          optPairs.join(',\n'),
+          ')'
+        ].join('\n');
+
+        return [
+          comment + '\n',
+          optionsLet,
+          `let cursor = try await ${coll}.find(${filter}, options)`
+        ].join('\n');
+      }
+    EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            if (op.includes('!') || op.includes('not')) {
+                return `${lhs} != ${rhs}`;
+            }
+            else if (op === '==' || op === '===' || op === 'is') {
+                return `${lhs} == ${rhs}`;
+            }
+            return `${lhs} ${op} ${rhs}`;
+        }
+    InSyntaxTemplate: &InSyntaxTemplate !!js/function >
+        (lhs, op, rhs) => {
+            let prefix = '';
+            if (op.includes('!') || op.includes('not')) {
+                prefix = '!';
+            }
+            return `${prefix}${rhs}.contains(&${lhs})`
+        }
+    AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
+        (args) => {
+            return args.join(' && ');
+        }
+    OrSyntaxTemplate: &OrSyntaxTemplate !!js/function >
+        (args) => {
+            return args.join(' || ');
+        }
+    NotSyntaxTemplate: &NotSyntaxTemplate !!js/function >
+        (arg) => {
+            return `!${arg}`;
+        }
+    UnarySyntaxTemplate: &UnarySyntaxTemplate !!js/function >
+        (op, val) => {
+            switch(op) {
+                case '+':
+                    return val;
+                case '~':
+                    return `!${val}`;
+                default:
+                    return `${op}${val}`;
+            }
+            return `${op}${val}`;
+        }
+    BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((s, op, i, arr) => {
+                if (i % 2 === 0) {
+                    return s;
+                }
+                const rhs = arr[i + 1];
+                switch(op) {
+                    case '//':
+                        return `${s} / ${rhs}`
+                    case '**':
+                        return `pow(${s}, ${rhs})`
+                    default:
+                        return `${s} ${op} ${rhs}`;
+                }
+            }, args[0]);
+        }
     ParensSyntaxTemplate: &ParensSyntaxTemplate null
     EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
     EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
@@ -66,21 +182,102 @@ Templates:
     # get passed the literal itself as an arg.  #
     #                                           #
     #############################################
-    StringTypeTemplate: &StringTypeTemplate null # Args: literal (can be w/w/out quotes and unescaped interior quotes.)
-    RegexTypeTemplate: &RegexTypeTemplate null # Args: pattern, flag
-    BoolTypeTemplate: &BoolTypeTemplate null # Args: literal
+    StringTypeTemplate: &StringTypeTemplate !!js/function >
+        (str) => {
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+        }
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+        (pattern, flags) => {
+            // Double-quote stringify
+            let newPat = pattern;
+            if (
+                (pattern.charAt(0) === '\'' && pattern.charAt(pattern.length - 1) === '\'') ||
+                (pattern.charAt(0) === '"' && pattern.charAt(pattern.length - 1) === '"')) {
+                    newPat = pattern.substr(1, pattern.length - 2);
+            }
+            return `BSONRegularExpression(pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", options: "${flags}" )`
+        }
+    BoolTypeTemplate: &BoolTypeTemplate !!js/function >
+        (literal) => {
+            return literal.toLowerCase();
+        }
     IntegerTypeTemplate: &IntegerTypeTemplate null # args: literal, argType (i.e. '_string', '_decimal' etc)
     DecimalTypeTemplate: &DecimalTypeTemplate null # args: literal, argType
     LongBasicTypeTemplate: &LongBasicTypeTemplate null # args: literal, argType
-    HexTypeTemplate: &HexTypeTemplate null # args: literal, argType
-    OctalTypeTemplate: &OctalTypeTemplate null # args: literal, argType
+    HexTypeTemplate: &HexTypeTemplate !!js/function >
+        (literal, type) => {
+            if (literal.charAt(1) === 'X') {
+                return literal.charAt(0) + 'x' + literal.substring(2);
+            }
+            return literal;
+        }
+    OctalTypeTemplate: &OctalTypeTemplate !!js/function >
+        (literal, type) => {
+            switch(literal.charAt(1)) {
+                case 'o':
+                    return literal;
+                case 'O':
+                case '0':
+                    return literal.charAt(0) + 'o' + literal.substring(2);
+                default:
+                    return literal.charAt(0) + 'o' + literal.substring(1);
+            }
+        }
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
-    ArrayTypeTemplate: &ArrayTypeTemplate null # Args: the interior of the array (i.e. '1, 2'), nestedness#
+    ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
+        (literal, depth) => {
+            depth++;
+            if (literal === '') {
+                return '[]'
+            }
+            const indent = '\n' + '  '.repeat(depth);
+            const closingIndent = '\n' + '  '.repeat(depth - 1);
+
+            return `[${indent}${literal}${closingIndent}]`;
+        }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
-    NullTypeTemplate: &NullTypeTemplate null # No args
-    UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
-    ObjectTypeTemplate: &ObjectTypeTemplate null # Args: literal (for empty array, is empty string. Otherwise all set)
-    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate null # Args: single object element [2] (i.e. array with [key, value]), nestedness#
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => 'BSON.null'
+    UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
+        () => 'BSON.undefined'
+    ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
+        (literal) => {
+            if (literal === '') {
+                return '[:]';
+            }
+            return literal;
+        }
+    ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
+        (args, depth) => {
+            if (args.length === 0) {
+                return '';
+            }
+            depth++;
+            const indent = '\n' + '  '.repeat(depth);
+            const closingIndent = '\n' + '  '.repeat(depth - 1);
+            const doubleStringify = (str) => {
+                let newStr = str;
+                if (
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            }
+
+            const pairs = args.map((pair) => {
+                return `${indent}${doubleStringify(pair[0])}: ${pair[1]}`;
+            }).join(',');
+
+            return `${pairs}${closingIndent}`;
+
+        }
 
     #############################################
     #               Symbols                     #
@@ -98,46 +295,181 @@ Templates:
     # passed to the original function.          #
     #                                           #
     #############################################
-    CodeSymbolTemplate: &CodeSymbolTemplate null # No args
-    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate null # Args: code, scope
-    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null # No args
-    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate null # Args: lhs, string (can be empty or null for no arg)
-    BinarySymbolTemplate: &BinarySymbolTemplate null
-    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
-    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null
-    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate null
-    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate null
-    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate null
-    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate null
-    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template null
-    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate null
+    CodeSymbolTemplate: &CodeSymbolTemplate !!js/function >
+        () => ''
+    CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
+        (lhs, code, scope) => {
+            // Double quote stringify
+            let newStr = code === undefined ? '' : code;
+            const str = newStr;
+            if (
+                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                newStr = str.substr(1, str.length - 2);
+            }
+            code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}".to_string()`;
+            if (scope === undefined) {
+                return `BSONCode(code: ${code})`;
+            } else {
+                return `BSONCodeWithScope(code: code, scope: scope)`;
+            }
+        }
+    ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
+        () => 'BSONObjectID'
+    ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            if (arg === undefined || arg === '') {
+                return '()';
+            }
+            // Double quote stringify
+            let newArg = arg;
+            if (
+                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
+                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
+                newArg = arg.substr(1, arg.length - 2);
+            }
+            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            return `(${newArg})`;
+        }
+    BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
+        () => 'BSONBinary'
+    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
+        (_, bytes, type) => {
+            // Double quote stringify
+            let newBytes = bytes;
+            if (
+                (bytes.charAt(0) === '\'' && bytes.charAt(bytes.length - 1) === '\'') ||
+                (bytes.charAt(0) === '"' && bytes.charAt(bytes.length - 1) === '"')) {
+                newBytes = bytes.substr(1, bytes.length - 2);
+            }
+            newBytes = `"${newBytes.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            if (type === null) {
+                type = '.generic';
+            }
+            return `(bytes: ${bytes}, subtype: ${type})`
+        }
+    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
+        () => 'BSONBinary.Subtype.generic'
+    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate !!js/function >
+        () => 'BSONBinary.Subtype.function'
+    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate !!js/function >
+        () => 'BSONBinary.Subtype.binaryOld'
+    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate !!js/function >
+        () => 'BSONBinary.Subtype.uuidOld'
+    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate !!js/function >
+        () => 'BSONBinary.Subtype.uuid'
+    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template !!js/function >
+        () => 'BSONBinary.Subtype.md5'
+    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate !!js/function >
+        (arg) => `BSONBinary.Subtype.UserDefined(${arg})`
     DBRefSymbolTemplate: &DBRefSymbolTemplate null # No args
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null # Args: lhs, coll, id, db
-    DoubleSymbolTemplate: &DoubleSymbolTemplate null # No args
-    DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate null # Args: lhs, arg, argType (i.e. '_string', '_double')
-    Int32SymbolTemplate: &Int32SymbolTemplate null # No args
-    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Args: lhs, arg, argType
-    LongSymbolTemplate: &LongSymbolTemplate null # No args
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate null # Args: lhs, arg, argType
-    RegExpSymbolTemplate: &RegExpSymbolTemplate null # No args
-    RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
-    SymbolSymbolTemplate: &SymbolSymbolTemplate null # No args
-    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null # Args: lhs, arg
-    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate null # No args
-    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
-    Decimal128SymbolTemplate: &Decimal128SymbolTemplate null # No args
-    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate null # Args: lhs, arg
-    MinKeySymbolTemplate: &MinKeySymbolTemplate null # No args
-    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate null # No args
-    MaxKeySymbolTemplate: &MaxKeySymbolTemplate null # No args
-    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null # No args
-    TimestampSymbolTemplate: &TimestampSymbolTemplate null # No args
-    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate null # Args: lhs, low, high
+    DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
+        () => 'Double'
+    DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            arg = arg === undefined ? 0 : arg;
+            return arg;
+        }
+    Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
+        () => 'Int32'
+    Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            if (!arg) {
+                return '()';
+            }
+            let suffix = '';
+            if (type === '_string') {
+                suffix = '!';
+            }
+            return `(${arg})${suffix}`;
+        }
+    LongSymbolTemplate: &LongSymbolTemplate !!js/function >
+        () => 'Int64'
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            if (!arg) {
+                return '()';
+            }
+            let suffix = '';
+            if (type === '_string') {
+                suffix = '!';
+            }
+            return `ARG IS (${arg})${suffix}`;
+        }
+    RegExpSymbolTemplate: &RegExpSymbolTemplate null
+    RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
+    SymbolSymbolTemplate: &SymbolSymbolTemplate null
+    SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate null
+    BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
+        () => 'BSONRegularExpression'
+    BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
+        (_, pattern, flags) => {
+            if (flags === null || flags === undefined) {
+                flags = '';
+            }
+            if (
+                (flags.charAt(0) === '\'' && flags.charAt(flags.length - 1) === '\'') ||
+                (flags.charAt(0) === '"' && flags.charAt(flags.length - 1) === '"')) {
+                    flags = flags.substr(1, flags.length - 2);
+            }
+            // Double-quote stringify
+            let newPat = pattern;
+            if (
+                (pattern.charAt(0) === '\'' && pattern.charAt(pattern.length - 1) === '\'') ||
+                (pattern.charAt(0) === '"' && pattern.charAt(pattern.length - 1) === '"')) {
+                    newPat = pattern.substr(1, pattern.length - 2);
+            }
+            return `(pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", options: "${flags}")`;
+        }
+    Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
+        () => ''
+    Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
+        (lhs, arg) => {
+            if (!arg) {
+                return `try BSONDecimal128("0")`
+            }
+            return `try BSONDecimal128("${arg}")`
+        }
+    MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
+        () => 'BSONMinKey'
+    MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate !!js/function >
+        () => '()'
+    MaxKeySymbolTemplate: &MaxKeySymbolTemplate !!js/function >
+        () => 'BSONMaxKey'
+    MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate !!js/function >
+        () => '()'
+    TimestampSymbolTemplate: &TimestampSymbolTemplate !!js/function >
+        () => 'BSONTimestamp'
+    TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
+        (lhs, low, high) => {
+            if (low === undefined) {
+                low = 0;
+                high = 0;
+            }
+            return `(timestamp: ${low}, inc: ${high})`
+        }
     # non bson-specific
-    NumberSymbolTemplate: &NumberSymbolTemplate null # No args
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null # Args: lhs, arg, argType
-    DateSymbolTemplate: &DateSymbolTemplate null # No args
-    DateSymbolArgsTemplate: &DateSymbolArgsTemplate null # Args: lhs, date (Date object), isString? (if the result needs to be a date string instead of a date instance)
+    NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
+        () => 'Double'
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            arg = arg === undefined ? 0 : arg;
+            return arg;
+        }
+    DateSymbolTemplate: &DateSymbolTemplate !!js/function >
+        () => 'Date'
+    DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
+        (lhs, date, isString) => {
+          let d = "Date()";
+          if (date) {
+            d = `Date(timeIntervalSince1970: TimeInterval(${date.getTime()}) / 1000.0)`
+          }
+          if (isString) {
+            d = `String(describing: ${d})`
+          }
+          return d;
+        }
 
     #############################################
     #         Object Attributes/Methods         #

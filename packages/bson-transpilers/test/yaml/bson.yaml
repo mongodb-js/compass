@@ -20,7 +20,7 @@ tests:
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
           ruby: BSON::Code.new('some code')
-          swift: BSONCode(code: "some code")
+          swift: 'BSONCode(code: "some code")'
     - description: 'string code'
       input:
           javascript: Code('some code')
@@ -34,7 +34,7 @@ tests:
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
           ruby: BSON::Code.new('some code')
-          swift: BSONCode(code: "some code")
+          swift: 'BSONCode(code: "some code")'
     - description: 'string code and object scope'
       input:
           javascript: "new Code('string', {x: '1'})"
@@ -60,7 +60,7 @@ tests:
           csharp: new BsonJavaScript("")
           object: new Code('')
           ruby: BSON::Code.new
-          swift: BSONCode(code: "")
+          swift: 'BSONCode(code: "")'
     - description: 'function arg'
       input:
           javascript: Code(function(test) { console.log(test); })
@@ -72,7 +72,7 @@ tests:
           csharp: new BsonJavaScript("function(test){console.log(test);}")
           object: new Code('function(test){console.log(test);}')
           ruby: BSON::Code.new('function(test){console.log(test);}')
-          swift: BSONCode(code: "function(test){console.log(test);}")
+          swift: 'BSONCode(code: "function(test){console.log(test);}")'
     - description: 'named scope arg'
       input:
           python: "Code('string', scope={'x': '1'})"
@@ -565,7 +565,7 @@ tests:
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
           ruby: BSON::Timestamp.new(10, 100)
-          swift: BSONTimestamp(timestamp: 10, inc: 100)
+          swift: 'BSONTimestamp(timestamp: 10, inc: 100)'
     - description: 'Timestamp'
       input:
           javascript: Timestamp(10, 100)
@@ -579,7 +579,7 @@ tests:
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
           ruby: BSON::Timestamp.new(10, 100)
-          swift: BSONTimestamp(timestamp: 10, inc: 100)
+          swift: 'BSONTimestamp(timestamp: 10, inc: 100)'
     BSONRegExp:
     - description: 'no flags'
       input:
@@ -593,7 +593,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
           ruby: /^[a-z0-9_-]{3,16}$/
-          swift: BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$")
+          swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "")'
     - description: 'NEW no flags'
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$')
@@ -605,7 +605,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
           ruby: /^[a-z0-9_-]{3,16}$/
-          swift: BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$")
+          swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "")'
     - description: 'with flags'
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
@@ -618,7 +618,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           ruby: /^[a-z0-9_-]{3,16}$/imx
-          swift: BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "imuxls")
+          swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "imuxls")'
     - description: 'with flags named'
       input:
           python: Regex('^[a-z0-9_-]{3,16}$', flags='imuxls')
@@ -630,7 +630,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           ruby: /^[a-z0-9_-]{3,16}$/imx
-          swift: BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "imuxls")
+          swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "imuxls")'
     Symbol:
     - description: from string
       input:

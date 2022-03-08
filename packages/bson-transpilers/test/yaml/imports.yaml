@@ -353,7 +353,7 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
-          swift: "import Foundation.Date"
+          swift: "import Foundation"
     - description: Single import Date() as object
       input:
           shell: "{x: new Date()}"
@@ -381,6 +381,7 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
+          swift: "import Foundation"
     - description: Multiple imports without Date to string
       input: {}
       output:
@@ -443,6 +444,9 @@ tests:
                 Decimal128
               } = require('mongodb');
           ruby: require 'bson'
+          swift: |-
+              import Foundation
+              import MongoSwift
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:
@@ -531,6 +535,8 @@ tests:
               import static com.mongodb.client.model.Filters.where;
               import com.mongodb.client.model.geojson.Point;
               import com.mongodb.client.model.geojson.Position;
+          swift: |-
+              import MongoSwift
     - description: All agg builder imports
       input:
           shell: "[ { $count: 'field' }, { $facet: { output1: [{ $match: {x: 1} }] } },
@@ -589,6 +595,8 @@ tests:
               import static com.mongodb.client.model.Sorts.orderBy;
               import com.mongodb.client.model.Facet;
               import com.mongodb.client.model.GraphLookupOptions;
+          swift: |-
+              import MongoSwift
     - description: all geometry builder imports
       input:
           shell: "[ {$geometry: {type: 'Point', coordinates: [1, 2]}}, {$geometry: {type:
@@ -656,6 +664,8 @@ tests:
               import com.mongodb.client.model.geojson.Polygon;
               import com.mongodb.client.model.geojson.PolygonCoordinates;
               import com.mongodb.client.model.geojson.Position;
+          swift: |-
+              import MongoSwift
     - description: all accumulator builder imports
       input:
           shell: "[ {x: {$sum: 1}}, {x: {$avg: 1}}, {x: {$first: 1}}, {x: {$last: 1}},
@@ -680,3 +690,5 @@ tests:
               import static com.mongodb.client.model.Accumulators.stdDevPop;
               import static com.mongodb.client.model.Accumulators.stdDevSamp;
               import static com.mongodb.client.model.Accumulators.sum;
+          swift: |-
+              import MongoSwift
