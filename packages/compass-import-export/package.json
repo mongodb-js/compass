@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/compass-import-export-typescript",
+  "name": "@mongodb-js/compass-import-export",
   "description": "Compass Import/Export",
   "author": {
     "name": "MongoDB Inc",
