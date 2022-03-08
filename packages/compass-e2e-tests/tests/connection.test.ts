@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
 import ConnectionString from 'mongodb-connection-string-url';
+import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -244,8 +245,52 @@ describe('Connection screen', function () {
     expect(result).to.have.property('ok', 1);
   });
 
-  it('can connect to an Atlas cluster with a direct connection');
-  it('can connect to an Atlas replicaset without srv');
+  it('can connect to an Atlas replicaset without srv', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
+    const withSRV = `mongodb+srv://${username}:${password}@${host}`;
+
+    const connectionString = await resolveMongodbSrv(withSRV);
+
+    await browser.connectWithConnectionString(connectionString);
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect to an Atlas cluster with a direct connection', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
+    const withSRV = `mongodb+srv://${username}:${password}@${host}`;
+
+    const withoutSRV = await resolveMongodbSrv(withSRV);
+
+    const parsedString = new ConnectionString(withoutSRV);
+    parsedString.hosts = [parsedString.hosts[0]];
+    parsedString.searchParams.set('directConnection', 'true');
+    parsedString.searchParams.delete('replicaSet');
+
+    const connectionString = parsedString.toString();
+
+    await browser.connectWithConnectionString(connectionString);
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  });
 
   it('can connect to Atlas Serverless', async function () {
     if (!hasAtlasEnvironmentVariables()) {
@@ -318,15 +363,6 @@ describe('Connection screen', function () {
     );
     expect(result).to.have.property('ok', 1);
   });
-
-  // TODO:
-  // Kerberos?
-  // LDAP?
-  // Different authdb?
-  // SSH with password?
-  // SSH with identity file?
-  // Socks5?
-  // Advanced options?
 });
 
 // eslint-disable-next-line mocha/max-top-level-suites
