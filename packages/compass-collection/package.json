@@ -149,6 +149,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.9.0",
+    "@mongodb-js/compass-workspace": "^0.1.0",
     "lodash.filter": "^4.6.0",
     "lodash.isempty": "^4.4.0",
     "react-sortable-hoc": "^1.10.1"

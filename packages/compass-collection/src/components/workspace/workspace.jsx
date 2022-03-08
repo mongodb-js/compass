@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { WorkspaceTabs } from '@mongodb-js/compass-workspace';
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 
@@ -247,7 +248,13 @@ class Workspace extends PureComponent {
   render() {
     return (
       <div className={styles.workspace}>
-        <div className={styles['workspace-tabs']}>
+        <WorkspaceTabs
+          onCreateNewTab={this.onCreateNewTab}
+          onSelectTab={this.props.selectTab}
+          onCloseTab={this.props.closeTab}
+          tabs={this.props.tabs}
+        />
+        {/* <div className={styles['workspace-tabs']}>
           <div onClick={this.props.prevTab} className={styles['workspace-tabs-prev']}>
             <i className="fa fa-chevron-left" aria-hidden/>
           </div>
@@ -262,7 +269,7 @@ class Workspace extends PureComponent {
               <i className="fa fa-chevron-right" aria-hidden/>
             </div>
           </div>
-        </div>
+        </div> */}
         <div className={styles['workspace-views']}>
           {this.renderViews()}
         </div>
