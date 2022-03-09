@@ -1,18 +1,18 @@
-import React from 'react';
 import { mount } from 'enzyme';
 
-import ImportPreview from './';
 import createStyler from '../../utils/styler.js';
 import styles from './import-preview.module.less';
+import * as sinon from 'sinon';
+import { expect } from 'chai';
 
 let onFieldCheckedChangedSpy;
 let setFieldTypeSpy;
 
-describe('ImportPreview [Component]', () => {
-  describe('not loaded', () => {
+describe('ImportPreview [Component]', function() {
+  describe('not loaded', function() {
     let component;
 
-    before(() => {
+    before(function() {
       onFieldCheckedChangedSpy = sinon.spy();
       setFieldTypeSpy = sinon.spy();
 
@@ -27,22 +27,22 @@ describe('ImportPreview [Component]', () => {
       );
     });
 
-    it('should not render', () => {
+    it('should not render', function() {
       const style = createStyler(styles, 'import-preview');
       expect(component.find(`.${style()}`)).to.not.be.present();
     });
 
-    after(() => {
+    after(function() {
       component = null;
       onFieldCheckedChangedSpy = null;
       setFieldTypeSpy = null;
     });
   });
 
-  describe('no fields', () => {
+  describe('no fields', function() {
     let component;
 
-    before(() => {
+    before(function() {
       onFieldCheckedChangedSpy = sinon.spy();
       setFieldTypeSpy = sinon.spy();
 
@@ -57,22 +57,22 @@ describe('ImportPreview [Component]', () => {
       );
     });
 
-    it('should not render', () => {
+    it('should not render', function() {
       const style = createStyler(styles, 'import-preview');
       expect(component.find(`.${style()}`)).to.not.be.present();
     });
 
-    after(() => {
+    after(function() {
       component = null;
       onFieldCheckedChangedSpy = null;
       setFieldTypeSpy = null;
     });
   });
 
-  describe('no fields', () => {
+  describe('_id fields', function() {
     let component;
 
-    before(() => {
+    before(function() {
       onFieldCheckedChangedSpy = sinon.spy();
       setFieldTypeSpy = sinon.spy();
 
@@ -87,12 +87,12 @@ describe('ImportPreview [Component]', () => {
       );
     });
 
-    it('should not render', () => {
+    it('should not render', function() {
       const style = createStyler(styles, 'import-preview');
       expect(component.find(`.${style()}`)).to.not.be.present();
     });
 
-    after(() => {
+    after(function() {
       component = null;
       onFieldCheckedChangedSpy = null;
       setFieldTypeSpy = null;

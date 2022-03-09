@@ -25,7 +25,7 @@ import reducer, {
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import path from 'path';
-
+import { expect } from 'chai';
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
@@ -43,7 +43,6 @@ function setupMockStore(test) {
   };
   const store = mockStore(state);
   test.store = store;
-  test.state = test.state;
 }
 
 /**
@@ -77,8 +76,8 @@ function testSetFileType(test, fileType) {
   });
 }
 
-describe('import [module]', () => {
-  describe('selectImportFileType', () => {
+describe('import [module]', function() {
+  describe('selectImportFileType', function() {
     beforeEach(function() {
       setupMockStore(this);
     });
@@ -95,7 +94,7 @@ describe('import [module]', () => {
     });
   });
 
-  describe('#selectImportFileName', () => {
+  describe('#selectImportFileName', function() {
     beforeEach(function() {
       setupMockStore(this);
     });
