@@ -983,9 +983,13 @@ tests:
           swift: |-
               DateComponents(
                   calendar: Calendar(identifier: .gregorian),
+                  timeZone: TimeZone(identifier: "UTC")!,
                   year: 1995,
                   month: 12,
-                  day: 17
+                  day: 17,
+                  hour: 0,
+                  minute: 0,
+                  second: 0
               ).date!
     - input:
           javascript: new Date(1995, 11, 17, 3, 24)
@@ -1002,11 +1006,13 @@ tests:
           swift: |-
               DateComponents(
                   calendar: Calendar(identifier: .gregorian),
+                  timeZone: TimeZone(identifier: "UTC")!,
                   year: 1995,
                   month: 12,
                   day: 17,
                   hour: 3,
-                  minute: 24
+                  minute: 24,
+                  second: 0
               ).date!
     - input:
           javascript: new Date(1995, 11, 17, 3, 24, 55)
@@ -1023,6 +1029,7 @@ tests:
           swift: |-
               DateComponents(
                   calendar: Calendar(identifier: .gregorian),
+                  timeZone: TimeZone(identifier: "UTC")!,
                   year: 1995,
                   month: 12,
                   day: 17,
@@ -1044,11 +1051,13 @@ tests:
           swift: |-
               DateComponents(
                   calendar: Calendar(identifier: .gregorian),
+                  timeZone: TimeZone(identifier: "UTC")!,
                   year: 1995,
                   month: 12,
                   day: 17,
                   hour: 3,
-                  minute: 24
+                  minute: 24,
+                  second: 0
               ).date!
             
     - input:
@@ -1062,7 +1071,17 @@ tests:
           csharp: new DateTime(1995, 12, 17, 2, 24, 0)
           object: new Date(819167040000)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0)
-          swift: Date(timeIntervalSince1970: 819167040000)
+          swift: |-
+              DateComponents(
+                  calendar: Calendar(identifier: .gregorian),
+                  timeZone: TimeZone(identifier: "UTC")!,
+                  year: 1995,
+                  month: 12,
+                  day: 17,
+                  hour: 2,
+                  minute: 24,
+                  second: 0
+              ).date!
     date_string:
     - input:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -1075,21 +1094,7 @@ tests:
           shell: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
-          swift: |-
-              let date = DateComponents(
-                  calendar: Calendar(identifier: .gregorian),
-                  timeZone: TimeZone(identifier: "GMT")!,
-                  year: 1995,
-                  month: 12,
-                  day: 17,
-                  hour: 3,
-                  minute: 24
-              ).date!
-              var formatter = DateFormatter()
-              formatter.dateFormat = "E, dd MMM YYYY hh:mm:ss zzz"
-              formatter.timeZone = TimeZone(identifier: "GMT")!
-              formatter.string(from: date)
-              
+
     - input:
           javascript: Date(819167040000)
           shell: Date(819167040000)
@@ -1123,9 +1128,16 @@ tests:
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           swift: |-
-              let formatter = ISO8601DateFormatter()
-              formatter.formatOptions.insert(.withFractionalSeconds)
-              formatter.date(from: "1995-12-17T03:24:00.000Z")!
+              DateComponents(
+                  calendar: Calendar(identifier: .gregorian),
+                  timeZone: TimeZone(identifier: "UTC")!,
+                  year: 1995,
+                  month: 12,
+                  day: 17,
+                  hour: 3,
+                  minute: 24,
+                  second: 0
+              ).date!
 
     - input:
           shell: ISODate('1995-12-17T03:24:00.000Z')
@@ -1137,9 +1149,16 @@ tests:
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           swift: |-
-              let formatter = ISO8601DateFormatter()
-              formatter.formatOptions.insert(.withFractionalSeconds)
-              formatter.date(from: "1995-12-17T03:24:00.000Z")!
+              DateComponents(
+                  calendar: Calendar(identifier: .gregorian),
+                  timeZone: TimeZone(identifier: "UTC")!,
+                  year: 1995,
+                  month: 12,
+                  day: 17,
+                  hour: 3,
+                  minute: 24,
+                  second: 0
+              ).date!
 
     - description: now date
       input:
@@ -1179,7 +1198,7 @@ tests:
           csharp: "new Regex(\"(?:)\")"
           object: "RegExp('')"
           ruby: "/(?:)/"
-          swift: 'BSONRegularExpression(pattern: "", options: "")'
+          swift: 'BSONRegularExpression(pattern: "(?:)", options: "")'
     - description: "RegExp without options"
       input:
           javascript: "new RegExp('abc')"
@@ -1242,7 +1261,7 @@ tests:
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
-          swift: 'BSONRegularExpression(pattern: "ab+c", options: "ig")'
+          swift: 'BSONRegularExpression(pattern: "ab+c", options: "gi")'
     - description: "regex object with forward slash"
       input:
           javascript: "new RegExp('ab/cd')"
@@ -1256,7 +1275,7 @@ tests:
           shell: "new RegExp('ab\\/cd')"
           object: "new RegExp('ab\\/cd')"
           ruby: "/ab\\/cd/"
-          swift: 'BSONRegularExpression(pattern: "ab/c", options: "")'
+          swift: 'BSONRegularExpression(pattern: "ab\/cd", options: "")'
     - description: "regex object with escaped double quote"
       input:
           javascript: "new RegExp('ab\\\"ab')"
@@ -1298,7 +1317,7 @@ tests:
           shell: "new RegExp('ab\\'ab')"
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
-          swift: 'BSONRegularExpression(pattern: "ab\'ab", options: "")'
+          swift: "BSONRegularExpression(pattern: \"ab'ab\", options: \"\")"
     - description: "regex object with nonescaped single quote"
       input:
           javascript: "new RegExp(\"ab'ab\")"
@@ -1312,7 +1331,7 @@ tests:
           csharp: "new Regex(\"ab'ab\")"
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
-          swift: 'BSONRegularExpression(pattern: "ab\'ab", options: "")'
+          swift: "BSONRegularExpression(pattern: \"ab'ab\", options: \"\")"
     - description: "regex object with newline"
       input:
           javascript: "new RegExp(\"\\\\n\")"
@@ -1339,7 +1358,7 @@ tests:
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
-          swift: 'BSONRegularExpression(pattern: "ab+c", options: "ig")'
+          swift: 'BSONRegularExpression(pattern: "ab+c", options: "gi")'
     - description: "regex object with regex literal arg"
       input:
           javascript: "new RegExp(/ab+c/, 'i')"

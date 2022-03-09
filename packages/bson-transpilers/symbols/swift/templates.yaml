@@ -201,7 +201,7 @@ Templates:
                 (pattern.charAt(0) === '"' && pattern.charAt(pattern.length - 1) === '"')) {
                     newPat = pattern.substr(1, pattern.length - 2);
             }
-            return `BSONRegularExpression(pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", options: "${flags}" )`
+            return `BSONRegularExpression(pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", options: "${flags}")`
         }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
@@ -466,7 +466,17 @@ Templates:
         (lhs, date, isString) => {
           let d = "Date()";
           if (date) {
-            d = `Date(timeIntervalSince1970: TimeInterval(${date.getTime()}) / 1000.0)`
+            dParts = [
+                "    calendar: Calendar(identifier: .gregorian)",
+                '    timeZone: TimeZone(identifier: "UTC")!',
+                `    year: ${date.getUTCFullYear()}`,
+                `    month: ${date.getUTCMonth() + 1}`,
+                `    day: ${date.getUTCDate()}`,
+                `    hour: ${date.getUTCHours()}`,
+                `    minute: ${date.getUTCMinutes()}`,
+                `    second: ${date.getUTCSeconds()}`
+            ].join(',\n')
+            d = `DateComponents(\n${dParts}\n).date!`
           }
           if (isString) {
             d = `String(describing: ${d})`
@@ -609,8 +619,10 @@ Templates:
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # non bson-specific
-    DateSymbolNowTemplate: &DateSymbolNowTemplate null
-    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
+    DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
+        () => 'Date()'
+    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate !!js/function >
+        () => ''
 
     #############################################
     #         Symbol Attributes/Methods         #
