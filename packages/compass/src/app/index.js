@@ -279,7 +279,8 @@ var Application = View.extend({
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
     User.getOrCreate(
-      this.preferences.currentUserId,
+      // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
+      this.preferences.currentUserId || this.preferences.telemetryAnonymousId,
       function(err, user) {
         if (err) {
           return done(err);
@@ -287,9 +288,12 @@ var Application = View.extend({
         this.user.set(user.serialize());
         this.user.trigger('sync');
         this.preferences.save({
-          currentUserId: user.id
+          telemetryAnonymousId: user.id
         });
-        ipc.call('compass:usage:identify', { currentUserId: user.id });
+        ipc.call('compass:usage:identify', {
+          currentUserId: this.preferences.currentUserId,
+          telemetryAnonymousId: user.id
+        });
         debug('user fetch successful', user.serialize());
         done(null, user);
       }.bind(this)

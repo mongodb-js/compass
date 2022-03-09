@@ -149,7 +149,8 @@ describe('Logging and Telemetry integration', function () {
           attr: (actual: any) => {
             expect(actual.telemetryCapableEnvironment).to.equal(true);
             expect(actual.hasAnalytics).to.equal(true);
-            expect(actual.currentUserId).to.be.a('string');
+            expect(actual.currentUserId).to.not.exist;
+            expect(actual.telemetryAnonymousId).to.be.a('string');
             expect(actual.state).to.equal('disabled');
           },
         },
@@ -176,7 +177,8 @@ describe('Logging and Telemetry integration', function () {
           attr: (actual: any) => {
             expect(actual.telemetryCapableEnvironment).to.equal(true);
             expect(actual.hasAnalytics).to.equal(true);
-            expect(actual.currentUserId).to.be.a('string');
+            expect(actual.currentUserId).to.not.exist;
+            expect(actual.telemetryAnonymousId).to.be.a('string');
             expect(actual.state).to.equal('enabled');
           },
         },
