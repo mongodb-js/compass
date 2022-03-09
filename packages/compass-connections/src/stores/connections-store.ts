@@ -33,11 +33,7 @@ export function createNewConnectionInfo(): ConnectionInfo {
 }
 
 function ensureWellFormedConnectionString(connectionString: string) {
-  new ConnectionString(
-    connectionString,
-
-    { looseValidation: true }
-  );
+  new ConnectionString(connectionString);
 }
 
 function setAppNameParamIfMissing(
