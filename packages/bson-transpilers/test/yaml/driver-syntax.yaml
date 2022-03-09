@@ -116,9 +116,9 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
-                    use bson::doc;
-                    use bson::oid::ObjectId;
                     use mongodb::Client;
+                    use mongodb::bson::doc;
+                    use mongodb::bson::oid::ObjectId;
     query:
         -
             description: 'generate driver syntax with only filter'
@@ -221,8 +221,8 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
-                    use bson::doc;
                     use mongodb::Client;
+                    use mongodb::bson::doc;
         -
             description: 'generate driver syntax with filter and other options'
             input:
@@ -437,6 +437,6 @@ tests:
                 shell: ''
                 ruby: require 'mongo'
                 rust: |-
-                    use bson::doc;
-                    use bson::oid::ObjectId;
                     use mongodb::Client;
+                    use mongodb::bson::doc;
+                    use mongodb::bson::oid::ObjectId;

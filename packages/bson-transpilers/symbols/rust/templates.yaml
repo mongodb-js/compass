@@ -805,45 +805,45 @@ Templates:
     6ImportTemplate: &6ImportTemplate null
     7ImportTemplate: &7ImportTemplate null
     8ImportTemplate: &8ImportTemplate !!js/function >
-        () => 'use bson::Regex;'
+        () => 'use mongodb::bson::Regex;'
     9ImportTemplate: &9ImportTemplate null
     10ImportTemplate: &10ImportTemplate !!js/function >
-        () => 'use bson::doc;'
+        () => 'use mongodb::bson::doc;'
     # Null
     11ImportTemplate: &11ImportTemplate !!js/function >
-        () => 'use bson::Bson;'
+        () => 'use mongodb::bson::Bson;'
     # Undefined
     12ImportTemplate: &12ImportTemplate !!js/function >
-        () => 'use bson::Bson;'
+        () => 'use mongodb::bson::Bson;'
     # Code
     100ImportTemplate: &100ImportTemplate !!js/function >
-        () => 'use bson::Bson;'
+        () => 'use mongodb::bson::Bson;'
     101ImportTemplate: &101ImportTemplate !!js/function >
-        () => 'use bson::oid::ObjectId;'
+        () => 'use mongodb::bson::oid::ObjectId;'
     102ImportTemplate: &102ImportTemplate !!js/function >
-        () => 'use bson::Binary;'
+        () => 'use mongodb::bson::Binary;'
     103ImportTemplate: &103ImportTemplate null
     104ImportTemplate: &104ImportTemplate null
     105ImportTemplate: &105ImportTemplate null
     106ImportTemplate: &106ImportTemplate null
     # MinKey
     107ImportTemplate: &107ImportTemplate !!js/function >
-        () => 'use bson::Bson;'
+        () => 'use mongodb::bson::Bson;'
     # MaxKey
     108ImportTemplate: &108ImportTemplate !!js/function >
-        () => 'use bson::Bson;'
+        () => 'use mongodb::bson::Bson;'
     109ImportTemplate: &109ImportTemplate !!js/function >
-        () => 'use bson::Regex;'
+        () => 'use mongodb::bson::Regex;'
     110ImportTemplate: &110ImportTemplate !!js/function >
-        () => 'use bson::Timestamp;'
+        () => 'use mongodb::bson::Timestamp;'
     111ImportTemplate: &111ImportTemplate null
     112ImportTemplate: &112ImportTemplate null
     113ImportTemplate: &113ImportTemplate !!js/function >
-        () => 'use bson::JavaScriptCodeWithScope;'
+        () => 'use mongodb::bson::JavaScriptCodeWithScope;'
     114ImportTemplate: &114ImportTemplate !!js/function >
-        () => 'use bson::spec::BinarySubtype;'
+        () => 'use mongodb::bson::spec::BinarySubtype;'
     200ImportTemplate: &200ImportTemplate !!js/function >
-        () => 'use bson::DateTime;'
+        () => 'use mongodb::bson::DateTime;'
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null
     301ImportTemplate: &301ImportTemplate null

@@ -76,8 +76,8 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           rust: |-
-              use bson::Bson;
-              use bson::doc;
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import Code with scope
       input:
           shell: "{x: Code('code', {x: 1})}"
@@ -99,9 +99,9 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           rust: |-
-              use bson::Bson;
-              use bson::JavaScriptCodeWithScope;
-              use bson::doc;
+              use mongodb::bson::Bson;
+              use mongodb::bson::JavaScriptCodeWithScope;
+              use mongodb::bson::doc;
     - description: Single import ObjectId
       input:
           shell: "{x: ObjectId()}"
@@ -121,8 +121,8 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           rust: |-
-              use bson::doc;
-              use bson::oid::ObjectId;
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -141,8 +141,8 @@ tests:
                 Timestamp
               } = require('mongodb');
           rust: |-
-              use bson::Timestamp;
-              use bson::doc;
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
     - description: Single import DBRef
       input:
           shell: "{x: DBRef('db', ObjectId())}"
@@ -164,8 +164,8 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           rust: |-
-              use bson::doc;
-              use bson::oid::ObjectId;
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: Single import Double
       input:
           shell: "{x: 1}"
@@ -179,7 +179,7 @@ tests:
           python: ''
           javascript: ''
           ruby: ''
-          rust: use bson::doc;
+          rust: use mongodb::bson::doc;
     - description: Single import NumberInt
       input:
           shell: "{x: NumberInt(1)}"
@@ -196,7 +196,7 @@ tests:
                 Int32
               } = require('mongodb');
           ruby: ''
-          rust: use bson::doc;
+          rust: use mongodb::bson::doc;
     - description: Single import NumberLong
       input:
           shell: "{x: NumberLong(1)}"
@@ -213,7 +213,7 @@ tests:
                 Long
               } = require('mongodb');
           ruby: ''
-          rust: use bson::doc;
+          rust: use mongodb::bson::doc;
     - description: Single import MinKey
       input:
           shell: "{x: MinKey()}"
@@ -233,8 +233,8 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           rust: |-
-              use bson::Bson;
-              use bson::doc;
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import MaxKey
       input:
           shell: "{x: MaxKey()}"
@@ -254,8 +254,8 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           rust: |-
-              use bson::Bson;
-              use bson::doc;
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import RegExp
       input:
           shell: "{x: RegExp('abc')}"
@@ -273,8 +273,8 @@ tests:
           javascript: ''
           ruby: ''
           rust: |-
-              use bson::Regex;
-              use bson::doc;
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import BSONRegExp
       input:
           javascript: "{x: BSONRegExp('abc')}"
@@ -288,8 +288,8 @@ tests:
               using MongoDB.Driver;
           python: from bson import Regex
           rust: |-
-              use bson::Regex;
-              use bson::doc;
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import literal regex
       input:
           shell: "{x: /abc/g}"
@@ -306,8 +306,8 @@ tests:
           javascript: ''
           ruby: ''
           rust: |-
-              use bson::Regex;
-              use bson::doc;
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -327,8 +327,8 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           rust: |-
-              use bson::Timestamp;
-              use bson::doc;
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
@@ -346,7 +346,7 @@ tests:
                 BSONSymbol
               } = require('mongodb');
           ruby: ''
-          rust: use bson::doc;
+          rust: use mongodb::bson::doc;
     - description: Single import NumberDecimal
       input:
           shell: "{x: NumberDecimal(1)}"
@@ -365,7 +365,7 @@ tests:
                 Decimal128
               } = require('mongodb');
           ruby: require 'bson'
-          rust: use bson::doc;
+          rust: use mongodb::bson::doc;
     - description: Single import Date as string
       input:
           shell: "{x: Date()}"
@@ -382,8 +382,8 @@ tests:
           javascript: ''
           ruby: ''
           rust: |-
-            use bson::DateTime;
-            use bson::doc;
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Single import Date() as object
       input:
           shell: "{x: new Date()}"
@@ -399,8 +399,8 @@ tests:
           javascript: ''
           ruby: ''
           rust: |-
-            use bson::DateTime;
-            use bson::doc;
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Single import ISODate
       input:
           shell: "{x: ISODate()}"
@@ -415,8 +415,8 @@ tests:
           javascript: ''
           ruby: ''
           rust: |-
-            use bson::DateTime;
-            use bson::doc;
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Multiple imports without Date to string
       input: {}
       output:
@@ -481,13 +481,13 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           rust: |-
-              use bson::Bson;
-              use bson::DateTime;
-              use bson::JavaScriptCodeWithScope;
-              use bson::Regex;
-              use bson::Timestamp;
-              use bson::doc;
-              use bson::oid::ObjectId;
+              use mongodb::bson::Bson;
+              use mongodb::bson::DateTime;
+              use mongodb::bson::JavaScriptCodeWithScope;
+              use mongodb::bson::Regex;
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:
