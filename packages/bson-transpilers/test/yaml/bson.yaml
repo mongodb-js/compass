@@ -48,7 +48,7 @@ tests:
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: 'new Code("string", {"x": 1})'
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
-          swift: 'BSONCodeWithScope(code: "some code", scope: ["x": 1])'
+          swift: 'BSONCodeWithScope(code: "string", scope: ["x": "1"])'
     - description: 'no args'
       input:
           shell: Code()
@@ -396,7 +396,7 @@ tests:
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
           ruby: '9223372036854775807'
-          swift: 9223372036854775807
+          swift: 'Int64(9223372036854775807)'
     - description: 'NEW number arg'
       input:
           javascript: Long(-1, 2147483647)
@@ -409,7 +409,7 @@ tests:
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
           ruby: '9223372036854775807'
-          swift: 9223372036854775807
+          swift: 'Int64(9223372036854775807)'
     - description: 'no arg'
       input:
           shell: NumberLong()
@@ -422,7 +422,7 @@ tests:
           csharp: 0L
           object: Long.fromNumber(0)
           ruby: '0'
-          swift: Int64()
+          swift: Int64(0)
     - description: 'string arg'
       input:
           shell: NumberLong('9223372036854775807')

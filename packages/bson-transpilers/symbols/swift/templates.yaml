@@ -251,16 +251,20 @@ Templates:
             if (literal === '') {
                 return '[:]';
             }
-            return literal;
+            return `[${literal}]`;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args, depth) => {
+            let indent = '';
+            let closingIndent = '';
+            depth++;
+
             if (args.length === 0) {
                 return '';
+            } else if (args.length > 1) {
+                indent = '\n' + '  '.repeat(depth);
+                closingIndent = '\n' + '  '.repeat(depth - 1);
             }
-            depth++;
-            const indent = '\n' + '  '.repeat(depth);
-            const closingIndent = '\n' + '  '.repeat(depth - 1);
             const doubleStringify = (str) => {
                 let newStr = str;
                 if (
@@ -276,7 +280,6 @@ Templates:
             }).join(',');
 
             return `${pairs}${closingIndent}`;
-
         }
 
     #############################################
@@ -307,19 +310,19 @@ Templates:
                 (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
                 newStr = str.substr(1, str.length - 2);
             }
-            code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}".to_string()`;
+            code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             if (scope === undefined) {
                 return `BSONCode(code: ${code})`;
             } else {
-                return `BSONCodeWithScope(code: code, scope: scope)`;
+                return `BSONCodeWithScope(code: ${code}, scope: ${scope})`;
             }
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
-        () => 'BSONObjectID'
+        () => ''
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (lhs, arg) => {
             if (arg === undefined || arg === '') {
-                return '()';
+                return 'BSONObjectID()';
             }
             // Double quote stringify
             let newArg = arg;
@@ -329,7 +332,7 @@ Templates:
                 newArg = arg.substr(1, arg.length - 2);
             }
             newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return `(${newArg})`;
+            return `try BSONObjectID(${newArg})`;
         }
     BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
         () => 'BSONBinary'
@@ -395,7 +398,7 @@ Templates:
             if (type === '_string') {
                 suffix = '!';
             }
-            return `ARG IS (${arg})${suffix}`;
+            return `(${arg})${suffix}`;
         }
     RegExpSymbolTemplate: &RegExpSymbolTemplate null
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
