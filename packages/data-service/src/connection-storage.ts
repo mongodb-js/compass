@@ -1,11 +1,17 @@
 import type { ConnectionInfo } from './connection-info';
 
 import { validate as uuidValidate } from 'uuid';
-import type { AmpersandMethodOptions } from './legacy/legacy-connection-model';
+import type {
+  AmpersandMethodOptions,
+  LegacyConnectionModel,
+} from './legacy/legacy-connection-model';
 import {
   convertConnectionInfoToModel,
   convertConnectionModelToInfo,
 } from './legacy/legacy-connection-model';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
 
 export class ConnectionStorage {
   /**
@@ -21,8 +27,33 @@ export class ConnectionStorage {
       connectionCollection.fetch.bind(connectionCollection)
     );
 
-    await fetchConnectionModels();
-    return connectionCollection.map(convertConnectionModelToInfo);
+    try {
+      await fetchConnectionModels();
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_101),
+        'Connection Storage',
+        'Failed to load connection, error while fetching models',
+        { message: (err as Error).message }
+      );
+
+      return [];
+    }
+
+    return connectionCollection
+      .map((model: LegacyConnectionModel) => {
+        try {
+          return convertConnectionModelToInfo(model);
+        } catch (err) {
+          log.error(
+            mongoLogId(1_001_000_102),
+            'Connection Storage',
+            'Failed to load connection, error while converting from model',
+            { message: (err as Error).message }
+          );
+        }
+      })
+      .filter(Boolean);
   }
 
   /**
@@ -42,8 +73,21 @@ export class ConnectionStorage {
       throw new Error('id must be a uuid');
     }
 
-    const model = await convertConnectionInfoToModel(connectionInfo);
-    model.save();
+    let model;
+    try {
+      model = await convertConnectionInfoToModel(connectionInfo);
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_103),
+        'Connection Storage',
+        'Failed to save connection, error while converting to model',
+        { message: (err as Error).message }
+      );
+    }
+
+    if (model) {
+      model.save();
+    }
   }
 
   /**
@@ -55,17 +99,30 @@ export class ConnectionStorage {
    * Trying to remove a ConnectionInfo that is not stored has no effect
    * and won't throw an exception.
    *
-   * @param connectionOptions - The ConnectionInfo object to be deleted.
+   * @param connectionInfo - The ConnectionInfo object to be deleted.
    */
-  async delete(connectionOptions: ConnectionInfo): Promise<void> {
-    if (!connectionOptions.id) {
+  async delete(connectionInfo: ConnectionInfo): Promise<void> {
+    if (!connectionInfo.id) {
       // don't throw attempting to delete a connection
       // that was never saved.
       return;
     }
 
-    const model = await convertConnectionInfoToModel(connectionOptions);
-    model.destroy();
+    let model;
+    try {
+      model = await convertConnectionInfoToModel(connectionInfo);
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_104),
+        'Connection Storage',
+        'Failed to delete connection, error while converting to model',
+        { message: (err as Error).message }
+      );
+    }
+
+    if (model) {
+      model.destroy();
+    }
   }
 }
 
