@@ -254,7 +254,41 @@ export function convertConnectionModelToInfo(
     info.lastUsed = legacyModel.lastUsed;
   }
 
-  return deleteCompassAppNameParam(info);
+  return deleteCompassAppNameParam(setDirectConnectionForSingleHosts(info));
+}
+
+function setDirectConnectionForSingleHosts(connectionInfo: ConnectionInfo) {
+  let connectionStringUrl;
+
+  try {
+    connectionStringUrl = new ConnectionString(
+      connectionInfo.connectionOptions.connectionString,
+      { looseValidation: true }
+    );
+  } catch {
+    return connectionInfo;
+  }
+
+  const isLoadBalanced =
+    connectionStringUrl.searchParams.get('loadBalanced') === 'true';
+  const isReplicaSet =
+    connectionStringUrl.isSRV ||
+    connectionStringUrl.hosts.length > 1 ||
+    connectionStringUrl.searchParams.has('replicaSet');
+  const hasDirectConnection =
+    connectionStringUrl.searchParams.has('directConnection');
+
+  if (!isReplicaSet && !isLoadBalanced && !hasDirectConnection) {
+    connectionStringUrl.searchParams.set('directConnection', 'true');
+  }
+
+  return {
+    ...connectionInfo,
+    connectionOptions: {
+      ...connectionInfo.connectionOptions,
+      connectionString: connectionStringUrl.href,
+    },
+  };
 }
 
 function setConnectionStringParam<K extends keyof MongoClientOptions>(
