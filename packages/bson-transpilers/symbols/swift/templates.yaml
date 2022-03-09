@@ -55,7 +55,7 @@ Templates:
 
         const connect = [
           'let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)',
-          'let client = try MongoClient("${options.uri}", using: elg)',
+          `let client = try MongoClient("${options.uri}", using: elg)`,
           'defer {',
           '    try? client.syncClose()',
           '    cleanupMongoSwift()',
@@ -184,13 +184,12 @@ Templates:
     #############################################
     StringTypeTemplate: &StringTypeTemplate !!js/function >
         (str) => {
-          let newStr = str;
-          if (
-            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-            newStr = str.substr(1, str.length - 2);
-          }
-          return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            console.log("====================" + str)
+            let newStr = str;
+            if (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') {
+                newStr = '"' + str.substr(1, str.length - 2) + '"';
+            }
+            return newStr;
         }
     RegexTypeTemplate: &RegexTypeTemplate !!js/function >
         (pattern, flags) => {
@@ -243,9 +242,9 @@ Templates:
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
     NullTypeTemplate: &NullTypeTemplate !!js/function >
-        () => 'BSON.null'
+        () => 'nil'
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
-        () => 'BSON.undefined'
+        () => 'nil'
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
             if (literal === '') {

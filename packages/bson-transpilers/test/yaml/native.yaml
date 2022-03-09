@@ -477,7 +477,7 @@ tests:
           csharp: (int) 2
           object: Number(2)
           ruby: 2.to_f
-          swift: 2.0
+          swift: '2.0'
     - input:
           javascript: Number(2)
           shell: Number(2)
@@ -489,7 +489,7 @@ tests:
           csharp: (int) 2
           object: Number(2)
           ruby: 2.to_f
-          swift: 2.0
+          swift: '2.0'
     - input:
           javascript: Number('2')
           shell: Number('2')
@@ -501,7 +501,7 @@ tests:
           csharp: int.Parse("2")
           object: Number(2)
           ruby: "'2'.to_f"
-          swift: 2.0
+          swift: '2.0'
     - input:
           shell: Number()
       output:
@@ -512,7 +512,7 @@ tests:
           csharp: (int) 0
           object: '0'
           ruby: 0.to_f
-          swift: 0.0
+          swift: '0.0'
     numeric_literals:
     - input:
           javascript: '2'
@@ -526,7 +526,7 @@ tests:
           csharp: '2'
           object: '2'
           ruby: '2'
-          swift: 2
+          swift: '2'
     - input:
           javascript: '429496729601'
           shell: '429496729601'
@@ -552,7 +552,7 @@ tests:
           csharp: '2.001'
           object: '2.001'
           ruby: '2.001'
-          swift: 2.001
+          swift: '2.001'
     - input:
           javascript: '0X123ABC'
           shell: '0X123ABC'
@@ -565,7 +565,7 @@ tests:
           csharp: '0X123ABC'
           object: '0X123ABC'
           ruby: '0X123ABC'
-          swift: '0X123ABC'
+          swift: '0x123ABC'
     - input:
           javascript: '0x123abc'
           shell: '0x123abc'
@@ -694,7 +694,7 @@ tests:
           csharp: "\"string\""
           object: "'string'"
           ruby: "'string'"
-          swift: '"string"'
+          swift: "\"string\""
     - input:
           javascript: "\"string\""
           shell: "\"string\""
@@ -707,7 +707,7 @@ tests:
           csharp: "\"string\""
           object: "\"string\""
           ruby: "'string'"
-          swift: '"\"string\""'
+          swift: '"string"'
     python_strings:
     - input:
           python: "'''string'''"
