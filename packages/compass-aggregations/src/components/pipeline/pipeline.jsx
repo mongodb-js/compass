@@ -119,6 +119,12 @@ class Pipeline extends PureComponent {
     setIsNewPipelineConfirm: PropTypes.func.isRequired,
     inputDocuments: PropTypes.object.isRequired,
     workspace: PropTypes.string.isRequired,
+    runOutStage: PropTypes.func.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    sourceName: PropTypes.string.isRequired,
+    toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
+    refreshInputDocuments: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -244,7 +250,40 @@ class Pipeline extends PureComponent {
     return this.props.workspace === 'results' ? (
       <PipelineResultsWorkspace />
     ) : (
-      <PipelineBuilderWorkspace {...this.props} />
+      <PipelineBuilderWorkspace
+        allowWrites={this.props.allowWrites}
+        editViewName={this.props.editViewName}
+        env={this.props.env}
+        isTimeSeries={this.props.isTimeSeries}
+        isReadonly={this.props.isReadonly}
+        sourceName={this.props.sourceName}
+        pipeline={this.props.pipeline}
+        toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
+        refreshInputDocuments={this.props.refreshInputDocuments}
+        stageAdded={this.props.stageAdded}
+        setIsModified={this.props.setIsModified}
+        openLink={this.props.openLink}
+        isCommenting={this.props.isCommenting}
+        isAutoPreviewing={this.props.isAutoPreviewing}
+        inputDocuments={this.props.inputDocuments}
+        runStage={this.props.runStage}
+        runOutStage={this.props.runOutStage}
+        gotoOutResults={this.props.gotoOutResults}
+        gotoMergeResults={this.props.gotoMergeResults}
+        serverVersion={this.props.serverVersion}
+        stageChanged={this.props.stageChanged}
+        stageCollapseToggled={this.props.stageCollapseToggled}
+        stageAddedAfter={this.props.stageAddedAfter}
+        stageDeleted={this.props.stageDeleted}
+        stageMoved={this.props.stageMoved}
+        stageOperatorSelected={this.props.stageOperatorSelected}
+        stageToggled={this.props.stageToggled}
+        fields={this.props.fields}
+        isOverviewOn={this.props.isOverviewOn}
+        projections={this.props.projections}
+        projectionsChanged={this.props.projectionsChanged}
+        newPipelineFromPaste={this.props.newPipelineFromPaste}
+      />
     );
   }
 
