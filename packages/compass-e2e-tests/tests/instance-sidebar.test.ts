@@ -164,9 +164,6 @@ describe('Instance sidebar', function () {
     // open the drop collection modal from the sidebar
     await browser.hover(collectionSelector);
 
-    const actionsElement = await browser.$(Selectors.ShowActionsButton);
-    actionsElement.waitForDisplayed();
-
     // NOTE: if the menu was already open for another collection this could get confusing
     await browser.clickVisible(Selectors.ShowActionsButton);
     await browser.clickVisible(Selectors.DropCollectionButton);
