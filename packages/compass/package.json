@@ -110,7 +110,8 @@
         "onlyModules": [
           "interruptor",
           "keytar",
-          "kerberos"
+          "kerberos",
+          "os-dns-native"
         ]
       },
       "macosEntitlements": "./scripts/macos-entitlements.xml"
