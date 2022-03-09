@@ -225,6 +225,11 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
+    if (process.env.EVERGREEN && process.platform === 'win32') {
+      console.warn("Evergreen doesn't have aws cli installed");
+      this.skip();
+    }
+
     console.log('generating session token');
     const { key, secret, token } = generateIamSessionToken();
 
