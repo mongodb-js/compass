@@ -13,6 +13,7 @@ import {
   run as packageCompass,
   compileAssets,
 } from 'hadron-build/commands/release';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
@@ -590,10 +591,20 @@ function redact(value: string): string {
     if (process.env[field] === undefined) {
       continue;
     }
+
     const quoted = `'${process.env[field] as string}'`;
+    // /regex/s would be ideal, but we'd have to escape the value to not be
+    // interpreted as a regex.
     while (value.indexOf(quoted) !== -1) {
       value = value.replace(quoted, "'<redacted>'");
     }
   }
+
+  // This is first going to try and parse the value as a connection string
+  // before falling back to some regular expressions. Sometimes we pass a
+  // connection string to a command, more often there's a connection string deep
+  // in there somewhere.
+  value = redactConnectionString(value, { replacementString: '<redacted>' });
+
   return value;
 }
