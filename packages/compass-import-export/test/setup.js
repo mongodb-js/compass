@@ -9,7 +9,9 @@ const chaiAsPromised = require('chai-as-promised');
 
 require('jsdom-global')();
 
+// eslint-disable-next-line no-undef
 window.Object = Object;
+// eslint-disable-next-line no-undef
 window.Math = Math;
 
 global.sinon = require('sinon');
