@@ -111,7 +111,7 @@ function generateIamSessionToken(): {
 /**
  * Connection tests
  */
-describe('Connection screen', function () {
+describe.only('Connection screen', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
