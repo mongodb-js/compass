@@ -14,7 +14,7 @@ const {
 const debug = require('debug')('mongodb-connection-model:connect');
 
 function removeGssapiServiceName(url) {
-  const uri = new ConnectionString(url);
+  const uri = new ConnectionString(url, {looseValidation: true});
   uri.searchParams.delete('gssapiServiceName');
   return uri.toString();
 }

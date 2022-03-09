@@ -7,7 +7,9 @@ export function getConnectionTitle(info: ConnectionInfo): string {
   }
 
   try {
-    const url = new ConnectionString(info.connectionOptions.connectionString);
+    const url = new ConnectionString(info.connectionOptions.connectionString, {
+      looseValidation: true,
+    });
     if (url.isSRV) {
       return url.hosts[0];
     }

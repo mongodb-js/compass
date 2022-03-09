@@ -132,7 +132,9 @@ class DataService extends EventEmitter {
   }
 
   getConnectionString(): ConnectionStringUrl {
-    return new ConnectionStringUrl(this._connectionOptions.connectionString);
+    return new ConnectionStringUrl(this._connectionOptions.connectionString, {
+      looseValidation: true,
+    });
   }
 
   getReadPreference(): ReadPreferenceLike {

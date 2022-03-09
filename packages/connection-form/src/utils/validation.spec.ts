@@ -350,6 +350,19 @@ describe('validation', function () {
       });
     });
 
+    it('should not return warnings when certificate validation is enabled', function () {
+      [
+        'tlsInsecure',
+        'tlsAllowInvalidHostnames',
+        'tlsAllowInvalidCertificates',
+      ].forEach((option) => {
+        const result = validateConnectionOptionsWarnings({
+          connectionString: `mongodb+srv://myserver.com?${option}=false`,
+        });
+        expect(result).to.deep.equal([]);
+      });
+    });
+
     it('should return warnings if unknown readPreference', function () {
       const result = validateConnectionOptionsWarnings({
         connectionString: `mongodb://myserver.com?readPreference=invalidReadPreference`,

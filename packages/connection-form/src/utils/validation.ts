@@ -258,21 +258,18 @@ export function validateConnectionOptionsWarnings(
   connectionOptions: ConnectionOptions
 ): ConnectionFormWarning[] {
   let connectionString: ConnectionString;
-  let parserWarning: ConnectionFormWarning[] = [];
   try {
-    connectionString = new ConnectionString(connectionOptions.connectionString);
-  } catch (err: any) {
-    parserWarning = [{ message: err.message }];
     connectionString = new ConnectionString(
       connectionOptions.connectionString,
       {
         looseValidation: true,
       }
     );
+  } catch (err: any) {
+    return [];
   }
 
   return [
-    ...parserWarning,
     ...validateReadPreferenceWarnings(connectionString),
     ...validateDeprecatedOptionsWarnings(connectionString),
     ...validateCertificateValidationWarnings(connectionString),
@@ -288,15 +285,20 @@ function validateCertificateValidationWarnings(
   connectionString: ConnectionString
 ): ConnectionFormWarning[] {
   const warnings: ConnectionFormWarning[] = [];
-  if (
-    isSecure(connectionString) &&
-    (connectionString.searchParams.has('tlsInsecure') ||
-      connectionString.searchParams.has('tlsAllowInvalidHostnames') ||
-      connectionString.searchParams.has('tlsAllowInvalidCertificates'))
-  ) {
+  if (!isSecure(connectionString)) {
+    return [];
+  }
+
+  const tlsInsecure =
+    connectionString.searchParams.get('tlsInsecure') === 'true';
+  const tlsAllowInvalidHostnames =
+    connectionString.searchParams.get('tlsAllowInvalidHostnames') === 'true';
+  const tlsAllowInvalidCertificates =
+    connectionString.searchParams.get('tlsAllowInvalidCertificates') === 'true';
+
+  if (tlsInsecure || tlsAllowInvalidHostnames || tlsAllowInvalidCertificates) {
     warnings.push({
-      message:
-        'Disabling certificate validation is not recommended as it may create a security vulnerability',
+      message: `Disabling certificate validation is not recommended as it may create a security vulnerability`,
     });
   }
 

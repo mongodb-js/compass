@@ -150,16 +150,11 @@ function ConnectForm({
   const callOnSaveConnectionClickedAndStoreErrors = useCallback(
     async (connectionInfo: ConnectionInfo): Promise<void> => {
       try {
-        const formErrors = validateConnectionOptionsErrors(
-          connectionInfo.connectionOptions,
-          { looseValidation: false }
-        );
-        if (formErrors.length) {
-          setErrors(formErrors);
-          return;
-        }
         await onSaveConnectionClicked?.(connectionInfo);
       } catch (err) {
+        // save errors are already handled as toast notifications,
+        // keeping so we don't rely too much on far-away code and leave errors
+        // uncaught in case that code would change
         setErrors([
           {
             message: `Unable to save connection: ${(err as Error).message}`,
