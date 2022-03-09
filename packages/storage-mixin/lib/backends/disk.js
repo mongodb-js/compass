@@ -9,6 +9,26 @@ var rimraf = require('rimraf');
 
 var debug = require('debug')('storage-mixin:backends:disk');
 
+const createLoggerAndTelemetry = require('@mongodb-js/compass-logging').default;
+
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-STORAGE-MIXIN');
+
+function logError(id, component, message, callback) {
+  return (err, ...rest) => {
+    if (err) {
+      log.error(
+        id,
+        component,
+        message,
+        { message: err.message }
+      );
+    }
+
+    callback(err, ...rest);
+  };
+}
+
+
 /**
  * Match a UUID.
  */
@@ -73,9 +93,9 @@ DiskBackend.prototype._getPath = function() {
   );
 };
 
-DiskBackend.prototype._getId = function(modelOrFilename) {
-  var id = (typeof modelOrFilename === 'string') ?
-    modelOrFilename : modelOrFilename.getId();
+DiskBackend.prototype._getFilePath = function(modelOrId) {
+  var id = (typeof modelOrId === 'string') ?
+    modelOrId : modelOrId.getId();
   return path.join(this._getPath(), id + '.json');
 };
 
@@ -89,9 +109,14 @@ DiskBackend.prototype._getId = function(modelOrFilename) {
  * @api private
  */
 DiskBackend.prototype._write = function(model, options, done) {
-  var file = this._getId(model);
+  var file = this._getFilePath(model);
   debug('_write', file);
-  writeFileAtomic(file, JSON.stringify(this.serialize(model)), done);
+  writeFileAtomic(file, JSON.stringify(this.serialize(model)), logError(
+    mongoLogId(1001000105),
+    'Disk Backend',
+    `Failed to write file '${file}'.`,
+    done
+  ));
 };
 
 /**
@@ -104,7 +129,7 @@ DiskBackend.prototype._write = function(model, options, done) {
  * @see http://ampersandjs.com/docs#ampersand-model-destroy
  */
 DiskBackend.prototype.remove = function(model, options, done) {
-  var file = this._getId(model);
+  var file = this._getFilePath(model);
   fs.exists(file, function(exists) {
     if (!exists) {
       debug('remove: skipping', file, 'not exists');
@@ -112,7 +137,12 @@ DiskBackend.prototype.remove = function(model, options, done) {
     }
 
     debug('remove: unlinking', file);
-    fs.unlink(file, done);
+    fs.unlink(file, logError(
+      mongoLogId(1001000106),
+      'Disk Backend',
+      `Failed to remove file '${file}'.`,
+      done
+    ));
   });
 };
 
@@ -136,12 +166,12 @@ DiskBackend.prototype.create = DiskBackend.prototype._write;
  * @see http://ampersandjs.com/docs#ampersand-model-fetch
  */
 DiskBackend.prototype.findOne = function(model, options, done) {
-  var file = this._getId(model);
+  var file = this._getFilePath(model);
   fs.exists(file, function(exists) {
     if (!exists) {
       return done(null, {});
     }
-    fs.readFile(file, 'utf8', function(err, content) {
+    const parse = function(err, content) {
       if (err) {
         return done(err);
       }
@@ -149,9 +179,25 @@ DiskBackend.prototype.findOne = function(model, options, done) {
         var parsed = JSON.parse(content);
         done(null, parsed);
       } catch (e) {
+        if (e) {
+          log.error(
+            mongoLogId(1001000108),
+            'Disk Backend',
+            `Failed to parse file '${file}'.`,
+            { message: e.message }
+          );
+        }
+
         done(e);
       }
-    });
+    };
+
+    fs.readFile(file, 'utf8', logError(
+      mongoLogId(1001000107),
+      'Disk Backend',
+      `Failed to read file '${file}'.`,
+      parse
+    ));
   });
 };
 
@@ -167,8 +213,16 @@ DiskBackend.prototype.findOne = function(model, options, done) {
 DiskBackend.prototype.find = function(collection, options, done) {
   var self = this;
 
-  fs.readdir(this._getPath(), function(err, files) {
+  const dirPath = this._getPath();
+  fs.readdir(dirPath, function(err, files) {
     if (err) {
+      log.error(
+        mongoLogId(1001000109),
+        'Disk Backend',
+        `Failed to list files in directory '${dirPath}'.`,
+        { message: e.message }
+      );
+
       return done(err);
     }
 
