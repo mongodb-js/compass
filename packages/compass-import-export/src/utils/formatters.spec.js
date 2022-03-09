@@ -19,7 +19,7 @@ const rm = function(src) {
   });
 };
 
-const BASE_FIXTURE_PATH = path.join(__dirname, '..', '..', '..', 'test');
+const BASE_FIXTURE_PATH = path.join(__dirname, '..', '..', 'test');
 const FIXTURES = {
   JSON_SINGLE_DOC: path.join(BASE_FIXTURE_PATH, 'export-single-doc.json'),
   JSON_MULTI_SMALL_DOCS: path.join(BASE_FIXTURE_PATH, 'export-multi-small-docs.json'),

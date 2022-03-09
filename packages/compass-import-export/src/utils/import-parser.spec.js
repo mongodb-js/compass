@@ -5,7 +5,7 @@ import stream from 'stream';
 import createParser from './import-parser';
 import { expect } from 'chai';
 
-const TEST_DIR = path.join(__dirname, '..', '..', '..', 'test');
+const TEST_DIR = path.join(__dirname, '..', '..', 'test');
 const FIXTURES = {
   GOOD_COMMAS_CSV: path.join(TEST_DIR, 'good-commas.csv'),
   GOOD_TABS_CSV: path.join(TEST_DIR, 'good-tabs.csv'),

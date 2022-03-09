@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { expect } from 'chai';
 
-const TEST_DIR = path.join(__dirname, '..', '..', '..', 'test');
+const TEST_DIR = path.join(__dirname, '..', '..', 'test');
 
 describe('import-preview', function() {
   describe('createPreviewWritable', function() {

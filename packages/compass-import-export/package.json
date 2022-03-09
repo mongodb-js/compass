@@ -5,7 +5,9 @@
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -23,14 +25,16 @@
   "main": "dist/index.js",
   "exports": {
     "webpack": "./src/index.ts",
-    "require": "./dist/index.js",
-    "import": "./dist/.esm-wrapper.mjs"
+    "require": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "compile": "npm run webpack -- --mode production",
+    "prewebpack": "rimraf ./lib",
+    "webpack": "webpack-compass",
+    "start": "npm run webpack serve -- --mode development",
+    "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -39,9 +43,11 @@
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
+    "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
+    "test-ci-electron": "npm run test-electron",
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
@@ -57,6 +63,7 @@
     "@mongodb-js/mocha-config-compass": "^0.9.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^0.6.0",
+    "@mongodb-js/webpack-config-compass": "^0.6.0",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -68,11 +75,12 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "gen-esm-wrapper": "^1.1.0",
+    "hadron-app-registry": "^8.9.0",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
+    "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
-    "typescript": "^4.3.5"
+    "xvfb-maybe": "^0.2.1"
   }
 }
