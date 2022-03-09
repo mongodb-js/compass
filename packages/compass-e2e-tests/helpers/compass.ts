@@ -596,7 +596,7 @@ function redact(value: string): string {
     // /regex/s would be ideal, but we'd have to escape the value to not be
     // interpreted as a regex.
     while (value.indexOf(quoted) !== -1) {
-      value = value.replace(quoted, "'<redacted>'");
+      value = value.replace(quoted, "'$" + field + "'");
     }
   }
 
