@@ -4,10 +4,10 @@ const ipc = require('hadron-ipc');
 const darkreader = require('darkreader');
 const { remote } = require('electron');
 const {
-  flushThemedGlobals,
   applyGlobalDarkThemeStyles,
-  applyGlobalLightThemeStyles
-} = require('./styles/apply-global-styles');
+  applyGlobalLightThemeStyles,
+  injectCompassGlobalThemeStyles
+} = require('./styles/global-theme-styles');
 
 const darkreaderOptions = { brightness: 100, contrast: 90, sepia: 10 };
 
@@ -20,7 +20,6 @@ function enableDarkTheme() {
   if (process?.env?.COMPASS_LG_DARKMODE !== 'true') {
     darkreader.enable(darkreaderOptions);
   } else {
-    flushThemedGlobals();
     applyGlobalDarkThemeStyles();
   }
 }
@@ -30,7 +29,6 @@ function disableDarkTheme() {
   global.hadronApp.appRegistry?.emit('darkmode-disable');
 
   if (process?.env?.COMPASS_LG_DARKMODE === 'true') {
-    flushThemedGlobals();
     applyGlobalLightThemeStyles();
   }
 
@@ -38,6 +36,8 @@ function disableDarkTheme() {
 }
 
 function loadTheme(theme) {
+  injectCompassGlobalThemeStyles();
+
   // Update main Compass when we've loaded the theme for setting app menus.
   ipc.call('window:theme-loaded', theme);
 

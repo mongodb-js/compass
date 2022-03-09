@@ -31,15 +31,17 @@
 @import './sortable-table.less';
 @import './status-row.less';
 
-body {
+:root {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font: 100% 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: @gray1;
-  background-color: @gray8;
   -webkit-font-smoothing: antialiased;
+
+  // The color and background styles are overridden by the current theme.
+  background-color: @gray8;
+  color: @grayDark2;
 }
 
 .loading {
