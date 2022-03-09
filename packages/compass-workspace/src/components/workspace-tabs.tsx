@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
 
   FocusState,
@@ -15,7 +15,8 @@ import {
 import { Tab } from './tab';
 
 const tabsContainerStyles = css({
-  display: 'inline-block',
+  // display: 'inline-flex',
+  // flexDirection: 'row',
   margin: 0,
   padding: 0,
   outline: 'none',
@@ -55,6 +56,20 @@ const tabsBottomBorderStyles = css({
     backgroundColor: uiColors.gray.light1
   }
 });
+
+const newTabContainerStyles = css({
+  // position: 'relative',
+  display: 'inline-block',
+  // flexDirection: 'column'
+  // paddingBottom: spacing[3]
+  // height: spacing[5] + spacing[3],
+})
+
+const createNewTabButtonStyles = css({
+  // paddingTop: spacing[2]
+  // paddingBottom: spacing[3]
+  // marginBottom: spacing[3]
+})
 
 function useKeyboardNavigation<
   HTMLDivElement
@@ -196,7 +211,7 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
 
   // tabId
 
-  const tabContainerProps = mergeProps(
+  const tabContainerProps = mergeProps<HTMLDivElement>(
     focusProps,
     navigationProps
   );
@@ -234,12 +249,15 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
           />
         ))}
       </div>
-      <IconButton
-        aria-label="Create new tab"
-        onClick={onCreateNewTab}
-      >
-        <Icon glyph="Plus" />
-      </IconButton>
+      <div className={newTabContainerStyles}>
+        <IconButton
+          className={createNewTabButtonStyles}
+          aria-label="Create new tab"
+          onClick={onCreateNewTab}
+        >
+          <Icon glyph="Plus" />
+        </IconButton>
+      </div>
       </div>
       <div className={tabsBottomBorderStyles} />
     </div>

@@ -5,7 +5,6 @@ import {
   spacing,
   uiColors,
   useDefaultAction,
-  useHoverState,
   useFocusState,
   FocusState,
   IconButton,
@@ -220,7 +219,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
 
   const [focusProps, focusState] = useFocusState();
 
-  const tabProps = mergeProps(
+  const tabProps = mergeProps<HTMLDivElement>(
     // hoverProps,
     focusProps,
     defaultActionProps
