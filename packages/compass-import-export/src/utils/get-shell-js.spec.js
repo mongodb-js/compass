@@ -1,5 +1,6 @@
 import {ObjectId} from 'bson';
 import getShellJS from './get-shell-js';
+import { expect } from 'chai';
 
 describe('get-shell-js', function() {
   it('should support simple query', function() {

@@ -1,4 +1,5 @@
 import reducer, * as actions from './ns';
+import { expect } from 'chai';
 
 describe('ns [module]', function() {
   describe('#reducer', function() {

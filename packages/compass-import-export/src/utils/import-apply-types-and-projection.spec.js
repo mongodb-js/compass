@@ -4,6 +4,7 @@ import apply, {
 
 import stream from 'stream';
 import bson, { ObjectID } from 'bson';
+import { expect } from 'chai';
 
 describe('import-apply-types-and-projection', function() {
   it('should include all fields by default', function() {

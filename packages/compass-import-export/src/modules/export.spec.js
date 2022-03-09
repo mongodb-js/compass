@@ -11,6 +11,7 @@ import { DataService } from 'mongodb-data-service';
 import { promisify } from 'util';
 import { once } from 'events';
 import { dataServiceConnected, globalAppRegistryActivated } from './compass';
+import { expect } from 'chai';
 describe('export [module]', function() {
   beforeEach(function() {
     store.dispatch(actions.reset());

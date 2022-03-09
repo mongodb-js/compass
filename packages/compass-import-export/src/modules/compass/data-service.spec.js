@@ -1,4 +1,5 @@
 import reducer, * as actions from './data-service';
+import { expect } from 'chai';
 
 describe('data-service [module]', function() {
   describe('#reducer', function() {

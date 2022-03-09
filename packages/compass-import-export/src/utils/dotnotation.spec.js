@@ -1,6 +1,7 @@
 /* eslint-disable no-var */
 import dotnotation from './dotnotation';
 import { ObjectID } from 'bson';
+import { expect } from 'chai';
 
 describe('dotnotation', function() {
   it('should handle simplest case', function() {

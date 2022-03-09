@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { EOL } from 'os';
+import { expect } from 'chai';
 
 const pipeline = promisify(stream.pipeline);
 const readFile = promisify(fs.readFile);

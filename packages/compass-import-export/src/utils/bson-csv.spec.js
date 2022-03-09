@@ -1,6 +1,6 @@
 import bsonCSV, { serialize, detectType, getTypeDescriptorForValue } from './bson-csv';
 import { EJSON, ObjectID, Long, BSONRegExp } from 'bson';
-
+import { expect } from 'chai';
 // TODO: lucas: probably dumb but think about that later.
 
 describe('bson-csv', function() {

@@ -25,7 +25,7 @@ import reducer, {
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import path from 'path';
-
+import { expect } from 'chai';
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 

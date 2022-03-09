@@ -1,4 +1,6 @@
 import reducer, * as actions from './global-app-registry';
+import { expect } from 'chai';
+import * as sinon from 'sinon';
 
 describe('global-app-registry [module]', function() {
   const spy = sinon.spy();

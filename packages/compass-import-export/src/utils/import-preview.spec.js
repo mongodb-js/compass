@@ -2,6 +2,7 @@ import createPreviewWritable, { createPeekStream } from './import-preview';
 import { Readable, pipeline } from 'stream';
 import fs from 'fs';
 import path from 'path';
+import { expect } from 'chai';
 
 const TEST_DIR = path.join(__dirname, '..', '..', '..', 'test');
 

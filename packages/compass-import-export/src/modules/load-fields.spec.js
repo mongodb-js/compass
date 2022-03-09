@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import { loadFields, getSelectableFields } from './load-fields';
-
+import { expect } from 'chai';
 describe('loadFields', function() {
   const fakeDataService = (err, docs) => {
     return {

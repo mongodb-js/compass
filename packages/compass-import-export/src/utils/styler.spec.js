@@ -1,4 +1,5 @@
 import createStyler from './styler.js';
+import { expect } from 'chai';
 
 describe('styler', function() {
   const styles = {

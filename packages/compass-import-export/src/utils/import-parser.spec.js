@@ -3,6 +3,7 @@ import path from 'path';
 import stream from 'stream';
 
 import createParser from './import-parser';
+import { expect } from 'chai';
 
 const TEST_DIR = path.join(__dirname, '..', '..', '..', 'test');
 const FIXTURES = {

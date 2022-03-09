@@ -1,4 +1,5 @@
 import formatNumber from './format-number';
+import { expect } from 'chai';
 
 describe('format-number', function() {
   it('should format an integer', function() {
