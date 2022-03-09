@@ -97,6 +97,42 @@ describe('ConnectionStorage', function () {
       ]);
     });
 
+    it('should ignore failures in conversion', async function () {
+      const id1 = uuid();
+      const id2 = uuid();
+      writeFakeConnection(tmpDir, {
+        _id: id1,
+        connectionInfo: {
+          id: id1,
+          connectionOptions: {
+            connectionString: '',
+          },
+        },
+      });
+
+      writeFakeConnection(tmpDir, {
+        _id: id2,
+        connectionInfo: {
+          id: id2,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27020/?readPreference=primary&ssl=false',
+          },
+        },
+      });
+      const connectionStorage = new ConnectionStorage();
+      const connections = await connectionStorage.loadAll();
+      expect(connections).to.deep.equal([
+        {
+          id: id2,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27020/?readPreference=primary&ssl=false',
+          },
+        },
+      ]);
+    });
+
     it('should convert lastUsed', async function () {
       const id = uuid();
       const lastUsed = new Date('2021-10-26T13:51:27.585Z');
