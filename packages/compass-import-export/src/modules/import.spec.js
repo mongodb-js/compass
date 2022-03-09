@@ -77,8 +77,8 @@ function testSetFileType(test, fileType) {
   });
 }
 
-describe('import [module]', () => {
-  describe('selectImportFileType', () => {
+describe('import [module]', function() {
+  describe('selectImportFileType', function() {
     beforeEach(function() {
       setupMockStore(this);
     });
@@ -95,7 +95,7 @@ describe('import [module]', () => {
     });
   });
 
-  describe('#selectImportFileName', () => {
+  describe('#selectImportFileName', function() {
     beforeEach(function() {
       setupMockStore(this);
     });

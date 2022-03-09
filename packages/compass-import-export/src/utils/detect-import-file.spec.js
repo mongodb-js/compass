@@ -9,8 +9,8 @@ const FIXTURES = {
   JSON_WITH_CSV_FILEEXT: path.join(TEST_DIR, 'json-with-a.csv')
 };
 
-describe('detectImportFile', () => {
-  it('should detect a JSON array', done => {
+describe('detectImportFile', function() {
+  it('should detect a JSON array', function(done) {
     detectImportFile(FIXTURES.JSON_ARRAY, function(err, res) {
       if (err) return done(err);
       expect(res.fileType).to.equal('json');
@@ -19,7 +19,7 @@ describe('detectImportFile', () => {
     });
     expect(true).to.equal(true);
   });
-  it('should detect new line delimited JSON', done => {
+  it('should detect new line delimited JSON', function(done) {
     detectImportFile(FIXTURES.NDJSON, function(err, res) {
       if (err) return done(err);
       expect(res.fileType).to.equal('json');
@@ -27,7 +27,7 @@ describe('detectImportFile', () => {
       done();
     });
   });
-  it('should detect new line delimited JSON even with an empty last line', done => {
+  it('should detect new line delimited JSON even with an empty last line', function(done) {
     detectImportFile(FIXTURES.NDJSON_EXTRA_LINE, function(err, res) {
       if (err) return done(err);
       expect(res.fileType).to.equal('json');
@@ -35,7 +35,7 @@ describe('detectImportFile', () => {
       done();
     });
   });
-  it('should detect with a preference toward peek NOT just file extension', done => {
+  it('should detect with a preference toward peek NOT just file extension', function(done) {
     detectImportFile(FIXTURES.JSON_WITH_CSV_FILEEXT, function(err, res) {
       if (err) return done(err);
       expect(res.fileType).to.equal('json');

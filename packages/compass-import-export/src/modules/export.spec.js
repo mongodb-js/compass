@@ -11,13 +11,13 @@ import { DataService } from 'mongodb-data-service';
 import { promisify } from 'util';
 import { once } from 'events';
 import { dataServiceConnected, globalAppRegistryActivated } from './compass';
-describe('export [module]', () => {
-  beforeEach(() => {
+describe('export [module]', function() {
+  beforeEach(function() {
     store.dispatch(actions.reset());
   });
 
-  describe('#reducer', () => {
-    context('#startExport', () => {
+  describe('#reducer', function() {
+    context('#startExport', function() {
       const globalAppRegistry = new AppRegistry();
       const dataService = new DataService({ connectionString: 'mongodb://localhost:27018/local'});
       const createCollection = promisify(dataService.createCollection).bind(dataService);
@@ -64,25 +64,25 @@ describe('export [module]', () => {
         return writtenData;
       }
 
-      describe('CSV Export', () => {
+      describe('CSV Export', function() {
         let tempFile;
-        beforeEach(() => {
+        beforeEach(function() {
           tempFile = path.join(
             os.tmpdir(),
             `test-${Date.now()}.csv`
           );
         });
-        afterEach(() => {
+        afterEach(function() {
           fs.unlinkSync(tempFile);
         });
-        it('should set the correct fields to CSV export', async() => {
+        it('should set the correct fields to CSV export', async function() {
           const fields = { 'first_name': 1, 'foobar': 1, 'last_name': 0};
           const data = await configureAndStartExport(fields, 'csv', tempFile);
           const writtenData = data.split('\n');
           expect(writtenData[0]).to.equal('first_name,foobar');
           expect(writtenData[1]).to.equal('John,');
         });
-        it('should not include _id if not specified', async() => {
+        it('should not include _id if not specified', async function() {
           const fields = { 'first_name': 1, 'foobar': 1 };
           const data = await configureAndStartExport(fields, 'csv', tempFile);
           const writtenData = data.split('\n');
@@ -90,18 +90,18 @@ describe('export [module]', () => {
           expect(writtenData[1]).to.equal('John,');
         });
       });
-      describe('JSON Export', () => {
+      describe('JSON Export', function() {
         let tempFile;
-        beforeEach(() => {
+        beforeEach(function() {
           tempFile = path.join(
             os.tmpdir(),
             `test-${Date.now()}.json`
           );
         });
-        afterEach(() => {
+        afterEach(function() {
           fs.unlinkSync(tempFile);
         });
-        it('should not include _id if omitted', async() => {
+        it('should not include _id if omitted', async function() {
           const fields = { 'first_name': 1, 'last_name': 0 };
           const data = await configureAndStartExport(fields, 'json', tempFile);
           const writtenData = JSON.parse(data);
@@ -112,7 +112,7 @@ describe('export [module]', () => {
           ]);
         });
 
-        it('should not include _id if is set to 0', async() => {
+        it('should not include _id if is set to 0', async function() {
           const fields = { 'first_name': 1, 'last_name': 0, _id: 0 };
           const data = await configureAndStartExport(fields, 'json', tempFile);
           const writtenData = JSON.parse(data);
@@ -123,7 +123,7 @@ describe('export [module]', () => {
           ]);
         });
 
-        it('should include _id if is set to 1', async() => {
+        it('should include _id if is set to 1', async function() {
           const fields = { 'first_name': 1, 'last_name': 0, _id: 1 };
           const data = await configureAndStartExport(fields, 'json', tempFile);
           const writtenData = JSON.parse(data);
@@ -135,7 +135,7 @@ describe('export [module]', () => {
           ]);
         });
 
-        it('should include all fields if projection is empty', async() => {
+        it('should include all fields if projection is empty', async function() {
           const fields = {};
           const data = await configureAndStartExport(fields, 'json', tempFile);
           const writtenData = JSON.parse(data);
@@ -147,7 +147,7 @@ describe('export [module]', () => {
             }
           ]);
         });
-        it('should include all fields all fields are set to 0', async() => {
+        it('should include all fields all fields are set to 0', async function() {
           const fields = { first_name: 0, last_name: 0, _id: 0};
           const data = await configureAndStartExport(fields, 'json', tempFile);
           const writtenData = JSON.parse(data);
@@ -161,9 +161,9 @@ describe('export [module]', () => {
         });
       });
     });
-    context('when the action type is FINISHED', () => {
-      context('when the state has an error', () => {
-        it('returns the new state and stays open', () => {
+    context('when the action type is FINISHED', function() {
+      context('when the state has an error', function() {
+        it('returns the new state and stays open', function() {
           store.dispatch(
             actions.onModalOpen({
               namespace: 'test',
@@ -193,8 +193,8 @@ describe('export [module]', () => {
         });
       });
 
-      context('when the state has no error', () => {
-        it('returns the new state and closes', () => {
+      context('when the state has no error', function() {
+        it('returns the new state and closes', function() {
           store.dispatch(
             actions.onModalOpen({
               namespace: 'test',
@@ -224,8 +224,8 @@ describe('export [module]', () => {
         });
       });
 
-      context('when the status is canceled', () => {
-        it('keeps the same status', () => {
+      context('when the status is canceled', function() {
+        it('keeps the same status', function() {
           store.dispatch(
             actions.onModalOpen({
               namespace: 'test',
@@ -255,8 +255,8 @@ describe('export [module]', () => {
         });
       });
 
-      context('when the status is failed', () => {
-        it('keeps the same status', () => {
+      context('when the status is failed', function() {
+        it('keeps the same status', function() {
           store.dispatch(
             actions.onModalOpen({
               namespace: 'test',
@@ -287,8 +287,8 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is PROGRESS', () => {
-      it('returns the new state', () => {
+    context('when the action type is PROGRESS', function() {
+      it('returns the new state', function() {
         store.dispatch(
           actions.onModalOpen({
             namespace: 'test',
@@ -315,10 +315,10 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is SELECT_FILE_TYPE', () => {
+    context('when the action type is SELECT_FILE_TYPE', function() {
       const action = actions.selectExportFileType('csv');
 
-      it('returns the new state', () => {
+      it('returns the new state', function() {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           count: 0,
@@ -337,10 +337,10 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is SELECT_FILE_NAME', () => {
+    context('when the action type is SELECT_FILE_NAME', function() {
       const action = actions.selectExportFileName('testing.json');
 
-      it('returns the new state', () => {
+      it('returns the new state', function() {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           progress: 0,
@@ -361,10 +361,10 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is CHANGE_EXPORT_STEP', () => {
+    context('when the action type is CHANGE_EXPORT_STEP', function() {
       const action = actions.changeExportStep(EXPORT_STEP.QUERY);
 
-      it('returns the new state', () => {
+      it('returns the new state', function() {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           progress: 0,
@@ -383,11 +383,11 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is UPDATE_SELECTED_FIELDS', () => {
+    context('when the action type is UPDATE_SELECTED_FIELDS', function() {
       const fields = { 'field': 1, 'field2': 0 };
       const action = actions.updateSelectedFields(fields);
 
-      it('returns the new state', () => {
+      it('returns the new state', function() {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           count: 0,
@@ -406,11 +406,11 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is UPDATE_ALL_FIELDS', () => {
+    context('when the action type is UPDATE_ALL_FIELDS', function() {
       const fields = { 'field': 1, 'field2': 0 };
       const action = actions.updateAllFields(fields);
 
-      it('returns the new state', () => {
+      it('returns the new state', function() {
         expect(reducer(undefined, action)).to.deep.equal({
           isOpen: false,
           count: 0,
@@ -429,8 +429,8 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is CLOSE_EXPORT', () => {
-      it('returns the new state', () => {
+    context('when the action type is CLOSE_EXPORT', function() {
+      it('returns the new state', function() {
         store.dispatch(actions.closeExport());
         expect(store.getState().exportData).to.deep.equal({
           isOpen: false,
@@ -450,23 +450,23 @@ describe('export [module]', () => {
       });
     });
 
-    context('when the action type is not defined', () => {
-      it('returns the initial state', () => {
+    context('when the action type is not defined', function() {
+      it('returns the initial state', function() {
         expect(reducer('', {})).to.equal('');
       });
     });
   });
 
-  describe('#closeExport', () => {
-    it('returns the action', () => {
+  describe('#closeExport', function() {
+    it('returns the action', function() {
       expect(actions.closeExport()).to.deep.equal({
         type: actions.CLOSE
       });
     });
   });
 
-  describe('#onModalOpen', () => {
-    it('returns the action', () => {
+  describe('#onModalOpen', function() {
+    it('returns the action', function() {
       expect(
         actions.onModalOpen({
           namespace: 'test',
@@ -482,10 +482,10 @@ describe('export [module]', () => {
     });
   });
 
-  describe('#onError', () => {
+  describe('#onError', function() {
     const error = new Error('failed');
 
-    it('returns the action', () => {
+    it('returns the action', function() {
       expect(actions.onError(error)).to.deep.equal({
         type: actions.ERROR,
         error: error
@@ -493,8 +493,8 @@ describe('export [module]', () => {
     });
   });
 
-  describe('#onProgress', () => {
-    it('returns the action', () => {
+  describe('#onProgress', function() {
+    it('returns the action', function() {
       expect(actions.onProgress(0.33, 66)).to.deep.equal({
         type: actions.PROGRESS,
         progress: 0.33,
@@ -503,8 +503,8 @@ describe('export [module]', () => {
     });
   });
 
-  describe('#selectExportFileName', () => {
-    it('returns the action', () => {
+  describe('#selectExportFileName', function() {
+    it('returns the action', function() {
       expect(actions.selectExportFileName('testing.json')).to.deep.equal({
         type: actions.SELECT_FILE_NAME,
         fileName: 'testing.json'
@@ -512,8 +512,8 @@ describe('export [module]', () => {
     });
   });
 
-  describe('#selectExportFileType', () => {
-    it('returns the action', () => {
+  describe('#selectExportFileType', function() {
+    it('returns the action', function() {
       expect(actions.selectExportFileType('csv')).to.deep.equal({
         type: actions.SELECT_FILE_TYPE,
         fileType: 'csv'
@@ -521,8 +521,8 @@ describe('export [module]', () => {
     });
   });
 
-  describe('#changeExportStep', () => {
-    it('returns the action', () => {
+  describe('#changeExportStep', function() {
+    it('returns the action', function() {
       expect(actions.changeExportStep('STARTED')).to.deep.equal({
         type: actions.CHANGE_EXPORT_STEP,
         status: 'STARTED'

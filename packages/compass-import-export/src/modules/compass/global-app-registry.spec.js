@@ -1,19 +1,19 @@
 import reducer, * as actions from './global-app-registry';
 
-describe('global-app-registry [module]', () => {
+describe('global-app-registry [module]', function() {
   const spy = sinon.spy();
 
-  describe('#reducer', () => {
-    context('when the action type is GLOBAL_APP_REGISTRY_ACTIVATED', () => {
+  describe('#reducer', function() {
+    context('when the action type is GLOBAL_APP_REGISTRY_ACTIVATED', function() {
       const action = actions.globalAppRegistryActivated(spy);
 
-      it('returns the new state', () => {
+      it('returns the new state', function() {
         expect(reducer('', action)).to.equal(spy);
       });
     });
 
-    context('when the action type is not recognised', () => {
-      it('returns the initial state', () => {
+    context('when the action type is not recognised', function() {
+      it('returns the initial state', function() {
         expect(reducer(undefined, {})).to.deep.equal(null);
       });
     });

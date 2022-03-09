@@ -26,9 +26,9 @@ const FIXTURES = {
   CSV_FLAT_HEADERS: path.join(BASE_FIXTURE_PATH, 'export-flat-headers.csv'),
 };
 
-describe('formatters', () => {
-  describe('json', () => {
-    it('should format a single document in an array', () => {
+describe('formatters', function() {
+  describe('json', function() {
+    it('should format a single document in an array', function() {
       const source = stream.Readable.from([{_id: new ObjectID('5e5ea7558d35931a05eafec0')}]);
       const formatter = createJSONFormatter({brackets: true});
       const dest = fs.createWriteStream(FIXTURES.JSON_SINGLE_DOC);
@@ -41,7 +41,7 @@ describe('formatters', () => {
         })
         .then(() => rm(FIXTURES.JSON_SINGLE_DOC));
     });
-    it('should format more than 2 documents in an array', () => {
+    it('should format more than 2 documents in an array', function() {
       const docs = [
         {_id: new ObjectID('5e5ea7558d35931a05eafec0')},
         {_id: new ObjectID('5e6bafc438e060f695591713')},
@@ -59,8 +59,8 @@ describe('formatters', () => {
         })
         .then(() => rm(FIXTURES.JSON_MULTI_SMALL_DOCS));
     });
-    describe('should format binary data correctly', () => {
-      afterEach(async() => {
+    describe('should format binary data correctly', function() {
+      afterEach(async function() {
         try {
           await rm(FIXTURES.JSON_MULTI_SMALL_DOCS);
         } catch (e) {
@@ -68,7 +68,7 @@ describe('formatters', () => {
         }
       });
 
-      it('works for input with Binary data', async() => {
+      it('works for input with Binary data', async function() {
         const binary = new Binary(Buffer.from('56391cc226bc4affbe520f67856c09ec'), 4);
 
         const docs = [
@@ -90,8 +90,8 @@ describe('formatters', () => {
       });
     });
   });
-  describe('jsonl', () => {
-    it('should support newline delimited ejson', () => {
+  describe('jsonl', function() {
+    it('should support newline delimited ejson', function() {
       const docs = [
         {_id: new ObjectID('5e5ea7558d35931a05eafec0')},
         {_id: new ObjectID('5e6bafc438e060f695591713')},
@@ -112,11 +112,11 @@ describe('formatters', () => {
         .then(() => rm(FIXTURES.JSONL));
     });
   });
-  describe('csv', () => {
+  describe('csv', function() {
     /**
      * TODO: dedupe boilerplate between these tests.
      */
-    it('should flatten nested documents as dotnotation headers', () => {
+    it('should flatten nested documents as dotnotation headers', function() {
       const docs = [
         {_id: {foo: 'bar'}}
       ];
@@ -143,7 +143,7 @@ describe('formatters', () => {
     /**
      * TODO: figure out how make `flat` in dotnotation bson aware to fix this test.
      */
-    it('should not flatten bson props as nested headers', () => {
+    it('should not flatten bson props as nested headers', function() {
       const docs = [
         {_id: new ObjectID('5e5ea7558d35931a05eafec0')},
       ];

@@ -2,8 +2,8 @@
 import dotnotation from './dotnotation';
 import { ObjectID } from 'bson';
 
-describe('dotnotation', () => {
-  it('should handle simplest case', () => {
+describe('dotnotation', function() {
+  it('should handle simplest case', function() {
     var doc = {
       _id: 'arlo',
       name: 'Arlo',
@@ -27,7 +27,7 @@ describe('dotnotation', () => {
     });
   });
 
-  it('should handle not recurse into bson types', () => {
+  it('should handle not recurse into bson types', function() {
     var oid = new ObjectID('5df51e94e92c7b5b333d6c4f');
 
     var doc = {
@@ -41,7 +41,7 @@ describe('dotnotation', () => {
     });
   });
 
-  it('should handle not recurse into arrays', () => {
+  it('should handle not recurse into arrays', function() {
     var doc = {
       _id: 'compass',
       locations: ['berlin', 'nyc', 'philadelphia']

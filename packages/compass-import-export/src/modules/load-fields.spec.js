@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import { loadFields, getSelectableFields } from './load-fields';
 
-describe('loadFields', () => {
+describe('loadFields', function() {
   const fakeDataService = (err, docs) => {
     return {
       find: sinon.spy((ns, query, options, cb) => {
@@ -10,7 +10,7 @@ describe('loadFields', () => {
     };
   };
 
-  it('folds all the fields from a set of documents', async() => {
+  it('folds all the fields from a set of documents', async function() {
     const dataService = fakeDataService(null, [{a: '1'}, {b: '2'}]);
     const fields = await loadFields(dataService, 'db1.coll1', {}, {});
 
@@ -20,7 +20,7 @@ describe('loadFields', () => {
     });
   });
 
-  it('folds nested fields', async() => {
+  it('folds nested fields', async function() {
     const dataService = fakeDataService(null, [{
       a: { b: '2' }
     }, {
@@ -34,7 +34,7 @@ describe('loadFields', () => {
     });
   });
 
-  it('merges nested fields', async() => {
+  it('merges nested fields', async function() {
     const dataService = fakeDataService(null, [{
       a: { b: '2' }
     }, {
@@ -48,7 +48,7 @@ describe('loadFields', () => {
     });
   });
 
-  it('does not truncate fields', async() => {
+  it('does not truncate fields', async function() {
     const dataService = fakeDataService(null, [
       {
         a: { b: { c: { d: 'x' } }}
@@ -63,7 +63,7 @@ describe('loadFields', () => {
     });
   });
 
-  it('works for docs with multiple fields', async() => {
+  it('works for docs with multiple fields', async function() {
     const dataService = fakeDataService(null, [
       {
         _id: '1',
@@ -85,7 +85,7 @@ describe('loadFields', () => {
     });
   });
 
-  it('pass down arguments', async() => {
+  it('pass down arguments', async function() {
     const dataService = fakeDataService(null, []);
     await loadFields(dataService, 'db1.coll1', {
       filter: { x: 1 },
@@ -107,8 +107,8 @@ describe('loadFields', () => {
   });
 });
 
-describe('getSelectableFields', () => {
-  it('truncates fields as specified by maxDepth', () => {
+describe('getSelectableFields', function() {
+  it('truncates fields as specified by maxDepth', function() {
     const allFields = { 'a.b.c.d': 1 };
 
     const table = [

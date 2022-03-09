@@ -4,10 +4,10 @@ import SelectFieldType from './';
 
 let onSelectFieldTypeChangedSpy;
 
-describe('SelectFieldType [Component]', () => {
+describe('SelectFieldType [Component]', function() {
   let component;
 
-  before(() => {
+  before(function() {
     onSelectFieldTypeChangedSpy = sinon.spy();
     component = mount(
       <SelectFieldType
@@ -18,15 +18,15 @@ describe('SelectFieldType [Component]', () => {
     );
   });
 
-  it('should render default option', () => {
+  it('should render default option', function() {
     expect(component.find('option[value="default"]')).to.not.be.present();
   });
 
-  it('should select string value', () => {
+  it('should select string value', function() {
     expect(component.find('select[defaultValue="string"]')).to.be.present();
   });
 
-  after(() => {
+  after(function() {
     component = null;
     onSelectFieldTypeChangedSpy = null;
   });
