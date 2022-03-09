@@ -39,7 +39,7 @@ describe('Instance databases tab', function () {
 
     for (const dbSelector of dbSelectors) {
       const found = await browser.scrollToVirtualItem(
-        Selectors.DatabaseCard,
+        Selectors.DatabasesTable,
         dbSelector
       );
       expect(found, dbSelector).to.be.true;
@@ -48,7 +48,7 @@ describe('Instance databases tab', function () {
 
   it('links database cards to the database collections tab', async function () {
     await browser.scrollToVirtualItem(
-      Selectors.DatabaseCard,
+      Selectors.DatabasesTable,
       Selectors.databaseCard('test')
     );
     // Click on the db name text inside the card specifically to try and have
@@ -66,7 +66,7 @@ describe('Instance databases tab', function () {
 
     for (const collectionSelector of collectionSelectors) {
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionCard,
+        Selectors.CollectionsGrid,
         collectionSelector
       );
       expect(found, collectionSelector).to.be.true;
@@ -83,7 +83,7 @@ describe('Instance databases tab', function () {
     await browser.addDatabase(dbName, collectionName);
 
     const selector = Selectors.databaseCard(dbName);
-    await browser.scrollToVirtualItem(Selectors.DatabaseCard, selector);
+    await browser.scrollToVirtualItem(Selectors.DatabasesTable, selector);
     const databaseCard = await browser.$(selector);
     await databaseCard.waitForDisplayed();
 

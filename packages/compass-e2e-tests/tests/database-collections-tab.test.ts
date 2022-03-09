@@ -33,16 +33,16 @@ describe('Database collections tab', function () {
 
     for (const collectionName of [
       'json-array',
+      'zzzz',
       'json-file',
       'numbers',
-      'zzzz',
     ]) {
       const collectionSelector = Selectors.collectionCard(
         'test',
         collectionName
       );
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionCard,
+        Selectors.CollectionsGrid,
         collectionSelector
       );
       expect(found, collectionSelector).to.be.true;
@@ -51,7 +51,7 @@ describe('Database collections tab', function () {
 
   it('links collection cards to the collection documents tab', async function () {
     await browser.scrollToVirtualItem(
-      Selectors.CollectionCard,
+      Selectors.CollectionsGrid,
       Selectors.collectionCard('test', 'json-array')
     );
 
@@ -85,7 +85,7 @@ describe('Database collections tab', function () {
     await browser.addCollection(collectionName);
 
     const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(Selectors.CollectionCard, selector);
+    await browser.scrollToVirtualItem(Selectors.CollectionsGrid, selector);
 
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
@@ -126,7 +126,7 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(Selectors.CollectionCard, selector);
+    await browser.scrollToVirtualItem(Selectors.CollectionsGrid, selector);
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
@@ -154,7 +154,7 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(Selectors.CollectionCard, selector);
+    await browser.scrollToVirtualItem(Selectors.CollectionsGrid, selector);
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
@@ -178,7 +178,7 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(Selectors.CollectionCard, selector);
+    await browser.scrollToVirtualItem(Selectors.CollectionsGrid, selector);
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
