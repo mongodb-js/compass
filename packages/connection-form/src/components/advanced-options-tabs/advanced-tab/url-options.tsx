@@ -30,9 +30,9 @@ function UrlOptions({
 }): React.ReactElement {
   return (
     <div className={urlOptionsContainerStyles} data-testid="url-options">
-      <Label htmlFor={''}>Url Options</Label>
+      <Label htmlFor={''}>URI Options</Label>
       <Description className={urlOptionsTableDescriptionStyles}>
-        Add additional MongoDB url options to customize your connection.&nbsp;
+        Add additional MongoDB URI options to customize your connection.&nbsp;
         <Link
           href={
             'https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options'
