@@ -105,25 +105,26 @@ describe('loadFields', function() {
       }
     );
   });
-});
-
-describe('getSelectableFields', function() {
-  it('truncates fields as specified by maxDepth', function() {
-    const allFields = { 'a.b.c.d': 1 };
-
-    const table = [
-      [1, 'a'],
-      [2, 'a.b'],
-      [3, 'a.b.c'],
-      [4, 'a.b.c.d']
-    ];
-
-    for (const [maxDepth, expected] of table) {
-      const fields = getSelectableFields(allFields, { maxDepth });
-
-      expect(fields).to.deep.equal({
-        [expected]: 1
-      });
-    }
+  describe('getSelectableFields', function() {
+    it('truncates fields as specified by maxDepth', function() {
+      const allFields = { 'a.b.c.d': 1 };
+  
+      const table = [
+        [1, 'a'],
+        [2, 'a.b'],
+        [3, 'a.b.c'],
+        [4, 'a.b.c.d']
+      ];
+  
+      for (const [maxDepth, expected] of table) {
+        const fields = getSelectableFields(allFields, { maxDepth });
+  
+        expect(fields).to.deep.equal({
+          [expected]: 1
+        });
+      }
+    });
   });
+  
 });
+

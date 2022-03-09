@@ -1,9 +1,7 @@
-import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 
 import store from '../../stores/export-store';
-import ExportModal from './export-modal';
 
 function renderModal() {
   return mount(
@@ -38,7 +36,7 @@ describe('ExportModal Component', function() {
     expect(elements.first().text()).to.equal('Export query with filters — 5 results (Recommended)');
   });
 
-  it('should render 5 results', function() {
+  it('should render recommended filters', function() {
     state.exportData.count = null;
     const component = renderModal();
     const elements = component.find('[data-test-id="export-with-filters-label"]');

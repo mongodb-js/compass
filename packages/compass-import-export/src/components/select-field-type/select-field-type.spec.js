@@ -1,7 +1,6 @@
-import React from 'react';
 import { mount } from 'enzyme';
-import SelectFieldType from './';
-
+import { expect } from 'chai';
+import * as sinon from 'sinon';
 let onSelectFieldTypeChangedSpy;
 
 describe('SelectFieldType [Component]', function() {

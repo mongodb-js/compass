@@ -43,7 +43,6 @@ function setupMockStore(test) {
   };
   const store = mockStore(state);
   test.store = store;
-  test.state = test.state;
 }
 
 /**

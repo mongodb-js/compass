@@ -28,7 +28,7 @@ class SelectFieldType extends PureComponent {
      * TODO: lucas: Handle JSON casting.
      */
     return (
-      <select defaultValue={selectedType} onChange={onChange}>
+      <select defaultValue={selectedType} onBlur={onChange}>
         {getBSONTypeCastings().map((name) => (
           <option key={name} value={name}>
             {name}

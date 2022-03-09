@@ -1,9 +1,9 @@
-import React from 'react';
 import { mount } from 'enzyme';
 
-import ImportPreview from './';
 import createStyler from '../../utils/styler.js';
 import styles from './import-preview.module.less';
+import * as sinon from 'sinon';
+import { expect } from 'chai';
 
 let onFieldCheckedChangedSpy;
 let setFieldTypeSpy;
@@ -69,7 +69,7 @@ describe('ImportPreview [Component]', function() {
     });
   });
 
-  describe('no fields', function() {
+  describe('_id fields', function() {
     let component;
 
     before(function() {

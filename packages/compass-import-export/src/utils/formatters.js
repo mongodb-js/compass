@@ -47,6 +47,7 @@ export const createJSONFormatter = function({ brackets = true } = {}) {
 export const createCSVFormatter = function({ columns }) {
   return csv.format({
     headers: true,
+    columns,
     alwaysWriteHeaders: true,
     transform: row => {
       return flatten(row);
