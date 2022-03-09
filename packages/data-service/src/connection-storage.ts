@@ -65,17 +65,17 @@ export class ConnectionStorage {
    * @param connectionInfo - The ConnectionInfo object to be saved.
    */
   async save(connectionInfo: ConnectionInfo): Promise<void> {
-    if (!connectionInfo.id) {
-      throw new Error('id is required');
-    }
-
-    if (!uuidValidate(connectionInfo.id)) {
-      throw new Error('id must be a uuid');
-    }
-
-    let model;
     try {
-      model = await convertConnectionInfoToModel(connectionInfo);
+      if (!connectionInfo.id) {
+        throw new Error('id is required');
+      }
+
+      if (!uuidValidate(connectionInfo.id)) {
+        throw new Error('id must be a uuid');
+      }
+
+      const model = await convertConnectionInfoToModel(connectionInfo);
+      model.save();
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_103),
@@ -83,10 +83,8 @@ export class ConnectionStorage {
         'Failed to save connection, error while converting to model',
         { message: (err as Error).message }
       );
-    }
 
-    if (model) {
-      model.save();
+      throw err;
     }
   }
 
@@ -108,9 +106,9 @@ export class ConnectionStorage {
       return;
     }
 
-    let model;
     try {
-      model = await convertConnectionInfoToModel(connectionInfo);
+      const model = await convertConnectionInfoToModel(connectionInfo);
+      model.destroy();
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_104),
@@ -118,10 +116,8 @@ export class ConnectionStorage {
         'Failed to delete connection, error while converting to model',
         { message: (err as Error).message }
       );
-    }
 
-    if (model) {
-      model.destroy();
+      throw err;
     }
   }
 }
