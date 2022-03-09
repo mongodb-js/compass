@@ -27,7 +27,10 @@ module.exports = Collection.extend(storageMixin, {
   model: Connection,
   namespace: 'Connections',
   storage: {
-    backend: 'splice-disk-ipc',
+    backend:
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true'
+        ? 'disk'
+        : 'splice-disk-ipc',
     appName,
     basepath
   },
