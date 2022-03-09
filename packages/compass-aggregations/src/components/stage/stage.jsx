@@ -150,7 +150,6 @@ class Stage extends Component {
           stageCollapseToggled={this.props.stageCollapseToggled}
           stageToggled={this.props.stageToggled}
           runStage={this.props.runStage}
-          openLink={this.props.openLink}
           isCommenting={this.props.isCommenting}
           stageAddedAfter={this.props.stageAddedAfter}
           stageDeleted={this.props.stageDeleted}

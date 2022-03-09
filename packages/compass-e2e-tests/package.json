@@ -29,9 +29,6 @@
     "puppeteer": "*"
   },
   "dependencies": {
-    "@types/cross-spawn": "^6.0.2",
-    "@types/puppeteer": "^5.4.4",
-    "@wdio/types": "^7.16.13",
     "mongodb-compass": "^0.0.0-dev.0"
   },
   "devDependencies": {
@@ -39,6 +36,9 @@
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^0.6.0",
     "@types/chai-as-promised": "^7.1.4",
+    "@types/cross-spawn": "^6.0.2",
+    "@types/puppeteer": "^5.4.4",
+    "@wdio/types": "^7.16.13",
     "bson": "*",
     "chai": "*",
     "chai-as-promised": "*",
@@ -60,6 +60,7 @@
     "mongodb-log-writer": "^1.1.4",
     "mongodb-runner": "^4.8.3",
     "prettier": "*",
+    "resolve-mongodb-srv": "^1.1.1",
     "ts-node": "^10.4.0",
     "webdriverio": "^7.16.13",
     "xvfb-maybe": "^0.2.1"
