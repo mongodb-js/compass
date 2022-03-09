@@ -21,8 +21,6 @@ class ZeroState extends React.Component {
       <div className={`${BASE}`}>
         <H3 className={`${BASE}-header`}>{this.props.header}</H3>
         <Subtitle className={`${BASE}-subheader`}>{this.props.subtext}</Subtitle>
-        {/* <p className={`${BASE}-header`}>{this.props.header}</p>
-        <p className={`${BASE}-subheader`}>{this.props.subtext}</p> */}
         <div className={`${BASE}-body`}>
           {this.props.children}
         </div>
