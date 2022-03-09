@@ -298,7 +298,7 @@ function validateCertificateValidationWarnings(
 
   if (tlsInsecure || tlsAllowInvalidHostnames || tlsAllowInvalidCertificates) {
     warnings.push({
-      message: `TLS/SSL certificate validation is disabled. For a more secure connection enable certificate validation if possible.`,
+      message: `Disabling certificate validation is not recommended as it may create a security vulnerability`,
     });
   }
 
@@ -395,7 +395,7 @@ function validateTLSAndHostWarnings(
   if (nonLocalhostsCount && !isSecure(connectionString)) {
     warnings.push({
       message:
-        'Connecting to a remote server without TLS/SSL is not recommended. For a more secure connection enable TLS/SSL if possible.',
+        'Connecting without tls is not recommended as it may create a security vulnerability.',
     });
   }
   return warnings;
