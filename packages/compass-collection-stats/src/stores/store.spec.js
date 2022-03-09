@@ -128,5 +128,42 @@ describe('CollectionStats [store]', function() {
         avgIndexSize: '2B',
       });
     });
+
+    it('resets collection stats to initial values on error', function() {
+      const store = configureStore({
+        globalAppRegistry,
+        namespace: 'bar.woof',
+      });
+
+      expect(store.state).to.deep.eq({
+        namespace: 'bar.woof',
+        isEditing: false,
+        isReadonly: false,
+        isTimeSeries: false,
+        documentCount: '100',
+        storageSize: '100.0KB',
+        avgDocumentSize: '1KB',
+        indexCount: '5',
+        totalIndexSize: '50.0KB',
+        avgIndexSize: '10.0KB',
+      });
+
+      instance.databases.get('bar').collections.get('woof', 'name').set({
+        status: 'error',
+      });
+
+      expect(store.state).to.deep.eq({
+        namespace: 'bar.woof',
+        isEditing: false,
+        isReadonly: false,
+        isTimeSeries: false,
+        documentCount: 'N/A',
+        storageSize: 'N/A',
+        avgDocumentSize: 'N/A',
+        indexCount: 'N/A',
+        totalIndexSize: 'N/A',
+        avgIndexSize: 'N/A',
+      });
+    });
   });
 });
