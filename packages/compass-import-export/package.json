@@ -55,8 +55,9 @@
     "react-dom": "*"
   },
   "dependencies": {
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0"
+    "react": "*",
+    "react-dom": "*",
+    "redux-mock-store": "^1.5.4"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.7.0",
