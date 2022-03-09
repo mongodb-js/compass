@@ -187,12 +187,10 @@ class Sidebar extends PureComponent {
             updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
           />
         )}
-        {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true' && (
-          <NavigationItems
-            onItemClick={(tabName) => this.onNavigationItemClick(tabName)}
-            isExpanded={isExpanded}
-          />
-        )}
+        <NavigationItems
+          onItemClick={(tabName) => this.onNavigationItemClick(tabName)}
+          isExpanded={isExpanded}
+        />
         <div
           className={styles['compass-sidebar-filter']}
           onClick={this.handleSearchFocus.bind(this)}
