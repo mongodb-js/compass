@@ -345,7 +345,7 @@ describe('validation', function () {
         });
         expect(result[0]).to.deep.equal({
           message:
-            'Disabling certificate validation is not recommended as it may create a security vulnerability',
+            'TLS/SSL certificate validation is disabled. If possible, enable certificate validation to avoid security vulnerabilities.',
         });
       });
     });
@@ -451,7 +451,7 @@ describe('validation', function () {
         expect(result).to.deep.equal([
           {
             message:
-              'Connecting without tls is not recommended as it may create a security vulnerability.',
+              'TLS/SSL is disabled. If possible, enable TLS/SSL to avoid security vulnerabilities.',
           },
         ]);
       }
