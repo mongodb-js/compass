@@ -246,7 +246,6 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
   // Ensure that the user data dir exists
-  // TODO: try catch
   await fs.mkdir(defaultUserDataDir, { recursive: true });
 
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
