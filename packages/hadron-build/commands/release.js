@@ -341,7 +341,9 @@ const removeDevelopmentFiles = (CONFIG, done) => {
     path.join(CONFIG.resourcesAppDir, 'test'),
     path.join(CONFIG.resourcesAppDir, 'scripts'),
     path.join(CONFIG.resourcesAppDir, 'src'),
-    path.join(CONFIG.resourcesAppDir, 'release')
+    path.join(CONFIG.resourcesAppDir, 'release'),
+    path.join(CONFIG.resourcesAppDir, '**', 'Debug', 'obj'),
+    path.join(CONFIG.resourcesAppDir, '**', 'Release', 'obj')
   ];
 
   if (CONFIG.platform === 'darwin') {
