@@ -465,7 +465,14 @@ describe('System CA access', function () {
     for (let i = 0; i < 2; i++) {
       expect(systemCALogs[i].attr.caCount).to.be.a('number');
       expect(systemCALogs[i].attr.caCount).to.be.greaterThan(1);
-      expect(systemCALogs[i].attr.asyncFallbackError).to.equal(null);
+      if (process.platform !== 'linux' && systemCALogs[i].attr.asyncFallbackError) {
+        // Electron does not support Node.js worker threads at this point, so
+        // we allow this failure. This will hopefully just go away with an Electron
+        // upgrade in the future.
+        expect(systemCALogs[i].attr.asyncFallbackError.code).to.equal('ERR_MISSING_PLATFORM_FOR_WORKER');
+      } else {
+        expect(systemCALogs[i].attr.asyncFallbackError).to.equal(null);
+      }
     }
   });
 });
