@@ -152,7 +152,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^0.12.0",
-    "@mongosh/node-runtime-worker-thread": "^1.2.2",
+    "@mongosh/node-runtime-worker-thread": "^1.2.3",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
