@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, ButtonSize, ButtonVariant, Link } from '@mongodb-js/compass-components';
 import { ZeroState, StatusRow, ViewSwitcher } from 'hadron-react-components';
-import { TextButton } from 'hadron-react-buttons';
 import { ZeroGraphic } from '../zero-graphic';
 import { ExplainBody } from '../explain-body';
 
