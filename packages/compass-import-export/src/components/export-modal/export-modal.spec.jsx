@@ -1,7 +1,8 @@
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-
 import store from '../../stores/export-store';
+import React from 'react';
+import ExportModal from './'
 
 function renderModal() {
   return mount(

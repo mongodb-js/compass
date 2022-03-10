@@ -74,19 +74,15 @@ describe('import-parser', function() {
       });
     });
     describe('errors', function() {
-      let parseError;
-      before(function(done) {
-        const p = runParser(FIXTURES.JS_I_THINK_IS_JSON, createParser());
-        p.catch((err) => (parseError = err));
-        expect(p).to.be.rejected.and.notify(done);
-      });
-      it('should catch errors by default', function() {
-        expect(parseError.name).to.equal('JSONError');
-      });
-      it('should have a human readable error message', function() {
-        const DEFAULT_MESSAGE =
-          'Error: Invalid JSON (Unexpected "_" at position 10 in state STOP)';
-        expect(parseError.message).to.not.contain(DEFAULT_MESSAGE);
+      it('should catch errors by default', async function() {
+        try {
+          await runParser(FIXTURES.JS_I_THINK_IS_JSON, createParser());
+        } catch (err) {
+          expect(err.name).to.equal('JSONError');
+          const DEFAULT_MESSAGE =
+            'Error: Invalid JSON (Unexpected "_" at position 10 in state STOP)';
+          expect(err.message).to.not.contain(DEFAULT_MESSAGE);
+        }
       });
     });
   });
@@ -190,24 +186,19 @@ describe('import-parser', function() {
     /**
      * TODO: lucas: Revisit and unskip if we really want csv to be strict.
      */
-    describe.skip('errors', function() {
-      let parseError;
-      before(function(done) {
-        const p = runParser(
-          FIXTURES.BAD_CSV,
-          createParser({ fileType: 'csv', delimiter: '\n' })
-        );
-        p.catch((err) => (parseError = err));
-        expect(p).to.be.rejected.and.notify(done);
-      });
-
-      it('should catch errors by default', function() {
-        expect(parseError).to.be.an('error');
-      });
-      it('should have a human readable error message', function() {
-        expect(parseError.message).to.equal(
-          'Row length does not match headers'
-        );
+    describe('errors', function() {
+      it('should catch errors by default', async function() {
+        try {
+          await runParser(
+            FIXTURES.BAD_CSV,
+            createParser({ fileType: 'csv', delimiter: '\n' })
+          );
+        } catch (err) {
+          expect(err).to.be.an('error');
+          expect(err.message).to.equal(
+            'Row length does not match headers'
+          );
+        }
       });
     });
   });

@@ -4,6 +4,8 @@ import createStyler from '../../utils/styler.js';
 import styles from './import-preview.module.less';
 import * as sinon from 'sinon';
 import { expect } from 'chai';
+import React from 'react';
+import ImportPreview from './';
 
 let onFieldCheckedChangedSpy;
 let setFieldTypeSpy;
