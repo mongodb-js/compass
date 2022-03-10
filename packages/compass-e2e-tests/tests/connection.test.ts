@@ -76,6 +76,8 @@ function generateIamSessionToken(): {
       process.env.E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN ?? '',
       '--role-session-name',
       'MONGODB-AWS-AUTH-TEST',
+      '--duration-seconds',
+      '900', // test timeout is 120, waitForX is 10. minimum allowed value is 900.
     ],
     {
       encoding: 'utf8',
