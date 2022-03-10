@@ -15,7 +15,6 @@ Package|Version|License
 **[@babel/types](#d6a52ead12b395f05c1cfc1b9b2864802bdba224434b5651bf7a250eb5d4e26b)**|7.17.0|MIT
 **[@emotion/babel-plugin](#03ca1a86566ba12f306ee068149dd414f4eae0649af1c805daee344dd7d05176)**|11.7.2|MIT
 **[@emotion/cache](#abefd7c5ed45552ff224f27f625ade54ec500c18f3ee5f4c4578fc9870b954d6)**|11.7.1|MIT
-**[@emotion/cache](#db428d77c9ae4b98785a11de76cd7dd9ff5828a1f362602862e1b768c201d0ed)**|11.4.0|MIT
 **[@emotion/css](#834e3b5222a0a64c5b9671e61fad63e65365217575992afa291597bdeca63792)**|11.7.1|MIT
 **[@emotion/hash](#28d888fd2b55ad544152d8e1106f9fb67ebaf8e8ab3bf63836ce4f513f8a4fd6)**|0.8.0|MIT
 **[@emotion/memoize](#58c206ceffd0c234aa21f4649556e9ad7225fd69680027f6d98b5e4a1ad594b5)**|0.7.5|MIT
@@ -24,9 +23,8 @@ Package|Version|License
 **[@emotion/serialize](#24090d55b03a9df9b0ff621a694b47543ae6cf09062933305cf43282f97ee420)**|1.0.2|MIT
 **[@emotion/server](#b8ddfcaf14564b337d4339d4703bac7920a3846834eb3b5307072901a91de1ff)**|11.4.0|MIT
 **[@emotion/sheet](#21b942a9f0f46c8e0585df700dd5bf57ed7a4624abcde13c2bba1a4ad77a44de)**|1.1.0|MIT
-**[@emotion/sheet](#7f72a734a4a784c04ade0ffc7dc54cf0e1df030cd2492491bae785a18d4ff1ce)**|1.0.2|MIT
 **[@emotion/unitless](#33c90c27ba47755f07747bb9ca066ce37fc3622fd4aa8c03303d05afa45ff355)**|0.7.5|MIT
-**[@emotion/utils](#5c13d0480f06a0f7d52c4fdcae5f74014319f43b15326ebd2cb9339558088f4e)**|1.0.0|MIT
+**[@emotion/utils](#e92e387e8f90010a7c06c18458513b76d4952e56d48b33a3cae3099bb822e8d4)**|1.1.0|MIT
 **[@emotion/weak-memoize](#fe4943b1984d0fa6afec91f0a6f279a514f9bb02ad3f95aa3b8e13c1e2883086)**|0.2.5|MIT
 **[@leafygreen-ui/a11y](#475380b9a40fd66894724c2afb2ab50a27cf2020137c106592e824812fa38639)**|1.2.2|Apache-2.0
 **[@leafygreen-ui/badge](#10076ba8ce29571fcbad699740ae1140664c486808efdf7facb7165dc96919e0)**|4.0.5|Apache-2.0
@@ -584,41 +582,7 @@ Authors:
 
 <a id="abefd7c5ed45552ff224f27f625ade54ec500c18f3ee5f4c4578fc9870b954d6"></a>
 ### [@emotion/cache](https://www.npmjs.com/package/@emotion/cache) (version 11.7.1)
-<!-- initially found at node_modules/@emotion/css/node_modules/@emotion/cache -->
-> emotion's cache
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
-<a id="db428d77c9ae4b98785a11de76cd7dd9ff5828a1f362602862e1b768c201d0ed"></a>
-### [@emotion/cache](https://www.npmjs.com/package/@emotion/cache) (version 11.4.0)
-<!-- initially found at node_modules/@emotion/react/node_modules/@emotion/cache -->
+<!-- initially found at node_modules/@emotion/cache -->
 > emotion's cache
 
 License tags: MIT
@@ -826,7 +790,7 @@ Authors:
 
 <a id="24090d55b03a9df9b0ff621a694b47543ae6cf09062933305cf43282f97ee420"></a>
 ### [@emotion/serialize](https://www.npmjs.com/package/@emotion/serialize) (version 1.0.2)
-<!-- initially found at node_modules/@emotion/css/node_modules/@emotion/serialize -->
+<!-- initially found at node_modules/@emotion/serialize -->
 > serialization utils for emotion
 
 License tags: MIT
@@ -897,41 +861,7 @@ Authors:
 
 <a id="21b942a9f0f46c8e0585df700dd5bf57ed7a4624abcde13c2bba1a4ad77a44de"></a>
 ### [@emotion/sheet](https://www.npmjs.com/package/@emotion/sheet) (version 1.1.0)
-<!-- initially found at node_modules/@emotion/css/node_modules/@emotion/sheet -->
-> emotion's stylesheet
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) Emotion team and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
-<a id="7f72a734a4a784c04ade0ffc7dc54cf0e1df030cd2492491bae785a18d4ff1ce"></a>
-### [@emotion/sheet](https://www.npmjs.com/package/@emotion/sheet) (version 1.0.2)
-<!-- initially found at node_modules/@emotion/react/node_modules/@emotion/sheet -->
+<!-- initially found at node_modules/@emotion/sheet -->
 > emotion's stylesheet
 
 License tags: MIT
@@ -997,9 +927,9 @@ License files:
       
 
 
-<a id="5c13d0480f06a0f7d52c4fdcae5f74014319f43b15326ebd2cb9339558088f4e"></a>
-### [@emotion/utils](https://www.npmjs.com/package/@emotion/utils) (version 1.0.0)
-<!-- initially found at node_modules/@emotion/css/node_modules/@emotion/utils -->
+<a id="e92e387e8f90010a7c06c18458513b76d4952e56d48b33a3cae3099bb822e8d4"></a>
+### [@emotion/utils](https://www.npmjs.com/package/@emotion/utils) (version 1.1.0)
+<!-- initially found at node_modules/@emotion/utils -->
 > internal utils for emotion
 
 License tags: MIT
