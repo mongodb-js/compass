@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
@@ -296,16 +297,23 @@ export async function setConnectFormState(
       await browser.clickVisible(
         Selectors.connectionFormUrlOptionKeyButton(index)
       );
-      // this is quite hacky, unfortunately
+
+      let found = false;
       const options = await browser.$$('#select-key-menu [role="option"]');
+      const allText = [];
       for (const option of options) {
-        const span = await option.$(`span=${key}`);
-        if (await span.isExisting()) {
-          await span.waitForDisplayed();
-          await span.click();
+        const text = (await option.getText()).trim();
+        allText.push(text);
+        if (text === key) {
+          found = true;
+          await option.click();
           break;
         }
       }
+      expect(
+        found,
+        `Count not find URL option "${key}". Found "${allText.join(', ')}"`
+      ).to.be.true;
 
       // value
       await browser.setValueVisible(
