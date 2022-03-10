@@ -42,7 +42,13 @@ export async function scrollToVirtualItem(
     return false;
   }
 
+  // wait for element 0 to be visible to make sure this went into effect
+  await browser
+    .$(`${containerSelector} [data-vlist-item-idx="0"]`)
+    .waitForDisplayed();
+
   let scrollTop = 0;
+  let topIdx = '0';
 
   await browser.waitUntil(async () => {
     const targetElement = await browser.$(targetSelector);
@@ -76,6 +82,23 @@ export async function scrollToVirtualItem(
         containerSelector,
         scrollTop
       );
+
+      // wait for the top one to be different to make sure that the grid updated
+      await browser.waitUntil(async () => {
+        const idx = await browser
+          .$(
+            `${containerSelector} [role="row"]:first-child [role="gridcell"]:first-child`
+          )
+          .getAttribute('data-vlist-item-idx');
+
+        if (idx === topIdx) {
+          return false;
+        } else {
+          topIdx = idx;
+          return true;
+        }
+      });
+
       return false;
     } else {
       // stop because we got to the end and never found it
