@@ -1,6 +1,7 @@
 // eslint-disable-next-line strict
 'use strict';
 const chalk = require('chalk');
+const crypto = require('crypto');
 const childProcess = require('child_process');
 const download = require('download');
 const fs = require('fs');
@@ -298,13 +299,15 @@ class Target {
       }
     });
 
-    this.appPath = this.dest(
-      `${this.packagerOptions.name}-${this.platform}-${this.arch}`
-    );
-    this.resources = this.dest(
-      `${this.packagerOptions.name}-${this.platform}-${this.arch}`,
-      'resources'
-    );
+    // On Windows, paths have a relatively low length limit. We generate a
+    // short unique identifier for Windows only in order to save on path length.
+    const shortAppId = crypto
+      .createHash('sha256')
+      .update(`${this.packagerOptions.name}-${this.platform}-${this.arch}`)
+      .digest('base64')
+      .slice(0, 6);
+    this.appPath = this.dest(shortAppId);
+    this.resources = path.join(this.appPath, 'resources');
     /**
      * Remove `.` from version tags for NUGET version
      */
