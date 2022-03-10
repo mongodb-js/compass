@@ -27,7 +27,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): State
 /**
  * Action creator for collation event.
  */
-export const collationChanged = (collation: CollationOptions): AnyAction => {
+export const collationChanged = (collation: string): AnyAction => {
   return {
     type: COLLATION_CHANGED,
     // Returns collation if valid, or false

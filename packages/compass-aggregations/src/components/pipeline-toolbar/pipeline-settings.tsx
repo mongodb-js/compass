@@ -13,6 +13,7 @@ import { toggleSettingsIsExpanded } from '../../modules/settings';
 import { toggleAutoPreview } from '../../modules/auto-preview';
 import { newPipelineFromText } from '../../modules/import-pipeline';
 import { collationCollapseToggled } from '../../modules/collation-collapser';
+import { exportToLanguage } from '../../modules/export-to-language';
 import type { RootState } from '../../modules';
 
 const containerStyles = css({
@@ -52,9 +53,10 @@ const toggleLabelStyles = css({
 const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
   isCollationExpanded,
   onNewPipelineFromText,
-  onCollationToggled,
+  onCollationToggle,
   onToggleAutoPreview,
   onToggleSettings,
+  onQueryTranslate,
 }) => {
   return (
     <div className={containerStyles}>
@@ -77,11 +79,16 @@ const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
               glyph={isCollationExpanded ? 'ChevronDown' : 'ChevronRight'}
             />
           }
-          onClick={() => onCollationToggled()}
+          onClick={() => onCollationToggle()}
         >
           Collation
         </Button>
-        <Button className={buttonStyles} variant="primaryOutline" size="xsmall">
+        <Button
+          className={buttonStyles}
+          variant="primaryOutline"
+          size="xsmall"
+          onClick={() => onQueryTranslate()}
+        >
           Query translator
         </Button>
       </div>
@@ -117,7 +124,8 @@ const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
   onToggleSettings: toggleSettingsIsExpanded,
   onNewPipelineFromText: newPipelineFromText,
-  onCollationToggled: collationCollapseToggled,
+  onCollationToggle: collationCollapseToggled,
+  onQueryTranslate: exportToLanguage,
 };
 
 const connector = connect(mapState, mapDispatch);

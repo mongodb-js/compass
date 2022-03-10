@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import type { Dispatch } from 'redux';
 import {
   Pipeline,
   Stage,
@@ -51,11 +50,9 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
 const mapState = (state: RootState) => ({
   stages: state.pipeline.map((x) => x.stageOperator),
 });
-const mapDispatch = (dispatch: Dispatch) => ({
-  onStageAdded: () => {
-    dispatch(stageAdded());
-  },
-});
+const mapDispatch = {
+  onStageAdded: stageAdded,
+};
 const connector = connect(mapState, mapDispatch);
 type PipelineStagesProps = ConnectedProps<typeof connector>;
 export default connector(PipelineStages);

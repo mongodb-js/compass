@@ -4,7 +4,6 @@ import type { ConnectedProps } from 'react-redux';
 import { Button, css, spacing } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-import { exportToLanguage } from '../../modules/export-to-language';
 import { savingPipelineOpen } from '../../modules/saving-pipeline';
 import { saveCurrentPipeline } from '../../modules/saved-pipeline';
 import { runAggregation } from '../../modules/aggregation';
@@ -20,7 +19,6 @@ const buttonStyles = css({
 const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   name,
   workspace,
-  onExportToLanguage,
   onRunAggregation,
   onSavePipeline,
   onChangeWorkspace,
@@ -60,7 +58,6 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
       <Button
         data-testid="toolbar-export-action-button"
         className={buttonStyles}
-        onClick={() => onExportToLanguage()}
       >
         Export Results
       </Button>
@@ -81,7 +78,6 @@ const mapState = ({ name, workspace }: RootState) => ({
 const mapDispatch = {
   onChangeWorkspace: changeWorkspace,
   onRunAggregation: runAggregation,
-  onExportToLanguage: exportToLanguage,
   onSavePipeline: (name: string) => {
     return name === '' ? savingPipelineOpen() : saveCurrentPipeline();
   },
