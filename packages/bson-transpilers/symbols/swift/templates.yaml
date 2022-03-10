@@ -141,14 +141,6 @@ Templates:
         }
     UnarySyntaxTemplate: &UnarySyntaxTemplate !!js/function >
         (op, val) => {
-            switch(op) {
-                case '+':
-                    return val;
-                case '~':
-                    return `!${val}`;
-                default:
-                    return `${op}${val}`;
-            }
             return `${op}${val}`;
         }
     BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
@@ -184,7 +176,6 @@ Templates:
     #############################################
     StringTypeTemplate: &StringTypeTemplate !!js/function >
         (str) => {
-            console.log("====================" + str)
             let newStr = str;
             if (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') {
                 newStr = '"' + str.substr(1, str.length - 2) + '"';
@@ -231,20 +222,22 @@ Templates:
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal, depth) => {
-            depth++;
             if (literal === '') {
                 return '[]'
             }
-            const indent = '\n' + '  '.repeat(depth);
-            const closingIndent = '\n' + '  '.repeat(depth - 1);
-
-            return `[${indent}${literal}${closingIndent}]`;
+            return `[${literal}]`;
         }
-    ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
+    ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate !!js/function >
+        (element, depth, isLast) => {
+            depth++;
+            const indent = '\n' + '    '.repeat(depth);
+            const closingIndent = isLast ? '\n' + '    '.repeat(depth - 1) : ',';
+            return `${indent}${element}${closingIndent}`;
+        }  
     NullTypeTemplate: &NullTypeTemplate !!js/function >
-        () => 'nil'
+        () => 'BSON.null'
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
-        () => 'nil'
+        () => 'BSON.null'
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
             if (literal === '') {
@@ -254,16 +247,14 @@ Templates:
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args, depth) => {
-            let indent = '';
-            let closingIndent = '';
-            depth++;
-
             if (args.length === 0) {
                 return '';
-            } else if (args.length > 1) {
-                indent = '\n' + '  '.repeat(depth);
-                closingIndent = '\n' + '  '.repeat(depth - 1);
             }
+
+            depth++;
+            const indent = '\n' + '    '.repeat(depth);
+            const closingIndent = '\n' + '    '.repeat(depth - 1);
+
             const doubleStringify = (str) => {
                 let newStr = str;
                 if (
@@ -370,7 +361,7 @@ Templates:
         () => 'Double'
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
-            arg = arg === undefined ? 0 : arg;
+            arg = arg === undefined ? "(0.0)" : arg;
             return arg;
         }
     Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
@@ -453,11 +444,20 @@ Templates:
         }
     # non bson-specific
     NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
-        () => 'Double'
+        () => ''
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
-            arg = arg === undefined ? 0 : arg;
-            return arg;
+            arg = arg === undefined ? "0.0" : arg;
+
+            switch(type) {
+                case '_string':
+                  return `Double(${arg})!`;
+                case '_integer':
+                case '_long':
+                  return `${arg}.0`;
+                default:
+                    return arg;
+            }
         }
     DateSymbolTemplate: &DateSymbolTemplate !!js/function >
         () => 'Date'

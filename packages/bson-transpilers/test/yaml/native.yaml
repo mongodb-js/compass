@@ -20,7 +20,10 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
-          swift: '["x": 1]'
+          swift: |-
+            [
+                "x": "1"
+            ]
     - input:
           javascript: "{x: '1',}"
           shell: "{x: '1',}"
@@ -33,7 +36,10 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
-          swift: '["x": 1]'
+          swift: |-
+            [
+                "x": "1"
+            ]
     - input:
           javascript: "{x: ['1', '2']}"
           shell: "{x: ['1', '2']}"
@@ -46,7 +52,13 @@ tests:
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
           ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
-          swift: '["x": ["1", "2"]]'
+          swift: |-
+            [
+                "x": [
+                    "1",
+                    "2"
+                ]
+            ]
     - input:
           javascript: "{x: {y: 2}}"
           shell: "{x: {y: 2}}"
@@ -59,7 +71,12 @@ tests:
           shell: "{\n  'x': {\n    'y': 2\n  }\n}"
           object: "{x: {y: 2}}"
           ruby: "{\n  'x' => {\n    'y' => 2\n  }\n}"
-          swift: '["x": ["y": "2"]]'
+          swift: |-
+            [
+                "x": [
+                    "y": 2
+                ]
+            ]
     - input:
           javascript: "{}"
           shell: "{}"
@@ -85,7 +102,11 @@ tests:
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
           ruby: "{\n  'x' => '1',\n  'n' => '4'\n}"
-          swift: '["x": "1", "n": "4"]'
+          swift: |-
+            [
+                "x": "1",
+                "n": "4"
+            ]
     - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
@@ -120,7 +141,22 @@ tests:
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
-          swift: '[\n  "status": "A",\n  "$or": [\n    [\n      "qty": [\n        "$lt": 30\n      ]\n    ], [\n      "item": [\n        "$regex": "^p"\n      ]\n    ]\n  ]\n]'
+          swift: |
+            [
+                "status": "A",
+                "$or": [
+                    [
+                        "qty": [
+                            "$lt": 30
+                        ]
+                    ],
+                    [
+                        "item": [
+                            "$regex": "^p"
+                        ]
+                    ]
+                ]
+            ]
     Array:
     - input:
           python: "['1', '2']"
@@ -134,7 +170,11 @@ tests:
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
-          swift: '[BSON.string("1"), BSON.string("2")]'
+          swift: |-
+            [
+                "1",
+                "2"
+            ]
     - input:
           python: "['1', '2',]"
           javascript: "['1', '2',]"
@@ -147,7 +187,11 @@ tests:
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
-          swift: '[BSON.string("1"), BSON.string("2")]'
+          swift: |-
+            [
+                "1",
+                "2"
+            ]
     - input:
           python: "['1', { 'settings': 'http2' }]"
           javascript: "['1', { settings: 'http2' }]"
@@ -160,7 +204,14 @@ tests:
           python: "[\n    '1', {\n        'settings': 'http2'\n    }\n]"
           object: "['1', { settings: 'http2' }]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
-          swift: '[BSON.string("1"), ["settings": "http2"]]'
+          swift: |-
+            [
+                "1",
+                [
+                    "settings": "http2"
+                ]
+            ]
+
     - input:
           python: "{ 'pipeline': [{'$match': {'$expr': { '$eq': [ '$manager', '$$me' ] } } }, { '$project': { 'managers': 0}}, {'$sort': { 'startQuarter': 1, 'notes': 1, 'job_code': 1}}]}"
           javascript: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
@@ -178,7 +229,12 @@ tests:
                 "pipeline": [
                     [
                         "$match": [
-                            "$expr": [ "$eq": [ "$manager": "$$me"]]
+                            "$expr": [
+                                "$eq": [
+                                    "$manager",
+                                    "$$me"
+                                ]
+                            ]
                         ]
                     ],
                     [
@@ -208,7 +264,14 @@ tests:
           python: "[\n    '1', [\n        '2', '3'\n    ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          swift: '[BSON.string("1"), ["2", "3"]]'
+          swift: |-
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     - input:
           python: "[]"
           javascript: "[]"
@@ -232,7 +295,14 @@ tests:
           python: "[\n    '1', [\n        '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          swift: '[BSON.string("1"), ["2", "3"]]'
+          swift: |-
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     ArrayElision:
     - input:
           javascript: "[,'1', '2',]"
@@ -245,7 +315,12 @@ tests:
           javascript: "[\n  undefined, '1', '2'\n]"
           object: "[undefined, '1', '2']"
           ruby: "[\n  nil, '1', '2'\n]"
-          swift: '[BSON.null, "1", "2"]'
+          swift: |-
+            [
+                BSON.null,
+                "1",
+                "2"
+            ]
     - input:
           javascript: "[,]"
           shell: "[,]"
@@ -257,7 +332,10 @@ tests:
           javascript: "[\n  undefined\n]"
           object: "[undefined]"
           ruby: "[\n  nil\n]"
-          swift: "[BSON.null]"
+          swift: |-
+            [
+                BSON.null
+            ]
     - input:
           javascript: "[,,]"
           shell: "[,,]"
@@ -269,7 +347,11 @@ tests:
           javascript: "[\n  undefined, undefined\n]"
           object: "[undefined, undefined]"
           ruby: "[\n  nil, nil\n]"
-          swift: "[BSON.null, BSON.null]"
+          swift: |-
+            [
+                BSON.null,
+                BSON.null
+            ]
     - input:
           javascript: "['1',,,,'2']"
           shell: "['1',,,,'2']"
@@ -281,7 +363,14 @@ tests:
           javascript: "[\n  '1', undefined, undefined, undefined, '2'\n]"
           object: "['1', undefined, undefined, undefined, '2']"
           ruby: "[\n  '1', nil, nil, nil, '2'\n]"
-          swift: '["1", BSON.null, BSON.null, BSON.null, "2"]'
+          swift: |-
+            [
+                "1",
+                BSON.null,
+                BSON.null,
+                BSON.null,
+                "2"
+            ]
     Tuple:
     - input:
           python: "()"
@@ -304,7 +393,7 @@ tests:
           shell: "[\n  1\n]"
           object: "[1]"
           ruby: "[\n  1\n]"
-          swift: '[1]'
+          swift: '[\n  1\n]'
     - input:
           python: "(1)"
       output:
@@ -315,7 +404,7 @@ tests:
           shell: "(1)"
           object: "(1)"
           ruby: "(1)"
-          swift: '[1]'
+          swift: "(1)"
     - input:
           python: "('1', { 'settings': 'http2' })"
       output:
@@ -326,7 +415,13 @@ tests:
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           object: "['1', { 'settings': 'http2' }]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
-          swift: '[BSON.string("1"), ["settings": "http2"]]'
+          swift: |
+            [
+                "1",
+                [
+                    "settings": "http2"
+                ]
+            ]
     - input:
           python: "('1', ['2', '3'])"
       output:
@@ -337,7 +432,14 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          swift: '[BSON.string("1"), ["2", "3"]]'
+          swift: |
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     - input:
           python: "['1', ('2', '3')]"
       output:
@@ -348,7 +450,14 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          swift: '[BSON.string("1"), ["2", "3"]]'
+          swift: |
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     binops:
     - input:
           javascript: 2 + 5 - 1
@@ -501,7 +610,7 @@ tests:
           csharp: int.Parse("2")
           object: Number(2)
           ruby: "'2'.to_f"
-          swift: '2.0'
+          swift: 'Double("2")!'
     - input:
           shell: Number()
       output:
@@ -668,7 +777,7 @@ tests:
           csharp: 'BsonNull.Value'
           object: 'null'
           ruby: 'nil'
-          swift: 'nil'
+          swift: 'BSON.null'
     - input:
           javascript: 'undefined'
           shell: 'undefined'
@@ -680,7 +789,7 @@ tests:
           csharp: 'BsonUndefined.Value'
           object: 'undefined'
           ruby: 'nil'
-          swift: nil
+          swift: BSON.null
     string_literals:
     - input:
           javascript: "'string'"
