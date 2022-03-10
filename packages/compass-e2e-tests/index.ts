@@ -12,6 +12,7 @@ import {
   compileCompassAssets,
   buildCompass,
   LOG_PATH,
+  removeUserDataDir,
 } from './helpers/compass';
 import { createUnlockedKeychain } from './helpers/keychain';
 import ResultLogger from './helpers/result-logger';
@@ -50,6 +51,8 @@ async function setup() {
 }
 
 function cleanup() {
+  removeUserDataDir();
+
   keychain.reset();
 
   const disableStartStop = process.argv.includes('--disable-start-stop');
@@ -213,6 +216,7 @@ async function run() {
     if (metricsClient) {
       await metricsClient.close();
     }
+
     cleanup();
   }
 }

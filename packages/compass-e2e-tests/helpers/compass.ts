@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import { ObjectId, EJSON } from 'bson';
-import { promises as fs } from 'fs';
+import { promises as fs, rmdirSync } from 'fs';
 import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
@@ -205,6 +205,19 @@ interface StartCompassOptions {
 
 let defaultUserDataDir: string;
 
+export function removeUserDataDir(): void {
+  debug('Removing user data');
+  try {
+    // this is sync so we can use it in cleanup() in index.ts
+    rmdirSync(defaultUserDataDir, { recursive: true });
+  } catch (e) {
+    debug(
+      `Failed to remove temporary user data directory at ${defaultUserDataDir}:`
+    );
+    debug(e);
+  }
+}
+
 async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   const testPackagedApp = ['1', 'true'].includes(
     process.env.TEST_PACKAGED_APP ?? ''
@@ -215,15 +228,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
   if (defaultUserDataDir && opts.firstRun) {
-    debug('Removing user data');
-    try {
-      await fs.rmdir(defaultUserDataDir, { recursive: true });
-    } catch (e) {
-      debug(
-        `Failed to remove temporary user data directory at ${defaultUserDataDir}:`
-      );
-      debug(e);
-    }
+    removeUserDataDir();
   }
 
   // Calculate the userDataDir once so it will be the same between runs. That

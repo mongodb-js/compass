@@ -4,7 +4,7 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
 describe('Time to first query', function () {
-  let compass: Compass|undefined;
+  let compass: Compass | undefined;
 
   afterEach(async function () {
     // cleanup outside of the test so that the time it takes to run does not
