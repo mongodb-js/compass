@@ -13,6 +13,7 @@ import {
   run as packageCompass,
   compileAssets,
 } from 'hadron-build/commands/release';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
@@ -124,10 +125,9 @@ export class Compass {
       }
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
-        // TODO
         debugClient(
           `${prop}(${args
-            .map((arg) => inspect(arg, { breakLength: Infinity }))
+            .map((arg) => redact(inspect(arg, { breakLength: Infinity })))
             .join(', ')})`
         );
 
@@ -319,7 +319,6 @@ async function startCompass(
   debug('Starting compass via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
-  // TODO
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const browser = await remote(options);
@@ -336,7 +335,6 @@ async function startCompass(
  * @returns {Promise<CompassLog>}
  */
 async function getCompassLog(logPath: string): Promise<any> {
-  // TODO
   const names = await fs.readdir(logPath);
   const logNames = names.filter((name) => name.endsWith('_log.gz'));
 
@@ -580,4 +578,33 @@ export async function afterTest(
   if (test && test.state === 'failed') {
     await compass.capturePage(screenshotPathName(test.fullTitle()));
   }
+}
+
+const SENSITIVE_ENV_VARS = [
+  'E2E_TESTS_ATLAS_PASSWORD',
+  'E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID',
+  'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
+];
+
+function redact(value: string): string {
+  for (const field of SENSITIVE_ENV_VARS) {
+    if (process.env[field] === undefined) {
+      continue;
+    }
+
+    const quoted = `'${process.env[field] as string}'`;
+    // /regex/s would be ideal, but we'd have to escape the value to not be
+    // interpreted as a regex.
+    while (value.indexOf(quoted) !== -1) {
+      value = value.replace(quoted, "'$" + field + "'");
+    }
+  }
+
+  // This is first going to try and parse the value as a connection string
+  // before falling back to some regular expressions. Sometimes we pass a
+  // connection string to a command, more often there's a connection string deep
+  // in there somewhere.
+  value = redactConnectionString(value, { replacementString: '<redacted>' });
+
+  return value;
 }
