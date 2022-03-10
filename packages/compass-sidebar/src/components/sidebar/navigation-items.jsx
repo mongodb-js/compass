@@ -61,7 +61,7 @@ const NavigationItem = ({ label, icon, onItemClick, isExpanded }) => {
   return (
     <button {...buttonProps}>
       <Icon title={null} glyph={icon} className={iconStyle} />
-      <span className={!isExpanded && hiddenLabel}>{label}</span>
+      <span className={!isExpanded ? hiddenLabel : undefined}>{label}</span>
     </button>
   );
 };
@@ -77,9 +77,10 @@ export const NavigationItems = ({ onItemClick, isExpanded }) => {
   return (
     <nav>
       <ul className={navList}>
-        {items.map((item) => {
+        {items.map((item, index) => {
           return (
             <NavigationItem
+              key={`${index}-${item.tabName}`}
               label={item.label}
               icon={item.icon}
               onItemClick={() => onItemClick(item.tabName)}
