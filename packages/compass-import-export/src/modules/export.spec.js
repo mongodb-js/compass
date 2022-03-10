@@ -28,6 +28,7 @@ describe('export [module]', function() {
 
       afterEach(async function() {
         await dropCollection(TEST_COLLECTION_NAME);
+        await dataService.disconnect();
       });
 
       beforeEach(async function() {
