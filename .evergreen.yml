@@ -160,7 +160,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
 
           # Prepare workspaces in provided scope
-          npx lerna run bootstrap --stream --scope "${scope}"
+          npx lerna run bootstrap --stream --scope "${scope}" --include-dependencies
 
   check:
     command: shell.exec
@@ -301,15 +301,22 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          echo "Unpacking ${app_archive_name} ..."
-
           # Unpack the app archive
           if [[ "${app_archive_name}" == *.zip ]]; then
-            mkdir -p "$COMPASS_APP_PATH"
-            unzip "packages/compass/dist/${app_archive_name}" -d "$COMPASS_APP_PATH"
+            COMPASS_OUTDIR="$COMPASS_APP_PATH"
+            if [[ "$IS_OSX" == "true" ]]; then
+              # unzip on macos needs a different path to avoid nesting the .app
+              # inside another .app dir
+              COMPASS_OUTDIR=$(dirname "$COMPASS_APP_PATH")
+            fi
+            echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
+            mkdir -p "$COMPASS_OUTDIR"
+            unzip "packages/compass/dist/${app_archive_name}" -d "$COMPASS_OUTDIR"
           else
-            mkdir -p "packages/compass/dist"
-            tar -xzf "packages/compass/dist/${app_archive_name}" -C "packages/compass/dist"
+            COMPASS_OUTDIR="packages/compass/dist"
+            echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
+            mkdir -p "$COMPASS_OUTDIR"
+            tar -xzf "packages/compass/dist/${app_archive_name}" -C "$COMPASS_OUTDIR"
           fi
 
           # Print folder content to confirm that it worked
@@ -334,7 +341,14 @@ functions:
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          if [[ "$IS_OSX" == "true" ]]; then
+            echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/BUILD-14458)"
+            export COMPASS_E2E_DISABLE_KEYCHAIN_USAGE="true"
+          fi
+
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4} \
+              npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
     - command: shell.exec
@@ -590,6 +604,8 @@ tasks:
       - func: prepare
       - func: install
       - func: bootstrap
+        vars:
+          scope: 'mongodb-data-service'
       - func: test-connectivity
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
@@ -746,11 +762,9 @@ buildvariants:
     run_on: macos-1014-codesign
     tasks:
       - name: test-electron
-      # TODO: These tests are not currently running due to keychain access
-      #       missing. We disable this step to not block codesign machine time
-      #       with bootstrap / teardown that does nothing. We should be able to
-      #       enable these tests after https://jira.mongodb.org/browse/BUILD-14458
-      # - name: test-packaged-app-macos
+      # TODO: Even though these tests are running, they run compass with a
+      #       keychain disabled https://jira.mongodb.org/browse/BUILD-14458
+      - name: test-packaged-app-macos
 
   - name: macos
     display_name: MacOS (Test and Package)

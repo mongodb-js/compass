@@ -228,6 +228,7 @@ describe('Connection screen', function () {
     }
 
     if (process.env.EVERGREEN && process.platform === 'win32') {
+      // TODO: https://jira.mongodb.org/browse/COMPASS-5575
       console.warn("Evergreen doesn't have aws cli installed");
       this.skip();
     }
