@@ -42,20 +42,14 @@ let j = 0;
 // For the html
 //let k = 0;
 
-type CompassOptions = {
-  userDataDir: string;
-};
-
 export class Compass {
   browser: CompassBrowser;
   renderLogs: any[]; // TODO
   logs: LogEntry[];
   logPath?: string;
-  userDataDir: string;
 
-  constructor(browser: CompassBrowser, options: CompassOptions) {
+  constructor(browser: CompassBrowser) {
     this.browser = browser;
-    this.userDataDir = options.userDataDir;
     this.logs = [];
     this.renderLogs = [];
 
@@ -190,16 +184,6 @@ export class Compass {
     debug(`Writing Compass application log to ${compassLogPath}`);
     await fs.writeFile(compassLogPath, compassLog.raw);
     this.logs = compassLog.structured;
-
-    debug('Removing user data');
-    try {
-      await fs.rmdir(this.userDataDir, { recursive: true });
-    } catch (e) {
-      debug(
-        `Failed to remove temporary user data directory at ${this.userDataDir}:`
-      );
-      debug(e);
-    }
   }
 
   async capturePage(
@@ -215,23 +199,51 @@ export class Compass {
   }
 }
 
-async function startCompass(
-  testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP ?? ''),
-  opts = {}
-): Promise<Compass> {
+interface StartCompassOptions {
+  firstRun?: boolean;
+}
+
+let defaultUserDataDir: string;
+
+async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+  const testPackagedApp = ['1', 'true'].includes(
+    process.env.TEST_PACKAGED_APP ?? ''
+  );
+
   const nowFormatted = formattedDate();
 
-  const userDataDir = path.join(
-    os.tmpdir(),
-    `user-data-dir-${Date.now().toString(32)}-${++i}`
-  );
+  // If this is not the first run, but we want it to be, delete the user data
+  // dir so it will be recreated below.
+  if (defaultUserDataDir && opts.firstRun) {
+    debug('Removing user data');
+    try {
+      await fs.rmdir(defaultUserDataDir, { recursive: true });
+    } catch (e) {
+      debug(
+        `Failed to remove temporary user data directory at ${defaultUserDataDir}:`
+      );
+      debug(e);
+    }
+  }
+
+  // Calculate the userDataDir once so it will be the same between runs. That
+  // way we can test first run vs second run experience.
+  if (!defaultUserDataDir) {
+    defaultUserDataDir = path.join(
+      os.tmpdir(),
+      `user-data-dir-${Date.now().toString(32)}-${++i}`
+    );
+  }
   const chromedriverLogPath = path.join(
     LOG_PATH,
     `chromedriver.${nowFormatted}.log`
   );
   const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
-  await fs.mkdir(userDataDir, { recursive: true });
+  // Ensure that the user data dir exists
+  // TODO: try catch
+  await fs.mkdir(defaultUserDataDir, { recursive: true });
+
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
   // for consistency let's mkdir for both of them just in case
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
@@ -252,7 +264,7 @@ async function startCompass(
   // https://peter.sh/experiments/chromium-command-line-switches/
   // https://www.electronjs.org/docs/latest/api/command-line-switches
   chromeArgs.push(
-    `--user-data-dir=${userDataDir}`,
+    `--user-data-dir=${defaultUserDataDir}`,
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
     '--media-router=0',
@@ -323,7 +335,7 @@ async function startCompass(
   // @ts-expect-error
   const browser = await remote(options);
 
-  const compass = new Compass(browser, { userDataDir });
+  const compass = new Compass(browser);
 
   await compass.recordLogs();
 
@@ -514,8 +526,10 @@ function augmentError(error: Error, stack: string) {
   error.stack = `${error.stack ?? ''}\nvia ${strippedLines.join('\n')}`;
 }
 
-export async function beforeTests(): Promise<Compass> {
-  const compass = await startCompass();
+export async function beforeTests(
+  opts?: StartCompassOptions
+): Promise<Compass> {
+  const compass = await startCompass(opts);
 
   const { browser } = compass;
 
