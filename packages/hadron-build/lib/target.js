@@ -389,6 +389,7 @@ class Target {
 
     this.createInstaller = async() => {
       const electronWinstaller = require('electron-winstaller');
+      console.log((await promisify(childProcess.execFile)('find', [this.out])).stdout)
 
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
 
