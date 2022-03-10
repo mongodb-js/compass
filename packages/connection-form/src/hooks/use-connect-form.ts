@@ -182,7 +182,7 @@ function buildStateFromConnectionInfo(
     enableEditingConnectionString:
       initialConnectionInfo.connectionOptions.connectionString ===
         defaultConnectionString && !initialConnectionInfo.lastUsed,
-    warnings: errors
+    warnings: errors?.length
       ? []
       : validateConnectionOptionsWarnings(
           initialConnectionInfo.connectionOptions
@@ -550,12 +550,9 @@ export function useConnectForm(
           ...state,
           errors: [], // on each update the errors should reset
           ...updatedState,
-          warnings:
-            updatedState.errors && updatedState.errors.length > 0
-              ? []
-              : validateConnectionOptionsWarnings(
-                  updatedState.connectionOptions
-                ),
+          warnings: updatedState.errors?.length
+            ? []
+            : validateConnectionOptionsWarnings(updatedState.connectionOptions),
           isDirty: !isEqual(
             updatedState.connectionOptions,
             state.connectionOptions
