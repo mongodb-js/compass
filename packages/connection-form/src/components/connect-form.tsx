@@ -14,7 +14,9 @@ import {
   H3,
   spacing,
   css,
+  cx,
   uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
@@ -29,7 +31,7 @@ const formContainerStyles = css({
   margin: 0,
   padding: 0,
   height: 'fit-content',
-  width: 700,
+  width: spacing[6] * 10,
   position: 'relative',
   display: 'inline-block',
 });
@@ -42,6 +44,14 @@ const formCardStyles = css({
   display: 'flex',
   flexFlow: 'column nowrap',
   maxHeight: '95vh',
+});
+
+const formCardDarkThemeStyles = css({
+  background: uiColors.gray.dark3,
+});
+
+const formCardLightThemeStyles = css({
+  background: uiColors.white,
 });
 
 const descriptionStyles = css({
@@ -103,6 +113,7 @@ const favoriteButtonLabelStyles = css({
 });
 
 function ConnectForm({
+  darkMode,
   initialConnectionInfo,
   connectionErrorMessage,
   onConnectClicked,
@@ -110,6 +121,7 @@ function ConnectForm({
   // the connection info can be saved.
   onSaveConnectionClicked,
 }: {
+  darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
@@ -168,7 +180,12 @@ function ConnectForm({
   return (
     <>
       <div className={formContainerStyles} data-testid="connection-form">
-        <Card className={formCardStyles}>
+        <Card
+          className={cx(
+            formCardStyles,
+            darkMode ? formCardDarkThemeStyles : formCardLightThemeStyles
+          )}
+        >
           <form
             className={formStyles}
             onSubmit={(e) => {
@@ -286,4 +303,4 @@ function ConnectForm({
   );
 }
 
-export default ConnectForm;
+export default withTheme(ConnectForm);

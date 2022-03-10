@@ -63,7 +63,7 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
-export { useTheme, Theme, ThemeProvider } from './hooks/use-theme';
+export { withTheme, useTheme, Theme, ThemeProvider } from './hooks/use-theme';
 export {
   ContentWithFallback,
   FadeInPlaceholder,
