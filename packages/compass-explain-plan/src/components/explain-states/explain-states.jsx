@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Button, ButtonSize, ButtonVariant, Link } from '@mongodb-js/compass-components';
 import { ZeroState, StatusRow, ViewSwitcher } from 'hadron-react-components';
-import { TextButton } from 'hadron-react-buttons';
 import { ZeroGraphic } from '../zero-graphic';
 import { ExplainBody } from '../explain-body';
 
@@ -119,13 +119,6 @@ class ExplainStates extends Component {
   }
 
   /**
-   * Opens the documentation.
-   */
-  openDocumentation() {
-    this.props.openLink(DOCUMENTATION_LINK);
-  }
-
-  /**
    * Render banner with information.
    *
    * @returns {React.Component} The component.
@@ -155,23 +148,24 @@ class ExplainStates extends Component {
         <div key="zero-state" className={styles['zero-state-container']}>
           <ZeroGraphic />
           <ZeroState header={HEADER} subtext={SUBTEXT}>
-            <div className={styles['zero-state-action']}>
-              <div>
-                <TextButton
-                  dataTestId="execute-explain-button"
-                  className={
-                    `btn btn-primary btn-lg ${!this.props.isEditable ? 'disabled' : ''}`
-                  }
-                  text="Execute Explain"
-                  clickHandler={this.onExecuteExplainClicked.bind(this)} />
-              </div>
-              <a
-                className={styles['zero-state-link']}
-                onClick={this.openDocumentation.bind(this)}
+            <div>
+              <Button
+                onClick={this.onExecuteExplainClicked.bind(this)}
+                disabled={!this.props.isEditable}
+                data-test-id="execute-explain-button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Large}
               >
-                Learn more about explain plans
-              </a>
+                Execute Explain
+              </Button>
             </div>
+            <Link
+              className={styles['zero-state-link']}
+              href={DOCUMENTATION_LINK}
+              target="_blank"
+            >
+              Learn more about explain plans
+            </Link>
           </ZeroState>
         </div>
       );

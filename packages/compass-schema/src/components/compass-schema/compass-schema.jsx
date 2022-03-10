@@ -2,8 +2,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StatusRow, ZeroState } from 'hadron-react-components';
-import { TextButton } from 'hadron-react-buttons';
-import { CancelLoader, Link } from '@mongodb-js/compass-components';
+import { Button, ButtonSize, ButtonVariant, CancelLoader, Link } from '@mongodb-js/compass-components';
 import Field from '../field';
 import AnalysisCompleteMessage from '../analysis-complete-message';
 import ZeroGraphic from '../zero-graphic';
@@ -141,14 +140,15 @@ class Schema extends Component {
         <ZeroState
           header={HEADER}
           subtext={SUBTEXT}>
-          <div className={styles['schema-zero-state-action']}>
-            <div>
-              <TextButton
-                dataTestId="analyze-schema-button"
-                className="btn btn-primary btn-lg"
-                text="Analyze Schema"
-                clickHandler={this.onApplyClicked.bind(this)} />
-            </div>
+          <div>
+            <Button
+              onClick={this.onApplyClicked.bind(this)}
+              data-test-id="analyze-schema-button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
+            >
+              Analyze Schema
+            </Button>
           </div>
           <Link
             className={styles['schema-zero-state-link']}
