@@ -33,8 +33,7 @@ function deleteCompassAppNameParam(
 
   try {
     connectionStringUrl = new ConnectionString(
-      connectionInfo.connectionOptions.connectionString,
-      { looseValidation: true }
+      connectionInfo.connectionOptions.connectionString
     );
   } catch {
     return connectionInfo;
@@ -262,8 +261,7 @@ function setDirectConnectionForSingleHosts(connectionInfo: ConnectionInfo) {
 
   try {
     connectionStringUrl = new ConnectionString(
-      connectionInfo.connectionOptions.connectionString,
-      { looseValidation: true }
+      connectionInfo.connectionOptions.connectionString
     );
   } catch {
     return connectionInfo;
@@ -296,9 +294,7 @@ function setConnectionStringParam<K extends keyof MongoClientOptions>(
   param: K,
   value: string
 ) {
-  const url = new ConnectionString(connectionOptions.connectionString, {
-    looseValidation: true,
-  });
+  const url = new ConnectionString(connectionOptions.connectionString);
   url.typedSearchParams<MongoClientOptions>().set(param, value);
   connectionOptions.connectionString = url.toString();
 }
@@ -307,9 +303,7 @@ function modelSslPropertiesToConnectionOptions(
   driverOptions: MongoClientOptions,
   connectionOptions: ConnectionOptions
 ): void {
-  const url = new ConnectionString(connectionOptions.connectionString, {
-    looseValidation: true,
-  });
+  const url = new ConnectionString(connectionOptions.connectionString);
   const searchParams = url.typedSearchParams<MongoClientOptions>();
 
   if (driverOptions.sslValidate === false) {
@@ -470,9 +464,7 @@ function convertSslOptionsToLegacyProperties(
   options: ConnectionOptions,
   properties: Partial<LegacyConnectionModelProperties>
 ): void {
-  const url = new ConnectionString(options.connectionString, {
-    looseValidation: true,
-  });
+  const url = new ConnectionString(options.connectionString);
   const searchParams = url.typedSearchParams<MongoClientOptions>();
   const tlsCAFile = searchParams.get('tlsCAFile');
   const tlsCertificateKeyFile = searchParams.get('tlsCertificateKeyFile');
@@ -502,9 +494,7 @@ function convertSslOptionsToLegacyProperties(
 }
 
 function optionsToSslMethod(options: ConnectionOptions): SslMethod {
-  const url = new ConnectionString(options.connectionString, {
-    looseValidation: true,
-  });
+  const url = new ConnectionString(options.connectionString);
   const searchParams = url.typedSearchParams<MongoClientOptions>();
   const tls = searchParams.get('tls') || searchParams.get('ssl');
 
@@ -545,7 +535,7 @@ function optionsToSslMethod(options: ConnectionOptions): SslMethod {
 // connection won't fail and MONGODB-AWS connections will appear
 // as unauthenticated.
 function removeAWSParams(connectionString: string): string {
-  const url = new ConnectionString(connectionString, { looseValidation: true });
+  const url = new ConnectionString(connectionString);
   const searchParams = url.typedSearchParams<MongoClientOptions>();
 
   if (searchParams.get('authMechanism') === 'MONGODB-AWS') {

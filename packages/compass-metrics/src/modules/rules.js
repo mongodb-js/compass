@@ -6,7 +6,7 @@ const LOCALHOST = /(^localhost)|(^127\.0\.0\.1)/gi;
 
 async function getCloudInfoFromDataService(dataService) {
   try {
-    const url = new ConnectionString(dataService.getConnectionOptions().connectionString, {looseValidation: true});
+    const url = new ConnectionString(dataService.getConnectionOptions().connectionString);
     const firstServerHostname = (url.hosts[0] || '').split(':')[0];
     return await getCloudInfo(firstServerHostname);
   } catch (e) {

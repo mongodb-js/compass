@@ -403,8 +403,8 @@ describe('SRV connectivity', function () {
     expect(resolutionLogs).to.have.lengthOf(1);
 
     const { from, to, resolutionDetails } = resolutionLogs[0];
-    const fromCS = new ConnectionString(from, { looseValidation: true });
-    const toCS = new ConnectionString(to, { looseValidation: true });
+    const fromCS = new ConnectionString(from);
+    const toCS = new ConnectionString(to);
     fromCS.searchParams.delete('appname');
     toCS.searchParams.delete('appname');
     toCS.hosts.sort();
