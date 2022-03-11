@@ -128,16 +128,11 @@ describe('SchemaInput', function () {
       });
 
       it('should call to update the tlsCAFile with the chosen file', function () {
-        expect(updateConnectionFormFieldSpy.callCount).to.equal(2);
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
           type: 'update-tls-option',
           key: 'tlsCAFile',
           value: 'new/caFile/path',
-        });
-        expect(updateConnectionFormFieldSpy.secondCall.args[0]).to.deep.equal({
-          type: 'update-tls-option',
-          key: 'useSystemCA',
-          value: null,
         });
       });
     });
