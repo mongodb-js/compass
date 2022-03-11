@@ -7,23 +7,28 @@ import {
   fireEvent,
 } from '@testing-library/react';
 import { expect } from 'chai';
-import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
+import type {
+  ConnectionInfo,
+  ConnectionOptions,
+  ConnectionStorage,
+} from 'mongodb-data-service';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
 
 import Connections from './connections';
-import type { ConnectionStore } from '../stores/connections-store';
 import { ToastArea } from '@mongodb-js/compass-components';
 
 function getMockConnectionStorage(
   mockConnections: ConnectionInfo[]
-): ConnectionStore {
+): ConnectionStorage {
   return {
     loadAll: () => {
       return Promise.resolve(mockConnections);
     },
     save: () => Promise.resolve(),
     delete: () => Promise.resolve(),
+    load: (id: string) =>
+      Promise.resolve(mockConnections.find((conn) => conn.id === id)),
   };
 }
 
@@ -113,7 +118,7 @@ describe('Connections Component', function () {
 
   describe('when rendered with saved connections in storage', function () {
     let mockConnectFn: sinon.SinonSpy;
-    let mockStorage: ConnectionStore;
+    let mockStorage: ConnectionStorage;
     let savedConnectionId: string;
     let savedConnectionWithAppNameId: string;
     let saveConnectionSpy: sinon.SinonSpy;

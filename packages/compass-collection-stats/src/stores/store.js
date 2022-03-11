@@ -111,7 +111,10 @@ function onCollectionStatusChange(model, status) {
     }
     if (status === 'error') {
       debug('failed to fetch collection details', model.statusError);
-      this.setState(this.getInitialState());
+      store.setState({
+        ...store.getInitialState(),
+        namespace: store.state.namespace
+      });
     }
   }
 }

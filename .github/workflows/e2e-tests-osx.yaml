@@ -77,6 +77,10 @@ jobs:
           E2E_TESTS_ATLAS_USERNAME: ${{ secrets.E2E_TESTS_ATLAS_USERNAME }}
           E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
           E2E_TESTS_ATLAS_X509_PEM: ${{ secrets.E2E_TESTS_ATLAS_X509_PEM }}
+          E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID: ${{ secrets.E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID }}
+          E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY: ${{ secrets.E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY }}
+          E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN: ${{ secrets.E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN }}
+          E2E_TESTS_ATLAS_IAM_USER_ARN: ${{ secrets.E2E_TESTS_ATLAS_IAM_USER_ARN }}
           # Matches what we are doing in Evergreen
           MONGODB_VERSION: '4'
           DEBUG: 'compass-e2e-tests*,hadron*'

@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import { Button, ButtonSize, ButtonVariant, Link } from '@mongodb-js/compass-components';
 import { ZeroState, StatusRow } from 'hadron-react-components';
-import { TextButton } from 'hadron-react-buttons';
 import ValidationEditor from '../validation-editor';
 import SampleDocuments from '../sample-documents';
 import { ZeroGraphic } from '../zero-graphic';
@@ -114,7 +113,7 @@ class ValidationStates extends Component {
               {READ_ONLY_WARNING.oldServerReadOnly}
               <div>&nbsp;</div>
               <a
-                className={classnames(styles['upgrade-link'])}
+                className={styles['upgrade-link']}
                 onClick={this.props.openLink.bind(this, DOC_UPGRADE_REVISION)}
               >
                 upgrade to MongoDB 3.2.
@@ -142,25 +141,26 @@ class ValidationStates extends Component {
     }
 
     return (
-      <div className={classnames(styles['zero-state-container'])}>
+      <div className={styles['zero-state-container']}>
         <ZeroGraphic />
         <ZeroState header={HEADER} subtext={SUBTEXT}>
-          <div className={classnames(styles['zero-state-action'])}>
-            <div>
-              <TextButton
-                dataTestId="add-rule-button"
-                className={`btn btn-primary btn-lg ${
-                  !this.isEditable() ? 'disabled' : ''
-                }`}
-                text="Add Rule"
-                clickHandler={this.props.changeZeroState.bind(this, false)} />
-            </div>
-            <a
-              className={classnames(styles['zero-state-link'])}
-              onClick={this.props.openLink.bind(this, DOC_SCHEMA_VALIDATION)}>
-              Learn more about validations
-            </a>
+          <div className={styles['zero-state-action']}>
+            <Button
+              data-test-id="add-rule-button"
+              disabled={!this.isEditable()}
+              onClick={this.props.changeZeroState.bind(this, false)}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
+            >
+              Add Rule
+            </Button>
           </div>
+          <Link
+            className={styles['zero-state-link']}
+            onClick={this.props.openLink.bind(this, DOC_SCHEMA_VALIDATION)}
+          >
+            Learn more about validations
+          </Link>
         </ZeroState>
       </div>
     );
@@ -181,7 +181,7 @@ class ValidationStates extends Component {
     }
 
     return (
-      <div className={classnames(styles['content-container'])}>
+      <div className={styles['content-container']}>
         <ValidationEditor {...this.props} isEditable={this.isEditable()} />
         <SampleDocuments {...this.props} />
       </div>
@@ -195,7 +195,7 @@ class ValidationStates extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles['validation-states'])}>
+      <div className={styles['validation-states']}>
         {this.renderBanner()}
         {this.renderZeroState()}
         {this.renderContent()}

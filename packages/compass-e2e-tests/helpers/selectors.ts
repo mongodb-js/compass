@@ -279,6 +279,7 @@ export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="database-grid"] [data-testid="create-controls"] button';
+export const DatabaseCard = '[data-testid="database-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
   '[data-testid="database-grid"] [data-testid="card-action-container"] button';
@@ -298,7 +299,7 @@ export const instanceTab = (tabName: string, selected?: boolean): string => {
   return selector;
 };
 export const databaseCard = (dbName: string): string => {
-  return `[data-testid="database-grid-item"][data-id="${dbName}"]`;
+  return `${DatabaseCard}[data-id="${dbName}"]`;
 };
 
 export const databaseCardClickable = (dbName: string): string => {
@@ -313,6 +314,7 @@ export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
   '[data-testid="collection-grid"] [data-testid="card-action-container"] button';
@@ -335,7 +337,7 @@ export const collectionCard = (
   dbName: string,
   collectionName: string
 ): string => {
-  return `[data-testid="collection-grid-item"][data-id="${dbName}.${collectionName}"]`;
+  return `${CollectionCard}[data-id="${dbName}.${collectionName}"]`;
 };
 
 export const collectionCardClickable = (

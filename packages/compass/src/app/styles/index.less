@@ -28,19 +28,19 @@
 @import './hadron-tooltip.less';
 @import './info-sprinkle.less';
 @import './option-selector.less';
-@import './sortable-table.less';
 @import './status-row.less';
 
-html,
-body {
+:root {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font: 100% 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: @gray1;
-  background-color: @gray8;
   -webkit-font-smoothing: antialiased;
+
+  // The color and background styles are overridden by the current theme.
+  background-color: @gray8;
+  color: @grayDark2;
 }
 
 .loading {
@@ -51,27 +51,27 @@ body {
     width: 100vw;
     height: 100vh;
     display: grid;
-    grid-template-columns: 250px auto;
+    grid-template-columns: 248px auto;
     grid-template-areas: 'sidebar content';
     pointer-events: none;
   }
 
   &-sidebar {
     grid-area: 'sidebar';
-    background: @grayDark2;
+    background: @grayDark3;
   }
 
   &-new-connection-button {
-    height: 38px;
+    height: 48px;
     box-sizing: content-box;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    // Not in style vars, copied over from sidebar.module.less
-    background-color: lighten(hsl(201, 11%, 41%), 10%);
+    // These styles are coupled with the actual button from compass-connections.
+    background: @grayDark2;
   }
 
   &-content {
     grid-area: 'content';
-    background-color: @gray8;
+    background: @gray8;
   }
 }
 
@@ -93,7 +93,7 @@ body {
 
   // Becomes not empty when the first render happens and the app is "ready"
   &:not(:empty) {
-    background-color: @gray8;
+    background-color: inherit;
     animation-name: fadein;
     animation-duration: 0.2s;
     animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);

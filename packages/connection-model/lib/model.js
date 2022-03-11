@@ -446,7 +446,7 @@ function encodeURIComponentRFC3986(str) {
 }
 
 function setAuthSourceToExternal(url) {
-  const uri = new ConnectionString(url);
+  const uri = new ConnectionString(url, {looseValidation: true});
   uri.searchParams.set('authSource', '$external');
   return uri.toString();
 }
@@ -1118,7 +1118,7 @@ async function createConnectionFromUrl(url) {
       hosts: parsed.hosts,
       // If this is using an srv record, we can just take the original
       // URL before SRV resolution to get the "hostname".
-      hostname: isSrvRecord ? new ConnectionString(unescapedUrl).hosts[0] : parsed.hosts[0].host,
+      hostname: isSrvRecord ? new ConnectionString(unescapedUrl, {looseValidation: true}).hosts[0] : parsed.hosts[0].host,
       auth: parsed.auth,
       isSrvRecord
     },
@@ -1188,7 +1188,7 @@ async function createConnectionFromUrl(url) {
 
   // Since the 3.x parser does not recognize loadBalanced as an option, we have to
   // parse it ourselves.
-  const loadBalanced = new ConnectionString(unescapedUrl).searchParams.get('loadBalanced');
+  const loadBalanced = new ConnectionString(unescapedUrl, {looseValidation: true}).searchParams.get('loadBalanced');
   switch (loadBalanced) {
     case 'true':
       attrs.loadBalanced = true;

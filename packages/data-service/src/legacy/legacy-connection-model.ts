@@ -33,7 +33,8 @@ function deleteCompassAppNameParam(
 
   try {
     connectionStringUrl = new ConnectionString(
-      connectionInfo.connectionOptions.connectionString
+      connectionInfo.connectionOptions.connectionString,
+      { looseValidation: true }
     );
   } catch {
     return connectionInfo;
@@ -253,7 +254,41 @@ export function convertConnectionModelToInfo(
     info.lastUsed = legacyModel.lastUsed;
   }
 
-  return deleteCompassAppNameParam(info);
+  return deleteCompassAppNameParam(setDirectConnectionForSingleHosts(info));
+}
+
+function setDirectConnectionForSingleHosts(connectionInfo: ConnectionInfo) {
+  let connectionStringUrl;
+
+  try {
+    connectionStringUrl = new ConnectionString(
+      connectionInfo.connectionOptions.connectionString,
+      { looseValidation: true }
+    );
+  } catch {
+    return connectionInfo;
+  }
+
+  const isLoadBalanced =
+    connectionStringUrl.searchParams.get('loadBalanced') === 'true';
+  const isReplicaSet =
+    connectionStringUrl.isSRV ||
+    connectionStringUrl.hosts.length > 1 ||
+    connectionStringUrl.searchParams.has('replicaSet');
+  const hasDirectConnection =
+    connectionStringUrl.searchParams.has('directConnection');
+
+  if (!isReplicaSet && !isLoadBalanced && !hasDirectConnection) {
+    connectionStringUrl.searchParams.set('directConnection', 'true');
+  }
+
+  return {
+    ...connectionInfo,
+    connectionOptions: {
+      ...connectionInfo.connectionOptions,
+      connectionString: connectionStringUrl.href,
+    },
+  };
 }
 
 function setConnectionStringParam<K extends keyof MongoClientOptions>(
@@ -261,7 +296,9 @@ function setConnectionStringParam<K extends keyof MongoClientOptions>(
   param: K,
   value: string
 ) {
-  const url = new ConnectionString(connectionOptions.connectionString);
+  const url = new ConnectionString(connectionOptions.connectionString, {
+    looseValidation: true,
+  });
   url.typedSearchParams<MongoClientOptions>().set(param, value);
   connectionOptions.connectionString = url.toString();
 }
@@ -270,7 +307,9 @@ function modelSslPropertiesToConnectionOptions(
   driverOptions: MongoClientOptions,
   connectionOptions: ConnectionOptions
 ): void {
-  const url = new ConnectionString(connectionOptions.connectionString);
+  const url = new ConnectionString(connectionOptions.connectionString, {
+    looseValidation: true,
+  });
   const searchParams = url.typedSearchParams<MongoClientOptions>();
 
   if (driverOptions.sslValidate === false) {
@@ -431,7 +470,9 @@ function convertSslOptionsToLegacyProperties(
   options: ConnectionOptions,
   properties: Partial<LegacyConnectionModelProperties>
 ): void {
-  const url = new ConnectionString(options.connectionString);
+  const url = new ConnectionString(options.connectionString, {
+    looseValidation: true,
+  });
   const searchParams = url.typedSearchParams<MongoClientOptions>();
   const tlsCAFile = searchParams.get('tlsCAFile');
   const tlsCertificateKeyFile = searchParams.get('tlsCertificateKeyFile');
@@ -461,7 +502,9 @@ function convertSslOptionsToLegacyProperties(
 }
 
 function optionsToSslMethod(options: ConnectionOptions): SslMethod {
-  const url = new ConnectionString(options.connectionString);
+  const url = new ConnectionString(options.connectionString, {
+    looseValidation: true,
+  });
   const searchParams = url.typedSearchParams<MongoClientOptions>();
   const tls = searchParams.get('tls') || searchParams.get('ssl');
 
@@ -502,7 +545,7 @@ function optionsToSslMethod(options: ConnectionOptions): SslMethod {
 // connection won't fail and MONGODB-AWS connections will appear
 // as unauthenticated.
 function removeAWSParams(connectionString: string): string {
-  const url = new ConnectionString(connectionString);
+  const url = new ConnectionString(connectionString, { looseValidation: true });
   const searchParams = url.typedSearchParams<MongoClientOptions>();
 
   if (searchParams.get('authMechanism') === 'MONGODB-AWS') {
