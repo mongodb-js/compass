@@ -1,4 +1,5 @@
 import chai from 'chai';
+import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
@@ -298,7 +299,7 @@ MongoCollection<Document> collection = database.getCollection("numbers");
 FindIterable<Document> result = collection.find(filter);`);
   });
 
-  it.only('supports view/edit via list view', async function () {
+  it('supports view/edit via list view', async function () {
     await browser.runFindOperation('Documents', '{ i: 31 }');
     const document = await browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
@@ -325,7 +326,7 @@ FindIterable<Document> result = collection.find(filter);`);
       .to.match(/^_id : [a-f0-9]{24} i : 31 j : 42$/);
   });
 
-  it.only('supports view/edit via json view', async function () {
+  it('supports view/edit via json view', async function () {
     await browser.runFindOperation('Documents', '{ i: 32 }');
     await browser.clickVisible('[data-test-id="toolbar-view-json"]');
 
@@ -358,7 +359,7 @@ FindIterable<Document> result = collection.find(filter);`);
       .to.match(/^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 1234 \}$/);
   });
 
-  it.only('supports view/edit via table view', async function () {
+  it('supports view/edit via table view', async function () {
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible('[data-test-id="toolbar-view-table"]');
 
@@ -387,10 +388,51 @@ FindIterable<Document> result = collection.find(filter);`);
       .to.match(/^[a-f0-9]{24} 33 -100$/);
   });
 
-  it.only('can insert a document in list view'); // note: put these into collection-import.test.ts
-  it.only('can insert a document in json view');
+  it('can copy a document from the contextual toolbar', async function () {
+    await browser.runFindOperation('Documents', '{ i: 34 }');
 
-  it.only('can copy a document from the contextual toolbar');
-  it.only('can clone a document from the contextual toolbar');
-  it.only('can delete a document from the contextual toolbar');
+    const document = await browser.$(Selectors.DocumentListEntry);
+    await document.waitForDisplayed();
+
+    await browser.hover(Selectors.DocumentListEntry);
+    await browser.clickVisible('[data-test-id="copy-document-button"]');
+
+    expect((await clipboard.read()).replace(/\s+/g, ' '))
+      .to.match(/^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 34, "j": 0\}$/);
+  });
+
+  it('can clone and delete a document from the contextual toolbar', async function () {
+    await browser.runFindOperation('Documents', '{ i: 35 }');
+
+    const document = await browser.$(Selectors.DocumentListEntry);
+    await document.waitForDisplayed();
+
+    await browser.hover(Selectors.DocumentListEntry);
+    await browser.clickVisible('[data-test-id="clone-document-button"]');
+
+    // wait for the modal to appear
+    const insertDialog = await browser.$(Selectors.InsertDialog);
+    await insertDialog.waitForDisplayed();
+
+    // set the text in the editor and insert the document
+    await browser.setAceValue(Selectors.InsertJSONEditor, '{ "i": 10042 }');
+    const insertConfirm = await browser.$(Selectors.InsertConfirm);
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+
+    await browser.runFindOperation('Documents', '{ i: 10042 }');
+
+    const newDocument = await browser.$(Selectors.DocumentListEntry);
+    await newDocument.waitForDisplayed();
+    expect((await newDocument.getText()).replace(/\n/g, ' '))
+      .to.match(/^_id : [a-f0-9]{24} i : 10042$/);
+
+    await browser.hover(Selectors.DocumentListEntry);
+    await browser.clickVisible('[data-test-id="delete-document-button"]');
+    await browser.clickVisible('[data-test-id="confirm-delete-document-button"]');
+
+    await browser.runFindOperation('Documents', '{ i: 10042 }');
+    const noDocuments = await browser.$('.document-list-zero-state');
+    await noDocuments.waitForDisplayed();
+  });
 });
