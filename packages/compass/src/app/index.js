@@ -308,7 +308,10 @@ var Application = View.extend({
       var currentVersion = APP_VERSION;
       var save = false;
       if (
-        semver.lt(oldVersion, currentVersion)
+        semver.lt(oldVersion, currentVersion) ||
+        // this is so we can test the tour modal in E2E tests where the version
+        // is always the same
+        process.env.SHOW_TOUR
       ) {
         prefs.showFeatureTour = oldVersion;
         save = true;

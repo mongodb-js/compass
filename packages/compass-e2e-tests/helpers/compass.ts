@@ -89,8 +89,7 @@ export class Compass {
           let value;
           try {
             value = await arg.jsonValue();
-          }
-          catch (err) {
+          } catch (err) {
             // there are still some edge cases we can't easily convert into text
             console.error('could not convert', arg);
             value = '¯\\_(ツ)_/¯';
@@ -551,8 +550,10 @@ export async function beforeTests(
   const { browser } = compass;
 
   await browser.waitForConnectionScreen();
-  if (compass.isFirstRun) {
+  if (process.env.SHOW_TOUR) {
     await browser.closeTourModal();
+  }
+  if (compass.isFirstRun) {
     await browser.closePrivacySettingsModal();
   }
 
