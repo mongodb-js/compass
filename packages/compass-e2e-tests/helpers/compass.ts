@@ -213,9 +213,12 @@ interface StartCompassOptions {
   firstRun?: boolean;
 }
 
-let defaultUserDataDir: string;
+let defaultUserDataDir: string | undefined;
 
 export function removeUserDataDir(): void {
+  if (!defaultUserDataDir) {
+    return;
+  }
   debug('Removing user data');
   try {
     // this is sync so we can use it in cleanup() in index.ts
@@ -241,6 +244,9 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // dir so it will be recreated below.
   if (defaultUserDataDir && opts.firstRun) {
     removeUserDataDir();
+    // windows seems to be weird about us deleting and recreating this dir, so
+    // just make a new one for next time
+    defaultUserDataDir = undefined;
   }
 
   // Calculate the userDataDir once so it will be the same between runs. That
