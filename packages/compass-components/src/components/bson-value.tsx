@@ -33,7 +33,7 @@ type BSONValueProps =
 
 type ValueProps =
   | BSONValueProps
-  | { type: 'Date'; value: Date; tz?: string }
+  | { type: 'Date'; value: Date }
   | { type: 'String'; value: string }
   | { type: 'Undefined'; value: undefined }
   | { type: 'Null'; value: null }
@@ -122,12 +122,6 @@ export const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
 
 export const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   value,
-  // NB: Compass (and dependants like Cloud) currently only support showing
-  // timezone in UTC, to avoid all the complexity of formatting with timezone
-  // included we ignore this logic for now, but we probably want to allow users
-  // to select timezone and display the output based on their settings. We can
-  // add support for this later when we really need / want to
-  // tz,
 }) => {
   const stringifiedValue = useMemo(() => {
     return new Date(value).toISOString().replace('Z', '+00:00');
@@ -257,7 +251,7 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
     case 'ObjectId':
       return <ObjectIdValue value={props.value}></ObjectIdValue>;
     case 'Date':
-      return <DateValue value={props.value} tz={props.tz}></DateValue>;
+      return <DateValue value={props.value}></DateValue>;
     case 'Binary':
       return <BinaryValue value={props.value}></BinaryValue>;
     case 'Int32':
