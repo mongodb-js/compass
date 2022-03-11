@@ -44,12 +44,14 @@ let j = 0;
 
 export class Compass {
   browser: CompassBrowser;
+  isFirstRun: boolean;
   renderLogs: any[]; // TODO
   logs: LogEntry[];
   logPath?: string;
 
-  constructor(browser: CompassBrowser) {
+  constructor(browser: CompassBrowser, { isFirstRun = false } = {}) {
     this.browser = browser;
+    this.isFirstRun = isFirstRun;
     this.logs = [];
     this.renderLogs = [];
 
@@ -84,7 +86,16 @@ export class Compass {
         // first arg is usually == text, but not always
         const args = [];
         for (const arg of message.args()) {
-          args.push(await arg.jsonValue());
+          let value;
+          try {
+            value = await arg.jsonValue();
+          }
+          catch (err) {
+            // there are still some edge cases we can't easily convert into text
+            console.error('could not convert', arg);
+            value = '¯\\_(ツ)_/¯';
+          }
+          args.push(value);
         }
 
         // uncomment to see browser logs
@@ -225,6 +236,8 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
 
   const nowFormatted = formattedDate();
 
+  const isFirstRun = opts.firstRun || !defaultUserDataDir;
+
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
   if (defaultUserDataDir && opts.firstRun) {
@@ -339,7 +352,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // @ts-expect-error
   const browser = await remote(options);
 
-  const compass = new Compass(browser);
+  const compass = new Compass(browser, { isFirstRun });
 
   await compass.recordLogs();
 
@@ -538,8 +551,10 @@ export async function beforeTests(
   const { browser } = compass;
 
   await browser.waitForConnectionScreen();
-  await browser.closeTourModal();
-  await browser.closePrivacySettingsModal();
+  if (compass.isFirstRun) {
+    await browser.closeTourModal();
+    await browser.closePrivacySettingsModal();
+  }
 
   return compass;
 }
