@@ -1,7 +1,18 @@
 import React from 'react';
-import { css, FileInput } from '@mongodb-js/compass-components';
+import {
+  Checkbox,
+  Description,
+  Label,
+  FileInput,
+  css,
+  cx,
+} from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
+import {
+  checkboxDescriptionStyles,
+  disabledCheckboxDescriptionStyles,
+} from './tls-ssl-tab';
 
 import FormFieldContainer from '../../form-field-container';
 
@@ -11,12 +22,17 @@ const caFieldsContainer = css({
 
 function TLSCertificateAuthority({
   connectionStringUrl,
+  useSystemCA,
   disabled,
-  updateCAFile,
+  handleTlsOptionChanged,
 }: {
   connectionStringUrl: ConnectionStringUrl;
+  useSystemCA: boolean;
   disabled: boolean;
-  updateCAFile: (newCAFile: string | null) => void;
+  handleTlsOptionChanged: (
+    key: 'tlsCAFile' | 'useSystemCA',
+    value: string | null
+  ) => void;
 }): React.ReactElement {
   const caFile = connectionStringUrl
     .typedSearchParams<MongoClientOptions>()
@@ -26,7 +42,7 @@ function TLSCertificateAuthority({
     <FormFieldContainer className={caFieldsContainer}>
       <FileInput
         description={'Learn More'}
-        disabled={disabled}
+        disabled={disabled || useSystemCA}
         id="tlsCAFile"
         dataTestId="tlsCAFile-input"
         label="Certificate Authority (.pem)"
@@ -34,11 +50,37 @@ function TLSCertificateAuthority({
           'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
         }
         onChange={(files: string[] | null) => {
-          updateCAFile(files && files.length > 0 ? files[0] : null);
+          handleTlsOptionChanged('tlsCAFile', files?.[0] ?? null);
         }}
         showFileOnNewLine
         values={caFile ? [caFile] : undefined}
         optional
+      />
+      <Checkbox
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          handleTlsOptionChanged(
+            'useSystemCA',
+            event.target.checked ? 'true' : null
+          );
+        }}
+        data-testid="useSystemCA-input"
+        id="useSystemCA-input"
+        label={
+          <>
+            <Label htmlFor="useSystemCA-input">
+              Use System Certificate Authority
+            </Label>
+            <Description
+              className={cx(checkboxDescriptionStyles, {
+                [disabledCheckboxDescriptionStyles]: disabled,
+              })}
+            >
+              Use the operating system’s Certificate Authority store.
+            </Description>
+          </>
+        }
+        disabled={disabled}
+        checked={useSystemCA}
       />
     </FormFieldContainer>
   );

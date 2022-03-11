@@ -433,3 +433,51 @@ describe('SRV connectivity', function () {
     });
   });
 });
+
+// eslint-disable-next-line mocha/max-top-level-suites
+describe('System CA access', function () {
+  it('allows using the system certificate store for connections', async function () {
+    const compass = await beforeTests();
+    const browser = compass.browser;
+
+    try {
+      await browser.connectWithConnectionForm({
+        hosts: ['localhost:27018'],
+        sslConnection: 'DEFAULT',
+        useSystemCA: true,
+      });
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      expect(result).to.have.property('ok', 1);
+    } finally {
+      // make sure the browser gets closed otherwise if this fails the process wont exit
+      await afterTests(compass);
+    }
+
+    const { logs } = compass;
+    const systemCALogs = logs.filter((log) => log.id === 1_000_000_049);
+    expect(systemCALogs).to.have.lengthOf(2);
+    expect(new Set(systemCALogs.map((log) => log.ctx))).to.deep.equal(
+      new Set(['compass-connect', 'mongosh-connect'])
+    );
+    for (let i = 0; i < 2; i++) {
+      expect(systemCALogs[i].attr.caCount).to.be.a('number');
+      expect(systemCALogs[i].attr.caCount).to.be.greaterThan(1);
+      if (
+        process.platform !== 'linux' &&
+        systemCALogs[i].attr.asyncFallbackError
+      ) {
+        // Electron does not support Node.js worker threads at this point, so
+        // we allow this failure. This will hopefully just go away with an Electron
+        // upgrade in the future.
+        expect(systemCALogs[i].attr.asyncFallbackError).to.equal(
+          'The V8 platform used by this instance of Node does not support creating Workers'
+        );
+      } else {
+        expect(systemCALogs[i].attr.asyncFallbackError).to.equal(null);
+      }
+    }
+  });
+});

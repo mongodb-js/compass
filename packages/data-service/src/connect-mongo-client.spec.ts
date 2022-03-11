@@ -47,6 +47,7 @@ describe('connectMongoClient', function () {
 
       assert.deepStrictEqual(options, {
         monitorCommands: true,
+        useSystemCA: undefined,
       });
     });
 
@@ -67,6 +68,7 @@ describe('connectMongoClient', function () {
 
       assert.deepStrictEqual(options, {
         monitorCommands: true,
+        useSystemCA: undefined,
       });
     });
 
