@@ -26,9 +26,7 @@ export function mergeSecrets(
 
   const connectionOptions = connectionInfoWithSecrets.connectionOptions;
 
-  const uri = new ConnectionString(connectionOptions.connectionString, {
-    looseValidation: true,
-  });
+  const uri = new ConnectionString(connectionOptions.connectionString);
   // can remove the proxyPassword addition once we have NODE-3633
   const searchParams = uri.typedSearchParams<
     MongoClientOptions & { proxyPassword?: string }
@@ -85,9 +83,7 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
   const secrets: ConnectionSecrets = {};
 
   const connectionOptions = connectionInfoWithoutSecrets.connectionOptions;
-  const uri = new ConnectionString(connectionOptions.connectionString, {
-    looseValidation: true,
-  });
+  const uri = new ConnectionString(connectionOptions.connectionString);
   // can remove the proxyPassword addition once we have NODE-3633
   const searchParams = uri.typedSearchParams<
     MongoClientOptions & { proxyPassword?: string }

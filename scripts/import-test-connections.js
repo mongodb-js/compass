@@ -25,9 +25,7 @@ const buildConnectionString = (scheme, username, password, host, params) => {
     return '';
   }
 
-  const url = new ConnectionStringUrl(`${scheme}://${host}/admin`, {
-    looseValidation: true,
-  });
+  const url = new ConnectionStringUrl(`${scheme}://${host}/admin`);
   url.username = username;
   url.password = password;
 
@@ -147,8 +145,7 @@ if (COMPASS_TEST_ANALYTICS_NODE_URL) {
 
 if (E2E_TESTS_ATLAS_HOST && E2E_TESTS_ATLAS_X509_PEM_PATH) {
   const url = new ConnectionStringUrl(
-    `mongodb+srv://${E2E_TESTS_ATLAS_HOST || ''}/admin`,
-    { looseValidation: true }
+    `mongodb+srv://${E2E_TESTS_ATLAS_HOST || ''}/admin`
   );
 
   url.searchParams.set('authMechanism', 'MONGODB-X509');
