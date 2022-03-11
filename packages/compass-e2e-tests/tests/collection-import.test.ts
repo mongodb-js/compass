@@ -260,7 +260,6 @@ describe('Collection import', function () {
     delete result._id;
 
     // Array and Object could be expanded, but this is probably good enough.
-    // maxKeyField and minKeyField both display as `t()` for some reason.
     expect(result).to.deep.equal({
       arrayField_canonical: 'Array',
       arrayField_relaxed: 'Array',
@@ -276,8 +275,8 @@ describe('Collection import', function () {
       int32field_relaxed: '10',
       int64Field_canonical: '50',
       int64Field_relaxed: '50',
-      maxKeyField: 't()',
-      minKeyField: 't()',
+      maxKeyField: 'MaxKey()',
+      minKeyField: 'MinKey()',
       regexField: '/^H/i',
       timestampField: 'Timestamp({ t: 1565545664, i: 1 })',
     });
