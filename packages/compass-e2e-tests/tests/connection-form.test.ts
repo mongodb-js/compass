@@ -227,7 +227,7 @@ describe('Connection form', function () {
       hosts: ['localhost:27017'],
       sslConnection: 'ON',
       tlsCAFile,
-      useSystemCA: true
+      useSystemCA: true,
     });
 
     const state = await browser.getConnectFormState();

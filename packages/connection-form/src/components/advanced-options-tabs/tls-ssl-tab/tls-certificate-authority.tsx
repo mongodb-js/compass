@@ -29,7 +29,10 @@ function TLSCertificateAuthority({
   connectionStringUrl: ConnectionStringUrl;
   useSystemCA: boolean;
   disabled: boolean;
-  handleTlsOptionChanged: (key: 'tlsCAFile' | 'useSystemCA', value: string | null) => void;
+  handleTlsOptionChanged: (
+    key: 'tlsCAFile' | 'useSystemCA',
+    value: string | null
+  ) => void;
 }): React.ReactElement {
   const caFile = connectionStringUrl
     .typedSearchParams<MongoClientOptions>()
@@ -55,7 +58,10 @@ function TLSCertificateAuthority({
       />
       <Checkbox
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          handleTlsOptionChanged('useSystemCA', event.target.checked ? 'true' : null);
+          handleTlsOptionChanged(
+            'useSystemCA',
+            event.target.checked ? 'true' : null
+          );
         }}
         data-testid="useSystemCA-input"
         id="useSystemCA-input"
