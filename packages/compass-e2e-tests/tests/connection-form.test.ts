@@ -6,7 +6,7 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 
-describe.only('Connection form', function () {
+describe('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
