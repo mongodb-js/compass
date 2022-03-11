@@ -6,7 +6,7 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 
-describe('Connection form', function () {
+describe.only('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -40,6 +40,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     });
   });
@@ -63,6 +64,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -92,6 +94,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -121,6 +124,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -157,6 +161,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -193,6 +198,7 @@ describe('Connection form', function () {
       tlsInsecure: true,
       tlsAllowInvalidHostnames: true,
       tlsAllowInvalidCertificates: true,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -211,6 +217,26 @@ describe('Connection form', function () {
     expect(
       await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(connectionString);
+  });
+
+  it('parses and formats a URI for TLS with system CA', async function () {
+    const fixturesPath = path.resolve(__dirname, '..', 'fixtures');
+    const tlsCAFile = path.join(fixturesPath, 'ca.pem');
+
+    await browser.setConnectFormState({
+      hosts: ['localhost:27017'],
+      sslConnection: 'ON',
+      tlsCAFile,
+      useSystemCA: true
+    });
+
+    const state = await browser.getConnectFormState();
+    expect(state.tlsCAFile).to.equal(undefined); // tlsCAFile is unset by useSystemCA
+    expect(state.useSystemCA).to.equal(true);
+
+    expect(
+      await browser.$(Selectors.ConnectionStringInput).getValue()
+    ).to.equal('mongodb://localhost:27017/?tls=true');
   });
 
   it('parses and formats a URI for Kerberos authentication', async function () {
@@ -239,6 +265,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -272,6 +299,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -307,6 +335,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -343,6 +372,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     };
 
@@ -374,6 +404,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'primary',
       replicaSet: 'replica-set',
       defaultDatabase: 'default-db',
@@ -416,6 +447,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     });
   });
@@ -450,6 +482,7 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
+      useSystemCA: false,
       readPreference: 'defaultReadPreference',
     });
   });

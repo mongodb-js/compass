@@ -24,12 +24,12 @@ function TLSCertificateAuthority({
   connectionStringUrl,
   useSystemCA,
   disabled,
-  updateCAFile,
+  handleTlsOptionChanged,
 }: {
   connectionStringUrl: ConnectionStringUrl;
   useSystemCA: boolean;
   disabled: boolean;
-  updateCAFile: (newCAFile: string | null, useSystemCA: boolean) => void;
+  handleTlsOptionChanged: (key: 'tlsCAFile' | 'useSystemCA', value: string | null) => void;
 }): React.ReactElement {
   const caFile = connectionStringUrl
     .typedSearchParams<MongoClientOptions>()
@@ -47,7 +47,8 @@ function TLSCertificateAuthority({
           'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
         }
         onChange={(files: string[] | null) => {
-          updateCAFile(files && files.length > 0 ? files[0] : null, false);
+          const [ caFile ] = files;
+          handleTlsOptionChanged('tlsCAFile', caFile ?? null);
         }}
         showFileOnNewLine
         values={caFile ? [caFile] : undefined}
@@ -55,7 +56,7 @@ function TLSCertificateAuthority({
       />
       <Checkbox
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          updateCAFile(null, event.target.checked);
+          handleTlsOptionChanged('useSystemCA', event.target.checked ? 'true' : null);
         }}
         data-testid="useSystemCA-input"
         id="useSystemCA-input"
@@ -75,7 +76,6 @@ function TLSCertificateAuthority({
         }
         disabled={disabled}
         checked={useSystemCA}
-        bold={false}
       />
     </FormFieldContainer>
   );

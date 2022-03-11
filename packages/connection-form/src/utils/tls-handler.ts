@@ -90,6 +90,10 @@ export function handleUpdateTlsOption({
     updatedSearchParams.set('tls', 'true');
 
     updatedSearchParams.set(action.key, action.value);
+
+    if (action.key === 'tlsCAFile') {
+      updatedConnectionOptions.useSystemCA = false;
+    }
   }
 
   return {

@@ -174,13 +174,7 @@ function TLSTab({
         connectionStringUrl={connectionStringUrl}
         useSystemCA={!!connectionOptions.useSystemCA}
         disabled={tlsOptionsDisabled}
-        updateCAFile={(
-          newCertificatePath: string | null,
-          useSystemCA: boolean
-        ) => {
-          handleTlsOptionChanged('tlsCAFile', newCertificatePath);
-          handleTlsOptionChanged('useSystemCA', useSystemCA ? 'true' : null);
-        }}
+        handleTlsOptionChanged={handleTlsOptionChanged}
       />
       <TLSClientCertificate
         connectionStringUrl={connectionStringUrl}
@@ -224,7 +218,6 @@ function TLSTab({
             }
             disabled={tlsOptionsDisabled}
             checked={tlsOptionField.checked}
-            bold={false}
           />
         </FormFieldContainer>
       ))}
