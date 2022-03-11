@@ -65,7 +65,6 @@ function NonGenuineWarningModal({
         </Banner>
         <Body className={modalBodyStyles}>{DESCRIPTION}</Body>
         <Link
-          rel="noreopener"
           href={LEARN_MORE_URL}
           target="_blank"
           data-test-id="non-genuine-warning-modal-learn-more-link"

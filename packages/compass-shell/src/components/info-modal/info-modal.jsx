@@ -68,7 +68,6 @@ function InfoModal({
           For more information please visit the&nbsp;
           <Link
             id="mongosh-info-link"
-            rel="noreopener"
             href="https://docs.mongodb.com/compass/beta/embedded-shell/"
             target="_blank"
           >MongoDB Shell Documentation</Link>.
