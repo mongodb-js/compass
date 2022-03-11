@@ -472,9 +472,8 @@ describe('System CA access', function () {
         // Electron does not support Node.js worker threads at this point, so
         // we allow this failure. This will hopefully just go away with an Electron
         // upgrade in the future.
-        console.log(systemCALogs[i].attr.asyncFallbackError)
-        expect(systemCALogs[i].attr.asyncFallbackError.code).to.equal(
-          'ERR_MISSING_PLATFORM_FOR_WORKER'
+        expect(systemCALogs[i].attr.asyncFallbackError).to.equal(
+          'The V8 platform used by this instance of Node does not support creating Workers'
         );
       } else {
         expect(systemCALogs[i].attr.asyncFallbackError).to.equal(null);
