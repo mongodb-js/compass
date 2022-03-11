@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import getComponent from 'hadron-react-bson';
+import { BSONValue } from '@mongodb-js/compass-components';
 
 /**
  * The base class.
@@ -157,14 +157,11 @@ class Element extends React.Component {
    * @returns {React.Component} The value component.
    */
   renderValue() {
-    const component = getComponent(this.props.element.currentType);
-    return React.createElement(
-      component,
-      {
-        type: this.props.element.currentType,
-        value: this.props.element.currentValue,
-        tz: this.props.tz
-      }
+    return (
+      <BSONValue
+        type={this.props.element.currentType}
+        value={this.props.element.currentValue}
+      />
     );
   }
 
