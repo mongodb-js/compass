@@ -4,7 +4,6 @@ ignores: [
   "core-js",
   "electron-rebuild",
   "font-awesome",
-  "hadron-react-bson",
   "htmlhint",
   "karma-electron",
   "karma-sourcemap-loader",
