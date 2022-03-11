@@ -1,17 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ResizeHandle,
   ResizeDirection,
   uiColors,
   css,
-  spacing,
 } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from 'mongodb-data-service';
-
-import ConnectionList from './connection-list/connection-list';
-
-const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
-const minSidebarWidth = spacing[4] * 7; // 168px
 
 const listContainerStyles = css({
   display: 'flex',
@@ -19,66 +12,46 @@ const listContainerStyles = css({
   margin: 0,
   padding: 0,
   maxWidth: '80%',
-  minWidth: minSidebarWidth,
   height: '100%',
   position: 'relative',
   background: uiColors.gray.dark3,
   color: 'white',
 });
 
-function getMaxSidebarWidth() {
-  return Math.max(minSidebarWidth, window.innerWidth - 100);
-}
-
-function ResizableSidebar({
-  activeConnectionId,
-  connections,
-  createNewConnection,
-  setActiveConnectionId,
-  onConnectionDoubleClicked,
-  removeAllRecentsConnections,
-  duplicateConnection,
-  removeConnection,
+const ResizableSidebar = ({
+  initialWidth,
+  minWidth,
+  children,
 }: {
-  activeConnectionId?: string;
-  connections: ConnectionInfo[];
-  createNewConnection: () => void;
-  setActiveConnectionId: (newConnectionId: string) => void;
-  onConnectionDoubleClicked: (connectionInfo: ConnectionInfo) => void;
-  removeAllRecentsConnections: () => void;
-  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
-  removeConnection: (connectionInfo: ConnectionInfo) => void;
-}): React.ReactElement {
-  const [width, setWidth] = useState(initialSidebarWidth);
+  initialWidth: number;
+  minWidth: number;
+  children: JSX.Element;
+}): JSX.Element => {
+  const [width, setWidth] = useState(initialWidth);
+
+  const getMaxSidebarWidth = useCallback(() => {
+    return Math.max(minWidth, window.innerWidth - 100);
+  }, [minWidth]);
 
   return (
     <div
       className={listContainerStyles}
       style={{
-        minWidth: width,
+        minWidth: minWidth,
         width: width,
       }}
     >
-      <ConnectionList
-        activeConnectionId={activeConnectionId}
-        connections={connections}
-        createNewConnection={createNewConnection}
-        setActiveConnectionId={setActiveConnectionId}
-        onDoubleClick={onConnectionDoubleClicked}
-        removeAllRecentsConnections={removeAllRecentsConnections}
-        removeConnection={removeConnection}
-        duplicateConnection={duplicateConnection}
-      />
+      {children}
       <ResizeHandle
         onChange={(newWidth) => setWidth(newWidth)}
         direction={ResizeDirection.RIGHT}
         value={width}
-        minValue={minSidebarWidth}
+        minValue={minWidth}
         maxValue={getMaxSidebarWidth()}
         title="sidebar"
       />
     </div>
   );
-}
+};
 
 export default ResizableSidebar;

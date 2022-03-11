@@ -5,7 +5,7 @@ import type {
   ConnectionStorage,
 } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useMemo, useReducer, useRef } from 'react';
 import debugModule from 'debug';
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -214,6 +214,8 @@ export function useConnections({
   appName: string;
 }): {
   state: State;
+  recentConnections: ConnectionInfo[];
+  favoriteConnections: ConnectionInfo[];
   cancelConnectionAttempt: () => void;
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   createNewConnection: () => void;
@@ -235,6 +237,25 @@ export function useConnections({
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
   const connectedConnectionInfo = useRef<ConnectionInfo>();
   const connectedDataService = useRef<DataService>();
+
+  const { recentConnections, favoriteConnections } = useMemo(() => {
+    const favoriteConnections = state.connections
+      .filter((connectionInfo) => !!connectionInfo.favorite)
+      .sort((a, b) => {
+        return b.favorite!.name?.toLocaleLowerCase() <
+          a.favorite!.name?.toLocaleLowerCase()
+          ? 1
+          : -1;
+      });
+
+    const recentConnections = connections
+      .filter((connectionInfo) => !connectionInfo.favorite)
+      .sort((a, b) => {
+        return (b.lastUsed?.getTime() ?? 0) - (a.lastUsed?.getTime() ?? 0);
+      });
+
+    return { recentConnections, favoriteConnections };
+  }, [state.connections]);
 
   async function saveConnectionInfo(
     connectionInfo: ConnectionInfo
@@ -323,6 +344,8 @@ export function useConnections({
 
   return {
     state,
+    recentConnections,
+    favoriteConnections,
     cancelConnectionAttempt() {
       connectionAttempt?.cancelConnectionAttempt();
 

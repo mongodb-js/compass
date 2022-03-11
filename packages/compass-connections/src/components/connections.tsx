@@ -19,6 +19,7 @@ import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
 import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
+import ConnectionList from './connection-list/connection-list';
 
 const { debug } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
@@ -45,6 +46,9 @@ const formContainerStyles = css({
   flexWrap: 'wrap',
   gap: spacing[4],
 });
+
+const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
+const minSidebarWidth = spacing[4] * 7; // 168px
 
 function Connections({
   onConnected,
@@ -89,15 +93,21 @@ function Connections({
       className={connectStyles}
     >
       <ResizableSidebar
-        activeConnectionId={activeConnectionId}
-        connections={connections}
-        createNewConnection={createNewConnection}
-        setActiveConnectionId={setActiveConnectionById}
-        onConnectionDoubleClicked={connect}
-        removeAllRecentsConnections={removeAllRecentsConnections}
-        removeConnection={removeConnection}
-        duplicateConnection={duplicateConnection}
-      />
+        minWidth={minSidebarWidth}
+        initialWidth={initialSidebarWidth}
+      >
+        <ConnectionList
+          activeConnectionId={activeConnectionId}
+          favoriteConnections={connections}
+          recentConnections={connections}
+          createNewConnection={createNewConnection}
+          setActiveConnectionId={setActiveConnectionById}
+          onDoubleClick={connect}
+          removeAllRecentsConnections={removeAllRecentsConnections}
+          removeConnection={removeConnection}
+          duplicateConnection={duplicateConnection}
+        />
+      </ResizableSidebar>
       <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary
