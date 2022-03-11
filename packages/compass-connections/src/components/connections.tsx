@@ -74,6 +74,8 @@ function Connections({
     removeAllRecentsConnections,
     removeConnection,
     saveConnection,
+    favoriteConnections,
+    recentConnections,
   } = useConnections({ onConnected, connectionStorage, connectFn, appName });
   const {
     activeConnectionId,
@@ -81,7 +83,6 @@ function Connections({
     connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
-    connections,
     isConnected,
   } = state;
 
@@ -98,8 +99,8 @@ function Connections({
       >
         <ConnectionList
           activeConnectionId={activeConnectionId}
-          favoriteConnections={connections}
-          recentConnections={connections}
+          favoriteConnections={favoriteConnections}
+          recentConnections={recentConnections}
           createNewConnection={createNewConnection}
           setActiveConnectionId={setActiveConnectionById}
           onDoubleClick={connect}
