@@ -137,7 +137,7 @@ describe('Instance sidebar', function () {
 
   it('can create a collection and drop it', async function () {
     const dbName = 'test'; // existing db
-    const collectionName = 'my-sidebar-collection';
+    const collectionName = 'a-sidebar-collection';
 
     await browser.clickVisible(Selectors.SidebarFilterInput);
     const sidebarFilterInputElement = await browser.$(
@@ -160,7 +160,6 @@ describe('Instance sidebar', function () {
     );
     const collectionElement = await browser.$(collectionSelector);
     await collectionElement.waitForDisplayed();
-    await collectionElement.scrollIntoView();
 
     // open the drop collection modal from the sidebar
     await browser.hover(collectionSelector);
