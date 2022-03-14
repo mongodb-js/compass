@@ -22,7 +22,7 @@ class ImportOptions extends PureComponent {
     setStopOnErrors: PropTypes.func,
     ignoreBlanks: PropTypes.bool,
     setIgnoreBlanks: PropTypes.func,
-    fileOpenDialog: PropTypes.func
+    fileOpenDialog: PropTypes.func,
   };
 
   /**
@@ -58,38 +58,41 @@ class ImportOptions extends PureComponent {
         />
         <fieldset>
           <legend className={style('legend')}>Options</legend>
-          {isCSV && (<React.Fragment>
-            <div className={style('option')}>
-              <label className={style('option-select-label')}>
-                Select delimiter
-                <select
-                  id="import-delimiter-select"
-                  onBlur={(evt) => {
-                    this.props.setDelimiter(evt.currentTarget.value);
-                  }}
-                  defaultValue={this.props.delimiter}
-                  className={style('option-select')}>
-                  <option value=",">comma</option>
-                  <option value={'\t'}>tab</option>
-                  <option value=";">semicolon</option>
-                  <option value=" ">space</option>
-                </select>
-              </label>
-            </div>
-            <div className={style('option')}>
-              <label className={style('option-checkbox-label')}>
-                <input
-                  type="checkbox"
-                  checked={this.props.ignoreBlanks}
-                  onChange={() => {
-                    this.props.setIgnoreBlanks(!this.props.ignoreBlanks);
-                  }}
-                  className={style('option-checkbox')}
-                />
-                Ignore empty strings
-              </label>
-            </div>
-          </React.Fragment>)}
+          {isCSV && (
+            <React.Fragment>
+              <div className={style('option')}>
+                <label className={style('option-select-label')}>
+                  Select delimiter
+                  <select
+                    id="import-delimiter-select"
+                    onBlur={(evt) => {
+                      this.props.setDelimiter(evt.currentTarget.value);
+                    }}
+                    defaultValue={this.props.delimiter}
+                    className={style('option-select')}
+                  >
+                    <option value=",">comma</option>
+                    <option value={'\t'}>tab</option>
+                    <option value=";">semicolon</option>
+                    <option value=" ">space</option>
+                  </select>
+                </label>
+              </div>
+              <div className={style('option')}>
+                <label className={style('option-checkbox-label')}>
+                  <input
+                    type="checkbox"
+                    checked={this.props.ignoreBlanks}
+                    onChange={() => {
+                      this.props.setIgnoreBlanks(!this.props.ignoreBlanks);
+                    }}
+                    className={style('option-checkbox')}
+                  />
+                  Ignore empty strings
+                </label>
+              </div>
+            </React.Fragment>
+          )}
           <div className={style('option')}>
             <label className={style('option-checkbox-label')}>
               <input

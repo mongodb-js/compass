@@ -17,7 +17,7 @@ const FIXTURES = {
     TEST_DIR,
     'docs-with-newline-ending.jsonl'
   ),
-  NUMBER_TRANSFORM_CSV: path.join(TEST_DIR, 'number-transform.csv')
+  NUMBER_TRANSFORM_CSV: path.join(TEST_DIR, 'number-transform.csv'),
 };
 
 function runParser(src, parser) {
@@ -28,10 +28,10 @@ function runParser(src, parser) {
     write(chunk, _encoding, callback) {
       docs.push(chunk);
       callback(null, chunk);
-    }
+    },
   });
-  return new Promise(function(resolve, reject) {
-    stream.pipeline(source, parser, dest, function(err, res) {
+  return new Promise(function (resolve, reject) {
+    stream.pipeline(source, parser, dest, function (err, res) {
       if (err) {
         return reject(err);
       }
@@ -40,20 +40,20 @@ function runParser(src, parser) {
   });
 }
 
-describe('import-parser', function() {
-  describe('json', function() {
-    it('should parse a file', function() {
+describe('import-parser', function () {
+  describe('json', function () {
+    it('should parse a file', function () {
       return runParser(FIXTURES.GOOD_JSON, createParser()).then((docs) => {
         expect(docs).to.have.length(3);
       });
     });
-    it('should parse a line-delimited file', function() {
+    it('should parse a line-delimited file', function () {
       return runParser(
         FIXTURES.LINE_DELIMITED_JSON,
         createParser({ fileType: 'json', fileIsMultilineJSON: true })
       ).then((docs) => expect(docs).to.have.length(3));
     });
-    it('should parse a line-delimited file with an extra empty line', function() {
+    it('should parse a line-delimited file with an extra empty line', function () {
       return runParser(
         FIXTURES.LINE_DELIMITED_JSON_EXTRA_LINE,
         createParser({ fileIsMultilineJSON: true })
@@ -61,20 +61,20 @@ describe('import-parser', function() {
         expect(docs).to.have.length(3);
       });
     });
-    describe('deserialize', function() {
+    describe('deserialize', function () {
       const BSON_DOCS = [];
-      before(function() {
+      before(function () {
         const src = FIXTURES.GOOD_JSON;
-        return runParser(src, createParser()).then(function(docs) {
+        return runParser(src, createParser()).then(function (docs) {
           BSON_DOCS.push.apply(BSON_DOCS, docs);
         });
       });
-      it('should have bson ObjectID for _id', function() {
+      it('should have bson ObjectID for _id', function () {
         expect(BSON_DOCS[0]._id._bsontype).to.equal('ObjectID');
       });
     });
-    describe('errors', function() {
-      it('should catch errors by default', async function() {
+    describe('errors', function () {
+      it('should catch errors by default', async function () {
         try {
           await runParser(FIXTURES.JS_I_THINK_IS_JSON, createParser());
         } catch (err) {
@@ -86,8 +86,8 @@ describe('import-parser', function() {
       });
     });
   });
-  describe('csv', function() {
-    it('should work with commas', function() {
+  describe('csv', function () {
+    it('should work with commas', function () {
       return runParser(
         FIXTURES.GOOD_COMMAS_CSV,
         createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_COMMAS_CSV })
@@ -99,10 +99,14 @@ describe('import-parser', function() {
         ]);
       });
     });
-    it('should work with hard tabs', function() {
+    it('should work with hard tabs', function () {
       return runParser(
         FIXTURES.GOOD_TABS_CSV,
-        createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_TABS_CSV, delimiter: '\t' })
+        createParser({
+          fileType: 'csv',
+          fileName: FIXTURES.GOOD_TABS_CSV,
+          delimiter: '\t',
+        })
       ).then((docs) => {
         expect(docs).to.deep.equal([
           { _id: '1', value: 'some string' },
@@ -111,7 +115,7 @@ describe('import-parser', function() {
         ]);
       });
     });
-    it('should parse number-transform', function() {
+    it('should parse number-transform', function () {
       return runParser(
         FIXTURES.NUMBER_TRANSFORM_CSV,
         createParser({ fileType: 'csv' })
@@ -178,16 +182,16 @@ describe('import-parser', function() {
             LONGITUDE: '-73.821199',
             COUNCIL_DISTRICT: '32',
             CENSUS_TRACT: '107201',
-            NTA_NAME: 'Breezy Point-Belle Harbor-Rockaway Park-Broad Channel'
-          }
+            NTA_NAME: 'Breezy Point-Belle Harbor-Rockaway Park-Broad Channel',
+          },
         ]);
       });
     });
     /**
      * TODO: lucas: Revisit and unskip if we really want csv to be strict.
      */
-    describe('errors', function() {
-      it('should catch errors by default', async function() {
+    describe('errors', function () {
+      it('should catch errors by default', async function () {
         try {
           await runParser(
             FIXTURES.BAD_CSV,
@@ -195,9 +199,7 @@ describe('import-parser', function() {
           );
         } catch (err) {
           expect(err).to.be.an('error');
-          expect(err.message).to.equal(
-            'Row length does not match headers'
-          );
+          expect(err.message).to.equal('Row length does not match headers');
         }
       });
     });

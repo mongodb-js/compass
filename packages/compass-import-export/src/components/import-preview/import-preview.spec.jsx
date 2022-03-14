@@ -10,11 +10,11 @@ import ImportPreview from './';
 let onFieldCheckedChangedSpy;
 let setFieldTypeSpy;
 
-describe('ImportPreview [Component]', function() {
-  describe('not loaded', function() {
+describe('ImportPreview [Component]', function () {
+  describe('not loaded', function () {
     let component;
 
-    before(function() {
+    before(function () {
       onFieldCheckedChangedSpy = sinon.spy();
       setFieldTypeSpy = sinon.spy();
 
@@ -29,22 +29,22 @@ describe('ImportPreview [Component]', function() {
       );
     });
 
-    it('should not render', function() {
+    it('should not render', function () {
       const style = createStyler(styles, 'import-preview');
       expect(component.find(`.${style()}`)).to.not.be.present();
     });
 
-    after(function() {
+    after(function () {
       component = null;
       onFieldCheckedChangedSpy = null;
       setFieldTypeSpy = null;
     });
   });
 
-  describe('no fields', function() {
+  describe('no fields', function () {
     let component;
 
-    before(function() {
+    before(function () {
       onFieldCheckedChangedSpy = sinon.spy();
       setFieldTypeSpy = sinon.spy();
 
@@ -59,22 +59,22 @@ describe('ImportPreview [Component]', function() {
       );
     });
 
-    it('should not render', function() {
+    it('should not render', function () {
       const style = createStyler(styles, 'import-preview');
       expect(component.find(`.${style()}`)).to.not.be.present();
     });
 
-    after(function() {
+    after(function () {
       component = null;
       onFieldCheckedChangedSpy = null;
       setFieldTypeSpy = null;
     });
   });
 
-  describe('_id fields', function() {
+  describe('_id fields', function () {
     let component;
 
-    before(function() {
+    before(function () {
       onFieldCheckedChangedSpy = sinon.spy();
       setFieldTypeSpy = sinon.spy();
 
@@ -89,12 +89,12 @@ describe('ImportPreview [Component]', function() {
       );
     });
 
-    it('should not render', function() {
+    it('should not render', function () {
       const style = createStyler(styles, 'import-preview');
       expect(component.find(`.${style()}`)).to.not.be.present();
     });
 
-    after(function() {
+    after(function () {
       component = null;
       onFieldCheckedChangedSpy = null;
       setFieldTypeSpy = null;

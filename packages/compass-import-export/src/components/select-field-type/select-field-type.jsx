@@ -13,7 +13,7 @@ function getBSONTypeCastings() {
 class SelectFieldType extends PureComponent {
   static propTypes = {
     selectedType: PropTypes.string,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
   };
 
   onChange(evt) {

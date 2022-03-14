@@ -6,9 +6,9 @@ import { expect } from 'chai';
 
 const TEST_DIR = path.join(__dirname, '..', '..', 'test');
 
-describe('import-preview', function() {
-  describe('createPreviewWritable', function() {
-    it('should work with docs < MAX_SIZE', function(done) {
+describe('import-preview', function () {
+  describe('createPreviewWritable', function () {
+    it('should work with docs < MAX_SIZE', function (done) {
       const dest = createPreviewWritable();
       const source = Readable.from([{ _id: 1 }]);
 
@@ -20,7 +20,7 @@ describe('import-preview', function() {
       });
     });
 
-    it('should work with docs === MAX_SIZE', function(done) {
+    it('should work with docs === MAX_SIZE', function (done) {
       const dest = createPreviewWritable({ MAX_SIZE: 2 });
       const source = Readable.from([{ _id: 1 }, { _id: 2 }]);
 
@@ -32,7 +32,7 @@ describe('import-preview', function() {
       });
     });
 
-    it('should convert types for csv', function(done) {
+    it('should convert types for csv', function (done) {
       const dest = createPreviewWritable({ fileType: 'csv' });
       const source = Readable.from([{ _id: 1 }, { _id: 2 }]);
 
@@ -45,7 +45,7 @@ describe('import-preview', function() {
       });
     });
 
-    it('should not convert types for json', function(done) {
+    it('should not convert types for json', function (done) {
       const dest = createPreviewWritable({ fileType: 'json' });
       const source = Readable.from([{ _id: 1 }, { _id: 2 }]);
 
@@ -58,7 +58,7 @@ describe('import-preview', function() {
       });
     });
 
-    it('should stop when it has enough docs', function(done) {
+    it('should stop when it has enough docs', function (done) {
       const dest = createPreviewWritable({ MAX_SIZE: 2 });
       const source = Readable.from([{ _id: 1 }, { _id: 2 }, { _id: 3 }]);
 
@@ -71,8 +71,8 @@ describe('import-preview', function() {
     });
   });
 
-  describe('func', function() {
-    it('should return 2 docs for a csv containing 3 docs', function(done) {
+  describe('func', function () {
+    it('should return 2 docs for a csv containing 3 docs', function (done) {
       const src = fs.createReadStream(path.join(TEST_DIR, 'good-commas.csv'));
       const dest = createPreviewWritable({ MAX_SIZE: 2 });
 

@@ -13,7 +13,7 @@ import {
   FormGroup,
   InputGroup,
   FormControl,
-  ControlLabel
+  ControlLabel,
 } from 'react-bootstrap';
 import {
   STARTED,
@@ -21,7 +21,7 @@ import {
   COMPLETED,
   FAILED,
   UNSPECIFIED,
-  COMPLETED_WITH_ERRORS
+  COMPLETED_WITH_ERRORS,
 } from '../../constants/process-status';
 
 const style = createStyler(styles, 'export-select-output');
@@ -35,7 +35,7 @@ const MESSAGES = {
   [COMPLETED_WITH_ERRORS]: '',
   [CANCELED]: 'Export canceled',
   [COMPLETED]: 'Export completed',
-  [STARTED]: 'Exporting documents...'
+  [STARTED]: 'Exporting documents...',
 };
 
 class ExportSelectOutput extends PureComponent {
@@ -59,7 +59,7 @@ class ExportSelectOutput extends PureComponent {
    * and start the export if ready.
    * @param {Object} evt - DOM event
    */
-  handleOnSubmit = evt => {
+  handleOnSubmit = (evt) => {
     evt.preventDefault();
     evt.stopPropagation();
     if (this.props.fileName) {
@@ -72,7 +72,7 @@ class ExportSelectOutput extends PureComponent {
    */
   handleChooseFile = () => {
     const fileNamePrefill = toNS(this.props.ns).collection;
-    fileSaveDialog(this.props.fileType, fileNamePrefill).then(result => {
+    fileSaveDialog(this.props.fileType, fileNamePrefill).then((result) => {
       if (result && result.filePath && !result.canceled) {
         this.props.selectExportFileName(result.filePath);
       }
@@ -93,7 +93,8 @@ class ExportSelectOutput extends PureComponent {
           <SelectFileType
             fileType={this.props.fileType}
             label="Select Export File Type"
-            onSelected={this.props.selectExportFileType}/>
+            onSelected={this.props.selectExportFileType}
+          />
           <FormGroup controlId="export-file">
             <ControlLabel>Output</ControlLabel>
             <InputGroup bsClass={style('browse-group')}>
@@ -102,7 +103,8 @@ class ExportSelectOutput extends PureComponent {
                 text="Browse"
                 iconClassName="fa fa-folder-open-o"
                 clickHandler={this.handleChooseFile}
-                className={classnames('btn btn-default btn-sm')}/>
+                className={classnames('btn btn-default btn-sm')}
+              />
             </InputGroup>
           </FormGroup>
         </form>
@@ -112,7 +114,8 @@ class ExportSelectOutput extends PureComponent {
           progress={this.props.progress}
           cancel={this.props.cancelExport}
           message={MESSAGES[this.props.status]}
-          docsWritten={this.props.exportedDocsCount}/>
+          docsWritten={this.props.exportedDocsCount}
+        />
       </div>
     );
   }

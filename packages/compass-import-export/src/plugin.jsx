@@ -7,8 +7,8 @@ class Plugin extends Component {
   static displayName = 'ImportExportPlugin';
   static propTypes = {
     exportStore: PropTypes.object.isRequired,
-    importStore: PropTypes.object.isRequired
-  }
+    importStore: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.

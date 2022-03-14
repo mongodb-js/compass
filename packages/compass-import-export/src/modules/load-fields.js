@@ -2,7 +2,9 @@ import util from 'util';
 import dotnotation from '../utils/dotnotation';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+const { log, mongoLogId } = createLoggerAndTelemetry(
+  'COMPASS-IMPORT-EXPORT-UI'
+);
 
 const DEFAULT_SAMPLE_SIZE = 50;
 const ENABLED = 1;
@@ -16,10 +18,7 @@ function truncateFieldToDepth(field, depth) {
     return field;
   }
 
-  return field
-    .split('.')
-    .slice(0, depth)
-    .join('.');
+  return field.split('.').slice(0, depth).join('.');
 }
 
 export async function loadFields(
@@ -33,7 +32,7 @@ export async function loadFields(
 
   const docs = await find(ns, filter || {}, {
     limit: sampleSize,
-    ...driverOptions
+    ...driverOptions,
   });
 
   const allFieldsSet = new Set();
@@ -43,12 +42,17 @@ export async function loadFields(
     }
   }
   const allFields = [...allFieldsSet].sort();
-  log.info(mongoLogId(1001000063), 'Export', 'Retrieved fields from sample', { allFields, sampleSize, filter });
-  return Object.fromEntries(allFields.map(field => [field, ENABLED]));
+  log.info(mongoLogId(1001000063), 'Export', 'Retrieved fields from sample', {
+    allFields,
+    sampleSize,
+    filter,
+  });
+  return Object.fromEntries(allFields.map((field) => [field, ENABLED]));
 }
 
 export function getSelectableFields(fields, { maxDepth } = {}) {
-  const selectableFields = Object.keys(fields)
-    .map(field => truncateFieldToDepth(field, maxDepth));
-  return Object.fromEntries(selectableFields.map(field => [field, ENABLED]));
+  const selectableFields = Object.keys(fields).map((field) =>
+    truncateFieldToDepth(field, maxDepth)
+  );
+  return Object.fromEntries(selectableFields.map((field) => [field, ENABLED]));
 }

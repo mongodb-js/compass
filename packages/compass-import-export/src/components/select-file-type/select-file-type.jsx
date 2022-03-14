@@ -13,7 +13,7 @@ class SelectFileType extends PureComponent {
   static propTypes = {
     fileType: PropTypes.string,
     onSelected: PropTypes.func,
-    label: PropTypes.string
+    label: PropTypes.string,
   };
   render() {
     const { fileType, onSelected, label } = this.props;
@@ -25,7 +25,7 @@ class SelectFileType extends PureComponent {
             data-test-id="select-file-type-json"
             aria-selected={fileType === FILE_TYPES.JSON}
             className={classnames({
-              [style('selected')]: fileType === FILE_TYPES.JSON
+              [style('selected')]: fileType === FILE_TYPES.JSON,
             })}
             onClick={onSelected.bind(this, FILE_TYPES.JSON)}
           >
@@ -35,7 +35,7 @@ class SelectFileType extends PureComponent {
             data-test-id="select-file-type-csv"
             aria-selected={fileType === FILE_TYPES.CSV}
             className={classnames({
-              [style('selected')]: fileType === FILE_TYPES.CSV
+              [style('selected')]: fileType === FILE_TYPES.CSV,
             })}
             onClick={onSelected.bind(this, FILE_TYPES.CSV)}
           >

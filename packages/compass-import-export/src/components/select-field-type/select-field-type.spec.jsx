@@ -5,10 +5,10 @@ import React from 'react';
 import SelectFieldType from './';
 let onSelectFieldTypeChangedSpy;
 
-describe('SelectFieldType [Component]', function() {
+describe('SelectFieldType [Component]', function () {
   let component;
 
-  before(function() {
+  before(function () {
     onSelectFieldTypeChangedSpy = sinon.spy();
     component = mount(
       <SelectFieldType
@@ -19,15 +19,15 @@ describe('SelectFieldType [Component]', function() {
     );
   });
 
-  it('should render default option', function() {
+  it('should render default option', function () {
     expect(component.find('option[value="default"]')).to.not.be.present();
   });
 
-  it('should select string value', function() {
+  it('should select string value', function () {
     expect(component.find('select[defaultValue="string"]')).to.be.present();
   });
 
-  after(function() {
+  after(function () {
     component = null;
     onSelectFieldTypeChangedSpy = null;
   });
