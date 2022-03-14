@@ -3,7 +3,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ConnectionInfo } from 'mongodb-data-service';
-import _ from 'lodash';
 
 import ConnectionList from './connection-list';
 
