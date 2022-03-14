@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { waitFor } from '@testing-library/react';
+import { waitFor, cleanup } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
@@ -68,6 +68,8 @@ describe('use-connections hook', function () {
       load: loadSpy,
     };
   });
+
+  afterEach(cleanup);
 
   describe('#loadConnections', function () {
     it('loads the connections from the connection storage', async function () {

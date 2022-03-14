@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ConnectionInfo } from 'mongodb-data-service';
@@ -68,6 +74,7 @@ describe('ConnectionList Component', function () {
     setActiveConnectionIdSpy = sinon.spy();
     createNewConnectionSpy = sinon.spy();
   });
+  afterEach(cleanup);
   describe('when rendered', function () {
     beforeEach(function () {
       render(
