@@ -28,4 +28,5 @@ if (analyze) {
   process.env.ANALYZE = 'true';
   process.argv = process.argv.filter((key) => key !== '--analyze');
 }
+
 require(path.resolve(path.dirname(pkgPath), pkg.bin['webpack-cli']));

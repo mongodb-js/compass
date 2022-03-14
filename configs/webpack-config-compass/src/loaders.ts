@@ -24,7 +24,7 @@ export const javascriptLoader = (args: ConfigArgs) => ({
     options: {
       babelrc: false,
       sourceType: 'unambiguous',
-      presets: [
+    presets: [
         [
           require.resolve('@babel/preset-env'),
           {
@@ -41,6 +41,10 @@ export const javascriptLoader = (args: ConfigArgs) => ({
           require.resolve('@babel/plugin-proposal-decorators'),
           { legacy: true },
         ],
+        args.coverage && ['istanbul', {
+          // all of mongodb-js/compass, not just packages/compass
+          cwd: path.dirname(path.dirname(process.cwd()))
+        }],
         ['web', 'electron-renderer'].includes(args.target as string) &&
           // react-refresh only works when NODE_ENV is dev and will throw
           // otherwise

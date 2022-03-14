@@ -36,6 +36,7 @@ type CompassConfigArgs = {
   mainProcessLiveReload: boolean;
   devServerPort: number;
   cwd: string;
+  coverage: boolean;
 };
 
 export type ConfigArgs = WebpackCLIArgs & CompassConfigArgs;
@@ -71,6 +72,7 @@ export function webpackArgsWithDefaults(
       devServerPort: 4242,
       analyze: ['1', 'true'].includes(process.env.ANALYZE as string),
       cwd,
+      coverage: ['1', 'true'].includes(process.env.COVERAGE as string)
     },
     args as ConfigArgs,
     ...(more as ConfigArgs[])

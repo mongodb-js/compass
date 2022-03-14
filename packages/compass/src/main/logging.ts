@@ -120,6 +120,11 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       return app.getPath('logs');
     });
 
+    // TODO: there must be a better place to put this
+    ipcMain.handle('coverage', () => {
+      return (global as any).__coverage__;
+    });
+
     await manager.cleanupOldLogfiles();
 
     return writer.logFilePath;

@@ -34,13 +34,19 @@ const COMPASS_PATH = path.dirname(
 );
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
+const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
-// For the tmpdirs
+// For the user data dirs
 let i = 0;
 // For the screenshots
 let j = 0;
-// For the html
-//let k = 0;
+// For the coverage
+let k = 0;
+
+interface Coverage {
+ main: string,
+ renderer: string
+}
 
 export class Compass {
   browser: CompassBrowser;
@@ -186,6 +192,22 @@ export class Compass {
     debug(`Writing application render process log to ${renderLogPath}`);
     await fs.writeFile(renderLogPath, JSON.stringify(this.renderLogs, null, 2));
 
+    // coverage
+    debug('Writing coverage');
+    const coverage: Coverage = await this.browser.executeAsync((done) => {
+      void (async () => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const mainCoverage = await require('electron').ipcRenderer.invoke('coverage');
+        done({
+          main: JSON.stringify(mainCoverage, null, 4),
+          renderer: JSON.stringify((window as any).__coverage__, null, 4)
+        });
+      })();
+    });
+    const stopIndex = ++k;
+    await fs.writeFile(path.join(COVERAGE_PATH, `main.${stopIndex}.log`), coverage.main);
+    await fs.writeFile(path.join(COVERAGE_PATH, `renderer.${stopIndex}.log`), coverage.renderer);
+
     debug('Stopping Compass application');
     await this.browser.deleteSession();
 
@@ -271,6 +293,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
+  await fs.mkdir(COVERAGE_PATH, { recursive: true });
 
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
@@ -444,9 +467,11 @@ export async function rebuildNativeModules(
 export async function compileCompassAssets(
   compassPath = COMPASS_PATH
 ): Promise<void> {
+  process.env.COVERAGE = 'true';
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore some weirdness from util-callbackify
   await compileAssetsAsync({ dir: compassPath });
+  delete process.env.COVERAGE;
 }
 
 async function getCompassBuildMetadata(): Promise<BinPathOptions> {
