@@ -9,6 +9,7 @@ type ItemConfig = {
     browser: CompassBrowser,
     selector: string
   ) => Promise<boolean>;
+  getScrollContainer: (parent: Element | null) => ChildNode | null | undefined;
 };
 
 const gridConfig: ItemConfig = {
@@ -26,6 +27,9 @@ const gridConfig: ItemConfig = {
     const length = await browser.$$(`${selector} [role="row"]`).length;
     return !!(rowCount && length);
   },
+  getScrollContainer: (parent: Element | null) => {
+    return parent?.firstChild;
+  },
 };
 
 const treeConfig: ItemConfig = {
@@ -38,6 +42,9 @@ const treeConfig: ItemConfig = {
     selector: string
   ) => {
     return (await browser.$$(`${selector} [role="treeitem"]`).length) > 0;
+  },
+  getScrollContainer: (parent: Element | null) => {
+    return parent?.firstChild?.firstChild;
   },
 };
 
@@ -61,12 +68,9 @@ export async function scrollToVirtualItem(
   // scroll to the top and return the height of the scrollbar area and the
   // scroll content
   const [scrollHeight, totalHeight] = await browser.execute(
-    (selector, itemRole) => {
+    (selector, getScrollContainerString) => {
       const container = document.querySelector(selector);
-      const scrollContainer =
-        itemRole === 'tree'
-          ? container?.firstChild?.firstChild
-          : container?.firstChild;
+      const scrollContainer = eval(getScrollContainerString)(container);
       const heightContainer = scrollContainer?.firstChild;
       if (!heightContainer) {
         return [null, null];
@@ -81,7 +85,9 @@ export async function scrollToVirtualItem(
       return [scrollContainer.clientHeight, heightContainer.offsetHeight];
     },
     containerSelector,
-    role
+    // Due to interprocess, we can not pass a function here.
+    // So, we stringify it here and then eval to execute it
+    config.getScrollContainer.toString()
   );
 
   if (scrollHeight === null || totalHeight === null) {
@@ -115,12 +121,9 @@ export async function scrollToVirtualItem(
     if (scrollTop <= totalHeight) {
       // scroll for another screen
       await browser.execute(
-        (selector, nextScrollTop, itemRole) => {
+        (selector, nextScrollTop, getScrollContainerString) => {
           const container = document.querySelector(selector);
-          const scrollContainer =
-            itemRole === 'tree'
-              ? container?.firstChild?.firstChild
-              : container?.firstChild;
+          const scrollContainer = eval(getScrollContainerString)(container);
           if (!scrollContainer) {
             return;
           }
@@ -131,7 +134,9 @@ export async function scrollToVirtualItem(
         },
         containerSelector,
         scrollTop,
-        role
+        // Due to interprocess, we can not pass a function here.
+        // So, we stringify it here and then eval to execute it
+        config.getScrollContainer.toString()
       );
 
       // wait for the top one to be different to make sure that the grid updated
