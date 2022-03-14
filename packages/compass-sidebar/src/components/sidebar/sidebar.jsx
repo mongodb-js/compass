@@ -16,7 +16,6 @@ import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { changeFilterRegex } from '../../modules/databases';
 import { updateAndSaveConnectionInfo } from '../../modules/connection-info';
-import { openLink } from '../../modules/link';
 import { NavigationItems } from './navigation-items';
 
 // In pixels. (px)
@@ -45,7 +44,6 @@ class Sidebar extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     detailsPlugins: PropTypes.array.isRequired,
-    openLink: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
     isDataLake: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
@@ -211,7 +209,6 @@ class Sidebar extends PureComponent {
         <NonGenuineWarningModal
           isVisible={this.props.isGenuineMongoDBVisible}
           toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
-          openLink={this.props.openLink}
         />
       </div>
     );
@@ -247,7 +244,6 @@ const MappedSidebar = connect(
     toggleIsDetailsExpanded,
     toggleIsGenuineMongoDBVisible,
     changeFilterRegex,
-    openLink,
     globalAppRegistryEmit,
     updateAndSaveConnectionInfo
   },
