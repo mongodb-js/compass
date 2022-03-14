@@ -3,13 +3,29 @@ import { waitFor } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
+import util from 'util';
 
 import { useConnections } from './connections-store';
-import type { ConnectionStorage } from 'mongodb-data-service';
+import type { ConnectionInfo, ConnectionStorage } from 'mongodb-data-service';
 
 const noop = (): any => {
   /* no-op */
 };
+
+function createMockRecents(num: number): ConnectionInfo[] {
+  const mockRecents = [];
+  for (let i = 0; i < num; i++) {
+    mockRecents.push({
+      id: `${i}`,
+      lastUsed: new Date(1647023468898 - i),
+      connectionOptions: {
+        connectionString: 'mongodb://localhost',
+      },
+    });
+  }
+
+  return mockRecents;
+}
 
 const mockConnections = [
   {
@@ -74,6 +90,163 @@ describe('use-connections hook', function () {
 
       expect(loadAllSpyWithData.callCount).to.equal(1);
       expect(result.current.state.connections.length).to.equal(2);
+    });
+
+    it('filters and sort favorites connections', async function () {
+      const connectionOptions = {
+        connectionString: 'mongodb://turtle',
+      };
+      const loadAllSpyWithData = sinon.fake.resolves([
+        { id: '1', favorite: { name: 'bcd' }, connectionOptions },
+        { id: '2', lastUsed: new Date(), connectionOptions },
+        { id: '3', favorite: { name: 'abc' }, connectionOptions },
+      ]);
+      mockConnectionStorage.loadAll = loadAllSpyWithData;
+
+      const { result } = renderHook(() =>
+        useConnections({
+          onConnected: noop,
+          connectionStorage: mockConnectionStorage,
+          connectFn: noop,
+          appName: 'Test App Name',
+        })
+      );
+
+      // Wait for the async loading of connections to complete.
+      await waitFor(() =>
+        expect(result.current.favoriteConnections).to.deep.equal([
+          { id: '3', favorite: { name: 'abc' }, connectionOptions },
+          { id: '1', favorite: { name: 'bcd' }, connectionOptions },
+        ])
+      );
+    });
+
+    it('filters and sort recents connections', async function () {
+      const connectionOptions = {
+        connectionString: 'mongodb://turtle',
+      };
+      const loadAllSpyWithData = sinon.fake.resolves([
+        { id: '1', favorite: { name: 'bcd' }, connectionOptions },
+        { id: '2', lastUsed: new Date(1647020087550), connectionOptions },
+        { id: '3', favorite: { name: 'abc' }, connectionOptions },
+        { id: '4', connectionOptions }, // very old recent connection without lastUsed
+        { id: '5', lastUsed: new Date(1647020087551), connectionOptions },
+      ]);
+      mockConnectionStorage.loadAll = loadAllSpyWithData;
+
+      const { result } = renderHook(() =>
+        useConnections({
+          onConnected: noop,
+          connectionStorage: mockConnectionStorage,
+          connectFn: noop,
+          appName: 'Test App Name',
+        })
+      );
+
+      await waitFor(() =>
+        expect(result.current.state.connections.length).to.equal(5)
+      );
+
+      expect(result.current.recentConnections).to.deep.equal([
+        { id: '5', lastUsed: new Date(1647020087551), connectionOptions },
+        { id: '2', lastUsed: new Date(1647020087550), connectionOptions },
+        { id: '4', connectionOptions },
+      ]);
+    });
+  });
+
+  describe('#connect', function () {
+    const maxRecents = 10;
+
+    it(`calls onConnected`, async function () {
+      const onConnected = sinon.spy();
+      const { result } = renderHook(() =>
+        useConnections({
+          onConnected,
+          connectionStorage: mockConnectionStorage,
+          connectFn: () => Promise.resolve({} as any),
+          appName: 'Test App Name',
+        })
+      );
+
+      await result.current.connect({
+        id: 'new',
+        connectionOptions: {
+          connectionString: 'mongodb://new-recent',
+        },
+      });
+
+      await waitFor(() => {
+        expect(onConnected).to.have.been.called;
+      });
+    });
+
+    it(`truncates recents to ${maxRecents}`, async function () {
+      const mockRecents = createMockRecents(maxRecents);
+
+      mockConnectionStorage.loadAll = () => Promise.resolve(mockRecents);
+
+      const { result } = renderHook(() =>
+        useConnections({
+          onConnected: noop,
+          connectionStorage: mockConnectionStorage,
+          connectFn: () => Promise.resolve({} as any),
+          appName: 'Test App Name',
+        })
+      );
+
+      // Wait for the async loading of connections to complete.
+      await waitFor(() =>
+        expect(result.current.state.connections.length).to.equal(
+          mockRecents.length
+        )
+      );
+
+      await result.current.connect({
+        id: 'new',
+        connectionOptions: {
+          connectionString: 'mongodb://new-recent',
+        },
+      });
+
+      await waitFor(() => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(mockConnectionStorage.delete).to.have.been.calledWith(
+          mockRecents[mockRecents.length - 1]
+        );
+      });
+    });
+
+    it(`does not remove recent if there are less then ${maxRecents}`, async function () {
+      const mockRecents = createMockRecents(maxRecents - 1);
+
+      mockConnectionStorage.loadAll = () => Promise.resolve(mockRecents);
+
+      const onConnected = sinon.spy();
+      const { result } = renderHook(() =>
+        useConnections({
+          onConnected,
+          connectionStorage: mockConnectionStorage,
+          connectFn: () => Promise.resolve({} as any),
+          appName: 'Test App Name',
+        })
+      );
+
+      await result.current.connect({
+        id: 'new',
+        connectionOptions: {
+          connectionString: 'mongodb://new-recent',
+        },
+      });
+
+      // this may cause a false negative, but there is no other reliable way to
+      // test this case. It would fail eventually if the functionality is broken.
+      await util.promisify(setTimeout)(100);
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(mockConnectionStorage.delete).not.to.have.been.calledWith(
+        mockRecents[mockRecents.length - 1]
+      );
     });
   });
 

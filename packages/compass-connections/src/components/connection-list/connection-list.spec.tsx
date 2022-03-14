@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ConnectionInfo } from 'mongodb-data-service';
+import _ from 'lodash';
 
 import ConnectionList from './connection-list';
 
@@ -13,10 +14,11 @@ for (let i = 0; i < 5; i++) {
     connectionOptions: {
       connectionString: `mongodb://localhost:2${5000 + i}`,
     },
-    lastUsed: new Date(Date.now() - (Date.now() / 2) * Math.random()),
+    lastUsed: new Date(1647022100487 - i),
   });
 }
-const mockConnections = [
+
+const mockFavorites = [
   {
     id: 'mock-connection-atlas',
     connectionOptions: {
@@ -58,7 +60,6 @@ const mockConnections = [
     },
     lastUsed: new Date(),
   },
-  ...mockRecents,
 ];
 
 describe('ConnectionList Component', function () {
@@ -72,8 +73,9 @@ describe('ConnectionList Component', function () {
     beforeEach(function () {
       render(
         <ConnectionList
-          activeConnectionId={mockConnections[2].id}
-          connections={mockConnections}
+          activeConnectionId={mockFavorites[2].id}
+          favoriteConnections={mockFavorites}
+          recentConnections={mockRecents}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
@@ -89,39 +91,21 @@ describe('ConnectionList Component', function () {
 
     it('renders all of the connections in the lists', function () {
       const listItems = screen.getAllByRole('listitem');
-      expect(listItems.length).to.equal(mockConnections.length);
-    });
-
-    it('favorites are alphabetically sorted', function () {
-      const listItems = screen.getAllByTestId('favorite-connection');
-      expect(listItems.length).to.equal(3);
+      expect(listItems.length).to.equal(
+        mockFavorites.length + mockRecents.length
+      );
     });
 
     it('renders the favorite connections in a list', function () {
       const listItems = screen.getAllByTestId('favorite-connection-title');
-      expect(listItems[0].textContent).to.equal('Atlas test');
-      expect(listItems[1].textContent).to.equal('favorite');
-      expect(listItems[2].textContent).to.equal(
-        'super long favorite name - super long favorite name - super long favorite name - super long favorite name'
-      );
+      expect(listItems[0].textContent).to.equal(mockFavorites[0].favorite.name);
+      expect(listItems[1].textContent).to.equal(mockFavorites[1].favorite.name);
+      expect(listItems[2].textContent).to.equal(mockFavorites[2].favorite.name);
     });
 
     it('renders the recent connections in a list', function () {
       const listItems = screen.getAllByTestId('recent-connection');
-      expect(listItems.length).to.equal(6);
-    });
-
-    it('renders the recent connections in most recent first order', function () {
-      const listItems = screen.getAllByTestId('recent-connection-description');
-      expect(
-        new Date(listItems[0].textContent).getTime()
-      ).to.be.greaterThanOrEqual(new Date(listItems[1].textContent).getTime());
-      expect(
-        new Date(listItems[1].textContent).getTime()
-      ).to.be.greaterThanOrEqual(new Date(listItems[2].textContent).getTime());
-      expect(
-        new Date(listItems[2].textContent).getTime()
-      ).to.be.greaterThanOrEqual(new Date(listItems[3].textContent).getTime());
+      expect(listItems.length).to.equal(mockRecents.length);
     });
   });
 
@@ -129,8 +113,9 @@ describe('ConnectionList Component', function () {
     beforeEach(function () {
       render(
         <ConnectionList
-          activeConnectionId={mockConnections[2].id}
-          connections={mockConnections}
+          activeConnectionId={mockFavorites[2].id}
+          favoriteConnections={mockFavorites}
+          recentConnections={mockRecents}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
@@ -160,8 +145,9 @@ describe('ConnectionList Component', function () {
     beforeEach(function () {
       render(
         <ConnectionList
-          activeConnectionId={mockConnections[2].id}
-          connections={mockConnections}
+          activeConnectionId={mockFavorites[2].id}
+          favoriteConnections={mockFavorites}
+          recentConnections={mockRecents}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
@@ -172,7 +158,7 @@ describe('ConnectionList Component', function () {
       expect(setActiveConnectionIdSpy.called).to.equal(false);
 
       const button = screen
-        .getByText(mockConnections[1].favorite.name)
+        .getByText(mockFavorites[1].favorite.name)
         .closest('button');
       fireEvent(
         button,
@@ -195,8 +181,9 @@ describe('ConnectionList Component', function () {
     beforeEach(function () {
       render(
         <ConnectionList
-          activeConnectionId={mockConnections[2].id}
-          connections={mockConnections}
+          activeConnectionId={mockFavorites[2].id}
+          favoriteConnections={mockFavorites}
+          recentConnections={mockRecents}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={setActiveConnectionIdSpy}
           removeAllRecentsConnections={() => true}
@@ -207,9 +194,7 @@ describe('ConnectionList Component', function () {
       expect(setActiveConnectionIdSpy.called).to.equal(false);
 
       const button = screen
-        .getByText(
-          mockConnections[7].connectionOptions.connectionString.substr(10)
-        )
+        .getByText(mockRecents[3].connectionOptions.connectionString.substr(10))
         .closest('button');
       fireEvent(
         button,
@@ -233,8 +218,9 @@ describe('ConnectionList Component', function () {
       removeAllRecentsConnectionsSpy = sinon.spy();
       render(
         <ConnectionList
-          activeConnectionId={mockConnections[2].id}
-          connections={mockConnections}
+          activeConnectionId={mockFavorites[2].id}
+          favoriteConnections={mockFavorites}
+          recentConnections={mockRecents}
           createNewConnection={createNewConnectionSpy}
           setActiveConnectionId={() => true}
           removeAllRecentsConnections={removeAllRecentsConnectionsSpy}

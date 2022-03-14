@@ -199,6 +199,7 @@ async function loadConnections(
   }
 }
 
+const MAX_RECENT_CONNECTIONS_LENGTH = 10;
 export function useConnections({
   onConnected,
   connectionStorage,
@@ -239,19 +240,20 @@ export function useConnections({
   const connectedDataService = useRef<DataService>();
 
   const { recentConnections, favoriteConnections } = useMemo(() => {
-    const favoriteConnections = state.connections
+    const favoriteConnections = (state.connections || [])
       .filter((connectionInfo) => !!connectionInfo.favorite)
       .sort((a, b) => {
-        return b.favorite!.name?.toLocaleLowerCase() <
-          a.favorite!.name?.toLocaleLowerCase()
-          ? 1
-          : -1;
+        const aName = a.favorite?.name?.toLocaleLowerCase() || '';
+        const bName = b.favorite?.name?.toLocaleLowerCase() || '';
+        return bName < aName ? 1 : -1;
       });
 
-    const recentConnections = connections
+    const recentConnections = (state.connections || [])
       .filter((connectionInfo) => !connectionInfo.favorite)
       .sort((a, b) => {
-        return (b.lastUsed?.getTime() ?? 0) - (a.lastUsed?.getTime() ?? 0);
+        const aTime = a.lastUsed?.getTime() ?? 0;
+        const bTime = b.lastUsed?.getTime() ?? 0;
+        return bTime - aTime;
       });
 
     return { recentConnections, favoriteConnections };
@@ -287,6 +289,21 @@ export function useConnections({
     }
   }
 
+  async function removeConnection(connectionInfo: ConnectionInfo) {
+    await connectionStorage.delete(connectionInfo);
+    dispatch({
+      type: 'set-connections',
+      connections: connections.filter((conn) => conn.id !== connectionInfo.id),
+    });
+    if (activeConnectionId === connectionInfo.id) {
+      const nextActiveConnection = createNewConnectionInfo();
+      dispatch({
+        type: 'set-active-connection',
+        connectionInfo: nextActiveConnection,
+      });
+    }
+  }
+
   async function onConnectSuccess(
     connectionInfo: ConnectionInfo,
     dataService: DataService
@@ -304,6 +321,20 @@ export function useConnections({
         ...cloneDeep(connectionInfoToBeSaved),
         lastUsed: new Date(),
       });
+
+      // remove the oldest recent connection if are adding a new one and
+      // there are already MAX_RECENT_CONNECTIONS_LENGTH recents.
+      // NOTE: there are edge cases that may lead to more than MAX_RECENT_CONNECTIONS_LENGTH
+      // to be saved (ie. concurrent run of Compass),
+      // however we accept it as long as the list of
+      // recents won't grow indefinitely.
+      if (
+        !connectionInfoToBeSaved.favorite &&
+        !connectionInfoToBeSaved.lastUsed &&
+        recentConnections.length >= MAX_RECENT_CONNECTIONS_LENGTH
+      ) {
+        await removeConnection(recentConnections[recentConnections.length - 1]);
+      }
     } catch (err) {
       debug(
         `error occurred connection with id ${connectionInfo.id || ''}: ${
@@ -465,22 +496,7 @@ export function useConnections({
         });
       }
     },
-    async removeConnection(connectionInfo: ConnectionInfo) {
-      await connectionStorage.delete(connectionInfo);
-      dispatch({
-        type: 'set-connections',
-        connections: connections.filter(
-          (conn) => conn.id !== connectionInfo.id
-        ),
-      });
-      if (activeConnectionId === connectionInfo.id) {
-        const nextActiveConnection = createNewConnectionInfo();
-        dispatch({
-          type: 'set-active-connection',
-          connectionInfo: nextActiveConnection,
-        });
-      }
-    },
+    removeConnection,
     async duplicateConnection(connectionInfo: ConnectionInfo) {
       const duplicate: ConnectionInfo = {
         ...cloneDeep(connectionInfo),
