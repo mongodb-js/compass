@@ -71,7 +71,7 @@ if (require.main === module) {
     await dropCollection(db, 'numbers');
     await db
       .collection('numbers')
-      .insertMany([...Array(1000).keys()].map((i) => ({ i })));
+      .insertMany([...Array(1000).keys()].map((i) => ({ i, j: 0 })));
   };
 
   run()
