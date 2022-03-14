@@ -17,7 +17,9 @@ const tabsContainerStyles = css({
   padding: 0,
   outline: 'none',
   flexShrink: 0,  // Don't shrink more than content.
-  position: 'relative'
+  position: 'relative',
+  overflowX: 'auto',
+  whiteSpace: 'nowrap'
 });
 
 const tabsListContainerStyles = css({
@@ -26,9 +28,6 @@ const tabsListContainerStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  overflowX: 'auto',
-  whiteSpace: 'nowrap',
-  position: 'relative'
 });
 
 const tabsListStyles = css({
