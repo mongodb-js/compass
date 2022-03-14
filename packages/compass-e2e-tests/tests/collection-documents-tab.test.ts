@@ -303,16 +303,21 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 31 }');
     const document = await browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
-    expect((await document.getText()).replace(/\n/g, ' '))
-      .to.match(/^_id : [a-f0-9]{24} i : 31 j : 0$/);
+    expect((await document.getText()).replace(/\n/g, ' ')).to.match(
+      /^_id : [a-f0-9]{24} i : 31 j : 0$/
+    );
 
-    const value = await document.$('.editable-element:last-child .element-value');
+    const value = await document.$(
+      '.editable-element:last-child .element-value'
+    );
     await value.doubleClick();
 
-    const input = await document.$('.editable-element:last-child input.editable-element-value');
+    const input = await document.$(
+      '.editable-element:last-child input.editable-element-value'
+    );
     await input.setValue('42');
 
-    const footer = await document.$('.document-footer-message');
+    const footer = await document.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document Modified.');
 
     const button = await document.$('[data-test-id="update-document-button"]');
@@ -322,28 +327,33 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 31 }');
     const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
     await modifiedDocument.waitForDisplayed();
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' '))
-      .to.match(/^_id : [a-f0-9]{24} i : 31 j : 42$/);
+    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
+      /^_id : [a-f0-9]{24} i : 31 j : 42$/
+    );
   });
 
   it('supports view/edit via json view', async function () {
     await browser.runFindOperation('Documents', '{ i: 32 }');
-    await browser.clickVisible('[data-test-id="toolbar-view-json"]');
+    await browser.clickVisible(Selectors.SelectJSONView);
 
-    const document = await browser.$('[data-test-id="document-json-item"]');
+    const document = await browser.$(Selectors.DocumentJSONEntry);
     await document.waitForDisplayed();
     const json = await document.getText();
-    expect(json.replace(/\s+/g, ' '))
-      .to.match(/^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/);
+    expect(json.replace(/\s+/g, ' ')).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/
+    );
 
     await browser.hover('[data-test-id="editable-json"]');
     await browser.clickVisible('[data-test-id="edit-document-button"]');
 
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
-    await browser.setAceValue('[data-test-id="editable-json"] #ace-editor', newjson);
+    await browser.setAceValue(
+      '[data-test-id="editable-json"] #ace-editor',
+      newjson
+    );
 
-    const footer = await document.$('.document-footer-message');
+    const footer = await document.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document Modified.');
 
     const button = await document.$('[data-test-id="update-document-button"]');
@@ -351,21 +361,23 @@ FindIterable<Document> result = collection.find(filter);`);
     await footer.waitForDisplayed({ reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 32 }');
-    await browser.clickVisible('[data-test-id="toolbar-view-json"]');
+    await browser.clickVisible(Selectors.SelectJSONView);
 
-    const modifiedDocument = await browser.$('[data-test-id="document-json-item"]');
+    const modifiedDocument = await browser.$(Selectors.DocumentJSONEntry);
     await modifiedDocument.waitForDisplayed();
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' '))
-      .to.match(/^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 1234 \}$/);
+    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 1234 \}$/
+    );
   });
 
   it('supports view/edit via table view', async function () {
     await browser.runFindOperation('Documents', '{ i: 33 }');
-    await browser.clickVisible('[data-test-id="toolbar-view-table"]');
+    await browser.clickVisible(Selectors.SelectTableView);
 
     const document = await browser.$('.ag-center-cols-clipper .ag-row-first');
-    expect((await document.getText()).replace(/\s+/g, ' '))
-      .to.match(/^[a-f0-9]{24} 33 0$/);
+    expect((await document.getText()).replace(/\s+/g, ' ')).to.match(
+      /^[a-f0-9]{24} 33 0$/
+    );
 
     const value = await document.$('[col-id="j"] .element-value');
     await value.doubleClick();
@@ -373,19 +385,22 @@ FindIterable<Document> result = collection.find(filter);`);
     const input = await document.$('[col-id="j"] input.editable-element-value');
     await input.setValue('-100');
 
-    const footer = await browser.$('.document-footer-message');
+    const footer = await browser.$(Selectors.DocumentFooterMessage);
     expect(await footer.getText()).to.equal('Document Modified.');
 
-    const button = await browser.$('.document-footer [data-test-id="update-document-button"]');
+    const button = await browser.$(Selectors.UpdateDocumentButton);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 33 }');
-    await browser.clickVisible('[data-test-id="toolbar-view-table"]');
+    await browser.clickVisible(Selectors.SelectTableView);
 
-    const modifiedDocument = await browser.$('.ag-center-cols-clipper .ag-row-first');
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' '))
-      .to.match(/^[a-f0-9]{24} 33 -100$/);
+    const modifiedDocument = await browser.$(
+      '.ag-center-cols-clipper .ag-row-first'
+    );
+    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
+      /^[a-f0-9]{24} 33 -100$/
+    );
   });
 
   it('can copy a document from the contextual toolbar', async function () {
@@ -395,10 +410,11 @@ FindIterable<Document> result = collection.find(filter);`);
     await document.waitForDisplayed();
 
     await browser.hover(Selectors.DocumentListEntry);
-    await browser.clickVisible('[data-test-id="copy-document-button"]');
+    await browser.clickVisible(Selectors.CopyDocumentButton);
 
-    expect((await clipboard.read()).replace(/\s+/g, ' '))
-      .to.match(/^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 34, "j": 0\}$/);
+    expect((await clipboard.read()).replace(/\s+/g, ' ')).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 34, "j": 0\}$/
+    );
   });
 
   it('can clone and delete a document from the contextual toolbar', async function () {
@@ -408,7 +424,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await document.waitForDisplayed();
 
     await browser.hover(Selectors.DocumentListEntry);
-    await browser.clickVisible('[data-test-id="clone-document-button"]');
+    await browser.clickVisible(Selectors.CloneDocumentButton);
 
     // wait for the modal to appear
     const insertDialog = await browser.$(Selectors.InsertDialog);
@@ -424,12 +440,13 @@ FindIterable<Document> result = collection.find(filter);`);
 
     const newDocument = await browser.$(Selectors.DocumentListEntry);
     await newDocument.waitForDisplayed();
-    expect((await newDocument.getText()).replace(/\n/g, ' '))
-      .to.match(/^_id : [a-f0-9]{24} i : 10042$/);
+    expect((await newDocument.getText()).replace(/\n/g, ' ')).to.match(
+      /^_id : [a-f0-9]{24} i : 10042$/
+    );
 
     await browser.hover(Selectors.DocumentListEntry);
-    await browser.clickVisible('[data-test-id="delete-document-button"]');
-    await browser.clickVisible('[data-test-id="confirm-delete-document-button"]');
+    await browser.clickVisible(Selectors.DeleteDocumentButton);
+    await browser.clickVisible(Selectors.ConfirmDeleteDocumentButton);
 
     await browser.runFindOperation('Documents', '{ i: 10042 }');
     const noDocuments = await browser.$('.document-list-zero-state');

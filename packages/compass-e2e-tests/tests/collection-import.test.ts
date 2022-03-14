@@ -96,7 +96,9 @@ describe('Collection import', function () {
   });
 
   beforeEach(async function () {
-    await browser.shellEval('db.getSiblingDB("test").getCollection("json-array").deleteMany({});');
+    await browser.shellEval(
+      'db.getSiblingDB("test").getCollection("json-array").deleteMany({});'
+    );
   });
 
   after(async function () {
@@ -151,7 +153,7 @@ describe('Collection import', function () {
     delete result._id;
 
     expect(result).to.deep.equal({
-      foo: '10'
+      foo: '10',
     });
   });
 
@@ -171,17 +173,25 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed();
 
     // pick list view
-    await browser.clickVisible('[data-test-id="insert-document-dialog-view-list"]');
+    await browser.clickVisible(
+      '[data-test-id="insert-document-dialog-view-list"]'
+    );
 
     // hover over the generated ObjectId to get the '+' for adding a new field
     await browser.hover(`${Selectors.InsertDialog} .element-value-is-objectid`);
     await browser.clickVisible(`${Selectors.InsertDialog} .line-number`);
-    await browser.clickVisible(`${Selectors.InsertDialog} .line-number .fa-plus-square-o`);
+    await browser.clickVisible(
+      `${Selectors.InsertDialog} .line-number .fa-plus-square-o`
+    );
 
     // Add field data
-    const keyInput = await browser.$(`${Selectors.InsertDialog} .editable-element-is-added .editable-element-field`);
+    const keyInput = await browser.$(
+      `${Selectors.InsertDialog} .editable-element-is-added .editable-element-field`
+    );
     await keyInput.setValue('bar');
-    const valueInput = await browser.$(`${Selectors.InsertDialog} .editable-element-is-added .editable-element-value-wrapper textarea`);
+    const valueInput = await browser.$(
+      `${Selectors.InsertDialog} .editable-element-is-added .editable-element-value-wrapper textarea`
+    );
     await valueInput.setValue('42');
     await browser.keys(['Enter']);
 
@@ -211,7 +221,7 @@ describe('Collection import', function () {
     delete result._id;
 
     expect(result).to.deep.equal({
-      bar: '"42"'
+      bar: '"42"',
     });
   });
 
