@@ -48,10 +48,8 @@ tests:
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: 'new Code("string", {"x": 1})'
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
-          swift: |
-            BSONCodeWithScope(code: "string", scope: [
-                "x": "1"
-            ])
+          swift: "BSONCodeWithScope(code: \"string\", scope: [\n    \"x\": \"1\"\n])"
+
     - description: 'no args'
       input:
           shell: Code()
