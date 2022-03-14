@@ -304,7 +304,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const document = await browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
     expect((await document.getText()).replace(/\n/g, ' ')).to.match(
-      /^_id : [a-f0-9]{24} i : 31 j : 0$/
+      /^_id : ObjectId\('[a-f0-9]{24}'\) i : 31 j : 0$/
     );
 
     const value = await document.$(
@@ -328,7 +328,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
     await modifiedDocument.waitForDisplayed();
     expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^_id : [a-f0-9]{24} i : 31 j : 42$/
+      /^_id : ObjectId\('[a-f0-9]{24}'\) i : 31 j : 42$/
     );
   });
 
@@ -376,7 +376,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     const document = await browser.$('.ag-center-cols-clipper .ag-row-first');
     expect((await document.getText()).replace(/\s+/g, ' ')).to.match(
-      /^[a-f0-9]{24} 33 0$/
+      /^ObjectId\('[a-f0-9]{24}'\) 33 0$/
     );
 
     const value = await document.$('[col-id="j"] .element-value');
@@ -399,7 +399,7 @@ FindIterable<Document> result = collection.find(filter);`);
       '.ag-center-cols-clipper .ag-row-first'
     );
     expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^[a-f0-9]{24} 33 -100$/
+      /^ObjectId\('[a-f0-9]{24}'\) 33 -100$/
     );
   });
 
@@ -441,7 +441,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const newDocument = await browser.$(Selectors.DocumentListEntry);
     await newDocument.waitForDisplayed();
     expect((await newDocument.getText()).replace(/\n/g, ' ')).to.match(
-      /^_id : [a-f0-9]{24} i : 10042$/
+      /^_id : ObjectId\('[a-f0-9]{24}'\) i : 10042$/
     );
 
     await browser.hover(Selectors.DocumentListEntry);

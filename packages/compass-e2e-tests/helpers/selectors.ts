@@ -414,6 +414,7 @@ export const DocumentListEntry = '[data-test-id="editable-document"]';
 export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
 export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
 export const SelectTableView = '[data-test-id="toolbar-view-table"]';
+export const SelectListView = '[data-test-id="toolbar-view-list"]';
 export const DocumentFooterMessage = '.document-footer-message';
 export const UpdateDocumentButton =
   '.document-footer [data-test-id="update-document-button"]';
