@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   FocusState,
   mergeProps,
@@ -11,15 +11,32 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { Tab } from './tab';
+import type { TabType } from './tab';
+
+function getTabType({
+  isTimeSeries,
+  isReadonly,
+}: {
+  isTimeSeries: boolean;
+  isReadonly: boolean;
+}): TabType {
+  if (isTimeSeries) {
+    return 'timeseries';
+  }
+  if (isReadonly) {
+    return 'view';
+  }
+  return 'collection';
+}
 
 const tabsContainerStyles = css({
   margin: 0,
   padding: 0,
   outline: 'none',
-  flexShrink: 0,  // Don't shrink more than content.
+  flexShrink: 0, // Don't shrink more than content.
   position: 'relative',
   overflowX: 'auto',
-  whiteSpace: 'nowrap'
+  whiteSpace: 'nowrap',
 });
 
 const tabsListContainerStyles = css({
@@ -55,11 +72,11 @@ const createNewTabButtonStyles = css({
 
 function useKeyboardNavigation<HTMLDivElement>({
   tabsCount,
-  onSelectTab,
+  onTabSelected,
   selectedTabIndex,
 }: {
   tabsCount: number;
-  onSelectTab: (tabIndex: number) => void;
+  onTabSelected: (tabIndex: number) => void;
   selectedTabIndex: number;
 }): [React.HTMLProps<HTMLDivElement>] {
   const onKeyDown = useCallback(
@@ -77,18 +94,16 @@ function useKeyboardNavigation<HTMLDivElement>({
       }
 
       if (evt.key === 'Home') {
-        // TODO: First tab and activates
-
         evt.preventDefault();
         evt.stopPropagation();
+        // Select the first tab.
         nextTabbable = 0;
       }
 
       if (evt.key === 'End') {
-        // TODO: Moves focus to the last tab and activates it.
-
         evt.preventDefault();
         evt.stopPropagation();
+        // Select the last tab.
         nextTabbable = tabsCount - 1;
       }
 
@@ -97,11 +112,10 @@ function useKeyboardNavigation<HTMLDivElement>({
         nextTabbable >= 0 &&
         nextTabbable < tabsCount
       ) {
-        // setCurrentTabbable(nextTabbable);
-        onSelectTab(nextTabbable);
+        onTabSelected(nextTabbable);
       }
     },
-    [selectedTabIndex, tabsCount, onSelectTab]
+    [selectedTabIndex, tabsCount, onTabSelected]
   );
 
   return [{ onKeyDown }];
@@ -112,6 +126,9 @@ type TabProps = {
   id: string;
   activeSubTabName: string;
   isActive: boolean;
+  type: string;
+  isTimeSeries: boolean;
+  isReadonly: boolean;
 };
 
 type WorkspaceTabsProps = {
@@ -130,10 +147,24 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
 }) => {
   const selectedTabIndex = tabs.findIndex((tab) => tab.isActive);
   const [focusProps, focusState] = useFocusState();
+  const tabContainerRef = useRef<HTMLDivElement>(null);
+
+  const onTabSelected = useCallback(
+    (tabIndex: number) => {
+      // When a tab is clicked we focus our container so we can
+      // handle arrow key movements.
+      if (tabContainerRef.current) {
+        tabContainerRef.current.focus();
+      }
+
+      onSelectTab(tabIndex);
+    },
+    [tabContainerRef, onSelectTab]
+  );
 
   const [navigationProps] = useKeyboardNavigation<HTMLDivElement>({
     selectedTabIndex,
-    onSelectTab,
+    onTabSelected,
     tabsCount: tabs.length,
   });
 
@@ -151,6 +182,7 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
           role="tablist"
           aria-label="Workspaces"
           aria-orientation="horizontal"
+          ref={tabContainerRef}
           tabIndex={0}
           {...tabContainerProps}
         >
@@ -160,8 +192,9 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
               isSelected={tab.isActive}
               isFocused={isTabListFocused && tab.isActive}
               tabId={tab.id}
+              type={getTabType(tab)}
               namespace={tab.namespace}
-              onTabClicked={() => onSelectTab(tabIndex)}
+              onTabClicked={() => onTabSelected(tabIndex)}
               onCloseClicked={() => onCloseTab(tabIndex)}
               key={tab.id}
               isTabListFocused={isTabListFocused}

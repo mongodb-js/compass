@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   css,
   cx,
@@ -10,6 +10,8 @@ import {
   Icon,
   mergeProps,
 } from '@mongodb-js/compass-components';
+
+export type TabType = 'timeseries' | 'view' | 'collection';
 
 const tabStyles = css({
   border: '1px solid transparent',
@@ -23,7 +25,7 @@ const tabStyles = css({
   margin: 0,
   marginLeft: spacing[1],
   padding: `${spacing[1]}px 0`,
-  maxWidth: spacing[7] * 3,
+  maxWidth: spacing[6] * 3,
   position: 'relative',
 
   '&:hover': {
@@ -33,7 +35,7 @@ const tabStyles = css({
     transition: 'border-color .16s ease-in',
   },
 
-  // Focus ring
+  // Focus ring shown on keyboard focus.
   '&::after': {
     position: 'absolute',
     content: '""',
@@ -54,6 +56,7 @@ const selectedTabStyles = css({
   background: uiColors.white,
   borderColor: uiColors.gray.light2,
   '&:hover': {
+    cursor: 'default',
     backgroundColor: uiColors.white,
   },
 });
@@ -138,6 +141,7 @@ type TabProps = {
   onCloseClicked: () => void;
   tabId: string;
   namespace: string;
+  type: TabType;
   isTabListFocused: boolean;
 };
 
@@ -149,6 +153,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
   onTabClicked,
   onCloseClicked,
   tabId,
+  type,
   namespace,
 }) => {
   const defaultActionProps = useDefaultAction(onTabClicked);
@@ -156,6 +161,14 @@ const Tab: React.FunctionComponent<TabProps> = ({
   const [hoverProps, isHovered] = useHoverState();
 
   const tabProps = mergeProps<HTMLDivElement>(hoverProps, defaultActionProps);
+
+  const tabIcon = useMemo(() => {
+    return type === 'timeseries'
+      ? 'TimeSeries'
+      : type === 'view'
+      ? 'Visibility'
+      : 'Folder';
+  }, [type]);
 
   return (
     <div
@@ -175,7 +188,8 @@ const Tab: React.FunctionComponent<TabProps> = ({
           [tabIconSelectedStyles]: isSelected,
           [tabIconFocusedStyles]: isFocused,
         })}
-        glyph="Folder"
+        glyph={tabIcon}
+        size="small"
       />
       <div className={tabTitleContainerStyles}>
         <div
@@ -193,7 +207,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
       <IconButton
         className={cx(
           tabCloseStyles,
-          ((isSelected && !isTabListFocused) || isFocused || isHovered)
+          (isSelected && !isTabListFocused) || isFocused || isHovered
             ? undefined
             : hiddenStyles
         )}
