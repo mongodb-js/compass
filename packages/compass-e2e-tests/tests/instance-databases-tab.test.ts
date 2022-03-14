@@ -86,7 +86,11 @@ describe('Instance databases tab', function () {
     await browser.addDatabase(dbName, collectionName);
 
     const selector = Selectors.databaseCard(dbName);
-    await browser.scrollToVirtualItem(Selectors.DatabasesTable, selector, 'grid');
+    await browser.scrollToVirtualItem(
+      Selectors.DatabasesTable,
+      selector,
+      'grid'
+    );
     const databaseCard = await browser.$(selector);
     await databaseCard.waitForDisplayed();
 

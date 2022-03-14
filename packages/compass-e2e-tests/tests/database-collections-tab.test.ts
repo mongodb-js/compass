@@ -87,7 +87,11 @@ describe('Database collections tab', function () {
     await browser.addCollection(collectionName);
 
     const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(Selectors.CollectionsGrid, selector, 'grid');
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
 
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
@@ -128,7 +132,11 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(Selectors.CollectionsGrid, selector, 'grid');
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
@@ -156,7 +164,11 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(Selectors.CollectionsGrid, selector, 'grid');
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
@@ -180,7 +192,11 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(Selectors.CollectionsGrid, selector, 'grid');
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 

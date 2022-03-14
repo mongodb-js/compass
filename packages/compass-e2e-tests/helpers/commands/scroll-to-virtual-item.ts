@@ -5,15 +5,21 @@ type ItemConfig = {
   firstItemIndex: string;
   indexAttribute: string;
   firstChildSelector: string;
-  waitUntilElementAppears: (browser: CompassBrowser, selector: string) => Promise<boolean>;
-}
+  waitUntilElementAppears: (
+    browser: CompassBrowser,
+    selector: string
+  ) => Promise<boolean>;
+};
 
 const gridConfig: ItemConfig = {
   firstItemSelector: '[data-vlist-item-idx="0"]',
   firstItemIndex: '0',
   indexAttribute: 'data-vlist-item-idx',
   firstChildSelector: '[role="row"]:first-child [role="gridcell"]:first-child',
-  waitUntilElementAppears: async (browser: CompassBrowser, selector: string) => {
+  waitUntilElementAppears: async (
+    browser: CompassBrowser,
+    selector: string
+  ) => {
     const rowCount = await browser
       .$(`${selector} [role="grid"]`)
       .getAttribute('aria-rowcount');
@@ -27,21 +33,21 @@ const treeConfig: ItemConfig = {
   firstItemIndex: '1',
   indexAttribute: 'aria-posinset',
   firstChildSelector: '[role="treeitem"]:first-child',
-  waitUntilElementAppears: async (browser: CompassBrowser, selector: string) => {
-    return await browser.$$(`${selector} [role="treeitem"]`).length > 0;
+  waitUntilElementAppears: async (
+    browser: CompassBrowser,
+    selector: string
+  ) => {
+    return (await browser.$$(`${selector} [role="treeitem"]`).length) > 0;
   },
 };
-
 
 export async function scrollToVirtualItem(
   browser: CompassBrowser,
   containerSelector: string,
   targetSelector: string,
-  role: 'grid' | 'tree',
+  role: 'grid' | 'tree'
 ): Promise<boolean> {
-
-  const config = role === 'tree'
-    ? treeConfig : gridConfig;
+  const config = role === 'tree' ? treeConfig : gridConfig;
 
   let found = false;
 
@@ -54,24 +60,29 @@ export async function scrollToVirtualItem(
 
   // scroll to the top and return the height of the scrollbar area and the
   // scroll content
-  const [scrollHeight, totalHeight] = await browser.execute((selector, itemRole) => {
-    const container = document.querySelector(selector);
-    const scrollContainer = itemRole === 'tree'
-      ? container?.firstChild?.firstChild
-      : container?.firstChild;
-    const heightContainer = scrollContainer?.firstChild;
-    if (!heightContainer) {
-      return [null, null];
-    }
+  const [scrollHeight, totalHeight] = await browser.execute(
+    (selector, itemRole) => {
+      const container = document.querySelector(selector);
+      const scrollContainer =
+        itemRole === 'tree'
+          ? container?.firstChild?.firstChild
+          : container?.firstChild;
+      const heightContainer = scrollContainer?.firstChild;
+      if (!heightContainer) {
+        return [null, null];
+      }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    scrollContainer.scrollTop = 0;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      scrollContainer.scrollTop = 0;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return [scrollContainer.clientHeight, heightContainer.offsetHeight];
-  }, containerSelector, role);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return [scrollContainer.clientHeight, heightContainer.offsetHeight];
+    },
+    containerSelector,
+    role
+  );
 
   if (scrollHeight === null || totalHeight === null) {
     return false;
@@ -106,9 +117,10 @@ export async function scrollToVirtualItem(
       await browser.execute(
         (selector, nextScrollTop, itemRole) => {
           const container = document.querySelector(selector);
-          const scrollContainer = itemRole === 'tree'
-            ? container?.firstChild?.firstChild
-            : container?.firstChild;
+          const scrollContainer =
+            itemRole === 'tree'
+              ? container?.firstChild?.firstChild
+              : container?.firstChild;
           if (!scrollContainer) {
             return;
           }
