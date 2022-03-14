@@ -40,7 +40,8 @@ describe('Instance databases tab', function () {
     for (const dbSelector of dbSelectors) {
       const found = await browser.scrollToVirtualItem(
         Selectors.DatabasesTable,
-        dbSelector
+        dbSelector,
+        'grid'
       );
       expect(found, dbSelector).to.be.true;
     }
@@ -49,7 +50,8 @@ describe('Instance databases tab', function () {
   it('links database cards to the database collections tab', async function () {
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
-      Selectors.databaseCard('test')
+      Selectors.databaseCard('test'),
+      'grid'
     );
     // Click on the db name text inside the card specifically to try and have
     // tighter control over where it clicks, because clicking in the center of
@@ -67,7 +69,8 @@ describe('Instance databases tab', function () {
     for (const collectionSelector of collectionSelectors) {
       const found = await browser.scrollToVirtualItem(
         Selectors.CollectionsGrid,
-        collectionSelector
+        collectionSelector,
+        'grid'
       );
       expect(found, collectionSelector).to.be.true;
     }
@@ -83,7 +86,7 @@ describe('Instance databases tab', function () {
     await browser.addDatabase(dbName, collectionName);
 
     const selector = Selectors.databaseCard(dbName);
-    await browser.scrollToVirtualItem(Selectors.DatabasesTable, selector);
+    await browser.scrollToVirtualItem(Selectors.DatabasesTable, selector, 'grid');
     const databaseCard = await browser.$(selector);
     await databaseCard.waitForDisplayed();
 

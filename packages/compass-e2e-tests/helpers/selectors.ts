@@ -177,8 +177,10 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 };
 
 // Connection Sidebar
+export const SidebarDatabaseAndConnectionList =
+  '[data-test-id="databases-and-collections"]';
 export const SidebarTreeItems =
-  '[data-test-id="databases-and-collections"] [role="treeitem"]';
+  `${SidebarDatabaseAndConnectionList} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';

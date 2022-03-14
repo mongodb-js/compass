@@ -154,12 +154,17 @@ describe('Instance sidebar', function () {
 
     await browser.addCollection(collectionName);
 
-    await sidebarFilterInputElement.setValue(collectionName);
-
     const collectionSelector = Selectors.sidebarCollection(
       dbName,
       collectionName
     );
+
+    await browser.scrollToVirtualItem(
+      Selectors.SidebarDatabaseAndConnectionList,
+      collectionSelector,
+      'tree'
+    );
+
     const collectionElement = await browser.$(collectionSelector);
     await collectionElement.waitForDisplayed();
 
