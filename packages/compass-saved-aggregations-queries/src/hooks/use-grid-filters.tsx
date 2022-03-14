@@ -41,6 +41,7 @@ const filterStyles = css({
 const searchInputStyles = css({
   width: '300px',
   marginRight: spacing[2],
+  marginTop: 2,
 });
 
 const FilterSelect: React.FunctionComponent<{
