@@ -137,8 +137,8 @@ type TabProps = {
   activeSubTabName: string;
   isFocused: boolean;
   isSelected: boolean;
-  onTabClicked: () => void;
-  onCloseClicked: () => void;
+  onSelect: () => void;
+  onClose: () => void;
   tabId: string;
   namespace: string;
   type: TabType;
@@ -150,13 +150,13 @@ const Tab: React.FunctionComponent<TabProps> = ({
   isFocused,
   isSelected,
   isTabListFocused,
-  onTabClicked,
-  onCloseClicked,
+  onSelect,
+  onClose,
   tabId,
   type,
   namespace,
 }) => {
-  const defaultActionProps = useDefaultAction(onTabClicked);
+  const defaultActionProps = useDefaultAction(onSelect);
 
   const [hoverProps, isHovered] = useHoverState();
 
@@ -213,7 +213,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
         )}
         onClick={(e) => {
           e.stopPropagation();
-          onCloseClicked();
+          onClose();
         }}
         aria-label="Close Tab"
       >

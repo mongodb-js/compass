@@ -13,7 +13,7 @@ import {
 import { Tab } from './tab';
 import type { TabType } from './tab';
 
-function getTabType({
+export function getTabType({
   isTimeSeries,
   isReadonly,
 }: {
@@ -194,8 +194,8 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
               tabId={tab.id}
               type={getTabType(tab)}
               namespace={tab.namespace}
-              onTabClicked={() => onTabSelected(tabIndex)}
-              onCloseClicked={() => onCloseTab(tabIndex)}
+              onSelect={() => onTabSelected(tabIndex)}
+              onClose={() => onCloseTab(tabIndex)}
               key={tab.id}
               isTabListFocused={isTabListFocused}
             />

@@ -3,7 +3,7 @@ import { render, screen, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { WorkspaceTabs } from './workspace-tabs';
+import { WorkspaceTabs, getTabType } from './workspace-tabs';
 
 describe('WorkspaceTabs', function () {
   let onCreateNewTabSpy: sinon.SinonSpy;
@@ -41,6 +41,35 @@ describe('WorkspaceTabs', function () {
       newTabButton.click();
 
       expect(onCreateNewTabSpy.callCount).to.equal(1);
+    });
+  });
+
+  describe('#getTabType', function () {
+    it('should return "timeseries" for a timeseries collection', function () {
+      expect(
+        getTabType({
+          isTimeSeries: true,
+          isReadonly: false,
+        })
+      ).to.equal('timeseries');
+    });
+
+    it('should return "view" for a view', function () {
+      expect(
+        getTabType({
+          isTimeSeries: false,
+          isReadonly: true,
+        })
+      ).to.equal('view');
+    });
+
+    it('should return "collection" when its not time series or readonly', function () {
+      expect(
+        getTabType({
+          isTimeSeries: false,
+          isReadonly: false,
+        })
+      ).to.equal('collection');
     });
   });
 });
