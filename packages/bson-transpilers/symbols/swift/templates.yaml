@@ -496,25 +496,33 @@ Templates:
     # arguments to the ArgsTemplate.            #
     #                                           #
     #############################################
-    CodeCodeTemplate: &CodeCodeTemplate null
+    CodeCodeTemplate: &CodeCodeTemplate !!js/function >
+        (lhs) => `${lhs}.code`
     CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
-    CodeScopeTemplate: &CodeScopeTemplate null
+    CodeScopeTemplate: &CodeScopeTemplate !!js/function >
+        (lhs) => `${lhs}.scope`
     CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
-    ObjectIdToStringTemplate: &ObjectIdToStringTemplate null
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
+        (lhs) => `${lhs}.hex`
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
-    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate null
+    ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
+        (lhs) => `${lhs} == `
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
-    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate null
+    ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
+        (lhs) => `${lhs}.timestamp`
     ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
-    BinaryValueTemplate: &BinaryValueTemplate null
+    BinaryValueTemplate: &BinaryValueTemplate !!js/function >
+        (lhs) => `${lhs}.data`
     BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
-    BinaryLengthTemplate: &BinaryLengthTemplate null
+    BinaryLengthTemplate: &BinaryLengthTemplate !!js/function >
+        (lhs) => `${lhs}.data.readableBytes`
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
     BinaryToStringTemplate: &BinaryToStringTemplate null
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
-    BinarySubtypeTemplate: &BinarySubtypeTemplate null
+    BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
+        (lhs) => `${lhs}.subtype`
     BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
     DBRefGetDBTemplate: &DBRefGetDBTemplate null
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
@@ -530,77 +538,131 @@ Templates:
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
     Int32ToStringTemplate: &Int32ToStringTemplate null
     Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
-    LongEqualsTemplate: &LongEqualsTemplate null
+    LongEqualsTemplate: &LongEqualsTemplate !!js/function >
+        (lhs) => `${lhs} == `
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
     LongToStringTemplate: &LongToStringTemplate null
     LongToStringArgsTemplate: &LongToStringArgsTemplate null
-    LongToIntTemplate: &LongToIntTemplate null
+    LongToIntTemplate: &LongToIntTemplate !!js/function >
+        (lhs) => `${lhs} as Int32`
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
     LongValueOfTemplate: &LongValueOfTemplate null
     LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
-    LongToNumberTemplate: &LongToNumberTemplate null
+    LongToNumberTemplate: &LongToNumberTemplate !!js/function >
+        (lhs) => `${lhs} as Double`
     LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
-    LongAddTemplate: &LongAddTemplate null
+    LongAddTemplate: &LongAddTemplate !!js/function >
+        (lhs) => `${lhs} + `
     LongAddArgsTemplate: &LongAddArgsTemplate null
-    LongSubtractTemplate: &LongSubtractTemplate null
+    LongSubtractTemplate: &LongSubtractTemplate !!js/function >
+        (lhs) => ${lhs} - `
     LongSubtractArgsTemplate: &LongSubtractArgsTemplate null
-    LongMultiplyTemplate: &LongMultiplyTemplate null
+    LongMultiplyTemplate: &LongMultiplyTemplate !!js/function >
+        (lhs) => ${lhs} * `
     LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate null
-    LongDivTemplate: &LongDivTemplate null
+    LongDivTemplate: &LongDivTemplate !!js/function >
+        (lhs) => `${lhs} / `
     LongDivArgsTemplate: &LongDivArgsTemplate null
-    LongModuloTemplate: &LongModuloTemplate null
+    LongModuloTemplate: &LongModuloTemplate !!js/function >
+        (lhs) => `${lhs} % `
     LongModuloArgsTemplate: &LongModuloArgsTemplate null
-    LongAndTemplate: &LongAndTemplate null
+    LongAndTemplate: &LongAndTemplate !!js/function >
+        (lhs) => `${lhs} & `
     LongAndArgsTemplate: &LongAndArgsTemplate null
-    LongOrTemplate: &LongOrTemplate null
+    LongOrTemplate: &LongOrTemplate !!js/function >
+        (lhs) => `${lhs} | `
     LongOrArgsTemplate: &LongOrArgsTemplate null
-    LongXorTemplate: &LongXorTemplate null
+    LongXorTemplate: &LongXorTemplate !!js/function >
+        (lhs) => `${lhs} ^ `
     LongXorArgsTemplate: &LongXorArgsTemplate null
-    LongShiftLeftTemplate: &LongShiftLeftTemplate null
-    LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate null
-    LongShiftRightTemplate: &LongShiftRightTemplate null
-    LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate null
-    LongCompareTemplate: &LongCompareTemplate null
-    LongCompareArgsTemplate: &LongCompareArgsTemplate null
-    LongIsOddTemplate: &LongIsOddTemplate null
-    LongIsOddArgsTemplate: &LongIsOddArgsTemplate null
-    LongIsZeroTemplate: &LongIsZeroTemplate null
-    LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate null
-    LongIsNegativeTemplate: &LongIsNegativeTemplate null
-    LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate null
-    LongNegateTemplate: &LongNegateTemplate null
-    LongNegateArgsTemplate: &LongNegateArgsTemplate null
-    LongNotTemplate: &LongNotTemplate null
-    LongNotArgsTemplate: &LongNotArgsTemplate null
-    LongNotEqualsTemplate: &LongNotEqualsTemplate null
-    LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate null
-    LongGreaterThanTemplate: &LongGreaterThanTemplate null
-    LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate null
-    LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate null
-    LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate null
-    LongLessThanTemplate: &LongLessThanTemplate null
-    LongLessThanArgsTemplate: &LongLessThanArgsTemplate null
-    LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate null
-    LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate null
-    LongFloatApproxTemplate: &LongFloatApproxTemplate null
-    LongTopTemplate: &LongTopTemplate null
-    LongBottomTemplate: &LongBottomTemplate null
-    TimestampToStringTemplate: &TimestampToStringTemplate null
-    TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
-    TimestampEqualsTemplate: &TimestampEqualsTemplate null
-    TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate null
-    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate null
-    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate null
-    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate null
-    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate null
-    TimestampTTemplate: &TimestampTTemplate null
-    TimestampITemplate: &TimestampITemplate null
-    TimestampAsDateTemplate: &TimestampAsDateTemplate null
-    TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate null
+    LongShiftLeftTemplate: &LongShiftLeftTemplate !!js/function >
+        (lhs) => `${lhs} << `
+    LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongShiftRightTemplate: &LongShiftRightTemplate !!js/function >
+        (lhs) => `${lhs} >> `
+    LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongCompareTemplate: &LongCompareTemplate !!js/function >
+        (lhs) => `${lhs} - `
+    LongCompareArgsTemplate: &LongCompareArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongIsOddTemplate: &LongIsOddTemplate !!js/function >
+        (arg) => `${arg} % 2 == 1`
+    LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
+        () => ''
+    LongIsZeroTemplate: &LongIsZeroTemplate !!js/function >
+        (arg) => `${arg} == 0`
+    LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate !!js/function >
+        () => ''
+    LongIsNegativeTemplate: &LongIsNegativeTemplate !!js/function >
+        (arg) => `${arg} < 0`
+    LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate !!js/function >
+        () => ''
+    LongNegateTemplate: &LongNegateTemplate !!js/function >
+        () => '-'
+    LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
+        (arg) => arg
+    LongNotTemplate: &LongNotTemplate !!js/function >
+        () => '~'
+    LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
+        (arg) => arg
+    LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
+        (lhs) => `${lhs} != `
+    LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongGreaterThanTemplate: &LongGreaterThanTemplate !!js/function >
+        (lhs) => `${lhs} > `
+    LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate !!js/function >
+        (lhs) => `${lhs} >= `
+    LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongLessThanTemplate: &LongLessThanTemplate !!js/function >
+        (lhs) => `${lhs} < `
+    LongLessThanArgsTemplate: &LongLessThanArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate !!js/function >
+        (lhs) => `${lhs} <= `
+    LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
+        (arg) => `${arg} as f32`
+    LongTopTemplate: &LongTopTemplate !!js/function >
+        (arg) => `${arg} >> 32`
+    LongBottomTemplate: &LongBottomTemplate !!js/function >
+        (arg) => `${arg} & 0x0000ffff`
+    TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
+        (arg) => `${arg}.to_string()`
+    TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate !!js/function >
+        () => ''
+    TimestampEqualsTemplate: &TimestampEqualsTemplate !!js/function >
+        (lhs) => `${lhs} == `
+    TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate !!js/function >
+        (_, rhs) => rhs
+    TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
+        (arg) => `${arg}.time`
+    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate !!js/function >
+        () => ''
+    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
+        (arg) => `${arg}.increment`
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate !!js/function >
+        () => ''
+    TimestampTTemplate: &TimestampTTemplate !!js/function >
+        (arg) => `${arg}.time`
+    TimestampITemplate: &TimestampITemplate !!js/function >
+        (arg) => `${arg}.increment`
+    TimestampAsDateTemplate: &TimestampAsDateTemplate !!js/function >
+        (arg) => `Date(timeIntervalSince1970: TimeInterval(${arg.timestamp}) / 1000.0))`
+    TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate !!js/function >
+        () => ''
     TimestampCompareTemplate: &TimestampCompareTemplate null
     TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate null
-    TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate null
-    TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate null
+    TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate !!js/function >
+        (lhs) => `${lhs} != `
+    TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate !!js/function >
+        (_, rhs) => rhs
     TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate null
     TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate null
     TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate null
@@ -615,7 +677,8 @@ Templates:
     SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
     SymbolToStringTemplate: &SymbolToStringTemplate null
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
-    Decimal128ToStringTemplate: &Decimal128ToStringTemplate null
+    Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
+        (lhs) => `"\(${lhs})"`
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
     # non bson-specific
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
