@@ -1,3 +1,4 @@
 .log
 .mongodb
 fixtures
+coverage

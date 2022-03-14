@@ -51,10 +51,12 @@ if (require.main === module) {
 
     // lots of collections to test virtual scrolling
     for (let i = 0; i < 26; ++i) {
-      promises.push(createBlankCollection(
-        db,
-        'zzz' + String.fromCharCode('a'.charCodeAt(0) + i)
-      ));
+      promises.push(
+        createBlankCollection(
+          db,
+          'zzz' + String.fromCharCode('a'.charCodeAt(0) + i)
+        )
+      );
     }
 
     await Promise.all(promises);

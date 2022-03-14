@@ -72,7 +72,7 @@ export function webpackArgsWithDefaults(
       devServerPort: 4242,
       analyze: ['1', 'true'].includes(process.env.ANALYZE as string),
       cwd,
-      coverage: ['1', 'true'].includes(process.env.COVERAGE as string)
+      coverage: ['1', 'true'].includes(process.env.COVERAGE as string),
     },
     args as ConfigArgs,
     ...(more as ConfigArgs[])
