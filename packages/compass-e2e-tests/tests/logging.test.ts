@@ -11,7 +11,7 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      const compass = await beforeTests();
+      const compass = await beforeTests({ firstRun: true });
       const { browser } = compass;
       try {
         await browser.connectWithConnectionString(

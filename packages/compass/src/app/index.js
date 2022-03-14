@@ -72,7 +72,7 @@ ipc.once('app:launched', function() {
 
 const { log, mongoLogId, debug, track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-APP');
-  
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -309,8 +309,9 @@ var Application = View.extend({
       var save = false;
       if (
         semver.lt(oldVersion, currentVersion) ||
-        // So we can test the tour in any e2e environment, not only on prod
-        process.env.APP_ENV === 'webdriverio'
+        // this is so we can test the tour modal in E2E tests where the version
+        // is always the same
+        process.env.SHOW_TOUR
       ) {
         prefs.showFeatureTour = oldVersion;
         save = true;

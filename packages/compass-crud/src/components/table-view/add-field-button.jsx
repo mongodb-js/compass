@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
 import outsideClickable from 'react-click-outside';
-import getComponent from 'hadron-react-bson';
+import { BSONValue } from '@mongodb-js/compass-components';
 
 /**
  * The BEM base style name for the element.
@@ -248,10 +248,11 @@ class AddFieldButton extends React.Component {
     if (this.empty) {
       return null;
     }
-    const component = getComponent(this.props.value.currentType);
-    return React.createElement(
-      component,
-      { type: this.props.value.currentType, value: this.props.value.currentValue }
+    return (
+      <BSONValue
+        type={this.props.value.currentType}
+        value={this.props.value.currentValue}
+      />
     );
   }
 

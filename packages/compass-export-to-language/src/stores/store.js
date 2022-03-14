@@ -34,8 +34,7 @@ function getCurrentlyConnectedUri(dataService) {
 
   try {
     connectionStringUrl = new ConnectionString(
-      dataService.getConnectionOptions().connectionString,
-      {looseValidation: true}
+      dataService.getConnectionOptions().connectionString
     );
   } catch (e) {
     return '<uri>';

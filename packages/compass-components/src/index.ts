@@ -84,3 +84,5 @@ export { useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
 export { Pipeline, Stage } from '@leafygreen-ui/pipeline';
+
+export { default as BSONValue } from './components/bson-value';

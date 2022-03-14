@@ -154,13 +154,14 @@ describe('Instance sidebar', function () {
 
     await browser.addCollection(collectionName);
 
+    await sidebarFilterInputElement.setValue(collectionName);
+
     const collectionSelector = Selectors.sidebarCollection(
       dbName,
       collectionName
     );
     const collectionElement = await browser.$(collectionSelector);
     await collectionElement.waitForDisplayed();
-    await collectionElement.scrollIntoView();
 
     // open the drop collection modal from the sidebar
     await browser.hover(collectionSelector);
