@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import jsonParse from 'fast-json-parse';
 import { TextButton } from 'hadron-react-buttons';
-import DocumentActions from './document-actions';
+import { DocumentList } from '@mongodb-js/compass-components';
 import RemoveDocumentFooter from './remove-document-footer';
 
 import 'ace-builds';
@@ -272,11 +272,12 @@ class EditableJson extends React.Component {
     if (this.props.editable) {
       if (!this.state.editing && !this.state.deleting) {
         return (
-          <DocumentActions
-            edit={this.handleEdit.bind(this)}
-            copy={this.handleCopy.bind(this)}
-            remove={this.handleDelete.bind(this)}
-            clone={this.handleClone.bind(this)}/>
+          <DocumentList.DocumentActionsGroup
+            onEdit={this.handleEdit.bind(this)}
+            onCopy={this.handleCopy.bind(this)}
+            onRemove={this.handleDelete.bind(this)}
+            onClone={this.handleClone.bind(this)}
+          />
         );
       }
     }
