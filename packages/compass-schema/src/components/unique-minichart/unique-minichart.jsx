@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ValueBubble from '../value-bubble';
 import sampleSize from 'lodash.samplesize';
+import { Icon, IconButton } from '@mongodb-js/compass-components';
 
 class UniqueMiniChart extends Component {
   static displayName = 'UniqueMiniChartComponent';
@@ -58,7 +59,12 @@ class UniqueMiniChart extends Component {
       <div className="minichart unique" style={style}>
         <dl className="dl-horizontal">
           <dt>
-            <i onClick={this.onRefresh.bind(this)} className="mms-icon-continuous" />
+            <IconButton
+              aria-label="Refresh sample values"
+              onClick={this.onRefresh.bind(this)}
+            >
+              <Icon glyph="Refresh" />
+            </IconButton>
           </dt>
           <dd>
             <ul className="list-inline">
