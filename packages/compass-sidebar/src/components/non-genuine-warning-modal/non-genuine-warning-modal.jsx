@@ -4,10 +4,10 @@ import {
   css,
   Banner,
   Button,
-  H3,
   Modal,
   Link,
-  Footer,
+  ModalFooter,
+  ModalTitle,
   spacing,
   Body,
   ButtonVariant,
@@ -16,10 +16,6 @@ import {
 
 const modalContentWrapperStyles = css({
   padding: 'initial'
-});
-
-const bannerStyles = css({
-  marginTop: spacing[4]
 });
 
 const modalContentStyles = css({
@@ -56,9 +52,8 @@ function NonGenuineWarningModal({
       <div
         className={modalContentStyles}
       >
-        <H3>{MODAL_TITLE}</H3>
+        <ModalTitle>{MODAL_TITLE}</ModalTitle>
         <Banner
-          className={bannerStyles}
           variant={BannerVariant.Warning}
         >
           {WARNING_BANNER}
@@ -70,7 +65,7 @@ function NonGenuineWarningModal({
           data-test-id="non-genuine-warning-modal-learn-more-link"
         >Learn more</Link>
       </div>
-      <Footer>
+      <ModalFooter>
         <Button
           onClick={onClose}
           variant={ButtonVariant.Primary}
@@ -78,7 +73,7 @@ function NonGenuineWarningModal({
         >
           Continue
         </Button>
-      </Footer>
+      </ModalFooter>
     </Modal>
   );
 }
