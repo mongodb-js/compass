@@ -16,7 +16,8 @@ const tabsContainerStyles = css({
   margin: 0,
   padding: 0,
   outline: 'none',
-  width: '100%',
+  flexShrink: 0,  // Don't shrink more than content.
+  position: 'relative'
 });
 
 const tabsListContainerStyles = css({
@@ -24,28 +25,24 @@ const tabsListContainerStyles = css({
   paddingBottom: 0,
   display: 'flex',
   flexDirection: 'row',
-  alignItems: 'center'
+  alignItems: 'center',
+  overflowX: 'auto',
+  whiteSpace: 'nowrap',
+  position: 'relative'
 });
 
 const tabsListStyles = css({
-  marginRight: spacing[2],
-  display: 'inline-block',
+  display: 'inline-flex',
   outline: 'none',
 });
 
 const tabsBottomBorderStyles = css({
-  position: 'relative',
-  width: '100%',
-
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '1px',
-    backgroundColor: uiColors.gray.light1,
-  },
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  height: '1px',
+  backgroundColor: uiColors.gray.light2,
 });
 
 const newTabContainerStyles = css({
@@ -53,6 +50,8 @@ const newTabContainerStyles = css({
 });
 
 const createNewTabButtonStyles = css({
+  marginLeft: spacing[2],
+  marginRight: spacing[2],
 });
 
 function useKeyboardNavigation<HTMLDivElement>({

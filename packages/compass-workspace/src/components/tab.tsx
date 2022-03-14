@@ -5,8 +5,7 @@ import {
   spacing,
   uiColors,
   useDefaultAction,
-  useFocusState,
-  FocusState,
+  useHoverState,
   IconButton,
   Icon,
   mergeProps,
@@ -23,13 +22,13 @@ const tabStyles = css({
   alignItems: 'center',
   margin: 0,
   marginLeft: spacing[1],
-  padding: 0,
-  height: spacing[5] + spacing[3],
+  padding: `${spacing[1]}px 0`,
+  maxWidth: spacing[7] * 3,
   position: 'relative',
 
   '&:hover': {
     backgroundColor: uiColors.gray.light3,
-    borderColor: uiColors.gray.base, // maybe light 1
+    borderColor: uiColors.gray.light1,
     cursor: 'pointer',
     transition: 'border-color .16s ease-in',
   },
@@ -53,7 +52,7 @@ const tabStyles = css({
 
 const selectedTabStyles = css({
   background: uiColors.white,
-  borderColor: uiColors.gray.light1,
+  borderColor: uiColors.gray.light2,
   '&:hover': {
     backgroundColor: uiColors.white,
   },
@@ -85,6 +84,7 @@ const hiddenStyles = css({
 });
 
 const tabIconStyles = css({
+  flexShrink: 0,
   marginLeft: spacing[2],
 });
 
@@ -105,6 +105,9 @@ const tabTitleContainerStyles = css({
 });
 
 const tabNamespaceStyles = css({
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
   display: 'inline-block',
   fontWeight: 'bold',
 });
@@ -145,27 +148,14 @@ const Tab: React.FunctionComponent<TabProps> = ({
   isTabListFocused,
   onTabClicked,
   onCloseClicked,
-  // tabIndex,
   tabId,
   namespace,
 }) => {
-  // const [navigationProps, currentTabbable] =
-  //   useKeyboardArrowNavigation<HTMLDivElement>({
-  //     itemsCount,useVirtualGridArrowNavigation
-  //     colCount,
-  //     rowCount,
-  //   });
   const defaultActionProps = useDefaultAction(onTabClicked);
-  // const [hoverProps, isHovered] = useHoverState();
 
-  const [focusProps, focusState] = useFocusState();
+  const [hoverProps, isHovered] = useHoverState();
 
-  const tabProps = mergeProps<HTMLDivElement>(focusProps, defaultActionProps);
-
-  const hasFocus = [
-    FocusState.FocusVisible,
-    FocusState.FocusWithinVisible,
-  ].includes(focusState);
+  const tabProps = mergeProps<HTMLDivElement>(hoverProps, defaultActionProps);
 
   return (
     <div
@@ -193,6 +183,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
             [tabNamespaceSelectedStyles]: isSelected,
             [tabNamespaceFocusedStyles]: isFocused,
           })}
+          title={namespace}
         >
           {namespace}
         </div>
@@ -202,7 +193,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
       <IconButton
         className={cx(
           tabCloseStyles,
-          (isSelected && !isTabListFocused) || isFocused
+          ((isSelected && !isTabListFocused) || isFocused || isHovered)
             ? undefined
             : hiddenStyles
         )}
@@ -210,7 +201,6 @@ const Tab: React.FunctionComponent<TabProps> = ({
           e.stopPropagation();
           onCloseClicked();
         }}
-        tabIndex={isSelected || hasFocus ? 0 : -1}
         aria-label="Close Tab"
       >
         <Icon glyph="X" />
