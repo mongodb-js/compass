@@ -22,6 +22,11 @@ export const ConnectionFormGeneralTabButton =
   '[data-testid="connection-general-tab"]';
 export const ConnectionFormAuthenticationTabButton =
   '[data-testid="connection-authentication-tab"]';
+export const ConnectionFormTLSTabButton = '[data-testid="connection-tls-tab"]';
+export const ConnectionFormTLSONButton =
+  'label[for="connection-tls-enabled-ON-radio-button"]';
+export const ConnectionFormTLSOFFButton =
+  'label[for="connection-tls-enabled-OFF-radio-button"]';
 export const ConnectionFormInputHost =
   '[data-testid="connection-host-input-0"]';
 export const ConnectionFormInputSrvRecord =
@@ -86,6 +91,8 @@ export const ConnectionFormTlsAllowInvalidHostnamesCheckbox =
   '[data-testid="tlsAllowInvalidHostnames-input"]';
 export const ConnectionFormTlsAllowInvalidCertificatesCheckbox =
   '[data-testid="tlsAllowInvalidCertificates-input"]';
+export const ConnectionFormTlsUseSystemCACheckbox =
+  '[data-testid="useSystemCA-input"]';
 export const ConnectionFormProxyMethodRadios =
   '#ssh-options-radio-box-group input[type="radio"]';
 export const ConnectionFormInputSshPasswordHost =
@@ -279,6 +286,7 @@ export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="database-grid"] [data-testid="create-controls"] button';
+export const DatabaseCard = '[data-testid="database-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
   '[data-testid="database-grid"] [data-testid="card-action-container"] button';
@@ -298,7 +306,7 @@ export const instanceTab = (tabName: string, selected?: boolean): string => {
   return selector;
 };
 export const databaseCard = (dbName: string): string => {
-  return `[data-testid="database-grid-item"][data-id="${dbName}"]`;
+  return `${DatabaseCard}[data-id="${dbName}"]`;
 };
 
 export const databaseCardClickable = (dbName: string): string => {
@@ -313,6 +321,7 @@ export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
   '[data-testid="collection-grid"] [data-testid="card-action-container"] button';
@@ -335,7 +344,7 @@ export const collectionCard = (
   dbName: string,
   collectionName: string
 ): string => {
-  return `[data-testid="collection-grid-item"][data-id="${dbName}.${collectionName}"]`;
+  return `${CollectionCard}[data-id="${dbName}.${collectionName}"]`;
 };
 
 export const collectionCardClickable = (
@@ -401,6 +410,19 @@ export const InsertDocumentOption =
   '[data-test-id="insert-data-dropdown-insert-document"]';
 export const ImportFileOption =
   '[data-test-id="insert-data-dropdown-import-file"]';
+export const DocumentListEntry = '[data-test-id="editable-document"]';
+export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
+export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
+export const SelectTableView = '[data-test-id="toolbar-view-table"]';
+export const SelectListView = '[data-test-id="toolbar-view-list"]';
+export const DocumentFooterMessage = '.document-footer-message';
+export const UpdateDocumentButton =
+  '.document-footer [data-test-id="update-document-button"]';
+export const CopyDocumentButton = '[data-test-id="copy-document-button"]';
+export const CloneDocumentButton = '[data-test-id="clone-document-button"]';
+export const DeleteDocumentButton = '[data-test-id="delete-document-button"]';
+export const ConfirmDeleteDocumentButton =
+  '[data-test-id="confirm-delete-document-button"]';
 
 // Insert Document modal
 

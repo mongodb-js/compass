@@ -4,7 +4,6 @@ ignores: [
   "@hot-loader/react-dom",
   "core-js",
   "font-awesome",
-  "hadron-react-bson",
   "karma-chai",
   "karma-chai-sinon",
   "karma-electron",

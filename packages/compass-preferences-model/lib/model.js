@@ -61,10 +61,21 @@ var preferencesProps = {
     default: THEMES.LIGHT
   },
   /**
-   * Stores a unique anonymous user ID (uuid) for the current user
+   * Stores a unique MongoDB ID for the current user.
+   * Initially, we used this field as telemetry user identifier,
+   * but this usage is being deprecated.
+   * The telemetryAnonymousId should be used instead.
    * @type {String}
    */
   currentUserId: {
+    type: 'string',
+    required: false
+  },
+  /**
+   * Stores a unique telemetry anonymous ID (uuid) for the current user.
+   * @type {String}
+   */
+  telemetryAnonymousId: {
     type: 'string',
     required: true,
     default: ''

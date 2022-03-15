@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import { ObjectId, EJSON } from 'bson';
-import { promises as fs } from 'fs';
+import { promises as fs, rmdirSync } from 'fs';
 import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
@@ -13,13 +13,13 @@ import {
   run as packageCompass,
   compileAssets,
 } from 'hadron-build/commands/release';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
 import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
-import type { AuthMechanism } from 'mongodb';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -35,40 +35,6 @@ const COMPASS_PATH = path.dirname(
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 
-export function getAtlasConnectionOptions(): {
-  host: string;
-  username: string;
-  password: string;
-  srvRecord: boolean;
-  authMechanism: AuthMechanism;
-} | null {
-  const missingKeys = [
-    'E2E_TESTS_ATLAS_HOST',
-    'E2E_TESTS_ATLAS_USERNAME',
-    'E2E_TESTS_ATLAS_PASSWORD',
-  ].filter((key) => !process.env[key]);
-
-  if (missingKeys.length > 0) {
-    const keysStr = missingKeys.join(', ');
-    if (process.env.ci || process.env.CI) {
-      throw new Error(`Missing required environmental variable(s): ${keysStr}`);
-    }
-    return null;
-  }
-
-  const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
-  const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
-  const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
-
-  return {
-    host,
-    username,
-    password,
-    authMechanism: 'DEFAULT',
-    srvRecord: true,
-  };
-}
-
 // For the tmpdirs
 let i = 0;
 // For the screenshots
@@ -76,20 +42,16 @@ let j = 0;
 // For the html
 //let k = 0;
 
-type CompassOptions = {
-  userDataDir: string;
-};
-
 export class Compass {
   browser: CompassBrowser;
+  isFirstRun: boolean;
   renderLogs: any[]; // TODO
   logs: LogEntry[];
   logPath?: string;
-  userDataDir: string;
 
-  constructor(browser: CompassBrowser, options: CompassOptions) {
+  constructor(browser: CompassBrowser, { isFirstRun = false } = {}) {
     this.browser = browser;
-    this.userDataDir = options.userDataDir;
+    this.isFirstRun = isFirstRun;
     this.logs = [];
     this.renderLogs = [];
 
@@ -124,7 +86,15 @@ export class Compass {
         // first arg is usually == text, but not always
         const args = [];
         for (const arg of message.args()) {
-          args.push(await arg.jsonValue());
+          let value;
+          try {
+            value = await arg.jsonValue();
+          } catch (err) {
+            // there are still some edge cases we can't easily convert into text
+            console.error('could not convert', arg);
+            value = '¯\\_(ツ)_/¯';
+          }
+          args.push(value);
         }
 
         // uncomment to see browser logs
@@ -159,10 +129,9 @@ export class Compass {
       }
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
-        // TODO
         debugClient(
           `${prop}(${args
-            .map((arg) => inspect(arg, { breakLength: Infinity }))
+            .map((arg) => redact(inspect(arg, { breakLength: Infinity })))
             .join(', ')})`
         );
 
@@ -225,16 +194,6 @@ export class Compass {
     debug(`Writing Compass application log to ${compassLogPath}`);
     await fs.writeFile(compassLogPath, compassLog.raw);
     this.logs = compassLog.structured;
-
-    debug('Removing user data');
-    try {
-      await fs.rmdir(this.userDataDir, { recursive: true });
-    } catch (e) {
-      debug(
-        `Failed to remove temporary user data directory at ${this.userDataDir}:`
-      );
-      debug(e);
-    }
   }
 
   async capturePage(
@@ -250,23 +209,63 @@ export class Compass {
   }
 }
 
-async function startCompass(
-  testPackagedApp = ['1', 'true'].includes(process.env.TEST_PACKAGED_APP ?? ''),
-  opts = {}
-): Promise<Compass> {
+interface StartCompassOptions {
+  firstRun?: boolean;
+}
+
+let defaultUserDataDir: string | undefined;
+
+export function removeUserDataDir(): void {
+  if (!defaultUserDataDir) {
+    return;
+  }
+  debug('Removing user data');
+  try {
+    // this is sync so we can use it in cleanup() in index.ts
+    rmdirSync(defaultUserDataDir, { recursive: true });
+  } catch (e) {
+    debug(
+      `Failed to remove temporary user data directory at ${defaultUserDataDir}:`
+    );
+    debug(e);
+  }
+}
+
+async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+  const testPackagedApp = ['1', 'true'].includes(
+    process.env.TEST_PACKAGED_APP ?? ''
+  );
+
   const nowFormatted = formattedDate();
 
-  const userDataDir = path.join(
-    os.tmpdir(),
-    `user-data-dir-${Date.now().toString(32)}-${++i}`
-  );
+  const isFirstRun = opts.firstRun || !defaultUserDataDir;
+
+  // If this is not the first run, but we want it to be, delete the user data
+  // dir so it will be recreated below.
+  if (defaultUserDataDir && opts.firstRun) {
+    removeUserDataDir();
+    // windows seems to be weird about us deleting and recreating this dir, so
+    // just make a new one for next time
+    defaultUserDataDir = undefined;
+  }
+
+  // Calculate the userDataDir once so it will be the same between runs. That
+  // way we can test first run vs second run experience.
+  if (!defaultUserDataDir) {
+    defaultUserDataDir = path.join(
+      os.tmpdir(),
+      `user-data-dir-${Date.now().toString(32)}-${++i}`
+    );
+  }
   const chromedriverLogPath = path.join(
     LOG_PATH,
     `chromedriver.${nowFormatted}.log`
   );
   const webdriverLogPath = path.join(LOG_PATH, 'webdriver');
 
-  await fs.mkdir(userDataDir, { recursive: true });
+  // Ensure that the user data dir exists
+  await fs.mkdir(defaultUserDataDir, { recursive: true });
+
   // Chromedriver will fail if log path doesn't exist, webdriver doesn't care,
   // for consistency let's mkdir for both of them just in case
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
@@ -287,7 +286,7 @@ async function startCompass(
   // https://peter.sh/experiments/chromium-command-line-switches/
   // https://www.electronjs.org/docs/latest/api/command-line-switches
   chromeArgs.push(
-    `--user-data-dir=${userDataDir}`,
+    `--user-data-dir=${defaultUserDataDir}`,
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
     '--media-router=0',
@@ -354,12 +353,11 @@ async function startCompass(
   debug('Starting compass via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
-  // TODO
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const browser = await remote(options);
 
-  const compass = new Compass(browser, { userDataDir });
+  const compass = new Compass(browser, { isFirstRun });
 
   await compass.recordLogs();
 
@@ -371,7 +369,6 @@ async function startCompass(
  * @returns {Promise<CompassLog>}
  */
 async function getCompassLog(logPath: string): Promise<any> {
-  // TODO
   const names = await fs.readdir(logPath);
   const logNames = names.filter((name) => name.endsWith('_log.gz'));
 
@@ -551,14 +548,20 @@ function augmentError(error: Error, stack: string) {
   error.stack = `${error.stack ?? ''}\nvia ${strippedLines.join('\n')}`;
 }
 
-export async function beforeTests(): Promise<Compass> {
-  const compass = await startCompass();
+export async function beforeTests(
+  opts?: StartCompassOptions
+): Promise<Compass> {
+  const compass = await startCompass(opts);
 
   const { browser } = compass;
 
   await browser.waitForConnectionScreen();
-  await browser.closeTourModal();
-  await browser.closePrivacySettingsModal();
+  if (process.env.SHOW_TOUR) {
+    await browser.closeTourModal();
+  }
+  if (compass.isFirstRun) {
+    await browser.closePrivacySettingsModal();
+  }
 
   return compass;
 }
@@ -615,4 +618,33 @@ export async function afterTest(
   if (test && test.state === 'failed') {
     await compass.capturePage(screenshotPathName(test.fullTitle()));
   }
+}
+
+const SENSITIVE_ENV_VARS = [
+  'E2E_TESTS_ATLAS_PASSWORD',
+  'E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID',
+  'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
+];
+
+function redact(value: string): string {
+  for (const field of SENSITIVE_ENV_VARS) {
+    if (process.env[field] === undefined) {
+      continue;
+    }
+
+    const quoted = `'${process.env[field] as string}'`;
+    // /regex/s would be ideal, but we'd have to escape the value to not be
+    // interpreted as a regex.
+    while (value.indexOf(quoted) !== -1) {
+      value = value.replace(quoted, "'$" + field + "'");
+    }
+  }
+
+  // This is first going to try and parse the value as a connection string
+  // before falling back to some regular expressions. Sometimes we pass a
+  // connection string to a command, more often there's a connection string deep
+  // in there somewhere.
+  value = redactConnectionString(value, { replacementString: '<redacted>' });
+
+  return value;
 }

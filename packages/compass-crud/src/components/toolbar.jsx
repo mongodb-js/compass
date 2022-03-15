@@ -195,7 +195,7 @@ Toolbar.propTypes = {
   activeDocumentView: PropTypes.string.isRequired,
   count: PropTypes.number,
   end: PropTypes.number.isRequired,
-  loadingCount: PropTypes.number.isRequired,
+  loadingCount: PropTypes.bool.isRequired,
   getPage: PropTypes.func.isRequired,
   insertHandler: PropTypes.func,
   openExportFileDialog: PropTypes.func,

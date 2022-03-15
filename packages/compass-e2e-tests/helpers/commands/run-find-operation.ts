@@ -182,4 +182,5 @@ export async function runFindOperation(
   await setFilter(browser, tabName, filter);
 
   await browser.runFind(tabName, waitForResult);
+  await browser.clickVisible(Selectors.SelectListView);
 }

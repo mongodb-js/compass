@@ -37,9 +37,9 @@ var User = Model.extend(storageMixin, {
   }
 });
 
-User.getOrCreate = function(userId, done) {
+User.getOrCreate = function(id, done) {
   var user = new User({
-    id: userId || uuid.v4(),
+    id: id || uuid.v4(),
     createdAt: new Date()
   });
   user.fetch({

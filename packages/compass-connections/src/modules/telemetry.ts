@@ -59,7 +59,9 @@ async function getConnectionData({
 }: Pick<ConnectionInfo, 'connectionOptions'>): Promise<
   Record<string, unknown>
 > {
-  const connectionStringData = new ConnectionString(connectionString);
+  const connectionStringData = new ConnectionString(connectionString, {
+    looseValidation: true,
+  });
   const hostName = connectionStringData.hosts[0];
   const searchParams =
     connectionStringData.typedSearchParams<MongoClientOptions>();

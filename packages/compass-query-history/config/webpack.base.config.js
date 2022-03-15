@@ -22,7 +22,9 @@ module.exports = {
     }
   },
   externals: {
-    'os-dns-native': 'commonjs2 os-dns-native'
+    'os-dns-native': 'commonjs2 os-dns-native',
+    'win-export-certificate-and-key': 'commonjs2 win-export-certificate-and-key',
+    'macos-export-certificate-and-key': 'commonjs2 macos-export-certificate-and-key'
   },
   module: {
     rules: [{

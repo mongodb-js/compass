@@ -6,7 +6,6 @@ ignores: [
   "@babel/register",
   "core-js",
   "font-awesome",
-  "hadron-react-bson",
   "karma-electron",
   "karma-sourcemap-loader",
   "karma-webpack",

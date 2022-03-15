@@ -8,10 +8,6 @@ export function getConnectionTitle(info: ConnectionInfo): string {
 
   try {
     const url = new ConnectionString(info.connectionOptions.connectionString);
-    if (url.isSRV) {
-      return url.hosts[0];
-    }
-
     return url.hosts.join(',');
   } catch (e) {
     // When parsing a connection for its title fails we default the title.

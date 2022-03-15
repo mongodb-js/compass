@@ -68,7 +68,6 @@ class CreateCollectionModal extends PureComponent {
         buttonText="Create Collection"
         submitDisabled={!((this.state.data.collection || '').trim())}
         className={styles['create-collection-modal']}
-        closeOnBackdropClick={false}
         trackingId="create_collection_modal"
       >
         <CollectionFields

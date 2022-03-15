@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 
 import styles from './zero-graphic.module.less';
 
@@ -17,7 +16,7 @@ class ZeroGraphic extends Component {
   render() {
     return (
       <svg
-        className={classnames(styles['zero-graphic'])}
+        className={styles['zero-graphic']}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 42 48"
       >

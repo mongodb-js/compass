@@ -1,6 +1,7 @@
 import type { MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { connectMongoClient, hookLogger } from '@mongodb-js/devtools-connect';
+import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import EventEmitter from 'events';
 import { redactConnectionOptions, redactConnectionString } from './redact';
@@ -31,7 +32,10 @@ export default async function connectMongoClientCompass(
   );
 
   const url = connectionOptions.connectionString;
-  const options: MongoClientOptions = { monitorCommands: true };
+  const options: DevtoolsConnectOptions = {
+    monitorCommands: true,
+    useSystemCA: connectionOptions.useSystemCA,
+  };
 
   // If connectionOptions.sshTunnel is defined, open an ssh tunnel.
   //
