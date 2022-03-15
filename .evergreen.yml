@@ -55,6 +55,10 @@ variables:
     E2E_TESTS_ATLAS_USERNAME: ${e2e_tests_atlas_username}
     E2E_TESTS_ATLAS_PASSWORD: ${e2e_tests_atlas_password}
     E2E_TESTS_ATLAS_X509_PEM: ${e2e_tests_atlas_x509_pem}
+    E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID: ${e2e_tests_atlas_iam_aws_access_key_id}
+    E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY: ${e2e_tests_atlas_iam_aws_secret_access_key}
+    E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN: ${e2e_tests_atlas_iam_temp_role_arn}
+    E2E_TESTS_ATLAS_IAM_USER_ARN: ${e2e_tests_atlas_iam_user_arn}
     NOTARY_URL: http://notary-service.build.10gen.cc:5000
     NOTARY_AUTH_TOKEN: ${signing_auth_token}
     NOTARY_SIGNING_KEY: ${signing_key_name}

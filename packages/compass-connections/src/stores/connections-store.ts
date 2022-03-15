@@ -2,6 +2,7 @@ import type {
   ConnectionInfo,
   ConnectionOptions,
   DataService,
+  ConnectionStorage,
 } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 import { useEffect, useReducer, useRef } from 'react';
@@ -30,10 +31,9 @@ export function createNewConnectionInfo(): ConnectionInfo {
     },
   };
 }
-export interface ConnectionStore {
-  loadAll: () => Promise<ConnectionInfo[]>;
-  save: (connectionInfo: ConnectionInfo) => Promise<void>;
-  delete: (connectionInfo: ConnectionInfo) => Promise<void>;
+
+function ensureWellFormedConnectionString(connectionString: string) {
+  new ConnectionString(connectionString);
 }
 
 function setAppNameParamIfMissing(
@@ -43,7 +43,9 @@ function setAppNameParamIfMissing(
   let connectionStringUrl;
 
   try {
-    connectionStringUrl = new ConnectionString(connectionString);
+    connectionStringUrl = new ConnectionString(connectionString, {
+      looseValidation: true,
+    });
   } catch (e) {
     //
   }
@@ -183,7 +185,7 @@ async function loadConnections(
     type: 'set-connections';
     connections: ConnectionInfo[];
   }>,
-  connectionStorage: ConnectionStore
+  connectionStorage: ConnectionStorage
 ) {
   try {
     const loadedConnections = await connectionStorage.loadAll();
@@ -207,7 +209,7 @@ export function useConnections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  connectionStorage: ConnectionStore;
+  connectionStorage: ConnectionStorage;
   connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
   appName: string;
 }): {
@@ -234,10 +236,17 @@ export function useConnections({
   const connectedConnectionInfo = useRef<ConnectionInfo>();
   const connectedDataService = useRef<DataService>();
 
-  async function saveConnectionInfo(connectionInfo: ConnectionInfo) {
+  async function saveConnectionInfo(
+    connectionInfo: ConnectionInfo
+  ): Promise<boolean> {
     try {
+      ensureWellFormedConnectionString(
+        connectionInfo?.connectionOptions?.connectionString
+      );
       await connectionStorage.save(connectionInfo);
       debug(`saved connection with id ${connectionInfo.id || ''}`);
+
+      return true;
     } catch (err) {
       debug(
         `error saving connection with id ${connectionInfo.id || ''}: ${
@@ -252,6 +261,8 @@ export function useConnections({
           (err as Error).message
         }`,
       });
+
+      return false;
     }
   }
 
@@ -263,9 +274,15 @@ export function useConnections({
     try {
       onConnected(connectionInfo, dataService);
 
-      // Update lastUsed date as now and save the connection.
-      connectionInfo.lastUsed = new Date();
-      await saveConnectionInfo(connectionInfo);
+      // if a connection has been saved already we only want to update the lastUsed
+      // attribute, otherwise we are going to save the entire connection info.
+      const connectionInfoToBeSaved =
+        (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
+
+      await saveConnectionInfo({
+        ...cloneDeep(connectionInfoToBeSaved),
+        lastUsed: new Date(),
+      });
     } catch (err) {
       debug(
         `error occurred connection with id ${connectionInfo.id || ''}: ${
@@ -379,7 +396,11 @@ export function useConnections({
       });
     },
     async saveConnection(connectionInfo: ConnectionInfo) {
-      await saveConnectionInfo(connectionInfo);
+      const saved = await saveConnectionInfo(connectionInfo);
+
+      if (!saved) {
+        return;
+      }
 
       const existingConnectionIndex = connections.findIndex(
         (connection) => connection.id === connectionInfo.id

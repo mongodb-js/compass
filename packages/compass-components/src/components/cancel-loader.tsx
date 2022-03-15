@@ -44,7 +44,7 @@ const buttonStyle = css({
   boxShadow: 'none',
   color: '#13AA52',
   fontFamily: 'Akzidenz',
-  '-webkit-appearance': 'button',
+  WebkitAppearance: 'button',
   cursor: 'pointer',
   overflow: 'visible',
   margin: 0,

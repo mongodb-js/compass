@@ -206,6 +206,7 @@ class StageEditor extends Component {
       <div className={styles['stage-editor-container']}>
         <div className={styles['stage-editor']}>
           <AceEditor
+            className={styles['stage-editor-ace-editor']}
             mode="javascript" // will be set to mongodb as part of OPTIONS
             theme="mongodb"
             width="100%"

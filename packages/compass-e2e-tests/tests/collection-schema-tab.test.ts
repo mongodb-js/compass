@@ -40,13 +40,13 @@ describe('Collection schema tab', function () {
     );
 
     const fields = await browser.$$(Selectors.SchemaField);
-    expect(fields).to.have.lengthOf(2);
+    expect(fields).to.have.lengthOf(3);
 
     const schemaFieldNameElement = await browser.$$(Selectors.SchemaFieldName);
     const fieldNames = await Promise.all(
       schemaFieldNameElement.map((el) => el.getText())
     );
-    expect(fieldNames).to.deep.equal(['_id', 'i']);
+    expect(fieldNames).to.deep.equal(['_id', 'i', 'j']);
 
     const schemaFieldTypeListElement = await browser.$$(
       Selectors.SchemaFieldTypeList
@@ -54,7 +54,7 @@ describe('Collection schema tab', function () {
     const fieldTypes = await Promise.all(
       schemaFieldTypeListElement.map((el) => el.getText())
     );
-    expect(fieldTypes).to.deep.equal(['objectid', 'int32']);
+    expect(fieldTypes).to.deep.equal(['objectid', 'int32', 'int32']);
   });
 
   it('analyzes the schema with a query');

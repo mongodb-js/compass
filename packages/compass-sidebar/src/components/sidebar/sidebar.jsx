@@ -16,7 +16,6 @@ import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { changeFilterRegex } from '../../modules/databases';
 import { updateAndSaveConnectionInfo } from '../../modules/connection-info';
-import { openLink } from '../../modules/link';
 import { NavigationItems } from './navigation-items';
 
 // In pixels. (px)
@@ -40,12 +39,11 @@ class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
   static propTypes = {
     instance: PropTypes.object.isRequired,
-    databases: PropTypes.object.isRequired,
+    databases: PropTypes.array.isRequired,
     isDetailsExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     detailsPlugins: PropTypes.array.isRequired,
-    openLink: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
     isDataLake: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
@@ -187,12 +185,10 @@ class Sidebar extends PureComponent {
             updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
           />
         )}
-        {process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true' && (
-          <NavigationItems
-            onItemClick={(tabName) => this.onNavigationItemClick(tabName)}
-            isExpanded={isExpanded}
-          />
-        )}
+        <NavigationItems
+          onItemClick={(tabName) => this.onNavigationItemClick(tabName)}
+          isExpanded={isExpanded}
+        />
         <div
           className={styles['compass-sidebar-filter']}
           onClick={this.handleSearchFocus.bind(this)}
@@ -213,7 +209,6 @@ class Sidebar extends PureComponent {
         <NonGenuineWarningModal
           isVisible={this.props.isGenuineMongoDBVisible}
           toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
-          openLink={this.props.openLink}
         />
       </div>
     );
@@ -249,7 +244,6 @@ const MappedSidebar = connect(
     toggleIsDetailsExpanded,
     toggleIsGenuineMongoDBVisible,
     changeFilterRegex,
-    openLink,
     globalAppRegistryEmit,
     updateAndSaveConnectionInfo
   },

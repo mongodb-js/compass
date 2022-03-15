@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import outsideClickable from 'react-click-outside';
-import getComponent from 'hadron-react-bson';
+import { BSONValue } from '@mongodb-js/compass-components';
 
 /**
  * The BEM base style name for the element.
@@ -190,10 +190,11 @@ class LineNumber extends React.Component {
    * @returns {React.Component} The value component.
    */
   renderValue() {
-    const component = getComponent(this.props.element.currentType);
-    return React.createElement(
-      component,
-      { type: this.props.element.currentType, value: this.props.element.currentValue }
+    return (
+      <BSONValue
+        type={this.props.element.currentType}
+        value={this.props.element.currentValue}
+      />
     );
   }
 

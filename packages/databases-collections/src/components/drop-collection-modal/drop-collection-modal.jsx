@@ -73,7 +73,6 @@ class DropCollectionModal extends PureComponent {
         variant="danger"
         submitDisabled={this.props.name !== this.props.nameConfirmation}
         className={styles['drop-collection-modal']}
-        closeOnBackdropClick={false}
         trackingId="drop_collection_modal"
       >
         <div>

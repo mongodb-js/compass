@@ -61,6 +61,27 @@ describe('theme', function() {
   });
 
   describe('#loadTheme', function() {
+    it('should add the global theme styles to the document', function() {
+      loadTheme();
+
+      expect(getComputedStyle(document.documentElement).backgroundColor).to.equal('rgb(245, 246, 247)');
+      expect(getComputedStyle(document.documentElement).color).to.equal('rgb(61, 79, 88)');
+    });
+
+    it('should add the global light theme styles to the document', function() {
+      loadTheme('LIGHT');
+
+      expect(getComputedStyle(document.documentElement).backgroundColor).to.equal('rgb(245, 246, 247)');
+      expect(getComputedStyle(document.documentElement).color).to.equal('rgb(61, 79, 88)');
+    });
+
+    it('should add the global dark theme styles to the document', function() {
+      loadTheme('DARK');
+
+      expect(getComputedStyle(document.documentElement).backgroundColor).to.equal('rgb(36, 37, 37)');
+      expect(getComputedStyle(document.documentElement).color).to.equal('rgb(185, 177, 166)');
+    });
+
     it('should set the dark theme on the app registry', function() {
       expect(global.hadronApp.theme).to.equal(undefined);
 

@@ -74,7 +74,7 @@ describe('ConnectionStorage', function () {
     fs.rmdirSync(tmpDir, { recursive: true });
   });
 
-  describe('load', function () {
+  describe('loadAll', function () {
     it('should load an empty array with no connections', async function () {
       const connectionStorage = new ConnectionStorage();
       const connections = await connectionStorage.loadAll();
@@ -91,7 +91,43 @@ describe('ConnectionStorage', function () {
           id,
           connectionOptions: {
             connectionString:
-              'mongodb://localhost:27017/?readPreference=primary&ssl=false',
+              'mongodb://localhost:27017/?readPreference=primary&ssl=false&directConnection=true',
+          },
+        },
+      ]);
+    });
+
+    it('should ignore failures in conversion', async function () {
+      const id1 = uuid();
+      const id2 = uuid();
+      writeFakeConnection(tmpDir, {
+        _id: id1,
+        connectionInfo: {
+          id: id1,
+          connectionOptions: {
+            connectionString: '',
+          },
+        },
+      });
+
+      writeFakeConnection(tmpDir, {
+        _id: id2,
+        connectionInfo: {
+          id: id2,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27020/?readPreference=primary&ssl=false',
+          },
+        },
+      });
+      const connectionStorage = new ConnectionStorage();
+      const connections = await connectionStorage.loadAll();
+      expect(connections).to.deep.equal([
+        {
+          id: id2,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27020/?readPreference=primary&ssl=false',
           },
         },
       ]);
@@ -108,6 +144,47 @@ describe('ConnectionStorage', function () {
       const connectionStorage = new ConnectionStorage();
       const connections = await connectionStorage.loadAll();
       expect(connections[0].lastUsed).to.deep.equal(lastUsed);
+    });
+  });
+
+  describe('load', function () {
+    it('should return undefined if id is undefined', async function () {
+      const connectionStorage = new ConnectionStorage();
+      expect(await connectionStorage.load(undefined)).to.be.undefined;
+      expect(await connectionStorage.load('')).to.be.undefined;
+    });
+
+    it('should return undefined if a connection does not exist', async function () {
+      const connectionStorage = new ConnectionStorage();
+      const connection = await connectionStorage.load('note-exis-stin-gone');
+      expect(connection).to.be.undefined;
+    });
+
+    it('should return an existing connection', async function () {
+      const id = uuid();
+      writeFakeConnection(tmpDir, { _id: id });
+      const connectionStorage = new ConnectionStorage();
+      const connection = await connectionStorage.load(id);
+      expect(connection).to.deep.equal({
+        id,
+        connectionOptions: {
+          connectionString:
+            'mongodb://localhost:27017/?readPreference=primary&ssl=false&directConnection=true',
+        },
+      });
+    });
+
+    it('should convert lastUsed', async function () {
+      const id = uuid();
+      const lastUsed = new Date('2021-10-26T13:51:27.585Z');
+      writeFakeConnection(tmpDir, {
+        _id: id,
+        lastUsed,
+      });
+
+      const connectionStorage = new ConnectionStorage();
+      const connection = await connectionStorage.load(id);
+      expect(connection.lastUsed).to.deep.equal(lastUsed);
     });
   });
 

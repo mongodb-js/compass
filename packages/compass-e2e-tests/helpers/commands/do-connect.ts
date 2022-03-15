@@ -14,12 +14,7 @@ export async function doConnect(
   } else if (connectionStatus === 'success') {
     // First meaningful thing on the screen after being connected, good enough
     // indicator that we are connected to the server
-    // Currently when process.env.COMPASS_SHOW_YOUR_QUERIES_TAB is enabled,
-    // My Queries tab is the entry screen or else database tab
-    selector =
-      process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true'
-        ? Selectors.MyQueriesList
-        : Selectors.DatabasesTable;
+    selector = Selectors.MyQueriesList;
   } else {
     selector = Selectors.ConnectionFormErrorMessage;
   }

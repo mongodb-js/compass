@@ -1,7 +1,7 @@
 /* eslint-disable react/sort-comp */
 import React from 'react';
 import PropTypes from 'prop-types';
-import getComponent from 'hadron-react-bson';
+import { BSONValue } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 
 /**
@@ -192,10 +192,11 @@ class CellRenderer extends React.Component {
     } else if (this.element.currentType === 'Array') {
       element = `[] ${this.getLength()} elements`;
     } else {
-      const component = getComponent(this.element.currentType);
-      element = React.createElement(
-        component,
-        {type: this.props.value.currentType, value: this.element.currentValue, tz: this.props.tz}
+      element = (
+        <BSONValue
+          type={this.props.value.currentType}
+          value={this.props.value.currentValue}
+        />
       );
     }
 

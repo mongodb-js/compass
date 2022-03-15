@@ -7,7 +7,6 @@ ignores: [
   "debug",
   "electron-rebuild",
   "font-awesome",
-  "hadron-react-bson",
   "karma-electron",
   "karma-sourcemap-loader",
   "karma-webpack",

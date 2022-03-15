@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -30,18 +31,32 @@ describe('Database collections tab', function () {
     const collectionsGrid = await browser.$(Selectors.CollectionsGrid);
     await collectionsGrid.waitForDisplayed();
 
-    // TODO: add back 'numbers' which is not scrolled into view on Windows in CI
-    const collectionSelectors = ['json-array', 'json-file'].map(
-      (collectionName) => Selectors.collectionCard('test', collectionName)
-    );
-
-    for (const collectionSelector of collectionSelectors) {
-      const collectionElement = await browser.$(collectionSelector);
-      await collectionElement.waitForExist();
+    for (const collectionName of [
+      'json-array',
+      'zzzz',
+      'json-file',
+      'numbers',
+    ]) {
+      const collectionSelector = Selectors.collectionCard(
+        'test',
+        collectionName
+      );
+      const found = await browser.scrollToVirtualItem(
+        Selectors.CollectionsGrid,
+        collectionSelector,
+        'grid'
+      );
+      expect(found, collectionSelector).to.be.true;
     }
   });
 
   it('links collection cards to the collection documents tab', async function () {
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      Selectors.collectionCard('test', 'json-array'),
+      'grid'
+    );
+
     await browser.clickVisible(
       Selectors.collectionCardClickable('test', 'json-array'),
       { scroll: true }
@@ -72,6 +87,12 @@ describe('Database collections tab', function () {
     await browser.addCollection(collectionName);
 
     const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
+
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
@@ -111,6 +132,11 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
@@ -138,6 +164,11 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
@@ -161,6 +192,11 @@ describe('Database collections tab', function () {
     });
 
     const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
