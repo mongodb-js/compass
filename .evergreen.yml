@@ -628,8 +628,6 @@ tasks:
       - func: prepare
       - func: install
       - func: bootstrap
-        vars:
-          scope: 'compass-e2e-tests'
       - func: e2e-coverage
         vars:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
