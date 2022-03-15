@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   FocusState,
   mergeProps,
@@ -13,13 +13,10 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { Tab } from './tab';
 import type { TabType } from './tab';
 
-export function getTabType({
-  isTimeSeries,
-  isReadonly,
-}: {
-  isTimeSeries: boolean;
-  isReadonly: boolean;
-}): TabType {
+export function getTabType(
+  isTimeSeries: boolean,
+  isReadonly: boolean
+): TabType {
   if (isTimeSeries) {
     return 'timeseries';
   }
@@ -33,15 +30,15 @@ const tabsContainerStyles = css({
   margin: 0,
   padding: 0,
   outline: 'none',
-  flexShrink: 0, // Don't shrink more than content.
+  flexShrink: 0, // Don't shrink when the tab contents tries to grow.
   position: 'relative',
   overflowX: 'auto',
   whiteSpace: 'nowrap',
 });
 
 const tabsListContainerStyles = css({
-  padding: `0 ${spacing[4]}px`,
-  paddingBottom: 0,
+  padding: 0,
+  paddingRight: spacing[4],
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -55,7 +52,7 @@ const tabsListStyles = css({
 const newTabContainerStyles = css({
   display: 'inline-flex',
   flexDirection: 'row',
-  alignItems: 'center'
+  alignItems: 'center',
 });
 
 const createNewTabButtonStyles = css({
@@ -64,16 +61,16 @@ const createNewTabButtonStyles = css({
 });
 
 const sortableItemContainerStyles = css({
-  display: 'inline-flex'
+  display: 'inline-flex',
 });
 
 // These styles are applied while a user is dragging a collection tab.
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore The pointerEvents usage shows as undefined although it's valid.
+// @ts-ignore The pointerEvents usage errors ts although it's valid.
 const workspaceTabsSortableCloneStyles = css({
   pointerEvents: 'auto !important',
   cursor: 'grabbing !important',
-  zIndex: 50
+  zIndex: 50,
 });
 
 function useKeyboardNavigation<HTMLDivElement>({
@@ -141,11 +138,89 @@ type WorkspaceTabsProps = {
   onCreateNewTab: () => void;
   onSelectTab: (tabIndex: number) => void;
   onCloseTab: (tabIndex: number) => void;
-  onMoveTab: (oldTabIndex: number, newTabIndex: number) => void
+  onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
   tabs: TabProps[];
 };
 
-// https://www.w3.org/TR/wai-aria-practices/examples/tabs/tabs-1/tabs.html
+type SortableItemProps = {
+  tab: TabProps;
+  tabIndex: number;
+  isTabListFocused: boolean;
+  onSelect: (tabIndex: number) => void;
+  onClose: (tabIndex: number) => void;
+};
+
+const SortableItem = SortableElement(
+  ({
+    tab: {
+      activeSubTabName,
+      isActive,
+      id: tabId,
+      namespace,
+      isTimeSeries,
+      isReadonly,
+    },
+    tabIndex,
+    isTabListFocused,
+    onSelect,
+    onClose,
+  }: SortableItemProps) => {
+    const onTabSelected = useCallback(() => {
+      onSelect(tabIndex);
+    }, [onSelect, tabIndex]);
+
+    const onTabClosed = useCallback(() => {
+      onClose(tabIndex);
+    }, [onClose, tabIndex]);
+
+    const tabType = useMemo(
+      () => getTabType(isTimeSeries, isReadonly),
+      [isTimeSeries, isReadonly]
+    );
+
+    return (
+      <Tab
+        activeSubTabName={activeSubTabName}
+        isSelected={isActive}
+        isFocused={isTabListFocused && isActive}
+        tabId={tabId}
+        type={tabType}
+        namespace={namespace}
+        onSelect={onTabSelected}
+        onClose={onTabClosed}
+        isTabListFocused={isTabListFocused}
+      />
+    );
+  }
+);
+
+type SortableListProps = {
+  tabs: TabProps[];
+  isTabListFocused: boolean;
+  onSelect: (tabIndex: number) => void;
+  onClose: (tabIndex: number) => void;
+};
+
+const SortableList = SortableContainer(
+  ({ tabs, isTabListFocused, onSelect, onClose }: SortableListProps) => (
+    <div className={sortableItemContainerStyles}>
+      {tabs.map((tab: TabProps, index: number) => (
+        <SortableItem
+          key={`tab-${index}-${tab.namespace}`}
+          // `index` is used internally by the SortableContainer hoc,
+          // so we pass our own `tabIndex`.
+          index={index}
+          tabIndex={index}
+          tab={tab}
+          isTabListFocused={isTabListFocused}
+          onSelect={onSelect}
+          onClose={onClose}
+        />
+      ))}
+    </div>
+  )
+);
+
 const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
   onCreateNewTab,
   onCloseTab,
@@ -181,49 +256,22 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
     navigationProps
   );
 
-  const isTabListFocused = [
-    FocusState.FocusVisible,
-    FocusState.FocusWithin,
-    FocusState.FocusWithinVisible
-  ].includes(focusState);
+  const isTabListFocused = useMemo(
+    () =>
+      [
+        FocusState.FocusVisible,
+        FocusState.FocusWithin,
+        FocusState.FocusWithinVisible,
+      ].includes(focusState),
+    [focusState]
+  );
 
-  const SortableItem = SortableElement(({ value: { tab, index: tabIndex } }: {
-    value: {
-      tab: TabProps;
-      index: number;
-    }
-  }) => (
-    <Tab
-      activeSubTabName={tab.activeSubTabName}
-      isSelected={tab.isActive}
-      isFocused={isTabListFocused && tab.isActive}
-      tabId={tab.id}
-      type={getTabType(tab)}
-      namespace={tab.namespace}
-      onSelect={() => onTabSelected(tabIndex)}
-      onClose={() => onCloseTab(tabIndex)}
-      key={tab.id}
-      isTabListFocused={isTabListFocused}
-    />
-  ));
-
-  const SortableList = SortableContainer(({ items }: {
-    items: TabProps[]
-  }) => (
-    <div
-      className={sortableItemContainerStyles}
-    >
-      {items.map(
-        (tab: TabProps, index: number) => (
-          <SortableItem
-            key={`tab-${index}`}
-            index={index}
-            value={{ tab: tab, index: index }}
-          />
-        )
-      )}
-    </div>
-  ));
+  const onSortEnd = useCallback(
+    ({ oldIndex, newIndex }) => {
+      onMoveTab(oldIndex, newIndex);
+    },
+    [onMoveTab]
+  );
 
   return (
     <div className={tabsContainerStyles}>
@@ -231,7 +279,7 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
         <div
           className={tabsListStyles}
           role="tablist"
-          aria-label="Workspaces"
+          aria-label="Workspace Tabs"
           aria-orientation="horizontal"
           ref={tabContainerRef}
           // We make the whole list tabbable and manage the keyboard
@@ -240,31 +288,18 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
           {...tabContainerProps}
         >
           <SortableList
-            items={tabs}
+            onClose={onCloseTab}
+            onSelect={onSelectTab}
+            tabs={tabs}
+            isTabListFocused={isTabListFocused}
             axis="x"
             lockAxis="x"
             lockToContainerEdges
             lockOffset="0%"
             distance={10}
-            onSortEnd={({ oldIndex, newIndex }) => {
-              onMoveTab(oldIndex, newIndex);
-            }}
+            onSortEnd={onSortEnd}
             helperClass={workspaceTabsSortableCloneStyles}
           />
-          {/* {tabs.map((tab, tabIndex) => (
-            <Tab
-              activeSubTabName={tab.activeSubTabName}
-              isSelected={tab.isActive}
-              isFocused={isTabListFocused && tab.isActive}
-              tabId={tab.id}
-              type={getTabType(tab)}
-              namespace={tab.namespace}
-              onSelect={() => onTabSelected(tabIndex)}
-              onClose={() => onCloseTab(tabIndex)}
-              key={tab.id}
-              isTabListFocused={isTabListFocused}
-            />
-          ))} */}
         </div>
         <div className={newTabContainerStyles}>
           <IconButton

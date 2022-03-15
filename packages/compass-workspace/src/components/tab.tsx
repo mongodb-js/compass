@@ -58,7 +58,7 @@ const tabStyles = css({
 const selectedTabStyles = css({
   background: uiColors.white,
   color: uiColors.gray.dark1,
-  
+
   '&:hover': {
     cursor: 'default',
     backgroundColor: uiColors.white,
@@ -80,19 +80,19 @@ const tabBottomBorderStyles = css({
   left: '-1px', // Cover border.
   right: '-1px', // Cover border.
   height: 0,
-  backgroundColor: uiColors.green.dark1
+  backgroundColor: uiColors.green.dark1,
 });
 
 const selectedTabBottomBorderStyles = css({
   height: `${spacing[1]}px`,
   backgroundColor: uiColors.green.dark1,
-  transition: 'height 150ms ease-out'
+  transition: 'height 150ms ease-out',
 });
 
 const focusedTabBottomBorderStyles = css({
   height: `${spacing[1]}px`,
   backgroundColor: uiColors.focus,
-  transition: 'height 150ms ease-out'
+  transition: 'height 150ms ease-out',
 });
 
 const hiddenStyles = css({
@@ -126,7 +126,7 @@ const tabTitleStyles = css({
   textOverflow: 'ellipsis',
   overflow: 'hidden',
   fontWeight: 'bold',
-  fontSize: compassFontSizes.smallFontSize
+  fontSize: compassFontSizes.smallFontSize,
 });
 
 const tabTitleFocusedStyles = css({
@@ -139,8 +139,7 @@ const tabTitleSelectedStyles = css({
   color: uiColors.green.dark2,
 });
 
-const tabCloseStyles = css({
-});
+const tabCloseStyles = css({});
 
 const tabSubtitleStyles = css({
   whiteSpace: 'nowrap',
@@ -166,7 +165,6 @@ const tabSubtitleSelectedStyles = css({
 const tabSubtitleFocusedStyles = css({
   // color: uiColors.gray.dark1,
 });
-
 
 type TabProps = {
   activeSubTabName: string;
@@ -242,7 +240,9 @@ const Tab: React.FunctionComponent<TabProps> = ({
             [tabSubtitleSelectedStyles]: isSelected,
             [tabSubtitleFocusedStyles]: isFocused,
           })}
-        >{namespace}</Body>
+        >
+          {namespace}
+        </Body>
       </div>
 
       <IconButton
@@ -258,10 +258,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
         }}
         aria-label="Close Tab"
       >
-        <Icon
-          glyph="X"
-          role="presentation"
-        />
+        <Icon glyph="X" role="presentation" />
       </IconButton>
       <div
         role="presentation"
