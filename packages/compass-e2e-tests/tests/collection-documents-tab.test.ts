@@ -344,7 +344,7 @@ FindIterable<Document> result = collection.find(filter);`);
     );
 
     await browser.hover('[data-test-id="editable-json"]');
-    await browser.clickVisible('[data-test-id="edit-document-button"]');
+    await browser.clickVisible('[data-testid="edit-document-button"]');
 
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
