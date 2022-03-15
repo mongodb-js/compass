@@ -109,7 +109,7 @@ export async function scrollToVirtualItem(
     // Browsers don't mind if we scroll past the last possible position. They
     // will only scroll up to the last possible point. Which is handy, because
     // then we don't have to try and calculate that pixel value.
-    scrollTop += (scrollHeight - (scrollHeight / 10));
+    scrollTop += scrollHeight;
 
     if (scrollTop <= totalHeight) {
       // scroll for another screen
@@ -132,7 +132,9 @@ export async function scrollToVirtualItem(
         config.getScrollContainer.toString()
       );
       // wait for dom to render
-      await browser.waitForAnimations(`${containerSelector} ${config.firstChildSelector}`);
+      await browser.waitForAnimations(
+        `${containerSelector} ${config.firstChildSelector}`
+      );
       return false;
     } else {
       // stop because we got to the end and never found it

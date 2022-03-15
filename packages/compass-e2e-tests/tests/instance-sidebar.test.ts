@@ -131,14 +131,10 @@ describe('Instance sidebar', function () {
     await browser.addDatabase(dbName, collectionName);
     await browser.clickVisible(Selectors.sidebarDatabase(dbName));
 
-    const collectionSelector = Selectors.sidebarCollection(dbName, collectionName);
-    await browser.scrollToVirtualItem(
-      Selectors.SidebarDatabaseAndConnectionList,
-      collectionSelector,
-      'tree'
-    );
     // wait for it to appear
-    const collectionElement = await browser.$(collectionSelector);
+    const collectionElement = await browser.$(
+      Selectors.sidebarCollection(dbName, collectionName)
+    );
     await collectionElement.waitForDisplayed();
 
     // open the drop database modal from the sidebar
