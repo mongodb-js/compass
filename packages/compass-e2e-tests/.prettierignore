@@ -2,3 +2,4 @@
 .mongodb
 fixtures
 coverage
+.nyc_output

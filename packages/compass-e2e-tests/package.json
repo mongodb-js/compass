@@ -24,7 +24,7 @@
     "testslow": "env DEBUG=hadron*,mongo*,compass* npm run test -- --disable-start-stop --bail",
     "testfast": "env DEBUG=hadron*,mongo*,compass* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail",
     "coverage-merge": "nyc merge .log/coverage .nyc_output/coverage.json",
-    "coverage-report": "npm run coverage-merge && nyc report --reporter=lcov --cwd ../.. --temp-dir ./packages/compass-e2e-tests/.nyc_output --report-dir ./packages/compass-e2e-tests/coverage"
+    "coverage-report": "npm run coverage-merge && nyc report"
   },
   "peerDependencies": {
     "bson": "*",
