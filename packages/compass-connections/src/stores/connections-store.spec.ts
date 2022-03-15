@@ -3,7 +3,6 @@ import { waitFor, cleanup } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
-import util from 'util';
 
 import { useConnections } from './connections-store';
 import type { ConnectionInfo, ConnectionStorage } from 'mongodb-data-service';
@@ -243,7 +242,7 @@ describe('use-connections hook', function () {
 
       // this may cause a false negative, but there is no other reliable way to
       // test this case. It would fail eventually if the functionality is broken.
-      await util.promisify(setTimeout)(100);
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockConnectionStorage.delete).not.to.have.been.calledWith(
