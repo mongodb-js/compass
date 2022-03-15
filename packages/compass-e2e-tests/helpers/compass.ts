@@ -29,7 +29,7 @@ const { Z_SYNC_FLUSH } = zlib.constants;
 const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
 
-const COMPASS_PATH = path.dirname(
+export const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
 );
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
@@ -482,11 +482,9 @@ export async function rebuildNativeModules(
 export async function compileCompassAssets(
   compassPath = COMPASS_PATH
 ): Promise<void> {
-  process.env.COVERAGE = 'true';
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore some weirdness from util-callbackify
   await compileAssetsAsync({ dir: compassPath });
-  delete process.env.COVERAGE;
 }
 
 async function getCompassBuildMetadata(): Promise<BinPathOptions> {

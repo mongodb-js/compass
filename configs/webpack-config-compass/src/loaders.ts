@@ -44,8 +44,7 @@ export const javascriptLoader = (args: ConfigArgs) => ({
         args.coverage && [
           'istanbul',
           {
-            // all of mongodb-js/compass, not just packages/compass
-            cwd: path.dirname(path.dirname(process.cwd())),
+            cwd: args.coverage,
           },
         ],
         ['web', 'electron-renderer'].includes(args.target as string) &&
