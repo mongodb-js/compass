@@ -90,7 +90,9 @@ const DocumentActionsGroup: React.FunctionComponent<
     <div
       ref={conatinerRef}
       className={actionsGroupContainer}
-      style={{ display: onlyShowOnHover ? (isHovered ? 'flex' : 'none') : 'flex' }}
+      style={{
+        display: onlyShowOnHover ? (isHovered ? 'flex' : 'none') : 'flex',
+      }}
     >
       {onExpand && (
         <Button
@@ -104,7 +106,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           title={expanded ? 'Collapse all' : 'Expand all'}
           aria-label={expanded ? 'Collapse all' : 'Expand all'}
           aria-pressed={expanded}
-          data-test-id="expand-document-button"
+          data-testid="expand-document-button"
           onClick={onExpand}
           className={actionsGroupItem}
         ></Button>
@@ -116,7 +118,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           rightGlyph={<Icon role="presentation" glyph="Edit"></Icon>}
           title="Edit document"
           aria-label="Edit document"
-          data-test-id="edit-document-button"
+          data-testid="edit-document-button"
           onClick={onEdit}
           className={actionsGroupItem}
         ></Button>
@@ -132,7 +134,7 @@ const DocumentActionsGroup: React.FunctionComponent<
                   rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
                   title="Copy document"
                   aria-label="Copy document"
-                  data-test-id="copy-document-button"
+                  data-testid="copy-document-button"
                   onClick={() => {
                     setShowCopyButtonTooltip(true);
                     onCopy();
@@ -155,7 +157,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           rightGlyph={<Icon role="presentation" glyph="Clone"></Icon>}
           title="Clone document"
           aria-label="Clone document"
-          data-test-id="clone-document-button"
+          data-testid="clone-document-button"
           onClick={onClone}
           className={actionsGroupItem}
         ></Button>
@@ -166,7 +168,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           rightGlyph={<Icon role="presentation" glyph="Trash"></Icon>}
           title="Remove document"
           aria-label="Remove document"
-          data-test-id="remove-document-button"
+          data-testid="remove-document-button"
           onClick={onRemove}
           className={actionsGroupItem}
         ></Button>
