@@ -13,7 +13,10 @@ describe('DocumentActionsGroup', function () {
     render(<DocumentActionsGroup onEdit={spy}></DocumentActionsGroup>);
     expect(screen.getByTitle('Edit document')).to.exist;
     userEvent.click(screen.getByTitle('Edit document'), undefined, {
-      // Because leafygreen
+      // Leafygreen applies pointer-event: none to the element that renders
+      // label inside the button, so even though click does work (the listener
+      // is not attached to the button label), we have to enable this option
+      // when selecting element for the click
       skipPointerEventsCheck: true,
     });
     expect(spy).to.be.calledOnce;
@@ -24,7 +27,7 @@ describe('DocumentActionsGroup', function () {
     render(<DocumentActionsGroup onCopy={spy}></DocumentActionsGroup>);
     expect(screen.getByTitle('Copy document')).to.exist;
     userEvent.click(screen.getByTitle('Copy document'), undefined, {
-      // Because leafygreen
+      // See above
       skipPointerEventsCheck: true,
     });
     expect(spy).to.be.calledOnce;
@@ -35,7 +38,7 @@ describe('DocumentActionsGroup', function () {
     render(<DocumentActionsGroup onClone={spy}></DocumentActionsGroup>);
     expect(screen.getByTitle('Clone document')).to.exist;
     userEvent.click(screen.getByTitle('Clone document'), undefined, {
-      // Because leafygreen
+      // See above
       skipPointerEventsCheck: true,
     });
     expect(spy).to.be.calledOnce;
@@ -46,7 +49,7 @@ describe('DocumentActionsGroup', function () {
     render(<DocumentActionsGroup onRemove={spy}></DocumentActionsGroup>);
     expect(screen.getByTitle('Remove document')).to.exist;
     userEvent.click(screen.getByTitle('Remove document'), undefined, {
-      // Because leafygreen
+      // See above
       skipPointerEventsCheck: true,
     });
     expect(spy).to.be.calledOnce;
@@ -62,7 +65,7 @@ describe('DocumentActionsGroup', function () {
     );
     expect(screen.getByTitle('Expand all')).to.exist;
     userEvent.click(screen.getByTitle('Expand all'), undefined, {
-      // Because leafygreen
+      // See above
       skipPointerEventsCheck: true,
     });
     expect(spy).to.be.calledOnce;
