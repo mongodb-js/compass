@@ -51,14 +51,23 @@ describe('Instance sidebar', function () {
   });
 
   it('contains a dbs/collections tree view', async function () {
-    const dbElement = await browser.$(Selectors.sidebarDatabase('test'));
+    const dbName = 'test';
+    const collectionName = 'numbers';
+    const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
     await dbElement.waitForDisplayed();
 
-    await browser.clickVisible(Selectors.sidebarDatabaseToggle('test'));
+    await browser.clickVisible(Selectors.sidebarDatabaseToggle(dbName));
 
-    const collectionElement = await browser.$(
-      Selectors.sidebarCollection('test', 'numbers')
+    const collectionSelector = Selectors.sidebarCollection(
+      dbName,
+      collectionName
     );
+    await browser.scrollToVirtualItem(
+      Selectors.SidebarDatabaseAndConnectionList,
+      collectionSelector,
+      'tree'
+    );
+    const collectionElement = await browser.$(collectionSelector);
     await collectionElement.waitForDisplayed();
   });
 
@@ -94,9 +103,14 @@ describe('Instance sidebar', function () {
     const dbElement = await browser.$(Selectors.sidebarDatabase('test'));
     expect(await dbElement.isDisplayed()).to.be.true;
 
-    const collectionElement = await browser.$(
-      Selectors.sidebarCollection('test', 'numbers')
+    const collectionSelector = Selectors.sidebarCollection('test', 'numbers');
+    await browser.scrollToVirtualItem(
+      Selectors.SidebarDatabaseAndConnectionList,
+      collectionSelector,
+      'tree'
     );
+
+    const collectionElement = await browser.$(collectionSelector);
     expect(await collectionElement.isDisplayed()).to.be.true;
 
     await sidebarFilterInputElement.setValue('*'); // clearValue() is unreliable here
@@ -154,12 +168,17 @@ describe('Instance sidebar', function () {
 
     await browser.addCollection(collectionName);
 
-    await sidebarFilterInputElement.setValue(collectionName);
-
     const collectionSelector = Selectors.sidebarCollection(
       dbName,
       collectionName
     );
+
+    await browser.scrollToVirtualItem(
+      Selectors.SidebarDatabaseAndConnectionList,
+      collectionSelector,
+      'tree'
+    );
+
     const collectionElement = await browser.$(collectionSelector);
     await collectionElement.waitForDisplayed();
 

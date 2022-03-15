@@ -1,91 +1,87 @@
-/* eslint react/sort-comp:0 */
-import React, { PureComponent } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Modal } from 'react-bootstrap';
-import { TextButton } from 'hadron-react-buttons';
-import FontAwesome from 'react-fontawesome';
+import {
+  css,
+  Banner,
+  Button,
+  Modal,
+  Link,
+  ModalFooter,
+  ModalTitle,
+  spacing,
+  Body,
+  ButtonVariant,
+  BannerVariant
+} from '@mongodb-js/compass-components';
 
-import styles from './non-genuine-warning-modal.module.less';
+const modalContentWrapperStyles = css({
+  padding: 'initial'
+});
 
-/**
- * The help URL for collation.
- */
-const P1 = 'Some documented MongoDB features may work differently, be entirely missing'
-  + 'or incomplete, or have unexpected performance characteristics. ';
+const modalContentStyles = css({
+  padding: spacing[5]
+});
+
+const modalBodyStyles = css({
+  marginTop: spacing[3],
+  marginBottom: spacing[2]
+});
+
+const DESCRIPTION = 'Some documented MongoDB features may work differently, be entirely missing'
+  + ' or incomplete, or have unexpected performance characteristics. ';
 const WARNING_BANNER = 'This server or service appears to be an emulation of MongoDB rather than an official MongoDB product.';
-export const LEARN_MORE_URL = 'https://docs.mongodb.com/compass/master/faq/#how-does-compass-determine-a-connection-is-not-genuine';
-export const MODAL_TITLE = 'Non-Genuine MongoDB Detected';
+const LEARN_MORE_URL = 'https://docs.mongodb.com/compass/master/faq/#how-does-compass-determine-a-connection-is-not-genuine';
+const MODAL_TITLE = 'Non-Genuine MongoDB Detected';
 
-/**
- * Component for the non-genuine MongoDB warning modal.
- */
-class NonGenuineWarningModal extends PureComponent {
-  static displayName = 'NonGenuineWarningModal';
-  static propTypes = {
-    isVisible: PropTypes.bool.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired
-  };
+function NonGenuineWarningModal({
+  isVisible,
+  toggleIsVisible,
 
-  /**
-   * Close modal.
-   *
-   * @param {Object} evt - The click event.
-   */
-  handleClose(evt) {
-    if (evt) {
-      evt.preventDefault();
-      evt.stopPropagation();
-    }
-    this.props.toggleIsVisible(false);
-  }
+}) {
+  const onClose = useCallback(() => {
+    toggleIsVisible(false);
+  }, [toggleIsVisible]);
 
-  /**
-   * Render the non-genuine mongodb warning modal.
-   *
-   * @returns {React.Component} The non-genuine warning modal.
-   */
-  render() {
-    return (
-      <Modal
-        // Because this modal is rendered outside of the
-        // react root we need to apply the deprecated bootstrap styles here.
-        className="with-global-bootstrap-styles"
-        show={this.props.isVisible}
-        backdrop="static"
-        dialogClassName={styles['non-genuine-warning-modal']}
-        onHide={this.handleClose.bind(this)}
+  return (
+    <Modal
+      open={isVisible}
+      trackingId="non_genuine_mongodb_modal"
+      setOpen={onClose}
+      contentClassName={modalContentWrapperStyles}
+    >
+      <div
+        className={modalContentStyles}
       >
-        <Modal.Header>
-          <Modal.Title>{MODAL_TITLE}</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <div className={styles['non-genuine-warning-modal-message']}>
-            <FontAwesome name="exclamation-circle"/>
-            &nbsp; {WARNING_BANNER} &nbsp;
-          </div>
-
-          <div className={styles['non-genuine-warning-modal-p1']}>
-            {P1}
-            <a
-              onClick={() => this.props.openLink(LEARN_MORE_URL)}
-              data-test-id="non-genuine-warning-modal-learn-more-link">
-              Learn more
-            </a>&nbsp;
-          </div>
-        </Modal.Body>
-
-        <Modal.Footer>
-          <TextButton
-            className="btn btn-primary btn-sm"
-            dataTestId="continue-button"
-            text="CONTINUE"
-            clickHandler={this.handleClose.bind(this)} />
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+        <ModalTitle>{MODAL_TITLE}</ModalTitle>
+        <Banner
+          variant={BannerVariant.Warning}
+        >
+          {WARNING_BANNER}
+        </Banner>
+        <Body className={modalBodyStyles}>{DESCRIPTION}</Body>
+        <Link
+          href={LEARN_MORE_URL}
+          target="_blank"
+          data-test-id="non-genuine-warning-modal-learn-more-link"
+        >Learn more</Link>
+      </div>
+      <ModalFooter>
+        <Button
+          onClick={onClose}
+          variant={ButtonVariant.Primary}
+          data-test-id="continue-button"
+        >
+          Continue
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
 }
+
+NonGenuineWarningModal.displayName = 'NonGenuineWarningModal';
+NonGenuineWarningModal.propTypes = {
+  isVisible: PropTypes.bool.isRequired,
+  toggleIsVisible: PropTypes.func.isRequired
+};
 
 export default NonGenuineWarningModal;

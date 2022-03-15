@@ -18,6 +18,7 @@ export async function shellEval(
 ): Promise<string> {
   let numLines: number;
 
+  // Expand the shell
   await retryWithBackoff(async function () {
     const shellContentElement = await browser.$(Selectors.ShellContent);
     if (!(await shellContentElement.isDisplayed())) {
@@ -58,5 +59,14 @@ export async function shellEval(
       // that's really helpful when debugging
     }
   }
+
+  // Hide the shell again
+  await retryWithBackoff(async function () {
+    const shellContentElement = await browser.$(Selectors.ShellContent);
+    if (await shellContentElement.isDisplayed()) {
+      await browser.clickVisible(Selectors.ShellExpandButton);
+    }
+  });
+
   return result;
 }
