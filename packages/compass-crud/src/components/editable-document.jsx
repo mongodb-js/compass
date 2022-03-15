@@ -274,8 +274,10 @@ class EditableDocument extends React.Component {
   renderExpansion() {
     return (
       <DocumentList.DocumentFieldsToggleGroup
-        // Not sure how to handle case where hide/collapse an edited row,
-        // should the update be applied or ignored? So just disable the update.
+        // TODO: "Hide items" button will only be shown when document is not
+        // edited because it's not decided how to handle changes to the fields
+        // that are changed but then hidden
+        // https://jira.mongodb.org/browse/COMPASS-5587
         showHideButton={!this.state.editing}
         currentSize={this.state.renderSize}
         totalSize={this.props.doc.elements.size}
