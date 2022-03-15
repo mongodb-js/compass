@@ -1,5 +1,5 @@
 .log
 .mongodb
 fixtures
-coverage
 .nyc_output
+coverage
