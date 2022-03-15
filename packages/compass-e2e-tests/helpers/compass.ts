@@ -29,29 +29,40 @@ const { Z_SYNC_FLUSH } = zlib.constants;
 const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
 
-const COMPASS_PATH = path.dirname(
+export const COMPASS_PATH = path.dirname(
   require.resolve('mongodb-compass/package.json')
 );
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
+const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
-// For the tmpdirs
+// For the user data dirs
 let i = 0;
 // For the screenshots
 let j = 0;
-// For the html
-//let k = 0;
+// For the coverage
+let k = 0;
+
+interface Coverage {
+  main: string;
+  renderer: string;
+}
 
 export class Compass {
   browser: CompassBrowser;
   isFirstRun: boolean;
+  testPackagedApp: boolean;
   renderLogs: any[]; // TODO
   logs: LogEntry[];
   logPath?: string;
 
-  constructor(browser: CompassBrowser, { isFirstRun = false } = {}) {
+  constructor(
+    browser: CompassBrowser,
+    { isFirstRun = false, testPackagedApp = false } = {}
+  ) {
     this.browser = browser;
     this.isFirstRun = isFirstRun;
+    this.testPackagedApp = testPackagedApp;
     this.logs = [];
     this.renderLogs = [];
 
@@ -186,6 +197,32 @@ export class Compass {
     debug(`Writing application render process log to ${renderLogPath}`);
     await fs.writeFile(renderLogPath, JSON.stringify(this.renderLogs, null, 2));
 
+    if (!this.testPackagedApp) {
+      // coverage
+      debug('Writing coverage');
+      const coverage: Coverage = await this.browser.executeAsync((done) => {
+        void (async () => {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const mainCoverage = await require('electron').ipcRenderer.invoke(
+            'coverage'
+          );
+          done({
+            main: JSON.stringify(mainCoverage, null, 4),
+            renderer: JSON.stringify((window as any).__coverage__, null, 4),
+          });
+        })();
+      });
+      const stopIndex = ++k;
+      await fs.writeFile(
+        path.join(COVERAGE_PATH, `main.${stopIndex}.log`),
+        coverage.main
+      );
+      await fs.writeFile(
+        path.join(COVERAGE_PATH, `renderer.${stopIndex}.log`),
+        coverage.renderer
+      );
+    }
+
     debug('Stopping Compass application');
     await this.browser.deleteSession();
 
@@ -271,6 +308,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
+  await fs.mkdir(COVERAGE_PATH, { recursive: true });
 
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
@@ -357,7 +395,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // @ts-expect-error
   const browser = await remote(options);
 
-  const compass = new Compass(browser, { isFirstRun });
+  const compass = new Compass(browser, { isFirstRun, testPackagedApp });
 
   await compass.recordLogs();
 

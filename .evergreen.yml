@@ -86,6 +86,10 @@ post:
   - <<: *save-diagnostic-file
     params:
       local_files_include_filter:
+        - src/packages/compass-e2e-tests/.nyc_output/coverage.json
+  - <<: *save-diagnostic-file
+    params:
+      local_files_include_filter:
         - ~/.mongodb/runner/*.log
   - command: attach.results
     params:
@@ -314,6 +318,25 @@ functions:
 
           # Print folder content to confirm that it worked
           ls -la packages/compass/dist
+
+  e2e-coverage:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          source .evergreen/start-docker-envs.sh
+
+          echo "Running E2E tests while collecting coverage..."
+
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
@@ -594,6 +617,21 @@ tasks:
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
 
+  - name: e2e-coverage
+    tags: ['run-on-pr']
+    commands:
+      - func: test-packaged-app
+        vars:
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: e2e-coverage
+        vars:
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
   # copied as test-packaged-app-macos due to depends_on variation
   - name: test-packaged-app
     tags: ['required-for-publish', 'run-on-pr']
@@ -774,6 +812,12 @@ buildvariants:
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app
+
+  - name: coverage
+    display_name: E2E Coverage
+    run_on: ubuntu1604-large
+    tasks:
+      - name: e2e-coverage
 
   - name: ubuntu
     display_name: Ubuntu (Test and Package)
