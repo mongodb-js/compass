@@ -11,6 +11,7 @@ import {
   rebuildNativeModules,
   compileCompassAssets,
   buildCompass,
+  COMPASS_PATH,
   LOG_PATH,
   removeUserDataDir,
 } from './helpers/compass';
@@ -106,6 +107,11 @@ async function main() {
     await buildCompass();
   } else {
     delete process.env.TEST_PACKAGED_APP;
+
+    // set coverage to the root of the monorepo so it will be generated for
+    // everything and not just packages/compass
+    process.env.COVERAGE = path.dirname(path.dirname(COMPASS_PATH));
+
     debug('Preparing Compass before running the tests');
     if (!noNativeModules) {
       debug('Rebuilding native modules ...');
