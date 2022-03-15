@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { Button, Icon } from '../leafygreen';
+import { Button, Icon, Tooltip } from '../leafygreen';
 
 const actionsGroupContainer = css({
   position: 'absolute',
@@ -57,7 +57,7 @@ const DocumentActionsGroup: React.FunctionComponent<
     onCopy?: () => void;
     onClone?: () => void;
     onRemove?: () => void;
-    showOnHover?: boolean;
+    onlyShowOnHover?: boolean;
   } & (
     | { onExpand?: never; expanded?: never }
     | { onExpand: () => void; expanded: boolean }
@@ -69,16 +69,28 @@ const DocumentActionsGroup: React.FunctionComponent<
   onRemove,
   onExpand,
   expanded,
-  showOnHover = true,
+  onlyShowOnHover = true,
 }) => {
   const conatinerRef = useRef<HTMLDivElement | null>(null);
   const isHovered = useElementParentHoverState(conatinerRef);
+  const [showCopyButtonTooltip, setShowCopyButtonTooltip] = useState(false);
+
+  useEffect(() => {
+    if (showCopyButtonTooltip === true) {
+      const tid = setTimeout(() => {
+        setShowCopyButtonTooltip(false);
+      }, 1200);
+      return () => {
+        clearTimeout(tid);
+      };
+    }
+  }, [showCopyButtonTooltip]);
 
   return (
     <div
       ref={conatinerRef}
       className={actionsGroupContainer}
-      style={{ display: showOnHover ? (isHovered ? 'flex' : 'none') : 'flex' }}
+      style={{ display: onlyShowOnHover ? (isHovered ? 'flex' : 'none') : 'flex' }}
     >
       {onExpand && (
         <Button
@@ -110,15 +122,32 @@ const DocumentActionsGroup: React.FunctionComponent<
         ></Button>
       )}
       {onCopy && (
-        <Button
-          size="xsmall"
-          rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
-          title="Copy document"
-          aria-label="Copy document"
-          data-test-id="copy-document-button"
-          onClick={onCopy}
-          className={actionsGroupItem}
-        ></Button>
+        <Tooltip
+          open={showCopyButtonTooltip}
+          trigger={({ children }: { children: React.ReactChildren }) => {
+            return (
+              <div>
+                <Button
+                  size="xsmall"
+                  rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
+                  title="Copy document"
+                  aria-label="Copy document"
+                  data-test-id="copy-document-button"
+                  onClick={() => {
+                    setShowCopyButtonTooltip(true);
+                    onCopy();
+                  }}
+                  className={actionsGroupItem}
+                ></Button>
+                {children}
+              </div>
+            );
+          }}
+          justify="middle"
+          darkMode
+        >
+          Copied!
+        </Tooltip>
       )}
       {onClone && (
         <Button
