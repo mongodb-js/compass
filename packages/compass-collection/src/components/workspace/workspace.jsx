@@ -250,6 +250,7 @@ class Workspace extends PureComponent {
       <div className={styles.workspace}>
         <WorkspaceTabs
           onCreateNewTab={this.onCreateNewTab}
+          onMoveTab={this.props.moveTab}
           onSelectTab={this.props.selectTab}
           onCloseTab={this.props.closeTab}
           tabs={this.props.tabs}

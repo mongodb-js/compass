@@ -7,8 +7,8 @@ import {
   IconButton,
   css,
   spacing,
-  uiColors,
 } from '@mongodb-js/compass-components';
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 import { Tab } from './tab';
 import type { TabType } from './tab';
@@ -40,7 +40,7 @@ const tabsContainerStyles = css({
 });
 
 const tabsListContainerStyles = css({
-  padding: `${spacing[2]}px ${spacing[4]}px`,
+  padding: `0 ${spacing[4]}px`,
   paddingBottom: 0,
   display: 'flex',
   flexDirection: 'row',
@@ -52,22 +52,28 @@ const tabsListStyles = css({
   outline: 'none',
 });
 
-const tabsBottomBorderStyles = css({
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  height: '1px',
-  backgroundColor: uiColors.gray.light2,
-});
-
 const newTabContainerStyles = css({
-  display: 'inline-block',
+  display: 'inline-flex',
+  flexDirection: 'row',
+  alignItems: 'center'
 });
 
 const createNewTabButtonStyles = css({
   marginLeft: spacing[2],
   marginRight: spacing[2],
+});
+
+const sortableItemContainerStyles = css({
+  display: 'inline-flex'
+});
+
+// These styles are applied while a user is dragging a collection tab.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore The pointerEvents usage shows as undefined although it's valid.
+const workspaceTabsSortableCloneStyles = css({
+  pointerEvents: 'auto !important',
+  cursor: 'grabbing !important',
+  zIndex: 50
 });
 
 function useKeyboardNavigation<HTMLDivElement>({
@@ -135,6 +141,7 @@ type WorkspaceTabsProps = {
   onCreateNewTab: () => void;
   onSelectTab: (tabIndex: number) => void;
   onCloseTab: (tabIndex: number) => void;
+  onMoveTab: (oldTabIndex: number, newTabIndex: number) => void
   tabs: TabProps[];
 };
 
@@ -142,6 +149,7 @@ type WorkspaceTabsProps = {
 const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
   onCreateNewTab,
   onCloseTab,
+  onMoveTab,
   onSelectTab,
   tabs,
 }) => {
@@ -172,7 +180,50 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
     focusProps,
     navigationProps
   );
-  const isTabListFocused = focusState === FocusState.FocusVisible;
+
+  const isTabListFocused = [
+    FocusState.FocusVisible,
+    FocusState.FocusWithin,
+    FocusState.FocusWithinVisible
+  ].includes(focusState);
+
+  const SortableItem = SortableElement(({ value: { tab, index: tabIndex } }: {
+    value: {
+      tab: TabProps;
+      index: number;
+    }
+  }) => (
+    <Tab
+      activeSubTabName={tab.activeSubTabName}
+      isSelected={tab.isActive}
+      isFocused={isTabListFocused && tab.isActive}
+      tabId={tab.id}
+      type={getTabType(tab)}
+      namespace={tab.namespace}
+      onSelect={() => onTabSelected(tabIndex)}
+      onClose={() => onCloseTab(tabIndex)}
+      key={tab.id}
+      isTabListFocused={isTabListFocused}
+    />
+  ));
+
+  const SortableList = SortableContainer(({ items }: {
+    items: TabProps[]
+  }) => (
+    <div
+      className={sortableItemContainerStyles}
+    >
+      {items.map(
+        (tab: TabProps, index: number) => (
+          <SortableItem
+            key={`tab-${index}`}
+            index={index}
+            value={{ tab: tab, index: index }}
+          />
+        )
+      )}
+    </div>
+  ));
 
   return (
     <div className={tabsContainerStyles}>
@@ -183,10 +234,24 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
           aria-label="Workspaces"
           aria-orientation="horizontal"
           ref={tabContainerRef}
+          // We make the whole list tabbable and manage the keyboard
+          // navigation from this tablist.
           tabIndex={0}
           {...tabContainerProps}
         >
-          {tabs.map((tab, tabIndex) => (
+          <SortableList
+            items={tabs}
+            axis="x"
+            lockAxis="x"
+            lockToContainerEdges
+            lockOffset="0%"
+            distance={10}
+            onSortEnd={({ oldIndex, newIndex }) => {
+              onMoveTab(oldIndex, newIndex);
+            }}
+            helperClass={workspaceTabsSortableCloneStyles}
+          />
+          {/* {tabs.map((tab, tabIndex) => (
             <Tab
               activeSubTabName={tab.activeSubTabName}
               isSelected={tab.isActive}
@@ -199,7 +264,7 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
               key={tab.id}
               isTabListFocused={isTabListFocused}
             />
-          ))}
+          ))} */}
         </div>
         <div className={newTabContainerStyles}>
           <IconButton
@@ -207,11 +272,10 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
             aria-label="Create new tab"
             onClick={onCreateNewTab}
           >
-            <Icon glyph="Plus" />
+            <Icon role="presentation" glyph="Plus" />
           </IconButton>
         </div>
       </div>
-      <div className={tabsBottomBorderStyles} />
     </div>
   );
 };

@@ -9,24 +9,29 @@ import {
   IconButton,
   Icon,
   mergeProps,
+  compassFontSizes,
+  Body,
 } from '@mongodb-js/compass-components';
 
 export type TabType = 'timeseries' | 'view' | 'collection';
 
 const tabStyles = css({
-  border: '1px solid transparent',
-  transition: 'border-color .16s ease-out',
+  border: `1px solid ${uiColors.gray.light2}`,
+  borderTop: 'none',
   borderBottom: 'none',
-  borderTopLeftRadius: spacing[1],
-  borderTopRightRadius: spacing[1],
+  transition: 'border-color .16s ease-out',
   display: 'inline-flex',
   flexDirection: 'row',
   alignItems: 'center',
   margin: 0,
-  marginLeft: spacing[1],
-  padding: `${spacing[1]}px 0`,
+  paddingTop: spacing[2],
+  paddingBottom: spacing[1] + spacing[2],
+  paddingRight: spacing[1],
+  paddingLeft: spacing[3],
   maxWidth: spacing[6] * 3,
+  minWidth: spacing[6] * 2,
   position: 'relative',
+  color: uiColors.gray.base,
 
   '&:hover': {
     backgroundColor: uiColors.gray.light3,
@@ -40,13 +45,11 @@ const tabStyles = css({
     position: 'absolute',
     content: '""',
     pointerEvents: 'none',
-    top: -2,
     right: -2,
     bottom: 0,
     left: -2,
-    borderTopLeftRadius: spacing[1],
-    borderTopRightRadius: spacing[1],
     border: '3px solid transparent',
+    borderTopWidth: 0,
     borderBottomWidth: 0,
     transition: 'border-color .16s ease-in',
   },
@@ -54,27 +57,16 @@ const tabStyles = css({
 
 const selectedTabStyles = css({
   background: uiColors.white,
-  borderColor: uiColors.gray.light2,
+  color: uiColors.gray.dark1,
+  
   '&:hover': {
     cursor: 'default',
     backgroundColor: uiColors.white,
   },
 });
 
-const selectedTabBorderCoverStyles = css({
-  '&::after': {
-    zIndex: 5,
-    content: '""',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '1px',
-    backgroundColor: uiColors.white,
-  },
-});
-
 const focusedTabStyles = css({
+  color: uiColors.green.dark2,
   '&::after': {
     transitionTimingFunction: 'ease-out',
 
@@ -82,13 +74,36 @@ const focusedTabStyles = css({
   },
 });
 
+const tabBottomBorderStyles = css({
+  position: 'absolute',
+  bottom: 0,
+  left: '-1px', // Cover border.
+  right: '-1px', // Cover border.
+  height: 0,
+  backgroundColor: uiColors.green.dark1
+});
+
+const selectedTabBottomBorderStyles = css({
+  height: `${spacing[1]}px`,
+  backgroundColor: uiColors.green.dark1,
+  transition: 'height 150ms ease-out'
+});
+
+const focusedTabBottomBorderStyles = css({
+  height: `${spacing[1]}px`,
+  backgroundColor: uiColors.focus,
+  transition: 'height 150ms ease-out'
+});
+
 const hiddenStyles = css({
   visibility: 'hidden',
 });
 
 const tabIconStyles = css({
+  width: '12px',
+  height: 'auto',
   flexShrink: 0,
-  marginLeft: spacing[2],
+  paddingBottom: spacing[3] - 1,
 });
 
 const tabIconSelectedStyles = css({
@@ -104,34 +119,54 @@ const tabTitleContainerStyles = css({
   marginRight: spacing[1],
   display: 'inline-grid',
   gridTemplateColumns: '1fr',
-  color: uiColors.gray.dark1,
 });
 
-const tabNamespaceStyles = css({
+const tabTitleStyles = css({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
-  display: 'inline-block',
   fontWeight: 'bold',
+  fontSize: compassFontSizes.smallFontSize
 });
 
-const tabNamespaceFocusedStyles = css({
+const tabTitleFocusedStyles = css({
   color: uiColors.focus,
 });
 
-const tabNamespaceSelectedStyles = css({
+const tabTitleSelectedStyles = css({
   display: 'inline-block',
   fontWeight: 'bold',
   color: uiColors.green.dark2,
 });
 
 const tabCloseStyles = css({
-  marginRight: spacing[1],
 });
 
 const tabSubtitleStyles = css({
-  // color: uiColors.gray.dark1
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  fontSize: compassFontSizes.smallFontSize,
+  lineHeight: `${spacing[3]}px`,
+  color: uiColors.gray.base,
 });
+
+// const tabSubtitleLightStyles = css({
+//   color: uiColors.gray.base,
+// });
+
+// const tabSubtitleDarkStyles = css({
+//   color: uiColors.gray.light1,
+// });
+
+const tabSubtitleSelectedStyles = css({
+  color: `${uiColors.gray.dark1}`,
+});
+
+const tabSubtitleFocusedStyles = css({
+  // color: uiColors.gray.dark1,
+});
+
 
 type TabProps = {
   activeSubTabName: string;
@@ -181,6 +216,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
       // The tab navigation is handled by the lab list.
       tabIndex={-1}
       aria-controls={tabId}
+      title={`${namespace} - ${activeSubTabName}`}
       {...tabProps}
     >
       <Icon
@@ -188,26 +224,31 @@ const Tab: React.FunctionComponent<TabProps> = ({
           [tabIconSelectedStyles]: isSelected,
           [tabIconFocusedStyles]: isFocused,
         })}
+        role="presentation"
         glyph={tabIcon}
         size="small"
       />
       <div className={tabTitleContainerStyles}>
         <div
-          className={cx(tabNamespaceStyles, {
-            [tabNamespaceSelectedStyles]: isSelected,
-            [tabNamespaceFocusedStyles]: isFocused,
+          className={cx(tabTitleStyles, {
+            [tabTitleSelectedStyles]: isSelected,
+            [tabTitleFocusedStyles]: isFocused,
           })}
-          title={namespace}
         >
-          {namespace}
+          {activeSubTabName}
         </div>
-        <div className={tabSubtitleStyles}>{activeSubTabName}</div>
+        <Body
+          className={cx(tabSubtitleStyles, {
+            [tabSubtitleSelectedStyles]: isSelected,
+            [tabSubtitleFocusedStyles]: isFocused,
+          })}
+        >{namespace}</Body>
       </div>
 
       <IconButton
         className={cx(
           tabCloseStyles,
-          (isSelected && !isTabListFocused) || isFocused || isHovered
+          (isSelected && isTabListFocused) || isFocused || isHovered
             ? undefined
             : hiddenStyles
         )}
@@ -217,9 +258,18 @@ const Tab: React.FunctionComponent<TabProps> = ({
         }}
         aria-label="Close Tab"
       >
-        <Icon glyph="X" />
+        <Icon
+          glyph="X"
+          role="presentation"
+        />
       </IconButton>
-      {isSelected && <div className={selectedTabBorderCoverStyles} />}
+      <div
+        role="presentation"
+        className={cx(tabBottomBorderStyles, {
+          [selectedTabBottomBorderStyles]: isSelected,
+          [focusedTabBottomBorderStyles]: isFocused,
+        })}
+      />
     </div>
   );
 };
