@@ -46,7 +46,9 @@ Templates:
 
     DriverTemplate: &DriverTemplate !!js/function >
       (spec) => {
-        const comment = '// Requres the MongoSwift package.\n// https://github.com/mongodb/mongo-swift-driver';
+        console.log("SPEC: " + JSON.stringify(spec));
+
+        const comment = '// Requires the MongoSwift package\n// https://github.com/mongodb/mongo-swift-driver';
 
         const options = spec.options;
         const filter = spec.filter || '[:]';
@@ -55,7 +57,10 @@ Templates:
 
         const connect = [
           'let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)',
-          `let client = try MongoClient("${options.uri}", using: elg)`,
+          `let client = try MongoClient(`,
+          `    "${options.uri}",`,
+          "    using: elg",
+          ")",
           'defer {',
           '    try? client.syncClose()',
           '    cleanupMongoSwift()',
@@ -63,7 +68,7 @@ Templates:
           '}',
         ].join('\n');
 
-        const coll = `client.db("${options.database}").collection("${options.collection}")`;
+        const coll = `let coll = client.db("${options.database}").collection("${options.collection}")`;
 
         if ('aggregation' in spec) {
           let agg = spec.aggregation;
@@ -73,8 +78,9 @@ Templates:
 
           return [
             `${comment}\n`,
-            `${connect}`,
-            `let cursor = try await ${coll}.aggregate(${agg})`
+            connect,
+            coll,
+            `let cursor = try await coll.aggregate(${agg})`
           ].join('\n')
         }
 
@@ -93,22 +99,42 @@ Templates:
 
         const optsDecl = 'let options = FindOptions(';
         let optPairs = [];
+        let optPairsDecls = [];
+        
         for (const kvp of findOpts) {
-          optPairs.push(`    ${kvp[0]}: ${kvp[1]}`)
+          if (kvp[1].indexOf("\n") != -1) {
+              optPairsDecls.push(`let ${kvp[0]} = ${kvp[1]}`);
+              optPairs.push(`    ${kvp[0]}: ${kvp[0]}`)
+          } else {
+              optPairs.push(`    ${kvp[0]}: ${kvp[1]}`)
+          }
         }
 
-        const optionsLet = [
-          optsDecl,
-          optPairs.join(',\n'),
-          ')'
-        ].join('\n');
+        let optionsLet = '';
+        let cursorLet = 'let cursor = try await coll.find(filter)';
+
+        if (optPairs.length > 0) {
+          optionsLet = [
+            optPairsDecls.join('\n'),
+            optsDecl,
+            optPairs.join(',\n'),
+            ')'
+          ].join('\n');
+          cursorLet = 'let cursor = try await coll.find(filter, options: options)';
+        }
 
         return [
-          comment + '\n',
+          comment,
+          '',
+          connect,
+          '',
+          coll,
           optionsLet,
-          `let cursor = try await ${coll}.find(${filter}, options)`
+          `let filter = ${filter}`,
+          cursorLet
         ].join('\n');
       }
+
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             if (op.includes('!') || op.includes('not')) {
@@ -265,6 +291,12 @@ Templates:
                 return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             }
 
+            const converToBSON = (element) => {
+                if (element.startsWith("Int64")) {
+
+                
+            }
+
             const pairs = args.map((pair) => {
                 return `${indent}${doubleStringify(pair[0])}: ${pair[1]}`;
             }).join(',');
@@ -312,7 +344,7 @@ Templates:
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (lhs, arg) => {
             if (arg === undefined || arg === '') {
-                return 'BSONObjectID()';
+                return 'BSON.objectID()';
             }
             // Double quote stringify
             let newArg = arg;
@@ -322,7 +354,7 @@ Templates:
                 newArg = arg.substr(1, arg.length - 2);
             }
             newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return `try BSONObjectID(${newArg})`;
+            return `try BSON.objectID(BSONObjectId(${newArg}))`;
         }
     BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
         () => 'BSONBinary'
@@ -378,17 +410,19 @@ Templates:
             return `(${arg})${suffix}`;
         }
     LongSymbolTemplate: &LongSymbolTemplate !!js/function >
-        () => 'Int64'
+        () => 'BSON.int64'
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             if (!arg) {
                 return '()';
             }
             let suffix = '';
+            let prefix = '';
             if (type === '_string') {
-                suffix = '!';
+                prefix = 'Int64(';
+                suffix = ')!';
             }
-            return `(${arg})${suffix}`;
+            return `(${prefix}${arg}${suffix})`;
         }
     RegExpSymbolTemplate: &RegExpSymbolTemplate null
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
@@ -555,10 +589,10 @@ Templates:
         (lhs) => `${lhs} + `
     LongAddArgsTemplate: &LongAddArgsTemplate null
     LongSubtractTemplate: &LongSubtractTemplate !!js/function >
-        (lhs) => ${lhs} - `
+        (lhs) => `${lhs} - `
     LongSubtractArgsTemplate: &LongSubtractArgsTemplate null
     LongMultiplyTemplate: &LongMultiplyTemplate !!js/function >
-        (lhs) => ${lhs} * `
+        (lhs) => `${lhs} * `
     LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate null
     LongDivTemplate: &LongDivTemplate !!js/function >
         (lhs) => `${lhs} / `
@@ -705,18 +739,26 @@ Templates:
     # don't overlap.                            #
     #                                           #
     #############################################
-    LongSymbolMaxTemplate: &LongSymbolMaxTemplate null
+    LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
+        () => "Int64.max"
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
-    LongSymbolMinTemplate: &LongSymbolMinTemplate null
+    LongSymbolMinTemplate: &LongSymbolMinTemplate !!js/function >
+        () => "Int64.min"
     LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate null
-    LongSymbolZeroTemplate: &LongSymbolZeroTemplate null
+    LongSymbolZeroTemplate: &LongSymbolZeroTemplate !!js/function >
+        () => "Int64(0)"
     LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate null
-    LongSymbolOneTemplate: &LongSymbolOneTemplate null
+    LongSymbolOneTemplate: &LongSymbolOneTemplate !!js/function >
+        () => "Int64(1)"
     LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate null
-    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate null
+    LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate !!js/function >
+        () => "Int64(-1)"
     LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
-    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null
-    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate null
+    LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null 
+    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate !!js/function >
+        (_, arg) => {
+            return `Int64(${arg})`;
+        }
     LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate null
     LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
     LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
@@ -743,8 +785,13 @@ Templates:
     # into one statement.                       #
     #                                           #
     #############################################
-    ImportTemplate: &ImportTemplate null
-    DriverImportTemplate: &DriverImportTemplate null
+    ImportTemplate: &ImportTemplate !!js/function >
+        (args) => {
+            let merged = new Set(Object.values(args));
+            return [...merged].sort().join('\n');
+        }
+    DriverImportTemplate: &DriverImportTemplate !!js/function >
+        () => "import MongoSwift\nimport NIO"
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null

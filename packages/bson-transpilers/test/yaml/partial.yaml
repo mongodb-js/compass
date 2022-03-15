@@ -258,7 +258,7 @@ tests:
           csharp: "(double) 429496729601L"
           shell: new NumberLong(429496729601).floatApprox
           ruby: "429496729601.to_f"
-          ruby: "Double(429496729601)"
+          swift: "Double(429496729601)"
     - input:
           javascript: Long(1, 100).toString
       output:
@@ -498,7 +498,7 @@ tests:
           csharp: Decimal128.Parse("5.3E-6175").ToString
           shell: new NumberDecimal(5.3E-6175).toString
           ruby: BSON::Decimal128.new('5.3E-6175').to_s
-          swift: String(describing: try BSONDecimal128('5.3E-6175'))
+          swift: 'String(describing: try BSONDecimal128("5.3E-6175"))'
     - input:
           javascript: Timestamp(1, 100).toString
       output:
@@ -508,7 +508,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).ToString
           shell: new Timestamp(1, 100).toString
           ruby: BSON::Timestamp.new(1, 100).to_s
-          swift: String(describing: BSONTimestamp(timestamp: 1, inc: 100))
+          swift: 'String(describing: BSONTimestamp(timestamp: 1, inc: 100))'
     - input:
           javascript: Timestamp(1, 100).equals
       output:
@@ -518,7 +518,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).Equals
           shell: new Timestamp(1, 100) ===
           ruby: BSON::Timestamp.new(1, 100) ==
-          swift: BSONTimestamp(timestamp: 1, inc: 100) ==
+          swift: 'BSONTimestamp(timestamp: 1, inc: 100) =='
     - input:
           javascript: Timestamp(1, 100).compare
       output:
@@ -537,7 +537,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) !=
           shell: new Timestamp(1, 100) !==
           ruby: BSON::Timestamp.new(1, 100) !=
-          swift: BSONTimestamp(timestamp: 1, inc: 100) !=
+          swift: 'BSONTimestamp(timestamp: 1, inc: 100) !='
     - input:
           javascript: Timestamp(1, 100).greaterThan
       output:
@@ -547,7 +547,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) >
           shell: new Timestamp(1, 100) >
           ruby: BSON::Timestamp.new(1, 100) >
-          swift: BSONTimestamp(timestamp: 1, inc: 100) >
+          swift: 'BSONTimestamp(timestamp: 1, inc: 100) >'
     - input:
           javascript: Timestamp(1, 100).greaterThanOrEqual
       output:
@@ -557,7 +557,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) >=
           shell: new Timestamp(1, 100) >=
           ruby: BSON::Timestamp.new(1, 100) >=
-          swift: BSONTimestamp(timestamp: 1, inc: 100) >=
+          swift: 'BSONTimestamp(timestamp: 1, inc: 100) >='
     - input:
           javascript: Timestamp(1, 100).lessThan
       output:
@@ -567,7 +567,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) <
           shell: new Timestamp(1, 100) <
           ruby: BSON::Timestamp.new(1, 100) <
-          swift: BSONTimestamp(timestamp: 1, inc: 100) <
+          swift: 'BSONTimestamp(timestamp: 1, inc: 100) <'
     - input:
           javascript: Timestamp(1, 100).lessThanOrEqual
       output:
@@ -577,7 +577,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) <=
           shell: new Timestamp(1, 100) <=
           ruby: BSON::Timestamp.new(1, 100) <=
-          swift: BSONTimestamp(timestamp: 1, inc: 100) <=
+          swift: 'BSONTimestamp(timestamp: 1, inc: 100) <='
     - input:
           javascript: Timestamp(1, 100).getLowBits
       output:
@@ -587,7 +587,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).ToUniversalTime
           shell: new Timestamp(1, 100).getTime
           ruby: BSON::Timestamp.new(1, 100).seconds
-          swift: BSONTimestamp(timestamp: 1, inc: 100).timestamp
+          swift: 'BSONTimestamp(timestamp: 1, inc: 100).timestamp'
     - input:
           javascript: Timestamp(1, 100).getHighBits
       output:
@@ -597,7 +597,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).Increment
           shell: new Timestamp(1, 100).getInc
           ruby: BSON::Timestamp.new(1, 100).increment
-          swift: BSONTimestamp(timestamp: 1, inc: 100).increment
+          swift: 'BSONTimestamp(timestamp: 1, inc: 100).increment'
     - input:
           javascript: BSONSymbol('2').valueOf
       output:

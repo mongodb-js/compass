@@ -35,7 +35,7 @@ tests:
                 BSON::CodeWithScope.new('test code', {
                   'x' => 1
                 }).scope
-            swift: BSONCodeWithScope(code: "test code", scope: ["x": 1]).scope
+            swift: "BSONCodeWithScope(code: \"test code\", scope: [\"x\": 1]).scope"
     -   input:
             javascript: Code('test code').code
             shell: Code('test code').code
@@ -48,7 +48,7 @@ tests:
             shell: new Code('test code').code
             object: "'test code'"
             ruby: BSON::Code.new('test code').javascript
-            swift: BSONCode(code: "test code").code
+            swift: 'BSONCode(code: "test code").code'
     ObjectId-methods:
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
@@ -495,7 +495,7 @@ tests:
             shell: new NumberDecimal(5.3E-6175).toString()
             output: "'5.3E-6175'"
             ruby: BSON::Decimal128.new('5.3E-6175').to_s
-            swift: String(describing: try BSONDecimal128("5.3E-6175"))
+            swift: 'String(describing: try BSONDecimal128("5.3E-6175"))'
     Timestamp-methods:
     -   input:
             javascript: Timestamp(1, 100).toString()
@@ -851,7 +851,7 @@ tests:
           python: Decimal128('5')
           object: Decimal128.fromString("5")
           ruby: BSON::Decimal128.new('5')
-          swift: try BSONDecimal128("5")
+          swift: 'try BSONDecimal128("5")'
     BSONRegex-utils:
     - input:
           python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L))
@@ -862,7 +862,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
           ruby: /^[a-z0-9_-]{3,16}$/imx
-          swift: BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "ilmsux")
+          swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "ilmsux")'
     - input:
           python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L | re.A))
       output:
@@ -872,7 +872,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
           ruby: /^[a-z0-9_-]{3,16}$/imx
-          swift: BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "ilmsx")
+          swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "ilmsx")'
 
 
 

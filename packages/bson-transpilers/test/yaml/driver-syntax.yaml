@@ -81,27 +81,31 @@ tests:
                       'x' => 0,
                       'y' => BSON::ObjectId.new
                     })
-                swift: |-
-                    // Requires the MongoSwift package
-                    // https://github.com/mongodb/mongo-swift-driver
+                # swift: |-
+                #     // Requires the MongoSwift package
+                #     // https://github.com/mongodb/mongo-swift-driver
 
-                    let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
-                    let client = try MongoClient(
-                        "mongodb://localhost:27017",
-                        using: elg
-                    )
-                    defer {
-                        try? client.syncClose()
-                        cleanupMongoSwift()
-                        try? elg.syncShutdownGracefully()
-                    }
+                #     let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
+                #     let client = try MongoClient(
+                #         "mongodb://localhost:27017",
+                #         using: elg
+                #     )
+                #     defer {
+                #         try? client.syncClose()
+                #         cleanupMongoSwift()
+                #         try? elg.syncShutdownGracefully()
+                #     }
 
-                    let db = client.db("library")
-                    let collection = db.collection("books")
-                    let pipeline = [
-                        ["$match": ["x": 1, "y": BSONObjectID()]]
-                    ]
-                    let cursor = try await collection.aggregate(pipeline)
+                #     let coll = client.db("library").collection("books")
+                #     let pipeline = [
+                #         [
+                #             "$match": [
+                #                 "x": BSON.int64(0),
+                #                 "y": BSON.objectID()
+                #             ]
+                #         ]
+                #     ]
+                #     let cursor = try await coll.aggregate(pipeline)
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -127,7 +131,9 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
-                swift: import MongoSwift
+                swift: |-
+                  import MongoSwift
+                  import NIO
     query:
         -
             description: 'generate driver syntax with only filter'
@@ -214,10 +220,12 @@ tests:
                         try? elg.syncShutdownGracefully()
                     }
 
-                    let db = client.db("library")
-                    let collection = db.collection("books")
-                    let filter = ["x": 0]
-                    let cursor = try await collection.find(filter)
+                    let coll = client.db("db").collection("collection")
+
+                    let filter = [
+                        "x": BSON.int64(0)
+                    ]
+                    let cursor = try await coll.find(filter)
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -240,7 +248,9 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
-                swift: import MongoSwift
+                swift: |-
+                  import MongoSwift
+                  import NIO
         -
             description: 'generate driver syntax with filter and other options'
             input:
@@ -413,7 +423,10 @@ tests:
                     // https://github.com/mongodb/mongo-swift-driver
 
                     let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
-                    let client = try MongoClient("mongodb://localhost:27017", using: elg)
+                    let client = try MongoClient(
+                        "mongodb://localhost:27017",
+                        using: elg
+                    )
                     defer {
                         try? client.syncClose()
                         cleanupMongoSwift()
@@ -421,17 +434,27 @@ tests:
                     }
 
                     let coll = client.db("db").collection("collection")
-                    let cursor = try await coll.find(
-                        ["x": .int64(0)],
-                        options: FindOptions(
-                            collation: ["locale": "zh"],
-                            limit: 10,
-                            maxTimeMS: 100,
-                            projection: ["y": .objectID()],
-                            skip: 5,
-                            sort: ["name": 1]
-                        )
+                    let collation = [
+                        "locale": "zh"
+                    ]
+                    let projection = [
+                        "y": BSON.objectID()
+                    ]
+                    let sort = [
+                        "name": 1
+                    ]
+                    let options = FindOptions(
+                        collation: collation,
+                        limit: 10,
+                        maxTimeMS: 100,
+                        projection: projection,
+                        skip: 5,
+                        sort: sort
                     )
+                    let filter = [
+                        "x": BSON.int64(0)
+                    ]
+                    let cursor = try await coll.find(filter, options: options)
             imports:
                 python: |-
                     from pymongo import MongoClient
@@ -456,4 +479,6 @@ tests:
                     } = require('mongodb');
                 shell: ''
                 ruby: require 'mongo'
-                swift: import MongoSwift
+                swift: |-
+                  import MongoSwift
+                  import NIO

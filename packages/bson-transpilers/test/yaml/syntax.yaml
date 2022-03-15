@@ -138,7 +138,7 @@ tests:
           csharp: "1 > 2 < 3 >= 4 <= 6"
           object: "true"
           # ruby: this is invalid syntax in ruby
-          # swift: this is invalid syntax in ruby
+          # swift: this is invalid syntax in swift
     - input:
           python: "4 is 5"
       output:
@@ -196,7 +196,7 @@ tests:
           csharp: "1"
           object: "1"
           ruby: "1"
-          swift: "1 // a comment"
+          swift: "1"
     - input:
           javascript: "1 /* a comment*/"
           shell: "1 /* a comment*/"
@@ -208,7 +208,7 @@ tests:
           csharp: "1"
           object: "1"
           ruby: "1"
-          swift: "1 /* a comment */"
+          swift: "1"
     - input:
           javascript: "1 /* a \ncom\nmen\nt*/+2"
           shell: "1 /* a \ncom\nmen\nt*/+2"
@@ -232,7 +232,7 @@ tests:
           csharp: "1"
           object: "1"
           ruby: "1"
-          swift: "1 /* a \ncom\nmen\nt*/"
+          swift: "1"
     - input:
           javascript: "1 /* a comment*/+2"
           shell: "1 /* a comment*/+2"
