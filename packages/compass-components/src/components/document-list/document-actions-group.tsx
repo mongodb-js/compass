@@ -84,9 +84,13 @@ const DocumentActionsGroup: React.FunctionComponent<
         <Button
           size="xsmall"
           rightGlyph={
-            <Icon glyph={expanded ? 'CaretDown' : 'CaretRight'}></Icon>
+            <Icon
+              role="presentation"
+              glyph={expanded ? 'CaretDown' : 'CaretRight'}
+            ></Icon>
           }
           title={expanded ? 'Collapse all' : 'Expand all'}
+          aria-label={expanded ? 'Collapse all' : 'Expand all'}
           aria-pressed={expanded}
           data-test-id="expand-document-button"
           onClick={onExpand}
@@ -97,8 +101,9 @@ const DocumentActionsGroup: React.FunctionComponent<
       {onEdit && (
         <Button
           size="xsmall"
-          rightGlyph={<Icon glyph="Edit"></Icon>}
+          rightGlyph={<Icon role="presentation" glyph="Edit"></Icon>}
           title="Edit document"
+          aria-label="Edit document"
           data-test-id="edit-document-button"
           onClick={onEdit}
           className={actionsGroupItem}
@@ -107,8 +112,9 @@ const DocumentActionsGroup: React.FunctionComponent<
       {onCopy && (
         <Button
           size="xsmall"
-          rightGlyph={<Icon glyph="Copy"></Icon>}
+          rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
           title="Copy document"
+          aria-label="Copy document"
           data-test-id="copy-document-button"
           onClick={onCopy}
           className={actionsGroupItem}
@@ -117,8 +123,9 @@ const DocumentActionsGroup: React.FunctionComponent<
       {onClone && (
         <Button
           size="xsmall"
-          rightGlyph={<Icon glyph="Clone"></Icon>}
+          rightGlyph={<Icon role="presentation" glyph="Clone"></Icon>}
           title="Clone document"
+          aria-label="Clone document"
           data-test-id="clone-document-button"
           onClick={onClone}
           className={actionsGroupItem}
@@ -127,8 +134,9 @@ const DocumentActionsGroup: React.FunctionComponent<
       {onRemove && (
         <Button
           size="xsmall"
-          rightGlyph={<Icon glyph="Trash"></Icon>}
+          rightGlyph={<Icon role="presentation" glyph="Trash"></Icon>}
           title="Remove document"
+          aria-label="Remove document"
           data-test-id="remove-document-button"
           onClick={onRemove}
           className={actionsGroupItem}
