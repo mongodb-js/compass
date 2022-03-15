@@ -2,8 +2,6 @@ import type { CompassBrowser } from '../compass-browser';
 
 type ItemConfig = {
   firstItemSelector: string;
-  firstItemIndex: string;
-  indexAttribute: string;
   firstChildSelector: string;
   waitUntilElementAppears: (
     browser: CompassBrowser,
@@ -14,8 +12,6 @@ type ItemConfig = {
 
 const gridConfig: ItemConfig = {
   firstItemSelector: '[data-vlist-item-idx="0"]',
-  firstItemIndex: '0',
-  indexAttribute: 'data-vlist-item-idx',
   firstChildSelector: '[role="row"]:first-child [role="gridcell"]:first-child',
   waitUntilElementAppears: async (
     browser: CompassBrowser,
@@ -34,8 +30,6 @@ const gridConfig: ItemConfig = {
 
 const treeConfig: ItemConfig = {
   firstItemSelector: '[aria-posinset="1"]',
-  firstItemIndex: '1',
-  indexAttribute: 'aria-posinset',
   firstChildSelector: '[role="treeitem"]:first-child',
   waitUntilElementAppears: async (
     browser: CompassBrowser,
@@ -100,10 +94,9 @@ export async function scrollToVirtualItem(
     .waitForDisplayed();
 
   let scrollTop = 0;
-  let topIdx = config.firstItemIndex;
 
   await browser.waitUntil(async () => {
-    await browser.pause(50);
+    await browser.pause(100);
     const targetElement = await browser.$(targetSelector);
     if (await targetElement.isExisting()) {
       await targetElement.waitForDisplayed();
@@ -116,7 +109,7 @@ export async function scrollToVirtualItem(
     // Browsers don't mind if we scroll past the last possible position. They
     // will only scroll up to the last possible point. Which is handy, because
     // then we don't have to try and calculate that pixel value.
-    scrollTop += scrollHeight;
+    scrollTop += (scrollHeight - (scrollHeight / 10));
 
     if (scrollTop <= totalHeight) {
       // scroll for another screen
@@ -138,21 +131,8 @@ export async function scrollToVirtualItem(
         // So, we stringify it here and then eval to execute it
         config.getScrollContainer.toString()
       );
-
-      // wait for the top one to be different to make sure that the grid updated
-      await browser.waitUntil(async () => {
-        const idx = await browser
-          .$(`${containerSelector} ${config.firstChildSelector}`)
-          .getAttribute(config.indexAttribute);
-
-        if (idx === topIdx) {
-          return false;
-        } else {
-          topIdx = idx;
-          return true;
-        }
-      });
-
+      // wait for dom to render
+      await browser.waitForAnimations(`${containerSelector} ${config.firstChildSelector}`);
       return false;
     } else {
       // stop because we got to the end and never found it
