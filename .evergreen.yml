@@ -813,6 +813,12 @@ buildvariants:
       - name: package-isolated
       - name: test-packaged-app
 
+  - name: coverage
+    display_name: E2E Coverage
+    run_on: ubuntu1604-large
+    tasks:
+      - name: e2e-coverage
+
   - name: ubuntu
     display_name: Ubuntu (Test and Package)
     run_on: ubuntu1604-large
@@ -824,7 +830,6 @@ buildvariants:
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app
-      - name: e2e-coverage
 
   - name: ubuntu_publish
     display_name: Publish Artifacts
