@@ -177,8 +177,9 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 };
 
 // Connection Sidebar
-export const SidebarTreeItems =
-  '[data-test-id="databases-and-collections"] [role="treeitem"]';
+export const SidebarDatabaseAndConnectionList =
+  '[data-test-id="databases-and-collections"]';
+export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
