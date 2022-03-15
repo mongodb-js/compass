@@ -17,6 +17,7 @@ import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
 import { Modal } from './components/modal';
+import { ModalTitle } from './components/modal-title';
 import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
@@ -53,6 +54,7 @@ export {
   ConfirmationModal,
   FileInput,
   Modal,
+  ModalTitle,
   RadioBoxGroup,
   SpinLoader,
   ResizeHandle,

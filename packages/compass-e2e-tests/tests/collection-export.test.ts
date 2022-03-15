@@ -125,7 +125,7 @@ describe('Collection export', function () {
     const text = await fs.readFile(filename, 'utf-8');
     //  example:'_id,i\n6154788cc5f1fd4544fcedb1,5'
     const lines = text.split(/\r?\n/);
-    expect(lines[0]).to.equal('_id,i');
+    expect(lines[0]).to.equal('_id,i,j');
     const fields = lines[1].split(',');
     // first field is an id, so always different
     expect(fields[1]).to.equal('5');
@@ -193,7 +193,7 @@ describe('Collection export', function () {
     const text = await fs.readFile(filename, 'utf-8');
     //  example:'_id,i\n6154788cc5f1fd4544fcedb1,0'
     const lines = text.split(/\r?\n/);
-    expect(lines[0]).to.equal('_id,i');
+    expect(lines[0]).to.equal('_id,i,j');
     for (let i = 1; i <= 1000; ++i) {
       const fields = lines[i].split(',');
       // first field is an id, so always different
@@ -252,7 +252,7 @@ describe('Collection export', function () {
     const text = await fs.readFile(filename, 'utf-8');
     //  example:'i\n6154788cc5f1fd4544fcedb1,0'
     const lines = text.split(/\r?\n/);
-    expect(lines[0]).to.equal('i');
+    expect(lines[0]).to.equal('i,j');
     for (let i = 1; i <= 1000; ++i) {
       const fields = lines[i].split(',');
       expect(fields[0]).to.equal((i - 1).toString());
@@ -323,7 +323,7 @@ describe('Collection export', function () {
     const data = JSON.parse(text);
     expect(data).to.have.lengthOf(1);
     // _id is different every time
-    expect(data[0]).to.have.keys('_id', 'i');
+    expect(data[0]).to.have.keys('_id', 'i', 'j');
     expect(data[0].i).to.equal(5);
 
     const exportCompletedEvent = await telemetryEntry('Export Completed');
@@ -389,7 +389,7 @@ describe('Collection export', function () {
     const data = JSON.parse(text);
     expect(data).to.have.lengthOf(1000);
     for (let i = 0; i < 1000; ++i) {
-      expect(data[i]).to.have.keys('_id', 'i');
+      expect(data[i]).to.have.keys('_id', 'i', 'j');
       expect(data[i].i).to.equal(i);
     }
 

@@ -106,7 +106,6 @@ class CreateDatabaseModal extends PureComponent {
           !(this.state.data.database || '').trim()
         )}
         className={styles['create-database-modal']}
-        closeOnBackdropClick={false}
         trackingId="create_database_modal"
       >
         <CollectionFields
