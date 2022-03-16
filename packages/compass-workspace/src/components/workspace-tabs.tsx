@@ -73,7 +73,7 @@ const workspaceTabsSortableCloneStyles = css({
   zIndex: 50,
 });
 
-function useKeyboardNavigation<HTMLDivElement>({
+function useTabListKeyboardNavigation<HTMLDivElement>({
   tabsCount,
   onTabSelected,
   selectedTabIndex,
@@ -111,6 +111,7 @@ function useKeyboardNavigation<HTMLDivElement>({
       }
 
       if (
+        tabsCount > 0 &&
         nextTabbable !== selectedTabIndex &&
         nextTabbable >= 0 &&
         nextTabbable < tabsCount
@@ -129,7 +130,6 @@ type TabProps = {
   id: string;
   activeSubTabName: string;
   isActive: boolean;
-  type: string;
   isTimeSeries: boolean;
   isReadonly: boolean;
 };
@@ -245,7 +245,7 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
     [tabContainerRef, onSelectTab]
   );
 
-  const [navigationProps] = useKeyboardNavigation<HTMLDivElement>({
+  const [navigationProps] = useTabListKeyboardNavigation<HTMLDivElement>({
     selectedTabIndex,
     onTabSelected,
     tabsCount: tabs.length,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -44,6 +45,186 @@ describe('WorkspaceTabs', function () {
       newTabButton.click();
 
       expect(onCreateNewTabSpy.callCount).to.equal(1);
+    });
+  });
+
+  describe('when rendered with multiple tabs', function () {
+    beforeEach(function () {
+      render(
+        <WorkspaceTabs
+          onCreateNewTab={onCreateNewTabSpy}
+          onCloseTab={onCloseTabSpy}
+          onSelectTab={onSelectSpy}
+          onMoveTab={onMoveTabSpy}
+          tabs={[
+            {
+              namespace: 'mock-tab-1',
+              id: '1',
+              activeSubTabName: 'Documents',
+              isActive: false,
+              isTimeSeries: false,
+              isReadonly: false,
+            },
+            {
+              namespace: 'mock-tab-2',
+              id: '2',
+              activeSubTabName: 'Schema',
+              isActive: true,
+              isTimeSeries: true,
+              isReadonly: false,
+            },
+            {
+              namespace: 'mock-tab-3',
+              id: '3',
+              activeSubTabName: 'Aggregation',
+              isActive: false,
+              isTimeSeries: false,
+              isReadonly: true,
+            },
+          ]}
+        />
+      );
+    });
+
+    it('should render all of the tab namespaces', function () {
+      expect(screen.getByText('mock-tab-1')).to.be.visible;
+      expect(screen.getByText('mock-tab-2')).to.be.visible;
+      expect(screen.getByText('mock-tab-3')).to.be.visible;
+    });
+
+    it('should render all of the tab subtab names', function () {
+      expect(screen.getByText('Documents')).to.be.visible;
+      expect(screen.getByText('Schema')).to.be.visible;
+      expect(screen.getByText('Aggregation')).to.be.visible;
+    });
+
+    it('should render the active tab aria-selected', function () {
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0].getAttribute('aria-selected')).to.equal('false');
+      expect(tabs[1].getAttribute('aria-selected')).to.equal('true');
+      expect(tabs[2].getAttribute('aria-selected')).to.equal('false');
+    });
+
+    describe('when the tablist is focused and the left arrow is clicked', function () {
+      it('should call to select the previous tab', function () {
+        expect(onSelectSpy.callCount).to.equal(0);
+        const tabListElement = screen.getByRole('tablist');
+        tabListElement.focus();
+        userEvent.keyboard('{arrowleft}');
+        expect(onSelectSpy).to.be.calledOnceWith(0);
+      });
+    });
+
+    describe('when the tablist is focused and the right arrow is clicked', function () {
+      it('should call to select the next tab', function () {
+        expect(onSelectSpy.callCount).to.equal(0);
+        const tabListElement = screen.getByRole('tablist');
+        tabListElement.focus();
+        userEvent.keyboard('{arrowright}');
+        expect(onSelectSpy).to.be.calledOnceWith(2);
+      });
+    });
+
+    describe('when the tablist is focused and the home key is clicked', function () {
+      it('should call to select the first tab', function () {
+        expect(onSelectSpy.callCount).to.equal(0);
+        const tabListElement = screen.getByRole('tablist');
+        tabListElement.focus();
+        userEvent.keyboard('{home}');
+        expect(onSelectSpy).to.be.calledOnceWith(0);
+      });
+    });
+
+    describe('when the tablist is focused and the end key is clicked', function () {
+      it('should call to select the last tab', function () {
+        expect(onSelectSpy.callCount).to.equal(0);
+        const tabListElement = screen.getByRole('tablist');
+        tabListElement.focus();
+        userEvent.keyboard('{end}');
+        expect(onSelectSpy).to.be.calledOnceWith(2);
+      });
+    });
+  });
+
+  describe('when the first tab is selected', function () {
+    beforeEach(function () {
+      render(
+        <WorkspaceTabs
+          onCreateNewTab={onCreateNewTabSpy}
+          onCloseTab={onCloseTabSpy}
+          onSelectTab={onSelectSpy}
+          onMoveTab={onMoveTabSpy}
+          tabs={[
+            {
+              namespace: 'mock-tab-1',
+              id: '1',
+              activeSubTabName: 'Documents',
+              isActive: true,
+              isTimeSeries: false,
+              isReadonly: false,
+            },
+            {
+              namespace: 'mock-tab-2',
+              id: '2',
+              activeSubTabName: 'Schema',
+              isActive: false,
+              isTimeSeries: true,
+              isReadonly: false,
+            },
+          ]}
+        />
+      );
+    });
+
+    describe('when the tablist is focused and the left arrow is clicked', function () {
+      it('should not call to select a no existant tab', function () {
+        expect(onSelectSpy.callCount).to.equal(0);
+        const tabListElement = screen.getByRole('tablist');
+        tabListElement.focus();
+        userEvent.keyboard('{arrowleft}');
+        expect(onSelectSpy.callCount).to.equal(0);
+      });
+    });
+  });
+
+  describe('when the last tab is selected', function () {
+    beforeEach(function () {
+      render(
+        <WorkspaceTabs
+          onCreateNewTab={onCreateNewTabSpy}
+          onCloseTab={onCloseTabSpy}
+          onSelectTab={onSelectSpy}
+          onMoveTab={onMoveTabSpy}
+          tabs={[
+            {
+              namespace: 'mock-tab-1',
+              id: '1',
+              activeSubTabName: 'Documents',
+              isActive: false,
+              isTimeSeries: false,
+              isReadonly: false,
+            },
+            {
+              namespace: 'mock-tab-2',
+              id: '2',
+              activeSubTabName: 'Schema',
+              isActive: true,
+              isTimeSeries: true,
+              isReadonly: false,
+            },
+          ]}
+        />
+      );
+    });
+
+    describe('when the tablist is focused and the right arrow is clicked', function () {
+      it('should not call to select a no existant tab', function () {
+        expect(onSelectSpy.callCount).to.equal(0);
+        const tabListElement = screen.getByRole('tablist');
+        tabListElement.focus();
+        userEvent.keyboard('{arrowright}');
+        expect(onSelectSpy.callCount).to.equal(0);
+      });
     });
   });
 
