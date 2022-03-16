@@ -25,8 +25,6 @@ const tabStyles = css({
   flexDirection: 'row',
   alignItems: 'center',
   margin: 0,
-  paddingTop: spacing[2],
-  paddingBottom: spacing[1] + spacing[2],
   paddingRight: spacing[1],
   paddingLeft: spacing[3],
   maxWidth: spacing[6] * 3,
@@ -36,20 +34,6 @@ const tabStyles = css({
 
   '&:hover': {
     cursor: 'pointer',
-    transition: 'border-color .16s ease-in',
-  },
-
-  // Focus ring shown on keyboard focus.
-  '&::after': {
-    position: 'absolute',
-    content: '""',
-    pointerEvents: 'none',
-    right: -2,
-    bottom: 0,
-    left: -2,
-    border: '3px solid transparent',
-    borderTopWidth: 0,
-    borderBottomWidth: 0,
     transition: 'border-color .16s ease-in',
   },
 });
@@ -112,7 +96,8 @@ const tabIconStyles = css({
   width: spacing[1] + spacing[2],
   height: 'auto',
   flexShrink: 0,
-  paddingBottom: spacing[3] - 1,
+  gridArea: 'icon',
+  alignSelf: 'center',
 });
 
 const tabIconSelectedLightThemeStyles = css({
@@ -131,7 +116,14 @@ const tabTitleContainerStyles = css({
   marginLeft: spacing[2],
   marginRight: spacing[1],
   display: 'inline-grid',
-  gridTemplateColumns: '1fr',
+  paddingTop: spacing[2],
+  paddingBottom: spacing[1] + spacing[2],
+  gridTemplateAreas: `
+    'icon tabName'
+    'empty namespace'
+  `,
+  columnGap: spacing[2],
+  rowGap: 0,
 });
 
 const tabTitleStyles = css({
@@ -140,6 +132,7 @@ const tabTitleStyles = css({
   overflow: 'hidden',
   fontWeight: 'bold',
   fontSize: compassFontSizes.smallFontSize,
+  gridArea: 'tabName',
 });
 
 const tabTitleDarkThemeStyles = css({
@@ -168,6 +161,7 @@ const tabSubtitleStyles = css({
   overflow: 'hidden',
   fontSize: compassFontSizes.smallFontSize,
   lineHeight: `${spacing[3]}px`,
+  gridArea: 'namespace',
 });
 
 const tabSubtitleLightThemeStyles = css({
@@ -243,18 +237,18 @@ function UnthemedTab({
       title={`${namespace} - ${activeSubTabName}`}
       {...tabProps}
     >
-      <Icon
-        className={cx(tabIconStyles, {
-          [darkMode
-            ? tabIconSelectedDarkThemeStyles
-            : tabIconSelectedLightThemeStyles]: isSelected,
-          [tabIconFocusedStyles]: isFocused,
-        })}
-        role="presentation"
-        glyph={tabIcon}
-        size="small"
-      />
       <div className={tabTitleContainerStyles}>
+        <Icon
+          className={cx(tabIconStyles, {
+            [darkMode
+              ? tabIconSelectedDarkThemeStyles
+              : tabIconSelectedLightThemeStyles]: isSelected,
+            [tabIconFocusedStyles]: isFocused,
+          })}
+          role="presentation"
+          glyph={tabIcon}
+          size="small"
+        />
         <div
           className={cx(
             tabTitleStyles,
@@ -299,7 +293,6 @@ function UnthemedTab({
         <Icon glyph="X" role="presentation" />
       </IconButton>
       <div
-        role="presentation"
         className={cx(tabBottomBorderStyles, {
           [selectedTabBottomBorderStyles]: isSelected,
           [focusedTabBottomBorderStyles]: isFocused,

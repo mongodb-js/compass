@@ -86,7 +86,7 @@ const sortableItemContainerStyles = css({
 
 // These styles are applied while a user is dragging a collection tab.
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore The pointerEvents usage errors ts although it's valid.
+// @ts-expect-error The pointerEvents usage errors ts although it's valid.
 const workspaceTabsSortableCloneStyles = css({
   pointerEvents: 'auto !important',
   cursor: 'grabbing !important',
