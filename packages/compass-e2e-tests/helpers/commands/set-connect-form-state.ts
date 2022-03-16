@@ -309,14 +309,23 @@ export async function setConnectFormState(
         allText.push(text);
         if (text === key) {
           found = true;
+          console.log('clicking option', text);
+          await option.scrollIntoView();
+          await option.waitForDisplayed();
           await option.click();
           break;
         }
       }
+
+      // make sure we found and clicked on an option
       expect(
         found,
         `Count not find URL option "${key}". Found "${allText.join(', ')}"`
       ).to.be.true;
+
+      // make sure the menu goes away once we clicked on the option
+      const menu = await browser.$('#select-key-menu');
+      await menu.waitForExist({ reverse: true });
 
       // value
       await browser.setValueVisible(

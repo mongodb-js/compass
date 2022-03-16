@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument, { Element } from 'hadron-document';
-import ExpansionBar from './expansion-bar';
+import { DocumentList } from '@mongodb-js/compass-components';
 import EditableElement from './editable-element';
-import DocumentActions from './document-actions';
 import DocumentFooter from './document-footer';
 import RemoveDocumentFooter from './remove-document-footer';
 
@@ -225,13 +224,14 @@ class EditableDocument extends React.Component {
   renderActions() {
     if (!this.state.editing && !this.state.deleting) {
       return (
-        <DocumentActions
-          allExpanded={this.state.expandAll}
-          edit={this.handleEdit.bind(this)}
-          copy={this.handleCopy.bind(this)}
-          remove={this.handleDelete.bind(this)}
-          clone={this.handleClone.bind(this)}
-          expandAll={this.handleExpandAll.bind(this)} />
+        <DocumentList.DocumentActionsGroup
+          onEdit={this.handleEdit.bind(this)}
+          onCopy={this.handleCopy.bind(this)}
+          onRemove={this.handleDelete.bind(this)}
+          onClone={this.handleClone.bind(this)}
+          onExpand={this.handleExpandAll.bind(this)}
+          expanded={this.state.expandAll}
+        />
       );
     }
   }
@@ -272,23 +272,20 @@ class EditableDocument extends React.Component {
    * @returns {React.Component} The expansion bar.
    */
   renderExpansion() {
-    const totalSize = this.props.doc.elements.size;
-    const props = {
-      disableHideButton: false,
-      initialSize: INITIAL_FIELD_LIMIT,
-      renderSize: this.state.renderSize,
-      setRenderSize: this.setRenderSize.bind(this),
-      totalSize: totalSize
-    };
-    if (this.state.editing) {
-      // Not sure how to handle case where hide/collapse an edited row,
-      // should the update be applied or ignored? So just disable the update.
-      props.disableHideButton = true;
-      // Performance - Reduce extra fields added per click in edit mode
-      props.perClickSize = 100;
-    }
     return (
-      <ExpansionBar {...props} />
+      <DocumentList.DocumentFieldsToggleGroup
+        // TODO: "Hide items" button will only be shown when document is not
+        // edited because it's not decided how to handle changes to the fields
+        // that are changed but then hidden
+        // https://jira.mongodb.org/browse/COMPASS-5587
+        showHideButton={!this.state.editing}
+        currentSize={this.state.renderSize}
+        totalSize={this.props.doc.elements.size}
+        minSize={INITIAL_FIELD_LIMIT}
+        // Performance - Reduce extra fields added per click in edit mode
+        step={this.state.editing ? 100 : 1000}
+        onSizeChange={this.setRenderSize.bind(this)}
+      />
     );
   }
 

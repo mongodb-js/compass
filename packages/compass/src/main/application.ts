@@ -96,6 +96,10 @@ class CompassApplication {
         app.quit();
       },
     });
+
+    ipcMain.handle('coverage', () => {
+      return (global as any).__coverage__;
+    });
   }
 
   private static setupUserDirectory(): void {

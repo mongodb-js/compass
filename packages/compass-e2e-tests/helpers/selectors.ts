@@ -177,8 +177,9 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 };
 
 // Connection Sidebar
-export const SidebarTreeItems =
-  '[data-test-id="databases-and-collections"] [role="treeitem"]';
+export const SidebarDatabaseAndConnectionList =
+  '[data-test-id="databases-and-collections"]';
+export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
@@ -410,6 +411,19 @@ export const InsertDocumentOption =
   '[data-test-id="insert-data-dropdown-insert-document"]';
 export const ImportFileOption =
   '[data-test-id="insert-data-dropdown-import-file"]';
+export const DocumentListEntry = '[data-test-id="editable-document"]';
+export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
+export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
+export const SelectTableView = '[data-test-id="toolbar-view-table"]';
+export const SelectListView = '[data-test-id="toolbar-view-list"]';
+export const DocumentFooterMessage = '.document-footer-message';
+export const UpdateDocumentButton =
+  '.document-footer [data-test-id="update-document-button"]';
+export const CopyDocumentButton = '[data-testid="copy-document-button"]';
+export const CloneDocumentButton = '[data-testid="clone-document-button"]';
+export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
+export const ConfirmDeleteDocumentButton =
+  '[data-test-id="confirm-delete-document-button"]';
 
 // Insert Document modal
 
