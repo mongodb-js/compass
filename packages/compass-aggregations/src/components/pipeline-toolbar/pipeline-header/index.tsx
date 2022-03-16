@@ -50,6 +50,7 @@ const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           <Body weight="medium" className={pipelineTextStyles}>
             Pipeline
           </Body>
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
           <div
             role="button"
             onClick={() => onShowSavedPipelines()}
