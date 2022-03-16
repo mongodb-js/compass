@@ -140,7 +140,12 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   renderCollationToolbar() {
-    if (this.props.isCollationExpanded) {
+    // We don't show collation outside toolbar in new implementation.
+    // We are using the component in new implementation as well, but inside Toolbar
+    if (
+      this.props.isCollationExpanded &&
+      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true'
+    ) {
       return (
         <CollationToolbar
           collation={this.props.collation}
