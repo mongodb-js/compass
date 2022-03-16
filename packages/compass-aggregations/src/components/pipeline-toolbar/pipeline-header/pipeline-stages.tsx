@@ -22,6 +22,11 @@ const containerStyles = css({
   marginRight: spacing[1],
 });
 
+const addStageStyles = css({
+  border: 'none',
+  backgroundColor: 'transparent',
+});
+
 const stagesStyles = css({
   display: 'flex',
 });
@@ -35,8 +40,13 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   if (stages.length === 0) {
     return (
       <Description className={containerStyles}>
-        Your pipeline is currently empty. To get started select the{' '}
-        <Link onClick={() => onStageAdded()} hideExternalIcon>
+        Your pipeline is currently empty. To get started select the
+        <Link
+          className={addStageStyles}
+          as="button"
+          onClick={() => onStageAdded()}
+          hideExternalIcon
+        >
           first stage.
         </Link>
       </Description>

@@ -24,6 +24,11 @@ const defaultMargins = css({
   marginRight: spacing[1],
 });
 
+const optionsButtonStyles = css({
+  backgroundColor: 'transparent',
+  border: 'none',
+});
+
 const optionStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -52,6 +57,8 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         Run
       </Button>
       <Link
+        as="button"
+        className={optionsButtonStyles}
         data-testid="toolbar-more-options-action-link"
         hideExternalIcon={true}
         onClick={() => onToggleOptions()}
