@@ -1,8 +1,9 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { WorkspaceTabs } from '@mongodb-js/compass-workspace';
+import { Icon } from '@mongodb-js/compass-components';
 
 import {
   createNewTab,
@@ -17,6 +18,19 @@ import {
 import Collection from '../collection';
 
 import styles from './workspace.module.less';
+
+export function getTabType(
+  isTimeSeries,
+  isReadonly
+) {
+  if (isTimeSeries) {
+    return 'timeseries';
+  }
+  if (isReadonly) {
+    return 'view';
+  }
+  return 'collection';
+}
 
 /**
  * W key is key code 87.
@@ -44,6 +58,26 @@ const DEFAULT_NEW_TAB = {
   isTimeSeries: false,
   sourceName: ''
 };
+
+function renderTabIcon(tabIconProps, type) {
+  const tabIcon = useMemo(() => {
+    switch (type) {
+      case 'timeseries':
+        return 'TimeSeries';
+      case 'view':
+        return 'Visibility';
+      default:
+        return 'Folder';
+    }
+  }, [type]);
+
+  return (
+    <Icon
+      {...tabIconProps}
+      glyph={tabIcon}
+    />
+  );
+}
 
 /**
  * The collection workspace contains tabs of multiple collections.
@@ -184,6 +218,8 @@ class Workspace extends PureComponent {
    * @returns {Component} The rendered component.
    */
   render() {
+    const selectedTabIndex = this.props.tabs.findIndex((tab) => tab.isActive);
+
     return (
       <div className={styles.workspace}>
         <WorkspaceTabs
@@ -191,7 +227,16 @@ class Workspace extends PureComponent {
           onMoveTab={this.props.moveTab}
           onSelectTab={this.props.selectTab}
           onCloseTab={this.props.closeTab}
-          tabs={this.props.tabs}
+          tabs={this.props.tabs.map(tab => ({
+            title: tab.activeSubTabName,
+            subtitle: tab.namespace,
+            tabContentId: tab.id,
+            renderIcon: (iconProps) => renderTabIcon(
+              iconProps,
+              getTabType(tab.isTimeSeries, tab.isReadonly)
+            )
+          }))}
+          selectedTabIndex={selectedTabIndex}
         />
         <div className={styles['workspace-views']}>
           {this.renderViews()}

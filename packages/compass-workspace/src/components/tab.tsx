@@ -12,14 +12,14 @@ import {
   compassFontSizes,
   Body,
   withTheme,
+  useFocusState,
+  FocusState,
 } from '@mongodb-js/compass-components';
-
-export type TabType = 'timeseries' | 'view' | 'collection';
 
 const tabStyles = css({
   border: '1px solid',
-  borderTop: 'none',
-  borderBottom: 'none',
+  borderTopWidth: 0,
+  borderBottomWidth: 0,
   transition: 'border-color .16s ease-out',
   display: 'inline-flex',
   flexDirection: 'row',
@@ -31,10 +31,28 @@ const tabStyles = css({
   minWidth: spacing[6] * 2,
   position: 'relative',
   color: uiColors.gray.base,
+  outline: 'none',
 
   '&:hover': {
     cursor: 'pointer',
+    zIndex: 1, // Show the border over surrounding tabs.
     transition: 'border-color .16s ease-in',
+  },
+  ':not(:first-child)': {
+    marginLeft: '-1px', // Keep the borders only 1px.
+  },
+  '&:focus': {
+    zIndex: 3, // Show the border over surrounding tabs.
+    borderColor: uiColors.focus,
+    '&::after': {
+      position: 'absolute',
+      content: '""',
+      top: 0,
+      right: 0,
+      left: 0,
+      height: '1px',
+      backgroundColor: uiColors.focus,
+    },
   },
 });
 
@@ -57,13 +75,6 @@ const tabDarkThemeStyles = css({
 const selectedTabStyles = css({
   '&:hover': {
     cursor: 'default',
-  },
-});
-
-const focusedTabStyles = css({
-  '&::after': {
-    transitionTimingFunction: 'ease-out',
-    borderColor: uiColors.focus,
   },
 });
 
@@ -113,7 +124,6 @@ const tabIconFocusedStyles = css({
 });
 
 const tabTitleContainerStyles = css({
-  marginLeft: spacing[2],
   marginRight: spacing[1],
   display: 'inline-grid',
   paddingTop: spacing[2],
@@ -181,43 +191,62 @@ const tabSubtitleSelectedDarkThemeStyles = css({
 });
 
 type TabProps = {
-  activeSubTabName: string;
+  title: string;
   darkMode?: boolean;
-  isFocused: boolean;
   isSelected: boolean;
   onSelect: () => void;
   onClose: () => void;
-  tabId: string;
-  namespace: string;
-  type: TabType;
-  isTabListFocused: boolean;
+  renderIcon: (
+    iconProps: Partial<React.ComponentProps<typeof Icon>>
+  ) => JSX.Element;
+  tabContentId: string;
+  subtitle: string;
 };
 
 function UnthemedTab({
   darkMode,
-  activeSubTabName,
-  isFocused,
+  title,
   isSelected,
-  isTabListFocused,
   onSelect,
   onClose,
-  tabId,
-  type,
-  namespace,
+  tabContentId,
+  renderIcon,
+  subtitle,
 }: TabProps) {
+  const [focusProps, focusState] = useFocusState();
+
+  const isFocused = useMemo(
+    () => focusState === FocusState.FocusVisible,
+    [focusState]
+  );
+  const isFocusedWithin = useMemo(
+    () => focusState === FocusState.FocusWithinVisible,
+    [focusState]
+  );
+
   const defaultActionProps = useDefaultAction(onSelect);
 
   const [hoverProps, isHovered] = useHoverState();
 
-  const tabProps = mergeProps<HTMLDivElement>(hoverProps, defaultActionProps);
+  const tabProps = mergeProps<HTMLDivElement>(
+    focusProps,
+    hoverProps,
+    defaultActionProps
+  );
 
-  const tabIcon = useMemo(() => {
-    return type === 'timeseries'
-      ? 'TimeSeries'
-      : type === 'view'
-      ? 'Visibility'
-      : 'Folder';
-  }, [type]);
+  const iconProps: Partial<React.ComponentProps<typeof Icon>> = useMemo(
+    () => ({
+      size: 'small',
+      role: 'presentation',
+      className: cx(tabIconStyles, {
+        [darkMode
+          ? tabIconSelectedDarkThemeStyles
+          : tabIconSelectedLightThemeStyles]: isSelected,
+        [tabIconFocusedStyles]: isFocused,
+      }),
+    }),
+    [darkMode, isFocused, isSelected]
+  );
 
   return (
     <div
@@ -226,29 +255,18 @@ function UnthemedTab({
         darkMode ? tabDarkThemeStyles : tabLightThemeStyles,
         {
           [selectedTabStyles]: isSelected,
-          [focusedTabStyles]: isFocused,
         }
       )}
       aria-selected={isSelected}
       role="tab"
-      // The tab navigation is handled by the lab list.
-      tabIndex={-1}
-      aria-controls={tabId}
-      title={`${namespace} - ${activeSubTabName}`}
+      // Catch navigation on the active tab when a user tabs through Compass.
+      tabIndex={isSelected ? 0 : -1}
+      aria-controls={tabContentId}
+      title={`${subtitle} - ${title}`}
       {...tabProps}
     >
       <div className={tabTitleContainerStyles}>
-        <Icon
-          className={cx(tabIconStyles, {
-            [darkMode
-              ? tabIconSelectedDarkThemeStyles
-              : tabIconSelectedLightThemeStyles]: isSelected,
-            [tabIconFocusedStyles]: isFocused,
-          })}
-          role="presentation"
-          glyph={tabIcon}
-          size="small"
-        />
+        {renderIcon(iconProps)}
         <div
           className={cx(
             tabTitleStyles,
@@ -261,7 +279,7 @@ function UnthemedTab({
             }
           )}
         >
-          {activeSubTabName}
+          {title}
         </div>
         <Body
           className={cx(
@@ -274,15 +292,13 @@ function UnthemedTab({
             }
           )}
         >
-          {namespace}
+          {subtitle}
         </Body>
       </div>
 
       <IconButton
         className={
-          (isSelected && isTabListFocused) || isFocused || isHovered
-            ? undefined
-            : hiddenStyles
+          isFocusedWithin || isFocused || isHovered ? undefined : hiddenStyles
         }
         onClick={(e) => {
           e.stopPropagation();

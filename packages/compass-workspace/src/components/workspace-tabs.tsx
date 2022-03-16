@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   FocusState,
   mergeProps,
@@ -14,25 +14,10 @@ import {
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 import { Tab } from './tab';
-import type { TabType } from './tab';
-
-export function getTabType(
-  isTimeSeries: boolean,
-  isReadonly: boolean
-): TabType {
-  if (isTimeSeries) {
-    return 'timeseries';
-  }
-  if (isReadonly) {
-    return 'view';
-  }
-  return 'collection';
-}
 
 const tabsContainerStyles = css({
   margin: 0,
   padding: 0,
-  outline: 'none',
   flexShrink: 0, // Don't shrink when the tab contents tries to grow.
   position: 'relative',
   overflowX: 'auto',
@@ -66,7 +51,6 @@ const tabsListContainerStyles = css({
 
 const tabsListStyles = css({
   display: 'inline-flex',
-  outline: 'none',
 });
 
 const newTabContainerStyles = css({
@@ -95,11 +79,11 @@ const workspaceTabsSortableCloneStyles = css({
 
 function useTabListKeyboardNavigation<HTMLDivElement>({
   tabsCount,
-  onTabSelected,
+  onSelectTab,
   selectedTabIndex,
 }: {
   tabsCount: number;
-  onTabSelected: (tabIndex: number) => void;
+  onSelectTab: (tabIndex: number) => void;
   selectedTabIndex: number;
 }): [React.HTMLProps<HTMLDivElement>] {
   const onKeyDown = useCallback(
@@ -136,10 +120,10 @@ function useTabListKeyboardNavigation<HTMLDivElement>({
         nextTabbable >= 0 &&
         nextTabbable < tabsCount
       ) {
-        onTabSelected(nextTabbable);
+        onSelectTab(nextTabbable);
       }
     },
-    [selectedTabIndex, tabsCount, onTabSelected]
+    [selectedTabIndex, tabsCount, onSelectTab]
   );
 
   return [{ onKeyDown }];
@@ -148,23 +132,16 @@ function useTabListKeyboardNavigation<HTMLDivElement>({
 type SortableItemProps = {
   tab: TabProps;
   tabIndex: number;
-  isTabListFocused: boolean;
+  selectedTabIndex: number;
   onSelect: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
 };
 
 const SortableItem = SortableElement(
   ({
-    tab: {
-      activeSubTabName,
-      isActive,
-      id: tabId,
-      namespace,
-      isTimeSeries,
-      isReadonly,
-    },
+    tab: { tabContentId, renderIcon, subtitle, title },
     tabIndex,
-    isTabListFocused,
+    selectedTabIndex,
     onSelect,
     onClose,
   }: SortableItemProps) => {
@@ -176,22 +153,20 @@ const SortableItem = SortableElement(
       onClose(tabIndex);
     }, [onClose, tabIndex]);
 
-    const tabType = useMemo(
-      () => getTabType(isTimeSeries, isReadonly),
-      [isTimeSeries, isReadonly]
+    const isSelected = useMemo(
+      () => selectedTabIndex === tabIndex,
+      [selectedTabIndex, tabIndex]
     );
 
     return (
       <Tab
-        activeSubTabName={activeSubTabName}
-        isSelected={isActive}
-        isFocused={isTabListFocused && isActive}
-        tabId={tabId}
-        type={tabType}
-        namespace={namespace}
+        title={title}
+        isSelected={isSelected}
+        renderIcon={renderIcon}
+        tabContentId={tabContentId}
+        subtitle={subtitle}
         onSelect={onTabSelected}
         onClose={onTabClosed}
-        isTabListFocused={isTabListFocused}
       />
     );
   }
@@ -199,39 +174,30 @@ const SortableItem = SortableElement(
 
 type SortableListProps = {
   tabs: TabProps[];
-  isTabListFocused: boolean;
+  selectedTabIndex: number;
   onSelect: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
 };
 
 const SortableList = SortableContainer(
-  ({ tabs, isTabListFocused, onSelect, onClose }: SortableListProps) => (
+  ({ tabs, onSelect, onClose, selectedTabIndex }: SortableListProps) => (
     <div className={sortableItemContainerStyles}>
       {tabs.map((tab: TabProps, index: number) => (
         <SortableItem
-          key={`tab-${index}-${tab.namespace}`}
+          key={`tab-${index}-${tab.subtitle}`}
           // `index` is used internally by the SortableContainer hoc,
           // so we pass our own `tabIndex`.
           index={index}
           tabIndex={index}
           tab={tab}
-          isTabListFocused={isTabListFocused}
           onSelect={onSelect}
           onClose={onClose}
+          selectedTabIndex={selectedTabIndex}
         />
       ))}
     </div>
   )
 );
-
-type TabProps = {
-  namespace: string;
-  id: string;
-  activeSubTabName: string;
-  isActive: boolean;
-  isTimeSeries: boolean;
-  isReadonly: boolean;
-};
 
 type WorkspaceTabsProps = {
   darkMode?: boolean;
@@ -240,7 +206,48 @@ type WorkspaceTabsProps = {
   onCloseTab: (tabIndex: number) => void;
   onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
   tabs: TabProps[];
+  selectedTabIndex: number;
 };
+
+type TabProps = {
+  subtitle: string;
+  tabContentId: string;
+  title: string;
+  renderIcon: (
+    iconProps: Partial<React.ComponentProps<typeof Icon>>
+  ) => JSX.Element;
+};
+
+export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
+  currentTabbable,
+}: {
+  currentTabbable: number;
+}): React.HTMLProps<T> {
+  const rootNode = useRef<T | null>(null);
+  const [focusProps, focusState] = useFocusState();
+
+  const focusTabbable = useCallback(() => {
+    const selector = `[role="tab"]:nth-child(${
+      currentTabbable + 1 /* nth child starts at 1. */
+    })`;
+    rootNode.current?.querySelector<T>(selector)?.focus();
+  }, [rootNode, currentTabbable]);
+
+  useEffect(() => {
+    if (
+      [
+        FocusState.Focus,
+        FocusState.FocusVisible,
+        FocusState.FocusWithin,
+        FocusState.FocusWithinVisible,
+      ].includes(focusState)
+    ) {
+      focusTabbable();
+    }
+  }, [focusState, focusTabbable]);
+
+  return { ref: rootNode, ...focusProps };
+}
 
 function UnthemedWorkspaceTabs({
   darkMode,
@@ -249,43 +256,22 @@ function UnthemedWorkspaceTabs({
   onMoveTab,
   onSelectTab,
   tabs,
+  selectedTabIndex,
 }: WorkspaceTabsProps) {
-  const selectedTabIndex = tabs.findIndex((tab) => tab.isActive);
-  const [focusProps, focusState] = useFocusState();
+  const rovingFocusProps = useRovingTabIndex<HTMLDivElement>({
+    currentTabbable: selectedTabIndex,
+  });
   const tabContainerRef = useRef<HTMLDivElement>(null);
-
-  const onTabSelected = useCallback(
-    (tabIndex: number) => {
-      // When a tab is clicked we focus our container so we can
-      // handle arrow key movements.
-      if (tabContainerRef.current) {
-        tabContainerRef.current.focus();
-      }
-
-      onSelectTab(tabIndex);
-    },
-    [tabContainerRef, onSelectTab]
-  );
 
   const [navigationProps] = useTabListKeyboardNavigation<HTMLDivElement>({
     selectedTabIndex,
-    onTabSelected,
+    onSelectTab,
     tabsCount: tabs.length,
   });
 
   const tabContainerProps = mergeProps<HTMLDivElement>(
-    focusProps,
+    rovingFocusProps,
     navigationProps
-  );
-
-  const isTabListFocused = useMemo(
-    () =>
-      [
-        FocusState.FocusVisible,
-        FocusState.FocusWithin,
-        FocusState.FocusWithinVisible,
-      ].includes(focusState),
-    [focusState]
   );
 
   const onSortEnd = useCallback(
@@ -309,16 +295,13 @@ function UnthemedWorkspaceTabs({
           aria-label="Workspace Tabs"
           aria-orientation="horizontal"
           ref={tabContainerRef}
-          // The list is tabbable and manages the keyboard
-          // actions for navigating tabs.
-          tabIndex={0}
           {...tabContainerProps}
         >
           <SortableList
             onClose={onCloseTab}
             onSelect={onSelectTab}
             tabs={tabs}
-            isTabListFocused={isTabListFocused}
+            selectedTabIndex={selectedTabIndex}
             axis="x"
             lockAxis="x"
             lockToContainerEdges

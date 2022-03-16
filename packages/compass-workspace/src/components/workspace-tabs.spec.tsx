@@ -3,8 +3,21 @@ import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { Icon } from '@mongodb-js/compass-components';
 
-import { WorkspaceTabs, getTabType } from './workspace-tabs';
+import { WorkspaceTabs } from './workspace-tabs';
+
+function mockTab(tabId: number) {
+  return {
+    title: `mock-tab-${tabId}`,
+    id: `${tabId}`,
+    subtitle: `Documents - ${tabId}`,
+    tabContentId: `${tabId}-content`,
+    renderIcon: function renderIcon(iconProps) {
+      return <Icon {...iconProps} data-testid="folder-icon" glyph="Folder" />;
+    },
+  };
+}
 
 describe('WorkspaceTabs', function () {
   let onCreateNewTabSpy: sinon.SinonSpy;
@@ -30,6 +43,7 @@ describe('WorkspaceTabs', function () {
           onSelectTab={onSelectSpy}
           onMoveTab={onMoveTabSpy}
           tabs={[]}
+          selectedTabIndex={0}
         />
       );
     });
@@ -56,32 +70,8 @@ describe('WorkspaceTabs', function () {
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
           onMoveTab={onMoveTabSpy}
-          tabs={[
-            {
-              namespace: 'mock-tab-1',
-              id: '1',
-              activeSubTabName: 'Documents',
-              isActive: false,
-              isTimeSeries: false,
-              isReadonly: false,
-            },
-            {
-              namespace: 'mock-tab-2',
-              id: '2',
-              activeSubTabName: 'Schema',
-              isActive: true,
-              isTimeSeries: true,
-              isReadonly: false,
-            },
-            {
-              namespace: 'mock-tab-3',
-              id: '3',
-              activeSubTabName: 'Aggregation',
-              isActive: false,
-              isTimeSeries: false,
-              isReadonly: true,
-            },
-          ]}
+          tabs={[1, 2, 3].map((tabId) => mockTab(tabId))}
+          selectedTabIndex={1}
         />
       );
     });
@@ -92,10 +82,10 @@ describe('WorkspaceTabs', function () {
       expect(screen.getByText('mock-tab-3')).to.be.visible;
     });
 
-    it('should render all of the tab subtab names', function () {
-      expect(screen.getByText('Documents')).to.be.visible;
-      expect(screen.getByText('Schema')).to.be.visible;
-      expect(screen.getByText('Aggregation')).to.be.visible;
+    it('should render all of the tab subtitles', function () {
+      expect(screen.getByText('Documents - 1')).to.be.visible;
+      expect(screen.getByText('Documents - 2')).to.be.visible;
+      expect(screen.getByText('Documents - 3')).to.be.visible;
     });
 
     it('should render the active tab aria-selected', function () {
@@ -105,31 +95,31 @@ describe('WorkspaceTabs', function () {
       expect(tabs[2].getAttribute('aria-selected')).to.equal('false');
     });
 
-    describe('when the tablist is focused and the left arrow is clicked', function () {
+    describe('when the tab is focused and the left arrow is clicked', function () {
       it('should call to select the previous tab', function () {
         expect(onSelectSpy.callCount).to.equal(0);
-        const tabListElement = screen.getByRole('tablist');
-        tabListElement.focus();
+        const tabElement = screen.getAllByRole('tab')[1];
+        tabElement.focus();
         userEvent.keyboard('{arrowleft}');
         expect(onSelectSpy).to.be.calledOnceWith(0);
       });
     });
 
-    describe('when the tablist is focused and the right arrow is clicked', function () {
+    describe('when the tab is focused and the right arrow is clicked', function () {
       it('should call to select the next tab', function () {
         expect(onSelectSpy.callCount).to.equal(0);
-        const tabListElement = screen.getByRole('tablist');
-        tabListElement.focus();
+        const tabElement = screen.getAllByRole('tab')[1];
+        tabElement.focus();
         userEvent.keyboard('{arrowright}');
         expect(onSelectSpy).to.be.calledOnceWith(2);
       });
     });
 
-    describe('when the tablist is focused and the home key is clicked', function () {
+    describe('when the tab is focused and the home key is clicked', function () {
       it('should call to select the first tab', function () {
         expect(onSelectSpy.callCount).to.equal(0);
-        const tabListElement = screen.getByRole('tablist');
-        tabListElement.focus();
+        const tabElement = screen.getAllByRole('tab')[1];
+        tabElement.focus();
         userEvent.keyboard('{home}');
         expect(onSelectSpy).to.be.calledOnceWith(0);
       });
@@ -138,8 +128,8 @@ describe('WorkspaceTabs', function () {
     describe('when the tablist is focused and the end key is clicked', function () {
       it('should call to select the last tab', function () {
         expect(onSelectSpy.callCount).to.equal(0);
-        const tabListElement = screen.getByRole('tablist');
-        tabListElement.focus();
+        const tabElement = screen.getAllByRole('tab')[1];
+        tabElement.focus();
         userEvent.keyboard('{end}');
         expect(onSelectSpy).to.be.calledOnceWith(2);
       });
@@ -154,24 +144,8 @@ describe('WorkspaceTabs', function () {
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
           onMoveTab={onMoveTabSpy}
-          tabs={[
-            {
-              namespace: 'mock-tab-1',
-              id: '1',
-              activeSubTabName: 'Documents',
-              isActive: true,
-              isTimeSeries: false,
-              isReadonly: false,
-            },
-            {
-              namespace: 'mock-tab-2',
-              id: '2',
-              activeSubTabName: 'Schema',
-              isActive: false,
-              isTimeSeries: true,
-              isReadonly: false,
-            },
-          ]}
+          tabs={[1, 2].map((tabId) => mockTab(tabId))}
+          selectedTabIndex={0}
         />
       );
     });
@@ -179,8 +153,8 @@ describe('WorkspaceTabs', function () {
     describe('when the tablist is focused and the left arrow is clicked', function () {
       it('should not call to select a no existant tab', function () {
         expect(onSelectSpy.callCount).to.equal(0);
-        const tabListElement = screen.getByRole('tablist');
-        tabListElement.focus();
+        const tabElement = screen.getAllByRole('tab')[0];
+        tabElement.focus();
         userEvent.keyboard('{arrowleft}');
         expect(onSelectSpy.callCount).to.equal(0);
       });
@@ -195,24 +169,8 @@ describe('WorkspaceTabs', function () {
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
           onMoveTab={onMoveTabSpy}
-          tabs={[
-            {
-              namespace: 'mock-tab-1',
-              id: '1',
-              activeSubTabName: 'Documents',
-              isActive: false,
-              isTimeSeries: false,
-              isReadonly: false,
-            },
-            {
-              namespace: 'mock-tab-2',
-              id: '2',
-              activeSubTabName: 'Schema',
-              isActive: true,
-              isTimeSeries: true,
-              isReadonly: false,
-            },
-          ]}
+          tabs={[1, 2].map((tabId) => mockTab(tabId))}
+          selectedTabIndex={1}
         />
       );
     });
@@ -220,25 +178,11 @@ describe('WorkspaceTabs', function () {
     describe('when the tablist is focused and the right arrow is clicked', function () {
       it('should not call to select a no existant tab', function () {
         expect(onSelectSpy.callCount).to.equal(0);
-        const tabListElement = screen.getByRole('tablist');
-        tabListElement.focus();
+        const tabElement = screen.getAllByRole('tab')[1];
+        tabElement.focus();
         userEvent.keyboard('{arrowright}');
         expect(onSelectSpy.callCount).to.equal(0);
       });
-    });
-  });
-
-  describe('#getTabType', function () {
-    it('should return "timeseries" for a timeseries collection', function () {
-      expect(getTabType(true, false)).to.equal('timeseries');
-    });
-
-    it('should return "view" for a view', function () {
-      expect(getTabType(false, true)).to.equal('view');
-    });
-
-    it('should return "collection" when its not time series or readonly', function () {
-      expect(getTabType(false, false)).to.equal('collection');
     });
   });
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { Workspace } from '../workspace';
+import { Workspace, getTabType } from '../workspace';
 import styles from './workspace.module.less';
 
 describe.skip('Workspace [Component]', () => {
@@ -43,5 +43,19 @@ describe.skip('Workspace [Component]', () => {
   it('renders one tab hidden, one not', () => {
     expect(component.find(`.${styles['workspace-view-tab']}:not(.hidden)`)).to.be.present();
     expect(component.find(`.${styles['workspace-view-tab']}.hidden`)).to.be.present();
+  });
+
+  describe('#getTabType', () => {
+    it('should return "timeseries" for a timeseries collection', () => {
+      expect(getTabType(true, false)).to.equal('timeseries');
+    });
+
+    it('should return "view" for a view', () => {
+      expect(getTabType(false, true)).to.equal('view');
+    });
+
+    it('should return "collection" when its not time series or readonly', () => {
+      expect(getTabType(false, false)).to.equal('collection');
+    });
   });
 });
