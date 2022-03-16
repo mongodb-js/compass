@@ -143,7 +143,7 @@ const tabTitleStyles = css({
 });
 
 const tabTitleDarkThemeStyles = css({
-  color: uiColors.green.dark2,
+  color: uiColors.gray.base,
 });
 
 const tabTitleLightThemeStyles = css({
@@ -151,7 +151,7 @@ const tabTitleLightThemeStyles = css({
 });
 
 const tabTitleSelectedDarkThemeStyles = css({
-  color: uiColors.green.dark2,
+  color: uiColors.green.light2,
 });
 
 const tabTitleSelectedLightThemeStyles = css({
@@ -286,7 +286,6 @@ function UnthemedTab({
 
       <IconButton
         className={
-          // Show theme close button when the tab is hovered or focused.
           (isSelected && isTabListFocused) || isFocused || isHovered
             ? undefined
             : hiddenStyles

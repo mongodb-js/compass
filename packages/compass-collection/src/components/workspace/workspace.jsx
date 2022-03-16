@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { WorkspaceTabs } from '@mongodb-js/compass-workspace';
 
-import {SortableContainer, SortableElement} from 'react-sortable-hoc';
-
 import {
   createNewTab,
   selectOrCreateTab,
@@ -16,8 +14,6 @@ import {
   selectTab,
   changeActiveSubTab
 } from '../../modules/tabs';
-import CollectionTab from '../collection-tab';
-import CreateTab from '../create-tab';
 import Collection from '../collection';
 
 import styles from './workspace.module.less';
@@ -92,10 +88,6 @@ class Workspace extends PureComponent {
     window.removeEventListener('keydown', this.boundHandleKeypress);
   }
 
-  onSortEnd = ({oldIndex, newIndex}) => {
-    this.props.moveTab(oldIndex, newIndex);
-  }
-
   onCreateNewTab = () => {
     const activeTab = this.activeTab();
     const newTabProps = activeTab
@@ -146,60 +138,6 @@ class Workspace extends PureComponent {
    */
   activeTab() {
     return this.props.tabs.find(tab => tab.isActive);
-  }
-
-  /**
-   * Render a tab.
-   *
-   * @param {Object} tab - The tab.
-   * @param {Number} i - The cyrrent index of the tab.
-   *
-   * @returns {Component} The tab component.
-   */
-  renderTab = (tab, i) => {
-    return (
-      <CollectionTab
-        key={i}
-        index={i}
-        namespace={tab.namespace}
-        localAppRegistry={tab.localAppRegistry}
-        isReadonly={tab.isReadonly}
-        isActive={tab.isActive}
-        closeTab={this.props.closeTab}
-        activeSubTabName={tab.activeSubTabName}
-        selectTab={this.props.selectTab}
-        moveTab={this.props.moveTab} />
-    );
-  }
-
-  /**
-   * Render the tabs.
-   *
-   * @returns {Component} The component.
-   */
-  renderTabs() {
-    const SortableItem = SortableElement(({value}) => this.renderTab(value.tab, value.index));
-
-    const SortableList = SortableContainer(({items}) => {
-      return (<div className={styles['workspace-tabs-sortable-list']}>
-        {items.map(
-          (tab, index) => (<SortableItem
-            key={`tab-${index}`}
-            index={index}
-            value={{ tab: tab, index: index }}
-          />)
-        )}
-      </div>);
-    });
-
-    return (<SortableList
-      items={this.props.tabs}
-      axis="x"
-      lockAxis="x"
-      distance={10}
-      onSortEnd={this.onSortEnd}
-      helperClass={styles['workspace-tabs-sortable-clone']}
-    />);
   }
 
   /**
@@ -255,22 +193,6 @@ class Workspace extends PureComponent {
           onCloseTab={this.props.closeTab}
           tabs={this.props.tabs}
         />
-        {/* <div className={styles['workspace-tabs']}>
-          <div onClick={this.props.prevTab} className={styles['workspace-tabs-prev']}>
-            <i className="fa fa-chevron-left" aria-hidden/>
-          </div>
-          <div className={styles['workspace-tabs-container']}>
-            {this.renderTabs()}
-            <CreateTab
-              createNewTab={this.onCreateNewTab}
-            />
-          </div>
-          <div className={styles['workspace-tabs-right']}>
-            <div onClick={this.props.nextTab} className={styles['workspace-tabs-next']}>
-              <i className="fa fa-chevron-right" aria-hidden/>
-            </div>
-          </div>
-        </div> */}
         <div className={styles['workspace-views']}>
           {this.renderViews()}
         </div>

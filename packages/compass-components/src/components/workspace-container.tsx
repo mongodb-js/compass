@@ -33,7 +33,9 @@ function UnthemedWorkspaceContainer({
   children,
   'data-test-id': dataTestId,
   ...props
-}:  React.PropsWithChildren<WorkspaceContainerProps & React.HTMLProps<HTMLDivElement>>) {
+}: React.PropsWithChildren<
+  WorkspaceContainerProps & React.HTMLProps<HTMLDivElement>
+>) {
   return (
     <div
       className={cx(

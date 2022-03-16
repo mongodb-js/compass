@@ -37,14 +37,22 @@ const tabsContainerStyles = css({
   position: 'relative',
   overflowX: 'auto',
   whiteSpace: 'nowrap',
+  borderBottom: '1px solid',
+  '::-webkit-scrollbar': {
+    ':horizontal': {
+      height: spacing[1],
+    },
+  },
 });
 
 const tabsContainerLightStyles = css({
   background: uiColors.white,
+  borderBottomColor: uiColors.gray.light2,
 });
 
 const tabsContainerDarkStyles = css({
   backgroundColor: uiColors.gray.dark3,
+  borderBottomColor: uiColors.gray.dark2,
 });
 
 const tabsListContainerStyles = css({
@@ -301,8 +309,8 @@ function UnthemedWorkspaceTabs({
           aria-label="Workspace Tabs"
           aria-orientation="horizontal"
           ref={tabContainerRef}
-          // We make the whole list tabbable and manage the keyboard
-          // navigation from this tablist.
+          // The list is tabbable and manages the keyboard
+          // actions for navigating tabs.
           tabIndex={0}
           {...tabContainerProps}
         >
