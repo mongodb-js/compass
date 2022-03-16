@@ -46,7 +46,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  * Action creators for toggling actions in the save m0dal
  *
  * @param {Number} index
- * @returns {Object} The action.
+ * @returns {import('redux').AnyAction} The action.
  */
 export const savedPipelinesListToggle = (index) => ({
   type: SAVED_PIPELINES_LIST_TOGGLED,
@@ -58,6 +58,10 @@ export const savedPipelineAdd = (pipelines) => ({
   pipelines: pipelines
 });
 
+/**
+ * 
+ * @returns {import('redux').AnyAction}
+ */
 export const getSavedPipelines = () => {
   return (dispatch, getState) => {
     if (!getState().savedPipeline.isLoaded) {

@@ -2,9 +2,14 @@ import React from 'react';
 import { css, spacing, Body, Icon } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
+import type { Dispatch } from 'redux';
 
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
+import {
+  getSavedPipelines,
+  savedPipelinesListToggle,
+} from '../../../modules/saved-pipeline';
 
 const containerStyles = css({
   display: 'flex',
@@ -32,9 +37,12 @@ const openSavedPipelinesStyles = css({
   display: 'flex',
   marginRight: spacing[1],
   marginLeft: spacing[1],
+  cursor: 'pointer',
 });
 
-const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = () => {
+const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
+  onShowSavedPipelines,
+}) => {
   return (
     <div className={containerStyles}>
       <div className={pipelineTextAndStagesStyles}>
@@ -43,6 +51,8 @@ const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = () => {
             Pipeline
           </Body>
           <div
+            role="button"
+            onClick={() => onShowSavedPipelines()}
             className={openSavedPipelinesStyles}
             aria-label="Open saved pipelines"
           >
@@ -57,6 +67,13 @@ const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = () => {
   );
 };
 
-const connector = connect();
+const mapDispatch = (dispatch: Dispatch) => ({
+  onShowSavedPipelines: () => {
+    dispatch(getSavedPipelines());
+    dispatch(savedPipelinesListToggle(1));
+  },
+});
+
+const connector = connect(null, mapDispatch);
 type PipelineHeaderProps = ConnectedProps<typeof connector>;
 export default connector(PipelineHeader);
