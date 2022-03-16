@@ -6,7 +6,10 @@ import {
   Icon,
   IconButton,
   css,
+  cx,
   spacing,
+  uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
@@ -36,8 +39,17 @@ const tabsContainerStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const tabsContainerLightStyles = css({
+  background: uiColors.white,
+});
+
+const tabsContainerDarkStyles = css({
+  backgroundColor: uiColors.gray.dark3,
+});
+
 const tabsListContainerStyles = css({
   padding: 0,
+  paddingLeft: spacing[3],
   paddingRight: spacing[4],
   display: 'flex',
   flexDirection: 'row',
@@ -125,23 +137,6 @@ function useTabListKeyboardNavigation<HTMLDivElement>({
   return [{ onKeyDown }];
 }
 
-type TabProps = {
-  namespace: string;
-  id: string;
-  activeSubTabName: string;
-  isActive: boolean;
-  isTimeSeries: boolean;
-  isReadonly: boolean;
-};
-
-type WorkspaceTabsProps = {
-  onCreateNewTab: () => void;
-  onSelectTab: (tabIndex: number) => void;
-  onCloseTab: (tabIndex: number) => void;
-  onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
-  tabs: TabProps[];
-};
-
 type SortableItemProps = {
   tab: TabProps;
   tabIndex: number;
@@ -221,13 +216,32 @@ const SortableList = SortableContainer(
   )
 );
 
-const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
+type TabProps = {
+  namespace: string;
+  id: string;
+  activeSubTabName: string;
+  isActive: boolean;
+  isTimeSeries: boolean;
+  isReadonly: boolean;
+};
+
+type WorkspaceTabsProps = {
+  darkMode?: boolean;
+  onCreateNewTab: () => void;
+  onSelectTab: (tabIndex: number) => void;
+  onCloseTab: (tabIndex: number) => void;
+  onMoveTab: (oldTabIndex: number, newTabIndex: number) => void;
+  tabs: TabProps[];
+};
+
+function UnthemedWorkspaceTabs({
+  darkMode,
   onCreateNewTab,
   onCloseTab,
   onMoveTab,
   onSelectTab,
   tabs,
-}) => {
+}: WorkspaceTabsProps) {
   const selectedTabIndex = tabs.findIndex((tab) => tab.isActive);
   const [focusProps, focusState] = useFocusState();
   const tabContainerRef = useRef<HTMLDivElement>(null);
@@ -274,7 +288,12 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
   );
 
   return (
-    <div className={tabsContainerStyles}>
+    <div
+      className={cx(
+        tabsContainerStyles,
+        darkMode ? tabsContainerDarkStyles : tabsContainerLightStyles
+      )}
+    >
       <div className={tabsListContainerStyles}>
         <div
           className={tabsListStyles}
@@ -313,6 +332,8 @@ const WorkspaceTabs: React.FunctionComponent<WorkspaceTabsProps> = ({
       </div>
     </div>
   );
-};
+}
+
+const WorkspaceTabs = withTheme(UnthemedWorkspaceTabs);
 
 export { WorkspaceTabs };

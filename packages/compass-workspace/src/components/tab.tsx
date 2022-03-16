@@ -11,12 +11,13 @@ import {
   mergeProps,
   compassFontSizes,
   Body,
+  withTheme,
 } from '@mongodb-js/compass-components';
 
 export type TabType = 'timeseries' | 'view' | 'collection';
 
 const tabStyles = css({
-  border: `1px solid ${uiColors.gray.light2}`,
+  border: '1px solid',
   borderTop: 'none',
   borderBottom: 'none',
   transition: 'border-color .16s ease-out',
@@ -34,8 +35,6 @@ const tabStyles = css({
   color: uiColors.gray.base,
 
   '&:hover': {
-    backgroundColor: uiColors.gray.light3,
-    borderColor: uiColors.gray.light1,
     cursor: 'pointer',
     transition: 'border-color .16s ease-in',
   },
@@ -55,21 +54,31 @@ const tabStyles = css({
   },
 });
 
-const selectedTabStyles = css({
+const tabLightThemeStyles = css({
   background: uiColors.white,
-  color: uiColors.gray.dark1,
+  borderColor: uiColors.gray.light2,
+  '&:hover': {
+    borderColor: uiColors.gray.light1,
+  },
+});
 
+const tabDarkThemeStyles = css({
+  backgroundColor: uiColors.gray.dark3,
+  borderColor: uiColors.gray.dark2,
+  '&:hover': {
+    borderColor: uiColors.gray.dark1,
+  },
+});
+
+const selectedTabStyles = css({
   '&:hover': {
     cursor: 'default',
-    backgroundColor: uiColors.white,
   },
 });
 
 const focusedTabStyles = css({
-  color: uiColors.green.dark2,
   '&::after': {
     transitionTimingFunction: 'ease-out',
-
     borderColor: uiColors.focus,
   },
 });
@@ -100,14 +109,18 @@ const hiddenStyles = css({
 });
 
 const tabIconStyles = css({
-  width: '12px',
+  width: spacing[1] + spacing[2],
   height: 'auto',
   flexShrink: 0,
   paddingBottom: spacing[3] - 1,
 });
 
-const tabIconSelectedStyles = css({
+const tabIconSelectedLightThemeStyles = css({
   color: uiColors.green.dark2,
+});
+
+const tabIconSelectedDarkThemeStyles = css({
+  color: uiColors.green.light2,
 });
 
 const tabIconFocusedStyles = css({
@@ -129,17 +142,25 @@ const tabTitleStyles = css({
   fontSize: compassFontSizes.smallFontSize,
 });
 
-const tabTitleFocusedStyles = css({
-  color: uiColors.focus,
-});
-
-const tabTitleSelectedStyles = css({
-  display: 'inline-block',
-  fontWeight: 'bold',
+const tabTitleDarkThemeStyles = css({
   color: uiColors.green.dark2,
 });
 
-const tabCloseStyles = css({});
+const tabTitleLightThemeStyles = css({
+  color: uiColors.gray.base,
+});
+
+const tabTitleSelectedDarkThemeStyles = css({
+  color: uiColors.green.dark2,
+});
+
+const tabTitleSelectedLightThemeStyles = css({
+  color: uiColors.green.dark2,
+});
+
+const tabTitleFocusedStyles = css({
+  color: uiColors.focus,
+});
 
 const tabSubtitleStyles = css({
   whiteSpace: 'nowrap',
@@ -147,27 +168,27 @@ const tabSubtitleStyles = css({
   overflow: 'hidden',
   fontSize: compassFontSizes.smallFontSize,
   lineHeight: `${spacing[3]}px`,
+});
+
+const tabSubtitleLightThemeStyles = css({
   color: uiColors.gray.base,
 });
 
-// const tabSubtitleLightStyles = css({
-//   color: uiColors.gray.base,
-// });
-
-// const tabSubtitleDarkStyles = css({
-//   color: uiColors.gray.light1,
-// });
-
-const tabSubtitleSelectedStyles = css({
-  color: `${uiColors.gray.dark1}`,
+const tabSubtitleDarkThemeStyles = css({
+  color: uiColors.gray.light1,
 });
 
-const tabSubtitleFocusedStyles = css({
-  // color: uiColors.gray.dark1,
+const tabSubtitleSelectedLightThemeStyles = css({
+  color: uiColors.gray.dark1,
+});
+
+const tabSubtitleSelectedDarkThemeStyles = css({
+  color: uiColors.gray.light2,
 });
 
 type TabProps = {
   activeSubTabName: string;
+  darkMode?: boolean;
   isFocused: boolean;
   isSelected: boolean;
   onSelect: () => void;
@@ -178,7 +199,8 @@ type TabProps = {
   isTabListFocused: boolean;
 };
 
-const Tab: React.FunctionComponent<TabProps> = ({
+function UnthemedTab({
+  darkMode,
   activeSubTabName,
   isFocused,
   isSelected,
@@ -188,7 +210,7 @@ const Tab: React.FunctionComponent<TabProps> = ({
   tabId,
   type,
   namespace,
-}) => {
+}: TabProps) {
   const defaultActionProps = useDefaultAction(onSelect);
 
   const [hoverProps, isHovered] = useHoverState();
@@ -205,10 +227,14 @@ const Tab: React.FunctionComponent<TabProps> = ({
 
   return (
     <div
-      className={cx(tabStyles, {
-        [selectedTabStyles]: isSelected,
-        [focusedTabStyles]: isFocused,
-      })}
+      className={cx(
+        tabStyles,
+        darkMode ? tabDarkThemeStyles : tabLightThemeStyles,
+        {
+          [selectedTabStyles]: isSelected,
+          [focusedTabStyles]: isFocused,
+        }
+      )}
       aria-selected={isSelected}
       role="tab"
       // The tab navigation is handled by the lab list.
@@ -219,7 +245,9 @@ const Tab: React.FunctionComponent<TabProps> = ({
     >
       <Icon
         className={cx(tabIconStyles, {
-          [tabIconSelectedStyles]: isSelected,
+          [darkMode
+            ? tabIconSelectedDarkThemeStyles
+            : tabIconSelectedLightThemeStyles]: isSelected,
           [tabIconFocusedStyles]: isFocused,
         })}
         role="presentation"
@@ -228,30 +256,41 @@ const Tab: React.FunctionComponent<TabProps> = ({
       />
       <div className={tabTitleContainerStyles}>
         <div
-          className={cx(tabTitleStyles, {
-            [tabTitleSelectedStyles]: isSelected,
-            [tabTitleFocusedStyles]: isFocused,
-          })}
+          className={cx(
+            tabTitleStyles,
+            darkMode ? tabTitleDarkThemeStyles : tabTitleLightThemeStyles,
+            {
+              [darkMode
+                ? tabTitleSelectedDarkThemeStyles
+                : tabTitleSelectedLightThemeStyles]: isSelected,
+              [tabTitleFocusedStyles]: isFocused,
+            }
+          )}
         >
           {activeSubTabName}
         </div>
         <Body
-          className={cx(tabSubtitleStyles, {
-            [tabSubtitleSelectedStyles]: isSelected,
-            [tabSubtitleFocusedStyles]: isFocused,
-          })}
+          className={cx(
+            tabSubtitleStyles,
+            darkMode ? tabSubtitleDarkThemeStyles : tabSubtitleLightThemeStyles,
+            {
+              [darkMode
+                ? tabSubtitleSelectedDarkThemeStyles
+                : tabSubtitleSelectedLightThemeStyles]: isSelected,
+            }
+          )}
         >
           {namespace}
         </Body>
       </div>
 
       <IconButton
-        className={cx(
-          tabCloseStyles,
+        className={
+          // Show theme close button when the tab is hovered or focused.
           (isSelected && isTabListFocused) || isFocused || isHovered
             ? undefined
             : hiddenStyles
-        )}
+        }
         onClick={(e) => {
           e.stopPropagation();
           onClose();
@@ -269,6 +308,8 @@ const Tab: React.FunctionComponent<TabProps> = ({
       />
     </div>
   );
-};
+}
+
+const Tab = withTheme(UnthemedTab);
 
 export { Tab };
