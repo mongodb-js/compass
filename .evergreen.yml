@@ -65,7 +65,7 @@ variables:
     NOTARY_SIGNING_COMMENT: Evergreen project mongodb/compass ${revision} - ${build_variant} - ${branch_name}
     MACOS_NOTARY_KEY: ${macos_notary_key}
     MACOS_NOTARY_SECRET: ${macos_notary_secret}
-    MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/v3.1.0/darwin_amd64.zip'
+    MACOS_NOTARY_CLIENT_URL: 'https://macos-notary-1628249594.s3.amazonaws.com/releases/client/v3.1.1/darwin_amd64.zip'
     MACOS_NOTARY_API_URL: 'https://dev.macos-notary.build.10gen.cc/api'
     GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
