@@ -44,6 +44,7 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         variant="primary"
         size="small"
         onClick={() => {
+          // todo: fix dispatch
           onChangeWorkspace('results');
           onRunAggregation();
         }}

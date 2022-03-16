@@ -55,6 +55,7 @@ const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
             onClick={() => onShowSavedPipelines()}
             className={openSavedPipelinesStyles}
             aria-label="Open saved pipelines"
+            tabIndex={0}
           >
             <Icon glyph="Folder" />
             <Icon glyph="CaretDown" />
@@ -69,6 +70,7 @@ const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
 
 const mapDispatch = (dispatch: Dispatch) => ({
   onShowSavedPipelines: () => {
+    // todo: fix dispatch
     dispatch(getSavedPipelines());
     dispatch(savedPipelinesListToggle(1));
   },
