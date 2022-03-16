@@ -59,7 +59,13 @@ class CollationToolbar extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['collation-toolbar'])}>
+      <div
+        className={classnames(styles['collation-toolbar'], {
+          [styles['collation-toolbar-in-new-toolbar']]:
+            global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR ===
+            'true',
+        })}
+      >
         <div
           onBlur={this._onBlur}
           onFocus={this._onFocus}

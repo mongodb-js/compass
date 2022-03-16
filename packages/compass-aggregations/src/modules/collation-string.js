@@ -28,7 +28,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @param {String} collationString - The collation string value.
  *
- * @returns {Object} The collation string changed action.
+ * @returns {import('redux').AnyAction} The collation string changed action.
  */
 export const collationStringChanged = (collationString) => {
   return { type: COLLATION_STRING_CHANGED, collationString };
