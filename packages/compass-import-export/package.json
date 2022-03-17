@@ -19,14 +19,16 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
+  "apiVersion": "3.0.0",
   "files": [
+    "src",
     "dist"
   ],
   "license": "SSPL",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "exports": {
-    "webpack": "./src/index.ts",
-    "require": "./dist/index.js"
+    "webpack": "./src/index.js",
+    "require": "./lib/index.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -41,7 +43,7 @@
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
-    "check": "npm run typecheck && npm run lint && npm run depcheck",
+    "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "pretest": "mongodb-runner start --port=27018",
     "test": "mocha",
