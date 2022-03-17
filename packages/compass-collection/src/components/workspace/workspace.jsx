@@ -185,30 +185,37 @@ class Workspace extends PureComponent {
         [styles['workspace-view-tab']]: true,
         hidden: !tab.isActive
       });
-      return (<div className={viewTabClass} key={tab.id + '-wrap'}>
-        <Collection
-          key={tab.id}
+      return (
+        <div
+          className={viewTabClass}
           id={tab.id}
-          namespace={tab.namespace}
-          isReadonly={tab.isReadonly}
-          isTimeSeries={tab.isTimeSeries}
-          sourceName={tab.sourceName}
-          editViewName={tab.editViewName}
-          sourceReadonly={tab.sourceReadonly}
-          sourceViewOn={tab.sourceViewOn}
-          tabs={tab.tabs}
-          views={tab.views}
-          scopedModals={tab.scopedModals}
-          queryHistoryIndexes={tab.queryHistoryIndexes}
-          statsPlugin={tab.statsPlugin}
-          statsStore={tab.statsStore}
-          activeSubTab={tab.activeSubTab}
-          pipeline={tab.pipeline}
-          changeActiveSubTab={this.props.changeActiveSubTab}
-          selectOrCreateTab={this.props.selectOrCreateTab}
-          globalAppRegistry={this.props.appRegistry}
-          localAppRegistry={tab.localAppRegistry} />
-      </div>);
+          key={tab.id + '-wrap'}
+        >
+          <Collection
+            key={tab.id}
+            id={tab.id}
+            namespace={tab.namespace}
+            isReadonly={tab.isReadonly}
+            isTimeSeries={tab.isTimeSeries}
+            sourceName={tab.sourceName}
+            editViewName={tab.editViewName}
+            sourceReadonly={tab.sourceReadonly}
+            sourceViewOn={tab.sourceViewOn}
+            tabs={tab.tabs}
+            views={tab.views}
+            scopedModals={tab.scopedModals}
+            queryHistoryIndexes={tab.queryHistoryIndexes}
+            statsPlugin={tab.statsPlugin}
+            statsStore={tab.statsStore}
+            activeSubTab={tab.activeSubTab}
+            pipeline={tab.pipeline}
+            changeActiveSubTab={this.props.changeActiveSubTab}
+            selectOrCreateTab={this.props.selectOrCreateTab}
+            globalAppRegistry={this.props.appRegistry}
+            localAppRegistry={tab.localAppRegistry}
+          />
+        </div>
+      );
     });
   }
 
