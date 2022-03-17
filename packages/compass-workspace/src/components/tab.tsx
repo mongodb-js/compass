@@ -257,6 +257,7 @@ function UnthemedTab({
           [selectedTabStyles]: isSelected,
         }
       )}
+      data-test-id="workspace-tab"
       aria-selected={isSelected}
       role="tab"
       // Catch navigation on the active tab when a user tabs through Compass.
@@ -305,6 +306,7 @@ function UnthemedTab({
           onClose();
         }}
         aria-label="Close Tab"
+        data-test-id="close-workspace-tab"
       >
         <Icon glyph="X" role="presentation" />
       </IconButton>
