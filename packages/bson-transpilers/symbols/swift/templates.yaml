@@ -46,8 +46,6 @@ Templates:
 
     DriverTemplate: &DriverTemplate !!js/function >
       (spec) => {
-        console.log("SPEC: " + JSON.stringify(spec));
-
         const comment = '// Requires the MongoSwift package\n// https://github.com/mongodb/mongo-swift-driver';
 
         const options = spec.options;
@@ -291,14 +289,47 @@ Templates:
                 return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             }
 
-            const converToBSON = (element) => {
-                if (element.startsWith("Int64")) {
+            const bsonify = (element) => {
+                const prefixMap = {
+                    "Int64": ".int64",
+                    "Int32": ".int32",
+                    "Double": ".double",
+                    "BSONCodeWithScope": ".codeWithScope",
+                    "BSONObjectID": ".objectID",
+                    "BSONRegularExpression": ".regularExpression",
+                    "BSONBinary": ".binary",
+                    "BSONTimestamp": ".timestamp",
+                    "BSONDecimal128": ".decimal128",
+                    "Date": ".datetime"
+                };
 
-                
+                const unitsMap = {
+                    "BSONMinKey": ".minKey",
+                    "BSONMaxKey": ".maxKey"
+                };
+
+                for (const prefix in prefixMap) {
+                    if (element.startsWith(prefix) || element.startsWith("try " + prefix)) {
+                        return `${prefixMap[prefix]}(${element})`
+                    }
+                }
+
+                for (const prefix in unitsMap) {
+                    if (element.startsWith(prefix)) {
+                        return unitsMap[prefix];
+                    }
+                }
+
+                // special handle BSONCode since it is a subset of BSONCodeWithScope
+                if (element.startsWith("BSONCode")) {
+                    return `.code(${element})`;
+                }
+
+                return element;
             }
 
             const pairs = args.map((pair) => {
-                return `${indent}${doubleStringify(pair[0])}: ${pair[1]}`;
+                return `${indent}${doubleStringify(pair[0])}: ${bsonify(pair[1])}`;
             }).join(',');
 
             return `${pairs}${closingIndent}`;
@@ -344,7 +375,7 @@ Templates:
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (lhs, arg) => {
             if (arg === undefined || arg === '') {
-                return 'BSON.objectID()';
+                return 'BSONObjectID()';
             }
             // Double quote stringify
             let newArg = arg;
@@ -354,7 +385,7 @@ Templates:
                 newArg = arg.substr(1, arg.length - 2);
             }
             newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return `try BSON.objectID(BSONObjectId(${newArg}))`;
+            return `try BSONObjectID(${newArg})`;
         }
     BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
         () => 'BSONBinary'
@@ -410,19 +441,17 @@ Templates:
             return `(${arg})${suffix}`;
         }
     LongSymbolTemplate: &LongSymbolTemplate !!js/function >
-        () => 'BSON.int64'
+        () => ''
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             if (!arg) {
                 return '()';
             }
-            let suffix = '';
-            let prefix = '';
             if (type === '_string') {
-                prefix = 'Int64(';
-                suffix = ')!';
+                suffix = '!';
+                return `Int64(${arg})!`;
             }
-            return `(${prefix}${arg}${suffix})`;
+            return arg;
         }
     RegExpSymbolTemplate: &RegExpSymbolTemplate null
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
@@ -531,20 +560,25 @@ Templates:
     #                                           #
     #############################################
     CodeCodeTemplate: &CodeCodeTemplate !!js/function >
+        () => ''
+    CodeCodeArgsTemplate: &CodeCodeArgsTemplate !!js/function >
         (lhs) => `${lhs}.code`
-    CodeCodeArgsTemplate: &CodeCodeArgsTemplate null
     CodeScopeTemplate: &CodeScopeTemplate !!js/function >
+        () => ''
+    CodeScopeArgsTemplate: &CodeScopeArgsTemplate !!js/function >
         (lhs) => `${lhs}.scope`
-    CodeScopeArgsTemplate: &CodeScopeArgsTemplate null
     ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
+        () => ''
+    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
         (lhs) => `${lhs}.hex`
-    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate null
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
         (lhs) => `${lhs} == `
-    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate null
+    ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
+        (_, arg) => arg
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
         (lhs) => `${lhs}.timestamp`
-    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate null
+    ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate !!js/function >
+        (lhs) => ''
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
@@ -570,12 +604,14 @@ Templates:
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate null
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
-    Int32ToStringTemplate: &Int32ToStringTemplate null
+    Int32ToStringTemplate: &Int32ToStringTemplate !!js/function >
+        (lhs) => `"\\(${lhs})"`
     Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
     LongEqualsTemplate: &LongEqualsTemplate !!js/function >
         (lhs) => `${lhs} == `
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
-    LongToStringTemplate: &LongToStringTemplate null
+    LongToStringTemplate: &LongToStringTemplate !!js/function >
+        (lhs) => `"\\(${lhs})"`
     LongToStringArgsTemplate: &LongToStringArgsTemplate null
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         (lhs) => `${lhs} as Int32`
@@ -662,13 +698,13 @@ Templates:
     LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate !!js/function >
         (_, rhs) => rhs
     LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
-        (arg) => `${arg} as f32`
+        (arg) => `Double(${arg})`
     LongTopTemplate: &LongTopTemplate !!js/function >
         (arg) => `${arg} >> 32`
     LongBottomTemplate: &LongBottomTemplate !!js/function >
         (arg) => `${arg} & 0x0000ffff`
     TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
-        (arg) => `${arg}.to_string()`
+        (arg) => `"\\(${arg})"`
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate !!js/function >
         () => ''
     TimestampEqualsTemplate: &TimestampEqualsTemplate !!js/function >
@@ -676,7 +712,7 @@ Templates:
     TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate !!js/function >
         (_, rhs) => rhs
     TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
-        (arg) => `${arg}.time`
+        (arg) => `${arg}.timestamp`
     TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate !!js/function >
         () => ''
     TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
@@ -684,7 +720,7 @@ Templates:
     TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate !!js/function >
         () => ''
     TimestampTTemplate: &TimestampTTemplate !!js/function >
-        (arg) => `${arg}.time`
+        (arg) => `${arg}.timestamp`
     TimestampITemplate: &TimestampITemplate !!js/function >
         (arg) => `${arg}.increment`
     TimestampAsDateTemplate: &TimestampAsDateTemplate !!js/function >

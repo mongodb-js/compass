@@ -223,7 +223,7 @@ tests:
                     let coll = client.db("db").collection("collection")
 
                     let filter = [
-                        "x": BSON.int64(0)
+                        "x": .int64(Int64(0))
                     ]
                     let cursor = try await coll.find(filter)
             imports:
@@ -438,7 +438,7 @@ tests:
                         "locale": "zh"
                     ]
                     let projection = [
-                        "y": BSON.objectID()
+                        "y": .objectID(BSONObjectID())
                     ]
                     let sort = [
                         "name": 1
@@ -452,7 +452,7 @@ tests:
                         sort: sort
                     )
                     let filter = [
-                        "x": BSON.int64(0)
+                        "x": .int64(Int64(0))
                     ]
                     let cursor = try await coll.find(filter, options: options)
             imports:

@@ -35,7 +35,11 @@ tests:
                 BSON::CodeWithScope.new('test code', {
                   'x' => 1
                 }).scope
-            swift: "BSONCodeWithScope(code: \"test code\", scope: [\"x\": 1]).scope"
+            swift: |-
+                BSONCodeWithScope(code: "test code", scope: [
+                    "x": 1
+                ]).scope
+              
     -   input:
             javascript: Code('test code').code
             shell: Code('test code').code
@@ -62,7 +66,7 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             object: "'5ab901c29ee65f5c8550c5b9'"
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
-            swift: try BSONObjectId("5ab901c29ee65f5c8550c5b9").hex
+            swift: try BSONObjectID("5ab901c29ee65f5c8550c5b9").hex
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
@@ -74,7 +78,7 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             object: new Date('2018-03-26T14:20:50.000Z')
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time
-            swift: try BSONObjectId("5ab901c29ee65f5c8550c5b9").timestamp
+            swift: try BSONObjectID("5ab901c29ee65f5c8550c5b9").timestamp
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
@@ -85,19 +89,19 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             object: true
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9') == BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
-            swift: try BSONObjectId("5ab901c29ee65f5c8550c5b9") == try BSONObjectId("5ab901c29ee65f5c8550c5b9")
+            swift: try BSONObjectID("5ab901c29ee65f5c8550c5b9") == try BSONObjectID("5ab901c29ee65f5c8550c5b9")
     -   input:
             python: ObjectId('5ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
         output:
             object: true
-            swift: try BSONObjectId("5ab901c29ee65f5c8550c5b9") == try BSONObjectId("5ab901c29ee65f5c8550c5b9")
+            swift: try BSONObjectID("5ab901c29ee65f5c8550c5b9") == try BSONObjectID("5ab901c29ee65f5c8550c5b9")
     -   input:
             javascript: new ObjectId().equals(new ObjectId())
             shell: ObjectId().equals(ObjectId())
             python: ObjectId() == ObjectId()
         output:
             object: false
-            swift: BSONObjectId() == BSONObjectId()
+            swift: BSONObjectID() == BSONObjectID()
     DBRef-methods:
     -   input:
             shell: new DBRef('coll', new ObjectId(), 'db').$db
@@ -507,7 +511,7 @@ tests:
             shell: new Timestamp(1, 100).toString()
             object: "'429496729601'"
             ruby: BSON::Timestamp.new(1, 100).to_s
-            swift: "BSONTimestamp(timestamp: 1, inc: 100)"
+            swift: '"\(BSONTimestamp(timestamp: 1, inc: 100))"'
     -   input:
             javascript: Timestamp(1, 100).equals(Timestamp(2, 99))
         output:
