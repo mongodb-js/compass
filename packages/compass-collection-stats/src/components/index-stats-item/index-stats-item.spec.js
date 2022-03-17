@@ -1,4 +1,5 @@
 import React from 'react';
+import { expect } from 'chai';
 import { mount } from 'enzyme';
 
 import IndexStatsItem from '../index-stats-item';
