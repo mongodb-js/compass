@@ -44,7 +44,7 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   return (
     <div className={containerStyles}>
       <Button
-        data-testid="toolbar-run-action-button"
+        data-testid="pipeline-toolbar-run-button"
         className={defaultMargins}
         variant="primary"
         size="small"
@@ -59,14 +59,14 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
       <Link
         as="button"
         className={optionsButtonStyles}
-        data-testid="toolbar-more-options-action-link"
+        data-testid="pipeline-toolbar-options-button"
         hideExternalIcon={true}
         onClick={() => onToggleOptions()}
       >
-        <span className={cx(defaultMargins, optionStyles)}>
+        <div className={cx(defaultMargins, optionStyles)}>
           {isOptionsVisible ? 'Less' : 'More'} Options{' '}
           <Icon glyph={optionsIcon} />
-        </span>
+        </div>
       </Link>
     </div>
   );

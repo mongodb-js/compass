@@ -27,12 +27,14 @@ type PipelineActionMenuProp<ActionType> = {
   title: string;
   glyph: string;
   menuItems: { title: string; action: ActionType }[];
+  dataTestId: string;
 };
 function PipelineActionMenu<T>({
   onAction,
   title,
   glyph,
   menuItems,
+  dataTestId,
 }: PipelineActionMenuProp<T>) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -47,6 +49,7 @@ function PipelineActionMenu<T>({
 
   return (
     <Menu
+      data-testid={dataTestId}
       open={isMenuOpen}
       setOpen={setIsMenuOpen}
       justify="start"
@@ -70,7 +73,7 @@ function PipelineActionMenu<T>({
           }}
         >
           {title}
-          {isMenuOpen && children}
+          {children}
         </Button>
       )}
     >
@@ -111,14 +114,22 @@ const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
   };
   return (
     <PipelineActionMenu<SaveMenuActions>
+      dataTestId="save-menu"
       title="Save"
       glyph="Save"
       onAction={onAction}
-      menuItems={[
-        { action: 'save', title: 'Save' },
-        { action: 'saveAs', title: 'Save as' },
-        isCreateViewAvailable && { action: 'createView', title: 'Create view' },
-      ].filter(Boolean)}
+      menuItems={
+        [
+          { action: 'save', title: 'Save' },
+          { action: 'saveAs', title: 'Save as' },
+          isCreateViewAvailable && {
+            action: 'createView',
+            title: 'Create view',
+          },
+        ].filter(
+          Boolean
+        ) as PipelineActionMenuProp<SaveMenuActions>['menuItems']
+      }
     />
   );
 };
@@ -150,6 +161,7 @@ const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
   };
   return (
     <PipelineActionMenu<CreateMenuActions>
+      dataTestId="create-new-menu"
       title="Create new"
       glyph="Plus"
       onAction={onAction}

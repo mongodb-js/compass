@@ -37,7 +37,7 @@ const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isOptionsVisible,
 }) => {
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="pipeline-toolbar">
       <div className={headerAndOptionsRowStyles}>
         <PipelineHeader />
         {isOptionsVisible && <PipelineOptions />}

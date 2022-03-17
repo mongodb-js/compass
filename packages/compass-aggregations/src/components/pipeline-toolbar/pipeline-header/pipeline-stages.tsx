@@ -37,7 +37,7 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   onStageAdded,
   onChangeWorkspace,
 }) => {
-  if (stages.length === 0) {
+  if (stages.filter(Boolean).length === 0) {
     return (
       <Description className={containerStyles}>
         Your pipeline is currently empty. To get started select the
@@ -55,13 +55,13 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   return (
     <div className={cx(containerStyles, stagesStyles)}>
       <Pipeline size="small">
-        {stages.map((stage) => (
-          <Stage key={stage}>{stage}</Stage>
+        {stages.filter(Boolean).map((stage, index) => (
+          <Stage key={`${index}-${stage}`}>{stage}</Stage>
         ))}
       </Pipeline>
       {isEditing && (
         <Button
-          data-testid="toolbar-edit-action-button"
+          data-testid="pipeline-toolbar-edit-button"
           variant="primaryOutline"
           size="small"
           onClick={() => onChangeWorkspace('builder')}

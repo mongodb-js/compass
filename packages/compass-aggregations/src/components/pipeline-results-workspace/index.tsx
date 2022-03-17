@@ -20,8 +20,7 @@ const mapState = ({ aggregation: { loading, documents } }: RootState) => ({
   loading,
   documents,
 });
-const mapDispatch = {};
 
-const connector = connect(mapState, mapDispatch);
+const connector = connect(mapState);
 type PipelineResultsWorkspace = ConnectedProps<typeof connector>;
 export default connector(PipelineResultsWorkspace);

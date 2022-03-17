@@ -32,11 +32,16 @@ const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
         'Untitled'
       ) : (
         <Tooltip
-          align="top"
-          justify="start"
-          trigger={() => <div className={nameStyles}>{name}</div>}
+          trigger={({ children, ...props }) => {
+            return (
+              <span {...props} className={nameStyles}>
+                {children}
+                {name}
+              </span>
+            );
+          }}
         >
-          {name}
+          <Body>{name}</Body>
         </Tooltip>
       )}
       &nbsp;

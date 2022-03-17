@@ -29,7 +29,7 @@ const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
   onExportToLanguage,
 }) => {
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="pipeline-settings">
       <div className={actionStyles}>
         <PipelineName />
         <SaveMenu />
@@ -40,6 +40,7 @@ const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
           size="xsmall"
           leftGlyph={<Icon glyph={'Export'} />}
           onClick={() => onExportToLanguage()}
+          data-testid="pipeline-toolbar-export-button"
         >
           Export to language
         </Button>

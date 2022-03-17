@@ -9,7 +9,7 @@ const containerStyles = css({
 
 const PipelineOptions: React.FunctionComponent = () => {
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="pipeline-options">
       <PipelineCollation />
     </div>
   );

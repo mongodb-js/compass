@@ -37,30 +37,28 @@ const openSavedPipelinesStyles = css({
   display: 'flex',
   marginRight: spacing[1],
   marginLeft: spacing[1],
-  cursor: 'pointer',
+  border: 'none',
+  backgroundColor: 'transparent',
 });
 
 const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   onShowSavedPipelines,
 }) => {
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="pipeline-header">
       <div className={pipelineTextAndStagesStyles}>
         <div className={pipelineStyles}>
           <Body weight="medium" className={pipelineTextStyles}>
             Pipeline
           </Body>
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
-          <div
-            role="button"
+          <button
             onClick={() => onShowSavedPipelines()}
             className={openSavedPipelinesStyles}
             aria-label="Open saved pipelines"
-            tabIndex={0}
           >
             <Icon glyph="Folder" />
             <Icon glyph="CaretDown" />
-          </div>
+          </button>
         </div>
         <PipelineStages />
       </div>

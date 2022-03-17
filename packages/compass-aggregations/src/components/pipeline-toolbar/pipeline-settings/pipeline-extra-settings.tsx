@@ -44,6 +44,7 @@ const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps>
             size="small"
             aria-label="Toggle Auto Preview"
             onChange={() => onToggleAutoPreview()}
+            data-testid="pipeline-toolbar-preview-toggle"
           />
           <Label className={toggleLabelStyles} htmlFor="auto-preview">
             Auto Preview
@@ -54,6 +55,7 @@ const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps>
           aria-label="More Settings"
           onClick={() => onToggleSettings()}
           className={buttonStyles}
+          data-testid="pipeline-toolbar-settings-button"
         >
           <Icon glyph="Settings" />
         </IconButton>
