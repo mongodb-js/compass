@@ -304,7 +304,6 @@ export function useConnections({
 
   const onConnectSuccess = useCallback(
     async (connectionInfo: ConnectionInfo, dataService: DataService) => {
-      // After connecting and the UI is updated we notify the rest of Compass.
       try {
         onConnected(connectionInfo, dataService);
 

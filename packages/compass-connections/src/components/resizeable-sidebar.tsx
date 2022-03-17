@@ -6,7 +6,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 
-const listContainerStyles = css({
+const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   margin: 0,
@@ -35,10 +35,11 @@ const ResizableSidebar = ({
 
   return (
     <div
-      className={listContainerStyles}
+      className={containerStyles}
       style={{
         minWidth: minWidth,
         width: width,
+        flex: 'none',
       }}
     >
       {children}

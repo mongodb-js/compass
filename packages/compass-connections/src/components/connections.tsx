@@ -48,7 +48,7 @@ const formContainerStyles = css({
 });
 
 const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
-const minSidebarWidth = spacing[4] * 7; // 168px
+const minSidebarWidth = spacing[4] * 9; // 216px
 
 function Connections({
   onConnected,
