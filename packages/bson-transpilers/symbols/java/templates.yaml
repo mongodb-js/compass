@@ -355,9 +355,10 @@ Templates:
         }
     LongToStringTemplate: &LongToStringTemplate !!js/function >
         (lhs) => {
-            return lhs;
+            return "foo";
         }
-    LongToStringArgsTemplate: &LongToStringArgsTemplate null
+    LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
+        () => "bar"
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         (lhs) => {
             return `(int) ${lhs}`;

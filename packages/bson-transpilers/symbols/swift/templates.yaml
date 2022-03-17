@@ -560,17 +560,17 @@ Templates:
     #                                           #
     #############################################
     CodeCodeTemplate: &CodeCodeTemplate !!js/function >
-        () => ''
-    CodeCodeArgsTemplate: &CodeCodeArgsTemplate !!js/function >
         (lhs) => `${lhs}.code`
+    CodeCodeArgsTemplate: &CodeCodeArgsTemplate !!js/function >
+        () => ''
     CodeScopeTemplate: &CodeScopeTemplate !!js/function >
-        () => ''
-    CodeScopeArgsTemplate: &CodeScopeArgsTemplate !!js/function >
         (lhs) => `${lhs}.scope`
-    ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
+    CodeScopeArgsTemplate: &CodeScopeArgsTemplate !!js/function >
         () => ''
-    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
+    ObjectIdToStringTemplate: &ObjectIdToStringTemplate !!js/function >
         (lhs) => `${lhs}.hex`
+    ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
+        () => ''
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
         (lhs) => `${lhs} == `
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
@@ -606,18 +606,23 @@ Templates:
     Int32ValueOfArgsTemplate: &Int32ValueOfArgsTemplate null
     Int32ToStringTemplate: &Int32ToStringTemplate !!js/function >
         (lhs) => `"\\(${lhs})"`
-    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate null
+    Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate !!js/function >
+        () => "int32 args template"
     LongEqualsTemplate: &LongEqualsTemplate !!js/function >
         (lhs) => `${lhs} == `
-    LongEqualsArgsTemplate: &LongEqualsArgsTemplate null
+    LongEqualsArgsTemplate: &LongEqualsArgsTemplate !!js/function >
+        () => ''
     LongToStringTemplate: &LongToStringTemplate !!js/function >
-        (lhs) => `"\\(${lhs})"`
-    LongToStringArgsTemplate: &LongToStringArgsTemplate null
+        (arg) => "long to string template"
+    LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
+        () => "long to string template args"
     LongToIntTemplate: &LongToIntTemplate !!js/function >
         (lhs) => `${lhs} as Int32`
     LongToIntArgsTemplate: &LongToIntArgsTemplate null
-    LongValueOfTemplate: &LongValueOfTemplate null
-    LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
+    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
+        () => "value of"
+    LongValueOfArgsTemplate: &LongValueOfArgsTemplate !!js/function >
+        () => "value of template"
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
         (lhs) => `${lhs} as Double`
     LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
@@ -745,11 +750,13 @@ Templates:
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
     SymbolInspectTemplate: &SymbolInspectTemplate null
     SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
-    SymbolToStringTemplate: &SymbolToStringTemplate null
+    SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
+        () => "symbol to string?"
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
         (lhs) => `"\(${lhs})"`
-    Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate null
+    Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate !!js/function >
+        () => "decimal128 asdf"
     # non bson-specific
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
         () => 'Date()'
@@ -799,8 +806,10 @@ Templates:
     LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
     LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
-    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate null
-    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate null
+    LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
+        (lhs) => "long symbol from string template"
+    LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
+        () => "pls"
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate null
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
