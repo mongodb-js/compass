@@ -18,8 +18,12 @@ import { stageAdded } from '../../../modules/pipeline';
 import { changeWorkspace } from '../../../modules/workspace';
 
 const containerStyles = css({
-  marginLeft: spacing[1],
-  marginRight: spacing[1],
+  display: 'grid',
+  gap: spacing[2],
+});
+
+const pipelineContainerStyles = css({
+  gridTemplateAreas: '"pipeline edit"',
 });
 
 const addStageStyles = css({
@@ -27,8 +31,12 @@ const addStageStyles = css({
   backgroundColor: 'transparent',
 });
 
-const stagesStyles = css({
-  display: 'flex',
+const pipelineStyles = css({
+  gridArea: 'pipeline',
+});
+
+const editButtonStyles = css({
+  gridArea: 'edit',
 });
 
 const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
@@ -39,28 +47,31 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
 }) => {
   if (stages.filter(Boolean).length === 0) {
     return (
-      <Description className={containerStyles}>
-        Your pipeline is currently empty. To get started select the
-        <Link
-          className={addStageStyles}
-          as="button"
-          onClick={() => onStageAdded()}
-          hideExternalIcon
-        >
-          first stage.
-        </Link>
-      </Description>
+      <div className={containerStyles}>
+        <Description>
+          Your pipeline is currently empty. To get started select the
+          <Link
+            className={addStageStyles}
+            as="button"
+            onClick={() => onStageAdded()}
+            hideExternalIcon
+          >
+            first stage.
+          </Link>
+        </Description>
+      </div>
     );
   }
   return (
-    <div className={cx(containerStyles, stagesStyles)}>
-      <Pipeline size="small">
+    <div className={cx(containerStyles, pipelineContainerStyles)}>
+      <Pipeline size="small" className={pipelineStyles}>
         {stages.filter(Boolean).map((stage, index) => (
           <Stage key={`${index}-${stage}`}>{stage}</Stage>
         ))}
       </Pipeline>
       {isEditing && (
         <Button
+          className={editButtonStyles}
           data-testid="pipeline-toolbar-edit-button"
           variant="primaryOutline"
           size="small"

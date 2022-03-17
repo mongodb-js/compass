@@ -9,20 +9,32 @@ import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 
 const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginTop: spacing[2],
+  display: 'grid',
+  gap: spacing[2],
+  gridTemplateAreas: '"settings extraSettings"',
 });
-
-const actionStyles = css({
-  display: 'flex',
+const settingsStyles = css({
+  gridArea: 'settings',
+  display: 'grid',
+  gap: spacing[2],
+  gridTemplateAreas: '"name saveMenu createMenu exportButton"',
+  justifyContent: 'start',
 });
-
-const buttonStyles = css({
-  marginLeft: spacing[1],
-  marginRight: spacing[1],
+const nameStyles = css({
+  gridArea: 'name',
+});
+const saveMenuStyles = css({
+  gridArea: 'saveMenu',
+});
+const createMenuStyles = css({
+  gridArea: 'createMenu',
+});
+const exportButtonStyles = css({
+  gridArea: 'exportButton',
+});
+const extraSettingsStyles = css({
+  gridArea: 'extraSettings',
+  justifySelf: 'end',
 });
 
 const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
@@ -30,22 +42,31 @@ const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
 }) => {
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
-      <div className={actionStyles}>
-        <PipelineName />
-        <SaveMenu />
-        <CreateMenu />
-        <Button
-          className={buttonStyles}
-          variant="primaryOutline"
-          size="xsmall"
-          leftGlyph={<Icon glyph={'Export'} />}
-          onClick={() => onExportToLanguage()}
-          data-testid="pipeline-toolbar-export-button"
-        >
-          Export to language
-        </Button>
+      <div className={settingsStyles}>
+        <div className={nameStyles}>
+          <PipelineName />
+        </div>
+        <div className={saveMenuStyles}>
+          <SaveMenu />
+        </div>
+        <div className={createMenuStyles}>
+          <CreateMenu />
+        </div>
+        <div className={exportButtonStyles}>
+          <Button
+            variant="primaryOutline"
+            size="xsmall"
+            leftGlyph={<Icon glyph={'Export'} />}
+            onClick={() => onExportToLanguage()}
+            data-testid="pipeline-toolbar-export-button"
+          >
+            Export to language
+          </Button>
+        </div>
       </div>
-      <PipelineExtraSettings />
+      <div className={extraSettingsStyles}>
+        <PipelineExtraSettings />
+      </div>
     </div>
   );
 };

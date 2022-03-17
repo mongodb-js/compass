@@ -4,7 +4,6 @@ import type { ConnectedProps } from 'react-redux';
 import {
   Button,
   css,
-  cx,
   spacing,
   Link,
   Icon,
@@ -16,17 +15,20 @@ import { changeWorkspace } from '../../../modules/workspace';
 import { toggleOptions } from '../../../modules/options';
 
 const containerStyles = css({
-  display: 'flex',
+  display: 'grid',
+  gap: spacing[2],
+  gridTemplateAreas: '"run options"',
 });
 
-const defaultMargins = css({
-  marginLeft: spacing[1],
-  marginRight: spacing[1],
+const runButtonStyles = css({
+  gridArea: 'run',
 });
 
 const optionsButtonStyles = css({
+  gridArea: 'options',
   backgroundColor: 'transparent',
   border: 'none',
+  display: 'inline',
 });
 
 const optionStyles = css({
@@ -45,7 +47,7 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     <div className={containerStyles}>
       <Button
         data-testid="pipeline-toolbar-run-button"
-        className={defaultMargins}
+        className={runButtonStyles}
         variant="primary"
         size="small"
         onClick={() => {
@@ -63,7 +65,7 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         hideExternalIcon={true}
         onClick={() => onToggleOptions()}
       >
-        <div className={cx(defaultMargins, optionStyles)}>
+        <div className={optionStyles}>
           {isOptionsVisible ? 'Less' : 'More'} Options{' '}
           <Icon glyph={optionsIcon} />
         </div>

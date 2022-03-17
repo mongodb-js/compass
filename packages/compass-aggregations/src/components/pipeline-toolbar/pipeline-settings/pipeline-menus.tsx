@@ -2,14 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import semver from 'semver';
-import {
-  Button,
-  Icon,
-  Menu,
-  MenuItem,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 import { newPipelineFromText } from '../../../modules/import-pipeline';
 import { openCreateView } from '../../../modules';
@@ -18,10 +11,6 @@ import { savingPipelineOpen } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 import { VIEWS_MIN_SERVER_VERSION } from '../../../constants';
 
-const buttonStyles = css({
-  marginLeft: spacing[1],
-  marginRight: spacing[1],
-});
 type PipelineActionMenuProp<ActionType> = {
   onAction: (action: ActionType) => void;
   title: string;
@@ -63,7 +52,6 @@ function PipelineActionMenu<T>({
         <Button
           title={title}
           aria-label={title}
-          className={buttonStyles}
           variant="primary"
           size="xsmall"
           leftGlyph={<Icon glyph={glyph} />}

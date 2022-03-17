@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, spacing, uiColors } from '@mongodb-js/compass-components';
+import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 
@@ -16,20 +16,27 @@ const containerStyles = css({
   paddingLeft: spacing[3],
 });
 
+const containerDisplayStyles = css({
+  display: 'grid',
+  gap: spacing[4],
+  gridTemplateAreas: `
+  "headerAndOptionsRow"
+  "settingsRow"
+  `,
+  marginLeft: spacing[1],
+  marginRight: spacing[1],
+});
+
 const headerAndOptionsRowStyles = css({
+  gridArea: 'headerAndOptionsRow',
   border: '1px solid',
   borderRadius: '6px',
   borderColor: uiColors.gray.light2,
   padding: spacing[2],
-  marginRight: spacing[1],
-  marginLeft: spacing[1],
-  paddingBottom: spacing[2],
 });
 
 const settingsRowStyles = css({
-  marginRight: spacing[1],
-  marginLeft: spacing[1],
-  paddingTop: spacing[2],
+  gridArea: 'settingsRow',
 });
 
 const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
@@ -37,7 +44,10 @@ const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isOptionsVisible,
 }) => {
   return (
-    <div className={containerStyles} data-testid="pipeline-toolbar">
+    <div
+      className={cx(containerStyles, containerDisplayStyles)}
+      data-testid="pipeline-toolbar"
+    >
       <div className={headerAndOptionsRowStyles}>
         <PipelineHeader />
         {isOptionsVisible && <PipelineOptions />}

@@ -12,33 +12,32 @@ import {
 } from '../../../modules/saved-pipeline';
 
 const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-});
-
-const pipelineTextAndStagesStyles = css({
-  display: 'flex',
+  display: 'grid',
+  gap: spacing[4],
+  gridTemplateAreas: '"pipelineTextAndOpen pipelineStages pipelineAction"',
+  gridTemplateColumns: 'min-content',
   alignItems: 'center',
 });
 
-const pipelineStyles = css({
+const pipelineTextAndOpenStyles = css({
   display: 'flex',
-  alignItems: 'center',
-  marginRight: spacing[5],
+  gridArea: 'pipelineTextAndOpen',
+  gap: spacing[2],
 });
-
-const pipelineTextStyles = css({
-  marginRight: spacing[1],
-  marginLeft: spacing[1],
-});
-
 const openSavedPipelinesStyles = css({
-  display: 'flex',
-  marginRight: spacing[1],
-  marginLeft: spacing[1],
   border: 'none',
   backgroundColor: 'transparent',
+  lineHeight: 1,
+  marginTop: spacing[1],
+  display: 'flex',
+});
+
+const pipelineStagesStyles = css({
+  gridArea: 'pipelineStages',
+});
+const pipelineActionStyles = css({
+  gridArea: 'pipelineAction',
+  justifySelf: 'end',
 });
 
 const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
@@ -46,23 +45,23 @@ const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
 }) => {
   return (
     <div className={containerStyles} data-testid="pipeline-header">
-      <div className={pipelineTextAndStagesStyles}>
-        <div className={pipelineStyles}>
-          <Body weight="medium" className={pipelineTextStyles}>
-            Pipeline
-          </Body>
-          <button
-            onClick={() => onShowSavedPipelines()}
-            className={openSavedPipelinesStyles}
-            aria-label="Open saved pipelines"
-          >
-            <Icon glyph="Folder" />
-            <Icon glyph="CaretDown" />
-          </button>
-        </div>
+      <div className={pipelineTextAndOpenStyles}>
+        <Body weight="medium">Pipeline</Body>
+        <button
+          onClick={() => onShowSavedPipelines()}
+          className={openSavedPipelinesStyles}
+          aria-label="Open saved pipelines"
+        >
+          <Icon glyph="Folder" />
+          <Icon glyph="CaretDown" />
+        </button>
+      </div>
+      <div className={pipelineStagesStyles}>
         <PipelineStages />
       </div>
-      <PipelineActions />
+      <div className={pipelineActionStyles}>
+        <PipelineActions />
+      </div>
     </div>
   );
 };

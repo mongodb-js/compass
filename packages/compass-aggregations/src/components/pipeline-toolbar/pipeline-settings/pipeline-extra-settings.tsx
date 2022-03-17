@@ -6,32 +6,31 @@ import {
   Toggle,
   Label,
   css,
-  spacing,
   IconButton,
+  spacing,
 } from '@mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../../modules/settings';
 import { toggleAutoPreview } from '../../../modules/auto-preview';
 
 const extraSettingsGroupStyles = css({
-  display: 'flex',
-});
-
-const buttonStyles = css({
-  marginLeft: spacing[1],
-  marginRight: spacing[1],
+  display: 'grid',
+  gap: spacing[2],
+  gridTemplateAreas: '"autoPreviewToggle moreSettings"',
 });
 
 const toggleStyles = css({
   display: 'flex',
   alignItems: 'flex-end',
-  marginLeft: spacing[1],
-  marginRight: spacing[1],
+  gap: spacing[1],
 });
 
 const toggleLabelStyles = css({
   marginBottom: 0,
   textTransform: 'uppercase',
-  marginLeft: spacing[1],
+});
+
+const moreSettingsButtonStyles = css({
+  gridArea: 'moreSettings',
 });
 
 const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps> =
@@ -52,9 +51,9 @@ const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps>
         </div>
 
         <IconButton
+          className={moreSettingsButtonStyles}
           aria-label="More Settings"
           onClick={() => onToggleSettings()}
-          className={buttonStyles}
           data-testid="pipeline-toolbar-settings-button"
         >
           <Icon glyph="Settings" />

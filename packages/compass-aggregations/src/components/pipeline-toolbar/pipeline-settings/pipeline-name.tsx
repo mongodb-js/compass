@@ -1,14 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import { css, spacing, Body, Tooltip } from '@mongodb-js/compass-components';
+import { css, Body, Tooltip } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 
 const pipelineNameStyles = css({
   display: 'flex',
   alignItems: 'center',
-  marginLeft: spacing[1],
-  marginRight: spacing[1],
 });
 
 const nameStyles = css({
@@ -32,14 +30,12 @@ const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
         'Untitled'
       ) : (
         <Tooltip
-          trigger={({ children, ...props }) => {
-            return (
-              <span {...props} className={nameStyles}>
-                {children}
-                {name}
-              </span>
-            );
-          }}
+          trigger={({ children, ...props }) => (
+            <span {...props} className={nameStyles}>
+              {children}
+              {name}
+            </span>
+          )}
         >
           <Body>{name}</Body>
         </Tooltip>

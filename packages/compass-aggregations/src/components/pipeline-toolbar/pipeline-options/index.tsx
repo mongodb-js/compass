@@ -4,7 +4,7 @@ import { css } from '@mongodb-js/compass-components';
 import PipelineCollation from './pipeline-collation';
 
 const containerStyles = css({
-  display: 'flex',
+  display: 'grid',
 });
 
 const PipelineOptions: React.FunctionComponent = () => {
