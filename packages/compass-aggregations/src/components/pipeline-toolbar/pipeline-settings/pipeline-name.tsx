@@ -25,7 +25,7 @@ const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
   isModified,
 }) => {
   return (
-    <Body className={pipelineNameStyles} data-testId="pipeline-name">
+    <Body className={pipelineNameStyles} data-testid="pipeline-name">
       {name === '' ? (
         'Untitled'
       ) : (

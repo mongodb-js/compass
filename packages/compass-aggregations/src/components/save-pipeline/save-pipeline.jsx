@@ -44,7 +44,7 @@ class SavePipeline extends Component {
     });
 
     return (
-      <div className={className} data-testId="saved-pipelines">
+      <div className={className} data-testid="saved-pipelines">
         <div className={classnames(styles['save-pipeline-header'])}>
           <div id="saved-pipeline-header-title">Saved Pipelines</div>
           <IconButton

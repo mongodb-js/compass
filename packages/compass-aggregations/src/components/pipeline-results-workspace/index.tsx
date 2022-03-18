@@ -7,7 +7,7 @@ import type { RootState } from '../../modules';
 const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace> =
   ({ documents }) => {
     return (
-      <div data-testId="pipeline-results-workspace">
+      <div data-testid="pipeline-results-workspace">
         <pre>
           <code>{JSON.stringify(documents, null, 2)}</code>
         </pre>

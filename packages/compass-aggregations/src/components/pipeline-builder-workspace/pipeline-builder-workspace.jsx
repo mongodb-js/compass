@@ -150,7 +150,7 @@ class PipelineWorkspace extends PureComponent {
     const inputDocuments = this.props.inputDocuments;
     return (
       <div
-        data-testId="pipeline-builder-workspace"
+        data-testid="pipeline-builder-workspace"
         className={styles['pipeline-workspace-container-container']}
       >
         <div className={styles['pipeline-workspace-container']}>
