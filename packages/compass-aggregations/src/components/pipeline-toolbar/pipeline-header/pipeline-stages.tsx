@@ -39,16 +39,21 @@ const editButtonStyles = css({
   gridArea: 'edit',
 });
 
+// todo: remove this post removal of global styles
+const resetParaStyles = css({
+  margin: 'inherit !important',
+});
+
 const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   isEditing,
   stages,
   onStageAdded,
   onChangeWorkspace,
 }) => {
-  if (stages.length === 0) {
+  if (stages.filter(Boolean).length === 0) {
     return (
       <div className={containerStyles} data-testid="toolbar-pipeline-stages">
-        <Description>
+        <Description className={resetParaStyles}>
           Your pipeline is currently empty. To get started select the
           <Link
             className={addStageStyles}

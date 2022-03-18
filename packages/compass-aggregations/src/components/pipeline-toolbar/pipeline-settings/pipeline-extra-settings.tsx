@@ -28,6 +28,8 @@ const toggleStyles = css({
 const toggleLabelStyles = css({
   marginBottom: 0,
   textTransform: 'uppercase',
+  // todo: remove this post removal of global styles
+  margin: 'inherit !important',
 });
 
 const moreSettingsButtonStyles = css({
