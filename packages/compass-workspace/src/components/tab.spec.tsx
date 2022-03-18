@@ -17,7 +17,7 @@ describe('Tab', function () {
 
   afterEach(cleanup);
 
-  describe('when rendered', function () {
+  describe('when rendered selected', function () {
     beforeEach(function () {
       render(
         <Tab
@@ -46,13 +46,7 @@ describe('Tab', function () {
       expect(await screen.findByTestId('folder-icon')).to.be.visible;
     });
 
-    it('should render a close tab button hidden by default', async function () {
-      expect(await screen.findByLabelText('Close Tab')).to.not.be.visible;
-    });
-
-    it('should render a close tab button visible when the tab is focused', async function () {
-      const tabToFocus = await screen.findByRole('tab');
-      tabToFocus.focus();
+    it('should render the close tab button', async function () {
       expect(await screen.findByLabelText('Close Tab')).to.be.visible;
     });
 
@@ -68,6 +62,34 @@ describe('Tab', function () {
       const tabContent = await screen.findByText('test.collection');
       tabContent.click();
       expect(onSelectSpy.callCount).to.equal(1);
+    });
+  });
+
+  describe('when rendered', function () {
+    beforeEach(function () {
+      render(
+        <Tab
+          onClose={onCloseSpy}
+          onSelect={onSelectSpy}
+          title="docs"
+          isSelected={false}
+          tabContentId="1"
+          subtitle="test.collection"
+          renderIcon={(iconProps) => (
+            <Icon {...iconProps} data-testid="folder-icon" glyph="Folder" />
+          )}
+        />
+      );
+    });
+
+    it('should render the close tab button hidden', async function () {
+      expect(await screen.findByLabelText('Close Tab')).to.not.be.visible;
+    });
+
+    it('should render the close tab button visible when the tab is focused', async function () {
+      const tabToFocus = await screen.findByRole('tab');
+      tabToFocus.focus();
+      expect(await screen.findByLabelText('Close Tab')).to.be.visible;
     });
   });
 });
