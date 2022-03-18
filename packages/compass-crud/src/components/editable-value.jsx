@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'hadron-react-components';
-import initEditors from './editor';
+import { ElementEditor as initEditors } from 'hadron-document';
 
-import { STRING_TYPE } from './editor/string';
+const { STRING_TYPE } = initEditors.StringEditor;
 
 const ESC_KEY_CODE = 27;
 const TAB_KEY_CODE = 9;

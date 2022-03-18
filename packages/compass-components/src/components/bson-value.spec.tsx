@@ -77,7 +77,7 @@ describe('BSONValue', function () {
       expected: "ObjectId('5d505646cf6d4fe581014ab2')",
     },
     {
-      type: 'Symbol',
+      type: 'BSONSymbol',
       value: new BSONSymbol('abc'),
       expected: "Symbol('abc')",
     },
