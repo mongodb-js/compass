@@ -200,6 +200,7 @@ const SortableList = SortableContainer(
 );
 
 type WorkspaceTabsProps = {
+  'aria-label': string;
   darkMode?: boolean;
   onCreateNewTab: () => void;
   onSelectTab: (tabIndex: number) => void;
@@ -250,6 +251,7 @@ export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
 }
 
 function UnthemedWorkspaceTabs({
+  ['aria-label']: ariaLabel,
   darkMode,
   onCreateNewTab,
   onCloseTab,
@@ -292,7 +294,7 @@ function UnthemedWorkspaceTabs({
         <div
           className={tabsListStyles}
           role="tablist"
-          aria-label="Workspace Tabs"
+          aria-label={ariaLabel}
           aria-orientation="horizontal"
           ref={tabContainerRef}
           {...tabContainerProps}

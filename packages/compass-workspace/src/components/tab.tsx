@@ -257,7 +257,6 @@ function UnthemedTab({
           [selectedTabStyles]: isSelected,
         }
       )}
-      data-test-id="workspace-tab"
       aria-selected={isSelected}
       role="tab"
       // Catch navigation on the active tab when a user tabs through Compass.
@@ -299,7 +298,9 @@ function UnthemedTab({
 
       <IconButton
         className={
-          isFocusedWithin || isFocused || isHovered ? undefined : hiddenStyles
+          isFocusedWithin || isFocused || isHovered || isSelected
+            ? undefined
+            : hiddenStyles
         }
         onClick={(e) => {
           e.stopPropagation();

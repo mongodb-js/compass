@@ -230,6 +230,7 @@ class Workspace extends PureComponent {
     return (
       <div className={styles.workspace}>
         <WorkspaceTabs
+          aria-label="Collection Tabs"
           onCreateNewTab={this.onCreateNewTab}
           onMoveTab={this.props.moveTab}
           onSelectTab={this.props.selectTab}

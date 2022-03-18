@@ -38,6 +38,7 @@ describe('WorkspaceTabs', function () {
     beforeEach(function () {
       render(
         <WorkspaceTabs
+          aria-label="Workspace Tabs"
           onCreateNewTab={onCreateNewTabSpy}
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
@@ -66,6 +67,7 @@ describe('WorkspaceTabs', function () {
     beforeEach(function () {
       render(
         <WorkspaceTabs
+          aria-label="Workspace Tabs"
           onCreateNewTab={onCreateNewTabSpy}
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
@@ -140,6 +142,7 @@ describe('WorkspaceTabs', function () {
     beforeEach(function () {
       render(
         <WorkspaceTabs
+          aria-label="Workspace Tabs"
           onCreateNewTab={onCreateNewTabSpy}
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
@@ -165,6 +168,7 @@ describe('WorkspaceTabs', function () {
     beforeEach(function () {
       render(
         <WorkspaceTabs
+          aria-label="Workspace Tabs"
           onCreateNewTab={onCreateNewTabSpy}
           onCloseTab={onCloseTabSpy}
           onSelectTab={onSelectSpy}
