@@ -10,6 +10,7 @@ import {
   spacing,
   uiColors,
   withTheme,
+  compassUIColors,
 } from '@mongodb-js/compass-components';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
@@ -20,7 +21,7 @@ const tabsContainerStyles = css({
   padding: 0,
   flexShrink: 0, // Don't shrink when the tab contents tries to grow.
   position: 'relative',
-  overflowX: 'auto',
+  overflow: 'overlay',
   whiteSpace: 'nowrap',
   borderBottom: '1px solid',
   '::-webkit-scrollbar': {
@@ -33,11 +34,17 @@ const tabsContainerStyles = css({
 const tabsContainerLightStyles = css({
   background: uiColors.white,
   borderBottomColor: uiColors.gray.light2,
+  '::-webkit-scrollbar-thumb': {
+    backgroundColor: compassUIColors.scrollbarThumbLightTheme,
+  },
 });
 
 const tabsContainerDarkStyles = css({
   backgroundColor: uiColors.gray.dark3,
   borderBottomColor: uiColors.gray.dark2,
+  '::-webkit-scrollbar-thumb': {
+    backgroundColor: compassUIColors.scrollbarThumbDarkTheme,
+  },
 });
 
 const tabsListContainerStyles = css({
