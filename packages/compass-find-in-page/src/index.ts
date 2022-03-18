@@ -27,6 +27,5 @@ function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterStore('FindInPage.Store');
 }
 
-export default CompassFindInPagePlugin;
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

@@ -14,7 +14,7 @@ import {
 
 const findInPageContainerStyles = css({
   borderRadius: '0 0 5px 5px',
-  border: `1px solid ${uiColors.gray.light2}`,
+  border: '1px solid',
   borderTop: 'none',
   position: 'absolute',
   zIndex: 4,
@@ -25,10 +25,12 @@ const findInPageContainerStyles = css({
 
 const containerLightThemeStyles = css({
   background: compassUIColors.gray8,
+  borderColor: uiColors.gray.light2,
 });
 
 const containerDarkThemeStyles = css({
   background: uiColors.gray.dark2,
+  borderColor: uiColors.gray.dark1,
 });
 
 const descriptionStyles = css({
@@ -85,7 +87,7 @@ function FindInPageInput({
   searchTerm,
   searching,
 }: FindInPageInputProps) {
-  const findInPageInputRef = useRef<HTMLInputElement>(null);
+  const findInPageInputRef = useRef<HTMLInputElement | null>(null);
 
   const onSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +110,7 @@ function FindInPageInput({
 
       if (evt.key === 'Enter') {
         evt.preventDefault();
-        const searchValue = findInPageInputRef.current.value;
+        const searchValue = findInPageInputRef.current?.value;
         if (!searchValue || searchValue === '') {
           return dispatchStopFind();
         }
@@ -141,18 +143,20 @@ function FindInPageInput({
           descriptionStyles,
           darkMode ? descriptionDarkThemeStyles : descriptionLightThemeStyles
         )}
+        id="find-in-page-label"
       >
         Use (Shift+) Enter to navigate results.
       </Body>
       <div className={findStyles}>
         <form
           name="find-in-page"
-          data-test-id="find-in-page"
+          data-testid="find-in-page"
           className={formStyles}
         >
           <TextInput
-            type="search"
+            type="text"
             aria-label="Find in page"
+            aria-labelledby="find-in-page-label"
             ref={findInPageInputRef}
             onChange={onSearchChange}
             value={searchTerm}

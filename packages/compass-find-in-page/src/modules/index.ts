@@ -5,7 +5,7 @@ export const SEARCH_TERM = 'SEARCH_TERM';
 export const STOP_FIND = 'STOP_FIND';
 export const FIND = 'FIND';
 
-type State = {
+export type State = {
   searching: boolean;
   searchTerm: string;
   enabled: boolean;
@@ -15,23 +15,6 @@ export const INITIAL_STATE: State = {
   searchTerm: '',
   enabled: false,
 };
-
-function find(state, action): State {
-  const opts = {
-    forward: action.forward,
-    findNext: action.findNext,
-  };
-
-  void ipcRenderer.call('app:find-in-page', action.searchTerm, opts);
-
-  return { ...state, searching: true };
-}
-
-function stopFind(state): State {
-  void ipcRenderer.call('app:stop-find-in-page', 'clearSelection');
-
-  return { ...state, searching: false };
-}
 
 type FindAction = {
   type: 'FIND';
@@ -54,6 +37,23 @@ type FindInPageActions =
   | StopFindAction
   | ToggleStatusAction
   | FindAction;
+
+function find(state: State, action: FindAction): State {
+  const opts = {
+    forward: action.forward,
+    findNext: action.findNext,
+  };
+
+  void ipcRenderer?.call('app:find-in-page', action.searchTerm, opts);
+
+  return { ...state, searching: true };
+}
+
+function stopFind(state: State): State {
+  void ipcRenderer?.call('app:stop-find-in-page', 'clearSelection');
+
+  return { ...state, searching: false };
+}
 
 export default function reducer(
   state = INITIAL_STATE,

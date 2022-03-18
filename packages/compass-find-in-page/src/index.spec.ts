@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import CompassPlugin from './index';
+import * as CompassPlugin from './index';
 
 describe('Compass Plugin', function () {
   it('exports activate, deactivate, and metadata', function () {

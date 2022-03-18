@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import reducer, {
   TOGGLE_STATUS,
   SEARCH_TERM,
@@ -18,10 +20,10 @@ describe('index module', function () {
     });
   });
 
-  describe('#dispatchStopFind', function () {
+  describe('#dispatchFind', function () {
     it('returns find action type', function () {
-      expect(dispatchFind('searchTerm', true, false)).to.deep.equal({
-        val: 'searchTerm',
+      expect(dispatchFind('pineapple', true, false)).to.deep.equal({
+        searchTerm: 'pineapple',
         findNext: false,
         forward: true,
         type: FIND,
@@ -39,8 +41,8 @@ describe('index module', function () {
 
   describe('#setSearchTerm', function () {
     it('returns a search term action type', function () {
-      expect(setSearchTerm('search value')).to.deep.equal({
-        searchTerm: 'search value',
+      expect(setSearchTerm('pineapples')).to.deep.equal({
+        searchTerm: 'pineapples',
         type: SEARCH_TERM,
       });
     });

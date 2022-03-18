@@ -8,6 +8,7 @@ import {
   toggleStatus,
   dispatchFind,
 } from '../modules';
+import type { State } from '../modules';
 
 type CompassFindInPageProps = {
   enabled: boolean;
@@ -48,7 +49,7 @@ const CompassFindInPage: React.FunctionComponent<CompassFindInPageProps> = ({
   );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: State) => ({
   searchTerm: state.searchTerm,
   searching: state.searching,
   enabled: state.enabled,
