@@ -47,6 +47,11 @@ describe('PipelineToolbar', function () {
       ).to.exist;
 
       expect(
+        within(header).getByTestId('toolbar-pipeline-stages'),
+        'shows pipeline stages'
+      ).to.exist;
+
+      expect(
         within(header).getByTestId('pipeline-toolbar-run-button'),
         'shows run pipeline button'
       ).to.exist;
