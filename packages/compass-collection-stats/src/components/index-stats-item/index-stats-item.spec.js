@@ -6,7 +6,7 @@ import IndexStatsItem from '../index-stats-item';
 import styles from './index-stats-item.module.less';
 import statsStyles from '../collection-stats-item/collection-stats-item.module.less';
 
-describe('IndexStatsItem [Component]', () => {
+describe.skip('IndexStatsItem [Component]', () => {
   let component;
 
   beforeEach(() => {

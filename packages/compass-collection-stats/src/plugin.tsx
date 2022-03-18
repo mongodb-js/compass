@@ -5,7 +5,7 @@ import { StoreConnector } from 'hadron-react-components';
 
 import CollectionStats from './components/collection-stats';
 
-interface CollectionStatsProps {
+interface CollectionStatsPluginProps {
   store: Store;
 };
 
@@ -14,7 +14,7 @@ interface CollectionStatsProps {
  *
  * @returns {React.Component} The rendered component.
  */
-const Plugin: React.FunctionComponent<any> = (props: CollectionStatsProps) => {
+const Plugin: React.FunctionComponent<any> = (props: CollectionStatsPluginProps) => {
   return (
     // The way Compass requires to extend redux store is not compatible with
     // redux types

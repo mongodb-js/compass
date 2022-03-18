@@ -47,7 +47,7 @@ class DocumentStatsItem extends Component {
     const { isTimeSeries } = this.props;
 
     return (
-      <div className={styles[LIST_CLASS]}>
+      <div data-testid="document-stats-item" className={styles[LIST_CLASS]}>
         {!isTimeSeries && <CollectionStatsItem
           dataTestId="document-count"
           label={DOCUMENTS}

@@ -6,7 +6,7 @@ import DocumentStatsItem from '../document-stats-item';
 import styles from './document-stats-item.module.less';
 import statsStyles from '../collection-stats-item/collection-stats-item.module.less';
 
-describe('DocumentStatsItem [Component]', () => {
+describe.skip('DocumentStatsItem [Component]', () => {
   describe('when rendered', () => {
     let component;
 
