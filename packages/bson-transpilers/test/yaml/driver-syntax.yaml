@@ -81,6 +81,7 @@ tests:
                       'x' => 0,
                       'y' => BSON::ObjectId.new
                     })
+                # TODO: COMPASS-5567 unskip this test
                 # swift: |-
                 #     // Requires the MongoSwift package
                 #     // https://github.com/mongodb/mongo-swift-driver
@@ -95,13 +96,13 @@ tests:
                 #         cleanupMongoSwift()
                 #         try? elg.syncShutdownGracefully()
                 #     }
-
-                #     let coll = client.db("library").collection("books")
-                #     let pipeline = [
+                #
+                #     let coll = client.db("db").collection("collection")
+                #     let pipeline: [BSONDocument] = [
                 #         [
                 #             "$match": [
-                #                 "x": BSON.int64(0),
-                #                 "y": BSON.objectID()
+                #                 "x": 0,
+                #                 "y": .objectID(BSONObjectID())
                 #             ]
                 #         ]
                 #     ]
@@ -222,8 +223,8 @@ tests:
 
                     let coll = client.db("db").collection("collection")
 
-                    let filter = [
-                        "x": .int64(Int64(0))
+                    let filter: BSONDocument = [
+                        "x": 0
                     ]
                     let cursor = try await coll.find(filter)
             imports:
@@ -434,13 +435,13 @@ tests:
                     }
 
                     let coll = client.db("db").collection("collection")
-                    let collation = [
+                    let collation: BSONDocument = [
                         "locale": "zh"
                     ]
-                    let projection = [
+                    let projection: BSONDocument = [
                         "y": .objectID(BSONObjectID())
                     ]
-                    let sort = [
+                    let sort: BSONDocument = [
                         "name": 1
                     ]
                     let options = FindOptions(
@@ -451,8 +452,8 @@ tests:
                         skip: 5,
                         sort: sort
                     )
-                    let filter = [
-                        "x": .int64(Int64(0))
+                    let filter: BSONDocument = [
+                        "x": 0
                     ]
                     let cursor = try await coll.find(filter, options: options)
             imports:

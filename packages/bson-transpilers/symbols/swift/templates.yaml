@@ -77,8 +77,10 @@ Templates:
           return [
             `${comment}\n`,
             connect,
+            '',
             coll,
-            `let cursor = try await coll.aggregate(${agg})`
+            `let pipeline: [BSONDocument] = ${agg}`,
+            `let cursor = try await coll.aggregate(pipeline)`
           ].join('\n')
         }
 
@@ -100,8 +102,8 @@ Templates:
         let optPairsDecls = [];
         
         for (const kvp of findOpts) {
-          if (kvp[1].indexOf("\n") != -1) {
-              optPairsDecls.push(`let ${kvp[0]} = ${kvp[1]}`);
+          if (kvp[1].startsWith("[")) {
+              optPairsDecls.push(`let ${kvp[0]}: BSONDocument = ${kvp[1]}`);
               optPairs.push(`    ${kvp[0]}: ${kvp[0]}`)
           } else {
               optPairs.push(`    ${kvp[0]}: ${kvp[1]}`)
@@ -128,7 +130,7 @@ Templates:
           '',
           coll,
           optionsLet,
-          `let filter = ${filter}`,
+          `let filter: BSONDocument = ${filter}`,
           cursorLet
         ].join('\n');
       }
@@ -149,7 +151,7 @@ Templates:
             if (op.includes('!') || op.includes('not')) {
                 prefix = '!';
             }
-            return `${prefix}${rhs}.contains(&${lhs})`
+            return `${prefix}${rhs}.contains(${lhs})`
         }
     AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
         (args) => {
@@ -200,22 +202,31 @@ Templates:
     #############################################
     StringTypeTemplate: &StringTypeTemplate !!js/function >
         (str) => {
-            let newStr = str;
-            if (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') {
-                newStr = '"' + str.substr(1, str.length - 2) + '"';
-            }
-            return newStr;
+          let newStr = str;
+          if (
+            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            newStr = str.substr(1, str.length - 2);
+          }
+          return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
         }
     RegexTypeTemplate: &RegexTypeTemplate !!js/function >
         (pattern, flags) => {
-            // Double-quote stringify
-            let newPat = pattern;
-            if (
-                (pattern.charAt(0) === '\'' && pattern.charAt(pattern.length - 1) === '\'') ||
-                (pattern.charAt(0) === '"' && pattern.charAt(pattern.length - 1) === '"')) {
-                    newPat = pattern.substr(1, pattern.length - 2);
+            const doubleStringify = (str) => {
+                let newStr = str;
+                if (
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             }
-            return `BSONRegularExpression(pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", options: "${flags}")`
+
+            if (!flags) {
+                flags = '""';
+            }
+
+            return `BSONRegularExpression(pattern: ${doubleStringify(pattern)}, options: ${doubleStringify(flags)})`;
         }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
@@ -283,7 +294,7 @@ Templates:
                 let newStr = str;
                 if (
                   (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                  (str.charAt(0) === '' && str.charAt(str.length - 1) === '"')) {
                     newStr = str.substr(1, str.length - 2);
                 }
                 return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
@@ -352,7 +363,7 @@ Templates:
     #                                           #
     #############################################
     CodeSymbolTemplate: &CodeSymbolTemplate !!js/function >
-        () => ''
+        () => 'BSONCode'
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
             // Double quote stringify
@@ -365,9 +376,9 @@ Templates:
             }
             code = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             if (scope === undefined) {
-                return `BSONCode(code: ${code})`;
+                return `(code: ${code})`;
             } else {
-                return `BSONCodeWithScope(code: ${code}, scope: ${scope})`;
+                return `WithScope(code: ${code}, scope: ${scope})`;
             }
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
@@ -402,7 +413,7 @@ Templates:
             if (type === null) {
                 type = '.generic';
             }
-            return `(bytes: ${bytes}, subtype: ${type})`
+            return `(base64: ${bytes}, subtype: ${type})`
         }
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
         () => 'BSONBinary.Subtype.generic'
@@ -421,12 +432,21 @@ Templates:
     DBRefSymbolTemplate: &DBRefSymbolTemplate null # No args
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null # Args: lhs, coll, id, db
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
-        () => 'Double'
+        () => ''
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
-            arg = arg === undefined ? "(0.0)" : arg;
-            return arg;
-        }
+            arg = arg === undefined ? 0.0 : arg;
+            if (type === '_decimal' || type === '_double') {
+                return arg;
+            }
+            if (type === '_integer' || type === '_long') {
+                return `${arg}.0`;
+            }
+            if (type === '_string') {
+                return `Double(${arg})!`;
+            }
+            return `Double(${arg})`;
+        }    
     Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
         () => 'Int32'
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
@@ -461,31 +481,39 @@ Templates:
         () => 'BSONRegularExpression'
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (_, pattern, flags) => {
-            if (flags === null || flags === undefined) {
-                flags = '';
+            const doubleStringify = (str) => {
+                let newStr = str;
+                if (
+                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             }
-            if (
-                (flags.charAt(0) === '\'' && flags.charAt(flags.length - 1) === '\'') ||
-                (flags.charAt(0) === '"' && flags.charAt(flags.length - 1) === '"')) {
-                    flags = flags.substr(1, flags.length - 2);
+
+            if (!flags) {
+                flags = '""';
             }
-            // Double-quote stringify
-            let newPat = pattern;
-            if (
-                (pattern.charAt(0) === '\'' && pattern.charAt(pattern.length - 1) === '\'') ||
-                (pattern.charAt(0) === '"' && pattern.charAt(pattern.length - 1) === '"')) {
-                    newPat = pattern.substr(1, pattern.length - 2);
-            }
-            return `(pattern: "${newPat.replace(/\\([\s\S])|(")/g, '\\$1$2')}", options: "${flags}")`;
+
+            return `(pattern: ${doubleStringify(pattern)}, options: ${doubleStringify(flags)})`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
         () => ''
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (lhs, arg) => {
             if (!arg) {
-                return `try BSONDecimal128("0")`
+                arg = '"0"';
             }
-            return `try BSONDecimal128("${arg}")`
+
+            // Double quote stringify
+            let newArg = arg;
+            if (
+                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
+                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
+                newArg = arg.substr(1, arg.length - 2);
+            }
+            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            return `try BSONDecimal128(${newArg})`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
         () => 'BSONMinKey'
@@ -519,7 +547,7 @@ Templates:
                 case '_long':
                   return `${arg}.0`;
                 default:
-                    return arg;
+                    return `Double(${arg})`;
             }
         }
     DateSymbolTemplate: &DateSymbolTemplate !!js/function >
@@ -583,15 +611,20 @@ Templates:
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => `${lhs}.data`
-    BinaryValueArgsTemplate: &BinaryValueArgsTemplate null
+    BinaryValueArgsTemplate: &BinaryValueArgsTemplate !!js/function >
+        () => ''
     BinaryLengthTemplate: &BinaryLengthTemplate !!js/function >
         (lhs) => `${lhs}.data.readableBytes`
-    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null
-    BinaryToStringTemplate: &BinaryToStringTemplate null
-    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null
+    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate !!js/function >
+        () => ''
+    BinaryToStringTemplate: &BinaryToStringTemplate !!js/function >
+        (lhs) => `"\\(${lhs})"`
+    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate !!js/function >
+        () => ''
     BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
         (lhs) => `${lhs}.subtype`
-    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate !!js/function >
+        () => ''
     DBRefGetDBTemplate: &DBRefGetDBTemplate null
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null
     DBRefGetIdTemplate: &DBRefGetIdTemplate null
@@ -607,49 +640,57 @@ Templates:
     Int32ToStringTemplate: &Int32ToStringTemplate !!js/function >
         (lhs) => `"\\(${lhs})"`
     Int32ToStringArgsTemplate: &Int32ToStringArgsTemplate !!js/function >
-        () => "int32 args template"
+        () => ""
     LongEqualsTemplate: &LongEqualsTemplate !!js/function >
         (lhs) => `${lhs} == `
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate !!js/function >
-        () => ''
+        (_, arg) => arg
     LongToStringTemplate: &LongToStringTemplate !!js/function >
-        (arg) => "long to string template"
+        (lhs) => `"\\(${lhs})"`
     LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
-        () => "long to string template args"
+        () => ""
     LongToIntTemplate: &LongToIntTemplate !!js/function >
-        (lhs) => `${lhs} as Int32`
-    LongToIntArgsTemplate: &LongToIntArgsTemplate null
-    LongValueOfTemplate: &LongValueOfTemplate !!js/function >
-        () => "value of"
-    LongValueOfArgsTemplate: &LongValueOfArgsTemplate !!js/function >
-        () => "value of template"
+        (lhs) => `Int32(${lhs})`
+    LongToIntArgsTemplate: &LongToIntArgsTemplate !!js/function >
+        () => ''
+    LongValueOfTemplate: &LongValueOfTemplate null
+    LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
-        (lhs) => `${lhs} as Double`
-    LongToNumberArgsTemplate: &LongToNumberArgsTemplate null
+        (lhs) => `Double(${lhs})`
+    LongToNumberArgsTemplate: &LongToNumberArgsTemplate !!js/function >
+        () => ''
     LongAddTemplate: &LongAddTemplate !!js/function >
         (lhs) => `${lhs} + `
-    LongAddArgsTemplate: &LongAddArgsTemplate null
+    LongAddArgsTemplate: &LongAddArgsTemplate !!js/function >
+        (_, arg) => arg
     LongSubtractTemplate: &LongSubtractTemplate !!js/function >
         (lhs) => `${lhs} - `
-    LongSubtractArgsTemplate: &LongSubtractArgsTemplate null
+    LongSubtractArgsTemplate: &LongSubtractArgsTemplate !!js/function >
+        (_, arg) => arg
     LongMultiplyTemplate: &LongMultiplyTemplate !!js/function >
         (lhs) => `${lhs} * `
-    LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate null
+    LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate !!js/function >
+        (_, arg) => arg
     LongDivTemplate: &LongDivTemplate !!js/function >
         (lhs) => `${lhs} / `
-    LongDivArgsTemplate: &LongDivArgsTemplate null
+    LongDivArgsTemplate: &LongDivArgsTemplate !!js/function >
+        (_, arg) => arg
     LongModuloTemplate: &LongModuloTemplate !!js/function >
         (lhs) => `${lhs} % `
-    LongModuloArgsTemplate: &LongModuloArgsTemplate null
+    LongModuloArgsTemplate: &LongModuloArgsTemplate !!js/function >
+        (_, arg) => arg
     LongAndTemplate: &LongAndTemplate !!js/function >
         (lhs) => `${lhs} & `
-    LongAndArgsTemplate: &LongAndArgsTemplate null
+    LongAndArgsTemplate: &LongAndArgsTemplate !!js/function >
+        (_, arg) => arg
     LongOrTemplate: &LongOrTemplate !!js/function >
         (lhs) => `${lhs} | `
-    LongOrArgsTemplate: &LongOrArgsTemplate null
+    LongOrArgsTemplate: &LongOrArgsTemplate !!js/function >
+        (_, arg) => arg
     LongXorTemplate: &LongXorTemplate !!js/function >
         (lhs) => `${lhs} ^ `
-    LongXorArgsTemplate: &LongXorArgsTemplate null
+    LongXorArgsTemplate: &LongXorArgsTemplate !!js/function >
+        (_, arg) => arg
     LongShiftLeftTemplate: &LongShiftLeftTemplate !!js/function >
         (lhs) => `${lhs} << `
     LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate !!js/function >
@@ -677,11 +718,11 @@ Templates:
     LongNegateTemplate: &LongNegateTemplate !!js/function >
         () => '-'
     LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
-        (arg) => arg
+        (lhs) => lhs
     LongNotTemplate: &LongNotTemplate !!js/function >
         () => '~'
     LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
-        (arg) => arg
+        (lhs) => lhs
     LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
         (lhs) => `${lhs} != `
     LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
@@ -750,13 +791,12 @@ Templates:
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate null
     SymbolInspectTemplate: &SymbolInspectTemplate null
     SymbolInspectArgsTemplate: &SymbolInspectArgsTemplate null
-    SymbolToStringTemplate: &SymbolToStringTemplate !!js/function >
-        () => "symbol to string?"
+    SymbolToStringTemplate: &SymbolToStringTemplate null
     SymbolToStringArgsTemplate: &SymbolToStringArgsTemplate null
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
-        (lhs) => `"\(${lhs})"`
+        (lhs) => `"\\(${lhs})"`
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate !!js/function >
-        () => "decimal128 asdf"
+        (arg) => ''
     # non bson-specific
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
         () => 'Date()'
@@ -784,36 +824,83 @@ Templates:
     #############################################
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
         () => "Int64.max"
-    LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
+    LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate !!js/function >
+        () => ''
     LongSymbolMinTemplate: &LongSymbolMinTemplate !!js/function >
         () => "Int64.min"
-    LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate null
+    LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate !!js/function >
+        () => ''
     LongSymbolZeroTemplate: &LongSymbolZeroTemplate !!js/function >
         () => "Int64(0)"
-    LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate null
+    LongSymbolZeroArgsTemplate: &LongSymbolZeroArgsTemplate !!js/function >
+        () => ''
     LongSymbolOneTemplate: &LongSymbolOneTemplate !!js/function >
         () => "Int64(1)"
-    LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate null
+    LongSymbolOneArgsTemplate: &LongSymbolOneArgsTemplate !!js/function >
+        () => ''
     LongSymbolNegOneTemplate: &LongSymbolNegOneTemplate !!js/function >
         () => "Int64(-1)"
-    LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate null
+    LongSymbolNegOneArgsTemplate: &LongSymbolNegOneArgsTemplate !!js/function >
+        () => ''
     LongSymbolFromBitsTemplate: &LongSymbolFromBitsTemplate null 
     LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate !!js/function >
         (_, arg) => {
             return `Int64(${arg})`;
         }
-    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate null
-    LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate null
-    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate null
-    LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
+    LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function >
+        () => ''
+    LongSymbolFromIntArgsTemplate: &LongSymbolFromIntArgsTemplate !!js/function >
+        (_, arg) => `Int64(${arg})`
+    LongSymbolFromNumberTemplate: &LongSymbolFromNumberTemplate !!js/function >
+        () => ''
+    LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate !!js/function >
+        (_, arg) => `Int64(${arg})`
     LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
-        (lhs) => "long symbol from string template"
+        () => ''
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
-        () => "pls"
-    Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate null
-    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
-    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate null
-    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
+        (lhs, arg) => {
+            // Double quote stringify
+            let newArg = arg;
+            if (
+                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
+                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
+                newArg = arg.substr(1, arg.length - 2);
+            }
+            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            return `Int64(${newArg})!`;
+        }    
+    Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
+        () => ''
+    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
+        (lhs, arg) => {
+            if (!arg) {
+                arg = '"0"';
+            }
+
+            // Double quote stringify
+            let newArg = arg;
+            if (
+                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
+                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
+                newArg = arg.substr(1, arg.length - 2);
+            }
+            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            return `try BSONDecimal128(${newArg})`;
+        }    
+    ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
+      () => ''
+    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
+        (lhs, arg) => {
+            // Double quote stringify
+            let newArg = arg;
+            if (
+                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
+                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
+                newArg = arg.substr(1, arg.length - 2);
+            }
+            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            return `try BSONObjectID(${newArg})`;
+        }    
     ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate null
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate null
     # non bson-specific would go here, but there aren't any atm.
@@ -833,10 +920,11 @@ Templates:
     ImportTemplate: &ImportTemplate !!js/function >
         (args) => {
             let merged = new Set(Object.values(args));
+            merged.add("import MongoSwift");
             return [...merged].sort().join('\n');
         }
     DriverImportTemplate: &DriverImportTemplate !!js/function >
-        () => "import MongoSwift\nimport NIO"
+        () => "import NIO"
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null
@@ -865,7 +953,8 @@ Templates:
     112ImportTemplate: &112ImportTemplate null
     113ImportTemplate: &113ImportTemplate null
     114ImportTemplate: &114ImportTemplate null
-    200ImportTemplate: &200ImportTemplate null
+    200ImportTemplate: &200ImportTemplate !!js/function >
+        () => "import Foundation"
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null
     301ImportTemplate: &301ImportTemplate null

@@ -141,7 +141,7 @@ tests:
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
-          swift: |
+          swift: |-
             [
                 "status": "A",
                 "$or": [
@@ -393,7 +393,7 @@ tests:
           shell: "[\n  1\n]"
           object: "[1]"
           ruby: "[\n  1\n]"
-          swift: '[\n  1\n]'
+          swift: "[\n    1\n]"
     - input:
           python: "(1)"
       output:
@@ -415,7 +415,7 @@ tests:
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           object: "['1', { 'settings': 'http2' }]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
-          swift: |
+          swift: |-
             [
                 "1",
                 [
@@ -432,7 +432,7 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          swift: |
+          swift: |-
             [
                 "1",
                 [
@@ -450,7 +450,7 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          swift: |
+          swift: |-
             [
                 "1",
                 [
@@ -507,7 +507,7 @@ tests:
           csharp: Math.pow(6, 7)
           object: Math.pow(6, 7)
           ruby: 6 ** 7
-          swift: 6 ^^ 7
+          swift: pow(6, 7)
     - input:
           javascript: 1 | 2 ^ 3 & 4 << 6 >> 7
           shell: 1 | 2 ^ 3 & 4 << 6 >> 7
@@ -836,6 +836,7 @@ tests:
           csharp: "\"string\""
           shell: "'string'"
           object: "\"string\""
+          ruby: '"string"'
           swift: '"string"'
     - input:
         python: "b'abc'"
@@ -949,7 +950,7 @@ tests:
           csharp: '3'
           object: 'new Int32(3)'
           ruby: '3'
-          swift: '3'
+          swift: 'Int32(3)'
     - input:
           python: int('3')
       output:
@@ -960,7 +961,7 @@ tests:
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
           ruby: "'3'.to_i"
-          swift: '3'
+          swift: 'Int32("3")!'
     - input:
           python: int(3.001)
       output:
@@ -971,7 +972,7 @@ tests:
           csharp: Convert.ToInt32(3.001)
           object: 'new Int32(3.001)'
           ruby: '3.001.to_i'
-          swift: 'Int(3.001)'
+          swift: 'Int32(3.001)'
     - input:
           python: int(0x3)
       output:
@@ -982,7 +983,7 @@ tests:
           csharp: Convert.ToInt32(0x3)
           object: 'new Int32(0x3)'
           ruby: '0x3.to_i'
-          swift: '0x3'
+          swift: 'Int32(0x3)'
     - input:
           python: int(0o3)
       output:
@@ -993,7 +994,7 @@ tests:
           csharp: '3'
           object: 'new Int32(0o3)'
           ruby: '0o3.to_i'
-          swift: '0o3'
+          swift: 'Int32(0o3)'
     - input:
           python: float(3)
       output:
@@ -1004,7 +1005,7 @@ tests:
           csharp: '3.0'
           object: new Double(3)
           ruby: 3.to_f
-          swift: 3.0
+          swift: '3.0'
     - input:
           python: float('3')
       output:
@@ -1015,7 +1016,7 @@ tests:
           csharp: Convert.ToDouble("3")
           object: new Double('3')
           ruby: "'3'.to_f"
-          swift: 3.0
+          swift: 'Double("3")!'
     - input:
           python: float(3.001)
       output:
@@ -1026,7 +1027,7 @@ tests:
           csharp: '3.001'
           object: new Double(3.001)
           ruby: '3.001'
-          swift: 3.001
+          swift: '3.001'
     - input:
           python: float(0x3)
       output:
@@ -1037,7 +1038,7 @@ tests:
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
           ruby: 0x3.to_f
-          swift: 0x3
+          swift: 'Double(0x3)'
     - input:
           python: float(0o3)
       output:
@@ -1048,7 +1049,7 @@ tests:
           csharp: '3.0'
           object: new Double(0o3)
           ruby: 0o3.to_f
-          swift: Double(0o3)
+          swift: 'Double(0o3)'
     Date:
     - description: now date
       input:
@@ -1063,7 +1064,7 @@ tests:
           csharp: DateTime.Now
           object: "new Date()"
           ruby: Time.new.utc
-          swift: Date()
+          swift: 'Date()'
     - description: date.now
       input:
           javascript: Date.now()
@@ -1076,7 +1077,7 @@ tests:
           csharp: DateTime.Now
           object: "1" # just checks type and not value
           ruby: Time.now.utc
-          swift: Date()
+          swift: 'Date()'
     - input:
           javascript: new Date(1995, 11, 17)
           shell: new Date(1995, 11, 17)
@@ -1168,7 +1169,7 @@ tests:
                   minute: 24,
                   second: 0
               ).date!
-            
+
     - input:
           javascript: new Date(819167040000)
           shell: new Date(819167040000)

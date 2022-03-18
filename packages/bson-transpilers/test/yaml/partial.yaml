@@ -19,7 +19,6 @@ tests:
           csharp: ''
           shell: NumberLong
           ruby: ''
-          swift: Int64
     - input:
           javascript: new Decimal128
           python: Decimal128
@@ -30,7 +29,6 @@ tests:
           csharp: Decimal128
           shell: NumberDecimal
           ruby: BSON::Decimal128
-          swift: BSONDecimal128
     - input:
           javascript: Double
           python: float
@@ -41,7 +39,6 @@ tests:
           csharp: ''
           shell: ''
           ruby: ''
-          swift: Double
     - input:
           javascript: Int32
           python: int
@@ -62,7 +59,6 @@ tests:
           csharp: ''
           shell: NumberLong
           ruby: ''
-          swift: Int64
     - input:
           javascript: Decimal128
       output:
@@ -72,7 +68,6 @@ tests:
           csharp: Decimal128
           shell: NumberDecimal
           ruby: BSON::Decimal128
-          swift: BSONDecimal128
     - input:
           javascript: ObjectId
           python: ObjectId
@@ -83,7 +78,6 @@ tests:
           csharp: ObjectId
           shell: ObjectId
           ruby: BSON::ObjectId
-          swift: BSONObjectID
     - input:
           javascript: Code
           python: Code
@@ -168,7 +162,6 @@ tests:
           csharp: Regex
           shell: RegExp
           ruby: ''
-          swift: NSRegularExpression
     - input:
           python: re
       output:
@@ -248,7 +241,7 @@ tests:
           csharp: "(int) 429496729601L"
           shell: new NumberLong(429496729601).valueOf
           ruby: "429496729601"
-          swift: "429496729601"
+          swift: "Int32(429496729601)"
     - input:
           javascript: Long(1, 100).toNumber
       output:
@@ -268,7 +261,7 @@ tests:
           csharp: 429496729601L
           shell: new NumberLong(429496729601).toString
           ruby: '429496729601.to_s'
-          swift: "String(429496729601)"
+          swift: '"\(429496729601)"'
     - input:
           javascript: Long(1, 100).isZero
       output:
@@ -298,7 +291,7 @@ tests:
           csharp: 429496729601L % 2 == 1
           shell: "(new NumberLong(429496729601) % 2) === 1"
           ruby: (429496729601 % 2) == 1
-          swift: (429496729601 % 2) == 1
+          swift: 429496729601 % 2 == 1
     - input:
           javascript: Long(1, 100).equals
       output:
@@ -498,7 +491,7 @@ tests:
           csharp: Decimal128.Parse("5.3E-6175").ToString
           shell: new NumberDecimal(5.3E-6175).toString
           ruby: BSON::Decimal128.new('5.3E-6175').to_s
-          swift: 'String(describing: try BSONDecimal128("5.3E-6175"))'
+          swift: '"\(try BSONDecimal128("5.3E-6175"))"'
     - input:
           javascript: Timestamp(1, 100).toString
       output:
@@ -508,7 +501,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).ToString
           shell: new Timestamp(1, 100).toString
           ruby: BSON::Timestamp.new(1, 100).to_s
-          swift: 'String(describing: BSONTimestamp(timestamp: 1, inc: 100))'
+          swift: '"\(BSONTimestamp(timestamp: 1, inc: 100))"'
     - input:
           javascript: Timestamp(1, 100).equals
       output:
@@ -547,7 +540,6 @@ tests:
           csharp: new BsonTimestamp(1, 100) >
           shell: new Timestamp(1, 100) >
           ruby: BSON::Timestamp.new(1, 100) >
-          swift: 'BSONTimestamp(timestamp: 1, inc: 100) >'
     - input:
           javascript: Timestamp(1, 100).greaterThanOrEqual
       output:
@@ -557,7 +549,6 @@ tests:
           csharp: new BsonTimestamp(1, 100) >=
           shell: new Timestamp(1, 100) >=
           ruby: BSON::Timestamp.new(1, 100) >=
-          swift: 'BSONTimestamp(timestamp: 1, inc: 100) >='
     - input:
           javascript: Timestamp(1, 100).lessThan
       output:
@@ -567,7 +558,6 @@ tests:
           csharp: new BsonTimestamp(1, 100) <
           shell: new Timestamp(1, 100) <
           ruby: BSON::Timestamp.new(1, 100) <
-          swift: 'BSONTimestamp(timestamp: 1, inc: 100) <'
     - input:
           javascript: Timestamp(1, 100).lessThanOrEqual
       output:
@@ -577,7 +567,6 @@ tests:
           csharp: new BsonTimestamp(1, 100) <=
           shell: new Timestamp(1, 100) <=
           ruby: BSON::Timestamp.new(1, 100) <=
-          swift: 'BSONTimestamp(timestamp: 1, inc: 100) <='
     - input:
           javascript: Timestamp(1, 100).getLowBits
       output:

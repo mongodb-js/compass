@@ -76,7 +76,7 @@ tests:
                 Code
               } = require('mongodb');
           ruby: require 'bson'
-          swift: "import struct MongoSwift.BSONCode"
+          swift: "import MongoSwift"
     - description: Single import Code with scope
       input:
           shell: "{x: Code('code', {x: 1})}"
@@ -97,7 +97,7 @@ tests:
                 Code
               } = require('mongodb');
           ruby: require 'bson'
-          swift: "import struct MongoSwift.BSONCodeWithScope"
+          swift: "import MongoSwift"
     - description: Single import ObjectId
       input:
           shell: "{x: ObjectId()}"
@@ -116,7 +116,7 @@ tests:
                 ObjectId
               } = require('mongodb');
           ruby: require 'bson'
-          swift: "import struct MongoSwift.BSONObjectID"
+          swift: "import MongoSwift"
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -134,7 +134,7 @@ tests:
               const {
                 Timestamp
               } = require('mongodb');
-          swift: "import struct MongoSwift.BSONTimestamp"
+          swift: "import MongoSwift"
     - description: Single import DBRef
       input:
           shell: "{x: DBRef('db', ObjectId())}"
@@ -218,7 +218,7 @@ tests:
                 MinKey
               } = require('mongodb');
           ruby: require 'bson'
-          swift: "import struct MongoSwift.BSONMinKey"
+          swift: "import MongoSwift"
     - description: Single import MaxKey
       input:
           shell: "{x: MaxKey()}"
@@ -237,7 +237,7 @@ tests:
                 MaxKey
               } = require('mongodb');
           ruby: require 'bson'
-          swift: "import struct MongoSwift.BSONMaxKey"
+          swift: "import MongoSwift"
     - description: Single import RegExp
       input:
           shell: "{x: RegExp('abc')}"
@@ -254,7 +254,6 @@ tests:
           python: import re
           javascript: ''
           ruby: ''
-          swift: "import struct NSRegularExpression from Foundation"
     - description: Single import BSONRegExp
       input:
           javascript: "{x: BSONRegExp('abc')}"
@@ -267,7 +266,7 @@ tests:
               using MongoDB.Bson;
               using MongoDB.Driver;
           python: from bson import Regex
-          swift: "import struct MongoSwift.BSONRegularExpression"
+          swift: "import MongoSwift"
     - description: Single import literal regex
       input:
           shell: "{x: /abc/g}"
@@ -301,7 +300,7 @@ tests:
                 Timestamp
               } = require('mongodb');
           ruby: require 'bson'
-          swift: "import struct MongoSwift.BSONTimestamp"
+          swift: "import MongoSwift"
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
@@ -337,7 +336,7 @@ tests:
                 Decimal128
               } = require('mongodb');
           ruby: require 'bson'
-          swift: "import struct MongoSwift.BSONDecimal128"
+          swift: "import MongoSwift"
     - description: Single import Date as string
       input:
           shell: "{x: Date()}"
@@ -353,7 +352,9 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
-          swift: "import Foundation"
+          swift: |-
+              import Foundation
+              import MongoSwift
     - description: Single import Date() as object
       input:
           shell: "{x: new Date()}"
@@ -381,7 +382,9 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
-          swift: "import Foundation"
+          swift: |-
+              import Foundation
+              import MongoSwift
     - description: Multiple imports without Date to string
       input: {}
       output:
@@ -535,8 +538,6 @@ tests:
               import static com.mongodb.client.model.Filters.where;
               import com.mongodb.client.model.geojson.Point;
               import com.mongodb.client.model.geojson.Position;
-          swift: |-
-              import MongoSwift
     - description: All agg builder imports
       input:
           shell: "[ { $count: 'field' }, { $facet: { output1: [{ $match: {x: 1} }] } },
@@ -595,8 +596,6 @@ tests:
               import static com.mongodb.client.model.Sorts.orderBy;
               import com.mongodb.client.model.Facet;
               import com.mongodb.client.model.GraphLookupOptions;
-          swift: |-
-              import MongoSwift
     - description: all geometry builder imports
       input:
           shell: "[ {$geometry: {type: 'Point', coordinates: [1, 2]}}, {$geometry: {type:
@@ -664,8 +663,6 @@ tests:
               import com.mongodb.client.model.geojson.Polygon;
               import com.mongodb.client.model.geojson.PolygonCoordinates;
               import com.mongodb.client.model.geojson.Position;
-          swift: |-
-              import MongoSwift
     - description: all accumulator builder imports
       input:
           shell: "[ {x: {$sum: 1}}, {x: {$avg: 1}}, {x: {$first: 1}}, {x: {$last: 1}},
@@ -690,5 +687,3 @@ tests:
               import static com.mongodb.client.model.Accumulators.stdDevPop;
               import static com.mongodb.client.model.Accumulators.stdDevSamp;
               import static com.mongodb.client.model.Accumulators.sum;
-          swift: |-
-              import MongoSwift

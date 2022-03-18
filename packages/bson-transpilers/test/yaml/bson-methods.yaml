@@ -39,7 +39,7 @@ tests:
                 BSONCodeWithScope(code: "test code", scope: [
                     "x": 1
                 ]).scope
-              
+
     -   input:
             javascript: Code('test code').code
             shell: Code('test code').code
@@ -237,7 +237,7 @@ tests:
             shell: new NumberLong(429496729601).valueOf()
             object: '1'
             ruby: '429496729601'
-            swift: '429496729601'
+            swift: 'Int32(429496729601)'
     -   input:
             javascript: new Long(1, 100).toNumber()
         output:
@@ -298,7 +298,7 @@ tests:
             shell: "(new NumberLong(429496729601) % 2) === 1"
             object: 'true'
             ruby: "(429496729601 % 2) == 1"
-            swift: "(429496729601 % 2) == 1"
+            swift: "429496729601 % 2 == 1"
     -   input:
             javascript: new Long(1, 100).equals(new Long(9, 1))
         output:
@@ -499,7 +499,7 @@ tests:
             shell: new NumberDecimal(5.3E-6175).toString()
             output: "'5.3E-6175'"
             ruby: BSON::Decimal128.new('5.3E-6175').to_s
-            swift: 'String(describing: try BSONDecimal128("5.3E-6175"))'
+            swift: '"\(try BSONDecimal128("5.3E-6175"))"'
     Timestamp-methods:
     -   input:
             javascript: Timestamp(1, 100).toString()
