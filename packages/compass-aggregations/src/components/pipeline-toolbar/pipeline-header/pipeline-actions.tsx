@@ -11,7 +11,6 @@ import {
 
 import type { RootState } from '../../../modules';
 import { runAggregation } from '../../../modules/aggregation';
-import { changeWorkspace } from '../../../modules/workspace';
 import { toggleOptions } from '../../../modules/options';
 
 const containerStyles = css({
@@ -39,7 +38,6 @@ const optionStyles = css({
 const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isOptionsVisible,
   onRunAggregation,
-  onChangeWorkspace,
   onToggleOptions,
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
@@ -51,8 +49,6 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         variant="primary"
         size="small"
         onClick={() => {
-          // todo: fix dispatch
-          onChangeWorkspace('results');
           onRunAggregation();
         }}
       >
@@ -79,7 +75,6 @@ const mapState = ({ isOptionsVisible }: RootState) => ({
 });
 
 const mapDispatch = {
-  onChangeWorkspace: changeWorkspace,
   onRunAggregation: runAggregation,
   onToggleOptions: toggleOptions,
 };

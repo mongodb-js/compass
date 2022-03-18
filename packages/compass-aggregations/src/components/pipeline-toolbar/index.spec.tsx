@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { expect } from 'chai';
@@ -8,6 +8,15 @@ import type { Store } from 'redux';
 import type { RootState } from '../../modules';
 import configureStore from '../../stores/store';
 import Aggregations from '../aggregations';
+import { DATA_SERVICE_CONNECTED } from '../../modules/data-service';
+
+const mockDataService = class {
+  aggregate() {
+    return {
+      toArray: () => Promise.resolve([{ id: 1 }]),
+    };
+  }
+};
 
 const initialShowNewToolbarValue =
   process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
@@ -140,6 +149,10 @@ describe('PipelineToolbar', function () {
     beforeEach(function () {
       process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
       store = configureStore({});
+      store.dispatch({
+        type: DATA_SERVICE_CONNECTED,
+        dataService: new mockDataService(),
+      });
       render(
         <Provider store={store}>
           <Aggregations />
@@ -160,11 +173,11 @@ describe('PipelineToolbar', function () {
       expect(screen.getByTestId('saved-pipelines')).to.exist;
     });
 
-    it('runs pipeline', function () {
+    it('runs pipeline', async function () {
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-run-button')
       );
-
+      await waitFor(() => Promise.resolve(true));
       expect(
         screen.getByTestId('pipeline-results-workspace'),
         'shows results workspace'
@@ -175,10 +188,11 @@ describe('PipelineToolbar', function () {
       ).to.exist;
     });
 
-    it('edits pipeline', function () {
+    it('edits pipeline', async function () {
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-run-button')
       );
+      await waitFor(() => Promise.resolve(true));
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-edit-button')
       );

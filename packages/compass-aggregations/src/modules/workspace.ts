@@ -1,5 +1,8 @@
 import type { Reducer } from 'redux';
 
+import { ActionTypes as AggregationActionTypes } from './aggregation';
+import type { Actions as AggregationActions } from './aggregation';
+
 type Workspace = 'builder' | 'results';
 
 enum ActionTypes {
@@ -16,10 +19,12 @@ export type State = Workspace;
 
 export const INITIAL_STATE: State = 'builder';
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Actions | AggregationActions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.ChangeWorkspace:
       return action.view;
+    case AggregationActionTypes.RunAggregation:
+      return 'results';
     default:
       return state;
   }
