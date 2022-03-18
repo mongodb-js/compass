@@ -9,6 +9,7 @@ import type { RootState } from '../../modules';
 import configureStore from '../../stores/store';
 import Aggregations from '../aggregations';
 import { DATA_SERVICE_CONNECTED } from '../../modules/data-service';
+import { STAGE_ADDED, STAGE_OPERATOR_SELECTED } from '../../modules/pipeline';
 
 const mockDataService = class {
   aggregate() {
@@ -174,6 +175,14 @@ describe('PipelineToolbar', function () {
     });
 
     it('runs pipeline', async function () {
+      store.dispatch({
+        type: STAGE_ADDED,
+      });
+      store.dispatch({
+        type: STAGE_OPERATOR_SELECTED,
+        stageOperator: '$match',
+        index: 0,
+      });
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-run-button')
       );
@@ -189,6 +198,14 @@ describe('PipelineToolbar', function () {
     });
 
     it('edits pipeline', async function () {
+      store.dispatch({
+        type: STAGE_ADDED,
+      });
+      store.dispatch({
+        type: STAGE_OPERATOR_SELECTED,
+        stageOperator: '$match',
+        index: 0,
+      });
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-run-button')
       );
