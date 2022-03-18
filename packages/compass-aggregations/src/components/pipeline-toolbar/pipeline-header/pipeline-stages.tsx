@@ -29,6 +29,10 @@ const pipelineContainerStyles = css({
 const addStageStyles = css({
   border: 'none',
   backgroundColor: 'transparent',
+  span: {
+    // LG style is applied first
+    backgroundImage: 'none !important',
+  },
 });
 
 const pipelineStyles = css({
