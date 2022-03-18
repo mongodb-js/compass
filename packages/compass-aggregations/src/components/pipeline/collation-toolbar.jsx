@@ -79,7 +79,7 @@ class CollationToolbar extends PureComponent {
               styles['collation-toolbar-input-label'],
               { [ styles['has-error'] ]: (this.props.collation === false) }
             )}
-            data-test-id="collation-toolbar-input-label">
+            data-testId="collation-toolbar-input-label">
             <InfoSprinkle helpLink={HELP_URL_COLLATION} onClickHandler={this.props.openLink} />
             Collation
           </div>

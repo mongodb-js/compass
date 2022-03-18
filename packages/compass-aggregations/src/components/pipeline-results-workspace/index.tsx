@@ -5,19 +5,17 @@ import type { ConnectedProps } from 'react-redux';
 import type { RootState } from '../../modules';
 
 const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace> =
-  ({ loading, documents }) => {
-    if (loading) {
-      return <>Running aggregation</>;
-    }
+  ({ documents }) => {
     return (
-      <pre>
-        <code>{JSON.stringify(documents, null, 2)}</code>
-      </pre>
+      <div data-testId="pipeline-results-workspace">
+        <pre>
+          <code>{JSON.stringify(documents, null, 2)}</code>
+        </pre>
+      </div>
     );
   };
 
-const mapState = ({ aggregation: { loading, documents } }: RootState) => ({
-  loading,
+const mapState = ({ aggregation: { documents } }: RootState) => ({
   documents,
 });
 

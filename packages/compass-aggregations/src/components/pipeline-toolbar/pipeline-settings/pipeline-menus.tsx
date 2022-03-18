@@ -38,7 +38,7 @@ function PipelineActionMenu<T>({
 
   return (
     <Menu
-      data-testid={dataTestId}
+      data-testid={`${dataTestId}-content`}
       open={isMenuOpen}
       setOpen={setIsMenuOpen}
       justify="start"
@@ -50,6 +50,7 @@ function PipelineActionMenu<T>({
         children: React.ReactChildren;
       }) => (
         <Button
+          data-testid={dataTestId}
           title={title}
           aria-label={title}
           variant="primary"
@@ -70,6 +71,7 @@ function PipelineActionMenu<T>({
           key={item.title}
           data-action={item.action}
           onClick={onMenuItemClick}
+          aria-label={item.title}
         >
           {item.title}
         </MenuItem>

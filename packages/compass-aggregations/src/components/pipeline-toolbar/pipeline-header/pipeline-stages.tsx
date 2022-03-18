@@ -45,7 +45,7 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   onStageAdded,
   onChangeWorkspace,
 }) => {
-  if (stages.filter(Boolean).length === 0) {
+  if (stages.length === 0) {
     return (
       <div className={containerStyles}>
         <Description>

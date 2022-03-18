@@ -11,6 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../../modules/settings';
 import { toggleAutoPreview } from '../../../modules/auto-preview';
+import type { RootState } from '../../../modules';
 
 const extraSettingsGroupStyles = css({
   display: 'grid',
@@ -34,7 +35,7 @@ const moreSettingsButtonStyles = css({
 });
 
 const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps> =
-  ({ onToggleAutoPreview, onToggleSettings }) => {
+  ({ isAutoPreview, onToggleAutoPreview, onToggleSettings }) => {
     return (
       <div className={extraSettingsGroupStyles}>
         <div className={toggleStyles}>
@@ -44,6 +45,7 @@ const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps>
             aria-label="Toggle Auto Preview"
             onChange={() => onToggleAutoPreview()}
             data-testid="pipeline-toolbar-preview-toggle"
+            checked={isAutoPreview}
           />
           <Label className={toggleLabelStyles} htmlFor="auto-preview">
             Auto Preview
@@ -62,11 +64,15 @@ const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps>
     );
   };
 
+const mapState = ({ autoPreview }: RootState) => ({
+  isAutoPreview: autoPreview,
+});
+
 const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
   onToggleSettings: toggleSettingsIsExpanded,
 };
 
-const connector = connect(null, mapDispatch);
+const connector = connect(mapState, mapDispatch);
 type PipelineExtraSettingsProps = ConnectedProps<typeof connector>;
 export default connector(PipelineExtraSettings);

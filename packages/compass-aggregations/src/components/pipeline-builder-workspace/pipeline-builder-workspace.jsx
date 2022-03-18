@@ -149,7 +149,10 @@ class PipelineWorkspace extends PureComponent {
   render() {
     const inputDocuments = this.props.inputDocuments;
     return (
-      <div className={styles['pipeline-workspace-container-container']}>
+      <div
+        data-testId="pipeline-builder-workspace"
+        className={styles['pipeline-workspace-container-container']}
+      >
         <div className={styles['pipeline-workspace-container']}>
           <div className={styles['pipeline-workspace']}>
             {this.renderModifyingViewSourceBanner()}

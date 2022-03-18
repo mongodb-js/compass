@@ -19,18 +19,16 @@ export type Actions =
 
 export type State = {
   documents: Document[];
-  loading: boolean;
 };
 
 export const INITIAL_STATE: State = {
   documents: [],
-  loading: true,
 };
 
 const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.RunAggregation:
-      return { documents: action.documents, loading: false };
+      return { documents: action.documents };
     default:
       return state;
   }

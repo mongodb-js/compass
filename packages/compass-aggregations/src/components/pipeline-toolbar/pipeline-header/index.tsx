@@ -48,6 +48,7 @@ const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
       <div className={pipelineTextAndOpenStyles}>
         <Body weight="medium">Pipeline</Body>
         <button
+          data-testid="pipeline-toolbar-open-pipelines-button"
           onClick={() => onShowSavedPipelines()}
           className={openSavedPipelinesStyles}
           aria-label="Open saved pipelines"
