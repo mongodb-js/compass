@@ -85,7 +85,7 @@ tests:
                 # swift: |-
                 #     // Requires the MongoSwift package
                 #     // https://github.com/mongodb/mongo-swift-driver
-
+                #
                 #     let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
                 #     let client = try MongoClient(
                 #         "mongodb://localhost:27017",
