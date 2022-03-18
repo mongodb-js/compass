@@ -65,6 +65,7 @@
     "@mongodb-js/tsconfig-compass": "^0.6.0",
     "@mongodb-js/webpack-config-compass": "^0.6.0",
     "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
     "@types/lodash.isempty": "^4.4.6",
     "@types/semver": "^7.3.9",
     "ace-builds": "^1.4.3",
