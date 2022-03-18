@@ -202,7 +202,7 @@ describe('PipelineToolbar', function () {
       expect(screen.getByTestId('save_pipeline_modal')).to.exist;
     });
 
-    // todo: why doesn't it work?
+    // todo: CreateViewModal is opened in another plugin using a different redux store.
     it.skip('opens create view modal', function () {
       userEvent.click(within(toolbar).getByTestId('save-menu'));
       const menuContent = screen.getByTestId('save-menu-content');
@@ -224,7 +224,7 @@ describe('PipelineToolbar', function () {
       expect(screen.getByTestId('import_pipeline_modal')).to.exist;
     });
 
-    // todo: why doesn't it work?
+    // todo: Export to language is also opened differently.
     it.skip('opens export modal', function () {
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-export-button')
