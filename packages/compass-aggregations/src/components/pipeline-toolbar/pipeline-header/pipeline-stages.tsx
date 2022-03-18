@@ -47,7 +47,7 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
 }) => {
   if (stages.length === 0) {
     return (
-      <div className={containerStyles}>
+      <div className={containerStyles} data-testid="toolbar-pipeline-stages">
         <Description>
           Your pipeline is currently empty. To get started select the
           <Link
@@ -63,7 +63,10 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
     );
   }
   return (
-    <div className={cx(containerStyles, pipelineContainerStyles)}>
+    <div
+      className={cx(containerStyles, pipelineContainerStyles)}
+      data-testid="toolbar-pipeline-stages"
+    >
       <Pipeline size="small" className={pipelineStyles}>
         {stages.filter(Boolean).map((stage, index) => (
           <Stage key={`${index}-${stage}`}>{stage}</Stage>
