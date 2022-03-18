@@ -1,6 +1,5 @@
 {
   "name": "@mongodb-js/compass-find-in-page",
-  "productName": "Compass Find In Page plugin",
   "description": "cmd-f UI for Compass",
   "version": "3.20.0",
   "author": {
@@ -22,10 +21,10 @@
   "files": [
     "dist"
   ],
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "exports": {
-    "webpack": "./src/index.js",
-    "require": "./lib/index.js"
+    "webpack": "./src/index.ts",
+    "require": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

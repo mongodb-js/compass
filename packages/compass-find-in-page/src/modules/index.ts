@@ -9,17 +9,17 @@ type State = {
   searching: boolean;
   searchTerm: string;
   enabled: boolean;
-}
+};
 export const INITIAL_STATE: State = {
   searching: false,
   searchTerm: '',
-  enabled: false
+  enabled: false,
 };
 
 function find(state, action): State {
   const opts = {
     forward: action.forward,
-    findNext: action.findNext
+    findNext: action.findNext,
   };
 
   void ipcRenderer.call('app:find-in-page', action.searchTerm, opts);
@@ -33,7 +33,6 @@ function stopFind(state): State {
   return { ...state, searching: false };
 }
 
-
 type FindAction = {
   type: 'FIND';
   findNext: boolean;
@@ -45,38 +44,51 @@ type SetSearchTermAction = {
   type: 'SEARCH_TERM';
 };
 type StopFindAction = {
-  type: 'STOP_FIND'
+  type: 'STOP_FIND';
 };
 type ToggleStatusAction = {
-  type: 'TOGGLE_STATUS'
+  type: 'TOGGLE_STATUS';
 };
-type FindInPageActions = SetSearchTermAction | StopFindAction | ToggleStatusAction | FindAction;
+type FindInPageActions =
+  | SetSearchTermAction
+  | StopFindAction
+  | ToggleStatusAction
+  | FindAction;
 
-export default function reducer(state = INITIAL_STATE, action: FindInPageActions): State {
-  if (action.type === TOGGLE_STATUS) return { ...state, enabled: state.enabled === true ? false : true };
-  if (action.type === SEARCH_TERM) return { ...state, searchTerm: action.searchTerm };
+export default function reducer(
+  state = INITIAL_STATE,
+  action: FindInPageActions
+): State {
+  if (action.type === TOGGLE_STATUS)
+    return { ...state, enabled: state.enabled === true ? false : true };
+  if (action.type === SEARCH_TERM)
+    return { ...state, searchTerm: action.searchTerm };
   if (action.type === STOP_FIND) return stopFind(state);
   if (action.type === FIND) return find(state, action);
 
   return state;
 }
 
-export const dispatchFind = (searchTerm: string, isForwardSearch: boolean, findNext: boolean): FindAction => ({
+export const dispatchFind = (
+  searchTerm: string,
+  isForwardSearch: boolean,
+  findNext: boolean
+): FindAction => ({
   findNext,
   forward: isForwardSearch,
   type: FIND,
-  searchTerm
+  searchTerm,
 });
 
 export const setSearchTerm = (searchTerm: string): SetSearchTermAction => ({
   searchTerm: searchTerm,
-  type: SEARCH_TERM
+  type: SEARCH_TERM,
 });
 
 export const dispatchStopFind = (): StopFindAction => ({
-  type: STOP_FIND
+  type: STOP_FIND,
 });
 
 export const toggleStatus = (): ToggleStatusAction => ({
-  type: TOGGLE_STATUS
+  type: TOGGLE_STATUS,
 });

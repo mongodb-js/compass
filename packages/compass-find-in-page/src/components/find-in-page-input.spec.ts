@@ -2,7 +2,7 @@ import { InputGroup, FormControl } from 'react-bootstrap';
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import FindInPageInput from '../find-in-page-input';
+import FindInPageInput from './find-in-page-input';
 import styles from './find-in-page-input.module.less';
 
 describe('FindInPageInput [Component]', () => {
@@ -24,7 +24,8 @@ describe('FindInPageInput [Component]', () => {
           toggleStatus={toggleStatus}
           dispatchFind={dispatchFind}
           searchTerm={searchTerm}
-          searching={searching}/>
+          searching={searching}
+        />
       );
     });
 
@@ -37,11 +38,15 @@ describe('FindInPageInput [Component]', () => {
     });
 
     it('should have navigation text in top span', () => {
-      expect(component.find(`.${styles['wrapper-span']}`)).to.contain.text('Use (Shift+) Enter to navigate results.');
+      expect(component.find(`.${styles['wrapper-span']}`)).to.contain.text(
+        'Use (Shift+) Enter to navigate results.'
+      );
     });
 
     it('should contain Input Group', () => {
-      expect(component.find('[data-test-id="find-in-page"]')).to.have.descendants(InputGroup);
+      expect(
+        component.find('[data-test-id="find-in-page"]')
+      ).to.have.descendants(InputGroup);
     });
 
     it('input should have empty value', () => {
@@ -53,7 +58,9 @@ describe('FindInPageInput [Component]', () => {
     });
 
     it('close button should have &times; text', () => {
-      expect(component.find(`.${styles['find-close-box']} > span`)).to.contain.text('×');
+      expect(
+        component.find(`.${styles['find-close-box']} > span`)
+      ).to.contain.text('×');
     });
   });
 
@@ -75,7 +82,8 @@ describe('FindInPageInput [Component]', () => {
           toggleStatus={toggleStatus}
           dispatchFind={dispatchFind}
           searchTerm={searchTerm}
-          searching={searching}/>
+          searching={searching}
+        />
       );
     });
 
@@ -88,15 +96,21 @@ describe('FindInPageInput [Component]', () => {
     });
 
     it('should have navigation text in top span', () => {
-      expect(component.find(`.${styles['wrapper-span']}`)).to.contain.text('Use (Shift+) Enter to navigate results.');
+      expect(component.find(`.${styles['wrapper-span']}`)).to.contain.text(
+        'Use (Shift+) Enter to navigate results.'
+      );
     });
 
     it('should contain Input Group', () => {
-      expect(component.find('[data-test-id="find-in-page"]')).to.have.descendants(InputGroup);
+      expect(
+        component.find('[data-test-id="find-in-page"]')
+      ).to.have.descendants(InputGroup);
     });
 
     it('input field should have search term as value', () => {
-      expect(component.find(FormControl)).prop('value').to.be.equal('search term');
+      expect(component.find(FormControl))
+        .prop('value')
+        .to.be.equal('search term');
     });
   });
 });

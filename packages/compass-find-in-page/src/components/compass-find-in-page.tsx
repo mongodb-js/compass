@@ -6,34 +6,59 @@ import {
   dispatchStopFind,
   setSearchTerm,
   toggleStatus,
-  dispatchFind
+  dispatchFind,
 } from '../modules';
 
 type CompassFindInPageProps = {
   enabled: boolean;
+  dispatchStopFind: () => void;
+  setSearchTerm: (searchTerm: string) => void;
+  dispatchFind: (
+    searchTerm: string,
+    isDirectionInversed: boolean,
+    searching: boolean
+  ) => void;
+  toggleStatus: () => void;
+  searchTerm: string;
+  searching: boolean;
 };
 
 const CompassFindInPage: React.FunctionComponent<CompassFindInPageProps> = ({
-  enabled
+  enabled,
+  dispatchStopFind,
+  setSearchTerm,
+  dispatchFind,
+  toggleStatus,
+  searchTerm,
+  searching,
 }) => {
   return (
     <div data-test-id="find-in-page">
-      {enabled && <FindInPageInput />}
+      {enabled && (
+        <FindInPageInput
+          dispatchStopFind={dispatchStopFind}
+          setSearchTerm={setSearchTerm}
+          dispatchFind={dispatchFind}
+          toggleStatus={toggleStatus}
+          searchTerm={searchTerm}
+          searching={searching}
+        />
+      )}
     </div>
   );
-}
+};
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   searchTerm: state.searchTerm,
   searching: state.searching,
-  enabled: state.enabled
+  enabled: state.enabled,
 });
 
 const MappedCompassFindInPage = connect(mapStateToProps, {
   dispatchStopFind,
   setSearchTerm,
   dispatchFind,
-  toggleStatus
+  toggleStatus,
 })(CompassFindInPage);
 
 export default MappedCompassFindInPage;

@@ -5,7 +5,7 @@ import CompassFindInPageStore from './stores';
 
 const ROLE = {
   name: 'FindInPage',
-  component: CompassFindInPagePlugin
+  component: CompassFindInPagePlugin,
 };
 
 /**
