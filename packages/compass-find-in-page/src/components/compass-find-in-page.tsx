@@ -1,13 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import FindInPageInput from '../find-in-page-input';
+import FindInPageInput from './find-in-page-input';
 import {
   dispatchStopFind,
   setSearchTerm,
   toggleStatus,
   dispatchFind
-} from '../../modules';
+} from '../modules';
 
 type CompassFindInPageProps = {
   enabled: boolean;

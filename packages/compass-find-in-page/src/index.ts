@@ -1,4 +1,5 @@
 import type AppRegistry from 'hadron-app-registry';
+
 import CompassFindInPagePlugin from './plugin';
 import CompassFindInPageStore from './stores';
 

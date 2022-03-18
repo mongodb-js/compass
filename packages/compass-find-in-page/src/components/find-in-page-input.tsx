@@ -1,67 +1,92 @@
-import { TextInput, IconButton, Icon, Body } from '@mongodb-js/compass-components';
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { TextInput, IconButton, Icon, Body, withTheme, css, cx } from '@mongodb-js/compass-components';
 
 import styles from './find-in-page-input.module.less';
 
 const KEYCODE_ENTER = 13;
 const KEYCODE_ESC = 27;
 
-class FindInPageInput extends PureComponent {
-  static displayName = 'FindInPageInputComponent';
+type FindInPageInputProps = {
+  dispatchStopFind: () => void;
+  setSearchTerm: (searchTerm: string) => void;
+  dispatchFind: (searchTerm: string, isDirectionInversed: boolean, searching: boolean) => void;
+  toggleStatus: () => void;
+  searchTerm: string;
+  searching: boolean;
+};
 
-  static propTypes = {
-    dispatchStopFind: PropTypes.func.isRequired,
-    setSearchTerm: PropTypes.func.isRequired,
-    dispatchFind: PropTypes.func.isRequired,
-    toggleStatus: PropTypes.func.isRequired,
-    searchTerm: PropTypes.string.isRequired,
-    searching: PropTypes.bool.isRequired,
-    enabled: PropTypes.bool.isRequired
-  };
+function FindInPageInput({
+  dispatchStopFind,
+  setSearchTerm,
+  dispatchFind,
+  toggleStatus,
+  searchTerm,
+  searching,
+}: FindInPageInputProps) {
+  const findInPageInputRef = useRef<HTMLInputElement>(null);
 
-  componentDidMount() {
-    const el = document.querySelector('#find-in-page-input');
-    if (el) el.focus();
-    window.addEventListener('keydown', this.onKeyDown);
-  }
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.onKeyDown);
-  }
+    const onSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(e.target.value);
+    }, [setSearchTerm]);
 
-  onKeyDown = e => {
+    const onClose = useCallback(() => {
+      dispatchStopFind();
+      setSearchTerm('');
+      toggleStatus();
+    }, [dispatchStopFind, setSearchTerm, toggleStatus]);
+
+
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.keyCode === KEYCODE_ESC) {
-      this.handleClose();
+      onClose();
     }
 
     if (e.keyCode === KEYCODE_ENTER) {
       e.preventDefault();
-      const val = document.querySelector('#find-in-page-input').value;
-      if (!val || val === '') return this.props.dispatchStopFind();
+      // const val = document.querySelector('#find-in-page-input').value;
+      const searchValue = findInPageInputRef.current.value;
+      if (!searchValue || searchValue === '') return dispatchStopFind();
 
       const back = e.shiftKey;
-      this.props.dispatchFind(val, !back, this.props.searching);
+      dispatchFind(searchValue, !back, searching);
     }
-  };
+  }, [ onClose, dispatchFind, searching, dispatchStopFind ]);
 
-  handleChange = e => {
-    this.props.setSearchTerm(e.target.value);
-  };
+  useEffect(() => {
+    findInPageInputRef.current?.focus();
+    window.addEventListener('keydown', onKeyDown);
 
-  handleClose = () => {
-    this.props.dispatchStopFind();
-    this.props.setSearchTerm('');
-    this.props.toggleStatus();
-  };
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [ onKeyDown ]);
 
-  /**
-   * Render CompassFindInPage component. If the component is not enabled,
-   * return an empty div.
-   *
-   * @returns {React.Component} The rendered component.
-   */
-  render() {
+  // componentDidMount() {
+  //   // const el = document.querySelector('#find-in-page-input');
+  //   // if (el) el.focus();
+  //   window.addEventListener('keydown', this.onKeyDown);
+  // }
+
+  // componentWillUnmount() {
+  //   window.removeEventListener('keydown', this.onKeyDown);
+  // }
+
+  // onKeyDown = e => {
+  //   if (e.keyCode === KEYCODE_ESC) {
+  //     this.handleClose();
+  //   }
+
+  //   if (e.keyCode === KEYCODE_ENTER) {
+  //     e.preventDefault();
+  //     const val = document.querySelector('#find-in-page-input').value;
+  //     if (!val || val === '') return this.props.dispatchStopFind();
+
+  //     const back = e.shiftKey;
+  //     this.props.dispatchFind(val, !back, this.props.searching);
+  //   }
+  // };
+
     return (
       <div className={styles.wrapper}>
         <Body
@@ -76,16 +101,18 @@ class FindInPageInput extends PureComponent {
             className={styles['find-in-page']}
           >
             <TextInput
-              type="text"
+              type="search"
+              aria-label="Find in page"
+              ref={findInPageInputRef}
               id="find-in-page-input"
-              onChange={this.handleChange}
-              value={this.props.searchTerm}
+              onChange={onSearchChange}
+              value={searchTerm}
             />
           </form>
           <IconButton
             className={styles['find-close']}
             aria-label="Close find box"
-            onClick={this.handleClose}
+            onClick={onClose}
           >
             <Icon
               glyph="X"
@@ -95,7 +122,6 @@ class FindInPageInput extends PureComponent {
         </div>
       </div>
     );
-  }
 }
 
-export default FindInPageInput;
+export default withTheme(FindInPageInput);
