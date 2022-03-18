@@ -7,19 +7,19 @@ import reducer, {
   setSearchTerm,
   dispatchFind,
   toggleStatus
-} from '../../src/modules';
+} from '.';
 
-describe('index module', () => {
-  describe('#dispatchStopFind', () => {
-    it('returns stop find action type', () => {
+describe('index module', function() {
+  describe('#dispatchStopFind', function() {
+    it('returns stop find action type', function() {
       expect(dispatchStopFind()).to.deep.equal({
         type: STOP_FIND
       });
     });
   });
 
-  describe('#dispatchStopFind', () => {
-    it('returns find action type', () => {
+  describe('#dispatchStopFind', function() {
+    it('returns find action type', function() {
       expect(dispatchFind('searchTerm', true, false)).to.deep.equal({
         val: 'searchTerm',
         findNext: false,
@@ -29,16 +29,16 @@ describe('index module', () => {
     });
   });
 
-  describe('#toggleStatus', () => {
-    it('returns a toggle status action type', () => {
+  describe('#toggleStatus', function() {
+    it('returns a toggle status action type', function() {
       expect(toggleStatus()).to.deep.equal({
         type: TOGGLE_STATUS
       });
     });
   });
 
-  describe('#setSearchTerm', () => {
-    it('returns a search term action type', () => {
+  describe('#setSearchTerm', function() {
+    it('returns a search term action type', function() {
       expect(setSearchTerm('search value')).to.deep.equal({
         searchTerm: 'search value',
         type: SEARCH_TERM
@@ -46,9 +46,9 @@ describe('index module', () => {
     });
   });
 
-  describe('#reducer', () => {
-    context('action type is toggleStatus', () => {
-      it('enabled is set to true', () => {
+  describe('#reducer', function() {
+    context('action type is toggleStatus', function() {
+      it('enabled is set to true', function() {
         expect(reducer(undefined, toggleStatus())).to.deep.equal({
           searching: false,
           searchTerm: '',
@@ -57,8 +57,8 @@ describe('index module', () => {
       });
     });
 
-    context('action type is setSearchTerm', () => {
-      it('search value is in state', () => {
+    context('action type is setSearchTerm', function() {
+      it('search value is in state', function() {
         expect(reducer(undefined, setSearchTerm('search value'))).to.deep.equal({
           searchTerm: 'search value',
           searching: false,
@@ -67,8 +67,8 @@ describe('index module', () => {
       });
     });
 
-    context('action type is dispatchFind', () => {
-      it('searching is set to true', () => {
+    context('action type is dispatchFind', function() {
+      it('searching is set to true', function() {
         expect(reducer(undefined, dispatchFind('value', true, true))).to.deep.equal({
           searching: true,
           searchTerm: '',
@@ -77,8 +77,8 @@ describe('index module', () => {
       });
     });
 
-    context('action type is dispatchStopFind', () => {
-      it('searching is set to false', () => {
+    context('action type is dispatchStopFind', function() {
+      it('searching is set to false', function() {
         expect(reducer(undefined, dispatchStopFind())).to.deep.equal({
           searching: false,
           searchTerm: '',

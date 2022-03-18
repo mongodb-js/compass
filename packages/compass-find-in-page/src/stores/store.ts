@@ -16,14 +16,6 @@ store.onActivated = () => {
     }
     store.dispatch(toggleStatus());
   });
-
-  // TODO: ideally the found-in-page result would send information about
-  // results we could display to the user.  unfortunately passing 'results' via
-  // ipc messes up original result navigation.
-  // ipc.on('app:find-in-page-results', (sender, results) => {
-  //   store.dispatch(setCurrentResult(results.activeMatchOrdinal));
-  //   store.dispatch(setTotalResults(results.matches));
-  // })
 };
 
 export default store;

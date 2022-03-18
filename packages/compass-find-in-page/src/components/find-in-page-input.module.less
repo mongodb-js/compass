@@ -7,12 +7,15 @@
   border-top: 0;
   position: absolute;
   z-index: 4;
-  right: 20px;
-  width: 15%;
+  right: 16px;
+  width: 240px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 
   &-span {
-    padding-left: 7px;
-    color: @gray9;
+    padding: 0;
+    padding-left: 8px;
+    padding-top: 8px;
+    margin: 0;
     font-size: 11px;
   }
 
@@ -20,14 +23,11 @@
     display: flex;
     justify-content: space-between;
     flex-direction: row;
+    align-items: center;
 
     &-in-page {
-      padding: 7px 4px 7px 7px;
+      padding: 4px 4px 8px 8px;
       flex: 1;
-
-      &-input {
-        width: 100%;
-      }
 
       &-form-group {
         width: 100%;
@@ -44,24 +44,7 @@
     }
 
     &-close {
-      font-size: 16px;
-      padding: 13px 7px 7px 0px;
-      &-box {
-        width: 16px;
-        height: 16px;
-        text-align: center;
-        display: flex;
-        justify-content:center;
-        align-content:center;
-        flex-direction:column;
-
-        &:hover {
-          color: #fff;
-          border-radius: 100%;
-          background-color: #ff8c6a;
-          border-color: #ff7850;
-        }
-      }
+      margin: 0px 4px;
     }
   }
 }
