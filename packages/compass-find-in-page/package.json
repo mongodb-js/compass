@@ -1,5 +1,6 @@
 {
   "name": "@mongodb-js/compass-find-in-page",
+  "productName": "Compass Find In Page plugin",
   "description": "cmd-f UI for Compass",
   "version": "3.20.0",
   "author": {
