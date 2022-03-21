@@ -23,7 +23,7 @@ const {
   Code,
   BSONSymbol,
   Timestamp,
-  BSONMap
+  Map
 } = require('bson');
 /**
  * The object string.
@@ -57,6 +57,7 @@ const DECIMAL_128 = 'Decimal128';
 const OBJECT_TYPE = '[object Object]';
 const EMPTY = '';
 const OBJECT_ID = 'ObjectID';
+const SYMBOL = 'Symbol';
 
 /**
  * The bson type field.
@@ -228,7 +229,7 @@ const toTimestamp = (object) => {
 };
 
 const toMap = (object) => {
-  return new BSONMap(object);
+  return new Map(object);
 };
 
 /**
@@ -249,7 +250,7 @@ const CASTERS = {
   Null: toNull,
   Object: toObject,
   ObjectId: toObjectID,
-  BSONRegexp: toRegex,
+  BSONRegExp: toRegex,
   String: toString,
   BSONSymbol: toSymbol,
   BSONMap: toMap,
@@ -342,6 +343,9 @@ class TypeChecker {
       }
       if (object._bsontype === OBJECT_ID) {
         return 'ObjectId';
+      }
+      if (object._bsontype === SYMBOL) {
+        return 'BSONSymbol';
       }
       return object._bsontype;
     }

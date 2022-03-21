@@ -19,6 +19,7 @@ import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
 import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
+import ConnectionList from './connection-list/connection-list';
 
 const { debug } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
@@ -46,6 +47,9 @@ const formContainerStyles = css({
   gap: spacing[4],
 });
 
+const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
+const minSidebarWidth = spacing[4] * 9; // 216px
+
 function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
@@ -70,6 +74,8 @@ function Connections({
     removeAllRecentsConnections,
     removeConnection,
     saveConnection,
+    favoriteConnections,
+    recentConnections,
   } = useConnections({ onConnected, connectionStorage, connectFn, appName });
   const {
     activeConnectionId,
@@ -77,7 +83,6 @@ function Connections({
     connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
-    connections,
     isConnected,
   } = state;
 
@@ -89,15 +94,21 @@ function Connections({
       className={connectStyles}
     >
       <ResizableSidebar
-        activeConnectionId={activeConnectionId}
-        connections={connections}
-        createNewConnection={createNewConnection}
-        setActiveConnectionId={setActiveConnectionById}
-        onConnectionDoubleClicked={connect}
-        removeAllRecentsConnections={removeAllRecentsConnections}
-        removeConnection={removeConnection}
-        duplicateConnection={duplicateConnection}
-      />
+        minWidth={minSidebarWidth}
+        initialWidth={initialSidebarWidth}
+      >
+        <ConnectionList
+          activeConnectionId={activeConnectionId}
+          favoriteConnections={favoriteConnections}
+          recentConnections={recentConnections}
+          createNewConnection={createNewConnection}
+          setActiveConnectionId={setActiveConnectionById}
+          onDoubleClick={connect}
+          removeAllRecentsConnections={removeAllRecentsConnections}
+          removeConnection={removeConnection}
+          duplicateConnection={duplicateConnection}
+        />
+      </ResizableSidebar>
       <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary

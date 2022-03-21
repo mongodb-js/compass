@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Mon Mar 14 2022.
+This document was automatically generated on Sun Mar 20 2022.
 
 ## List of dependencies
 
@@ -131,6 +131,7 @@ Package|Version|License
 **[gauge](#18b62982a790026d7bc040542c48df2cf62feda7ecf967119774f6c302397986)**|2.7.4|ISC
 **[github-from-package](#8cba969ea116f44491f4fbb8b391c0ab40408fc2e5380f81bc8e8e42b55fff8b)**|0.0.0|MIT
 **[good-listener](#0700018cbdc383f6ad6d421484a062b2e19ae4da91ffeecbccf3886e5a38afc6)**|1.2.2|MIT
+**[hadron-type-checker](#b70ec3931831f4f6600bce0d22356240349b7df2b5fd9fc4ff06055b0b052d56)**|6.7.0|SSPL
 **[has](#6487c8414d9d7c6246fcbeaa7600e0494fcafcdfaae25b2d07669c0a2f49d8f4)**|1.0.3|MIT
 **[has-flag](#e2f50bddacaae4f231bda078470fd90f19fd780e9c2bc721710a09bcdd536d1a)**|3.0.0|MIT
 **[has-unicode](#b9a84001b1c63f02a1fde085274d2ccb855f9fb683c04ebaa28a14b34f967def)**|2.0.1|ISC
@@ -6136,6 +6137,17 @@ Authors:
 > A more versatile way of adding & removing event listeners
 
 License tags: MIT
+
+
+<a id="b70ec3931831f4f6600bce0d22356240349b7df2b5fd9fc4ff06055b0b052d56"></a>
+### [hadron-type-checker](https://www.npmjs.com/package/hadron-type-checker) (version 6.7.0)
+<!-- initially found at packages/hadron-type-checker -->
+> Hadron Type Checker
+
+License tags: SSPL
+
+Authors:
+* Durran Jordan <durran@gmail.com>
 
 
 <a id="6487c8414d9d7c6246fcbeaa7600e0494fcafcdfaae25b2d07669c0a2f49d8f4"></a>

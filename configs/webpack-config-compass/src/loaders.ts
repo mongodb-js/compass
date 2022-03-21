@@ -41,6 +41,12 @@ export const javascriptLoader = (args: ConfigArgs) => ({
           require.resolve('@babel/plugin-proposal-decorators'),
           { legacy: true },
         ],
+        args.coverage && [
+          'istanbul',
+          {
+            cwd: args.coverage,
+          },
+        ],
         ['web', 'electron-renderer'].includes(args.target as string) &&
           // react-refresh only works when NODE_ENV is dev and will throw
           // otherwise

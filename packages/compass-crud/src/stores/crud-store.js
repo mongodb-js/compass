@@ -626,7 +626,8 @@ const configureStore = (options = {}) => {
         projection,
         collation,
         maxTimeMS,
-        promoteValues: false
+        promoteValues: false,
+        bsonRegExp: true
       };
 
       this.setState({
@@ -1051,6 +1052,7 @@ const configureStore = (options = {}) => {
         collation: query.collation,
         maxTimeMS: query.maxTimeMS,
         promoteValues: false,
+        bsonRegExp: true,
         session: this.dataService.startSession()
       };
 

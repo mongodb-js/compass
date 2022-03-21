@@ -41,7 +41,8 @@ const UNEDITABLE_TYPES = [
   'Timestamp',
   'BSONRegExp',
   'Undefined',
-  'Null'
+  'Null',
+  'DBRef'
 ];
 
 /**
