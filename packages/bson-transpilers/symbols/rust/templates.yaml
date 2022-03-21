@@ -307,23 +307,8 @@ Templates:
             newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             return `::parse_str(${newArg})?`;
         }
-    BinarySymbolTemplate: &BinarySymbolTemplate !!js/function >
-        () => 'Binary'
-    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
-        (_, bytes, type) => {
-            // Double quote stringify
-            let newBytes = bytes;
-            if (
-                (bytes.charAt(0) === '\'' && bytes.charAt(bytes.length - 1) === '\'') ||
-                (bytes.charAt(0) === '"' && bytes.charAt(bytes.length - 1) === '"')) {
-                newBytes = bytes.substr(1, bytes.length - 2);
-            }
-            newBytes = `"${newBytes.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            if (type === null) {
-                type = 'BinarySubtype::Generic';
-            }
-            return ` { subtype: ${type}, bytes: ${bytes}.into_bytes() }`
-        }
+    BinarySymbolTemplate: &BinarySymbolTemplate null
+    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
         () => 'BinarySubtype::Generic'
     BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate !!js/function >
