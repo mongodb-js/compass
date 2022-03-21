@@ -180,7 +180,7 @@
     "@mongodb-js/compass-field-store": "^7.20.0",
     "@mongodb-js/compass-find-in-page": "^3.20.0",
     "@mongodb-js/compass-home": "^5.23.0",
-    "@mongodb-js/compass-import-export": "^6.21.0",
+    "@mongodb-js/compass-import-export": "^0.1.0",
     "@mongodb-js/compass-indexes": "^4.22.0",
     "@mongodb-js/compass-instance": "^3.20.0",
     "@mongodb-js/compass-logging": "^0.9.0",
