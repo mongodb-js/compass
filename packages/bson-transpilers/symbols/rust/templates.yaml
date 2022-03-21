@@ -501,7 +501,7 @@ Templates:
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate !!js/function >
         () => ''
     BinaryToStringTemplate: &BinaryToStringTemplate !!js/function >
-        (arg) => `std::string::from_utf8(${arg})?`
+        (arg) => `format!("{}", ${arg})`
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate !!js/function >
         () => ''
     BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
