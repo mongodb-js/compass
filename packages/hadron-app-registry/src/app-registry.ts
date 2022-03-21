@@ -18,7 +18,7 @@ const STUB_STORE = Reflux.createStore({});
 
 interface Role {
   name: string;
-  component: React.ComponentType<unknown>;
+  component: React.FunctionComponent;
   order?: number;
 }
 
@@ -35,7 +35,7 @@ type Store = Partial<
 export class AppRegistry {
   _emitter: EventEmitter;
   actions: Record<string, unknown>;
-  components: Record<string, React.ComponentType<unknown>>;
+  components: Record<string, React.FunctionComponent>;
   stores: Record<string, Store>;
   roles: Record<string, Role[]>;
   storeMisses: Record<string, number>;
@@ -134,7 +134,7 @@ export class AppRegistry {
    *
    * @returns {Component} The component.
    */
-  getComponent(name: string): React.ComponentType<unknown> | undefined {
+  getComponent(name: string): React.FunctionComponent | undefined {
     return this.components[name];
   }
 
@@ -207,7 +207,7 @@ export class AppRegistry {
    */
   registerComponent(
     name: string,
-    component: React.ComponentType<unknown>
+    component: React.FunctionComponent
   ): this {
     const overwrite = Object.prototype.hasOwnProperty.call(
       this.components,

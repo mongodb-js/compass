@@ -4,8 +4,6 @@ import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 
 import CollectionStats from '../collection-stats';
-import DocumentStatsItem from '../document-stats-item';
-import IndexStatsItem from '../index-stats-item';
 
 describe('CollectionStats [Component]', function () {
   describe('when rendered', function () {
@@ -16,7 +14,16 @@ describe('CollectionStats [Component]', function () {
         appRegistry: new AppRegistry(),
       };
 
-      render(<CollectionStats isReadonly={false} isTimeSeries={false} />);
+      render(
+        <CollectionStats
+          documentCount=""
+          storageSize=""
+          avgDocumentSize=""
+          indexCount=""
+          totalIndexSize=""
+          avgIndexSize=""
+        />
+      );
     });
 
     it('renders the correct root classname', function () {
@@ -33,7 +40,17 @@ describe('CollectionStats [Component]', function () {
     afterEach(cleanup);
 
     before(function () {
-      render(<CollectionStats isReadonly isTimeSeries={false} />);
+      render(
+        <CollectionStats
+          isReadonly
+          documentCount=""
+          storageSize=""
+          avgDocumentSize=""
+          indexCount=""
+          totalIndexSize=""
+          avgIndexSize=""
+        />
+      );
     });
 
     it('renders an empty state', function () {
@@ -54,7 +71,17 @@ describe('CollectionStats [Component]', function () {
         appRegistry: new AppRegistry(),
       };
 
-      render(<CollectionStats isReadonly={false} isTimeSeries />);
+      render(
+        <CollectionStats
+          isTimeSeries
+          documentCount=""
+          storageSize=""
+          avgDocumentSize=""
+          indexCount=""
+          totalIndexSize=""
+          avgIndexSize=""
+        />
+      );
     });
 
     it('renders the document stats', function () {

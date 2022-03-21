@@ -23,7 +23,7 @@ interface CollectionStatsPluginProps {
  *
  * @returns {React.Component} The rendered component.
  */
-const Plugin: React.FunctionComponent<any> = (
+const Plugin: React.FunctionComponent<CollectionStatsPluginProps> = (
   props: CollectionStatsPluginProps
 ) => {
   return (
