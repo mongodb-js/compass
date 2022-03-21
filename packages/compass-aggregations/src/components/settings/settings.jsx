@@ -176,10 +176,7 @@ class Settings extends PureComponent {
     }
 
     return (
-      <div
-        className={classnames(styles.container)}
-        data-testId="pipeline-sidebar-settings"
-      >
+      <div className={classnames(styles.container)}>
         <div className={classnames(styles.header)}>
           <div className={classnames(styles['header-title'])}>Settings</div>
           <div className={classnames(styles['header-btn-group'])}>
