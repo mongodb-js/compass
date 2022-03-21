@@ -1,0 +1,83 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.export-select-fields {
+  &-new-field {
+    float: right;
+  }
+
+  &-caption {
+    width: 100%;
+    margin-bottom: 5px;
+
+    p {
+      margin-right: 7px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    div {
+      display: inline-block;
+      width: 30%;
+    }
+
+    i {
+      color: @gray5;
+    }
+  }
+
+  &-field-wrapper {
+    max-height: 200px;
+    overflow-y: scroll;
+  }
+
+  &-field-name {
+    width: 100%;
+  }
+
+  &-field-number {
+    text-align: center;
+    color: @gray4;
+  }
+
+  &-add-field-input {
+    border: none !important;
+    width: 85%;
+    &::placeholder {
+      color: @gray4;
+    }
+  }
+
+  &-return-symbol {
+    float: right;
+    padding-left: 10px;
+    display: flex;
+    color: @gray4;
+
+    p {
+      margin: 0 0 0 10px;
+    }
+
+    i {
+      font-size: 13px;
+    }
+  }
+
+  &-table {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-size: 11px;
+    padding: 3px 5px !important;
+    border: 1px solid @gray6;
+
+    thead {
+      background: @gray8;
+    }
+
+    th,
+    td {
+      padding: 3px 5px !important;
+      border: 1px solid @gray6;
+    }
+  }
+}

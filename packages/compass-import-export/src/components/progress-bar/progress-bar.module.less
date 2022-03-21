@@ -1,0 +1,78 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.progress-bar {
+  position: relative;
+  border-radius: 5px;
+  height: 10px;
+  background-color: #e7eeec;
+  overflow: hidden;
+
+  &-chart-wrapper {
+    padding-top: 20px;
+    margin-bottom: 0px;
+  }
+
+  &-bar {
+    position: absolute;
+    height: 10px;
+    transition: width 0.2s linear, background-color 0.2s ease;
+    display: block;
+    border-radius: 5px;
+    background-color: #007cad;
+
+    &-is-canceled {
+      background-color: #b8c4c2;
+    }
+
+    &-is-failed {
+      background-color: #d65d33;
+    }
+
+    &-is-completed {
+      background-color: @green2;
+    }
+
+    &-is-with-errors {
+      background-color: @alertOrange;
+    }
+
+    &-is-secondary {
+      opacity: 0.4;
+    }
+  }
+
+  &-status {
+    display: flex;
+    flex-direction: row;
+    padding-top: 5px;
+
+    &-message {
+      flex-grow: 1;
+      margin-bottom: 0;
+
+      &-is-failed {
+        color: #d65d33;
+      }
+
+      &-cancel {
+        margin: 0;
+        margin-left: 10px;
+        color: #0d47a1;
+        border: none;
+        padding: 0;
+        background: none;
+        cursor: pointer;
+      }
+
+      &-cancel:hover,
+      &-cancel:focus {
+        text-decoration: underline;
+      }
+    }
+
+    &-stats {
+      flex-grow: 0;
+      margin-bottom: 0;
+    }
+  }
+}
