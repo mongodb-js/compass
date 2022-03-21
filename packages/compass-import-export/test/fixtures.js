@@ -3,8 +3,8 @@ import path from 'path';
 const FIXTURES = {
   GOOD_COMMAS_CSV: path.join(__dirname, 'good-commas.csv'),
   GOOD_TABS_CSV: path.join(__dirname, 'good-tabs.csv'),
-  BAD_CSV: path.join(__dirname, 'mongoimport', 'test_bad.csv'),
-  JS_I_THINK_IS_JSON: path.join(__dirname, 'js-i-think-is.json'),
+  BAD_CSV: path.join(__dirname, 'test_bad.csv'),
+  JS_I_THINK_IS_JSON: path.join(__dirname, 'js-i-think-is-json'),
   GOOD_JSON: path.join(__dirname, 'docs.json'),
   LINE_DELIMITED_JSON: path.join(__dirname, 'docs.jsonl'),
   LINE_DELIMITED_JSON_EXTRA_LINE: path.join(
