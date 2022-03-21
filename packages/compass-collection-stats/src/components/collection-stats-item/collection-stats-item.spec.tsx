@@ -15,17 +15,17 @@ describe('CollectionStatsItem [Component]', function () {
     });
 
     it('renders the correct root classname', function () {
-      expect(screen.getByTestId('test-collection-stats-item')).to.exist;
+      expect(screen.getByTestId('test')).to.exist;
     });
 
     it('renders the label', function () {
-      const label = screen.getByTestId('test-collection-stats-item-label');
+      const label = screen.getByTestId('test-label');
       expect(label).to.have.text('label');
       expect(label).to.be.visible;
     });
 
     it('renders the value', function () {
-      const value = screen.getByTestId('test-collection-stats-item-value');
+      const value = screen.getByTestId('test-value');
       expect(value).to.have.text('10kb');
       expect(value).to.be.visible;
     });
@@ -46,12 +46,12 @@ describe('CollectionStatsItem [Component]', function () {
     });
 
     it('renders the correct root classname', function () {
-      expect(screen.getByTestId('test-collection-stats-item')).to.exist;
+      expect(screen.getByTestId('test')).to.exist;
     });
 
     it('renders the label', function () {
       const label = screen.getByTestId(
-        'test-collection-stats-item-label-primary'
+        'test-label-primary'
       );
       expect(label).to.have.text('label');
       expect(label).to.be.visible;
@@ -59,7 +59,7 @@ describe('CollectionStatsItem [Component]', function () {
 
     it('renders the value', function () {
       const value = screen.getByTestId(
-        'test-collection-stats-item-value-primary'
+        'test-value-primary'
       );
       expect(value).to.have.text('20kb');
       expect(value).to.be.visible;

@@ -54,11 +54,11 @@ const CollectionStatsItem: React.FunctionComponent<any> = ({
   return (
     <div
       className={collectionStatsItemStyles}
-      data-testid={`${dataTestId}-collection-stats-item`}
+      data-testid={dataTestId}
     >
       <div
         className={primary ? PrimaryLabelStyles : LabelStyles}
-        data-testid={`${dataTestId}-collection-stats-item-label${
+        data-testid={`${dataTestId}-label${
           primary ? '-primary' : ''
         }`}
       >
@@ -66,7 +66,7 @@ const CollectionStatsItem: React.FunctionComponent<any> = ({
       </div>
       <div
         className={primary ? PrimaryValueStyles : ValueStyles}
-        data-testid={`${dataTestId}-collection-stats-item-value${
+        data-testid={`${dataTestId}-value${
           primary ? '-primary' : ''
         }`}
       >

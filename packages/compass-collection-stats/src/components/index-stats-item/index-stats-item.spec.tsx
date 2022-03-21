@@ -19,7 +19,7 @@ describe('IndexStatsItem [Component]', function () {
 
   it('renders the count as primary', function () {
     const label = screen.getByTestId(
-      'index-count-collection-stats-item-label-primary'
+      'index-count-label-primary'
     );
     expect(label).to.have.text('Indexes');
     expect(label).to.be.visible;
@@ -27,7 +27,7 @@ describe('IndexStatsItem [Component]', function () {
 
   it('renders the count as primary value', function () {
     const value = screen.getByTestId(
-      'index-count-collection-stats-item-value-primary'
+      'index-count-value-primary'
     );
     expect(value).to.have.text('10');
     expect(value).to.be.visible;
@@ -35,7 +35,7 @@ describe('IndexStatsItem [Component]', function () {
 
   it('renders total index size as non primary label', function () {
     const label = screen.getByTestId(
-      'total-index-size-collection-stats-item-label'
+      'total-index-size-label'
     );
     expect(label).to.have.text('total size');
     expect(label).to.be.visible;
@@ -43,7 +43,7 @@ describe('IndexStatsItem [Component]', function () {
 
   it('renders total index size as non primary value', function () {
     const value = screen.getByTestId(
-      'total-index-size-collection-stats-item-value'
+      'total-index-size-value'
     );
     expect(value).to.have.text('5kb');
     expect(value).to.be.visible;
@@ -51,7 +51,7 @@ describe('IndexStatsItem [Component]', function () {
 
   it('renders avg index size as a non primary label', function () {
     const label = screen.getByTestId(
-      'avg-index-size-collection-stats-item-label'
+      'avg-index-size-label'
     );
     expect(label).to.have.text('avg. size');
     expect(label).to.be.visible;
@@ -59,7 +59,7 @@ describe('IndexStatsItem [Component]', function () {
 
   it('renders avg index size as a non primary value', function () {
     const value = screen.getByTestId(
-      'avg-index-size-collection-stats-item-value'
+      'avg-index-size-value'
     );
     expect(value).to.have.text('1k');
     expect(value).to.be.visible;
