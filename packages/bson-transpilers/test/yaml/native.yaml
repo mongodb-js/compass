@@ -836,7 +836,7 @@ tests:
           csharp: "\"string\""
           shell: "'string'"
           object: "\"string\""
-          ruby: '"string"'
+          ruby: "'string'"
           swift: '"string"'
     - input:
         python: "b'abc'"
