@@ -37,36 +37,32 @@ const ValueStyles = css({
 
 type CollectionStatsItemProps = {
   label: string;
-  value?: any;
-  primary: boolean;
+  value: any;
+  primary?: boolean;
   dataTestId: string;
 };
 
 /**
  * Component for a single collection stats item.
  */
-const CollectionStatsItem: React.FunctionComponent<any> = ({
-  primary,
-  dataTestId,
-  label,
-  value,
-}: CollectionStatsItemProps) => {
-  return (
-    <div className={collectionStatsItemStyles} data-testid={dataTestId}>
-      <div
-        className={primary ? PrimaryLabelStyles : LabelStyles}
-        data-testid={`${dataTestId}-label${primary ? '-primary' : ''}`}
-      >
-        {label}
+const CollectionStatsItem: React.FunctionComponent<CollectionStatsItemProps> =
+  ({ primary, dataTestId, label, value }: CollectionStatsItemProps) => {
+    return (
+      <div className={collectionStatsItemStyles} data-testid={dataTestId}>
+        <div
+          className={primary ? PrimaryLabelStyles : LabelStyles}
+          data-testid={`${dataTestId}-label${primary ? '-primary' : ''}`}
+        >
+          {label}
+        </div>
+        <div
+          className={primary ? PrimaryValueStyles : ValueStyles}
+          data-testid={`${dataTestId}-value${primary ? '-primary' : ''}`}
+        >
+          {value}
+        </div>
       </div>
-      <div
-        className={primary ? PrimaryValueStyles : ValueStyles}
-        data-testid={`${dataTestId}-value${primary ? '-primary' : ''}`}
-      >
-        {value}
-      </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default CollectionStatsItem;

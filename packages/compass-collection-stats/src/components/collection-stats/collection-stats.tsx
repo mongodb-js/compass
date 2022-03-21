@@ -17,18 +17,18 @@ const collectionStatsEmptyStyles = css({
 });
 
 type CollectionStatsProps = {
-  documentCount?: string;
-  storageSize?: string;
-  avgDocumentSize?: string;
-  indexCount?: string;
-  totalIndexSize?: string;
-  avgIndexSize?: string;
+  documentCount: string;
+  storageSize: string;
+  avgDocumentSize: string;
+  indexCount: string;
+  totalIndexSize: string;
+  avgIndexSize: string;
   isReadonly?: boolean;
   isTimeSeries?: boolean;
   isEditing?: boolean;
 };
 
-const CollectionStats: React.FunctionComponent<any> = ({
+const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
   isReadonly,
   isEditing,
   isTimeSeries,

@@ -21,7 +21,7 @@ const documentStatsItemStyles = css({
 
 type DocumentStatsItemProps = {
   documentCount: string;
-  isTimeSeries: boolean;
+  isTimeSeries?: boolean;
   storageSize: string;
   avgDocumentSize: string;
 };
@@ -29,7 +29,7 @@ type DocumentStatsItemProps = {
 /**
  * The document stats item component.
  */
-const DocumentStatsItem: React.FunctionComponent<any> = ({
+const DocumentStatsItem: React.FunctionComponent<DocumentStatsItemProps> = ({
   documentCount,
   isTimeSeries,
   storageSize,

@@ -7,6 +7,15 @@ import CollectionStats from './components/collection-stats';
 
 interface CollectionStatsPluginProps {
   store: Store;
+  documentCount: string;
+  storageSize: string;
+  avgDocumentSize: string;
+  indexCount: string;
+  totalIndexSize: string;
+  avgIndexSize: string;
+  isReadonly?: boolean;
+  isTimeSeries?: boolean;
+  isEditing?: boolean;
 }
 
 /**
