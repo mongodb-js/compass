@@ -113,7 +113,7 @@ function onCollectionStatusChange(model, status) {
       debug('failed to fetch collection details', model.statusError);
       store.setState({
         ...store.getInitialState(),
-        namespace: store.state.namespace
+        namespace: store.state.namespace,
       });
     }
   }
@@ -133,7 +133,11 @@ function onInstanceDestroyed() {
 /**
  * Collection Stats store.
  */
-const configureStore = ({ namespace, globalAppRegistry, isEditing = false } = {}) => {
+const configureStore = ({
+  namespace,
+  globalAppRegistry,
+  isEditing = false,
+} = {}) => {
   if (!namespace) {
     throw new Error('Trying to render collection stats without namespace');
   }
@@ -167,7 +171,7 @@ const configureStore = ({ namespace, globalAppRegistry, isEditing = false } = {}
 
   if (!coll) {
     throw new Error(
-      `Couldn\'t find collection model for namespace ${namespace}`
+      `Couldn't find collection model for namespace ${namespace}`
     );
   }
 

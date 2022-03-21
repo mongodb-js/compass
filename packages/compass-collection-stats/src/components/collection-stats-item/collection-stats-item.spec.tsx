@@ -9,7 +9,9 @@ describe('CollectionStatsItem [Component]', function () {
     afterEach(cleanup);
 
     beforeEach(function () {
-      render(<CollectionStatsItem label="label" value="10kb" dataTestId="test" />);
+      render(
+        <CollectionStatsItem label="label" value="10kb" dataTestId="test" />
+      );
     });
 
     it('renders the correct root classname', function () {
@@ -33,7 +35,14 @@ describe('CollectionStatsItem [Component]', function () {
     afterEach(cleanup);
 
     beforeEach(function () {
-      render(<CollectionStatsItem label="label" value="20kb" dataTestId="test" primary />);
+      render(
+        <CollectionStatsItem
+          label="label"
+          value="20kb"
+          dataTestId="test"
+          primary
+        />
+      );
     });
 
     it('renders the correct root classname', function () {
@@ -41,13 +50,17 @@ describe('CollectionStatsItem [Component]', function () {
     });
 
     it('renders the label', function () {
-      const label = screen.getByTestId('test-collection-stats-item-label-primary');
+      const label = screen.getByTestId(
+        'test-collection-stats-item-label-primary'
+      );
       expect(label).to.have.text('label');
       expect(label).to.be.visible;
     });
 
     it('renders the value', function () {
-      const value = screen.getByTestId('test-collection-stats-item-value-primary');
+      const value = screen.getByTestId(
+        'test-collection-stats-item-value-primary'
+      );
       expect(value).to.have.text('20kb');
       expect(value).to.be.visible;
     });

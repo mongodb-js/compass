@@ -13,13 +13,10 @@ describe('CollectionStats [Component]', function () {
 
     beforeEach(function () {
       global.hadronApp = {
-        appRegistry: new AppRegistry()
+        appRegistry: new AppRegistry(),
       };
 
-      render(<CollectionStats
-        isReadonly={false}
-        isTimeSeries={false}
-      />);
+      render(<CollectionStats isReadonly={false} isTimeSeries={false} />);
     });
 
     it('renders the correct root classname', function () {
@@ -36,10 +33,7 @@ describe('CollectionStats [Component]', function () {
     afterEach(cleanup);
 
     before(function () {
-      render(<CollectionStats
-        isReadonly
-        isTimeSeries={false}
-      />);
+      render(<CollectionStats isReadonly isTimeSeries={false} />);
     });
 
     it('renders an empty state', function () {
@@ -57,13 +51,10 @@ describe('CollectionStats [Component]', function () {
 
     beforeEach(function () {
       global.hadronApp = {
-        appRegistry: new AppRegistry()
+        appRegistry: new AppRegistry(),
       };
 
-      render(<CollectionStats
-        isReadonly={false}
-        isTimeSeries
-      />);
+      render(<CollectionStats isReadonly={false} isTimeSeries />);
     });
 
     it('renders the document stats', function () {

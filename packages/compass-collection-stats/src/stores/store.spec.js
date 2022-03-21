@@ -42,16 +42,16 @@ const globalAppRegistry = {
   on() {},
 };
 
-describe('CollectionStats [store]', function() {
-  describe('#configureStore', function() {
-    it('configures and returns singleton store instance even for different namespaces', function() {
+describe('CollectionStats [store]', function () {
+  describe('#configureStore', function () {
+    it('configures and returns singleton store instance even for different namespaces', function () {
       const a = configureStore({ globalAppRegistry, namespace: 'foo.bar' });
       const b = configureStore({ globalAppRegistry, namespace: 'baz.meow' });
 
       expect(a).to.eq(b);
     });
 
-    it('sets default values for the collection stats when stats are missing', function() {
+    it('sets default values for the collection stats when stats are missing', function () {
       const store = configureStore({ globalAppRegistry, namespace: 'foo.bar' });
       expect(store.state).to.deep.eq({
         namespace: 'foo.bar',
@@ -67,7 +67,7 @@ describe('CollectionStats [store]', function() {
       });
     });
 
-    it('sets formatted values for the collection where stats are fetched', function() {
+    it('sets formatted values for the collection where stats are fetched', function () {
       const store = configureStore({
         globalAppRegistry,
         namespace: 'bar.woof',
@@ -86,7 +86,7 @@ describe('CollectionStats [store]', function() {
       });
     });
 
-    it('updates state when collection updates', function() {
+    it('updates state when collection updates', function () {
       const store = configureStore({
         globalAppRegistry,
         namespace: 'baz.meow',
@@ -129,7 +129,7 @@ describe('CollectionStats [store]', function() {
       });
     });
 
-    it('resets collection stats to initial values on error', function() {
+    it('resets collection stats to initial values on error', function () {
       const store = configureStore({
         globalAppRegistry,
         namespace: 'bar.woof',

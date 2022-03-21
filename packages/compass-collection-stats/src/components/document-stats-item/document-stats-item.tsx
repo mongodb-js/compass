@@ -15,8 +15,8 @@ const documentStatsItemStyles = css({
   alignItems: 'flex-end',
   marginBottom: 0,
   '&:last-child': {
-    borderRight: 'none'
-  }
+    borderRight: 'none',
+  },
 });
 
 type DocumentStatsItemProps = {
@@ -33,26 +33,30 @@ const DocumentStatsItem: React.FunctionComponent<any> = ({
   documentCount,
   isTimeSeries,
   storageSize,
-  avgDocumentSize
+  avgDocumentSize,
 }: DocumentStatsItemProps) => {
   return (
     <div data-testid="document-stats-item" className={documentStatsItemStyles}>
-      {!isTimeSeries && <CollectionStatsItem
-        dataTestId="document-count"
-        label="Documents"
-        value={documentCount}
-        primary
-      />}
+      {!isTimeSeries && (
+        <CollectionStatsItem
+          dataTestId="document-count"
+          label="Documents"
+          value={documentCount}
+          primary
+        />
+      )}
       <CollectionStatsItem
         dataTestId="storage-size"
         label="storage size"
         value={storageSize}
       />
-      {!isTimeSeries && <CollectionStatsItem
-        dataTestId="avg-document-size"
-        label="avg. size"
-        value={avgDocumentSize}
-      />}
+      {!isTimeSeries && (
+        <CollectionStatsItem
+          dataTestId="avg-document-size"
+          label="avg. size"
+          value={avgDocumentSize}
+        />
+      )}
     </div>
   );
 };

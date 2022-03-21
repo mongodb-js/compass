@@ -15,8 +15,8 @@ const indexStatsItemStyles = css({
   alignItems: 'flex-end',
   marginBottom: 0,
   '&:last-child': {
-    borderRight: 'none'
-  }
+    borderRight: 'none',
+  },
 });
 
 type IndexStatsItemProps = {
@@ -31,13 +31,26 @@ type IndexStatsItemProps = {
 const IndexStatsItem: React.FunctionComponent<any> = ({
   indexCount,
   totalIndexSize,
-  avgIndexSize
+  avgIndexSize,
 }: IndexStatsItemProps) => {
   return (
     <div data-testid="index-stats-item" className={indexStatsItemStyles}>
-      <CollectionStatsItem dataTestId="index-count" label="Indexes" value={indexCount} primary />
-      <CollectionStatsItem dataTestId="total-index-size" label="total size" value={totalIndexSize} />
-      <CollectionStatsItem dataTestId="avg-index-size" label="avg. size" value={avgIndexSize} />
+      <CollectionStatsItem
+        dataTestId="index-count"
+        label="Indexes"
+        value={indexCount}
+        primary
+      />
+      <CollectionStatsItem
+        dataTestId="total-index-size"
+        label="total size"
+        value={totalIndexSize}
+      />
+      <CollectionStatsItem
+        dataTestId="avg-index-size"
+        label="avg. size"
+        value={avgIndexSize}
+      />
     </div>
   );
 };

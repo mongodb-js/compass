@@ -7,14 +7,16 @@ import CollectionStats from './components/collection-stats';
 
 interface CollectionStatsPluginProps {
   store: Store;
-};
+}
 
 /**
  * Connect the Plugin to the store and render.
  *
  * @returns {React.Component} The rendered component.
  */
-const Plugin: React.FunctionComponent<any> = (props: CollectionStatsPluginProps) => {
+const Plugin: React.FunctionComponent<any> = (
+  props: CollectionStatsPluginProps
+) => {
   return (
     // The way Compass requires to extend redux store is not compatible with
     // redux types

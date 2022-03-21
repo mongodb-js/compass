@@ -8,7 +8,7 @@ const role = {
   name: 'Collection HUD',
   order: 1,
   configureStore: configureStore,
-  storeName: 'CollectionStats.Store'
+  storeName: 'CollectionStats.Store',
 };
 
 /**

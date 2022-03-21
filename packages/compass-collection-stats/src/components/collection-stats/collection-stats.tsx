@@ -9,11 +9,11 @@ const collectionStatsStyles = css({
   paddingRight: 0,
   justifyContent: 'flex-end',
   display: 'flex',
-  float: 'right'
+  float: 'right',
 });
 
 const collectionStatsEmptyStyles = css({
-  display: 'none'
+  display: 'none',
 });
 
 type CollectionStatsProps = {
@@ -37,10 +37,15 @@ const CollectionStats: React.FunctionComponent<any> = ({
   avgDocumentSize,
   indexCount,
   totalIndexSize,
-  avgIndexSize
+  avgIndexSize,
 }: CollectionStatsProps) => {
   if (isReadonly === true || isEditing === true) {
-    return (<div data-testid="collection-stats-empty" className={collectionStatsEmptyStyles} />);
+    return (
+      <div
+        data-testid="collection-stats-empty"
+        className={collectionStatsEmptyStyles}
+      />
+    );
   }
 
   return (
