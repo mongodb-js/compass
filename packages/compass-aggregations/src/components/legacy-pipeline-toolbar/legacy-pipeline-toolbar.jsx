@@ -60,6 +60,7 @@ class LegacyPipelineToolbar extends PureComponent {
   render() {
     return (
       <div
+        data-testid="legacy-pipeline-toolbar"
         className={classnames(styles['pipeline-toolbar'], {
           [styles['pipeline-toolbar-border']]: !this.props.isCollationExpanded,
         })}

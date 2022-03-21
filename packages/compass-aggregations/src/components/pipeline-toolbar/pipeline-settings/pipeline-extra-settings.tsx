@@ -13,33 +13,30 @@ import { toggleSettingsIsExpanded } from '../../../modules/settings';
 import { toggleAutoPreview } from '../../../modules/auto-preview';
 import type { RootState } from '../../../modules';
 
-const extraSettingsGroupStyles = css({
-  display: 'grid',
+const containerStyles = css({
+  display: 'flex',
   gap: spacing[2],
-  gridTemplateAreas: '"autoPreviewToggle moreSettings"',
+  justifyItems: 'center',
 });
 
 const toggleStyles = css({
   display: 'flex',
-  alignItems: 'flex-end',
+  alignItems: 'center',
   gap: spacing[1],
 });
 
 const toggleLabelStyles = css({
   marginBottom: 0,
+  padding: 0,
   textTransform: 'uppercase',
   // todo: remove this post removal of global styles
   margin: 'inherit !important',
 });
 
-const moreSettingsButtonStyles = css({
-  gridArea: 'moreSettings',
-});
-
 const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps> =
   ({ isAutoPreview, onToggleAutoPreview, onToggleSettings }) => {
     return (
-      <div className={extraSettingsGroupStyles}>
+      <div className={containerStyles}>
         <div className={toggleStyles}>
           <Toggle
             id="auto-preview"
@@ -55,7 +52,6 @@ const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps>
         </div>
 
         <IconButton
-          className={moreSettingsButtonStyles}
           aria-label="More Settings"
           onClick={() => onToggleSettings()}
           data-testid="pipeline-toolbar-settings-button"

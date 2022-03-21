@@ -28,16 +28,18 @@ const openSavedPipelinesStyles = css({
   border: 'none',
   backgroundColor: 'transparent',
   lineHeight: 1,
-  marginTop: spacing[1],
   display: 'flex',
+  alignItems: 'center',
 });
 
 const pipelineStagesStyles = css({
   gridArea: 'pipelineStages',
+  display: 'flex',
 });
 const pipelineActionStyles = css({
   gridArea: 'pipelineAction',
   justifySelf: 'end',
+  display: 'flex',
 });
 
 const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({

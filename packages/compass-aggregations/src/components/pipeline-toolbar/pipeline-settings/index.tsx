@@ -15,27 +15,15 @@ const containerStyles = css({
   alignItems: 'center',
 });
 const settingsStyles = css({
-  gridArea: 'settings',
-  display: 'grid',
+  display: 'flex',
   gap: spacing[2],
-  gridTemplateAreas: '"name saveMenu createMenu exportButton"',
-  justifyContent: 'start',
+  alignItems: 'center',
 });
-const nameStyles = css({
-  gridArea: 'name',
-});
-const saveMenuStyles = css({
-  gridArea: 'saveMenu',
-});
-const createMenuStyles = css({
-  gridArea: 'createMenu',
-});
-const exportButtonStyles = css({
-  gridArea: 'exportButton',
-});
+
 const extraSettingsStyles = css({
   gridArea: 'extraSettings',
   justifySelf: 'end',
+  display: 'flex',
 });
 
 const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
@@ -44,26 +32,18 @@ const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
       <div className={settingsStyles}>
-        <div className={nameStyles}>
-          <PipelineName />
-        </div>
-        <div className={saveMenuStyles}>
-          <SaveMenu />
-        </div>
-        <div className={createMenuStyles}>
-          <CreateMenu />
-        </div>
-        <div className={exportButtonStyles}>
-          <Button
-            variant="primaryOutline"
-            size="xsmall"
-            leftGlyph={<Icon glyph={'Export'} />}
-            onClick={() => onExportToLanguage()}
-            data-testid="pipeline-toolbar-export-button"
-          >
-            Export to language
-          </Button>
-        </div>
+        <PipelineName />
+        <SaveMenu />
+        <CreateMenu />
+        <Button
+          variant="primaryOutline"
+          size="xsmall"
+          leftGlyph={<Icon glyph={'Export'} />}
+          onClick={() => onExportToLanguage()}
+          data-testid="pipeline-toolbar-export-button"
+        >
+          Export to language
+        </Button>
       </div>
       <div className={extraSettingsStyles}>
         <PipelineExtraSettings />

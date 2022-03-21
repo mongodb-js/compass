@@ -80,7 +80,6 @@ function createPipelineWorkspace({
   projections = [],
   projectionsChanged = () => {},
   newPipelineFromPaste = () => {},
-  workspace = 'builder',
 } = {}) {
   return (<PipelineBuilderWorkspace
     allowWrites={allowWrites}
@@ -114,7 +113,6 @@ function createPipelineWorkspace({
     projections={projections}
     projectionsChanged={projectionsChanged}
     newPipelineFromPaste={newPipelineFromPaste}
-    workspace={workspace}
   />);
 }
 

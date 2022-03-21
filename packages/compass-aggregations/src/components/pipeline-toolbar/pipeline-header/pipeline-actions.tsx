@@ -14,17 +14,12 @@ import { runAggregation } from '../../../modules/aggregation';
 import { toggleOptions } from '../../../modules/options';
 
 const containerStyles = css({
-  display: 'grid',
+  display: 'flex',
   gap: spacing[2],
-  gridTemplateAreas: '"run options"',
-});
-
-const runButtonStyles = css({
-  gridArea: 'run',
+  alignItems: 'center',
 });
 
 const optionsButtonStyles = css({
-  gridArea: 'options',
   backgroundColor: 'transparent',
   border: 'none',
   display: 'inline',
@@ -33,6 +28,7 @@ const optionsButtonStyles = css({
 const optionStyles = css({
   display: 'flex',
   alignItems: 'center',
+  minWidth: '100px',
 });
 
 const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
@@ -45,7 +41,6 @@ const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     <div className={containerStyles}>
       <Button
         data-testid="pipeline-toolbar-run-button"
-        className={runButtonStyles}
         variant="primary"
         size="small"
         onClick={() => {

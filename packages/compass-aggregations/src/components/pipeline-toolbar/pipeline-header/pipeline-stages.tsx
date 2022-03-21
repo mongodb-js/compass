@@ -18,34 +18,27 @@ import { stageAdded } from '../../../modules/pipeline';
 import { changeWorkspace } from '../../../modules/workspace';
 
 const containerStyles = css({
-  display: 'grid',
+  display: 'flex',
   gap: spacing[2],
 });
 
-const pipelineContainerStyles = css({
-  gridTemplateAreas: '"pipeline edit"',
-});
-
-const addStageStyles = css({
-  border: 'none',
-  backgroundColor: 'transparent',
-  span: {
-    // LG style is applied first
-    backgroundImage: 'none !important',
-  },
-});
-
-const pipelineStyles = css({
-  gridArea: 'pipeline',
-});
-
-const editButtonStyles = css({
-  gridArea: 'edit',
+const descriptionStyles = css({
+  padding: 0,
 });
 
 // todo: remove this post removal of global styles
 const resetParaStyles = css({
   margin: 'inherit !important',
+});
+
+const addStageStyles = css({
+  border: 'none',
+  padding: 0,
+  backgroundColor: 'transparent',
+  span: {
+    // LG style is applied first
+    backgroundImage: 'none !important',
+  },
 });
 
 const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
@@ -57,8 +50,8 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   if (stages.filter(Boolean).length === 0) {
     return (
       <div className={containerStyles} data-testid="toolbar-pipeline-stages">
-        <Description className={resetParaStyles}>
-          Your pipeline is currently empty. To get started select the
+        <Description className={cx(descriptionStyles, resetParaStyles)}>
+          Your pipeline is currently empty. To get started select the&nbsp;
           <Link
             className={addStageStyles}
             as="button"
@@ -72,18 +65,14 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
     );
   }
   return (
-    <div
-      className={cx(containerStyles, pipelineContainerStyles)}
-      data-testid="toolbar-pipeline-stages"
-    >
-      <Pipeline size="small" className={pipelineStyles}>
+    <div className={containerStyles} data-testid="toolbar-pipeline-stages">
+      <Pipeline size="small">
         {stages.filter(Boolean).map((stage, index) => (
           <Stage key={`${index}-${stage}`}>{stage}</Stage>
         ))}
       </Pipeline>
       {isEditing && (
         <Button
-          className={editButtonStyles}
           data-testid="pipeline-toolbar-edit-button"
           variant="primaryOutline"
           size="small"

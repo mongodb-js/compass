@@ -4,7 +4,7 @@ import type { ConnectedProps } from 'react-redux';
 import { css, Body, Tooltip } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 
-const pipelineNameStyles = css({
+const containerStyles = css({
   display: 'flex',
   alignItems: 'center',
 });
@@ -25,7 +25,7 @@ const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
   isModified,
 }) => {
   return (
-    <Body className={pipelineNameStyles} data-testid="pipeline-name">
+    <Body className={containerStyles} data-testid="pipeline-name">
       {name === '' ? (
         'Untitled'
       ) : (

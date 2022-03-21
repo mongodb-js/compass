@@ -7,9 +7,10 @@ import type { Store } from 'redux';
 
 import type { RootState } from '../../modules';
 import configureStore from '../../stores/store';
-import Aggregations from '../aggregations';
 import { DATA_SERVICE_CONNECTED } from '../../modules/data-service';
+import { NAME_CHANGED } from '../../modules/name';
 import { STAGE_ADDED, STAGE_OPERATOR_SELECTED } from '../../modules/pipeline';
+import PipelineToolbar from '.';
 
 const mockDataService = class {
   aggregate() {
@@ -19,26 +20,16 @@ const mockDataService = class {
   }
 };
 
-const initialShowNewToolbarValue =
-  process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
-
 describe('PipelineToolbar', function () {
   describe('renders toolbar', function () {
     let toolbar: HTMLElement;
     beforeEach(function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
-      const store = configureStore({});
       render(
-        <Provider store={store}>
-          <Aggregations />
+        <Provider store={configureStore({})}>
+          <PipelineToolbar />
         </Provider>
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
-    });
-
-    afterEach(function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR =
-        initialShowNewToolbarValue;
     });
 
     it('renders toolbar', function () {
@@ -148,7 +139,6 @@ describe('PipelineToolbar', function () {
     let toolbar: HTMLElement;
     let store: Store<RootState>;
     beforeEach(function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
       store = configureStore({});
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
@@ -156,22 +146,17 @@ describe('PipelineToolbar', function () {
       });
       render(
         <Provider store={store}>
-          <Aggregations />
+          <PipelineToolbar />
         </Provider>
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
-    });
-
-    afterEach(function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR =
-        initialShowNewToolbarValue;
     });
 
     it('opens saved pipelines', function () {
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-open-pipelines-button')
       );
-      expect(screen.getByTestId('saved-pipelines')).to.exist;
+      expect(store.getState().savedPipeline.isListVisible).to.equal(true);
     });
 
     it('runs pipeline', async function () {
@@ -187,10 +172,7 @@ describe('PipelineToolbar', function () {
         within(toolbar).getByTestId('pipeline-toolbar-run-button')
       );
       await waitFor(() => Promise.resolve(true));
-      expect(
-        screen.getByTestId('pipeline-results-workspace'),
-        'shows results workspace'
-      ).to.exist;
+      expect(store.getState().workspace).to.equal('results');
       expect(
         screen.getByTestId('pipeline-toolbar-edit-button'),
         'show edit after query is run'
@@ -213,54 +195,67 @@ describe('PipelineToolbar', function () {
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-edit-button')
       );
-      expect(
-        screen.getByTestId('pipeline-builder-workspace'),
-        'shows builder workspace'
-      ).to.exist;
+      expect(store.getState().workspace).to.equal('builder');
     });
 
     it('opens save pipeline modal', function () {
       userEvent.click(within(toolbar).getByTestId('save-menu'));
       const menuContent = screen.getByTestId('save-menu-content');
       userEvent.click(within(menuContent).getByLabelText('Save'));
-      expect(screen.getByTestId('save_pipeline_modal')).to.exist;
+      expect(store.getState().savingPipeline.isOpen).to.equal(true);
+      expect(store.getState().savingPipeline.isSaveAs).to.equal(false);
     });
 
-    it('opens save as pipeline modal', function () {
+    it('opens save as pipeline modal - no name', function () {
       userEvent.click(within(toolbar).getByTestId('save-menu'));
       const menuContent = screen.getByTestId('save-menu-content');
       userEvent.click(within(menuContent).getByLabelText('Save as'));
-      expect(screen.getByTestId('save_pipeline_modal')).to.exist;
+      expect(store.getState().savingPipeline.isOpen).to.equal(true);
+      expect(store.getState().savingPipeline.isSaveAs).to.equal(false); // if name is empty, its a save
     });
 
-    // todo: CreateViewModal is opened in another plugin using a different redux store.
+    it('opens save as pipeline modal - with name', function () {
+      const name = 'hello';
+      store.dispatch({
+        type: NAME_CHANGED,
+        name,
+      });
+      userEvent.click(within(toolbar).getByTestId('save-menu'));
+      const menuContent = screen.getByTestId('save-menu-content');
+      userEvent.click(within(menuContent).getByLabelText('Save as'));
+      expect(store.getState().savingPipeline).to.deep.equal({
+        isOpen: true,
+        isSaveAs: true,
+        name,
+      });
+    });
+
+    // todo: uses a different store
     it.skip('opens create view modal', function () {
       userEvent.click(within(toolbar).getByTestId('save-menu'));
       const menuContent = screen.getByTestId('save-menu-content');
       userEvent.click(within(menuContent).getByLabelText('Create view'));
-      expect(screen.getByTestId('create_view_modal')).to.exist;
     });
 
     it('opens confirmation modal when creating a new pipeline', function () {
       userEvent.click(within(toolbar).getByTestId('create-new-menu'));
       const menuContent = screen.getByTestId('create-new-menu-content');
       userEvent.click(within(menuContent).getByLabelText('Pipeline'));
-      expect(screen.getByTestId('confirm_new_pipeline_modal')).to.exist;
+      expect(store.getState().isNewPipelineConfirm).to.equal(true);
     });
 
     it('opens import modal when creating a new pipeline from text', function () {
       userEvent.click(within(toolbar).getByTestId('create-new-menu'));
       const menuContent = screen.getByTestId('create-new-menu-content');
       userEvent.click(within(menuContent).getByLabelText('Pipeline from text'));
-      expect(screen.getByTestId('import_pipeline_modal')).to.exist;
+      expect(store.getState().importPipeline.isOpen).to.equal(true);
     });
 
-    // todo: Export to language is also opened differently.
+    // todo: uses a different store
     it.skip('opens export modal', function () {
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-export-button')
       );
-      expect(screen.getByTestId('export-to-lang-modal')).to.exist;
     });
 
     it('toggles auto-preview', function () {
@@ -275,7 +270,7 @@ describe('PipelineToolbar', function () {
       userEvent.click(
         within(toolbar).getByTestId('pipeline-toolbar-settings-button')
       );
-      expect(screen.getByTestId('pipeline-sidebar-settings')).to.exist;
+      expect(store.getState().settings.isExpanded).to.equal(true);
     });
   });
 });
