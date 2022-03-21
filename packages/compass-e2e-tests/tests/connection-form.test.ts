@@ -561,7 +561,8 @@ async function selectConnectionMenuItem(
   itemSelector: string
 ) {
   const selector = Selectors.sidebarFavorite(favoriteName);
-  await browser.$(selector).waitForDisplayed();
+  // It takes some time for the favourites to load
+  await browser.$(selector).waitForDisplayed({ timeout: 60_000 });
   await browser.hover(selector);
 
   await browser.clickVisible(Selectors.sidebarFavoriteMenuButton(favoriteName));
