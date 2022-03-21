@@ -1,0 +1,31 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.export-modal {
+  &-radio input[type='radio'] {
+    margin-right: 10px;
+  }
+
+  &-back-button {
+    float: left;
+
+    i {
+      padding-right: 5px;
+    }
+  }
+
+  &-query {
+    padding: 5px 0px 5px 0px;
+
+    &-is-disabled {
+      color: @gray5;
+    }
+
+    &-viewer {
+      margin: 0 0 10px 22px;
+
+      &-is-disabled {
+        opacity: 0.5;
+      }
+    }
+  }
+}
