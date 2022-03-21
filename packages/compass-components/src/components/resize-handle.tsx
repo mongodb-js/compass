@@ -45,6 +45,7 @@ const verticalResizerStyle = css({
 });
 
 const horizontalResizerStyle = css({
+  width: '100%',
   height: '4px !important',
   top: '-2px',
   right: 0,
