@@ -52,23 +52,16 @@ const CollectionStatsItem: React.FunctionComponent<any> = ({
   value,
 }: CollectionStatsItemProps) => {
   return (
-    <div
-      className={collectionStatsItemStyles}
-      data-testid={dataTestId}
-    >
+    <div className={collectionStatsItemStyles} data-testid={dataTestId}>
       <div
         className={primary ? PrimaryLabelStyles : LabelStyles}
-        data-testid={`${dataTestId}-label${
-          primary ? '-primary' : ''
-        }`}
+        data-testid={`${dataTestId}-label${primary ? '-primary' : ''}`}
       >
         {label}
       </div>
       <div
         className={primary ? PrimaryValueStyles : ValueStyles}
-        data-testid={`${dataTestId}-value${
-          primary ? '-primary' : ''
-        }`}
+        data-testid={`${dataTestId}-value${primary ? '-primary' : ''}`}
       >
         {value}
       </div>

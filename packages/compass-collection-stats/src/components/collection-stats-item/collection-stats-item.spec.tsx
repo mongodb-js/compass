@@ -50,17 +50,13 @@ describe('CollectionStatsItem [Component]', function () {
     });
 
     it('renders the label', function () {
-      const label = screen.getByTestId(
-        'test-label-primary'
-      );
+      const label = screen.getByTestId('test-label-primary');
       expect(label).to.have.text('label');
       expect(label).to.be.visible;
     });
 
     it('renders the value', function () {
-      const value = screen.getByTestId(
-        'test-value-primary'
-      );
+      const value = screen.getByTestId('test-value-primary');
       expect(value).to.have.text('20kb');
       expect(value).to.be.visible;
     });

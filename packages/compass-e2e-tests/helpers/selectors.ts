@@ -394,10 +394,11 @@ export const CollectionTab = '.test-tab-nav-bar-tab';
 export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
-export const DocumentCountValue = '[data-testid="document-count-value-primary"]';
+export const DocumentCountValue =
+  '[data-testid="document-count-value-primary"]';
 export const StorageSizeValue = '[data-testid="storage-size-value"]';
 export const AvgDocumentSizeValue = '[data-testid="avg-document-size-value"]';
-export const IndexCountValue = '[data-testid="index-count-label-primary"]';
+export const IndexCountValue = '[data-testid="index-count-value-primary"]';
 export const TotalIndexSizeValue = '[data-testid="total-index-size-value"]';
 export const AvgIndexSizeValue = '[data-testid="avg-index-size-value"]';
 
