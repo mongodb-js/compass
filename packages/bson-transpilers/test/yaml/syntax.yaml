@@ -171,7 +171,11 @@ tests:
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) != -1"
           object: "false"
           ruby: "[\n  1, 2\n].include?(4)"
-          rust: "[\n  1, 2\n].contains(&4)"
+          rust: |-
+            [
+                1,
+                2
+            ].contains(&4)
     - input:
           python: "4 not in [1, 2]"
       output:
@@ -182,7 +186,11 @@ tests:
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) == -1"
           object: "true"
           ruby: "![\n  1, 2\n].include?(4)"
-          rust: "![\n  1, 2\n].contains(&4)"
+          rust: |-
+            ![
+                1,
+                2
+            ].contains(&4)
     comments:
     - input:
           javascript: "1 // a comment"

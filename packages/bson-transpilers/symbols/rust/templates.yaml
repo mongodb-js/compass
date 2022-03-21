@@ -211,16 +211,18 @@ Templates:
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal, depth) => {
-            depth++;
             if (literal === '') {
                 return '[]'
             }
-            const indent = '\n' + '  '.repeat(depth);
-            const closingIndent = '\n' + '  '.repeat(depth - 1);
-
-            return `[${indent}${literal}${closingIndent}]`;
+            return `[${literal}]`;
         }
-    ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate null # Args: single array element, nestedness, lastElement? (note: not being used atm)
+    ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate !!js/function >
+        (element, depth, isLast) => {
+            depth++;
+            const indent = '\n' + '    '.repeat(depth);
+            const closingIndent = isLast ? '\n' + '    '.repeat(depth - 1) : ',';
+            return `${indent}${element}${closingIndent}`;
+        }
     NullTypeTemplate: &NullTypeTemplate !!js/function >
         () => 'Bson::Null'
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
@@ -233,8 +235,8 @@ Templates:
                 return '';
             }
             depth++;
-            const indent = '\n' + '  '.repeat(depth);
-            const closingIndent = '\n' + '  '.repeat(depth - 1);
+            const indent = '\n' + '    '.repeat(depth);
+            const closingIndent = '\n' + '    '.repeat(depth - 1);
             const doubleStringify = (str) => {
                 let newStr = str;
                 if (

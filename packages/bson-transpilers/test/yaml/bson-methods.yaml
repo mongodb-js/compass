@@ -37,7 +37,7 @@ tests:
                 }).scope
             rust: |-
                 JavaScriptCodeWithScope { code: "test code".to_string(), scope: doc! {
-                  "x": 1
+                    "x": 1
                 } }.scope
     -   input:
             javascript: Code('test code').code

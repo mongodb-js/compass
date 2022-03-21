@@ -50,7 +50,7 @@ tests:
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           rust: |-
             JavaScriptCodeWithScope { code: "string".to_string(), scope: doc! {
-              "x": "1"
+                "x": "1"
             } }
     - description: 'no args'
       input:
@@ -89,7 +89,7 @@ tests:
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           rust: |-
             JavaScriptCodeWithScope { code: "string".to_string(), scope: doc! {
-              "x": "1"
+                "x": "1"
             } }
     ObjectId:
     - description: 'no arg'

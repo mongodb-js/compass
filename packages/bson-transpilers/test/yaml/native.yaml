@@ -20,7 +20,10 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
-          rust: "doc! {\n  \"x\": \"1\"\n}"
+          rust: |-
+            doc! {
+                "x": "1"
+            }
     - input:
           javascript: "{x: '1',}"
           shell: "{x: '1',}"
@@ -33,7 +36,10 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
-          rust: "doc! {\n  \"x\": \"1\"\n}"
+          rust: |-
+            doc! {
+                "x": "1"
+            }
     - input:
           javascript: "{x: ['1', '2']}"
           shell: "{x: ['1', '2']}"
@@ -46,7 +52,13 @@ tests:
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
           ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
-          rust: "doc! {\n  \"x\": [\n    \"1\", \"2\"\n  ]\n}"
+          rust: |-
+            doc! {
+                "x": [
+                    "1",
+                    "2"
+                ]
+            }
     - input:
           javascript: "{x: {y: 2}}"
           shell: "{x: {y: 2}}"
@@ -59,7 +71,12 @@ tests:
           shell: "{\n  'x': {\n    'y': 2\n  }\n}"
           object: "{x: {y: 2}}"
           ruby: "{\n  'x' => {\n    'y' => 2\n  }\n}"
-          rust: "doc! {\n  \"x\": doc! {\n    \"y\": 2\n  }\n}"
+          rust: |-
+            doc! {
+                "x": doc! {
+                    "y": 2
+                }
+            }
     - input:
           javascript: "{}"
           shell: "{}"
@@ -85,7 +102,11 @@ tests:
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
           ruby: "{\n  'x' => '1',\n  'n' => '4'\n}"
-          rust: "doc! {\n  \"x\": \"1\",\n  \"n\": \"4\"\n}"
+          rust: |-
+            doc! {
+                "x": "1",
+                "n": "4"
+            }
     - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
@@ -98,7 +119,16 @@ tests:
           shell: "{\n  'graphLookup': {\n    'from': 'raw_data', \n    'startWith': '$_id', \n    'connectFromField': '_id', \n    'connectToField': 'manager', \n    'as': 'reports'\n  }\n}"
           object: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           ruby: "{\n  'graphLookup' => {\n    'from' => 'raw_data',\n    'startWith' => '$_id',\n    'connectFromField' => '_id',\n    'connectToField' => 'manager',\n    'as' => 'reports'\n  }\n}"
-          rust: "doc! {\n  \"graphLookup\": doc! {\n    \"from\": \"raw_data\",\n    \"startWith\": \"$_id\",\n    \"connectFromField\": \"_id\",\n    \"connectToField\": \"manager\",\n    \"as\": \"reports\"\n  }\n}"
+          rust: |-
+            doc! {
+                "graphLookup": doc! {
+                    "from": "raw_data",
+                    "startWith": "$_id",
+                    "connectFromField": "_id",
+                    "connectToField": "manager",
+                    "as": "reports"
+                }
+            }
     - input:
           javascript: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
           shell: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
@@ -111,7 +141,22 @@ tests:
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
-          rust: "doc! {\n  \"status\": \"A\",\n  \"$or\": [\n    doc! {\n      \"qty\": doc! {\n        \"$lt\": 30\n      }\n    }, doc! {\n      \"item\": doc! {\n        \"$regex\": \"^p\"\n      }\n    }\n  ]\n}"
+          rust: |-
+            doc! {
+                "status": "A",
+                "$or": [
+                    doc! {
+                        "qty": doc! {
+                            "$lt": 30
+                        }
+                    },
+                    doc! {
+                        "item": doc! {
+                            "$regex": "^p"
+                        }
+                    }
+                ]
+            }
     - input:
           python: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
       output:
@@ -122,7 +167,22 @@ tests:
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
-          rust: "doc! {\n  \"status\": \"A\",\n  \"$or\": [\n    doc! {\n      \"qty\": doc! {\n        \"$lt\": 30\n      }\n    }, doc! {\n      \"item\": doc! {\n        \"$regex\": \"^p\"\n      }\n    }\n  ]\n}"
+          rust: |-
+            doc! {
+                "status": "A",
+                "$or": [
+                    doc! {
+                        "qty": doc! {
+                            "$lt": 30
+                        }
+                    },
+                    doc! {
+                        "item": doc! {
+                            "$regex": "^p"
+                        }
+                    }
+                ]
+            }
     Array:
     - input:
           python: "['1', '2']"
@@ -136,7 +196,11 @@ tests:
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
-          rust: "[\n  \"1\", \"2\"\n]"
+          rust: |-
+            [
+                "1",
+                "2"
+            ]
     - input:
           python: "['1', '2',]"
           javascript: "['1', '2',]"
@@ -149,7 +213,11 @@ tests:
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
-          rust: "[\n  \"1\", \"2\"\n]"
+          rust: |-
+            [
+                "1",
+                "2"
+            ]
     - input:
           python: "['1', { 'settings': 'http2' }]"
           javascript: "['1', { settings: 'http2' }]"
@@ -162,7 +230,13 @@ tests:
           python: "[\n    '1', {\n        'settings': 'http2'\n    }\n]"
           object: "['1', { settings: 'http2' }]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
-          rust: "[\n  \"1\", doc! {\n    \"settings\": \"http2\"\n  }\n]"
+          rust: |-
+            [
+                "1",
+                doc! {
+                    "settings": "http2"
+                }
+            ]
     - input:
           python: "{ 'pipeline': [{'$match': {'$expr': { '$eq': [ '$manager', '$$me' ] } } }, { '$project': { 'managers': 0}}, {'$sort': { 'startQuarter': 1, 'notes': 1, 'job_code': 1}}]}"
           javascript: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
@@ -175,7 +249,33 @@ tests:
           python: "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}"
           object: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
           ruby: "{\n  'pipeline' => [\n    {\n      '$match' => {\n        '$expr' => {\n          '$eq' => [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project' => {\n        'managers' => 0\n      }\n    }, {\n      '$sort' => {\n        'startQuarter' => 1,\n        'notes' => 1,\n        'job_code' => 1\n      }\n    }\n  ]\n}"
-          rust: "doc! {\n  \"pipeline\": [\n    doc! {\n      \"$match\": doc! {\n        \"$expr\": doc! {\n          \"$eq\": [\n            \"$manager\", \"$$me\"\n          ]\n        }\n      }\n    }, doc! {\n      \"$project\": doc! {\n        \"managers\": 0\n      }\n    }, doc! {\n      \"$sort\": doc! {\n        \"startQuarter\": 1,\n        \"notes\": 1,\n        \"job_code\": 1\n      }\n    }\n  ]\n}"
+          rust: |-
+            doc! {
+                "pipeline": [
+                    doc! {
+                        "$match": doc! {
+                            "$expr": doc! {
+                                "$eq": [
+                                    "$manager",
+                                    "$$me"
+                                ]
+                            }
+                        }
+                    },
+                    doc! {
+                        "$project": doc! {
+                            "managers": 0
+                        }
+                    },
+                    doc! {
+                        "$sort": doc! {
+                            "startQuarter": 1,
+                            "notes": 1,
+                            "job_code": 1
+                        }
+                    }
+                ]
+            }
     - input:
           python: "['1', ['2', '3']]"
           javascript: "['1', ['2', '3']]"
@@ -188,7 +288,14 @@ tests:
           python: "[\n    '1', [\n        '2', '3'\n    ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          rust: "[\n  \"1\", [\n    \"2\", \"3\"\n  ]\n]"
+          rust: |-
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     - input:
           python: "[]"
           javascript: "[]"
@@ -212,7 +319,14 @@ tests:
           python: "[\n    '1', [\n        '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          rust: "[\n  \"1\", [\n    \"2\", \"3\"\n  ]\n]"
+          rust: |-
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     ArrayElision:
     - input:
           javascript: "[,'1', '2',]"
@@ -225,7 +339,12 @@ tests:
           javascript: "[\n  undefined, '1', '2'\n]"
           object: "[undefined, '1', '2']"
           ruby: "[\n  nil, '1', '2'\n]"
-          rust: "[\n  Bson::Undefined, \"1\", \"2\"\n]"
+          rust: |-
+            [
+                Bson::Undefined,
+                "1",
+                "2"
+            ]
     - input:
           javascript: "[,]"
           shell: "[,]"
@@ -237,7 +356,10 @@ tests:
           javascript: "[\n  undefined\n]"
           object: "[undefined]"
           ruby: "[\n  nil\n]"
-          rust: "[\n  Bson::Undefined\n]"
+          rust: |-
+            [
+                Bson::Undefined
+            ]
     - input:
           javascript: "[,,]"
           shell: "[,,]"
@@ -249,7 +371,11 @@ tests:
           javascript: "[\n  undefined, undefined\n]"
           object: "[undefined, undefined]"
           ruby: "[\n  nil, nil\n]"
-          rust: "[\n  Bson::Undefined, Bson::Undefined\n]"
+          rust: |-
+            [
+                Bson::Undefined,
+                Bson::Undefined
+            ]
     - input:
           javascript: "['1',,,,'2']"
           shell: "['1',,,,'2']"
@@ -261,7 +387,14 @@ tests:
           javascript: "[\n  '1', undefined, undefined, undefined, '2'\n]"
           object: "['1', undefined, undefined, undefined, '2']"
           ruby: "[\n  '1', nil, nil, nil, '2'\n]"
-          rust: "[\n  \"1\", Bson::Undefined, Bson::Undefined, Bson::Undefined, \"2\"\n]"
+          rust: |-
+            [
+                "1",
+                Bson::Undefined,
+                Bson::Undefined,
+                Bson::Undefined,
+                "2"
+            ]
     Tuple:
     - input:
           python: "()"
@@ -284,7 +417,10 @@ tests:
           shell: "[\n  1\n]"
           object: "[1]"
           ruby: "[\n  1\n]"
-          rust: "[\n  1\n]"
+          rust: |-
+            [
+                1
+            ]
     - input:
           python: "(1)"
       output:
@@ -306,7 +442,13 @@ tests:
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           object: "['1', { 'settings': 'http2' }]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
-          rust: "[\n  \"1\", doc! {\n    \"settings\": \"http2\"\n  }\n]"
+          rust: |-
+            [
+                "1",
+                doc! {
+                    "settings": "http2"
+                }
+            ]
     - input:
           python: "('1', ['2', '3'])"
       output:
@@ -317,7 +459,14 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          rust: "[\n  \"1\", [\n    \"2\", \"3\"\n  ]\n]"
+          rust: |-
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     - input:
           python: "['1', ('2', '3')]"
       output:
@@ -328,7 +477,14 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
-          rust: "[\n  \"1\", [\n    \"2\", \"3\"\n  ]\n]"
+          rust: |-
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     binops:
     - input:
           javascript: 2 + 5 - 1
