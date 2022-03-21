@@ -7,3 +7,7 @@ ignores:
  - "@types/chai-dom"
  - "@types/react"
  - "@types/react-dom"
+ - "@testing-library/react"
+ - "@testing-library/user-event"
+ - "@types/chai-as-promised"
+ - "enzyme-adapter-react-16"
