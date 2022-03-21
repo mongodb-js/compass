@@ -11,7 +11,6 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
-import { getConnectionTitle } from 'mongodb-data-service';
 
 import Connection from './connection';
 
@@ -172,9 +171,7 @@ function ConnectionList({
           {favoriteConnections.map((connectionInfo, index) => (
             <li
               data-testid="favorite-connection"
-              data-id={`favorite-connection-${getConnectionTitle(
-                connectionInfo
-              )}`}
+              data-id={`favorite-connection-${connectionInfo?.favorite?.name}`}
               key={`${connectionInfo.id || ''}-${index}`}
             >
               <Connection
