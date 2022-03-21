@@ -631,7 +631,7 @@ tests:
           shell: new Date(new Timestamp(1, 100).getHighBits() * 1000)
           object: "new Date('1970-01-01T00:01:40.000Z')"
           ruby: Time.at(BSON::Timestamp.new(1, 100).increment).utc
-          rust: "Utc.timestamp(Timestamp { time: 1, increment: 100 }.time, 0)"
+          rust: "DateTime::from_millis(Timestamp { time: 1, increment: 100 }.time)"
     Symbol-methods:
     -   input:
             javascript: new BSONSymbol('2').valueOf()

@@ -650,7 +650,7 @@ Templates:
     TimestampITemplate: &TimestampITemplate !!js/function >
         (arg) => `${arg}.increment`
     TimestampAsDateTemplate: &TimestampAsDateTemplate !!js/function >
-        (arg) => `Utc.timestamp(${arg}.time, 0)`
+        (arg) => `DateTime::from_millis(${arg}.time)`
     TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate !!js/function >
         () => ''
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
