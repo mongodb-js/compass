@@ -46,6 +46,7 @@ function ConnectFormActions({
       <div className={formActionButtonsStyles}>
         {saveButton !== 'hidden' && (
           <Button
+            data-testid="save-connection-button"
             variant={ButtonVariant.Default}
             disabled={saveButton === 'disabled'}
             onClick={onSaveClicked}

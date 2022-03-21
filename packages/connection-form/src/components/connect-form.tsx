@@ -203,6 +203,7 @@ function ConnectForm({
                   <IconButton
                     type="button"
                     aria-label="Save Connection"
+                    data-testid="edit-favorite-name-button"
                     className={editFavoriteButtonStyles}
                     onClick={() => {
                       setShowSaveConnectionModal(true);
@@ -218,6 +219,7 @@ function ConnectForm({
               {!!onSaveConnectionClicked && (
                 <IconButton
                   aria-label="Save Connection"
+                  data-testid="edit-favorite-icon-button"
                   type="button"
                   className={favoriteButtonStyles}
                   size="large"
