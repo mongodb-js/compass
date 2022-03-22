@@ -1,6 +1,6 @@
 import { LeafyGreenProvider } from '@mongodb-js/compass-components';
 import React from 'react';
-import type { Store } from 'redux';
+import type { Store } from 'reflux';
 import { StoreConnector } from 'hadron-react-components';
 
 import CollectionStats from './components/collection-stats';

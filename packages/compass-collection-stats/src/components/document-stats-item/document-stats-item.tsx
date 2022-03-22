@@ -1,6 +1,5 @@
 import React from 'react';
-import { css } from '@mongodb-js/compass-components';
-import { uiColors } from '@leafygreen-ui/palette';
+import { css, uiColors } from '@mongodb-js/compass-components';
 
 import CollectionStatsItem from '../collection-stats-item';
 
