@@ -638,7 +638,7 @@ export const closeImport = () => ({
  */
 // eslint-disable-next-line complexity
 const reducer = (state = INITIAL_STATE, action) => {
-  debug('reducer handling action', action);
+  debug('reducer handling action', action.type);
   if (action.type === FILE_SELECTED) {
     return {
       ...state,
