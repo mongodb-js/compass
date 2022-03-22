@@ -259,7 +259,6 @@ describe('Aggregation Store', function() {
             updateViewError: INITIAL_STATE.updateViewError,
             aggregation: INITIAL_STATE.aggregation,
             workspace: INITIAL_STATE.workspace,
-            isOptionsVisible: INITIAL_STATE.isOptionsVisible,
           });
         });
       });

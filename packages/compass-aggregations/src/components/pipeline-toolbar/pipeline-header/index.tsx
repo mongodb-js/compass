@@ -1,15 +1,10 @@
 import React from 'react';
 import { css, spacing, Body, Icon } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
-import type { Dispatch } from 'redux';
 
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
-import {
-  getSavedPipelines,
-  savedPipelinesListToggle,
-} from '../../../modules/saved-pipeline';
+import { showSavedPipelines } from '../../../modules/saved-pipeline';
 
 const containerStyles = css({
   display: 'grid',
@@ -42,8 +37,16 @@ const pipelineActionStyles = css({
   display: 'flex',
 });
 
+type PipelineHeaderProps = {
+  isOptionsVisible: boolean;
+  onShowSavedPipelines: () => void;
+  onToggleOptions: () => void;
+};
+
 const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   onShowSavedPipelines,
+  onToggleOptions,
+  isOptionsVisible,
 }) => {
   return (
     <div className={containerStyles} data-testid="pipeline-header">
@@ -63,20 +66,15 @@ const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
         <PipelineStages />
       </div>
       <div className={pipelineActionStyles}>
-        <PipelineActions />
+        <PipelineActions
+          onToggleOptions={onToggleOptions}
+          isOptionsVisible={isOptionsVisible}
+        />
       </div>
     </div>
   );
 };
 
-const mapDispatch = (dispatch: Dispatch) => ({
-  onShowSavedPipelines: () => {
-    // todo: fix dispatch
-    dispatch(getSavedPipelines());
-    dispatch(savedPipelinesListToggle(1));
-  },
-});
-
-const connector = connect(null, mapDispatch);
-type PipelineHeaderProps = ConnectedProps<typeof connector>;
-export default connector(PipelineHeader);
+export default connect(null, {
+  onShowSavedPipelines: showSavedPipelines,
+})(PipelineHeader);

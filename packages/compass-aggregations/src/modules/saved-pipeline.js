@@ -150,3 +150,10 @@ export const saveCurrentPipeline = () => {
     });
   };
 };
+
+export const showSavedPipelines = () => {
+  return (dispatch) => {
+    dispatch(getSavedPipelines());
+    dispatch(savedPipelinesListToggle(1));
+  };
+};

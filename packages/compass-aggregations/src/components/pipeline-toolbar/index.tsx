@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
 
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';
@@ -39,17 +38,24 @@ const settingsRowStyles = css({
   gridArea: 'settingsRow',
 });
 
+type PipelineToolbarProps = {
+  isSettingsVisible: boolean;
+};
+
 const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isSettingsVisible,
-  isOptionsVisible,
 }) => {
+  const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <div
       className={cx(containerStyles, containerDisplayStyles)}
       data-testid="pipeline-toolbar"
     >
       <div className={headerAndOptionsRowStyles}>
-        <PipelineHeader />
+        <PipelineHeader
+          isOptionsVisible={isOptionsVisible}
+          onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
+        />
         {isOptionsVisible && <PipelineOptions />}
       </div>
       {isSettingsVisible && (
@@ -61,10 +67,7 @@ const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   );
 };
 
-const mapState = ({ workspace, isOptionsVisible }: RootState) => ({
+const mapState = ({ workspace }: RootState) => ({
   isSettingsVisible: workspace === 'builder',
-  isOptionsVisible,
 });
-const connector = connect(mapState);
-type PipelineToolbarProps = ConnectedProps<typeof connector>;
-export default connector(PipelineToolbar);
+export default connect(mapState)(PipelineToolbar);

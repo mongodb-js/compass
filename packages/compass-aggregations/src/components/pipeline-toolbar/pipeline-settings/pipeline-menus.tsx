@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import semver from 'semver';
 import { Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
+import type { Dispatch } from 'redux';
 import type { RootState } from '../../../modules';
 import { newPipelineFromText } from '../../../modules/import-pipeline';
 import { openCreateView } from '../../../modules';
@@ -82,22 +83,18 @@ function PipelineActionMenu<T>({
 
 type SaveMenuActions = 'save' | 'saveAs' | 'createView';
 const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
-  name,
-  serverVersion,
+  pipelineName,
+  isCreateViewAvailable,
   onSave,
   onSaveAs,
   onCreateView,
 }) => {
-  const isCreateViewAvailable = semver.gte(
-    serverVersion,
-    VIEWS_MIN_SERVER_VERSION
-  );
   const onAction = (action: SaveMenuActions) => {
     switch (action) {
       case 'save':
-        return name === '' ? onSaveAs() : onSave();
+        return onSave(pipelineName);
       case 'saveAs':
-        return name === '' ? onSaveAs() : onSaveAs({ name, isSaveAs: true });
+        return onSaveAs(pipelineName);
       case 'createView':
         return onCreateView();
     }
@@ -124,29 +121,37 @@ const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
   );
 };
 const mapSaveMenuState = ({ name, serverVersion }: RootState) => ({
-  name,
-  serverVersion,
+  pipelineName: name,
+  isCreateViewAvailable: semver.gte(serverVersion, VIEWS_MIN_SERVER_VERSION),
 });
-const mapSaveMenuDispatch = {
-  onSave: saveCurrentPipeline,
-  onSaveAs: savingPipelineOpen,
-  onCreateView: openCreateView,
-};
+const mapSaveMenuDispatch = (dispatch: Dispatch) => ({
+  onSave: (name: string) => {
+    return dispatch(name === '' ? savingPipelineOpen() : saveCurrentPipeline());
+  },
+  onSaveAs: (name: string) => {
+    return dispatch(
+      name === ''
+        ? savingPipelineOpen()
+        : savingPipelineOpen({ name, isSaveAs: true })
+    );
+  },
+  onCreateView: () => dispatch(openCreateView()),
+});
 const saveMenuConnector = connect(mapSaveMenuState, mapSaveMenuDispatch);
 type SaveMenuProps = ConnectedProps<typeof saveMenuConnector>;
 export const SaveMenu = saveMenuConnector(SaveMenuComponent);
 
 type CreateMenuActions = 'createPipleine' | 'createPipleineFromText';
 const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
-  onNewPipeline,
-  onNewPipelineFromText,
+  onCreatePipeline,
+  onCreatePipelineFromText,
 }) => {
   const onAction = (action: CreateMenuActions) => {
     switch (action) {
       case 'createPipleine':
-        return onNewPipeline(true);
+        return onCreatePipeline();
       case 'createPipleineFromText':
-        return onNewPipelineFromText();
+        return onCreatePipelineFromText();
     }
   };
   return (
@@ -162,10 +167,10 @@ const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
     />
   );
 };
-const mapCreateMenuDispatch = {
-  onNewPipeline: setIsNewPipelineConfirm,
-  onNewPipelineFromText: newPipelineFromText,
-};
+const mapCreateMenuDispatch = (dispatch: Dispatch) => ({
+  onCreatePipeline: () => dispatch(setIsNewPipelineConfirm(true)),
+  onCreatePipelineFromText: () => dispatch(newPipelineFromText()),
+});
 const createMenuConnector = connect(null, mapCreateMenuDispatch);
 type CreateMenuProps = ConnectedProps<typeof createMenuConnector>;
 export const CreateMenu = createMenuConnector(CreateMenuComponent);

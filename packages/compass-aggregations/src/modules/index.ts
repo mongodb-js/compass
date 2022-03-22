@@ -122,10 +122,6 @@ import aggregation, {
 import workspace, {
   INITIAL_STATE as WORKSPACE_INITIAL_STATE
 } from './workspace';
-import isOptionsVisible, {
-  INITIAL_STATE as OPTIONS_INITIAL_STATE
-} from './options';
-
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -178,7 +174,6 @@ export const INITIAL_STATE = {
   updateViewError: UPDATE_VIEW_ERROR_INITIAL_STATE,
   aggregation: AGGREGATION_INITIAL_STATE,
   workspace: WORKSPACE_INITIAL_STATE,
-  isOptionsVisible: OPTIONS_INITIAL_STATE,
 };
 
 export type RootState = typeof INITIAL_STATE;
@@ -259,7 +254,6 @@ const appReducer = combineReducers<RootState>({
   updateViewError,
   aggregation,
   workspace,
-  isOptionsVisible,
 });
 
 /**
