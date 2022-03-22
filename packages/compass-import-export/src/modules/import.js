@@ -304,7 +304,7 @@ export const startImport = () => {
             docsWritten: dest.docsWritten,
             error: err.message,
           });
-          debug('Error while importing', err);
+          debug('Error while importing:', err.stack);
 
           console.groupEnd();
           console.groupEnd();
@@ -416,7 +416,7 @@ const loadPreviewDocs = (
             'Failed to load preview docs',
             err
           );
-          debug('Error while loading preview docs', err);
+          debug('Error while loading preview docs:', err.stack);
           return;
         }
         dispatch({
@@ -514,7 +514,7 @@ export const selectImportFileName = (fileName) => {
         );
       })
       .catch((err) => {
-        debug('dispatching error', err);
+        debug('dispatching error', err.stack);
         dispatch(onFailed(err));
       });
   };
@@ -561,13 +561,12 @@ export const setDelimiter = (delimiter) => {
     });
 
     if (previewLoaded) {
-      debug(
-        'preview needs updated because delimiter changed',
+      debug('preview needs updated because delimiter changed', {
         fileName,
         fileType,
         delimiter,
-        fileIsMultilineJSON
-      );
+        fileIsMultilineJSON,
+      });
       dispatch(
         loadPreviewDocs(fileName, fileType, delimiter, fileIsMultilineJSON)
       );
