@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
 import { css, Body, Tooltip } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 
@@ -20,7 +19,12 @@ const modifiedStyles = css({
   fontStyle: 'italic',
 });
 
-const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
+type PipelineNameProps = {
+  name: string;
+  isModified: boolean;
+};
+
+export const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
   name,
   isModified,
 }) => {
@@ -40,8 +44,7 @@ const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
           <Body>{name}</Body>
         </Tooltip>
       )}
-      &nbsp;
-      <span className={modifiedStyles}>{isModified ? '- modified' : ''}</span>
+      {isModified && <span className={modifiedStyles}> - modified</span>}
     </Body>
   );
 };
@@ -51,6 +54,4 @@ const mapState = ({ name, isModified }: RootState) => ({
   isModified,
 });
 
-const connector = connect(mapState);
-type PipelineNameProps = ConnectedProps<typeof connector>;
-export default connector(PipelineName);
+export default connect(mapState)(PipelineName);

@@ -7,7 +7,7 @@ const containerStyles = css({
   display: 'grid',
 });
 
-const PipelineOptions: React.FunctionComponent = () => {
+export const PipelineOptions: React.FunctionComponent = () => {
   return (
     <div className={containerStyles} data-testid="pipeline-options">
       <PipelineCollation />

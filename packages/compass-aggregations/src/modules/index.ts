@@ -732,7 +732,6 @@ export const makeViewPipeline = (unfilteredPipeline: any[]) => {
  *
  * @emits open-create-view {meta: {source, pipeline}}
  * @see create-view src/stores/create-view.js
- * @returns {Function} The thunk function.
  */
 export const openCreateView = (): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {

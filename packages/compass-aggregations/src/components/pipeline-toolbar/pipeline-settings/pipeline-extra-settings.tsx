@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
 import {
   Icon,
   Toggle,
@@ -33,10 +32,19 @@ const toggleLabelStyles = css({
   margin: 'inherit !important',
 });
 
-const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps> =
+type PipelineExtraSettingsProps = {
+  isAutoPreview: boolean;
+  onToggleAutoPreview: () => void;
+  onToggleSettings: () => void;
+};
+
+export const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSettingsProps> =
   ({ isAutoPreview, onToggleAutoPreview, onToggleSettings }) => {
     return (
-      <div className={containerStyles}>
+      <div
+        className={containerStyles}
+        data-testid="pipeline-toolbar-extra-settings"
+      >
         <div className={toggleStyles}>
           <Toggle
             id="auto-preview"
@@ -71,6 +79,4 @@ const mapDispatch = {
   onToggleSettings: toggleSettingsIsExpanded,
 };
 
-const connector = connect(mapState, mapDispatch);
-type PipelineExtraSettingsProps = ConnectedProps<typeof connector>;
-export default connector(PipelineExtraSettings);
+export default connect(mapState, mapDispatch)(PipelineExtraSettings);

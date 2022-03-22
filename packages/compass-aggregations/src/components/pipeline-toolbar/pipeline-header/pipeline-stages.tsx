@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
 import {
   Pipeline,
   Stage,
@@ -16,6 +15,7 @@ import {
 import type { RootState } from '../../../modules';
 import { stageAdded } from '../../../modules/pipeline';
 import { changeWorkspace } from '../../../modules/workspace';
+import type { Workspace } from '../../../modules/workspace';
 
 const containerStyles = css({
   display: 'flex',
@@ -41,7 +41,14 @@ const addStageStyles = css({
   },
 });
 
-const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
+type PipelineStagesProps = {
+  isEditing: boolean;
+  stages: string[];
+  onStageAdded: () => void;
+  onChangeWorkspace: (workspace: Workspace) => void;
+};
+
+export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   isEditing,
   stages,
   onStageAdded,
@@ -57,6 +64,7 @@ const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
             as="button"
             onClick={() => onStageAdded()}
             hideExternalIcon
+            data-testid="pipeline-toolbar-add-stage-button"
           >
             first stage.
           </Link>
@@ -94,6 +102,4 @@ const mapDispatch = {
   onStageAdded: stageAdded,
   onChangeWorkspace: changeWorkspace,
 };
-const connector = connect(mapState, mapDispatch);
-type PipelineStagesProps = ConnectedProps<typeof connector>;
-export default connector(PipelineStages);
+export default connect(mapState, mapDispatch)(PipelineStages);

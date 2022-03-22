@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
 import semver from 'semver';
 import { Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
 import type { Dispatch } from 'redux';
@@ -82,7 +81,14 @@ function PipelineActionMenu<T>({
 }
 
 type SaveMenuActions = 'save' | 'saveAs' | 'createView';
-const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
+type SaveMenuProps = {
+  pipelineName: string;
+  isCreateViewAvailable: boolean;
+  onSave: (name: string) => void;
+  onSaveAs: (name: string) => void;
+  onCreateView: () => void;
+};
+export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
   pipelineName,
   isCreateViewAvailable,
   onSave,
@@ -137,12 +143,17 @@ const mapSaveMenuDispatch = (dispatch: Dispatch) => ({
   },
   onCreateView: () => dispatch(openCreateView()),
 });
-const saveMenuConnector = connect(mapSaveMenuState, mapSaveMenuDispatch);
-type SaveMenuProps = ConnectedProps<typeof saveMenuConnector>;
-export const SaveMenu = saveMenuConnector(SaveMenuComponent);
+export const SaveMenu = connect(
+  mapSaveMenuState,
+  mapSaveMenuDispatch
+)(SaveMenuComponent);
 
 type CreateMenuActions = 'createPipleine' | 'createPipleineFromText';
-const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
+type CreateMenuProps = {
+  onCreatePipeline: () => void;
+  onCreatePipelineFromText: () => void;
+};
+export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
   onCreatePipeline,
   onCreatePipelineFromText,
 }) => {
@@ -171,6 +182,7 @@ const mapCreateMenuDispatch = (dispatch: Dispatch) => ({
   onCreatePipeline: () => dispatch(setIsNewPipelineConfirm(true)),
   onCreatePipelineFromText: () => dispatch(newPipelineFromText()),
 });
-const createMenuConnector = connect(null, mapCreateMenuDispatch);
-type CreateMenuProps = ConnectedProps<typeof createMenuConnector>;
-export const CreateMenu = createMenuConnector(CreateMenuComponent);
+export const CreateMenu = connect(
+  null,
+  mapCreateMenuDispatch
+)(CreateMenuComponent);

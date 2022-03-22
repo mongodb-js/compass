@@ -3,7 +3,7 @@ import type { Reducer } from 'redux';
 import { ActionTypes as AggregationActionTypes } from './aggregation';
 import type { Actions as AggregationActions } from './aggregation';
 
-type Workspace = 'builder' | 'results';
+export type Workspace = 'builder' | 'results';
 
 enum ActionTypes {
   ChangeWorkspace = 'compass-aggregations/changeWorkspace',

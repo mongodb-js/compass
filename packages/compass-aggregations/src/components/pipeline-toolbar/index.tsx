@@ -42,7 +42,7 @@ type PipelineToolbarProps = {
   isSettingsVisible: boolean;
 };
 
-const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
+export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isSettingsVisible,
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);

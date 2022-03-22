@@ -34,7 +34,7 @@ type PipelineActionsProps = {
   onToggleOptions: () => void;
 };
 
-const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
+export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isOptionsVisible,
   onRunAggregation,
   onToggleOptions,

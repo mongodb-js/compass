@@ -60,6 +60,7 @@ class CollationToolbar extends PureComponent {
   render() {
     return (
       <div
+        data-testid="legacy-collation-toolbar"
         className={classnames(styles['collation-toolbar'], {
           [styles['collation-toolbar-in-new-toolbar']]:
             global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR ===

@@ -33,7 +33,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @param {Boolean} isNewPipelineConfirm - The isNewPipelineConfirm value.
  *
- * @returns {Object} The setIsNewPipelineConfirm action.
+ * @returns {import("redux").AnyAction} The setIsNewPipelineConfirm action.
  */
 export const setIsNewPipelineConfirm = (isNewPipelineConfirm) => ({
   type: SET_IS_NEW_PIPELINE_CONFIRM,

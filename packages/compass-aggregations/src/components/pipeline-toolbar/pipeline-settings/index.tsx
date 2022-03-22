@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
 import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
 
@@ -26,34 +25,35 @@ const extraSettingsStyles = css({
   display: 'flex',
 });
 
-const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
-  onExportToLanguage,
-}) => {
-  return (
-    <div className={containerStyles} data-testid="pipeline-settings">
-      <div className={settingsStyles}>
-        <PipelineName />
-        <SaveMenu />
-        <CreateMenu />
-        <Button
-          variant="primaryOutline"
-          size="xsmall"
-          leftGlyph={<Icon glyph={'Export'} />}
-          onClick={() => onExportToLanguage()}
-          data-testid="pipeline-toolbar-export-button"
-        >
-          Export to language
-        </Button>
-      </div>
-      <div className={extraSettingsStyles}>
-        <PipelineExtraSettings />
-      </div>
-    </div>
-  );
+type PipelineSettingsProps = {
+  onExportToLanguage: () => void;
 };
 
-const connector = connect(null, {
+export const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> =
+  ({ onExportToLanguage }) => {
+    return (
+      <div className={containerStyles} data-testid="pipeline-settings">
+        <div className={settingsStyles}>
+          <PipelineName />
+          <SaveMenu />
+          <CreateMenu />
+          <Button
+            variant="primaryOutline"
+            size="xsmall"
+            leftGlyph={<Icon glyph={'Export'} />}
+            onClick={() => onExportToLanguage()}
+            data-testid="pipeline-toolbar-export-button"
+          >
+            Export to language
+          </Button>
+        </div>
+        <div className={extraSettingsStyles}>
+          <PipelineExtraSettings />
+        </div>
+      </div>
+    );
+  };
+
+export default connect(null, {
   onExportToLanguage: exportToLanguage,
-});
-type PipelineSettingsProps = ConnectedProps<typeof connector>;
-export default connector(PipelineSettings);
+})(PipelineSettings);

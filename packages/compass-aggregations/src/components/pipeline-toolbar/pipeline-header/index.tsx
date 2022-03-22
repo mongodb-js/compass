@@ -43,7 +43,7 @@ type PipelineHeaderProps = {
   onToggleOptions: () => void;
 };
 
-const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
+export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   onShowSavedPipelines,
   onToggleOptions,
   isOptionsVisible,

@@ -1,32 +1,19 @@
 import React from 'react';
-import { render, screen, within, waitFor } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { expect } from 'chai';
-import type { Store } from 'redux';
 
-import type { RootState } from '../../modules';
 import configureStore from '../../stores/store';
-import { DATA_SERVICE_CONNECTED } from '../../modules/data-service';
-import { NAME_CHANGED } from '../../modules/name';
-import { STAGE_ADDED, STAGE_OPERATOR_SELECTED } from '../../modules/pipeline';
-import PipelineToolbar from '.';
-
-const mockDataService = class {
-  aggregate() {
-    return {
-      toArray: () => Promise.resolve([{ id: 1 }]),
-    };
-  }
-};
+import { PipelineToolbar } from './index';
 
 describe('PipelineToolbar', function () {
-  describe('renders toolbar', function () {
+  describe('renders with setting row - visible', function () {
     let toolbar: HTMLElement;
     beforeEach(function () {
       render(
         <Provider store={configureStore({})}>
-          <PipelineToolbar />
+          <PipelineToolbar isSettingsVisible={true} />
         </Provider>
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
@@ -135,142 +122,15 @@ describe('PipelineToolbar', function () {
     });
   });
 
-  describe('toolbar actions', function () {
-    let toolbar: HTMLElement;
-    let store: Store<RootState>;
-    beforeEach(function () {
-      store = configureStore({});
-      store.dispatch({
-        type: DATA_SERVICE_CONNECTED,
-        dataService: new mockDataService(),
-      });
+  describe('renders with setting row - hidden', function () {
+    it('does not render toolbar settings', function () {
       render(
-        <Provider store={store}>
-          <PipelineToolbar />
+        <Provider store={configureStore({})}>
+          <PipelineToolbar isSettingsVisible={false} />
         </Provider>
       );
-      toolbar = screen.getByTestId('pipeline-toolbar');
-    });
-
-    it('opens saved pipelines', function () {
-      userEvent.click(
-        within(toolbar).getByTestId('pipeline-toolbar-open-pipelines-button')
-      );
-      expect(store.getState().savedPipeline.isListVisible).to.equal(true);
-    });
-
-    it('runs pipeline', async function () {
-      store.dispatch({
-        type: STAGE_ADDED,
-      });
-      store.dispatch({
-        type: STAGE_OPERATOR_SELECTED,
-        stageOperator: '$match',
-        index: 0,
-      });
-      userEvent.click(
-        within(toolbar).getByTestId('pipeline-toolbar-run-button')
-      );
-      await waitFor(() => Promise.resolve(true));
-      expect(store.getState().workspace).to.equal('results');
-      expect(
-        screen.getByTestId('pipeline-toolbar-edit-button'),
-        'show edit after query is run'
-      ).to.exist;
-    });
-
-    it('edits pipeline', async function () {
-      store.dispatch({
-        type: STAGE_ADDED,
-      });
-      store.dispatch({
-        type: STAGE_OPERATOR_SELECTED,
-        stageOperator: '$match',
-        index: 0,
-      });
-      userEvent.click(
-        within(toolbar).getByTestId('pipeline-toolbar-run-button')
-      );
-      await waitFor(() => Promise.resolve(true));
-      userEvent.click(
-        within(toolbar).getByTestId('pipeline-toolbar-edit-button')
-      );
-      expect(store.getState().workspace).to.equal('builder');
-    });
-
-    it('opens save pipeline modal', function () {
-      userEvent.click(within(toolbar).getByTestId('save-menu'));
-      const menuContent = screen.getByTestId('save-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Save'));
-      expect(store.getState().savingPipeline.isOpen).to.equal(true);
-      expect(store.getState().savingPipeline.isSaveAs).to.equal(false);
-    });
-
-    it('opens save as pipeline modal - no name', function () {
-      userEvent.click(within(toolbar).getByTestId('save-menu'));
-      const menuContent = screen.getByTestId('save-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Save as'));
-      expect(store.getState().savingPipeline.isOpen).to.equal(true);
-      expect(store.getState().savingPipeline.isSaveAs).to.equal(false); // if name is empty, its a save
-    });
-
-    it('opens save as pipeline modal - with name', function () {
-      const name = 'hello';
-      store.dispatch({
-        type: NAME_CHANGED,
-        name,
-      });
-      userEvent.click(within(toolbar).getByTestId('save-menu'));
-      const menuContent = screen.getByTestId('save-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Save as'));
-      expect(store.getState().savingPipeline).to.deep.equal({
-        isOpen: true,
-        isSaveAs: true,
-        name,
-      });
-    });
-
-    // todo: uses a different store
-    it.skip('opens create view modal', function () {
-      userEvent.click(within(toolbar).getByTestId('save-menu'));
-      const menuContent = screen.getByTestId('save-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Create view'));
-    });
-
-    it('opens confirmation modal when creating a new pipeline', function () {
-      userEvent.click(within(toolbar).getByTestId('create-new-menu'));
-      const menuContent = screen.getByTestId('create-new-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Pipeline'));
-      expect(store.getState().isNewPipelineConfirm).to.equal(true);
-    });
-
-    it('opens import modal when creating a new pipeline from text', function () {
-      userEvent.click(within(toolbar).getByTestId('create-new-menu'));
-      const menuContent = screen.getByTestId('create-new-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Pipeline from text'));
-      expect(store.getState().importPipeline.isOpen).to.equal(true);
-    });
-
-    // todo: uses a different store
-    it.skip('opens export modal', function () {
-      userEvent.click(
-        within(toolbar).getByTestId('pipeline-toolbar-export-button')
-      );
-    });
-
-    it('toggles auto-preview', function () {
-      const initialAutoPreview = store.getState().autoPreview;
-      userEvent.click(
-        within(toolbar).getByTestId('pipeline-toolbar-preview-toggle')
-      );
-      expect(store.getState().autoPreview).to.not.equal(initialAutoPreview);
-    });
-
-    it('opens pipeline settings', function () {
-      userEvent.click(
-        within(toolbar).getByTestId('pipeline-toolbar-settings-button')
-      );
-      expect(store.getState().settings.isExpanded).to.equal(true);
+      const toolbar = screen.getByTestId('pipeline-toolbar');
+      expect(() => within(toolbar).getByTestId('pipeline-settings')).to.throw;
     });
   });
 });
