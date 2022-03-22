@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
 import { Tooltip } from 'hadron-react-components';
 import TypeChecker from 'hadron-type-checker';
-import initEditors from '../editor';
+import { ElementEditor as initEditors } from 'hadron-document';
 import Types from '../types';
 import AddFieldButton from '../table-view/add-field-button';
 

@@ -85,7 +85,7 @@ export class ConnectionStorage {
       log.error(
         mongoLogId(1_001_000_103),
         'Connection Storage',
-        'Failed to save connection, error while converting to model',
+        'Failed to save connection',
         { message: (err as Error).message }
       );
 
@@ -118,7 +118,7 @@ export class ConnectionStorage {
       log.error(
         mongoLogId(1_001_000_104),
         'Connection Storage',
-        'Failed to delete connection, error while converting to model',
+        'Failed to delete connection',
         { message: (err as Error).message }
       );
 

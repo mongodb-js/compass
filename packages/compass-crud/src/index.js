@@ -1,3 +1,4 @@
+import { ElementEditor } from 'hadron-document';
 import Document from './components/document';
 import DocumentList from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
@@ -5,7 +6,7 @@ import ConnectedDocumentList from './components/connected-document-list';
 import configureActions from './actions';
 import configureStore from './stores/crud-store';
 
-import {
+const {
   StandardEditor,
   DateEditor,
   StringEditor,
@@ -14,7 +15,7 @@ import {
   NullEditor,
   UndefinedEditor,
   ObjectIdEditor
-} from './components/editor';
+} = ElementEditor;
 
 const COLLECTION_TAB_ROLE = {
   component: ConnectedDocumentList,

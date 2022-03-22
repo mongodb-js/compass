@@ -135,7 +135,6 @@
     "hadron-type-checker": "^6.7.0",
     "lodash": "^4.17.15",
     "moment": "^2.27.0",
-    "moment-timezone": "^0.5.21",
     "mongodb-ace-theme": "^1.6.0",
     "react-click-outside": "^3.0.1",
     "react-tooltip": "^3.11.1"
