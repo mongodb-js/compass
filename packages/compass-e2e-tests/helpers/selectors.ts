@@ -11,6 +11,9 @@ export const CloseFeatureTourModal = '[data-test-id="close-tour-button"]';
 export const ConnectSection = '[data-testid="connections-disconnected"]';
 export const ConnectButton = '[data-testid="connect-button"]';
 export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
+export const ConnectionFormEditFavouriteButton =
+  '[data-testid="edit-favorite-icon-button"]';
+export const ConnectionTitle = '[data-testid="connection-form"] h3';
 export const CancelConnectionButton =
   '[data-testid="cancel-connection-button"]';
 export const ConnectionStatusModalContent =
@@ -195,6 +198,11 @@ export const ShowActionsButton = '[data-testid="show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
+export const SidebarFavoriteButton = '[data-testid="favorite-connection"]';
+export const ConnectionMenu = '[data-testid="connection-menu"]';
+export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
+export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
+export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -210,6 +218,27 @@ export const sidebarCollection = (
 ): string => {
   return `[data-testid="sidebar-collection-${dbName}.${collectionName}"]`;
 };
+
+export const sidebarFavorite = (favoriteName: string): string => {
+  return `${SidebarFavoriteButton}[data-id="favorite-connection-${favoriteName}"]`;
+};
+
+export const sidebarFavoriteButton = (favoriteName: string): string => {
+  return `${sidebarFavorite(favoriteName)} > div > button`;
+};
+
+export const sidebarFavoriteMenuButton = (favoriteName: string): string => {
+  return `${sidebarFavorite(
+    favoriteName
+  )}  button[aria-label="Connection Options Menu"]`;
+};
+
+// Favorite modal
+export const FavoriteModal = '[data-testid="favorite_modal"]';
+export const FavoriteNameInput = '[data-testid="favorite-name-input"]';
+export const FavoriteColorSelector = '#favorite-color-selector';
+export const FavoriteSaveButton =
+  '[data-testid="favorite_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Create database modal
 export const CreateDatabaseModal = '[data-testid="create_database_modal"]';
