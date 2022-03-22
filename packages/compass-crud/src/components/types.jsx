@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TypeChecker from 'hadron-type-checker';
-import { DateEditor } from './editor';
+import { ElementEditor } from 'hadron-document';
+
+const { DateEditor } = ElementEditor;
 
 /**
  * Object constant.

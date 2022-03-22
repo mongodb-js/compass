@@ -5,7 +5,7 @@ import type {
   ConnectionStorage,
 } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
-import { useEffect, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import debugModule from 'debug';
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -199,6 +199,7 @@ async function loadConnections(
   }
 }
 
+const MAX_RECENT_CONNECTIONS_LENGTH = 10;
 export function useConnections({
   onConnected,
   connectionStorage,
@@ -214,6 +215,8 @@ export function useConnections({
   appName: string;
 }): {
   state: State;
+  recentConnections: ConnectionInfo[];
+  favoriteConnections: ConnectionInfo[];
   cancelConnectionAttempt: () => void;
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   createNewConnection: () => void;
@@ -233,8 +236,26 @@ export function useConnections({
     state;
 
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
-  const connectedConnectionInfo = useRef<ConnectionInfo>();
-  const connectedDataService = useRef<DataService>();
+
+  const { recentConnections, favoriteConnections } = useMemo(() => {
+    const favoriteConnections = (state.connections || [])
+      .filter((connectionInfo) => !!connectionInfo.favorite)
+      .sort((a, b) => {
+        const aName = a.favorite?.name?.toLocaleLowerCase() || '';
+        const bName = b.favorite?.name?.toLocaleLowerCase() || '';
+        return bName < aName ? 1 : -1;
+      });
+
+    const recentConnections = (state.connections || [])
+      .filter((connectionInfo) => !connectionInfo.favorite)
+      .sort((a, b) => {
+        const aTime = a.lastUsed?.getTime() ?? 0;
+        const bTime = b.lastUsed?.getTime() ?? 0;
+        return bTime - aTime;
+      });
+
+    return { recentConnections, favoriteConnections };
+  }, [state.connections]);
 
   async function saveConnectionInfo(
     connectionInfo: ConnectionInfo
@@ -266,44 +287,67 @@ export function useConnections({
     }
   }
 
-  async function onConnectSuccess(
-    connectionInfo: ConnectionInfo,
-    dataService: DataService
-  ) {
-    // After connecting and the UI is updated we notify the rest of Compass.
-    try {
-      onConnected(connectionInfo, dataService);
-
-      // if a connection has been saved already we only want to update the lastUsed
-      // attribute, otherwise we are going to save the entire connection info.
-      const connectionInfoToBeSaved =
-        (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
-
-      await saveConnectionInfo({
-        ...cloneDeep(connectionInfoToBeSaved),
-        lastUsed: new Date(),
+  async function removeConnection(connectionInfo: ConnectionInfo) {
+    await connectionStorage.delete(connectionInfo);
+    dispatch({
+      type: 'set-connections',
+      connections: connections.filter((conn) => conn.id !== connectionInfo.id),
+    });
+    if (activeConnectionId === connectionInfo.id) {
+      const nextActiveConnection = createNewConnectionInfo();
+      dispatch({
+        type: 'set-active-connection',
+        connectionInfo: nextActiveConnection,
       });
-    } catch (err) {
-      debug(
-        `error occurred connection with id ${connectionInfo.id || ''}: ${
-          (err as Error).message
-        }`
-      );
     }
   }
 
-  useEffect(() => {
-    if (
-      isConnected &&
-      connectedConnectionInfo.current &&
-      connectedDataService.current
-    ) {
-      void onConnectSuccess(
-        connectedConnectionInfo.current,
-        connectedDataService.current
-      );
-    }
-  }, [isConnected, onConnected]);
+  const onConnectSuccess = useCallback(
+    async (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      try {
+        onConnected(connectionInfo, dataService);
+
+        // if a connection has been saved already we only want to update the lastUsed
+        // attribute, otherwise we are going to save the entire connection info.
+        const connectionInfoToBeSaved =
+          (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
+
+        await saveConnectionInfo({
+          ...cloneDeep(connectionInfoToBeSaved),
+          lastUsed: new Date(),
+        });
+
+        // remove the oldest recent connection if are adding a new one and
+        // there are already MAX_RECENT_CONNECTIONS_LENGTH recents.
+        // NOTE: there are edge cases that may lead to more than MAX_RECENT_CONNECTIONS_LENGTH
+        // to be saved (ie. concurrent run of Compass),
+        // however we accept it as long as the list of
+        // recents won't grow indefinitely.
+        if (
+          !connectionInfoToBeSaved.favorite &&
+          !connectionInfoToBeSaved.lastUsed &&
+          recentConnections.length >= MAX_RECENT_CONNECTIONS_LENGTH
+        ) {
+          await removeConnection(
+            recentConnections[recentConnections.length - 1]
+          );
+        }
+      } catch (err) {
+        debug(
+          `error occurred connection with id ${connectionInfo.id || ''}: ${
+            (err as Error).message
+          }`
+        );
+      }
+    },
+    [
+      onConnected,
+      connectionStorage,
+      saveConnectionInfo,
+      removeConnection,
+      recentConnections,
+    ]
+  );
 
   useEffect(() => {
     // Load connections after first render.
@@ -321,8 +365,68 @@ export function useConnections({
     };
   }, []);
 
+  const connect = async (connectionInfo: ConnectionInfo) => {
+    if (connectionAttempt || isConnected) {
+      // Ensure we aren't currently connecting.
+      return;
+    }
+
+    const newConnectionAttempt = createConnectionAttempt(connectFn);
+    connectingConnectionAttempt.current = newConnectionAttempt;
+
+    dispatch({
+      type: 'attempt-connect',
+      connectingStatusText: `Connecting to ${getConnectionTitle(
+        connectionInfo
+      )}`,
+      connectionAttempt: newConnectionAttempt,
+    });
+
+    trackConnectionAttemptEvent(connectionInfo);
+    debug('connecting with connectionInfo', connectionInfo);
+
+    try {
+      const connectionStringWithAppName = setAppNameParamIfMissing(
+        connectionInfo.connectionOptions.connectionString,
+        appName
+      );
+      const newConnectionDataService = await newConnectionAttempt.connect({
+        ...cloneDeep(connectionInfo.connectionOptions),
+        connectionString: connectionStringWithAppName,
+      });
+      connectingConnectionAttempt.current = undefined;
+
+      if (!newConnectionDataService || newConnectionAttempt.isClosed()) {
+        // The connection attempt was cancelled.
+        return;
+      }
+
+      void onConnectSuccess(connectionInfo, newConnectionDataService);
+
+      dispatch({
+        type: 'connection-attempt-succeeded',
+      });
+      trackNewConnectionEvent(connectionInfo, newConnectionDataService);
+      debug(
+        'connection attempt succeeded with connection info',
+        connectionInfo
+      );
+    } catch (error) {
+      connectingConnectionAttempt.current = undefined;
+      trackConnectionFailedEvent(connectionInfo, error as Error);
+      debug('connect error', error);
+
+      dispatch({
+        type: 'connection-attempt-errored',
+        connectionErrorMessage: (error as Error).message,
+      });
+    }
+  };
+
   return {
     state,
+    recentConnections,
+    favoriteConnections,
     cancelConnectionAttempt() {
       connectionAttempt?.cancelConnectionAttempt();
 
@@ -330,65 +434,7 @@ export function useConnections({
         type: 'cancel-connection-attempt',
       });
     },
-    async connect(connectionInfo: ConnectionInfo) {
-      if (connectionAttempt || isConnected) {
-        // Ensure we aren't currently connecting.
-        return;
-      }
-
-      const newConnectionAttempt = createConnectionAttempt(connectFn);
-      connectingConnectionAttempt.current = newConnectionAttempt;
-
-      dispatch({
-        type: 'attempt-connect',
-        connectingStatusText: `Connecting to ${getConnectionTitle(
-          connectionInfo
-        )}`,
-        connectionAttempt: newConnectionAttempt,
-      });
-
-      trackConnectionAttemptEvent(connectionInfo);
-      debug('connecting with connectionInfo', connectionInfo);
-
-      try {
-        const connectionStringWithAppName = setAppNameParamIfMissing(
-          connectionInfo.connectionOptions.connectionString,
-          appName
-        );
-        const newConnectionDataService = await newConnectionAttempt.connect({
-          ...cloneDeep(connectionInfo.connectionOptions),
-          connectionString: connectionStringWithAppName,
-        });
-        connectingConnectionAttempt.current = undefined;
-
-        if (!newConnectionDataService || newConnectionAttempt.isClosed()) {
-          // The connection attempt was cancelled.
-          return;
-        }
-
-        // Successfully connected.
-        connectedConnectionInfo.current = connectionInfo;
-        connectedDataService.current = newConnectionDataService;
-
-        dispatch({
-          type: 'connection-attempt-succeeded',
-        });
-        trackNewConnectionEvent(connectionInfo, newConnectionDataService);
-        debug(
-          'connection attempt succeeded with connection info',
-          connectionInfo
-        );
-      } catch (error) {
-        connectingConnectionAttempt.current = undefined;
-        trackConnectionFailedEvent(connectionInfo, error as Error);
-        debug('connect error', error);
-
-        dispatch({
-          type: 'connection-attempt-errored',
-          connectionErrorMessage: (error as Error).message,
-        });
-      }
-    },
+    connect,
     createNewConnection() {
       dispatch({
         type: 'new-connection',
@@ -442,22 +488,7 @@ export function useConnections({
         });
       }
     },
-    async removeConnection(connectionInfo: ConnectionInfo) {
-      await connectionStorage.delete(connectionInfo);
-      dispatch({
-        type: 'set-connections',
-        connections: connections.filter(
-          (conn) => conn.id !== connectionInfo.id
-        ),
-      });
-      if (activeConnectionId === connectionInfo.id) {
-        const nextActiveConnection = createNewConnectionInfo();
-        dispatch({
-          type: 'set-active-connection',
-          connectionInfo: nextActiveConnection,
-        });
-      }
-    },
+    removeConnection,
     async duplicateConnection(connectionInfo: ConnectionInfo) {
       const duplicate: ConnectionInfo = {
         ...cloneDeep(connectionInfo),

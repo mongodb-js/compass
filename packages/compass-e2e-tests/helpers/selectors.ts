@@ -419,9 +419,9 @@ export const SelectListView = '[data-test-id="toolbar-view-list"]';
 export const DocumentFooterMessage = '.document-footer-message';
 export const UpdateDocumentButton =
   '.document-footer [data-test-id="update-document-button"]';
-export const CopyDocumentButton = '[data-test-id="copy-document-button"]';
-export const CloneDocumentButton = '[data-test-id="clone-document-button"]';
-export const DeleteDocumentButton = '[data-test-id="delete-document-button"]';
+export const CopyDocumentButton = '[data-testid="copy-document-button"]';
+export const CloneDocumentButton = '[data-testid="clone-document-button"]';
+export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
 export const ConfirmDeleteDocumentButton =
   '[data-test-id="confirm-delete-document-button"]';
 

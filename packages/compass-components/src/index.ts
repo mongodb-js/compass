@@ -88,3 +88,4 @@ export { useSortControls, useSortedItems } from './hooks/use-sort';
 export { Pipeline, Stage } from '@leafygreen-ui/pipeline';
 
 export { default as BSONValue } from './components/bson-value';
+export * as DocumentList from './components/document-list';

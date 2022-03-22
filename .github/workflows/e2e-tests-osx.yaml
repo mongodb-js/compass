@@ -110,3 +110,11 @@ jobs:
         with:
           name: Webdriverio Debug Files ${{ github.workflow }} ${{ runner.os }}
           path: packages/compass-e2e-tests/.log/**/*
+
+      - name: Upload E2E coverage
+        uses: actions/upload-artifact@v2
+        # even if tests succeeded you might still want to examine logs
+        if: always()
+        with:
+          name: E2E Coverage ${{ github.workflow }} ${{ runner.os }}
+          path: packages/compass-e2e-tests/.nyc_output/coverage.json
