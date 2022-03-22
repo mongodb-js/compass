@@ -12,31 +12,24 @@ if (process && process.type === 'browser') {
   ipc.respondTo('storage-mixin:clear', (evt, meta) => {
     debug('Clearing all secure values for', meta.serviceName);
 
-    let promise;
-    try {
-      promise = require('keytar').findCredentials(meta.serviceName);
-    } catch (e) {
-      debug('Error calling findCredentials', e);
-      throw e;
-    }
-
-    promise.then(function(accounts) {
-      return Promise.all(
-        accounts.map(function(entry) {
-          const accountName = entry.account;
-          return require('keytar')
-            .deletePassword(meta.serviceName, accountName)
-            .then(function() {
-              debug('Deleted account %s successfully', accountName);
-              return accountName;
-            })
-            .catch(function(err) {
-              debug('Failed to delete', accountName, err);
-              throw err;
-            });
-        })
-      );
-    })
+    return (require('keytar').findCredentials(meta.serviceName))
+      .then(function(accounts) {
+        return Promise.all(
+          accounts.map(function(entry) {
+            const accountName = entry.account;
+            return require('keytar')
+              .deletePassword(meta.serviceName, accountName)
+              .then(function() {
+                debug('Deleted account %s successfully', accountName);
+                return accountName;
+              })
+              .catch(function(err) {
+                debug('Failed to delete', accountName, err);
+                throw err;
+              });
+          })
+        );
+      })
       .then(function(accountNames) {
         debug(
           'Cleared %d accounts for serviceName %s',
@@ -57,8 +50,8 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:remove', (evt, meta) => {
-    require('keytar')
-      .deletePassword(meta.serviceName, meta.accountName)
+    return (require('keytar')
+      .deletePassword(meta.serviceName, meta.accountName))
       .then(function() {
         debug('Removed password for', {
           service: meta.serviceName,
@@ -77,8 +70,8 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:update', (evt, meta) => {
-    require('keytar')
-      .setPassword(meta.serviceName, meta.accountName, meta.value)
+    return (require('keytar')
+      .setPassword(meta.serviceName, meta.accountName, meta.value))
       .then(function() {
         debug('Updated password successfully for', {
           service: meta.serviceName,
@@ -97,8 +90,8 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:create', (evt, meta) => {
-    require('keytar')
-      .setPassword(meta.serviceName, meta.accountName, meta.value)
+    return (require('keytar')
+      .setPassword(meta.serviceName, meta.accountName, meta.value))
       .then(function() {
         debug('Successfully dreated password for', {
           service: meta.serviceName,
@@ -117,9 +110,11 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:find-one', (evt, meta) => {
-    require('keytar')
-      .getPassword(meta.serviceName, meta.accountName)
+    return (require('keytar')
+      .getPassword(meta.serviceName, meta.accountName))
       .then(function(rawJsonString) {
+        // TODO: why does this get broadcast rather than just returned with the
+        // promise?
         ipc.broadcast('storage-mixin:find-one:result', {
           uuid: meta.uuid,
           rawJsonString: rawJsonString
@@ -137,9 +132,11 @@ if (process && process.type === 'browser') {
    * @param {Object} meta - The metadata.
    */
   ipc.respondTo('storage-mixin:find', (evt, meta) => {
-    require('keytar')
-      .findCredentials(meta.namespace)
+    return (require('keytar')
+      .findCredentials(meta.namespace))
       .then(function(credentials) {
+        // TODO: why does this get broadcast rather than just returned with the
+        // promise?
         ipc.broadcast('storage-mixin:find:result', {
           namespace: meta.namespace,
           credentials: credentials,
