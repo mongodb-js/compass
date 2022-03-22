@@ -29,8 +29,9 @@ if (typeof window !== 'undefined') {
   SecureIpcBackend.clear = function(namespace, done) {
     const serviceName = `storage-mixin/${namespace}`;
     debug('Clearing all secure values for', serviceName);
-    ipc.call('storage-mixin:clear', { serviceName: serviceName });
-    done();
+    ipc.call('storage-mixin:clear', { serviceName: serviceName })
+      .then(done)
+      .catch(done);
   };
 
   /**
@@ -45,8 +46,9 @@ if (typeof window !== 'undefined') {
   SecureIpcBackend.prototype.remove = function(model, options, done) {
     const accountName = this._getId(model);
     const serviceName = this.namespace;
-    ipc.call('storage-mixin:remove', { accountName: accountName, serviceName: serviceName });
-    done();
+    ipc.call('storage-mixin:remove', { accountName: accountName, serviceName: serviceName })
+      .then(done)
+      .catch(done);
   };
 
   /**
@@ -66,8 +68,9 @@ if (typeof window !== 'undefined') {
       accountName: accountName,
       serviceName: serviceName,
       value: value
-    });
-    done();
+    })
+      .then(done)
+      .catch(done);
   };
 
   /**
@@ -87,8 +90,9 @@ if (typeof window !== 'undefined') {
       accountName: accountName,
       serviceName: serviceName,
       value: value
-    });
-    done();
+    })
+      .then(done)
+      .catch(done);
   };
 
   /**
@@ -117,6 +121,8 @@ if (typeof window !== 'undefined') {
 
     ipc.on('storage-mixin:find-one:result', listener);
 
+    // TODO: this returns a promise, but for some reason the result gets
+    // broadcast rather than just returned with the promise?
     ipc.call('storage-mixin:find-one', {
       accountName: accountName,
       serviceName: serviceName,
@@ -196,6 +202,8 @@ if (typeof window !== 'undefined') {
 
     ipc.on('storage-mixin:find:result', listener);
 
+    // TODO: this returns a promise, but for some reason the result gets
+    // broadcast rather than just returned with the promise?
     ipc.call('storage-mixin:find', {
       callId: callId,
       namespace: this.namespace

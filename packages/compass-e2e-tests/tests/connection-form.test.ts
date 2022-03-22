@@ -503,20 +503,13 @@ describe('Connection form', function () {
     await browser.clickVisible(Selectors.FavoriteSaveButton);
     await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
 
-    // HACK: The favorite doesn't always appear in the sidebar. Must be some
-    // race condition if we save a favorite too quickly. So close compass and
-    // reopen it again to make sure the favorites reload for now.
-    await afterTests(compass, this.currentTest);
-    compass = await beforeTests();
-    browser = compass.browser;
-
     // copy the connection string
     await selectConnectionMenuItem(
       browser,
       favoriteName,
       Selectors.CopyConnectionStringItem
     );
-    expect(await clipboard.read()).to.equal('mongodb://localhost:27017/');
+    expect(await clipboard.read()).to.equal('mongodb://localhost:27017');
 
     // duplicate
     await selectConnectionMenuItem(
