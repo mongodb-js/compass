@@ -46,13 +46,6 @@ declare module 'process' {
         COMPASS_LG_DARKMODE?: 'true' | 'false';
 
         /**
-         * Enables new tab in the instance workspace that shows saved
-         * aggregations and queries in a list. Behind a feature flag while in
-         * development
-         */
-        COMPASS_SHOW_YOUR_QUERIES_TAB?: 'true';
-
-        /**
          * Enable new aggregation pipeline toolbar
          */
         COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true',

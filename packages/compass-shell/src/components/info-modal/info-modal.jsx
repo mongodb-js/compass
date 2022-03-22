@@ -4,11 +4,11 @@ import {
   css,
   Banner,
   Button,
-  H2,
+  ModalTitle,
   Modal,
   Link,
   Subtitle,
-  Footer,
+  ModalFooter,
   spacing
 } from '@mongodb-js/compass-components';
 
@@ -20,10 +20,6 @@ const mongoshVersion = `v${packageJson.dependencies['@mongosh/browser-repl'].rep
 
 const modalContentWrapperStyles = css({
   padding: 'initial'
-});
-
-const bannerStyles = css({
-  marginTop: spacing[4]
 });
 
 const shortcutsTableContainerStyles = css({
@@ -61,14 +57,11 @@ function InfoModal({
       contentClassName={modalContentWrapperStyles}
     >
       <div className={modalContentStyles}>
-        <H2>mongosh {mongoshVersion}</H2>
-        <Banner
-          className={bannerStyles}
-        >
+        <ModalTitle>mongosh {mongoshVersion}</ModalTitle>
+        <Banner>
           For more information please visit the&nbsp;
           <Link
             id="mongosh-info-link"
-            rel="noreopener"
             href="https://docs.mongodb.com/compass/beta/embedded-shell/"
             target="_blank"
           >MongoDB Shell Documentation</Link>.
@@ -82,13 +75,13 @@ function InfoModal({
           <KeyboardShortcutsTable />
         </div>
       </div>
-      <Footer>
+      <ModalFooter>
         <Button
           onClick={hideInfoModal}
         >
           Close
         </Button>
-      </Footer>
+      </ModalFooter>
     </Modal>
   );
 }

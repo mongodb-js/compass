@@ -12,7 +12,10 @@ const config = {
     'react/lib/ExecutionEnvironment': 'react',
     'react/lib/ReactContext': 'react',
     'react-addons-test-utils': 'react-dom',
-    'os-dns-native': 'commonjs2 os-dns-native'
+    'os-dns-native': 'commonjs2 os-dns-native',
+    'system-ca': 'commonjs2 system-ca',
+    'win-export-certificate-and-key': 'commonjs2 win-export-certificate-and-key',
+    'macos-export-certificate-and-key': 'commonjs2 macos-export-certificate-and-key'
   },
   module: {
     rules: [

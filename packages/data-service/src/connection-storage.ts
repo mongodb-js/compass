@@ -1,11 +1,17 @@
 import type { ConnectionInfo } from './connection-info';
 
 import { validate as uuidValidate } from 'uuid';
-import type { AmpersandMethodOptions } from './legacy/legacy-connection-model';
+import type {
+  AmpersandMethodOptions,
+  LegacyConnectionModel,
+} from './legacy/legacy-connection-model';
 import {
   convertConnectionInfoToModel,
   convertConnectionModelToInfo,
 } from './legacy/legacy-connection-model';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
 
 export class ConnectionStorage {
   /**
@@ -21,8 +27,33 @@ export class ConnectionStorage {
       connectionCollection.fetch.bind(connectionCollection)
     );
 
-    await fetchConnectionModels();
-    return connectionCollection.map(convertConnectionModelToInfo);
+    try {
+      await fetchConnectionModels();
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_101),
+        'Connection Storage',
+        'Failed to load connection, error while fetching models',
+        { message: (err as Error).message }
+      );
+
+      return [];
+    }
+
+    return connectionCollection
+      .map((model: LegacyConnectionModel) => {
+        try {
+          return convertConnectionModelToInfo(model);
+        } catch (err) {
+          log.error(
+            mongoLogId(1_001_000_102),
+            'Connection Storage',
+            'Failed to load connection, error while converting from model',
+            { message: (err as Error).message }
+          );
+        }
+      })
+      .filter(Boolean);
   }
 
   /**
@@ -34,16 +65,32 @@ export class ConnectionStorage {
    * @param connectionInfo - The ConnectionInfo object to be saved.
    */
   async save(connectionInfo: ConnectionInfo): Promise<void> {
-    if (!connectionInfo.id) {
-      throw new Error('id is required');
-    }
+    try {
+      if (!connectionInfo.id) {
+        throw new Error('id is required');
+      }
 
-    if (!uuidValidate(connectionInfo.id)) {
-      throw new Error('id must be a uuid');
-    }
+      if (!uuidValidate(connectionInfo.id)) {
+        throw new Error('id must be a uuid');
+      }
 
-    const model = await convertConnectionInfoToModel(connectionInfo);
-    model.save();
+      const model = await convertConnectionInfoToModel(connectionInfo);
+      await new Promise((resolve, reject) => {
+        model.save(undefined, {
+          success: resolve,
+          error: reject,
+        });
+      });
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_103),
+        'Connection Storage',
+        'Failed to save connection',
+        { message: (err as Error).message }
+      );
+
+      throw err;
+    }
   }
 
   /**
@@ -55,17 +102,49 @@ export class ConnectionStorage {
    * Trying to remove a ConnectionInfo that is not stored has no effect
    * and won't throw an exception.
    *
-   * @param connectionOptions - The ConnectionInfo object to be deleted.
+   * @param connectionInfo - The ConnectionInfo object to be deleted.
    */
-  async delete(connectionOptions: ConnectionInfo): Promise<void> {
-    if (!connectionOptions.id) {
+  async delete(connectionInfo: ConnectionInfo): Promise<void> {
+    if (!connectionInfo.id) {
       // don't throw attempting to delete a connection
       // that was never saved.
       return;
     }
 
-    const model = await convertConnectionInfoToModel(connectionOptions);
-    model.destroy();
+    try {
+      const model = await convertConnectionInfoToModel(connectionInfo);
+      model.destroy();
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_104),
+        'Connection Storage',
+        'Failed to delete connection',
+        { message: (err as Error).message }
+      );
+
+      throw err;
+    }
+  }
+
+  /**
+   * Fetch one ConnectionInfo.
+   *
+   * @param {string} id Id of the ConnectionInfo to fetch
+   */
+  async load(id: string): Promise<ConnectionInfo | undefined> {
+    if (!id) {
+      return undefined;
+    }
+
+    // model.fetch doesn't seem to fail or return any useful info
+    // to determine if the model exists or not on disk
+    // this is why here we have to re-load all the connections in
+    // in order to ensure we can return undefined for a connection id
+    // that does not exist.
+
+    const connections = await this.loadAll();
+
+    return connections.find((connection) => id === connection.id);
   }
 }
 

@@ -321,10 +321,6 @@ const installDependencies = util.callbackify(async(CONFIG) => {
  * @api public
  */
 const removeDevelopmentFiles = (CONFIG, done) => {
-  if (CONFIG.platform !== 'darwin') {
-    done();
-    return;
-  }
   var DOT_FILES = [
     '.DS_Store',
     '.eslint*',
@@ -341,14 +337,11 @@ const removeDevelopmentFiles = (CONFIG, done) => {
     path.join(CONFIG.resourcesAppDir, 'test'),
     path.join(CONFIG.resourcesAppDir, 'scripts'),
     path.join(CONFIG.resourcesAppDir, 'src'),
-    path.join(CONFIG.resourcesAppDir, 'release')
+    path.join(CONFIG.resourcesAppDir, 'release'),
+    path.join(CONFIG.resourcesAppDir, '**', 'Debug', 'obj'),
+    path.join(CONFIG.resourcesAppDir, '**', 'Release', 'obj'),
+    path.join(CONFIG.resourcesAppDir, '{' + DOT_FILES.join(',') + '}')
   ];
-
-  if (CONFIG.platform === 'darwin') {
-    globsToDelete.push(
-      path.join(CONFIG.resourcesAppDir, '{' + DOT_FILES.join(',') + '}')
-    );
-  }
 
   cli.debug('Checking for extraneous files to remove:\n' +
     JSON.stringify(globsToDelete, null, 2));

@@ -1,7 +1,11 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const { TabNavBar } = require('hadron-react-components');
-const { Banner, BannerVariant, ErrorBoundary } = require('@mongodb-js/compass-components');
+const {
+  Banner,
+  BannerVariant,
+  ErrorBoundary,
+  TabNavBar
+} = require('@mongodb-js/compass-components');
 const { track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry(
     'COMPASS-INSTANCE-UI'
@@ -40,8 +44,6 @@ const InstanceComponent = ({
       switch (tabRole.name) {
         case 'Performance':
           return !isDataLake;
-        case 'My Queries':
-          return process.env.COMPASS_SHOW_YOUR_QUERIES_TAB === 'true';
         default:
           return true;
       }
@@ -92,7 +94,6 @@ const InstanceComponent = ({
           })}
           activeTabIndex={activeTabId}
           onTabClicked={onTabClick}
-          mountAllViews={false}
         />
       </div>
     );

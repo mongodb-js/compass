@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import path from 'path';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
@@ -37,12 +38,21 @@ describe('Instance databases tab', function () {
     );
 
     for (const dbSelector of dbSelectors) {
-      const dbElement = await browser.$(dbSelector);
-      await dbElement.waitForExist();
+      const found = await browser.scrollToVirtualItem(
+        Selectors.DatabasesTable,
+        dbSelector,
+        'grid'
+      );
+      expect(found, dbSelector).to.be.true;
     }
   });
 
-  it.skip('links database cards to the database collections tab', async function () {
+  it('links database cards to the database collections tab', async function () {
+    await browser.scrollToVirtualItem(
+      Selectors.DatabasesTable,
+      Selectors.databaseCard('test'),
+      'grid'
+    );
     // Click on the db name text inside the card specifically to try and have
     // tighter control over where it clicks, because clicking in the center of
     // the last card if all cards don't fit on screen can silently do nothing
@@ -57,8 +67,12 @@ describe('Instance databases tab', function () {
     );
 
     for (const collectionSelector of collectionSelectors) {
-      const collectionElement = await browser.$(collectionSelector);
-      await collectionElement.waitForExist();
+      const found = await browser.scrollToVirtualItem(
+        Selectors.CollectionsGrid,
+        collectionSelector,
+        'grid'
+      );
+      expect(found, collectionSelector).to.be.true;
     }
   });
 
@@ -72,6 +86,11 @@ describe('Instance databases tab', function () {
     await browser.addDatabase(dbName, collectionName);
 
     const selector = Selectors.databaseCard(dbName);
+    await browser.scrollToVirtualItem(
+      Selectors.DatabasesTable,
+      selector,
+      'grid'
+    );
     const databaseCard = await browser.$(selector);
     await databaseCard.waitForDisplayed();
 

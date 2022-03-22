@@ -70,7 +70,7 @@ export function gatherProjections(state, stage) {
  *
  * @param {Object} state - The state of the stage.
  *
- * @returns {Object} The stage as an object.
+ * @returns {Record<string, unknown>} The stage as an object.
  */
 export function generateStage(state) {
   if (!state.isEnabled || !state.stageOperator || state.stage === '') {

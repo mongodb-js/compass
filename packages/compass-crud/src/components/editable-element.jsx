@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import getComponent from 'hadron-react-bson';
+import { BSONValue } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 import EditableKey from './editable-key';
 import EditableValue from './editable-value';
@@ -354,13 +354,14 @@ class EditableElement extends React.Component {
     if (this.props.editing && this.element.isValueEditable()) {
       return (<EditableValue element={this.element} isFocused={this.state.focusValue} version={this.props.version} tz={this.props.tz}/>);
     }
-    const component = getComponent(this.element.currentType);
-    const reactComponent = React.createElement(
-      component,
-      { type: this.element.currentType, value: this.element.currentValue, tz: this.props.tz }
+    return (
+      <span className={WRAPPER} onDoubleClick={this.focusEditValue.bind(this)}>
+        <BSONValue
+          type={this.element.currentType}
+          value={this.element.currentValue}
+        />
+      </span>
     );
-
-    return <span className={WRAPPER} onDoubleClick={this.focusEditValue.bind(this)}>{reactComponent}</span>;
   }
 
   /**

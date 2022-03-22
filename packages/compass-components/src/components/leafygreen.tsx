@@ -22,7 +22,7 @@ import {
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 import {
   default as LeafyGreenModal,
-  Footer as LeafyGreenFooter,
+  Footer as LeafyGreenModalFooter,
 } from '@leafygreen-ui/modal';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import {
@@ -91,9 +91,9 @@ const IconButton: typeof LeafyGreenIconButton = withTheme(
     React.ComponentProps<typeof LeafyGreenIconButton>
   >
 ) as typeof LeafyGreenIconButton;
-const Footer: typeof LeafyGreenFooter = withTheme(
-  LeafyGreenFooter
-) as typeof LeafyGreenFooter;
+const ModalFooter: typeof LeafyGreenModalFooter = withTheme(
+  LeafyGreenModalFooter
+) as typeof LeafyGreenModalFooter;
 const Modal = withTheme(
   LeafyGreenModal as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenModal>
@@ -104,7 +104,7 @@ const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
     React.ComponentProps<typeof LeafyGreenRadioGroup>
   >
 ) as typeof LeafyGreenRadioGroup;
-const SegmentedControl: typeof LeafyGreenSegmentedControl = withTheme(
+const SegmentedControl = withTheme(
   LeafyGreenSegmentedControl
 ) as typeof LeafyGreenSegmentedControl;
 const Select: typeof LeafyGreenSelect = withTheme(
@@ -146,11 +146,11 @@ export {
   ConfirmationModal,
   Icon,
   IconButton,
-  Footer,
   Menu,
   MenuItem,
   MenuSeparator,
   Modal,
+  ModalFooter,
   MongoDBLogoMark,
   MongoDBLogo,
   RadioBox,

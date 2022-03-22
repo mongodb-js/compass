@@ -2,13 +2,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StatusRow, ZeroState } from 'hadron-react-components';
-import { TextButton } from 'hadron-react-buttons';
-import { CancelLoader } from '@mongodb-js/compass-components';
+import { Button, ButtonSize, ButtonVariant, CancelLoader, Link } from '@mongodb-js/compass-components';
 import Field from '../field';
 import AnalysisCompleteMessage from '../analysis-complete-message';
 import ZeroGraphic from '../zero-graphic';
 import get from 'lodash.get';
-import classnames from 'classnames';
 
 import styles from './compass-schema.module.less';
 import {
@@ -95,13 +93,6 @@ class Schema extends Component {
     this.props.actions.startAnalysis();
   }
 
-  onOpenLink(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    const { shell } = require('electron');
-    shell.openExternal(DOCUMENTATION_LINK);
-  }
-
   renderBanner() {
     const analysisState = this.props.analysisState;
 
@@ -144,23 +135,28 @@ class Schema extends Component {
 
   renderInitialScreen() {
     return (
-      <div className={classnames(styles['schema-zero-state'])}>
+      <div className={styles['schema-zero-state']}>
         <ZeroGraphic />
         <ZeroState
           header={HEADER}
           subtext={SUBTEXT}>
-          <div className={classnames(styles['schema-zero-state-action'])}>
-            <div>
-              <TextButton
-                dataTestId="analyze-schema-button"
-                className="btn btn-primary btn-lg"
-                text="Analyze Schema"
-                clickHandler={this.onApplyClicked.bind(this)} />
-            </div>
+          <div>
+            <Button
+              onClick={this.onApplyClicked.bind(this)}
+              data-test-id="analyze-schema-button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Large}
+            >
+              Analyze Schema
+            </Button>
           </div>
-          <a className={classnames(styles['schema-zero-state-link'])} onClick={this.onOpenLink.bind(this)}>
-          Learn more about schema analysis in Compass
-          </a>
+          <Link
+            className={styles['schema-zero-state-link']}
+            href={DOCUMENTATION_LINK}
+            target="_blank"
+          >
+            Learn more about schema analysis in Compass
+          </Link>
         </ZeroState>
       </div>
     );
@@ -193,12 +189,8 @@ class Schema extends Component {
     }
 
     return (
-      <div className="column-container">
-        <div className="column main">
-          <div className="schema-field-list">
-            {this.renderFieldList()}
-          </div>
-        </div>
+      <div className="schema-field-list">
+        {this.renderFieldList()}
       </div>
     );
   }
@@ -210,7 +202,7 @@ class Schema extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles.root)}>
+      <div className={styles.root}>
         <div className="controls-container">
           <this.queryBar
             store={this.queryBarStore}
@@ -222,7 +214,9 @@ class Schema extends Component {
           />
           {this.renderBanner()}
         </div>
-        {this.renderContent()}
+        <div className={styles.schema}>
+          {this.renderContent()}
+        </div>
       </div>
     );
   }

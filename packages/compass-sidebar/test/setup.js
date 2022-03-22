@@ -15,11 +15,6 @@ virtualConsole.sendTo(console, { omitJSDOMErrors: true });
 
 require('jsdom-global')('', {
   virtualConsole,
-  beforeParse(win) {
-    win.URL = {
-      createObjectURL: () => {}
-    };
-  },
   runScripts: 'dangerously'
 });
 

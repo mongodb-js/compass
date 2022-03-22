@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { H3, Subtitle } from '@mongodb-js/compass-components';
 
 /**
  * Base component CSS class.
@@ -18,8 +19,8 @@ class ZeroState extends React.Component {
   render() {
     return (
       <div className={`${BASE}`}>
-        <p className={`${BASE}-header`}>{this.props.header}</p>
-        <p className={`${BASE}-subheader`}>{this.props.subtext}</p>
+        <H3 className={`${BASE}-header`}>{this.props.header}</H3>
+        <Subtitle className={`${BASE}-subheader`}>{this.props.subtext}</Subtitle>
         <div className={`${BASE}-body`}>
           {this.props.children}
         </div>

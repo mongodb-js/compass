@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   ErrorBoundary,
-  compassUIColors,
+  WorkspaceContainer,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
@@ -17,9 +17,9 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
-import type { ConnectionStore } from '../stores/connections-store';
 import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
+import ConnectionList from './connection-list/connection-list';
 
 const { debug } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
@@ -33,14 +33,6 @@ const connectStyles = css({
   top: 0,
   display: 'flex',
   flexDirection: 'row',
-  background: compassUIColors.gray8,
-});
-
-const connectItemContainerStyles = css({
-  position: 'relative',
-  flexGrow: 1,
-  flexDirection: 'column',
-  overflow: 'auto',
 });
 
 const formContainerStyles = css({
@@ -55,6 +47,9 @@ const formContainerStyles = css({
   gap: spacing[4],
 });
 
+const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
+const minSidebarWidth = spacing[4] * 9; // 216px
+
 function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
@@ -65,7 +60,7 @@ function Connections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  connectionStorage?: ConnectionStore;
+  connectionStorage?: ConnectionStorage;
   appName: string;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
@@ -79,6 +74,8 @@ function Connections({
     removeAllRecentsConnections,
     removeConnection,
     saveConnection,
+    favoriteConnections,
+    recentConnections,
   } = useConnections({ onConnected, connectionStorage, connectFn, appName });
   const {
     activeConnectionId,
@@ -86,7 +83,6 @@ function Connections({
     connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
-    connections,
     isConnected,
   } = state;
 
@@ -98,16 +94,22 @@ function Connections({
       className={connectStyles}
     >
       <ResizableSidebar
-        activeConnectionId={activeConnectionId}
-        connections={connections}
-        createNewConnection={createNewConnection}
-        setActiveConnectionId={setActiveConnectionById}
-        onConnectionDoubleClicked={connect}
-        removeAllRecentsConnections={removeAllRecentsConnections}
-        removeConnection={removeConnection}
-        duplicateConnection={duplicateConnection}
-      />
-      <div className={connectItemContainerStyles}>
+        minWidth={minSidebarWidth}
+        initialWidth={initialSidebarWidth}
+      >
+        <ConnectionList
+          activeConnectionId={activeConnectionId}
+          favoriteConnections={favoriteConnections}
+          recentConnections={recentConnections}
+          createNewConnection={createNewConnection}
+          setActiveConnectionId={setActiveConnectionById}
+          onDoubleClick={connect}
+          removeAllRecentsConnections={removeAllRecentsConnections}
+          removeConnection={removeConnection}
+          duplicateConnection={duplicateConnection}
+        />
+      </ResizableSidebar>
+      <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {
@@ -128,7 +130,7 @@ function Connections({
           </ErrorBoundary>
           <FormHelp />
         </div>
-      </div>
+      </WorkspaceContainer>
       {(isConnected ||
         (!!connectionAttempt && !connectionAttempt.isClosed())) && (
         <Connecting

@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
-import { ErrorBoundary } from '@mongodb-js/compass-components';
-import { TabNavBar } from 'hadron-react-components';
+import { ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 
 import styles from './database.module.less';
 
@@ -56,15 +54,15 @@ class Database extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles.database)}>
+      <div className={styles.database}>
         <TabNavBar
           data-test-id="database-tabs"
           aria-label="Database Tabs"
           tabs={this.tabs}
           views={this.views}
-          mountAllViews={false}
           activeTabIndex={this.state.activeTab}
-          onTabClicked={this.onTabClicked} />
+          onTabClicked={this.onTabClicked}
+        />
       </div>
     );
   }

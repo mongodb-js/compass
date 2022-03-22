@@ -39,7 +39,6 @@
     "@mongodb-js/compass-components": "^0.12.0",
     "@mongodb-js/compass-query-bar": "^7.19.0",
     "bson": "*",
-    "hadron-react-bson": "^5.8.0",
     "hadron-react-buttons": "^5.7.0",
     "hadron-react-components": "^5.12.0",
     "prop-types": "^15.7.2",
@@ -80,7 +79,6 @@
     "font-awesome": "^4.7.0",
     "hadron-app": "^4.20.0",
     "hadron-app-registry": "^8.9.0",
-    "hadron-react-bson": "^5.8.0",
     "hadron-react-buttons": "^5.7.0",
     "hadron-react-components": "^5.12.0",
     "html-webpack-plugin": "^3.2.0",
@@ -137,7 +135,6 @@
     "hadron-type-checker": "^6.7.0",
     "lodash": "^4.17.15",
     "moment": "^2.27.0",
-    "moment-timezone": "^0.5.21",
     "mongodb-ace-theme": "^1.6.0",
     "react-click-outside": "^3.0.1",
     "react-tooltip": "^3.11.1"

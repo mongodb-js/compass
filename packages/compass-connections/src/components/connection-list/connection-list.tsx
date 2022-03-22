@@ -106,7 +106,8 @@ export type ConnectionInfoFavorite = ConnectionInfo &
 
 function ConnectionList({
   activeConnectionId,
-  connections,
+  recentConnections,
+  favoriteConnections,
   createNewConnection,
   setActiveConnectionId,
   onDoubleClick,
@@ -115,7 +116,8 @@ function ConnectionList({
   removeConnection,
 }: {
   activeConnectionId?: string;
-  connections: ConnectionInfo[];
+  recentConnections: ConnectionInfo[];
+  favoriteConnections: ConnectionInfo[];
   createNewConnection: () => void;
   setActiveConnectionId: (connectionId: string) => void;
   onDoubleClick: (connectionInfo: ConnectionInfo) => void;
@@ -124,27 +126,6 @@ function ConnectionList({
   removeConnection: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const [recentHeaderHover, setRecentHover] = useState(false);
-  const favoriteConnections = connections
-    .filter(
-      (connectionInfo): connectionInfo is ConnectionInfoFavorite =>
-        !!connectionInfo.favorite
-    )
-    .sort((a: ConnectionInfoFavorite, b: ConnectionInfoFavorite) => {
-      return b.favorite.name.toLocaleLowerCase() <
-        a.favorite.name.toLocaleLowerCase()
-        ? 1
-        : -1;
-    });
-
-  const recentConnections = connections
-    .filter((connectionInfo) => !connectionInfo.favorite)
-    .sort((a, b) => {
-      // The `lastUsed` value hasn't always existed, so we assign
-      // them a date in 2016 for sorting if it isn't there.
-      const aLastUsed = a.lastUsed ? a.lastUsed.getTime() : 1463658247465;
-      const bLastUsed = b.lastUsed ? b.lastUsed.getTime() : 1463658247465;
-      return bLastUsed - aLastUsed;
-    });
 
   return (
     <Fragment>
@@ -171,6 +152,9 @@ function ConnectionList({
           {favoriteConnections.map((connectionInfo, index) => (
             <li
               data-testid="favorite-connection"
+              data-id={`favorite-connection-${
+                connectionInfo?.favorite?.name || ''
+              }`}
               key={`${connectionInfo.id || ''}-${index}`}
             >
               <Connection

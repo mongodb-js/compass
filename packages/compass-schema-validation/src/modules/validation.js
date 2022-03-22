@@ -396,7 +396,7 @@ export const fetchValidation = (namespace) => {
 
     dataService.collectionInfo(namespace.database, namespace.collection).then(
       (collInfo) => {
-        const validation = validationFromCollection(null, collInfo);
+        const validation = validationFromCollection(null, collInfo ?? {});
 
         if (!validation.validator) {
           validation.validator = '{}';

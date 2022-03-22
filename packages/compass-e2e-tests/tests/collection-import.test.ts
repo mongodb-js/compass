@@ -95,12 +95,134 @@ describe('Collection import', function () {
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
+  beforeEach(async function () {
+    await browser.shellEval(
+      'db.getSiblingDB("test").getCollection("json-array").deleteMany({});'
+    );
+  });
+
   after(async function () {
     await afterTests(compass, this.currentTest);
   });
 
   afterEach(async function () {
     await afterTest(compass, this.currentTest);
+  });
+
+  it('supports single JSON objects', async function () {
+    await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
+
+    // browse to the "Insert to Collection" modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(
+      Selectors.InsertDocumentOption
+    );
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+
+    // wait for the modal to appear
+    const insertDialog = await browser.$(Selectors.InsertDialog);
+    await insertDialog.waitForDisplayed();
+
+    // set the text in the editor
+    await browser.setAceValue(Selectors.InsertJSONEditor, '{ "foo": 10 }');
+
+    // confirm
+    const insertConfirm = await browser.$(Selectors.InsertConfirm);
+    // this selector is very brittle, so just make sure it works
+    expect(await insertConfirm.isDisplayed()).to.be.true;
+    expect(await insertConfirm.getText()).to.equal('Insert');
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+
+    // wait for the modal to go away
+    await insertDialog.waitForDisplayed({ reverse: true });
+
+    // make sure the documents appear in the collection
+    const messageElement = await browser.$(
+      Selectors.DocumentListActionBarMessage
+    );
+    await browser.waitUntil(async () => {
+      const text = await messageElement.getText();
+      return text === 'Displaying documents 0 - 1 of 1';
+    });
+
+    const result = await getFirstListDocument(browser);
+
+    expect(result._id).to.exist;
+    delete result._id;
+
+    expect(result).to.deep.equal({
+      foo: '10',
+    });
+  });
+
+  it('supports single objects in document view mode', async function () {
+    await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
+
+    // browse to the "Insert to Collection" modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(
+      Selectors.InsertDocumentOption
+    );
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+
+    // wait for the modal to appear
+    const insertDialog = await browser.$(Selectors.InsertDialog);
+    await insertDialog.waitForDisplayed();
+
+    // pick list view
+    await browser.clickVisible(
+      '[data-test-id="insert-document-dialog-view-list"]'
+    );
+
+    // hover over the generated ObjectId to get the '+' for adding a new field
+    await browser.hover(`${Selectors.InsertDialog} .element-value-is-objectid`);
+    await browser.clickVisible(`${Selectors.InsertDialog} .line-number`);
+    await browser.clickVisible(
+      `${Selectors.InsertDialog} .line-number .fa-plus-square-o`
+    );
+
+    // Add field data
+    const keyInput = await browser.$(
+      `${Selectors.InsertDialog} .editable-element-is-added .editable-element-field`
+    );
+    await keyInput.setValue('bar');
+    const valueInput = await browser.$(
+      `${Selectors.InsertDialog} .editable-element-is-added .editable-element-value-wrapper textarea`
+    );
+    await valueInput.setValue('42');
+    await browser.keys(['Enter']);
+
+    // confirm
+    const insertConfirm = await browser.$(Selectors.InsertConfirm);
+    // this selector is very brittle, so just make sure it works
+    expect(await insertConfirm.isDisplayed()).to.be.true;
+    expect(await insertConfirm.getText()).to.equal('Insert');
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+
+    // wait for the modal to go away
+    await insertDialog.waitForDisplayed({ reverse: true });
+
+    // make sure the documents appear in the collection
+    const messageElement = await browser.$(
+      Selectors.DocumentListActionBarMessage
+    );
+    await browser.waitUntil(async () => {
+      const text = await messageElement.getText();
+      return text === 'Displaying documents 0 - 1 of 1';
+    });
+
+    const result = await getFirstListDocument(browser);
+
+    expect(result._id).to.exist;
+    delete result._id;
+
+    expect(result).to.deep.equal({
+      bar: '"42"',
+    });
   });
 
   it('supports JSON arrays', async function () {
@@ -260,7 +382,6 @@ describe('Collection import', function () {
     delete result._id;
 
     // Array and Object could be expanded, but this is probably good enough.
-    // maxKeyField and minKeyField both display as `t()` for some reason.
     expect(result).to.deep.equal({
       arrayField_canonical: 'Array',
       arrayField_relaxed: 'Array',
@@ -276,8 +397,8 @@ describe('Collection import', function () {
       int32field_relaxed: '10',
       int64Field_canonical: '50',
       int64Field_relaxed: '50',
-      maxKeyField: 't()',
-      minKeyField: 't()',
+      maxKeyField: 'MaxKey()',
+      minKeyField: 'MinKey()',
       regexField: '/^H/i',
       timestampField: 'Timestamp({ t: 1565545664, i: 1 })',
     });

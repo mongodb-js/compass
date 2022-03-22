@@ -72,7 +72,7 @@ ipc.once('app:launched', function() {
 
 const { log, mongoLogId, debug, track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-APP');
-  
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -279,7 +279,8 @@ var Application = View.extend({
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
     User.getOrCreate(
-      this.preferences.currentUserId,
+      // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
+      this.preferences.currentUserId || this.preferences.telemetryAnonymousId,
       function(err, user) {
         if (err) {
           return done(err);
@@ -287,9 +288,12 @@ var Application = View.extend({
         this.user.set(user.serialize());
         this.user.trigger('sync');
         this.preferences.save({
-          currentUserId: user.id
+          telemetryAnonymousId: user.id
         });
-        ipc.call('compass:usage:identify', { currentUserId: user.id });
+        ipc.call('compass:usage:identify', {
+          currentUserId: this.preferences.currentUserId,
+          telemetryAnonymousId: user.id
+        });
         debug('user fetch successful', user.serialize());
         done(null, user);
       }.bind(this)
@@ -305,8 +309,9 @@ var Application = View.extend({
       var save = false;
       if (
         semver.lt(oldVersion, currentVersion) ||
-        // So we can test the tour in any e2e environment, not only on prod
-        process.env.APP_ENV === 'webdriverio'
+        // this is so we can test the tour modal in E2E tests where the version
+        // is always the same
+        process.env.SHOW_TOUR
       ) {
         prefs.showFeatureTour = oldVersion;
         save = true;

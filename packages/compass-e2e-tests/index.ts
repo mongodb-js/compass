@@ -11,7 +11,9 @@ import {
   rebuildNativeModules,
   compileCompassAssets,
   buildCompass,
+  COMPASS_PATH,
   LOG_PATH,
+  removeUserDataDir,
 } from './helpers/compass';
 import { createUnlockedKeychain } from './helpers/keychain';
 import ResultLogger from './helpers/result-logger';
@@ -21,6 +23,8 @@ const keychain = createUnlockedKeychain();
 
 // We can't import mongodb here yet because native modules will be recompiled
 let metricsClient: MongoClient;
+
+const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
 async function setup() {
   await keychain.activate();
@@ -48,6 +52,8 @@ async function setup() {
 }
 
 function cleanup() {
+  removeUserDataDir();
+
   keychain.reset();
 
   const disableStartStop = process.argv.includes('--disable-start-stop');
@@ -101,6 +107,11 @@ async function main() {
     await buildCompass();
   } else {
     delete process.env.TEST_PACKAGED_APP;
+
+    // set coverage to the root of the monorepo so it will be generated for
+    // everything and not just packages/compass
+    process.env.COVERAGE = path.dirname(path.dirname(COMPASS_PATH));
+
     debug('Preparing Compass before running the tests');
     if (!noNativeModules) {
       debug('Rebuilding native modules ...');
@@ -112,9 +123,17 @@ async function main() {
     }
   }
 
-  const tests = await promisify(glob)('tests/**/*.{test,spec}.ts', {
+  const rawTests = await promisify(glob)('tests/**/*.{test,spec}.ts', {
     cwd: __dirname,
   });
+
+  // The only test file that's interested in the first-run experience (at the
+  // time of writing) is time-to-first-query.ts and that happens to be
+  // alphabetically right at the end. Which is fine, but the first test to run
+  // will also get the slow first run experience for no good reason unless it is
+  // the time-to-first-query.ts test.
+  // So yeah.. this is a bit of a micro optimisation.
+  const tests = [FIRST_TEST, ...rawTests.filter((t) => t !== FIRST_TEST)];
 
   const bail = process.argv.includes('--bail');
 
@@ -203,6 +222,7 @@ async function run() {
     if (metricsClient) {
       await metricsClient.close();
     }
+
     cleanup();
   }
 }

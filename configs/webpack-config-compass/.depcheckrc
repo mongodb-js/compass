@@ -4,6 +4,7 @@ ignores:
   - '@types/chai'
   - '@types/sinon-chai'
   - 'sinon'
+  - 'babel-plugin-istanbul'
   # peerdep
   - 'core-js'
   # peerdep

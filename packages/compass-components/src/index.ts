@@ -17,6 +17,7 @@ import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
 import { Modal } from './components/modal';
+import { ModalTitle } from './components/modal-title';
 import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
@@ -53,6 +54,7 @@ export {
   ConfirmationModal,
   FileInput,
   Modal,
+  ModalTitle,
   RadioBoxGroup,
   SpinLoader,
   ResizeHandle,
@@ -63,7 +65,7 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
-export { useTheme, Theme, ThemeProvider } from './hooks/use-theme';
+export { withTheme, useTheme, Theme, ThemeProvider } from './hooks/use-theme';
 export {
   ContentWithFallback,
   FadeInPlaceholder,
@@ -73,6 +75,8 @@ import type { glyphs } from '@leafygreen-ui/icon';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { ErrorBoundary } from './components/error-boundary';
+export { TabNavBar } from './components/tab-nav-bar';
+export { WorkspaceContainer } from './components/workspace-container';
 export { InlineInfoLink } from './components/inline-info-link';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
@@ -82,3 +86,6 @@ export { useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
 export { Pipeline, Stage } from '@leafygreen-ui/pipeline';
+
+export { default as BSONValue } from './components/bson-value';
+export * as DocumentList from './components/document-list';

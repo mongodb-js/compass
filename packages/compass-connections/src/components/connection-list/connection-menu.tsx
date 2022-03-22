@@ -60,6 +60,7 @@ function ConnectionMenu({
   return (
     <>
       <Menu
+        data-testid="connection-menu"
         align="bottom"
         justify="start"
         trigger={
@@ -79,6 +80,7 @@ function ConnectionMenu({
         setOpen={setMenuIsOpen}
       >
         <MenuItem
+          data-testid="copy-connection-string"
           onClick={async () => {
             await copyConnectionString(connectionString);
             setMenuIsOpen(false);
@@ -88,6 +90,7 @@ function ConnectionMenu({
         </MenuItem>
         {connectionInfo.favorite && (
           <MenuItem
+            data-testid="duplicate-connection"
             onClick={() => {
               duplicateConnection(connectionInfo);
               setMenuIsOpen(false);
@@ -96,7 +99,10 @@ function ConnectionMenu({
             Duplicate
           </MenuItem>
         )}
-        <MenuItem onClick={() => removeConnection(connectionInfo)}>
+        <MenuItem
+          data-testid="remove-connection"
+          onClick={() => removeConnection(connectionInfo)}
+        >
           Remove
         </MenuItem>
       </Menu>

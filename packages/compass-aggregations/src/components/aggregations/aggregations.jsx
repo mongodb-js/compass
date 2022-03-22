@@ -109,7 +109,7 @@ class Aggregations extends Component {
 /**
  * Map the store state to properties to pass to the components.
  *
- * @param {Object} state - The store state.
+ * @param {import('../../modules').RootState} state - The store state.
  *
  * @returns {Object} The mapped properties.
  */
@@ -150,7 +150,8 @@ const mapStateToProps = (state) => ({
   editViewName: state.editViewName,
   isNewPipelineConfirm: state.isNewPipelineConfirm,
   setIsNewPipelineConfirm: state.setIsNewPipelineConfirm,
-  updateViewError: state.updateViewError
+  updateViewError: state.updateViewError,
+  workspace: state.workspace,
 });
 
 /**

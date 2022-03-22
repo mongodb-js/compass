@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import DocumentActions from './document-actions';
+import { DocumentList } from '@mongodb-js/compass-components';
 import Element from './element';
-import ExpansionBar from './expansion-bar';
 
 /**
  * The base class.
@@ -84,22 +82,21 @@ class ReadonlyDocument extends React.Component {
    * @returns {React.Component} The expander bar.
    */
   renderExpansion() {
-    const totalSize = this.props.doc.elements.size;
     return (
-      <ExpansionBar
-        initialSize={INITIAL_FIELD_LIMIT}
-        renderSize={this.state.renderSize}
-        setRenderSize={this.setRenderSize.bind(this)}
-        totalSize={totalSize}
+      <DocumentList.DocumentFieldsToggleGroup
+        currentSize={this.state.renderSize}
+        totalSize={this.props.doc.elements.size}
+        minSize={INITIAL_FIELD_LIMIT}
+        onSizeChange={this.setRenderSize.bind(this)}
       />
     );
   }
 
   renderActions() {
     return (
-      <DocumentActions
-        copy={this.props.copyToClipboard ? this.handleCopy : undefined}
-        clone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
+      <DocumentList.DocumentActionsGroup
+        onCopy={this.props.copyToClipboard ? this.handleCopy : undefined}
+        onClone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
       />
     );
   }

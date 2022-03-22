@@ -14,21 +14,8 @@ async function dropDatabase(db: Db) {
   }
 }
 
-async function dropCollection(db: Db, name: string) {
-  const collection = db.collection(name);
-  try {
-    await collection.drop();
-  } catch (err) {
-    const codeName = (err as MongoServerError).codeName;
-    if (codeName !== 'NamespaceNotFound') {
-      throw err;
-    }
-  }
-}
-
 async function createBlankCollection(db: Db, name: string) {
   console.log(`Creating ${db.databaseName}.${name}`);
-  await dropCollection(db, name);
   await db.createCollection(name);
 }
 
@@ -48,22 +35,36 @@ if (require.main === module) {
     const db = client.db('test');
 
     // Drop the entire test db where we create lots of collections during test runs
-    await dropDatabase(client.db('test'));
+    await dropDatabase(db);
+
+    const promises = [];
 
     // Create some empty collections for the import tests so each one won't have
     // to possibly drop and create via the UI every time.
     // (named loosely after the relevant test)
-    await createBlankCollection(db, 'json-array');
-    await createBlankCollection(db, 'json-file');
-    await createBlankCollection(db, 'extended-json-file');
-    await createBlankCollection(db, 'csv-file');
-    await createBlankCollection(db, 'bom-csv-file');
+    promises.push(createBlankCollection(db, 'json-array'));
+    promises.push(createBlankCollection(db, 'json-file'));
+    promises.push(createBlankCollection(db, 'extended-json-file'));
+    promises.push(createBlankCollection(db, 'csv-file'));
+    promises.push(createBlankCollection(db, 'bom-csv-file'));
+    promises.push(createBlankCollection(db, 'numbers'));
 
-    console.log(`Creating test.numbers`);
-    await dropCollection(db, 'numbers');
+    // lots of collections to test virtual scrolling
+    for (let i = 0; i < 26; ++i) {
+      promises.push(
+        createBlankCollection(
+          db,
+          'zzz' + String.fromCharCode('a'.charCodeAt(0) + i)
+        )
+      );
+    }
+
+    await Promise.all(promises);
+
+    console.log(`Populating test.numbers`);
     await db
       .collection('numbers')
-      .insertMany([...Array(1000).keys()].map((i) => ({ i })));
+      .insertMany([...Array(1000).keys()].map((i) => ({ i, j: 0 })));
   };
 
   run()

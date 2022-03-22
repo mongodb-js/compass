@@ -39,6 +39,97 @@ describe('LegacyConnectionModel', function () {
       expect(id).to.deep.equal('1234-1234-1234-1234');
     });
 
+    it('add directConnection=true if is a single one host', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.get('directConnection')
+      ).to.equal('true');
+    });
+
+    it('does not alter directConnection=true', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin?directConnection=true',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.get('directConnection')
+      ).to.equal('true');
+    });
+
+    it('does not alter directConnection=false', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin?directConnection=false',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.get('directConnection')
+      ).to.equal('false');
+    });
+
+    it('does not add directConnection=true if replicaSet', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin?replicaSet=rs1',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.has('directConnection')
+      ).to.be.false;
+    });
+
+    it('does not add directConnection=true if srv', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb+srv://compass-data-sets.e06dc.mongodb.net',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.has('directConnection')
+      ).to.be.false;
+    });
+
+    it('does not add directConnection=true if loadBalanced', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017/admin?loadBalanced=true',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.has('directConnection')
+      ).to.be.false;
+    });
+
+    it('does not add directConnection=true if multiple hosts', async function () {
+      const { connectionOptions } = await createAndConvertModel(
+        'mongodb://localhost:27017,localhost2:27017/admin',
+        { _id: '1234-1234-1234-1234' }
+      );
+
+      expect(
+        new ConnectionString(
+          connectionOptions.connectionString
+        ).searchParams.has('directConnection')
+      ).to.be.false;
+    });
+
     it('removes appName if matches MongoDB Compass', async function () {
       const { connectionOptions } = await createAndConvertModel(
         'mongodb://localhost:27017/admin?appName=MongoDB+Compass',

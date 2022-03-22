@@ -11,6 +11,9 @@ export const CloseFeatureTourModal = '[data-test-id="close-tour-button"]';
 export const ConnectSection = '[data-testid="connections-disconnected"]';
 export const ConnectButton = '[data-testid="connect-button"]';
 export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
+export const ConnectionFormEditFavouriteButton =
+  '[data-testid="edit-favorite-icon-button"]';
+export const ConnectionTitle = '[data-testid="connection-form"] h3';
 export const CancelConnectionButton =
   '[data-testid="cancel-connection-button"]';
 export const ConnectionStatusModalContent =
@@ -22,6 +25,11 @@ export const ConnectionFormGeneralTabButton =
   '[data-testid="connection-general-tab"]';
 export const ConnectionFormAuthenticationTabButton =
   '[data-testid="connection-authentication-tab"]';
+export const ConnectionFormTLSTabButton = '[data-testid="connection-tls-tab"]';
+export const ConnectionFormTLSONButton =
+  'label[for="connection-tls-enabled-ON-radio-button"]';
+export const ConnectionFormTLSOFFButton =
+  'label[for="connection-tls-enabled-OFF-radio-button"]';
 export const ConnectionFormInputHost =
   '[data-testid="connection-host-input-0"]';
 export const ConnectionFormInputSrvRecord =
@@ -86,6 +94,8 @@ export const ConnectionFormTlsAllowInvalidHostnamesCheckbox =
   '[data-testid="tlsAllowInvalidHostnames-input"]';
 export const ConnectionFormTlsAllowInvalidCertificatesCheckbox =
   '[data-testid="tlsAllowInvalidCertificates-input"]';
+export const ConnectionFormTlsUseSystemCACheckbox =
+  '[data-testid="useSystemCA-input"]';
 export const ConnectionFormProxyMethodRadios =
   '#ssh-options-radio-box-group input[type="radio"]';
 export const ConnectionFormInputSshPasswordHost =
@@ -170,8 +180,9 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 };
 
 // Connection Sidebar
-export const SidebarTreeItems =
-  '[data-test-id="databases-and-collections"] [role="treeitem"]';
+export const SidebarDatabaseAndConnectionList =
+  '[data-test-id="databases-and-collections"]';
+export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
@@ -187,6 +198,11 @@ export const ShowActionsButton = '[data-testid="show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
+export const SidebarFavoriteButton = '[data-testid="favorite-connection"]';
+export const ConnectionMenu = '[data-testid="connection-menu"]';
+export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
+export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
+export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -202,6 +218,27 @@ export const sidebarCollection = (
 ): string => {
   return `[data-testid="sidebar-collection-${dbName}.${collectionName}"]`;
 };
+
+export const sidebarFavorite = (favoriteName: string): string => {
+  return `${SidebarFavoriteButton}[data-id="favorite-connection-${favoriteName}"]`;
+};
+
+export const sidebarFavoriteButton = (favoriteName: string): string => {
+  return `${sidebarFavorite(favoriteName)} > div > button`;
+};
+
+export const sidebarFavoriteMenuButton = (favoriteName: string): string => {
+  return `${sidebarFavorite(
+    favoriteName
+  )}  button[aria-label="Connection Options Menu"]`;
+};
+
+// Favorite modal
+export const FavoriteModal = '[data-testid="favorite_modal"]';
+export const FavoriteNameInput = '[data-testid="favorite-name-input"]';
+export const FavoriteColorSelector = '#favorite-color-selector';
+export const FavoriteSaveButton =
+  '[data-testid="favorite_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Create database modal
 export const CreateDatabaseModal = '[data-testid="create_database_modal"]';
@@ -279,6 +316,7 @@ export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="database-grid"] [data-testid="create-controls"] button';
+export const DatabaseCard = '[data-testid="database-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
   '[data-testid="database-grid"] [data-testid="card-action-container"] button';
@@ -298,7 +336,7 @@ export const instanceTab = (tabName: string, selected?: boolean): string => {
   return selector;
 };
 export const databaseCard = (dbName: string): string => {
-  return `[data-testid="database-grid-item"][data-id="${dbName}"]`;
+  return `${DatabaseCard}[data-id="${dbName}"]`;
 };
 
 export const databaseCardClickable = (dbName: string): string => {
@@ -313,6 +351,7 @@ export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
   '[data-testid="collection-grid"] [data-testid="card-action-container"] button';
@@ -335,7 +374,7 @@ export const collectionCard = (
   dbName: string,
   collectionName: string
 ): string => {
-  return `[data-testid="collection-grid-item"][data-id="${dbName}.${collectionName}"]`;
+  return `${CollectionCard}[data-id="${dbName}.${collectionName}"]`;
 };
 
 export const collectionCardClickable = (
@@ -401,6 +440,19 @@ export const InsertDocumentOption =
   '[data-test-id="insert-data-dropdown-insert-document"]';
 export const ImportFileOption =
   '[data-test-id="insert-data-dropdown-import-file"]';
+export const DocumentListEntry = '[data-test-id="editable-document"]';
+export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
+export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
+export const SelectTableView = '[data-test-id="toolbar-view-table"]';
+export const SelectListView = '[data-test-id="toolbar-view-list"]';
+export const DocumentFooterMessage = '.document-footer-message';
+export const UpdateDocumentButton =
+  '.document-footer [data-test-id="update-document-button"]';
+export const CopyDocumentButton = '[data-testid="copy-document-button"]';
+export const CloneDocumentButton = '[data-testid="clone-document-button"]';
+export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
+export const ConfirmDeleteDocumentButton =
+  '[data-test-id="confirm-delete-document-button"]';
 
 // Insert Document modal
 
