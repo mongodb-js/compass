@@ -30,7 +30,7 @@ if (typeof window !== 'undefined') {
     const serviceName = `storage-mixin/${namespace}`;
     debug('Clearing all secure values for', serviceName);
     ipc.call('storage-mixin:clear', { serviceName: serviceName })
-      .then(done)
+      .then(() => done())
       .catch(done);
   };
 
@@ -47,7 +47,7 @@ if (typeof window !== 'undefined') {
     const accountName = this._getId(model);
     const serviceName = this.namespace;
     ipc.call('storage-mixin:remove', { accountName: accountName, serviceName: serviceName })
-      .then(done)
+      .then(() => done())
       .catch(done);
   };
 
@@ -69,7 +69,7 @@ if (typeof window !== 'undefined') {
       serviceName: serviceName,
       value: value
     })
-      .then(done)
+      .then(() => done())
       .catch(done);
   };
 
@@ -91,7 +91,7 @@ if (typeof window !== 'undefined') {
       serviceName: serviceName,
       value: value
     })
-      .then(done)
+      .then(() => done())
       .catch(done);
   };
 
