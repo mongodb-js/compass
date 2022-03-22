@@ -130,19 +130,17 @@ const mapSaveMenuState = ({ name, serverVersion }: RootState) => ({
   pipelineName: name,
   isCreateViewAvailable: semver.gte(serverVersion, VIEWS_MIN_SERVER_VERSION),
 });
-const mapSaveMenuDispatch = (dispatch: Dispatch) => ({
+const mapSaveMenuDispatch = {
   onSave: (name: string) => {
-    return dispatch(name === '' ? savingPipelineOpen() : saveCurrentPipeline());
+    return name === '' ? savingPipelineOpen() : saveCurrentPipeline();
   },
   onSaveAs: (name: string) => {
-    return dispatch(
-      name === ''
-        ? savingPipelineOpen()
-        : savingPipelineOpen({ name, isSaveAs: true })
-    );
+    return name === ''
+      ? savingPipelineOpen()
+      : savingPipelineOpen({ name, isSaveAs: true });
   },
-  onCreateView: () => dispatch(openCreateView()),
-});
+  onCreateView: () => openCreateView(),
+};
 export const SaveMenu = connect(
   mapSaveMenuState,
   mapSaveMenuDispatch
