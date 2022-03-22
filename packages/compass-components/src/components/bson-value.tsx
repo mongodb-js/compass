@@ -1,43 +1,14 @@
 import React, { useMemo } from 'react';
+import type { TypeCastMap } from 'hadron-type-checker';
 import { Binary } from 'bson';
-import type {
-  Code,
-  Double,
-  Int32,
-  Long,
-  BSONRegExp,
-  Timestamp,
-  DBRef,
-  MaxKey,
-  MinKey,
-  ObjectId,
-  BSONSymbol,
-  Decimal128,
-} from 'bson';
+import type { DBRef } from 'bson';
 import { css } from '..';
 
-type BSONValueProps =
-  | { type: 'Binary'; value: Binary }
-  | { type: 'Code'; value: Code }
-  | { type: 'Double'; value: Double }
-  | { type: 'Int32'; value: Int32 }
-  | { type: 'Long'; value: Long }
-  | { type: 'BSONRegExp'; value: BSONRegExp }
-  | { type: 'Timestamp'; value: Timestamp }
-  | { type: 'DBRef'; value: DBRef }
-  | { type: 'MaxKey'; value: MaxKey }
-  | { type: 'MinKey'; value: MinKey }
-  | { type: 'ObjectId'; value: ObjectId }
-  | { type: 'Symbol'; value: BSONSymbol }
-  | { type: 'Decimal128'; value: Decimal128 };
-
 type ValueProps =
-  | BSONValueProps
-  | { type: 'Date'; value: Date }
-  | { type: 'String'; value: string }
-  | { type: 'Undefined'; value: undefined }
-  | { type: 'Null'; value: null }
-  | { type: 'Boolean'; value: boolean };
+  | {
+      [type in keyof TypeCastMap]: { type: type; value: TypeCastMap[type] };
+    }[keyof TypeCastMap]
+  | { type: 'DBRef'; value: DBRef };
 
 function truncate(str: string, length = 70): string {
   const truncated = str.slice(0, length);
@@ -218,18 +189,19 @@ export const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   );
 };
 
-export const SymbolValue: React.FunctionComponent<PropsByValueType<'Symbol'>> =
-  ({ value }) => {
-    const stringifiedValue = useMemo(() => {
-      return `Symbol('${String(value)}')`;
-    }, [value]);
+export const SymbolValue: React.FunctionComponent<
+  PropsByValueType<'BSONSymbol'>
+> = ({ value }) => {
+  const stringifiedValue = useMemo(() => {
+    return `Symbol('${String(value)}')`;
+  }, [value]);
 
-    return (
-      <div className={getClassName('symbol')} title={stringifiedValue}>
-        {stringifiedValue}
-      </div>
-    );
-  };
+  return (
+    <div className={getClassName('symbol')} title={stringifiedValue}>
+      {stringifiedValue}
+    </div>
+  );
+};
 
 export const UnknownValue: React.FunctionComponent<{
   type: string;
@@ -270,8 +242,11 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
       return <DBRefValue value={props.value}></DBRefValue>;
     case 'Timestamp':
       return <TimestampValue value={props.value}></TimestampValue>;
-    case 'Symbol':
+    case 'BSONSymbol':
       return <SymbolValue value={props.value}></SymbolValue>;
+    case 'Object':
+    case 'Array':
+      return <UnknownValue type={props.type} value={props.type}></UnknownValue>;
     default:
       return (
         <UnknownValue type={props.type} value={props.value}></UnknownValue>

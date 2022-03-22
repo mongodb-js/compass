@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormGroup, ControlLabel } from 'react-bootstrap';
+import { Button, FormGroup } from 'react-bootstrap';
+import { Label } from '@mongodb-js/compass-components';
 
 import classnames from 'classnames';
 import FILE_TYPES from '../../constants/file-types';
@@ -19,7 +20,7 @@ class SelectFileType extends PureComponent {
     const { fileType, onSelected, label } = this.props;
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <Label>{label}</Label>
         <div className={style()}>
           <Button
             data-test-id="select-file-type-json"

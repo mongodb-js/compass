@@ -1,14 +1,5 @@
-// based off of https://github.com/atom/atom/blob/master/src/browser/application-menu.coffee
-// use js2.coffee to convert it to JS
-import {
-  BrowserWindow,
-  Menu,
-  app,
-  dialog,
-  shell,
-  nativeTheme,
-  MenuItemConstructorOptions,
-} from 'electron';
+import type { MenuItemConstructorOptions } from 'electron';
+import { BrowserWindow, Menu, app, dialog, shell, nativeTheme } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
 import path from 'path';
@@ -31,21 +22,32 @@ class ThemeState {
 function updateTheme({
   theme
 }: ThemeState) {
-  if (theme === THEMES.OS_THEME) {
-    if (nativeTheme.shouldUseDarkColors) {
-      ipcMain.broadcast('app:darkreader-enable');
-    } else {
-      ipcMain.broadcast('app:darkreader-disable');
+  try {
+    if (theme === THEMES.OS_THEME) {
+      if (nativeTheme.shouldUseDarkColors) {
+        ipcMain.broadcast('app:darkreader-enable');
+      } else {
+        ipcMain.broadcast('app:darkreader-disable');
+      }
+      return;
     }
-    return;
+
+    if (theme === THEMES.DARK) {
+      ipcMain.broadcast('app:darkreader-enable');
+      return;
+    }
+
+    ipcMain.broadcast('app:darkreader-disable');
+  } catch (e) {
+    // TODO: Seems like sometimes we are broadcasting theme update too fast
+    // causing ipc.send to fail with "Render frame was disposed before
+    // WebFrameMain could be accessed" error.
+    //
+    // This is a workaround that just swallows the issue and allows app not to
+    // break while trying to switch the theme. We should inspect the
+    // implementation and do a better fix in the scope of https://jira.mongodb.org/browse/COMPASS-5606
+    debug('Failed to broadcast theme change', e);
   }
-  
-  if (theme === THEMES.DARK) {
-    ipcMain.broadcast('app:darkreader-enable');
-    return;
-  }
-  
-  ipcMain.broadcast('app:darkreader-disable');
 }
 
 function separator(): MenuItemConstructorOptions {

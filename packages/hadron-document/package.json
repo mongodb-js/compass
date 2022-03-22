@@ -17,6 +17,7 @@
     "mongodb-js"
   ],
   "main": "index.js",
+  "types": "./index.d.ts",
   "exports": {
     "webpack": "./src/index.js",
     "require": "./index.js"

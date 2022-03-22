@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { Label, Description } from '@mongodb-js/compass-components';
 
 import { TextButton } from 'hadron-react-buttons';
 import {
@@ -76,11 +77,11 @@ class Settings extends PureComponent {
       return (
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label htmlFor='aggregation-limit'>Limit</label>
-            <p id="aggregation-limit-description">
+            <Label htmlFor='aggregation-limit'>Limit</Label>
+            <Description id="aggregation-limit-description">
               Limits input documents before $group, $bucket, and $bucketAuto
               stages. Set a limit to make the collection run faster.
-            </p>
+            </Description>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
@@ -112,11 +113,11 @@ class Settings extends PureComponent {
       <div className={classnames(styles.body)}>
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label htmlFor="aggregation-comment-mode">Comment Mode</label>
-            <p id="aggregation-comment-mode-description">
+            <Label htmlFor="aggregation-comment-mode">Comment Mode</Label>
+            <Description id="aggregation-comment-mode-description">
               When enabled, adds helper comments to each stage. Only applies to
               new stages.
-            </p>
+            </Description>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
@@ -130,8 +131,8 @@ class Settings extends PureComponent {
         </div>
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label htmlFor="aggregation-sample-size">Number of Preview Documents</label>
-            <p id="aggregation-sample-size-description">Specify the number of documents to show in the preview.</p>
+            <Label htmlFor="aggregation-sample-size">Number of Preview Documents</Label>
+            <Description id="aggregation-sample-size-description">Specify the number of documents to show in the preview.</Description>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
@@ -147,11 +148,11 @@ class Settings extends PureComponent {
         </div>
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
-            <label htmlFor="aggregation-max-time-ms">Max Time</label>
-            <p id="aggregation-max-time-ms-description">
+            <Label htmlFor="aggregation-max-time-ms">Max Time</Label>
+            <Description id="aggregation-max-time-ms-description">
               Specifies a cumulative time limit in milliseconds for processing
               operations on a cursor. Max timeout prevents long hang times.
-            </p>
+            </Description>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
