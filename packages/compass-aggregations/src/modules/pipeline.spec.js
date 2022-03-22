@@ -265,7 +265,9 @@ describe('pipeline module', function() {
       ];
 
       it('inserts new stage in the middle', function() {
-        expect(reducer(state, stageAddedAfter(0))[1].stageOperator).to.equal(null);
+        expect(reducer(state, stageAddedAfter(0))[1].stageOperator).to.equal(
+          ''
+        );
       });
     });
   });
@@ -334,12 +336,13 @@ describe('pipeline module', function() {
     const error = new Error('test');
 
     it('returns the STAGE_PREVIEW_UPDATED action', function() {
-      expect(stagePreviewUpdated(docs, 3, error, true)).to.deep.equal({
+      expect(stagePreviewUpdated(docs, 3, error, true, 'on-prem')).to.deep.equal({
         type: STAGE_PREVIEW_UPDATED,
         documents: docs,
         index: 3,
         error: error,
-        isComplete: true
+        isComplete: true,
+        env: 'on-prem'
       });
     });
   });

@@ -59,7 +59,14 @@ class CollationToolbar extends PureComponent {
    */
   render() {
     return (
-      <div className={classnames(styles['collation-toolbar'])}>
+      <div
+        data-testid="legacy-collation-toolbar"
+        className={classnames(styles['collation-toolbar'], {
+          [styles['collation-toolbar-in-new-toolbar']]:
+            global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR ===
+            'true',
+        })}
+      >
         <div
           onBlur={this._onBlur}
           onFocus={this._onFocus}
@@ -73,7 +80,7 @@ class CollationToolbar extends PureComponent {
               styles['collation-toolbar-input-label'],
               { [ styles['has-error'] ]: (this.props.collation === false) }
             )}
-            data-test-id="collation-toolbar-input-label">
+            data-testid="collation-toolbar-input-label">
             <InfoSprinkle helpLink={HELP_URL_COLLATION} onClickHandler={this.props.openLink} />
             Collation
           </div>

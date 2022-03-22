@@ -1,0 +1,23 @@
+.custom-drag-layer {
+  position: fixed;
+  pointer-events: none;
+  z-index: 500;
+  left: 5px;
+  top: 0;
+  width: 100%;
+  height: 100%;
+
+  &-container {
+    border-radius: 5px;
+    background-color: rgba(13, 50, 79, 0.6);
+    color: #C5E4F2;
+    width: calc(80% - 260px);
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    font-size: 24px;
+    font-weight: bold;
+  }
+}

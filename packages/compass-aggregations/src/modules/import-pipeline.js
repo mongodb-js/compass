@@ -124,7 +124,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * New pipeline from text action.
  *
- * @returns {Object} The action.
+ * @returns {import("redux").AnyAction} The action.
  */
 export const newPipelineFromText = () => ({
   type: NEW_PIPELINE_FROM_TEXT
