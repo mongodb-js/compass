@@ -205,10 +205,7 @@ export class AppRegistry {
    *
    * @returns {AppRegistry} This instance.
    */
-  registerComponent(
-    name: string,
-    component: React.FunctionComponent
-  ): this {
+  registerComponent(name: string, component: React.FunctionComponent): this {
     const overwrite = Object.prototype.hasOwnProperty.call(
       this.components,
       name
