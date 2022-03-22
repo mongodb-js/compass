@@ -7,13 +7,11 @@ import { FILETYPE } from '../../constants/export-step';
 import styles from './export-select-output.module.less';
 import React, { PureComponent } from 'react';
 import createStyler from '../../utils/styler.js';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import {
   FormGroup,
   InputGroup,
-  FormControl,
-  ControlLabel
+  FormControl
 } from 'react-bootstrap';
 import {
   STARTED,
@@ -23,6 +21,7 @@ import {
   UNSPECIFIED,
   COMPLETED_WITH_ERRORS
 } from '../../constants/process-status';
+import { Label } from '@mongodb-js/compass-components';
 
 const style = createStyler(styles, 'export-select-output');
 
@@ -95,14 +94,17 @@ class ExportSelectOutput extends PureComponent {
             label="Select Export File Type"
             onSelected={this.props.selectExportFileType}/>
           <FormGroup controlId="export-file">
-            <ControlLabel>Output</ControlLabel>
+            <Label
+              htmlFor="select-export-file-output"
+            >Output</Label>
             <InputGroup bsClass={style('browse-group')}>
               <FormControl type="text" value={this.props.fileName} readOnly />
               <IconTextButton
                 text="Browse"
+                id="select-export-file-output"
                 iconClassName="fa fa-folder-open-o"
                 clickHandler={this.handleChooseFile}
-                className={classnames('btn btn-default btn-sm')}/>
+                className={'btn btn-default btn-sm'}/>
             </InputGroup>
           </FormGroup>
         </form>
