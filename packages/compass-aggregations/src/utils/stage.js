@@ -22,7 +22,7 @@ export const generateStageWithDefaults = (props = {}) => {
  * Parse out a namespace from the stage.
  *
  * @param {String} currentDb - The current database.
- * @param {String} stage - The stage.
+ * @param {Object} stage - The stage.
  *
  * @returns {String} The namespace.
  */

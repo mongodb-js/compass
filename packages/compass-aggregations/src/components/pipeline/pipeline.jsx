@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Banner } from '@mongodb-js/compass-components';
 
-import PipelineWorkspace from '../pipeline-workspace';
 import SavePipeline from '../save-pipeline';
 import Settings from '../settings';
 import LegacyPipelineToolbar from '../legacy-pipeline-toolbar';
@@ -19,7 +18,8 @@ import ConfirmNewPipeline from './modals/confirm-new-pipeline';
 import styles from './pipeline.module.less';
 
 import PipelineToolbar from '../pipeline-toolbar';
-
+import PipelineBuilderWorkspace from '../pipeline-builder-workspace';
+import PipelineResultsWorkspace from '../pipeline-results-workspace';
 import {
   DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
@@ -118,6 +118,13 @@ class Pipeline extends PureComponent {
     isNewPipelineConfirm: PropTypes.bool.isRequired,
     setIsNewPipelineConfirm: PropTypes.func.isRequired,
     inputDocuments: PropTypes.object.isRequired,
+    workspace: PropTypes.string.isRequired,
+    runOutStage: PropTypes.func.isRequired,
+    isTimeSeries: PropTypes.bool.isRequired,
+    isReadonly: PropTypes.bool.isRequired,
+    sourceName: PropTypes.string.isRequired,
+    toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
+    refreshInputDocuments: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -133,7 +140,12 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   renderCollationToolbar() {
-    if (this.props.isCollationExpanded) {
+    // We don't show collation outside toolbar in new implementation.
+    // We are using the component in new implementation as well, but inside Toolbar
+    if (
+      this.props.isCollationExpanded &&
+      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true'
+    ) {
       return (
         <CollationToolbar
           collation={this.props.collation}
@@ -239,6 +251,47 @@ class Pipeline extends PureComponent {
     return <PipelineToolbar />;
   }
 
+  renderPipelineWorkspace() {
+    return this.props.workspace === 'results' ? (
+      <PipelineResultsWorkspace />
+    ) : (
+      <PipelineBuilderWorkspace
+        allowWrites={this.props.allowWrites}
+        editViewName={this.props.editViewName}
+        env={this.props.env}
+        isTimeSeries={this.props.isTimeSeries}
+        isReadonly={this.props.isReadonly}
+        sourceName={this.props.sourceName}
+        pipeline={this.props.pipeline}
+        toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
+        refreshInputDocuments={this.props.refreshInputDocuments}
+        stageAdded={this.props.stageAdded}
+        setIsModified={this.props.setIsModified}
+        openLink={this.props.openLink}
+        isCommenting={this.props.isCommenting}
+        isAutoPreviewing={this.props.isAutoPreviewing}
+        inputDocuments={this.props.inputDocuments}
+        runStage={this.props.runStage}
+        runOutStage={this.props.runOutStage}
+        gotoOutResults={this.props.gotoOutResults}
+        gotoMergeResults={this.props.gotoMergeResults}
+        serverVersion={this.props.serverVersion}
+        stageChanged={this.props.stageChanged}
+        stageCollapseToggled={this.props.stageCollapseToggled}
+        stageAddedAfter={this.props.stageAddedAfter}
+        stageDeleted={this.props.stageDeleted}
+        stageMoved={this.props.stageMoved}
+        stageOperatorSelected={this.props.stageOperatorSelected}
+        stageToggled={this.props.stageToggled}
+        fields={this.props.fields}
+        isOverviewOn={this.props.isOverviewOn}
+        projections={this.props.projections}
+        projectionsChanged={this.props.projectionsChanged}
+        newPipelineFromPaste={this.props.newPipelineFromPaste}
+      />
+    );
+  }
+
   /**
    * Render the pipeline component.
    *
@@ -296,7 +349,7 @@ class Pipeline extends PureComponent {
         {this.renderPipelineToolbar()}
         {this.renderCollationToolbar()}
         {this.renderModifyingViewSourceError()}
-        <PipelineWorkspace {...this.props} />
+        {this.renderPipelineWorkspace()}
         {this.renderSavePipeline()}
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}
