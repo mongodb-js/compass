@@ -46,7 +46,15 @@ Templates:
 
     DriverTemplate: &DriverTemplate !!js/function >
       (spec) => {
-        const comment = '// Requires the MongoSwift package\n// https://github.com/mongodb/mongo-swift-driver';
+        const comment = [
+          '// Requires the MongoSwift and NIO packages',
+          '// https://github.com/mongodb/mongo-swift-driver',
+          '// https://github.com/apple/swift-nio',
+          '//',
+          '// Note that this code sample can only be executed in async contexts.',
+          '// See https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html for more information',
+          '// about the allowed contexts for async method calls in Swift.'
+        ].join('\n')
 
         const options = spec.options;
         const filter = spec.filter || '[:]';

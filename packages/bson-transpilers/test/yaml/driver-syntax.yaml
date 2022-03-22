@@ -83,8 +83,13 @@ tests:
                     })
                 # TODO: COMPASS-5567 unskip this test
                 # swift: |-
-                #     // Requires the MongoSwift package
+                #     // Requires the MongoSwift and NIO packages
                 #     // https://github.com/mongodb/mongo-swift-driver
+                #     // https://github.com/apple/swift-nio
+                #     //
+                #     // Note that this code sample can only be executed in async contexts.
+                #     // See https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html for more information
+                #     // about the allowed contexts for async method calls in Swift.
                 #
                 #     let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
                 #     let client = try MongoClient(
@@ -207,8 +212,13 @@ tests:
                       'x' => 0
                     })
                 swift: |-
-                    // Requires the MongoSwift package
+                    // Requires the MongoSwift and NIO packages
                     // https://github.com/mongodb/mongo-swift-driver
+                    // https://github.com/apple/swift-nio
+                    //
+                    // Note that this code sample can only be executed in async contexts.
+                    // See https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html for more information
+                    // about the allowed contexts for async method calls in Swift.
 
                     let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
                     let client = try MongoClient(
@@ -420,8 +430,13 @@ tests:
                       collation: collation
                     })
                 swift: |-
-                    // Requires the MongoSwift package
+                    // Requires the MongoSwift and NIO packages
                     // https://github.com/mongodb/mongo-swift-driver
+                    // https://github.com/apple/swift-nio
+                    //
+                    // Note that this code sample can only be executed in async contexts.
+                    // See https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html for more information
+                    // about the allowed contexts for async method calls in Swift.
 
                     let elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)
                     let client = try MongoClient(
