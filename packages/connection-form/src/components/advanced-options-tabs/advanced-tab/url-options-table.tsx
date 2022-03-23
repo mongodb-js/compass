@@ -29,10 +29,6 @@ const optionNameCellStyles = css({
   width: spacing[5] * 9,
 });
 
-const optionValueCellStyles = css({
-  // width: '30%',
-});
-
 const optionValueCellContentStyles = css({
   display: 'flex',
   flexDirection: 'row',
@@ -41,7 +37,7 @@ const optionValueCellContentStyles = css({
 });
 
 const valueInputStyles = css({
-  maxWidth: spacing[7],
+  width: spacing[7],
 });
 
 const deleteOptionButtonStyle = css({
@@ -193,7 +189,7 @@ function UrlOptionsTable({
                 ))}
               </Select>
             </Cell>
-            <Cell className={optionValueCellStyles}>
+            <Cell>
               <div className={optionValueCellContentStyles}>
                 <TextInput
                   onChange={(event: ChangeEvent<HTMLInputElement>) => {
