@@ -43,6 +43,8 @@ class Document extends EventEmitter {
     this.cloned = cloned || false;
     this.isUpdatable = true;
     this.elements = this._generateElements();
+    this.type = 'Document';
+    this.currentType = 'Document';
   }
 
   /**
@@ -300,7 +302,7 @@ class Document extends EventEmitter {
    */
   insertEnd(key, value) {
     var newElement = this.elements.insertEnd(key, value, true, this);
-    this.emit(Element.Events.Added);
+    newElement._bubbleUp(Element.Events.Added, newElement, this);
     return newElement;
   }
 
@@ -315,7 +317,7 @@ class Document extends EventEmitter {
    */
   insertAfter(element, key, value) {
     var newElement = this.elements.insertAfter(element, key, value, true, this);
-    this.emit(Element.Events.Added);
+    newElement._bubbleUp(Element.Events.Added, newElement, this);
     return newElement;
   }
 
