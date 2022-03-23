@@ -11,6 +11,7 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
+      process.env.SHOW_TOUR = 'true'; // make this work the same in dev and when releasing
       const compass = await beforeTests({ firstRun: true });
       const { browser } = compass;
       try {
@@ -26,6 +27,7 @@ describe('Logging and Telemetry integration', function () {
       } finally {
         await afterTests(compass);
         await telemetry.stop();
+        delete process.env.SHOW_TOUR;
       }
 
       logs = compass.logs;
