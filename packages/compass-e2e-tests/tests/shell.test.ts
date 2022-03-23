@@ -4,7 +4,7 @@ import type { Telemetry } from '../helpers/telemetry';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 
-describe('Shell', function () {
+describe.skip('Shell', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
