@@ -620,11 +620,6 @@ tasks:
   - name: e2e-coverage
     tags: ['run-on-pr']
     commands:
-      - func: test-packaged-app
-        vars:
-          compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-    commands:
       - func: prepare
       - func: install
       - func: bootstrap
