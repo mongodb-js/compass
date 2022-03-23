@@ -75,7 +75,12 @@ export class ConnectionStorage {
       }
 
       const model = await convertConnectionInfoToModel(connectionInfo);
-      model.save();
+      await new Promise((resolve, reject) => {
+        model.save(undefined, {
+          success: resolve,
+          error: reject,
+        });
+      });
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_103),

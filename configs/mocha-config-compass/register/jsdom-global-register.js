@@ -41,3 +41,13 @@ Object.defineProperty(globalThis.navigator, 'clipboard', {
     return clipboard;
   },
 });
+
+if (!globalThis.IntersectionObserver) {
+  globalThis.IntersectionObserver =
+    window.IntersectionObserver = class IntersectionObserver {
+      constructor() {}
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+}

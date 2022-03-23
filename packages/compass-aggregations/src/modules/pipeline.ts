@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { ADL, ATLAS, STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 import { generateStage, generateStageAsString } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
-import isEmpty from 'lodash.isempty';
+import type { AnyAction, Dispatch } from 'redux';
+import type { DataService } from 'mongodb-data-service';
 import { parseNamespace } from '../utils/stage';
 import { createId } from './id';
 
@@ -12,6 +14,51 @@ import {
   DEFAULT_SAMPLE_SIZE,
   DEFAULT_LARGE_LIMIT
 } from '../constants';
+import type { RootState } from '.';
+import type { ThunkAction } from 'redux-thunk';
+import type { AggregateOptions, Document } from 'mongodb';
+
+export type Projection = {
+  name: string;
+  value: string;
+  score: number;
+  meta: string;
+  version: string;
+  index?: number;
+};
+
+export type Pipeline = {
+  id: string;
+  stageOperator: string;
+  stage: string;
+  isValid: boolean;
+  isEnabled: boolean;
+  isExpanded: boolean;
+  isLoading: boolean;
+  isComplete: boolean;
+  previewDocuments: Document[];
+  syntaxError: Error | null;
+  error: Error | null;
+  projections: Projection[];
+  fromStageOperators?: boolean;
+  snippet?: string;
+  isMissingAtlasOnlyStageSupport?: boolean;
+  executor?: Record<string, unknown>;
+}
+
+type StageOperator = {
+  name: string;
+  value: string;
+  label: string;
+  score: number;
+  env: string[];
+  meta: string;
+  version: string;
+  apiVersions: number[];
+  description: string;
+  comment: string;
+  snippet: string;
+};
 
 /**
  * Action name prefix.
@@ -130,9 +177,9 @@ export const DOCUMENTS = '$documents';
  *
  * @returns {Object} An empty stage.
  */
-export const emptyStage = () => ({
+export const emptyStage = (): Pipeline => ({
   id: new ObjectId().toHexString(),
-  stageOperator: null,
+  stageOperator: '',
   stage: '',
   isValid: true,
   isEnabled: true,
@@ -145,10 +192,12 @@ export const emptyStage = () => ({
   projections: []
 });
 
+export type State = Pipeline[];
+
 /**
  * The initial state.
  */
-export const INITIAL_STATE = [ emptyStage() ];
+export const INITIAL_STATE: State = [emptyStage()];
 
 /**
  * The default snippet.
@@ -162,7 +211,7 @@ const DEFAULT_SNIPPET = '{\n  \n}';
  *
  * @returns {Array} The copied state.
  */
-const copyState = state => state.map(s => Object.assign({}, s));
+const copyState = (state: State): State => state.map(s => Object.assign({}, s));
 
 /**
  * Get a stage operator details from the provided operator name.
@@ -172,8 +221,8 @@ const copyState = state => state.map(s => Object.assign({}, s));
  *
  * @returns {Object} The stage operator details.
  */
-const getStageOperator = (name) => {
-  return STAGE_OPERATORS.find((op) => {
+const getStageOperator = (name: string): StageOperator | undefined => {
+  return (STAGE_OPERATORS as StageOperator[]).find((op) => {
     return op.name === name;
   });
 };
@@ -186,7 +235,7 @@ const getStageOperator = (name) => {
  *
  * @returns {Object} The new state.
  */
-const changeStage = (state, action) => {
+const changeStage = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   newState[action.index].stage = action.stage;
   newState[action.index].isComplete = false;
@@ -201,7 +250,7 @@ const changeStage = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const addStage = state => {
+const addStage = (state: State): State => {
   const newState = copyState(state);
   const newStage = { ...emptyStage() };
   newState.push(newStage);
@@ -216,10 +265,10 @@ const addStage = state => {
  *
  * @returns {Object} The new state.
  */
-const addAfterStage = (state, action) => {
+const addAfterStage = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   const newStage = { ...emptyStage() };
-  newState.splice(action.index + 1, 0, newStage);
+  newState.splice(Number(action.index) + 1, 0, newStage);
   return newState;
 };
 
@@ -231,7 +280,7 @@ const addAfterStage = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const deleteStage = (state, action) => {
+const deleteStage = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   newState.splice(action.index, 1);
   return newState;
@@ -245,7 +294,7 @@ const deleteStage = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const moveStage = (state, action) => {
+const moveStage = (state: State, action: AnyAction): State => {
   if (action.fromIndex === action.toIndex) return state;
   const newState = copyState(state);
   newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
@@ -260,7 +309,7 @@ const moveStage = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const selectStageOperator = (state, action) => {
+const selectStageOperator = (state: State, action: AnyAction): State => {
   const operatorName = action.stageOperator;
   if (operatorName !== state[action.index].stageOperator) {
     const newState = copyState(state);
@@ -277,7 +326,7 @@ const selectStageOperator = (state, action) => {
     newState[action.index].previewDocuments = [];
     if (
       [SEARCH, SEARCH_META, DOCUMENTS].includes(newState[action.index].stageOperator) &&
-      newState.env !== ADL && newState.env !== ATLAS
+      action.env !== ADL && action.env !== ATLAS
     ) {
       newState[action.index].isMissingAtlasOnlyStageSupport = true;
     } else {
@@ -296,7 +345,7 @@ const selectStageOperator = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const toggleStage = (state, action) => {
+const toggleStage = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   newState[action.index].isEnabled = !newState[action.index].isEnabled;
   return newState;
@@ -310,7 +359,7 @@ const toggleStage = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const toggleStageCollapse = (state, action) => {
+const toggleStageCollapse = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   newState[action.index].isExpanded = !newState[action.index].isExpanded;
   return newState;
@@ -324,11 +373,11 @@ const toggleStageCollapse = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const updateStagePreview = (state, action) => {
+const updateStagePreview = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   if (
     [SEARCH, SEARCH_META, DOCUMENTS].includes(newState[action.index].stageOperator) &&
-    newState.env !== ADL && newState.env !== ATLAS &&
+    action.env !== ADL && action.env !== ATLAS &&
     (
       action.error && (
         action.error.code === 40324 /* Unrecognized pipeline stage name */ ||
@@ -342,7 +391,7 @@ const updateStagePreview = (state, action) => {
   } else {
     newState[action.index].previewDocuments =
       action.error === null ||
-      action.error === undefined ? action.documents : [];
+        action.error === undefined ? action.documents : [];
     newState[action.index].error = action.error ? action.error.message : null;
     newState[action.index].isMissingAtlasOnlyStageSupport = false;
   }
@@ -359,7 +408,7 @@ const updateStagePreview = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const stageResultsLoading = (state, action) => {
+const stageResultsLoading = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   newState[action.index].isLoading = true;
   return newState;
@@ -368,7 +417,7 @@ const stageResultsLoading = (state, action) => {
 /**
  * To not have a huge switch statement in the reducer.
  */
-const MAPPINGS = {};
+const MAPPINGS: Record<string, (state: State, action: AnyAction) => State> = {};
 
 MAPPINGS[STAGE_CHANGED] = changeStage;
 MAPPINGS[STAGE_ADDED] = addStage;
@@ -383,24 +432,16 @@ MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
 
 /**
  * Reducer function for handle state changes to pipeline.
- *
- * @param {any} state - The pipeline state.
- * @param {Object} action - The action.
- *
- * @returns {any} The new state.
  */
-export default function reducer(state, action) {
-  const defaultState = state ? state : [ emptyStage() ];
+export default function reducer(state = [emptyStage()], action: AnyAction): State {
   const fn = MAPPINGS[action.type];
-  return fn ? fn(defaultState, action) : defaultState;
+  return fn ? fn(state, action) : state;
 }
 
 /**
  * Action creator for adding a stage.
- *
- * @returns {import('redux').AnyAction} the stage added action.
  */
-export const stageAdded = () => ({
+export const stageAdded = (): AnyAction => ({
   type: STAGE_ADDED
 });
 
@@ -410,7 +451,7 @@ export const stageAdded = () => ({
  *
  * @returns {Object} the stage added after action.
  */
-export const stageAddedAfter = index => ({
+export const stageAddedAfter = (index: number): AnyAction => ({
   index: index,
   type: STAGE_ADDED_AFTER
 });
@@ -423,7 +464,7 @@ export const stageAddedAfter = index => ({
  *
  * @returns {Object} The stage changed action.
  */
-export const stageChanged = (value, index) => ({
+export const stageChanged = (value: string, index: number): AnyAction => ({
   type: STAGE_CHANGED,
   index: index,
   stage: value
@@ -436,7 +477,7 @@ export const stageChanged = (value, index) => ({
  *
  * @returns {Object} The stage collapse toggled action.
  */
-export const stageCollapseToggled = index => ({
+export const stageCollapseToggled = (index: number): AnyAction => ({
   type: STAGE_COLLAPSE_TOGGLED,
   index: index
 });
@@ -448,7 +489,7 @@ export const stageCollapseToggled = index => ({
  *
  * @returns {Object} The stage deleted action.
  */
-export const stageDeleted = index => ({
+export const stageDeleted = (index: number): AnyAction => ({
   type: STAGE_DELETED,
   index: index
 });
@@ -461,7 +502,7 @@ export const stageDeleted = index => ({
  *
  * @returns {Object} The stage moved action.
  */
-export const stageMoved = (fromIndex, toIndex) => ({
+export const stageMoved = (fromIndex: number, toIndex: number): AnyAction => ({
   type: STAGE_MOVED,
   fromIndex: fromIndex,
   toIndex: toIndex
@@ -477,7 +518,7 @@ export const stageMoved = (fromIndex, toIndex) => ({
  *
  * @returns {Object} The stage operator selected action.
  */
-export const stageOperatorSelected = (index, operator, isCommenting, env) => ({
+export const stageOperatorSelected = (index: number, operator: string, isCommenting: boolean, env: string): AnyAction => ({
   type: STAGE_OPERATOR_SELECTED,
   index: index,
   stageOperator: operator,
@@ -492,7 +533,7 @@ export const stageOperatorSelected = (index, operator, isCommenting, env) => ({
  *
  * @returns {Object} The stage toggled action.
  */
-export const stageToggled = index => ({
+export const stageToggled = (index: number): AnyAction => ({
   type: STAGE_TOGGLED,
   index: index
 });
@@ -504,16 +545,19 @@ export const stageToggled = index => ({
  * @param {Number} index - The index.
  * @param {Error} error - The error.
  * @param {Boolean} isComplete - If the preview is complete.
+ * @param {string} env -
+ * todo(@mabaasit): find usages of this function
  *
  * @returns {Object} The action.
  */
-export const stagePreviewUpdated = (docs, index, error, isComplete) => {
+export const stagePreviewUpdated = (docs: unknown[], index: number, error: Error | null, isComplete: boolean, env: string): AnyAction => {
   return {
     type: STAGE_PREVIEW_UPDATED,
     documents: docs,
     index: index,
     error: error,
-    isComplete: isComplete
+    isComplete: isComplete,
+    env,
   };
 };
 
@@ -524,7 +568,7 @@ export const stagePreviewUpdated = (docs, index, error, isComplete) => {
  *
  * @returns {Object} The action.
  */
-export const loadingStageResults = index => ({
+export const loadingStageResults = (index: number): AnyAction => ({
   type: LOADING_STAGE_RESULTS,
   index: index
 });
@@ -537,7 +581,7 @@ export const loadingStageResults = index => ({
  *
  * @returns {Array} The pipeline.
  */
-export const generatePipelineStages = (state, index) => {
+export const generatePipelineStages = (state: RootState, index: number) => {
   const count = state.inputDocuments.count;
   const largeLimit = state.largeLimit || DEFAULT_LARGE_LIMIT;
 
@@ -546,7 +590,8 @@ export const generatePipelineStages = (state, index) => {
       // If stage is a $groupBy it will scan the entire list, so
       // prepend with $limit if the collection is large.
       if (
-        (count === NA && state.sample) ||
+        // On Error, count is set to N/A in updateInputDocuments
+        ((count as string | number) === NA && state.sample) ||
         (count > largeLimit &&
           FULL_SCAN_OPS.includes(stage.stageOperator) &&
           state.sample)
@@ -558,7 +603,7 @@ export const generatePipelineStages = (state, index) => {
       results.push(stage.executor || generateStage(stage));
     }
     return results;
-  }, []);
+  }, [] as any[]);
 };
 
 /**
@@ -570,7 +615,7 @@ export const generatePipelineStages = (state, index) => {
  *
  * @returns {Array} The pipeline.
  */
-export const generatePipeline = (state, index) => {
+export const generatePipeline = (state: RootState, index: number) => {
   const stages = generatePipelineStages(state, index);
   const lastStage = state.pipeline[state.pipeline.length - 1];
 
@@ -586,7 +631,7 @@ export const generatePipeline = (state, index) => {
   return stages;
 };
 
-export const generatePipelineAsString = (state, index) => {
+export const generatePipelineAsString = (state: RootState, index: number) => {
   return `[${state.pipeline
     .filter((s, i) => s.isEnabled && i <= index)
     .map(s => generateStageAsString(s))
@@ -602,7 +647,7 @@ export const generatePipelineAsString = (state, index) => {
  * @param {Object} state - The state.
  * @param {Number} index - The current index.
  */
-const executeAggregation = (dataService, ns, dispatch, state, index) => {
+const executeAggregation = (dataService: DataService, ns: string, dispatch: Dispatch, state: RootState, index: number) => {
   const stage = state.pipeline[index];
   stage.executor = generateStage(stage);
   if (
@@ -613,7 +658,7 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
   ) {
     executeStage(dataService, ns, dispatch, state, index);
   } else {
-    dispatch(stagePreviewUpdated([], index, null, false));
+    dispatch(stagePreviewUpdated([], index, null, false, state.env));
   }
 };
 
@@ -627,17 +672,17 @@ const executeAggregation = (dataService, ns, dispatch, state, index) => {
  * @param {Object} state - The state.
  * @param {Number} index - The current index.
  */
-const aggregate = (pipeline, dataService, ns, dispatch, state, index) => {
-  const options = { maxTimeMS: state.maxTimeMS || DEFAULT_MAX_TIME_MS, allowDiskUse: true };
-
-  if (isEmpty(state.collation) === false) {
-    options.collation = state.collation;
-  }
+const aggregate = (pipeline: Pipeline[], dataService: DataService, ns: string, dispatch: Dispatch, state: RootState, index: number) => {
+  const options: AggregateOptions = {
+    maxTimeMS: state.maxTimeMS || DEFAULT_MAX_TIME_MS,
+    allowDiskUse: true,
+    collation: state.collation || undefined,
+  };
 
   dataService.aggregate(ns, pipeline, options, (err, cursor) => {
-    if (err) return dispatch(stagePreviewUpdated([], index, err));
+    if (err) return dispatch(stagePreviewUpdated([], index, err as Error, false, state.env));
     cursor.toArray((e, docs) => {
-      dispatch(stagePreviewUpdated(docs || [], index, e, true));
+      dispatch(stagePreviewUpdated(docs || [], index, e as Error, true, state.env));
       cursor.close();
       dispatch(
         globalAppRegistryEmit('agg-pipeline-executed', {
@@ -659,7 +704,7 @@ const aggregate = (pipeline, dataService, ns, dispatch, state, index) => {
  * @param {Object} state - The state.
  * @param {Number} index - The current index.
  */
-const executeStage = (dataService, ns, dispatch, state, index) => {
+const executeStage = (dataService: DataService, ns: string, dispatch: Dispatch, state: RootState, index: number) => {
   dispatch(loadingStageResults(index));
 
   const pipeline = generatePipeline(state, index);
@@ -676,7 +721,7 @@ const executeStage = (dataService, ns, dispatch, state, index) => {
  * @param {Object} state - The state.
  * @param {Number} index - The current index.
  */
-const executeOutStage = (dataService, ns, dispatch, state, index) => {
+const executeOutStage = (dataService: DataService, ns: string, dispatch: Dispatch, state: RootState, index: number) => {
   dispatch(loadingStageResults(index));
 
   const pipeline = generatePipelineStages(state, index);
@@ -691,7 +736,7 @@ const executeOutStage = (dataService, ns, dispatch, state, index) => {
  *
  * @returns {Function} The thunk function.
  */
-export const gotoMergeResults = (index) => {
+export const gotoMergeResults = (index: number): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
     const state = getState();
     const database = toNS(state.namespace).database;
@@ -716,7 +761,7 @@ export const gotoMergeResults = (index) => {
  *
  * @returns {Function} The thunk function.
  */
-export const gotoOutResults = collection => {
+export const gotoOutResults = (collection: string): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
     const state = getState();
     const database = toNS(state.namespace).database;
@@ -741,14 +786,14 @@ export const gotoOutResults = collection => {
  *
  * @returns {Function} The thunk function.
  */
-export const runOutStage = index => {
+export const runOutStage = (index: number): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
     const state = getState();
-    const dataService = state.dataService.dataService;
-
-    executeOutStage(dataService, state.namespace, dispatch, state, index);
-
-    dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: state.id }));
+    const { dataService } = state.dataService;
+    if (dataService) {
+      executeOutStage(dataService, state.namespace, dispatch, state, index);
+      dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: state.id }));
+    }
   };
 };
 
@@ -759,17 +804,19 @@ export const runOutStage = index => {
  *
  * @returns {Function} The thunk function.
  */
-export const runStage = index => {
+export const runStage = (index: number): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
     const state = getState();
     if (index < state.pipeline.length) {
       if (state.id === '') {
-        dispatch(createId());
+        dispatch(createId() as any);
       }
-      const dataService = state.dataService.dataService;
-      const ns = state.namespace;
-      for (let i = index; i < state.pipeline.length; i++) {
-        executeAggregation(dataService, ns, dispatch, state, i);
+      const { dataService } = state.dataService;
+      if (dataService) {
+        const ns = state.namespace;
+        for (let i = index; i < state.pipeline.length; i++) {
+          executeAggregation(dataService, ns, dispatch, state, i);
+        }
       }
     }
   };

@@ -1,5 +1,6 @@
 import path from 'path';
 import { expect } from 'chai';
+import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -486,4 +487,78 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
     });
   });
+
+  it('can save a connection as a favorite and manage it', async function () {
+    const favoriteName = 'My Favorite';
+    const newFavoriteName = 'My Favorite (edited)';
+
+    // save
+    await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
+    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
+    await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
+    await browser.clickVisible(
+      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color1"]`
+    );
+    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
+    await browser.clickVisible(Selectors.FavoriteSaveButton);
+    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+
+    // copy the connection string
+    await selectConnectionMenuItem(
+      browser,
+      favoriteName,
+      Selectors.CopyConnectionStringItem
+    );
+    expect(await clipboard.read()).to.equal('mongodb://localhost:27017');
+
+    // duplicate
+    await selectConnectionMenuItem(
+      browser,
+      favoriteName,
+      Selectors.DuplicateConnectionItem
+    );
+
+    // delete the duplicate
+    await selectConnectionMenuItem(
+      browser,
+      `${favoriteName} (copy)`,
+      Selectors.RemoveConnectionItem
+    );
+
+    // edit
+    await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
+    await browser.waitUntil(async () => {
+      const text = await browser.$(Selectors.ConnectionTitle).getText();
+      return text === favoriteName;
+    });
+    await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
+    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
+    await browser.$(Selectors.FavoriteNameInput).setValue(newFavoriteName);
+    await browser.clickVisible(
+      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
+    );
+    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
+    await browser.clickVisible(Selectors.FavoriteSaveButton);
+    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+
+    // should now be updated in the sidebar
+    await browser
+      .$(Selectors.sidebarFavorite(newFavoriteName))
+      .waitForDisplayed();
+  });
 });
+
+async function selectConnectionMenuItem(
+  browser: CompassBrowser,
+  favoriteName: string,
+  itemSelector: string
+) {
+  const selector = Selectors.sidebarFavorite(favoriteName);
+  // It takes some time for the favourites to load
+  await browser.$(selector).waitForDisplayed({ timeout: 60_000 });
+  await browser.hover(selector);
+
+  await browser.clickVisible(Selectors.sidebarFavoriteMenuButton(favoriteName));
+  await browser.$(Selectors.ConnectionMenu).waitForDisplayed();
+  await browser.clickVisible(itemSelector);
+}

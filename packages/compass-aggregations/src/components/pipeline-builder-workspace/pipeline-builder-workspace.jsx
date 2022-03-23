@@ -7,7 +7,7 @@ import AddStage from '../add-stage';
 import SortableStageList from './sortable-stage-list';
 import ModifySourceBanner from '../modify-source-banner';
 
-import styles from './pipeline-workspace.module.less';
+import styles from './pipeline-builder-workspace.module.less';
 
 /**
  * The pipeline workspace component.
@@ -149,7 +149,10 @@ class PipelineWorkspace extends PureComponent {
   render() {
     const inputDocuments = this.props.inputDocuments;
     return (
-      <div className={styles['pipeline-workspace-container-container']}>
+      <div
+        data-testid="pipeline-builder-workspace"
+        className={styles['pipeline-workspace-container-container']}
+      >
         <div className={styles['pipeline-workspace-container']}>
           <div className={styles['pipeline-workspace']}>
             {this.renderModifyingViewSourceBanner()}

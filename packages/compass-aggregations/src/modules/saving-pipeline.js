@@ -84,8 +84,6 @@ export const savingPipelineCancel = () => ({
 /**
  * Action creator for cancel events.
  *
- * @param {String} [name] Default `''`
- * @param {Boolean} [isSaveAs] Default `false`
  * @returns {import("redux").AnyAction} The name changed action.
  */
 export const savingPipelineOpen = ({name = '', isSaveAs = false} = {}) => {
