@@ -62,6 +62,18 @@ export const KeyEditor: React.FunctionComponent<{
           trigger={({
             className,
             children,
+            // Having a tooltip connected to the input elements is not the most
+            // accessible thing ever and so a lot of event listeners of the
+            // tooltip conflict with the textarea default behavior (due to
+            // preventDefault). Because of that we exclude them, so the tooltip
+            // will still be visible, but only on hover or focus, which is okay
+            // for our case
+            /* eslint-disable @typescript-eslint/no-unused-vars */
+            onDragStart,
+            onPointerUp,
+            onPointerDown,
+            onMouseDown,
+            /* eslint-enable @typescript-eslint/no-unused-vars */
             ...triggerProps
           }: React.HTMLProps<HTMLInputElement>) => {
             return (
@@ -185,6 +197,13 @@ export const ValueEditor: React.FunctionComponent<{
           trigger={({
             className,
             children,
+            // See above
+            /* eslint-disable @typescript-eslint/no-unused-vars */
+            onDragStart,
+            onPointerUp,
+            onPointerDown,
+            onMouseDown,
+            /* eslint-enable @typescript-eslint/no-unused-vars */
             ...triggerProps
           }: React.HTMLProps<HTMLInputElement>) => {
             return (
