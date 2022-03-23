@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import HadronDocument, { Element } from 'hadron-document';
+import HadronDocument from 'hadron-document';
 import { DocumentList } from '@mongodb-js/compass-components';
-import EditableElement from './editable-element';
 import DocumentFooter from './document-footer';
 import RemoveDocumentFooter from './remove-document-footer';
 
@@ -15,11 +14,6 @@ const BASE = 'document';
  * The contents class.
  */
 const CONTENTS = `${BASE}-contents`;
-
-/**
- * The elements class.
- */
-const ELEMENTS = `${BASE}-elements`;
 
 /**
  * The initial field limit.
@@ -50,7 +44,6 @@ class EditableDocument extends React.Component {
       expandAll: false
     };
 
-    this.boundForceUpdate = this.forceUpdate.bind(this);
     this.boundHandleCancel = this.handleCancel.bind(this);
     this.boundHandleUpdateSuccess = this.handleUpdateSuccess.bind(this);
     this.boundHandleRemoveSuccess = this.handleRemoveSuccess.bind(this);
@@ -105,8 +98,6 @@ class EditableDocument extends React.Component {
    * @param {Document} doc - The hadron document.
    */
   subscribeToDocumentEvents(doc) {
-    doc.on(Element.Events.Added, this.boundForceUpdate);
-    doc.on(Element.Events.Removed, this.boundForceUpdate);
     doc.on(HadronDocument.Events.Cancel, this.boundHandleCancel);
     doc.on('remove-success', this.boundHandleRemoveSuccess);
     doc.on('update-success', this.boundHandleUpdateSuccess);
@@ -118,8 +109,6 @@ class EditableDocument extends React.Component {
    * @param {Document} doc - The hadron document.
    */
   unsubscribeFromDocumentEvents(doc) {
-    doc.removeListener(Element.Events.Added, this.boundForceUpdate);
-    doc.removeListener(Element.Events.Removed, this.boundForceUpdate);
     doc.removeListener(HadronDocument.Events.Cancel, this.boundHandleCancel);
     doc.removeListener('remove-success', this.boundHandleRemoveSuccess);
     doc.removeListener('update-success', this.boundHandleUpdateSuccess);
@@ -243,27 +232,16 @@ class EditableDocument extends React.Component {
    * @returns {Array} The elements.
    */
   renderElements() {
-    const components = [];
-    let index = 0;
-    for (const element of this.props.doc.elements) {
-      components.push((
-        <EditableElement
-          key={element.uuid}
-          element={element}
-          tz={this.props.tz}
-          indent={0}
-          version={this.props.version}
-          editing={this.state.editing}
-          edit={this.handleEdit.bind(this)}
-          expandAll={this.state.expandAll}
-        />
-      ));
-      index++;
-      if (index >= this.state.renderSize) {
-        break;
-      }
-    }
-    return components;
+    return (
+      <DocumentList.Document
+        value={this.props.doc}
+        visibleFieldsCount={this.state.renderSize}
+        expanded={this.state.expandAll}
+        editable
+        editing={this.state.editing}
+        onEditStart={this.handleEdit.bind(this)}
+      />
+    );
   }
 
   /**
@@ -321,9 +299,7 @@ class EditableDocument extends React.Component {
     return (
       <div className={this.style()} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
-          <ol className={ELEMENTS}>
-            {this.renderElements()}
-          </ol>
+          {this.renderElements()}
           {this.renderExpansion()}
           {this.renderActions()}
         </div>
@@ -343,7 +319,6 @@ EditableDocument.propTypes = {
   version: PropTypes.string.isRequired,
   editable: PropTypes.bool,
   tz: PropTypes.string,
-  expandAll: PropTypes.bool,
   openInsertDocumentDialog: PropTypes.func.isRequired,
   openImportFileDialog: PropTypes.func.isRequired,
   copyToClipboard: PropTypes.func.isRequired
