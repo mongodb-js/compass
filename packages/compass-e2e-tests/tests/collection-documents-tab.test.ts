@@ -60,6 +60,19 @@ async function navigateToTab(browser: CompassBrowser, tabName: string) {
   await tabSelectedSelectorElement.waitForDisplayed();
 }
 
+async function waitForJSON(browser: CompassBrowser, element: Element<'async'>) {
+  // Sometimes the line numbers end up in the text for some reason. Probably
+  // because we get the text before the component is properly initialised.
+  await browser.waitUntil(async () => {
+    const text = await element.getText();
+    const isJSON = text.replace(/\s+/g, ' ').startsWith('{');
+    if (!isJSON) {
+      console.log({ text });
+    }
+    return isJSON;
+  });
+}
+
 describe('Collection documents tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -338,6 +351,9 @@ FindIterable<Document> result = collection.find(filter);`);
 
     const document = await browser.$(Selectors.DocumentJSONEntry);
     await document.waitForDisplayed();
+
+    await waitForJSON(browser, document);
+
     const json = await document.getText();
     expect(json.replace(/\s+/g, ' ')).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/
@@ -365,6 +381,9 @@ FindIterable<Document> result = collection.find(filter);`);
 
     const modifiedDocument = await browser.$(Selectors.DocumentJSONEntry);
     await modifiedDocument.waitForDisplayed();
+
+    await waitForJSON(browser, modifiedDocument);
+
     expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 1234 \}$/
     );
