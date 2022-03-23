@@ -72,7 +72,9 @@ class Element extends EventEmitter {
    */
   cancel() {
     if (this.elements) {
-      for (let element of this.elements) {
+      // Cancel will remove elements from iterator, clone it before iterating
+      // otherwise we will skip items
+      for (let element of Array.from(this.elements)) {
         element.cancel();
       }
     }

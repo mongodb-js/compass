@@ -25,7 +25,9 @@ class Document extends EventEmitter {
    * Send cancel event.
    */
   cancel() {
-    for (let element of this.elements) {
+    // Cancel will remove elements from iterator, clone it before iterating
+    // otherwise we will skip items
+    for (let element of Array.from(this.elements)) {
       element.cancel();
     }
     this.emit(Events.Cancel);
