@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const Plugin = require('./plugin').default;
-const ImportPlugin = require('./import-plugin').default;
-const ExportPlugin = require('./export-plugin').default;
-const exportStore = require('./stores/export-store').default;
-const importStore = require('./stores/import-store').default;
+import Plugin from './plugin';
+import ImportPlugin from './import-plugin';
+import ExportPlugin from './export-plugin';
+import exportStore from './stores/export-store';
+import importStore from './stores/import-store';
 
 import type AppRegistry from 'hadron-app-registry';
 
@@ -29,9 +28,9 @@ const EXPORT_ROLE = {
  **/
 function activate(appRegistry: AppRegistry): void {
   appRegistry.registerRole('Global.Modal', EXPORT_ROLE);
-  appRegistry.registerStore('ExportModal.Store', exportStore);
+  appRegistry.registerStore('ExportModal.Store', exportStore as any);
   appRegistry.registerRole('Global.Modal', IMPORT_ROLE);
-  appRegistry.registerStore('ImportModal.Store', importStore);
+  appRegistry.registerStore('ImportModal.Store', importStore as any);
 }
 
 /**
