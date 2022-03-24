@@ -14,3 +14,5 @@ ignores:
   # one it ships with, so we install one of our own to get the version right
   # (because we need one with vscode 2022 support for github actions CI)
   - 'node-gyp'
+  #.evergreen/generate-tasks.js uses lodash
+  - lodash
