@@ -1,6 +1,5 @@
 /* eslint-disable valid-jsdoc */
 import fs from 'fs';
-import stream from 'stream';
 import { promisify } from 'util';
 
 import PROCESS_STATUS from '../constants/process-status';
@@ -8,14 +7,11 @@ import EXPORT_STEP from '../constants/export-step';
 import FILE_TYPES from '../constants/file-types';
 import { globalAppRegistryEmit, nsChanged } from './compass';
 
-import { createReadableCollectionStream } from '../utils/collection-stream';
-
 const createProgressStream = require('progress-stream');
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { createCSVFormatter, createJSONFormatter } from '../utils/formatters';
 import { loadFields, getSelectableFields } from './load-fields';
-
+import { CursorExporter } from './cursor-exporter';
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'
 );
@@ -77,9 +73,9 @@ export const INITIAL_STATE = {
  * @param {stream.Writable} dest
  * @api private
  */
-export const onStarted = (source, dest, count) => ({
+export const onStarted = (exporter, dest, count) => ({
   type: STARTED,
-  source: source,
+  exporter: exporter,
   dest: dest,
   count: count,
 });
@@ -151,7 +147,7 @@ const reducer = (state = INITIAL_STATE, action) => {
       error: null,
       progress: 0,
       status: PROCESS_STATUS.STARTED,
-      source: action.source,
+      exporter: action.exporter,
       dest: action.dest,
       count: action.count,
     };
@@ -173,7 +169,7 @@ const reducer = (state = INITIAL_STATE, action) => {
       ...state,
       status: isComplete ? PROCESS_STATUS.COMPLETED : state.status,
       exportedDocsCount: action.exportedDocsCount,
-      source: undefined,
+      exporter: undefined,
       dest: undefined,
     };
   }
@@ -182,7 +178,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       status: PROCESS_STATUS.CANCELED,
-      source: undefined,
+      exporter: undefined,
       dest: undefined,
     };
   }
@@ -427,6 +423,9 @@ export const startExport = () => {
       exportData,
       dataService: { dataService },
     } = getState();
+
+    let exportSucceded = true;
+
     const spec = exportData.isFullCollection
       ? { filter: {} }
       : exportData.query;
@@ -456,12 +455,12 @@ export const startExport = () => {
         projection,
       }
     );
-    const source = createReadableCollectionStream(
-      dataService,
-      ns,
-      spec,
-      projection
-    );
+    // const source = createReadableCollectionStream(
+    //   dataService,
+    //   ns,
+    //   spec,
+    //   projection
+    // );
     const progress = createProgressStream({
       objectMode: true,
       length: numDocsToExport,
@@ -489,34 +488,35 @@ export const startExport = () => {
             projection[parts.slice(0, index + 1).join('.')]
         )
     );
-    let formatter;
-    if (exportData.fileType === 'csv') {
-      formatter = createCSVFormatter({ columns });
-    } else {
-      formatter = createJSONFormatter();
-    }
-
-    const dest = fs.createWriteStream(exportData.fileName);
-    debug('executing pipeline');
-    dispatch(onStarted(source, dest, numDocsToExport));
-    stream.pipeline(source, progress, formatter, dest, function (err) {
-      track('Export Completed', {
-        all_docs: exportData.isFullCollection,
-        file_type: exportData.fileType,
-        all_fields: Object.values(exportData.fields).every(
-          (checked) => checked === 1
-        ),
-        number_of_docs: numDocsToExport,
-        success: !err,
+    try {
+      const dest = fs.createWriteStream(exportData.fileName);
+      debug('executing pipeline');
+      const source = dataService.fetch(ns, spec.filter || {}, {
+        projection,
+        limit: spec.limit,
+        skip: spec.skip,
       });
-      if (err) {
-        log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
-          ns,
-          error: err.message,
+      const exporter = new CursorExporter({
+        cursor: source,
+        type: exportData.fileType,
+        columns: columns,
+        output: dest,
+        totalNumberOfDocuments: numDocsToExport,
+      });
+
+      exporter.on('progress', function (transferred) {
+        let percent = 0;
+        if (numDocsToExport > 0) {
+          percent = (transferred * 100) / this.numDocsToExport;
+        }
+        progress.emit('progress', {
+          percentage: percent,
+          transferred,
         });
-        debug('error running export pipeline', err);
-        return dispatch(onError(err));
-      }
+      });
+
+      dispatch(onStarted(exporter, dest, numDocsToExport));
+      await exporter.start();
       log.info(mongoLogId(1001000086), 'Export', 'Finished export', {
         ns,
         numDocsToExport,
@@ -544,7 +544,25 @@ export const startExport = () => {
           exportData.fileType
         )
       );
-    });
+    } catch (err) {
+      log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
+        ns,
+        error: err.message,
+      });
+      exportSucceded = false;
+      debug('error running export pipeline', err);
+      return dispatch(onError(err));
+    } finally {
+      track('Export Completed', {
+        all_docs: exportData.isFullCollection,
+        file_type: exportData.fileType,
+        all_fields: Object.values(exportData.fields).every(
+          (checked) => checked === 1
+        ),
+        number_of_docs: numDocsToExport,
+        success: exportSucceded,
+      });
+    }
   };
 };
 
@@ -555,9 +573,9 @@ export const startExport = () => {
 export const cancelExport = () => {
   return (dispatch, getState) => {
     const { exportData } = getState();
-    const { source, dest } = exportData;
+    const { exporter, dest } = exportData;
 
-    if (!source || !dest) {
+    if (!exporter || !dest) {
       debug('no active streams to cancel.');
       return;
     }
@@ -566,7 +584,7 @@ export const cancelExport = () => {
       'Export',
       'Cancelling export by user request'
     );
-    source.unpipe();
+    exporter.cancel();
 
     dispatch({ type: CANCELED });
   };
