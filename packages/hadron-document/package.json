@@ -44,8 +44,6 @@
     "lodash.isplainobject": "^4.0.6",
     "lodash.isstring": "^4.0.1",
     "lodash.keys": "^4.2.0",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
