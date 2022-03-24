@@ -16,7 +16,7 @@ const ANSI_TO_HTML_OPTIONS = {
   bg: '#000',
   newline: true,
   escapeXML: true,
-  stream: false
+  stream: false,
 };
 
 function getPrettyErrorMessage(message) {
@@ -26,7 +26,7 @@ function getPrettyErrorMessage(message) {
 class ErrorBox extends PureComponent {
   static propTypes = {
     message: PropTypes.string,
-    dataTestId: PropTypes.string
+    dataTestId: PropTypes.string,
   };
   render() {
     if (!this.props.message) {
