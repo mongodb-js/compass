@@ -15,9 +15,9 @@ const debug = createDebug('import-parser');
  *
  * @returns {Stream.Transform}
  */
-export const createCSVParser = function({ delimiter = ',' } = {}) {
+export const createCSVParser = function ({ delimiter = ',' } = {}) {
   return csv({
-    separator: delimiter
+    separator: delimiter,
   });
 };
 
@@ -29,9 +29,9 @@ export const createCSVParser = function({ delimiter = ',' } = {}) {
  * @param {String} [fileName] [default 'import.json']
  * @returns {Stream.Transform}
  */
-export const createJSONParser = function({
+export const createJSONParser = function ({
   selector = '*',
-  fileName = 'import.json'
+  fileName = 'import.json',
 } = {}) {
   debug('creating json parser with selector', { selector, fileName });
   // return new JSONParser(selector);
@@ -40,35 +40,38 @@ export const createJSONParser = function({
   const stream = new Transform({
     writableObjectMode: false,
     readableObjectMode: true,
-    transform: function(chunk, enc, cb) {
+    transform: function (chunk, enc, cb) {
       lastChunk = chunk;
       debug('parser write', chunk.toString('utf-8'));
       parser.write(chunk);
       cb();
-    }
+    },
   });
 
   parser.on('data', (d) => {
     try {
-      const doc = EJSON.parse(EJSON.stringify(d, {
-        relaxed: false,
-        promoteValues: true,
-        bsonRegExp: true,
-        legacy: false
-      }), {
-        relaxed: false,
-        legacy: false,
-        promoteValues: true,
-        bsonRegExp: true
-      });
-      debug('JSON parser on data', {d, doc });
+      const doc = EJSON.parse(
+        EJSON.stringify(d, {
+          relaxed: false,
+          promoteValues: true,
+          bsonRegExp: true,
+          legacy: false,
+        }),
+        {
+          relaxed: false,
+          legacy: false,
+          promoteValues: true,
+          bsonRegExp: true,
+        }
+      );
+      debug('JSON parser on data', { d, doc });
       stream.push(doc);
     } catch (e) {
       debug('error parsing JSON', e);
     }
   });
 
-  parser.on('error', function(err) {
+  parser.on('error', function (err) {
     try {
       parseJSON(lastChunk.toString('utf-8'), EJSON.deserialize, fileName);
       // TODO: lucas: yeah having 2 json parses is weird
@@ -112,11 +115,11 @@ const NAIVE_AVERAGE_DOCUMENT_SIZE = 800;
  * @param {Function} onProgress Your callback for progress updates
  * @returns {stream.Transform}
  */
-export const createProgressStream = function(fileSize, onProgress) {
+export const createProgressStream = function (fileSize, onProgress) {
   const progress = progressStream({
     objectMode: true,
     length: fileSize / NAIVE_AVERAGE_DOCUMENT_SIZE,
-    time: PROGRESS_UPDATE_INTERVAL // NOTE: ask lucas how time is different from an interval here.
+    time: PROGRESS_UPDATE_INTERVAL, // NOTE: ask lucas how time is different from an interval here.
   });
 
   function updateProgress(info) {
@@ -147,11 +150,11 @@ function createParser({
   fileName = 'myfile',
   fileType = 'json',
   delimiter = ',',
-  fileIsMultilineJSON = false
+  fileIsMultilineJSON = false,
 } = {}) {
   if (fileType === 'csv') {
     return createCSVParser({
-      delimiter: delimiter
+      delimiter: delimiter,
     });
   }
   debug('got kwargs', {
@@ -162,7 +165,7 @@ function createParser({
   });
   return createJSONParser({
     selector: fileIsMultilineJSON ? null : '*',
-    fileName: fileName
+    fileName: fileName,
   });
 }
 

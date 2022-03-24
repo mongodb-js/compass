@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import reducer, {
   // STARTED,
   // CANCELED,
@@ -17,7 +19,7 @@ import reducer, {
   // SET_IGNORE_BLANKS,
   // TOGGLE_INCLUDE_FIELD,
   // SET_FIELD_TYPE,
-  INITIAL_STATE
+  INITIAL_STATE,
 } from './import';
 
 // import PROCESS_STATUS from '../constants/process-status';
@@ -38,12 +40,11 @@ const mockStore = configureMockStore(middlewares);
 function setupMockStore(test) {
   const state = {
     importData: {
-      ...INITIAL_STATE
-    }
+      ...INITIAL_STATE,
+    },
   };
   const store = mockStore(state);
   test.store = store;
-  test.state = test.state;
 }
 
 /**
@@ -54,13 +55,13 @@ function setupMockStore(test) {
  * @returns {Promise}
  */
 function testSetFileType(test, fileType) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     // See https://github.com/dmitry-zaets/redux-mock-store/issues/71#issuecomment-369546064
     // redux-mock-store does not update state automatically.
     test.store.subscribe(() => {
       const expected = {
         fileType: fileType,
-        type: FILE_TYPE_SELECTED
+        type: FILE_TYPE_SELECTED,
       };
 
       expect(reducer(test.state, expected).fileType).to.be.deep.equal(fileType);
@@ -70,37 +71,37 @@ function testSetFileType(test, fileType) {
     expect(test.store.getActions()).to.deep.equal([
       {
         fileType: fileType,
-        type: FILE_TYPE_SELECTED
-      }
+        type: FILE_TYPE_SELECTED,
+      },
     ]);
     resolve(test);
   });
 }
 
-describe('import [module]', () => {
-  describe('selectImportFileType', () => {
-    beforeEach(function() {
+describe('import [module]', function () {
+  describe('selectImportFileType', function () {
+    beforeEach(function () {
       setupMockStore(this);
     });
 
-    it('dispatch a FILE_TYPE_SELECTED action and the reducer should update fileType to csv', function() {
+    it('dispatch a FILE_TYPE_SELECTED action and the reducer should update fileType to csv', function () {
       return testSetFileType(this, 'csv');
     });
-    it('dispatch a FILE_TYPE_SELECTED action and the reducer should update fileType to json', function() {
+    it('dispatch a FILE_TYPE_SELECTED action and the reducer should update fileType to json', function () {
       return testSetFileType(this, 'JSON');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       this.store.clearActions();
     });
   });
 
-  describe('#selectImportFileName', () => {
-    beforeEach(function() {
+  describe('#selectImportFileName', function () {
+    beforeEach(function () {
       setupMockStore(this);
     });
 
-    it('dispatch a FILE_SELECTED action', function() {
+    it('dispatch a FILE_SELECTED action', function () {
       const test = this;
       const fileName = path.join(
         __dirname,
@@ -110,7 +111,7 @@ describe('import [module]', () => {
         'test',
         'docs.json'
       );
-      return new Promise(function(resolve) {
+      return new Promise(function (resolve) {
         // See https://github.com/dmitry-zaets/redux-mock-store/issues/71#issuecomment-369546064
         // redux-mock-store does not update state automatically.
         test.store.subscribe(() => {
@@ -144,7 +145,7 @@ describe('import [module]', () => {
             previewLoaded: false,
             exclude: [],
             transform: [],
-            fileType: ''
+            fileType: '',
           };
 
           const result = reducer(test.state, expected);
@@ -170,7 +171,7 @@ describe('import [module]', () => {
             previewLoaded: false,
             exclude: [],
             transform: [],
-            fileType: ''
+            fileType: '',
           });
 
           resolve(test);
@@ -190,7 +191,7 @@ describe('import [module]', () => {
       });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       this.store.clearActions();
     });
   });

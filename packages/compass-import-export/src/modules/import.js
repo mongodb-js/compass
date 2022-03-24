@@ -39,7 +39,9 @@ import { globalAppRegistryEmit, nsChanged } from './compass';
 import detectImportFile from '../utils/detect-import-file';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import createParser, { createProgressStream } from '../utils/import-parser';
-import createPreviewWritable, { createPeekStream } from '../utils/import-preview';
+import createPreviewWritable, {
+  createPeekStream,
+} from '../utils/import-preview';
 
 import createImportSizeGuesstimator from '../utils/import-size-guesstimator';
 import { transformProjectedTypesStream } from '../utils/import-apply-types-and-projection';
@@ -98,7 +100,7 @@ export const INITIAL_STATE = {
   previewLoaded: false,
   exclude: [],
   transform: [],
-  fileType: ''
+  fileType: '',
 };
 
 /**
@@ -122,14 +124,14 @@ export const INITIAL_STATE = {
 export const onGuesstimatedProgress = (docsProcessed, docsTotal) => ({
   type: GUESSTIMATED_PROGRESS,
   guesstimatedDocsProcessed: docsProcessed,
-  guesstimatedDocsTotal: docsTotal
+  guesstimatedDocsTotal: docsTotal,
 });
 
 export const onProgress = ({ docsWritten, docsProcessed, errors }) => ({
   type: PROGRESS,
   docsWritten,
   docsProcessed,
-  errors
+  errors,
 });
 
 /**
@@ -140,7 +142,7 @@ export const onProgress = ({ docsWritten, docsProcessed, errors }) => ({
 export const onStarted = (source, dest) => ({
   type: STARTED,
   source: source,
-  dest: dest
+  dest: dest,
 });
 
 /**
@@ -150,22 +152,22 @@ export const onStarted = (source, dest) => ({
 export const onFinished = (docsWritten, docsTotal) => ({
   type: FINISHED,
   docsWritten,
-  docsTotal
+  docsTotal,
 });
 
 /**
  * @param {Error} error
  * @api private
  */
-export const onFailed = error => ({ type: FAILED, error });
+export const onFailed = (error) => ({ type: FAILED, error });
 
 /**
  * @param {Number} guesstimatedDocsTotal
  * @api private
  */
-export const onGuesstimatedDocsTotal = guesstimatedDocsTotal => ({
+export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal) => ({
   type: SET_GUESSTIMATED_TOTAL,
-  guesstimatedDocsTotal: guesstimatedDocsTotal
+  guesstimatedDocsTotal: guesstimatedDocsTotal,
 });
 
 /**
@@ -181,7 +183,7 @@ export const startImport = () => {
     const {
       ns,
       dataService: { dataService },
-      importData
+      importData,
     } = state;
     const {
       fileName,
@@ -192,22 +194,27 @@ export const startImport = () => {
       ignoreBlanks: ignoreBlanks_,
       stopOnErrors,
       exclude,
-      transform
+      transform,
     } = importData;
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
 
-    log.info(mongoLogId(1001000080), 'Import', 'Start reading from source file', {
-      ns,
-      fileName,
-      fileType,
-      fileIsMultilineJSON,
-      fileSize: size,
-      delimiter,
-      ignoreBlanks,
-      stopOnErrors,
-      exclude,
-      transform
-    });
+    log.info(
+      mongoLogId(1001000080),
+      'Import',
+      'Start reading from source file',
+      {
+        ns,
+        fileName,
+        fileType,
+        fileIsMultilineJSON,
+        fileSize: size,
+        delimiter,
+        ignoreBlanks,
+        stopOnErrors,
+        exclude,
+        transform,
+      }
+    );
     const source = fs.createReadStream(fileName, 'utf8');
 
     const stripBOM = stripBomStream();
@@ -216,13 +223,13 @@ export const startImport = () => {
       fileName,
       fileType,
       delimiter,
-      fileIsMultilineJSON
+      fileIsMultilineJSON,
     });
 
     const applyTypes = transformProjectedTypesStream({
       exclude,
       transform,
-      ignoreBlanks
+      ignoreBlanks,
     });
 
     const dest = createCollectionWriteStream(dataService, ns, stopOnErrors);
@@ -231,7 +238,7 @@ export const startImport = () => {
       dispatch(onProgress(stats, errors));
     });
 
-    const progress = createProgressStream(size, function(err, info) {
+    const progress = createProgressStream(size, function (err, info) {
       if (err) return;
       dispatch(onGuesstimatedProgress(info.transferred, info.length));
     });
@@ -239,7 +246,7 @@ export const startImport = () => {
     const importSizeGuesstimator = createImportSizeGuesstimator(
       source,
       size,
-      function(err, guesstimatedTotalDocs) {
+      function (err, guesstimatedTotalDocs) {
         if (err) return;
         progress.setLength(guesstimatedTotalDocs);
         dispatch(onGuesstimatedDocsTotal(guesstimatedTotalDocs));
@@ -257,7 +264,7 @@ export const startImport = () => {
       size,
       delimiter,
       ignoreBlanks,
-      stopOnErrors
+      stopOnErrors,
     });
 
     console.log('Exclude');
@@ -297,7 +304,7 @@ export const startImport = () => {
             docsWritten: dest.docsWritten,
             error: err.message,
           });
-          debug('Error while importing', err);
+          debug('Error while importing:', err.stack);
 
           console.groupEnd();
           console.groupEnd();
@@ -322,7 +329,7 @@ export const startImport = () => {
           ignoreBlanks,
           stopOnErrors,
           hasExcluded: exclude.length > 0,
-          hasTransformed: transform.length > 0
+          hasTransformed: transform.length > 0,
         };
         dispatch(globalAppRegistryEmit('import-finished', payload));
         console.groupEnd();
@@ -371,12 +378,12 @@ const loadPreviewDocs = (
   delimiter,
   fileIsMultilineJSON
 ) => {
-  return dispatch => {
+  return (dispatch) => {
     debug('loading preview', {
       fileName,
       fileType,
       delimiter,
-      fileIsMultilineJSON
+      fileIsMultilineJSON,
     });
     /**
      * TODO: lucas: add dispatches for preview loading, error, etc.
@@ -386,14 +393,14 @@ const loadPreviewDocs = (
      */
     const source = fs.createReadStream(fileName, {
       encoding: 'utf8',
-      end: 20 * 1024
+      end: 20 * 1024,
     });
     const stripBOM = stripBomStream();
 
     const dest = createPreviewWritable({
       fileType,
       delimiter,
-      fileIsMultilineJSON
+      fileIsMultilineJSON,
     });
 
     stream.pipeline(
@@ -401,16 +408,21 @@ const loadPreviewDocs = (
       stripBOM,
       createPeekStream(fileType, delimiter, fileIsMultilineJSON),
       dest,
-      function(err) {
+      function (err) {
         if (err) {
-          log.error(mongoLogId(1001000097), 'Import', 'Failed to load preview docs', err);
-          debug('Error while loading preview docs', err);
+          log.error(
+            mongoLogId(1001000097),
+            'Import',
+            'Failed to load preview docs',
+            err
+          );
+          debug('Error while loading preview docs:', err.stack);
           return;
         }
         dispatch({
           type: SET_PREVIEW,
           fields: dest.fields,
-          values: dest.values
+          values: dest.values,
         });
       }
     );
@@ -427,9 +439,9 @@ const loadPreviewDocs = (
  * @param {String} path Dot notation path of the field.
  * @api public
  */
-export const toggleIncludeField = path => ({
+export const toggleIncludeField = (path) => ({
   type: TOGGLE_INCLUDE_FIELD,
-  path: path
+  path: path,
 });
 
 /**
@@ -451,7 +463,7 @@ export const setFieldType = (path, bsonType) => {
   return {
     type: SET_FIELD_TYPE,
     path: path,
-    bsonType: bsonType
+    bsonType: bsonType,
   };
 };
 
@@ -461,31 +473,31 @@ export const setFieldType = (path, bsonType) => {
  * @api public
  * @see utils/detect-import-file.js
  */
-export const selectImportFileName = fileName => {
+export const selectImportFileName = (fileName) => {
   return (dispatch, getState) => {
     let fileStats = {};
     checkFileExists(fileName)
-      .then(exists => {
+      .then((exists) => {
         if (!exists) {
           throw new Error(`File ${fileName} not found`);
         }
         return getFileStats(fileName);
       })
-      .then(stats => {
+      .then((stats) => {
         fileStats = {
           ...stats,
-          type: mime.lookup(fileName)
+          type: mime.lookup(fileName),
         };
         return promisify(detectImportFile)(fileName);
       })
-      .then(detected => {
+      .then((detected) => {
         debug('get detection results');
         dispatch({
           type: FILE_SELECTED,
           fileName: fileName,
           fileStats: fileStats,
           fileIsMultilineJSON: detected.fileIsMultilineJSON,
-          fileType: detected.fileType
+          fileType: detected.fileType,
         });
 
         /**
@@ -501,8 +513,8 @@ export const selectImportFileName = fileName => {
           )
         );
       })
-      .catch(err => {
-        debug('dispatching error', err);
+      .catch((err) => {
+        debug('dispatching error', err.stack);
         dispatch(onFailed(err));
       });
   };
@@ -514,18 +526,14 @@ export const selectImportFileName = fileName => {
  * @param {String} fileType
  * @api public
  */
-export const selectImportFileType = fileType => {
+export const selectImportFileType = (fileType) => {
   return (dispatch, getState) => {
-    const {
-      previewLoaded,
-      fileName,
-      delimiter,
-      fileIsMultilineJSON
-    } = getState().importData;
+    const { previewLoaded, fileName, delimiter, fileIsMultilineJSON } =
+      getState().importData;
 
     dispatch({
       type: FILE_TYPE_SELECTED,
-      fileType: fileType
+      fileType: fileType,
     });
 
     if (previewLoaded) {
@@ -543,27 +551,22 @@ export const selectImportFileType = fileType => {
  *
  * @api public
  */
-export const setDelimiter = delimiter => {
+export const setDelimiter = (delimiter) => {
   return (dispatch, getState) => {
-    const {
-      previewLoaded,
-      fileName,
-      fileType,
-      fileIsMultilineJSON
-    } = getState().importData;
+    const { previewLoaded, fileName, fileType, fileIsMultilineJSON } =
+      getState().importData;
     dispatch({
       type: SET_DELIMITER,
-      delimiter: delimiter
+      delimiter: delimiter,
     });
 
     if (previewLoaded) {
-      debug(
-        'preview needs updated because delimiter changed',
+      debug('preview needs updated because delimiter changed', {
         fileName,
         fileType,
         delimiter,
-        fileIsMultilineJSON
-      );
+        fileIsMultilineJSON,
+      });
       dispatch(
         loadPreviewDocs(fileName, fileType, delimiter, fileIsMultilineJSON)
       );
@@ -584,9 +587,9 @@ export const setDelimiter = delimiter => {
  * @see utils/collection-stream.js
  * @see https://docs.mongodb.com/manual/reference/program/mongoimport/#cmdoption-mongoimport-stoponerror
  */
-export const setStopOnErrors = stopOnErrors => ({
+export const setStopOnErrors = (stopOnErrors) => ({
   type: SET_STOP_ON_ERRORS,
-  stopOnErrors: stopOnErrors
+  stopOnErrors: stopOnErrors,
 });
 
 /**
@@ -598,9 +601,9 @@ export const setStopOnErrors = stopOnErrors => ({
  * @see https://docs.mongodb.com/manual/reference/program/mongoimport/#cmdoption-mongoimport-ignoreblanks
  * @todo lucas: Standardize as `setIgnoreBlanks`?
  */
-export const setIgnoreBlanks = ignoreBlanks => ({
+export const setIgnoreBlanks = (ignoreBlanks) => ({
   type: SET_IGNORE_BLANKS,
-  ignoreBlanks: ignoreBlanks
+  ignoreBlanks: ignoreBlanks,
 });
 
 /**
@@ -622,7 +625,7 @@ export const openImport = (namespace) => (dispatch) => {
  * @api public
  */
 export const closeImport = () => ({
-  type: CLOSE
+  type: CLOSE,
 });
 
 /**
@@ -635,7 +638,7 @@ export const closeImport = () => ({
  */
 // eslint-disable-next-line complexity
 const reducer = (state = INITIAL_STATE, action) => {
-  debug('reducer handling action', action);
+  debug('reducer handling action', action.type);
   if (action.type === FILE_SELECTED) {
     return {
       ...state,
@@ -652,7 +655,7 @@ const reducer = (state = INITIAL_STATE, action) => {
       errors: [],
       source: undefined,
       dest: undefined,
-      fields: []
+      fields: [],
     };
   }
 
@@ -662,28 +665,28 @@ const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === FILE_TYPE_SELECTED) {
     return {
       ...state,
-      fileType: action.fileType
+      fileType: action.fileType,
     };
   }
 
   if (action.type === SET_STOP_ON_ERRORS) {
     return {
       ...state,
-      stopOnErrors: action.stopOnErrors
+      stopOnErrors: action.stopOnErrors,
     };
   }
 
   if (action.type === SET_IGNORE_BLANKS) {
     return {
       ...state,
-      ignoreBlanks: action.ignoreBlanks
+      ignoreBlanks: action.ignoreBlanks,
     };
   }
 
   if (action.type === SET_DELIMITER) {
     return {
       ...state,
-      delimiter: action.delimiter
+      delimiter: action.delimiter,
     };
   }
 
@@ -696,12 +699,12 @@ const reducer = (state = INITIAL_STATE, action) => {
       values: action.values,
       fields: action.fields,
       previewLoaded: true,
-      exclude: []
+      exclude: [],
     };
 
     newState.transform = newState.fields
-      .filter(field => field.checked)
-      .map(field => [field.path, field.type]);
+      .filter((field) => field.checked)
+      .map((field) => [field.path, field.type]);
 
     return newState;
   }
@@ -716,23 +719,24 @@ const reducer = (state = INITIAL_STATE, action) => {
      * we'll come back to and fixup.
      */
     const newState = {
-      ...state
+      ...state,
     };
 
-    newState.fields = newState.fields.map(field => {
+    newState.fields = newState.fields.map((field) => {
       if (field.path === action.path) {
         field.checked = !field.checked;
       }
       return field;
     });
 
-    newState.transform = newState.fields
-      .map(field => [field.path, field.type]);
-
+    newState.transform = newState.fields.map((field) => [
+      field.path,
+      field.type,
+    ]);
 
     newState.exclude = newState.fields
-      .filter(field => !field.checked)
-      .map(field => field.path);
+      .filter((field) => !field.checked)
+      .map((field) => field.path);
 
     return newState;
   }
@@ -742,10 +746,10 @@ const reducer = (state = INITIAL_STATE, action) => {
    */
   if (action.type === SET_FIELD_TYPE) {
     const newState = {
-      ...state
+      ...state,
     };
 
-    newState.fields = newState.fields.map(field => {
+    newState.fields = newState.fields.map((field) => {
       if (field.path === action.path) {
         // If a user changes a field type, automatically check it for them
         // so they don't need an extra click or forget to click it an get frustrated
@@ -757,12 +761,12 @@ const reducer = (state = INITIAL_STATE, action) => {
     });
 
     newState.exclude = newState.fields
-      .filter(field => !field.checked)
-      .map(field => field.path);
+      .filter((field) => !field.checked)
+      .map((field) => field.path);
 
     newState.transform = newState.fields
-      .filter(field => field.checked)
-      .map(field => [field.path, field.type]);
+      .filter((field) => field.checked)
+      .map((field) => [field.path, field.type]);
 
     return newState;
   }
@@ -794,14 +798,14 @@ const reducer = (state = INITIAL_STATE, action) => {
       guesstimatedDocsProcessed: 0,
       status: PROCESS_STATUS.STARTED,
       source: action.source,
-      dest: action.dest
+      dest: action.dest,
     };
   }
 
   if (action.type === SET_GUESSTIMATED_TOTAL) {
     return {
       ...state,
-      guesstimatedDocsTotal: action.guesstimatedDocsTotal
+      guesstimatedDocsTotal: action.guesstimatedDocsTotal,
     };
   }
 
@@ -809,7 +813,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       guesstimatedDocsProcessed: action.guesstimatedDocsProcessed,
-      guesstimatedDocsTotal: action.guesstimatedDocsTotal
+      guesstimatedDocsTotal: action.guesstimatedDocsTotal,
     };
   }
 
@@ -849,7 +853,7 @@ const reducer = (state = INITIAL_STATE, action) => {
       ...state,
       status: PROCESS_STATUS.CANCELED,
       source: undefined,
-      dest: undefined
+      dest: undefined,
     };
   }
 
@@ -859,14 +863,14 @@ const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === OPEN) {
     return {
       ...INITIAL_STATE,
-      isOpen: true
+      isOpen: true,
     };
   }
 
   if (action.type === CLOSE) {
     return {
       ...state,
-      isOpen: false
+      isOpen: false,
     };
   }
   return state;

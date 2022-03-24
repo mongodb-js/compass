@@ -14,7 +14,7 @@ class PreviewRow extends PureComponent {
   static propTypes = {
     values: PropTypes.array,
     fields: PropTypes.array,
-    index: PropTypes.number
+    index: PropTypes.number,
   };
 
   render() {
@@ -48,7 +48,7 @@ class PreviewRow extends PureComponent {
 class PreviewValues extends PureComponent {
   static propTypes = {
     values: PropTypes.array,
-    fields: PropTypes.array
+    fields: PropTypes.array,
   };
 
   render() {
@@ -72,7 +72,7 @@ class PreviewFields extends PureComponent {
   static propTypes = {
     fields: PropTypes.array,
     onCheckedChanged: PropTypes.func.isRequired,
-    setFieldType: PropTypes.func.isRequired
+    setFieldType: PropTypes.func.isRequired,
   };
 
   onCheckedChanged(path, evt) {
@@ -83,7 +83,10 @@ class PreviewFields extends PureComponent {
   render() {
     const fields = this.props.fields.map((field) => {
       return (
-        <th key={field.path} data-test-id={`preview-field-header-${field.path}`}>
+        <th
+          key={field.path}
+          data-test-id={`preview-field-header-${field.path}`}
+        >
           <div>
             <input
               type="checkbox"
@@ -122,7 +125,7 @@ class ImportPreview extends PureComponent {
     values: PropTypes.array,
     onFieldCheckedChanged: PropTypes.func.isRequired,
     setFieldType: PropTypes.func.isRequired,
-    loaded: PropTypes.bool
+    loaded: PropTypes.bool,
   };
 
   render() {
@@ -134,7 +137,10 @@ class ImportPreview extends PureComponent {
     }
 
     if (!Array.isArray(fields) || !Array.isArray(values)) {
-      debug('Preview unavailable: Fields or values is not an array', { fields, values });
+      debug('Preview unavailable: Fields or values is not an array', {
+        fields,
+        values,
+      });
       return null;
     }
 

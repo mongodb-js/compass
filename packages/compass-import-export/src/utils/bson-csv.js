@@ -22,7 +22,6 @@
 import bson from 'bson';
 import { createDebug } from './logger';
 
-
 const debug = createDebug('bson-csv');
 
 const BOOLEAN_TRUE = ['1', 'true', 'TRUE', true];
@@ -30,21 +29,21 @@ const BOOLEAN_FALSE = ['0', 'false', 'FALSE', 'null', '', 'NULL', false];
 
 const casters = {
   String: {
-    fromString: function(s) {
+    fromString: function (s) {
       return '' + s;
-    }
+    },
   },
   Number: {
-    fromString: function(s) {
+    fromString: function (s) {
       s = '' + s;
       if (s.includes('.')) {
         return parseFloat(s);
       }
       return parseInt(s, 10);
-    }
+    },
   },
   Boolean: {
-    fromString: function(s) {
+    fromString: function (s) {
       if (BOOLEAN_TRUE.includes(s)) {
         return true;
       }
@@ -54,37 +53,37 @@ const casters = {
       }
 
       return Boolean(s);
-    }
+    },
   },
   Date: {
-    fromString: function(s) {
+    fromString: function (s) {
       if (s instanceof Date) {
         return s;
       }
       return new Date('' + s);
-    }
+    },
   },
   ObjectID: {
-    fromString: function(s) {
+    fromString: function (s) {
       const { isBSON } = getTypeDescriptorForValue(s);
       if (isBSON) {
         // EJSON being imported
         return s;
       }
       return new bson.ObjectID(s);
-    }
+    },
   },
   Long: {
-    fromString: function(s) {
+    fromString: function (s) {
       if (s instanceof bson.Long) {
         // EJSON being imported
         return s;
       }
       return bson.Long.fromString(s);
-    }
+    },
   },
   RegExpr: {
-    fromString: function(s) {
+    fromString: function (s) {
       if (s instanceof bson.BSONRegExp) {
         // EJSON being imported
         return s;
@@ -97,55 +96,55 @@ const casters = {
       //   return new bson.BSONRegExp(pattern, options);
       // }
       return new bson.BSONRegExp(s);
-    }
+    },
   },
   Binary: {
-    fromString: function(s) {
+    fromString: function (s) {
       if (s instanceof bson.Binary) {
         return s;
       }
       return new bson.Binary(s, bson.Binary.SUBTYPE_DEFAULT);
-    }
+    },
   },
   UUID: {
-    fromString: function(s) {
+    fromString: function (s) {
       if (s instanceof bson.Binary) {
         return s;
       }
       return new bson.Binary(s, bson.Binary.SUBTYPE_UUID);
-    }
+    },
   },
   MD5: {
-    fromString: function(s) {
+    fromString: function (s) {
       if (s instanceof bson.Binary) {
         return s;
       }
       return new bson.Binary(s, bson.Binary.SUBTYPE_MD5);
-    }
+    },
   },
   Timestamp: {
-    fromString: function(s) {
+    fromString: function (s) {
       if (s instanceof bson.Timestamp) {
         return s;
       }
       return bson.Timestamp.fromString(s);
-    }
+    },
   },
   Double: {
-    fromString: function(s) {
+    fromString: function (s) {
       return new bson.Double(s);
-    }
+    },
   },
   Int32: {
-    fromString: function(s) {
+    fromString: function (s) {
       return parseInt(s, 10);
-    }
+    },
   },
   Decimal128: {
-    fromString: function(s) {
+    fromString: function (s) {
       return bson.Decimal128.fromString(s);
-    }
-  }
+    },
+  },
 };
 
 casters.BSONRegExp = casters.RegExpr;
@@ -165,7 +164,7 @@ const TYPE_FOR_TO_STRING = new Map([
   ['[object RegExp]', 'RegExp'],
   ['[object Boolean]', 'Boolean'],
   ['[object Null]', 'Null'],
-  ['[object Undefined]', 'Undefined']
+  ['[object Undefined]', 'Undefined'],
 ]);
 
 export function getBSONTypeForValue(value) {
@@ -199,7 +198,7 @@ export function getTypeDescriptorForValue(value) {
   const _bsontype = getBSONTypeForValue(value);
   return {
     type: _bsontype ? _bsontype : t,
-    isBSON: !!_bsontype
+    isBSON: !!_bsontype,
   };
 }
 
@@ -209,13 +208,13 @@ export function getTypeDescriptorForValue(value) {
  * @param {Object} doc
  * @returns {Object}
  */
-export const serialize = function(doc) {
+export const serialize = function (doc) {
   const delimiter = '.';
   const output = {};
   const maxDepth = 1000;
 
   function step(object, prev, currentDepth = 1) {
-    Object.keys(object).forEach(function(key) {
+    Object.keys(object).forEach(function (key) {
       const value = object[key];
       const { type, isBSON } = getTypeDescriptorForValue(value);
       const newKey = prev ? prev + delimiter + key : key;
@@ -282,8 +281,7 @@ export const serialize = function(doc) {
  * TODO (lucas) Consolidate valueToString with dupe logic in serialize() later.
  */
 
-
-export const valueToString = function(value) {
+export const valueToString = function (value) {
   const { type, isBSON } = getTypeDescriptorForValue(value);
 
   // BSON values

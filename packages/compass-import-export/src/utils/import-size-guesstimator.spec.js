@@ -15,8 +15,8 @@ import createImportSizeGuesstimator from './import-size-guesstimator';
 import { pipeline } from 'stream';
 
 // TODO (lucas) Find proper fixture for this to check in.
-describe.skip('guesstimator', () => {
-  it('should guess', function(done) {
+describe.skip('guesstimator', function () {
+  it('should guess', function (done) {
     this.timeout(5000);
 
     const FILE_SIZE = 92782967;
