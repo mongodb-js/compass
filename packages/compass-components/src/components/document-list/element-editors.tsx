@@ -8,6 +8,12 @@ import { spacing } from '@leafygreen-ui/tokens';
 import BSONValue, { hasCustomColor, VALUE_COLOR_BY_TYPE } from '../bson-value';
 import { Tooltip } from '../tooltip';
 
+const maxWidth = css({
+  maxWidth: '100%',
+  overflowX: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
 const editorReset = css({
   padding: 0,
   margin: 0,
@@ -87,6 +93,7 @@ export const KeyEditor: React.FunctionComponent<{
                   // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus={autoFocus}
                   className={cx(
+                    maxWidth,
                     editorReset,
                     editorOutline,
                     !valid && editorInvalid
@@ -104,7 +111,7 @@ export const KeyEditor: React.FunctionComponent<{
         </Tooltip>
       ) : (
         // Double-click is not accessible so no reason for this to be a button
-        <div onDoubleClick={onEditStart} style={{ width }}>
+        <div onDoubleClick={onEditStart} className={maxWidth} style={{ width }}>
           {value}
         </div>
       )}
@@ -177,7 +184,7 @@ export const ValueEditor: React.FunctionComponent<{
         longestLineCharLength > 70 ? 2 : 1
       );
       const maxLines = Math.min(minLines, 10);
-      const minHeight = spacing[3] * minLines;
+      const minHeight = spacing[3] * Math.min(minLines, maxLines);
       const height = spacing[3] * maxLines;
 
       return { width, minHeight, height };

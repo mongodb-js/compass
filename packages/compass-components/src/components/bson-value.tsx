@@ -50,8 +50,13 @@ export function hasCustomColor(
   return type in VALUE_COLOR_BY_TYPE;
 }
 
+const bsonValue = css({
+  whiteSpace: 'pre-wrap',
+});
+
 function getStyles(type: ValueTypes | string): string {
   return cx(
+    bsonValue,
     hasCustomColor(type) &&
       css({
         color: VALUE_COLOR_BY_TYPE[type],
