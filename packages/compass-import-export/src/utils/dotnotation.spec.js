@@ -1,9 +1,11 @@
 /* eslint-disable no-var */
+import { expect } from 'chai';
+
 import dotnotation from './dotnotation';
 import { ObjectID } from 'bson';
 
-describe('dotnotation', () => {
-  it('should handle simplest case', () => {
+describe('dotnotation', function () {
+  it('should handle simplest case', function () {
     var doc = {
       _id: 'arlo',
       name: 'Arlo',
@@ -12,9 +14,9 @@ describe('dotnotation', () => {
         place: 'home',
         activity: {
           sleeping: true,
-          is: 'on the couch'
-        }
-      }
+          is: 'on the couch',
+        },
+      },
     };
 
     expect(dotnotation.serialize(doc)).to.deep.equal({
@@ -23,28 +25,28 @@ describe('dotnotation', () => {
       age: 5,
       'location.place': 'home',
       'location.activity.is': 'on the couch',
-      'location.activity.sleeping': true
+      'location.activity.sleeping': true,
     });
   });
 
-  it('should handle not recurse into bson types', () => {
+  it('should handle not recurse into bson types', function () {
     var oid = new ObjectID('5df51e94e92c7b5b333d6c4f');
 
     var doc = {
-      _id: oid
+      _id: oid,
     };
 
     var res = dotnotation.serialize(doc);
     expect(res).to.have.keys(['_id']);
     expect(res).to.deep.equal({
-      _id: oid
+      _id: oid,
     });
   });
 
-  it('should handle not recurse into arrays', () => {
+  it('should handle not recurse into arrays', function () {
     var doc = {
       _id: 'compass',
-      locations: ['berlin', 'nyc', 'philadelphia']
+      locations: ['berlin', 'nyc', 'philadelphia'],
     };
     var res = dotnotation.serialize(doc);
     expect(res).to.have.keys(['_id', 'locations']);
@@ -55,7 +57,7 @@ describe('dotnotation', () => {
      */
     expect(res).to.deep.equal({
       _id: 'compass',
-      locations: ['berlin', 'nyc', 'philadelphia']
+      locations: ['berlin', 'nyc', 'philadelphia'],
     });
   });
 });

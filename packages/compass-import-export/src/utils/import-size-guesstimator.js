@@ -12,7 +12,7 @@ export default function createImportSizeGuesstimator(
   // BUT good enough for now.
   return new Transform({
     objectMode: true,
-    transform: function(chunk, encoding, cb) {
+    transform: function (chunk, encoding, cb) {
       if (!this.sizes) {
         this.sizes = [];
         this._done = false;
@@ -53,6 +53,6 @@ export default function createImportSizeGuesstimator(
       }
 
       return cb(null, chunk);
-    }
+    },
   });
 }

@@ -1,6 +1,6 @@
 const FILE_TYPES = {
   CSV: 'csv',
-  JSON: 'json'
+  JSON: 'json',
 };
 
 export default FILE_TYPES;
