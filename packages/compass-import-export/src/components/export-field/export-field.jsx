@@ -10,19 +10,21 @@ class ExportField extends PureComponent {
     index: PropTypes.number,
     checked: PropTypes.number,
     field: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
   };
 
   render() {
     return (
       <tr key={this.props.field}>
         <td>
-          <input type="checkbox"
+          <input
+            type="checkbox"
             id={this.props.index}
             name={this.props.field}
             checked={this.props.checked}
             onChange={this.props.onChange}
-            aria-label={`Include ${this.props.field} in exported collection`}/>
+            aria-label={`Include ${this.props.field} in exported collection`}
+          />
         </td>
         <td className={style('field-number')}>{this.props.index + 1}</td>
         <td>{this.props.field}</td>

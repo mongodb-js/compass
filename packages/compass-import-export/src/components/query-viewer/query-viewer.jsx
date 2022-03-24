@@ -23,7 +23,7 @@ const OPTIONS = {
   fixedWidthGutter: false,
   highlightActiveLine: false,
   highlightGutterLine: false,
-  useWorker: false
+  useWorker: false,
 };
 
 /**
@@ -35,7 +35,7 @@ class QueryViewer extends PureComponent {
   static propTypes = {
     query: PropTypes.object.isRequired,
     disabled: PropTypes.bool.isRequired,
-    ns: PropTypes.string.isRequired
+    ns: PropTypes.string.isRequired,
   };
 
   /**

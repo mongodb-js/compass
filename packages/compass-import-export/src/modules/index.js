@@ -10,7 +10,7 @@ const rootReducer = combineReducers({
   dataService,
   ns,
   exportData,
-  importData
+  importData,
 });
 
 export default rootReducer;

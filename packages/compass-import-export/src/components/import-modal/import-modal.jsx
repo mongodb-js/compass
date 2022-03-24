@@ -12,7 +12,7 @@ import {
   COMPLETED_WITH_ERRORS,
   CANCELED,
   FAILED,
-  UNSPECIFIED
+  UNSPECIFIED,
 } from '../../constants/process-status';
 import ProgressBar from '../progress-bar';
 import ErrorBox from '../error-box';
@@ -30,7 +30,7 @@ import {
   setIgnoreBlanks,
   closeImport,
   toggleIncludeField,
-  setFieldType
+  setFieldType,
 } from '../../modules/import';
 import styles from './import-modal.module.less';
 import createStyler from '../../utils/styler.js';
@@ -47,7 +47,7 @@ const MESSAGES = {
   [COMPLETED]: 'Import completed',
   [COMPLETED_WITH_ERRORS]: 'Import completed with following errors:',
   [FAILED]: 'Failed to import with the following error:',
-  [UNSPECIFIED]: ''
+  [UNSPECIFIED]: '',
 };
 
 const SHOW_MORE_STEP = 10;
@@ -82,7 +82,10 @@ function ErrorsList({ errors }) {
   if (normalizedErrorMessages.length === 0) {
     return (
       <div className={style('errors')}>
-        <ErrorBox dataTestId="import-error-box" message={normalizedErrorMessages[0]} />
+        <ErrorBox
+          dataTestId="import-error-box"
+          message={normalizedErrorMessages[0]}
+        />
       </div>
     );
   }
@@ -115,7 +118,7 @@ function ErrorsList({ errors }) {
 }
 
 ErrorsList.propTypes = {
-  errors: PropTypes.array
+  errors: PropTypes.array,
 };
 
 class ImportModal extends PureComponent {
@@ -162,7 +165,7 @@ class ImportModal extends PureComponent {
     values: PropTypes.array,
     toggleIncludeField: PropTypes.func.isRequired,
     setFieldType: PropTypes.func.isRequired,
-    previewLoaded: PropTypes.bool
+    previewLoaded: PropTypes.bool,
   };
 
   /**
@@ -375,24 +378,21 @@ const mapStateToProps = (state) => ({
   ignoreBlanks: state.importData.ignoreBlanks,
   fields: state.importData.fields,
   values: state.importData.values,
-  previewLoaded: state.importData.previewLoaded
+  previewLoaded: state.importData.previewLoaded,
 });
 
 /**
  * Export the connected component as the default.
  */
-export default connect(
-  mapStateToProps,
-  {
-    startImport,
-    cancelImport,
-    selectImportFileType,
-    selectImportFileName,
-    setDelimiter,
-    setStopOnErrors,
-    setIgnoreBlanks,
-    closeImport,
-    toggleIncludeField,
-    setFieldType
-  }
-)(ImportModal);
+export default connect(mapStateToProps, {
+  startImport,
+  cancelImport,
+  selectImportFileType,
+  selectImportFileName,
+  setDelimiter,
+  setStopOnErrors,
+  setIgnoreBlanks,
+  closeImport,
+  toggleIncludeField,
+  setFieldType,
+})(ImportModal);
