@@ -30,6 +30,7 @@ const navItemButton = css({
   border: 'none',
   backgroundColor: uiColors.gray.dark2,
   ':hover': {
+    cursor: 'pointer',
     backgroundColor: uiColors.gray.dark3
   }
 });
