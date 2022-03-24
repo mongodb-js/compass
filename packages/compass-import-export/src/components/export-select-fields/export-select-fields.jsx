@@ -8,10 +8,10 @@ import createStyler from '../../utils/styler.js';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-
 const style = createStyler(styles, 'export-select-fields');
 
-const fieldInfoSprinkle = 'The fields displayed are from a sample of documents in the collection. To ensure all fields are exported, add missing field names.';
+const fieldInfoSprinkle =
+  'The fields displayed are from a sample of documents in the collection. To ensure all fields are exported, add missing field names.';
 
 class ExportSelectFields extends PureComponent {
   static propTypes = {
@@ -25,7 +25,7 @@ class ExportSelectFields extends PureComponent {
     this.newFieldRef = React.createRef();
   }
 
-  state = { addingFields: false }
+  state = { addingFields: false };
 
   componentDidUpdate() {
     if (this.state.addingFields) {
@@ -38,29 +38,29 @@ class ExportSelectFields extends PureComponent {
     this.newFieldRef.current.scrollIntoView();
     this.newFieldRef.current.focus();
     this.setState({ addingFields: true });
-  }
+  };
 
   handleFieldCheckboxChange = (evt) => {
     const fields = Object.assign({}, this.props.fields);
     fields[`${evt.target.name}`] ^= 1; // flip 1/0 to its opposite
     this.props.updateSelectedFields(fields);
-  }
+  };
 
   handleHeaderCheckboxChange = () => {
     const fields = Object.assign({}, this.props.fields);
 
     if (this.isEveryFieldChecked()) {
-      Object.keys(fields).map(f => (fields[f] = 0));
+      Object.keys(fields).map((f) => (fields[f] = 0));
     } else {
-      Object.keys(fields).map(f => (fields[f] = 1));
+      Object.keys(fields).map((f) => (fields[f] = 1));
     }
 
     this.props.updateSelectedFields(fields);
-  }
+  };
 
   handleInputOnBlur = () => {
     this.setState({ addingFields: false });
-  }
+  };
 
   handleAddFieldSubmit = (evt) => {
     if (evt.key === 'Enter') {
@@ -74,12 +74,12 @@ class ExportSelectFields extends PureComponent {
       // keep adding missing fields
       this.setState({ addingFields: true });
     }
-  }
+  };
 
   isEveryFieldChecked() {
     const fields = this.props.fields;
 
-    return Object.keys(fields).every(f => fields[f] === 1);
+    return Object.keys(fields).every((f) => fields[f] === 1);
   }
 
   renderFieldRows() {
@@ -89,7 +89,8 @@ class ExportSelectFields extends PureComponent {
         field={field}
         index={index}
         checked={this.props.fields[field]}
-        onChange={this.handleFieldCheckboxChange}/>
+        onChange={this.handleFieldCheckboxChange}
+      />
     ));
   }
 
@@ -98,17 +99,19 @@ class ExportSelectFields extends PureComponent {
 
     return (
       <tr key={`new-field ${fieldsLen}`}>
-        <td/>
+        <td />
         <td className={style('field-number')}>{fieldsLen + 1}</td>
         <td>
-          <input type="text"
+          <input
+            type="text"
             ref={this.newFieldRef}
             placeholder="Add field"
             onBlur={this.handleInputOnBlur}
             className={style('add-field-input')}
-            onKeyDown={this.handleAddFieldSubmit}/>
+            onKeyDown={this.handleAddFieldSubmit}
+          />
           <div className={style('return-symbol')}>
-            <i className="fa fa-level-down fa-rotate-90"/>
+            <i className="fa fa-level-down fa-rotate-90" />
             <p>to add</p>
           </div>
         </td>
@@ -120,22 +123,30 @@ class ExportSelectFields extends PureComponent {
   render() {
     if (this.props.exportStep !== FIELDS) return null;
 
-    const addFieldButtonClassname = classnames('btn', 'btn-default', 'btn-xs', style('new-field'));
+    const addFieldButtonClassname = classnames(
+      'btn',
+      'btn-default',
+      'btn-xs',
+      style('new-field')
+    );
 
     return (
       <div>
         <div className={style('caption')}>
           <p>Select Fields</p>
-          <div data-place="top"
+          <div
+            data-place="top"
             data-for="field-tooltip"
-            data-tip={fieldInfoSprinkle}>
+            data-tip={fieldInfoSprinkle}
+          >
             <i className="fa fa-info-circle" />
             <Tooltip id="field-tooltip" />
           </div>
           <TextButton
             text="+ Add Field"
             className={addFieldButtonClassname}
-            clickHandler={this.addNewFieldButton}/>
+            clickHandler={this.addNewFieldButton}
+          />
         </div>
         <div className={style('field-wrapper')}>
           <table className={style('table')}>
@@ -146,10 +157,13 @@ class ExportSelectFields extends PureComponent {
                     type="checkbox"
                     name="Select All"
                     checked={this.isEveryFieldChecked()}
-                    onChange={this.handleHeaderCheckboxChange}/>
+                    onChange={this.handleHeaderCheckboxChange}
+                  />
                 </th>
                 <th>&nbsp;</th>
-                <th colSpan="2" className={style('field-name')}>Field Name</th>
+                <th colSpan="2" className={style('field-name')}>
+                  Field Name
+                </th>
               </tr>
             </thead>
             <tbody>

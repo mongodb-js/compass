@@ -24,13 +24,13 @@ const INITIAL_STATE = null;
  */
 export const globalAppRegistryActivated = (appRegistry) => ({
   type: GLOBAL_APP_REGISTRY_ACTIVATED,
-  appRegistry: appRegistry
+  appRegistry: appRegistry,
 });
 
 export const globalAppRegistryEmit = (name, ...args) => ({
   type: GLOBAL_APP_REGISTRY_EMIT,
   name: name,
-  args: args
+  args: args,
 });
 
 /**

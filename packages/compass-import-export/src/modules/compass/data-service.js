@@ -21,7 +21,7 @@ export const dataServiceConnected = (error, dataService) => {
   return {
     type: DATA_SERVICE_CONNECTED,
     error: error,
-    dataService: dataService
+    dataService: dataService,
   };
 };
 
@@ -37,7 +37,7 @@ const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,
-      dataService: action.dataService
+      dataService: action.dataService,
     };
   }
   return state;

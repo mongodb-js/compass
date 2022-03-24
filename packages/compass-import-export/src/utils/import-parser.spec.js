@@ -1,24 +1,12 @@
 import fs from 'fs';
-import path from 'path';
 import stream from 'stream';
+import chai, { expect } from 'chai';
+
+import chaiAsPromised from 'chai-as-promised';
+chai.use(chaiAsPromised);
 
 import createParser from './import-parser';
-
-const TEST_DIR = path.join(__dirname, '..', '..', '..', 'test');
-const FIXTURES = {
-  GOOD_COMMAS_CSV: path.join(TEST_DIR, 'good-commas.csv'),
-  GOOD_TABS_CSV: path.join(TEST_DIR, 'good-tabs.csv'),
-  BAD_CSV: path.join(TEST_DIR, 'mongoimport', 'test_bad.csv'),
-  JS_I_THINK_IS_JSON: path.join(TEST_DIR, 'js-i-think-is.json'),
-  GOOD_JSON: path.join(TEST_DIR, 'docs.json'),
-  LINE_DELIMITED_JSON: path.join(TEST_DIR, 'docs.jsonl'),
-  LINE_DELIMITED_JSON_EXTRA_LINE: path.join(
-    TEST_DIR,
-    'docs-with-newline-ending.jsonl'
-  ),
-  NUMBER_TRANSFORM_CSV: path.join(TEST_DIR, 'number-transform.csv')
-};
-
+import { FIXTURES } from '../../test/fixtures';
 function runParser(src, parser) {
   const docs = [];
   const source = fs.createReadStream(src);
@@ -27,10 +15,10 @@ function runParser(src, parser) {
     write(chunk, _encoding, callback) {
       docs.push(chunk);
       callback(null, chunk);
-    }
+    },
   });
-  return new Promise(function(resolve, reject) {
-    stream.pipeline(source, parser, dest, function(err, res) {
+  return new Promise(function (resolve, reject) {
+    stream.pipeline(source, parser, dest, function (err, res) {
       if (err) {
         return reject(err);
       }
@@ -39,20 +27,20 @@ function runParser(src, parser) {
   });
 }
 
-describe('import-parser', () => {
-  describe('json', () => {
-    it('should parse a file', () => {
+describe('import-parser', function () {
+  describe('json', function () {
+    it('should parse a file', function () {
       return runParser(FIXTURES.GOOD_JSON, createParser()).then((docs) => {
         expect(docs).to.have.length(3);
       });
     });
-    it('should parse a line-delimited file', () => {
+    it('should parse a line-delimited file', function () {
       return runParser(
         FIXTURES.LINE_DELIMITED_JSON,
         createParser({ fileType: 'json', fileIsMultilineJSON: true })
       ).then((docs) => expect(docs).to.have.length(3));
     });
-    it('should parse a line-delimited file with an extra empty line', () => {
+    it('should parse a line-delimited file with an extra empty line', function () {
       return runParser(
         FIXTURES.LINE_DELIMITED_JSON_EXTRA_LINE,
         createParser({ fileIsMultilineJSON: true })
@@ -60,37 +48,37 @@ describe('import-parser', () => {
         expect(docs).to.have.length(3);
       });
     });
-    describe('deserialize', () => {
+    describe('deserialize', function () {
       const BSON_DOCS = [];
-      before(() => {
+      before(function () {
         const src = FIXTURES.GOOD_JSON;
-        return runParser(src, createParser()).then(function(docs) {
+        return runParser(src, createParser()).then(function (docs) {
           BSON_DOCS.push.apply(BSON_DOCS, docs);
         });
       });
-      it('should have bson ObjectID for _id', () => {
+      it('should have bson ObjectID for _id', function () {
         expect(BSON_DOCS[0]._id._bsontype).to.equal('ObjectID');
       });
     });
-    describe('errors', () => {
+    describe('errors', function () {
       let parseError;
-      before((done) => {
+      before(function (done) {
         const p = runParser(FIXTURES.JS_I_THINK_IS_JSON, createParser());
         p.catch((err) => (parseError = err));
         expect(p).to.be.rejected.and.notify(done);
       });
-      it('should catch errors by default', () => {
+      it('should catch errors by default', function () {
         expect(parseError.name).to.equal('JSONError');
       });
-      it('should have a human readable error message', () => {
+      it('should have a human readable error message', function () {
         const DEFAULT_MESSAGE =
           'Error: Invalid JSON (Unexpected "_" at position 10 in state STOP)';
         expect(parseError.message).to.not.contain(DEFAULT_MESSAGE);
       });
     });
   });
-  describe('csv', () => {
-    it('should work with commas', () => {
+  describe('csv', function () {
+    it('should work with commas', function () {
       return runParser(
         FIXTURES.GOOD_COMMAS_CSV,
         createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_COMMAS_CSV })
@@ -102,10 +90,14 @@ describe('import-parser', () => {
         ]);
       });
     });
-    it('should work with hard tabs', () => {
+    it('should work with hard tabs', function () {
       return runParser(
         FIXTURES.GOOD_TABS_CSV,
-        createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_TABS_CSV, delimiter: '\t' })
+        createParser({
+          fileType: 'csv',
+          fileName: FIXTURES.GOOD_TABS_CSV,
+          delimiter: '\t',
+        })
       ).then((docs) => {
         expect(docs).to.deep.equal([
           { _id: '1', value: 'some string' },
@@ -114,7 +106,7 @@ describe('import-parser', () => {
         ]);
       });
     });
-    it('should parse number-transform', () => {
+    it('should parse number-transform', function () {
       return runParser(
         FIXTURES.NUMBER_TRANSFORM_CSV,
         createParser({ fileType: 'csv' })
@@ -181,17 +173,17 @@ describe('import-parser', () => {
             LONGITUDE: '-73.821199',
             COUNCIL_DISTRICT: '32',
             CENSUS_TRACT: '107201',
-            NTA_NAME: 'Breezy Point-Belle Harbor-Rockaway Park-Broad Channel'
-          }
+            NTA_NAME: 'Breezy Point-Belle Harbor-Rockaway Park-Broad Channel',
+          },
         ]);
       });
     });
     /**
      * TODO: lucas: Revisit and unskip if we really want csv to be strict.
      */
-    describe.skip('errors', () => {
+    describe.skip('errors', function () {
       let parseError;
-      before((done) => {
+      before(function (done) {
         const p = runParser(
           FIXTURES.BAD_CSV,
           createParser({ fileType: 'csv', delimiter: '\n' })
@@ -200,10 +192,10 @@ describe('import-parser', () => {
         expect(p).to.be.rejected.and.notify(done);
       });
 
-      it('should catch errors by default', () => {
+      it('should catch errors by default', function () {
         expect(parseError).to.be.an('error');
       });
-      it('should have a human readable error message', () => {
+      it('should have a human readable error message', function () {
         expect(parseError.message).to.equal(
           'Row length does not match headers'
         );
