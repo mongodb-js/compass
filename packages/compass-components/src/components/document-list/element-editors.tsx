@@ -131,7 +131,7 @@ const textareaContainer = css({
 const editorTextarea = css({
   display: 'inline-block',
   whiteSpace: 'nowrap',
-  minWidth: '3ch',
+  minWidth: '5ch',
   // 2ch for `"` around the textarea
   maxWidth: 'calc(100% - 2ch)',
   verticalAlign: 'top',
