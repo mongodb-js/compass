@@ -49,7 +49,6 @@ const testPackagedAppVariations = [
       }
     }
   }
-  // TODO: subsets of tests that don't relate to mongodb? ie. atlas connections or things that never connect
 ];
 
 const buildVariants = [
