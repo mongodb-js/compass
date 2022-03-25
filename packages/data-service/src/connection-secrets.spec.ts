@@ -147,6 +147,58 @@ describe('connection secrets', function () {
             port: 22,
             identityKeyPassphrase: 'passphrase',
           },
+          fleOptions: {
+            storeCredentials: true,
+            autoEncryption: {
+              keyVaultNamespace: 'keyVaultNamespace',
+              kmsProviders: {
+                aws: {
+                  accessKeyId: 'accessKeyId',
+                  secretAccessKey: 'secretAccessKey',
+                  sessionToken: 'sessionToken',
+                },
+                local: {
+                  key: 'key',
+                },
+                azure: {
+                  tenantId: 'tenantId',
+                  clientId: 'clientId',
+                  clientSecret: 'clientSecret',
+                  identityPlatformEndpoint: 'identityPlatformEndpoint',
+                },
+                gcp: {
+                  email: 'email',
+                  privateKey: 'privateKey',
+                  endpoint: 'endpoint',
+                },
+                kmip: {
+                  endpoint: 'endpoint',
+                },
+              },
+              tlsOptions: {
+                aws: {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
+                local: {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
+                azure: {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
+                gcp: {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
+                kmip: {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
+              },
+            },
+          },
         },
       };
 
@@ -163,6 +215,47 @@ describe('connection secrets', function () {
             username: 'user',
             port: 22,
           },
+          fleOptions: {
+            storeCredentials: true,
+            autoEncryption: {
+              keyVaultNamespace: 'keyVaultNamespace',
+              kmsProviders: {
+                aws: {
+                  accessKeyId: 'accessKeyId',
+                },
+                local: {},
+                azure: {
+                  tenantId: 'tenantId',
+                  clientId: 'clientId',
+                  identityPlatformEndpoint: 'identityPlatformEndpoint',
+                },
+                gcp: {
+                  email: 'email',
+                  endpoint: 'endpoint',
+                },
+                kmip: {
+                  endpoint: 'endpoint',
+                },
+              },
+              tlsOptions: {
+                aws: {
+                  tlsCertificateKeyFile: 'file',
+                },
+                local: {
+                  tlsCertificateKeyFile: 'file',
+                },
+                azure: {
+                  tlsCertificateKeyFile: 'file',
+                },
+                gcp: {
+                  tlsCertificateKeyFile: 'file',
+                },
+                kmip: {
+                  tlsCertificateKeyFile: 'file',
+                },
+              },
+            },
+          },
         },
       } as ConnectionInfo);
 
@@ -173,6 +266,40 @@ describe('connection secrets', function () {
         sshTunnelPassphrase: 'passphrase',
         tlsCertificateKeyFilePassword: 'tlsCertPassword',
         proxyPassword: 'bar',
+        autoEncryption: {
+          kmsProviders: {
+            aws: {
+              secretAccessKey: 'secretAccessKey',
+              sessionToken: 'sessionToken',
+            },
+            local: {
+              key: 'key',
+            },
+            azure: {
+              clientSecret: 'clientSecret',
+            },
+            gcp: {
+              privateKey: 'privateKey',
+            },
+          },
+          tlsOptions: {
+            aws: {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
+            local: {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
+            azure: {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
+            gcp: {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
+            kmip: {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
+          },
+        },
       } as ConnectionSecrets);
     });
   });
