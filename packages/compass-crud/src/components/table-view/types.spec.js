@@ -30,7 +30,7 @@ describe('<Types />', () => {
 
       it('renders the type list', () => {
         const types = wrapper.find('.dropdown-menu li');
-        expect(types.children().length).to.equal(20);
+        expect(types.children().length).to.equal(19);
       });
 
       it('sets the dropdown to closed', () => {
@@ -113,10 +113,6 @@ describe('<Types />', () => {
             item.simulate('mousedown');
           });
 
-          it('converts the element to an empty string', () => {
-            expect(element.generateObject()).to.deep.equal({});
-          });
-
           it('sets the value as invalid', () => {
             expect(element.isCurrentTypeValid()).to.equal(false);
           });
@@ -134,7 +130,7 @@ describe('<Types />', () => {
 
       it('renders the type list without decimal 128', () => {
         const types = wrapper.find('.dropdown-menu li');
-        expect(types.children().length).to.equal(19);
+        expect(types.children().length).to.equal(18);
       });
     });
   });

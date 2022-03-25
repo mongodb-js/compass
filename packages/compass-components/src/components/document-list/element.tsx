@@ -350,7 +350,12 @@ export const HadronElement: React.FunctionComponent<{
 
   return (
     <>
-      <div data-document-element="true" {...elementProps}>
+      <div
+        data-document-element="true"
+        data-testid="hadron-element"
+        data-id={element.uuid}
+        {...elementProps}
+      >
         <div className={elementActions}>
           <div className={cx(actions, shouldShowActions && actionsVisible)}>
             <EditActions

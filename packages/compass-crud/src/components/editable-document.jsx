@@ -16,6 +16,11 @@ const BASE = 'document';
 const CONTENTS = `${BASE}-contents`;
 
 /**
+ * The contents class.
+ */
+const ELEMENTS = `${BASE}-elements`;
+
+/**
  * The initial field limit.
  */
 const INITIAL_FIELD_LIMIT = 25;
@@ -299,7 +304,9 @@ class EditableDocument extends React.Component {
     return (
       <div className={this.style()} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
-          {this.renderElements()}
+          <div className={ELEMENTS}>
+            {this.renderElements()}
+          </div>
           {this.renderExpansion()}
           {this.renderActions()}
         </div>

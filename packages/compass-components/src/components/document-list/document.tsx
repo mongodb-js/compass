@@ -85,7 +85,11 @@ const HadronDocument: React.FunctionComponent<{
   }, [editing]);
 
   return (
-    <div className={hadronDocument}>
+    <div
+      className={hadronDocument}
+      data-testid="hadron-document"
+      data-id={document.getStringId()}
+    >
       <AutoFocusContext.Provider value={autoFocus}>
         {visibleElements.map((el) => {
           return (
