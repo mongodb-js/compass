@@ -31,7 +31,7 @@ const formContainerStyles = css({
   margin: 0,
   padding: 0,
   height: 'fit-content',
-  width: spacing[6] * 10,
+  width: spacing[6] * 12,
   position: 'relative',
   display: 'inline-block',
 });

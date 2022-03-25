@@ -39,6 +39,16 @@ import {
   parseAuthMechanismProperties,
   tryToParseConnectionString,
 } from '../utils/connection-string-helpers';
+import {
+  handleUpdateCsfleParam,
+  handleUpdateCsfleKmsParam,
+  handleUpdateCsfleKmsTlsParam,
+} from '../utils/csfle-handler';
+import {
+  UpdateCsfleAction,
+  UpdateCsfleKmsAction,
+  UpdateCsfleKmsTlsAction,
+} from '../utils/csfle-handler';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -143,7 +153,10 @@ type ConnectionFormFieldActions =
     }
   | {
       type: 'remove-proxy-options';
-    };
+    }
+  | UpdateCsfleAction
+  | UpdateCsfleKmsAction
+  | UpdateCsfleKmsTlsAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -500,6 +513,24 @@ export function handleConnectionFormFieldUpdate(
           sshTunnel: undefined,
         },
       };
+    }
+    case 'update-csfle-param': {
+      return handleUpdateCsfleParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-csfle-kms-param': {
+      return handleUpdateCsfleKmsParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-csfle-kms-tls-param': {
+      return handleUpdateCsfleKmsTlsParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
     }
   }
 }

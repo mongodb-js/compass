@@ -14,6 +14,7 @@ import GeneralTab from './general-tab/general-tab';
 import AuthenticationTab from './authentication-tab/authentication-tab';
 import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
+import CSFLETab from './csfle-tab/csfle-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
 import type { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import type { ConnectionFormError, TabId } from '../../utils/validation';
@@ -71,6 +72,10 @@ function AdvancedOptionsTabs({
     { name: 'Proxy/SSH Tunnel', id: 'proxy', component: ProxyAndSshTunnelTab },
     { name: 'Advanced', id: 'advanced', component: AdvancedTab },
   ];
+
+  if (process.env.COMPASS_CSFLE_SUPPORT === 'true') {
+    tabs.push({ name: 'CSFLE', id: 'csfle', component: CSFLETab });
+  }
 
   const connectionStringUrl = useMemo(() => {
     try {

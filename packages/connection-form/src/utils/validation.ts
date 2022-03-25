@@ -1,8 +1,9 @@
-import type { MongoClientOptions } from 'mongodb';
+import type { MongoClientOptions, AutoEncryptionOptions } from 'mongodb';
 import { isLocalhost } from 'mongodb-build-info';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ConnectionStringParsingOptions } from 'mongodb-connection-string-url';
+import { hasAnyCsfleOption } from '../utils/csfle-handler';
 
 export type FieldName =
   | 'connectionString'
@@ -10,6 +11,9 @@ export type FieldName =
   | 'hosts'
   | 'isSrv'
   | 'kerberosPrincipal'
+  | 'keyVaultNamespace'
+  | 'kmip.endpoint'
+  | 'local.key'
   | 'password'
   | 'schema'
   | 'proxyHostname'
@@ -21,7 +25,13 @@ export type FieldName =
   | 'tlsCertificateKeyFile'
   | 'username';
 
-export type TabId = 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced';
+export type TabId =
+  | 'general'
+  | 'authentication'
+  | 'tls'
+  | 'proxy'
+  | 'csfle'
+  | 'advanced';
 
 type ConnectionFormErrorWithField = {
   fieldName: FieldName;
@@ -84,6 +94,7 @@ export function validateConnectionOptionsErrors(
 
   return [
     ...validateAuthMechanismErrors(connectionString),
+    ...validateCSFLEErrors(connectionOptions.fleOptions?.autoEncryption ?? {}),
     ...(connectionOptions.sshTunnel
       ? validateSSHTunnelErrors(connectionOptions.sshTunnel)
       : validateSocksProxyErrors(connectionString)),
@@ -240,6 +251,55 @@ function validateSocksProxyErrors(
       message: 'Proxy hostname is required.',
     });
     return errors;
+  }
+  return errors;
+}
+
+function validateCSFLEErrors(
+  autoEncryptionOptions: AutoEncryptionOptions
+): ConnectionFormError[] {
+  const errors: ConnectionFormError[] = [];
+  if (
+    autoEncryptionOptions.keyVaultNamespace &&
+    !autoEncryptionOptions.keyVaultNamespace.includes('.')
+  ) {
+    errors.push({
+      fieldTab: 'csfle',
+      fieldName: 'keyVaultNamespace',
+      message: 'Key Vault namespace must be of the format <db>.<collection>',
+    });
+  }
+  if (
+    !autoEncryptionOptions.keyVaultNamespace &&
+    hasAnyCsfleOption(autoEncryptionOptions)
+  ) {
+    errors.push({
+      fieldTab: 'csfle',
+      fieldName: 'keyVaultNamespace',
+      message:
+        'Key Vault namespace must be specified for CSFLE-enabled connections',
+    });
+  }
+  const kmsProviders = autoEncryptionOptions.kmsProviders ?? {};
+  if (
+    typeof kmsProviders.local?.key === 'string' &&
+    !/[a-zA-Z0-9+/-_=]{128}/.test(kmsProviders.local.key)
+  ) {
+    errors.push({
+      fieldTab: 'csfle',
+      fieldName: 'local.key',
+      message: 'Local key must be a Base64-encoded 96-byte string',
+    });
+  }
+  if (
+    typeof kmsProviders.kmip?.endpoint === 'string' &&
+    !kmsProviders.kmip?.endpoint.includes(':')
+  ) {
+    errors.push({
+      fieldTab: 'csfle',
+      fieldName: 'kmip.endpoint',
+      message: 'KMIP endpoint must be of the format <host>:<port>',
+    });
   }
   return errors;
 }
