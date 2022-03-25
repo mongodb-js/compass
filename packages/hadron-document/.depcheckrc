@@ -1,8 +1,6 @@
 ignores: [
   "debug",
   "lodash.foreach",
-  "react",
-  "react-dom",
   "@babel/register",
   "babel-loader"
 ]
