@@ -266,31 +266,51 @@ tasks:
           compass_distribution: compass-readonly
           target_platform: '--platform=darwin'
 
-  - name: generate-tasks
-    commands:
-      - func: generate-tasks
-
   # copied as test-packaged-app-macos due to depends_on variation
-#  # TODO: this has to be generated using generate.tasks so we can have lots of
-#  # variations per version of mongodb we want to test.
-#  - name: test-packaged-app
-#    tags: ['required-for-publish', 'run-on-pr']
-#    depends_on:
-#      - name: package
-#    commands:
-#      - func: prepare
-#      - func: install
-#      - func: bootstrap
-#        vars:
-#          scope: 'compass-e2e-tests'
-#      - func: apply-compass-target-expansion
-#        vars:
-#          compass_distribution: compass
-#      - func: get-packaged-app
-#        vars:
-#          compass_distribution: compass
-#      - func: test-packaged-app
-#        vars:
-#          # TODO: mongodb_version var here for the test-packaged-app func to use
-#          compass_distribution: compass
-#          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+  
+
+  - name: test-packaged-app-4
+    tags: ['required-for-publish', 'run-on-pr']
+    depends_on:
+      - name: package
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars: 
+          mongodb_version: 4
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+  
+
+  - name: test-packaged-app-5
+    tags: ['required-for-publish', 'run-on-pr']
+    depends_on:
+      - name: package
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars: 
+          mongodb_version: 5
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+  

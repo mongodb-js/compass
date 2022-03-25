@@ -50,7 +50,8 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: generate-tasks
+      - name: test-packaged-app-4
+      - name: test-packaged-app-5
 
   - name: ubuntu
     display_name: Ubuntu (Test and Package)
@@ -62,7 +63,8 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: generate-tasks
+      - name: test-packaged-app-4
+      - name: test-packaged-app-5
 
   - name: rhel
     display_name: RHEL (Test and Package)
@@ -74,4 +76,5 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: generate-tasks
+      - name: test-packaged-app-4
+      - name: test-packaged-app-5

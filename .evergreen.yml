@@ -4,6 +4,6 @@ ignore:
   - AUTHORS
   - THIRD-PARTY-NOTICES.md
 include:
-  - filename: functions.yml
-  - filename: tasks.yml
-  - filename: buildvariants.yml
+  - filename: .evergreen/functions.yml
+  - filename: .evergreen/tasks.yml
+  - filename: .evergreen/buildvariants.yml
