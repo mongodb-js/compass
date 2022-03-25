@@ -63,7 +63,7 @@ const sortBy: { name: keyof Item; label: string }[] = [
 ];
 
 const headerStyles = css({
-  margin: spacing[3],
+  padding: spacing[3],
   display: 'flex',
   justifyContent: 'space-between',
 });

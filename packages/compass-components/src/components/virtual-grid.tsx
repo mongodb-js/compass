@@ -9,10 +9,7 @@ import React, {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { FixedSizeList } from 'react-window';
 import { useDOMRect } from '../hooks/use-dom-rect';
-import {
-  useVirtualGridArrowNavigation,
-  useVirtualRovingTabIndex,
-} from '../hooks/use-virtual-grid';
+import { useVirtualGridArrowNavigation } from '../hooks/use-virtual-grid';
 import { mergeProps } from '../utils/merge-props';
 
 type RenderItem = React.FunctionComponent<
@@ -130,10 +127,10 @@ const GridWithHeader = forwardRef<
       }}
       {...props}
     >
-      <div className={classNames?.header}>
+      <div style={{ height: headerHeight }} className={classNames?.header}>
         {React.createElement(renderHeader, {})}
       </div>
-      <div {...gridProps}>
+      <div style={{ height: style.height }} {...gridProps}>
         {itemsCount === 0 && renderEmptyList
           ? React.createElement(renderEmptyList, {})
           : children}
@@ -269,12 +266,8 @@ export const VirtualGrid = forwardRef<
       itemsCount,
       colCount,
       rowCount,
+      onFocusMove,
     });
-
-  const rovingFocusProps = useVirtualRovingTabIndex<HTMLDivElement>({
-    currentTabbable,
-    onFocusMove,
-  });
 
   const gridContainerProps = mergeProps(
     { ref, className: cx(container, classNames?.container) },
@@ -299,8 +292,7 @@ export const VirtualGrid = forwardRef<
             'aria-rowcount': rowCount,
             className: cx(grid, classNames?.grid),
           },
-          navigationProps,
-          rovingFocusProps
+          navigationProps
         ),
         itemKey,
         renderEmptyList,

@@ -42,7 +42,7 @@ const container = css({
 
 const controls = css({
   display: 'flex',
-  margin: spacing[3],
+  padding: spacing[3],
   gap: spacing[3],
   flex: 'none',
 });
