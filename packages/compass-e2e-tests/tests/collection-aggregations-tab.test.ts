@@ -74,7 +74,7 @@ describe('Collection aggregations tab', function () {
     In the meantime this is just checking the subset of options that appear on
     all supported mongodb versions this test might run against.
     */
-    expect(_.without(options, '$setWindowFields')).to.deep.equal([
+    expect(_.without(options, '$setWindowFields', '$densify')).to.deep.equal([
       '$addFields',
       '$bucket',
       '$bucketAuto',
