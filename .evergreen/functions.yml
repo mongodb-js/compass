@@ -201,7 +201,7 @@ functions:
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4} \
+            MONGODB_VERSION=${mongodb_version|4.4.x} \
               npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
@@ -225,7 +225,7 @@ functions:
           npm run --unsafe-perm electron-rebuild
 
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4} \
+            MONGODB_VERSION=${mongodb_version|4.4.x} \
               npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
@@ -332,7 +332,7 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.4.x} npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
@@ -353,7 +353,7 @@ functions:
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.4.x} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
     - command: shell.exec

@@ -1,5 +1,5 @@
-import _ from 'lodash';
 import chai from 'chai';
+import semver from 'semver';
 import type { Element } from 'webdriverio';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
@@ -63,18 +63,9 @@ describe('Collection aggregations tab', function () {
       stageOperatorOptionsElements.map((element) => element.getText())
     );
 
-    /*
-    TODO: The expected options depend on the mongodb version and probably type
-    (ie. atlas or data lake could have different options). Right now there isn't
-    a reliable way for the tests to know which version of mongodb it is expected
-    to be connected to, but soon when we add tests for all current versions of
-    mongodb we'll deal with that and then we can determine the correct expected
-    options.
+    options.sort();
 
-    In the meantime this is just checking the subset of options that appear on
-    all supported mongodb versions this test might run against.
-    */
-    expect(_.without(options, '$setWindowFields', '$densify')).to.deep.equal([
+    const expectedAggregations = [
       '$addFields',
       '$bucket',
       '$bucketAuto',
@@ -89,24 +80,41 @@ describe('Collection aggregations tab', function () {
       '$limit',
       '$lookup',
       '$match',
-      '$merge',
       '$out',
       '$project',
       '$redact',
-      '$replaceWith',
       '$replaceRoot',
       '$sample',
       '$search',
       '$searchMeta',
-      '$set',
-      //'$setWindowFields', // New in version 5.0.
       '$skip',
       '$sort',
       '$sortByCount',
-      '$unionWith',
-      '$unset',
       '$unwind',
-    ]);
+    ];
+
+    // mongodb-runner defaults to stable if the env var isn't there
+    let version = process.env.MONGODB_VERSION || '5.0.6';
+
+    // comparisons don't allow X-Ranges
+    version = version.replace(/x/g, '0');
+
+    if (semver.gte(version, '4.2.0')) {
+      expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
+    }
+    if (semver.gte(version, '4.4.0')) {
+      expectedAggregations.push('$unionWith');
+    }
+    if (semver.gte(version, '5.0.0')) {
+      expectedAggregations.push('$setWindowFields');
+    }
+    if (semver.gte(version, '5.1.0')) {
+      expectedAggregations.push('$densify');
+    }
+
+    expectedAggregations.sort();
+
+    expect(options).to.deep.equal(expectedAggregations);
   });
 
   // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
