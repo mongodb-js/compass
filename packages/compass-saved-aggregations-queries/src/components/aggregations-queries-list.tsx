@@ -63,7 +63,7 @@ const sortBy: { name: keyof Item; label: string }[] = [
 ];
 
 const headerStyles = css({
-  margin: spacing[3],
+  padding: spacing[3],
   display: 'flex',
   justifyContent: 'space-between',
 });
@@ -221,6 +221,7 @@ const AggregationsQueriesList = ({
         headerHeight={spacing[5] + 36}
         renderEmptyList={NoSearchResults}
         classNames={{ row: rowStyles }}
+        resetActiveItemOnBlur={false}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
       <EditItemModal></EditItemModal>

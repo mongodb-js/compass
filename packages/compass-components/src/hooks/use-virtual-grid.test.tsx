@@ -1,13 +1,8 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { mergeProps } from '../utils/merge-props';
-import {
-  useVirtualGridArrowNavigation,
-  useVirtualRovingTabIndex,
-} from './use-virtual-grid';
+import { useVirtualGridArrowNavigation } from './use-virtual-grid';
 
 const TestGrid: React.FunctionComponent<{
   rowCount?: number;
@@ -28,17 +23,11 @@ const TestGrid: React.FunctionComponent<{
       colCount,
       itemsCount: rowCount * colCount,
       defaultCurrentTabbable,
+      onFocusMove,
     });
 
-  const rovingTabIndexProps = useVirtualRovingTabIndex<HTMLDivElement>({
-    currentTabbable,
-    onFocusMove,
-  });
-
-  const props = mergeProps(arrowNavigationProps, rovingTabIndexProps);
-
   return (
-    <div role="grid" aria-rowcount={rowCount} {...props}>
+    <div role="grid" aria-rowcount={rowCount} {...arrowNavigationProps}>
       {Array.from({ length: rowCount }, (_, row) => (
         <div key={row} role="row" aria-rowindex={row + 1}>
           {Array.from({ length: colCount }, (_, col) => {
@@ -257,5 +246,12 @@ describe('virtual grid keyboard navigation', function () {
       userEvent.keyboard('{ctrl}{end}{/ctrl}');
       expect(screen.getByText('5-3')).to.eq(document.activeElement);
     });
+  });
+
+  it('should keep focus on the element that was interacted with', function () {
+    render(<TestGrid></TestGrid>);
+    expect(document.body).to.eq(document.activeElement);
+    userEvent.click(screen.getByText('2-3'));
+    expect(screen.getByText('2-3')).to.eq(document.activeElement);
   });
 });
