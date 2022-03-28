@@ -47,7 +47,7 @@ describe('<EditableDocument />', () => {
     });
 
     it('renders an editable element for each document element', () => {
-      const component = wrapper.find('[data-testid="hadron-element"]');
+      const component = wrapper.find('[data-testid="hadron-document-element"]');
       expect(component).to.have.lengthOf(3);
     });
   });
