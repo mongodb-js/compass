@@ -1,3 +1,5 @@
+import type { AutoEncryptionOptions } from 'mongodb';
+
 export interface ConnectionOptions {
   /**
    * The connection string to connect to the MongoDB instance including all options set by the user.
@@ -13,6 +15,23 @@ export interface ConnectionOptions {
    * If true, the connection uses the system CA store instead of tlsCAFile or the default Node.js store.
    */
   useSystemCA?: boolean;
+
+  /**
+   * Options related to client-side field-level encryption.
+   */
+  fleOptions?: ConnectionFleOptions;
+}
+
+export interface ConnectionFleOptions {
+  /**
+   * Whether to store KMS credentials to disk or not.
+   */
+  storeCredentials: boolean;
+
+  /**
+   * Encryption options passed to the driver verbatim.
+   */
+  autoEncryption: AutoEncryptionOptions;
 }
 
 export interface ConnectionSshOptions {
