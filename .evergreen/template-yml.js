@@ -69,6 +69,19 @@ const buildVariants = [
   }
 ];
 
+for (const buildVariant of buildVariants) {
+  buildVariant.tasks = [];
+  for (const task of testPackagedAppVariations) {
+    // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
+    // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
+    // we can remove this.
+    if (task.name === 'test-packaged-app-5' && buildVariant.name === 'ubuntu') {
+      continue;
+    }
+    buildVariant.tasks.push(task);
+  }
+}
+
 const input = fs.readFileSync(process.argv[2], 'utf8');
 
 process.stdout.write(template(input));

@@ -49,5 +49,5 @@ buildvariants:
       - name: check
       - name: package
       - name: package-readonly
-      - name: package-isolated<% for (const task of testPackagedAppVariations) { %>
+      - name: package-isolated<% for (const task of buildVariant.tasks) { %>
       - name: <% out(task.name) %><% }} %>

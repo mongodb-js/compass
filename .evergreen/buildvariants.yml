@@ -64,7 +64,6 @@ buildvariants:
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app-4
-      - name: test-packaged-app-5
 
   - name: rhel
     display_name: RHEL (Test and Package)
