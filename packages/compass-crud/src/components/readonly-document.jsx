@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DocumentList } from '@mongodb-js/compass-components';
-import Element from './element';
 
 /**
  * The base class.
@@ -12,11 +11,6 @@ const BASE = 'document';
  * The contents class.
  */
 const CONTENTS = `${BASE}-contents`;
-
-/**
- * The elements class.
- */
-const ELEMENTS = `${BASE}-elements`;
 
 /**
  * The initial field limit.
@@ -37,11 +31,15 @@ class ReadonlyDocument extends React.Component {
   };
 
   setRenderSize(newLimit) {
-    this.setState({ renderSize: newLimit });
+    this.setState({ renderSize: newLimit, expandAll: false });
   }
 
   handleClone = () => {
     this.props.openInsertDocumentDialog(this.props.doc.generateObject(), true);
+  }
+
+  handleToggleExpand = () => {
+    this.setState((state) => ({ expandAll: !state.expandAll }));
   }
 
   /**
@@ -57,23 +55,13 @@ class ReadonlyDocument extends React.Component {
    * @returns {Array} The elements.
    */
   renderElements() {
-    const components = [];
-    let index = 0;
-    for (const element of this.props.doc.elements) {
-      components.push((
-        <Element
-          key={element.uuid}
-          element={element}
-          expandAll={this.props.expandAll}
-          tz={this.props.tz}
-        />
-      ));
-      index++;
-      if (index >= this.state.renderSize) {
-        break;
-      }
-    }
-    return components;
+    return (
+      <DocumentList.Document
+        value={this.props.doc}
+        expanded={this.state.expandAll}
+        visibleFieldsCount={this.state.renderSize}
+      />
+    );
   }
 
   /**
@@ -97,6 +85,8 @@ class ReadonlyDocument extends React.Component {
       <DocumentList.DocumentActionsGroup
         onCopy={this.props.copyToClipboard ? this.handleCopy : undefined}
         onClone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
+        onExpand={this.handleToggleExpand}
+        expanded={this.state.expandAll}
       />
     );
   }
@@ -110,9 +100,7 @@ class ReadonlyDocument extends React.Component {
     return (
       <div className={BASE} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
-          <ol className={ELEMENTS}>
-            {this.renderElements()}
-          </ol>
+          {this.renderElements()}
           {this.renderExpansion()}
           {this.renderActions()}
         </div>

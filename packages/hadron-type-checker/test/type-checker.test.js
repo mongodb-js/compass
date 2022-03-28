@@ -725,7 +725,6 @@ describe('TypeChecker', function() {
           'BSONRegExp',
           'String',
           'BSONSymbol',
-          'BSONMap',
           'Timestamp',
           'Undefined'
         ]);
@@ -751,7 +750,6 @@ describe('TypeChecker', function() {
           'BSONRegExp',
           'String',
           'BSONSymbol',
-          'BSONMap',
           'Timestamp',
           'Undefined'
         ]);
