@@ -42,7 +42,7 @@ const container = css({
 
 const controls = css({
   display: 'flex',
-  margin: spacing[3],
+  padding: spacing[3],
   gap: spacing[3],
   flex: 'none',
 });
@@ -194,6 +194,7 @@ export const ItemsGrid = <T extends Item>({
           header: controls,
           row: row,
         }}
+        resetActiveItemOnBlur={false}
         data-testid={`${itemType}-grid`}
       ></VirtualGrid>
     </ControlsContext.Provider>

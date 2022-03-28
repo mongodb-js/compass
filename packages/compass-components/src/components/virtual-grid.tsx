@@ -9,10 +9,7 @@ import React, {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { FixedSizeList } from 'react-window';
 import { useDOMRect } from '../hooks/use-dom-rect';
-import {
-  useVirtualGridArrowNavigation,
-  useVirtualRovingTabIndex,
-} from '../hooks/use-virtual-grid';
+import { useVirtualGridArrowNavigation } from '../hooks/use-virtual-grid';
 import { mergeProps } from '../utils/merge-props';
 
 type RenderItem = React.FunctionComponent<
@@ -50,6 +47,10 @@ type VirtualGridProps = {
    */
   renderItem: RenderItem;
   /**
+   * Custom grid item key (default is item index)
+   */
+  itemKey?: (index: number) => React.Key | null | undefined;
+  /**
    * Header content height
    */
   headerHeight?: number;
@@ -77,7 +78,11 @@ type VirtualGridProps = {
     cell?: string;
   };
 
-  itemKey?: (index: number) => React.Key | null | undefined;
+  /**
+   * Set to `false` of you want the last focused item to be preserved between
+   * focus / blur (default: true)
+   */
+  resetActiveItemOnBlur?: boolean;
 };
 
 const GridContext = createContext<
@@ -130,10 +135,10 @@ const GridWithHeader = forwardRef<
       }}
       {...props}
     >
-      <div className={classNames?.header}>
+      <div style={{ height: headerHeight }} className={classNames?.header}>
         {React.createElement(renderHeader, {})}
       </div>
-      <div {...gridProps}>
+      <div style={{ height: style.height }} {...gridProps}>
         {itemsCount === 0 && renderEmptyList
           ? React.createElement(renderEmptyList, {})
           : children}
@@ -245,6 +250,7 @@ export const VirtualGrid = forwardRef<
     overscanCount = 3,
     classNames,
     itemKey,
+    resetActiveItemOnBlur,
     ...containerProps
   },
   ref
@@ -269,12 +275,9 @@ export const VirtualGrid = forwardRef<
       itemsCount,
       colCount,
       rowCount,
+      onFocusMove,
+      resetActiveItemOnBlur,
     });
-
-  const rovingFocusProps = useVirtualRovingTabIndex<HTMLDivElement>({
-    currentTabbable,
-    onFocusMove,
-  });
 
   const gridContainerProps = mergeProps(
     { ref, className: cx(container, classNames?.container) },
@@ -299,8 +302,7 @@ export const VirtualGrid = forwardRef<
             'aria-rowcount': rowCount,
             className: cx(grid, classNames?.grid),
           },
-          navigationProps,
-          rovingFocusProps
+          navigationProps
         ),
         itemKey,
         renderEmptyList,
