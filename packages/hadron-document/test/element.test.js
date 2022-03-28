@@ -602,7 +602,7 @@ describe('Element', function() {
         });
 
         it('changes the element to an empty array', function() {
-          expect(last.elements.at(0).currentKey).to.equal('');
+          expect(last.elements.at(0).currentKey).to.equal(0);
           expect(last.elements.at(0).currentValue).to.equal('');
         });
       });
@@ -1891,7 +1891,7 @@ describe('Element', function() {
           element.insertPlaceholder();
         });
         it('array has one element', function() {
-          expect(element.at(0).currentKey).to.equal('');
+          expect(element.at(0).currentKey).to.equal(0);
           expect(element.at(0).value).to.equal('');
           expect(element.elements.size).to.equal(1);
         });
@@ -1906,7 +1906,7 @@ describe('Element', function() {
           element.insertPlaceholder();
         });
         it('inserts the element into the end', function() {
-          expect(element.at(3).currentKey).to.equal('');
+          expect(element.at(3).currentKey).to.equal(3);
           expect(element.at(3).value).to.equal('');
         });
         it('keeps the other elements the same', function() {

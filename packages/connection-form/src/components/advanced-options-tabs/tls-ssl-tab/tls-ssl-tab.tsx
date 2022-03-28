@@ -104,6 +104,8 @@ function TLSTab({
     [updateConnectionFormField]
   );
 
+  const searchParams =
+    connectionStringUrl.typedSearchParams<MongoClientOptions>();
   const tlsOptionFields: {
     name: TLSOptionName;
     description: string;
@@ -113,22 +115,18 @@ function TLSTab({
       name: 'tlsInsecure',
       description:
         'This includes tlsAllowInvalidHostnames and tlsAllowInvalidCertificates.',
-      checked: connectionStringUrl.searchParams.get('tlsInsecure') === 'true',
+      checked: searchParams.get('tlsInsecure') === 'true',
     },
     {
       name: 'tlsAllowInvalidHostnames',
       description:
         'Disable the validation of the hostnames in the certificate presented by the mongod/mongos instance.',
-      checked:
-        connectionStringUrl.searchParams.get('tlsAllowInvalidHostnames') ===
-        'true',
+      checked: searchParams.get('tlsAllowInvalidHostnames') === 'true',
     },
     {
       name: 'tlsAllowInvalidCertificates',
       description: 'Disable the validation of the server certificates.',
-      checked:
-        connectionStringUrl.searchParams.get('tlsAllowInvalidCertificates') ===
-        'true',
+      checked: searchParams.get('tlsAllowInvalidCertificates') === 'true',
     },
   ];
 
@@ -171,24 +169,22 @@ function TLSTab({
         </RadioBoxGroup>
       </FormFieldContainer>
       <TLSCertificateAuthority
-        connectionStringUrl={connectionStringUrl}
+        tlsCAFile={searchParams.get('tlsCAFile')}
         useSystemCA={!!connectionOptions.useSystemCA}
         disabled={tlsOptionsDisabled}
         handleTlsOptionChanged={handleTlsOptionChanged}
       />
       <TLSClientCertificate
-        connectionStringUrl={connectionStringUrl}
+        tlsCertificateKeyFile={searchParams.get('tlsCertificateKeyFile')}
+        tlsCertificateKeyFilePassword={searchParams.get(
+          'tlsCertificateKeyFilePassword'
+        )}
         disabled={tlsOptionsDisabled}
         updateTLSClientCertificate={(newCertificatePath: string | null) => {
           handleTlsOptionChanged('tlsCertificateKeyFile', newCertificatePath);
         }}
-        updateTLSClientCertificatePassword={(
-          newCertificatePath: string | null
-        ) => {
-          handleTlsOptionChanged(
-            'tlsCertificateKeyFilePassword',
-            newCertificatePath
-          );
+        updateTLSClientCertificatePassword={(newPassword: string | null) => {
+          handleTlsOptionChanged('tlsCertificateKeyFilePassword', newPassword);
         }}
       />
       {tlsOptionFields.map((tlsOptionField) => (

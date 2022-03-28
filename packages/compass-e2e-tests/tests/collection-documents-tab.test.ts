@@ -73,6 +73,15 @@ async function waitForJSON(browser: CompassBrowser, element: Element<'async'>) {
   });
 }
 
+async function getFormattedDocument(browser: CompassBrowser) {
+  const document = await browser.$(Selectors.DocumentListEntry);
+  await document.waitForDisplayed();
+  return (await document.getText())
+    .replace(/\n/g, ' ')
+    .replace(/\s+?:/g, ':')
+    .replace(/\s+/g, ' ');
+}
+
 describe('Collection documents tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -316,17 +325,17 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 31 }');
     const document = await browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
-    expect((await document.getText()).replace(/\n/g, ' ')).to.match(
-      /^_id : ObjectId\('[a-f0-9]{24}'\) i : 31 j : 0$/
+    expect(await getFormattedDocument(browser)).to.match(
+      /^_id: ObjectId\('[a-f0-9]{24}'\) i: 31 j: 0$/
     );
 
     const value = await document.$(
-      '.editable-element:last-child .element-value'
+      `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentClickableValue}`
     );
     await value.doubleClick();
 
     const input = await document.$(
-      '.editable-element:last-child input.editable-element-value'
+      `${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`
     );
     await input.setValue('42');
 
@@ -340,8 +349,8 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 31 }');
     const modifiedDocument = await browser.$(Selectors.DocumentListEntry);
     await modifiedDocument.waitForDisplayed();
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^_id : ObjectId\('[a-f0-9]{24}'\) i : 31 j : 42$/
+    expect(await getFormattedDocument(browser)).to.match(
+      /^_id: ObjectId\('[a-f0-9]{24}'\) i: 31 j: 42$/
     );
   });
 
@@ -457,10 +466,8 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await browser.runFindOperation('Documents', '{ i: 10042 }');
 
-    const newDocument = await browser.$(Selectors.DocumentListEntry);
-    await newDocument.waitForDisplayed();
-    expect((await newDocument.getText()).replace(/\n/g, ' ')).to.match(
-      /^_id : ObjectId\('[a-f0-9]{24}'\) i : 10042$/
+    expect(await getFormattedDocument(browser)).to.match(
+      /^_id: ObjectId\('[a-f0-9]{24}'\) i: 10042$/
     );
 
     await browser.hover(Selectors.DocumentListEntry);

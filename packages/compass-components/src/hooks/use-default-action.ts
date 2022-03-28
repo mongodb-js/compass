@@ -11,14 +11,6 @@ import { useCallback } from 'react';
 export function useDefaultAction<T>(
   onDefaultAction: (evt: React.KeyboardEvent<T> | React.MouseEvent<T>) => void
 ): React.HTMLAttributes<T> {
-  // Prevent event from possibly causing bubbled focus on parent element, if
-  // something is interacting with this component using mouse, we want to
-  // prevent anything from bubbling
-  const onMouseDown = useCallback((evt: React.MouseEvent<T>) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-  }, []);
-
   const onClick = useCallback(
     (evt: React.MouseEvent<T>) => {
       evt.stopPropagation();
@@ -42,5 +34,5 @@ export function useDefaultAction<T>(
     [onDefaultAction]
   );
 
-  return { onMouseDown, onClick, onKeyDown };
+  return { onClick, onKeyDown };
 }

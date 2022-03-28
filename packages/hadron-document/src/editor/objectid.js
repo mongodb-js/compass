@@ -1,5 +1,5 @@
 const TypeChecker = require('hadron-type-checker');
-const Element = require('../element');
+const Events = require('../element-events');
 const StandardEditor = require('./standard');
 
 /**
@@ -35,7 +35,7 @@ class ObjectIdEditor extends StandardEditor {
       TypeChecker.cast(value, 'ObjectId');
       this.element.currentValue = value;
       this.element.setValid();
-      this.element._bubbleUp(Element.Events.Edited);
+      this.element._bubbleUp(Events.Edited, this.element);
     } catch (e) {
       this.element.setInvalid(value, this.element.currentType, e.message);
     }

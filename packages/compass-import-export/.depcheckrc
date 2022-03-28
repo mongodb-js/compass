@@ -1,21 +1,13 @@
-ignores: [
-  "javascript-stringify",
-  "lodash.isobjectlike",
-  "lodash.isplainobject",
-  "@babel/cli",
-  "@babel/register",
-  "@hot-loader/react-dom",
-  "browserfs",
-  "core-js",
-  "font-awesome",
-  "karma-chai-as-promised",
-  "karma-electron",
-  "karma-sourcemap-loader",
-  "karma-webpack",
-  "mongodb-stitch-browser-sdk",
-  "resolve",
-  "webpack-bundle-analyzer",
-  "webpack-cli",
-  "xvfb-maybe",
-  "mongodb-compass"
-]
+ignores:
+ - "@mongodb-js/prettier-config-compass"
+ - "@mongodb-js/tsconfig-compass"
+ - "@types/chai"
+ - "@types/sinon-chai"
+ - "sinon"
+ - "@types/chai-dom"
+ - "@types/react"
+ - "@types/react-dom"
+ - "@testing-library/react"
+ - "@testing-library/user-event"
+ - "@types/chai-as-promised"
+ - "enzyme-adapter-react-16"

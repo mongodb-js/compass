@@ -50,9 +50,10 @@ const Tooltip: React.FunctionComponent<
     },
     [tooltipState]
   );
+
   return (
     <LeafyGreenTooltip
-      open={tooltipState.isOpen}
+      open={!isDisabled && tooltipState.isOpen}
       setOpen={setOpen}
       trigger={({ children, className }: React.HTMLProps<HTMLElement>) => {
         return trigger(mergeProps({ children, className }, triggerProps));

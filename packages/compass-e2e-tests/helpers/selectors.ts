@@ -488,12 +488,46 @@ export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
   return `[data-test-id="preview-field-header-${fieldName}"] input[type="checkbox"]`;
 };
 
+// Hadron document editor
+
+export const HadronDocument = '[data-testid="hadron-document"]';
+export const HadronDocumentElement = '[data-testid="hadron-document-element"]';
+export const HadronDocumentKey = '[data-testid="hadron-document-element-key"]';
+export const HadronDocumentClickableKey =
+  '[data-testid="hadron-document-clickable-key"]';
+export const HadronDocumentKeyEditor =
+  '[data-testid="hadron-document-key-editor"]';
+export const HadronDocumentValue =
+  '[data-testid="hadron-document-element-value"]';
+export const HadronDocumentValueEditor =
+  '[data-testid="hadron-document-value-editor"]';
+export const HadronDocumentClickableValue =
+  '[data-testid="hadron-document-clickable-value"]';
+export const HadronDocumentType =
+  '[data-testid="hadron-document-element-type"]';
+export const HadronDocumentAddElementMenuButton =
+  '[data-testid="hadron-document-add-element"]';
+export const HadronDocumentAddChildButton =
+  '[data-testid="hadron-document-add-child"]';
+export const HadronDocumentAddSibling =
+  '[data-testid="hadron-document-add-sibling"]';
+export const HadronDocumentRevertElement =
+  '[data-testid="hadron-document-revert"]';
+export const HadronDocumentRemoveElement =
+  '[data-testid="hadron-document-remove"]';
+
 // Document list view
 
-export const DocumentListFirstItemFields =
-  '[data-test-id="document-list-item"]:first-child .editable-element-field';
-export const DocumentListFirstItemValues =
-  '[data-test-id="document-list-item"]:first-child .element-value, [data-test-id="document-list-item"]:first-child .editable-expandable-element-header-label';
+export const DocumentListItem = '[data-test-id="document-list-item"]';
+export const documentListDocument = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocument}`;
+};
+export const documentListDocumentKey = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentKey}`;
+};
+export const documentListDocumentValue = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
+};
 
 // Query bar history
 

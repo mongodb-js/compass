@@ -8,7 +8,7 @@ import {
   STARTED,
   CANCELED,
   FAILED,
-  UNSPECIFIED
+  UNSPECIFIED,
 } from '../../constants/process-status';
 
 import styles from './progress-bar.module.less';
@@ -18,7 +18,7 @@ import formatNumber from '../../utils/format-number.js';
 const style = createStyler(styles, 'progress-bar');
 
 function toPercentage(num, total) {
-  return `${Math.min(Math.max(num / total * 100, 0), 100).toFixed(3)}%`;
+  return `${Math.min(Math.max((num / total) * 100, 0), 100).toFixed(3)}%`;
 }
 
 /**
@@ -36,7 +36,7 @@ class ProgressBar extends PureComponent {
     cancel: PropTypes.func,
     progressLabel: PropTypes.func,
     progressTitle: PropTypes.func,
-    withErrors: PropTypes.bool
+    withErrors: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -45,8 +45,8 @@ class ProgressBar extends PureComponent {
     },
     progressTitle(formattedWritten, formattedTotal) {
       return `${formattedWritten} documents out of ${formattedTotal}`;
-    }
-  }
+    },
+  };
 
   /**
    * Get the class name for the bar.
@@ -72,7 +72,7 @@ class ProgressBar extends PureComponent {
   getMessageClassName() {
     return classnames({
       [style('status-message')]: true,
-      [style('status-message-is-failed')]: this.props.status === FAILED
+      [style('status-message-is-failed')]: this.props.status === FAILED,
     });
   }
 
@@ -123,13 +123,8 @@ class ProgressBar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const {
-      message,
-      status,
-      docsProcessed,
-      docsTotal,
-      docsWritten,
-    } = this.props;
+    const { message, status, docsProcessed, docsTotal, docsWritten } =
+      this.props;
 
     if (status === UNSPECIFIED) {
       return null;

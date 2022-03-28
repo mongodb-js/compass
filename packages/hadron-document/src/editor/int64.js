@@ -1,5 +1,5 @@
 const TypeChecker = require('hadron-type-checker');
-const Element = require('../element');
+const Events = require('../element-events');
 const StandardEditor = require('./standard');
 
 /**
@@ -36,7 +36,7 @@ class Int64Editor extends StandardEditor {
       TypeChecker.cast(value, 'Int64');
       this.element.currentValue = value;
       this.element.setValid();
-      this.element._bubbleUp(Element.Events.Edited);
+      this.element._bubbleUp(Events.Edited, this.element);
     } catch (error) {
       this.element.setInvalid(value, this.element.currentType, error.message);
     }
