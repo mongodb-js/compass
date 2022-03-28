@@ -20,7 +20,7 @@ type Props = {
   children: React.ReactElement;
 };
 
-export class ErrorBoundary extends React.Component<Props> {
+class ErrorBoundary extends React.Component<Props> {
   state: State = {
     error: null,
   };
@@ -54,3 +54,16 @@ export class ErrorBoundary extends React.Component<Props> {
     return this.props.children;
   }
 }
+
+const _ErrorBoundary: React.FunctionComponent<Props> = (props) => {
+  // Error boundary messes up with hot reload in dev mode (if your component
+  // breaks you forever stuck with the boundary error screen until you hard
+  // reload) so sometimes you would want this to be disabled
+  return process?.env?.COMPASS_DISABLE_ERROR_BOUNDARY === 'true' ? (
+    <>{props.children}</>
+  ) : (
+    <ErrorBoundary {...props}></ErrorBoundary>
+  );
+};
+
+export { _ErrorBoundary as ErrorBoundary };

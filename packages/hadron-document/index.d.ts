@@ -33,7 +33,7 @@ declare class LinkedList<T> {
   remove(el: T): this;
 }
 
-declare type HadronElementEvents = {
+declare const HadronElementEvents: {
   Added: 'Element::Added';
   Edited: 'Element::Edited';
   Removed: 'Element::Removed';
@@ -48,36 +48,41 @@ declare class HadronElement extends EventEmitter {
     key: string,
     value: unknown,
     added: boolean,
-    parent: HadronDocument | HadronElement,
+    parent: HadronDocument | HadronElement | null,
     previousElement: HadronElement | null,
     nextElement: HadronElement | null
   );
   uuid: string;
   key: string;
   currentKey: string;
-  parent: HadronDocument | HadronElement;
+  parent: HadronDocument | HadronElement | null;
   previousElement: HadronElement | null;
   nextElement: HadronElement | null;
   added: boolean;
   removed: boolean;
   type: TypeCastTypes;
   currentType: TypeCastTypes;
-  elements?: HadronElement;
+  currentTypeValid: boolean;
+  invalidTypeMessage?: string;
+  elements?: LinkedList<HadronElement>;
   originalExpandableValue?: TypeCastMap[typeof this.type];
   value?: TypeCastMap[typeof this.type];
   currentValue: TypeCastMap[typeof this.type];
+  level: number;
   bulkEdit(value: string): void;
   cancel(): void;
   edit(value: unknown): void;
-  get(key: string): Element | undefined;
-  at(i: number): Element | undefined;
-  next(): Element;
+  changeType(newType: TypeCastTypes): void;
+  get(key: string): HadronElement | undefined;
+  at(i: number): HadronElement | undefined;
+  next(): HadronElement;
   rename(key: string): void;
   generateObject(): unknown;
   generateOriginalObject(): unknown;
-  insertAfter(element: Element, key: string, value: unknown): Element;
-  insertEnd(key: string, value: unknown): Element;
-  insertPlaceholder(): Element;
+  insertAfter(element: HadronElement, key: string, value: unknown): HadronElement;
+  insertEnd(key: string, value: unknown): HadronElement;
+  insertPlaceholder(): HadronElement;
+  insertSiblingPlaceholder(): HadronElement;
   isAdded(): boolean;
   isBlank(): boolean;
   isCurrentTypeValid(): boolean;
@@ -98,15 +103,17 @@ declare class HadronElement extends EventEmitter {
   isRoot(): false;
   remove(): void;
   revert(): void;
-  static Events: HadronElementEvents;
+  static Events: typeof HadronElementEvents;
 }
 
-declare type HadronDocumentEvents = {
+declare const HadronDocumentEvents: {
   Cancel: 'Document::Cancel';
 };
 
 declare class HadronDocument extends EventEmitter {
   constructor(doc: unknown, cloned: boolean);
+  type: 'Document';
+  currentType: 'Document';
   elements: LinkedList<HadronElement>;
   cancel(): void;
   generateObject(): unknown;
@@ -114,8 +121,8 @@ declare class HadronDocument extends EventEmitter {
   generateUpdateUnlessChangedInBackgroundQuery(
     alwaysIncludeKeys: null | unknown
   ): { query: unknown; updateDoc: unknown };
-  get(key: string): Element;
-  getChild(path: string[]): Element;
+  get(key: string): HadronElement;
+  getChild(path: string[]): HadronElement;
   getId(): unknown | null;
   getOriginalKeysAndValuesForFieldsThatWereUpdated(
     alwaysIncludeKeys: null | unknown
@@ -136,11 +143,12 @@ declare class HadronDocument extends EventEmitter {
   isRemoved(): false;
   isRoot(): true;
   next(): void;
-  static Events: HadronDocumentEvents;
+  static Events: typeof HadronDocumentEvents;
 }
 
-declare class Editor {
+export declare class Editor {
   constructor(element: HadronElement);
+  element: HadronElement;
   edit(value: unknown): void;
   paste(value: string): void;
   size(): number;
@@ -149,7 +157,7 @@ declare class Editor {
   complete(): void;
 }
 
-declare interface ElementEditor {
+declare const ElementEditor: {
   (element: HadronElement): {
     Standard: Editor;
     String: Editor;
@@ -172,7 +180,7 @@ declare interface ElementEditor {
   NullEditor: typeof Editor;
   UndefinedEditor: typeof Editor;
   ObjectIdEditor: typeof Editor;
-}
+};
 
 export default HadronDocument;
 export { HadronDocumentEvents as DocumentEvents };

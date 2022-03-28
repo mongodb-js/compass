@@ -19,7 +19,6 @@ class Document extends React.Component {
           copyToClipboard={this.props.copyToClipboard}
           doc={this.props.doc}
           tz={this.props.tz}
-          expandAll={this.props.expandAll}
           openInsertDocumentDialog={this.props.openInsertDocumentDialog}
         />
       );
@@ -32,7 +31,6 @@ class Document extends React.Component {
         copyToClipboard={this.props.copyToClipboard}
         doc={this.props.doc}
         tz={this.props.tz}
-        expandAll={this.props.expandAll}
       />
     );
   }
@@ -45,7 +43,6 @@ Document.propTypes = {
   tz: PropTypes.string,
   copyToClipboard: PropTypes.func,
   editable: PropTypes.bool,
-  expandAll: PropTypes.bool,
   isTimeSeries: PropTypes.bool,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,

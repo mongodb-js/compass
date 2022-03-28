@@ -228,10 +228,6 @@ const toTimestamp = (object) => {
   return Timestamp.fromNumber(number);
 };
 
-const toMap = (object) => {
-  return new Map(object);
-};
-
 /**
  * The functions to cast to a type.
  */
@@ -253,7 +249,6 @@ const CASTERS = {
   BSONRegExp: toRegex,
   String: toString,
   BSONSymbol: toSymbol,
-  BSONMap: toMap,
   Timestamp: toTimestamp,
   Undefined: toUndefined
 };
