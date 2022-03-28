@@ -34,18 +34,34 @@ function template(input) {
 
 const testPackagedAppVariations = [
   {
-    name: 'test-packaged-app-4',
+    name: 'test-packaged-app-40x',
     'test-packaged-app': {
       vars: {
-        mongodb_version: 4
+        mongodb_version: '4.0.x'
       }
     }
   },
   {
-    name: 'test-packaged-app-5',
+    name: 'test-packaged-app-42x',
     'test-packaged-app': {
       vars: {
-        mongodb_version: 5
+        mongodb_version: '4.2.x'
+      }
+    }
+  },
+  {
+    name: 'test-packaged-app-44x',
+    'test-packaged-app': {
+      vars: {
+        mongodb_version: '4.4.x'
+      }
+    }
+  },
+  {
+    name: 'test-packaged-app-5x',
+    'test-packaged-app': {
+      vars: {
+        mongodb_version: '5.x'
       }
     }
   }
@@ -75,7 +91,7 @@ for (const buildVariant of buildVariants) {
     // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
     // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
     // we can remove this.
-    if (task.name === 'test-packaged-app-5' && buildVariant.name === 'ubuntu') {
+    if (task.name === 'test-packaged-app-5x' && buildVariant.name === 'ubuntu') {
       continue;
     }
     buildVariant.tasks.push(task);

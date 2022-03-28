@@ -50,8 +50,10 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: test-packaged-app-4
-      - name: test-packaged-app-5
+      - name: test-packaged-app-40x
+      - name: test-packaged-app-42x
+      - name: test-packaged-app-44x
+      - name: test-packaged-app-5x
 
   - name: ubuntu
     display_name: Ubuntu (Test and Package)
@@ -63,7 +65,9 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: test-packaged-app-4
+      - name: test-packaged-app-40x
+      - name: test-packaged-app-42x
+      - name: test-packaged-app-44x
 
   - name: rhel
     display_name: RHEL (Test and Package)
@@ -75,5 +79,7 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: test-packaged-app-4
-      - name: test-packaged-app-5
+      - name: test-packaged-app-40x
+      - name: test-packaged-app-42x
+      - name: test-packaged-app-44x
+      - name: test-packaged-app-5x
