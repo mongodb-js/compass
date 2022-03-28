@@ -47,7 +47,7 @@ describe('Collection heading', function () {
     const documentCountValueElement = await browser.$(
       Selectors.DocumentCountValue
     );
-    expect(await documentCountValueElement.getText()).to.equal('1k');
+    expect(await documentCountValueElement.getText()).to.match(/1(\.0)?k/);
     const indexCountValueElement = await browser.$(Selectors.IndexCountValue);
     expect(await indexCountValueElement.getText()).to.equal('1');
 

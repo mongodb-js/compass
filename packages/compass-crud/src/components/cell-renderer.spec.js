@@ -41,9 +41,9 @@ describe('<CellRenderer />', () => {
         done();
       });
       it('renders the element type correctly', () => {
-        const wrapper = component.find('.table-view-cell');
-        expect(wrapper).to.contain(
-          <div className="element-value element-value-is-string" title="value">"value"</div>
+        const wrapper = component.find('.table-view-cell .element-value');
+        expect(wrapper.matchesElement(<div title="value">"value"</div>)).to.eq(
+          true
         );
       });
       it('does not render the undo button', () => {
@@ -78,9 +78,9 @@ describe('<CellRenderer />', () => {
         done();
       });
       it('renders the cell as added', () => {
-        const wrapper = component.find('.table-view-cell-is-added');
-        expect(wrapper).to.contain(
-          <div className="element-value element-value-is-string" title="value">"value"</div>
+        const wrapper = component.find('.table-view-cell-is-added .element-value');
+        expect(wrapper.matchesElement(<div title="value">"value"</div>)).to.eq(
+          true
         );
       });
       it('renders the undo button', () => {
@@ -115,9 +115,9 @@ describe('<CellRenderer />', () => {
         done();
       });
       it('renders the element as modified', () => {
-        const wrapper = component.find('.table-view-cell-is-edited');
-        expect(wrapper).to.contain(
-          <div className="element-value element-value-is-string" title="a new value">"a new value"</div>
+        const wrapper = component.find('.table-view-cell-is-edited .element-value');
+        expect(wrapper.matchesElement(<div title="a new value">"a new value"</div>)).to.eq(
+          true
         );
       });
       it('renders the undo button', () => {
@@ -472,10 +472,10 @@ describe('<CellRenderer />', () => {
           expect(value.isModified()).to.equal(false);
         });
         it('renders the original element', () => {
-          const wrapper = component.find('.table-view-cell');
-          expect(wrapper).to.contain(<div
-            className="element-value element-value-is-string" title="value">
-            "value"</div>);
+          const wrapper = component.find('.table-view-cell .element-value');
+          expect(wrapper.matchesElement(<div title="value">"value"</div>)).to.eq(
+            true
+          );
         });
         it('does not render the undo button', () => {
           const wrapper = component.find('.table-view-cell-circle-button');
@@ -555,10 +555,10 @@ describe('<CellRenderer />', () => {
           notCalledExcept(api, []);
         });
         it('renders the original value', () => {
-          const wrapper = component.find('.table-view-cell');
-          expect(wrapper).to.contain(<div
-            className="element-value element-value-is-string" title="value">
-            "value"</div>);
+          const wrapper = component.find('.table-view-cell .element-value');
+          expect(wrapper.matchesElement(<div title="value">"value"</div>)).to.eq(
+            true
+          );
         });
       });
 
@@ -595,10 +595,10 @@ describe('<CellRenderer />', () => {
           notCalledExcept(api, []);
         });
         it('renders the original value', () => {
-          const wrapper = component.find('.table-view-cell');
-          expect(wrapper).to.contain(<div
-            className="element-value element-value-is-string" title="value">
-            "value"</div>);
+          const wrapper = component.find('.table-view-cell .element-value');
+          expect(wrapper.matchesElement(<div title="value">"value"</div>)).to.eq(
+            true
+          );
         });
       });
     });
