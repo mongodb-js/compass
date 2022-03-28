@@ -352,7 +352,7 @@ export const HadronElement: React.FunctionComponent<{
     <>
       <div
         data-document-element="true"
-        data-testid="hadron-element"
+        data-testid="hadron-document-element"
         data-id={element.uuid}
         {...elementProps}
       >
@@ -431,7 +431,7 @@ export const HadronElement: React.FunctionComponent<{
             </button>
           )}
         </div>
-        <div className={elementKey}>
+        <div className={elementKey} data-testid="hadron-document-element-key">
           {key.editable ? (
             <KeyEditor
               value={key.value}
@@ -457,7 +457,10 @@ export const HadronElement: React.FunctionComponent<{
         <div className={elementDivider} role="presentation">
           :&nbsp;
         </div>
-        <div className={elementValue}>
+        <div
+          className={elementValue}
+          data-testid="hadron-document-element-value"
+        >
           {value.editable ? (
             <ValueEditor
               type={type.value}
@@ -483,7 +486,7 @@ export const HadronElement: React.FunctionComponent<{
             ></BSONValue>
           )}
         </div>
-        <div className={elementType}>
+        <div className={elementType} data-testid="hadron-document-element-type">
           <TypeEditor
             editing={editingEnabled}
             type={type.value}

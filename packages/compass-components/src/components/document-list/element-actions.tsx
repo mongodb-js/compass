@@ -22,6 +22,7 @@ export const EditActions: React.FunctionComponent<{
       {editing &&
         (onRevert ? (
           <button
+            data-testid="hadron-document-revert"
             className={buttonReset}
             aria-label="Revert changes"
             onClick={(evt) => {
@@ -33,6 +34,7 @@ export const EditActions: React.FunctionComponent<{
           </button>
         ) : onRemove ? (
           <button
+            data-testid="hadron-document-remove"
             className={buttonReset}
             aria-label="Remove field"
             onClick={(evt) => {
@@ -99,6 +101,7 @@ export const AddFieldActions: React.FunctionComponent<{
         return (
           <>
             <button
+              data-testid="hadron-document-add-element"
               className={cx(buttonReset, addFieldButton)}
               onClick={(evt) => {
                 evt.stopPropagation();
@@ -115,6 +118,7 @@ export const AddFieldActions: React.FunctionComponent<{
     >
       {onAddFieldToElement && (
         <MenuItem
+          data-testid="hadron-document-add-child"
           onClick={() => {
             setIsOpen(false);
             onAddFieldToElement();
@@ -125,6 +129,7 @@ export const AddFieldActions: React.FunctionComponent<{
         </MenuItem>
       )}
       <MenuItem
+        data-testid="hadron-document-add-sibling"
         onClick={() => {
           setIsOpen(false);
           onAddFieldAfterElement();
