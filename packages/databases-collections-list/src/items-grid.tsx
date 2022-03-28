@@ -194,6 +194,7 @@ export const ItemsGrid = <T extends Item>({
           header: controls,
           row: row,
         }}
+        resetActiveItemOnBlur={false}
         data-testid={`${itemType}-grid`}
       ></VirtualGrid>
     </ControlsContext.Provider>

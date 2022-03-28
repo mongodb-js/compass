@@ -221,6 +221,7 @@ const AggregationsQueriesList = ({
         headerHeight={spacing[5] + 36}
         renderEmptyList={NoSearchResults}
         classNames={{ row: rowStyles }}
+        resetActiveItemOnBlur={false}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
       <EditItemModal></EditItemModal>

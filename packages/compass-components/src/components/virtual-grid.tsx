@@ -47,6 +47,10 @@ type VirtualGridProps = {
    */
   renderItem: RenderItem;
   /**
+   * Custom grid item key (default is item index)
+   */
+  itemKey?: (index: number) => React.Key | null | undefined;
+  /**
    * Header content height
    */
   headerHeight?: number;
@@ -74,7 +78,11 @@ type VirtualGridProps = {
     cell?: string;
   };
 
-  itemKey?: (index: number) => React.Key | null | undefined;
+  /**
+   * Set to `false` of you want the last focused item to be preserved between
+   * focus / blur (default: true)
+   */
+  resetActiveItemOnBlur?: boolean;
 };
 
 const GridContext = createContext<
@@ -242,6 +250,7 @@ export const VirtualGrid = forwardRef<
     overscanCount = 3,
     classNames,
     itemKey,
+    resetActiveItemOnBlur,
     ...containerProps
   },
   ref
@@ -267,6 +276,7 @@ export const VirtualGrid = forwardRef<
       colCount,
       rowCount,
       onFocusMove,
+      resetActiveItemOnBlur,
     });
 
   const gridContainerProps = mergeProps(
