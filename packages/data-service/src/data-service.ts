@@ -16,7 +16,6 @@ import type {
   CountDocumentsOptions,
   CreateCollectionOptions,
   CreateIndexesOptions,
-  Db,
   DeleteOptions,
   DeleteResult,
   Document,
@@ -90,15 +89,19 @@ function isEmptyObject(obj: Record<string, unknown>) {
 
 let id = 0;
 
+type ClientType = 'CRUD' | 'META';
+const kSessionClientType = Symbol('kSessionClientType');
+
 class DataService extends EventEmitter {
-  private readonly _connectionOptions: ConnectionOptions;
+  private readonly _connectionOptions: Readonly<ConnectionOptions>;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
     options: MongoClientOptions;
   };
 
-  private _client?: MongoClient;
+  private _metadataClient?: MongoClient;
+  private _crudClient?: MongoClient;
   private _tunnel?: SshTunnel;
 
   /**
@@ -111,7 +114,7 @@ class DataService extends EventEmitter {
   private _topologyType: TopologyType = 'Unknown';
   private _id: number;
 
-  constructor(connectionOptions: ConnectionOptions) {
+  constructor(connectionOptions: Readonly<ConnectionOptions>) {
     super();
     this._id = id++;
     this._connectionOptions = connectionOptions;
@@ -136,7 +139,7 @@ class DataService extends EventEmitter {
   }
 
   getReadPreference(): ReadPreferenceLike {
-    return this._initializedClient.readPreference;
+    return this._initializedClient('CRUD').readPreference;
   }
 
   /**
@@ -217,7 +220,11 @@ class DataService extends EventEmitter {
       'Fetching collection info',
       { ns: `${databaseName}.${collectionName}` }
     );
-    const db = this._initializedClient.db(databaseName);
+    // Note: The collStats command is not supported on CSFLE-enabled
+    // clients, but the $collStats aggregation stage is.
+    // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
+    // we can switch this over to using the CRUD client instead.
+    const db = this._initializedClient('META').db(databaseName);
     db.command({ collStats: collectionName, verbose: true }, (error, data) => {
       logop(error);
       if (error && !error.message.includes('is a view, not a collection')) {
@@ -262,7 +269,7 @@ class DataService extends EventEmitter {
     comm: Document,
     callback: Callback<Document>
   ): void {
-    const db = this._initializedClient.db(databaseName);
+    const db = this._initializedClient('META').db(databaseName);
     db.command(comm, (error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
@@ -306,7 +313,7 @@ class DataService extends EventEmitter {
       'Running connectionStatus'
     );
     try {
-      const adminDb = this._initializedClient.db('admin');
+      const adminDb = this._initializedClient('META').db('admin');
       const result = await runCommand(adminDb, {
         connectionStatus: 1,
         showPrivileges: true,
@@ -355,7 +362,7 @@ class DataService extends EventEmitter {
       { db: databaseName, nameOnly: nameOnly ?? false }
     );
 
-    const db = this._initializedClient.db(databaseName);
+    const db = this._initializedClient('CRUD').db(databaseName);
 
     const listCollections = async () => {
       try {
@@ -443,7 +450,7 @@ class DataService extends EventEmitter {
       { nameOnly: nameOnly ?? false }
     );
 
-    const adminDb = this._initializedClient.db('admin');
+    const adminDb = this._initializedClient('CRUD').db('admin');
 
     const listDatabases = async () => {
       try {
@@ -514,7 +521,7 @@ class DataService extends EventEmitter {
   }
 
   async connect(): Promise<void> {
-    if (this._client) {
+    if (this._metadataClient) {
       debug('already connected');
       return;
     }
@@ -532,10 +539,11 @@ class DataService extends EventEmitter {
     });
 
     try {
-      const [client, tunnel, connectionOptions] = await connectMongoClient(
-        this._connectionOptions,
-        this.setupListeners.bind(this)
-      );
+      const [metadataClient, crudClient, tunnel, connectionOptions] =
+        await connectMongoClient(
+          this._connectionOptions,
+          this.setupListeners.bind(this)
+        );
 
       const attr = {
         isWritable: this.isWritable(),
@@ -545,7 +553,8 @@ class DataService extends EventEmitter {
       log.info(mongoLogId(1_001_000_015), this._logCtx(), 'Connected', attr);
       debug('connected!', attr);
 
-      this._client = client;
+      this._metadataClient = metadataClient;
+      this._crudClient = crudClient;
       this._tunnel = tunnel;
       this._mongoClientConnectionOptions = connectionOptions;
     } finally {
@@ -570,10 +579,13 @@ class DataService extends EventEmitter {
       'Running estimatedCount',
       { ns }
     );
-    this._collection(ns).estimatedDocumentCount(options, (err, result) => {
-      logop(err, result);
-      callback(err, result!);
-    });
+    this._collection(ns, 'CRUD').estimatedDocumentCount(
+      options,
+      (err, result) => {
+        logop(err, result);
+        callback(err, result!);
+      }
+    );
   }
 
   /**
@@ -595,10 +607,14 @@ class DataService extends EventEmitter {
       'Running countDocuments',
       { ns }
     );
-    this._collection(ns).countDocuments(filter, options, (err, result) => {
-      logop(err, result);
-      callback(err, result!);
-    });
+    this._collection(ns, 'CRUD').countDocuments(
+      filter,
+      options,
+      (err, result) => {
+        logop(err, result);
+        callback(err, result!);
+      }
+    );
   }
 
   /**
@@ -614,7 +630,7 @@ class DataService extends EventEmitter {
     callback: Callback<Collection<Document>>
   ): void {
     const collectionName = this._collectionName(ns);
-    const db = this._initializedClient.db(this._databaseName(ns));
+    const db = this._initializedClient('CRUD').db(this._databaseName(ns));
     const logop = this._startLogOp(
       mongoLogId(1_001_000_036),
       'Running createCollection',
@@ -650,7 +666,7 @@ class DataService extends EventEmitter {
       'Running createIndex',
       { ns, spec, options }
     );
-    this._collection(ns).createIndex(spec, options, (error, result) => {
+    this._collection(ns, 'CRUD').createIndex(spec, options, (error, result) => {
       logop(error);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -700,7 +716,7 @@ class DataService extends EventEmitter {
       'Running deleteOne',
       { ns }
     );
-    this._collection(ns).deleteOne(filter, options, (error, result) => {
+    this._collection(ns, 'CRUD').deleteOne(filter, options, (error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -729,14 +745,18 @@ class DataService extends EventEmitter {
       'Running deleteMany',
       { ns }
     );
-    this._collection(ns).deleteMany(filter, options, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    this._collection(ns, 'CRUD').deleteMany(
+      filter,
+      options,
+      (error, result) => {
+        logop(error, result);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
       }
-      callback(null, result!);
-    });
+    );
   }
 
   /**
@@ -747,13 +767,18 @@ class DataService extends EventEmitter {
     log.info(mongoLogId(1_001_000_016), this._logCtx(), 'Disconnecting');
 
     try {
-      await this._client
-        ?.close(true)
-        .catch((err) => debug('failed to close MongoClient', err));
-
-      await this._tunnel
-        ?.close()
-        .catch((err) => debug('failed to close tunnel', err));
+      await Promise.all([
+        this._metadataClient
+          ?.close(true)
+          .catch((err) => debug('failed to close MongoClient', err)),
+        this._crudClient !== this._metadataClient &&
+          this._crudClient
+            ?.close(true)
+            .catch((err) => debug('failed to close MongoClient', err)),
+        this._tunnel
+          ?.close()
+          .catch((err) => debug('failed to close tunnel', err)),
+      ]);
     } finally {
       this._cleanup();
       log.info(mongoLogId(1_001_000_017), this._logCtx(), 'Fully closed');
@@ -772,7 +797,7 @@ class DataService extends EventEmitter {
       'Running dropCollection',
       { ns }
     );
-    this._collection(ns).drop((error, result) => {
+    this._collection(ns, 'CRUD').drop((error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -794,7 +819,7 @@ class DataService extends EventEmitter {
       'Running dropDatabase',
       { db: name }
     );
-    this._initializedClient
+    this._initializedClient('CRUD')
       .db(this._databaseName(name))
       .dropDatabase((error, result) => {
         logop(error, result);
@@ -819,7 +844,7 @@ class DataService extends EventEmitter {
       'Running dropIndex',
       { ns, name }
     );
-    this._collection(ns).dropIndex(name, (error, result) => {
+    this._collection(ns, 'CRUD').dropIndex(name, (error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -869,7 +894,7 @@ class DataService extends EventEmitter {
       callback = options;
       options = undefined;
     }
-    const cursor = this._collection(ns).aggregate(pipeline, options);
+    const cursor = this._collection(ns, 'CRUD').aggregate(pipeline, options);
     // async when a callback is provided
     if (isFunction(callback)) {
       process.nextTick(callback, null, cursor);
@@ -896,7 +921,7 @@ class DataService extends EventEmitter {
     const logop = this._startLogOp(mongoLogId(1_001_000_042), 'Running find', {
       ns,
     });
-    const cursor = this._collection(ns).find(filter, options);
+    const cursor = this._collection(ns, 'CRUD').find(filter, options);
     cursor.toArray((error, documents) => {
       logop(error);
       if (error) {
@@ -927,7 +952,7 @@ class DataService extends EventEmitter {
 
     logop(null);
 
-    return this._collection(ns).find(filter, options);
+    return this._collection(ns, 'CRUD').find(filter, options);
   }
 
   /**
@@ -951,7 +976,7 @@ class DataService extends EventEmitter {
       'Running findOneAndReplace',
       { ns }
     );
-    this._collection(ns).findOneAndReplace(
+    this._collection(ns, 'CRUD').findOneAndReplace(
       filter,
       replacement,
       options,
@@ -987,7 +1012,7 @@ class DataService extends EventEmitter {
       'Running findOneAndUpdate',
       { ns }
     );
-    this._collection(ns).findOneAndUpdate(
+    this._collection(ns, 'CRUD').findOneAndUpdate(
       filter,
       update,
       options,
@@ -1023,7 +1048,7 @@ class DataService extends EventEmitter {
     );
     // @todo thomasr: driver explain() does not yet support verbosity,
     // once it does, should be passed along from the options object.
-    this._collection(ns)
+    this._collection(ns, 'CRUD')
       .find(filter, options)
       .explain((error, explanation) => {
         logop(error);
@@ -1049,7 +1074,7 @@ class DataService extends EventEmitter {
       { ns }
     );
     getIndexes(
-      this._initializedClient,
+      this._initializedClient('CRUD'),
       ns,
       (error: Error | undefined, data: IndexDetails[]) => {
         logop(error);
@@ -1067,7 +1092,7 @@ class DataService extends EventEmitter {
    */
   async instance(): Promise<InstanceDetails> {
     try {
-      const instanceData = await getInstance(this._initializedClient);
+      const instanceData = await getInstance(this._initializedClient('META'));
 
       log.info(
         mongoLogId(1_001_000_024),
@@ -1106,7 +1131,7 @@ class DataService extends EventEmitter {
       'Running insertOne',
       { ns }
     );
-    this._collection(ns).insertOne(doc, options, (error, result) => {
+    this._collection(ns, 'CRUD').insertOne(doc, options, (error, result) => {
       logop(error, { acknowledged: result?.acknowledged });
       if (error) {
         // @ts-expect-error Callback without result...
@@ -1135,7 +1160,7 @@ class DataService extends EventEmitter {
       'Running insertOne',
       { ns }
     );
-    this._collection(ns).insertMany(docs, options, (error, result) => {
+    this._collection(ns, 'CRUD').insertMany(docs, options, (error, result) => {
       logop(error, {
         acknowledged: result?.acknowledged,
         insertedCount: result?.insertedCount,
@@ -1161,7 +1186,7 @@ class DataService extends EventEmitter {
     docs: Document[],
     options: BulkWriteOptions
   ): Promise<InsertManyResult<Document>> {
-    return this._collection(ns).insertMany(docs, options);
+    return this._collection(ns, 'CRUD').insertMany(docs, options);
   }
 
   /**
@@ -1185,7 +1210,7 @@ class DataService extends EventEmitter {
       { ns }
     );
     const collectionName = this._collectionName(ns);
-    const db = this._initializedClient.db(this._databaseName(ns));
+    const db = this._initializedClient('CRUD').db(this._databaseName(ns));
     // Order of arguments is important here, collMod is a command name and it
     // should always be the first one in the object
     const command = {
@@ -1223,14 +1248,19 @@ class DataService extends EventEmitter {
       'Running updateOne',
       { ns }
     );
-    this._collection(ns).updateOne(filter, update, options, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    this._collection(ns, 'CRUD').updateOne(
+      filter,
+      update,
+      options,
+      (error, result) => {
+        logop(error, result);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
       }
-      callback(null, result!);
-    });
+    );
   }
 
   /**
@@ -1254,7 +1284,7 @@ class DataService extends EventEmitter {
       'Running updateMany',
       { ns }
     );
-    this._collection(ns).updateMany(
+    this._collection(ns, 'CRUD').updateMany(
       filter,
       update,
       options,
@@ -1280,7 +1310,7 @@ class DataService extends EventEmitter {
       mongoLogId(1_001_000_053),
       'Running currentOp'
     );
-    this._initializedClient
+    this._initializedClient('META')
       .db('admin')
       .command({ currentOp: 1, $all: includeAll }, (error, result) => {
         logop(error);
@@ -1289,7 +1319,7 @@ class DataService extends EventEmitter {
             mongoLogId(1_001_000_054),
             'Searching $cmd.sys.inprog manually'
           );
-          this._initializedClient
+          this._initializedClient('META')
             .db('admin')
             .collection('$cmd.sys.inprog')
             .findOne({ $all: includeAll }, (error2, result2) => {
@@ -1323,15 +1353,18 @@ class DataService extends EventEmitter {
       'Running serverStats'
     );
 
-    this._defaultDb.admin().serverStatus((error, result) => {
-      logop(error);
+    this._initializedClient('META')
+      .db()
+      .admin()
+      .serverStatus((error, result) => {
+        logop(error);
 
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      callback(null, result!);
-    });
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
+      });
   }
 
   /**
@@ -1341,14 +1374,17 @@ class DataService extends EventEmitter {
    */
   top(callback: Callback<Document>): void {
     const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
-    this._defaultDb.admin().command({ top: 1 }, (error, result) => {
-      logop(error);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      callback(null, result!);
-    });
+    this._initializedClient('META')
+      .db()
+      .admin()
+      .command({ top: 1 }, (error, result) => {
+        logop(error);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
+      });
   }
 
   /**
@@ -1381,7 +1417,7 @@ class DataService extends EventEmitter {
       }
     );
 
-    this._initializedClient
+    this._initializedClient('CRUD')
       .db(this._databaseName(sourceNs))
       .createCollection(name, options, (error, result) => {
         logop(error, result);
@@ -1416,7 +1452,7 @@ class DataService extends EventEmitter {
       collMod: name,
       ...options,
     };
-    const db = this._initializedClient.db(this._databaseName(sourceNs));
+    const db = this._initializedClient('META').db(this._databaseName(sourceNs));
 
     const logop = this._startLogOp(
       mongoLogId(1_001_000_056),
@@ -1493,8 +1529,10 @@ class DataService extends EventEmitter {
   /**
    * Create a ClientSession that can be passed to commands.
    */
-  startSession(): ClientSession {
-    return this._initializedClient.startSession();
+  startSession(clientType: ClientType): ClientSession {
+    const session = this._initializedClient(clientType).startSession();
+    (session as any)[kSessionClientType] = clientType;
+    return session;
   }
 
   /**
@@ -1502,18 +1540,30 @@ class DataService extends EventEmitter {
    * @param clientSession - a ClientSession (can be created with startSession())
    */
   killSessions(sessions: ClientSession | ClientSession[]): Promise<Document> {
-    return this._initializedClient.db('admin').command({
-      killSessions: Array.isArray(sessions)
-        ? sessions.map((s) => s.id)
-        : [sessions.id],
-    });
+    const sessionsArray = Array.isArray(sessions) ? sessions : [sessions];
+    const clientTypes = new Set(
+      sessionsArray.map((s: any) => s[kSessionClientType])
+    );
+    if (clientTypes.size !== 1) {
+      throw new Error(
+        `Cannot kill sessions without a specific client type: [${[
+          ...clientTypes,
+        ].join(', ')}]`
+      );
+    }
+    const [clientType] = clientTypes;
+    return this._initializedClient(clientType)
+      .db('admin')
+      .command({
+        killSessions: sessionsArray.map((s) => s.id),
+      });
   }
 
   isConnected(): boolean {
     // This is better than just returning internal `_isConnecting` as this
     // actually shows when the client is available on the NativeClient instance
     // and connected
-    return !!this._client;
+    return !!this._metadataClient;
   }
 
   /**
@@ -1522,8 +1572,6 @@ class DataService extends EventEmitter {
    * @param {MongoClient} client - The driver client.
    */
   private setupListeners(client: MongoClient): void {
-    this._client = client;
-
     if (client) {
       client.on(
         'serverDescriptionChanged',
@@ -1694,15 +1742,15 @@ class DataService extends EventEmitter {
     }
   }
 
-  private get _initializedClient(): MongoClient {
-    if (!this._client) {
-      throw new Error('client not yet initialized');
+  private _initializedClient(type: ClientType): MongoClient {
+    if (type !== 'CRUD' && type !== 'META') {
+      throw new Error(`Invalid client type: ${type as string}`);
     }
-    return this._client;
-  }
-
-  private get _defaultDb(): Db {
-    return this._initializedClient.db();
+    const client = type === 'CRUD' ? this._crudClient : this._metadataClient;
+    if (!client) {
+      throw new Error('Client not yet initialized');
+    }
+    return client;
   }
 
   /**
@@ -1720,7 +1768,7 @@ class DataService extends EventEmitter {
       { db: name }
     );
     try {
-      const db = this._initializedClient.db(name);
+      const db = this._initializedClient('META').db(name);
       const stats = await runCommand(db, { dbStats: 1 });
       const normalized = adaptDatabaseInfo(stats);
       return { name, ...normalized };
@@ -1806,8 +1854,8 @@ class DataService extends EventEmitter {
    * @param ns - The namespace.
    */
   // TODO: this is used directly in compass-import-export/collection-stream
-  _collection(ns: string): Collection {
-    return this._initializedClient
+  _collection(ns: string, type: ClientType): Collection {
+    return this._initializedClient(type)
       .db(this._databaseName(ns))
       .collection(this._collectionName(ns));
   }
@@ -1887,10 +1935,10 @@ class DataService extends EventEmitter {
   }
 
   private _cleanup(): void {
-    if (this._client) {
-      this._client.removeAllListeners();
-    }
-    this._client = undefined;
+    this._metadataClient?.removeAllListeners?.();
+    this._crudClient?.removeAllListeners?.();
+    this._metadataClient = undefined;
+    this._crudClient = undefined;
     this._tunnel = undefined;
     this._mongoClientConnectionOptions = undefined;
     this._isWritable = false;
