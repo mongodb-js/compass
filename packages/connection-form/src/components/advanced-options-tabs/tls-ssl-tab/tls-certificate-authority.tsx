@@ -7,8 +7,6 @@ import {
   css,
   cx,
 } from '@mongodb-js/compass-components';
-import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import type { MongoClientOptions } from 'mongodb';
 import {
   checkboxDescriptionStyles,
   disabledCheckboxDescriptionStyles,
@@ -21,12 +19,12 @@ const caFieldsContainer = css({
 });
 
 function TLSCertificateAuthority({
-  connectionStringUrl,
+  tlsCAFile,
   useSystemCA,
   disabled,
   handleTlsOptionChanged,
 }: {
-  connectionStringUrl: ConnectionStringUrl;
+  tlsCAFile?: string | null;
   useSystemCA: boolean;
   disabled: boolean;
   handleTlsOptionChanged: (
@@ -34,10 +32,6 @@ function TLSCertificateAuthority({
     value: string | null
   ) => void;
 }): React.ReactElement {
-  const caFile = connectionStringUrl
-    .typedSearchParams<MongoClientOptions>()
-    .get('tlsCAFile');
-
   return (
     <FormFieldContainer className={caFieldsContainer}>
       <FileInput
@@ -53,7 +47,7 @@ function TLSCertificateAuthority({
           handleTlsOptionChanged('tlsCAFile', files?.[0] ?? null);
         }}
         showFileOnNewLine
-        values={caFile ? [caFile] : undefined}
+        values={tlsCAFile ? [tlsCAFile] : undefined}
         optional
       />
       <Checkbox
