@@ -142,6 +142,10 @@ function useFormattedDate(timestamp: number) {
   return formattedDate;
 }
 
+const menuContainer = css({
+  position: 'relative',
+});
+
 const CardActions: React.FunctionComponent<{
   itemId: string;
   isVisible: boolean;
@@ -177,18 +181,20 @@ const CardActions: React.FunctionComponent<{
         children: React.ReactChildren;
       }) =>
         isMenuTriggerVisible && (
-          <IconButton
-            ref={menuTriggerRef}
-            aria-label="Show actions"
-            title="Show actions"
-            onClick={(evt) => {
-              evt.stopPropagation();
-              onClick();
-            }}
-          >
-            <Icon glyph="Ellipsis"></Icon>
+          <div className={menuContainer}>
+            <IconButton
+              ref={menuTriggerRef}
+              aria-label="Show actions"
+              title="Show actions"
+              onClick={(evt) => {
+                evt.stopPropagation();
+                onClick();
+              }}
+            >
+              <Icon glyph="Ellipsis"></Icon>
+            </IconButton>
             {menu}
-          </IconButton>
+          </div>
         )
       }
     >
