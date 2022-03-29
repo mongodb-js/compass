@@ -8,6 +8,13 @@ import * as Selectors from '../helpers/selectors';
 
 const { expect } = chai;
 
+// mongodb-runner defaults to stable if the env var isn't there
+// comparisons don't allow X-Ranges
+const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6').replace(
+  /x/g,
+  '0'
+);
+
 async function waitForAnyText(
   browser: CompassBrowser,
   element: Element<'async'>
@@ -93,22 +100,16 @@ describe('Collection aggregations tab', function () {
       '$unwind',
     ];
 
-    // mongodb-runner defaults to stable if the env var isn't there
-    let version = process.env.MONGODB_VERSION || '5.0.6';
-
-    // comparisons don't allow X-Ranges
-    version = version.replace(/x/g, '0');
-
-    if (semver.gte(version, '4.2.0')) {
+    if (semver.gte(MONGODB_VERSION, '4.2.0')) {
       expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
     }
-    if (semver.gte(version, '4.4.0')) {
+    if (semver.gte(MONGODB_VERSION, '4.4.0')) {
       expectedAggregations.push('$unionWith');
     }
-    if (semver.gte(version, '5.0.0')) {
+    if (semver.gte(MONGODB_VERSION, '5.0.0')) {
       expectedAggregations.push('$setWindowFields');
     }
-    if (semver.gte(version, '5.1.0')) {
+    if (semver.gte(MONGODB_VERSION, '5.1.0')) {
       expectedAggregations.push('$densify');
     }
 
@@ -376,6 +377,10 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports $merge as the last stage', async function () {
+    if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+      return this.skip();
+    }
+
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$merge');
     await browser.setAceValue(
