@@ -138,20 +138,20 @@ class DocumentFooter extends React.Component {
   /**
    * Handle an element becoming valid.
    *
-   * @param {String} uuid - The element uuid.
+   * @param {Element} el - Element
    */
-  handleValid(uuid) {
-    pull(this.invalidElements, uuid);
+  handleValid(el) {
+    pull(this.invalidElements, el.uuid);
   }
 
   /**
    * Handle an element becoming invalid.
    *
-   * @param {String} uuid - The element uuid.
+   * @param {Element} el - Element
    */
-  handleInvalid(uuid) {
-    if (!this.invalidElements.includes(uuid)) {
-      this.invalidElements.push(uuid);
+  handleInvalid(el) {
+    if (!this.invalidElements.includes(el.uuid)) {
+      this.invalidElements.push(el.uuid);
       this.handleModification();
     }
   }

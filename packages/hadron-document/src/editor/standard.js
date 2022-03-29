@@ -1,5 +1,5 @@
 const TypeChecker = require('hadron-type-checker');
-const Element = require('../element');
+const Events = require('../element-events');
 const { fieldStringLen } = require('../utils');
 
 /**
@@ -43,7 +43,7 @@ class StandardEditor {
   paste(value) {
     if (value.match(ARRAY_OR_OBJECT)) {
       this.edit(JSON.parse(value));
-      this.element._bubbleUp(Element.Events.Converted);
+      this.element._bubbleUp(Events.Converted, this.element);
     } else {
       this.edit(value);
     }

@@ -21,6 +21,24 @@ import ResultLogger from './helpers/result-logger';
 const debug = Debug('compass-e2e-tests');
 const keychain = createUnlockedKeychain();
 
+const allowedArgs = [
+  '--no-compile',
+  '--no-native-modules',
+  '--test-packaged-app',
+  '--disable-start-stop',
+  '--bail',
+];
+
+for (const arg of process.argv) {
+  if (arg.startsWith('--') && !allowedArgs.includes(arg)) {
+    throw Error(
+      `Unknown command argument "${arg}". Usage:\n\n  npm run test ${allowedArgs
+        .map((arg) => `[${arg}]`)
+        .join(' ')}\n`
+    );
+  }
+}
+
 // We can't import mongodb here yet because native modules will be recompiled
 let metricsClient: MongoClient;
 

@@ -70,6 +70,7 @@
     "@react-aria/utils": "^3.9.0",
     "@react-stately/tooltip": "^3.0.5",
     "bson": "^4.6.1",
+    "hadron-document": "^7.8.0",
     "hadron-type-checker": "^6.7.0",
     "react-window": "^1.8.6"
   },

@@ -28,7 +28,6 @@ class InputPreview extends Component {
         <Document
           doc={new HadronDocument(doc)}
           editable={false}
-          tz="UTC"
           key={i} />);
     });
     return (

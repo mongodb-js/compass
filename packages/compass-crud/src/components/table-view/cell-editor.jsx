@@ -6,8 +6,8 @@ import FontAwesome from 'react-fontawesome';
 import { Tooltip } from 'hadron-react-components';
 import TypeChecker from 'hadron-type-checker';
 import { ElementEditor as initEditors } from 'hadron-document';
-import Types from '../types';
-import AddFieldButton from '../table-view/add-field-button';
+import Types from './types';
+import AddFieldButton from './add-field-button';
 
 const EMPTY_TYPE = {
   Array: [], Object: {},

@@ -65,11 +65,11 @@ class InsertDocumentDialog extends React.PureComponent {
   /**
    * Handles an element in the document becoming valid from invalid.
    *
-   * @param {Stringg} uuid - The uuid of the element.
+   * @param {Element} el - Element
    */
-  handleValid(uuid) {
+  handleValid(el) {
     if (this.hasErrors()) {
-      pull(this.invalidElements, uuid);
+      pull(this.invalidElements, el.uuid);
       this.forceUpdate();
     }
   }
@@ -77,11 +77,11 @@ class InsertDocumentDialog extends React.PureComponent {
   /**
    * Handles a valid element in the document becoming invalid.
    *
-   * @param {String} uuid - The uuid of the element.
+   * @param {Element} el - Element
    */
-  handleInvalid(uuid) {
-    if (!this.invalidElements.includes(uuid)) {
-      this.invalidElements.push(uuid);
+  handleInvalid(el) {
+    if (!this.invalidElements.includes(el.uuid)) {
+      this.invalidElements.push(el.uuid);
       this.forceUpdate();
     }
   }
