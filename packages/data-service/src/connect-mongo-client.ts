@@ -5,6 +5,7 @@ import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import EventEmitter from 'events';
 import { redactConnectionOptions, redactConnectionString } from './redact';
+import _ from 'lodash';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { ConnectionOptions } from './connection-options';
@@ -21,9 +22,10 @@ export default async function connectMongoClientCompass(
   setupListeners: (client: MongoClient) => void
 ): Promise<
   [
-    MongoClient,
-    SSHTunnel | undefined,
-    { url: string; options: MongoClientOptions }
+    metadataClient: MongoClient,
+    crudClient: MongoClient,
+    sshTunnel: SSHTunnel | undefined,
+    options: { url: string; options: DevtoolsConnectOptions }
   ]
 > {
   debug(
@@ -35,6 +37,7 @@ export default async function connectMongoClientCompass(
   const options: DevtoolsConnectOptions = {
     monitorCommands: true,
     useSystemCA: connectionOptions.useSystemCA,
+    autoEncryption: connectionOptions.fleOptions?.autoEncryption,
   };
 
   // If connectionOptions.sshTunnel is defined, open an ssh tunnel.
@@ -61,32 +64,54 @@ export default async function connectMongoClientCompass(
   const connectLogger = new EventEmitter();
   hookLogger(connectLogger, log.unbound, 'compass', redactConnectionString);
 
-  let mongoClient: MongoClient | undefined;
+  async function connectSingleClient(
+    overrideOptions: DevtoolsConnectOptions
+  ): Promise<MongoClient> {
+    const client = await connectMongoClient(
+      url,
+      // Deep clone because of https://jira.mongodb.org/browse/NODE-4124,
+      // the options here are being mutated.
+      _.cloneDeep({ ...options, ...overrideOptions }),
+      connectLogger,
+      CompassMongoClient
+    );
+    await client.db('admin').command({ ping: 1 });
+    return client;
+  }
+
+  let metadataClient: MongoClient | undefined;
+  let crudClient: MongoClient | undefined;
   try {
     debug('waiting for MongoClient to connect ...');
-    mongoClient = await Promise.race([
-      (async () => {
-        const mongoClient = await connectMongoClient(
-          url,
-          options,
-          connectLogger,
-          CompassMongoClient
-        );
-        await mongoClient.db('admin').command({ ping: 1 });
-        return mongoClient;
-      })(),
+    // Create one or two clients, depending on whether CSFLE
+    // is enabled. If it is, create one for interacting with
+    // server metadata (e.g. build info, instance data, etc.)
+    // and one for interacting with the actual CRUD data.
+    // If CSFLE is disabled, use a single client for both cases.
+    [metadataClient, crudClient] = await Promise.race([
+      Promise.all([
+        connectSingleClient({ autoEncryption: undefined }),
+        options.autoEncryption ? connectSingleClient({}) : undefined,
+      ]),
       waitForTunnelError(tunnel),
     ]); // waitForTunnel always throws, never resolves
 
-    return [mongoClient, tunnel, { url, options }];
+    return [
+      metadataClient,
+      crudClient ?? metadataClient,
+      tunnel,
+      { url, options },
+    ];
   } catch (err: any) {
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
-    await Promise.all([forceCloseTunnel(tunnel), mongoClient?.close()]).catch(
-      () => {
-        /* ignore errors */
-      }
-    );
+    await Promise.all([
+      forceCloseTunnel(tunnel),
+      crudClient?.close(),
+      metadataClient?.close(),
+    ]).catch(() => {
+      /* ignore errors */
+    });
     throw err;
   }
 }
