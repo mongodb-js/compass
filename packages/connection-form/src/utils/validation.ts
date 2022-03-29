@@ -17,6 +17,7 @@ export type FieldName =
   | 'password'
   | 'schema'
   | 'proxyHostname'
+  | 'schemaMap'
   | 'sshHostname'
   | 'sshIdentityKeyFile'
   | 'sshPassword'
@@ -259,6 +260,18 @@ function validateCSFLEErrors(
   autoEncryptionOptions: AutoEncryptionOptions
 ): ConnectionFormError[] {
   const errors: ConnectionFormError[] = [];
+  // TODO(COMPASS-5645): Replace 'schemaMap' with 'encryptedFieldConfig[Map?]'
+  const encryptedFieldConfigError =
+    autoEncryptionOptions.schemaMap?.['$compass.error'];
+  if (encryptedFieldConfigError) {
+    errors.push({
+      fieldTab: 'csfle',
+      fieldName: 'schemaMap',
+      message: `EncryptedFieldConfig is invalid: ${
+        encryptedFieldConfigError as string
+      }`,
+    });
+  }
   if (
     autoEncryptionOptions.keyVaultNamespace &&
     !autoEncryptionOptions.keyVaultNamespace.includes('.')
@@ -325,7 +338,7 @@ export function validateConnectionOptionsWarnings(
         looseValidation: true,
       }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     return [];
   }
 

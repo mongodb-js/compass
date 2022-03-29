@@ -8,7 +8,7 @@ import {
   css,
   cx,
 } from '@mongodb-js/compass-components';
-import type { AutoEncryptionOptions } from 'mongodb';
+import type { Document, AutoEncryptionOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
@@ -17,6 +17,7 @@ import AWSFields from './aws-fields';
 import GCPFields from './gcp-fields';
 import AzureFields from './azure-fields';
 import KMIPFields from './kmip-fields';
+import EncryptedFieldConfigInput from './encrypted-field-config-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorsByFieldTab,
@@ -24,13 +25,6 @@ import {
   fieldNameHasError,
 } from '../../../utils/validation';
 import FormFieldContainer from '../../form-field-container';
-
-const kmsToggleStyles = css({
-  height: 14,
-  width: 26,
-  margin: 0,
-  marginLeft: spacing[1],
-});
 
 const kmsToggleLabelStyles = css({
   '&:hover': {
@@ -95,12 +89,6 @@ const containerStyles = css({
   marginTop: spacing[3],
 });
 
-const contentStyles = css({
-  marginTop: spacing[3],
-  width: '50%',
-  minWidth: 400,
-});
-
 function CSFLETab({
   connectionOptions,
   updateConnectionFormField,
@@ -119,7 +107,10 @@ function CSFLETab({
   errors = errorsByFieldTab(errors, 'csfle');
 
   const handleFieldChanged = useCallback(
-    (key: keyof AutoEncryptionOptions, value?: string) => {
+    (
+      key: keyof AutoEncryptionOptions,
+      value?: AutoEncryptionOptions[keyof AutoEncryptionOptions]
+    ) => {
       return updateConnectionFormField({
         type: 'update-csfle-param',
         key: key,
@@ -149,6 +140,17 @@ function CSFLETab({
           spellCheck={false}
         />
       </FormFieldContainer>
+      <EncryptedFieldConfigInput
+        // TOOD(COMPASS-5645): This says 'schemaMap', which is the
+        // FLE1 equivalent of the FLE2 'encryptedFieldConfig[Map?]'.
+        // Once 'encryptedFieldConfig' is available, we will start
+        // using it instead.
+        encryptedFieldConfig={autoEncryptionOptions?.schemaMap}
+        errorMessage={errorMessageByFieldName(errors, 'schemaMap')}
+        onChange={(value: Document | undefined) => {
+          handleFieldChanged('schemaMap', value);
+        }}
+      />
       {/* TODO: Add Ace editor for EncryptedFieldConfig/SchemaMap */}
       <Label htmlFor="TODO">KMS Providers</Label>
       {options.map(({ title, id, component: KMSProviderComponent }) => {
@@ -176,7 +178,12 @@ function CSFLETab({
                   }
                 }}
               >
-                <span role="presentation" className={cx(faIcon, `fa fa-angle-right ${isExpanded ? 'fa-rotate-90' : ''}`)}
+                <span
+                  role="presentation"
+                  className={cx(
+                    faIcon,
+                    `fa fa-angle-right ${isExpanded ? 'fa-rotate-90' : ''}`
+                  )}
                 ></span>
               </button>
               <Label

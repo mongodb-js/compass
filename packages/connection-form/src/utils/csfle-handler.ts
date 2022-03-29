@@ -1,13 +1,18 @@
 import { cloneDeep } from 'lodash';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import type { AutoEncryptionOptions, AutoEncryptionTlsOptions } from 'mongodb';
+import type {
+  AutoEncryptionOptions,
+  AutoEncryptionTlsOptions,
+  Document,
+} from 'mongodb';
+import queryParser from 'mongodb-query-parser';
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 
 export interface UpdateCsfleAction {
   type: 'update-csfle-param';
   key: keyof AutoEncryptionOptions;
-  value?: string;
+  value?: AutoEncryptionOptions[keyof AutoEncryptionOptions];
 }
 
 type KMSProviders = NonNullable<AutoEncryptionOptions['kmsProviders']>;
@@ -35,6 +40,7 @@ export function handleUpdateCsfleParam({
   connectionOptions: ConnectionOptions;
 } {
   connectionOptions = cloneDeep(connectionOptions);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const autoEncryption: any = {
     ...connectionOptions.fleOptions?.autoEncryption,
   };
@@ -66,6 +72,7 @@ export function handleUpdateCsfleKmsParam({
 } {
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let kms: any = { ...(autoEncryption.kmsProviders?.[action.kms] ?? {}) };
   if (!action.value) {
     delete kms[action.key];
@@ -104,6 +111,7 @@ export function handleUpdateCsfleKmsTlsParam({
 } {
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let tls: any = { ...(autoEncryption.tlsOptions?.[action.kms] ?? {}) };
   if (!action.value) {
     delete tls[action.key];
@@ -143,4 +151,49 @@ export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {
       .flatMap((o) => Object.values(o))
       .filter(Boolean).length > 0
   );
+}
+
+export function textToEncryptedFieldConfig(text: string): Document {
+  // We use `$compass`-prefixed strings here since the keys of
+  // `encryptedFieldConfigMap` refer to databases and
+  // those never contain `$`.
+
+  let parsed: Document = {};
+  try {
+    parsed = queryParser(text);
+    parsed['$compass.error'] = null;
+  } catch (err: unknown) {
+    parsed['$compass.error'] = (err as Error).message;
+  }
+
+  parsed['$compass.rawText'] = text;
+  return parsed;
+}
+
+export function encryptedFieldConfigToText(config: Document): string {
+  if (config['$compass.rawText']) {
+    return config['$compass.rawText'];
+  }
+  const withoutCompassKeys = Object.fromEntries(
+    Object.entries(config).filter(([key]) => !key.startsWith('$compass.'))
+  );
+  return queryParser.toJSString(withoutCompassKeys);
+}
+
+// The CSFLE encryptedFieldConfigMap contains BSON values, including
+// UUIDs, which are not serialized correctly by the connection model.
+// To account for this, we regenerate the actual values from its
+// text representation on connection form load.
+export function adjustCSFLEParams(
+  connectionOptions: Readonly<ConnectionOptions>
+): ConnectionOptions {
+  connectionOptions = cloneDeep(connectionOptions);
+  const autoEncryptionOptions = connectionOptions.fleOptions?.autoEncryption;
+  // TODO(COMPASS-5645): schemaMap -> encryptedFieldConfig[Map?]
+  if (autoEncryptionOptions?.schemaMap?.['$compass.error'] === null) {
+    autoEncryptionOptions.schemaMap = textToEncryptedFieldConfig(
+      autoEncryptionOptions.schemaMap['$compass.rawText']
+    );
+  }
+  return connectionOptions;
 }

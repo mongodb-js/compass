@@ -43,8 +43,9 @@ import {
   handleUpdateCsfleParam,
   handleUpdateCsfleKmsParam,
   handleUpdateCsfleKmsTlsParam,
+  adjustCSFLEParams,
 } from '../utils/csfle-handler';
-import {
+import type {
   UpdateCsfleAction,
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
@@ -200,7 +201,9 @@ function buildStateFromConnectionInfo(
       : validateConnectionOptionsWarnings(
           initialConnectionInfo.connectionOptions
         ),
-    connectionOptions: cloneDeep(initialConnectionInfo.connectionOptions),
+    connectionOptions: adjustCSFLEParams(
+      initialConnectionInfo.connectionOptions
+    ),
     isDirty: false,
   };
 }

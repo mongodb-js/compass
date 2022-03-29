@@ -26,7 +26,7 @@ function KMSTLSOptions({
         value,
       });
     },
-    [updateConnectionFormField]
+    [updateConnectionFormField, kmsProvider]
   );
 
   return (
