@@ -50,10 +50,14 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: test-packaged-app-40x
-      - name: test-packaged-app-42x
-      - name: test-packaged-app-44x
-      - name: test-packaged-app-5x
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
 
   - name: ubuntu
     display_name: Ubuntu (Test and Package)
@@ -65,9 +69,12 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: test-packaged-app-40x
-      - name: test-packaged-app-42x
-      - name: test-packaged-app-44x
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
 
   - name: rhel
     display_name: RHEL (Test and Package)
@@ -79,7 +86,11 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-      - name: test-packaged-app-40x
-      - name: test-packaged-app-42x
-      - name: test-packaged-app-44x
-      - name: test-packaged-app-5x
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise

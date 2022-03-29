@@ -9,11 +9,12 @@ import * as Selectors from '../helpers/selectors';
 const { expect } = chai;
 
 // mongodb-runner defaults to stable if the env var isn't there
-// comparisons don't allow X-Ranges
-const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6').replace(
-  /x/g,
-  '0'
-);
+const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
+  // semver interprets these suffixes like a prerelease (ie. alpha or rc) and it
+  // is irrelevant for our version comparisons anyway
+  .replace('-community', '')
+  // comparisons don't allow X-Ranges
+  .replace(/x/g, '0');
 
 async function waitForAnyText(
   browser: CompassBrowser,

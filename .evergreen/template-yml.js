@@ -34,7 +34,15 @@ function template(input) {
 
 const testPackagedAppVariations = [
   {
-    name: 'test-packaged-app-40x',
+    name: 'test-packaged-app-40x-community',
+    'test-packaged-app': {
+      vars: {
+        mongodb_version: '4.0.x-community'
+      }
+    }
+  },
+  {
+    name: 'test-packaged-app-40x-enterprise',
     'test-packaged-app': {
       vars: {
         mongodb_version: '4.0.x'
@@ -42,7 +50,15 @@ const testPackagedAppVariations = [
     }
   },
   {
-    name: 'test-packaged-app-42x',
+    name: 'test-packaged-app-42x-community',
+    'test-packaged-app': {
+      vars: {
+        mongodb_version: '4.2.x-community'
+      }
+    }
+  },
+  {
+    name: 'test-packaged-app-42x-enterprise',
     'test-packaged-app': {
       vars: {
         mongodb_version: '4.2.x'
@@ -50,7 +66,15 @@ const testPackagedAppVariations = [
     }
   },
   {
-    name: 'test-packaged-app-44x',
+    name: 'test-packaged-app-44x-community',
+    'test-packaged-app': {
+      vars: {
+        mongodb_version: '4.4.x-community'
+      }
+    }
+  },
+  {
+    name: 'test-packaged-app-44x-enterprise',
     'test-packaged-app': {
       vars: {
         mongodb_version: '4.4.x'
@@ -58,7 +82,15 @@ const testPackagedAppVariations = [
     }
   },
   {
-    name: 'test-packaged-app-5x',
+    name: 'test-packaged-app-5x-community',
+    'test-packaged-app': {
+      vars: {
+        mongodb_version: '5.x.x-community'
+      }
+    }
+  },
+  {
+    name: 'test-packaged-app-5x-enterprise',
     'test-packaged-app': {
       vars: {
         mongodb_version: '5.x.x'
@@ -91,7 +123,7 @@ for (const buildVariant of buildVariants) {
     // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
     // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
     // we can remove this.
-    if (task.name === 'test-packaged-app-5x' && buildVariant.name === 'ubuntu') {
+    if (task.name.startsWith('test-packaged-app-5x') && buildVariant.name === 'ubuntu') {
       continue;
     }
     buildVariant.tasks.push(task);
