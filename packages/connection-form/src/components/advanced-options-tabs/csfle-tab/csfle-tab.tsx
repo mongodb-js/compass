@@ -6,9 +6,8 @@ import {
   TextInput,
   spacing,
   css,
-  Toggle,
+  cx,
 } from '@mongodb-js/compass-components';
-import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { AutoEncryptionOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -37,6 +36,20 @@ const kmsToggleLabelStyles = css({
   '&:hover': {
     cursor: 'pointer',
   },
+});
+
+const buttonReset = css({
+  margin: 0,
+  padding: 0,
+  border: 'none',
+  background: 'none',
+});
+
+const faIcon = css({
+  width: spacing[3],
+  height: spacing[3],
+  padding: '2px',
+  textAlign: 'center',
 });
 
 type KMSProviderName = keyof NonNullable<AutoEncryptionOptions['kmsProviders']>;
@@ -137,28 +150,35 @@ function CSFLETab({
         />
       </FormFieldContainer>
       {/* TODO: Add Ace editor for EncryptedFieldConfig/SchemaMap */}
-      <Label htmlFor="ssh-options-radio-box-group">KMS Provider</Label>
+      <Label htmlFor="TODO">KMS Providers</Label>
       {options.map(({ title, id, component: KMSProviderComponent }) => {
+        const isExpanded = enabledKMSProviders.includes(id);
         return (
           <div key={id}>
             <div>
-              <Toggle
-                className={kmsToggleStyles}
+              <button
+                className={buttonReset}
                 id={`toggle-kms-${id}`}
                 aria-labelledby={`toggle-kms-${id}-label`}
-                size="xsmall"
-                type="button"
-                checked={enabledKMSProviders.includes(id)}
-                onChange={(checked: boolean) => {
-                  if (checked) {
-                    setEnabledKMSProviders([...enabledKMSProviders, id]);
-                  } else {
+                aria-pressed={enabledKMSProviders.includes(id)}
+                aria-label={
+                  isExpanded ? 'Collapse field items' : 'Expand field items'
+                }
+                onClick={(evt) => {
+                  evt.stopPropagation();
+                  evt.preventDefault();
+                  if (isExpanded) {
                     setEnabledKMSProviders(
                       enabledKMSProviders.filter((i) => i !== id)
                     );
+                  } else {
+                    setEnabledKMSProviders([...enabledKMSProviders, id]);
                   }
                 }}
-              />
+              >
+                <span role="presentation" className={cx(faIcon, `fa fa-angle-right ${isExpanded ? 'fa-rotate-90' : ''}`)}
+                ></span>
+              </button>
               <Label
                 className={kmsToggleLabelStyles}
                 id={`toggle-kms-${id}-label`}
@@ -167,7 +187,7 @@ function CSFLETab({
                 {title}
               </Label>
             </div>
-            {enabledKMSProviders.includes(id) && (
+            {isExpanded && (
               <KMSProviderComponent
                 errors={errors}
                 autoEncryptionOptions={autoEncryptionOptions}
