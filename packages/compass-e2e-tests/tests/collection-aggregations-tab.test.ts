@@ -1,5 +1,5 @@
-import _ from 'lodash';
 import chai from 'chai';
+import semver from 'semver';
 import type { Element } from 'webdriverio';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
@@ -7,6 +7,15 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
 const { expect } = chai;
+
+// mongodb-runner defaults to stable if the env var isn't there
+const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
+  // semver interprets these suffixes like a prerelease (ie. alpha or rc) and it
+  // is irrelevant for our version comparisons anyway
+  .replace('-community', '')
+  // HACK: comparisons don't allow X-Ranges and 5.x or 5.x.x installs 5.2.1 so
+  // we can't just map it to 5.0.0
+  .replace(/x/g, '999');
 
 async function waitForAnyText(
   browser: CompassBrowser,
@@ -63,18 +72,9 @@ describe('Collection aggregations tab', function () {
       stageOperatorOptionsElements.map((element) => element.getText())
     );
 
-    /*
-    TODO: The expected options depend on the mongodb version and probably type
-    (ie. atlas or data lake could have different options). Right now there isn't
-    a reliable way for the tests to know which version of mongodb it is expected
-    to be connected to, but soon when we add tests for all current versions of
-    mongodb we'll deal with that and then we can determine the correct expected
-    options.
+    options.sort();
 
-    In the meantime this is just checking the subset of options that appear on
-    all supported mongodb versions this test might run against.
-    */
-    expect(_.without(options, '$setWindowFields')).to.deep.equal([
+    const expectedAggregations = [
       '$addFields',
       '$bucket',
       '$bucketAuto',
@@ -89,24 +89,35 @@ describe('Collection aggregations tab', function () {
       '$limit',
       '$lookup',
       '$match',
-      '$merge',
       '$out',
       '$project',
       '$redact',
-      '$replaceWith',
       '$replaceRoot',
       '$sample',
       '$search',
       '$searchMeta',
-      '$set',
-      //'$setWindowFields', // New in version 5.0.
       '$skip',
       '$sort',
       '$sortByCount',
-      '$unionWith',
-      '$unset',
       '$unwind',
-    ]);
+    ];
+
+    if (semver.gte(MONGODB_VERSION, '4.2.0')) {
+      expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
+    }
+    if (semver.gte(MONGODB_VERSION, '4.4.0')) {
+      expectedAggregations.push('$unionWith');
+    }
+    if (semver.gte(MONGODB_VERSION, '5.0.0')) {
+      expectedAggregations.push('$setWindowFields');
+    }
+    if (semver.gte(MONGODB_VERSION, '5.1.0')) {
+      expectedAggregations.push('$densify');
+    }
+
+    expectedAggregations.sort();
+
+    expect(options).to.deep.equal(expectedAggregations);
   });
 
   // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
@@ -368,6 +379,10 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports $merge as the last stage', async function () {
+    if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+      return this.skip();
+    }
+
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$merge');
     await browser.setAceValue(
