@@ -151,7 +151,6 @@ function CSFLETab({
           handleFieldChanged('schemaMap', value);
         }}
       />
-      {/* TODO: Add Ace editor for EncryptedFieldConfig/SchemaMap */}
       <Label htmlFor="TODO">KMS Providers</Label>
       {options.map(({ title, id, component: KMSProviderComponent }) => {
         const isExpanded = enabledKMSProviders.includes(id);
