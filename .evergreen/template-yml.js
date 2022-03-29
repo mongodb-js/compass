@@ -61,7 +61,7 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-5x',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '5.x'
+        mongodb_version: '5.x.x'
       }
     }
   }
