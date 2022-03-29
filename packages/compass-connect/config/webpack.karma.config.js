@@ -13,6 +13,7 @@ const config = {
     'react/lib/ReactContext': 'react',
     'react-addons-test-utils': 'react-dom',
     'os-dns-native': 'commonjs2 os-dns-native',
+    'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
     'system-ca': 'commonjs2 system-ca',
     'win-export-certificate-and-key': 'commonjs2 win-export-certificate-and-key',
     'macos-export-certificate-and-key': 'commonjs2 macos-export-certificate-and-key'
