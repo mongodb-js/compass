@@ -33,15 +33,13 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
     onPrev,
     onNext,
   }) => {
-    const showingFrom = (page - 1) * perPage || 1;
-    const showingTo = isNextDisabled
-      ? showingFrom + documents.length
-      : page * perPage;
+    const showingFrom = (page - 1) * perPage;
+    const showingTo = showingFrom + documents.length;
     return (
       <div data-testid="pipeline-results-workspace">
         <div className={topStyles}>
           <p>
-            Showing {showingFrom} - {showingTo}
+            Showing {showingFrom || 1} - {showingTo}
             &nbsp;of count.
           </p>
           <div>
@@ -62,7 +60,16 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
           </div>
         </div>
         <pre>
-          <code>{JSON.stringify(documents, null, 2)}</code>
+          <code>
+            {JSON.stringify(
+              documents.map((document, index) => ({
+                index: index + 1,
+                ...document,
+              })),
+              null,
+              2
+            )}
+          </code>
         </pre>
       </div>
     );

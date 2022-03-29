@@ -45,7 +45,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         isLast: true,
-      }
+      };
     case ActionTypes.RunAggregation:
       return {
         ...state,
@@ -64,7 +64,7 @@ export const runAggregation = (): ThunkAction<
   void,
   Actions
 > => {
-  return (dispatch) => dispatch(fetchAggregationDataAt(1));
+  return (dispatch) => dispatch(fetchAggregationData(1));
 };
 
 export const fetchPrevPage = (): ThunkAction<
@@ -80,7 +80,7 @@ export const fetchPrevPage = (): ThunkAction<
     if (page <= 1) {
       return;
     }
-    dispatch(fetchAggregationDataAt(page - 1));
+    dispatch(fetchAggregationData(page - 1));
   };
 };
 
@@ -97,11 +97,11 @@ export const fetchNextPage = (): ThunkAction<
     if (isLast) {
       return;
     }
-    dispatch(fetchAggregationDataAt(page + 1));
+    dispatch(fetchAggregationData(page + 1));
   };
 };
 
-const fetchAggregationDataAt = (page: number): ThunkAction<
+const fetchAggregationData = (page: number): ThunkAction<
   void,
   RootState,
   void,
