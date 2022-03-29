@@ -567,7 +567,7 @@ const configureStore = (options = {}) => {
         }
       }
 
-      const session = this.dataService.startSession();
+      const session = this.dataService.startSession('CRUD');
       const abortController = new AbortController();
       const signal = abortController.signal;
 
@@ -985,7 +985,7 @@ const configureStore = (options = {}) => {
 
       const fetchShardingKeysOptions = {
         maxTimeMS: query.maxTimeMS,
-        session: this.dataService.startSession()
+        session: this.dataService.startSession('CRUD')
       };
 
       const countOptions = {
@@ -993,7 +993,7 @@ const configureStore = (options = {}) => {
         maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
           COUNT_MAX_TIME_MS_CAP :
           query.maxTimeMS,
-        session: this.dataService.startSession()
+        session: this.dataService.startSession('CRUD')
       };
 
       if (this.isCountHintSafe()) {
@@ -1009,7 +1009,7 @@ const configureStore = (options = {}) => {
         maxTimeMS: query.maxTimeMS,
         promoteValues: false,
         bsonRegExp: true,
-        session: this.dataService.startSession()
+        session: this.dataService.startSession('CRUD')
       };
 
       // only set limit if it's > 0, read-only views cannot handle 0 limit.

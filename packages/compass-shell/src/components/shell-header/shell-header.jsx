@@ -18,10 +18,10 @@ const shellHeaderLeftStyles = css({
 
 
 const shellHeaderDefaultColor = uiColors.gray.light1;
-const shellHeaderFlashColorDark = uiColors.gray.light1;
-const shellHeaderFlashColorLight = uiColors.gray.light1;
+const shellHeaderFlashColorDark = uiColors.gray.base;
+const shellHeaderFlashColorLight = uiColors.gray.light2;
 const shellLoaderFlash = keyframes`
-  0% { color: ${uiColors.gray.light1}; }
+  0% { color: ${shellHeaderDefaultColor}; }
   10% { color: ${shellHeaderFlashColorDark}; }
   20% { color: ${shellHeaderFlashColorLight}; }
   30% { color: ${shellHeaderFlashColorDark}; }
@@ -30,7 +30,7 @@ const shellLoaderFlash = keyframes`
   60% { color: ${shellHeaderFlashColorLight}; }
   70% { color: ${shellHeaderFlashColorDark}; }
   80% { color: ${shellHeaderFlashColorLight}; }
-  100% { color: ${uiColors.gray.light1}; }
+  100% { color: ${shellHeaderDefaultColor}; }
 `;
 
 const shellHeaderToggleStyles = css({
