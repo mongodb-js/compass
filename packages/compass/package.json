@@ -162,6 +162,7 @@
     "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
     "os-dns-native": "^1.2.0",
+    "mongodb-client-encryption": "^2.0.0",
     "system-ca": "^1.0.2"
   },
   "devDependencies": {
