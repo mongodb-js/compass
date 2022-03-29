@@ -1,7 +1,5 @@
 import React from 'react';
 import { FileInput, TextInput, css } from '@mongodb-js/compass-components';
-import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import type { MongoClientOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
 
@@ -10,25 +8,20 @@ const inputFieldStyles = css({
 });
 
 function TLSClientCertificate({
-  connectionStringUrl,
+  tlsCertificateKeyFile,
+  tlsCertificateKeyFilePassword,
   disabled,
   updateTLSClientCertificate,
   updateTLSClientCertificatePassword,
 }: {
-  connectionStringUrl: ConnectionStringUrl;
+  tlsCertificateKeyFile?: string | null;
+  tlsCertificateKeyFilePassword?: string | null;
   disabled: boolean;
   updateTLSClientCertificate: (
     newClientCertificateKeyFile: string | null
   ) => void;
   updateTLSClientCertificatePassword: (newPassword: string | null) => void;
 }): React.ReactElement {
-  const typedParams =
-    connectionStringUrl.typedSearchParams<MongoClientOptions>();
-  const clientCertificateKeyFile = typedParams.get('tlsCertificateKeyFile');
-  const tlsCertificateKeyFilePassword = typedParams.get(
-    'tlsCertificateKeyFilePassword'
-  );
-
   return (
     <>
       <FormFieldContainer className={inputFieldStyles}>
@@ -41,7 +34,7 @@ function TLSClientCertificate({
           link={
             'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile'
           }
-          values={clientCertificateKeyFile ? [clientCertificateKeyFile] : []}
+          values={tlsCertificateKeyFile ? [tlsCertificateKeyFile] : []}
           onChange={(files: string[]) => {
             updateTLSClientCertificate(
               files && files.length > 0 ? files[0] : null

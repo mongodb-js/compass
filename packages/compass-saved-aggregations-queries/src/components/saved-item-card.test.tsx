@@ -55,7 +55,6 @@ describe('SavedItemCard', function () {
     );
 
     userEvent.click(screen.getByText('My Awesome Query'));
-    userEvent.tab();
     userEvent.keyboard('{space}');
     userEvent.keyboard('{enter}');
 

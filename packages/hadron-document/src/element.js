@@ -9,21 +9,10 @@ const isString = require('lodash.isstring');
 const ObjectGenerator = require('./object-generator');
 const TypeChecker = require('hadron-type-checker');
 const uuid = require('uuid');
+const DateEditor = require('./editor/date');
+const Events = require('./element-events');
 
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
-
-/**
- * The event constant.
- */
-const Events = {
-  'Added': 'Element::Added',
-  'Edited': 'Element::Edited',
-  'Removed': 'Element::Removed',
-  'Reverted': 'Element::Reverted',
-  'Converted': 'Element::Converted',
-  'Invalid': 'Element::Invalid',
-  'Valid': 'Element::Valid'
-};
 
 /**
  * Id field constant.
@@ -72,7 +61,7 @@ class Element extends EventEmitter {
   bulkEdit(value) {
     if (value.match(ARRAY_OR_OBJECT)) {
       this.edit(JSON.parse(value));
-      this._bubbleUp(Events.Converted);
+      this._bubbleUp(Events.Converted, this);
     } else {
       this.edit(value);
     }
@@ -83,7 +72,9 @@ class Element extends EventEmitter {
    */
   cancel() {
     if (this.elements) {
-      for (let element of this.elements) {
+      // Cancel will remove elements from iterator, clone it before iterating
+      // otherwise we will skip items
+      for (let element of Array.from(this.elements)) {
         element.cancel();
       }
     }
@@ -114,6 +105,7 @@ class Element extends EventEmitter {
     this.removed = false;
     this.type = TypeChecker.type(value);
     this.currentType = this.type;
+    this.level = this._getLevel();
     this.setValid();
 
     if (this._isExpandable(value)) {
@@ -123,6 +115,16 @@ class Element extends EventEmitter {
       this.value = value;
       this.currentValue = value;
     }
+  }
+
+  _getLevel() {
+    let level = -1;
+    let parent = this.parent;
+    while (parent) {
+      level++;
+      parent = parent.parent;
+    }
+    return level;
   }
 
   /**
@@ -142,7 +144,40 @@ class Element extends EventEmitter {
       this.currentValue = value;
     }
     this.setValid();
-    this._bubbleUp(Events.Edited);
+    this._bubbleUp(Events.Edited, this);
+  }
+
+  /**
+   * @param {import('hadron-type-checker').TypeCastTypes} newType
+   */
+  changeType(newType) {
+    if (newType === 'Object') {
+      this.edit('{');
+      this.next();
+    } else if (newType === 'Array') {
+      this.edit('[');
+      this.next();
+    } else {
+      try {
+        if (newType === 'Date') {
+          const editor = new DateEditor(this);
+          editor.edit(this.generateObject());
+          editor.complete();
+        } else {
+          this.edit(TypeChecker.cast(this.generateObject(), newType));
+        }
+      } catch (e) {
+        this.setInvalid(this.currentValue, newType, e.message);
+      }
+    }
+  }
+
+  getRoot() {
+    let parent = this.parent;
+    while (parent.parent) {
+      parent = parent.parent;
+    }
+    return parent;
   }
 
   /**
@@ -196,7 +231,7 @@ class Element extends EventEmitter {
     }
 
     this.currentKey = key;
-    this._bubbleUp(Events.Edited);
+    this._bubbleUp(Events.Edited, this);
   }
 
   /**
@@ -208,7 +243,7 @@ class Element extends EventEmitter {
     if (this.currentType === 'Array') {
       return ObjectGenerator.generateArray(this.elements);
     }
-    if (this.elements) {
+    if (this.currentType === 'Object') {
       return ObjectGenerator.generate(this.elements);
     }
     return this.currentValue;
@@ -255,7 +290,7 @@ class Element extends EventEmitter {
     if (this.currentType === 'Array') {
       this.elements.updateKeys(newElement, 1);
     }
-    this._bubbleUp(Events.Added);
+    newElement._bubbleUp(Events.Added, newElement, this);
     return newElement;
   }
 
@@ -279,7 +314,7 @@ class Element extends EventEmitter {
       }
     }
     var newElement = this.elements.insertEnd(key, value, true, this);
-    this._bubbleUp(Events.Added);
+    this._bubbleUp(Events.Adde, newElement);
     return newElement;
   }
 
@@ -289,9 +324,11 @@ class Element extends EventEmitter {
    * @returns {Element} The placeholder element.
    */
   insertPlaceholder() {
-    var newElement = this.elements.insertEnd('', '', true, this);
-    this._bubbleUp(Events.Added);
-    return newElement;
+    return this.insertEnd('', '');
+  }
+
+  insertSiblingPlaceholder() {
+    return this.parent.insertAfter(this, '', '');
   }
 
   /**
@@ -327,7 +364,7 @@ class Element extends EventEmitter {
   setValid() {
     this.currentTypeValid = true;
     this.invalidTypeMessage = undefined;
-    this._bubbleUp(Events.Valid, this.uuid);
+    this._bubbleUp(Events.Valid, this);
   }
 
   /**
@@ -342,7 +379,7 @@ class Element extends EventEmitter {
     this.currentType = newType;
     this.currentTypeValid = false;
     this.invalidTypeMessage = message;
-    this._bubbleUp(Events.Invalid, this.uuid);
+    this._bubbleUp(Events.Invalid, this);
   }
 
   /**
@@ -353,11 +390,11 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the key is a duplicate.
    */
   isDuplicateKey(value) {
-    if (value === this.currentKey) {
+    if (value === '') {
       return false;
     }
     for (let element of this.parent.elements) {
-      if (element.currentKey === value) {
+      if (element.uuid !== this.uuid && element.currentKey === value) {
         return true;
       }
     }
@@ -419,7 +456,6 @@ class Element extends EventEmitter {
     if (!this.parent || this.parent.isRoot() || this.parent.currentType === 'Object') {
       keyChanged = (this.key !== this.currentKey);
     }
-
     return keyChanged;
   }
 
@@ -520,7 +556,9 @@ class Element extends EventEmitter {
   remove() {
     this.revert();
     this.removed = true;
-    this._bubbleUp(Events.Removed);
+    if (this.parent) {
+      this._bubbleUp(Events.Removed, this, this.parent);
+    }
   }
 
   /**
@@ -532,7 +570,7 @@ class Element extends EventEmitter {
         this.parent.elements.updateKeys(this, -1);
       }
       this.parent.elements.remove(this);
-      this.parent.emit(Events.Removed);
+      this._bubbleUp(Events.Removed, this, this.parent);
       this.parent = null;
     } else {
       if (this.originalExpandableValue) {
@@ -551,7 +589,7 @@ class Element extends EventEmitter {
       this.removed = false;
     }
     this.setValid();
-    this._bubbleUp(Events.Reverted);
+    this._bubbleUp(Events.Reverted, this);
   }
 
   /**
@@ -560,14 +598,14 @@ class Element extends EventEmitter {
    * @param {Event} evt - The event.
    * @param {*} data - Optional.
    */
-  _bubbleUp(evt, data) {
-    this.emit(evt, data);
+  _bubbleUp(evt, ...data) {
+    this.emit(evt, ...data);
     var element = this.parent;
     if (element) {
       if (element.isRoot()) {
-        element.emit(evt, data);
+        element.emit(evt, ...data);
       } else {
-        element._bubbleUp(evt, data);
+        element._bubbleUp(evt, ...data);
       }
     }
   }
@@ -944,9 +982,21 @@ class LinkedList {
     this.loaded -= 1;
     return this;
   }
+
+  findIndex(el) {
+    let idx = 0;
+    for (const item of this) {
+      if (item === el) {
+        return idx;
+      }
+      idx++;
+    }
+    return -1;
+  }
 }
 
+Element.LinkedList = LinkedList;
+Element.Events = Events;
+Element.DATE_FORMAT = DATE_FORMAT;
+
 module.exports = Element;
-module.exports.LinkedList = LinkedList;
-module.exports.Events = Events;
-module.exports.DATE_FORMAT = DATE_FORMAT;

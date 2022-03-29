@@ -66,14 +66,14 @@ async function getFirstListDocument(browser: CompassBrowser) {
   // and their values are what we expected.
 
   const fieldNameElements = await browser.$$(
-    Selectors.DocumentListFirstItemFields
+    Selectors.documentListDocumentKey(1)
   );
   const fieldNames = await Promise.all(
     fieldNameElements.map((el) => el.getText())
   );
 
   const fieldValueElements = await browser.$$(
-    Selectors.DocumentListFirstItemValues
+    Selectors.documentListDocumentValue(1)
   );
   const fieldValues = await Promise.all(
     fieldValueElements.map((el) => el.getText())
@@ -178,22 +178,25 @@ describe('Collection import', function () {
     );
 
     // hover over the generated ObjectId to get the '+' for adding a new field
-    await browser.hover(`${Selectors.InsertDialog} .element-value-is-objectid`);
-    await browser.clickVisible(`${Selectors.InsertDialog} .line-number`);
+    await browser.hover(
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}`
+    );
     await browser.clickVisible(
-      `${Selectors.InsertDialog} .line-number .fa-plus-square-o`
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentAddElementMenuButton}`
+    );
+    await browser.clickVisible(
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentAddSibling}`
     );
 
     // Add field data
     const keyInput = await browser.$(
-      `${Selectors.InsertDialog} .editable-element-is-added .editable-element-field`
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentKeyEditor}`
     );
     await keyInput.setValue('bar');
     const valueInput = await browser.$(
-      `${Selectors.InsertDialog} .editable-element-is-added .editable-element-value-wrapper textarea`
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`
     );
     await valueInput.setValue('42');
-    await browser.keys(['Enter']);
 
     // confirm
     const insertConfirm = await browser.$(Selectors.InsertConfirm);

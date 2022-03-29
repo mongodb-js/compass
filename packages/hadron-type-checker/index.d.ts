@@ -10,7 +10,6 @@ import type {
   BSONRegExp,
   Code,
   BSONSymbol,
-  Map,
   Timestamp
 } from 'bson';
 
@@ -32,7 +31,6 @@ export type TypeCastMap = {
   BSONRegExp: BSONRegExp;
   String: string;
   BSONSymbol: BSONSymbol;
-  BSONMap: Map;
   Timestamp: Timestamp;
   Undefined: undefined;
 };
@@ -45,7 +43,9 @@ declare class TypeChecker {
     type: T
   ): T extends TypeCastTypes ? TypeCastMap[T] : O;
   type(object: unknown): TypeCastTypes;
-  castableTypes(highPrecisionSupport?: boolean): TypeCastTypes;
+  castableTypes(highPrecisionSupport?: boolean): TypeCastTypes[];
 }
 
-export default TypeChecker;
+declare const typeCheckerInstance: TypeChecker;
+
+export default typeCheckerInstance;

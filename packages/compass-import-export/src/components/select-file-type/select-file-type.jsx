@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormGroup, ControlLabel } from 'react-bootstrap';
+import { Button, FormGroup } from 'react-bootstrap';
+import { Label } from '@mongodb-js/compass-components';
 
 import classnames from 'classnames';
 import FILE_TYPES from '../../constants/file-types';
@@ -13,19 +14,19 @@ class SelectFileType extends PureComponent {
   static propTypes = {
     fileType: PropTypes.string,
     onSelected: PropTypes.func,
-    label: PropTypes.string
+    label: PropTypes.string,
   };
   render() {
     const { fileType, onSelected, label } = this.props;
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <Label>{label}</Label>
         <div className={style()}>
           <Button
             data-test-id="select-file-type-json"
             aria-selected={fileType === FILE_TYPES.JSON}
             className={classnames({
-              [style('selected')]: fileType === FILE_TYPES.JSON
+              [style('selected')]: fileType === FILE_TYPES.JSON,
             })}
             onClick={onSelected.bind(this, FILE_TYPES.JSON)}
           >
@@ -35,7 +36,7 @@ class SelectFileType extends PureComponent {
             data-test-id="select-file-type-csv"
             aria-selected={fileType === FILE_TYPES.CSV}
             className={classnames({
-              [style('selected')]: fileType === FILE_TYPES.CSV
+              [style('selected')]: fileType === FILE_TYPES.CSV,
             })}
             onClick={onSelected.bind(this, FILE_TYPES.CSV)}
           >

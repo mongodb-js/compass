@@ -47,7 +47,6 @@
     }
   }
 
-
   &-return-symbol {
     float: right;
     padding-left: 10px;
@@ -66,7 +65,7 @@
   &-table {
     border-collapse: collapse;
     border-spacing: 0px;
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
     font-size: 11px;
     padding: 3px 5px !important;
     border: 1px solid @gray6;
@@ -75,9 +74,11 @@
       background: @gray8;
     }
 
-    th, td {
+    th,
+    td {
       padding: 3px 5px !important;
       border: 1px solid @gray6;
+      text-align: left;
     }
   }
 }

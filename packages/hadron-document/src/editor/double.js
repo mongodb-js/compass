@@ -1,5 +1,5 @@
 const TypeChecker = require('hadron-type-checker');
-const Element = require('../element');
+const Events = require('../element-events');
 const { fieldStringLen } = require('../utils');
 const StandardEditor = require('./standard');
 
@@ -40,7 +40,7 @@ class DoubleEditor extends StandardEditor {
       } else {
         this.element.currentValue = value;
         this.element.setValid();
-        this.element._bubbleUp(Element.Events.Edited);
+        this.element._bubbleUp(Events.Edited, this.element);
       }
     } catch (error) {
       this.element.setInvalid(value, this.element.currentType, error.message);

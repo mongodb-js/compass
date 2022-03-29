@@ -1,7 +1,7 @@
 import { stringify } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
 
-export default function(ns, spec) {
+export default function (ns, spec) {
   let ret = `db.${toNS(ns).collection}.find(\n`;
   ret += '  ' + stringify(spec.filter ? spec.filter : {}, '');
   if (spec.project) {

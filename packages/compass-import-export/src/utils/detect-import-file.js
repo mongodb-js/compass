@@ -31,7 +31,7 @@ function detectImportFile(fileName, done) {
   let fileIsMultilineJSON = false;
 
   const source = fs.createReadStream(fileName, 'utf-8');
-  const peeker = peek({ maxBuffer: 1024 }, function(data, swap) {
+  const peeker = peek({ maxBuffer: 1024 }, function (data, swap) {
     const contents = data.toString('utf-8');
     debug('peek is', contents);
     if (contents[0] === '[' || contents[0] === '{') {
@@ -54,7 +54,7 @@ function detectImportFile(fileName, done) {
   });
 
   mark('detect-import-file');
-  stream.pipeline(source, peeker, function(err) {
+  stream.pipeline(source, peeker, function (err) {
     stop('detect-import-file');
     if (err && err !== 'done') {
       debug('pipeline error', err);
@@ -63,7 +63,7 @@ function detectImportFile(fileName, done) {
     const result = {
       fileName: fileName,
       fileIsMultilineJSON: fileIsMultilineJSON,
-      fileType: fileType
+      fileType: fileType,
     };
 
     debug('detected', result);
