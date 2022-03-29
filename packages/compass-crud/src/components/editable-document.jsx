@@ -320,14 +320,11 @@ EditableDocument.displayName = 'EditableDocument';
 
 EditableDocument.propTypes = {
   doc: PropTypes.object.isRequired,
+  editable: PropTypes.bool,
   removeDocument: PropTypes.func.isRequired,
   replaceDocument: PropTypes.func.isRequired,
   updateDocument: PropTypes.func.isRequired,
-  version: PropTypes.string.isRequired,
-  editable: PropTypes.bool,
-  tz: PropTypes.string,
   openInsertDocumentDialog: PropTypes.func.isRequired,
-  openImportFileDialog: PropTypes.func.isRequired,
   copyToClipboard: PropTypes.func.isRequired
 };
 

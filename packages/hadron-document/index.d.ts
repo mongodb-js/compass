@@ -112,10 +112,12 @@ declare const HadronDocumentEvents: {
 
 declare class HadronDocument extends EventEmitter {
   constructor(doc: unknown, cloned: boolean);
+  uuid: string;
   type: 'Document';
   currentType: 'Document';
   elements: LinkedList<HadronElement>;
   cancel(): void;
+  apply(doc: unknown): void;
   generateObject(): unknown;
   generateOriginalObject(): unknown;
   generateUpdateUnlessChangedInBackgroundQuery(
