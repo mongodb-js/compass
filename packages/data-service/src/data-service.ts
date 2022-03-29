@@ -91,6 +91,9 @@ let id = 0;
 
 type ClientType = 'CRUD' | 'META';
 const kSessionClientType = Symbol('kSessionClientType');
+interface CompassClientSession extends ClientSession {
+  [kSessionClientType]: ClientType;
+}
 
 class DataService extends EventEmitter {
   private readonly _connectionOptions: Readonly<ConnectionOptions>;
@@ -1529,9 +1532,11 @@ class DataService extends EventEmitter {
   /**
    * Create a ClientSession that can be passed to commands.
    */
-  startSession(clientType: ClientType): ClientSession {
-    const session = this._initializedClient(clientType).startSession();
-    (session as any)[kSessionClientType] = clientType;
+  startSession(clientType: ClientType): CompassClientSession {
+    const session = this._initializedClient(
+      clientType
+    ).startSession() as CompassClientSession;
+    session[kSessionClientType] = clientType;
     return session;
   }
 
@@ -1539,10 +1544,12 @@ class DataService extends EventEmitter {
    * Kill a session and terminate all in progress operations.
    * @param clientSession - a ClientSession (can be created with startSession())
    */
-  killSessions(sessions: ClientSession | ClientSession[]): Promise<Document> {
+  killSessions(
+    sessions: CompassClientSession | CompassClientSession[]
+  ): Promise<Document> {
     const sessionsArray = Array.isArray(sessions) ? sessions : [sessions];
     const clientTypes = new Set(
-      sessionsArray.map((s: any) => s[kSessionClientType])
+      sessionsArray.map((s) => s[kSessionClientType])
     );
     if (clientTypes.size !== 1) {
       throw new Error(
