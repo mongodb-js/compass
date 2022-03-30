@@ -33,19 +33,16 @@ class DocumentJsonView extends React.Component {
       return (
         <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
           <JsonEditor
+            key={doc.uuid}
             doc={doc}
-            tz={this.props.tz}
-            key={i}
-            updateSuccess={this.props.updateSuccess}
-            updateError={this.props.updateError}
             editable={this.props.isEditable}
-            version={this.props.version}
+            isTimeSeries={this.props.isTimeSeries}
             copyToClipboard={this.props.copyToClipboard}
             removeDocument={this.props.removeDocument}
-            clearUpdateStatus={this.props.clearUpdateStatus}
-            replaceExtJsonDocument={this.props.replaceExtJsonDocument}
-            openImportFileDialog={this.props.openImportFileDialog}
-            openInsertDocumentDialog={this.props.openInsertDocumentDialog} />
+            replaceDocument={this.props.replaceDocument}
+            updateDocument={this.props.updateDocument}
+            openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+          />
         </li>
       );
     });
@@ -67,17 +64,13 @@ class DocumentJsonView extends React.Component {
 
 DocumentJsonView.propTypes = {
   docs: PropTypes.array.isRequired,
-  isEditable: PropTypes.bool.isRequired,
-  copyToClipboard: PropTypes.func,
-  removeDocument: PropTypes.func,
-  replaceExtJsonDocument: PropTypes.func,
-  updateSuccess: PropTypes.bool,
-  updateError: PropTypes.string,
-  clearUpdateStatus: PropTypes.func.isRequired,
-  version: PropTypes.string.isRequired,
-  openInsertDocumentDialog: PropTypes.func,
-  openImportFileDialog: PropTypes.func,
-  tz: PropTypes.string.isRequired
+  isEditable: PropTypes.bool,
+  isTimeSeries: PropTypes.bool,
+  removeDocument: PropTypes.func.isRequired,
+  replaceDocument: PropTypes.func.isRequired,
+  updateDocument: PropTypes.func.isRequired,
+  openInsertDocumentDialog: PropTypes.func.isRequired,
+  copyToClipboard: PropTypes.func.isRequired
 };
 
 DocumentJsonView.displayName = 'DocumentJsonView';

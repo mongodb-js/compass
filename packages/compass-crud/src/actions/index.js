@@ -28,10 +28,8 @@ const configureActions = () => {
     'renameColumn',
     'replaceDoc',
     'replaceDocument',
-    'replaceExtJsonDocument',
     'resetHeaders',
     'updateDocument',
-    'clearUpdateStatus',
     'updateJsonDoc',
     'viewChanged',
     'updateComment'

@@ -1,6 +1,7 @@
 'use strict';
 
 const EventEmitter = require('eventemitter3');
+const uuid = require('uuid');
 const Element = require('./element');
 const LinkedList = Element.LinkedList;
 const ObjectGenerator = require('./object-generator');
@@ -41,12 +42,34 @@ class Document extends EventEmitter {
    */
   constructor(doc, cloned) {
     super();
+    this.uuid = uuid.v4();
     this.doc = doc;
     this.cloned = cloned || false;
     this.isUpdatable = true;
     this.elements = this._generateElements();
     this.type = 'Document';
     this.currentType = 'Document';
+  }
+
+  apply(doc) {
+    let updatedKeys = [];
+    let prevKey = null;
+    for (const [key, value] of Object.entries(doc)) {
+      if (this.get(key)) {
+        this.get(key).edit(value);
+      } else if (prevKey) {
+        this.insertAfter(this.get(prevKey), key, value);
+      } else {
+        this.insertBeginning(key, value);
+      }
+      prevKey = key;
+      updatedKeys.push(key);
+    }
+    for (const el of [...this.elements]) {
+      if (!updatedKeys.includes(el.currentKey)) {
+        el.remove();
+      }
+    }
   }
 
   /**
@@ -292,6 +315,20 @@ class Document extends EventEmitter {
    */
   insertPlaceholder() {
     return this.insertEnd('', '');
+  }
+
+  /**
+   * Add a new element to this document.
+   *
+   * @param {String} key - The element key.
+   * @param {Object} value - The value.
+   *
+   * @returns {Element} The new element.
+   */
+  insertBeginning(key, value) {
+    var newElement = this.elements.insertBeginning(key, value, true, this);
+    newElement._bubbleUp(Element.Events.Added, newElement, this);
+    return newElement;
   }
 
   /**
