@@ -51,12 +51,19 @@ export function hasCustomColor(
 }
 
 const bsonValue = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+const bsonValuePrewrap = css({
   whiteSpace: 'pre-wrap',
 });
 
 function getStyles(type: ValueTypes | string): string {
   return cx(
     bsonValue,
+    type === 'String' && bsonValuePrewrap,
     hasCustomColor(type) &&
       css({
         color: VALUE_COLOR_BY_TYPE[type],

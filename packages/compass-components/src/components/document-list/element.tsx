@@ -241,7 +241,7 @@ const elementExpand = css({
 const elementKey = css({
   flex: 'none',
   fontWeight: 'bold',
-  maxWidth: '70%',
+  maxWidth: '60%',
 });
 
 const elementDivider = css({
