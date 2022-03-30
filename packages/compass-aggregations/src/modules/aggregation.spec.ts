@@ -145,10 +145,10 @@ describe('aggregation module', function () {
       const store = getMockedStore({
         isLast: true,
         documents: [
-          { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 },
+          { id: 1 }, { id: 2 }, { id: 3 },
         ],
         limit: 4,
-        page: 2,
+        page: 1,
       });
       const aggregateSpy = spy();
       store.dispatch({
