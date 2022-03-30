@@ -379,6 +379,30 @@ module.exports = {
 const { compassPluginConfig } = require('@mongodb-js/webpack-config-compass');
 module.exports = compassPluginConfig;
 `;
+  
+  const npmIgnorePath = path.join(packagePath, '.npmignore');
+  const npmIgnoreContent = `
+.depcheckrc
+.eslintignore
+.eslintrc.js
+.editorconfig
+.mocharc.js
+.github/
+.nycrc
+.nyc_output/
+.prettierignore
+.prettierrc.json
+config/
+coverage/
+lib/index.html
+scripts/**/*
+!scripts/download-akzidenz.js
+src/
+test/
+tsconfig.json
+tsconfig-lint.json
+webpack.config.js
+`;
 
   const indexSrcDir = path.join(packagePath, 'src');
 
@@ -427,6 +451,9 @@ describe('Compass Plugin', function() {
     await fs.writeFile(eslintrcPath, eslintrcContent);
     await fs.writeFile(eslintIgnorePath, eslintIgnoreContent);
     await fs.writeFile(mocharcPath, mocharcContent);
+    if (isPublic) {
+      await fs.writeFile(npmIgnorePath, npmIgnoreContent);
+    }
     if (isPlugin) {
       await fs.writeFile(webpackConfigPath, webpackConfigContent);
     }
