@@ -1,19 +1,32 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
-import { IconButton, css, spacing, Icon } from '@mongodb-js/compass-components';
+import {
+  IconButton,
+  css,
+  spacing,
+  Icon,
+  Button,
+} from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-import { fetchNextPage, fetchPrevPage } from '../../modules/aggregation';
+import {
+  fetchNextPage,
+  fetchPrevPage,
+  cancelAggregation,
+} from '../../modules/aggregation';
 
 type PipelineResultsWorkspace = {
   documents: Document[];
   page: number;
   perPage: number;
+  loading: boolean;
   isPrevDisabled: boolean;
   isNextDisabled: boolean;
+  error?: string;
   onPrev: () => void;
   onNext: () => void;
+  onCancel: () => void;
 };
 
 const topStyles = css({
@@ -28,10 +41,13 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
     documents,
     page,
     perPage,
+    loading,
     isPrevDisabled,
     isNextDisabled,
+    error,
     onPrev,
     onNext,
+    onCancel,
   }) => {
     const showingFrom = (page - 1) * perPage;
     const showingTo = showingFrom + documents.length;
@@ -59,28 +75,28 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
             </IconButton>
           </div>
         </div>
+        {error && <p>{error}</p>}
+        {loading && (
+          <>
+            <p>Loading ...</p>
+            <Button onClick={() => onCancel()}>Cancel</Button>
+          </>
+        )}
         <pre>
-          <code>
-            {JSON.stringify(
-              documents.map((document, index) => ({
-                index: index + 1,
-                ...document,
-              })),
-              null,
-              2
-            )}
-          </code>
+          <code>{JSON.stringify(documents, null, 2)}</code>
         </pre>
       </div>
     );
   };
 
 const mapState = ({
-  aggregation: { documents, isLast, page, limit },
+  aggregation: { documents, isLast, page, limit, loading, error },
 }: RootState) => ({
   documents,
   page,
   perPage: limit,
+  error,
+  loading,
   isPrevDisabled: page <= 1,
   isNextDisabled: isLast,
 });
@@ -88,6 +104,7 @@ const mapState = ({
 const mapDispatch = {
   onPrev: fetchPrevPage,
   onNext: fetchNextPage,
+  onCancel: cancelAggregation,
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsWorkspace);
