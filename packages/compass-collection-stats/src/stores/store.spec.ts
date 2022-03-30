@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import InstanceModel from 'mongodb-instance-model';
+import type { MongoDBInstanceProps } from 'mongodb-instance-model';
 import configureStore from './';
 
 const instance = new InstanceModel({
@@ -29,7 +30,7 @@ const instance = new InstanceModel({
       ],
     },
   ],
-});
+} as MongoDBInstanceProps);
 
 const globalAppRegistry = {
   getStore() {
@@ -105,7 +106,9 @@ describe('CollectionStats [store]', function () {
         avgIndexSize: 'N/A',
       });
 
-      instance.databases.get('baz').collections.get('meow', 'name').set({
+      (
+        instance.databases.get('baz').collections.get('meow', 'name') as any
+      ).set({
         status: 'ready',
         document_count: 5,
         storage_size: 10,
@@ -148,7 +151,9 @@ describe('CollectionStats [store]', function () {
         avgIndexSize: '10.0KB',
       });
 
-      instance.databases.get('bar').collections.get('woof', 'name').set({
+      (
+        instance.databases.get('bar').collections.get('woof', 'name') as any
+      ).set({
         status: 'error',
       });
 

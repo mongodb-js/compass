@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import type AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import toNS from 'mongodb-ns';
@@ -11,11 +12,11 @@ const debug = createDebug('compass-collection-stats:store');
  */
 const INVALID = 'N/A';
 
-function isNumber(val) {
+const isNumber = (val: any) => {
   return typeof val === 'number' && !isNaN(val);
-}
+};
 
-const store = Reflux.createStore({
+const store: any = Reflux.createStore({
   /**
    * adds a state to the store, similar to React.Component's state
    * @see https://github.com/yonatanmn/Super-Simple-Flux#reflux-state-mixin
@@ -25,7 +26,7 @@ const store = Reflux.createStore({
    */
   mixins: [StateMixin.store],
 
-  updateCollectionDetails(collection) {
+  updateCollectionDetails(collection: any) {
     const newState = {
       namespace: collection.ns,
       isReadonly: Boolean(collection.readonly),
@@ -56,7 +57,7 @@ const store = Reflux.createStore({
     };
   },
 
-  _formatCollectionStats(collectionModel) {
+  _formatCollectionStats(collectionModel: any) {
     const {
       document_count,
       index_count,
@@ -88,14 +89,14 @@ const store = Reflux.createStore({
     };
   },
 
-  _avg(size, count) {
+  _avg(size: number, count: number) {
     if (count <= 0) {
       return 0;
     }
     return size / count;
   },
 
-  _format(value, format = 'a') {
+  _format(value: any, format = 'a') {
     if (!isNumber(value)) {
       return INVALID;
     }
@@ -104,7 +105,7 @@ const store = Reflux.createStore({
   },
 });
 
-function onCollectionStatusChange(model, status) {
+function onCollectionStatusChange(model: any, status: string) {
   if (model.ns === store.state.namespace) {
     if (status === 'ready') {
       store.updateCollectionDetails(model);
@@ -133,17 +134,17 @@ function onInstanceDestroyed() {
 /**
  * Collection Stats store.
  */
-const configureStore = ({
-  namespace,
-  globalAppRegistry,
-  isEditing = false,
-} = {}) => {
+const configureStore = (storeOptions: any): any => {
+  const namespace: string | undefined = storeOptions.namespace;
+  const globalAppRegistry: AppRegistry = storeOptions.globalAppRegistry;
+  const isEditing: boolean = storeOptions.isEditing;
+
   if (!namespace) {
     throw new Error('Trying to render collection stats without namespace');
   }
 
-  const { instance } =
-    globalAppRegistry.getStore('App.InstanceStore')?.getState() ?? {};
+  const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
+  const { instance } = instanceStore?.getState() ?? {};
 
   if (!instance) {
     throw new Error(
