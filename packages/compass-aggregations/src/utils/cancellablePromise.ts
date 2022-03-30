@@ -1,9 +1,17 @@
 const OPERATION_CANCELLED_MESSAGE = 'The operation was cancelled.';
+
+export const createCancelError = (): Error => {
+  return new Error(OPERATION_CANCELLED_MESSAGE);
+}
 /*
  * Return a promise you can race (just like a timeout from timeouts/promises).
  * It will reject if abortSignal triggers before successSignal
 */
 function abortablePromise(abortSignal: AbortSignal, successSignal: AbortSignal) {
+  if (abortSignal.aborted) {
+    return Promise.reject(createCancelError());
+  }
+
   let reject: (reason: unknown) => void;
 
   const promise = new Promise<never>(function (_resolve, _reject) {
@@ -15,7 +23,7 @@ function abortablePromise(abortSignal: AbortSignal, successSignal: AbortSignal) 
     // (abortSignal's event handler is already removed due to { once: true })
     successSignal.removeEventListener('abort', succeed);
 
-    reject(new Error(OPERATION_CANCELLED_MESSAGE));
+    reject(createCancelError());
   };
 
   const succeed = () => {
@@ -36,6 +44,9 @@ function abortablePromise(abortSignal: AbortSignal, successSignal: AbortSignal) 
  * promise reject.
 */
 export async function raceWithAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) {
+    return Promise.reject(createCancelError());
+  }
   const successController = new AbortController();
   const abortPromise = abortablePromise(signal, successController.signal);
   try {

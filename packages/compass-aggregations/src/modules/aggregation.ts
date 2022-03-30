@@ -4,7 +4,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
-import { raceWithAbort } from '../utils/cancellablePromise';
+import { aggregatePipeline } from '../utils/cancellableAggregation';
 
 export enum ActionTypes {
   AggregationStarted = 'compass-aggregations/aggregationStarted',
@@ -150,14 +150,18 @@ export const cancelAggregation = (): ThunkAction<
   void,
   Actions
 > => {
-  return (_dispatch, getState) => {
+  return async (_dispatch, getState) => {
     const {
       dataService: { dataService },
       aggregation: { abortController, session },
     } = getState();
     abortController?.abort();
-    if (session) {
-      dataService?.killSessions(session);
+    if (session && dataService) {
+      try {
+        await dataService?.killSessions(session);
+      } catch (e) {
+        console.log((e as Error).message);
+      }
     }
   };
 };
@@ -182,11 +186,9 @@ const fetchAggregationData = (page: number): ThunkAction<
       return;
     }
 
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-    abortController.signal.addEventListener('abort', cancelAggregation, { once: true });
-
     try {
+      const abortController = new AbortController();
+      const signal = abortController.signal;
       const session = dataService.startSession();
       dispatch({
         type: ActionTypes.AggregationStarted,
@@ -200,30 +202,32 @@ const fetchAggregationData = (page: number): ThunkAction<
         allowDiskUse: true,
         collation: collation || undefined,
       };
-      const cursor = dataService.aggregate(
+
+      const documents = await aggregatePipeline(
+        dataService,
+        signal,
         namespace,
         stages,
-        options
-      ).skip((page - 1) * limit).limit(limit);
+        options,
+        (page - 1) * limit,
+        limit,
+      );
 
-      if (!await raceWithAbort(cursor.hasNext(), signal)) {
-        return dispatch({ type: ActionTypes.LastPageReached });
+      if (documents.length === 0) {
+        dispatch({ type: ActionTypes.LastPageReached });
+      } else {
+        dispatch({
+          type: ActionTypes.AggregationFinished,
+          documents,
+          page,
+          isLast: documents.length < limit,
+        });
       }
-
-      const documents = await raceWithAbort(cursor.toArray(), signal);
-      dispatch({
-        type: ActionTypes.AggregationFinished,
-        documents,
-        page,
-        isLast: documents.length < limit,
-      });
     } catch (e) {
       dispatch({
         type: ActionTypes.AggregationFailed,
         error: (e as Error).message,
       });
-    } finally {
-      abortController.signal.removeEventListener('abort', cancelAggregation);
     }
   }
 };
