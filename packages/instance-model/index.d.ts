@@ -54,9 +54,29 @@ declare class MongoDBInstanceProps {
   databases: DatabaseCollection;
 }
 
-declare class MongoDBInstanceConstructor extends MongoDBInstanceProps {
+declare class MongoDBInstance extends MongoDBInstanceProps {
   constructor(props: MongoDBInstanceProps);
+  fetch(opts: { dataService: DataService; force?: boolean }): Promise<void>;
+  fetchDatabases(opts: {
+    dataService: DataService;
+    force?: boolean;
+  }): Promise<void>;
+  refresh(opts: {
+    dataService: DataService;
+    fetchDatabases?: boolean;
+    fetchDbStats?: boolean;
+    fetchCollections?: boolean;
+    fetchCollInfo?: boolean;
+    fetchCollStats?: boolean;
+  }): Promise<void>;
+  getNamespace(opts: {
+    dataService: DataService;
+    database: string;
+    collection: string;
+  }): Promise<Collection | null>;
+  removeAllListeners(): void;
+  toJSON(opts?: { derived?: boolean }): this;
 }
 
-export default MongoDBInstanceConstructor;
+export default MongoDBInstance;
 export { MongoDBInstanceProps };
