@@ -225,8 +225,7 @@ async function main(argv) {
       // For normal packages we are just compiling code with typescript, for
       // plugins (but only for them) we are using webpack to create independent
       // plugin packages
-      compile:
-        `tsc -p tsconfig.json && gen-esm-wrapper . ./${outDirName}/.esm-wrapper.mjs`,
+      compile: `tsc -p tsconfig.json && gen-esm-wrapper . ./${outDirName}/.esm-wrapper.mjs`,
       ...(isPlugin && {
         compile: 'npm run webpack -- --mode production',
         prewebpack: `rimraf ./${outDirName}`,
