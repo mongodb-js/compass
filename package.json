@@ -45,7 +45,8 @@
     "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md",
     "version": "node ./scripts/align-monorepo-dependencies.js --no-commit",
     "where": "node ./scripts/monorepo/where.js",
-    "create-workspace": "node ./scripts/create-workspace.js"
+    "create-workspace": "node ./scripts/create-workspace.js",
+    "update-evergreen-config": "node .evergreen/template-yml.js .evergreen/tasks.in.yml > .evergreen/tasks.yml && node .evergreen/template-yml.js .evergreen/buildvariants.in.yml > .evergreen/buildvariants.yml"
   },
   "repository": {
     "type": "git",

@@ -76,7 +76,7 @@ describe('cancellable-queries', function() {
   beforeEach(function() {
     sinon.restore();
 
-    session = dataService.startSession();
+    session = dataService.startSession('CRUD');
     abortController = new AbortController();
     signal = abortController.signal;
   });
