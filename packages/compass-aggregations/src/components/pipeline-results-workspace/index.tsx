@@ -67,7 +67,7 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
       <div data-testid="pipeline-results-workspace">
         <div className={topStyles}>
           <Body>
-            Showing {showingFrom + 1} - {showingTo}
+            Showing {showingFrom + 1} – {showingTo}
             &nbsp;of count.
           </Body>
           <div>
