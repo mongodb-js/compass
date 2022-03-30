@@ -72,6 +72,7 @@
     "bson": "^4.6.1",
     "hadron-document": "^7.8.0",
     "hadron-type-checker": "^6.7.0",
+    "react-sortable-hoc": "^1.11.0",
     "react-window": "^1.8.6"
   },
   "peerDependencies": {

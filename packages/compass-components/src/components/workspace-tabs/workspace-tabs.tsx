@@ -1,19 +1,17 @@
 import React, { useEffect, useCallback, useMemo, useRef } from 'react';
-import {
-  FocusState,
-  mergeProps,
-  useFocusState,
-  Icon,
-  IconButton,
-  css,
-  cx,
-  spacing,
-  uiColors,
-  withTheme,
-  compassUIColors,
-} from '@mongodb-js/compass-components';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { uiColors } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
+import { withTheme } from '../../hooks/use-theme';
+import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
+import { Icon, IconButton } from '../leafygreen';
+import { mergeProps } from '../../utils/merge-props';
+import {
+  scrollbarThumbLightTheme,
+  scrollbarThumbDarkTheme,
+} from '../../compass-ui-colors';
 import { Tab } from './tab';
 
 const tabsContainerStyles = css({
@@ -35,7 +33,7 @@ const tabsContainerLightStyles = css({
   background: uiColors.white,
   borderBottomColor: uiColors.gray.light2,
   '::-webkit-scrollbar-thumb': {
-    backgroundColor: compassUIColors.scrollbarThumbLightTheme,
+    backgroundColor: scrollbarThumbLightTheme,
   },
 });
 
@@ -43,7 +41,7 @@ const tabsContainerDarkStyles = css({
   backgroundColor: uiColors.gray.dark3,
   borderBottomColor: uiColors.gray.dark2,
   '::-webkit-scrollbar-thumb': {
-    backgroundColor: compassUIColors.scrollbarThumbDarkTheme,
+    backgroundColor: scrollbarThumbDarkTheme,
   },
 });
 

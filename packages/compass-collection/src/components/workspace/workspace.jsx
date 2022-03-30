@@ -2,8 +2,7 @@ import React, { PureComponent, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { WorkspaceTabs } from '@mongodb-js/compass-workspace';
-import { Icon } from '@mongodb-js/compass-components';
+import { Icon, WorkspaceTabs } from '@mongodb-js/compass-components';
 
 import {
   createNewTab,

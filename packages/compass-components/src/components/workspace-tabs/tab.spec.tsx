@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Icon } from '@mongodb-js/compass-components';
 
 import { Tab } from './tab';
+import { Icon } from '../leafygreen';
 
 describe('Tab', function () {
   let onCloseSpy: sinon.SinonSpy;

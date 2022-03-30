@@ -3,8 +3,8 @@ import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Icon } from '@mongodb-js/compass-components';
 
+import { Icon } from '../leafygreen';
 import { WorkspaceTabs } from './workspace-tabs';
 
 function mockTab(tabId: number) {

@@ -1,20 +1,18 @@
 import React, { useMemo } from 'react';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { uiColors } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
+
+import { withTheme } from '../../hooks/use-theme';
+import { smallFontSize } from '../../compass-font-sizes';
 import {
-  css,
-  cx,
-  spacing,
-  uiColors,
-  useDefaultAction,
-  useHoverState,
-  IconButton,
-  Icon,
-  mergeProps,
-  compassFontSizes,
-  Body,
-  withTheme,
-  useFocusState,
   FocusState,
-} from '@mongodb-js/compass-components';
+  useFocusState,
+  useHoverState,
+} from '../../hooks/use-focus-hover';
+import { Icon, IconButton, Body } from '../leafygreen';
+import { mergeProps } from '../../utils/merge-props';
+import { useDefaultAction } from '../../hooks/use-default-action';
 
 const tabStyles = css({
   border: '1px solid',
@@ -141,7 +139,7 @@ const tabTitleStyles = css({
   textOverflow: 'ellipsis',
   overflow: 'hidden',
   fontWeight: 'bold',
-  fontSize: compassFontSizes.smallFontSize,
+  fontSize: smallFontSize,
   gridArea: 'tabName',
 });
 
@@ -169,7 +167,7 @@ const tabSubtitleStyles = css({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
-  fontSize: compassFontSizes.smallFontSize,
+  fontSize: smallFontSize,
   lineHeight: `${spacing[3]}px`,
   gridArea: 'namespace',
 });
@@ -307,7 +305,7 @@ function UnthemedTab({
           onClose();
         }}
         aria-label="Close Tab"
-        data-test-id="close-workspace-tab"
+        data-testid="close-workspace-tab"
       >
         <Icon glyph="X" role="presentation" />
       </IconButton>
