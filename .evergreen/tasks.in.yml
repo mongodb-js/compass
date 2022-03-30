@@ -1,0 +1,293 @@
+tasks:
+  - name: check
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: check
+
+  - name: test
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test
+        vars:
+          debug: 'hadron*,mongo*'
+
+  - name: test-electron
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-electron
+        vars:
+          debug: 'hadron*,mongo*'
+
+  - name: package
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: package
+        vars:
+          debug: 'hadron*,mongo*,compass*,electron*'
+          compass_distribution: compass
+      - func: save-windows-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [windows]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [macos]
+      - func: save-rhel-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [rhel]
+      - func: save-ubuntu-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [ubuntu]
+
+  - name: package-isolated
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+      - func: package
+        vars:
+          debug: 'hadron*,mongo*,compass*,electron*'
+          compass_distribution: compass-isolated
+      - func: save-windows-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [windows]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [macos]
+      - func: save-rhel-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [rhel]
+      - func: save-ubuntu-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [ubuntu]
+
+  - name: package-readonly
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+      - func: package
+        vars:
+          debug: 'hadron*,mongo*,compass*,electron*'
+          compass_distribution: compass-readonly
+      - func: save-windows-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [windows]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [macos]
+      - func: save-rhel-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [rhel]
+      - func: save-ubuntu-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [ubuntu]
+
+  - name: test-connectivity
+    tags: ['required-for-publish']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-connectivity
+        vars:
+          debug: 'compass*,electron*,hadron*,mongo*'
+
+  - name: e2e-coverage
+    tags: ['run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: e2e-coverage
+        vars:
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+  # same as test-packaged-app except for depends_on
+  - name: test-packaged-app-macos
+    tags: ['required-for-publish', 'run-on-pr']
+    depends_on:
+      - name: package
+        variant: macos
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars:
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+  # Publish happens in one go to make sure we are not creating multiple github
+  # releases in parallel
+  - name: publish
+    depends_on:
+      - name: '.required-for-publish'
+        variant: '*'
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: mongodb-compass
+
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=darwin'
+      - func: get-artifacts
+        vars:
+          compass_distribution: compass
+
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=darwin'
+      - func: get-artifacts
+        vars:
+          compass_distribution: compass-isolated
+
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=win32'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=linux'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=darwin'
+      - func: get-artifacts
+        vars:
+          compass_distribution: compass-readonly
+
+      - func: publish
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=win32'
+      - func: publish
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass
+          target_platform: '--platform=darwin'
+
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=win32'
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass-isolated
+          target_platform: '--platform=darwin'
+
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=win32'
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=linux'
+      - func: publish
+        vars:
+          compass_distribution: compass-readonly
+          target_platform: '--platform=darwin'
+
+  # copied as test-packaged-app-macos due to depends_on variation
+  <% for (const task of testPackagedAppVariations) { %>
+
+  - name: <% out(task.name) %>
+    tags: ['required-for-publish', 'run-on-pr']
+    depends_on:
+      - name: package
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars: <% for (const [key, value] of Object.entries(task['test-packaged-app'].vars)) { %>
+          <% out(`${key}: ${value}`) } %>
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+  <% } %>
