@@ -42,7 +42,7 @@ class WritableCollectionStream extends Writable {
   }
 
   _collection() {
-    return this.dataService._collection(this.ns);
+    return this.dataService._collection(this.ns, 'CRUD');
   }
 
   _write(document, _encoding, next) {

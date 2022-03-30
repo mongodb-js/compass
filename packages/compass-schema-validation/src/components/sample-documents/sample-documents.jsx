@@ -44,14 +44,13 @@ class SampleDocuments extends Component {
     const title = 'Sample Document That Passed Validation';
 
     return (
-      <div className={classnames(
-        styles['document-container'],
-        styles['matching-documents']
-      )} data-test-id="matching-documents">
-        <CheckCircle />
-        <span className={classnames(styles['matching-documents-title'])}>
-          {title}
-        </span>
+      <div className={styles['document-container']} data-test-id="matching-documents">
+        <div className={styles['matching-documents']}>
+          <CheckCircle />
+          <span className={styles['matching-documents-title']}>
+            {title}
+          </span>
+        </div>
         <DocumentPreview
           document={this.props.sampleDocuments.matching}
         />
@@ -68,14 +67,13 @@ class SampleDocuments extends Component {
     const title = 'Sample Document That Failed Validation';
 
     return (
-      <div className={classnames(
-        styles['document-container'],
-        styles['notmatching-documents']
-      )} data-test-id="notmatching-documents">
-        <CrossCircle />
-        <span className={classnames(styles['matching-documents-title'])}>
-          {title}
-        </span>
+      <div className={styles['document-container']} data-test-id="notmatching-documents">
+        <div className={styles['notmatching-documents']}>
+          <CrossCircle />
+          <span className={styles['matching-documents-title']}>
+            {title}
+          </span>
+        </div>
         <DocumentPreview
           document={this.props.sampleDocuments.notmatching}
         />
@@ -90,8 +88,8 @@ class SampleDocuments extends Component {
    */
   render() {
     return (
-      <div className={classnames(styles['sample-documents'])}>
-        <div className={classnames(styles['sample-documents-content'])}>
+      <div className={styles['sample-documents']}>
+        <div className={styles['sample-documents-content']}>
           { this.props.sampleDocuments.isLoading ?
             <LoadingOverlay text="Sampling Document..." /> :
             null

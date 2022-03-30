@@ -211,8 +211,6 @@ const configureStore = (options = {}) => {
         isEditable: true,
         view: LIST,
         count: 0,
-        updateSuccess: null,
-        updateError: null,
         insert: this.getInitialInsertState(),
         table: this.getInitialTableState(),
         query: this.getInitialQueryState(),
@@ -407,12 +405,10 @@ const configureStore = (options = {}) => {
           if (error) {
             // emit on the document(list view) and success state(json view)
             doc.emit('remove-error', error.message);
-            this.state.updateError = error.message;
             this.trigger(this.state);
           } else {
             // emit on the document(list view) and success state(json view)
             doc.emit('remove-success');
-            this.state.updateSuccess = true;
 
             const payload = { view: this.state.view, ns: this.state.ns };
             this.localAppRegistry.emit('document-deleted', payload);
@@ -427,7 +423,6 @@ const configureStore = (options = {}) => {
         });
       } else {
         doc.emit('remove-error', DELETE_ERROR);
-        this.state.updateError = DELETE_ERROR;
         this.trigger(this.state);
       }
     },
@@ -519,36 +514,6 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * Update the provided document given a document object.
-     *
-     * @param {Object} doc - EJSON document object.
-     * @param {Document} originalDoc - origin Hadron document getting modified.
-     */
-    replaceExtJsonDocument(doc, originalDoc) {
-      track('Document Updated', { mode: this.modeForTelemetry() });
-      const opts = { returnDocument: 'after', promoteValues: false };
-      const query = originalDoc.getOriginalKeysAndValuesForSpecifiedKeys({
-        _id: 1,
-        ...(this.state.shardKeys || {})
-      });
-      this.dataService.findOneAndReplace(this.state.ns, query, doc, opts, (error, d) => {
-        if (error) {
-          this.state.updateError = error.message;
-          this.trigger(this.state);
-        } else {
-          this.state.updateSuccess = true;
-
-          this.localAppRegistry.emit('document-updated', this.state.view);
-          this.globalAppRegistry.emit('document-updated', this.state.view);
-
-          const index = this.findDocumentIndex(originalDoc);
-          this.state.docs[index] = new HadronDocument(d);
-          this.trigger(this.state);
-        }
-      });
-    },
-
-    /**
      * Find the index of the document in the list.
      *
      * @param {Document} doc - The hadron document.
@@ -559,15 +524,6 @@ const configureStore = (options = {}) => {
       return findIndex(this.state.docs, (d) => {
         return doc.getStringId() === d.getStringId();
       });
-    },
-
-    /**
-     * Clear update statuses, if updateSuccess or updateError were set by
-     * replaceExtJsonDocument.
-     */
-    clearUpdateStatus() {
-      if (this.state.updateSuccess) this.setState({ updateSuccess: null });
-      if (this.state.updateError) this.setState({ updateError: null });
     },
 
     /**
@@ -611,7 +567,7 @@ const configureStore = (options = {}) => {
         }
       }
 
-      const session = this.dataService.startSession();
+      const session = this.dataService.startSession('CRUD');
       const abortController = new AbortController();
       const signal = abortController.signal;
 
@@ -1029,7 +985,7 @@ const configureStore = (options = {}) => {
 
       const fetchShardingKeysOptions = {
         maxTimeMS: query.maxTimeMS,
-        session: this.dataService.startSession()
+        session: this.dataService.startSession('CRUD')
       };
 
       const countOptions = {
@@ -1037,7 +993,7 @@ const configureStore = (options = {}) => {
         maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
           COUNT_MAX_TIME_MS_CAP :
           query.maxTimeMS,
-        session: this.dataService.startSession()
+        session: this.dataService.startSession('CRUD')
       };
 
       if (this.isCountHintSafe()) {
@@ -1053,7 +1009,7 @@ const configureStore = (options = {}) => {
         maxTimeMS: query.maxTimeMS,
         promoteValues: false,
         bsonRegExp: true,
-        session: this.dataService.startSession()
+        session: this.dataService.startSession('CRUD')
       };
 
       // only set limit if it's > 0, read-only views cannot handle 0 limit.

@@ -21,6 +21,7 @@ const editorReset = css({
   boxShadow: 'none',
   outline: 'none',
   backgroundColor: 'transparent',
+  maxWidth: '100%',
 });
 
 const editorOutline = css({
@@ -143,9 +144,7 @@ const editorTextarea = css({
   verticalAlign: 'top',
 });
 
-const valueContainer = css({
-  display: 'inline-block',
-});
+const valueContainer = css({});
 
 function getCustomColorStyle(type: string): string {
   return hasCustomColor(type) ? css({ color: VALUE_COLOR_BY_TYPE[type] }) : '';

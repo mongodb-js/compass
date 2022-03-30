@@ -31,15 +31,11 @@ class ReadonlyDocument extends React.Component {
   };
 
   setRenderSize(newLimit) {
-    this.setState({ renderSize: newLimit, expandAll: false });
+    this.setState({ renderSize: newLimit });
   }
 
   handleClone = () => {
     this.props.openInsertDocumentDialog(this.props.doc.generateObject(), true);
-  }
-
-  handleToggleExpand = () => {
-    this.setState((state) => ({ expandAll: !state.expandAll }));
   }
 
   /**
@@ -85,8 +81,6 @@ class ReadonlyDocument extends React.Component {
       <DocumentList.DocumentActionsGroup
         onCopy={this.props.copyToClipboard ? this.handleCopy : undefined}
         onClone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
-        onExpand={this.handleToggleExpand}
-        expanded={this.state.expandAll}
       />
     );
   }

@@ -25,10 +25,10 @@ class InputPreview extends Component {
   render() {
     const documents = this.props.documents.map((doc, i) => {
       return (
-        <Document
-          doc={new HadronDocument(doc)}
-          editable={false}
-          key={i} />);
+        <div key={i} className={styles['input-preview-document-card']}>
+          <Document doc={new HadronDocument(doc)} editable={false}  />
+        </div>
+      );
     });
     return (
       <div className={styles['input-preview']}>
