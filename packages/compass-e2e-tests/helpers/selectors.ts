@@ -753,7 +753,7 @@ export const queryBarActionsMenu = (tabName: string): string => {
 };
 
 // Workspace tabs at the top
-export const CloseWorkspaceTab = '[data-test-id="close-workspace-tab"]';
+export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 
 // Export modal
 export const ExportModal = '[data-test-id="export-modal"]';

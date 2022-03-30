@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { Tab } from './tab';
-import { Icon } from '../leafygreen';
 
 describe('Tab', function () {
   let onCloseSpy: sinon.SinonSpy;
@@ -27,9 +26,7 @@ describe('Tab', function () {
           isSelected
           tabContentId="1"
           subtitle="test.collection"
-          renderIcon={(iconProps) => (
-            <Icon {...iconProps} data-testid="folder-icon" glyph="Folder" />
-          )}
+          iconGlyph="Folder"
         />
       );
     });
@@ -43,11 +40,12 @@ describe('Tab', function () {
     });
 
     it('should render the icon', async function () {
-      expect(await screen.findByTestId('folder-icon')).to.be.visible;
+      expect(await screen.findByTestId('workspace-tab-icon-Folder')).to.be
+        .visible;
     });
 
-    it('should render the close tab button', async function () {
-      expect(await screen.findByLabelText('Close Tab')).to.be.visible;
+    it('should render the close tab button hidden', async function () {
+      expect(await screen.findByLabelText('Close Tab')).to.not.be.visible;
     });
 
     it('should call "onClose" when the close button is clicked', async function () {
@@ -75,9 +73,7 @@ describe('Tab', function () {
           isSelected={false}
           tabContentId="1"
           subtitle="test.collection"
-          renderIcon={(iconProps) => (
-            <Icon {...iconProps} data-testid="folder-icon" glyph="Folder" />
-          )}
+          iconGlyph="Folder"
         />
       );
     });

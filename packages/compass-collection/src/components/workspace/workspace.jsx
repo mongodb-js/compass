@@ -1,8 +1,8 @@
-import React, { PureComponent, useMemo } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Icon, WorkspaceTabs } from '@mongodb-js/compass-components';
+import { WorkspaceTabs } from '@mongodb-js/compass-components';
 
 import {
   createNewTab,
@@ -58,24 +58,15 @@ const DEFAULT_NEW_TAB = {
   sourceName: ''
 };
 
-function renderTabIcon(tabIconProps, type) {
-  const tabIcon = useMemo(() => {
-    switch (type) {
-      case 'timeseries':
-        return 'TimeSeries';
-      case 'view':
-        return 'Visibility';
-      default:
-        return 'Folder';
-    }
-  }, [type]);
-
-  return (
-    <Icon
-      {...tabIconProps}
-      glyph={tabIcon}
-    />
-  );
+function getIconGlyphForCollectionType(type) {
+  switch (type) {
+    case 'timeseries':
+      return 'TimeSeries';
+    case 'view':
+      return 'Visibility';
+    default:
+      return 'Folder';
+  }
 }
 
 /**
@@ -238,8 +229,7 @@ class Workspace extends PureComponent {
             title: tab.activeSubTabName,
             subtitle: tab.namespace,
             tabContentId: tab.id,
-            renderIcon: (iconProps) => renderTabIcon(
-              iconProps,
+            iconGlyph: getIconGlyphForCollectionType(
               getTabType(tab.isTimeSeries, tab.isReadonly)
             )
           }))}

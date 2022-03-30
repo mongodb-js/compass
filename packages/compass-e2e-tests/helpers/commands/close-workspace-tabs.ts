@@ -14,11 +14,11 @@ export async function closeWorkspaceTabs(
   let numTabs = await countTabs();
   while (numTabs > 0) {
     await browser.waitUntil(async () => {
-      // Sometimes for whatever reason clicking to close the tab never closes
-      // it so I just moved the click inside the wait loop.
-      const closeButtons = await browser.$$(closeSelector);
-      // The close tab element is hidden behind a hover, so we dont `clickVisible`.
-      await closeButtons[0]?.click();
+      // Close the tab with keys as the close button focusing
+      // is finicky in e2e tests.
+      const META = process.platform === 'darwin' ? 'Meta' : 'Control';
+      await browser.keys([META, 'w']);
+      await browser.keys([META]); // meta a second time to release it
 
       const tabCount = await countTabs();
       return tabCount < numTabs;

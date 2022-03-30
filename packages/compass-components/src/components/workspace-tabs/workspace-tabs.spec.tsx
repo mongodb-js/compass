@@ -4,18 +4,15 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { Icon } from '../leafygreen';
 import { WorkspaceTabs } from './workspace-tabs';
+import type { TabProps } from './workspace-tabs';
 
-function mockTab(tabId: number) {
+function mockTab(tabId: number): TabProps {
   return {
     title: `mock-tab-${tabId}`,
-    id: `${tabId}`,
     subtitle: `Documents - ${tabId}`,
     tabContentId: `${tabId}-content`,
-    renderIcon: function renderIcon(iconProps) {
-      return <Icon {...iconProps} data-testid="folder-icon" glyph="Folder" />;
-    },
+    iconGlyph: 'Folder',
   };
 }
 

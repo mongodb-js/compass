@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
+import type { glyphs } from '@leafygreen-ui/icon';
 
 import { withTheme } from '../../hooks/use-theme';
 import { smallFontSize } from '../../compass-font-sizes';
@@ -39,19 +40,6 @@ const tabStyles = css({
   ':not(:first-child)': {
     marginLeft: '-1px', // Keep the borders only 1px.
   },
-  '&:focus': {
-    zIndex: 3, // Show the border over surrounding tabs.
-    borderColor: uiColors.focus,
-    '&::after': {
-      position: 'absolute',
-      content: '""',
-      top: 0,
-      right: 0,
-      left: 0,
-      height: '1px',
-      backgroundColor: uiColors.focus,
-    },
-  },
 });
 
 const tabLightThemeStyles = css({
@@ -73,6 +61,20 @@ const tabDarkThemeStyles = css({
 const selectedTabStyles = css({
   '&:hover': {
     cursor: 'default',
+  },
+});
+
+const focusedTabStyles = css({
+  zIndex: 3, // Show the border over surrounding tabs.
+  borderColor: uiColors.focus,
+  '&::after': {
+    position: 'absolute',
+    content: '""',
+    top: 0,
+    right: 0,
+    left: 0,
+    height: '1px',
+    backgroundColor: uiColors.focus,
   },
 });
 
@@ -188,15 +190,15 @@ const tabSubtitleSelectedDarkThemeStyles = css({
   color: uiColors.gray.light2,
 });
 
+type IconGlyph = Extract<keyof typeof glyphs, string>;
+
 type TabProps = {
   title: string;
   darkMode?: boolean;
   isSelected: boolean;
   onSelect: () => void;
   onClose: () => void;
-  renderIcon: (
-    iconProps: Partial<React.ComponentProps<typeof Icon>>
-  ) => JSX.Element;
+  iconGlyph: IconGlyph;
   tabContentId: string;
   subtitle: string;
 };
@@ -208,7 +210,7 @@ function UnthemedTab({
   onSelect,
   onClose,
   tabContentId,
-  renderIcon,
+  iconGlyph,
   subtitle,
 }: TabProps) {
   const [focusProps, focusState] = useFocusState();
@@ -221,7 +223,6 @@ function UnthemedTab({
     () => focusState === FocusState.FocusWithinVisible,
     [focusState]
   );
-
   const defaultActionProps = useDefaultAction(onSelect);
 
   const [hoverProps, isHovered] = useHoverState();
@@ -232,20 +233,6 @@ function UnthemedTab({
     defaultActionProps
   );
 
-  const iconProps: Partial<React.ComponentProps<typeof Icon>> = useMemo(
-    () => ({
-      size: 'small',
-      role: 'presentation',
-      className: cx(tabIconStyles, {
-        [darkMode
-          ? tabIconSelectedDarkThemeStyles
-          : tabIconSelectedLightThemeStyles]: isSelected,
-        [tabIconFocusedStyles]: isFocused,
-      }),
-    }),
-    [darkMode, isFocused, isSelected]
-  );
-
   return (
     <div
       className={cx(
@@ -253,6 +240,7 @@ function UnthemedTab({
         darkMode ? tabDarkThemeStyles : tabLightThemeStyles,
         {
           [selectedTabStyles]: isSelected,
+          [focusedTabStyles]: isFocused,
         }
       )}
       aria-selected={isSelected}
@@ -260,11 +248,23 @@ function UnthemedTab({
       // Catch navigation on the active tab when a user tabs through Compass.
       tabIndex={isSelected ? 0 : -1}
       aria-controls={tabContentId}
+      data-test-id="workspace-tab-button"
       title={`${subtitle} - ${title}`}
       {...tabProps}
     >
       <div className={tabTitleContainerStyles}>
-        {renderIcon(iconProps)}
+        <Icon
+          size="small"
+          role="presentation"
+          className={cx(tabIconStyles, {
+            [darkMode
+              ? tabIconSelectedDarkThemeStyles
+              : tabIconSelectedLightThemeStyles]: isSelected,
+            [tabIconFocusedStyles]: isFocused,
+          })}
+          glyph={iconGlyph}
+          data-testid={`workspace-tab-icon-${iconGlyph}`}
+        />
         <div
           className={cx(
             tabTitleStyles,
@@ -296,9 +296,7 @@ function UnthemedTab({
 
       <IconButton
         className={
-          isFocusedWithin || isFocused || isHovered || isSelected
-            ? undefined
-            : hiddenStyles
+          isFocusedWithin || isFocused || isHovered ? undefined : hiddenStyles
         }
         onClick={(e) => {
           e.stopPropagation();

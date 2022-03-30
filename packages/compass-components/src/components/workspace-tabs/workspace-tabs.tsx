@@ -3,6 +3,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import type { glyphs } from '@leafygreen-ui/icon';
 
 import { withTheme } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
@@ -144,7 +145,7 @@ type SortableItemProps = {
 
 const SortableItem = SortableElement(
   ({
-    tab: { tabContentId, renderIcon, subtitle, title },
+    tab: { tabContentId, iconGlyph, subtitle, title },
     tabIndex,
     selectedTabIndex,
     onSelect,
@@ -167,7 +168,7 @@ const SortableItem = SortableElement(
       <Tab
         title={title}
         isSelected={isSelected}
-        renderIcon={renderIcon}
+        iconGlyph={iconGlyph}
         tabContentId={tabContentId}
         subtitle={subtitle}
         onSelect={onTabSelected}
@@ -215,13 +216,11 @@ type WorkspaceTabsProps = {
   selectedTabIndex: number;
 };
 
-type TabProps = {
+export type TabProps = {
   subtitle: string;
   tabContentId: string;
   title: string;
-  renderIcon: (
-    iconProps: Partial<React.ComponentProps<typeof Icon>>
-  ) => JSX.Element;
+  iconGlyph: Extract<keyof typeof glyphs, string>;
 };
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
