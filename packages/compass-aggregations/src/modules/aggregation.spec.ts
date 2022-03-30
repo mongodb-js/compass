@@ -2,9 +2,8 @@ import type { AnyAction, Store } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { expect } from 'chai';
-import { spy } from 'sinon';
+import { spy, stub } from 'sinon';
 import type { Document } from 'mongodb';
-
 
 import reducer, { runAggregation, fetchNextPage, fetchPrevPage, cancelAggregation } from './aggregation';
 import type { State as AggregateState } from './aggregation';
@@ -21,7 +20,6 @@ class AggregationCursorMock {
   constructor(public options: {
     hasNext: boolean;
     documents: Document[];
-    delayInResponse?: number;
     skip?: number;
     limit?: number;
   }) {
@@ -34,12 +32,10 @@ class AggregationCursorMock {
     this.options.limit = count;
     return this;
   }
-  async hasNext() {
-    await waitFor(this.options.delayInResponse ?? 0);
+  hasNext() {
     return Promise.resolve(this.options.hasNext);
   }
-  async toArray() {
-    await waitFor(this.options.delayInResponse ?? 0);
+  toArray() {
     return Promise.resolve(this.options.documents);
   }
 }
@@ -74,10 +70,15 @@ describe('aggregation module', function () {
     const hasNextSpy = spy(aggregateMock, 'hasNext');
     const toArraySpy = spy(aggregateMock, 'toArray');
 
+    const startSessionSpy = spy();
+
     const store: Store<RootState> = configureStore({});
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
       dataService: new class {
+        startSession() {
+          return startSessionSpy();
+        }
         aggregate() {
           return aggregateMock;
         }
@@ -86,19 +87,22 @@ describe('aggregation module', function () {
 
     await store.dispatch(runAggregation() as any);
 
+    expect(startSessionSpy.getCalls().map(x => x.args), 'calls startSession with correct args').to.deep.equal([[]]);
     expect(skipSpy.getCalls().map(x => x.args), 'calls skip with correct args').to.deep.equal([[0]]);
-    expect(limitSpy.getCalls().map(x => x.args), 'calls skip with correct args').to.deep.equal([[20]]);
-    expect(hasNextSpy.getCalls().map(x => x.args), 'calls skip with correct args').to.deep.equal([[]]);
-    expect(toArraySpy.getCalls().map(x => x.args), 'calls skip with correct args').to.deep.equal([[]]);
+    expect(limitSpy.getCalls().map(x => x.args), 'calls limit with correct args').to.deep.equal([[20]]);
+    expect(hasNextSpy.getCalls().map(x => x.args), 'calls hasNext with correct args').to.deep.equal([[]]);
+    expect(toArraySpy.getCalls().map(x => x.args), 'calls toArray with correct args').to.deep.equal([[]]);
 
-    const {
-      aggregation: { documents, isLast, limit, page }
-    } = store.getState();
-
-    expect(documents).to.deep.equal(mockDocuments);
-    expect(isLast).to.equal(true);
-    expect(page).to.equal(1);
-    expect(limit).to.equal(20);
+    expect(store.getState().aggregation).to.deep.equal({
+      documents: mockDocuments,
+      isLast: true,
+      page: 1,
+      limit: 20,
+      loading: false,
+      error: undefined,
+      abortController: undefined,
+      session: undefined,
+    });
   });
 
   it('cancels an aggregation', async function () {
@@ -115,12 +119,20 @@ describe('aggregation module', function () {
     const aggregateMock = new AggregationCursorMock({
       hasNext: true,
       documents: [{ id: 9 }, { id: 10 }, { id: 11 }, { id: 12 }],
-      delayInResponse: 1000,
     });
 
+    stub(aggregateMock, 'hasNext').callsFake(async () => new Promise(() => { }));
+
+    const killSessionsSpy = spy();
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
       dataService: new class {
+        startSession() {
+          return {};
+        }
+        killSessions() {
+          return killSessionsSpy();
+        }
         aggregate() {
           return aggregateMock;
         }
@@ -136,15 +148,17 @@ describe('aggregation module', function () {
 
     await waitFor(500);
 
-    const { aggregation } = store.getState();
-
-    expect(aggregation.documents, 'correct value for documents').to.deep.equal([]);
-    expect(aggregation.isLast, 'correct value for isLast').to.equal(false);
-    expect(aggregation.page, 'correct value for page').to.equal(2);
-    expect(aggregation.limit, 'correct value for limit').to.equal(4);
-    expect(aggregation.loading, 'correct value for loading').to.equal(false);
-    expect(aggregation.error, 'correct value for error').to.equal('The operation was cancelled.');
-    expect(aggregation.abortController, 'correct value for abortController').to.equal(undefined);
+    expect(killSessionsSpy.getCalls().map(x => x.args), 'calls killSessions with correct args').to.deep.equal([[]]);
+    expect(store.getState().aggregation).to.deep.equal({
+      documents: [],
+      isLast: false,
+      page: 2,
+      limit: 4,
+      loading: false,
+      error: 'The operation was cancelled.',
+      abortController: undefined,
+      session: undefined,
+    });
   });
 
   describe('paginates data', function () {
@@ -168,10 +182,13 @@ describe('aggregation module', function () {
       const limitSpy = spy(aggregateMock, 'limit');
       const hasNextSpy = spy(aggregateMock, 'hasNext');
       const toArraySpy = spy(aggregateMock, 'toArray');
-
+      const startSessionSpy = spy();
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
         dataService: new class {
+          startSession() {
+            return startSessionSpy();
+          }
           aggregate() {
             return aggregateMock;
           }
@@ -182,19 +199,22 @@ describe('aggregation module', function () {
 
       await waitFor(500);
 
+      expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal([]);
       expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([8]);
       expect(limitSpy.firstCall.args, 'calls limit with correct args').to.deep.equal([4]);
       expect(hasNextSpy.firstCall.args, 'calls hasNext with correct args').to.deep.equal([]);
       expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
-      const {
-        aggregation: { documents, isLast, limit, page }
-      } = store.getState();
-
-      expect(documents).to.deep.equal(mockDocuments);
-      expect(isLast).to.equal(false);
-      expect(page).to.equal(3);
-      expect(limit).to.equal(4);
+      expect(store.getState().aggregation).to.deep.equal({
+        documents: mockDocuments,
+        isLast: false,
+        page: 3,
+        limit: 4,
+        loading: false,
+        error: undefined,
+        abortController: undefined,
+        session: undefined,
+      });
     });
     it('nextPage -> on last page', async function () {
       const store = getMockedStore({
@@ -236,10 +256,14 @@ describe('aggregation module', function () {
       const limitSpy = spy(aggregateMock, 'limit');
       const hasNextSpy = spy(aggregateMock, 'hasNext');
       const toArraySpy = spy(aggregateMock, 'toArray');
+      const startSessionSpy = spy();
 
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
         dataService: new class {
+          startSession() {
+            return startSessionSpy();
+          }
           aggregate() {
             return aggregateMock;
           }
@@ -250,19 +274,22 @@ describe('aggregation module', function () {
 
       await waitFor(500);
 
+      expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal([]);
       expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([0]);
       expect(limitSpy.firstCall.args, 'calls limit with correct args').to.deep.equal([4]);
       expect(hasNextSpy.firstCall.args, 'calls hasNext with correct args').to.deep.equal([]);
       expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
-      const {
-        aggregation: { documents, isLast, limit, page }
-      } = store.getState();
-
-      expect(documents).to.deep.equal(mockDocuments);
-      expect(isLast).to.equal(false);
-      expect(page).to.equal(1);
-      expect(limit).to.equal(4);
+      expect(store.getState().aggregation).to.deep.equal({
+        documents: mockDocuments,
+        isLast: false,
+        page: 1,
+        limit: 4,
+        loading: false,
+        error: undefined,
+        abortController: undefined,
+        session: undefined,
+      });
     });
     it('prevPage -> on first page', async function () {
       const store = getMockedStore({

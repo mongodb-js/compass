@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import type { AggregateOptions, Document } from 'mongodb';
+import type { AggregateOptions, Document, ClientSession } from 'mongodb';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
@@ -16,6 +16,7 @@ export enum ActionTypes {
 type AggregationStartedAction = {
   type: ActionTypes.AggregationStarted;
   abortController: AbortController;
+  session: ClientSession;
 };
 
 type AggregationFinishedAction = {
@@ -47,6 +48,7 @@ export type State = {
   isLast: boolean;
   loading: boolean;
   abortController?: AbortController;
+  session?: ClientSession;
   error?: string;
 };
 
@@ -67,6 +69,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         error: undefined,
         documents: [],
         abortController: action.abortController,
+        session: action.session,
       };
     case ActionTypes.AggregationFinished:
       return {
@@ -76,6 +79,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         documents: action.documents,
         loading: false,
         abortController: undefined,
+        session: undefined,
         error: undefined,
       };
     case ActionTypes.AggregationFailed:
@@ -84,6 +88,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         documents: [],
         loading: false,
         abortController: undefined,
+        session: undefined,
         error: action.error,
       };
     case ActionTypes.LastPageReached:
@@ -147,9 +152,13 @@ export const cancelAggregation = (): ThunkAction<
 > => {
   return (_dispatch, getState) => {
     const {
-      aggregation: { abortController },
+      dataService: { dataService },
+      aggregation: { abortController, session },
     } = getState();
     abortController?.abort();
+    if (session) {
+      dataService?.killSessions(session);
+    }
   };
 };
 
@@ -178,9 +187,11 @@ const fetchAggregationData = (page: number): ThunkAction<
     abortController.signal.addEventListener('abort', cancelAggregation, { once: true });
 
     try {
+      const session = dataService.startSession();
       dispatch({
         type: ActionTypes.AggregationStarted,
         abortController,
+        session,
       });
 
       const stages = pipeline.map(generateStage);
