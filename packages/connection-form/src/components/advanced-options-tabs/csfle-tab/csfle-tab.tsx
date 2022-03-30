@@ -147,7 +147,7 @@ function CSFLETab({
         />
       </FormFieldContainer>
       <EncryptedFieldConfigInput
-        // TOOD(COMPASS-5645): This says 'schemaMap', which is the
+        // TODO(COMPASS-5645): This says 'schemaMap', which is the
         // FLE1 equivalent of the FLE2 'encryptedFieldConfig[Map?]'.
         // Once 'encryptedFieldConfig' is available, we will start
         // using it instead.
