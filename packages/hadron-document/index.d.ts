@@ -135,6 +135,7 @@ declare class HadronDocument extends EventEmitter {
   getUnsetUpdateForDocumentChanges(): unknown;
   insertPlaceholder(): HadronElement;
   insertEnd(key: string, value: unknown): HadronElement;
+  insertBeginning(key: string, value: unknown): HadronElement;
   insertAfter(
     element: HadronElement,
     key: string,
