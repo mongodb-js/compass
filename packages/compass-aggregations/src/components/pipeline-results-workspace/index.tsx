@@ -62,7 +62,7 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
     onCancel,
   }) => {
     const showingFrom = (page - 1) * perPage;
-    const showingTo = showingFrom + documents.length;
+    const showingTo = showingFrom + (documents.length || perPage);
     return (
       <div data-testid="pipeline-results-workspace">
         <div className={topStyles}>
