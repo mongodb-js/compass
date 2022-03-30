@@ -367,6 +367,12 @@ module.exports = {
   const eslintIgnorePath = path.join(packagePath, '.eslintignore');
   const eslintIgnoreContent = `.nyc-output\n${outDirName}\n`;
 
+  // Only included for plugins.
+  const gitIgnorePath = path.join(packagePath, '.gitignore');
+  const gitIgnoreContent = `
+lib
+`;
+
   const mocharcPath = path.join(packagePath, '.mocharc.js');
   const mocharcContent = `module.exports = require('${
     isPlugin
@@ -431,6 +437,7 @@ describe('Compass Plugin', function() {
     await fs.writeFile(mocharcPath, mocharcContent);
     if (isPlugin) {
       await fs.writeFile(webpackConfigPath, webpackConfigContent);
+      await fs.writeFile(gitIgnorePath, gitIgnoreContent);
     }
     await fs.mkdir(indexSrcDir, { recursive: true });
     await fs.writeFile(indexSrcPath, indexSrcContent);
