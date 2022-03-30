@@ -109,6 +109,6 @@ jobs:
           E2E_TESTS_ATLAS_PASSWORD: ${{ secrets.E2E_TESTS_ATLAS_PASSWORD }}
           E2E_TESTS_ATLAS_X509_PEM: ${{ secrets.E2E_TESTS_ATLAS_X509_PEM }}
           # Matches what we are doing in Evergreen
-          MONGODB_VERSION: '4'
+          MONGODB_VERSION: '4.4.x'
         run: COMPASS_RUN_DOCKER_TESTS=true npm run test-connectivity --workspace mongodb-data-service
         shell: bash

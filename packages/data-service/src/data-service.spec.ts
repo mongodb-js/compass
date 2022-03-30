@@ -1311,7 +1311,7 @@ describe('DataService', function () {
 
       describe('#startSession', function () {
         it('returns a new client session', function () {
-          const session = dataService.startSession();
+          const session = dataService.startSession('CRUD');
           expect(session.constructor.name).to.equal('ClientSession');
 
           // used by killSessions, must be a bson UUID in order to work
@@ -1322,14 +1322,14 @@ describe('DataService', function () {
 
       describe('#killSessions', function () {
         it('does not throw if kill a non existing session', async function () {
-          const session = dataService.startSession();
+          const session = dataService.startSession('CRUD');
           await dataService.killSessions(session);
         });
 
         it('kills a command with a session', async function () {
           const commandSpy = sinon.spy();
           sandbox.replace(
-            (dataService as any)._client,
+            (dataService as any)._crudClient,
             'db',
             () =>
               ({
@@ -1337,7 +1337,7 @@ describe('DataService', function () {
               } as any)
           );
 
-          const session = dataService.startSession();
+          const session = dataService.startSession('CRUD');
           await dataService.killSessions(session);
 
           expect(commandSpy.args[0][0]).to.deep.equal({
@@ -1353,7 +1353,9 @@ describe('DataService', function () {
       const dataService = new DataService({
         connectionString: 'mongodb://localhost:27020',
       });
-      (dataService as any)._client = createMongoClientMock(clientConfig);
+      const client = createMongoClientMock(clientConfig);
+      (dataService as any)._crudClient = client;
+      (dataService as any)._metadataClient = client;
       return dataService;
     }
 
