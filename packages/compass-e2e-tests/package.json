@@ -54,7 +54,7 @@
     "eslint": "*",
     "fast-glob": "^3.2.7",
     "glob": "^7.1.6",
-    "hadron-build": "^24.14.0",
+    "hadron-build": "^24.15.0",
     "lodash": "^4.17.21",
     "mocha": "*",
     "mongodb": "^4.4.0",
@@ -64,6 +64,7 @@
     "nyc": "^15.1.0",
     "prettier": "*",
     "resolve-mongodb-srv": "^1.1.1",
+    "semver": "^5.7.1",
     "ts-node": "^10.4.0",
     "webdriverio": "^7.16.13",
     "xvfb-maybe": "^0.2.1"

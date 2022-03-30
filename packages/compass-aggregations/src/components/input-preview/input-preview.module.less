@@ -13,37 +13,28 @@
     align-items: flex-start;
     overflow-x: scroll;
     margin: 10px;
+    padding: 10px;
+  }
 
-    :global {
-      .document {
-        background-color: @pw;
-        margin: 10px;
-        padding: 0px 20px;
-        border: 1px solid @gray6;
-        border-radius: 4px;
-        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
-        width: 350px;
-        height: 150px;
-        overflow: scroll;
-        flex-shrink: 0;
+  &-document-card {
+    flex: none;
+    border: 1px solid @gray6;
+    border-radius: 4px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    height: 150px;
+    overflow: scroll;
+  }
 
-        &-elements {
-          padding: 0px;
-          margin-bottom: 0px;
-        }
-      }
+  &-document-card:not(:first-child) {
+    margin-left: 20px;
+  }
 
-      .document::-webkit-scrollbar {
-        display: none;
-      }
-
-      .element-value-is-string {
-        word-break: normal;
-      }
-    }
+  &-document-card::-webkit-scrollbar {
+    display: none;
   }
 }
 
 .input-preview::-webkit-scrollbar {
-  display:none;
+  display: none;
 }

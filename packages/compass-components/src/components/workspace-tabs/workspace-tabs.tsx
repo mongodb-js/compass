@@ -268,8 +268,6 @@ function UnthemedWorkspaceTabs({
   const rovingFocusProps = useRovingTabIndex<HTMLDivElement>({
     currentTabbable: selectedTabIndex,
   });
-  const tabContainerRef = useRef<HTMLDivElement>(null);
-
   const [navigationProps] = useTabListKeyboardNavigation<HTMLDivElement>({
     selectedTabIndex,
     onSelectTab,
@@ -301,7 +299,6 @@ function UnthemedWorkspaceTabs({
           role="tablist"
           aria-label={ariaLabel}
           aria-orientation="horizontal"
-          ref={tabContainerRef}
           {...tabContainerProps}
         >
           <SortableList

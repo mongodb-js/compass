@@ -88,7 +88,7 @@ const HadronDocument: React.FunctionComponent<{
     <div
       className={hadronDocument}
       data-testid="hadron-document"
-      data-id={document.getStringId()}
+      data-id={document.uuid}
     >
       <AutoFocusContext.Provider value={autoFocus}>
         {visibleElements.map((el) => {
@@ -96,6 +96,7 @@ const HadronDocument: React.FunctionComponent<{
             <HadronElement
               value={el}
               key={el.uuid}
+              editable={editable}
               editingEnabled={editing}
               allExpanded={expanded}
               onEditStart={
