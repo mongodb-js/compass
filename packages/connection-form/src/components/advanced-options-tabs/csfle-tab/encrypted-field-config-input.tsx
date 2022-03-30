@@ -4,7 +4,7 @@ import {
   encryptedFieldConfigToText,
   textToEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
-import { Label, Banner, css, spacing } from '@mongodb-js/compass-components';
+import { Label, Banner, Description, css, spacing } from '@mongodb-js/compass-components';
 
 import 'ace-builds';
 import AceEditor from 'react-ace';
@@ -55,7 +55,8 @@ function EncryptedFieldConfigInput({
 
   return (
     <div>
-      <Label htmlFor="TODO">EncryptedFieldConfig (recommended)</Label>
+      <Label htmlFor="TODO">EncryptedFieldConfigMap</Label>
+      <Description>Add an optional client-side EncryptedFieldConfigMap for enhanced security.</Description>
       <AceEditor
         mode="javascript" // will be set to mongodb as part of OPTIONS
         theme="mongodb"

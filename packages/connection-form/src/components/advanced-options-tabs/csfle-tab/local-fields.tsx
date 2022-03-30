@@ -23,6 +23,7 @@ interface Field {
   value: string;
   errorMessage?: string;
   state: 'error' | 'none';
+  description?: string;
 }
 
 function LocalFields({
@@ -57,13 +58,14 @@ function LocalFields({
         '',
       errorMessage: errorMessageByFieldName(errors, 'local.key'),
       state: fieldNameHasError(errors, 'local.key') ? 'error' : 'none',
+      description: 'A 96-byte long base64-encoded string.'
     },
   ];
 
   return (
     <>
       {fields.map(
-        ({ name, label, type, optional, value, errorMessage, state }) => (
+        ({ name, label, type, optional, value, errorMessage, state, description }) => (
           <FormFieldContainer key={name}>
             <TextInput
               onChange={({
@@ -80,6 +82,7 @@ function LocalFields({
               errorMessage={errorMessage}
               state={state}
               spellCheck={false}
+              description={description}
             />
           </FormFieldContainer>
         )

@@ -46,6 +46,11 @@ const faIcon = css({
   textAlign: 'center',
 });
 
+const kmsProviderComponentWrapperStyles = css({
+  paddingLeft: spacing[3],
+  marginBottom: spacing[3]
+});
+
 type KMSProviderName = keyof NonNullable<AutoEncryptionOptions['kmsProviders']>;
 interface KMSFields {
   id: KMSProviderName;
@@ -98,7 +103,7 @@ function CSFLETab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
-  const [enabledKMSProviders, setEnabledKMSProviders] = useState<
+  const [expandedKMSProviders, setExpandedKMSProviders] = useState<
     KMSProviderName[]
   >([]);
   const autoEncryptionOptions =
@@ -138,6 +143,7 @@ function CSFLETab({
             fieldNameHasError(errors, 'keyVaultNamespace') ? 'error' : 'none'
           }
           spellCheck={false}
+          description="Specify a collection in which data encryption keys are stored in the format <db>.<collection>."
         />
       </FormFieldContainer>
       <EncryptedFieldConfigInput
@@ -153,7 +159,7 @@ function CSFLETab({
       />
       <Label htmlFor="TODO">KMS Providers</Label>
       {options.map(({ title, id, component: KMSProviderComponent }) => {
-        const isExpanded = enabledKMSProviders.includes(id);
+        const isExpanded = expandedKMSProviders.includes(id);
         return (
           <div key={id}>
             <div>
@@ -161,19 +167,21 @@ function CSFLETab({
                 className={buttonReset}
                 id={`toggle-kms-${id}`}
                 aria-labelledby={`toggle-kms-${id}-label`}
-                aria-pressed={enabledKMSProviders.includes(id)}
+                aria-pressed={expandedKMSProviders.includes(id)}
                 aria-label={
                   isExpanded ? 'Collapse field items' : 'Expand field items'
                 }
+                type="button"
                 onClick={(evt) => {
+                  console.log(evt.target)
                   evt.stopPropagation();
                   evt.preventDefault();
                   if (isExpanded) {
-                    setEnabledKMSProviders(
-                      enabledKMSProviders.filter((i) => i !== id)
+                    setExpandedKMSProviders(
+                      expandedKMSProviders.filter((i) => i !== id)
                     );
                   } else {
-                    setEnabledKMSProviders([...enabledKMSProviders, id]);
+                    setExpandedKMSProviders([...expandedKMSProviders, id]);
                   }
                 }}
               >
@@ -194,11 +202,13 @@ function CSFLETab({
               </Label>
             </div>
             {isExpanded && (
-              <KMSProviderComponent
-                errors={errors}
-                autoEncryptionOptions={autoEncryptionOptions}
-                updateConnectionFormField={updateConnectionFormField}
-              />
+              <div className={kmsProviderComponentWrapperStyles}>
+                <KMSProviderComponent
+                  errors={errors}
+                  autoEncryptionOptions={autoEncryptionOptions}
+                  updateConnectionFormField={updateConnectionFormField}
+                />
+              </div>
             )}
           </div>
         );

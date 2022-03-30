@@ -24,6 +24,7 @@ interface Field {
   value: string;
   errorMessage?: string;
   state: 'error' | 'none';
+  description?: string;
 }
 
 function KMIPFIelds({
@@ -56,13 +57,14 @@ function KMIPFIelds({
       value: autoEncryptionOptions?.kmsProviders?.kmip?.endpoint ?? '',
       errorMessage: errorMessageByFieldName(errors, 'kmip.endpoint'),
       state: fieldNameHasError(errors, 'kmip.endpoint') ? 'error' : 'none',
+      description: 'The endpoint consists of a hostname and port separated by a colon.'
     },
   ];
 
   return (
     <>
       {fields.map(
-        ({ name, label, type, optional, value, errorMessage, state }) => (
+        ({ name, label, type, optional, value, errorMessage, state, description }) => (
           <FormFieldContainer key={name}>
             <TextInput
               onChange={({
@@ -79,6 +81,7 @@ function KMIPFIelds({
               errorMessage={errorMessage}
               state={state}
               spellCheck={false}
+              description={description}
             />
           </FormFieldContainer>
         )
@@ -87,6 +90,7 @@ function KMIPFIelds({
         kmsProvider="kmip"
         autoEncryptionOptions={autoEncryptionOptions}
         updateConnectionFormField={updateConnectionFormField}
+        clientCertIsOptional={false}
       />
     </>
   );

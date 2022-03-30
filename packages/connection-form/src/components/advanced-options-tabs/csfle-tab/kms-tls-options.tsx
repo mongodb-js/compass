@@ -9,10 +9,12 @@ function KMSTLSOptions({
   updateConnectionFormField,
   autoEncryptionOptions,
   kmsProvider,
+  clientCertIsOptional
 }: {
   updateConnectionFormField: UpdateConnectionFormField;
   autoEncryptionOptions: AutoEncryptionOptions;
   kmsProvider: keyof NonNullable<AutoEncryptionOptions['tlsOptions']>;
+  clientCertIsOptional?: boolean;
 }): React.ReactElement {
   const currentOptions: AutoEncryptionTlsOptions =
     autoEncryptionOptions.tlsOptions?.[kmsProvider] ?? {};
@@ -41,6 +43,7 @@ function KMSTLSOptions({
             value ?? undefined
           )
         }
+        displayDatabaseConnectionUserHints={false}
       />
       {/* TODO: Update UI messages for TLS situation (e.g. drop reference to X.509 auth) */}
       <TLSClientCertificate
@@ -61,6 +64,8 @@ function KMSTLSOptions({
             newPassword ?? undefined
           );
         }}
+        displayDatabaseConnectionUserHints={false}
+        optional={clientCertIsOptional ?? true}
       />
     </>
   );

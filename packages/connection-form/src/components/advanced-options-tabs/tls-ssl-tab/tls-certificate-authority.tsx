@@ -22,11 +22,13 @@ function TLSCertificateAuthority({
   tlsCAFile,
   useSystemCA,
   disabled,
+  displayDatabaseConnectionUserHints,
   handleTlsOptionChanged,
 }: {
   tlsCAFile?: string | null;
   useSystemCA: boolean;
   disabled: boolean;
+  displayDatabaseConnectionUserHints?: boolean;
   handleTlsOptionChanged: (
     key: 'tlsCAFile' | 'useSystemCA',
     value: string | null
@@ -35,13 +37,15 @@ function TLSCertificateAuthority({
   return (
     <FormFieldContainer className={caFieldsContainer}>
       <FileInput
-        description={'Learn More'}
+        description={displayDatabaseConnectionUserHints ? 'Learn More' : undefined}
         disabled={disabled || useSystemCA}
         id="tlsCAFile"
         dataTestId="tlsCAFile-input"
         label="Certificate Authority (.pem)"
         link={
-          'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
+          displayDatabaseConnectionUserHints ?
+            'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile' :
+            undefined
         }
         onChange={(files: string[] | null) => {
           handleTlsOptionChanged('tlsCAFile', files?.[0] ?? null);

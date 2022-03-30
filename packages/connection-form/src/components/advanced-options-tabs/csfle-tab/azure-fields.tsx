@@ -19,6 +19,7 @@ interface Field {
   value: string;
   errorMessage?: string;
   state: 'error' | 'none';
+  description?: string;
 }
 
 function AzureFields({
@@ -48,6 +49,7 @@ function AzureFields({
       optional: false,
       value: autoEncryptionOptions?.kmsProviders?.azure?.tenantId ?? '',
       state: 'none',
+      description: 'The tenant ID identifies the organization for the account.'
     },
     {
       name: 'clientId',
@@ -56,6 +58,7 @@ function AzureFields({
       optional: false,
       value: autoEncryptionOptions?.kmsProviders?.azure?.clientId ?? '',
       state: 'none',
+      description: 'The client ID to authenticate a registered application.'
     },
     {
       name: 'clientSecret',
@@ -64,6 +67,7 @@ function AzureFields({
       optional: false,
       value: autoEncryptionOptions?.kmsProviders?.azure?.clientSecret ?? '',
       state: 'none',
+      description: 'The client secret to authenticate a registered application.'
     },
     {
       name: 'identityPlatformEndpoint',
@@ -74,13 +78,14 @@ function AzureFields({
         autoEncryptionOptions?.kmsProviders?.azure?.identityPlatformEndpoint ??
         '',
       state: 'none',
+      description: 'A host with optional port.'
     },
   ];
 
   return (
     <>
       {fields.map(
-        ({ name, label, type, optional, value, errorMessage, state }) => (
+        ({ name, label, type, optional, value, errorMessage, state, description }) => (
           <FormFieldContainer key={name}>
             <TextInput
               onChange={({
@@ -97,6 +102,7 @@ function AzureFields({
               errorMessage={errorMessage}
               state={state}
               spellCheck={false}
+              description={description}
             />
           </FormFieldContainer>
         )

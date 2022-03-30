@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
-import { TextInput } from '@mongodb-js/compass-components';
+import { TextInput, TextArea } from '@mongodb-js/compass-components';
 import type { AutoEncryptionOptions } from 'mongodb';
 
 import FormFieldContainer from '../../form-field-container';
@@ -14,11 +14,12 @@ type GCPKMSOptions = NonNullable<
 interface Field {
   name: keyof GCPKMSOptions;
   label: string;
-  type: 'password' | 'text';
+  type: 'password' | 'text' | 'textarea';
   optional: boolean;
   value: string;
   errorMessage?: string;
   state: 'error' | 'none';
+  description?: string;
 }
 
 function GCPFields({
@@ -48,17 +49,19 @@ function GCPFields({
       optional: false,
       value: autoEncryptionOptions?.kmsProviders?.gcp?.email ?? '',
       state: 'none',
+      description: 'The service account email to authenticate.'
     },
     {
       name: 'privateKey',
       label: 'Private Key',
-      type: 'password',
+      type: 'textarea',
       optional: false,
       value:
         autoEncryptionOptions?.kmsProviders?.gcp?.privateKey?.toString(
           'base64'
         ) ?? '',
       state: 'none',
+      description: 'A base64-encoded PKCS#8 private key.'
     },
     {
       name: 'endpoint',
@@ -67,32 +70,35 @@ function GCPFields({
       optional: true,
       value: autoEncryptionOptions?.kmsProviders?.gcp?.endpoint ?? '',
       state: 'none',
+      description: 'A host with optional port.'
     },
   ];
 
   return (
     <>
       {fields.map(
-        ({ name, label, type, optional, value, errorMessage, state }) => (
-          <FormFieldContainer key={name}>
-            <TextInput
+        ({ name, label, type, optional, value, errorMessage, state, description }) => {
+          const InputComponent = type === 'textarea' ? TextArea : TextInput;
+          return (<FormFieldContainer key={name}>
+            <InputComponent
               onChange={({
                 target: { value },
-              }: ChangeEvent<HTMLInputElement>) => {
+              }: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
                 handleFieldChanged(name, value);
               }}
               name={name}
               data-testid={name}
               label={label}
-              type={type}
+              type={type === 'textarea' ? undefined : type}
               optional={optional}
               value={value}
               errorMessage={errorMessage}
               state={state}
               spellCheck={false}
+              description={description}
             />
-          </FormFieldContainer>
-        )
+          </FormFieldContainer>)
+        }
       )}
       <KMSTLSOptions
         kmsProvider="gcp"

@@ -19,6 +19,7 @@ interface Field {
   value: string;
   errorMessage?: string;
   state: 'error' | 'none';
+  description?: string;
 }
 
 function AWSFields({
@@ -48,6 +49,7 @@ function AWSFields({
       optional: false,
       value: autoEncryptionOptions?.kmsProviders?.aws?.accessKeyId ?? '',
       state: 'none',
+      description: 'The access key used for the AWS KMS provider.'
     },
     {
       name: 'secretAccessKey',
@@ -56,6 +58,7 @@ function AWSFields({
       optional: false,
       value: autoEncryptionOptions?.kmsProviders?.aws?.secretAccessKey ?? '',
       state: 'none',
+      description: 'The secret access key used for the AWS KMS provider.'
     },
     {
       name: 'sessionToken',
@@ -64,13 +67,14 @@ function AWSFields({
       optional: true,
       value: autoEncryptionOptions?.kmsProviders?.aws?.sessionToken ?? '',
       state: 'none',
+      description: 'An optional AWS session token that will be used as the X-Amz-Security-Token header for AWS requests.'
     },
   ];
 
   return (
     <>
       {fields.map(
-        ({ name, label, type, optional, value, errorMessage, state }) => (
+        ({ name, label, type, optional, value, errorMessage, state, description }) => (
           <FormFieldContainer key={name}>
             <TextInput
               onChange={({
@@ -87,6 +91,7 @@ function AWSFields({
               errorMessage={errorMessage}
               state={state}
               spellCheck={false}
+              description={description}
             />
           </FormFieldContainer>
         )
