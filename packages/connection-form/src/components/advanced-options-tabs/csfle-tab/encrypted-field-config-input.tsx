@@ -4,13 +4,18 @@ import {
   encryptedFieldConfigToText,
   textToEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
-import { Label } from '@mongodb-js/compass-components';
+import { Label, Banner, css, spacing } from '@mongodb-js/compass-components';
 
 import 'ace-builds';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'mongodb-ace-mode';
 import 'mongodb-ace-theme';
+
+const errorContainerStyles = css({
+  padding: spacing[3],
+  width: '100%',
+});
 
 /**
  * Options for the ACE editor.
@@ -62,8 +67,10 @@ function EncryptedFieldConfigInput({
         setOptions={OPTIONS}
       />
       {
-        /* TODO: proper error message display! */ errorMessage && (
-          <div>{errorMessage}</div>
+        errorMessage && (
+          <div className={errorContainerStyles}>
+            <Banner variant="danger">{errorMessage}</Banner>
+          </div>
         )
       }
     </div>
