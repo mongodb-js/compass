@@ -44,7 +44,7 @@ export const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
           <Body>{name}</Body>
         </Tooltip>
       )}
-      {isModified && <span className={modifiedStyles}> - modified</span>}
+      {isModified && <span className={modifiedStyles}>&nbsp;- modified</span>}
     </Body>
   );
 };

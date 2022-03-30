@@ -7,6 +7,9 @@ import {
   spacing,
   Icon,
   Button,
+  Body,
+  uiColors,
+  cx,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
@@ -36,6 +39,15 @@ const topStyles = css({
   gap: spacing[2],
 });
 
+const centeredContentStyles = css({
+  textAlign: 'center',
+  marginTop: spacing[4],
+});
+
+const errorMessageStyles = css({
+  color: uiColors.red.base,
+});
+
 const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace> =
   ({
     documents,
@@ -54,37 +66,49 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
     return (
       <div data-testid="pipeline-results-workspace">
         <div className={topStyles}>
-          <p>
-            Showing {showingFrom || 1} - {showingTo}
+          <Body>
+            Showing {showingFrom + 1} - {showingTo}
             &nbsp;of count.
-          </p>
+          </Body>
           <div>
             <IconButton
               aria-label="Previous page"
-              disabled={isPrevDisabled}
+              disabled={isPrevDisabled || loading}
               onClick={() => onPrev()}
             >
               <Icon glyph="ChevronLeft" />
             </IconButton>
             <IconButton
               aria-label="Next page"
-              disabled={isNextDisabled}
+              disabled={isNextDisabled || loading}
               onClick={() => onNext()}
             >
               <Icon glyph="ChevronRight" />
             </IconButton>
           </div>
         </div>
-        {error && <p>{error}</p>}
-        {loading && (
-          <>
-            <p>Loading ...</p>
-            <Button onClick={() => onCancel()}>Cancel</Button>
-          </>
+        {error && (
+          <Body className={cx(centeredContentStyles, errorMessageStyles)}>
+            {error}
+          </Body>
         )}
-        <pre>
-          <code>{JSON.stringify(documents, null, 2)}</code>
-        </pre>
+        {loading && (
+          <div className={centeredContentStyles}>
+            <Body>Loading ... </Body>
+            <Button
+              onClick={() => onCancel()}
+              variant="primaryOutline"
+              size="xsmall"
+            >
+              Cancel
+            </Button>
+          </div>
+        )}
+        {documents.length > 0 && (
+          <pre>
+            <code>{JSON.stringify(documents, null, 2)}</code>
+          </pre>
+        )}
       </div>
     );
   };

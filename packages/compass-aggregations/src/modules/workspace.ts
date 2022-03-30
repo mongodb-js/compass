@@ -23,7 +23,7 @@ const reducer: Reducer<State, Actions | AggregationActions> = (state = INITIAL_S
   switch (action.type) {
     case ActionTypes.ChangeWorkspace:
       return action.view;
-    case AggregationActionTypes.RunAggregationStarted:
+    case AggregationActionTypes.AggregationStarted:
       return 'results';
     default:
       return state;

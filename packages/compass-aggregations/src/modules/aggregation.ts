@@ -4,33 +4,29 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
+import { raceWithAbort } from '../utils/cancellablePromise';
 
 export enum ActionTypes {
-  RunAggregationStarted = 'compass-aggregations/runAggregationStarted',
-  RunAggregationFinished = 'compass-aggregations/runAggregationFinished',
-  RunAggregationCancelled = 'compass-aggregations/runAggregationCancelled',
-  RunAggregationFailed = 'compass-aggregations/runAggregationFailed',
+  AggregationStarted = 'compass-aggregations/aggregationStarted',
+  AggregationFinished = 'compass-aggregations/aggregationFinished',
+  AggregationFailed = 'compass-aggregations/aggregationFailed',
   LastPageReached = 'compass-aggregations/lastPageReached',
 }
 
-type RunAggregationStartedAction = {
-  type: ActionTypes.RunAggregationStarted;
-  // abortController: AbortController;
+type AggregationStartedAction = {
+  type: ActionTypes.AggregationStarted;
+  abortController: AbortController;
 };
 
-type RunAggregationFinishedAction = {
-  type: ActionTypes.RunAggregationFinished;
+type AggregationFinishedAction = {
+  type: ActionTypes.AggregationFinished;
   documents: Document[];
   page: number;
   isLast: boolean;
 };
 
-type RunAggregationCancelledAction = {
-  type: ActionTypes.RunAggregationCancelled;
-};
-
-type RunAggregationFailedAction = {
-  type: ActionTypes.RunAggregationFailed;
+type AggregationFailedAction = {
+  type: ActionTypes.AggregationFailed;
   error: string;
 };
 
@@ -39,10 +35,9 @@ type LastPageReachedAction = {
 };
 
 export type Actions =
-  | RunAggregationStartedAction
-  | RunAggregationFinishedAction
-  | RunAggregationCancelledAction
-  | RunAggregationFailedAction
+  | AggregationStartedAction
+  | AggregationFinishedAction
+  | AggregationFailedAction
   | LastPageReachedAction;
 
 export type State = {
@@ -51,7 +46,7 @@ export type State = {
   limit: number;
   isLast: boolean;
   loading: boolean;
-  // abortController?: AbortController;
+  abortController?: AbortController;
   error?: string;
 };
 
@@ -65,36 +60,30 @@ export const INITIAL_STATE: State = {
 
 const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case ActionTypes.RunAggregationStarted:
+    case ActionTypes.AggregationStarted:
       return {
         ...state,
         loading: true,
         error: undefined,
         documents: [],
-        // abortController: action.abortController,
+        abortController: action.abortController,
       };
-    case ActionTypes.RunAggregationFinished:
+    case ActionTypes.AggregationFinished:
       return {
         ...state,
-        documents: action.documents,
-        page: action.page,
         isLast: action.isLast,
+        page: action.page,
+        documents: action.documents,
         loading: false,
-        // abortController: undefined,
+        abortController: undefined,
+        error: undefined,
       };
-    case ActionTypes.RunAggregationCancelled:
+    case ActionTypes.AggregationFailed:
       return {
         ...state,
-        loading: false,
         documents: [],
-        error: 'Action cancelled',
-        // abortController: undefined,
-      };
-    case ActionTypes.RunAggregationFailed:
-      return {
-        ...state,
         loading: false,
-        // abortController: undefined,
+        abortController: undefined,
         error: action.error,
       };
     case ActionTypes.LastPageReached:
@@ -150,11 +139,18 @@ export const fetchNextPage = (): ThunkAction<
   };
 };
 
-let abortController: AbortController;
-let signal: AbortSignal;
-
-const onAbort = () => {
-  abortController?.abort();
+export const cancelAggregation = (): ThunkAction<
+  void,
+  RootState,
+  void,
+  Actions
+> => {
+  return (_dispatch, getState) => {
+    const {
+      aggregation: { abortController },
+    } = getState();
+    abortController?.abort();
+  };
 };
 
 const fetchAggregationData = (page: number): ThunkAction<
@@ -164,28 +160,27 @@ const fetchAggregationData = (page: number): ThunkAction<
   Actions
 > => {
   return async (dispatch, getState) => {
+    const {
+      pipeline,
+      namespace,
+      maxTimeMS,
+      collation,
+      dataService: { dataService },
+      aggregation: { limit },
+    } = getState();
+
+    if (!dataService) {
+      return;
+    }
+
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    abortController.signal.addEventListener('abort', cancelAggregation, { once: true });
+
     try {
-      const {
-        pipeline,
-        namespace,
-        maxTimeMS,
-        collation,
-        dataService: { dataService },
-        aggregation: { limit },
-      } = getState();
-
-      if (!dataService) {
-        return;
-      }
-
-      abortController = new AbortController();
-      signal = abortController.signal;
-
-      abortController.signal.addEventListener('abort', onAbort, { once: true });
-
-
       dispatch({
-        type: ActionTypes.RunAggregationStarted,
+        type: ActionTypes.AggregationStarted,
+        abortController,
       });
 
       const stages = pipeline.map(generateStage);
@@ -206,79 +201,20 @@ const fetchAggregationData = (page: number): ThunkAction<
 
       const documents = await raceWithAbort(cursor.toArray(), signal);
       dispatch({
-        type: ActionTypes.RunAggregationFinished,
+        type: ActionTypes.AggregationFinished,
         documents,
         page,
         isLast: documents.length < limit,
       });
     } catch (e) {
       dispatch({
-        type: ActionTypes.RunAggregationFailed,
+        type: ActionTypes.AggregationFailed,
         error: (e as Error).message,
       });
     } finally {
-      abortController.signal.removeEventListener('abort', onAbort);
+      abortController.signal.removeEventListener('abort', cancelAggregation);
     }
   }
 };
-
-export const cancelAggregation = (): RunAggregationCancelledAction => {
-  onAbort();
-  return {
-    type: ActionTypes.RunAggregationCancelled,
-  }
-}
-
-
-/*
- * Return a promise you can race (just like a timeout from timeouts/promises).
- * It will reject if abortSignal triggers before successSignal
-*/
-function abortablePromise(abortSignal: AbortSignal, successSignal: AbortSignal) {
-  let reject: (reason: unknown) => void;
-
-  const promise = new Promise<never>(function (resolve, _reject) {
-    reject = _reject;
-  });
-
-  const abort = () => {
-    // if this task aborts it will never succeed, so clean up that event listener
-    // (abortSignal's event handler is already removed due to { once: true })
-    successSignal.removeEventListener('abort', succeed);
-
-    reject(new Error('OPERATION_CANCELLED_MESSAGE'));
-  };
-
-  const succeed = () => {
-    // if this task succeeds it will never abort, so clean up that event listener
-    // (successSignal's event handler is already removed due to { once: true })
-    abortSignal.removeEventListener('abort', abort);
-  };
-
-  abortSignal.addEventListener('abort', abort, { once: true });
-  successSignal.addEventListener('abort', succeed, { once: true });
-
-  return promise;
-}
-
-/*
- * We need a promise that will reject as soon as the operation is aborted since
- * closing the cursor isn't enough to immediately make the cursor method's
- * promise reject.
-*/
-async function raceWithAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
-  const successController = new AbortController();
-  const abortPromise = abortablePromise(signal, successController.signal);
-  try {
-    return await Promise.race([abortPromise, promise]);
-  } finally {
-    if (!signal.aborted) {
-      // either the operation succeeded or it failed because of some error
-      // that's not an abort
-      successController.abort();
-    }
-  }
-}
-
 
 export default reducer;
