@@ -237,7 +237,7 @@ export const cancelAggregation = (): RunAggregationCancelledAction => {
 function abortablePromise(abortSignal: AbortSignal, successSignal: AbortSignal) {
   let reject: (reason: unknown) => void;
 
-  const promise = new Promise(function (resolve, _reject) {
+  const promise = new Promise<never>(function (resolve, _reject) {
     reject = _reject;
   });
 
