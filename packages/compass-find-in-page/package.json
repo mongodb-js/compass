@@ -20,14 +20,14 @@
     "email": "compass@mongodb.com"
   },
   "files": [
-    "dist"
+    "lib"
   ],
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "exports": {
     "webpack": "./src/index.ts",
-    "require": "./dist/index.js"
+    "require": "./lib/index.js"
   },
-  "types": "./dist/index.d.ts",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",

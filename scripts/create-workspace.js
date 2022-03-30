@@ -184,6 +184,8 @@ async function main(argv) {
 
   console.log();
 
+  const outDirName = isPlugin ? 'lib' : 'dist';
+
   const pkgJson = {
     name: dirToScopedPackageName(name),
     ...(description && { description }),
@@ -202,17 +204,17 @@ async function main(argv) {
       type: 'git',
       url: 'https://github.com/mongodb-js/compass.git',
     },
-    files: ['dist'],
+    files: [outDirName, 'package.json'],
     license: 'SSPL',
-    main: 'dist/index.js',
+    main: `${outDirName}/index.js`,
     exports: {
       webpack: './src/index.ts',
-      require: './dist/index.js',
+      require: `./${outDirName}/index.js`,
       ...(!isPlugin && {
-        import: './dist/.esm-wrapper.mjs',
+        import: `./${outDirName}/.esm-wrapper.mjs`,
       }),
     },
-    types: './dist/index.d.ts',
+    types: `./${outDirName}/index.d.ts`,
     scripts: {
       // Plugins are bundled by webpack from source and tested with ts-node
       // runtime processor, no need to bootstrap them
@@ -224,10 +226,10 @@ async function main(argv) {
       // plugins (but only for them) we are using webpack to create independent
       // plugin packages
       compile:
-        'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs',
+        `tsc -p tsconfig.json && gen-esm-wrapper . ./${outDirName}/.esm-wrapper.mjs`,
       ...(isPlugin && {
         compile: 'npm run webpack -- --mode production',
-        prewebpack: 'rimraf ./lib',
+        prewebpack: `rimraf ./${outDirName}`,
         webpack: 'webpack-compass',
         start: 'npm run webpack serve -- --mode development',
         analyze: 'npm run webpack -- --mode production --analyze',
@@ -322,7 +324,7 @@ async function main(argv) {
   );
 
   const prettierIgnorePath = path.join(packagePath, '.prettierignore');
-  const prettierIgnoreContent = '.nyc_output\ndist\ncoverage\n';
+  const prettierIgnoreContent = `.nyc_output\n${outDirName}\ncoverage\n`;
 
   const tsconfigPath = path.join(packagePath, 'tsconfig.json');
   const tsconfigContent = JSON.stringify(
@@ -331,7 +333,7 @@ async function main(argv) {
         isReact ? 'react' : 'common'
       }.json`,
       compilerOptions: {
-        outDir: 'dist',
+        outDir: outDirName,
       },
       include: ['src/**/*'],
       exclude: ['./src/**/*.spec.*'],
@@ -345,7 +347,7 @@ async function main(argv) {
     {
       extends: './tsconfig.json',
       include: ['**/*'],
-      exclude: ['node_modules', 'dist'],
+      exclude: ['node_modules', outDirName],
     },
     null,
     2
@@ -363,7 +365,7 @@ module.exports = {
 };`;
 
   const eslintIgnorePath = path.join(packagePath, '.eslintignore');
-  const eslintIgnoreContent = '.nyc-output\ndist\n';
+  const eslintIgnoreContent = `.nyc-output\n${outDirName}\n`;
 
   const mocharcPath = path.join(packagePath, '.mocharc.js');
   const mocharcContent = `module.exports = require('${
@@ -378,30 +380,6 @@ module.exports = {
   const webpackConfigContent = `
 const { compassPluginConfig } = require('@mongodb-js/webpack-config-compass');
 module.exports = compassPluginConfig;
-`;
-  
-  const npmIgnorePath = path.join(packagePath, '.npmignore');
-  const npmIgnoreContent = `
-.depcheckrc
-.eslintignore
-.eslintrc.js
-.editorconfig
-.mocharc.js
-.github/
-.nycrc
-.nyc_output/
-.prettierignore
-.prettierrc.json
-config/
-coverage/
-lib/index.html
-scripts/**/*
-!scripts/download-akzidenz.js
-src/
-test/
-tsconfig.json
-tsconfig-lint.json
-webpack.config.js
 `;
 
   const indexSrcDir = path.join(packagePath, 'src');
@@ -451,9 +429,6 @@ describe('Compass Plugin', function() {
     await fs.writeFile(eslintrcPath, eslintrcContent);
     await fs.writeFile(eslintIgnorePath, eslintIgnoreContent);
     await fs.writeFile(mocharcPath, mocharcContent);
-    if (isPublic) {
-      await fs.writeFile(npmIgnorePath, npmIgnoreContent);
-    }
     if (isPlugin) {
       await fs.writeFile(webpackConfigPath, webpackConfigContent);
     }
