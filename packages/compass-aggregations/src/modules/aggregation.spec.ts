@@ -6,17 +6,22 @@ import { spy } from 'sinon';
 import type { Document } from 'mongodb';
 
 
-import reducer, { runAggregation, fetchNextPage, fetchPrevPage } from './aggregation';
+import reducer, { runAggregation, fetchNextPage, fetchPrevPage, cancelAggregation } from './aggregation';
 import type { State as AggregateState } from './aggregation';
 import type { RootState } from '.';
 import rootReducer, { INITIAL_STATE } from '../modules';
 import configureStore from '../stores/store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 
+const waitFor = (delay: number): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, delay));
+};
+
 class AggregationCursorMock {
   constructor(public options: {
     hasNext: boolean;
     documents: Document[];
+    delayInResponse?: number;
     skip?: number;
     limit?: number;
   }) {
@@ -29,10 +34,12 @@ class AggregationCursorMock {
     this.options.limit = count;
     return this;
   }
-  hasNext() {
+  async hasNext() {
+    await waitFor(this.options.delayInResponse ?? 0);
     return Promise.resolve(this.options.hasNext);
   }
-  toArray() {
+  async toArray() {
+    await waitFor(this.options.delayInResponse ?? 0);
     return Promise.resolve(this.options.documents);
   }
 }
@@ -52,6 +59,7 @@ describe('aggregation module', function () {
       page: 0,
       limit: 20,
       isLast: false,
+      loading: false,
     });
   });
 
@@ -93,10 +101,57 @@ describe('aggregation module', function () {
     expect(limit).to.equal(20);
   });
 
+  it('cancels an aggregation', async function () {
+    const store = getMockedStore({
+      isLast: false,
+      loading: false,
+      documents: [
+        { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
+      ],
+      limit: 4,
+      page: 2,
+    });
+
+    const aggregateMock = new AggregationCursorMock({
+      hasNext: true,
+      documents: [{ id: 9 }, { id: 10 }, { id: 11 }, { id: 12 }],
+      delayInResponse: 1000,
+    });
+
+    store.dispatch({
+      type: DATA_SERVICE_CONNECTED,
+      dataService: new class {
+        aggregate() {
+          return aggregateMock;
+        }
+      }
+    });
+
+    store.dispatch(fetchNextPage() as any);
+    // let it call .aggregate
+    await waitFor(100);
+
+    // now cancel while its fetching data
+    await store.dispatch(cancelAggregation() as any);
+
+    await waitFor(500);
+
+    const { aggregation } = store.getState();
+
+    expect(aggregation.documents, 'correct value for documents').to.deep.equal([]);
+    expect(aggregation.isLast, 'correct value for isLast').to.equal(false);
+    expect(aggregation.page, 'correct value for page').to.equal(2);
+    expect(aggregation.limit, 'correct value for limit').to.equal(4);
+    expect(aggregation.loading, 'correct value for loading').to.equal(false);
+    expect(aggregation.error, 'correct value for error').to.equal('The operation was cancelled.');
+    expect(aggregation.abortController, 'correct value for abortController').to.equal(undefined);
+  });
+
   describe('paginates data', function () {
     it('nextPage -> not on last page', async function () {
       const store = getMockedStore({
         isLast: false,
+        loading: false,
         documents: [
           { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
         ],
@@ -125,12 +180,12 @@ describe('aggregation module', function () {
 
       await store.dispatch(fetchNextPage() as any);
 
-      expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([8]);
-      expect(limitSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([4]);
-      expect(hasNextSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([]);
-      expect(toArraySpy.firstCall.args, 'calls skip with correct args').to.deep.equal([]);
+      await waitFor(500);
 
-      await Promise.resolve();
+      expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([8]);
+      expect(limitSpy.firstCall.args, 'calls limit with correct args').to.deep.equal([4]);
+      expect(hasNextSpy.firstCall.args, 'calls hasNext with correct args').to.deep.equal([]);
+      expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
       const {
         aggregation: { documents, isLast, limit, page }
@@ -144,6 +199,7 @@ describe('aggregation module', function () {
     it('nextPage -> on last page', async function () {
       const store = getMockedStore({
         isLast: true,
+        loading: false,
         documents: [
           { id: 1 }, { id: 2 }, { id: 3 },
         ],
@@ -163,6 +219,7 @@ describe('aggregation module', function () {
     it('prevPage -> not on first page', async function () {
       const store = getMockedStore({
         isLast: false,
+        loading: false,
         documents: [
           { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
         ],
@@ -191,12 +248,12 @@ describe('aggregation module', function () {
 
       await store.dispatch(fetchPrevPage() as any);
 
-      expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([0]);
-      expect(limitSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([4]);
-      expect(hasNextSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([]);
-      expect(toArraySpy.firstCall.args, 'calls skip with correct args').to.deep.equal([]);
+      await waitFor(500);
 
-      await Promise.resolve();
+      expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([0]);
+      expect(limitSpy.firstCall.args, 'calls limit with correct args').to.deep.equal([4]);
+      expect(hasNextSpy.firstCall.args, 'calls hasNext with correct args').to.deep.equal([]);
+      expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
       const {
         aggregation: { documents, isLast, limit, page }
@@ -210,6 +267,7 @@ describe('aggregation module', function () {
     it('prevPage -> on first page', async function () {
       const store = getMockedStore({
         isLast: false,
+        loading: false,
         documents: [
           { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 },
         ],
@@ -226,5 +284,5 @@ describe('aggregation module', function () {
       await store.dispatch(fetchPrevPage() as any);
       expect(aggregateSpy.callCount).to.equal(0);
     });
-  })
+  });
 });
