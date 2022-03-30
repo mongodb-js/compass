@@ -2,7 +2,7 @@
   "name": "compass-preferences-model",
   "description": "Compass preferences model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -37,11 +37,11 @@
     "ampersand-state": "5.0.3",
     "debug": "^2.2.0",
     "lodash.get": "^4.4.2",
-    "mongodb-collection-model": "^4.20.0",
-    "mongodb-database-model": "^1.9.0",
+    "mongodb-collection-model": "^4.21.0",
+    "mongodb-database-model": "^1.10.0",
     "mongodb-ns": "^2.3.0",
     "raf": "^3.4.1",
-    "storage-mixin": "^4.12.0"
+    "storage-mixin": "^4.13.0"
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
