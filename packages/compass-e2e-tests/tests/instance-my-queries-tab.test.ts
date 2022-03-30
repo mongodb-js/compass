@@ -40,6 +40,7 @@ describe('Instance my queries tab', function () {
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
     await browser.closeWorkspaceTabs();
+    await browser.navigateToInstanceTab('Databases');
     await browser.navigateToInstanceTab('My Queries');
 
     await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
