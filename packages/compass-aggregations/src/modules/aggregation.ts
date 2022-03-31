@@ -37,6 +37,7 @@ type AggregationFailedAction = {
 
 type LastPageReachedAction = {
   type: ActionTypes.LastPageReached;
+  page: number;
 };
 
 export type Actions =
@@ -100,6 +101,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         ...state,
         isLast: true,
         loading: false,
+        page: action.page,
       };
     default:
       return state;
@@ -219,7 +221,7 @@ const fetchAggregationData = (page: number): ThunkAction<
       );
 
       if (documents.length === 0) {
-        dispatch({ type: ActionTypes.LastPageReached });
+        dispatch({ type: ActionTypes.LastPageReached, page });
       } else {
         dispatch({
           type: ActionTypes.AggregationFinished,

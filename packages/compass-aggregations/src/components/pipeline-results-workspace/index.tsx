@@ -74,35 +74,39 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
     return (
       <div data-testid="pipeline-results-workspace" className={containerStyles}>
         <div className={topStyles}>
-          <Body>
-            Showing {showingFrom + 1} – {showingTo}
-          </Body>
+          {/* todo: should be replaced with spinners for counts (showingFrom, showingTo) */}
+          {loading ? (
+            <Body>Loading ...</Body>
+          ) : (
+            <Body>
+              Showing {showingFrom + 1} – {showingTo}
+            </Body>
+          )}
           <div>
             <IconButton
               aria-label="Previous page"
-              disabled={isPrevDisabled || loading}
+              disabled={isPrevDisabled}
               onClick={() => onPrev()}
             >
               <Icon glyph="ChevronLeft" />
             </IconButton>
             <IconButton
               aria-label="Next page"
-              disabled={isNextDisabled || loading}
+              disabled={isNextDisabled}
               onClick={() => onNext()}
             >
               <Icon glyph="ChevronRight" />
             </IconButton>
           </div>
         </div>
-        {documents.length > 0 && (
-          <PipelineResultsList
-            documents={documents}
-            data-testid="pipeline-results-workspace"
-          ></PipelineResultsList>
-        )}
+        <PipelineResultsList
+          documents={documents}
+          data-testid="pipeline-results-workspace"
+        ></PipelineResultsList>
         {documents.length === 0 && !error && !loading && (
           <Body className={centeredContentStyles}>No results to show</Body>
         )}
+        {/* todo: on error, add a retry button */}
         {error && (
           <Body className={cx(centeredContentStyles, errorMessageStyles)}>
             {error}
@@ -132,8 +136,8 @@ const mapState = ({
   perPage: limit,
   error,
   loading,
-  isPrevDisabled: page <= 1,
-  isNextDisabled: isLast,
+  isPrevDisabled: page <= 1 || loading,
+  isNextDisabled: isLast || loading,
 });
 
 const mapDispatch = {
