@@ -33,6 +33,13 @@ type PipelineResultsWorkspace = {
   onCancel: () => void;
 };
 
+const containerStyles = css({
+  flexGrow: 1,
+  width: '100%',
+  position: 'relative',
+  overflowY: 'scroll',
+});
+
 const topStyles = css({
   display: 'flex',
   justifyContent: 'flex-end',
@@ -65,7 +72,7 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
     const showingFrom = (page - 1) * perPage;
     const showingTo = showingFrom + (documents.length || perPage);
     return (
-      <div data-testid="pipeline-results-workspace">
+      <div data-testid="pipeline-results-workspace" className={containerStyles}>
         <div className={topStyles}>
           <Body>
             Showing {showingFrom + 1} – {showingTo}
@@ -87,10 +94,15 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
             </IconButton>
           </div>
         </div>
-        <PipelineResultsList
-          documents={documents}
-          data-testid="pipeline-results-workspace"
-        ></PipelineResultsList>
+        {documents.length > 0 && (
+          <PipelineResultsList
+            documents={documents}
+            data-testid="pipeline-results-workspace"
+          ></PipelineResultsList>
+        )}
+        {documents.length === 0 && !error && !loading && (
+          <Body className={centeredContentStyles}>No results to show</Body>
+        )}
         {error && (
           <Body className={cx(centeredContentStyles, errorMessageStyles)}>
             {error}
