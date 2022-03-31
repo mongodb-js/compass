@@ -9,5 +9,5 @@
     "html"
   ],
   "sourceMap": false,
-  "instrument": false
+  "instrument": true
 }
