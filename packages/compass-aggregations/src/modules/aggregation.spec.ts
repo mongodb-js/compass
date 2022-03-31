@@ -12,8 +12,8 @@ import rootReducer, { INITIAL_STATE } from '../modules';
 import configureStore from '../stores/store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 
-const waitFor = (delay: number): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, delay));
+const wait = (): Promise<void> => {
+  return new Promise(resolve => setImmediate(resolve));
 };
 
 class AggregationCursorMock {
@@ -135,13 +135,10 @@ describe('aggregation module', function () {
     });
 
     store.dispatch(fetchNextPage() as any);
-    // let it call .aggregate
-    await waitFor(100);
-
     // now cancel while its fetching data
     await store.dispatch(cancelAggregation() as any);
 
-    await waitFor(500);
+    await wait();
 
     expect(killSessionsSpy.getCalls().map(x => x.args), 'calls killSessions with correct args').to.deep.equal([[]]);
     expect(store.getState().aggregation).to.deep.equal({
@@ -191,7 +188,7 @@ describe('aggregation module', function () {
 
       await store.dispatch(fetchNextPage() as any);
 
-      await waitFor(500);
+      await wait();
 
       expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal([]);
       expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([8]);
@@ -264,7 +261,7 @@ describe('aggregation module', function () {
 
       await store.dispatch(fetchPrevPage() as any);
 
-      await waitFor(500);
+      await wait();
 
       expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal([]);
       expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([0]);
