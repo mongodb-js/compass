@@ -88,6 +88,10 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
             </IconButton>
           </div>
         </div>
+        <PipelineResultsList
+          documents={documents}
+          data-testid="pipeline-results-workspace"
+        ></PipelineResultsList>
         {error && (
           <Body className={cx(centeredContentStyles, errorMessageStyles)}>
             {error}
@@ -105,10 +109,6 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
             </Button>
           </div>
         )}
-        <PipelineResultsList
-          documents={documents}
-          data-testid="pipeline-results-workspace"
-        ></PipelineResultsList>
       </div>
     );
   };
