@@ -69,7 +69,6 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
         <div className={topStyles}>
           <Body>
             Showing {showingFrom + 1} – {showingTo}
-            &nbsp;of count.
           </Body>
           <div>
             <IconButton
