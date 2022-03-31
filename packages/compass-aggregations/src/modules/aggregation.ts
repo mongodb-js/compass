@@ -232,7 +232,7 @@ const fetchAggregationData = (page: number): ThunkAction<
         type: ActionTypes.AggregationFailed,
         error: (e as Error).message,
       });
-      log.warn(mongoLogId(1001000105), 'Aggregations', 'Failed to run aggregation');
+      log.warn(mongoLogId(1001000106), 'Aggregations', 'Failed to run aggregation');
     }
   }
 };
