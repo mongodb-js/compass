@@ -30,15 +30,17 @@ function TLSClientCertificate({
     <>
       <FormFieldContainer className={inputFieldStyles}>
         <FileInput
-          description={displayDatabaseConnectionUserHints ? 'Learn More' : undefined}
+          description={
+            displayDatabaseConnectionUserHints ? 'Learn More' : undefined
+          }
           disabled={disabled}
           id="tlsCertificateKeyFile"
           label="Client Certificate and Key (.pem)"
           dataTestId="tlsCertificateKeyFile-input"
           link={
-            displayDatabaseConnectionUserHints ?
-              'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile' :
-              undefined
+            displayDatabaseConnectionUserHints
+              ? 'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile'
+              : undefined
           }
           values={tlsCertificateKeyFile ? [tlsCertificateKeyFile] : []}
           onChange={(files: string[]) => {
@@ -49,7 +51,9 @@ function TLSClientCertificate({
           showFileOnNewLine
           optional={optional ?? true}
           optionalMessage={
-            optional && displayDatabaseConnectionUserHints ? "Optional (required with X.509 auth)" : undefined
+            optional && displayDatabaseConnectionUserHints
+              ? 'Optional (required with X.509 auth)'
+              : undefined
           }
         />
       </FormFieldContainer>

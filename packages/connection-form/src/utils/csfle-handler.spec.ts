@@ -63,7 +63,7 @@ describe('csfle-handler', function () {
       const withParameterSet = handleUpdateCsfleKmsParam({
         action: {
           type: 'update-csfle-kms-param',
-          kms: 'aws',
+          kmsProvider: 'aws',
           key: 'accessKeyId',
           value: '123456',
         },
@@ -85,7 +85,7 @@ describe('csfle-handler', function () {
         handleUpdateCsfleKmsParam({
           action: {
             type: 'update-csfle-kms-param',
-            kms: 'aws',
+            kmsProvider: 'aws',
             key: 'accessKeyId',
           },
           connectionOptions: withParameterSet,
@@ -106,7 +106,7 @@ describe('csfle-handler', function () {
       const withParameterSet = handleUpdateCsfleKmsTlsParam({
         action: {
           type: 'update-csfle-kms-tls-param',
-          kms: 'aws',
+          kmsProvider: 'aws',
           key: 'tlsCertificateKeyFilePassword',
           value: '123456',
         },
@@ -128,7 +128,7 @@ describe('csfle-handler', function () {
         handleUpdateCsfleKmsTlsParam({
           action: {
             type: 'update-csfle-kms-tls-param',
-            kms: 'aws',
+            kmsProvider: 'aws',
             key: 'tlsCertificateKeyFilePassword',
           },
           connectionOptions: withParameterSet,

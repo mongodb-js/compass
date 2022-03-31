@@ -9,7 +9,7 @@ function KMSTLSOptions({
   updateConnectionFormField,
   autoEncryptionOptions,
   kmsProvider,
-  clientCertIsOptional
+  clientCertIsOptional,
 }: {
   updateConnectionFormField: UpdateConnectionFormField;
   autoEncryptionOptions: AutoEncryptionOptions;
@@ -23,8 +23,8 @@ function KMSTLSOptions({
     (key: keyof AutoEncryptionTlsOptions, value?: string) => {
       return updateConnectionFormField({
         type: 'update-csfle-kms-tls-param',
-        kms: kmsProvider,
-        key: key,
+        kmsProvider,
+        key,
         value,
       });
     },

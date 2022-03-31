@@ -21,6 +21,8 @@ import type { ConnectionFormError, TabId } from '../../utils/validation';
 import { errorsByFieldTab } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
 
+const csfleFeatureFlag = process.env.COMPASS_CSFLE_SUPPORT === 'true';
+
 const tabsStyles = css({
   marginTop: spacing[2],
 });
@@ -69,13 +71,17 @@ function AdvancedOptionsTabs({
       component: AuthenticationTab,
     },
     { name: 'TLS/SSL', id: 'tls', component: TLSTab },
-    { name: 'Proxy/SSH', id: 'proxy', component: ProxyAndSshTunnelTab },
+    { name: 'Proxy/SSH Tunnel', id: 'proxy', component: ProxyAndSshTunnelTab },
     { name: 'Advanced', id: 'advanced', component: AdvancedTab },
   ];
 
-  if (process.env.COMPASS_CSFLE_SUPPORT === 'true') {
+  if (csfleFeatureFlag) {
     // Add before advanced
     tabs.splice(-1, 0, { name: 'CSFLE', id: 'csfle', component: CSFLETab });
+    // TODO(COMPASS-5634): Figure out the exact spacing properties
+    // for fitting all the tabs in here.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    tabs.find((tab) => tab.id === 'proxy')!.name = 'Proxy/SSH';
   }
 
   const connectionStringUrl = useMemo(() => {

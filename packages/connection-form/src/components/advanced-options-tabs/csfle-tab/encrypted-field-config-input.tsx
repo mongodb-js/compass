@@ -4,7 +4,13 @@ import {
   encryptedFieldConfigToText,
   textToEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
-import { Label, Banner, Description, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Label,
+  Banner,
+  Description,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import 'ace-builds';
 import AceEditor from 'react-ace';
@@ -18,7 +24,7 @@ const errorContainerStyles = css({
 });
 
 const withMarginStyles = css({
-  marginTop: spacing[1]
+  marginTop: spacing[1],
 });
 
 /**
@@ -60,10 +66,13 @@ function EncryptedFieldConfigInput({
   return (
     <div>
       <div className={withMarginStyles}>
-        <Label htmlFor="TODO" >EncryptedFieldConfigMap</Label>
+        <Label htmlFor="TODO(COMPASS-5653)">EncryptedFieldConfigMap</Label>
       </div>
       <div className={withMarginStyles}>
-        <Description className={withMarginStyles}>Add an optional client-side EncryptedFieldConfigMap for enhanced security.</Description>
+        <Description className={withMarginStyles}>
+          Add an optional client-side EncryptedFieldConfigMap for enhanced
+          security.
+        </Description>
       </div>
       <div className={withMarginStyles}>
         <AceEditor
@@ -77,13 +86,11 @@ function EncryptedFieldConfigInput({
           setOptions={OPTIONS}
         />
       </div>
-      {
-        errorMessage && (
-          <div className={errorContainerStyles}>
-            <Banner variant="danger">{errorMessage}</Banner>
-          </div>
-        )
-      }
+      {errorMessage && (
+        <div className={errorContainerStyles}>
+          <Banner variant="danger">{errorMessage}</Banner>
+        </div>
+      )}
     </div>
   );
 }

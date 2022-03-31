@@ -14,11 +14,8 @@ import type { Document, AutoEncryptionOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-import LocalFields from './local-fields';
-import AWSFields from './aws-fields';
-import GCPFields from './gcp-fields';
-import AzureFields from './azure-fields';
-import KMIPFields from './kmip-fields';
+import KMSProviderStatusIndicator from './kms-provider-status-indicator';
+import KMSProviderFieldsForm from './kms-provider-fields';
 import EncryptedFieldConfigInput from './encrypted-field-config-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
@@ -26,6 +23,11 @@ import {
   errorMessageByFieldName,
   fieldNameHasError,
 } from '../../../utils/validation';
+import type {
+  KMSProviderName,
+  KMSField,
+} from '../../../utils/csfle-kms-fields';
+import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
 import FormFieldContainer from '../../form-field-container';
 
 const kmsToggleLabelStyles = css({
@@ -35,7 +37,7 @@ const kmsToggleLabelStyles = css({
 });
 
 const withMarginStyles = css({
-  marginTop: spacing[1]
+  marginTop: spacing[1],
 });
 
 const buttonReset = css({
@@ -54,45 +56,38 @@ const faIcon = css({
 
 const kmsProviderComponentWrapperStyles = css({
   paddingLeft: spacing[3],
-  marginBottom: spacing[3]
+  marginBottom: spacing[3],
 });
 
-type KMSProviderName = keyof NonNullable<AutoEncryptionOptions['kmsProviders']>;
-interface KMSFields {
-  id: KMSProviderName;
+interface KMSProviderMetadata {
+  kmsProvider: KMSProviderName;
   title: string;
-  component: React.FC<{
-    autoEncryptionOptions: AutoEncryptionOptions;
-    updateConnectionFormField: UpdateConnectionFormField;
-    errors: ConnectionFormError[];
-  }>;
+  noTLS?: boolean;
+  clientCertIsOptional?: boolean;
 }
 
-const options: KMSFields[] = [
+const options: KMSProviderMetadata[] = [
   {
     title: 'Local KMS',
-    id: 'local',
-    component: LocalFields,
+    kmsProvider: 'local',
+    noTLS: true,
   },
   {
     title: 'AWS',
-    id: 'aws',
-    component: AWSFields,
+    kmsProvider: 'aws',
   },
   {
     title: 'GCP',
-    id: 'gcp',
-    component: GCPFields,
+    kmsProvider: 'gcp',
   },
   {
     title: 'Azure',
-    id: 'azure',
-    component: AzureFields,
+    kmsProvider: 'azure',
   },
   {
     title: 'KMIP',
-    id: 'kmip',
-    component: KMIPFields,
+    kmsProvider: 'kmip',
+    clientCertIsOptional: false,
   },
 ];
 
@@ -134,7 +129,8 @@ function CSFLETab({
   return (
     <div className={containerStyles}>
       <Description>
-        Client-side Field-Level Encryption is an Enterprise/Atlas-only feature of MongoDB.&nbsp;
+        Client-side Field-Level Encryption is an Enterprise/Atlas-only feature
+        of MongoDB.&nbsp;
         <Link href="https://www.mongodb.com/docs/drivers/security/client-side-field-level-encryption-guide/">
           Learn More
         </Link>
@@ -170,35 +166,40 @@ function CSFLETab({
         }}
       />
       <div className={withMarginStyles}>
-        <Label htmlFor="TODO">KMS Providers</Label>
+        <Label htmlFor="TODO(COMPASS-5653)">KMS Providers</Label>
       </div>
       <div className={withMarginStyles}>
-        <Description>Specify one or more Key Management Systems to use.</Description>
+        <Description>
+          Specify one or more Key Management Systems to use.
+        </Description>
       </div>
-      {options.map(({ title, id, component: KMSProviderComponent }) => {
-        const isExpanded = expandedKMSProviders.includes(id);
+      {options.map(({ title, kmsProvider, ...kmsFieldComponentOptions }) => {
+        const isExpanded = expandedKMSProviders.includes(kmsProvider);
         return (
-          <div key={id}>
+          <div key={kmsProvider}>
             <div>
               <button
                 className={buttonReset}
-                id={`toggle-kms-${id}`}
-                aria-labelledby={`toggle-kms-${id}-label`}
-                aria-pressed={expandedKMSProviders.includes(id)}
+                id={`toggle-kms-${kmsProvider}`}
+                aria-labelledby={`toggle-kms-${kmsProvider}-label`}
+                aria-pressed={expandedKMSProviders.includes(kmsProvider)}
                 aria-label={
                   isExpanded ? 'Collapse field items' : 'Expand field items'
                 }
                 type="button"
                 onClick={(evt) => {
-                  console.log(evt.target)
+                  console.log(evt.target);
                   evt.stopPropagation();
                   evt.preventDefault();
                   if (isExpanded) {
                     setExpandedKMSProviders(
-                      expandedKMSProviders.filter((i) => i !== id)
+                      expandedKMSProviders.filter((i) => i !== kmsProvider)
                     );
                   } else {
-                    setExpandedKMSProviders([...expandedKMSProviders, id]);
+                    setExpandedKMSProviders([
+                      ...expandedKMSProviders,
+                      kmsProvider,
+                    ]);
                   }
                 }}
               >
@@ -212,18 +213,34 @@ function CSFLETab({
               </button>
               <Label
                 className={kmsToggleLabelStyles}
-                id={`toggle-kms-${id}-label`}
-                htmlFor={`toggle-kms-${id}`}
+                id={`toggle-kms-${kmsProvider}-label`}
+                htmlFor={`toggle-kms-${kmsProvider}`}
               >
                 {title}
+                <KMSProviderStatusIndicator
+                  errors={errors}
+                  autoEncryptionOptions={autoEncryptionOptions}
+                  fields={
+                    KMSProviderFields[
+                      kmsProvider
+                    ] as KMSField<KMSProviderName>[]
+                  }
+                />
               </Label>
             </div>
             {isExpanded && (
               <div className={kmsProviderComponentWrapperStyles}>
-                <KMSProviderComponent
+                <KMSProviderFieldsForm
                   errors={errors}
                   autoEncryptionOptions={autoEncryptionOptions}
                   updateConnectionFormField={updateConnectionFormField}
+                  kmsProvider={kmsProvider}
+                  fields={
+                    KMSProviderFields[
+                      kmsProvider
+                    ] as KMSField<KMSProviderName>[]
+                  }
+                  {...kmsFieldComponentOptions}
                 />
               </div>
             )}

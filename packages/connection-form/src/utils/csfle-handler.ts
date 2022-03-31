@@ -5,6 +5,7 @@ import type {
   AutoEncryptionTlsOptions,
   Document,
 } from 'mongodb';
+import type { KMSProviderName } from './csfle-kms-fields';
 import queryParser from 'mongodb-query-parser';
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
@@ -18,14 +19,14 @@ export interface UpdateCsfleAction {
 type KMSProviders = NonNullable<AutoEncryptionOptions['kmsProviders']>;
 export interface UpdateCsfleKmsAction {
   type: 'update-csfle-kms-param';
-  kms: keyof KMSProviders;
+  kmsProvider: KMSProviderName;
   key: KeysOfUnion<KMSProviders[keyof KMSProviders]>;
   value?: string;
 }
 
 export interface UpdateCsfleKmsTlsAction {
   type: 'update-csfle-kms-tls-param';
-  kms: keyof KMSProviders;
+  kmsProvider: KMSProviderName;
   key: keyof AutoEncryptionTlsOptions;
   value?: string;
 }
@@ -73,7 +74,9 @@ export function handleUpdateCsfleKmsParam({
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let kms: any = { ...(autoEncryption.kmsProviders?.[action.kms] ?? {}) };
+  let kms: any = {
+    ...(autoEncryption.kmsProviders?.[action.kmsProvider] ?? {}),
+  };
   if (!action.value) {
     delete kms[action.key];
   } else {
@@ -92,7 +95,7 @@ export function handleUpdateCsfleKmsParam({
           ...autoEncryption,
           kmsProviders: {
             ...autoEncryption.kmsProviders,
-            [action.kms]: kms,
+            [action.kmsProvider]: kms,
           },
         },
       },
@@ -112,7 +115,7 @@ export function handleUpdateCsfleKmsTlsParam({
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let tls: any = { ...(autoEncryption.tlsOptions?.[action.kms] ?? {}) };
+  let tls: any = { ...(autoEncryption.tlsOptions?.[action.kmsProvider] ?? {}) };
   if (!action.value) {
     delete tls[action.key];
   } else {
@@ -131,7 +134,7 @@ export function handleUpdateCsfleKmsTlsParam({
           ...autoEncryption,
           tlsOptions: {
             ...autoEncryption.tlsOptions,
-            [action.kms]: tls,
+            [action.kmsProvider]: tls,
           },
         },
       },

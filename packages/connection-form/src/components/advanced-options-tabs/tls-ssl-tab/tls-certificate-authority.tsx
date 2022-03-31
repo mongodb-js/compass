@@ -37,15 +37,17 @@ function TLSCertificateAuthority({
   return (
     <FormFieldContainer className={caFieldsContainer}>
       <FileInput
-        description={displayDatabaseConnectionUserHints ? 'Learn More' : undefined}
+        description={
+          displayDatabaseConnectionUserHints ? 'Learn More' : undefined
+        }
         disabled={disabled || useSystemCA}
         id="tlsCAFile"
         dataTestId="tlsCAFile-input"
         label="Certificate Authority (.pem)"
         link={
-          displayDatabaseConnectionUserHints ?
-            'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile' :
-            undefined
+          displayDatabaseConnectionUserHints
+            ? 'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
+            : undefined
         }
         onChange={(files: string[] | null) => {
           handleTlsOptionChanged('tlsCAFile', files?.[0] ?? null);
