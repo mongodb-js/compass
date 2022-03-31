@@ -99,6 +99,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         isLast: true,
+        loading: false,
       };
     default:
       return state;
