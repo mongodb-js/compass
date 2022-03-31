@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "24.14.0",
+  "version": "24.15.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",
@@ -18,7 +18,7 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/devtools-github-repo": "^1.0.1",
+    "@mongodb-js/devtools-github-repo": "^1.1.0",
     "@mongodb-js/electron-wix-msi": "^3.0.0",
     "@mongodb-js/mongodb-notary-service-client": "^1.7.0",
     "@octokit/rest": "^18.6.2",
