@@ -17,6 +17,10 @@ const errorContainerStyles = css({
   width: '100%',
 });
 
+const withMarginStyles = css({
+  marginTop: spacing[1]
+});
+
 /**
  * Options for the ACE editor.
  */
@@ -55,18 +59,24 @@ function EncryptedFieldConfigInput({
 
   return (
     <div>
-      <Label htmlFor="TODO">EncryptedFieldConfigMap</Label>
-      <Description>Add an optional client-side EncryptedFieldConfigMap for enhanced security.</Description>
-      <AceEditor
-        mode="javascript" // will be set to mongodb as part of OPTIONS
-        theme="mongodb"
-        width="100%"
-        value={currentText}
-        onChange={changeCurrentText}
-        editorProps={{ $blockScrolling: Infinity }}
-        name="import-pipeline-editor"
-        setOptions={OPTIONS}
-      />
+      <div className={withMarginStyles}>
+        <Label htmlFor="TODO" >EncryptedFieldConfigMap</Label>
+      </div>
+      <div className={withMarginStyles}>
+        <Description className={withMarginStyles}>Add an optional client-side EncryptedFieldConfigMap for enhanced security.</Description>
+      </div>
+      <div className={withMarginStyles}>
+        <AceEditor
+          mode="javascript" // will be set to mongodb as part of OPTIONS
+          theme="mongodb"
+          width="100%"
+          value={currentText}
+          onChange={changeCurrentText}
+          editorProps={{ $blockScrolling: Infinity }}
+          name="import-pipeline-editor"
+          setOptions={OPTIONS}
+        />
+      </div>
       {
         errorMessage && (
           <div className={errorContainerStyles}>

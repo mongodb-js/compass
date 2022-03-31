@@ -3,6 +3,7 @@ import React, { useState, useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Label,
+  Description,
   TextInput,
   spacing,
   css,
@@ -30,6 +31,10 @@ const kmsToggleLabelStyles = css({
   '&:hover': {
     cursor: 'pointer',
   },
+});
+
+const withMarginStyles = css({
+  marginTop: spacing[1]
 });
 
 const buttonReset = css({
@@ -157,7 +162,12 @@ function CSFLETab({
           handleFieldChanged('schemaMap', value);
         }}
       />
-      <Label htmlFor="TODO">KMS Providers</Label>
+      <div className={withMarginStyles}>
+        <Label htmlFor="TODO">KMS Providers</Label>
+      </div>
+      <div className={withMarginStyles}>
+        <Description>Specify one or more Key Management Systems to use.</Description>
+      </div>
       {options.map(({ title, id, component: KMSProviderComponent }) => {
         const isExpanded = expandedKMSProviders.includes(id);
         return (
