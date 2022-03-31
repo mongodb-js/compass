@@ -18,6 +18,7 @@ import {
   fetchPrevPage,
   cancelAggregation,
 } from '../../modules/aggregation';
+import { PipelineResultsList } from './pipeline-results-list';
 
 type PipelineResultsWorkspace = {
   documents: Document[];
@@ -104,11 +105,10 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
             </Button>
           </div>
         )}
-        {documents.length > 0 && (
-          <pre>
-            <code>{JSON.stringify(documents, null, 2)}</code>
-          </pre>
-        )}
+        <PipelineResultsList
+          documents={documents}
+          data-testid="pipeline-results-workspace"
+        ></PipelineResultsList>
       </div>
     );
   };

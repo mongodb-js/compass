@@ -66,11 +66,11 @@ DocumentJsonView.propTypes = {
   docs: PropTypes.array.isRequired,
   isEditable: PropTypes.bool,
   isTimeSeries: PropTypes.bool,
-  removeDocument: PropTypes.func.isRequired,
-  replaceDocument: PropTypes.func.isRequired,
-  updateDocument: PropTypes.func.isRequired,
-  openInsertDocumentDialog: PropTypes.func.isRequired,
-  copyToClipboard: PropTypes.func.isRequired
+  removeDocument: PropTypes.func,
+  replaceDocument: PropTypes.func,
+  updateDocument: PropTypes.func,
+  openInsertDocumentDialog: PropTypes.func,
+  copyToClipboard: PropTypes.func
 };
 
 DocumentJsonView.displayName = 'DocumentJsonView';
