@@ -6,7 +6,7 @@ import {
   promisifyAmpersandMethod,
 } from './connection-storage';
 import { getConnectionTitle } from './connection-title';
-import DataService from './data-service';
+import DataService, { CompassClientSession } from './data-service';
 import {
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,
@@ -31,4 +31,5 @@ export {
   extractSecrets,
   mergeSecrets,
   promisifyAmpersandMethod,
+  CompassClientSession,
 };

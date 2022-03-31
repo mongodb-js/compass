@@ -1,10 +1,14 @@
 import type { Reducer } from 'redux';
-import type { AggregateOptions, Document, ClientSession } from 'mongodb';
+import type { AggregateOptions, Document } from 'mongodb';
+import type { CompassClientSession } from 'mongodb-data-service';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
 import { aggregatePipeline } from '../utils/cancellableAggregation';
+
+import createLogger from '@mongodb-js/compass-logging';
+const { log, mongoLogId } = createLogger('compass-aggregations');
 
 export enum ActionTypes {
   AggregationStarted = 'compass-aggregations/aggregationStarted',
@@ -16,7 +20,7 @@ export enum ActionTypes {
 type AggregationStartedAction = {
   type: ActionTypes.AggregationStarted;
   abortController: AbortController;
-  session: ClientSession;
+  session: CompassClientSession;
 };
 
 type AggregationFinishedAction = {
@@ -48,7 +52,7 @@ export type State = {
   isLast: boolean;
   loading: boolean;
   abortController?: AbortController;
-  session?: ClientSession;
+  session?: CompassClientSession;
   error?: string;
 };
 
@@ -158,9 +162,9 @@ export const cancelAggregation = (): ThunkAction<
     abortController?.abort();
     if (session && dataService) {
       try {
-        await dataService?.killSessions(session);
+        await dataService.killSessions(session);
       } catch (e) {
-        console.log((e as Error).message);
+        log.warn(mongoLogId(1001000105), 'Aggregations', 'Attempting to kill the session failed');
       }
     }
   };
@@ -189,7 +193,7 @@ const fetchAggregationData = (page: number): ThunkAction<
     try {
       const abortController = new AbortController();
       const signal = abortController.signal;
-      const session = dataService.startSession();
+      const session = dataService.startSession('CRUD');
       dispatch({
         type: ActionTypes.AggregationStarted,
         abortController,
@@ -228,6 +232,7 @@ const fetchAggregationData = (page: number): ThunkAction<
         type: ActionTypes.AggregationFailed,
         error: (e as Error).message,
       });
+      log.warn(mongoLogId(1001000105), 'Aggregations', 'Failed to run aggregation');
     }
   }
 };
