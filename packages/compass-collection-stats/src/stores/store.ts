@@ -137,7 +137,7 @@ function onInstanceDestroyed() {
 const configureStore = (storeOptions: any): any => {
   const namespace: string | undefined = storeOptions.namespace;
   const globalAppRegistry: AppRegistry = storeOptions.globalAppRegistry;
-  const isEditing: boolean = storeOptions.isEditing;
+  const isEditing: boolean = storeOptions.isEditing || false;
 
   if (!namespace) {
     throw new Error('Trying to render collection stats without namespace');
