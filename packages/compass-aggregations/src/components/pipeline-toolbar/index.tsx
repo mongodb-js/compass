@@ -12,7 +12,7 @@ const containerStyles = css({
   paddingTop: spacing[3],
   paddingRight: spacing[5],
   paddingBottom: spacing[3],
-  paddingLeft: spacing[3],
+  paddingLeft: spacing[3]
 });
 
 const containerDisplayStyles = css({
@@ -20,10 +20,16 @@ const containerDisplayStyles = css({
   gap: spacing[4],
   gridTemplateAreas: `
   "headerAndOptionsRow"
-  "settingsRow"
   `,
   marginLeft: spacing[1],
-  marginRight: spacing[1],
+  marginRight: spacing[1]
+});
+
+const displaySettings = css({
+  gridTemplateAreas: `
+  "headerAndOptionsRow"
+  "settingsRow"
+  `
 });
 
 const headerAndOptionsRowStyles = css({
@@ -31,11 +37,11 @@ const headerAndOptionsRowStyles = css({
   border: '1px solid',
   borderRadius: '6px',
   borderColor: uiColors.gray.light2,
-  padding: spacing[2],
+  padding: spacing[2]
 });
 
 const settingsRowStyles = css({
-  gridArea: 'settingsRow',
+  gridArea: 'settingsRow'
 });
 
 type PipelineToolbarProps = {
@@ -43,12 +49,16 @@ type PipelineToolbarProps = {
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
-  isSettingsVisible,
+  isSettingsVisible
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <div
-      className={cx(containerStyles, containerDisplayStyles)}
+      className={cx(
+        containerStyles,
+        containerDisplayStyles,
+        isSettingsVisible && displaySettings
+      )}
       data-testid="pipeline-toolbar"
     >
       <div className={headerAndOptionsRowStyles}>
@@ -68,6 +78,6 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 };
 
 const mapState = ({ workspace }: RootState) => ({
-  isSettingsVisible: workspace === 'builder',
+  isSettingsVisible: workspace === 'builder'
 });
 export default connect(mapState)(PipelineToolbar);

@@ -64,14 +64,13 @@ class DocumentListView extends React.Component {
 
 DocumentListView.propTypes = {
   docs: PropTypes.array.isRequired,
-  isEditable: PropTypes.bool.isRequired,
+  isEditable: PropTypes.bool,
   isTimeSeries: PropTypes.bool,
-  copyToClipboard: PropTypes.func,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
-  version: PropTypes.string.isRequired,
   openInsertDocumentDialog: PropTypes.func,
+  copyToClipboard: PropTypes.func,
 };
 
 DocumentListView.displayName = 'DocumentListView';
