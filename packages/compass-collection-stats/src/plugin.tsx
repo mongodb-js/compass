@@ -27,9 +27,6 @@ const Plugin: React.FunctionComponent<CollectionStatsPluginProps> = (
   props: CollectionStatsPluginProps
 ) => {
   return (
-    // The way Compass requires to extend redux store is not compatible with
-    // redux types
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <LeafyGreenProvider>
       <StoreConnector store={props.store}>
         <CollectionStats {...props} />

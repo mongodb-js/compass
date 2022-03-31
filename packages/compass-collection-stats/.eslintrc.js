@@ -5,7 +5,6 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig-lint.json'],
     sourceType: 'module',
-    allowImportExportEverywhere: true,
   },
   env: {
     node: true,
