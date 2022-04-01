@@ -88,59 +88,6 @@ describe.skip('Home [Component]', function () {
       );
     }
 
-    describe('with the old connect form', function () {
-      beforeEach(function () {
-        process.env.USE_NEW_CONNECT_FORM = 'false';
-        return renderHome();
-      });
-
-      afterEach(function () {
-        delete process.env.USE_NEW_CONNECT_FORM;
-      });
-
-      it('renders instance workspace', function () {
-        expect(screen.queryByTestId('test-Instance.Workspace')).to.be.visible;
-      });
-
-      it('renders the sidebar', function () {
-        expect(screen.getByTestId('test-Sidebar.Component')).to.be.visible;
-      });
-
-      it('renders the find', function () {
-        expect(screen.getByTestId('test-Find')).to.be.visible;
-      });
-
-      it('renders the shell plugin', function () {
-        expect(screen.getByTestId('test-Global.Shell')).to.be.visible;
-      });
-
-      it('renders the global modal role', function () {
-        expect(screen.getByTestId('test-Global.Modal')).to.be.visible;
-      });
-
-      it('updates the document title', async function () {
-        await waitFor(() =>
-          expect(document.title).to.equal('home-testing - mongodb.net')
-        );
-      });
-
-      describe('on `data-service-disconnected`', function () {
-        beforeEach(async function () {
-          testAppRegistry.emit('data-service-disconnected');
-
-          await waitFor(
-            () =>
-              expect(screen.queryByTestId('test-Sidebar.Component')).to.not
-                .exist
-          );
-        });
-
-        it('renders the connect screen', function () {
-          expect(screen.getByTestId('connections-disconnected')).to.be.visible;
-        });
-      });
-    });
-
     describe('when UI status is complete', function () {
       let dataServiceDisconnectedSpy: sinon.SinonSpy;
       let listenForDisconnectFake: sinon.SinonSpy;
