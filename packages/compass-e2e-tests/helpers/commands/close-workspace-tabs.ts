@@ -20,6 +20,10 @@ export async function closeWorkspaceTabs(
       await browser.keys([META, 'w']);
       await browser.keys([META]); // meta a second time to release it
 
+      // Attempt to close the tab using the button.
+      const closeButtons = await browser.$$(closeSelector);
+      await closeButtons[0]?.click();
+
       const tabCount = await countTabs();
       return tabCount < numTabs;
     });
