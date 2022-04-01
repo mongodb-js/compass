@@ -39,7 +39,8 @@ describe('Instance my queries tab', function () {
     await favoriteQueryNameField.setValue(favoriteQueryName);
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
-    await browser.closeCollectionTabs();
+    await browser.closeWorkspaceTabs();
+    await browser.navigateToInstanceTab('Databases');
     await browser.navigateToInstanceTab('My Queries');
 
     await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
@@ -76,7 +77,7 @@ describe('Instance my queries tab', function () {
 
     await createButton.click();
 
-    await browser.closeCollectionTabs();
+    await browser.closeWorkspaceTabs();
     await browser.navigateToInstanceTab('My Queries');
 
     await browser.clickVisible(Selectors.myQueriesItem(savedAggregationName));
