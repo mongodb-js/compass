@@ -1,3 +1,5 @@
+const path = require('path');
+
 const jsConfigurations = ['eslint:recommended'];
 
 const tsConfigurations = [
@@ -58,7 +60,21 @@ const typescriptParserOptions = {
 };
 
 module.exports = {
-  plugins: ['@typescript-eslint', 'jsx-a11y', 'mocha', 'react', 'react-hooks'],
+  plugins: [
+    '@typescript-eslint',
+    'jsx-a11y',
+    'mocha',
+    'react',
+    'react-hooks',
+    '@mongodb-js/compass',
+  ],
+  rules: {
+    '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
+    '@mongodb-js/compass/unique-mongodb-log-id': [
+      'error',
+      { root: path.resolve(__dirname, '..', '..') },
+    ],
+  },
   env: { node: true },
   overrides: [
     {
