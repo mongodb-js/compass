@@ -244,8 +244,12 @@ export const FavoriteSaveButton =
 export const CreateDatabaseModal = '[data-testid="create_database_modal"]';
 export const CreateDatabaseDatabaseName = '[data-testid="database-name"]';
 export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
+export const CreateDatabaseErrorMessage =
+  '[data-testid="create_database_modal"] [role="alert"]';
 export const CreateDatabaseCreateButton =
   '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateDatabaseCancelButton =
+  '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 
 // Drop database modal
 export const DropDatabaseModal = '[data-testid="drop_database_modal"]';
@@ -257,8 +261,12 @@ export const DropDatabaseDropButton =
 // Create collection modal
 export const CreateCollectionModal = '[data-testid="create_collection_modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
+export const CreateCollectionErrorMessage =
+  '[data-testid="create_collection_modal"] [role="alert"]';
 export const CreateCollectionCreateButton =
   '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateCollectionCancelButton =
+  '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 export const CreateCollectionCappedCheckboxLabel =
   '[data-testid="capped-collection-fields"] #toggle-capped-collection-fields-label';
 export const CreateCollectionCappedSizeInput =

@@ -317,18 +317,18 @@ export function useConnections({
           lastUsed: new Date(),
         });
 
-        // remove the oldest recent connection if are adding a new one and
+        // Remove the oldest recent connection if are adding a new one and
         // there are already MAX_RECENT_CONNECTIONS_LENGTH recents.
-        // NOTE: there are edge cases that may lead to more than MAX_RECENT_CONNECTIONS_LENGTH
-        // to be saved (ie. concurrent run of Compass),
-        // however we accept it as long as the list of
-        // recents won't grow indefinitely.
+        // NOTE: there are edge cases that may lead to more than
+        // MAX_RECENT_CONNECTIONS_LENGTH to be saved (ie. concurrent run
+        // of Compass), however we accept it as long as the list of
+        // recent connections won't grow indefinitely.
         if (
           !connectionInfoToBeSaved.favorite &&
           !connectionInfoToBeSaved.lastUsed &&
           recentConnections.length >= MAX_RECENT_CONNECTIONS_LENGTH
         ) {
-          await removeConnection(
+          await connectionStorage.delete(
             recentConnections[recentConnections.length - 1]
           );
         }
@@ -401,11 +401,12 @@ export function useConnections({
         return;
       }
 
-      void onConnectSuccess(connectionInfo, newConnectionDataService);
-
       dispatch({
         type: 'connection-attempt-succeeded',
       });
+
+      void onConnectSuccess(connectionInfo, newConnectionDataService);
+
       trackNewConnectionEvent(connectionInfo, newConnectionDataService);
       debug(
         'connection attempt succeeded with connection info',
