@@ -141,6 +141,7 @@ async function main(argv) {
           .map(({ name, location }) => ({ title: name, value: location })),
         hint: '(select as many as you like, or none)',
         instructions: `
+
  · Use up and down arrows to navigate the list
  · Use space to toggle the selection
  · Type text to filter choices
@@ -385,12 +386,15 @@ module.exports = compassPluginConfig;
   const indexSrcContent = isPlugin
     ? `
 import type AppRegistry from "hadron-app-registry";
+
 function activate(appRegistry: AppRegistry): void {
   // Register plugin stores, roles, and components
 }
+
 function deactivate(appRegistry: AppRegistry): void {
   // Unregister plugin stores, roles, and components
 }
+
 export { activate, deactivate };
 export { default as metadata } from '../package.json';
 `
@@ -401,6 +405,7 @@ export { default as metadata } from '../package.json';
     ? `
 import { expect } from 'chai';
 import * as CompassPlugin from './index';
+
 describe('Compass Plugin', function() {
   it('exports activate, deactivate, and metadata', function() {
     expect(CompassPlugin).to.have.property('activate');
