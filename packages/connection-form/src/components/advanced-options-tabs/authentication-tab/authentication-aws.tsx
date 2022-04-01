@@ -44,7 +44,6 @@ function AuthenticationAWS({
           }}
           label={AWS_ACCESS_KEY_ID_LABEL}
           value={awsAccessKeyId || ''}
-          optional={true}
         />
       </FormFieldContainer>
       <FormFieldContainer>
