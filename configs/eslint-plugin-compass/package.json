@@ -37,21 +37,13 @@
     "reformat": "npm run prettier -- --write ."
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.6.0",
-    "@mongodb-js/mocha-config-compass": "^0.8.0",
-    "@mongodb-js/prettier-config-compass": "^0.4.0",
-    "@mongodb-js/tsconfig-compass": "^0.5.0",
-    "@types/chai": "^4.2.21",
-    "@types/mocha": "^9.0.0",
-    "@types/sinon-chai": "^3.2.5",
-    "chai": "^4.3.6",
+    "@mongodb-js/eslint-config-compass": "^0.7.0",
+    "@mongodb-js/mocha-config-compass": "^0.10.0",
+    "@mongodb-js/prettier-config-compass": "^0.5.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "gen-esm-wrapper": "^1.1.0",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
-    "prettier": "2.3.2",
-    "sinon": "^9.2.3",
-    "typescript": "^4.3.5"
+    "prettier": "2.3.2"
   }
 }
