@@ -141,7 +141,6 @@ async function main(argv) {
           .map(({ name, location }) => ({ title: name, value: location })),
         hint: '(select as many as you like, or none)',
         instructions: `
-
  · Use up and down arrows to navigate the list
  · Use space to toggle the selection
  · Type text to filter choices
@@ -184,8 +183,6 @@ async function main(argv) {
 
   console.log();
 
-  const outDirName = isPlugin ? 'lib' : 'dist';
-
   const pkgJson = {
     name: dirToScopedPackageName(name),
     ...(description && { description }),
@@ -204,17 +201,17 @@ async function main(argv) {
       type: 'git',
       url: 'https://github.com/mongodb-js/compass.git',
     },
-    files: [outDirName, 'package.json'],
+    files: ['dist'],
     license: 'SSPL',
-    main: `${outDirName}/index.js`,
+    main: 'dist/index.js',
     exports: {
       webpack: './src/index.ts',
-      require: `./${outDirName}/index.js`,
+      require: './dist/index.js',
       ...(!isPlugin && {
-        import: `./${outDirName}/.esm-wrapper.mjs`,
+        import: './dist/.esm-wrapper.mjs',
       }),
     },
-    types: `./${outDirName}/index.d.ts`,
+    types: './dist/index.d.ts',
     scripts: {
       // Plugins are bundled by webpack from source and tested with ts-node
       // runtime processor, no need to bootstrap them
@@ -225,10 +222,11 @@ async function main(argv) {
       // For normal packages we are just compiling code with typescript, for
       // plugins (but only for them) we are using webpack to create independent
       // plugin packages
-      compile: `tsc -p tsconfig.json && gen-esm-wrapper . ./${outDirName}/.esm-wrapper.mjs`,
+      compile:
+        'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs',
       ...(isPlugin && {
         compile: 'npm run webpack -- --mode production',
-        prewebpack: `rimraf ./${outDirName}`,
+        prewebpack: 'rimraf ./dist',
         webpack: 'webpack-compass',
         start: 'npm run webpack serve -- --mode development',
         analyze: 'npm run webpack -- --mode production --analyze',
@@ -323,7 +321,7 @@ async function main(argv) {
   );
 
   const prettierIgnorePath = path.join(packagePath, '.prettierignore');
-  const prettierIgnoreContent = `.nyc_output\n${outDirName}\ncoverage\n`;
+  const prettierIgnoreContent = '.nyc_output\ndist\ncoverage\n';
 
   const tsconfigPath = path.join(packagePath, 'tsconfig.json');
   const tsconfigContent = JSON.stringify(
@@ -332,7 +330,7 @@ async function main(argv) {
         isReact ? 'react' : 'common'
       }.json`,
       compilerOptions: {
-        outDir: outDirName,
+        outDir: 'dist',
       },
       include: ['src/**/*'],
       exclude: ['./src/**/*.spec.*'],
@@ -346,7 +344,7 @@ async function main(argv) {
     {
       extends: './tsconfig.json',
       include: ['**/*'],
-      exclude: ['node_modules', outDirName],
+      exclude: ['node_modules', 'dist'],
     },
     null,
     2
@@ -364,13 +362,7 @@ module.exports = {
 };`;
 
   const eslintIgnorePath = path.join(packagePath, '.eslintignore');
-  const eslintIgnoreContent = `.nyc-output\n${outDirName}\n`;
-
-  // Only included for plugins.
-  const gitIgnorePath = path.join(packagePath, '.gitignore');
-  const gitIgnoreContent = `
-lib
-`;
+  const eslintIgnoreContent = '.nyc-output\ndist\n';
 
   const mocharcPath = path.join(packagePath, '.mocharc.js');
   const mocharcContent = `module.exports = require('${
@@ -393,15 +385,12 @@ module.exports = compassPluginConfig;
   const indexSrcContent = isPlugin
     ? `
 import type AppRegistry from "hadron-app-registry";
-
 function activate(appRegistry: AppRegistry): void {
   // Register plugin stores, roles, and components
 }
-
 function deactivate(appRegistry: AppRegistry): void {
   // Unregister plugin stores, roles, and components
 }
-
 export { activate, deactivate };
 export { default as metadata } from '../package.json';
 `
@@ -412,7 +401,6 @@ export { default as metadata } from '../package.json';
     ? `
 import { expect } from 'chai';
 import * as CompassPlugin from './index';
-
 describe('Compass Plugin', function() {
   it('exports activate, deactivate, and metadata', function() {
     expect(CompassPlugin).to.have.property('activate');
@@ -436,7 +424,6 @@ describe('Compass Plugin', function() {
     await fs.writeFile(mocharcPath, mocharcContent);
     if (isPlugin) {
       await fs.writeFile(webpackConfigPath, webpackConfigContent);
-      await fs.writeFile(gitIgnorePath, gitIgnoreContent);
     }
     await fs.mkdir(indexSrcDir, { recursive: true });
     await fs.writeFile(indexSrcPath, indexSrcContent);
