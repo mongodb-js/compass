@@ -9,7 +9,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
-import * as Selectors from '../helpers/selectors'
+import * as Selectors from '../helpers/selectors';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -37,7 +37,7 @@ function hasAtlasEnvironmentVariables(): boolean {
     'E2E_TESTS_ATLAS_READWRITEANY_STRING',
     'E2E_TESTS_ATLAS_READANYDATABASE_STRING',
     'E2E_TESTS_ATLAS_CUSTOMROLE_STRING',
-    'E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING'
+    'E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING',
   ].filter((key) => !process.env[key]);
 
   if (missingKeys.length > 0) {
@@ -115,21 +115,29 @@ function generateIamSessionToken(): {
   };
 }
 
-async function assertCanReadData(browser: CompassBrowser, dbName: string, collectionName: string): Promise<void> {
+async function assertCanReadData(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string
+): Promise<void> {
   await browser.navigateToCollectionTab(dbName, collectionName, 'Documents');
   await browser.waitUntil(async () => {
-    const text = await browser.$(Selectors.DocumentListActionBarMessage).getText();
-    return !!(/Displaying documents \d+ - \d+ of \d+/.exec(text));
+    const text = await browser
+      .$(Selectors.DocumentListActionBarMessage)
+      .getText();
+    return !!/Displaying documents \d+ - \d+ of \d+/.exec(text);
   });
 }
-async function assertCannotInsertData(browser: CompassBrowser, dbName: string, collectionName: string): Promise<void> {
+async function assertCannotInsertData(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string
+): Promise<void> {
   await browser.navigateToCollectionTab(dbName, collectionName, 'Documents');
 
   // browse to the "Insert to Collection" modal
   await browser.clickVisible(Selectors.AddDataButton);
-  const insertDocumentOption = await browser.$(
-    Selectors.InsertDocumentOption
-  );
+  const insertDocumentOption = await browser.$(Selectors.InsertDocumentOption);
   await insertDocumentOption.waitForDisplayed();
   await browser.clickVisible(Selectors.InsertDocumentOption);
 
@@ -159,7 +167,11 @@ async function assertCannotInsertData(browser: CompassBrowser, dbName: string, c
   await insertDialog.waitForDisplayed({ reverse: true });
 }
 
-async function assertCannotCreateDb(browser: CompassBrowser, dbName: string, collectionName: string): Promise<void> {
+async function assertCannotCreateDb(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string
+): Promise<void> {
   // open the create database modal from the sidebar
   await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
 
@@ -187,7 +199,11 @@ async function assertCannotCreateDb(browser: CompassBrowser, dbName: string, col
   await createModalElement.waitForDisplayed({ reverse: true });
 }
 
-async function assertCannotCreateCollection(browser: CompassBrowser, dbName: string, collectionName: string): Promise<void> {
+async function assertCannotCreateCollection(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string
+): Promise<void> {
   // open create collection modal from the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
   const sidebarFilterInputElement = await browser.$(
@@ -486,7 +502,9 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
-    await browser.connectWithConnectionString(process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? '');
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? ''
+    );
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -501,7 +519,9 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
-    await browser.connectWithConnectionString(process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? '');
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? ''
+    );
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -519,7 +539,9 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
-    await browser.connectWithConnectionString(process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? '');
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
+    );
 
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -537,7 +559,9 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
-    await browser.connectWithConnectionString(process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? '');
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? ''
+    );
 
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
