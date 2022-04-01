@@ -96,6 +96,7 @@ const HadronDocument: React.FunctionComponent<{
             <HadronElement
               value={el}
               key={el.uuid}
+              editable={editable}
               editingEnabled={editing}
               allExpanded={expanded}
               onEditStart={

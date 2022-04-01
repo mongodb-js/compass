@@ -112,4 +112,6 @@ export {
   configureStore,
   configureActions
 };
+export { default as DocumentListView } from './components/document-list-view';
+export { default as DocumentJsonView } from './components/document-json-view';
 export { default as metadata } from '../package.json';
