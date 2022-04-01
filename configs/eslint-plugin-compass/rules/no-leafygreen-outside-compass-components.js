@@ -26,9 +26,9 @@ function reportLeafygreenUsage(context, node, source) {
 const PackageNameMap = new Map();
 
 /**
- * 
- * @param {string} cwd 
- * @returns 
+ *
+ * @param {string} cwd
+ * @returns
  */
 function getPackageNameFromCwd(cwd) {
   if (PackageNameMap.has(cwd)) {
