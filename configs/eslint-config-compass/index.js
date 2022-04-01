@@ -118,7 +118,10 @@ module.exports = {
       ],
       env: { mocha: true },
       extends: [...testConfigurations],
-      rules: { ...testRules },
+      rules: {
+        ...testRules,
+        '@mongodb-js/compass/unique-mongodb-log-id': 'off',
+      },
     },
   ],
   settings: {
