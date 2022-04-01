@@ -125,7 +125,7 @@ async function assertCanReadData(
     const text = await browser
       .$(Selectors.DocumentListActionBarMessage)
       .getText();
-    return !!/Displaying documents \d+ - \d+ of \d+/.exec(text);
+    return /Displaying documents \d+ - \d+ of \d+/.test(text);
   });
 }
 async function assertCannotInsertData(
