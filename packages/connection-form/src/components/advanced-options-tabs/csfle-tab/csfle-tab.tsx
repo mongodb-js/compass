@@ -3,6 +3,7 @@ import React, { useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Accordion,
+  Banner,
   Label,
   Link,
   Description,
@@ -105,13 +106,13 @@ function CSFLETab({
 
   return (
     <div className={containerStyles}>
-      <Description>
+      <Banner>
         Client-side Field-Level Encryption is an Enterprise/Atlas-only feature
         of MongoDB.&nbsp;
         <Link href="https://www.mongodb.com/docs/drivers/security/client-side-field-level-encryption-guide/">
           Learn More
         </Link>
-      </Description>
+      </Banner>
       <FormFieldContainer>
         <TextInput
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
