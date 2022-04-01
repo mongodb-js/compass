@@ -1,14 +1,14 @@
 import type { ChangeEvent } from 'react';
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
+  Accordion,
   Label,
   Link,
   Description,
   TextInput,
   spacing,
   css,
-  cx,
 } from '@mongodb-js/compass-components';
 import type { Document, AutoEncryptionOptions } from 'mongodb';
 
@@ -30,28 +30,8 @@ import type {
 import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
 import FormFieldContainer from '../../form-field-container';
 
-const kmsToggleLabelStyles = css({
-  '&:hover': {
-    cursor: 'pointer',
-  },
-});
-
 const withMarginStyles = css({
   marginTop: spacing[1],
-});
-
-const buttonReset = css({
-  margin: 0,
-  padding: 0,
-  border: 'none',
-  background: 'none',
-});
-
-const faIcon = css({
-  width: spacing[3],
-  height: spacing[3],
-  padding: '2px',
-  textAlign: 'center',
 });
 
 const kmsProviderComponentWrapperStyles = css({
@@ -104,9 +84,6 @@ function CSFLETab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
-  const [expandedKMSProviders, setExpandedKMSProviders] = useState<
-    KMSProviderName[]
-  >([]);
   const autoEncryptionOptions =
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
@@ -174,77 +151,33 @@ function CSFLETab({
         </Description>
       </div>
       {options.map(({ title, kmsProvider, ...kmsFieldComponentOptions }) => {
-        const isExpanded = expandedKMSProviders.includes(kmsProvider);
+        const accordionTitle = (
+          <span>
+            {title}
+            <KMSProviderStatusIndicator
+              errors={errors}
+              autoEncryptionOptions={autoEncryptionOptions}
+              fields={
+                KMSProviderFields[kmsProvider] as KMSField<KMSProviderName>[]
+              }
+            />
+          </span>
+        );
         return (
-          <div key={kmsProvider}>
-            <div>
-              <button
-                className={buttonReset}
-                id={`toggle-kms-${kmsProvider}`}
-                aria-labelledby={`toggle-kms-${kmsProvider}-label`}
-                aria-pressed={expandedKMSProviders.includes(kmsProvider)}
-                aria-label={
-                  isExpanded ? 'Collapse field items' : 'Expand field items'
+          <Accordion key={kmsProvider} text={accordionTitle}>
+            <div className={kmsProviderComponentWrapperStyles}>
+              <KMSProviderFieldsForm
+                errors={errors}
+                autoEncryptionOptions={autoEncryptionOptions}
+                updateConnectionFormField={updateConnectionFormField}
+                kmsProvider={kmsProvider}
+                fields={
+                  KMSProviderFields[kmsProvider] as KMSField<KMSProviderName>[]
                 }
-                type="button"
-                onClick={(evt) => {
-                  console.log(evt.target);
-                  evt.stopPropagation();
-                  evt.preventDefault();
-                  if (isExpanded) {
-                    setExpandedKMSProviders(
-                      expandedKMSProviders.filter((i) => i !== kmsProvider)
-                    );
-                  } else {
-                    setExpandedKMSProviders([
-                      ...expandedKMSProviders,
-                      kmsProvider,
-                    ]);
-                  }
-                }}
-              >
-                <span
-                  role="presentation"
-                  className={cx(
-                    faIcon,
-                    `fa fa-angle-right ${isExpanded ? 'fa-rotate-90' : ''}`
-                  )}
-                ></span>
-              </button>
-              <Label
-                className={kmsToggleLabelStyles}
-                id={`toggle-kms-${kmsProvider}-label`}
-                htmlFor={`toggle-kms-${kmsProvider}`}
-              >
-                {title}
-                <KMSProviderStatusIndicator
-                  errors={errors}
-                  autoEncryptionOptions={autoEncryptionOptions}
-                  fields={
-                    KMSProviderFields[
-                      kmsProvider
-                    ] as KMSField<KMSProviderName>[]
-                  }
-                />
-              </Label>
+                {...kmsFieldComponentOptions}
+              />
             </div>
-            {isExpanded && (
-              <div className={kmsProviderComponentWrapperStyles}>
-                <KMSProviderFieldsForm
-                  errors={errors}
-                  autoEncryptionOptions={autoEncryptionOptions}
-                  updateConnectionFormField={updateConnectionFormField}
-                  kmsProvider={kmsProvider}
-                  fields={
-                    KMSProviderFields[
-                      kmsProvider
-                    ] as KMSField<KMSProviderName>[]
-                  }
-                  {...kmsFieldComponentOptions}
-                />
-              </div>
-            )}
-          </div>
+          </Accordion>
         );
       })}
     </div>
