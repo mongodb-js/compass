@@ -8,6 +8,7 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "exports": {
     "webpack": "./src/index.js",
     "require": "./lib/index.js"
