@@ -1,4 +1,4 @@
-import type { AnyError, MongoClient, Document } from 'mongodb';
+import type { AnyError, MongoClient, Document, MongoClientOptions } from 'mongodb';
 import {
   isEnterprise,
   getGenuineMongoDB,
@@ -98,13 +98,13 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
+  isCSFLEConnection: boolean;
 };
 
 export async function getInstance(
   client: MongoClient
-): Promise<InstanceDetails> {
+): Promise<Omit<InstanceDetails, 'isCSFLEConnection'>> {
   const adminDb = client.db('admin');
-
   const [
     connectionStatus,
     getCmdLineOptsResult,
@@ -169,6 +169,15 @@ function checkIsAtlas(
     return /mongodb(-dev)?\.net$/i.test(firstHost);
   }
   return true;
+}
+
+export function checkIsCSFLEConnection(client: { options: MongoClientOptions }): boolean {
+  const kmsProviders = client.options?.autoEncryption?.kmsProviders;
+  return (
+    Object.values(kmsProviders ?? {})
+      .flatMap((kms) => Object.values(kms))
+      .filter(Boolean).length > 0
+  );
 }
 
 function buildGenuineMongoDBInfo(

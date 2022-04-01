@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { ConnectionOptions } from './connection-options';
-import type { InstanceDetails } from './instance-detail-helper';
+import { checkIsCSFLEConnection, InstanceDetails } from './instance-detail-helper';
 import {
   getPrivilegesByDatabaseAndCollection,
   getInstance,
@@ -399,6 +399,33 @@ describe('instance-detail-helper', function () {
         foo: { bar: ['find'], barbar: ['find'] },
         buz: { foo: ['insert'] },
       });
+    });
+  });
+
+  describe('#checkIsCSFLEConnection', function () {
+    it('returns whether a KMS provider was configured', () => {
+      expect(checkIsCSFLEConnection({ options: {} })).to.equal(false);
+      expect(checkIsCSFLEConnection({ options: {
+        autoEncryption: {
+          keyVaultNamespace: 'asdf'
+        }
+      } })).to.equal(false);
+      expect(checkIsCSFLEConnection({ options: {
+        autoEncryption: {
+          kmsProviders: {
+            aws: {} as any,
+            local: {} as any
+          }
+        }
+      } })).to.equal(false);
+      expect(checkIsCSFLEConnection({ options: {
+        autoEncryption: {
+          kmsProviders: {
+            aws: {} as any,
+            local: { key: 'data' }
+          }
+        }
+      } })).to.equal(true);
     });
   });
 });

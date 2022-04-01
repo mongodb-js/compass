@@ -83,6 +83,7 @@ describe('SidebarStore [Store]', () => {
           .deep.equal({
             databasesStatus: instance.databasesStatus,
             refreshingStatus: instance.refreshingStatus,
+            isCSFLEConnection: instance.isCSFLEConnection
           });
         expect(store.getState()).to.have.property('databases').deep.equal({
           databases: getDatabases(instance),
