@@ -110,11 +110,9 @@ describe('Document', function () {
         `[data-id="${doc.get('num').uuid}"]`
       );
 
-      const typeEditor = within(el).getByTestId(
-        'hadron-document-type-editor'
-      );
+      const typeEditor = within(el).getByTestId('hadron-document-type-editor');
 
-      userEvent.selectOptions(typeEditor, 'String')
+      userEvent.selectOptions(typeEditor, 'String');
       userEvent.tab();
 
       expect(doc.get('num').currentValue.valueOf()).to.eq('123');

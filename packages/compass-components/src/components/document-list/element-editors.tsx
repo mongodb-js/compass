@@ -173,7 +173,7 @@ export const ValueEditor: React.FunctionComponent<{
   autoFocus,
   onChange,
   onFocus,
-  onBlur
+  onBlur,
 }) => {
   const val = String(value);
 
