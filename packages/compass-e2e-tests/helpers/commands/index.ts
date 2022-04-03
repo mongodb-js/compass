@@ -16,7 +16,7 @@ export * from './run-find-operation';
 export * from './set-ace-value';
 export * from './focus-stage-operator';
 export * from './select-stage-operator';
-export * from './close-collection-tabs';
+export * from './close-workspace-tabs';
 export * from './set-validation';
 export * from './wait-for-animations';
 export * from './set-or-clear-value';
