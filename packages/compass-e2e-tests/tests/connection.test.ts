@@ -9,6 +9,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import * as Selectors from '../helpers/selectors';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -33,6 +34,10 @@ function hasAtlasEnvironmentVariables(): boolean {
     'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
     'E2E_TESTS_ATLAS_IAM_TEMP_ROLE_ARN',
     'E2E_TESTS_ATLAS_IAM_USER_ARN',
+    'E2E_TESTS_ATLAS_READWRITEANY_STRING',
+    'E2E_TESTS_ATLAS_READANYDATABASE_STRING',
+    'E2E_TESTS_ATLAS_CUSTOMROLE_STRING',
+    'E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING',
   ].filter((key) => !process.env[key]);
 
   if (missingKeys.length > 0) {
@@ -110,6 +115,127 @@ function generateIamSessionToken(): {
   };
 }
 
+async function assertCanReadData(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string
+): Promise<void> {
+  await browser.navigateToCollectionTab(dbName, collectionName, 'Documents');
+  await browser.waitUntil(async () => {
+    const text = await browser
+      .$(Selectors.DocumentListActionBarMessage)
+      .getText();
+    return /Displaying documents \d+ - \d+ of \d+/.test(text);
+  });
+}
+async function assertCannotInsertData(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string
+): Promise<void> {
+  await browser.navigateToCollectionTab(dbName, collectionName, 'Documents');
+
+  // browse to the "Insert to Collection" modal
+  await browser.clickVisible(Selectors.AddDataButton);
+  const insertDocumentOption = await browser.$(Selectors.InsertDocumentOption);
+  await insertDocumentOption.waitForDisplayed();
+  await browser.clickVisible(Selectors.InsertDocumentOption);
+
+  // wait for the modal to appear
+  const insertDialog = await browser.$(Selectors.InsertDialog);
+  await insertDialog.waitForDisplayed();
+
+  // go with the default text which should just be a random new id and therefore valid
+
+  // confirm
+  const insertConfirm = await browser.$(Selectors.InsertConfirm);
+  // this selector is very brittle, so just make sure it works
+  expect(await insertConfirm.isDisplayed()).to.be.true;
+  expect(await insertConfirm.getText()).to.equal('Insert');
+  await insertConfirm.waitForEnabled();
+  await browser.clickVisible(Selectors.InsertConfirm);
+
+  // make sure that there's an error and that the insert button is disabled
+  const errorElement = await browser.$(Selectors.InsertDialogErrorMessage);
+  await errorElement.waitForDisplayed();
+  expect(await errorElement.getText()).to.contain(
+    `not authorized on ${dbName} to execute command`
+  );
+
+  // cancel and wait for the modal to go away
+  await browser.clickVisible(Selectors.InsertCancel);
+  await insertDialog.waitForDisplayed({ reverse: true });
+}
+
+async function assertCannotCreateDb(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string
+): Promise<void> {
+  // open the create database modal from the sidebar
+  await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
+
+  const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
+  await createModalElement.waitForDisplayed();
+  const dbInput = await browser.$(Selectors.CreateDatabaseDatabaseName);
+  await dbInput.setValue(dbName);
+  const collectionInput = await browser.$(
+    Selectors.CreateDatabaseCollectionName
+  );
+  await collectionInput.setValue(collectionName);
+  const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
+  await createButton.waitForEnabled();
+  await createButton.click();
+
+  // an error should appear
+  const errorElement = await browser.$(Selectors.CreateDatabaseErrorMessage);
+  await errorElement.waitForDisplayed();
+  expect(await errorElement.getText()).to.contain(
+    `not authorized on ${dbName} to execute command`
+  );
+
+  // cancel and wait for the modal to go away
+  await browser.clickVisible(Selectors.CreateDatabaseCancelButton);
+  await createModalElement.waitForDisplayed({ reverse: true });
+}
+
+async function assertCannotCreateCollection(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string
+): Promise<void> {
+  // open create collection modal from the sidebar
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+  const sidebarFilterInputElement = await browser.$(
+    Selectors.SidebarFilterInput
+  );
+  await sidebarFilterInputElement.setValue(dbName);
+  const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
+  await dbElement.waitForDisplayed();
+  await browser.hover(Selectors.sidebarDatabase(dbName));
+  await browser.clickVisible(Selectors.CreateCollectionButton);
+
+  const createModalElement = await browser.$(Selectors.CreateCollectionModal);
+  await createModalElement.waitForDisplayed();
+  const collectionInput = await browser.$(
+    Selectors.CreateDatabaseCollectionName
+  );
+  await collectionInput.setValue(collectionName);
+
+  await browser.clickVisible(Selectors.CreateCollectionCreateButton);
+
+  // an error should appear
+  const errorElement = await browser.$(Selectors.CreateCollectionErrorMessage);
+  await errorElement.waitForDisplayed();
+  expect(await errorElement.getText()).to.contain(
+    `not authorized on ${dbName} to execute command`
+  );
+
+  // cancel and wait for the modal to go away
+  await browser.clickVisible(Selectors.CreateCollectionCancelButton);
+  await createModalElement.waitForDisplayed({ reverse: true });
+}
+
 /**
  * Connection tests
  */
@@ -127,8 +253,8 @@ describe('Connection screen', function () {
   });
 
   afterEach(async function () {
-    await disconnect(browser);
     await afterTest(compass, this.currentTest);
+    await disconnect(browser); // disconnect AFTER potentially taking a screenshot
   });
 
   it('can connect using connection string', async function () {
@@ -369,6 +495,84 @@ describe('Connection screen', function () {
       true
     );
     expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect with readWriteAnyDatabase builtin role', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? ''
+    );
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+
+    await assertCanReadData(browser, 'companies', 'info');
+  });
+
+  it('can connect with readAnyDatabase builtin role', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? ''
+    );
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+
+    await assertCanReadData(browser, 'companies', 'info');
+    await assertCannotInsertData(browser, 'companies', 'info');
+    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    await assertCannotCreateCollection(browser, 'companies', 'new-collection');
+  });
+
+  it('can connect with custom role', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
+    );
+
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+
+    await assertCanReadData(browser, 'test', 'users');
+    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    await assertCannotCreateCollection(browser, 'test', 'new-collection');
+  });
+
+  it('can connect with read one collection specific permission', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionString(
+      process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? ''
+    );
+
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+
+    await assertCanReadData(browser, 'test', 'users');
+    await assertCannotInsertData(browser, 'test', 'users');
+    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    await assertCannotCreateCollection(browser, 'test', 'new-collection');
   });
 });
 
