@@ -57,17 +57,17 @@ const hadronDocument = css({
 const HadronDocument: React.FunctionComponent<{
   value: HadronDocumentType;
   visibleFieldsCount?: number;
-  expanded: boolean;
-  editable: boolean;
+  expanded?: boolean;
+  editable?: boolean;
+  editing?: boolean;
   onEditStart?: () => void;
-  editing: boolean;
 }> = ({
   value: document,
   visibleFieldsCount,
-  expanded,
-  editable,
+  expanded = false,
+  editable = false,
+  editing = false,
   onEditStart,
-  editing,
 }) => {
   const { elements } = useHadronDocument(document);
   const visibleElements = useMemo(() => {
