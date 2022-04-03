@@ -119,7 +119,7 @@ describe('aggregation module', function () {
     stub(aggregateMock, 'toArray').callsFake(async () => new Promise(() => { }));
     const cursorCloseSpy = spy(aggregateMock, 'close');
 
-    const killSessionsSpy = spy();
+    const killSessionsCatchSpy = spy();
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
       dataService: new class {
@@ -127,7 +127,9 @@ describe('aggregation module', function () {
           return {};
         }
         killSessions() {
-          return killSessionsSpy();
+          return {
+            catch: killSessionsCatchSpy(),
+          }
         }
         aggregate() {
           return aggregateMock;
@@ -141,7 +143,7 @@ describe('aggregation module', function () {
 
     await wait();
 
-    expect(killSessionsSpy.getCalls().map(x => x.args), 'calls killSessions with correct args').to.deep.equal([[]]);
+    expect(killSessionsCatchSpy.getCalls().map(x => x.args), 'calls killSessions with correct args').to.deep.equal([[]]);
     expect(cursorCloseSpy.getCalls().map(x => x.args), 'calls cursorClose with correct args').to.deep.equal([[]]);
     expect(store.getState().aggregation).to.deep.equal({
       documents: [],
