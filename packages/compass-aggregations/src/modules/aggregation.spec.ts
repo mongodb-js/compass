@@ -128,7 +128,7 @@ describe('aggregation module', function () {
         }
         killSessions() {
           return {
-            catch: killSessionsCatchSpy(),
+            catch: () => killSessionsCatchSpy(),
           }
         }
         aggregate() {
