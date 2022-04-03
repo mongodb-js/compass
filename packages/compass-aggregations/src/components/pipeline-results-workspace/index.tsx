@@ -136,8 +136,8 @@ const mapState = ({
   perPage: limit,
   error,
   loading,
-  isPrevDisabled: page <= 1 || loading,
-  isNextDisabled: isLast || loading,
+  isPrevDisabled: page <= 1 || loading || Boolean(error),
+  isNextDisabled: isLast || loading || Boolean(error),
 });
 
 const mapDispatch = {
