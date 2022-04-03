@@ -1,6 +1,5 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
-import type { CompassClientSession } from 'mongodb-data-service';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
@@ -20,7 +19,6 @@ export enum ActionTypes {
 type AggregationStartedAction = {
   type: ActionTypes.AggregationStarted;
   abortController: AbortController;
-  session: CompassClientSession;
 };
 
 type AggregationFinishedAction = {
@@ -53,7 +51,6 @@ export type State = {
   isLast: boolean;
   loading: boolean;
   abortController?: AbortController;
-  session?: CompassClientSession;
   error?: string;
 };
 
@@ -74,7 +71,6 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         error: undefined,
         documents: [],
         abortController: action.abortController,
-        session: action.session,
       };
     case ActionTypes.AggregationFinished:
       return {
@@ -84,7 +80,6 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         documents: action.documents,
         loading: false,
         abortController: undefined,
-        session: undefined,
         error: undefined,
       };
     case ActionTypes.AggregationFailed:
@@ -93,7 +88,6 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         documents: [],
         loading: false,
         abortController: undefined,
-        session: undefined,
         error: action.error,
       };
     case ActionTypes.LastPageReached:
@@ -157,19 +151,11 @@ export const cancelAggregation = (): ThunkAction<
   void,
   Actions
 > => {
-  return async (_dispatch, getState) => {
+  return (_dispatch, getState) => {
     const {
-      dataService: { dataService },
-      aggregation: { abortController, session },
+      aggregation: { abortController },
     } = getState();
     abortController?.abort();
-    if (session && dataService) {
-      try {
-        await dataService.killSessions(session);
-      } catch (e) {
-        log.warn(mongoLogId(1001000105), 'Aggregations', 'Attempting to kill the session failed');
-      }
-    }
   };
 };
 
@@ -196,14 +182,12 @@ const fetchAggregationData = (page: number): ThunkAction<
     try {
       const abortController = new AbortController();
       const signal = abortController.signal;
-      const session = dataService.startSession('CRUD');
       dispatch({
         type: ActionTypes.AggregationStarted,
         abortController,
-        session,
       });
 
-      const stages = pipeline.map(generateStage);
+      const stages = pipeline.map(generateStage).filter(x => Object.keys(x).length > 0);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS || DEFAULT_MAX_TIME_MS,
         allowDiskUse: true,

@@ -1,4 +1,4 @@
-import type { AnyAction, Store } from 'redux';
+import type { Store } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { expect } from 'chai';
@@ -48,7 +48,7 @@ const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
 
 describe('aggregation module', function () {
   it('should return the initial state', function () {
-    expect(reducer(undefined, {} as AnyAction)).to.deep.equal({
+    expect(reducer(undefined, {} as any)).to.deep.equal({
       documents: [],
       page: 0,
       limit: 20,
@@ -97,7 +97,6 @@ describe('aggregation module', function () {
       loading: false,
       error: undefined,
       abortController: undefined,
-      session: undefined,
     });
   });
 
@@ -152,7 +151,6 @@ describe('aggregation module', function () {
       loading: false,
       error: 'The operation was cancelled.',
       abortController: undefined,
-      session: undefined,
     });
   });
 
@@ -206,7 +204,6 @@ describe('aggregation module', function () {
         loading: false,
         error: undefined,
         abortController: undefined,
-        session: undefined,
       });
     });
     it('nextPage -> on last page', async function () {
@@ -279,7 +276,6 @@ describe('aggregation module', function () {
         loading: false,
         error: undefined,
         abortController: undefined,
-        session: undefined,
       });
     });
     it('prevPage -> on first page', async function () {

@@ -91,7 +91,7 @@ let id = 0;
 
 type ClientType = 'CRUD' | 'META';
 const kSessionClientType = Symbol('kSessionClientType');
-export interface CompassClientSession extends ClientSession {
+interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
 }
 
