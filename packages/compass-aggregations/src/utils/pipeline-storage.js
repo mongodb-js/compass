@@ -3,7 +3,7 @@ import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
-import { getDirectory } from './getDirectory';
+import { getDirectory } from './get-directory';
 
 const ENCODING_UTF8 = 'utf8';
 
@@ -59,10 +59,14 @@ export class PipelineStorage {
     const filePath = path.join(getDirectory(), `${id}.json`);
     const data = await this._getFileData(filePath);
 
-    await fs.writeFile(filePath, JSON.stringify({
-      ...data,
-      ...attributes,
-    }), ENCODING_UTF8);
+    await fs.writeFile(
+      filePath,
+      JSON.stringify({
+        ...data,
+        ...attributes,
+      }),
+      ENCODING_UTF8
+    );
 
     return this._loadOne(filePath);
   }
