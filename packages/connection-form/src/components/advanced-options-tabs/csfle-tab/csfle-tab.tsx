@@ -79,7 +79,7 @@ const containerStyles = css({
 function CSFLETab({
   connectionOptions,
   updateConnectionFormField,
-  errors,
+  errors: errors_,
 }: {
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
@@ -88,7 +88,7 @@ function CSFLETab({
   const autoEncryptionOptions =
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
-  errors = errorsByFieldTab(errors, 'csfle');
+  const errors = errorsByFieldTab(errors_, 'csfle');
 
   const handleFieldChanged = useCallback(
     (

@@ -50,19 +50,6 @@ function EncryptedFieldConfigInput({
   errorMessage: string | undefined;
   onChange: (value: Document | undefined) => void;
 }): React.ReactElement {
-  function changeCurrentText(newText: string) {
-    if (!newText.trim()) {
-      onChange(undefined);
-      return;
-    }
-
-    onChange(textToEncryptedFieldConfig(newText));
-  }
-
-  const currentText = encryptedFieldConfig
-    ? encryptedFieldConfigToText(encryptedFieldConfig)
-    : '';
-
   return (
     <div>
       <div className={withMarginStyles}>
@@ -79,8 +66,8 @@ function EncryptedFieldConfigInput({
           mode="javascript" // will be set to mongodb as part of OPTIONS
           theme="mongodb"
           width="100%"
-          value={currentText}
-          onChange={changeCurrentText}
+          value={encryptedFieldConfigToText(encryptedFieldConfig)}
+          onChange={(newText) => onChange(textToEncryptedFieldConfig(newText))}
           editorProps={{ $blockScrolling: Infinity }}
           name="import-pipeline-editor"
           setOptions={OPTIONS}

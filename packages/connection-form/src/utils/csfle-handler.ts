@@ -156,7 +156,11 @@ export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {
   );
 }
 
-export function textToEncryptedFieldConfig(text: string): Document {
+export function textToEncryptedFieldConfig(text: string): Document | undefined {
+  if (!text.trim()) {
+    return undefined;
+  }
+
   // We use `$compass`-prefixed strings here since the keys of
   // `encryptedFieldConfigMap` refer to databases and
   // those never contain `$`.
@@ -164,6 +168,17 @@ export function textToEncryptedFieldConfig(text: string): Document {
   let parsed: Document = {};
   try {
     parsed = queryParser(text);
+    if (!parsed || typeof parsed !== 'object') {
+      // We've hit the condition in
+      // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
+      // in which instead of returning a parsed value or throwing an error,
+      // the query parser just returns an empty string when encountering
+      // input that can be parsed as JS but not as a valid query.
+      // Unfortunately, this also means that all context around what
+      // caused this error is unavailable here.
+      parsed = {};
+      throw new Error('Field contained invalid input');
+    }
     parsed['$compass.error'] = null;
   } catch (err: unknown) {
     parsed['$compass.error'] = (err as Error).message;
@@ -173,7 +188,12 @@ export function textToEncryptedFieldConfig(text: string): Document {
   return parsed;
 }
 
-export function encryptedFieldConfigToText(config: Document): string {
+export function encryptedFieldConfigToText(
+  config: Document | undefined
+): string {
+  if (!config) {
+    return '';
+  }
   if (config['$compass.rawText']) {
     return config['$compass.rawText'];
   }

@@ -11,8 +11,8 @@ function TLSClientCertificate({
   tlsCertificateKeyFile,
   tlsCertificateKeyFilePassword,
   disabled,
-  displayDatabaseConnectionUserHints,
-  optional,
+  displayDatabaseConnectionUserHints = true,
+  optional = true,
   updateTLSClientCertificate,
   updateTLSClientCertificatePassword,
 }: {
@@ -49,7 +49,7 @@ function TLSClientCertificate({
             );
           }}
           showFileOnNewLine
-          optional={optional ?? true}
+          optional={optional}
           optionalMessage={
             optional && displayDatabaseConnectionUserHints
               ? 'Optional (required with X.509 auth)'

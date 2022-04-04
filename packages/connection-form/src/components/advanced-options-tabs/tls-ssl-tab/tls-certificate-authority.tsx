@@ -22,7 +22,7 @@ function TLSCertificateAuthority({
   tlsCAFile,
   useSystemCA,
   disabled,
-  displayDatabaseConnectionUserHints,
+  displayDatabaseConnectionUserHints = true,
   handleTlsOptionChanged,
 }: {
   tlsCAFile?: string | null;

@@ -244,6 +244,18 @@ describe('csfle-handler', function () {
           '$compass.rawText': '{',
         });
       });
+
+      it('records the error for parseable but invalid shell BSON text', function () {
+        expect(textToEncryptedFieldConfig('asdf')).to.deep.equal({
+          '$compass.error': 'Field contained invalid input',
+          '$compass.rawText': 'asdf',
+        });
+      });
+
+      it('converts an empty string to undefined', function () {
+        expect(textToEncryptedFieldConfig('')).to.equal(undefined);
+        expect(textToEncryptedFieldConfig('  ')).to.equal(undefined);
+      });
     });
 
     describe('#encryptedFieldConfigToText', function () {
@@ -262,6 +274,10 @@ describe('csfle-handler', function () {
             )
           )
         ).to.equal(normalize(exampleString));
+      });
+
+      it('converts undefined to an empty string', function () {
+        expect(encryptedFieldConfigToText(undefined)).to.equal('');
       });
     });
 

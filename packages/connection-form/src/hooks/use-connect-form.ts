@@ -202,7 +202,7 @@ function buildStateFromConnectionInfo(
           initialConnectionInfo.connectionOptions
         ),
     connectionOptions: adjustCSFLEParams(
-      initialConnectionInfo.connectionOptions
+      cloneDeep(initialConnectionInfo.connectionOptions)
     ),
     isDirty: false,
   };

@@ -21,7 +21,7 @@ import type { ConnectionFormError, TabId } from '../../utils/validation';
 import { errorsByFieldTab } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
 
-const csfleFeatureFlag = process.env.COMPASS_CSFLE_SUPPORT === 'true';
+const csfleFeatureFlag = process?.env?.COMPASS_CSFLE_SUPPORT === 'true';
 
 const tabsStyles = css({
   marginTop: spacing[2],
