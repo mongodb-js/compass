@@ -6,7 +6,7 @@ import DuplicateViewPlugin from './components/duplicate-view-plugin';
 import configureCreateViewStore from './stores/create-view';
 import duplicateViewStore from './stores/duplicate-view';
 import StageEditor from './components/stage-editor';
-import { PipelineStorage } from './utils/pipelineStorage';
+import { PipelineStorage } from './utils/pipeline-storage';
 
 /**
  * A sample role for the component.

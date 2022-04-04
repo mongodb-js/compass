@@ -4,7 +4,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
-import { aggregatePipeline } from '../utils/cancellableAggregation';
+import { aggregatePipeline } from '../utils/cancellable-aggregation';
 
 import createLogger from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLogger('compass-aggregations');
