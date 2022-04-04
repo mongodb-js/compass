@@ -23,13 +23,13 @@ describe('DocumentStatsItem [Component]', function () {
     });
 
     it('renders the count as primary', function () {
-      const label = screen.getByTestId('document-count-label-primary');
+      const label = screen.getByTestId('document-count-label');
       expect(label).to.have.text('Documents');
       expect(label).to.be.visible;
     });
 
     it('renders the count as primary value', function () {
-      const value = screen.getByTestId('document-count-value-primary');
+      const value = screen.getByTestId('document-count-value');
       expect(value).to.have.text('10');
       expect(value).to.be.visible;
     });
@@ -74,7 +74,7 @@ describe('DocumentStatsItem [Component]', function () {
     });
 
     it('does not render the count', function () {
-      expect(screen.queryByTestId('document-count-label-primary')).to.not.exist;
+      expect(screen.queryByTestId('document-count-label')).to.not.exist;
     });
 
     it('renders storage size as non primary label', function () {

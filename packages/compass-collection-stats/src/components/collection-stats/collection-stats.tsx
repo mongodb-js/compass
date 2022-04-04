@@ -1,5 +1,5 @@
 import React from 'react';
-import { css } from '@mongodb-js/compass-components';
+import { css, Tooltip, spacing } from '@mongodb-js/compass-components';
 
 import DocumentStatsItem from '../document-stats-item';
 import IndexStatsItem from '../index-stats-item';
@@ -12,9 +12,29 @@ const collectionStatsStyles = css({
   float: 'right',
 });
 
+const collectionStatsBodyStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  marginRight: spacing[3]
+});
+
 const collectionStatsEmptyStyles = css({
   display: 'none',
 });
+
+const tooltipDocumentsListStyles = css({
+  listStyleType: 'none',
+  padding: 0,
+  margin: 0,
+});
+
+const tooltipIndexeListStyles = css({
+  listStyleType: 'none',
+  padding: 0,
+  margin: 0,
+  marginTop: spacing[3],
+});
+
 
 type CollectionStatsProps = {
   documentCount: string;
@@ -50,19 +70,41 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
 
   return (
     <div data-testid="collection-stats" className={collectionStatsStyles}>
-      <DocumentStatsItem
-        isTimeSeries={isTimeSeries}
-        documentCount={documentCount}
-        storageSize={storageSize}
-        avgDocumentSize={avgDocumentSize}
-      />
-      {!isTimeSeries && (
-        <IndexStatsItem
-          indexCount={indexCount}
-          totalIndexSize={totalIndexSize}
-          avgIndexSize={avgIndexSize}
-        />
-      )}
+      <Tooltip
+        darkMode
+        align="left"
+        justify="middle"
+        delay={500}
+        trigger={({ children, ...props }) => (
+          <span {...props}>
+            <div className={collectionStatsBodyStyles}>
+              <DocumentStatsItem
+                isTimeSeries={isTimeSeries}
+                documentCount={documentCount}
+              />
+              {!isTimeSeries && (
+                <IndexStatsItem
+                  indexCount={indexCount}
+                />
+              )}
+            </div>
+            {children}
+          </span>
+        )}
+      >
+        <div>
+          <ol className={tooltipDocumentsListStyles}>
+            <li key="tooltip-documents">Documents: {documentCount}</li>
+            <li key="tooltip-documents-storage-size">Storage Size: {storageSize}</li>
+            <li key="tooltip-documents-avg-size">Avg. Size: {avgDocumentSize}</li>
+          </ol>
+          <ol className={tooltipIndexeListStyles}>
+            <li key="tooltip-indexes">Indexes: {indexCount}</li>
+            <li key="tooltip-indexes-total-size">Total Size: {totalIndexSize}</li>
+            <li key="tooltip-indexes-avg-size">Avg. Size: {avgIndexSize}</li>
+          </ol>
+        </div>
+      </Tooltip>
     </div>
   );
 };

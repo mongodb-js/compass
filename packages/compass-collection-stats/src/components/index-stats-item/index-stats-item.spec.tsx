@@ -18,13 +18,13 @@ describe('IndexStatsItem [Component]', function () {
   });
 
   it('renders the count as primary', function () {
-    const label = screen.getByTestId('index-count-label-primary');
+    const label = screen.getByTestId('index-count-label');
     expect(label).to.have.text('Indexes');
     expect(label).to.be.visible;
   });
 
   it('renders the count as primary value', function () {
-    const value = screen.getByTestId('index-count-value-primary');
+    const value = screen.getByTestId('index-count-value');
     expect(value).to.have.text('10');
     expect(value).to.be.visible;
   });
