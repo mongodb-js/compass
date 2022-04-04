@@ -20,6 +20,7 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
+          go: "bson.D{{\"x\", \"1\"}}"
     - input:
           javascript: "{x: '1',}"
           shell: "{x: '1',}"
@@ -32,6 +33,7 @@ tests:
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
           ruby: "{\n  'x' => '1'\n}"
+          go: "bson.D{{\"x\", \"1\"}}"
     - input:
           javascript: "{x: ['1', '2']}"
           shell: "{x: ['1', '2']}"
@@ -44,6 +46,7 @@ tests:
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
           ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
+          go: "bson.D{{\"x\", bson.A{\n        \"1\",\n        \"2\",\n    },\n}}"
     - input:
           javascript: "{x: {y: 2}}"
           shell: "{x: {y: 2}}"
@@ -56,6 +59,7 @@ tests:
           shell: "{\n  'x': {\n    'y': 2\n  }\n}"
           object: "{x: {y: 2}}"
           ruby: "{\n  'x' => {\n    'y' => 2\n  }\n}"
+          go: "bson.D{{\"x\", bson.D{{\"y\", 2}}}}"
     - input:
           javascript: "{}"
           shell: "{}"
@@ -68,6 +72,7 @@ tests:
           csharp: "new BsonDocument()"
           object: "{}"
           ruby: "{}"
+        #   go: bson.D{}
     - input:
           javascript: "{x: '1', n: '4'}"
           shell: "{x: '1', n: '4'}"
@@ -80,6 +85,7 @@ tests:
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
           ruby: "{\n  'x' => '1',\n  'n' => '4'\n}"
+        #   go: bson.D{{"x", "1"}, {"n", "4"}}
     - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"

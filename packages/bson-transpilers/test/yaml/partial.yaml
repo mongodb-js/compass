@@ -19,6 +19,7 @@ tests:
           csharp: ''
           shell: NumberLong
           ruby: ''
+          go: ''
     - input:
           javascript: new Decimal128
           python: Decimal128

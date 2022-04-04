@@ -9,7 +9,7 @@ const bson = require('bson');
 
 const transpiler = require('../index');
 
-const outputLanguages = process.env.OUTPUT ? process.env.OUTPUT.split(',') : [ 'csharp', 'python', 'java', 'javascript', 'shell', 'object', 'ruby'];
+const outputLanguages = process.env.OUTPUT ? process.env.OUTPUT.split(',') : [ 'csharp', 'python', 'java', 'javascript', 'shell', 'object', 'ruby', 'go'];
 const inputLanguages = process.env.INPUT ? process.env.INPUT.split(',') : [ 'shell', 'javascript', 'python' ];
 const modes = process.env.MODE ? process.env.MODE.split(',') : [];
 
