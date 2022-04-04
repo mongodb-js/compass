@@ -19,6 +19,7 @@ import {
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
+import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 
 import { ToastVariant, useToast } from '@mongodb-js/compass-components';
 const debug = debugModule('mongodb-compass:connections:connections-store');
@@ -391,7 +392,9 @@ export function useConnections({
         appName
       );
       const newConnectionDataService = await newConnectionAttempt.connect({
-        ...cloneDeep(connectionInfo.connectionOptions),
+        ...adjustConnectionOptionsBeforeConnect(
+          connectionInfo.connectionOptions
+        ),
         connectionString: connectionStringWithAppName,
       });
       connectingConnectionAttempt.current = undefined;

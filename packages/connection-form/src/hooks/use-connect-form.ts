@@ -655,3 +655,9 @@ function setInitialState({
     }
   }, [setErrors, connectionErrorMessage]);
 }
+
+export function adjustConnectionOptionsBeforeConnect(
+  connectionOptions: Readonly<ConnectionOptions>
+): ConnectionOptions {
+  return adjustCSFLEParams(cloneDeep(connectionOptions));
+}
