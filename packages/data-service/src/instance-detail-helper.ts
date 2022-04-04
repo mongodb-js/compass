@@ -1,4 +1,9 @@
-import type { AnyError, MongoClient, Document, MongoClientOptions } from 'mongodb';
+import type {
+  AnyError,
+  MongoClient,
+  Document,
+  MongoClientOptions,
+} from 'mongodb';
 import {
   isEnterprise,
   getGenuineMongoDB,
@@ -171,7 +176,9 @@ function checkIsAtlas(
   return true;
 }
 
-export function checkIsCSFLEConnection(client: { options: MongoClientOptions }): boolean {
+export function checkIsCSFLEConnection(client: {
+  options: MongoClientOptions;
+}): boolean {
   const kmsProviders = client.options?.autoEncryption?.kmsProviders;
   return (
     Object.values(kmsProviders ?? {})

@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { ConnectionOptions } from './connection-options';
-import { checkIsCSFLEConnection, InstanceDetails } from './instance-detail-helper';
+import type { InstanceDetails } from './instance-detail-helper';
+import { checkIsCSFLEConnection } from './instance-detail-helper';
 import {
   getPrivilegesByDatabaseAndCollection,
   getInstance,
@@ -403,29 +404,41 @@ describe('instance-detail-helper', function () {
   });
 
   describe('#checkIsCSFLEConnection', function () {
-    it('returns whether a KMS provider was configured', () => {
+    it('returns whether a KMS provider was configured', function () {
       expect(checkIsCSFLEConnection({ options: {} })).to.equal(false);
-      expect(checkIsCSFLEConnection({ options: {
-        autoEncryption: {
-          keyVaultNamespace: 'asdf'
-        }
-      } })).to.equal(false);
-      expect(checkIsCSFLEConnection({ options: {
-        autoEncryption: {
-          kmsProviders: {
-            aws: {} as any,
-            local: {} as any
-          }
-        }
-      } })).to.equal(false);
-      expect(checkIsCSFLEConnection({ options: {
-        autoEncryption: {
-          kmsProviders: {
-            aws: {} as any,
-            local: { key: 'data' }
-          }
-        }
-      } })).to.equal(true);
+      expect(
+        checkIsCSFLEConnection({
+          options: {
+            autoEncryption: {
+              keyVaultNamespace: 'asdf',
+            },
+          },
+        })
+      ).to.equal(false);
+      expect(
+        checkIsCSFLEConnection({
+          options: {
+            autoEncryption: {
+              kmsProviders: {
+                aws: {} as any,
+                local: {} as any,
+              },
+            },
+          },
+        })
+      ).to.equal(false);
+      expect(
+        checkIsCSFLEConnection({
+          options: {
+            autoEncryption: {
+              kmsProviders: {
+                aws: {} as any,
+                local: { key: 'data' },
+              },
+            },
+          },
+        })
+      ).to.equal(true);
     });
   });
 });
