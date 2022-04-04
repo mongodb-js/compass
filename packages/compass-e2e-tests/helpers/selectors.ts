@@ -761,8 +761,8 @@ export const queryBarActionsMenu = (tabName: string): string => {
   return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
 };
 
-// Tabs at the top
-export const CloseCollectionTab = '[data-test-id="close-collection-tab"]';
+// Workspace tabs at the top
+export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 
 // Export modal
 export const ExportModal = '[data-test-id="export-modal"]';
