@@ -20,6 +20,7 @@ class Int64Editor extends StandardEditor {
    * value or leaving as invalid.
    */
   complete() {
+    super.complete();
     if (this.element.isCurrentTypeValid()) {
       this.element.edit(TypeChecker.cast(this.element.currentValue, 'Int64'));
     }

@@ -111,7 +111,7 @@ declare const HadronDocumentEvents: {
 };
 
 declare class HadronDocument extends EventEmitter {
-  constructor(doc: unknown, cloned: boolean);
+  constructor(doc: unknown, cloned?: boolean);
   uuid: string;
   type: 'Document';
   currentType: 'Document';

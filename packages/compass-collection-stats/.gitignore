@@ -6,8 +6,10 @@ lib-cov
 coverage
 .lock-wscript
 .idea/
+*.swp
+*.swo
 *.iml
 .nvmrc
 .nyc_output
-*.swp
+.vscode/
 src/assets/fonts/akzid*

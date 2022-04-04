@@ -158,8 +158,10 @@ export const ValueEditor: React.FunctionComponent<{
   valid: boolean;
   validationMessage: string | null;
   originalValue: TypeCastMap[keyof TypeCastMap];
-  onChange(newVal: string): void;
   autoFocus?: boolean;
+  onChange(newVal: string): void;
+  onFocus(): void;
+  onBlur(): void;
 }> = ({
   editing,
   onEditStart,
@@ -168,8 +170,10 @@ export const ValueEditor: React.FunctionComponent<{
   valid,
   validationMessage,
   originalValue,
-  onChange,
   autoFocus,
+  onChange,
+  onFocus,
+  onBlur,
 }) => {
   const val = String(value);
 
@@ -230,6 +234,8 @@ export const ValueEditor: React.FunctionComponent<{
                       onChange={(evt) => {
                         onChange(evt.currentTarget.value);
                       }}
+                      onFocus={onFocus}
+                      onBlur={onBlur}
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus={autoFocus}
                       className={cx(
@@ -251,6 +257,8 @@ export const ValueEditor: React.FunctionComponent<{
                     onChange={(evt) => {
                       onChange(evt.currentTarget.value);
                     }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus={autoFocus}
                     className={cx(
