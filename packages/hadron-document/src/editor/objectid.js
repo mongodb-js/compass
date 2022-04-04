@@ -20,6 +20,7 @@ class ObjectIdEditor extends StandardEditor {
    * object or leaving as invalid.
    */
   complete() {
+    super.complete();
     if (this.element.isCurrentTypeValid()) {
       this.element.edit(TypeChecker.cast(this.element.currentValue, 'ObjectId'));
     }
@@ -45,6 +46,7 @@ class ObjectIdEditor extends StandardEditor {
    * Start the object id edit.
    */
   start() {
+    super.start();
     if (this.element.isCurrentTypeValid()) {
       this.edit(String(this.element.currentValue));
     }
