@@ -4,8 +4,8 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
-import { getDirectory } from '../utils/getDirectory';
-import { PipelineStorage } from '../utils/pipelineStorage';
+import { getDirectory } from '../utils/get-directory';
+import { PipelineStorage } from '../utils/pipeline-storage';
 
 const PREFIX = 'aggregations/saved-pipeline';
 
