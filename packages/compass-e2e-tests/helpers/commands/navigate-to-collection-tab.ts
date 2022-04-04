@@ -17,8 +17,10 @@ async function navigateToCollection(
 
   const headerElement = await browser.$(headerSelector);
 
-  // Close all the collection tabs to get rid of all the state we might have accumulated. This is the only way to get back to the zero state of Schema, Explain Plan and Validation tabs without re-connecting.
-  await browser.closeCollectionTabs();
+  // Close all the workspace tabs to get rid of all the state we
+  // might have accumulated. This is the only way to get back to the zero
+  // state of Schema, Explain Plan and Validation tabs without re-connecting.
+  await browser.closeWorkspaceTabs();
 
   // search for the collection and wait for the collection to be there and visible
   await browser.clickVisible(Selectors.SidebarFilterInput);

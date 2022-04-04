@@ -6,60 +6,6 @@
   display: flex;
   flex-direction: column;
 
-  &-tabs {
-    width: 100%;
-    display: flex;
-    border-bottom: 1px @gray6 solid;
-    background-color: @gray8;
-    align-items: center;
-    min-height: 40px;
-    &-sortable-clone {
-      pointer-events: auto !important;
-      cursor: grabbing !important;
-      cursor: -moz-grabbing !important;
-      cursor: -webkit-grabbing !important;
-
-      z-index: 50;
-    }
-
-    &-container, &-sortable-list {
-      user-select: none;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-
-      * {
-        user-select: none;
-        -webkit-user-select: none;
-      }
-    }
-
-    &-prev, &-next {
-      width: 26px;
-      height: 26px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: @gray5;
-      background-color: @gray6;
-      border-radius: 4px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    &-right {
-      margin-left: auto;
-    }
-
-    &-prev {
-      margin: 0px 5px 0px 20px;
-    }
-
-    &-next {
-      margin: 0px 5px 0px 5px;
-    }
-  }
-
   &-views {
     height: 100%;
     width: 100%;
