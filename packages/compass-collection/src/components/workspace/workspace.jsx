@@ -2,8 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-
-import {SortableContainer, SortableElement} from 'react-sortable-hoc';
+import { WorkspaceTabs } from '@mongodb-js/compass-components';
 
 import {
   createNewTab,
@@ -15,11 +14,22 @@ import {
   selectTab,
   changeActiveSubTab
 } from '../../modules/tabs';
-import CollectionTab from '../collection-tab';
-import CreateTab from '../create-tab';
 import Collection from '../collection';
 
 import styles from './workspace.module.less';
+
+export function getTabType(
+  isTimeSeries,
+  isReadonly
+) {
+  if (isTimeSeries) {
+    return 'timeseries';
+  }
+  if (isReadonly) {
+    return 'view';
+  }
+  return 'collection';
+}
 
 /**
  * W key is key code 87.
@@ -47,6 +57,17 @@ const DEFAULT_NEW_TAB = {
   isTimeSeries: false,
   sourceName: ''
 };
+
+function getIconGlyphForCollectionType(type) {
+  switch (type) {
+    case 'timeseries':
+      return 'TimeSeries';
+    case 'view':
+      return 'Visibility';
+    default:
+      return 'Folder';
+  }
+}
 
 /**
  * The collection workspace contains tabs of multiple collections.
@@ -89,10 +110,6 @@ class Workspace extends PureComponent {
    */
   componentWillUnmount() {
     window.removeEventListener('keydown', this.boundHandleKeypress);
-  }
-
-  onSortEnd = ({oldIndex, newIndex}) => {
-    this.props.moveTab(oldIndex, newIndex);
   }
 
   onCreateNewTab = () => {
@@ -148,60 +165,6 @@ class Workspace extends PureComponent {
   }
 
   /**
-   * Render a tab.
-   *
-   * @param {Object} tab - The tab.
-   * @param {Number} i - The cyrrent index of the tab.
-   *
-   * @returns {Component} The tab component.
-   */
-  renderTab = (tab, i) => {
-    return (
-      <CollectionTab
-        key={i}
-        index={i}
-        namespace={tab.namespace}
-        localAppRegistry={tab.localAppRegistry}
-        isReadonly={tab.isReadonly}
-        isActive={tab.isActive}
-        closeTab={this.props.closeTab}
-        activeSubTabName={tab.activeSubTabName}
-        selectTab={this.props.selectTab}
-        moveTab={this.props.moveTab} />
-    );
-  }
-
-  /**
-   * Render the tabs.
-   *
-   * @returns {Component} The component.
-   */
-  renderTabs() {
-    const SortableItem = SortableElement(({value}) => this.renderTab(value.tab, value.index));
-
-    const SortableList = SortableContainer(({items}) => {
-      return (<div className={styles['workspace-tabs-sortable-list']}>
-        {items.map(
-          (tab, index) => (<SortableItem
-            key={`tab-${index}`}
-            index={index}
-            value={{ tab: tab, index: index }}
-          />)
-        )}
-      </div>);
-    });
-
-    return (<SortableList
-      items={this.props.tabs}
-      axis="x"
-      lockAxis="x"
-      distance={10}
-      onSortEnd={this.onSortEnd}
-      helperClass={styles['workspace-tabs-sortable-clone']}
-    />);
-  }
-
-  /**
    * Render the views.
    *
    * @returns {Component} The views.
@@ -212,30 +175,37 @@ class Workspace extends PureComponent {
         [styles['workspace-view-tab']]: true,
         hidden: !tab.isActive
       });
-      return (<div className={viewTabClass} key={tab.id + '-wrap'}>
-        <Collection
-          key={tab.id}
+      return (
+        <div
+          className={viewTabClass}
           id={tab.id}
-          namespace={tab.namespace}
-          isReadonly={tab.isReadonly}
-          isTimeSeries={tab.isTimeSeries}
-          sourceName={tab.sourceName}
-          editViewName={tab.editViewName}
-          sourceReadonly={tab.sourceReadonly}
-          sourceViewOn={tab.sourceViewOn}
-          tabs={tab.tabs}
-          views={tab.views}
-          scopedModals={tab.scopedModals}
-          queryHistoryIndexes={tab.queryHistoryIndexes}
-          statsPlugin={tab.statsPlugin}
-          statsStore={tab.statsStore}
-          activeSubTab={tab.activeSubTab}
-          pipeline={tab.pipeline}
-          changeActiveSubTab={this.props.changeActiveSubTab}
-          selectOrCreateTab={this.props.selectOrCreateTab}
-          globalAppRegistry={this.props.appRegistry}
-          localAppRegistry={tab.localAppRegistry} />
-      </div>);
+          key={tab.id + '-wrap'}
+        >
+          <Collection
+            key={tab.id}
+            id={tab.id}
+            namespace={tab.namespace}
+            isReadonly={tab.isReadonly}
+            isTimeSeries={tab.isTimeSeries}
+            sourceName={tab.sourceName}
+            editViewName={tab.editViewName}
+            sourceReadonly={tab.sourceReadonly}
+            sourceViewOn={tab.sourceViewOn}
+            tabs={tab.tabs}
+            views={tab.views}
+            scopedModals={tab.scopedModals}
+            queryHistoryIndexes={tab.queryHistoryIndexes}
+            statsPlugin={tab.statsPlugin}
+            statsStore={tab.statsStore}
+            activeSubTab={tab.activeSubTab}
+            pipeline={tab.pipeline}
+            changeActiveSubTab={this.props.changeActiveSubTab}
+            selectOrCreateTab={this.props.selectOrCreateTab}
+            globalAppRegistry={this.props.appRegistry}
+            localAppRegistry={tab.localAppRegistry}
+          />
+        </div>
+      );
     });
   }
 
@@ -245,24 +215,26 @@ class Workspace extends PureComponent {
    * @returns {Component} The rendered component.
    */
   render() {
+    const selectedTabIndex = this.props.tabs.findIndex((tab) => tab.isActive);
+
     return (
       <div className={styles.workspace}>
-        <div className={styles['workspace-tabs']}>
-          <div onClick={this.props.prevTab} className={styles['workspace-tabs-prev']}>
-            <i className="fa fa-chevron-left" aria-hidden/>
-          </div>
-          <div className={styles['workspace-tabs-container']}>
-            {this.renderTabs()}
-            <CreateTab
-              createNewTab={this.onCreateNewTab}
-            />
-          </div>
-          <div className={styles['workspace-tabs-right']}>
-            <div onClick={this.props.nextTab} className={styles['workspace-tabs-next']}>
-              <i className="fa fa-chevron-right" aria-hidden/>
-            </div>
-          </div>
-        </div>
+        <WorkspaceTabs
+          aria-label="Collection Tabs"
+          onCreateNewTab={this.onCreateNewTab}
+          onMoveTab={this.props.moveTab}
+          onSelectTab={this.props.selectTab}
+          onCloseTab={this.props.closeTab}
+          tabs={this.props.tabs.map(tab => ({
+            title: tab.activeSubTabName,
+            subtitle: tab.namespace,
+            tabContentId: tab.id,
+            iconGlyph: getIconGlyphForCollectionType(
+              getTabType(tab.isTimeSeries, tab.isReadonly)
+            )
+          }))}
+          selectedTabIndex={selectedTabIndex}
+        />
         <div className={styles['workspace-views']}>
           {this.renderViews()}
         </div>

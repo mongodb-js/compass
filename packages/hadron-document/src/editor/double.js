@@ -21,6 +21,7 @@ class DoubleEditor extends StandardEditor {
    * value or leaving as invalid.
    */
   complete() {
+    super.complete();
     if (this.element.isCurrentTypeValid()) {
       this.element.edit(TypeChecker.cast(this.element.currentValue, 'Double'));
     }

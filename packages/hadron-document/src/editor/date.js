@@ -21,6 +21,7 @@ class DateEditor extends StandardEditor {
    * object or leaving as invalid.
    */
   complete() {
+    super.complete();
     if (this.element.isCurrentTypeValid()) {
       this.element.edit(TypeChecker.cast(this._formattedValue(), 'Date'));
     }
@@ -67,6 +68,7 @@ class DateEditor extends StandardEditor {
    * @param {Object} value - The value in the field.
    */
   start() {
+    super.start();
     if (this.element.isCurrentTypeValid()) {
       this.edit(this._formattedValue());
     }
@@ -79,9 +81,9 @@ class DateEditor extends StandardEditor {
    *
    * @returns {String} The value.
    */
-  value(editMode) {
+  value() {
     const value = this.element.currentValue;
-    if (!editMode && this.element.isCurrentTypeValid()) {
+    if (!this.editing && this.element.isCurrentTypeValid()) {
       return this._formattedValue();
     }
     return value;

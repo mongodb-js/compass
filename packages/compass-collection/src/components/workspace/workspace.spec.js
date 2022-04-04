@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { Workspace } from '../workspace';
+import { Workspace, getTabType } from '../workspace';
 import styles from './workspace.module.less';
 
 describe.skip('Workspace [Component]', () => {
@@ -40,26 +40,22 @@ describe.skip('Workspace [Component]', () => {
     expect(component.find(`.${styles['workspace-tabs']}`)).to.be.present();
   });
 
-  it('renders the individual tabs', () => {
-    expect(component.find(`.${styles['workspace-tabs-container']}`)).to.be.present();
-  });
-
   it('renders one tab hidden, one not', () => {
     expect(component.find(`.${styles['workspace-view-tab']}:not(.hidden)`)).to.be.present();
     expect(component.find(`.${styles['workspace-view-tab']}.hidden`)).to.be.present();
   });
 
-  context('when clicking the prev button', () => {
-    it('calls the action', () => {
-      component.find(`.${styles['workspace-tabs-prev']}`).simulate('click');
-      expect(prevTabSpy.calledOnce).to.equal(true);
+  describe('#getTabType', () => {
+    it('should return "timeseries" for a timeseries collection', () => {
+      expect(getTabType(true, false)).to.equal('timeseries');
     });
-  });
 
-  context('when clicking the next button', () => {
-    it('calls the action', () => {
-      component.find(`.${styles['workspace-tabs-next']}`).simulate('click');
-      expect(nextTabSpy.calledOnce).to.equal(true);
+    it('should return "view" for a view', () => {
+      expect(getTabType(false, true)).to.equal('view');
+    });
+
+    it('should return "collection" when its not time series or readonly', () => {
+      expect(getTabType(false, false)).to.equal('collection');
     });
   });
 });
