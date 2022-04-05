@@ -20,7 +20,6 @@ export class CursorExporter extends EventEmitter {
   private _totalNumberOfDocuments: number;
   private _exportedDocuments = 0;
   private _cursorStream: stream.Readable;
-  private _cancelled = false;
   constructor(opts: CursorExporterOpts) {
     super();
     this._cursor = opts.cursor;
@@ -33,27 +32,17 @@ export class CursorExporter extends EventEmitter {
   }
 
   async start(): Promise<void> {
-    try {
-      const p = pipeline(
-        this._cursorStream,
-        this.getProgressTransformStream(),
-        this.getFormatter(),
-        this._output
-      );
-      return p;
-    } catch (err) {
-      if (this._cancelled) {
-        // do nothing
-        console.log(err);
-      } else {
-        throw err;
-      }
-    }
+    const p = pipeline(
+      this._cursorStream,
+      this.getProgressTransformStream(),
+      this.getFormatter(),
+      this._output
+    );
+    return p;
   }
   cancel(): boolean {
     this._cursorStream.unpipe();
     this._cursorStream.emit('end');
-    this._cancelled = true;
     return true;
   }
 

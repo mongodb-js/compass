@@ -455,12 +455,6 @@ export const startExport = () => {
         projection,
       }
     );
-    // const source = createReadableCollectionStream(
-    //   dataService,
-    //   ns,
-    //   spec,
-    //   projection
-    // );
     const progress = createProgressStream({
       objectMode: true,
       length: numDocsToExport,
