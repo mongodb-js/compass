@@ -31,10 +31,6 @@ import type {
 import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
 import FormFieldContainer from '../../form-field-container';
 
-const withMarginStyles = css({
-  marginTop: spacing[1],
-});
-
 const kmsProviderComponentWrapperStyles = css({
   paddingLeft: spacing[3],
   marginBottom: spacing[3],
@@ -132,55 +128,57 @@ function CSFLETab({
           description="Specify a collection in which data encryption keys are stored in the format <db>.<collection>."
         />
       </FormFieldContainer>
-      <EncryptedFieldConfigInput
-        // TODO(COMPASS-5645): This says 'schemaMap', which is the
-        // FLE1 equivalent of the FLE2 'encryptedFieldConfig[Map?]'.
-        // Once 'encryptedFieldConfig' is available, we will start
-        // using it instead.
-        encryptedFieldConfig={autoEncryptionOptions?.schemaMap}
-        errorMessage={errorMessageByFieldName(errors, 'schemaMap')}
-        onChange={(value: Document | undefined) => {
-          handleFieldChanged('schemaMap', value);
-        }}
-      />
-      <div className={withMarginStyles}>
+      <FormFieldContainer>
+        <EncryptedFieldConfigInput
+          // TODO(COMPASS-5645): This says 'schemaMap', which is the
+          // FLE1 equivalent of the FLE2 'encryptedFieldConfig[Map?]'.
+          // Once 'encryptedFieldConfig' is available, we will start
+          // using it instead.
+          encryptedFieldConfig={autoEncryptionOptions?.schemaMap}
+          errorMessage={errorMessageByFieldName(errors, 'schemaMap')}
+          onChange={(value: Document | undefined) => {
+            handleFieldChanged('schemaMap', value);
+          }}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer>
         <Label htmlFor="TODO(COMPASS-5653)">KMS Providers</Label>
-      </div>
-      <div className={withMarginStyles}>
         <Description>
           Specify one or more Key Management Systems to use.
         </Description>
-      </div>
-      {options.map(({ title, kmsProvider, ...kmsFieldComponentOptions }) => {
-        const accordionTitle = (
-          <span>
-            {title}
-            <KMSProviderStatusIndicator
-              errors={errors}
-              autoEncryptionOptions={autoEncryptionOptions}
-              fields={
-                KMSProviderFields[kmsProvider] as KMSField<KMSProviderName>[]
-              }
-            />
-          </span>
-        );
-        return (
-          <Accordion key={kmsProvider} text={accordionTitle}>
-            <div className={kmsProviderComponentWrapperStyles}>
-              <KMSProviderFieldsForm
+        {options.map(({ title, kmsProvider, ...kmsFieldComponentOptions }) => {
+          const accordionTitle = (
+            <span>
+              {title}
+              <KMSProviderStatusIndicator
                 errors={errors}
                 autoEncryptionOptions={autoEncryptionOptions}
-                updateConnectionFormField={updateConnectionFormField}
-                kmsProvider={kmsProvider}
                 fields={
                   KMSProviderFields[kmsProvider] as KMSField<KMSProviderName>[]
                 }
-                {...kmsFieldComponentOptions}
               />
-            </div>
-          </Accordion>
-        );
-      })}
+            </span>
+          );
+          return (
+            <Accordion key={kmsProvider} text={accordionTitle}>
+              <div className={kmsProviderComponentWrapperStyles}>
+                <KMSProviderFieldsForm
+                  errors={errors}
+                  autoEncryptionOptions={autoEncryptionOptions}
+                  updateConnectionFormField={updateConnectionFormField}
+                  kmsProvider={kmsProvider}
+                  fields={
+                    KMSProviderFields[
+                      kmsProvider
+                    ] as KMSField<KMSProviderName>[]
+                  }
+                  {...kmsFieldComponentOptions}
+                />
+              </div>
+            </Accordion>
+          );
+        })}
+      </FormFieldContainer>
     </div>
   );
 }

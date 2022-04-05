@@ -51,7 +51,7 @@ const GCPFields: KMSField<'gcp'>[] = [
     value: (autoEncryption) =>
       autoEncryption?.kmsProviders?.gcp?.endpoint ?? '',
     state: 'none',
-    description: 'A host with optional port.',
+    description: 'A host with an optional port.',
   },
 ];
 
@@ -128,7 +128,7 @@ const AzureFields: KMSField<'azure'>[] = [
     value: (autoEncryption) =>
       autoEncryption?.kmsProviders?.azure?.identityPlatformEndpoint ?? '',
     state: 'none',
-    description: 'A host with optional port.',
+    description: 'A host with an optional port.',
   },
 ];
 

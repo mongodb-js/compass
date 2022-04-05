@@ -4,6 +4,7 @@ import {
   encryptedFieldConfigToText,
   textToEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
+import FormFieldContainer from '../../form-field-container';
 import {
   Label,
   Banner,
@@ -21,10 +22,6 @@ import 'mongodb-ace-theme';
 const errorContainerStyles = css({
   padding: spacing[3],
   width: '100%',
-});
-
-const withMarginStyles = css({
-  marginTop: spacing[1],
 });
 
 /**
@@ -52,16 +49,12 @@ function EncryptedFieldConfigInput({
 }): React.ReactElement {
   return (
     <div>
-      <div className={withMarginStyles}>
+      <FormFieldContainer>
         <Label htmlFor="TODO(COMPASS-5653)">EncryptedFieldConfigMap</Label>
-      </div>
-      <div className={withMarginStyles}>
-        <Description className={withMarginStyles}>
+        <Description>
           Add an optional client-side EncryptedFieldConfigMap for enhanced
           security.
         </Description>
-      </div>
-      <div className={withMarginStyles}>
         <AceEditor
           mode="javascript" // will be set to mongodb as part of OPTIONS
           theme="mongodb"
@@ -72,7 +65,7 @@ function EncryptedFieldConfigInput({
           name="import-pipeline-editor"
           setOptions={OPTIONS}
         />
-      </div>
+      </FormFieldContainer>
       {errorMessage && (
         <div className={errorContainerStyles}>
           <Banner variant="danger">{errorMessage}</Banner>
