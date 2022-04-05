@@ -1,5 +1,22 @@
 'use strict';
 
+const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
+
+function maybeDecorateWithDecryptedKeys(object, element) {
+  if (element.isValueDecrypted()) {
+    if (!object[DECRYPTED_KEYS]) {
+      // non-enumerable object[DECRYPTED_KEYS] = []
+      Object.defineProperty(object, DECRYPTED_KEYS, {
+        value: [],
+        wriable: true,
+        configurable: true,
+        enumerable: false
+      });
+    }
+    object[DECRYPTED_KEYS].push(String(element.currentKey));
+  }
+}
+
 /**
  * Generates javascript objects from elements.
  */
@@ -17,6 +34,7 @@ class ObjectGenerator {
       for (let element of elements) {
         if (!element.isRemoved() && element.currentKey !== '') {
           object[element.currentKey] = element.generateObject();
+          maybeDecorateWithDecryptedKeys(object, element);
         }
       }
       return object;
@@ -39,6 +57,7 @@ class ObjectGenerator {
       for (let element of elements) {
         if (!element.isAdded()) {
           object[element.key] = element.generateOriginalObject();
+          maybeDecorateWithDecryptedKeys(object, element);
         }
       }
       return object;
@@ -63,6 +82,7 @@ class ObjectGenerator {
           } else {
             array.push(element.currentValue);
           }
+          maybeDecorateWithDecryptedKeys(array, element);
         }
       }
       return array;
@@ -86,6 +106,7 @@ class ObjectGenerator {
         } else if (!element.isAdded()) {
           array.push(element.value);
         }
+        maybeDecorateWithDecryptedKeys(array, element);
       }
       return array;
     }

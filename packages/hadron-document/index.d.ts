@@ -96,6 +96,7 @@ declare class HadronElement extends EventEmitter {
   isRemovable(): boolean;
   isNotActionable(): boolean;
   isValueEditable(): boolean;
+  isValueDecrypted(): boolean;
   isParentEditable(): boolean;
   isKeyEditable(): boolean;
   isModified(): boolean;
