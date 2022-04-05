@@ -41,7 +41,7 @@ function UnthemedServerStatsToolbar({
   darkMode,
   eventDispatcher
 }: ServerStatsToolbarProps) {
-  const [time, setTime] = useState('00:00:00');
+  const [ time, setTime ] = useState('00:00:00');
   const [ isPaused, setPaused ] = useState(ServerStatsStore.isPaused);
 
   useEffect(() => {
@@ -57,40 +57,21 @@ function UnthemedServerStatsToolbar({
     Actions.pause();
   }, [ isPaused ]);
 
-  // <div className="time-and-pause action-bar">
-
   return (
     <div
       className={serverStatsToolbarStyles}
     >
       <Button
         onClick={onPlayPauseClicked}
-        // TODO: Cleanup rtss styles from package.
-        // className="play btn btn-xs btn-primary"
         leftGlyph={<Icon glyph={isPaused ? 'Play' : 'Pause'} />}
         variant={isPaused ? 'primary' : 'default'}
-        data-test-id="performance-play"
-        // size="small"
-        // style={{
-        //   display: paused ? null : 'none'
-        // }}
       >
         {isPaused ? 'Play' : 'Pause'}
       </Button>
-      {/* <button
-        onClick={this.handlePause.bind(this)}
-        className="pause btn btn-default btn-xs"
-        data-test-id="performance-pause"
-        style={{display: paused ? 'none' : null}}>
-        <span className="pausebutton">
-          <i className="fa fa-pause" />
-          PAUSE
-        </span>
-      </button> */}
       <div
         className={cx(timeStyles, darkMode ? timeDarkThemeStyles : timeLightThemeStyles)}
+        data-test-id="server-stats-time"
       >{time}</div>
-      {/* <div className="time"><span className="currentTime">{time}</span></div> */}
     </div>
   );
 }
