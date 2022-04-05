@@ -1,9 +1,6 @@
-import PQueue from 'p-queue';
-
-import createDebug from 'debug';
 import type { EventEmitter } from 'events';
-
-const debug = createDebug('mongodb-compass:intercom');
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
 
 const INTERCOM_SCRIPT_ELEM_ID = 'intercom-script';
 
@@ -165,14 +162,14 @@ export async function setupIntercom(
 
   // we use a queue to ensure that the state of intercom will eventually reflect
   // what is selected in the preferences.
-  const queue = new PQueue({ concurrency: 1 });
+  let queue = Promise.resolve();
 
   if (preferences.isFeatureEnabled('enableFeedbackPanel')) {
     debug(
       'intercom loading enqueued since enableFeedbackPanel was initially enabled'
     );
-    queue
-      .add(() => loadIntercomScript(intercomWidgetUrl, metadata))
+    queue = queue
+      .then(() => loadIntercomScript(intercomWidgetUrl, metadata))
       .catch((e) => debug('queue error', e));
   } else {
     debug('enableFeedbackPanel is disabled, skipping loading intercom for now');
@@ -186,12 +183,14 @@ export async function setupIntercom(
       // other settings for network usage are aligned too.
       if (preferences.isFeatureEnabled('enableFeedbackPanel')) {
         debug('enqueuing intercom script loading');
-        queue
-          .add(() => loadIntercomScript(intercomWidgetUrl, {}))
+        queue = queue
+          .then(() => loadIntercomScript(intercomWidgetUrl, metadata))
           .catch((e) => debug('queue error', e));
       } else {
         debug('enqueuing intercom script unloading');
-        queue.add(() => unloadIntercom()).catch((e) => debug('queue error', e));
+        queue = queue
+          .then(() => unloadIntercom())
+          .catch((e) => debug('queue error', e));
       }
     }
   );
