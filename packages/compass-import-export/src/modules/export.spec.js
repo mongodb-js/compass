@@ -185,7 +185,7 @@ describe('export [module]', function () {
           expect(store.getState().exportData).to.deep.equal({
             isOpen: true,
             dest: undefined,
-            source: undefined,
+            exporter: undefined,
             exportedDocsCount: 10,
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
@@ -216,7 +216,7 @@ describe('export [module]', function () {
           expect(store.getState().exportData).to.deep.equal({
             isOpen: false,
             dest: undefined,
-            source: undefined,
+            exporter: undefined,
             exportedDocsCount: 10,
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
@@ -247,7 +247,7 @@ describe('export [module]', function () {
           expect(store.getState().exportData).to.deep.equal({
             isOpen: true,
             dest: undefined,
-            source: undefined,
+            exporter: undefined,
             exportedDocsCount: 10,
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
@@ -278,7 +278,7 @@ describe('export [module]', function () {
           expect(store.getState().exportData).to.deep.equal({
             isOpen: true,
             dest: undefined,
-            source: undefined,
+            exporter: undefined,
             exportedDocsCount: 10,
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,

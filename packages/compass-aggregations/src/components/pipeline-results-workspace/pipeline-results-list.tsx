@@ -88,20 +88,9 @@ export const PipelineResultsList: React.FunctionComponent<
 > = ({ documents, ...rest }) => {
   const [viewType, setViewType] = useState<'document' | 'json'>('document');
 
-  const items = useMemo(() => {
-    return (
-      documents
-        // TODO: This list is not really built to show more than 20-ish elements
-        // without getting way too slow. Slicing for now while pagination is
-        // being implemented
-        .slice(0, 20)
-        .map((doc) => new HadronDocument(doc))
-    );
-  }, [documents]);
-
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
-      docs: items,
+      docs: documents.map((doc) => new HadronDocument(doc)),
       isEditable: false,
       copyToClipboard(doc) {
         const obj = doc.generateObject();
@@ -111,9 +100,9 @@ export const PipelineResultsList: React.FunctionComponent<
           2
         );
         void navigator.clipboard.writeText(str);
-      }
+      },
     }),
-    [items]
+    [documents]
   );
 
   return (

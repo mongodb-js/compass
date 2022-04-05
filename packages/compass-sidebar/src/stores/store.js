@@ -23,6 +23,7 @@ store.onActivated = (appRegistry) => {
       changeInstance({
         refreshingStatus: instance.refreshingStatus,
         databasesStatus: instance.databasesStatus,
+        isCSFLEConnection: instance.isCSFLEConnection
       })
     );
   }, 300);
