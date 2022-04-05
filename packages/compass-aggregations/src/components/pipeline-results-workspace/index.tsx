@@ -60,7 +60,7 @@ const errorMessageStyles = css({
   color: uiColors.red.base,
 });
 
-const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspaceProps> =
+export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspaceProps> =
   ({ documents, hasEmptyResults, loading, error, onCancel }) => {
     const [resultsViewType, setResultsViewType] =
       useState<ResultsViewType>('document');

@@ -37,7 +37,11 @@ export const PipelineResultsLoader: React.FunctionComponent<PipelineResultsLoade
       >
         <SpinLoader size="24px" />
         <Subtitle className={textStyles}>Running aggregation</Subtitle>
-        <Button variant="primaryOutline" onClick={() => onCancel()} vai>
+        <Button
+          data-testid="pipeline-results-cancel-action"
+          variant="primaryOutline"
+          onClick={() => onCancel()}
+        >
           Stop
         </Button>
       </div>

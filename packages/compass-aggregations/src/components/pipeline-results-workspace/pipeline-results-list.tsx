@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { DocumentListView, DocumentJsonView } from '@mongodb-js/compass-crud';
+import type { Document } from 'mongodb';
 import HadronDocument from 'hadron-document';
 import { EJSON } from 'bson';
 import { css } from '@mongodb-js/compass-components';
@@ -12,8 +13,8 @@ const containerStyles = css({
   },
 });
 
-export const PipelineResultsList: React.FunctionComponent<{
-  documents: unknown[];
+const PipelineResultsList: React.FunctionComponent<{
+  documents: Document[];
   view: ResultsViewType;
 }> = ({ documents, view }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(

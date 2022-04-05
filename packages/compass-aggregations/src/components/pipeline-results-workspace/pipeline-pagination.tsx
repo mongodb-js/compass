@@ -38,14 +38,15 @@ export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps
     onNext,
   }) => {
     return (
-      <div className={containerStyles}>
+      <div className={containerStyles} data-testid="pipeline-pagination">
         {!isCountDisabled && (
-          <Body>
+          <Body data-testid="pipeline-pagination-desc">
             Showing {showingFrom} – {showingTo}
           </Body>
         )}
         <div>
           <IconButton
+            data-testid="pipeline-pagination-prev-action"
             aria-label="Previous page"
             disabled={isPrevDisabled}
             onClick={() => onPrev()}
@@ -53,6 +54,7 @@ export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps
             <Icon glyph="ChevronLeft" />
           </IconButton>
           <IconButton
+            data-testid="pipeline-pagination-next-action"
             aria-label="Next page"
             disabled={isNextDisabled}
             onClick={() => onNext()}
@@ -74,16 +76,22 @@ export const calculateShowingFrom = ({
 export const calculateShowingTo = ({
   limit,
   page,
-  documents,
-}: Pick<RootState['aggregation'], 'limit' | 'page' | 'documents'>): number => {
-  return (page - 1) * limit + (documents.length || limit);
+  documentCount,
+}: Pick<RootState['aggregation'], 'limit' | 'page'> & {
+  documentCount: number;
+}): number => {
+  return (page - 1) * limit + (documentCount || limit);
 };
 
 const mapState = ({
   aggregation: { documents, isLast, page, limit, loading, error },
 }: RootState) => ({
   showingFrom: calculateShowingFrom({ limit, page }),
-  showingTo: calculateShowingTo({ limit, page, documents }),
+  showingTo: calculateShowingTo({
+    limit,
+    page,
+    documentCount: documents.length,
+  }),
   isCountDisabled: loading || Boolean(error),
   isPrevDisabled: page <= 1 || loading || Boolean(error),
   isNextDisabled: isLast || loading || Boolean(error),

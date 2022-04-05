@@ -25,7 +25,10 @@ const PipelineResultsViewControls: React.FunctionComponent<{
   const labelId = useId();
   const controlId = useId();
   return (
-    <div className={containerStyles}>
+    <div
+      className={containerStyles}
+      data-testid="pipeline-results-view-controls"
+    >
       <Overline
         as="label"
         id={labelId}
