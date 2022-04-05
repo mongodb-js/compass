@@ -7,17 +7,14 @@ import { Banner } from '@mongodb-js/compass-components';
 
 import { CreateCollectionModal } from '../create-collection-modal';
 import CollectionFields from '../collection-fields';
-import styles from './create-collection-modal.module.less';
 
 describe('CreateCollectionModal [Component]', () => {
   context('when the modal is visible', () => {
     let component;
     let toggleIsVisibleSpy;
-    let openLinkSpy;
     let clearErrorSpy;
 
     beforeEach(() => {
-      openLinkSpy = sinon.spy();
       toggleIsVisibleSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
 
@@ -26,7 +23,6 @@ describe('CreateCollectionModal [Component]', () => {
           isVisible
           isRunning={false}
           error={{message: 'A testing error occurred.'}}
-          openLink={openLinkSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           clearError={clearErrorSpy}
         />
@@ -34,7 +30,6 @@ describe('CreateCollectionModal [Component]', () => {
     });
 
     afterEach(() => {
-      openLinkSpy = null;
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       component = null;
@@ -61,11 +56,9 @@ describe('CreateCollectionModal [Component]', () => {
   context('when the modal is not visible', () => {
     let component;
     let toggleIsVisibleSpy;
-    let openLinkSpy;
     let clearErrorSpy;
 
     beforeEach(() => {
-      openLinkSpy = sinon.spy();
       toggleIsVisibleSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
 
@@ -73,7 +66,6 @@ describe('CreateCollectionModal [Component]', () => {
         <CreateCollectionModal
           isVisible={false}
           isRunning={false}
-          openLink={openLinkSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           clearError={clearErrorSpy}
         />
@@ -81,7 +73,6 @@ describe('CreateCollectionModal [Component]', () => {
     });
 
     afterEach(() => {
-      openLinkSpy = null;
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       component = null;
