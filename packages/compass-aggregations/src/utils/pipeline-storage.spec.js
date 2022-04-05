@@ -4,9 +4,10 @@ import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
 
-import { PipelineStorage } from './pipelineStorage';
+import { PipelineStorage } from './pipeline-storage';
 
-const initialAggregationsPath = process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH;
+const initialAggregationsPath =
+  process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH;
 
 const createPipeline = (tmpDir, data) => {
   fs.writeFileSync(
@@ -17,20 +18,21 @@ const createPipeline = (tmpDir, data) => {
 
 const pipelineStorage = new PipelineStorage();
 
-describe('PipelineStorage', function() {
+describe('PipelineStorage', function () {
   let tmpDir;
-  beforeEach(function() {
+  beforeEach(function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'SavedPipelines'));
     fs.mkdirSync(path.join(tmpDir, 'SavedPipelines'));
     process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH = tmpDir;
   });
 
-  afterEach(function() {
+  afterEach(function () {
     fs.rmdirSync(tmpDir, { recursive: true });
-    process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH = initialAggregationsPath;
+    process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH =
+      initialAggregationsPath;
   });
 
-  it('should read saved pipelines', async function() {
+  it('should read saved pipelines', async function () {
     let aggregations = await pipelineStorage.loadAll();
     expect(aggregations).to.have.length(0);
 
@@ -55,16 +57,20 @@ describe('PipelineStorage', function() {
     expect(aggregations[1]).to.have.property('lastModified');
 
     // Remove lastModified
-    aggregations.map(x => {
+    aggregations.map((x) => {
       delete x.lastModified;
       return x;
     });
 
-    expect(aggregations.find(x => x.id === data[0].id)).to.deep.equal(data[0]);
-    expect(aggregations.find(x => x.id === data[1].id)).to.deep.equal(data[1]);
+    expect(aggregations.find((x) => x.id === data[0].id)).to.deep.equal(
+      data[0]
+    );
+    expect(aggregations.find((x) => x.id === data[1].id)).to.deep.equal(
+      data[1]
+    );
   });
 
-  it('should update a pipeline', async function() {
+  it('should update a pipeline', async function () {
     const data = {
       id: 1234567890,
       name: 'hello',
@@ -79,7 +85,10 @@ describe('PipelineStorage', function() {
     delete aggregations[0].lastModified;
     expect(aggregations[0]).to.deep.equal(data);
 
-    const updatedAggregation = await pipelineStorage.updateAttributes(data.id, {name: 'updated', namespace: 'airbnb.users'});
+    const updatedAggregation = await pipelineStorage.updateAttributes(data.id, {
+      name: 'updated',
+      namespace: 'airbnb.users',
+    });
 
     aggregations = await pipelineStorage.loadAll();
     expect(aggregations).to.have.length(1);
@@ -96,7 +105,7 @@ describe('PipelineStorage', function() {
     });
   });
 
-  it('should delete a pipeline', async function() {
+  it('should delete a pipeline', async function () {
     const data = {
       id: 1234567890,
       name: 'hello',

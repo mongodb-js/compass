@@ -11,6 +11,8 @@ const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
   'as timeField for the time-series collection. ' +
   'This field must have a BSON type date.';
 
+const HELP_URL_TIME_FIELD = 'https://www.mongodb.com/docs/manual/core/timeseries-collections/';
+
 const META_FIELD_INPUT_DESCRIPTION = 'The metaField is the designated field ' +
   'for metadata.';
 
@@ -56,6 +58,7 @@ function TimeSeriesFields({
       toggled={isTimeSeries}
       label="Time-Series"
       dataTestId="time-series-fields"
+      helpUrl={HELP_URL_TIME_FIELD}
       description="Time-series collections efficiently store sequences of measurements over a period of time."
     >
       <FieldSet>
@@ -128,7 +131,8 @@ TimeSeriesFields.propTypes = {
   onChangeIsTimeSeries: PropTypes.func.isRequired,
   onChangeTimeSeriesField: PropTypes.func.isRequired,
   timeSeries: PropTypes.object.isRequired,
-  expireAfterSeconds: PropTypes.string.isRequired
+  expireAfterSeconds: PropTypes.string.isRequired,
+  openLink: PropTypes.string.isRequired
 };
 
 export default TimeSeriesFields;

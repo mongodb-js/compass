@@ -52,6 +52,7 @@ declare class MongoDBInstanceProps {
   dataLake: DataLake;
   auth: AuthInfo;
   databases: DatabaseCollection;
+  isCSFLEConnection: boolean;
 }
 
 declare class MongoDBInstance extends MongoDBInstanceProps {

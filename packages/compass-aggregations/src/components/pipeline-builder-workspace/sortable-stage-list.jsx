@@ -17,8 +17,15 @@ function getGlobalContext() {
   return null;
 }
 
+// The HTML5Backend instance must be a singleton, see
+// https://jira.mongodb.org/browse/COMPASS-5655.
+let html5backend;
+
 function createBackend(manager) {
-  return createHTML5Backend(manager, getGlobalContext());
+  if (!html5backend) {
+    html5backend = createHTML5Backend(manager, getGlobalContext());
+  }
+  return html5backend;
 }
 
 class SortableStageList extends Component {
