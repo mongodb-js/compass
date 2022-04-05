@@ -77,6 +77,7 @@ describe('CursorExporter', function () {
       await client.close();
     });
     it.skip('should cancel streaming', async function () {
+      // TODO: Implement this test. Tried many approaches with no success.
       this.timeout(5000);
       let documentSent = 0;
       cursor = collection.find();
