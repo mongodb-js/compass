@@ -100,7 +100,7 @@ Templates:
                 prefix = '!';
             }
             const contains = []
-                .concat(`${prefix}func(elems []string, v string) bool { '// Check if v is contained within elems'`)
+                .concat(`${prefix}func(elems bson.A, v interface{}) bool {`)
                 .concat('  for _, s := range elems {')
                 .concat('    if v == s {')
                 .concat('      return true')
@@ -112,17 +112,11 @@ Templates:
             return contains;
         }
     AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
-        (args) => {
-            return args.join(' && ');
-        }
+        (args) => args.join(' && ')
     OrSyntaxTemplate: &OrSyntaxTemplate !!js/function >
-        (args) => {
-            return args.join(' || ');
-        }
+        (args) => args.join(' || ')
     NotSyntaxTemplate: &NotSyntaxTemplate !!js/function >
-        (arg) => {
-            return `!${arg}`;
-        }
+        (arg) => `!${arg}`
     UnarySyntaxTemplate: &UnarySyntaxTemplate null
     BinarySyntaxTemplate: &BinarySyntaxTemplate null
     ParensSyntaxTemplate: &ParensSyntaxTemplate null
@@ -149,7 +143,8 @@ Templates:
             return `"${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
         }
     RegexTypeTemplate: &RegexTypeTemplate null
-    BoolTypeTemplate: &BoolTypeTemplate null # Args: literal
+    BoolTypeTemplate: &BoolTypeTemplate !!js/function >
+        (literal) => literal.toLowerCase()
     IntegerTypeTemplate: &IntegerTypeTemplate null # args: literal, argType (i.e. '_string', '_decimal' etc)
     DecimalTypeTemplate: &DecimalTypeTemplate null # args: literal, argType
     LongBasicTypeTemplate: &LongBasicTypeTemplate null # args: literal, argType
@@ -172,16 +167,7 @@ Templates:
         (arg, depth, last) => {
             depth++;
             const indent = '\n' + '    '.repeat(depth);
-            const doubleStringify = (str) => {
-                let newStr = str;
-                if (
-                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            }
-            return `${indent}${doubleStringify(arg)},`;
+            return `${indent}${arg},`;
         }
     NullTypeTemplate: &NullTypeTemplate null # No args
     UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
