@@ -7,7 +7,6 @@ ignores: [
   "karma-electron",
   "karma-sourcemap-loader",
   "karma-webpack",
-  "mongodb-js-metrics",
   "resolve",
   "storage-mixin",
   "uuid",
