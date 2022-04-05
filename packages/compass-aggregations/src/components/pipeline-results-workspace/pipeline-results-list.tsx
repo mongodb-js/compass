@@ -33,6 +33,10 @@ export const PipelineResultsList: React.FunctionComponent<{
     [documents]
   );
 
+  if (documents.length === 0) {
+    return null;
+  }
+
   const DocumentView =
     view === 'document' ? DocumentListView : DocumentJsonView;
 

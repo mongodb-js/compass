@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
-import {
-  css,
-  spacing,
-  Body,
-  uiColors,
-  cx,
-  CancelLoader,
-} from '@mongodb-js/compass-components';
+import { css, spacing, Body, uiColors } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { cancelAggregation } from '../../modules/aggregation';
 
 import type { ResultsViewType } from './pipeline-results-list';
+import PipelineResultsLoader from './pipeline-results-loader';
 import PipelineResultsList from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
@@ -81,25 +75,12 @@ const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace
           />
         </div>
         <div className={resultsStyles}>
-          {documents.length > 0 && (
-            <PipelineResultsList documents={documents} view={resultsViewType} />
-          )}
-          {loading && (
-            <CancelLoader
-              dataTestId="pipeline-results-loader"
-              cancelText="Cancel"
-              onCancel={onCancel}
-              progressText=""
-            />
-          )}
-          {hasEmptyResults && (
-            <Body className={centeredContentStyles}>No results to show</Body>
-          )}
-          {error && (
-            <Body className={cx(centeredContentStyles, errorMessageStyles)}>
-              {error}
-            </Body>
-          )}
+          <PipelineResultsList documents={documents} view={resultsViewType} />
+          <div className={centeredContentStyles}>
+            <PipelineResultsLoader loading={loading} onCancel={onCancel} />
+            {hasEmptyResults && <Body>No results to show</Body>}
+            {error && <Body className={errorMessageStyles}>{error}</Body>}
+          </div>
         </div>
       </div>
     );

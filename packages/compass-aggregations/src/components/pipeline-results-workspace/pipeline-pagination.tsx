@@ -64,11 +64,26 @@ export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps
     );
   };
 
+export const calculateShowingFrom = ({
+  limit,
+  page,
+}: Pick<RootState['aggregation'], 'limit' | 'page'>): number => {
+  return (page - 1) * limit + 1;
+};
+
+export const calculateShowingTo = ({
+  limit,
+  page,
+  documents,
+}: Pick<RootState['aggregation'], 'limit' | 'page' | 'documents'>): number => {
+  return (page - 1) * limit + (documents.length || limit);
+};
+
 const mapState = ({
   aggregation: { documents, isLast, page, limit, loading, error },
 }: RootState) => ({
-  showingFrom: (page - 1) * limit + 1,
-  showingTo: (page - 1) * limit + (documents.length || limit),
+  showingFrom: calculateShowingFrom({ limit, page }),
+  showingTo: calculateShowingTo({ limit, page, documents }),
   isCountDisabled: loading || Boolean(error),
   isPrevDisabled: page <= 1 || loading || Boolean(error),
   isNextDisabled: isLast || loading || Boolean(error),
