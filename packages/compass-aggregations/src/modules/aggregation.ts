@@ -56,7 +56,7 @@ export type State = {
 
 export const INITIAL_STATE: State = {
   documents: [],
-  page: 0,
+  page: 1,
   limit: 20,
   isLast: false,
   loading: false,

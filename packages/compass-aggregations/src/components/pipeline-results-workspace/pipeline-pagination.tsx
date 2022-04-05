@@ -12,10 +12,9 @@ import type { RootState } from '../../modules';
 import { fetchNextPage, fetchPrevPage } from '../../modules/aggregation';
 
 type PipelinePaginationProps = {
-  documentCount: number;
-  page: number;
-  perPage: number;
-  loading: boolean;
+  showingFrom: number;
+  showingTo: number;
+  isCountDisabled: boolean;
   isPrevDisabled: boolean;
   isNextDisabled: boolean;
   onPrev: () => void;
@@ -30,22 +29,19 @@ const containerStyles = css({
 
 export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps> =
   ({
-    documentCount,
-    page,
-    perPage,
-    loading,
+    showingFrom,
+    showingTo,
+    isCountDisabled,
     isPrevDisabled,
     isNextDisabled,
     onPrev,
     onNext,
   }) => {
-    const showingFrom = (page - 1) * perPage;
-    const showingTo = showingFrom + (documentCount || perPage);
     return (
       <div className={containerStyles}>
-        {!loading && (
+        {!isCountDisabled && (
           <Body>
-            Showing {showingFrom + 1} – {showingTo}
+            Showing {showingFrom} – {showingTo}
           </Body>
         )}
         <div>
@@ -71,11 +67,9 @@ export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps
 const mapState = ({
   aggregation: { documents, isLast, page, limit, loading, error },
 }: RootState) => ({
-  documentCount: documents.length,
-  page,
-  perPage: limit,
-  error,
-  loading,
+  showingFrom: (page - 1) * limit + 1,
+  showingTo: (page - 1) * limit + (documents.length || limit),
+  isCountDisabled: loading || Boolean(error),
   isPrevDisabled: page <= 1 || loading || Boolean(error),
   isNextDisabled: isLast || loading || Boolean(error),
 });
