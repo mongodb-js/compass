@@ -148,8 +148,6 @@ export async function setupIntercom(
     app_stage: process.env.NODE_ENV,
   };
 
-  ('MongoDB Compass Dev Local');
-
   const intercomWidgetUrl =
     'https://widget.intercom.io/widget/' + intercomAppId;
 
