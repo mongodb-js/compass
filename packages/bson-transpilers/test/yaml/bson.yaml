@@ -99,7 +99,17 @@ tests:
           csharp: new ObjectId()
           object: new ObjectId()
           ruby: BSON::ObjectId.new
-          go: primitive.NewObjectID()
+          go: |-
+            func(hex string) primitive.ObjectID {
+                if hex == "" {
+                    return primitive.NewObjectID()
+                }
+                objectID, err := primitive.ObjectIDFromHex(hex)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                return objectID
+            }("")
     - description: 'NEW no arg'
       input:
           javascript: new ObjectId()
@@ -112,7 +122,17 @@ tests:
           csharp: new ObjectId()
           object: new ObjectId()
           ruby: BSON::ObjectId.new
-          go: primitive.NewObjectID()
+          go: |-
+            func(hex string) primitive.ObjectID {
+                if hex == "" {
+                    return primitive.NewObjectID()
+                }
+                objectID, err := primitive.ObjectIDFromHex(hex)
+                if err != nil {
+                    log.Fatal(err)
+                }
+                return objectID
+            }("")
     - description: 'hex string arg'
       input:
           javascript: new ObjectId('5a7382114ec1f67ae445f778')
@@ -128,6 +148,9 @@ tests:
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
           go: |-
             func(hex string) primitive.ObjectID {
+                if hex == "" {
+                    return primitive.NewObjectID()
+                }
                 objectID, err := primitive.ObjectIDFromHex(hex)
                 if err != nil {
                     log.Fatal(err)
@@ -147,6 +170,9 @@ tests:
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
           go: |-
             func(hex string) primitive.ObjectID {
+                if hex == "" {
+                    return primitive.NewObjectID()
+                }
                 objectID, err := primitive.ObjectIDFromHex(hex)
                 if err != nil {
                     log.Fatal(err)

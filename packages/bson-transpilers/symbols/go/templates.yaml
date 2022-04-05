@@ -263,11 +263,24 @@ Templates:
             return (scope === undefined) ? `{${code}}` : `{${code}, ${scope}}`;
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
-        () => ''
+        () => {
+            return []
+                .concat("func(hex string) primitive.ObjectID {")
+                .concat("    if hex == \"\" {")
+                .concat("        return primitive.NewObjectID()")
+                .concat("    }")
+                .concat("    objectID, err := primitive.ObjectIDFromHex(hex)")
+                .concat("    if err != nil {")
+                .concat("        log.Fatal(err)")
+                .concat("    }")
+                .concat("    return objectID")
+                .concat("}")
+                .join("\n");
+        }
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (_, arg) => {
             if (arg === undefined || arg === '') {
-                return 'primitive.NewObjectID()';
+                return '("")';
             }
             // Double quote stringify
             let newArg = arg;
@@ -277,15 +290,7 @@ Templates:
                 newArg = arg.substr(1, arg.length - 2);
             }
             newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return []
-                .concat("func(hex string) primitive.ObjectID {")
-                .concat("    objectID, err := primitive.ObjectIDFromHex(hex)")
-                .concat("    if err != nil {")
-                .concat("        log.Fatal(err)")
-                .concat("    }")
-                .concat("    return objectID")
-                .concat(`}(${newArg})`)
-                .join("\n");
+            return `(${newArg})`
         }
     BinarySymbolTemplate: &BinarySymbolTemplate null
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
@@ -363,7 +368,8 @@ Templates:
             }
             return `int64(${arg})`;
         }
-    RegExpSymbolTemplate: &RegExpSymbolTemplate null # No args
+    RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
+        () => 'regex'
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
         () => 'primitive.Symbol'
@@ -391,7 +397,17 @@ Templates:
             return `(${structParts.join(", ")})`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
-        () => ''
+        () => {
+            return []
+                .concat("func(str string) primitive.Decimal128 {")
+                .concat("    d, err := primitive.ParseDecimal128(str)")
+                .concat("    if err != nil {")
+                .concat("        log.Fatal(err)")
+                .concat("    }")
+                .concat("    return d")
+                .concat("}")
+                .join("\n");
+        }
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (_, arg) => {
             if (!arg) {
@@ -406,15 +422,7 @@ Templates:
                 newArg = arg.substr(1, arg.length - 2);
             }
             newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return []
-                .concat("func(str string) primitive.Decimal128 {")
-                .concat("    d, err := primitive.ParseDecimal128(str)")
-                .concat("    if err != nil {")
-                .concat("        log.Fatal(err)")
-                .concat("    }")
-                .concat("    return d")
-                .concat(`}(${newArg})`)
-                .join("\n");
+            return `(${newArg})`
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
         () => 'primitive.MinKey'
@@ -425,14 +433,14 @@ Templates:
     MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate !!js/function >
         () => '{}'
     TimestampSymbolTemplate: &TimestampSymbolTemplate !!js/function >
-        () => ''
+        () => 'primitive.Timestamp'
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
         (lhs, low, high) => {
             if (low === undefined) {
                 low = 0;
                 high = 0;
             }
-            return `primitive.Timestamp{T: ${low}, I: ${high}}`
+            return `{T: ${low}, I: ${high}}`
         }
     # non bson-specific
     NumberSymbolTemplate: &NumberSymbolTemplate null
@@ -520,18 +528,19 @@ Templates:
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate !!js/function >
         (_, arg) => arg
     LongToStringTemplate: &LongToStringTemplate !!js/function >
-        () => 'strconv.Itoa'
-    LongToStringArgsTemplate: &LongToStringArgsTemplate null
+        (lhs) => `strconv.Itoa(${lhs})`
+    LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
+        () => ''
     LongToIntTemplate: &LongToIntTemplate !!js/function >
-        () => 'int'
+        (lhs) => `int(${lhs})`
     LongToIntArgsTemplate: &LongToIntArgsTemplate !!js/function >
-        (arg) => `(${arg})`
+        () => ''
     LongValueOfTemplate: &LongValueOfTemplate null
     LongValueOfArgsTemplate: &LongValueOfArgsTemplate null
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
-        (lhs) => `float64`
+        (lhs) => `float64(${lhs})`
     LongToNumberArgsTemplate: &LongToNumberArgsTemplate !!js/function >
-        (arg) => `(${arg})`
+        (arg) => ''
     LongAddTemplate: &LongAddTemplate !!js/function >
         (lhs) => `${lhs} + `
     LongAddArgsTemplate: &LongAddArgsTemplate !!js/function >
@@ -581,11 +590,11 @@ Templates:
     LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
         () => ''
     LongIsZeroTemplate: &LongIsZeroTemplate !!js/function >
-        (arg) => `${arg} == 0`
+        (arg) => `${arg} == int64(0)`
     LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate !!js/function >
         () => ''
     LongIsNegativeTemplate: &LongIsNegativeTemplate !!js/function >
-        (arg) => `${arg} < 0`
+        (arg) => `${arg} < int64(0)`
     LongIsNegativeArgsTemplate: &LongIsNegativeArgsTemplate !!js/function >
         () => ''
     LongNegateTemplate: &LongNegateTemplate !!js/function >
@@ -622,20 +631,22 @@ Templates:
         (arg) => `${arg} >> 32`
     LongBottomTemplate: &LongBottomTemplate !!js/function >
         (arg) => `${arg} & 0x0000ffff`
-    TimestampToStringTemplate: &TimestampToStringTemplate null
+    TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
+        (lhs) => `time.Unix(${lhs}.T, 0).String`
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate null
+        () => '()'
     TimestampEqualsTemplate: &TimestampEqualsTemplate !!js/function >
-        () => ''
+        (lhs) => `${lhs}.Equal`
     TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate !!js/function >
-        (lhs, rhs) => `${lhs}.Equal(${rhs})`
+        (_, rhs) => `(${rhs})`
     TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
-        () => ''
-    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate !!js/function >
         (lhs) => `${lhs}.T`
-    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
+    TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate !!js/function >
         () => ''
-    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate !!js/function >
+    TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
         (lhs) => `${lhs}.I`
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate !!js/function >
+        () => ''
     TimestampTTemplate: &TimestampTTemplate !!js/function >
         (lhs) => `${lhs}.T`
     TimestampITemplate: &TimestampITemplate !!js/function >
@@ -645,43 +656,67 @@ Templates:
     TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate !!js/function >
         () => ''
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
-        () => ''
+        () => 'primitive.CompareTimestamp'
     TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate !!js/function >
-        (lhs, rhs) => `primitive.CompareTimestamp(${lhs}, ${rhs})`
+        (lhs, rhs) => `(${lhs}, ${rhs})`
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate !!js/function >
-        () => ''
+        (lhs) => `!${lhs}.Equal`
     TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate !!js/function >
-        (lhs, rhs) => `!${lhs}.Equal(${rhs})`
+        (_, rhs) => `(${rhs})`
     TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate !!js/function >
-        () => ''
+        (lhs) => {
+            return []
+                .concat("func(rhs primitive.Timestamp) bool {")
+                .concat(`    lhs := ${lhs}`)
+                .concat("")
+                .concat("    // returns true if lhs > rhs")
+                .concat("    return primitive.CompareTimestamp(lhs, rhs) == 1")
+                .concat("}")
+                .join("\n")
+        }
     TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate !!js/function >
-        (lhs, rhs) => `primitive.CompareTimestamp(${lhs}, ${rhs}) == 1`
+        (_, rhs) => `(${rhs})`
     TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate !!js/function >
-        () => ''
-    TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
-        (lhs, rhs) => {
+        (lhs) => {
             return []
-                .concat("func() bool {")
-                .concat(`    c := primitive.CompareTimestamp(${lhs}, ${rhs})`)
+                .concat("func(rhs primitive.Timestamp) bool {")
+                .concat(`    lhs := ${lhs}`)
+                .concat(`    c := primitive.CompareTimestamp(lhs, rhs)`)
+                .concat("")
+                .concat("    // returns true if lhs == rhs or lhs > rhs")
                 .concat("    return return c == 0 || c == 1")
-                .concat(`}()`)
+                .concat(`}`)
                 .join("\n");
         }
+    TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
+        (_, rhs) => `(${rhs})`
     TimestampLessThanTemplate: &TimestampLessThanTemplate !!js/function >
-        () => ''
-    TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate !!js/function >
-        (lhs, rhs) => `primitive.CompareTimestamp(${lhs}, ${rhs}) == -1`
-    TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate !!js/function >
-        () => ''
-    TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
-        (lhs, rhs) => {
+        (lhs) => {
             return []
-                .concat("func() bool {")
-                .concat(`    c := primitive.CompareTimestamp(${lhs}, ${rhs})`)
+                .concat("func(rhs primitive.Timestamp) bool {")
+                .concat(`    lhs := ${lhs}`)
+                .concat("")
+                .concat("    // returns true if lhs < rhs")
+                .concat("    return primitive.CompareTimestamp(lhs, rhs) == -1")
+                .concat("}")
+                .join("\n")
+        }
+    TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate !!js/function >
+        (_, rhs) => `(${rhs})`
+    TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate !!js/function >
+        (lhs) => {
+            return []
+                .concat("func(rhs primitive.Timestamp) bool {")
+                .concat(`    lhs := ${lhs}`)
+                .concat(`    c := primitive.CompareTimestamp(lhs, rhs)`)
+                .concat("")
+                .concat("    // returns true if lhs == rhs or lhs < rhs")
                 .concat("    return return c == 0 || c == -1")
-                .concat(`}()`)
+                .concat(`}`)
                 .join("\n");
         }
+    TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
+        (_, rhs) => `(${rhs})`
     SymbolValueOfTemplate: &SymbolValueOfTemplate !!js/function >
         () => ''
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate !!js/function >

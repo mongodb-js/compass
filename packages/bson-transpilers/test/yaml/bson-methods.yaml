@@ -65,6 +65,9 @@ tests:
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
             go: |-
                 func(hex string) primitive.ObjectID {
+                    if hex == "" {
+                        return primitive.NewObjectID()
+                    }
                     objectID, err := primitive.ObjectIDFromHex(hex)
                     if err != nil {
                         log.Fatal(err)
@@ -84,6 +87,9 @@ tests:
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time
             go: |-
                 func(hex string) primitive.ObjectID {
+                    if hex == "" {
+                        return primitive.NewObjectID()
+                    }
                     objectID, err := primitive.ObjectIDFromHex(hex)
                     if err != nil {
                         log.Fatal(err)
@@ -102,12 +108,18 @@ tests:
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9') == BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
             go: |-
                 func(hex string) primitive.ObjectID {
+                    if hex == "" {
+                        return primitive.NewObjectID()
+                    }
                     objectID, err := primitive.ObjectIDFromHex(hex)
                     if err != nil {
                         log.Fatal(err)
                     }
                     return objectID
                 }("5ab901c29ee65f5c8550c5b9") == func(hex string) primitive.ObjectID {
+                    if hex == "" {
+                        return primitive.NewObjectID()
+                    }
                     objectID, err := primitive.ObjectIDFromHex(hex)
                     if err != nil {
                         log.Fatal(err)
@@ -120,12 +132,18 @@ tests:
             object: true
             go: |-
                 func(hex string) primitive.ObjectID {
+                    if hex == "" {
+                        return primitive.NewObjectID()
+                    }
                     objectID, err := primitive.ObjectIDFromHex(hex)
                     if err != nil {
                         log.Fatal(err)
                     }
                     return objectID
                 }("5ab901c29ee65f5c8550c5b9") == func(hex string) primitive.ObjectID {
+                    if hex == "" {
+                        return primitive.NewObjectID()
+                    }
                     objectID, err := primitive.ObjectIDFromHex(hex)
                     if err != nil {
                         log.Fatal(err)
@@ -138,7 +156,6 @@ tests:
             python: ObjectId() == ObjectId()
         output:
             object: false
-            go: primitive.NewObjectID() == primitive.NewObjectID()
     DBRef-methods:
     -   input:
             shell: new DBRef('coll', new ObjectId(), 'db').$db
@@ -315,7 +332,7 @@ tests:
             shell: new NumberLong(429496729601) === 0
             object: 'false'
             ruby: 429496729601 == 0
-            go: int64(429496729601) == 0
+            go: int64(429496729601) == int64(0)
     -   input:
             javascript: new Long(1, 100).isNegative()
         output:
@@ -325,7 +342,7 @@ tests:
             shell: new NumberLong(429496729601) < 0
             object: 'false'
             ruby: 429496729601 < 0
-            go: int64(429496729601) < 0
+            go: int64(429496729601) < int64(0)
     -   input:
             javascript: new Long(1, 100).isOdd()
         output:
@@ -594,7 +611,13 @@ tests:
             shell: new Timestamp(1, 100) > new Timestamp(2, 99)
             object: 'true'
             ruby: BSON::Timestamp.new(1, 100) > BSON::Timestamp.new(2, 99)
-            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == 1"
+            go: |-
+                func(rhs primitive.Timestamp) bool {
+                    lhs := primitive.Timestamp{T: 1, I: 100}
+
+                    // returns true if lhs > rhs
+                    return primitive.CompareTimestamp(lhs, rhs) == 1
+                }(primitive.Timestamp{T: 2, I: 99})
     -   input:
             javascript: Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))
         output:
@@ -605,10 +628,13 @@ tests:
             object: 'true'
             ruby: BSON::Timestamp.new(1, 100) >= BSON::Timestamp.new(2, 99)
             go: |-
-                func() bool {
-                    c := primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})
+                func(rhs primitive.Timestamp) bool {
+                    lhs := primitive.Timestamp{T: 1, I: 100}
+                    c := primitive.CompareTimestamp(lhs, rhs)
+
+                    // returns true if lhs == rhs or lhs > rhs
                     return return c == 0 || c == 1
-                }()
+                }(primitive.Timestamp{T: 2, I: 99})
     -   input:
             javascript: Timestamp(1, 100).lessThan(Timestamp(2, 99))
         output:
@@ -618,7 +644,13 @@ tests:
             shell: new Timestamp(1, 100) < new Timestamp(2, 99)
             object: 'false'
             ruby: BSON::Timestamp.new(1, 100) < BSON::Timestamp.new(2, 99)
-            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == -1"
+            go: |-
+                func(rhs primitive.Timestamp) bool {
+                    lhs := primitive.Timestamp{T: 1, I: 100}
+
+                    // returns true if lhs < rhs
+                    return primitive.CompareTimestamp(lhs, rhs) == -1
+                }(primitive.Timestamp{T: 2, I: 99})
     -   input:
             javascript: Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))
         output:
@@ -629,10 +661,13 @@ tests:
             object: 'false'
             ruby: BSON::Timestamp.new(1, 100) <= BSON::Timestamp.new(2, 99)
             go: |-
-                func() bool {
-                    c := primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})
+                func(rhs primitive.Timestamp) bool {
+                    lhs := primitive.Timestamp{T: 1, I: 100}
+                    c := primitive.CompareTimestamp(lhs, rhs)
+
+                    // returns true if lhs == rhs or lhs < rhs
                     return return c == 0 || c == -1
-                }()
+                }(primitive.Timestamp{T: 2, I: 99})
     -   input:
             javascript: Timestamp(1, 100).getLowBits()
             python: Timestamp(1, 100).time
