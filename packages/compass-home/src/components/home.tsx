@@ -114,10 +114,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
   }
 
-  // TODO: Remove this comment once we only have one connections package:
-  // This is currently only used by the new connections package.
-  // We've moved to calling the `data-service-connected` event here instead
-  // of inside `connections`/`compass-connect` and instead call it here.
   function onConnected(
     connectionInfo: ConnectionInfo,
     dataService: DataService
