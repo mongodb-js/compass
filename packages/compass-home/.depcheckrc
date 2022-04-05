@@ -3,5 +3,16 @@ ignores: [
   "@mongodb-js/tsconfig-compass",
   "eventemitter3",
   "resolve",
-  "ts-node"
+  "ts-node",
+
+  // Externals
+  "keytar",
+  "kerberos",
+  "mongodb-client-encryption",
+  "punycode",
+  "keytar",
+  "os-dns-native",
+  "system-ca",
+  "bson-ext",
+  "snappy",
 ]
