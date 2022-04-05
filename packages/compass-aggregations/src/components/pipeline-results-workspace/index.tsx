@@ -1,148 +1,120 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import {
-  IconButton,
   css,
   spacing,
-  Icon,
-  Button,
   Body,
   uiColors,
   cx,
+  CancelLoader,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-import {
-  fetchNextPage,
-  fetchPrevPage,
-  cancelAggregation,
-} from '../../modules/aggregation';
-import { PipelineResultsList } from './pipeline-results-list';
+import { cancelAggregation } from '../../modules/aggregation';
 
-type PipelineResultsWorkspace = {
+import type { ResultsViewType } from './pipeline-results-list';
+import PipelineResultsList from './pipeline-results-list';
+import PipelinePagination from './pipeline-pagination';
+import PipelineResultsViewControls from './pipeline-results-view-controls';
+
+type PipelineResultsWorkspaceProps = {
   documents: Document[];
-  page: number;
-  perPage: number;
   loading: boolean;
-  isPrevDisabled: boolean;
-  isNextDisabled: boolean;
+  hasEmptyResults: boolean;
   error?: string;
-  onPrev: () => void;
-  onNext: () => void;
   onCancel: () => void;
 };
 
 const containerStyles = css({
-  flexGrow: 1,
-  width: '100%',
-  position: 'relative',
-  overflowY: 'scroll',
+  paddingLeft: spacing[3] + spacing[1],
+  paddingRight: spacing[5] + spacing[1],
+  overflow: 'hidden',
+  height: '100vh',
+  display: 'grid',
+  gap: spacing[2],
+  gridTemplateAreas: `
+    "header"
+    "results"
+  `,
+  gridTemplateRows: 'min-content',
+  marginTop: spacing[2],
+  marginBottom: spacing[3],
 });
 
-const topStyles = css({
+const headerStyles = css({
+  gridArea: 'header',
   display: 'flex',
+  gap: spacing[2],
   justifyContent: 'flex-end',
   alignItems: 'center',
-  gap: spacing[2],
+});
+
+const resultsStyles = css({
+  gridArea: 'results',
+  overflowY: 'auto',
 });
 
 const centeredContentStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[4],
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
 });
 
 const errorMessageStyles = css({
   color: uiColors.red.base,
 });
 
-const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspace> =
-  ({
-    documents,
-    page,
-    perPage,
-    loading,
-    isPrevDisabled,
-    isNextDisabled,
-    error,
-    onPrev,
-    onNext,
-    onCancel,
-  }) => {
-    const showingFrom = (page - 1) * perPage;
-    const showingTo = showingFrom + (documents.length || perPage);
+const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspaceProps> =
+  ({ documents, hasEmptyResults, loading, error, onCancel }) => {
+    const [resultsViewType, setResultsViewType] =
+      useState<ResultsViewType>('document');
+
     return (
       <div data-testid="pipeline-results-workspace" className={containerStyles}>
-        <div className={topStyles}>
-          {/* todo: should be replaced with spinners for counts (showingFrom, showingTo) */}
-          {loading ? (
-            <Body>Loading ...</Body>
-          ) : (
-            <Body>
-              Showing {showingFrom + 1} – {showingTo}
+        <div className={headerStyles}>
+          <PipelinePagination />
+          <PipelineResultsViewControls
+            value={resultsViewType}
+            onChange={setResultsViewType}
+          />
+        </div>
+        <div className={resultsStyles}>
+          {documents.length > 0 && (
+            <PipelineResultsList documents={documents} view={resultsViewType} />
+          )}
+          {loading && (
+            <CancelLoader
+              dataTestId="pipeline-results-loader"
+              cancelText="Cancel"
+              onCancel={onCancel}
+              progressText=""
+            />
+          )}
+          {hasEmptyResults && (
+            <Body className={centeredContentStyles}>No results to show</Body>
+          )}
+          {error && (
+            <Body className={cx(centeredContentStyles, errorMessageStyles)}>
+              {error}
             </Body>
           )}
-          <div>
-            <IconButton
-              aria-label="Previous page"
-              disabled={isPrevDisabled}
-              onClick={() => onPrev()}
-            >
-              <Icon glyph="ChevronLeft" />
-            </IconButton>
-            <IconButton
-              aria-label="Next page"
-              disabled={isNextDisabled}
-              onClick={() => onNext()}
-            >
-              <Icon glyph="ChevronRight" />
-            </IconButton>
-          </div>
         </div>
-        <PipelineResultsList
-          documents={documents}
-          data-testid="pipeline-results-workspace"
-        ></PipelineResultsList>
-        {documents.length === 0 && !error && !loading && (
-          <Body className={centeredContentStyles}>No results to show</Body>
-        )}
-        {/* todo: on error, add a retry button */}
-        {error && (
-          <Body className={cx(centeredContentStyles, errorMessageStyles)}>
-            {error}
-          </Body>
-        )}
-        {loading && (
-          <div className={centeredContentStyles}>
-            <Body>Loading ... </Body>
-            <Button
-              onClick={() => onCancel()}
-              variant="primaryOutline"
-              size="xsmall"
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
       </div>
     );
   };
 
 const mapState = ({
-  aggregation: { documents, isLast, page, limit, loading, error },
+  aggregation: { documents, loading, error },
 }: RootState) => ({
   documents,
-  page,
-  perPage: limit,
   error,
   loading,
-  isPrevDisabled: page <= 1 || loading || Boolean(error),
-  isNextDisabled: isLast || loading || Boolean(error),
+  hasEmptyResults: documents.length === 0 && !error && !loading,
 });
 
 const mapDispatch = {
-  onPrev: fetchPrevPage,
-  onNext: fetchNextPage,
   onCancel: cancelAggregation,
 };
 
