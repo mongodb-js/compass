@@ -49,6 +49,7 @@ declare module 'process' {
          * Enable new aggregation pipeline toolbar
          */
         COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true',
+        COMPASS_CSFLE_SUPPORT?: 'true' | 'false';
       }
     }
   }
