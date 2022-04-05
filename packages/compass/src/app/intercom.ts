@@ -1,6 +1,6 @@
 import type { EventEmitter } from 'events';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
+const { debug, mongoLogId, log } = createLoggerAndTelemetry('COMPASS-INTERCOM');
 
 const INTERCOM_SCRIPT_ELEM_ID = 'intercom-script';
 
@@ -18,7 +18,7 @@ function loadIntercomScript(
   metadata: IntercomMetadata
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    debug('setup intercom');
+    log.info(mongoLogId(1_001_000_105), 'Intercom', 'Loading intercom script');
 
     const el = document.getElementById(INTERCOM_SCRIPT_ELEM_ID);
     if (el) {
@@ -63,7 +63,12 @@ function loadIntercomScript(
           x.parentNode!.insertBefore(s, x);
           debug('intercom script injected');
           w.Intercom('boot', metadata);
-          debug('intercom booted with metadata', metadata);
+          log.info(
+            mongoLogId(1_001_000_106),
+            'Intercom',
+            'Intercom booted with metadata',
+            metadata
+          );
           resolve();
         } catch (e) {
           reject(e);
@@ -79,7 +84,12 @@ function loadIntercomScript(
       }
     }
   }).catch((e) => {
-    debug('failed to inject intercom script, reason:', e);
+    log.warn(
+      mongoLogId(1_001_000_107),
+      'Intercom',
+      'Failed to inject intercom script',
+      { error: e.message }
+    );
   });
 }
 
@@ -87,7 +97,12 @@ export function unloadIntercom(): void {
   try {
     const win: any = window;
 
-    debug('unload intercom');
+    log.info(
+      mongoLogId(1_001_000_108),
+      'Intercom',
+      'Unloading intercom script'
+    );
+
     if (typeof window === 'undefined') {
       return;
     }
@@ -103,9 +118,14 @@ export function unloadIntercom(): void {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       el.parentNode!.removeChild(el);
     }
-    debug('intercom script unloaded');
+    log.warn(mongoLogId(1_001_000_109), 'Intercom', 'Intercom script unloaded');
   } catch (e) {
-    debug('unload intercom failed, reason:', e);
+    log.warn(
+      mongoLogId(1_001_000_110),
+      'Intercom',
+      'Failed to unload intercom script',
+      { error: (e as Error)?.message }
+    );
   }
 }
 
