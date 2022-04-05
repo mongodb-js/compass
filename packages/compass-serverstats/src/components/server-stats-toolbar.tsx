@@ -28,13 +28,13 @@ const timeDarkThemeStyles = css({
   color: uiColors.gray.light2,
 });
 
-type D3EventDispatcher = {
-  on: (eventName: string, handler: (eventProps: any) => void) => void;
+type TimeScrubEventDispatcher = {
+  on: (eventName: 'newXValue', handler: (xDate: Date) => void) => void;
 };
 
 type ServerStatsToolbarProps = {
   darkMode?: boolean;
-  eventDispatcher: D3EventDispatcher
+  eventDispatcher: TimeScrubEventDispatcher
 }
 
 function UnthemedServerStatsToolbar({
@@ -46,11 +46,11 @@ function UnthemedServerStatsToolbar({
 
   useEffect(() => {
     eventDispatcher.on('newXValue', xDate => {
-      // TODO: How do we clean up this event handler? d3 dispatch?
-      // The time is from the mouse x position on the d3 graphs, the graphs send this event.
+      // When the cursor position results in a new time on the graphs, by user
+      // scrubbing or live viewing, we receive a new time to display.
       setTime(d3.time.format.utc('%X')(xDate));
     });
-  }, [ /* Run on first mount. */ ]);
+  }, []);
 
   const onPlayPauseClicked = useCallback(() => {
     setPaused(!isPaused)
