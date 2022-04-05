@@ -76,7 +76,7 @@ describe('CursorExporter', function () {
       await collection.drop();
       await client.close();
     });
-    it('should cancel streaming', async function () {
+    it.skip('should cancel streaming', async function () {
       this.timeout(5000);
       let documentSent = 0;
       cursor = collection.find();
