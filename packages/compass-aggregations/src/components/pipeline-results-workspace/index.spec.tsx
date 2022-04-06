@@ -9,7 +9,9 @@ import configureStore from '../../stores/store';
 
 import { PipelineResultsWorkspace } from './index';
 
-const renderPipelineResultsWorkspace = (props: Record<string, any> = {}) => {
+const renderPipelineResultsWorkspace = (
+  props: Record<string, unknown> = {}
+) => {
   render(
     <Provider store={configureStore()}>
       <PipelineResultsWorkspace
@@ -45,7 +47,7 @@ describe('PipelineResultsWorkspace', function () {
     renderPipelineResultsWorkspace({ hasEmptyResults: true });
     const container = screen.getByTestId('pipeline-results-workspace');
     expect(container).to.exist;
-    expect(within(container).getByText('No results to show')).to.exist;
+    expect(within(container).getByTestId('pipeline-empty-results')).to.exist;
   });
   it('renders documents', function () {
     renderPipelineResultsWorkspace({ documents: [{ id: '1' }, { id: '2' }] });

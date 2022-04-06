@@ -10,20 +10,25 @@ import {
   calculateShowingTo,
 } from './pipeline-pagination';
 
-const props = {
-  showingFrom: 1,
-  showingTo: 20,
-  isCountDisabled: false,
-  isPrevDisabled: false,
-  isNextDisabled: false,
-  onPrev: () => {},
-  onNext: () => {},
+const renderPipelinePagination = (props: Record<string, unknown> = {}) => {
+  render(
+    <PipelinePagination
+      showingFrom={1}
+      showingTo={20}
+      isCountDisabled={false}
+      isPrevDisabled={false}
+      isNextDisabled={false}
+      onPrev={() => {}}
+      onNext={() => {}}
+      {...props}
+    />
+  );
 };
 
 describe('PipelinePagination', function () {
   describe('PipelinePagination Component', function () {
     it('renders correctly', function () {
-      render(<PipelinePagination {...props} />);
+      renderPipelinePagination();
       const container = screen.getByTestId('pipeline-pagination');
       expect(
         within(container).getByTestId('pipeline-pagination-desc').textContent
@@ -34,23 +39,14 @@ describe('PipelinePagination', function () {
         .to.exist;
     });
     it('does not render desc when disabled', function () {
-      const pipelineProps = {
-        ...props,
-        isCountDisabled: true,
-      };
-      render(<PipelinePagination {...pipelineProps} />);
+      renderPipelinePagination({ isCountDisabled: true });
       const container = screen.getByTestId('pipeline-pagination');
       expect(() => {
         within(container).getByTestId('pipeline-pagination-desc');
       }).to.throw;
     });
     it('renders paginate buttons as disabled when disabled', function () {
-      const pipelineProps = {
-        ...props,
-        isPrevDisabled: true,
-        isNextDisabled: true,
-      };
-      render(<PipelinePagination {...pipelineProps} />);
+      renderPipelinePagination({ isPrevDisabled: true, isNextDisabled: true });
       const container = screen.getByTestId('pipeline-pagination');
       expect(
         within(container)
@@ -64,28 +60,22 @@ describe('PipelinePagination', function () {
       ).to.equal('true');
     });
     it('calls onPrev when clicked', function () {
-      const pipelineProps = {
-        ...props,
-        onPrev: spy(),
-      };
-      render(<PipelinePagination {...pipelineProps} />);
+      const onPrev = spy();
+      renderPipelinePagination({ onPrev });
       const container = screen.getByTestId('pipeline-pagination');
       userEvent.click(
         within(container).getByTestId('pipeline-pagination-prev-action')
       );
-      expect(pipelineProps.onPrev.calledOnce).to.be.true;
+      expect(onPrev.calledOnce).to.be.true;
     });
     it('calls onNext when clicked', function () {
-      const pipelineProps = {
-        ...props,
-        onNext: spy(),
-      };
-      render(<PipelinePagination {...pipelineProps} />);
+      const onNext = spy();
+      renderPipelinePagination({ onNext });
       const container = screen.getByTestId('pipeline-pagination');
       userEvent.click(
         within(container).getByTestId('pipeline-pagination-next-action')
       );
-      expect(pipelineProps.onNext.calledOnce).to.be.true;
+      expect(onNext.calledOnce).to.be.true;
     });
   });
 

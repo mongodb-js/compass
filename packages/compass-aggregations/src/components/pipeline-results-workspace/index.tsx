@@ -16,6 +16,7 @@ import { cancelAggregation } from '../../modules/aggregation';
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelineResultsList from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
+import PipelineEmptyResults from './pipeline-empty-results';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
 
 type PipelineResultsWorkspaceProps = {
@@ -93,7 +94,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
                 onCancel={() => onCancel()}
               />
             )}
-            {hasEmptyResults && <Body>No results to show</Body>}
+            {hasEmptyResults && <PipelineEmptyResults />}
             {error && <Body className={errorMessageStyles}>{error}</Body>}
           </div>
         </div>
