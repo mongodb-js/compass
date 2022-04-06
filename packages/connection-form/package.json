@@ -25,14 +25,13 @@
   "main": "dist/index.js",
   "exports": {
     "webpack": "./src/index.ts",
-    "require": "./dist/index.js",
-    "import": "./dist/.esm-wrapper.mjs"
+    "require": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "compile": "tsc -p tsconfig.json",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -54,10 +53,15 @@
   },
   "dependencies": {
     "@testing-library/react-hooks": "^7.0.2",
+    "ace-builds": "^1.4.3",
     "lodash": "^4.17.21",
+    "mongodb-ace-mode": "^1.6.0",
+    "mongodb-ace-theme": "^1.6.0",
     "mongodb-build-info": "^1.4.0",
     "mongodb-connection-string-url": "^2.5.2",
+    "mongodb-query-parser": "^2.4.4",
     "react": "^16.14.0",
+    "react-ace": "^9.5.0",
     "react-dom": "^16.14.0"
   },
   "devDependencies": {
@@ -77,7 +81,6 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "gen-esm-wrapper": "^1.1.0",
     "mocha": "^8.4.0",
     "mongodb": "^4.4.0",
     "mongodb-data-service": "^21.19.0",

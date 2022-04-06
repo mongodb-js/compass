@@ -139,6 +139,8 @@ function useHadronElement(el: HadronElementType) {
         el.currentType !== 'Array',
       valid: isValid,
       validationMessage: !isValid ? el.invalidTypeMessage ?? null : null,
+      startEdit: editor.start.bind(editor),
+      completeEdit: editor.complete.bind(editor),
     },
     type: {
       value: el.currentType,
@@ -485,6 +487,12 @@ export const HadronElement: React.FunctionComponent<{
               editing={editingEnabled}
               onEditStart={() => {
                 onEditStart?.(element.uuid, 'value');
+              }}
+              onFocus={() => {
+                value.startEdit();
+              }}
+              onBlur={() => {
+                value.completeEdit();
               }}
             ></ValueEditor>
           ) : (
