@@ -342,7 +342,6 @@ class DataService extends EventEmitter {
     const {
       authInfo: { authenticatedUserPrivileges },
     } = await this.connectionStatus();
-
     return authenticatedUserPrivileges;
   }
 
