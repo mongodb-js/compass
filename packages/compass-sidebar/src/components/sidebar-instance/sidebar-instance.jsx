@@ -6,6 +6,7 @@ import SidebarInstanceStats from '../sidebar-instance-stats';
 import SidebarInstanceDetails from '../sidebar-instance-details';
 import NonGenuineWarningPill from '../non-genuine-warning-pill';
 import FavoriteButton from '../favorite-button';
+import CSFLEMarker from '../csfle-marker';
 
 import styles from './sidebar-instance.module.less';
 import { cloneDeep } from 'lodash';
@@ -46,6 +47,9 @@ export const SidebarInstance = ({
         toggleIsFavoriteModalVisible={() => setIsFavoriteModalVisible(
           !isFavoriteModalVisible
         )}
+      />
+      <CSFLEMarker
+        isCSFLEConnection={instance?.isCSFLEConnection}
       />
       <SaveConnectionModal
         initialFavoriteInfo={connectionInfo.favorite}

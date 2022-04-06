@@ -5,7 +5,7 @@
 .travis.yml
 config/
 electron/
-lib/index.html
+dist/index.html
 karma.conf.js
 mocha-webpack.opts
 scripts/

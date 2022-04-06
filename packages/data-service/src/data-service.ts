@@ -56,6 +56,7 @@ import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
   getPrivilegesByDatabaseAndCollection,
+  checkIsCSFLEConnection,
   getInstance,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
@@ -1095,7 +1096,13 @@ class DataService extends EventEmitter {
    */
   async instance(): Promise<InstanceDetails> {
     try {
-      const instanceData = await getInstance(this._initializedClient('META'));
+      const instanceData = {
+        ...(await getInstance(this._initializedClient('META'))),
+        // Need to get the CSFLE flag from the CRUD client, not the META one
+        isCSFLEConnection: checkIsCSFLEConnection(
+          this._initializedClient('CRUD')
+        ),
+      };
 
       log.info(
         mongoLogId(1_001_000_024),

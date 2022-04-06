@@ -6,7 +6,6 @@ import { Banner, ConfirmationModal, Link } from '@mongodb-js/compass-components'
 import { createDatabase } from '../../modules/create-database';
 import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
-import { openLink } from '../../modules/link';
 import CollectionFields from '../collection-fields';
 import styles from './create-database-modal.module.less';
 
@@ -27,8 +26,7 @@ class CreateDatabaseModal extends PureComponent {
     createDatabase: PropTypes.func.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
     clearError: PropTypes.func.isRequired,
-    serverVersion: PropTypes.string.isRequired,
-    openLink: PropTypes.func.isRequired
+    serverVersion: PropTypes.string.isRequired
   }
 
   state = {
@@ -112,7 +110,6 @@ class CreateDatabaseModal extends PureComponent {
           serverVersion={this.props.serverVersion}
           withDatabase
           onChange={this.onChange}
-          openLink={this.props.openLink}
         />
         {!hasCollectionName && this.renderCollectionNameRequiredNotice()}
         {this.renderError()}
@@ -143,7 +140,6 @@ const MappedCreateDatabaseModal = connect(
   mapStateToProps,
   {
     createDatabase,
-    openLink,
     toggleIsVisible,
     clearError
   },

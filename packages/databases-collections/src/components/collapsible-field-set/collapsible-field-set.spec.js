@@ -2,12 +2,12 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { IconButton } from '@mongodb-js/compass-components';
+import { Link } from '@mongodb-js/compass-components';
 
 import CollapsibleFieldSet from './collapsible-field-set';
 
 describe('CollapsibleFieldSet [Component]', () => {
-  context('when there is a helpUrl and openLink prop', () => {
+  context('when there is a helpUrl prop', () => {
     let component;
 
     beforeEach(() => {
@@ -17,7 +17,6 @@ describe('CollapsibleFieldSet [Component]', () => {
           label="aa"
           description="ah"
           helpUrl="aaa"
-          openLink={() => {}}
           onToggle={() => {}}
         />
       );
@@ -28,8 +27,9 @@ describe('CollapsibleFieldSet [Component]', () => {
     });
 
 
-    it('renders a help button', () => {
-      expect(component.find(IconButton)).to.be.present();
+    it('renders a help link', () => {
+      expect(component.find(Link)).to.be.present();
+      expect(component.find(Link).prop('href')).to.be.equal('aaa');
     });
   });
 
@@ -41,7 +41,6 @@ describe('CollapsibleFieldSet [Component]', () => {
         <CollapsibleFieldSet
           withDatabase
           label="aa"
-          openLink={() => {}}
           onToggle={() => {}}
         />
       );
@@ -51,8 +50,8 @@ describe('CollapsibleFieldSet [Component]', () => {
       component = null;
     });
 
-    it('does not render a help button', () => {
-      expect(component.find(IconButton)).to.not.be.present();
+    it('does not render a help link', () => {
+      expect(component.find(Link)).to.not.be.present();
     });
   });
 
@@ -66,7 +65,6 @@ describe('CollapsibleFieldSet [Component]', () => {
         <CollapsibleFieldSet
           withDatabase
           label="aa"
-          openLink={() => {}}
           onToggle={onToggleSpy}
         >
           Pineapple
@@ -97,7 +95,6 @@ describe('CollapsibleFieldSet [Component]', () => {
         <CollapsibleFieldSet
           withDatabase
           label="aa"
-          openLink={() => {}}
           onToggle={() => {}}
           toggled
         >
@@ -123,7 +120,6 @@ describe('CollapsibleFieldSet [Component]', () => {
         <CollapsibleFieldSet
           withDatabase
           label="aa"
-          openLink={() => {}}
           onToggle={() => {}}
         >
           Pineapple
