@@ -4,6 +4,7 @@ import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Accordion,
   Banner,
+  Checkbox,
   Label,
   Link,
   Description,
@@ -100,6 +101,16 @@ function CSFLETab({
     [updateConnectionFormField]
   );
 
+  const handleStoreCredentialsChanged = useCallback(
+    (value: boolean) => {
+      return updateConnectionFormField({
+        type: 'update-csfle-store-credentials',
+        value,
+      });
+    },
+    [updateConnectionFormField]
+  );
+
   return (
     <div className={containerStyles}>
       <Banner>
@@ -146,6 +157,29 @@ function CSFLETab({
         <Description>
           Specify one or more Key Management Systems to use.
         </Description>
+      </FormFieldContainer>
+      <FormFieldContainer>
+        <Checkbox
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleStoreCredentialsChanged(event.target.checked);
+          }}
+          data-testid="csfle-storeCredentials-input"
+          id="csfle-storeCredentials-input"
+          label={
+            <>
+              <Label htmlFor="csfle-storeCredentials-input">
+                Store KMS provider secrets
+              </Label>
+              <Description>
+                Control whether Compass stores KMS secrets, protected by the OS
+                keychain.
+              </Description>
+            </>
+          }
+          checked={connectionOptions?.fleOptions?.storeCredentials}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer>
         {options.map(({ title, kmsProvider, ...kmsFieldComponentOptions }) => {
           const accordionTitle = (
             <span>
