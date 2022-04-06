@@ -31,7 +31,7 @@
   "scripts": {
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./lib",
+    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
