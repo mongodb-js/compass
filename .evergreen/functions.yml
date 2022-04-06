@@ -39,7 +39,6 @@ variables:
     # secrets
     HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
-    HADRON_METRICS_STITCH_APP_ID: ${metrics_stitch_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
     E2E_TESTS_METRICS_URI: ${e2e_tests_metrics_string}
     E2E_TESTS_ATLAS_HOST: ${e2e_tests_atlas_host}
