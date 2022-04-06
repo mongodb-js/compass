@@ -98,12 +98,16 @@ class DocumentList extends React.Component {
    * Render the fetching indicator with cancel button
    */
   renderFetching() {
-    return (<CancelLoader
-      dataTestId="fetching-documents"
-      progressText="Fetching Documents"
-      cancelText="Stop"
-      onCancel={this.onCancelClicked.bind(this)}
-    />);
+    return (
+      <div className="loader">
+        <CancelLoader
+          dataTestId="fetching-documents"
+          progressText="Fetching Documents"
+          cancelText="Stop"
+          onCancel={this.onCancelClicked.bind(this)}
+        />
+      </div>
+    );
   }
 
   /**

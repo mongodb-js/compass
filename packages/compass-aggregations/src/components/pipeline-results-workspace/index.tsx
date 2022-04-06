@@ -7,13 +7,13 @@ import {
   spacing,
   Body,
   uiColors,
+  CancelLoader,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { cancelAggregation } from '../../modules/aggregation';
 
 import type { ResultsViewType } from './pipeline-results-list';
-import PipelineResultsLoader from './pipeline-results-loader';
 import PipelineResultsList from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
@@ -85,7 +85,14 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
         <div className={resultsStyles}>
           <PipelineResultsList documents={documents} view={resultsViewType} />
           <div className={cx(isResultsListHidden && centeredContentStyles)}>
-            {loading && <PipelineResultsLoader onCancel={onCancel} />}
+            {loading && (
+              <CancelLoader
+                dataTestId="pipeline-results-loader"
+                progressText="Running aggregation"
+                cancelText="Stop"
+                onCancel={() => onCancel()}
+              />
+            )}
             {hasEmptyResults && <Body>No results to show</Body>}
             {error && <Body className={errorMessageStyles}>{error}</Body>}
           </div>

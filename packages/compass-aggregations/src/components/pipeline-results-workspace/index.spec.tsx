@@ -59,9 +59,7 @@ describe('PipelineResultsWorkspace', function () {
     renderPipelineResultsWorkspace({ loading: true, onCancel: onCancelSpy });
     const container = screen.getByTestId('pipeline-results-workspace');
     expect(container).to.exist;
-    userEvent.click(
-      within(container).getByTestId('pipeline-results-cancel-action')
-    );
+    userEvent.click(within(container).getByText('Stop'));
     expect(onCancelSpy.calledOnce).to.be.true;
   });
 });
