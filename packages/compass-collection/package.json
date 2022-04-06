@@ -1,6 +1,7 @@
 {
   "name": "@mongodb-js/compass-collection",
-  "description": "Description",
+  "productName": "Compass Collection",
+  "description": "Compass Collection",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -13,7 +14,8 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.1.0",
+  "version": "3.24.0",
+  "apiVersion": "3.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
