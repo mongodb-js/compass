@@ -3,7 +3,7 @@ ignores:
   - '@mongodb-js/tsconfig-compass'
   - '@types/chai'
   - '@types/sinon-chai'
-  - 'sinon'
+  - 'electron'
   - '@types/chai-dom'
   - '@types/react'
   - '@types/react-dom'

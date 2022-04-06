@@ -1,15 +1,1 @@
-.DS_Store
-npm-debug.log
-node_modules/
-lib/
-lib-cov
-coverage
-.lock-wscript
-.idea/
-*.swp
-*.swo
-*.iml
-.nvmrc
-.nyc_output
-.vscode/
 src/assets/fonts/akzid*
