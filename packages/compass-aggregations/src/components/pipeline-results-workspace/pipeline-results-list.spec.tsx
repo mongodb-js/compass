@@ -12,20 +12,24 @@ describe('PipelineResultsList', function () {
     }).to.throw;
   });
 
-  it.skip('renders list view', function () {
+  it('renders list view', function () {
     render(
       <PipelineResultsList documents={[{ id: 1 }, { id: 2 }]} view="document" />
     );
-    expect(screen.getAllByTestId('document-list-item')).to.have.lengthOf(2);
+    expect(
+      document.querySelectorAll('[data-test-id="document-list-item"]')
+    ).to.have.lengthOf(2);
   });
 
-  it.skip('renders json view', function () {
+  it('renders json view', function () {
     render(
       <PipelineResultsList
         documents={[{ id: 3 }, { id: 4 }, { id: 5 }]}
         view="json"
       />
     );
-    expect(screen.getAllByTestId('document-json-item')).to.have.lengthOf(3);
+    expect(
+      document.querySelectorAll('[data-test-id="document-json-item"]')
+    ).to.have.lengthOf(3);
   });
 });

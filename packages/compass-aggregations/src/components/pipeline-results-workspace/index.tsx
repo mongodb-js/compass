@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
-import { css, spacing, Body, uiColors } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  Body,
+  uiColors,
+} from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { cancelAggregation } from '../../modules/aggregation';
@@ -65,6 +71,8 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
     const [resultsViewType, setResultsViewType] =
       useState<ResultsViewType>('document');
 
+    const isResultsListHidden = loading || Boolean(error) || hasEmptyResults;
+
     return (
       <div data-testid="pipeline-results-workspace" className={containerStyles}>
         <div className={headerStyles}>
@@ -76,8 +84,8 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
         </div>
         <div className={resultsStyles}>
           <PipelineResultsList documents={documents} view={resultsViewType} />
-          <div className={centeredContentStyles}>
-            <PipelineResultsLoader loading={loading} onCancel={onCancel} />
+          <div className={cx(isResultsListHidden && centeredContentStyles)}>
+            {loading && <PipelineResultsLoader onCancel={onCancel} />}
             {hasEmptyResults && <Body>No results to show</Body>}
             {error && <Body className={errorMessageStyles}>{error}</Body>}
           </div>

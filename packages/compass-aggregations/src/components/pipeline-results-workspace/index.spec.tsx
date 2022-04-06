@@ -47,10 +47,12 @@ describe('PipelineResultsWorkspace', function () {
     expect(container).to.exist;
     expect(within(container).getByText('No results to show')).to.exist;
   });
-  it.skip('renders documents', function () {
+  it('renders documents', function () {
     renderPipelineResultsWorkspace({ documents: [{ id: '1' }, { id: '2' }] });
     const container = screen.getByTestId('pipeline-results-workspace');
-    expect(container).to.exist;
+    expect(
+      container.querySelectorAll('[data-test-id="document-list-item"]')
+    ).to.have.lengthOf(2);
   });
   it('calls cancel when user stop aggregation', function () {
     const onCancelSpy = spy();

@@ -9,11 +9,10 @@ import {
 } from '@mongodb-js/compass-components';
 
 type PipelineResultsLoaderProps = {
-  loading: boolean;
   onCancel: () => void;
 };
 
-const centeredContentStyles = css({
+const containerStyles = css({
   display: 'flex',
   gap: spacing[2],
   flexDirection: 'column',
@@ -26,15 +25,9 @@ const textStyles = css({
 });
 
 export const PipelineResultsLoader: React.FunctionComponent<PipelineResultsLoaderProps> =
-  ({ onCancel, loading }) => {
-    if (!loading) {
-      return null;
-    }
+  ({ onCancel }) => {
     return (
-      <div
-        className={centeredContentStyles}
-        data-testid="pipeline-results-loader"
-      >
+      <div className={containerStyles} data-testid="pipeline-results-loader">
         <SpinLoader size="24px" />
         <Subtitle className={textStyles}>Running aggregation</Subtitle>
         <Button

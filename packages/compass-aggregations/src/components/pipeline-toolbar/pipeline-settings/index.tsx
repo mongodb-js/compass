@@ -12,6 +12,7 @@ const containerStyles = css({
   gap: spacing[2],
   gridTemplateAreas: '"settings extraSettings"',
   alignItems: 'center',
+  whiteSpace: 'nowrap',
 });
 const settingsStyles = css({
   display: 'flex',
