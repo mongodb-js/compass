@@ -27,7 +27,7 @@ type IndexStatsItemProps = {
  * The index stats item component.
  */
 const IndexStatsItem: React.FunctionComponent<any> = ({
-  indexCount
+  indexCount,
 }: IndexStatsItemProps) => {
   return (
     <div data-testid="index-stats-item" className={indexStatsItemStyles}>

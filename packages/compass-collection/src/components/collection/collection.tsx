@@ -51,7 +51,10 @@ type CollectionProps = {
   views: JSX.Element[];
   localAppRegistry: AppRegistry;
   globalAppRegistry: AppRegistry;
-  changeActiveSubTab: (activeSubTab: number, id: string) => {
+  changeActiveSubTab: (
+    activeSubTab: number,
+    id: string
+  ) => {
     type: string;
     activeSubTab: number;
     id: string;
@@ -84,23 +87,32 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   useEffect(() => {
     if (tabs && tabs.length > 0) {
       track('Screen', {
-        name: trackingIdForTabName(tabs[activeSubTab] || 'Unknown')
+        name: trackingIdForTabName(tabs[activeSubTab] || 'Unknown'),
       });
     }
   }, []);
 
-  const onSubTabClicked = useCallback((idx, name) => {
-    if (activeSubTab === idx) {
-      return;
-    }
-    if (!queryHistoryIndexes.includes(idx)) {
-      localAppRegistry.emit('collapse-query-history');
-    }
-    localAppRegistry.emit('subtab-changed', name);
-    globalAppRegistry.emit('compass:screen:viewed', { screen: name });
-    track('Screen', { name: trackingIdForTabName(name) });
-    changeActiveSubTab(idx, id);
-  }, [ activeSubTab, queryHistoryIndexes, localAppRegistry, globalAppRegistry, changeActiveSubTab ]);
+  const onSubTabClicked = useCallback(
+    (idx, name) => {
+      if (activeSubTab === idx) {
+        return;
+      }
+      if (!queryHistoryIndexes.includes(idx)) {
+        localAppRegistry.emit('collapse-query-history');
+      }
+      localAppRegistry.emit('subtab-changed', name);
+      globalAppRegistry.emit('compass:screen:viewed', { screen: name });
+      track('Screen', { name: trackingIdForTabName(name) });
+      changeActiveSubTab(idx, id);
+    },
+    [
+      activeSubTab,
+      queryHistoryIndexes,
+      localAppRegistry,
+      globalAppRegistry,
+      changeActiveSubTab,
+    ]
+  );
 
   return (
     <div className={collectionStyles} data-testid="collection">
@@ -141,6 +153,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
       </div>
     </div>
   );
-}
+};
 
 export default Collection;

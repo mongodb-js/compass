@@ -85,14 +85,14 @@ const setupStore = ({
   editViewName,
   sourcePipeline,
   query,
-  aggregation
+  aggregation,
 }: ContextProps) => {
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
     globalAppRegistry: globalAppRegistry,
     dataProvider: {
       error: dataService.error,
-      dataProvider: dataService.dataService
+      dataProvider: dataService.dataService,
     },
     namespace: namespace,
     serverVersion: serverVersion,
@@ -104,7 +104,7 @@ const setupStore = ({
     editViewName: editViewName,
     sourcePipeline: sourcePipeline,
     query,
-    aggregation
+    aggregation,
   });
   localAppRegistry?.registerStore(role.storeName, store);
 
@@ -139,7 +139,7 @@ const setupPlugin = ({
   isTimeSeries,
   sourceName,
   allowWrites,
-  key
+  key,
 }: ContextProps) => {
   const actions = role.configureActions();
   const store = setupStore({
@@ -153,14 +153,14 @@ const setupPlugin = ({
     isTimeSeries,
     sourceName,
     actions,
-    allowWrites
+    allowWrites,
   });
   const plugin = role.component;
   return {
     component: plugin,
     store: store,
     actions: actions,
-    key: key
+    key: key,
   };
 };
 
@@ -188,7 +188,7 @@ const setupScopedModals = ({
   isReadonly,
   isTimeSeries,
   sourceName,
-  allowWrites
+  allowWrites,
 }: ContextProps) => {
   const roles = globalAppRegistry?.getRole('Collection.ScopedModal');
   if (roles) {
@@ -204,7 +204,7 @@ const setupScopedModals = ({
         isTimeSeries,
         sourceName,
         allowWrites,
-        key: i
+        key: i,
       });
     });
   }
@@ -235,7 +235,7 @@ const createContext = ({
   editViewName,
   sourcePipeline,
   query,
-  aggregation
+  aggregation,
 }: ContextProps): ContextProps => {
   const serverVersion = state.serverVersion;
   const localAppRegistry = new AppRegistry();
@@ -244,7 +244,10 @@ const createContext = ({
 
   // Filter roles for feature support in the server.
   const filteredRoles = roles.filter((role: any) => {
-    if (['Indexes', 'Validation', 'Explain Plan'].includes(role.name) && isDataLake) {
+    if (
+      ['Indexes', 'Validation', 'Explain Plan'].includes(role.name) &&
+      isDataLake
+    ) {
       return true;
     }
     if (!role.minimumServerVersion) return true;
@@ -274,7 +277,7 @@ const createContext = ({
     actions: queryBarActions,
     allowWrites: !isDataLake,
     query,
-    aggregation
+    aggregation,
   });
 
   // Setup each of the tabs inside the collection tab. They will all get
@@ -297,7 +300,7 @@ const createContext = ({
       editViewName,
       sourcePipeline,
       query,
-      aggregation
+      aggregation,
     });
 
     // Add the tab.
@@ -309,20 +312,22 @@ const createContext = ({
     }
 
     // Add the view.
-    views.push((
+    views.push(
       <ErrorBoundary
         key={i}
         displayName={role.component.displayName}
         onError={(error, errorInfo) => {
-          debug('error rendering collection view', role.component.displayName, error, errorInfo);
+          debug(
+            'error rendering collection view',
+            role.component.displayName,
+            error,
+            errorInfo
+          );
         }}
       >
-        <role.component
-          store={store}
-          actions={actions}
-        />
+        <role.component store={store} actions={actions} />
       </ErrorBoundary>
-    ));
+    );
   });
 
   const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
@@ -339,7 +344,7 @@ const createContext = ({
     sourceName,
     actions: {},
     allowWrites: !isDataLake,
-    isEditing: Boolean(editViewName)
+    isEditing: Boolean(editViewName),
   });
 
   // Setup the scoped modals
@@ -352,7 +357,7 @@ const createContext = ({
     isReadonly,
     isTimeSeries,
     sourceName,
-    allowWrites: !isDataLake
+    allowWrites: !isDataLake,
   });
 
   const configureFieldStore = globalAppRegistry.getStore('Field.Store');
@@ -360,7 +365,7 @@ const createContext = ({
     localAppRegistry: localAppRegistry,
     globalAppRegistry: globalAppRegistry,
     namespace: namespace,
-    serverVersion: serverVersion
+    serverVersion: serverVersion,
   });
 
   return {
@@ -371,7 +376,7 @@ const createContext = ({
     statsStore,
     scopedModals,
     localAppRegistry,
-    sourcePipeline
+    sourcePipeline,
   };
 };
 

@@ -12,7 +12,7 @@ import {
   nextTab,
   moveTab,
   selectTab,
-  changeActiveSubTab
+  changeActiveSubTab,
 } from '../../stores/tabs';
 import Collection from '../collection';
 
@@ -37,10 +37,7 @@ const workspaceViewTabStyles = css({
   width: '100%',
 });
 
-function getTabType(
-  isTimeSeries: boolean,
-  isReadonly: boolean
-): string {
+function getTabType(isTimeSeries: boolean, isReadonly: boolean): string {
   if (isTimeSeries) {
     return 'timeseries';
   }
@@ -74,7 +71,7 @@ const DEFAULT_NEW_TAB = {
   namespace: '',
   isReadonly: false,
   isTimeSeries: false,
-  sourceName: ''
+  sourceName: '',
 };
 
 function getIconGlyphForCollectionType(type: string) {
@@ -91,27 +88,33 @@ function getIconGlyphForCollectionType(type: string) {
 type WorkspaceProps = {
   tabs: any;
   closeTab: (index: number) => {
-    type: string,
-    index: number
+    type: string;
+    index: number;
   };
   createNewTab: (props: any) => any;
   selectOrCreateTab: (props: any) => any;
   appRegistry: AppRegistry;
   prevTab: () => { type: string };
   nextTab: () => { type: string };
-  moveTab: (fromIndex: number, toIndex: number) => {
-    type: string,
+  moveTab: (
     fromIndex: number,
     toIndex: number
+  ) => {
+    type: string;
+    fromIndex: number;
+    toIndex: number;
   };
   selectTab: (index: number) => {
-    type: string,
-    index: number
+    type: string;
+    index: number;
   };
-  changeActiveSubTab: (activeSubTab: number, id: string) => {
-    type: string,
+  changeActiveSubTab: (
     activeSubTab: number,
     id: string
+  ) => {
+    type: string;
+    activeSubTab: number;
+    id: string;
   };
 };
 
@@ -138,31 +141,31 @@ class Workspace extends PureComponent<WorkspaceProps> {
    */
   componentDidMount = (): void => {
     window.addEventListener('keydown', this.boundHandleKeypress);
-  }
+  };
 
   /**
    * Remove the keypress listener on unmount.
    */
   componentWillUnmount = (): void => {
     window.removeEventListener('keydown', this.boundHandleKeypress);
-  }
+  };
 
   onCreateNewTab = (): void => {
     const activeTab = this.activeTab();
     const newTabProps = activeTab
       ? {
-        namespace: activeTab.namespace,
-        isReadonly: activeTab.isReadonly,
-        isTimeSeries: activeTab.isTimeSeries,
-        sourceName: activeTab.sourceName,
-        editViewName: activeTab.editViewName,
-        sourceReadonly: activeTab.sourceReadonly,
-        sourceViewOn: activeTab.sourceViewOn,
-        sourcePipeline: activeTab.pipeline
-      }
+          namespace: activeTab.namespace,
+          isReadonly: activeTab.isReadonly,
+          isTimeSeries: activeTab.isTimeSeries,
+          sourceName: activeTab.sourceName,
+          editViewName: activeTab.editViewName,
+          sourceReadonly: activeTab.sourceReadonly,
+          sourceViewOn: activeTab.sourceViewOn,
+          sourcePipeline: activeTab.pipeline,
+        }
       : DEFAULT_NEW_TAB;
     this.props.createNewTab(newTabProps);
-  }
+  };
 
   /**
    * Handle key press. This listens for CTRL/CMD+T and CTRL/CMD+W to control
@@ -180,7 +183,9 @@ class Workspace extends PureComponent<WorkspaceProps> {
           this.props.prevTab();
         }
       } else if (evt.keyCode === KEY_W) {
-        this.props.closeTab(this.props.tabs.findIndex((tab: any) => tab.isActive));
+        this.props.closeTab(
+          this.props.tabs.findIndex((tab: any) => tab.isActive)
+        );
         if (this.props.tabs.length > 0) {
           evt.preventDefault();
         }
@@ -188,7 +193,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
         this.onCreateNewTab();
       }
     }
-  }
+  };
 
   /**
    * Return the active tab.
@@ -208,7 +213,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
     return this.props.tabs.map((tab: any) => {
       const viewTabClass = classnames({
         [workspaceViewTabStyles]: true,
-        hidden: !tab.isActive
+        hidden: !tab.isActive,
       });
       return (
         <div
@@ -244,14 +249,15 @@ class Workspace extends PureComponent<WorkspaceProps> {
     });
   }
 
-  formatCompassComponentsWorkspaceTabs = (): any => this.props.tabs.map((tab: any) => ({
-    title: tab.activeSubTabName,
-    subtitle: tab.namespace,
-    tabContentId: tab.id,
-    iconGlyph: getIconGlyphForCollectionType(
-      getTabType(tab.isTimeSeries, tab.isReadonly)
-    )
-  }))
+  formatCompassComponentsWorkspaceTabs = (): any =>
+    this.props.tabs.map((tab: any) => ({
+      title: tab.activeSubTabName,
+      subtitle: tab.namespace,
+      tabContentId: tab.id,
+      iconGlyph: getIconGlyphForCollectionType(
+        getTabType(tab.isTimeSeries, tab.isReadonly)
+      ),
+    }));
 
   /**
    * Render the Workspace component.
@@ -259,7 +265,9 @@ class Workspace extends PureComponent<WorkspaceProps> {
    * @returns {Component} The rendered component.
    */
   render(): React.ReactElement {
-    const selectedTabIndex = this.props.tabs.findIndex((tab: any) => tab.isActive);
+    const selectedTabIndex = this.props.tabs.findIndex(
+      (tab: any) => tab.isActive
+    );
 
     return (
       <div className={workspaceStyles} data-test-id="workspace-tabs">
@@ -272,9 +280,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
           tabs={this.formatCompassComponentsWorkspaceTabs()}
           selectedTabIndex={selectedTabIndex}
         />
-        <div className={workspaceViewsStyles}>
-          {this.renderViews()}
-        </div>
+        <div className={workspaceViewsStyles}>{this.renderViews()}</div>
       </div>
     );
   }
@@ -289,26 +295,23 @@ class Workspace extends PureComponent<WorkspaceProps> {
  */
 const mapStateToProps = (state: any) => ({
   tabs: state.tabs,
-  appRegistry: state.appRegistry
+  appRegistry: state.appRegistry,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedWorkspace = connect(
-  mapStateToProps,
-  {
-    createNewTab,
-    selectOrCreateTab,
-    closeTab,
-    prevTab,
-    nextTab,
-    moveTab,
-    selectTab,
-    changeActiveSubTab
-  }
-)(Workspace);
+const MappedWorkspace = connect(mapStateToProps, {
+  createNewTab,
+  selectOrCreateTab,
+  closeTab,
+  prevTab,
+  nextTab,
+  moveTab,
+  selectTab,
+  changeActiveSubTab,
+})(Workspace);
 
 export default MappedWorkspace;
 export { Workspace, getTabType };

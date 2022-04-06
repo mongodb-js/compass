@@ -37,5 +37,5 @@ export default function reducer(state = INITIAL_STATE, action: any): any {
  */
 export const isDataLakeChanged = (isDataLake?: boolean): any => ({
   type: IS_DATA_LAKE_CHANGED,
-  isDataLake: isDataLake || false
+  isDataLake: isDataLake || false,
 });

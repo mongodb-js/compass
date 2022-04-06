@@ -1,13 +1,16 @@
 import { expect } from 'chai';
 
-import reducer, { serverVersionChanged, SERVER_VERSION_CHANGED } from './server-version';
+import reducer, {
+  serverVersionChanged,
+  SERVER_VERSION_CHANGED,
+} from './server-version';
 
 describe('server version module', function () {
   describe('#serverVersionChanged', function () {
     it('returns the SERVER_VERSION_CHANGED action', function () {
       expect(serverVersionChanged('3.0.0')).to.deep.equal({
         type: SERVER_VERSION_CHANGED,
-        version: '3.0.0'
+        version: '3.0.0',
       });
     });
   });
@@ -21,7 +24,9 @@ describe('server version module', function () {
 
     context('when the action is server version changed', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, serverVersionChanged('3.0.0'))).to.equal('3.0.0');
+        expect(reducer(undefined, serverVersionChanged('3.0.0'))).to.equal(
+          '3.0.0'
+        );
       });
     });
   });

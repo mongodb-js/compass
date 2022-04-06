@@ -7,10 +7,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { Workspace, getTabType } from './workspace';
 
 describe.skip('Workspace [Component]', function () {
-  const tabs = [
-    { isActive: true },
-    { isActive: false },
-  ];
+  const tabs = [{ isActive: true }, { isActive: false }];
 
   let prevTabSpy;
   let nextTabSpy;
@@ -24,16 +21,16 @@ describe.skip('Workspace [Component]', function () {
         tabs={tabs}
         closeTab={() => ({
           type: 'type',
-          index: 1
+          index: 1,
         })}
         moveTab={() => ({
           type: 'type',
           fromIndex: 1,
-          toIndex: 2
+          toIndex: 2,
         })}
         selectTab={() => ({
           type: 'type',
-          index: 1
+          index: 1,
         })}
         appRegistry={{} as AppRegistry}
         prevTab={prevTabSpy}
@@ -42,9 +39,10 @@ describe.skip('Workspace [Component]', function () {
         changeActiveSubTab={() => ({
           type: 'type',
           activeSubTab: 1,
-          id: '123'
+          id: '123',
         })}
-        createNewTab={() => {}} />
+        createNewTab={() => {}}
+      />
     );
   });
 
@@ -75,7 +73,7 @@ describe.skip('Workspace [Component]', function () {
       expect(getTabType(false, true)).to.equal('view');
     });
 
-    it('should return "collection" when its not time series or readonly',function () {
+    it('should return "collection" when its not time series or readonly', function () {
       expect(getTabType(false, false)).to.equal('collection');
     });
   });

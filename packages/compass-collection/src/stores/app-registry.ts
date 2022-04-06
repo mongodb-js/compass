@@ -37,12 +37,14 @@ export default function reducer(state = INITIAL_STATE, action: any): any {
  *
  * @returns {Object} The app registry activated event.
  */
-export const appRegistryActivated = (appRegistry: AppRegistry): {
-  type: string,
+export const appRegistryActivated = (
   appRegistry: AppRegistry
+): {
+  type: string;
+  appRegistry: AppRegistry;
 } => ({
   type: APP_REGISTRY_ACTIVATED,
-  appRegistry: appRegistry
+  appRegistry: appRegistry,
 });
 
 /**

@@ -8,7 +8,9 @@ import userEvent from '@testing-library/user-event';
 import CollectionHeader from '../collection-header';
 
 describe('CollectionHeader [Component]', function () {
-  const statsPlugin = () => { return (<div/>); };
+  const statsPlugin = () => {
+    return <div />;
+  };
 
   context('when the collection is not readonly', function () {
     const statsStore = {};
@@ -27,7 +29,8 @@ describe('CollectionHeader [Component]', function () {
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
-          pipeline={[]} />
+          pipeline={[]}
+        />
       );
     });
 
@@ -56,7 +59,7 @@ describe('CollectionHeader [Component]', function () {
     it('does not render the view badge', function () {
       expect(screen.queryByTestId('collection-badge-view')).to.not.exist;
     });
-    
+
     it('renders the collection header actions', function () {
       expect(screen.getByTestId('collection-header-actions')).to.exist;
     });
@@ -79,7 +82,8 @@ describe('CollectionHeader [Component]', function () {
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
-          pipeline={[]} />
+          pipeline={[]}
+        />
       );
     });
 
@@ -129,7 +133,8 @@ describe('CollectionHeader [Component]', function () {
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
-          pipeline={[]} />
+          pipeline={[]}
+        />
       );
     });
 
@@ -165,7 +170,8 @@ describe('CollectionHeader [Component]', function () {
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
-          pipeline={[]} />
+          pipeline={[]}
+        />
       );
     });
 
@@ -185,7 +191,7 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the db name is clicked', function () {
-    it('emits the open event to the app registry',function () {
+    it('emits the open event to the app registry', function () {
       const statsStore = {};
       const selectOrCreateTabSpy = spy();
 
@@ -196,19 +202,22 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={false}
           isTimeSeries={false}
-          globalAppRegistry={{
-            emit: (eventName, dbName) => {
-              emmittedEventName = eventName;
-              emmittedDbName = dbName;
-            }
-          } as AppRegistry}
+          globalAppRegistry={
+            {
+              emit: (eventName, dbName) => {
+                emmittedEventName = eventName;
+                emmittedDbName = dbName;
+              },
+            } as AppRegistry
+          }
           sourceName="orig.coll"
           statsPlugin={statsPlugin}
           statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
-          pipeline={[]} />
+          pipeline={[]}
+        />
       );
 
       afterEach(cleanup);

@@ -37,5 +37,5 @@ export default function reducer(state = INITIAL_STATE, action: any): any {
  */
 export const serverVersionChanged = (version: string): any => ({
   type: SERVER_VERSION_CHANGED,
-  version: version
+  version: version,
 });

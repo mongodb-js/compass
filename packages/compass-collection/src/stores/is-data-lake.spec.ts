@@ -1,6 +1,9 @@
 import { expect } from 'chai';
 
-import reducer, { isDataLakeChanged, IS_DATA_LAKE_CHANGED } from './is-data-lake';
+import reducer, {
+  isDataLakeChanged,
+  IS_DATA_LAKE_CHANGED,
+} from './is-data-lake';
 
 describe('is data lake module', function () {
   describe('#isDataLakeChanged', function () {
@@ -8,7 +11,7 @@ describe('is data lake module', function () {
       it('returns the IS_DATA_LAKE_CHANGED action', function () {
         expect(isDataLakeChanged(true)).to.deep.equal({
           type: IS_DATA_LAKE_CHANGED,
-          isDataLake: true
+          isDataLake: true,
         });
       });
     });
@@ -17,7 +20,7 @@ describe('is data lake module', function () {
       it('returns the IS_DATA_LAKE_CHANGED action with false', function () {
         expect(isDataLakeChanged(null)).to.deep.equal({
           type: IS_DATA_LAKE_CHANGED,
-          isDataLake: false
+          isDataLake: false,
         });
       });
     });
@@ -26,7 +29,7 @@ describe('is data lake module', function () {
       it('returns the IS_DATA_LAKE_CHANGED action with false', function () {
         expect(isDataLakeChanged(false)).to.deep.equal({
           type: IS_DATA_LAKE_CHANGED,
-          isDataLake: false
+          isDataLake: false,
         });
       });
     });
@@ -35,7 +38,7 @@ describe('is data lake module', function () {
       it('returns the IS_DATA_LAKE_CHANGED action with false', function () {
         expect(isDataLakeChanged()).to.deep.equal({
           type: IS_DATA_LAKE_CHANGED,
-          isDataLake: false
+          isDataLake: false,
         });
       });
     });
@@ -43,7 +46,7 @@ describe('is data lake module', function () {
 
   describe('#reducer', function () {
     context('when the action is not isDataLake changed', function () {
-      it('returns the default state',function () {
+      it('returns the default state', function () {
         expect(reducer(undefined, { type: 'test' })).to.equal(false);
       });
     });

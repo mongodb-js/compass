@@ -34,7 +34,7 @@ const collectionHeaderTitleStyles = css({
 });
 
 const collectionHeaderTitleDBStyles = css({
-  color:' #337ab7',
+  color: ' #337ab7',
   flexShrink: 2,
   flexBasis: 'auto',
   overflow: 'hidden',
@@ -44,7 +44,7 @@ const collectionHeaderTitleDBStyles = css({
   textDecoration: 'none',
   '&:hover,&:focus': {
     textDecoration: 'underline',
-  }
+  },
 });
 
 const collectionHeaderTitleCollectionStyles = css({
@@ -81,9 +81,9 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
       editViewName: this.props.namespace,
       sourceReadonly: false,
       sourceViewOn: null,
-      sourcePipeline: this.props.pipeline
+      sourcePipeline: this.props.pipeline,
     });
-  }
+  };
 
   onReturnToViewClicked = (): void => {
     this.props.selectOrCreateTab({
@@ -94,13 +94,13 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
       editViewName: null,
       sourceReadonly: this.props.isReadonly,
       sourceViewOn: this.props.sourceName,
-      sourcePipeline: this.props.pipeline
+      sourcePipeline: this.props.pipeline,
     });
-  }
+  };
 
   handleDBClick = (db: string): void => {
     this.props.globalAppRegistry.emit('select-database', db);
-  }
+  };
 
   /**
    * Render the stats.
@@ -108,7 +108,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
    * @returns {Component} The component.
    */
   renderStats(): React.ReactElement {
-    return (<this.props.statsPlugin store={this.props.statsStore} />);
+    return <this.props.statsPlugin store={this.props.statsStore} />;
   }
 
   /**

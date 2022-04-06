@@ -15,7 +15,7 @@ const collectionStatsStyles = css({
 const collectionStatsBodyStyles = css({
   display: 'flex',
   flexDirection: 'row',
-  marginRight: spacing[3]
+  marginRight: spacing[3],
 });
 
 const collectionStatsEmptyStyles = css({
@@ -34,7 +34,6 @@ const tooltipIndexeListStyles = css({
   margin: 0,
   marginTop: spacing[3],
 });
-
 
 type CollectionStatsProps = {
   documentCount: string;
@@ -82,11 +81,7 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
                 isTimeSeries={isTimeSeries}
                 documentCount={documentCount}
               />
-              {!isTimeSeries && (
-                <IndexStatsItem
-                  indexCount={indexCount}
-                />
-              )}
+              {!isTimeSeries && <IndexStatsItem indexCount={indexCount} />}
             </div>
             {children}
           </span>
@@ -95,12 +90,18 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
         <div>
           <ol className={tooltipDocumentsListStyles}>
             <li key="tooltip-documents">Documents: {documentCount}</li>
-            <li key="tooltip-documents-storage-size">Storage Size: {storageSize}</li>
-            <li key="tooltip-documents-avg-size">Avg. Size: {avgDocumentSize}</li>
+            <li key="tooltip-documents-storage-size">
+              Storage Size: {storageSize}
+            </li>
+            <li key="tooltip-documents-avg-size">
+              Avg. Size: {avgDocumentSize}
+            </li>
           </ol>
           <ol className={tooltipIndexeListStyles}>
             <li key="tooltip-indexes">Indexes: {indexCount}</li>
-            <li key="tooltip-indexes-total-size">Total Size: {totalIndexSize}</li>
+            <li key="tooltip-indexes-total-size">
+              Total Size: {totalIndexSize}
+            </li>
             <li key="tooltip-indexes-avg-size">Avg. Size: {avgIndexSize}</li>
           </ol>
         </div>

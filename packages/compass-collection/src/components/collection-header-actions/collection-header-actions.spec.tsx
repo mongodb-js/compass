@@ -20,8 +20,12 @@ describe('CollectionHeaderActions [Component]', function () {
     afterEach(cleanup);
 
     it('does not render any buttons', function () {
-      expect(screen.queryByTestId('collection-header-actions-edit-button')).to.not.exist;
-      expect(screen.queryByTestId('collection-header-actions-return-to-view-button')).to.not.exist;
+      expect(
+        screen.queryByTestId('collection-header-actions-edit-button')
+      ).to.not.exist;
+      expect(
+        screen.queryByTestId('collection-header-actions-return-to-view-button')
+      ).to.not.exist;
     });
   });
 
@@ -80,7 +84,9 @@ describe('CollectionHeaderActions [Component]', function () {
     afterEach(cleanup);
 
     it('shows a button to edit the view pipeline', function () {
-      expect(screen.getByTestId('collection-header-actions-edit-button')).to.exist;
+      expect(
+        screen.getByTestId('collection-header-actions-edit-button')
+      ).to.exist;
     });
   });
 
@@ -100,7 +106,9 @@ describe('CollectionHeaderActions [Component]', function () {
     afterEach(cleanup);
 
     it('shows a button to return to the view', function () {
-      expect(screen.getByTestId('collection-header-actions-return-to-view-button')).to.exist;
+      expect(
+        screen.getByTestId('collection-header-actions-return-to-view-button')
+      ).to.exist;
     });
   });
 });

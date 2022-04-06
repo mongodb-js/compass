@@ -10,7 +10,9 @@ const ReadOnlyBadge = (): React.ReactElement => (
     data-testid="collection-badge-readonly"
     className={collectionHeaderBadgeStyles}
     variant={BadgeVariant.LightGray}
-  >READ-ONLY</Badge>
+  >
+    READ-ONLY
+  </Badge>
 );
 
 export default ReadOnlyBadge;

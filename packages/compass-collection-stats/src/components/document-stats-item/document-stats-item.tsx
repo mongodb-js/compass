@@ -27,7 +27,7 @@ type DocumentStatsItemProps = {
  */
 const DocumentStatsItem: React.FunctionComponent<DocumentStatsItemProps> = ({
   documentCount,
-  isTimeSeries
+  isTimeSeries,
 }: DocumentStatsItemProps) => {
   return (
     <div data-testid="document-stats-item" className={documentStatsItemStyles}>

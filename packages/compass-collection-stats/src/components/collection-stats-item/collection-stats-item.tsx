@@ -1,5 +1,12 @@
 import React from 'react';
-import { css, uiColors, spacing, Disclaimer, Overline, withTheme } from '@mongodb-js/compass-components';
+import {
+  css,
+  uiColors,
+  spacing,
+  Disclaimer,
+  Overline,
+  withTheme,
+} from '@mongodb-js/compass-components';
 
 const collectionStatsItemStyles = css({
   display: 'flex',
@@ -60,7 +67,7 @@ const CollectionStatsItem: React.FunctionComponent<CollectionStatsItemProps> =
           {value}
         </Overline>
         <Disclaimer
-          className={darkMode? darkThemeLabelStyles : lightThemeLabelStyles}
+          className={darkMode ? darkThemeLabelStyles : lightThemeLabelStyles}
           data-testid={`${dataTestId}-label`}
         >
           {label}

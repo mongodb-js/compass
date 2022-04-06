@@ -11,10 +11,8 @@ const ViewBadge = (): React.ReactElement => (
     className={collectionHeaderBadgeStyles}
     variant={BadgeVariant.DarkGray}
   >
-    <Icon
-      glyph="Visibility"
-      title="View"
-    />&nbsp;VIEW
+    <Icon glyph="Visibility" title="View" />
+    &nbsp;VIEW
   </Badge>
 );
 

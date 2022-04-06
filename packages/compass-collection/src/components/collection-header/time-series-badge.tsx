@@ -11,10 +11,8 @@ const TimeSeriesBadge = (): React.ReactElement => (
     className={collectionHeaderBadgeStyles}
     variant={BadgeVariant.DarkGray}
   >
-    <Icon
-      glyph="TimeSeries"
-      title="Time-Series Collection"
-    />&nbsp;TIME-SERIES
+    <Icon glyph="TimeSeries" title="Time-Series Collection" />
+    &nbsp;TIME-SERIES
   </Badge>
 );
 

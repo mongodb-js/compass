@@ -5,7 +5,7 @@ import sinon from 'sinon';
 import reducer, {
   appRegistryActivated,
   appRegistryEmit,
-  APP_REGISTRY_ACTIVATED
+  APP_REGISTRY_ACTIVATED,
 } from './app-registry';
 
 describe('app registry module', function () {
@@ -13,7 +13,7 @@ describe('app registry module', function () {
     it('returns the APP_REGISTRY_ACTIVATED action', function () {
       expect(appRegistryActivated({} as AppRegistry)).to.deep.equal({
         type: APP_REGISTRY_ACTIVATED,
-        appRegistry: {}
+        appRegistry: {},
       });
     });
   });
@@ -40,7 +40,9 @@ describe('app registry module', function () {
 
     context('when the action is app registry activated', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, appRegistryActivated({} as AppRegistry))).to.deep.equal({});
+        expect(
+          reducer(undefined, appRegistryActivated({} as AppRegistry))
+        ).to.deep.equal({});
       });
     });
   });

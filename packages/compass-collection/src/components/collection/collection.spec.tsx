@@ -8,7 +8,9 @@ import Collection from '../collection';
 
 describe('Collection [Component]', function () {
   let changeSubTabSpy;
-  const statsPlugin = () => { return (<div/>); };
+  const statsPlugin = () => {
+    return <div />;
+  };
   const statsStore = {};
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
@@ -36,7 +38,8 @@ describe('Collection [Component]', function () {
         namespace="db.coll"
         selectOrCreateTab={selectOrCreateTabSpy}
         sourceReadonly={sourceReadonly}
-        pipeline={[]} />
+        pipeline={[]}
+      />
     );
   });
 

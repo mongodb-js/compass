@@ -122,7 +122,7 @@ const doSelectNamespace = (state: any, action: any) => {
         editViewName: action.editViewName,
         sourceReadonly: action.sourceReadonly,
         sourceViewOn: action.sourceViewOn,
-        localAppRegistry: action.context.localAppRegistry
+        localAppRegistry: action.context.localAppRegistry,
       });
     } else {
       newState.push({ ...tab });
@@ -147,10 +147,10 @@ const doCreateTab = (state: any, action: any) => {
   const subTabIndex = action.query
     ? 0
     : action.aggregation
-      ? 1
-      : action.editViewName
-        ? 1
-        : 0;
+    ? 1
+    : action.editViewName
+    ? 1
+    : 0;
 
   newState.push({
     id: action.id,
@@ -172,7 +172,7 @@ const doCreateTab = (state: any, action: any) => {
     editViewName: action.editViewName,
     sourceReadonly: action.sourceReadonly,
     sourceViewOn: action.sourceViewOn,
-    localAppRegistry: action.context.localAppRegistry
+    localAppRegistry: action.context.localAppRegistry,
   });
   return newState;
 };
@@ -199,7 +199,10 @@ const doCloseTab = (state: any, action: any) => {
       // If the active tab is the last tab, we activate the one before
       // it, otherwise we activate the next tab.
       if (activeIndex === closeIndex) {
-        newState.push({ ...tab, isActive: isTabAfterCloseActive(closeIndex, i, numTabs)});
+        newState.push({
+          ...tab,
+          isActive: isTabAfterCloseActive(closeIndex, i, numTabs),
+        });
       } else {
         newState.push({ ...tab });
       }
@@ -258,7 +261,10 @@ const doMoveTab = (state: any, action: any) => {
 const doNextTab = (state: any) => {
   const activeIndex = state.findIndex((tab: any) => tab.isActive);
   return state.map((tab: any, i: number) => {
-    return { ...tab, isActive: isTabAfterNextActive(activeIndex, i, state.length) };
+    return {
+      ...tab,
+      isActive: isTabAfterNextActive(activeIndex, i, state.length),
+    };
   });
 };
 
@@ -272,7 +278,10 @@ const doNextTab = (state: any) => {
 const doPrevTab = (state: any) => {
   const activeIndex = state.findIndex((tab: any) => tab.isActive);
   return state.map((tab: any, i: number) => {
-    return { ...tab, isActive: isTabAfterPrevActive(activeIndex, i, state.length) };
+    return {
+      ...tab,
+      isActive: isTabAfterPrevActive(activeIndex, i, state.length),
+    };
   });
 };
 
@@ -286,7 +295,7 @@ const doPrevTab = (state: any) => {
  */
 const doSelectTab = (state: any, action: any) => {
   return state.map((tab: any, i: number) => {
-    return { ...tab, isActive: (action.index === i) ? true : false };
+    return { ...tab, isActive: action.index === i ? true : false };
   });
 };
 
@@ -300,11 +309,12 @@ const doSelectTab = (state: any, action: any) => {
  */
 const doChangeActiveSubTab = (state: any, action: any) => {
   return state.map((tab: any) => {
-    const subTab = (action.id === tab.id) ? action.activeSubTab : tab.activeSubTab;
+    const subTab =
+      action.id === tab.id ? action.activeSubTab : tab.activeSubTab;
     return {
       ...tab,
       activeSubTab: subTab,
-      activeSubTabName: tab.tabs[subTab]
+      activeSubTabName: tab.tabs[subTab],
     };
   });
 };
@@ -323,7 +333,7 @@ const MAPPINGS = {
   [CHANGE_ACTIVE_SUB_TAB]: doChangeActiveSubTab,
   [CLEAR_TABS]: doClearTabs,
   [COLLECTION_DROPPED]: doCollectionDropped,
-  [DATABASE_DROPPED]: doDatabaseDropped
+  [DATABASE_DROPPED]: doDatabaseDropped,
 };
 
 /**
@@ -365,7 +375,7 @@ export const createTab = ({
   sourceReadonly,
   sourceViewOn,
   query,
-  aggregation
+  aggregation,
 }: any): any => ({
   type: CREATE_TAB,
   id: id,
@@ -378,7 +388,7 @@ export const createTab = ({
   sourceReadonly: sourceReadonly,
   sourceViewOn: sourceViewOn,
   query,
-  aggregation
+  aggregation,
 });
 
 /**
@@ -405,7 +415,7 @@ export const selectNamespace = ({
   editViewName,
   context,
   sourceReadonly,
-  sourceViewOn
+  sourceViewOn,
 }: any): any => ({
   type: SELECT_NAMESPACE,
   id: id,
@@ -416,7 +426,7 @@ export const selectNamespace = ({
   editViewName: editViewName,
   context: context,
   sourceReadonly: sourceReadonly,
-  sourceViewOn: sourceViewOn
+  sourceViewOn: sourceViewOn,
 });
 
 /**
@@ -426,12 +436,14 @@ export const selectNamespace = ({
  *
  * @returns {Object} The close tab action.
  */
-export const closeTab = (index: number): {
-  type: string,
+export const closeTab = (
   index: number
+): {
+  type: string;
+  index: number;
 } => ({
   type: CLOSE_TAB,
-  index: index
+  index: index,
 });
 
 /**
@@ -442,14 +454,17 @@ export const closeTab = (index: number): {
  *
  * @returns {Object} The move tab action.
  */
-export const moveTab = (fromIndex: number, toIndex: number): {
-  type: string,
+export const moveTab = (
   fromIndex: number,
   toIndex: number
+): {
+  type: string;
+  fromIndex: number;
+  toIndex: number;
 } => ({
   type: MOVE_TAB,
   fromIndex: fromIndex,
-  toIndex: toIndex
+  toIndex: toIndex,
 });
 
 /**
@@ -458,9 +473,9 @@ export const moveTab = (fromIndex: number, toIndex: number): {
  * @returns {Object} The next tab action.
  */
 export const nextTab = (): {
-  type: string
+  type: string;
 } => ({
-  type: NEXT_TAB
+  type: NEXT_TAB,
 });
 
 /**
@@ -469,9 +484,9 @@ export const nextTab = (): {
  * @returns {Object} The prev tab action.
  */
 export const prevTab = (): {
-  type: string
+  type: string;
 } => ({
-  type: PREV_TAB
+  type: PREV_TAB,
 });
 
 /**
@@ -481,12 +496,14 @@ export const prevTab = (): {
  *
  * @returns {Object} The action.
  */
-export const selectTab = (index: number): {
-  type: string,
+export const selectTab = (
   index: number
+): {
+  type: string;
+  index: number;
 } => ({
   type: SELECT_TAB,
-  index: index
+  index: index,
 });
 
 /**
@@ -495,25 +512,29 @@ export const selectTab = (index: number): {
  * @returns {Object} The action.
  */
 export const clearTabs = (): {
-  type: string
+  type: string;
 } => ({
-  type: CLEAR_TABS
+  type: CLEAR_TABS,
 });
 
-export const collectionDropped = (namespace: string | NS): {
-  type: string,
+export const collectionDropped = (
   namespace: string | NS
+): {
+  type: string;
+  namespace: string | NS;
 } => ({
   type: COLLECTION_DROPPED,
-  namespace: namespace
+  namespace: namespace,
 });
 
-export const databaseDropped = (name: string): {
-  type: string,
+export const databaseDropped = (
   name: string
+): {
+  type: string;
+  name: string;
 } => ({
   type: DATABASE_DROPPED,
-  name: name
+  name: name,
 });
 
 /**
@@ -524,14 +545,17 @@ export const databaseDropped = (name: string): {
  *
  * @returns {Object} The action.
  */
-export const changeActiveSubTab = (activeSubTab: number, id: string): {
-  type: string,
+export const changeActiveSubTab = (
   activeSubTab: number,
   id: string
-}  => ({
+): {
+  type: string;
+  activeSubTab: number;
+  id: string;
+} => ({
   type: CHANGE_ACTIVE_SUB_TAB,
   activeSubTab: activeSubTab,
-  id: id
+  id: id,
 });
 
 /**
@@ -539,7 +563,7 @@ export const changeActiveSubTab = (activeSubTab: number, id: string): {
  * tab, then dispatches the correct events.
  *
  * @param {CollectionTabOptions} options
-*/
+ */
 export const selectOrCreateTab = ({
   namespace,
   isReadonly,
@@ -548,21 +572,23 @@ export const selectOrCreateTab = ({
   editViewName,
   sourceReadonly,
   sourceViewOn,
-  sourcePipeline
+  sourcePipeline,
 }: any): any => {
   return (dispatch: any, getState: any) => {
     const state = getState();
     if (state.tabs.length === 0) {
-      dispatch(createNewTab({
-        namespace,
-        isReadonly,
-        isTimeSeries,
-        sourceName,
-        editViewName,
-        sourceReadonly,
-        sourceViewOn,
-        sourcePipeline
-      }));
+      dispatch(
+        createNewTab({
+          namespace,
+          isReadonly,
+          isTimeSeries,
+          sourceName,
+          editViewName,
+          sourceReadonly,
+          sourceViewOn,
+          sourcePipeline,
+        })
+      );
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
@@ -578,7 +604,7 @@ export const selectOrCreateTab = ({
             editViewName,
             sourceReadonly,
             sourceViewOn,
-            sourcePipeline
+            sourcePipeline,
           })
         );
       }
@@ -602,7 +628,7 @@ export const createNewTab = ({
   sourceViewOn,
   sourcePipeline,
   query,
-  aggregation
+  aggregation,
 }: any): any => {
   return (dispatch: any, getState: any) => {
     const state = getState();
@@ -616,7 +642,7 @@ export const createNewTab = ({
       editViewName,
       sourcePipeline,
       query,
-      aggregation
+      aggregation,
     });
     dispatch(
       createTab({
@@ -630,7 +656,7 @@ export const createNewTab = ({
         sourceReadonly: !!sourceReadonly,
         sourceViewOn,
         query,
-        aggregation
+        aggregation,
       })
     );
     showCollectionSubmenu({ isReadOnly: isReadonly });
@@ -651,7 +677,7 @@ export const replaceTabContent = ({
   editViewName,
   sourceReadonly,
   sourceViewOn,
-  sourcePipeline
+  sourcePipeline,
 }: any): any => {
   return (dispatch: any, getState: any) => {
     const state = getState();
@@ -663,7 +689,7 @@ export const replaceTabContent = ({
       isTimeSeries,
       sourceName,
       editViewName,
-      sourcePipeline
+      sourcePipeline,
     });
     dispatch(
       selectNamespace({
@@ -675,7 +701,7 @@ export const replaceTabContent = ({
         editViewName,
         context,
         sourceReadonly: !!sourceReadonly,
-        sourceViewOn
+        sourceViewOn,
       })
     );
     showCollectionSubmenu({ isReadOnly: isReadonly });
@@ -691,10 +717,14 @@ export const replaceTabContent = ({
  *
  * @returns {Boolean} If the tab is active.
  */
-const isTabAfterPrevActive = (activeIndex: number, currentIndex: number, numTabs: number) => {
-  return (activeIndex === 0)
-    ? (currentIndex === numTabs - 1)
-    : (currentIndex === activeIndex - 1);
+const isTabAfterPrevActive = (
+  activeIndex: number,
+  currentIndex: number,
+  numTabs: number
+) => {
+  return activeIndex === 0
+    ? currentIndex === numTabs - 1
+    : currentIndex === activeIndex - 1;
 };
 
 /**
@@ -707,10 +737,14 @@ const isTabAfterPrevActive = (activeIndex: number, currentIndex: number, numTabs
  *
  * @returns {Boolean} If the tab must be active.
  */
-const isTabAfterCloseActive = (closeIndex: number, currentIndex: number, numTabs: number) => {
-  return (closeIndex === numTabs - 1)
-    ? (currentIndex === numTabs - 2)
-    : (currentIndex === closeIndex + 1);
+const isTabAfterCloseActive = (
+  closeIndex: number,
+  currentIndex: number,
+  numTabs: number
+) => {
+  return closeIndex === numTabs - 1
+    ? currentIndex === numTabs - 2
+    : currentIndex === closeIndex + 1;
 };
 
 /**
@@ -722,8 +756,12 @@ const isTabAfterCloseActive = (closeIndex: number, currentIndex: number, numTabs
  *
  * @returns {Boolean} If the tab is active.
  */
-const isTabAfterNextActive = (activeIndex: number, currentIndex: number, numTabs: number) => {
-  return (activeIndex === numTabs - 1)
-    ? (currentIndex === 0)
-    : (currentIndex === activeIndex + 1);
+const isTabAfterNextActive = (
+  activeIndex: number,
+  currentIndex: number,
+  numTabs: number
+) => {
+  return activeIndex === numTabs - 1
+    ? currentIndex === 0
+    : currentIndex === activeIndex + 1;
 };

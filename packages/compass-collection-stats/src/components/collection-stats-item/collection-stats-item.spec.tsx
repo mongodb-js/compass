@@ -36,11 +36,7 @@ describe('CollectionStatsItem [Component]', function () {
 
     beforeEach(function () {
       render(
-        <CollectionStatsItem
-          label="label"
-          value="20kb"
-          dataTestId="test"
-        />
+        <CollectionStatsItem label="label" value="20kb" dataTestId="test" />
       );
     });
 

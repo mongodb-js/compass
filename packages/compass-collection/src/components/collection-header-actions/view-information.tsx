@@ -27,6 +27,6 @@ const ViewInformation: React.FunctionComponent<ViewInformationProps> = ({
       view on: {sourceName}
     </div>
   );
-}
+};
 
 export default ViewInformation;

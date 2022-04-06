@@ -10,25 +10,23 @@ import {
   createNewTab,
   clearTabs,
   collectionDropped,
-  databaseDropped
+  databaseDropped,
 } from './tabs';
 
 import { combineReducers } from 'redux';
 import appRegistry, {
-  INITIAL_STATE as APP_REGISTRY_INITIAL_STATE
+  INITIAL_STATE as APP_REGISTRY_INITIAL_STATE,
 } from './app-registry';
 import dataService, {
-  INITIAL_STATE as DATA_SERVICE_INITIAL_STATE
+  INITIAL_STATE as DATA_SERVICE_INITIAL_STATE,
 } from './data-service';
 import serverVersion, {
-  INITIAL_STATE as SERVER_VERSION_INITIAL_STATE
+  INITIAL_STATE as SERVER_VERSION_INITIAL_STATE,
 } from './server-version';
 import isDataLake, {
-  INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE
+  INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE,
 } from './is-data-lake';
-import tabs, {
-  INITIAL_STATE as TABS_INITIAL_STATE
-} from './tabs';
+import tabs, { INITIAL_STATE as TABS_INITIAL_STATE } from './tabs';
 
 /**
  * Reset action constant.
@@ -40,8 +38,8 @@ export const RESET = 'collection/reset';
  *
  * @returns {Object} The action.
  */
- export const reset = (): { type: string } => ({
-  type: RESET
+export const reset = (): { type: string } => ({
+  type: RESET,
 });
 
 /**
@@ -52,7 +50,7 @@ export const INITIAL_STATE = {
   dataService: DATA_SERVICE_INITIAL_STATE,
   serverVersion: SERVER_VERSION_INITIAL_STATE,
   tabs: TABS_INITIAL_STATE,
-  isDataLake: IS_DATA_LAKE_INITIAL_STATE
+  isDataLake: IS_DATA_LAKE_INITIAL_STATE,
 };
 
 /**
@@ -61,14 +59,14 @@ export const INITIAL_STATE = {
  * @returns {Object} The new state.
  */
 const doReset = () => ({
-  ...INITIAL_STATE
+  ...INITIAL_STATE,
 });
 
 /**
  * The action to state modifier mappings.
  */
 const MAPPINGS: any = {
-  [RESET]: doReset
+  [RESET]: doReset,
 };
 
 const appReducer = combineReducers({
@@ -76,7 +74,7 @@ const appReducer = combineReducers({
   dataService,
   serverVersion,
   tabs,
-  isDataLake
+  isDataLake,
 });
 
 /**
@@ -148,7 +146,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
             editViewName: metadata.editViewName,
             sourceReadonly: metadata.sourceReadonly,
             sourceViewOn: metadata.sourceViewOn,
-            sourcePipeline: metadata.sourcePipeline
+            sourcePipeline: metadata.sourcePipeline,
           })
         );
       }
@@ -212,7 +210,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
   ipc.on('window:menu-share-schema-json', () => {
     const state = store.getState();
     if (state.tabs) {
-      const activeTab = state.tabs.find((tab: any) => (tab.isActive === true));
+      const activeTab = state.tabs.find((tab: any) => tab.isActive === true);
       if (activeTab.localAppRegistry) {
         activeTab.localAppRegistry.emit('menu-share-schema-json');
       }
