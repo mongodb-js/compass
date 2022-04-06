@@ -613,13 +613,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) >
           shell: new Timestamp(1, 100) >
           ruby: BSON::Timestamp.new(1, 100) >
-          go: |-
-            func(rhs primitive.Timestamp) bool {
-                lhs := primitive.Timestamp{T: 1, I: 100}
-
-                // returns true if lhs > rhs
-                return primitive.CompareTimestamp(lhs, rhs) == 1
-            }
+          go: ''
     - input:
           javascript: Timestamp(1, 100).greaterThanOrEqual
       output:
@@ -646,13 +640,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) <
           shell: new Timestamp(1, 100) <
           ruby: BSON::Timestamp.new(1, 100) <
-          go: |-
-            func(rhs primitive.Timestamp) bool {
-                lhs := primitive.Timestamp{T: 1, I: 100}
-
-                // returns true if lhs < rhs
-                return primitive.CompareTimestamp(lhs, rhs) == -1
-            }
+          go: ''
     - input:
           javascript: Timestamp(1, 100).lessThanOrEqual
       output:

@@ -611,13 +611,7 @@ tests:
             shell: new Timestamp(1, 100) > new Timestamp(2, 99)
             object: 'true'
             ruby: BSON::Timestamp.new(1, 100) > BSON::Timestamp.new(2, 99)
-            go: |-
-                func(rhs primitive.Timestamp) bool {
-                    lhs := primitive.Timestamp{T: 1, I: 100}
-
-                    // returns true if lhs > rhs
-                    return primitive.CompareTimestamp(lhs, rhs) == 1
-                }(primitive.Timestamp{T: 2, I: 99})
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == 1"
     -   input:
             javascript: Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))
         output:
@@ -644,13 +638,7 @@ tests:
             shell: new Timestamp(1, 100) < new Timestamp(2, 99)
             object: 'false'
             ruby: BSON::Timestamp.new(1, 100) < BSON::Timestamp.new(2, 99)
-            go: |-
-                func(rhs primitive.Timestamp) bool {
-                    lhs := primitive.Timestamp{T: 1, I: 100}
-
-                    // returns true if lhs < rhs
-                    return primitive.CompareTimestamp(lhs, rhs) == -1
-                }(primitive.Timestamp{T: 2, I: 99})
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == -1"
     -   input:
             javascript: Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))
         output:

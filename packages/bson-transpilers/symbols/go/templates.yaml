@@ -664,18 +664,9 @@ Templates:
     TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate !!js/function >
         (_, rhs) => `(${rhs})`
     TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate !!js/function >
-        (lhs) => {
-            return []
-                .concat("func(rhs primitive.Timestamp) bool {")
-                .concat(`    lhs := ${lhs}`)
-                .concat("")
-                .concat("    // returns true if lhs > rhs")
-                .concat("    return primitive.CompareTimestamp(lhs, rhs) == 1")
-                .concat("}")
-                .join("\n")
-        }
+        () => ''
     TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate !!js/function >
-        (_, rhs) => `(${rhs})`
+        (lhs, rhs) => `primitive.CompareTimestamp(${lhs}, ${rhs}) == 1`
     TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate !!js/function >
         (lhs) => {
             return []
@@ -691,18 +682,9 @@ Templates:
     TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
         (_, rhs) => `(${rhs})`
     TimestampLessThanTemplate: &TimestampLessThanTemplate !!js/function >
-        (lhs) => {
-            return []
-                .concat("func(rhs primitive.Timestamp) bool {")
-                .concat(`    lhs := ${lhs}`)
-                .concat("")
-                .concat("    // returns true if lhs < rhs")
-                .concat("    return primitive.CompareTimestamp(lhs, rhs) == -1")
-                .concat("}")
-                .join("\n")
-        }
+        (lhs) => ''
     TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate !!js/function >
-        (_, rhs) => `(${rhs})`
+        (lhs, rhs) => `primitive.CompareTimestamp(${lhs}, ${rhs}) == -1`
     TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate !!js/function >
         (lhs) => {
             return []
