@@ -49,6 +49,7 @@ declare module 'process' {
          */
         COMPASS_CSFLE_SUPPORT?: 'true' | 'false';
         COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
+        COMPASS_ENABLE_AGGREGATION_EXPORT?: 'true' | 'false';
       }
     }
   }

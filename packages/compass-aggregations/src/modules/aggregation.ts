@@ -4,9 +4,10 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
-
 import createLogger from '@mongodb-js/compass-logging';
+
 const { log, mongoLogId } = createLogger('compass-aggregations');
 
 export enum ActionTypes {
@@ -224,4 +225,32 @@ const fetchAggregationData = (page: number): ThunkAction<
   }
 };
 
+export const exportAggregationResults = (): ThunkAction<
+  void,
+  RootState,
+  void,
+  Actions
+> => {
+  return (dispatch, getState) => {
+    const {
+      pipeline,
+      namespace,
+      maxTimeMS,
+      collation,
+    } = getState();
+    
+    const stages = pipeline
+      .map(generateStage)
+      .filter((stage) => Object.keys(stage).length > 0);
+    const options: AggregateOptions = {
+      maxTimeMS: maxTimeMS || DEFAULT_MAX_TIME_MS,
+      allowDiskUse: true,
+      collation: collation || undefined,
+    };
+    dispatch(globalAppRegistryEmit('open-export', { namespace, aggregation: {
+      stages, options
+    }, count: 0 }));
+    return;
+  }
+}
 export default reducer;

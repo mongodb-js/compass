@@ -17,8 +17,8 @@ store.onActivated = (globalAppRegistry) => {
     store.dispatch(dataServiceConnected(err, dataService));
   });
 
-  globalAppRegistry.on('open-export', ({ namespace, query, count }) => {
-    store.dispatch(openExport({ namespace, query, count }));
+  globalAppRegistry.on('open-export', ({ namespace, query, count, aggregation }) => {
+    store.dispatch(openExport({ namespace, query, count, aggregation }));
   });
 };
 
