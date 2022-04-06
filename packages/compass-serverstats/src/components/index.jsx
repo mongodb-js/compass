@@ -2,6 +2,7 @@ require('./index.less');
 
 const React = require('react');
 const { WorkspaceContainer, css, spacing } = require('@mongodb-js/compass-components');
+const { StatusRow } = require('hadron-react-components');
 
 const GraphsComponent = require('./server-stats-graphs-component');
 const { realTimeDispatcher } = require('../d3');
@@ -9,13 +10,16 @@ const ListsComponent = require('./server-stats-lists-component');
 const DBErrorComponent = require('./dberror-component');
 const DBErrorStore = require('../stores/dberror-store');
 const ServerStatsStore = require('../stores/server-stats-graphs-store');
-const { StatusRow } = require('hadron-react-components');
 const { ServerStatsToolbar } = require('./server-stats-toolbar');
 
 /**
  * The default interval.
  */
 const INTERVAL = 1000;
+
+const workspaceContainerStyles = css({
+  background: '#3D4247'
+});
 
 const workspaceStyles = css({
   padding: spacing[4],
@@ -54,7 +58,7 @@ class PerformanceComponent extends React.Component {
         <ServerStatsToolbar eventDispatcher={this.eventDispatcher} />
         {ServerStatsStore.isMongos ? this.renderTopMessage() : null}
         <DBErrorComponent store={DBErrorStore} />
-        <WorkspaceContainer darkMode>
+        <WorkspaceContainer darkMode className={workspaceContainerStyles}>
           <div className={workspaceStyles}>
             <section className="rt__graphs-out">
               <GraphsComponent eventDispatcher={this.eventDispatcher} interval={INTERVAL} />
