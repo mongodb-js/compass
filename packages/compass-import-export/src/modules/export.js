@@ -66,7 +66,7 @@ export const INITIAL_STATE = {
   status: PROCESS_STATUS.UNSPECIFIED,
   exportedDocsCount: 0,
   count: 0,
-  aggregation: false
+  aggregation: false,
 };
 
 /**
@@ -138,7 +138,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     if (action.aggregation) {
       newState.exportStep = EXPORT_STEP.FILETYPE;
     }
-    return newState
+    return newState;
   }
 
   if (action.type === CLOSE) {
@@ -370,7 +370,12 @@ const fetchDocumentCount = async (dataService, ns, query) => {
  *
  * @api public
  */
-export const openExport = ({ namespace, query, count: maybeCount, aggregation }) => {
+export const openExport = ({
+  namespace,
+  query,
+  count: maybeCount,
+  aggregation,
+}) => {
   return async (dispatch, getState) => {
     track('Export Opened');
     const {
@@ -448,13 +453,12 @@ export const startExport = () => {
       //   // there are no documents returned by aggregation
 
       // }
-      // columns = Object.keys(sampleDocument[0]); 
-      
+      // columns = Object.keys(sampleDocument[0]);
+
       // Run aggregation
       columns = true;
       source = _getAggregateCursor(dataService, ns, stages, options);
       numDocsToExport = 0;
-
     } else {
       const spec = exportData.isFullCollection
         ? { filter: {} }
@@ -608,11 +612,7 @@ export const cancelExport = () => {
 };
 
 function _getAggregateCursor(dataService, namespace, stages, options) {
-  const cursor = dataService.aggregate(
-    namespace,
-    stages,
-    options
-  );
+  const cursor = dataService.aggregate(namespace, stages, options);
   return cursor;
 }
 export default reducer;

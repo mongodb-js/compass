@@ -42,9 +42,9 @@ class ProgressBar extends PureComponent {
 
   static defaultProps = {
     progressLabel(formattedWritten, formattedTotal, isAggregation) {
-      let output = `${formattedWritten}\u00A0`; 
-      if(!isAggregation) {
-        output +=`/\u00A0${formattedTotal}`;
+      let output = `${formattedWritten}\u00A0`;
+      if (!isAggregation) {
+        output += `/\u00A0${formattedTotal}`;
       }
       return output;
     },
@@ -107,7 +107,13 @@ class ProgressBar extends PureComponent {
   };
 
   renderStats() {
-    const { docsTotal, docsWritten, progressLabel, progressTitle, isAggregation } = this.props;
+    const {
+      docsTotal,
+      docsWritten,
+      progressLabel,
+      progressTitle,
+      isAggregation,
+    } = this.props;
 
     const formattedWritten = formatNumber(docsWritten);
     const formattedTotal = formatNumber(docsTotal);
@@ -128,8 +134,14 @@ class ProgressBar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const { message, status, docsProcessed, docsTotal, docsWritten, isAggregation } =
-      this.props;
+    const {
+      message,
+      status,
+      docsProcessed,
+      docsTotal,
+      docsWritten,
+      isAggregation,
+    } = this.props;
 
     if (status === UNSPECIFIED) {
       return null;
@@ -139,19 +151,19 @@ class ProgressBar extends PureComponent {
       <div className={style('chart-wrapper')}>
         {!isAggregation && (
           <div className={style()}>
-          <div
-            className={this.getBarClassName()}
-            style={{ width: toPercentage(docsWritten, docsTotal) }}
-          />
-          {Boolean(docsProcessed) && (
             <div
-              className={this.getBarClassName(true)}
-              style={{ width: toPercentage(docsProcessed, docsTotal) }}
+              className={this.getBarClassName()}
+              style={{ width: toPercentage(docsWritten, docsTotal) }}
             />
-          )}
-        </div>
+            {Boolean(docsProcessed) && (
+              <div
+                className={this.getBarClassName(true)}
+                style={{ width: toPercentage(docsProcessed, docsTotal) }}
+              />
+            )}
+          </div>
         )}
-        
+
         <div className={styles['progress-bar-status']}>
           <p className={this.getMessageClassName()}>
             {message}

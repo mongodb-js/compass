@@ -479,7 +479,7 @@ describe('export [module]', function () {
         });
         store.dispatch(action);
         expect(store.getState().exportData).to.deep.equal({
-          aggregation: { foo: 'bar'},
+          aggregation: { foo: 'bar' },
           isOpen: true,
           exportedDocsCount: 0,
           progress: 0,
@@ -494,7 +494,6 @@ describe('export [module]', function () {
           status: PROCESS_STATUS.UNSPECIFIED,
           count: 0,
         });
-        
       });
     });
     context('when the action type is not defined', function () {
@@ -534,7 +533,7 @@ describe('export [module]', function () {
           namespace: 'test',
           count: 100,
           query: { filter: {} },
-          aggregation: { foo: 'bar' }
+          aggregation: { foo: 'bar' },
         })
       ).to.deep.equal({
         aggregation: { foo: 'bar' },
@@ -544,7 +543,6 @@ describe('export [module]', function () {
         query: { filter: {} },
       });
     });
-    
   });
 
   describe('#onError', function () {
