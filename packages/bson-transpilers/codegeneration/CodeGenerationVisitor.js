@@ -419,7 +419,6 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     this.requiredImports[ctx.type.code] = true;
 
     if (ctx.type.template) {
-      // ! of note
       return ctx.type.template();
     }
     return this.returnFunctionCallLhs(ctx.type.code, name);
