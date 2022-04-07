@@ -12,6 +12,7 @@ const createProgressStream = require('progress-stream');
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { loadFields, getSelectableFields } from './load-fields';
 import { CursorExporter } from './cursor-exporter';
+import { isEmpty } from 'lodash';
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'
 );
@@ -66,7 +67,7 @@ export const INITIAL_STATE = {
   status: PROCESS_STATUS.UNSPECIFIED,
   exportedDocsCount: 0,
   count: 0,
-  aggregation: false,
+  aggregation: {},
 };
 
 /**
@@ -131,7 +132,7 @@ const reducer = (state = INITIAL_STATE, action) => {
       ...INITIAL_STATE,
       count: action.count,
       query: action.query,
-      aggregation: action.aggregation || false,
+      aggregation: action.aggregation || {},
       isOpen: true,
     };
 
@@ -441,7 +442,7 @@ export const startExport = () => {
     const dest = fs.createWriteStream(exportData.fileName);
     let columns, source, numDocsToExport;
     let numDocsActuallyExported = 0;
-    if (exportData.aggregation) {
+    if (!isEmpty(exportData.aggregation)) {
       // Start Aggregation export
       const { stages, options } = exportData.aggregation;
       // // Get Document Fields

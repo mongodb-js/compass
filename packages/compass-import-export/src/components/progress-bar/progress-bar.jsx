@@ -123,7 +123,7 @@ class ProgressBar extends PureComponent {
         className={style('status-stats')}
         title={progressTitle(formattedWritten, formattedTotal, isAggregation)}
       >
-        {progressLabel(formattedWritten, formattedTotal, isAggregation)}
+        {progressLabel(formattedWritten, formattedTotal)}
       </p>
     );
   }

@@ -281,7 +281,7 @@ class ExportModal extends PureComponent {
         exportedDocsCount={this.props.exportedDocsCount}
         selectExportFileType={this.props.selectExportFileType}
         selectExportFileName={this.props.selectExportFileName}
-        isAggregation={this.props.aggregation}
+        isAggregation={!!this.props.aggregation}
       />
     );
   }
