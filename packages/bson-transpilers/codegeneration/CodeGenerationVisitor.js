@@ -10,6 +10,7 @@ const {
 } = require('../helper/error');
 
 const { removeQuotes } = require('../helper/format');
+const DeclarationStore = require('./DeclarationStore');
 
 /**
  * Class for code generation. Goes in between ANTLR generated visitor and
@@ -24,6 +25,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     super();
     this.idiomatic = true; // PUBLIC
     this.clearImports();
+    this.declarationStore = new DeclarationStore();
   }
 
   clearImports() {
@@ -62,6 +64,10 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    */
   start(ctx) {
     return this.returnResult(ctx).trim();
+  }
+
+  getDeclarationStore() {
+    return this.declarationStore;
   }
 
   /**
@@ -413,6 +419,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     this.requiredImports[ctx.type.code] = true;
 
     if (ctx.type.template) {
+      // ! of note
       return ctx.type.template();
     }
     return this.returnFunctionCallLhs(ctx.type.code, name);
@@ -490,6 +497,12 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (`emit${lhsType.id}` in this) {
       return this[`emit${lhsType.id}`](ctx);
     }
+    // if there are no args, but a buffer in for argTemplate methods that are
+    // expecting to key off of the fact that there are no args.
+    if (args.length === 0) {
+      args = [undefined];
+    }
+    args = [...args, this.declarationStore];
     const lhsArg = lhsType.template
       ? lhsType.template()
       : defaultT;
