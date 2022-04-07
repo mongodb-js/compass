@@ -106,6 +106,9 @@ describe('Collection aggregations tab', function () {
     if (semver.gte(MONGODB_VERSION, '5.1.0')) {
       expectedAggregations.push('$densify');
     }
+    if (semver.gte(MONGODB_VERSION, '5.3.0')) {
+      expectedAggregations.push('$fill');
+    }
 
     expectedAggregations.sort();
 
