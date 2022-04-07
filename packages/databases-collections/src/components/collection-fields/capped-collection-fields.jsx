@@ -3,12 +3,14 @@ import PropTypes from 'prop-types';
 import { TextInput } from '@mongodb-js/compass-components';
 
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
+import FieldSet from '../field-set/field-set';
 
 const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
 
 function CappedCollectionFields({
   cappedSize,
   isCapped,
+  isClustered,
   isTimeSeries,
   onChangeCappedSize,
   onChangeIsCapped,
@@ -17,7 +19,7 @@ function CappedCollectionFields({
   return (
     <CollapsibleFieldSet
       toggled={isCapped}
-      disabled={isTimeSeries}
+      disabled={isTimeSeries || isClustered}
       onToggle={checked => onChangeIsCapped(checked)}
       label="Capped Collection"
       dataTestId="capped-collection-fields"
@@ -25,15 +27,17 @@ function CappedCollectionFields({
       openLink={openLink}
       description="Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
     >
-      <TextInput
-        value={cappedSize}
-        label="size"
-        data-testid="capped-size"
-        type="number"
-        description="Maximum size in bytes for the capped collection."
-        onChange={(e) => onChangeCappedSize(e.target.value)}
-        spellCheck={false}
-      />
+      <FieldSet>
+        <TextInput
+          value={cappedSize}
+          label="size"
+          data-testid="capped-size"
+          type="number"
+          description="Maximum size in bytes for the capped collection."
+          onChange={(e) => onChangeCappedSize(e.target.value)}
+          spellCheck={false}
+        />
+      </FieldSet>
     </CollapsibleFieldSet>
   );
 }
@@ -42,6 +46,7 @@ CappedCollectionFields.propTypes = {
   cappedSize: PropTypes.string.isRequired,
   isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
+  isClustered: PropTypes.bool.isRequired,
   onChangeCappedSize: PropTypes.func.isRequired,
   onChangeIsCapped: PropTypes.func.isRequired,
   openLink: PropTypes.func.isRequired

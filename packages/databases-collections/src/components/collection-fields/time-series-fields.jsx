@@ -30,6 +30,7 @@ const GRANULARITY_OPTIONS = [
 function TimeSeriesFields({
   isCapped,
   isTimeSeries,
+  isClustered,
   onChangeIsTimeSeries,
   onChangeTimeSeriesField,
   timeSeries,
@@ -51,7 +52,7 @@ function TimeSeriesFields({
 
   return (
     <CollapsibleFieldSet
-      disabled={isCapped}
+      disabled={isCapped || isClustered}
       onToggle={checked => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
@@ -125,6 +126,7 @@ function TimeSeriesFields({
 TimeSeriesFields.propTypes = {
   isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
+  isClustered: PropTypes.bool.isRequired,
   onChangeIsTimeSeries: PropTypes.func.isRequired,
   onChangeTimeSeriesField: PropTypes.func.isRequired,
   timeSeries: PropTypes.object.isRequired,
