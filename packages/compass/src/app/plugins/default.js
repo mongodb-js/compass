@@ -11,7 +11,6 @@ module.exports = [
   require('@mongodb-js/compass-field-store'),
   require('@mongodb-js/compass-find-in-page'),
   require('@mongodb-js/compass-home'),
-  require('@mongodb-js/compass-connect'),
   require('@mongodb-js/compass-deployment-awareness'),
   require('@mongodb-js/compass-import-export'),
   require('@mongodb-js/compass-instance'),
