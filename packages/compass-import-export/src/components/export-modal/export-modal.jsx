@@ -11,7 +11,7 @@ import ErrorBox from '../error-box';
 
 import revealFile from '../../utils/reveal-file';
 import formatNumber from '../../utils/format-number';
-
+import { isEmpty } from 'lodash';
 import {
   STARTED,
   CANCELED,
@@ -281,7 +281,7 @@ class ExportModal extends PureComponent {
         exportedDocsCount={this.props.exportedDocsCount}
         selectExportFileType={this.props.selectExportFileType}
         selectExportFileName={this.props.selectExportFileName}
-        isAggregation={!!this.props.aggregation}
+        isAggregation={!isEmpty(this.props.aggregation)}
       />
     );
   }
