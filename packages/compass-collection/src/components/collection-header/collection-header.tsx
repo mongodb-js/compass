@@ -13,6 +13,7 @@ import ViewBadge from './view-badge';
 const collectionHeaderStyles = css({
   paddingTop: '15px',
   paddingBottom: '5px',
+  minHeight: '64px',
 });
 
 const collectionHeaderNamespaceStyles = css({
