@@ -93,7 +93,7 @@ function loadIntercomScript(
   });
 }
 
-export function unloadIntercom(): void {
+function unloadIntercom(): void {
   try {
     const win: any = window;
 
@@ -172,8 +172,12 @@ export async function setupIntercom(
   // uncaught errors when injecting the script.
 
   debug('testing intercom availability');
-  const response = await fetch(intercomWidgetUrl);
-  if (response.status >= 400) {
+  const response = await fetch(intercomWidgetUrl).catch((e) => {
+    debug('fetch failed', e);
+    return null;
+  });
+
+  if (!response || response.status >= 400) {
     debug('intercom unreachable, skipping setup');
     return;
   }
