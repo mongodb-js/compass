@@ -496,8 +496,8 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (`emit${lhsType.id}` in this) {
       return this[`emit${lhsType.id}`](ctx);
     }
-    // if there are no args, but a buffer in for argTemplate methods that are
-    // expecting to key off of the fact that there are no args.
+    // if there are no args, then put a buffer in the arguments we pass to the argTemplate functions. This will ensure
+    // that nothing changes for the current functionality that, perhaps, depends on an empty args array.
     if (args.length === 0) {
       args = [undefined];
     }
