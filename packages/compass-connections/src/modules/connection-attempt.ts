@@ -27,7 +27,7 @@ export class ConnectionAttempt {
 
   connect(connectionOptions: ConnectionOptions): Promise<DataService | void> {
     log.info(
-      mongoLogId(1001000004), // !dupedLogId
+      mongoLogId(1001000004),
       'Connection UI',
       'Initiating connection attempt'
     );
@@ -37,7 +37,7 @@ export class ConnectionAttempt {
 
   cancelConnectionAttempt(): void {
     log.info(
-      mongoLogId(1001000005), // !dupedLogId
+      mongoLogId(1001000005),
       'Connection UI',
       'Canceling connection attempt'
     );

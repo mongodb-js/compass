@@ -245,7 +245,7 @@ export function compassPluginConfig(
   _args: Partial<WebpackCLIArgs>
 ): WebpackConfig[] {
   const args = webpackArgsWithDefaults(_args);
-  const opts = { ...args, outputPath: path.join(args.cwd, 'lib'), hot: true };
+  const opts = { ...args, hot: true };
 
   process.env.NODE_ENV = opts.nodeEnv;
 

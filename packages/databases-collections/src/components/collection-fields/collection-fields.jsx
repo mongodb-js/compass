@@ -39,7 +39,6 @@ function omitEmptyFormFields(obj) {
 export default class CollectionFields extends PureComponent {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired,
     serverVersion: PropTypes.string,
     withDatabase: PropTypes.bool
   }
@@ -113,7 +112,6 @@ export default class CollectionFields extends PureComponent {
 
   render() {
     const {
-      openLink,
       serverVersion,
       withDatabase
     } = this.props;
@@ -163,7 +161,6 @@ export default class CollectionFields extends PureComponent {
         onChangeIsCapped={
           (capped) => this.setState({ isCapped: capped }, this.updateOptions)
         }
-        openLink={openLink}
       />
       <Collation
         collation={collation}
@@ -175,7 +172,6 @@ export default class CollectionFields extends PureComponent {
           this.updateOptions
         )}
         isCustomCollation={isCustomCollation}
-        openLink={openLink}
       />
       {hasTimeSeriesSupport(serverVersion) && (
         <TimeSeriesFields
