@@ -171,8 +171,8 @@ function CSFLETab({
                 Store KMS provider secrets
               </Label>
               <Description>
-                Control whether Compass stores KMS secrets, protected by the OS
-                keychain.
+                Control whether KMS secrets are stored on disk (protected by the
+                OS keychain) or discarded after disconnecting.
               </Description>
             </>
           }
