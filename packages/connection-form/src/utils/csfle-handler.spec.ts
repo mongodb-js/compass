@@ -3,6 +3,7 @@ import { Binary } from 'mongodb';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
 import {
+  handleUpdateCsfleStoreCredentials,
   handleUpdateCsfleKmsParam,
   handleUpdateCsfleParam,
   handleUpdateCsfleKmsTlsParam,
@@ -23,6 +24,36 @@ describe('csfle-handler', function () {
         autoEncryption: {},
       },
     };
+  });
+
+  describe('#handleUpdateCsfleStoreCredentials', function () {
+    it('can set and unset a the CSFLE storeCredentials flag', function () {
+      const withParameterSet = handleUpdateCsfleStoreCredentials({
+        action: {
+          type: 'update-csfle-store-credentials',
+          value: true,
+        },
+        connectionOptions,
+      }).connectionOptions;
+
+      expect(withParameterSet.fleOptions).to.deep.equal({
+        storeCredentials: true,
+        autoEncryption: {},
+      });
+
+      expect(
+        handleUpdateCsfleStoreCredentials({
+          action: {
+            type: 'update-csfle-store-credentials',
+            value: false,
+          },
+          connectionOptions: withParameterSet,
+        }).connectionOptions.fleOptions
+      ).to.deep.equal({
+        storeCredentials: false,
+        autoEncryption: {},
+      });
+    });
   });
 
   describe('#handleUpdateCsfleParam', function () {
