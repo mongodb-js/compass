@@ -17,6 +17,7 @@ const nameStyles = css({
 
 const modifiedStyles = css({
   fontStyle: 'italic',
+  whiteSpace: 'pre-wrap',
 });
 
 type PipelineNameProps = {

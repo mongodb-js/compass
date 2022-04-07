@@ -1,4 +1,9 @@
-import type { AnyError, MongoClient, Document } from 'mongodb';
+import type {
+  AnyError,
+  MongoClient,
+  Document,
+  MongoClientOptions,
+} from 'mongodb';
 import {
   isEnterprise,
   getGenuineMongoDB,
@@ -98,13 +103,13 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
+  isCSFLEConnection: boolean;
 };
 
 export async function getInstance(
   client: MongoClient
-): Promise<InstanceDetails> {
+): Promise<Omit<InstanceDetails, 'isCSFLEConnection'>> {
   const adminDb = client.db('admin');
-
   const [
     connectionStatus,
     getCmdLineOptsResult,
@@ -169,6 +174,17 @@ function checkIsAtlas(
     return /mongodb(-dev)?\.net$/i.test(firstHost);
   }
   return true;
+}
+
+export function checkIsCSFLEConnection(client: {
+  options: MongoClientOptions;
+}): boolean {
+  const kmsProviders = client.options?.autoEncryption?.kmsProviders;
+  return (
+    Object.values(kmsProviders ?? {})
+      .flatMap((kms) => Object.values(kms))
+      .filter(Boolean).length > 0
+  );
 }
 
 function buildGenuineMongoDBInfo(
@@ -255,6 +271,31 @@ export function getPrivilegesByDatabaseAndCollection(
   }
 
   return result;
+}
+
+// Return a list of the databases which have a role matching one of the roles.
+export function getDatabasesByRoles(
+  authenticatedUserRoles:
+    | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+    | null = null,
+  possibleRoles: string[] | null = null
+): string[] {
+  const roles = authenticatedUserRoles ?? [];
+
+  const results = new Set<string>();
+
+  const filteredRoles =
+    possibleRoles && possibleRoles.length > 0
+      ? roles.filter(({ role }) => {
+          return possibleRoles.includes(role);
+        })
+      : roles;
+
+  for (const { db } of filteredRoles) {
+    results.add(db);
+  }
+
+  return [...results];
 }
 
 function isNotAuthorized(err: AnyError) {

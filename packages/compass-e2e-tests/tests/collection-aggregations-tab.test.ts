@@ -4,18 +4,10 @@ import type { Element } from 'webdriverio';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
+import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 
 const { expect } = chai;
-
-// mongodb-runner defaults to stable if the env var isn't there
-const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
-  // semver interprets these suffixes like a prerelease (ie. alpha or rc) and it
-  // is irrelevant for our version comparisons anyway
-  .replace('-community', '')
-  // HACK: comparisons don't allow X-Ranges and 5.x or 5.x.x installs 5.2.1 so
-  // we can't just map it to 5.0.0
-  .replace(/x/g, '999');
 
 async function waitForAnyText(
   browser: CompassBrowser,
@@ -113,6 +105,9 @@ describe('Collection aggregations tab', function () {
     }
     if (semver.gte(MONGODB_VERSION, '5.1.0')) {
       expectedAggregations.push('$densify');
+    }
+    if (semver.gte(MONGODB_VERSION, '5.3.0')) {
+      expectedAggregations.push('$fill');
     }
 
     expectedAggregations.sort();

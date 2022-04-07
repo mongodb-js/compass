@@ -126,8 +126,8 @@ import workspace, {
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
-import { getDirectory } from '../utils/getDirectory';
-import { PipelineStorage } from '../utils/pipelineStorage';
+import { getDirectory } from '../utils/get-directory';
+import { PipelineStorage } from '../utils/pipeline-storage';
 
 import type { Pipeline, Projection } from './pipeline';
 

@@ -1,18 +1,18 @@
 {
   "name": "@mongodb-js/compass-home",
   "productName": "Home plugin",
-  "version": "5.23.0",
+  "version": "5.24.0",
   "apiVersion": "3.0.0",
   "description": "Home",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "exports": {
     "webpack": "./src/index.ts",
-    "require": "./lib/index.js"
+    "require": "./dist/index.js"
   },
   "scripts": {
-    "clean": "rimraf ./lib",
+    "clean": "rimraf ./dist",
     "precompile": "npm run clean",
-    "prewebpack": "rimraf ./lib",
+    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
     "prettier": "prettier",
@@ -33,14 +33,14 @@
   },
   "license": "SSPL",
   "dependencies": {
-    "@mongodb-js/compass-connections": "^0.7.0"
+    "@mongodb-js/compass-connections": "^0.8.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.12.0",
+    "@mongodb-js/compass-components": "^0.13.0",
     "debug": "*",
     "hadron-react-buttons": "^5.7.0",
-    "hadron-react-components": "^5.12.0",
-    "mongodb-data-service": "^21.18.0",
+    "hadron-react-components": "^5.13.0",
+    "mongodb-data-service": "^21.19.0",
     "mongodb-ns": "^2.3.0",
     "react": "^16.14.0",
     "react-bootstrap": "^0.32.1",
@@ -48,12 +48,12 @@
     "react-tooltip": "^3.11.1"
   },
   "devDependencies": {
-    "@mongodb-js/compass-components": "^0.12.0",
+    "@mongodb-js/compass-components": "^0.13.0",
     "@mongodb-js/eslint-config-compass": "^0.7.0",
-    "@mongodb-js/mocha-config-compass": "^0.9.0",
+    "@mongodb-js/mocha-config-compass": "^0.10.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^0.6.0",
-    "@mongodb-js/webpack-config-compass": "^0.6.0",
+    "@mongodb-js/webpack-config-compass": "^0.7.0",
     "@testing-library/react": "^12.0.0",
     "@types/chai": "^4.2.21",
     "chai": "^4.1.2",
@@ -63,12 +63,12 @@
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eventemitter3": "^4.0.0",
-    "hadron-app-registry": "^8.9.0",
+    "hadron-app-registry": "^8.10.0",
     "hadron-ipc": "^2.9.0",
     "hadron-react-buttons": "^5.7.0",
-    "hadron-react-components": "^5.12.0",
+    "hadron-react-components": "^5.13.0",
     "mocha": "^8.4.0",
-    "mongodb-data-service": "^21.18.0",
+    "mongodb-data-service": "^21.19.0",
     "mongodb-ns": "^2.3.0",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",

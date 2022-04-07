@@ -228,6 +228,7 @@ const DatabaseCollection = AmpersandCollection.extend(
       const dbs = await dataService.listDatabases({
         nameOnly: true,
         privileges: instanceModel.auth.privileges,
+        roles: instanceModel.auth.roles
       });
 
       this.set(dbs.map(({ _id, name }) => ({ _id, name })));

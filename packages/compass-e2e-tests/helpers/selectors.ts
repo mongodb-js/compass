@@ -244,8 +244,12 @@ export const FavoriteSaveButton =
 export const CreateDatabaseModal = '[data-testid="create_database_modal"]';
 export const CreateDatabaseDatabaseName = '[data-testid="database-name"]';
 export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
+export const CreateDatabaseErrorMessage =
+  '[data-testid="create_database_modal"] [role="alert"]';
 export const CreateDatabaseCreateButton =
   '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateDatabaseCancelButton =
+  '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 
 // Drop database modal
 export const DropDatabaseModal = '[data-testid="drop_database_modal"]';
@@ -257,8 +261,12 @@ export const DropDatabaseDropButton =
 // Create collection modal
 export const CreateCollectionModal = '[data-testid="create_collection_modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
+export const CreateCollectionErrorMessage =
+  '[data-testid="create_collection_modal"] [role="alert"]';
 export const CreateCollectionCreateButton =
   '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateCollectionCancelButton =
+  '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 export const CreateCollectionCappedCheckboxLabel =
   '[data-testid="capped-collection-fields"] #toggle-capped-collection-fields-label';
 export const CreateCollectionCappedSizeInput =
@@ -394,12 +402,13 @@ export const CollectionTab = '.test-tab-nav-bar-tab';
 export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
-export const DocumentCountValue = '[data-test-id="document-count-value"]';
-export const StorageSizeValue = '[data-test-id="storage-size-value"]';
-export const AvgDocumentSizeValue = '[data-test-id="avg-document-size-value"]';
-export const IndexCountValue = '[data-test-id="index-count-value"]';
-export const TotalIndexSizeValue = '[data-test-id="total-index-size-value"]';
-export const AvgIndexSizeValue = '[data-test-id="avg-index-size-value"]';
+export const DocumentCountValue =
+  '[data-testid="document-count-value-primary"]';
+export const StorageSizeValue = '[data-testid="storage-size-value"]';
+export const AvgDocumentSizeValue = '[data-testid="avg-document-size-value"]';
+export const IndexCountValue = '[data-testid="index-count-value-primary"]';
+export const TotalIndexSizeValue = '[data-testid="total-index-size-value"]';
+export const AvgIndexSizeValue = '[data-testid="avg-index-size-value"]';
 
 export const collectionTab = (tabName: string, selected?: boolean): string => {
   const selector = `${CollectionTab}[name="${tabName}"]`;
@@ -752,8 +761,8 @@ export const queryBarActionsMenu = (tabName: string): string => {
   return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
 };
 
-// Tabs at the top
-export const CloseCollectionTab = '[data-test-id="close-collection-tab"]';
+// Workspace tabs at the top
+export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 
 // Export modal
 export const ExportModal = '[data-test-id="export-modal"]';

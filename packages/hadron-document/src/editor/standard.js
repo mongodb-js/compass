@@ -18,6 +18,7 @@ class StandardEditor {
    */
   constructor(element) {
     this.element = element;
+    this.editing = false;
   }
 
   /**
@@ -71,8 +72,12 @@ class StandardEditor {
   }
 
   // Standard editing requires no special start/complete behaviour.
-  start() {}
-  complete() {}
+  start() {
+    this.editing = true;
+  }
+  complete() {
+    this.editing = false;
+  }
 }
 
 module.exports = StandardEditor;

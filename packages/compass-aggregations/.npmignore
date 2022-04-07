@@ -10,7 +10,7 @@ config/
 electron/
 examples/
 karma.conf.js
-lib/index.html
+dist/index.html
 mocha-webpack.opts
 scripts/**/*
 !scripts/download-akzidenz.js
