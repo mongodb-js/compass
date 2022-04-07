@@ -18,7 +18,7 @@ function loadIntercomScript(
   metadata: IntercomMetadata
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    log.info(mongoLogId(1_001_000_105), 'Intercom', 'Loading intercom script');
+    log.info(mongoLogId(1_001_000_116), 'Intercom', 'Loading intercom script');
 
     const el = document.getElementById(INTERCOM_SCRIPT_ELEM_ID);
     if (el) {
@@ -64,7 +64,7 @@ function loadIntercomScript(
           debug('intercom script injected');
           w.Intercom('boot', metadata);
           log.info(
-            mongoLogId(1_001_000_106),
+            mongoLogId(1_001_000_111),
             'Intercom',
             'Intercom booted with metadata',
             metadata
@@ -85,7 +85,7 @@ function loadIntercomScript(
     }
   }).catch((e) => {
     log.warn(
-      mongoLogId(1_001_000_107),
+      mongoLogId(1_001_000_112),
       'Intercom',
       'Failed to inject intercom script',
       { error: e.message }
@@ -98,7 +98,7 @@ function unloadIntercom(): void {
     const win: any = window;
 
     log.info(
-      mongoLogId(1_001_000_108),
+      mongoLogId(1_001_000_113),
       'Intercom',
       'Unloading intercom script'
     );
@@ -118,10 +118,10 @@ function unloadIntercom(): void {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       el.parentNode!.removeChild(el);
     }
-    log.warn(mongoLogId(1_001_000_109), 'Intercom', 'Intercom script unloaded');
+    log.warn(mongoLogId(1_001_000_114), 'Intercom', 'Intercom script unloaded');
   } catch (e) {
     log.warn(
-      mongoLogId(1_001_000_110),
+      mongoLogId(1_001_000_115),
       'Intercom',
       'Failed to unload intercom script',
       { error: (e as Error)?.message }
