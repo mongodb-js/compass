@@ -122,7 +122,7 @@ class Pipeline extends PureComponent {
     runOutStage: PropTypes.func.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
-    sourceName: PropTypes.string.isRequired,
+    sourceName: PropTypes.string,
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
   };

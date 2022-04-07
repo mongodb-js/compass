@@ -22,9 +22,9 @@ class DocumentPreview extends Component {
   render() {
     if (!this.props.document) {
       return (
-        <div className={classnames(styles['document-preview'])} data-test-id="document-preview">
-          <div className={classnames(styles['document-preview-documents'])}>
-            <div className={classnames(styles['no-documents'])}>
+        <div className={styles['document-preview']} data-test-id="document-preview">
+          <div className={styles['document-preview-documents']}>
+            <div className={styles['no-documents']}>
               <i>No Preview Documents</i>
             </div>
           </div>
@@ -33,12 +33,14 @@ class DocumentPreview extends Component {
     }
 
     return (
-      <div className={classnames(styles['document-preview'])} data-test-id="document-preview">
-        <div className={classnames(styles['document-preview-documents'])}>
-          <Document
-            doc={new HadronDocument(this.props.document)}
-            editable={false}
-            tz="UTC" />
+      <div className={styles['document-preview']} data-test-id="document-preview">
+        <div className={styles['document-preview-documents']}>
+          <div className={styles['document-preview-document-card']}>
+            <Document
+              doc={new HadronDocument(this.props.document)}
+              editable={false}
+            />
+          </div>
         </div>
       </div>
     );

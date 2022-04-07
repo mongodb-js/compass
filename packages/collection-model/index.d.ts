@@ -57,7 +57,7 @@ interface Collection {
     isTimeSeries: boolean;
     sourceName?: string;
     sourceReadonly?: boolean;
-    sourceViewon?: strong;
+    sourceViewon?: string;
     sourcePipeline?: unknown[];
   }>;
   toJSON(opts?: { derived: boolean }): this;

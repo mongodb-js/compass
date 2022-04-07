@@ -273,7 +273,6 @@ DocumentList.propTypes = {
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
-  updateError: PropTypes.string,
   updateJsonDoc: PropTypes.func,
   version: PropTypes.string.isRequired,
   view: PropTypes.string.isRequired,

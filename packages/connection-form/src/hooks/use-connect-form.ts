@@ -39,6 +39,19 @@ import {
   parseAuthMechanismProperties,
   tryToParseConnectionString,
 } from '../utils/connection-string-helpers';
+import {
+  handleUpdateCsfleStoreCredentials,
+  handleUpdateCsfleParam,
+  handleUpdateCsfleKmsParam,
+  handleUpdateCsfleKmsTlsParam,
+  adjustCSFLEParams,
+} from '../utils/csfle-handler';
+import type {
+  UpdateCsfleStoreCredentialsAction,
+  UpdateCsfleAction,
+  UpdateCsfleKmsAction,
+  UpdateCsfleKmsTlsAction,
+} from '../utils/csfle-handler';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -143,7 +156,11 @@ type ConnectionFormFieldActions =
     }
   | {
       type: 'remove-proxy-options';
-    };
+    }
+  | UpdateCsfleStoreCredentialsAction
+  | UpdateCsfleAction
+  | UpdateCsfleKmsAction
+  | UpdateCsfleKmsTlsAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -187,7 +204,9 @@ function buildStateFromConnectionInfo(
       : validateConnectionOptionsWarnings(
           initialConnectionInfo.connectionOptions
         ),
-    connectionOptions: cloneDeep(initialConnectionInfo.connectionOptions),
+    connectionOptions: adjustCSFLEParams(
+      cloneDeep(initialConnectionInfo.connectionOptions)
+    ),
     isDirty: false,
   };
 }
@@ -501,6 +520,30 @@ export function handleConnectionFormFieldUpdate(
         },
       };
     }
+    case 'update-csfle-store-credentials': {
+      return handleUpdateCsfleStoreCredentials({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-csfle-param': {
+      return handleUpdateCsfleParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-csfle-kms-param': {
+      return handleUpdateCsfleKmsParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-csfle-kms-tls-param': {
+      return handleUpdateCsfleKmsTlsParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
   }
 }
 
@@ -620,4 +663,10 @@ function setInitialState({
       setErrors([{ message: connectionErrorMessage }]);
     }
   }, [setErrors, connectionErrorMessage]);
+}
+
+export function adjustConnectionOptionsBeforeConnect(
+  connectionOptions: Readonly<ConnectionOptions>
+): ConnectionOptions {
+  return adjustCSFLEParams(cloneDeep(connectionOptions));
 }
