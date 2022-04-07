@@ -59,6 +59,38 @@ Any transpiler errors that occur will be thrown. To catch them, wrap the
 - __error.column:__ If it is a syntax error, will have the column.
 - __error.symbol:__ If it is a syntax error, will have the symbol associated with the error.
 
+### DeclarationStore
+The motivation for using `DeclarationStore` is to prepend the driver syntax with variable declarations rather than using closures in the CRUD logic.
+
+More specifically, the `DeclarationStore` class maintains state concerning variable declarations in the driver syntax.  Within the context of the symbols template, the use case is to pass the declaration store as a parameter for the `argsTemplate` anonymous function.  For example,
+
+```javascript
+// within the args template
+(arg, declarationStore) => {
+  return declarationStore.add("objectID", (varName) => {
+    return [
+      `${varName}, err := primitive.ObjectIDFromHex(${arg})`,
+      'if err != nil {',
+      '   log.Fatal(err)',
+      '}'
+    ].join('\n')
+  })
+}
+```
+
+Note that each use of the same variable name will result in an incrament being added to the declaration statement. For example, if the variable name `objectID` is used two times the resulting declaration statements will use `objectID` for the first declaration and `objectID2` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `template` function.
+
+The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver syntax for use:
+
+```javascript
+(spec, declarationStore) => {
+  const comment = '// some comment'
+  const client = 'client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(cs.String()))'
+  const declarations = declarationStore.toString()
+  return "#{comment}\n\n#{client}\n\n${declarations}"
+}
+```
+
 ### Errors
 There are a few different error classes thrown by `bson-transpilers`, each with
 their own error code:
