@@ -160,7 +160,9 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
       autoEncryption,
       secretPaths
     );
-    secrets.autoEncryption = _.pick(autoEncryption, secretPaths);
+    if (connectionOptions.fleOptions.storeCredentials) {
+      secrets.autoEncryption = _.pick(autoEncryption, secretPaths);
+    }
   }
 
   return { connectionInfo: connectionInfoWithoutSecrets, secrets };
