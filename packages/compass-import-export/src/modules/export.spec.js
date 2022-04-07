@@ -485,7 +485,7 @@ describe('export [module]', function () {
           progress: 0,
           exportStep: EXPORT_STEP.FILETYPE,
           isFullCollection: false,
-          query: null,
+          query: {},
           error: null,
           fields: {},
           allFields: {},
