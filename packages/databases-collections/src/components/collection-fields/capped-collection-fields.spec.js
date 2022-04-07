@@ -15,10 +15,10 @@ describe('CappedCollectionFields [Component]', () => {
         <CappedCollectionFields
           isTimeSeries
           isCapped={false}
+          isClustered={false}
           onChangeCappedSize={() => {}}
           onChangeIsCapped={() => {}}
-          openLink={() => {}}
-          cappedSize={0}
+          cappedSize={'0'}
         />
       );
     });
@@ -40,10 +40,10 @@ describe('CappedCollectionFields [Component]', () => {
         <CappedCollectionFields
           isTimeSeries={false}
           isCapped
+          isClustered={false}
           onChangeCappedSize={() => {}}
           onChangeIsCapped={() => {}}
-          openLink={() => {}}
-          cappedSize={0}
+          cappedSize={'0'}
         />
       );
     });
@@ -65,10 +65,10 @@ describe('CappedCollectionFields [Component]', () => {
         <CappedCollectionFields
           isTimeSeries={false}
           isCapped={false}
+          isClustered={false}
           onChangeCappedSize={() => {}}
           onChangeIsCapped={() => {}}
-          openLink={() => {}}
-          cappedSize={0}
+          cappedSize={'0'}
         />
       );
     });

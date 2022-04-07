@@ -55,7 +55,7 @@ export default class CollectionFields extends PureComponent {
       databaseName: '',
       timeSeries: {},
       expireAfterSeconds: '',
-      clusteredIndex: { unique: true }
+      clusteredIndex: { unique: true, key: { _id: 1 } }
     }
   };
 
@@ -95,10 +95,8 @@ export default class CollectionFields extends PureComponent {
       ? {
         clusteredIndex: {
           ...fields.clusteredIndex,
-          // leaving it as is should make the command to create the clustered
-          // collection fail because it is a string
-          key: asBSON(fields.clusteredIndex.key) ?? fields.clusteredIndex
-        }
+        },
+        expireAfterSeconds: asNumber(fields.expireAfterSeconds),
       }
       : {};
 
@@ -182,7 +180,7 @@ export default class CollectionFields extends PureComponent {
             { isTimeSeries: newIsTimeSeries },
             this.updateOptions
           )}
-          onChangeTimeSeriesField={(fieldName, value) =>
+          onChangeField={(fieldName, value) =>
             this.setField(fieldName, value)
           }
           timeSeries={timeSeries}
@@ -195,15 +193,15 @@ export default class CollectionFields extends PureComponent {
           isTimeSeries={isTimeSeries}
           isClustered={isClustered}
           clusteredIndex={clusteredIndex}
+          expireAfterSeconds={expireAfterSeconds}
           onChangeIsClustered={(newIsClustered) => this.setState(
             { isClustered: newIsClustered },
             this.updateOptions
           )}
-          onChangeClusteredIndex={(fieldName, value) => {
+          onChangeField={(fieldName, value) => {
             this.setField(fieldName, value);
           }
           }
-          openLink={openLink}
         />
       )}
     </>);

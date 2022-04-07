@@ -1,6 +1,6 @@
 import semver from 'semver';
 
-const MIN_CLUSTERED_COLLECTION_SERVER_VERSION = '5.0.0-alpha0';
+const MIN_CLUSTERED_COLLECTION_SERVER_VERSION = '5.3.0-alpha0';
 
 export default function hasClusteredCollectionSupport(serverVersion) {
   try {

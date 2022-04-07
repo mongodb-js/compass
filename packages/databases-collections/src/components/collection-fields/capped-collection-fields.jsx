@@ -46,8 +46,7 @@ CappedCollectionFields.propTypes = {
   isTimeSeries: PropTypes.bool.isRequired,
   isClustered: PropTypes.bool.isRequired,
   onChangeCappedSize: PropTypes.func.isRequired,
-  onChangeIsCapped: PropTypes.func.isRequired,
-  openLink: PropTypes.func.isRequired
+  onChangeIsCapped: PropTypes.func.isRequired
 };
 
 export default CappedCollectionFields;

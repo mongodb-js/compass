@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput } from '@mongodb-js/compass-components';
 
@@ -7,15 +7,27 @@ import FieldSet from '../field-set/field-set';
 
 const HELP_URL_CLUSTERED = 'https://www.mongodb.com/docs/v5.3/core/clustered-collections/';
 
+const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +
+  'automatic deletion of documents older than the specified number of seconds. ' +
+  '_id must be a date or an array that contains date values.';
+
 function ClusteredCollectionFields({
   isCapped,
   isTimeSeries,
   isClustered,
   clusteredIndex,
   onChangeIsClustered,
-  onChangeClusteredIndex,
-  openLink
+  onChangeField,
+  expireAfterSeconds
 }) {
+  const onInputChange = useCallback(
+    (e) => {
+      const { name, value } = e.currentTarget;
+      onChangeField(name, value);
+    },
+    [onChangeField]
+  );
+
   return (
     <CollapsibleFieldSet
       toggled={isClustered}
@@ -24,20 +36,8 @@ function ClusteredCollectionFields({
       label="Clustered Collection"
       dataTestId="clustered-collection-fields"
       helpUrl={HELP_URL_CLUSTERED}
-      openLink={openLink}
       description="Clustered collections store documents ordered by a user-defined cluster key."
     >
-      <FieldSet>
-        <TextInput
-          value={clusteredIndex.key}
-          label="key"
-          data-testid="clustered-index-key"
-          type="text"
-          description="Cluster key must be { _id: 1 } for replicated collections. May be an arbitrary single-field key on completely unreplicated collections. Implicitly replicated collections must use _id if they replicate deletes."
-          onChange={(e) => onChangeClusteredIndex('clusteredIndex.key', e.target.value)}
-          spellCheck={false}
-        />
-      </FieldSet>
       <FieldSet>
         <TextInput
           value={clusteredIndex.name}
@@ -45,7 +45,20 @@ function ClusteredCollectionFields({
           data-testid="clustered-index-name"
           type="text"
           description="The clustered index name is optional, otherwise automatically generated."
-          onChange={(e) => onChangeClusteredIndex('clusteredIndex.name', e.target.value)}
+          onChange={onInputChange}
+          spellCheck={false}
+        />
+      </FieldSet>
+
+      <FieldSet>
+        <TextInput
+          value={expireAfterSeconds}
+          label="expireAfterSeconds"
+          name="expireAfterSeconds"
+          description={EXPIRE_AFTER_SECONDS_DESCRIPTION}
+          optional
+          type="number"
+          onChange={onInputChange}
           spellCheck={false}
         />
       </FieldSet>
@@ -59,8 +72,8 @@ ClusteredCollectionFields.propTypes = {
   isClustered: PropTypes.bool.isRequired,
   clusteredIndex: PropTypes.object.isRequired,
   onChangeIsClustered: PropTypes.func.isRequired,
-  onChangeClusteredIndex: PropTypes.func.isRequired,
-  openLink: PropTypes.func.isRequired
+  onChangeField: PropTypes.func.isRequired,
+  expireAfterSeconds: PropTypes.string.isRequired,
 };
 
 export default ClusteredCollectionFields;

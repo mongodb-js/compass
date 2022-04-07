@@ -1,6 +1,6 @@
 import semver from 'semver';
 
-const MIN_TIME_SERIES_SERVER_VERSION = '5.3.0-alpha0';
+const MIN_TIME_SERIES_SERVER_VERSION = '5.0.0-alpha0';
 
 export default function hasTimeSeriesSupport(serverVersion) {
   try {

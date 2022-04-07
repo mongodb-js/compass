@@ -34,7 +34,7 @@ function TimeSeriesFields({
   isTimeSeries,
   isClustered,
   onChangeIsTimeSeries,
-  onChangeTimeSeriesField,
+  onChangeField,
   timeSeries,
   expireAfterSeconds
 }) {
@@ -46,10 +46,11 @@ function TimeSeriesFields({
 
   const onInputChange = useCallback(
     (e) => {
+      console.log(e, Object.keys(e));
       const { name, value } = e.currentTarget;
-      onChangeTimeSeriesField(name, value);
+      onChangeField(name, value);
     },
-    [onChangeTimeSeriesField]
+    [onChangeField]
   );
 
   return (
@@ -94,7 +95,7 @@ function TimeSeriesFields({
           name="timeSeries.granularity"
           placeholder="Select a value [optional]"
           description={GRANULARITY_DESCRIPTION}
-          onChange={(val) => onChangeTimeSeriesField('timeSeries.granularity', val)}
+          onChange={(val) => onChangeField('timeSeries.granularity', val)}
           usePortal={false}
           allowDeselect={false}
           value={granularity}
@@ -131,10 +132,9 @@ TimeSeriesFields.propTypes = {
   isTimeSeries: PropTypes.bool.isRequired,
   isClustered: PropTypes.bool.isRequired,
   onChangeIsTimeSeries: PropTypes.func.isRequired,
-  onChangeTimeSeriesField: PropTypes.func.isRequired,
+  onChangeField: PropTypes.func.isRequired,
   timeSeries: PropTypes.object.isRequired,
-  expireAfterSeconds: PropTypes.string.isRequired,
-  openLink: PropTypes.string.isRequired
+  expireAfterSeconds: PropTypes.string.isRequired
 };
 
 export default TimeSeriesFields;
