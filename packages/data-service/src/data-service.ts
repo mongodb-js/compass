@@ -56,7 +56,9 @@ import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
   getPrivilegesByDatabaseAndCollection,
+  checkIsCSFLEConnection,
   getInstance,
+  getDatabasesByRoles,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
@@ -343,6 +345,21 @@ class DataService extends EventEmitter {
     return authenticatedUserPrivileges;
   }
 
+  private async _getRolesOrFallback(
+    roles:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+      | null = null
+  ) {
+    if (roles) {
+      return roles;
+    }
+    const {
+      authInfo: { authenticatedUserRoles },
+    } = await this.connectionStatus();
+
+    return authenticatedUserRoles;
+  }
+
   /**
    * List all collections for a database.
    */
@@ -441,10 +458,14 @@ class DataService extends EventEmitter {
   async listDatabases({
     nameOnly,
     privileges = null,
+    roles = null,
   }: {
     nameOnly?: true;
     privileges?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null;
+    roles?:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
   } = {}): Promise<{ _id: string; name: string }[]> {
     const logop = this._startLogOp(
@@ -499,16 +520,33 @@ class DataService extends EventEmitter {
         .map((name) => ({ name }));
     };
 
+    const getDatabasesFromRoles = async () => {
+      const databases = getDatabasesByRoles(
+        await this._getRolesOrFallback(roles),
+        // https://jira.mongodb.org/browse/HELP-32199
+        // Atlas shared tier MongoDB server version v5+ does not return
+        // `authenticatedUserPrivileges` as part of the `connectionStatus`.
+        // As a workaround we show the databases the user has
+        // certain general built-in roles for.
+        // This does not cover custom user roles which can
+        // have custom privileges that we can't currently fetch.
+        ['read', 'readWrite', 'dbAdmin', 'dbOwner']
+      );
+      return databases.map((name) => ({ name }));
+    };
+
     try {
-      const [listedDatabases, databasesFromPrivileges] = await Promise.all([
-        listDatabases(),
-        getDatabasesFromPrivileges(),
-      ]);
+      const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
+        await Promise.all([
+          listDatabases(),
+          getDatabasesFromPrivileges(),
+          getDatabasesFromRoles(),
+        ]);
 
       const databases = uniqueBy(
         // NB: Order is important, we want listed collections to take precedence
         // if they were fetched successfully
-        [...databasesFromPrivileges, ...listedDatabases],
+        [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
         'name'
       ).map((db) => {
         return { _id: db.name, name: db.name, ...adaptDatabaseInfo(db) };
@@ -1095,7 +1133,13 @@ class DataService extends EventEmitter {
    */
   async instance(): Promise<InstanceDetails> {
     try {
-      const instanceData = await getInstance(this._initializedClient('META'));
+      const instanceData = {
+        ...(await getInstance(this._initializedClient('META'))),
+        // Need to get the CSFLE flag from the CRUD client, not the META one
+        isCSFLEConnection: checkIsCSFLEConnection(
+          this._initializedClient('CRUD')
+        ),
+      };
 
       log.info(
         mongoLogId(1_001_000_024),

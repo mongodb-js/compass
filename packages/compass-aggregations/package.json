@@ -4,16 +4,16 @@
   "version": "8.22.0",
   "apiVersion": "3.0.0",
   "description": "Compass Aggregation Pipeline Builder",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "exports": {
     "webpack": "./src/index.js",
-    "browser": "./lib/browser.js",
-    "require": "./lib/index.js"
+    "browser": "./dist/browser.js",
+    "require": "./dist/index.js"
   },
   "scripts": {
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./lib",
+    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",

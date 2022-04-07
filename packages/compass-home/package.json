@@ -4,15 +4,15 @@
   "version": "5.24.0",
   "apiVersion": "3.0.0",
   "description": "Home",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "exports": {
     "webpack": "./src/index.ts",
-    "require": "./lib/index.js"
+    "require": "./dist/index.js"
   },
   "scripts": {
-    "clean": "rimraf ./lib",
+    "clean": "rimraf ./dist",
     "precompile": "npm run clean",
-    "prewebpack": "rimraf ./lib",
+    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
     "prettier": "prettier",

@@ -2,7 +2,9 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { ConnectionOptions } from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
+import { checkIsCSFLEConnection } from './instance-detail-helper';
 import {
+  getDatabasesByRoles,
   getPrivilegesByDatabaseAndCollection,
   getInstance,
 } from './instance-detail-helper';
@@ -305,7 +307,55 @@ describe('instance-detail-helper', function () {
     });
   });
 
-  describe('#extractPrivilegesByDatabaseAndCollection', function () {
+  describe('#getDatabasesByRoles', function () {
+    it('returns a list of databases matching the roles', function () {
+      const dbs = getDatabasesByRoles(
+        [
+          { db: 'not-test', role: 'write' },
+          { db: 'test', role: 'read' },
+          { db: 'pineapple', role: 'customRole123' },
+          { db: 'pineapple', role: 'customRole12' },
+          { db: 'theater', role: 'dbAdmin' },
+        ],
+        ['read', 'readWrite', 'dbAdmin', 'dbOwner']
+      );
+
+      expect(dbs).to.deep.eq(['test', 'theater']);
+    });
+
+    it('handles an empty list', function () {
+      const dbs = getDatabasesByRoles();
+
+      expect(dbs).to.deep.eq([]);
+    });
+
+    it('handles an empty list with roles', function () {
+      const dbs = getDatabasesByRoles(
+        [],
+        ['read', 'readWrite', 'dbAdmin', 'dbOwner']
+      );
+
+      expect(dbs).to.deep.eq([]);
+    });
+
+    it('does not return a duplicate database entry', function () {
+      const dbs = getDatabasesByRoles(
+        [
+          { db: 'test', role: 'read' },
+          { db: 'pineapple', role: 'customRole123' },
+          { db: 'pineapple', role: 'customRole12' },
+          { db: 'theater', role: 'readWrite' },
+          { db: 'theater', role: 'customRole1' },
+          { db: 'test', role: 'readWrite' },
+        ],
+        ['read', 'readWrite', 'dbAdmin', 'dbOwner']
+      );
+
+      expect(dbs).to.deep.eq(['test', 'theater']);
+    });
+  });
+
+  describe('#getPrivilegesByDatabaseAndCollection', function () {
     it('returns a tree of databases and collections from privileges', function () {
       const dbs = getPrivilegesByDatabaseAndCollection([
         { resource: { db: 'foo', collection: 'bar' }, actions: [] },
@@ -399,6 +449,45 @@ describe('instance-detail-helper', function () {
         foo: { bar: ['find'], barbar: ['find'] },
         buz: { foo: ['insert'] },
       });
+    });
+  });
+
+  describe('#checkIsCSFLEConnection', function () {
+    it('returns whether a KMS provider was configured', function () {
+      expect(checkIsCSFLEConnection({ options: {} })).to.equal(false);
+      expect(
+        checkIsCSFLEConnection({
+          options: {
+            autoEncryption: {
+              keyVaultNamespace: 'asdf',
+            },
+          },
+        })
+      ).to.equal(false);
+      expect(
+        checkIsCSFLEConnection({
+          options: {
+            autoEncryption: {
+              kmsProviders: {
+                aws: {} as any,
+                local: {} as any,
+              },
+            },
+          },
+        })
+      ).to.equal(false);
+      expect(
+        checkIsCSFLEConnection({
+          options: {
+            autoEncryption: {
+              kmsProviders: {
+                aws: {} as any,
+                local: { key: 'data' },
+              },
+            },
+          },
+        })
+      ).to.equal(true);
     });
   });
 });
