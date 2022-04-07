@@ -8,7 +8,17 @@ import type {
 import type { KMSProviderName } from './csfle-kms-fields';
 import queryParser from 'mongodb-query-parser';
 
+const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
+  storeCredentials: false,
+  autoEncryption: {},
+};
+
 type KeysOfUnion<T> = T extends T ? keyof T : never;
+
+export interface UpdateCsfleStoreCredentialsAction {
+  type: 'update-csfle-store-credentials';
+  value: boolean;
+}
 
 export interface UpdateCsfleAction {
   type: 'update-csfle-param';
@@ -29,6 +39,28 @@ export interface UpdateCsfleKmsTlsAction {
   kmsProvider: KMSProviderName;
   key: keyof AutoEncryptionTlsOptions;
   value?: string;
+}
+
+export function handleUpdateCsfleStoreCredentials({
+  action,
+  connectionOptions,
+}: {
+  action: UpdateCsfleStoreCredentialsAction;
+  connectionOptions: ConnectionOptions;
+}): {
+  connectionOptions: ConnectionOptions;
+} {
+  connectionOptions = cloneDeep(connectionOptions);
+  return {
+    connectionOptions: {
+      ...connectionOptions,
+      fleOptions: {
+        ...DEFAULT_FLE_OPTIONS,
+        ...connectionOptions.fleOptions,
+        storeCredentials: action.value,
+      },
+    },
+  };
 }
 
 export function handleUpdateCsfleParam({
@@ -54,7 +86,7 @@ export function handleUpdateCsfleParam({
     connectionOptions: {
       ...connectionOptions,
       fleOptions: {
-        storeCredentials: false,
+        ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
         autoEncryption,
       },
@@ -89,7 +121,7 @@ export function handleUpdateCsfleKmsParam({
     connectionOptions: {
       ...connectionOptions,
       fleOptions: {
-        storeCredentials: false,
+        ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
         autoEncryption: {
           ...autoEncryption,
@@ -128,7 +160,7 @@ export function handleUpdateCsfleKmsTlsParam({
     connectionOptions: {
       ...connectionOptions,
       fleOptions: {
-        storeCredentials: false,
+        ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
         autoEncryption: {
           ...autoEncryption,
