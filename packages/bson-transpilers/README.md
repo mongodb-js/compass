@@ -78,7 +78,7 @@ More specifically, the `DeclarationStore` class maintains state concerning varia
 }
 ```
 
-Note that each use of the same variable name will result in an incrament being added to the declaration statement. For example, if the variable name `objectID` is used two times the resulting declaration statements will use `objectID` for the first declaration and `objectID2` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `template` function.
+Note that each use of the same variable name will result in an incrament being added to the declaration statement. For example, if the variable name `objectID` is used two times the resulting declaration statements will use `objectID` for the first declaration and `objectID1` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `template` function.
 
 The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver syntax for use:
 
