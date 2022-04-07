@@ -77,10 +77,9 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
         trigger={({ children, ...props }) => (
           <span {...props}>
             <div className={collectionStatsBodyStyles}>
-              <DocumentStatsItem
-                isTimeSeries={isTimeSeries}
-                documentCount={documentCount}
-              />
+              {!isTimeSeries && (
+                <DocumentStatsItem documentCount={documentCount} />
+              )}
               {!isTimeSeries && <IndexStatsItem indexCount={indexCount} />}
             </div>
             {children}

@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+import type AppRegistry from 'hadron-app-registry';
+import type { Document } from 'mongodb';
 import { ObjectId } from 'bson';
-import createContext from './context';
 import toNS from 'mongodb-ns';
+
+import createContext from './context';
 
 /**
  * The prefix.
@@ -55,6 +58,29 @@ export const CLEAR_TABS = `${PREFIX}/tabs/CLEAR`;
 export const COLLECTION_DROPPED = `${PREFIX}/tabs/COLLECTION_DROPPED`;
 export const DATABASE_DROPPED = `${PREFIX}/tabs/DATABASE_DROPPED`;
 
+export interface WorkspaceTabObject {
+  id: string;
+  namespace: string;
+  isActive: boolean;
+  activeSubTab: number;
+  activeSubTabName: string;
+  isReadonly: boolean;
+  isTimeSeries: boolean;
+  tabs: string[];
+  views: JSX.Element[];
+  subtab: WorkspaceTabObject;
+  queryHistoryIndexes: number[];
+  statsPlugin: React.FunctionComponent<{ store: any }>;
+  statsStore: any;
+  pipeline: Document[];
+  scopedModals: any[];
+  sourceName: string;
+  editViewName: string;
+  sourceReadonly?: any;
+  sourceViewOn?: string;
+  localAppRegistry: AppRegistry;
+}
+
 /**
  * The initial state.
  */
@@ -77,19 +103,6 @@ const doClearTabs = () => {
 };
 
 /**
- * Tab options.
- * @typedef {Object} CollectionTabOptions
- * @property {String} namespace - The namespace to select.
- * @property {Boolean} isReadonly - If the ns is readonly.
- * @property {Boolean} isTimeSeries - If the ns is a time-series collection.
- * @property {String} sourceName - The ns of the resonly view source.
- * @property {String} editViewName - The name of the view we are editing.
- * @property {String} sourceReadonly
- * @property {String} sourceViewOn
- * @property {String} sourcePipeline
- */
-
-/**
  * Handles namespace selected actions.
  *
  * @param {Object} state - The state.
@@ -98,7 +111,7 @@ const doClearTabs = () => {
  * @returns {Object} The new state.
  */
 const doSelectNamespace = (state: any, action: any) => {
-  return state.reduce((newState: any, tab: any) => {
+  return state.reduce((newState: any, tab: WorkspaceTabObject) => {
     if (tab.isActive) {
       const subTabIndex = action.editViewName ? 1 : 0;
       newState.push({
@@ -139,7 +152,7 @@ const doSelectNamespace = (state: any, action: any) => {
  * @returns {Object} The new state.
  */
 const doCreateTab = (state: any, action: any) => {
-  const newState = state.map((tab: any) => {
+  const newState = state.map((tab: WorkspaceTabObject) => {
     return { ...tab, isActive: false };
   });
 
@@ -186,12 +199,12 @@ const doCreateTab = (state: any, action: any) => {
  */
 const doCloseTab = (state: any, action: any) => {
   const closeIndex = action.index;
-  const activeIndex = state.findIndex((tab: any) => {
+  const activeIndex = state.findIndex((tab: WorkspaceTabObject) => {
     return tab.isActive;
   });
   const numTabs = state.length;
 
-  return state.reduce((newState: any, tab: any, i: number) => {
+  return state.reduce((newState: any, tab: WorkspaceTabObject, i: number) => {
     if (closeIndex !== i) {
       // We follow stnadard browser behaviour with tabs on how we
       // handle which tab gets activated if we close the active tab.
@@ -211,11 +224,11 @@ const doCloseTab = (state: any, action: any) => {
 };
 
 const doCollectionDropped = (state: any, action: any) => {
-  const tabs = state.filter((tab: any) => {
+  const tabs = state.filter((tab: WorkspaceTabObject) => {
     return tab.namespace !== action.namespace;
   });
   if (tabs.length > 0) {
-    if (tabs.findIndex((tab: any) => tab.isActive) < 0) {
+    if (tabs.findIndex((tab: WorkspaceTabObject) => tab.isActive) < 0) {
       tabs[0].isActive = true;
     }
   }
@@ -223,12 +236,12 @@ const doCollectionDropped = (state: any, action: any) => {
 };
 
 const doDatabaseDropped = (state: any, action: any) => {
-  const tabs = state.filter((tab: any) => {
+  const tabs = state.filter((tab: WorkspaceTabObject) => {
     const tabDbName = toNS(tab.namespace).database;
     return tabDbName !== action.name;
   });
   if (tabs.length > 0) {
-    if (tabs.findIndex((tab: any) => tab.isActive) < 0) {
+    if (tabs.findIndex((tab: WorkspaceTabObject) => tab.isActive) < 0) {
       tabs[0].isActive = true;
     }
   }
@@ -245,7 +258,7 @@ const doDatabaseDropped = (state: any, action: any) => {
  */
 const doMoveTab = (state: any, action: any) => {
   if (action.fromIndex === action.toIndex) return state;
-  const newState = state.map((tab: any) => ({ ...tab }));
+  const newState = state.map((tab: WorkspaceTabObject) => ({ ...tab }));
   newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
   return newState;
 };
@@ -258,8 +271,10 @@ const doMoveTab = (state: any, action: any) => {
  * @returns {Object} The new state.
  */
 const doNextTab = (state: any) => {
-  const activeIndex = state.findIndex((tab: any) => tab.isActive);
-  return state.map((tab: any, i: number) => {
+  const activeIndex = state.findIndex(
+    (tab: WorkspaceTabObject) => tab.isActive
+  );
+  return state.map((tab: WorkspaceTabObject, i: number) => {
     return {
       ...tab,
       isActive: isTabAfterNextActive(activeIndex, i, state.length),
@@ -275,8 +290,10 @@ const doNextTab = (state: any) => {
  * @returns {Object} The new state.
  */
 const doPrevTab = (state: any) => {
-  const activeIndex = state.findIndex((tab: any) => tab.isActive);
-  return state.map((tab: any, i: number) => {
+  const activeIndex = state.findIndex(
+    (tab: WorkspaceTabObject) => tab.isActive
+  );
+  return state.map((tab: WorkspaceTabObject, i: number) => {
     return {
       ...tab,
       isActive: isTabAfterPrevActive(activeIndex, i, state.length),
@@ -293,7 +310,7 @@ const doPrevTab = (state: any) => {
  * @returns {Object} The new state.
  */
 const doSelectTab = (state: any, action: any) => {
-  return state.map((tab: any, i: number) => {
+  return state.map((tab: WorkspaceTabObject, i: number) => {
     return { ...tab, isActive: action.index === i ? true : false };
   });
 };
@@ -307,7 +324,7 @@ const doSelectTab = (state: any, action: any) => {
  * @returns {Array} The new state.
  */
 const doChangeActiveSubTab = (state: any, action: any) => {
-  return state.map((tab: any) => {
+  return state.map((tab: WorkspaceTabObject) => {
     const subTab =
       action.id === tab.id ? action.activeSubTab : tab.activeSubTab;
     return {
@@ -591,7 +608,9 @@ export const selectOrCreateTab = ({
     } else {
       // If the namespace is equal to the active tab's namespace, then
       // there is no need to do anything.
-      const activeIndex = state.tabs.findIndex((tab: any) => tab.isActive);
+      const activeIndex = state.tabs.findIndex(
+        (tab: WorkspaceTabObject) => tab.isActive
+      );
       const activeNamespace = state.tabs[activeIndex].namespace;
       if (namespace !== activeNamespace) {
         dispatch(

@@ -19,7 +19,6 @@ const documentStatsItemStyles = css({
 
 type DocumentStatsItemProps = {
   documentCount: string;
-  isTimeSeries?: boolean;
 };
 
 /**
@@ -27,17 +26,14 @@ type DocumentStatsItemProps = {
  */
 const DocumentStatsItem: React.FunctionComponent<DocumentStatsItemProps> = ({
   documentCount,
-  isTimeSeries,
 }: DocumentStatsItemProps) => {
   return (
     <div data-testid="document-stats-item" className={documentStatsItemStyles}>
-      {!isTimeSeries && (
-        <CollectionStatsItem
-          dataTestId="document-count"
-          label="Documents"
-          value={documentCount}
-        />
-      )}
+      <CollectionStatsItem
+        dataTestId="document-count"
+        label="Documents"
+        value={documentCount}
+      />
     </div>
   );
 };

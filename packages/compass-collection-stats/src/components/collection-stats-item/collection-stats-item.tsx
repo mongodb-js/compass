@@ -33,6 +33,7 @@ const lightThemeLabelStyles = css({
 });
 
 const darkThemeValueStyles = css({
+  textTransform: 'lowercase',
   color: uiColors.green.light2,
   display: 'inline-block',
   fontSize: '24px',
@@ -40,6 +41,7 @@ const darkThemeValueStyles = css({
 });
 
 const lightThemeValueStyles = css({
+  textTransform: 'lowercase',
   color: uiColors.green.base,
   display: 'inline-block',
   fontSize: '24px',

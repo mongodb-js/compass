@@ -27,6 +27,7 @@ import isDataLake, {
   INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE,
 } from './is-data-lake';
 import tabs, { INITIAL_STATE as TABS_INITIAL_STATE } from './tabs';
+import type { WorkspaceTabObject } from './tabs';
 
 /**
  * Reset action constant.
@@ -210,7 +211,9 @@ store.onActivated = (appRegistry: AppRegistry) => {
   ipc.on('window:menu-share-schema-json', () => {
     const state = store.getState();
     if (state.tabs) {
-      const activeTab = state.tabs.find((tab: any) => tab.isActive === true);
+      const activeTab = state.tabs.find(
+        (tab: WorkspaceTabObject) => tab.isActive === true
+      );
       if (activeTab.localAppRegistry) {
         activeTab.localAppRegistry.emit('menu-share-schema-json');
       }
@@ -220,7 +223,9 @@ store.onActivated = (appRegistry: AppRegistry) => {
   ipc.on('compass:open-export', () => {
     const state = store.getState();
     if (state.tabs) {
-      const activeTab = state.tabs.find((tab: any) => tab.isActive === true);
+      const activeTab = state.tabs.find(
+        (tab: WorkspaceTabObject) => tab.isActive === true
+      );
       if (activeTab) {
         const crudStore = activeTab.localAppRegistry.getStore('CRUD.Store');
         const { query: crudQuery, count } = crudStore.state;
@@ -237,7 +242,9 @@ store.onActivated = (appRegistry: AppRegistry) => {
   ipc.on('compass:open-import', () => {
     const state = store.getState();
     if (state.tabs) {
-      const activeTab = state.tabs.find((tab: any) => tab.isActive === true);
+      const activeTab = state.tabs.find(
+        (tab: WorkspaceTabObject) => tab.isActive === true
+      );
       if (activeTab) {
         appRegistry.emit('open-import', { namespace: activeTab.namespace });
       }

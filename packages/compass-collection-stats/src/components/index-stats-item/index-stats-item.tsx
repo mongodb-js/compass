@@ -19,14 +19,12 @@ const indexStatsItemStyles = css({
 
 type IndexStatsItemProps = {
   indexCount: string;
-  totalIndexSize: string;
-  avgIndexSize: string;
 };
 
 /**
  * The index stats item component.
  */
-const IndexStatsItem: React.FunctionComponent<any> = ({
+const IndexStatsItem: React.FunctionComponent<IndexStatsItemProps> = ({
   indexCount,
 }: IndexStatsItemProps) => {
   return (

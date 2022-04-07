@@ -21,7 +21,7 @@ export const INITIAL_STATE = '4.0.0';
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: any): any {
+export default function reducer(state = INITIAL_STATE, action: any): string {
   if (action.type === SERVER_VERSION_CHANGED) {
     return action.version || state;
   }

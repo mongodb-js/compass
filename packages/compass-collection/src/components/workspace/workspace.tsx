@@ -14,6 +14,7 @@ import {
   selectTab,
   changeActiveSubTab,
 } from '../../stores/tabs';
+import type { WorkspaceTabObject } from '../../stores/tabs';
 import Collection from '../collection';
 
 const workspaceStyles = css({
@@ -86,7 +87,7 @@ function getIconGlyphForCollectionType(type: string) {
 }
 
 type WorkspaceProps = {
-  tabs: any;
+  tabs: WorkspaceTabObject[];
   closeTab: (index: number) => {
     type: string;
     index: number;
@@ -184,7 +185,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
         }
       } else if (evt.keyCode === KEY_W) {
         this.props.closeTab(
-          this.props.tabs.findIndex((tab: any) => tab.isActive)
+          this.props.tabs.findIndex((tab: WorkspaceTabObject) => tab.isActive)
         );
         if (this.props.tabs.length > 0) {
           evt.preventDefault();
@@ -201,7 +202,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
    * @returns {Object} The active tab.
    */
   activeTab(): any {
-    return this.props.tabs.find((tab: any) => tab.isActive);
+    return this.props.tabs.find((tab: WorkspaceTabObject) => tab.isActive);
   }
 
   /**
@@ -210,7 +211,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
    * @returns {Component} The views.
    */
   renderViews(): React.ReactElement[] {
-    return this.props.tabs.map((tab: any) => {
+    return this.props.tabs.map((tab: WorkspaceTabObject) => {
       const viewTabClass = classnames({
         [workspaceViewTabStyles]: true,
         hidden: !tab.isActive,
@@ -250,7 +251,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
   }
 
   formatCompassComponentsWorkspaceTabs = (): any =>
-    this.props.tabs.map((tab: any) => ({
+    this.props.tabs.map((tab: WorkspaceTabObject) => ({
       title: tab.activeSubTabName,
       subtitle: tab.namespace,
       tabContentId: tab.id,
@@ -266,7 +267,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
    */
   render(): React.ReactElement {
     const selectedTabIndex = this.props.tabs.findIndex(
-      (tab: any) => tab.isActive
+      (tab: WorkspaceTabObject) => tab.isActive
     );
 
     return (

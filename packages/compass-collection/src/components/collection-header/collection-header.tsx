@@ -58,8 +58,8 @@ type CollectionHeaderProps = {
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
-  statsPlugin: React.FunctionComponent<any>;
-  selectOrCreateTab: React.FunctionComponent<any>;
+  statsPlugin: React.FunctionComponent<{ store: any }>;
+  selectOrCreateTab: (options: any) => any;
   statsStore: any;
   sourceName: string;
   sourceReadonly: boolean;

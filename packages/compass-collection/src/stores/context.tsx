@@ -46,7 +46,7 @@ type ContextProps = {
   state?: any;
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
-  statsPlugin?: React.FunctionComponent<any>;
+  statsPlugin?: React.FunctionComponent<{ store: any }>;
   statsStore?: any;
   scopedModals?: any[];
 };
@@ -253,7 +253,7 @@ const createContext = ({
     return semver.gte(serverVersion, role.minimumServerVersion);
   });
 
-  const tabs: any = [];
+  const tabs: any[] = [];
   const views: JSX.Element[] = [];
   const queryHistoryIndexes: number[] = [];
 

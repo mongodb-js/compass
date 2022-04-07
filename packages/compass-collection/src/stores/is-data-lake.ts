@@ -21,7 +21,7 @@ export const INITIAL_STATE = false;
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: any): any {
+export default function reducer(state = INITIAL_STATE, action: any): boolean {
   if (action.type === IS_DATA_LAKE_CHANGED) {
     return action.isDataLake;
   }
