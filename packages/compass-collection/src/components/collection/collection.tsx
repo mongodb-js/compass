@@ -1,7 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
-import type { NS } from 'mongodb-ns';
 import React, { useCallback, useEffect } from 'react';
 import { TabNavBar, css } from '@mongodb-js/compass-components';
 
@@ -33,7 +32,7 @@ const collectionModalContainerStyles = css({
 });
 
 type CollectionProps = {
-  namespace: string | NS;
+  namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
   statsPlugin: React.FunctionComponent<any>;

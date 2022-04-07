@@ -3,7 +3,6 @@ import AppRegistry from 'hadron-app-registry';
 import semver from 'semver';
 import { ErrorBoundary } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { NS } from 'mongodb-ns';
 import type { Document } from 'mongodb';
 
 const { debug } = createLoggerAndTelemetry(
@@ -31,7 +30,7 @@ type ContextProps = {
   globalAppRegistry?: AppRegistry;
   localAppRegistry?: AppRegistry;
   dataService?: any;
-  namespace?: string | NS;
+  namespace?: string;
   serverVersion?: string;
   isReadonly?: boolean;
   isTimeSeries?: boolean;

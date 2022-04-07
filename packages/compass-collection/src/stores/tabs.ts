@@ -2,7 +2,6 @@
 import { ObjectId } from 'bson';
 import createContext from './context';
 import toNS from 'mongodb-ns';
-import type { NS } from 'mongodb-ns';
 
 /**
  * The prefix.
@@ -518,10 +517,10 @@ export const clearTabs = (): {
 });
 
 export const collectionDropped = (
-  namespace: string | NS
+  namespace: string
 ): {
   type: string;
-  namespace: string | NS;
+  namespace: string;
 } => ({
   type: COLLECTION_DROPPED,
   namespace: namespace,

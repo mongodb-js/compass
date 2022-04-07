@@ -3,7 +3,6 @@ import type AppRegistry from 'hadron-app-registry';
 import { css } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import React, { Component } from 'react';
-import type { NS } from 'mongodb-ns';
 import toNS from 'mongodb-ns';
 
 import CollectionHeaderActions from '../collection-header-actions';
@@ -56,7 +55,7 @@ const collectionHeaderTitleCollectionStyles = css({
 
 type CollectionHeaderProps = {
   globalAppRegistry: AppRegistry;
-  namespace: string | NS;
+  namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
   statsPlugin: React.FunctionComponent<any>;
