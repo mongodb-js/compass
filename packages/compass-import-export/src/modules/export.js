@@ -445,17 +445,6 @@ export const startExport = () => {
     if (!isEmpty(exportData.aggregation)) {
       // Start Aggregation export
       const { stages, options } = exportData.aggregation;
-      // // Get Document Fields
-      // const stagesWithLimit = [...stages];
-      // stagesWithLimit.push({ $limit: 1 });
-      // const smallCursor = _getAggregateCursor(dataService, ns, stagesWithLimit, options);
-      // const sampleDocument = await smallCursor.toArray();
-      // if (!sampleDocument) {
-      //   // there are no documents returned by aggregation
-
-      // }
-      // columns = Object.keys(sampleDocument[0]);
-
       // Run aggregation
       columns = true;
       source = _getAggregateCursor(dataService, ns, stages, options);
