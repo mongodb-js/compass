@@ -366,8 +366,8 @@ class ExportModal extends PureComponent {
         ? 'Close'
         : 'Cancel';
     const entityToExport = isEmpty(this.props.aggregation)
-    ? 'Collection'
-    : 'Aggregation from ';
+      ? 'Collection'
+      : 'Aggregation from ';
     return (
       <Modal
         // Because this modal is rendered outside of the
