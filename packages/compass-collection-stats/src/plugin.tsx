@@ -1,4 +1,3 @@
-import { LeafyGreenProvider } from '@mongodb-js/compass-components';
 import React from 'react';
 import type { Store } from 'reflux';
 import { StoreConnector } from 'hadron-react-components';
@@ -27,11 +26,9 @@ const Plugin: React.FunctionComponent<CollectionStatsPluginProps> = (
   props: CollectionStatsPluginProps
 ) => {
   return (
-    <LeafyGreenProvider>
-      <StoreConnector store={props.store}>
-        <CollectionStats {...props} />
-      </StoreConnector>
-    </LeafyGreenProvider>
+    <StoreConnector store={props.store}>
+      <CollectionStats {...props} />
+    </StoreConnector>
   );
 };
 

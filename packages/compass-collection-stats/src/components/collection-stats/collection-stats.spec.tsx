@@ -73,7 +73,7 @@ describe('CollectionStats [Component]', function () {
 
       render(
         <CollectionStats
-          isTimeSeries
+          isTimeSeries={true}
           documentCount=""
           storageSize=""
           avgDocumentSize=""
@@ -84,8 +84,8 @@ describe('CollectionStats [Component]', function () {
       );
     });
 
-    it('renders the document stats', function () {
-      expect(screen.getByTestId('document-stats-item')).to.exist;
+    it('does not render the document stats', function () {
+      expect(screen.queryByTestId('document-stats-item')).to.not.exist;
     });
 
     it('does not render the index stats', function () {
