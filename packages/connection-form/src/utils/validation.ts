@@ -351,7 +351,21 @@ export function validateConnectionOptionsWarnings(
     ...validateDirectConnectionAndMultiHostWarnings(connectionString),
     ...validateTLSAndHostWarnings(connectionString),
     ...validateSocksWarnings(connectionString),
+    ...validateCSFLEWarnings(connectionOptions),
   ];
+}
+
+function validateCSFLEWarnings(
+  connectionOptions: ConnectionOptions
+): ConnectionFormWarning[] {
+  const warnings: ConnectionFormWarning[] = [];
+  if (connectionOptions.fleOptions?.storeCredentials) {
+    warnings.push({
+      message: 'CSFLE KMS provider credentials will be stored to disk.',
+    });
+  }
+
+  return warnings;
 }
 
 function validateCertificateValidationWarnings(

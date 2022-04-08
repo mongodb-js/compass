@@ -40,12 +40,14 @@ import {
   tryToParseConnectionString,
 } from '../utils/connection-string-helpers';
 import {
+  handleUpdateCsfleStoreCredentials,
   handleUpdateCsfleParam,
   handleUpdateCsfleKmsParam,
   handleUpdateCsfleKmsTlsParam,
   adjustCSFLEParams,
 } from '../utils/csfle-handler';
 import type {
+  UpdateCsfleStoreCredentialsAction,
   UpdateCsfleAction,
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
@@ -155,6 +157,7 @@ type ConnectionFormFieldActions =
   | {
       type: 'remove-proxy-options';
     }
+  | UpdateCsfleStoreCredentialsAction
   | UpdateCsfleAction
   | UpdateCsfleKmsAction
   | UpdateCsfleKmsTlsAction;
@@ -516,6 +519,12 @@ export function handleConnectionFormFieldUpdate(
           sshTunnel: undefined,
         },
       };
+    }
+    case 'update-csfle-store-credentials': {
+      return handleUpdateCsfleStoreCredentials({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
     }
     case 'update-csfle-param': {
       return handleUpdateCsfleParam({

@@ -12,9 +12,7 @@
   },
   "types": "./lib/index.d.ts",
   "files": [
-    "lib",
-    "package.json",
-    "README.md"
+    "lib"
   ],
   "scripts": {
     "bootstrap": "npm run compile",

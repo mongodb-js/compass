@@ -4,15 +4,15 @@
   "version": "15.21.0",
   "apiVersion": "3.0.0",
   "description": "Compass Real Time Server Stats Component.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "exports": {
     "webpack": "./src/index.js",
-    "browser": "./lib/browser.js",
-    "require": "./lib/index.js"
+    "browser": "./dist/browser.js",
+    "require": "./dist/index.js"
   },
   "scripts": {
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./lib",
+    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "test": "mocha",
