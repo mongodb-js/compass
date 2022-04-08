@@ -8,7 +8,7 @@ function maybeDecorateWithDecryptedKeys(object, element) {
       // non-enumerable object[DECRYPTED_KEYS] = []
       Object.defineProperty(object, DECRYPTED_KEYS, {
         value: [],
-        wriable: true,
+        writable: true,
         configurable: true,
         enumerable: false
       });

@@ -467,7 +467,7 @@ export const HadronElement: React.FunctionComponent<{
         <div className={elementDivider} role="presentation">
           :&nbsp;
           {
-            /* TODO: figure out exact placement */
+            /* TODO(COMPASS-5706): figure out exact placement */
             value.decrypted && (
               <span
                 data-test-id="hadron-document-element-decrypted-icon"

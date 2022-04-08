@@ -501,6 +501,17 @@ class Element extends EventEmitter {
   /**
    * Determine if the value has been decrypted via CSFLE.
    *
+   * Warning: This does *not* apply to the children of decrypted elements!
+   * This only returns true for the exact field that was decrypted.
+   *
+   * a: Object
+   *  \-- b: Object <- decrypted
+   *      \-- c: number
+   *
+   * a.isValueDecrypted() === false
+   * a.get('b').isValueDecrypted() === true
+   * a.get('b').get('c').isValueDecrypted() === true
+   *
    * @returns {Boolean} If the value was encrypted on the server and is now decrypted.
    */
   isValueDecrypted() {
@@ -511,7 +522,17 @@ class Element extends EventEmitter {
    * Detemine if this value or any of its children were marked
    * as having been decrypted with CSFLE.
    *
-   * Warning: This does *not* apply to the children of these elements!
+   * Warning: This does *not* apply to the children of decrypted elements!
+   * This only returns true for the exact field that was decrypted
+   * and its parents.
+   *
+   * a: Object
+   *  \-- b: Object <- decrypted
+   *      \-- c: number
+   *
+   * a.containsDecryptedChildren() === true
+   * a.get('b').containsDecryptedChildren() === true
+   * a.get('b').get('c').containsDecryptedChildren() === false
    *
    * @returns {Boolean} If any child of this element has been decrypted directly.
    */
