@@ -96,9 +96,8 @@ Templates:
     InSyntaxTemplate: &InSyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             let prefix = '';
-            if (op.includes('!') || op.includes('not')) {
+            if (op.includes('!') || op.includes('not'))
                 prefix = '!';
-            }
             const contains = []
                 .concat(`${prefix}func(elems bson.A, v interface{}) bool {`)
                 .concat('  for _, s := range elems {')
@@ -135,11 +134,11 @@ Templates:
     #############################################
     StringTypeTemplate: &StringTypeTemplate !!js/function >
         (str) => {
-            if (
-                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+            // Double quote stringify
+            const singleQuoted = str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'';
+            const doubleQuoted = str.charAt(0) === '"' && str.charAt(str.length - 1) === '"';
+            if (singleQuoted || doubleQuoted)
                 str = str.substr(1, str.length - 2);
-            }
             return `"${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
         }
     RegexTypeTemplate: &RegexTypeTemplate null
@@ -155,71 +154,88 @@ Templates:
         (literal, depth) => {
             depth++;
             const indent = '\n' + '    '.repeat(depth);
-            if (literal === '') {
+            const closingIndent = '\n' + '    '.repeat(depth - 1);
+            if (literal === '')
               return 'bson.A{}';
-            }
-            return `${indent}bson.A{${literal}${indent}}`;
+            return `bson.A{${literal}${closingIndent}}`;
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate !!js/function >
         (arg, depth, last) => {
             depth++;
-            const indent = '\n' + '    '.repeat(depth+1);
+            const indent = '\n' + '    '.repeat(depth);
             return `${indent}${arg},`;
         }
     NullTypeTemplate: &NullTypeTemplate null # No args
     UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
-        (literal) => `bson.D{${literal}}`
+        (literal) =>  `bson.D{${literal}}`
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args, depth) => {
-            if (args.length === 0) {
+            // If there are no args, then there is nothing for us to format
+            if (args.length === 0)
                 return '{}';
-            }
 
             depth++;
             const indent = '\n' + '    '.repeat(depth);
             const closingIndent = '\n' + '    '.repeat(depth - 1);
+
+            // Indent every line of a string
+            const indentBlock = (string, count = 1, options = {}) => {
+                const {
+                    indent = '    ',
+                    includeEmptyLines = false
+                } = options;
+
+                const regex = includeEmptyLines ? /^/gm : /^(?!\s*$)/gm;
+                return string.replace(regex, indent.repeat(count));
+            }
+
+            // Wrap string in double quotes
             const doubleStringify = (str) => {
-                const newStr = str;
-                if (
-                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+                const singleQuoted = str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'';
+                const doubleQuoted = str.charAt(0) === '"' && str.charAt(str.length - 1) === '"';
+                if (singleQuoted || doubleQuoted)
+                    str = str.substr(1, str.length - 2);
+                return `"${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             }
 
-            const spacedIndent = (subdepth = 0) => '\n' + '    '.repeat(depth + subdepth)
-            const bsonify = (element) => {
-                console.log(`element\n${element}`)
-                const fmt = {
-                    'bson.A': (el) => `${el},${closingIndent}`,
-                    'bson.D': (el) => `${indent}${el},${closingIndent}`,
-                    default: (_el) => ` ${element}`
+            // Check if a string is multiple lines i.e. has a break point
+            const isMultiline = (element) => /\r|\n/.exec(element)
+
+            // Format element by go type
+            const fmt = (element) => {
+                const hash = { multiline: isMultiline(element) };
+                const typeFormatters = {
+                    'bson.A':   (el, hash) => isMultiline(el) ? indentBlock(`${indent}${el},${indent}`) : ` ${el}`,
+                    'bson.D':   (el, hash) => isMultiline(el) ? indentBlock(`${indent}${el},${indent}`) : ` ${el}`,
+                    default:    (el, hash) => isMultiline(el) ? el : ` ${el}`
                 };
-                for (const template in fmt) {
-                    if (element.startsWith(template)) {
-                        return fmt[template](element);
+                hash.el = typeFormatters.default(element);
+                for (const type in typeFormatters)
+                    if (element.startsWith(type)) {
+                        hash.el = typeFormatters[type](element);
+                        break;
                     }
-                }
-                return fmt.default(element)
+                return hash;
             }
 
-            const makeDocument = (rawField, rawValue) => {
-                const field = doubleStringify(rawField);
-                const value = bsonify(rawValue);
-                return `{${field},${value}}`;
+            // Get the {key, value} pair for the bson.D object
+            const getPairs = (args, sep = `,${indent}`) => {
+                const hash = { multiline: false }
+                hash.el = args.map((pair) => {
+                    const fmtPair = fmt(pair[1])
+                    if (!hash.multiline && fmtPair.multiline)
+                        hash.multiline = true
+                    return `{${doubleStringify(pair[0])},${fmtPair.el}}`
+                }).join(sep)
+                return hash
             }
 
-            if (args.length === 1) {
-                return `{${makeDocument(args[0][0], args[0][1])}}`;
-            }
-
-            const pairs = args.map((pair) => {
-                return makeDocument(pair[0], pair[1]);
-            }).join(`,${indent}`);
-
-            return `{${indent}${pairs}${closingIndent}}`
+            const pairs = getPairs(args);
+            const singleLine = args.length <= 1 && !pairs.multiline;
+            const prefix = singleLine ? '' : indent;
+            const suffix = singleLine ? '' : ',' + closingIndent;
+            return `${prefix}${pairs.el}${suffix}`;
         }
 
     #############################################
@@ -242,22 +258,18 @@ Templates:
         () => 'primitive.CodeWithScope'
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (_, code, scope) => {
-            if (code === undefined) {
+            if (code === undefined)
                 return `{}`;
-            }
 
-            // Double quote stringify
-            if (
-                (code.charAt(0) === '\'' && code.charAt(code.length - 1) === '\'') ||
-                (code.charAt(0) === '"' && code.charAt(code.length - 1) === '"')) {
-                code = code.substr(1, code.length - 2);
-            }
-            code = `Code: primitive.JavaScript("${code.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
-
-            if (scope !== undefined) {
+            if (scope !== undefined)
                 scope = `Scope: ${scope}`;
-            }
 
+            const singleQuoted = code.charAt(0) === '\'' && code.charAt(code.length - 1) === '\'';
+            const doubleQuoted = code.charAt(0) === '"' && code.charAt(code.length - 1) === '"';
+            if (singleQuoted || doubleQuoted)
+                code = code.substr(1, code.length - 2);
+
+            code = `Code: primitive.JavaScript("${code.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
             return (scope === undefined) ? `{${code}}` : `{${code}, ${scope}}`;
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
@@ -277,18 +289,15 @@ Templates:
         }
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (_, arg) => {
-            if (arg === undefined || arg === '') {
+            if (arg === undefined || arg === '')
                 return '("")';
-            }
+
             // Double quote stringify
-            let newArg = arg;
-            if (
-                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
-                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
-                newArg = arg.substr(1, arg.length - 2);
-            }
-            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return `(${newArg})`
+            const singleQuoted = arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'';
+            const doubleQuoted = arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"';
+            if (singleQuoted || doubleQuoted)
+                arg = arg.substr(1, arg.length - 2);
+            return `("${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
         }
     BinarySymbolTemplate: &BinarySymbolTemplate null
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
@@ -305,9 +314,8 @@ Templates:
         () => ''
     DoubleSymbolArgsTemplate: &DoubleSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
-            if (!arg) {
-                arg = 0
-            }
+            if (!arg)
+                arg = 0;
             switch(type) {
                 case '_string':
                     return []
@@ -327,9 +335,8 @@ Templates:
         () => ''
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
-            if (!arg) {
+            if (!arg)
                 arg = 0
-            }
             switch(type) {
                 case '_string':
                     return []
@@ -376,22 +383,19 @@ Templates:
         () => 'primitive.Regex'
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (_, pattern, flags) => {
+            // Wrap string in double quotes
             const doubleStringify = (str) => {
-                let newStr = str;
-                if (
-                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+                const singleQuoted = str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'';
+                const doubleQuoted = str.charAt(0) === '"' && str.charAt(str.length - 1) === '"';
+                if (singleQuoted || doubleQuoted)
+                    str = str.substr(1, str.length - 2);
+                return `"${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             }
 
             const structParts = [];
             structParts.push(`Pattern: ${doubleStringify(pattern)}`);
-            if (flags) {
+            if (flags)
                 structParts.push(`Options: ${doubleStringify(flags)}`);
-            }
-
             return `(${structParts.join(", ")})`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
@@ -408,19 +412,15 @@ Templates:
         }
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (_, arg) => {
-            if (!arg) {
+            if (!arg)
                 arg = '"0"';
-            }
 
             // Double quote stringify
-            let newArg = arg;
-            if (
-                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
-                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')) {
-                newArg = arg.substr(1, arg.length - 2);
-            }
-            newArg = `"${newArg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return `(${newArg})`
+            const singleQuoted = arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'';
+            const doubleQuoted = arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"';
+            if (singleQuoted || doubleQuoted)
+                arg = arg.substr(1, arg.length - 2);
+            return `("${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
         () => 'primitive.MinKey'
@@ -447,9 +447,8 @@ Templates:
         () => 'time.Date'
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
         (lhs, date, isString) => {
-            if (date === null) {
+            if (date === null)
                 return `${lhs}.Now()`;
-            }
 
             const dateStr = [
                 date.getUTCFullYear(),

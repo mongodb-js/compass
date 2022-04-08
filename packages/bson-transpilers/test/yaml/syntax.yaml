@@ -182,7 +182,7 @@ tests:
             }(bson.A{
                 1,
                 2,
-              }, 4)
+            }, 4)
     - input:
           python: "4 not in [1, 2]"
       output:
@@ -204,7 +204,7 @@ tests:
             }(bson.A{
                 1,
                 2,
-              }, 4)
+            }, 4)
     comments:
     - input:
           javascript: "1 // a comment"
