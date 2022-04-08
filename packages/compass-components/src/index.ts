@@ -34,6 +34,9 @@ export {
 export { Checkbox } from './components/checkbox';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
+import Box from '@leafygreen-ui/box';
+export { Box };
+
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassFontSizes from './compass-font-sizes';
 export * as compassUIColors from './compass-ui-colors';

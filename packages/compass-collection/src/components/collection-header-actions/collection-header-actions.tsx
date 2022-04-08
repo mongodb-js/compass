@@ -1,4 +1,9 @@
-import { Button, ButtonSize, css } from '@mongodb-js/compass-components';
+import {
+  Button,
+  ButtonSize,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import React from 'react';
 
 import ViewInformation from './view-information';
@@ -10,9 +15,9 @@ const collectionHeaderActionsStyles = css({
 });
 
 const collectionHeaderActionsReadonlyStyles = css({
-  margin: '0px 8px',
+  margin: `0px ${spacing[1]}px`,
   marginLeft: 'auto',
-  fontSize: '16px',
+  fontSize: spacing[3],
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',

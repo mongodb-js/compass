@@ -1,6 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import type AppRegistry from 'hadron-app-registry';
-import { css } from '@mongodb-js/compass-components';
+import {
+  css,
+  uiColors,
+  withTheme,
+  Box,
+  spacing,
+} from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import React, { Component } from 'react';
 import toNS from 'mongodb-ns';
@@ -11,7 +17,7 @@ import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
 
 const collectionHeaderStyles = css({
-  paddingTop: '15px',
+  paddingTop: spacing[3],
   paddingBottom: '5px',
   minHeight: '64px',
 });
@@ -21,20 +27,20 @@ const collectionHeaderNamespaceStyles = css({
 });
 
 const collectionHeaderTitleStyles = css({
-  fontSize: '24px',
+  fontSize: spacing[4],
   fontWeight: 'normal',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   display: 'flex',
-  paddingLeft: '15px',
-  paddingRight: '15px',
+  paddingLeft: spacing[3],
+  paddingRight: spacing[3],
   margin: 0,
-  lineHeight: '32px',
+  lineHeight: `${spacing[5]}px`,
   alignItems: 'center',
 });
 
-const collectionHeaderTitleDBStyles = css({
-  color: ' #337ab7',
+const collectionHeaderTitleDBLightStyles = css({
+  color: uiColors.green.base,
   flexShrink: 2,
   flexBasis: 'auto',
   overflow: 'hidden',
@@ -47,7 +53,30 @@ const collectionHeaderTitleDBStyles = css({
   },
 });
 
-const collectionHeaderTitleCollectionStyles = css({
+const collectionHeaderTitleDBDarkStyles = css({
+  color: uiColors.green.light2,
+  flexShrink: 2,
+  flexBasis: 'auto',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  cursor: 'pointer',
+  textDecoration: 'none',
+  '&:hover,&:focus': {
+    textDecoration: 'underline',
+  },
+});
+
+const collectionHeaderTitleCollectionLightStyles = css({
+  color: uiColors.gray.dark1,
+  flexBasis: 'auto',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+const collectionHeaderTitleCollectionDarkStyles = css({
+  color: uiColors.gray.light1,
   flexBasis: 'auto',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -55,6 +84,7 @@ const collectionHeaderTitleCollectionStyles = css({
 });
 
 type CollectionHeaderProps = {
+  darkMode?: boolean;
   globalAppRegistry: AppRegistry;
   namespace: string;
   isReadonly: boolean;
@@ -133,18 +163,25 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             data-testid="collection-header-namespace"
             className={collectionHeaderNamespaceStyles}
           >
-            <a
-              data-testid="collection-header-title-db"
-              className={collectionHeaderTitleDBStyles}
+            <Box
+              data-test-id="collection-header-title-db"
+              className={
+                this.props.darkMode
+                  ? collectionHeaderTitleDBDarkStyles
+                  : collectionHeaderTitleDBLightStyles
+              }
               onClick={() => this.handleDBClick(database)}
-              href="#"
             >
               {database}
-            </a>
+            </Box>
             <span>.</span>
             <span
               data-testid="collection-header-title-collection"
-              className={collectionHeaderTitleCollectionStyles}
+              className={
+                this.props.darkMode
+                  ? collectionHeaderTitleCollectionDarkStyles
+                  : collectionHeaderTitleCollectionLightStyles
+              }
             >
               {collection}
             </span>
@@ -165,4 +202,4 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
   }
 }
 
-export default CollectionHeader;
+export default withTheme(CollectionHeader);

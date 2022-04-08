@@ -1,8 +1,13 @@
-import { Badge, BadgeVariant, css } from '@mongodb-js/compass-components';
+import {
+  Badge,
+  BadgeVariant,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import React from 'react';
 
 const collectionHeaderBadgeStyles = css({
-  marginLeft: '8px',
+  marginLeft: spacing[2],
 });
 
 const ReadOnlyBadge = (): React.ReactElement => (

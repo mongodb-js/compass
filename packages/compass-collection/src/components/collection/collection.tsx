@@ -2,7 +2,12 @@ import type AppRegistry from 'hadron-app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 import React, { useCallback, useEffect } from 'react';
-import { TabNavBar, css } from '@mongodb-js/compass-components';
+import {
+  TabNavBar,
+  css,
+  withTheme,
+  uiColors,
+} from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
 
@@ -12,11 +17,20 @@ function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
 }
 
-const collectionStyles = css({
+const collectionLightStyles = css({
   display: 'flex',
   alignItems: 'stretch',
   height: '100%',
   width: '100%',
+  background: uiColors.white,
+});
+
+const collectionDarkStyles = css({
+  display: 'flex',
+  alignItems: 'stretch',
+  height: '100%',
+  width: '100%',
+  backgroundColor: uiColors.gray.dark3,
 });
 
 const collectionContainerStyles = css({
@@ -32,6 +46,7 @@ const collectionModalContainerStyles = css({
 });
 
 type CollectionProps = {
+  darkMode?: boolean;
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
@@ -62,6 +77,7 @@ type CollectionProps = {
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
+  darkMode,
   namespace,
   isReadonly,
   isTimeSeries,
@@ -89,7 +105,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
         name: trackingIdForTabName(tabs[activeSubTab] || 'Unknown'),
       });
     }
-  }, []);
+  });
 
   const onSubTabClicked = useCallback(
     (idx, name) => {
@@ -105,6 +121,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
       changeActiveSubTab(idx, id);
     },
     [
+      id,
       activeSubTab,
       queryHistoryIndexes,
       localAppRegistry,
@@ -114,7 +131,10 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 
   return (
-    <div className={collectionStyles} data-testid="collection">
+    <div
+      className={darkMode ? collectionDarkStyles : collectionLightStyles}
+      data-testid="collection"
+    >
       <div className={collectionContainerStyles}>
         <CollectionHeader
           globalAppRegistry={globalAppRegistry}
@@ -154,4 +174,4 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 };
 
-export default Collection;
+export default withTheme(Collection);

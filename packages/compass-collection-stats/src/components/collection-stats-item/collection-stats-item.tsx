@@ -18,40 +18,41 @@ const collectionStatsItemStyles = css({
 
 const darkThemeLabelStyles = css({
   textTransform: 'uppercase',
-  fontSize: '10px',
-  fontWeight: 'bold',
+  color: uiColors.gray.light1,
   display: 'inline-block',
-  color: uiColors.gray.base,
+  fontWeight: 'bold',
+  fontSize: spacing[2] * 1.5,
+  lineHeight: `${spacing[3]}px`,
 });
 
 const lightThemeLabelStyles = css({
   textTransform: 'uppercase',
-  fontSize: '10px',
-  fontWeight: 'bold',
+  color: uiColors.gray.dark1,
   display: 'inline-block',
-  color: uiColors.gray.dark2,
+  fontSize: spacing[2] * 1.5,
+  lineHeight: `${spacing[3]}px`,
 });
 
 const darkThemeValueStyles = css({
   textTransform: 'lowercase',
   color: uiColors.green.light2,
   display: 'inline-block',
-  fontSize: '24px',
-  lineHeight: '24px',
+  fontSize: spacing[4],
+  lineHeight: `${spacing[5]}px`,
 });
 
 const lightThemeValueStyles = css({
   textTransform: 'lowercase',
   color: uiColors.green.base,
   display: 'inline-block',
-  fontSize: '24px',
-  lineHeight: '24px',
+  fontSize: spacing[4],
+  lineHeight: `${spacing[5]}px`,
 });
 
 type CollectionStatsItemProps = {
   darkMode?: boolean;
   label: string;
-  value: any;
+  value: string;
   dataTestId: string;
 };
 
