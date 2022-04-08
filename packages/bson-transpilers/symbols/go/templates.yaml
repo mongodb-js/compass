@@ -154,39 +154,31 @@ Templates:
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal, depth) => {
             depth++;
-            const closingIndent = '\n' + '  '.repeat(depth);
-
-
+            const indent = '\n' + '    '.repeat(depth);
             if (literal === '') {
               return 'bson.A{}';
             }
-
-            return `bson.A{${literal}${closingIndent}}`;
+            return `${indent}bson.A{${literal}${indent}}`;
         }
     ArrayTypeArgsTemplate: &ArrayTypeArgsTemplate !!js/function >
         (arg, depth, last) => {
             depth++;
-            const indent = '\n' + '    '.repeat(depth);
+            const indent = '\n' + '    '.repeat(depth+1);
             return `${indent}${arg},`;
         }
     NullTypeTemplate: &NullTypeTemplate null # No args
     UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
-        (literal) => {
-            if (literal === '') {
-                return 'bson.D{}'
-            }
-            return literal;
-        }
+        (literal) => `bson.D{${literal}}`
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args, depth) => {
             if (args.length === 0) {
-                return 'bson.D{}';
+                return '{}';
             }
+
             depth++;
             const indent = '\n' + '    '.repeat(depth);
             const closingIndent = '\n' + '    '.repeat(depth - 1);
-
             const doubleStringify = (str) => {
                 const newStr = str;
                 if (
@@ -197,31 +189,37 @@ Templates:
                 return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             }
 
+            const spacedIndent = (subdepth = 0) => '\n' + '    '.repeat(depth + subdepth)
             const bsonify = (element) => {
-                const prefixMap = {
-                    "bson.A": `${element},${closingIndent}`
+                console.log(`element\n${element}`)
+                const fmt = {
+                    'bson.A': (el) => `${el},${closingIndent}`,
+                    'bson.D': (el) => `${indent}${el},${closingIndent}`,
+                    default: (_el) => ` ${element}`
                 };
-
-                for (const prefix in prefixMap) {
-                    if (element.startsWith(prefix)) {
-                        return `${prefixMap[prefix]}`;
+                for (const template in fmt) {
+                    if (element.startsWith(template)) {
+                        return fmt[template](element);
                     }
                 }
-
-                return element;
+                return fmt.default(element)
             }
 
             const makeDocument = (rawField, rawValue) => {
                 const field = doubleStringify(rawField);
                 const value = bsonify(rawValue);
-                return `bson.D{{${field}, ${value}}}`;
+                return `{${field},${value}}`;
             }
 
             if (args.length === 1) {
-              return makeDocument(args[0][0], args[0][1]);
+                return `{${makeDocument(args[0][0], args[0][1])}}`;
             }
 
-            return "meep";
+            const pairs = args.map((pair) => {
+                return makeDocument(pair[0], pair[1]);
+            }).join(`,${indent}`);
+
+            return `{${indent}${pairs}${closingIndent}}`
         }
 
     #############################################

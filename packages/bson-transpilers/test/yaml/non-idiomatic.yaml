@@ -8,113 +8,156 @@ runner: !!js/function >
     }
 tests:
     all:
-    - description: "{x: 1}"
-      input:
-          javascript: "{x: 1}"
-          shell: "{x: 1}"
-          python: "{'x': 1}"
-      output:
-          java: new Document("x", 1L)
-          object: "{x: 1}"
-    - description: Doc with trailing comma
-      input:
-          javascript: "{x: 'x',}"
-          shell: "{x: 'x'}"
-          python: "{'x': 'x'}"
-      output:
-          java: new Document("x", "x")
-          object: "{x: 'x',}"
-    - description: Doc with array
-      input:
-          javascript: "{x: ['x', 'y']}"
-          shell: "{x: ['x', 'y']}"
-          python: "{'x': ['x', 'y']}"
-      output:
-          java: new Document("x", Arrays.asList("x", "y"))
-          object: "{x: ['x', 'y']}"
-    - description: Doc with subdoc
-      input:
-          javascript: "{x: {y: 'x'}}"
-          shell: "{x: {y: 'x'}}"
-          python: "{'x': {'y': 'x'}}"
-      output:
-          java: new Document("x", new Document("y", "x"))
-          object: "{x: {y: 'x'}}"
-    - description: Empty object
-      input:
-          javascript: "{}"
-          shell: "{}"
-          python: "{}"
-      output:
-          java: new Document()
-          object: "{}"
-    - description: Two items in document
-      input:
-          javascript: "{x: 'x', n: '4'}"
-          shell: "{x: 'x', n: '4'}"
-          python: "{'x': 'x', 'n': '4'}"
-      output:
-          java: |-
-              new Document("x", "x")
-                  .append("n", "4")
-          object: "{x: 'x', n: '4'}"
-    - description: nested document
-      input:
-          javascript: "{ graphLookup : { 'from' : 'raw_data', 'startWith' : '$_id', 'connectFromField'
-        : '_id', 'connectToField' : 'manager', 'as' : 'reports' } }"
-          shell: "{ graphLookup : { 'from' : 'raw_data', 'startWith' : '$_id', 'connectFromField'
-        : '_id', 'connectToField' : 'manager', 'as' : 'reports' } }"
-          python: "{ 'graphLookup': { 'from': 'raw_data', 'startWith': '$_id', 'connectFromField':
-        '_id', 'connectToField': 'manager', 'as': 'reports' } }"
-      output:
-          java: |-
-              new Document("graphLookup", new Document("from", "raw_data")
-                      .append("startWith", "$_id")
-                      .append("connectFromField", "_id")
-                      .append("connectToField", "manager")
-                      .append("as", "reports"))
-          object: "{ graphLookup : { 'from' : 'raw_data', 'startWith' : '$_id', 'connectFromField'
-        : '_id', 'connectToField' : 'manager', 'as' : 'reports' } }"
+    # - description: "{x: 1}"
+    #   input:
+    #       javascript: "{x: 1}"
+    #       shell: "{x: 1}"
+    #       python: "{'x': 1}"
+    #   output:
+    #       java: new Document("x", 1L)
+    #       object: "{x: 1}"
+    #       go: bson.D{{"x", 1}}
+    # - description: Doc with trailing comma
+    #   input:
+    #       javascript: "{x: 'x',}"
+    #       shell: "{x: 'x'}"
+    #       python: "{'x': 'x'}"
+    #   output:
+    #       java: new Document("x", "x")
+    #       object: "{x: 'x',}"
+    #       go: bson.D{{"x", "x"}}
+    # - description: Doc with array
+    #   input:
+    #       javascript: "{x: ['x', 'y']}"
+    #       shell: "{x: ['x', 'y']}"
+    #       python: "{'x': ['x', 'y']}"
+    #   output:
+    #       java: new Document("x", Arrays.asList("x", "y"))
+    #       object: "{x: ['x', 'y']}"
+    #       go: |-
+    #         bson.D{{"x",
+    #             bson.A{
+    #                 "x",
+    #                 "y",
+    #             },
+    #         }}
+    # - description: Doc with subdoc
+    #   input:
+    #       javascript: "{x: {y: 'x'}}"
+    #       shell: "{x: {y: 'x'}}"
+    #       python: "{'x': {'y': 'x'}}"
+    #   output:
+    #       java: new Document("x", new Document("y", "x"))
+    #       object: "{x: {y: 'x'}}"
+    #       go: |-
+    #           bson.D{{"x",
+    #               bson.D{{"y", "x"}},
+    #           }}
+    # - description: Empty object
+    #   input:
+    #       javascript: "{}"
+    #       shell: "{}"
+    #       python: "{}"
+    #   output:
+    #       java: new Document()
+    #       object: "{}"
+    #       go: bson.D{{}}
+    # - description: Two items in document
+    #   input:
+    #       javascript: "{x: 'x', n: '4'}"
+    #       shell: "{x: 'x', n: '4'}"
+    #       python: "{'x': 'x', 'n': '4'}"
+    #   output:
+    #       java: |-
+    #           new Document("x", "x")
+    #               .append("n", "4")
+    #       object: "{x: 'x', n: '4'}"
+    #       go: |-
+    #           bson.D{{
+    #               { "x", "x" },
+    #               { "n", "4" },
+    #           }}
+    # - description: nested document
+    #   input:
+    #       javascript: "{ graphLookup : { 'from' : 'raw_data', 'startWith' : '$_id', 'connectFromField'
+    #     : '_id', 'connectToField' : 'manager', 'as' : 'reports' } }"
+    #       shell: "{ graphLookup : { 'from' : 'raw_data', 'startWith' : '$_id', 'connectFromField'
+    #     : '_id', 'connectToField' : 'manager', 'as' : 'reports' } }"
+    #       python: "{ 'graphLookup': { 'from': 'raw_data', 'startWith': '$_id', 'connectFromField':
+    #     '_id', 'connectToField': 'manager', 'as': 'reports' } }"
+    #   output:
+    #       java: |-
+    #           new Document("graphLookup", new Document("from", "raw_data")
+    #                   .append("startWith", "$_id")
+    #                   .append("connectFromField", "_id")
+    #                   .append("connectToField", "manager")
+    #                   .append("as", "reports"))
+    #       object: "{ graphLookup : { 'from' : 'raw_data', 'startWith' : '$_id', 'connectFromField'
+    #     : '_id', 'connectToField' : 'manager', 'as' : 'reports' } }"
+    #       go: |-
+    #           bson.D{{"graphLookup",
+    #               bson.D{{
+    #                   { "from", "raw_data" },
+    #                   { "startWith", "$_id" },
+    #                   { "connectFromField", "_id" },
+    #                   { "connectToField", "manager" },
+    #                   { "as", "reports" },
+    #               }},
+    #           }}
     - description: nested document with array
       input:
           javascript: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p'
         } }] }"
-          shell: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' }
-        }] }"
-          python: "{ 'status': 'A', '$or': [{ 'qty': { '$lt': 30 } }, { 'item': { '$regex':
-        '^p' } }] }"
+        #   shell: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' }
+        # }] }"
+        #   python: "{ 'status': 'A', '$or': [{ 'qty': { '$lt': 30 } }, { 'item': { '$regex':
+        # '^p' } }] }"
       output:
           java: "new Document(\"status\", \"A\")\n    .append(\"$or\", Arrays.asList(new
         Document(\"qty\", \n        new Document(\"$lt\", 30L)), \n        new Document(\"item\",
         \n        new Document(\"$regex\", \"^p\"))))"
           object: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p'
         } }] }"
-    - description: Array with subdoc
-      input:
-          javascript: "['x', { settings: 'http2' }]"
-          shell: "['x', { settings: 'http2' }]"
-          python: "['x', { 'settings': 'http2' }]"
-      output:
-          java: "Arrays.asList(\"x\", \n    new Document(\"settings\", \"http2\"))"
-          object: "['x', { settings: 'http2' }]"
-    - description: nested array with nested subdoc
-      input:
-          javascript: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me'
-        ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
-        job_code: 1 } } ]}"
-          shell: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me' ] }
-        } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
-        job_code: 1 } } ]}"
-          python: "{'pipeline': [ { '$match': { '$expr': { '$eq': [ '$manager', '$$me'
-        ] } } }, { '$project': { 'managers': 0 } }, { '$sort': { 'startQuarter': 1,
-        'notes':1, 'job_code': 1 } } ]}"
-      output:
-          java: "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", \n
-        \       new Document(\"$expr\", \n        new Document(\"$eq\", Arrays.asList(\"$manager\",
-        \"$$me\")))), \n        new Document(\"$project\", \n        new Document(\"managers\",
-        0L)), \n        new Document(\"$sort\", \n        new Document(\"startQuarter\",
-        1L)\n                .append(\"notes\", 1L)\n                .append(\"job_code\",
-        1L))))"
-          object: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me'
-        ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
-        job_code: 1 } } ]}"
+          go: |-
+                bson.D{
+                    {"status", "A"},
+                    {"$or",
+                        bson.A{
+                            bson.D{{"qty",
+                                bson.D{{"$lt", 30}},
+                            }},
+                            bson.D{{"item",
+                                bson.D{{"$regex", "^p"}},
+                            }},
+                        },
+                    },
+                }
+    # - description: Array with subdoc
+    #   input:
+    #       javascript: "['x', { settings: 'http2' }]"
+    #       shell: "['x', { settings: 'http2' }]"
+    #       python: "['x', { 'settings': 'http2' }]"
+    #   output:
+    #       java: "Arrays.asList(\"x\", \n    new Document(\"settings\", \"http2\"))"
+    #       object: "['x', { settings: 'http2' }]"
+    # - description: nested array with nested subdoc
+    #   input:
+    #       javascript: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me'
+    #     ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
+    #     job_code: 1 } } ]}"
+    #       shell: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me' ] }
+    #     } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
+    #     job_code: 1 } } ]}"
+    #       python: "{'pipeline': [ { '$match': { '$expr': { '$eq': [ '$manager', '$$me'
+    #     ] } } }, { '$project': { 'managers': 0 } }, { '$sort': { 'startQuarter': 1,
+    #     'notes':1, 'job_code': 1 } } ]}"
+    #   output:
+    #       java: "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", \n
+    #     \       new Document(\"$expr\", \n        new Document(\"$eq\", Arrays.asList(\"$manager\",
+    #     \"$$me\")))), \n        new Document(\"$project\", \n        new Document(\"managers\",
+    #     0L)), \n        new Document(\"$sort\", \n        new Document(\"startQuarter\",
+    #     1L)\n                .append(\"notes\", 1L)\n                .append(\"job_code\",
+    #     1L))))"
+    #       object: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me'
+    #     ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
+    #     job_code: 1 } } ]}"
