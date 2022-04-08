@@ -17,7 +17,7 @@ class DeclarationStore {
    */
   add(varRoot, declaration) {
     const varName = this.next(varRoot);
-    const data = {varName: varName, declaration: declaration(varName) };
+    const data = { varName: varName, declaration: declaration(varName) };
     this.store.push(data);
     return data.varName;
   }
