@@ -51,4 +51,47 @@ describe('Collection heading', function () {
     const indexCountValueElement = await browser.$(Selectors.IndexCountValue);
     expect(await indexCountValueElement.getText()).to.equal('1');
   });
+
+  it('shows tooltip with storage sizes on hover stats', async function () {
+    await browser.hover(Selectors.DocumentCountValue);
+
+    const collectionStatsTooltip = await browser.$(
+      Selectors.CollectionStatsTooltip
+    );
+    await collectionStatsTooltip.waitForDisplayed();
+
+    const tooltipDocumentsCountValue = await browser.$(
+      Selectors.TooltipDocumentsCountValue
+    );
+    expect(await tooltipDocumentsCountValue.getText()).to.equal(
+      'Documents: 1k'
+    );
+
+    const tooltipDocumentsStorageSize = await browser.$(
+      Selectors.TooltipDocumentsStorageSize
+    );
+    expect(await tooltipDocumentsStorageSize.getText()).to.equal(
+      'Storage Size: 4.1KB'
+    );
+
+    const tooltipDocumentsAvgSize = await browser.$(
+      Selectors.TooltipDocumentsAvgSize
+    );
+    expect(await tooltipDocumentsAvgSize.getText()).to.equal('Avg. Size: 36B');
+
+    const tooltipIndexesCount = await browser.$(Selectors.TooltipIndexesCount);
+    expect(await tooltipIndexesCount.getText()).to.equal('Indexes: 1');
+
+    const tooltipIndexesTotalSize = await browser.$(
+      Selectors.TooltipIndexesTotalSize
+    );
+    expect(await tooltipIndexesTotalSize.getText()).to.equal(
+      'Total Size: 4.1KB'
+    );
+
+    const tooltipIndexesAvgSize = await browser.$(
+      Selectors.TooltipIndexesAvgSize
+    );
+    expect(await tooltipIndexesAvgSize.getText()).to.equal('Avg. Size: 4.1KB');
+  });
 });

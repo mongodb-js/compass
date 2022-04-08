@@ -70,6 +70,7 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
   return (
     <div data-testid="collection-stats" className={collectionStatsStyles}>
       <Tooltip
+        data-testid="collection-stats-tooltip"
         darkMode
         align="left"
         justify="middle"
@@ -88,20 +89,41 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
       >
         <div>
           <ol className={tooltipDocumentsListStyles}>
-            <li key="tooltip-documents">Documents: {documentCount}</li>
-            <li key="tooltip-documents-storage-size">
+            <li
+              data-testid="tooltip-documents-count"
+              key="tooltip-documents-count"
+            >
+              Documents: {documentCount}
+            </li>
+            <li
+              data-testid="tooltip-documents-storage-size"
+              key="tooltip-documents-storage-size"
+            >
               Storage Size: {storageSize}
             </li>
-            <li key="tooltip-documents-avg-size">
+            <li
+              data-testid="tooltip-documents-avg-size"
+              key="tooltip-documents-avg-size"
+            >
               Avg. Size: {avgDocumentSize}
             </li>
           </ol>
           <ol className={tooltipIndexeListStyles}>
-            <li key="tooltip-indexes">Indexes: {indexCount}</li>
-            <li key="tooltip-indexes-total-size">
+            <li data-testid="tooltip-indexes-count" key="tooltip-indexes-count">
+              Indexes: {indexCount}
+            </li>
+            <li
+              data-testid="tooltip-indexes-total-size"
+              key="tooltip-indexes-total-size"
+            >
               Total Size: {totalIndexSize}
             </li>
-            <li key="tooltip-indexes-avg-size">Avg. Size: {avgIndexSize}</li>
+            <li
+              data-testid="tooltip-indexes-avg-size"
+              key="tooltip-indexes-avg-size"
+            >
+              Avg. Size: {avgIndexSize}
+            </li>
           </ol>
         </div>
       </Tooltip>
