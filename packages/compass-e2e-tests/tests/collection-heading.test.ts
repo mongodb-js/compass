@@ -53,6 +53,9 @@ describe('Collection heading', function () {
   });
 
   it('shows tooltip with storage sizes on hover stats', async function () {
+    const documentCountValue = await browser.$(Selectors.DocumentCountValue);
+    await documentCountValue.waitForDisplayed();
+
     await browser.hover(Selectors.DocumentCountValue);
 
     const collectionStatsTooltip = await browser.$(
@@ -63,35 +66,31 @@ describe('Collection heading', function () {
     const tooltipDocumentsCountValue = await browser.$(
       Selectors.TooltipDocumentsCountValue
     );
-    expect(await tooltipDocumentsCountValue.getText()).to.equal(
-      'Documents: 1k'
-    );
+    expect(await tooltipDocumentsCountValue.getText()).to.include('Documents');
 
     const tooltipDocumentsStorageSize = await browser.$(
       Selectors.TooltipDocumentsStorageSize
     );
-    expect(await tooltipDocumentsStorageSize.getText()).to.equal(
-      'Storage Size: 4.1KB'
+    expect(await tooltipDocumentsStorageSize.getText()).to.include(
+      'Storage Size'
     );
 
     const tooltipDocumentsAvgSize = await browser.$(
       Selectors.TooltipDocumentsAvgSize
     );
-    expect(await tooltipDocumentsAvgSize.getText()).to.equal('Avg. Size: 36B');
+    expect(await tooltipDocumentsAvgSize.getText()).to.include('Avg. Size');
 
     const tooltipIndexesCount = await browser.$(Selectors.TooltipIndexesCount);
-    expect(await tooltipIndexesCount.getText()).to.equal('Indexes: 1');
+    expect(await tooltipIndexesCount.getText()).to.include('Indexes');
 
     const tooltipIndexesTotalSize = await browser.$(
       Selectors.TooltipIndexesTotalSize
     );
-    expect(await tooltipIndexesTotalSize.getText()).to.equal(
-      'Total Size: 4.1KB'
-    );
+    expect(await tooltipIndexesTotalSize.getText()).to.include('Total Size');
 
     const tooltipIndexesAvgSize = await browser.$(
       Selectors.TooltipIndexesAvgSize
     );
-    expect(await tooltipIndexesAvgSize.getText()).to.equal('Avg. Size: 4.1KB');
+    expect(await tooltipIndexesAvgSize.getText()).to.include('Avg. Size');
   });
 });
