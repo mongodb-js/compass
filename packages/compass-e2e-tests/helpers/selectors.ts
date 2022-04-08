@@ -403,11 +403,7 @@ export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
 export const DocumentCountValue = '[data-testid="document-count-value"]';
-export const StorageSizeValue = '[data-testid="storage-size-value"]';
-export const AvgDocumentSizeValue = '[data-testid="avg-document-size-value"]';
 export const IndexCountValue = '[data-testid="index-count-value"]';
-export const TotalIndexSizeValue = '[data-testid="total-index-size-value"]';
-export const AvgIndexSizeValue = '[data-testid="avg-index-size-value"]';
 
 export const collectionTab = (tabName: string, selected?: boolean): string => {
   const selector = `${CollectionTab}[name="${tabName}"]`;

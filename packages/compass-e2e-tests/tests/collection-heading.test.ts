@@ -50,23 +50,5 @@ describe('Collection heading', function () {
     expect(await documentCountValueElement.getText()).to.match(/1(\.0)?k/);
     const indexCountValueElement = await browser.$(Selectors.IndexCountValue);
     expect(await indexCountValueElement.getText()).to.equal('1');
-
-    // all of these unfortunately differ slightly between different versions of mongodb
-    const totalDocumentSizeValueElement = await browser.$(
-      Selectors.StorageSizeValue
-    );
-    expect(await totalDocumentSizeValueElement.getText()).to.include('KB');
-    const avgDocumentSizeValueElement = await browser.$(
-      Selectors.AvgDocumentSizeValue
-    );
-    expect(await avgDocumentSizeValueElement.getText()).to.include('B');
-    const totalIndexSizeValueElement = await browser.$(
-      Selectors.TotalIndexSizeValue
-    );
-    expect(await totalIndexSizeValueElement.getText()).to.include('KB');
-    const avgIndexSizeValueElement = await browser.$(
-      Selectors.AvgIndexSizeValue
-    );
-    expect(await avgIndexSizeValueElement.getText()).to.include('KB');
   });
 });
