@@ -129,7 +129,7 @@
     "start": "npm run webpack serve -- --mode development",
     "test-electron": "npm run test-main && npm run test-renderer",
     "test-main": "xvfb-maybe electron-mocha --no-sandbox \"./src/main/**/*.spec.*\"  \"./src/main/**/*.test.*\"",
-    "test-renderer": "xvfb-maybe electron-mocha --no-sandbox --config ./.mocharc.renderer.js \"./src/app/**/*.spec.js\"",
+    "test-renderer": "xvfb-maybe electron-mocha --no-sandbox --config ./.mocharc.renderer.js \"./src/app/**/*.spec.*\"",
     "check": "npm run lint && npm run depcheck",
     "prewebpack": "rimraf ./build",
     "webpack": "webpack-compass",
