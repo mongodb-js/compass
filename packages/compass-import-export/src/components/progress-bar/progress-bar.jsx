@@ -45,7 +45,7 @@ class ProgressBar extends PureComponent {
       if (isAggregation) {
         return formattedWritten;
       }
-      return `${formattedWritten}\u00A0/\u00A0${formattedTotal}`
+      return `${formattedWritten}\u00A0/\u00A0${formattedTotal}`;
     },
     progressTitle(formattedWritten, formattedTotal, isAggregation) {
       if (isAggregation) {
