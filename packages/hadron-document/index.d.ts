@@ -96,6 +96,7 @@ declare class HadronElement extends EventEmitter {
   isRemovable(): boolean;
   isNotActionable(): boolean;
   isValueEditable(): boolean;
+  isValueDecrypted(): boolean;
   isParentEditable(): boolean;
   isKeyEditable(): boolean;
   isModified(): boolean;
@@ -152,6 +153,7 @@ declare class HadronDocument extends EventEmitter {
 export declare class Editor {
   constructor(element: HadronElement);
   element: HadronElement;
+  type: HadronElement['type'];
   edit(value: unknown): void;
   paste(value: string): void;
   size(): number;

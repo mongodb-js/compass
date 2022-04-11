@@ -92,6 +92,7 @@ export const KeyEditor: React.FunctionComponent<{
                   onChange={(evt) => {
                     onChange(evt.currentTarget.value);
                   }}
+                  // See ./element.tsx
                   // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus={autoFocus}
                   className={cx(
@@ -236,6 +237,7 @@ export const ValueEditor: React.FunctionComponent<{
                       }}
                       onFocus={onFocus}
                       onBlur={onBlur}
+                      // See ./element.tsx
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus={autoFocus}
                       className={cx(
@@ -259,6 +261,7 @@ export const ValueEditor: React.FunctionComponent<{
                     }}
                     onFocus={onFocus}
                     onBlur={onBlur}
+                    // See ./element.tsx
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus={autoFocus}
                     className={cx(
@@ -319,10 +322,11 @@ const typeEditorActive = css({
 
 export const TypeEditor: React.FunctionComponent<{
   editing?: boolean;
+  autoFocus?: boolean;
   type: HadronElementType['type'];
   onChange(newVal: HadronElementType['type']): void;
   visuallyActive?: boolean;
-}> = ({ editing, type, onChange, visuallyActive }) => {
+}> = ({ editing, autoFocus, type, onChange, visuallyActive }) => {
   return (
     <>
       {editing && (
@@ -332,6 +336,9 @@ export const TypeEditor: React.FunctionComponent<{
         <select
           value={type}
           data-testid="hadron-document-type-editor"
+          // See ./element.tsx
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus={autoFocus}
           onChange={(evt) => {
             onChange(evt.currentTarget.value as HadronElementType['type']);
           }}

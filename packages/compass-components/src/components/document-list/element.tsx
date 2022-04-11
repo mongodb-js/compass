@@ -5,8 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { Icon, css, cx, uiColors } from '../../index';
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
@@ -41,20 +40,14 @@ function getEditorByType(type: HadronElementType['type']) {
 function useElementEditor(el: HadronElementType) {
   const editor = useRef<EditorType | null>(null);
 
-  if (!editor.current) {
+  if (
+    !editor.current ||
+    editor.current?.element !== el ||
+    editor.current?.type !== el.currentType
+  ) {
     const Editor = getEditorByType(el.currentType);
     editor.current = new Editor(el);
   }
-
-  useEffect(() => {
-    if (
-      editor.current?.element.uuid !== el.uuid ||
-      editor.current?.element.currentType !== el.currentType
-    ) {
-      const Editor = getEditorByType(el.currentType);
-      editor.current = new Editor(el);
-    }
-  }, [el, el.uuid, el.currentType]);
 
   return editor.current;
 }
@@ -137,6 +130,7 @@ function useHadronElement(el: HadronElementType) {
         el.isValueEditable() &&
         el.currentType !== 'Object' &&
         el.currentType !== 'Array',
+      decrypted: el.isValueDecrypted(),
       valid: isValid,
       validationMessage: !isValid ? el.invalidTypeMessage ?? null : null,
       startEdit: editor.start.bind(editor),
@@ -291,7 +285,7 @@ export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
   editingEnabled: boolean;
-  onEditStart?: (id: string, field: 'key' | 'value') => void;
+  onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
   allExpanded: boolean;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
@@ -466,6 +460,17 @@ export const HadronElement: React.FunctionComponent<{
         </div>
         <div className={elementDivider} role="presentation">
           :&nbsp;
+          {
+            /* TODO(COMPASS-5706): figure out exact placement */
+            value.decrypted && (
+              <span
+                data-test-id="hadron-document-element-decrypted-icon"
+                title="Encrypted with CSFLE"
+              >
+                <Icon glyph="Key" size="small" />
+              </span>
+            )
+          }
         </div>
         <div
           className={elementValue}
@@ -496,10 +501,23 @@ export const HadronElement: React.FunctionComponent<{
               }}
             ></ValueEditor>
           ) : (
-            <BSONValue
-              type={type.value as any}
-              value={value.originalValue}
-            ></BSONValue>
+            <div
+              data-testid={
+                editable && !editingEnabled
+                  ? 'hadron-document-clickable-value'
+                  : undefined
+              }
+              onDoubleClick={() => {
+                if (editable && !editingEnabled) {
+                  onEditStart?.(element.uuid, 'type');
+                }
+              }}
+            >
+              <BSONValue
+                type={type.value as any}
+                value={value.originalValue}
+              ></BSONValue>
+            </div>
           )}
         </div>
         {editable && (
@@ -510,6 +528,9 @@ export const HadronElement: React.FunctionComponent<{
             <TypeEditor
               editing={editingEnabled}
               type={type.value}
+              // See above
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus={autoFocus?.id === id && autoFocus.type === 'type'}
               onChange={(newType) => {
                 type.change(newType);
               }}
