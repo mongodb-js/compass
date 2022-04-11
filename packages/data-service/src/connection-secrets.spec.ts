@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { expect } from 'chai';
 import type { ConnectionInfo } from './connection-info';
 import type { ConnectionSecrets } from './connection-secrets';
@@ -301,6 +302,24 @@ describe('connection secrets', function () {
           },
         },
       } as ConnectionSecrets);
+
+      const { connectionInfo: newConnectionInfoNoFle, secrets: secretsNoFle } =
+        extractSecrets(
+          _.set(
+            _.cloneDeep(originalConnectionInfo),
+            'connectionOptions.fleOptions.storeCredentials',
+            false
+          )
+        );
+
+      expect(newConnectionInfoNoFle).to.deep.equal(
+        _.set(
+          _.cloneDeep(newConnectionInfo),
+          'connectionOptions.fleOptions.storeCredentials',
+          false
+        )
+      );
+      expect(secretsNoFle).to.deep.equal(_.omit(secrets, 'autoEncryption'));
     });
   });
 });
