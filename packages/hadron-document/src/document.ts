@@ -27,8 +27,8 @@ export class Document extends EventEmitter {
   cloned: boolean;
   isUpdatable: boolean;
   elements: LinkedList;
-  type: 'Document' | 'Array';
-  currentType: 'Document' | 'Array';
+  type: 'Document';
+  currentType: 'Document';
 
   /**
    * Send cancel event.
@@ -166,10 +166,7 @@ export class Document extends EventEmitter {
     if (!path) {
       return undefined;
     }
-    let element =
-      this.currentType === 'Array'
-        ? this.elements.at(path[0] as number)
-        : this.elements.get(path[0] as string);
+    let element = this.elements.get(path[0] as string);
     let i = 1;
     while (i < path.length) {
       if (element === undefined) {
