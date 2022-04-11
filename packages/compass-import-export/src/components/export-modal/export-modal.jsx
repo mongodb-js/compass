@@ -67,7 +67,7 @@ class ExportModal extends PureComponent {
     fileType: PropTypes.string,
     fileName: PropTypes.string,
     ns: PropTypes.string.isRequired,
-    query: PropTypes.object.isRequired,
+    query: PropTypes.object,
     status: PropTypes.string.isRequired,
     fields: PropTypes.object.isRequired,
     exportedDocsCount: PropTypes.number,
@@ -390,7 +390,7 @@ class ExportModal extends PureComponent {
           )}
         </Modal.Body>
         <Modal.Footer>
-          {this.props.isAggregation ? '' : this.renderBackButton()}
+          {!this.props.isAggregation && this.renderBackButton()}
           <TextButton
             dataTestId={`${closeButton.toLowerCase()}-button`}
             text={closeButton}

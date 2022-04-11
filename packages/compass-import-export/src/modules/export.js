@@ -1,6 +1,7 @@
 /* eslint-disable valid-jsdoc */
 import fs from 'fs';
 import { promisify } from 'util';
+import { isEmpty } from 'lodash';
 
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
@@ -57,7 +58,7 @@ export const INITIAL_STATE = {
   exportStep: EXPORT_STEP.QUERY,
   isFullCollection: false,
   progress: 0,
-  query: FULL_QUERY,
+  query: null,
   error: null,
   fields: {},
   allFields: {},
@@ -130,7 +131,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     const newState = {
       ...INITIAL_STATE,
       count: action.count,
-      query: action.query,
+      query: action.query || null,
       aggregation: action.aggregation || null,
       isOpen: true,
     };
@@ -288,7 +289,7 @@ export const onModalOpen = ({ namespace, count, query, aggregation }) => ({
   type: ON_MODAL_OPEN,
   namespace,
   count,
-  query: query || {},
+  query,
   aggregation,
 });
 
@@ -382,8 +383,11 @@ export const openExport = ({
       dataService: { dataService },
     } = getState();
     try {
-      const count =
-        maybeCount ?? (await fetchDocumentCount(dataService, namespace, query));
+      let count = maybeCount;
+      if (!isEmpty(query)) {
+        count =
+          count ?? (await fetchDocumentCount(dataService, namespace, query));
+      }
 
       dispatch(nsChanged(namespace));
       dispatch(onModalOpen({ namespace, query, count, aggregation }));
@@ -391,6 +395,13 @@ export const openExport = ({
       dispatch(onError(e));
     }
   };
+};
+
+const getQuery = (query, isFullCollection) => {
+  if (isFullCollection || !query) {
+    return FULL_QUERY;
+  }
+  return query;
 };
 
 export const sampleFields = () => {
@@ -401,9 +412,7 @@ export const sampleFields = () => {
       dataService: { dataService },
     } = getState();
 
-    const spec = exportData.isFullCollection
-      ? { filter: {} }
-      : exportData.query;
+    const spec = getQuery(exportData.query, exportData.isFullCollection);
 
     try {
       const allFields = await loadFields(dataService, ns, {
@@ -557,7 +566,7 @@ const getQueryExportSource = async (
   count,
   isFullCollection
 ) => {
-  const spec = isFullCollection ? { filter: {} } : query;
+  const spec = getQuery(query, isFullCollection);
   const numDocsToExport = isFullCollection
     ? await fetchDocumentCount(dataService, ns, spec)
     : count;
