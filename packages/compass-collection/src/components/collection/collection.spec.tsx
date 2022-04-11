@@ -6,12 +6,17 @@ import { spy } from 'sinon';
 
 import Collection from '../collection';
 
+const STATS = {
+  documentCount: 'N/A',
+  storageSize: 'N/A',
+  avgDocumentSize: 'N/A',
+  indexCount: 'N/A',
+  totalIndexSize: 'N/A',
+  avgIndexSize: 'N/A',
+};
+
 describe('Collection [Component]', function () {
   let changeSubTabSpy;
-  const statsPlugin = () => {
-    return <div />;
-  };
-  const statsStore = {};
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
   const selectOrCreateTabSpy = spy();
@@ -28,8 +33,6 @@ describe('Collection [Component]', function () {
         views={[]}
         queryHistoryIndexes={[]}
         globalAppRegistry={globalAppRegistry}
-        statsPlugin={statsPlugin}
-        statsStore={statsStore}
         scopedModals={[]}
         localAppRegistry={localAppRegistry}
         activeSubTab={0}
@@ -39,6 +42,7 @@ describe('Collection [Component]', function () {
         selectOrCreateTab={selectOrCreateTabSpy}
         sourceReadonly={sourceReadonly}
         pipeline={[]}
+        stats={STATS}
       />
     );
   });

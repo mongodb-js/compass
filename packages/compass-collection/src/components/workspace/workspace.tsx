@@ -13,8 +13,8 @@ import {
   moveTab,
   selectTab,
   changeActiveSubTab,
-} from '../../stores/tabs';
-import type { WorkspaceTabObject } from '../../stores/tabs';
+} from '../../modules/tabs';
+import type { WorkspaceTabObject } from '../../modules/tabs';
 import Collection from '../collection';
 
 const workspaceStyles = css({
@@ -236,14 +236,13 @@ class Workspace extends PureComponent<WorkspaceProps> {
             views={tab.views}
             scopedModals={tab.scopedModals}
             queryHistoryIndexes={tab.queryHistoryIndexes}
-            statsPlugin={tab.statsPlugin}
-            statsStore={tab.statsStore}
             activeSubTab={tab.activeSubTab}
             pipeline={tab.pipeline}
             changeActiveSubTab={this.props.changeActiveSubTab}
             selectOrCreateTab={this.props.selectOrCreateTab}
             globalAppRegistry={this.props.appRegistry}
             localAppRegistry={tab.localAppRegistry}
+            stats={tab.stats}
           />
         </div>
       );

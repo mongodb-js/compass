@@ -7,13 +7,17 @@ import userEvent from '@testing-library/user-event';
 
 import CollectionHeader from '../collection-header';
 
-describe('CollectionHeader [Component]', function () {
-  const statsPlugin = () => {
-    return <div />;
-  };
+const STATS = {
+  documentCount: 'N/A',
+  storageSize: 'N/A',
+  avgDocumentSize: 'N/A',
+  indexCount: 'N/A',
+  totalIndexSize: 'N/A',
+  avgIndexSize: 'N/A',
+};
 
+describe('CollectionHeader [Component]', function () {
   context('when the collection is not readonly', function () {
-    const statsStore = {};
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
 
@@ -24,12 +28,11 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS}
         />
       );
     });
@@ -66,7 +69,6 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is readonly', function () {
-    const statsStore = {};
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
 
@@ -77,12 +79,11 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={false}
           globalAppRegistry={globalAppRegistry}
           sourceName="orig.coll"
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS}
         />
       );
     });
@@ -117,7 +118,6 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is readonly but not a view', function () {
-    const statsStore = {};
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
 
@@ -128,12 +128,11 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS}
         />
       );
     });
@@ -154,7 +153,6 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is a time-series collection', function () {
-    const statsStore = {};
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
 
@@ -165,12 +163,11 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={true}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS}
         />
       );
     });
@@ -192,7 +189,6 @@ describe('CollectionHeader [Component]', function () {
 
   context('when the db name is clicked', function () {
     it('emits the open event to the app registry', function () {
-      const statsStore = {};
       const selectOrCreateTabSpy = spy();
 
       let emmittedEventName;
@@ -211,12 +207,11 @@ describe('CollectionHeader [Component]', function () {
             } as AppRegistry
           }
           sourceName="orig.coll"
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS}
         />
       );
 

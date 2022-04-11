@@ -50,8 +50,6 @@ type CollectionProps = {
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
-  statsPlugin: React.FunctionComponent<{ store: any }>;
-  statsStore: any;
   editViewName?: string;
   sourceReadonly: boolean;
   sourceViewOn?: string;
@@ -74,31 +72,41 @@ type CollectionProps = {
     id: string;
   };
   scopedModals: any[];
+  stats: {
+    documentCount: string;
+    storageSize: string;
+    avgDocumentSize: string;
+    indexCount: string;
+    totalIndexSize: string;
+    avgIndexSize: string;
+  };
 };
 
-const Collection: React.FunctionComponent<CollectionProps> = ({
-  darkMode,
-  namespace,
-  isReadonly,
-  isTimeSeries,
-  statsPlugin,
-  statsStore,
-  editViewName,
-  sourceReadonly,
-  sourceViewOn,
-  selectOrCreateTab,
-  pipeline,
-  sourceName,
-  activeSubTab,
-  id,
-  queryHistoryIndexes,
-  tabs,
-  views,
-  localAppRegistry,
-  globalAppRegistry,
-  changeActiveSubTab,
-  scopedModals,
-}: CollectionProps) => {
+const Collection: React.FunctionComponent<CollectionProps> = (
+  props: CollectionProps
+) => {
+  const {
+    darkMode,
+    namespace,
+    isReadonly,
+    isTimeSeries,
+    editViewName,
+    sourceReadonly,
+    sourceViewOn,
+    selectOrCreateTab,
+    pipeline,
+    sourceName,
+    activeSubTab,
+    id,
+    queryHistoryIndexes,
+    tabs,
+    views,
+    localAppRegistry,
+    globalAppRegistry,
+    changeActiveSubTab,
+    scopedModals,
+    stats,
+  } = props;
   useEffect(() => {
     if (tabs && tabs.length > 0) {
       track('Screen', {
@@ -141,14 +149,13 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           namespace={namespace}
           isReadonly={isReadonly}
           isTimeSeries={isTimeSeries}
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           editViewName={editViewName}
           sourceReadonly={sourceReadonly}
           sourceViewOn={sourceViewOn}
           selectOrCreateTab={selectOrCreateTab}
           pipeline={pipeline}
           sourceName={sourceName}
+          stats={stats}
         />
         <TabNavBar
           data-test-id="collection-tabs"
@@ -160,7 +167,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           mountAllViews
         />
       </div>
-
       <div className={collectionModalContainerStyles}>
         {scopedModals.map((modal: any) => (
           <modal.component

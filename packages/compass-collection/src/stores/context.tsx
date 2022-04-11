@@ -41,14 +41,12 @@ type ContextProps = {
   sourcePipeline?: Document[];
   query?: any;
   aggregation?: any;
-  isEditing?: boolean;
   key?: number;
   state?: any;
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
-  statsPlugin?: React.FunctionComponent<{ store: any }>;
-  statsStore?: any;
   scopedModals?: any[];
+  stats?: any;
 };
 
 /**
@@ -85,6 +83,7 @@ const setupStore = ({
   sourcePipeline,
   query,
   aggregation,
+  stats,
 }: ContextProps) => {
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
@@ -104,6 +103,7 @@ const setupStore = ({
     sourcePipeline: sourcePipeline,
     query,
     aggregation,
+    stats,
   });
   localAppRegistry?.registerStore(role.storeName, store);
 
@@ -240,6 +240,7 @@ const createContext = ({
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = state.appRegistry;
   const roles = globalAppRegistry.getRole('Collection.Tab') || [];
+  const stats = state.stats;
 
   // Filter roles for feature support in the server.
   const filteredRoles = roles.filter((role: any) => {
@@ -300,6 +301,7 @@ const createContext = ({
       sourcePipeline,
       query,
       aggregation,
+      stats,
     });
 
     // Add the tab.
@@ -329,23 +331,6 @@ const createContext = ({
     );
   });
 
-  const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
-  const statsPlugin = statsRole.component;
-  const statsStore = setupStore({
-    role: statsRole,
-    globalAppRegistry,
-    localAppRegistry,
-    dataService: state.dataService,
-    namespace,
-    serverVersion,
-    isReadonly,
-    isTimeSeries,
-    sourceName,
-    actions: {},
-    allowWrites: !isDataLake,
-    isEditing: Boolean(editViewName),
-  });
-
   // Setup the scoped modals
   const scopedModals = setupScopedModals({
     globalAppRegistry,
@@ -371,11 +356,10 @@ const createContext = ({
     tabs,
     views,
     queryHistoryIndexes,
-    statsPlugin,
-    statsStore,
     scopedModals,
     localAppRegistry,
     sourcePipeline,
+    stats,
   };
 };
 

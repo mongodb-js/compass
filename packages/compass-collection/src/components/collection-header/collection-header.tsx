@@ -15,11 +15,12 @@ import CollectionHeaderActions from '../collection-header-actions';
 import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
+import CollectionStats from '../collection-stats';
 
 const collectionHeaderStyles = css({
   paddingTop: spacing[3],
-  paddingBottom: '5px',
-  minHeight: '64px',
+  paddingBottom: spacing[1],
+  minHeight: spacing[6] + spacing[1],
 });
 
 const collectionHeaderNamespaceStyles = css({
@@ -89,14 +90,20 @@ type CollectionHeaderProps = {
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
-  statsPlugin: React.FunctionComponent<{ store: any }>;
   selectOrCreateTab: (options: any) => any;
-  statsStore: any;
   sourceName: string;
   sourceReadonly: boolean;
   sourceViewOn?: string;
   editViewName?: string;
   pipeline: Document[];
+  stats: {
+    documentCount: string;
+    storageSize: string;
+    avgDocumentSize: string;
+    indexCount: string;
+    totalIndexSize: string;
+    avgIndexSize: string;
+  };
 };
 
 class CollectionHeader extends Component<CollectionHeaderProps> {
@@ -133,15 +140,6 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
   };
 
   /**
-   * Render the stats.
-   *
-   * @returns {Component} The component.
-   */
-  renderStats(): React.ReactElement {
-    return <this.props.statsPlugin store={this.props.statsStore} />;
-  }
-
-  /**
    * Render CollectionHeader component.
    *
    * @returns {React.Component} The rendered component.
@@ -153,7 +151,12 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
 
     return (
       <div className={collectionHeaderStyles} data-testid="collection-header">
-        {!this.props.isReadonly && this.renderStats()}
+        {!this.props.isReadonly && (
+          <CollectionStats
+            isTimeSeries={this.props.isTimeSeries}
+            {...this.props.stats}
+          />
+        )}
         <div
           title={`${database}.${collection}`}
           className={collectionHeaderTitleStyles}
@@ -164,7 +167,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             className={collectionHeaderNamespaceStyles}
           >
             <Box
-              data-test-id="collection-header-title-db"
+              data-testid="collection-header-title-db"
               className={
                 this.props.darkMode
                   ? collectionHeaderTitleDBDarkStyles

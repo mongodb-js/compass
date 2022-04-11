@@ -14,7 +14,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**@mongodb-js/compass-app-stores**](packages/compass-app-stores): The external stores repo for compass
 - [**@mongodb-js/compass-auto-updates**](packages/compass-auto-updates): Compass Auto Updates Plugin
 - [**@mongodb-js/compass-collection**](packages/compass-collection): Compass Collection Plugin
-- [**@mongodb-js/compass-collection-stats**](packages/compass-collection-stats): Compass Collection Stats Plugin
 - [**@mongodb-js/compass-connections**](packages/compass-connections): Connection Screen
 - [**@mongodb-js/compass-crud**](packages/compass-crud): Compass Plugin for CRUD Operations
 - [**@mongodb-js/compass-database**](packages/compass-database): Compass Database Plugin
