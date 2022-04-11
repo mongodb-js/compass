@@ -17,8 +17,10 @@ const { ServerStatsToolbar } = require('./server-stats-toolbar');
  */
 const INTERVAL = 1000;
 
+const workspaceBackground = '#3D4247';
+
 const workspaceContainerStyles = css({
-  background: '#3D4247'
+  background: workspaceBackground
 });
 
 const workspaceStyles = css({
