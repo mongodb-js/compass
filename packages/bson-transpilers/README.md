@@ -62,7 +62,7 @@ Any transpiler errors that occur will be thrown. To catch them, wrap the
 
 ### State
 
-TThe `CodeGenerationVisitor` class manages a global state which is passed as the first argument into the language-specific `argsTemplate` functions.  This state is indended to be used as a method for the `argsTemplate` functions to communicate with the `DriverTemplate`.  For example:
+The `CodeGenerationVisitor` class manages a global state which is passed as the first argument into the language-specific `argsTemplate` functions.  This state is indended to be used as a method for the `argsTemplate` functions to communicate with the `DriverTemplate`.  For example:
 
 ```yaml
 ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
