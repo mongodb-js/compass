@@ -83,7 +83,7 @@ const list = css({
 
 export const PipelineResultsList: React.FunctionComponent<
   {
-    documents: unknown[];
+    documents: Record<string, unknown>[];
   } & React.HTMLProps<HTMLDivElement>
 > = ({ documents, ...rest }) => {
   const [viewType, setViewType] = useState<'document' | 'json'>('document');

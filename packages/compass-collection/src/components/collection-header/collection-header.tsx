@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import type AppRegistry from 'hadron-app-registry';
-import { css } from '@mongodb-js/compass-components';
+import { css, uiColors } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import React, { Component } from 'react';
 import toNS from 'mongodb-ns';
@@ -14,6 +14,7 @@ const collectionHeaderStyles = css({
   paddingTop: '15px',
   paddingBottom: '5px',
   minHeight: '64px',
+  background: uiColors.white,
 });
 
 const collectionHeaderNamespaceStyles = css({
