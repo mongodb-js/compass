@@ -1,26 +1,24 @@
-const chai = require('chai');
-const expect = chai.expect;
-const enzyme = require('enzyme');
-const React = require('react');
-const d3 = require('d3');
+import { expect } from 'chai';
+import enzyme from 'enzyme';
+import React from 'react';
+import d3 from 'd3';
 
-const realTimeDispatcher = require('../../src/d3/real-time-dispatcher');
-const TimeAndPauseButton = require('../../src/components/time-and-pause-button');
+import realTimeDispatcher from '../../src/d3/real-time-dispatcher';
+import { ServerStatsToolbar } from '../../src/components/server-stats-toolbar';
 
-describe('<TimeAndPauseButton />', function() {
+describe('<ServerStatsToolbar />', function() {
   context('when initialized, mounted and rendered', function() {
     beforeEach(function() {
       this.dispatcher = realTimeDispatcher();
       this.component = enzyme.mount(
-        <TimeAndPauseButton
-          paused={false}
+        <ServerStatsToolbar
           eventDispatcher={this.dispatcher}
         />
       );
     });
 
     it('shows a default time of 00:00:00', function() {
-      expect(this.component.find('.currentTime').text()).to.equal('00:00:00');
+      expect(this.component.find('[data-test-id="server-stats-time"]').text()).to.equal('00:00:00');
     });
 
     context('when the eventDispatcher notifies a newXValue', function() {
@@ -30,7 +28,9 @@ describe('<TimeAndPauseButton />', function() {
       });
 
       it('shows the correct time', function() {
-        expect(this.component.find('.currentTime').text()).to.equal(d3.time.format.utc('%X')(this.date));
+        expect(
+          this.component.find('[data-test-id="server-stats-time"]').text()
+        ).to.equal(d3.time.format.utc('%X')(this.date));
       });
     });
   });

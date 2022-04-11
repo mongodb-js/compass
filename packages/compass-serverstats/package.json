@@ -27,6 +27,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@mongodb-js/compass-components": "^0.13.0",
     "d3": "^3.5.17",
     "hadron-react-buttons": "^5.7.0",
     "hadron-react-components": "^5.13.0",
@@ -45,6 +46,7 @@
     "reflux": "^0.4.1"
   },
   "devDependencies": {
+    "@mongodb-js/compass-components": "^0.13.0",
     "@mongodb-js/mocha-config-compass": "^0.10.0",
     "@mongodb-js/webpack-config-compass": "^0.7.0",
     "chai": "^4.1.2",
