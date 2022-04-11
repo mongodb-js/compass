@@ -35,6 +35,7 @@
   "dependencies": {
     "@leafygreen-ui/badge": "^4.0.5",
     "@leafygreen-ui/banner": "^3.0.9",
+    "@leafygreen-ui/box": "^3.0.6",
     "@leafygreen-ui/button": "^12.0.5",
     "@leafygreen-ui/card": "^5.1.4",
     "@leafygreen-ui/checkbox": "^6.0.6",
