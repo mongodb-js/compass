@@ -62,7 +62,7 @@ Any transpiler errors that occur will be thrown. To catch them, wrap the
 
 ### State
 
-The transpilers that extend `ANTLRVisitor` will have a global state hash that is passed into the `argsTemplate` functions as the first argument.  The state is indended to be used in the language-specific `DriverTemplate`.  For example:
+TThe `CodeGenerationVisitor` class manages a global state which is passed as the first argument into the language-specific `argsTemplate` functions.  This state is indended to be used as a method for the `argsTemplate` functions to communicate with the `DriverTemplate`.  For example:
 
 ```yaml
 ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
@@ -73,16 +73,16 @@ ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
 
 DriverTemplate: &DriverTemplate !!js/function >
     (state, _spec) => {
-      return state.oneLineStatement
+      return state.oneLineStatement;
     }
 ```
 
-This output of the driver syntax for this language will simply be the one-line statement `Hello World`.
+The output of the driver syntax for this language will be the one-line statement `Hello World`.
 
 #### DeclarationStore
-A more practical use-case of state is to accumulate variable declarations throughout the `argsTemplate` to be rendered by the `DriverTemplate`.  That is, the motication for using `DeclarationStore` is to prepend the driver syntax with variable declarations rather than using non-diomatic solutions such as closures.
+A more practical use-case of state is to accumulate variable declarations throughout the `argsTemplate` to be rendered by the `DriverTemplate`.  That is, the motivation for using `DeclarationStore` is to prepend the driver syntax with variable declarations rather than using non-idiomatic solutions such as closures.
 
-More specifically, the `DeclarationStore` class maintains state concerning variable declarations in the driver syntax.  Within the context of the symbols template, the use case is to pass the declaration store as a parameter for the `argsTemplate` anonymous function.  For example,
+The `DeclarationStore` class maintains an internal state concerning variable declarations.  For example,
 
 ```javascript
 // within the args template
@@ -98,9 +98,9 @@ More specifically, the `DeclarationStore` class maintains state concerning varia
 }
 ```
 
-Note that each use of the same variable name will result in an increment being added to the declaration statement. For example, if the variable name `objectID` is used two times the resulting declaration statements will use `objectID` for the first declaration and `objectID1` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `template` function.
+Note that each use of the same variable name will result in an increment being added to the declaration statement. For example, if the variable name `objectID` is used two times the resulting declaration statements will use `objectID` for the first declaration and `objectID2` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `argsTemplate` function.
 
-The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver syntax for use:
+The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver, syntax via state, for use:
 
 ```javascript
 (state, spec) => {
