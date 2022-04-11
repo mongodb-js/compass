@@ -3,7 +3,7 @@
   "compilerOptions": {
     "allowJs": true,
     "lib": ["ES2020"],
-    "outDir": "lib"
+    "outDir": "dist"
   },
   "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]

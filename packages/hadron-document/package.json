@@ -19,22 +19,22 @@
   "keywords": [
     "mongodb-js"
   ],
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "exports": {
     "webpack": "./src/index.ts",
-    "require": "./lib/index.js",
-    "import": "./lib/.esm-wrapper.mjs"
+    "require": "./dist/index.js",
+    "import": "./dist/.esm-wrapper.mjs"
   },
-  "types": "./lib/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
-    "lib",
+    "dist",
     "package.json",
     "README.md"
   ],
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
-    "clean": "rimraf lib",
+    "clean": "rimraf dist",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json",
     "depcheck": "depcheck",
