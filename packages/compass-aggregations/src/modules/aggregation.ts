@@ -5,6 +5,8 @@ import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
+import { ActionTypes as WorkspaceActionTypes } from './workspace';
+import type { Actions as WorkspaceActions } from './workspace';
 
 import createLogger from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLogger('compass-aggregations');
@@ -62,8 +64,14 @@ export const INITIAL_STATE: State = {
   loading: false,
 };
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case WorkspaceActionTypes.WorkspaceChanged:
+      return {
+        ...INITIAL_STATE,
+        page: 1,
+        limit: 20,
+      };
     case ActionTypes.AggregationStarted:
       return {
         ...state,
