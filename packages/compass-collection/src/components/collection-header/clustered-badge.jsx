@@ -9,10 +9,7 @@ function ClusteredBadge() {
       className={styles['collection-header-badge']}
       variant={BadgeVariant.DarkGray}
     >
-      <Icon
-        glyph="ShardedCluster"
-        title="Clustered"
-      />&nbsp;CLUSTERED
+      CLUSTERED
     </Badge>
   );
 }

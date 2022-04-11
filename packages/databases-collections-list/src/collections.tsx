@@ -61,7 +61,7 @@ function collectionPropertyToBadge({
     case 'timeseries':
       return { name, variant: 'darkgray', icon: 'TimeSeries' };
     case 'clustered':
-      return { name, variant: 'darkgray', icon: 'ShardedCluster' };
+      return { name, variant: 'darkgray' };
     case 'readonly':
       return { name };
     default:
