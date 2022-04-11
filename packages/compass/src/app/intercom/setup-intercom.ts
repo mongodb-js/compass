@@ -11,7 +11,7 @@ type User = {
 };
 
 type Preferences = Pick<EventEmitter, 'on'> & {
-  isFeatureEnabled: (feature: string & 'enableFeedbackPanel') => boolean;
+  isFeatureEnabled: (feature: 'enableFeedbackPanel') => boolean;
 };
 
 export async function setupIntercom(
