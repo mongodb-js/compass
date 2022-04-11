@@ -817,7 +817,20 @@ Templates:
     # into one statement.                       #
     #                                           #
     #############################################
-    ImportTemplate: &ImportTemplate null
+    ImportTemplate: &ImportTemplate !!js/function >
+        (args) => {
+            console.log("ARGS--", args)
+            const flattenedArgs = [...new Set(Object.values(args))].sort();
+            const universal = [];
+            const all = universal
+                .concat(flattenedArgs)
+                .map((i) => `    ${i}`);
+            return []
+                .concat('import (')
+                .concat(all.join('\n'))
+                .concat(')')
+                .join('\n');
+        }
     DriverImportTemplate: &DriverImportTemplate null
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
@@ -827,27 +840,38 @@ Templates:
     5ImportTemplate: &5ImportTemplate null
     6ImportTemplate: &6ImportTemplate null
     7ImportTemplate: &7ImportTemplate null
-    8ImportTemplate: &8ImportTemplate null
+    8ImportTemplate: &8ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
     9ImportTemplate: &9ImportTemplate null
-    10ImportTemplate: &10ImportTemplate null
+    10ImportTemplate: &10ImportTemplate !!js/function >
+        () => "go.mongodb.org/mongo-driver/bson"
     11ImportTemplate: &11ImportTemplate null
     12ImportTemplate: &12ImportTemplate null
-    100ImportTemplate: &100ImportTemplate null
-    101ImportTemplate: &101ImportTemplate null
+    100ImportTemplate: &100ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+    101ImportTemplate: &101ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
     102ImportTemplate: &102ImportTemplate null
     103ImportTemplate: &103ImportTemplate null
     104ImportTemplate: &104ImportTemplate null
     105ImportTemplate: &105ImportTemplate null
     106ImportTemplate: &106ImportTemplate null
-    107ImportTemplate: &107ImportTemplate null
-    108ImportTemplate: &108ImportTemplate null
-    109ImportTemplate: &109ImportTemplate null
-    110ImportTemplate: &110ImportTemplate null
-    111ImportTemplate: &111ImportTemplate null
-    112ImportTemplate: &112ImportTemplate null
+    107ImportTemplate: &107ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+    108ImportTemplate: &108ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+    109ImportTemplate: &109ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+    110ImportTemplate: &110ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+    111ImportTemplate: &111ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+    112ImportTemplate: &112ImportTemplate !!js/function >
+        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
     113ImportTemplate: &113ImportTemplate null
     114ImportTemplate: &114ImportTemplate null
-    200ImportTemplate: &200ImportTemplate null
+    200ImportTemplate: &200ImportTemplate !!js/function >
+        (args) => "time.Time"
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null
     301ImportTemplate: &301ImportTemplate null

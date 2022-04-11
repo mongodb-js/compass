@@ -100,6 +100,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
         obj[c] = this.Imports[c].template(this.requiredImports[c]);
         return obj;
       }, {});
+    console.log("this.Imports.import", this.requiredImports, importTemplate(imports))
     return importTemplate(imports);
   }
 
