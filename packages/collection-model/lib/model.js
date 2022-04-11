@@ -235,7 +235,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     },
 
     properties: {
-      deps: ['collation', 'type', 'capped', 'readonly', 'options'],
+      deps: ['collation', 'type', 'capped', 'clustered', 'readonly'],
       fn() {
         return getProperties(this);
       },
