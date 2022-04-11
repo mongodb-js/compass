@@ -1,6 +1,6 @@
 import { Decimal128 } from 'bson';
 import { Element } from '../..';
-import { Decimal128Editor } from '../../lib/editor';
+import { Decimal128Editor } from '../../src/editor';
 import { expect } from 'chai';
 
 describe('Decimal128Editor', function () {

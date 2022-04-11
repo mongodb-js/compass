@@ -1,5 +1,5 @@
 import { Element } from '../..';
-import { StringEditor } from '../../lib/editor';
+import { StringEditor } from '../../src/editor';
 import { expect } from 'chai';
 
 describe('StringEditor', function () {

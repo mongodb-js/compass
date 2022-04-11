@@ -1,5 +1,5 @@
 import { Element } from '../..';
-import { NullEditor } from '../../lib/editor';
+import { NullEditor } from '../../src/editor';
 import { expect } from 'chai';
 
 describe('NullEditor', function () {

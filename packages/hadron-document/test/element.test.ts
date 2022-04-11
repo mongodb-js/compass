@@ -12,7 +12,7 @@ import {
 } from 'bson';
 import { expect } from 'chai';
 import { Document, Element } from '../';
-import { DATE_FORMAT } from '../lib/element';
+import { DATE_FORMAT } from '../src/element';
 import moment from 'moment';
 
 describe('Element', function () {

@@ -1,6 +1,6 @@
 import { ObjectID as ObjectId } from 'bson';
 import { Element } from '../..';
-import { ObjectIdEditor } from '../../lib/editor';
+import { ObjectIdEditor } from '../../src/editor';
 import { expect } from 'chai';
 
 describe('ObjectIdEditor', function () {

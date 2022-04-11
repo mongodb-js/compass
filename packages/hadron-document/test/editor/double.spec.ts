@@ -1,6 +1,6 @@
 import { Double } from 'bson';
 import { Element } from '../..';
-import { DoubleEditor } from '../../lib/editor';
+import { DoubleEditor } from '../../src/editor';
 import { expect } from 'chai';
 
 describe('DoubleEditor', function () {

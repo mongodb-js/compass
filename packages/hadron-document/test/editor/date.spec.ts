@@ -1,5 +1,5 @@
 import { Element } from '../..';
-import { DateEditor } from '../../lib/editor';
+import { DateEditor } from '../../src/editor';
 import { expect } from 'chai';
 
 describe('DateEditor', function () {

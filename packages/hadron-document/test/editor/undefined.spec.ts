@@ -1,5 +1,5 @@
 import { Element } from '../..';
-import { UndefinedEditor } from '../../lib/editor';
+import { UndefinedEditor } from '../../src/editor';
 import { expect } from 'chai';
 
 describe('UndefinedEditor', function () {

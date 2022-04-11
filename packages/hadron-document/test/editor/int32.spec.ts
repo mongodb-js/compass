@@ -1,6 +1,6 @@
 import { Int32 } from 'bson';
 import { Element } from '../..';
-import { Int32Editor } from '../../lib/editor';
+import { Int32Editor } from '../../src/editor';
 import { expect } from 'chai';
 
 describe('Int32Editor', function () {
