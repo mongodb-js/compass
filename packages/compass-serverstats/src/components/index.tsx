@@ -12,10 +12,7 @@ import ServerStatsStore from '../stores/server-stats-graphs-store';
 import { ServerStatsToolbar } from './server-stats-toolbar';
 import Actions from '../actions';
 
-/**
- * The default interval.
- */
-const INTERVAL = 1000;
+const REFRESH_STATS_INTERVAL_MS = 1000;
 
 const workspaceContainerStyles = css({
   display: 'flex',
@@ -70,10 +67,13 @@ function PerformanceComponent() {
         <WorkspaceContainer darkMode className={workspaceBackgroundStyles}>
           <div className={workspaceStyles}>
             <section className="rt__graphs-out">
-              <GraphsComponent eventDispatcher={eventDispatcher.current} interval={INTERVAL} />
+              <GraphsComponent
+                eventDispatcher={eventDispatcher.current}
+                interval={REFRESH_STATS_INTERVAL_MS}
+              />
             </section>
             <section className="rt__lists-out">
-              <ListsComponent interval={INTERVAL} />
+              <ListsComponent interval={REFRESH_STATS_INTERVAL_MS} />
             </section>
           </div>
         </WorkspaceContainer>
