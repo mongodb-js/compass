@@ -15,6 +15,7 @@ import type Document from './document';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import type { ObjectId } from 'bson';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
+import { ElementEvents } from '.';
 
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 export { Events };
@@ -823,6 +824,13 @@ export class Element extends EventEmitter {
         }
       }
     }
+  }
+
+  /**
+   * @deprecated Use ElementEvents import instead
+   */
+  static get Events(): typeof ElementEvents {
+    return ElementEvents;
   }
 }
 

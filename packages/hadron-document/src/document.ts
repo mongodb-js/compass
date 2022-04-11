@@ -457,6 +457,13 @@ export class Document extends EventEmitter {
   _generateElements(): LinkedList {
     return new LinkedList(this, this.doc);
   }
+
+  /**
+   * @deprecated Use DocumentEvents import instead
+   */
+  static get Events(): typeof Events {
+    return Events;
+  }
 }
 
 export default Document;
