@@ -18,7 +18,7 @@ Templates:
 
    # filter, project, sort, collation, skip, limit, maxTimeMS
     DriverTemplate: &DriverTemplate !!js/function >
-        (spec) => {
+        (_state, spec) => {
             const comment = `# Requires the PyMongo package.
         # https://api.mongodb.com/python/current`;
             const translateKey = {
@@ -196,7 +196,7 @@ Templates:
             return literal;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
-        (args, depth) => {
+        (_state, args, depth) => {
             if (args.length === 0) {
                 return '{}';
             }
@@ -232,7 +232,7 @@ Templates:
             return `str(${lhs})`;
         }
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return '';
         }
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
@@ -240,7 +240,7 @@ Templates:
             return `${lhs} ==`;
         }
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
@@ -256,7 +256,7 @@ Templates:
             return '';
         }
     BinaryValueArgsTemplate: &BinaryValueArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return `str(${lhs})`;
         }
     BinaryLengthTemplate: &BinaryLengthTemplate !!js/function >
@@ -264,7 +264,7 @@ Templates:
             return '';
         }
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return `len(${lhs})`;
         }
     BinaryToStringTemplate: &BinaryToStringTemplate !!js/function >
@@ -272,7 +272,7 @@ Templates:
             return '';
         }
     BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return `str(${lhs})`;
         }
     BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
@@ -309,7 +309,7 @@ Templates:
             return `${lhs} ==`;
         }
     LongEqualsArgsTemplate: &LongEqualsArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongToIntTemplate: &LongToIntTemplate !!js/function >
@@ -325,7 +325,7 @@ Templates:
             return 'str';
         }
     LongToStringArgsTemplate: &LongToStringArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return `(${lhs})`;
         }
     LongToNumberTemplate: &LongToNumberTemplate !!js/function >
@@ -341,7 +341,7 @@ Templates:
             return `${lhs} +`;
         }
     LongAddArgsTemplate: &LongAddArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongSubtractTemplate: &LongSubtractTemplate !!js/function >
@@ -349,7 +349,7 @@ Templates:
             return `${arg} -`;
         }
     LongSubtractArgsTemplate: &LongSubtractArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongMultiplyTemplate: &LongMultiplyTemplate !!js/function >
@@ -357,7 +357,7 @@ Templates:
             return `${arg} *`;
         }
     LongMultiplyArgsTemplate: &LongMultiplyArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongDivTemplate: &LongDivTemplate !!js/function >
@@ -365,7 +365,7 @@ Templates:
             return `${lhs} /`;
         }
     LongDivArgsTemplate: &LongDivArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongModuloTemplate: &LongModuloTemplate !!js/function >
@@ -373,7 +373,7 @@ Templates:
             return `${lhs} %`;
         }
     LongModuloArgsTemplate: &LongModuloArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongAndTemplate: &LongAndTemplate !!js/function >
@@ -381,7 +381,7 @@ Templates:
             return `${lhs} &`;
         }
     LongAndArgsTemplate: &LongAndArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongOrTemplate: &LongOrTemplate !!js/function >
@@ -389,7 +389,7 @@ Templates:
             return `${lhs} |`;
         }
     LongOrArgsTemplate: &LongOrArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongXorTemplate: &LongXorTemplate !!js/function >
@@ -397,7 +397,7 @@ Templates:
             return `${lhs} ^`;
         }
     LongXorArgsTemplate: &LongXorArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongShiftLeftTemplate: &LongShiftLeftTemplate !!js/function >
@@ -405,7 +405,7 @@ Templates:
             return `${lhs} <<`;
         }
     LongShiftLeftArgsTemplate: &LongShiftLeftArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongShiftRightTemplate: &LongShiftRightTemplate !!js/function >
@@ -413,7 +413,7 @@ Templates:
             return `${lhs} >>`;
         }
     LongShiftRightArgsTemplate: &LongShiftRightArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongCompareTemplate: &LongCompareTemplate !!js/function >
@@ -421,7 +421,7 @@ Templates:
             return `${lhs} -`;
         }
     LongCompareArgsTemplate: &LongCompareArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongIsOddTemplate: &LongIsOddTemplate !!js/function >
@@ -453,7 +453,7 @@ Templates:
             return '-';
         }
     LongNegateArgsTemplate: &LongNegateArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return lhs;
         }
     LongNotTemplate: &LongNotTemplate !!js/function >
@@ -461,7 +461,7 @@ Templates:
             return '~';
         }
     LongNotArgsTemplate: &LongNotArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return lhs;
         }
     LongNotEqualsTemplate: &LongNotEqualsTemplate !!js/function >
@@ -469,7 +469,7 @@ Templates:
             return `${lhs} !=`;
         }
     LongNotEqualsArgsTemplate: &LongNotEqualsArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongGreaterThanTemplate: &LongGreaterThanTemplate !!js/function >
@@ -477,7 +477,7 @@ Templates:
             return `${lhs} >`;
         }
     LongGreaterThanArgsTemplate: &LongGreaterThanArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongGreaterThanOrEqualTemplate: &LongGreaterThanOrEqualTemplate !!js/function >
@@ -485,7 +485,7 @@ Templates:
             return `${lhs} >=`;
         }
     LongGreaterThanOrEqualArgsTemplate: &LongGreaterThanOrEqualArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongLessThanTemplate: &LongLessThanTemplate !!js/function >
@@ -493,7 +493,7 @@ Templates:
             return `${lhs} <`;
         }
     LongLessThanArgsTemplate: &LongLessThanArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongLessThanOrEqualTemplate: &LongLessThanOrEqualTemplate !!js/function >
@@ -501,7 +501,7 @@ Templates:
             return `${lhs} <=`;
         }
     LongLessThanOrEqualArgsTemplate: &LongLessThanOrEqualArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     LongFloatApproxTemplate: &LongFloatApproxTemplate !!js/function >
@@ -521,7 +521,7 @@ Templates:
             return 'str';
         }
     TimestampToStringArgsTemplate: &TimestampToStringArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return `(${lhs})`;
         }
     TimestampEqualsTemplate: &TimestampEqualsTemplate !!js/function >
@@ -529,7 +529,7 @@ Templates:
             return `${lhs} ==`;
         }
     TimestampEqualsArgsTemplate: &TimestampEqualsArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     TimestampGetLowBitsTemplate: &TimestampGetLowBitsTemplate !!js/function >
@@ -566,7 +566,7 @@ Templates:
             return `(${lhs}.as_datetime() - `;
         }
     TimestampCompareArgsTemplate: &TimestampCompareArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return `${arg}.as_datetime()).total_seconds()`;
         }
     TimestampNotEqualsTemplate: &TimestampNotEqualsTemplate !!js/function >
@@ -574,7 +574,7 @@ Templates:
             return `${lhs} !=`;
         }
     TimestampNotEqualsArgsTemplate: &TimestampNotEqualsArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     TimestampGreaterThanTemplate: &TimestampGreaterThanTemplate !!js/function >
@@ -582,7 +582,7 @@ Templates:
             return `${lhs} >`;
         }
     TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate !!js/function >
@@ -590,7 +590,7 @@ Templates:
             return `${lhs} >=`;
         }
     TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     TimestampLessThanTemplate: &TimestampLessThanTemplate !!js/function >
@@ -598,7 +598,7 @@ Templates:
             return `${lhs} <`;
         }
     TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate !!js/function >
@@ -606,7 +606,7 @@ Templates:
             return `${lhs} <=`;
         }
     TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return ` ${arg}`;
         }
     SymbolValueOfTemplate: &SymbolValueOfTemplate !!js/function >
@@ -639,7 +639,7 @@ Templates:
             return 'Code';
         }
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function > # Also has process method
-        (lhs, code, scope) => {
+        (_state, lhs, code, scope) => {
           // Single quote stringify
           const scopestr = scope === undefined ? '' : `, ${scope}`;
           let newStr = code === undefined ? '' : code;
@@ -654,7 +654,7 @@ Templates:
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
-        (lhs, str) => {
+        (_state, lhs, str) => {
           if (!str || str.length === 0) {
             return '()';
           }
@@ -668,7 +668,7 @@ Templates:
         }
     BinarySymbolTemplate: &BinarySymbolTemplate null
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
-        (lhs, bytes, type) => {
+        (_state, lhs, bytes, type) => {
             const str = bytes;
             let newStr = str;
             if (
@@ -723,7 +723,7 @@ Templates:
             return 'int';
         }
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             arg = arg === undefined ? 0 : arg;
             const str = arg.toString();
             let newStr = str;
@@ -786,7 +786,7 @@ Templates:
             return 'Int64';
         }
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return `(int(${arg}))`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate null
@@ -798,7 +798,7 @@ Templates:
             return 'Timestamp';
         }
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
-        (lhs, arg1, arg2) => {
+        (_state, lhs, arg1, arg2) => {
             return `(${arg1 === undefined ? 0 : arg1}, ${arg2 === undefined ? 0 : arg2})`;
         }
     SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
@@ -806,7 +806,7 @@ Templates:
             return '';
         }
     SymbolSymbolArgsTemplate: &SymbolSymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return arg;
         }
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
@@ -814,7 +814,7 @@ Templates:
             return 'Regex';
         }
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
-        (lhs, pattern, flags) => {
+        (_state, lhs, pattern, flags) => {
             const singleStringify = (str) => {
                 let newStr = str;
                 if (
@@ -831,7 +831,7 @@ Templates:
             return 'Decimal128';
         }
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
-        (lhs, str) => {
+        (_state, lhs, str) => {
           let newStr = str;
           if (
             (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
@@ -845,7 +845,7 @@ Templates:
             return 'Decimal128';
         }
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return `(${arg})`;
         }
     Decimal128ToStringTemplate: &Decimal128ToStringTemplate !!js/function >
@@ -853,7 +853,7 @@ Templates:
             return 'str';
         }
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate !!js/function >
-        (lhs) => {
+        (_state, lhs) => {
             return `(${lhs})`;
         }
     # BSON Util Templates
@@ -862,7 +862,7 @@ Templates:
             return 'ObjectId';
         }
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             return `(${arg})`;
         }
     ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
@@ -870,7 +870,7 @@ Templates:
             return `ObjectId.from_datetime`;
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
-        (lhs, arg, isNumber) => {
+        (_state, lhs, arg, isNumber) => {
             if (isNumber) {
                 return `(datetime.fromtimestamp(${arg}))`;
             }
@@ -887,7 +887,7 @@ Templates:
             return '';
         }
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             arg = arg === undefined ? 0 : arg;
             const str = arg.toString();
             let newStr = str;
@@ -905,7 +905,7 @@ Templates:
             return 'datetime';
         }
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
-        (lhs, date, isString) => {
+        (_state, lhs, date, isString) => {
             const toStr = isString ? '.strftime(\'%a %b %d %Y %H:%M:%S %Z\')' : '';
 
             if (date === null) {

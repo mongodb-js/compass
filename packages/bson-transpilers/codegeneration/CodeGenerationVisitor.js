@@ -25,7 +25,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     super();
     this.idiomatic = true; // PUBLIC
     this.clearImports();
-    this.declarationStore = new DeclarationStore();
+    this.state = { declarationStore: new DeclarationStore() };
   }
 
   clearImports() {
@@ -66,8 +66,8 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     return this.returnResult(ctx).trim();
   }
 
-  getDeclarationStore() {
-    return this.declarationStore;
+  getState() {
+    return this.state;
   }
 
   /**
@@ -336,7 +336,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
   }
   returnFunctionCallLhsRhs(lhs, rhs, lhsType, l) {
     if (lhsType.argsTemplate) {
-      rhs = lhsType.argsTemplate(l, ...rhs);
+      rhs = lhsType.argsTemplate(this.state, l, ...rhs);
     } else {
       rhs = `(${rhs.join(', ')})`;
     }
@@ -496,17 +496,11 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (`emit${lhsType.id}` in this) {
       return this[`emit${lhsType.id}`](ctx);
     }
-    // if there are no args, then put a buffer in the arguments we pass to the argTemplate functions. This will ensure
-    // that nothing changes for the current functionality that, perhaps, depends on an empty args array.
-    if (args.length === 0) {
-      args = [undefined];
-    }
-    args = [...args, this.declarationStore];
     const lhsArg = lhsType.template
       ? lhsType.template()
       : defaultT;
     const rhs = lhsType.argsTemplate
-      ? lhsType.argsTemplate(lhsArg, ...args)
+      ? lhsType.argsTemplate(this.state, lhsArg, ...args)
       : defaultA;
     const lhs = skipLhs ? '' : lhsArg;
     return this.Syntax.new.template
@@ -529,6 +523,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     const keysAndValues = this.getKeyValueList(ctx);
     if (ctx.type.argsTemplate) {
       args = ctx.type.argsTemplate(
+        this.state,
         this.getKeyValueList(ctx).map((k) => {
           return [this.getKeyStr(k), this.visit(this.getValue(k))];
         }),
@@ -557,7 +552,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (ctx.type.argsTemplate) { // NOTE: not currently being used anywhere.
       args = visitedElements.map((arg, index) => {
         const last = !visitedElements[index + 1];
-        return ctx.type.argsTemplate(arg, ctx.indentDepth, last);
+        return ctx.type.argsTemplate(this.state, arg, ctx.indentDepth, last);
       }).join('');
     } else {
       args = visitedElements.join(', ');

@@ -59,15 +59,35 @@ Any transpiler errors that occur will be thrown. To catch them, wrap the
 - __error.column:__ If it is a syntax error, will have the column.
 - __error.symbol:__ If it is a syntax error, will have the symbol associated with the error.
 
-### DeclarationStore
-The motivation for using `DeclarationStore` is to prepend the driver syntax with variable declarations rather than using closures in the CRUD logic.
+
+### State
+
+The transpilers that extend `ANTLRVisitor` will have a global state hash that is passed into the `argsTemplate` functions as the first argument.  The state is indended to be used in the language-specific `DriverTemplate`.  For example:
+
+```yaml
+ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
+    (state, arg) => {
+        state.oneLineStatement = "Hello World";
+        return `${arg}`;
+    }
+
+DriverTemplate: &DriverTemplate !!js/function >
+    (state, _spec) => {
+      return state.oneLineStatement
+    }
+```
+
+This output of the driver syntax for this language will simply be the one-line statement `Hello World`.
+
+#### DeclarationStore
+A more practical use-case of state is to accumulate variable declarations throughout the `argsTemplate` to be rendered by the `DriverTemplate`.  That is, the motication for using `DeclarationStore` is to prepend the driver syntax with variable declarations rather than using non-diomatic solutions such as closures.
 
 More specifically, the `DeclarationStore` class maintains state concerning variable declarations in the driver syntax.  Within the context of the symbols template, the use case is to pass the declaration store as a parameter for the `argsTemplate` anonymous function.  For example,
 
 ```javascript
 // within the args template
-(arg, declarationStore) => {
-  return declarationStore.add("objectID", (varName) => {
+(state, arg) => {
+  return state.declarationStore.add("objectID", (varName) => {
     return [
       `${varName}, err := primitive.ObjectIDFromHex(${arg})`,
       'if err != nil {',
@@ -83,10 +103,10 @@ Note that each use of the same variable name will result in an increment being a
 The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver syntax for use:
 
 ```javascript
-(spec, declarationStore) => {
+(state, spec) => {
   const comment = '// some comment'
   const client = 'client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(cs.String()))'
-  const declarations = declarationStore.toString()
+  const declarations = state.declarationStore.toString()
   return "#{comment}\n\n#{client}\n\n${declarations}"
 }
 ```

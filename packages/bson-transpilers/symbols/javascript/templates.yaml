@@ -16,7 +16,7 @@ Templates:
         u: 'u'
     # Syntax
     DriverTemplate: &DriverTemplate !!js/function >
-        (spec) => {
+        (_state, spec) => {
             const comment = `/*
          * Requires the MongoDB Node.js Driver
          * https://mongodb.github.io/node-mongodb-native
@@ -190,7 +190,7 @@ Templates:
             return literal;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
-        (args, depth) => {
+        (_state, args, depth) => {
             if (args.length === 0) {
                 return '{}';
             }
@@ -389,14 +389,14 @@ Templates:
     # Symbol Templates
     CodeSymbolTemplate: &CodeSymbolTemplate null
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
-        (lhs, code, scope) => {
+        (_state, lhs, code, scope) => {
             code = code === undefined ? '\'\'' : code;
             scope = scope === undefined ? '' : `, ${scope}`;
             return `(${code}${scope})`;
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate null
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
-        (lhs, str) => {
+        (_state, lhs, str) => {
           if (!str || str.length === 0) {
             return '()';
           }
@@ -413,7 +413,7 @@ Templates:
             return 'Binary';
         }
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
-        (lhs, buffer, subtype) => {
+        (_state, lhs, buffer, subtype) => {
             return `(${buffer.toString('base64')}, '${subtype}')`;
         }
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null
@@ -435,7 +435,7 @@ Templates:
             return 'Int32';
         }
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             arg = arg === undefined ? 0 : arg;
             return `(${arg})`;
         }
@@ -444,7 +444,7 @@ Templates:
             return '';
         }
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
-        (lhs, arg, type) => {
+        (_state, lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
             if (type === '_string') {
                 return `Long.fromString(${arg})`;
@@ -475,7 +475,7 @@ Templates:
     MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate null
     TimestampSymbolTemplate: &TimestampSymbolTemplate null
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
-        (lhs, arg1, arg2) => {
+        (_state, lhs, arg1, arg2) => {
             return `(${arg1 === undefined ? 0 : arg1}, ${arg2 === undefined ? 0 : arg2})`;
         }
     SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
@@ -488,7 +488,7 @@ Templates:
             return 'BSONRegExp';
         }
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
-        (lhs, pattern, flags) => {
+        (_state, lhs, pattern, flags) => {
             const singleStringify = (str) => {
                 let newStr = str;
                 if (
@@ -505,7 +505,7 @@ Templates:
             return 'Decimal128';
         }
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             arg = arg === undefined ? '0' : arg.toString();
             if (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') {
                 return `.fromString(${arg})`;
@@ -524,7 +524,7 @@ Templates:
             return `ObjectId.createFromTime`;
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
-        (lhs, arg, isNumber) => {
+        (_state, lhs, arg, isNumber) => {
             if (!isNumber) {
                 return `(${arg}.getTime() / 1000)`;
             }
@@ -541,7 +541,7 @@ Templates:
             return 'Number';
         }
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
-        (lhs, arg) => {
+        (_state, lhs, arg) => {
             arg = arg === undefined ? '0' : arg;
             return `(${arg})`;
         }
