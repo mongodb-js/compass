@@ -18,6 +18,7 @@ class StandardEditor {
    */
   constructor(element) {
     this.element = element;
+    this.type = element.currentType;
     this.editing = false;
   }
 
@@ -50,7 +51,6 @@ class StandardEditor {
     }
   }
 
-
   /**
    * Get the number of characters the value should display.
    *
@@ -63,18 +63,21 @@ class StandardEditor {
   }
 
   /**
-   * Get the value being edited.
+   * Get the value being edited. Always returns a string because this value will
+   * always be used by browser input elements that operate on nothing but
+   * strings
    *
-   * @returns {Object} The value.
+   * @returns {string} The value.
    */
   value() {
-    return this.element.currentValue;
+    return String(this.element.currentValue);
   }
 
   // Standard editing requires no special start/complete behaviour.
   start() {
     this.editing = true;
   }
+
   complete() {
     this.editing = false;
   }
