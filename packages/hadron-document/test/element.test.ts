@@ -11,7 +11,7 @@ import {
   Decimal128,
 } from 'bson';
 import { expect } from 'chai';
-import { Document, Element } from '../';
+import { Document, Element } from '../src/';
 import { DATE_FORMAT } from '../src/element';
 import moment from 'moment';
 
