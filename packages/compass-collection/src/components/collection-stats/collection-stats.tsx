@@ -7,7 +7,6 @@ import IndexStatsItem from '../index-stats-item';
 const collectionStatsStyles = css({
   textAlign: 'right',
   paddingRight: 0,
-  justifyContent: 'flex-end',
   display: 'flex',
   float: 'right',
 });

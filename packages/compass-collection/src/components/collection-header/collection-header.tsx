@@ -4,7 +4,7 @@ import {
   css,
   uiColors,
   withTheme,
-  Box,
+  Link,
   spacing,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
@@ -16,16 +16,28 @@ import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
 import CollectionStats from '../collection-stats';
-import type { StatsObject } from '../../modules/stats';
+import type { CollectionStatsObject } from '../../modules/stats';
+
+const collectionHeaderTitleDBStyles = css({
+  fontSize: spacing[4],
+  lineHeight: `${spacing[5]}px`,
+  display: 'flex',
+  alignItems: 'center',
+});
 
 const collectionHeaderStyles = css({
   paddingTop: spacing[3],
   paddingBottom: spacing[1],
   minHeight: spacing[6] + spacing[1],
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
 });
 
 const collectionHeaderNamespaceStyles = css({
-  display: 'contents',
+  backgroundColor: 'transparent',
+  border: 'none',
+  display: 'inline',
 });
 
 const collectionHeaderTitleStyles = css({
@@ -34,14 +46,14 @@ const collectionHeaderTitleStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   display: 'flex',
+  alignItems: 'center',
   paddingLeft: spacing[3],
   paddingRight: spacing[3],
   margin: 0,
   lineHeight: `${spacing[5]}px`,
-  alignItems: 'center',
 });
 
-const collectionHeaderTitleDBLightStyles = css({
+const collectionHeaderTitleDBLinkLightStyles = css({
   color: uiColors.green.base,
   flexShrink: 2,
   flexBasis: 'auto',
@@ -53,9 +65,13 @@ const collectionHeaderTitleDBLightStyles = css({
   '&:hover,&:focus': {
     textDecoration: 'underline',
   },
+  backgroundColor: 'transparent',
+  border: 'none',
+  display: 'inline',
+  padding: 0,
 });
 
-const collectionHeaderTitleDBDarkStyles = css({
+const collectionHeaderTitleDBLinkDarkStyles = css({
   color: uiColors.green.light2,
   flexShrink: 2,
   flexBasis: 'auto',
@@ -67,6 +83,10 @@ const collectionHeaderTitleDBDarkStyles = css({
   '&:hover,&:focus': {
     textDecoration: 'underline',
   },
+  backgroundColor: 'transparent',
+  border: 'none',
+  display: 'inline',
+  padding: 0,
 });
 
 const collectionHeaderTitleCollectionLightStyles = css({
@@ -97,7 +117,7 @@ type CollectionHeaderProps = {
   sourceViewOn?: string;
   editViewName?: string;
   pipeline: Document[];
-  stats: StatsObject;
+  stats: CollectionStatsObject;
 };
 
 class CollectionHeader extends Component<CollectionHeaderProps> {
@@ -145,12 +165,6 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
 
     return (
       <div className={collectionHeaderStyles} data-testid="collection-header">
-        {!this.props.isReadonly && (
-          <CollectionStats
-            isTimeSeries={this.props.isTimeSeries}
-            {...this.props.stats}
-          />
-        )}
         <div
           title={`${database}.${collection}`}
           className={collectionHeaderTitleStyles}
@@ -160,17 +174,19 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             data-testid="collection-header-namespace"
             className={collectionHeaderNamespaceStyles}
           >
-            <Box
+            <Link
               data-testid="collection-header-title-db"
+              as="button"
               className={
                 this.props.darkMode
-                  ? collectionHeaderTitleDBDarkStyles
-                  : collectionHeaderTitleDBLightStyles
+                  ? collectionHeaderTitleDBLinkDarkStyles
+                  : collectionHeaderTitleDBLinkLightStyles
               }
+              hideExternalIcon={true}
               onClick={() => this.handleDBClick(database)}
             >
-              {database}
-            </Box>
+              <div className={collectionHeaderTitleDBStyles}>{database}</div>
+            </Link>
             <span>.</span>
             <span
               data-testid="collection-header-title-collection"
@@ -194,6 +210,12 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             sourceName={this.props.sourceName}
           />
         </div>
+        {!this.props.isReadonly && (
+          <CollectionStats
+            isTimeSeries={this.props.isTimeSeries}
+            {...this.props.stats}
+          />
+        )}
       </div>
     );
   }

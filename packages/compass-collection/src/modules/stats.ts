@@ -1,4 +1,5 @@
 import type { AnyAction } from 'redux';
+import type Collection from 'mongodb-collection-model';
 import numeral from 'numeral';
 
 /**
@@ -21,7 +22,7 @@ export const RESET_COLLECTION_DETAILS = `${PREFIX}/stats/RESET_COLLECTION_DETAIL
  */
 const INVALID = 'N/A';
 
-export interface StatsObject {
+export interface CollectionStatsObject {
   documentCount: string;
   storageSize: string;
   avgDocumentSize: string;
@@ -73,10 +74,10 @@ export const resetCollectionDetails = (): { type: string } => {
  * @returns {Object} The action.
  */
 export const updateCollectionDetails = (
-  collectionModel: any
+  collectionModel: Collection
 ): {
   type: string;
-  stats: StatsObject;
+  stats: CollectionStatsObject;
 } => {
   const {
     document_count,
@@ -114,7 +115,10 @@ export const updateCollectionDetails = (
  *
  * @returns {any} The new state.
  */
-const reducer = (state = INITIAL_STATE, action: AnyAction): StatsObject => {
+const reducer = (
+  state = INITIAL_STATE,
+  action: AnyAction
+): CollectionStatsObject => {
   if (action.type === UPDATE_COLLECTION_DETAILS) {
     return action.stats;
   } else if (action.type === RESET_COLLECTION_DETAILS) {

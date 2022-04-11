@@ -2,8 +2,7 @@ import { css, spacing } from '@mongodb-js/compass-components';
 import React from 'react';
 
 const collectionHeaderActionsReadonlyStyles = css({
-  margin: `0px ${spacing[2]}px`,
-  marginLeft: 'auto',
+  marginLeft: spacing[2],
   fontSize: spacing[3],
   overflow: 'hidden',
   textOverflow: 'ellipsis',

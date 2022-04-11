@@ -1,4 +1,5 @@
 import type AppRegistry from 'hadron-app-registry';
+import type Collection from 'mongodb-collection-model';
 import { combineReducers } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { AnyAction } from 'redux';
@@ -128,7 +129,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
       store[kInstance] = instance;
       instance.on(
         'change:collections.status',
-        (collectionModel: any, status: string) => {
+        (collectionModel: Collection, status: string) => {
           const { namespace } = store.getState();
           if (collectionModel.ns === namespace) {
             if (status === 'ready') {

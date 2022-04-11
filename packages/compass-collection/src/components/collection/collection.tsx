@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
-import type { StatsObject } from '../../modules/stats';
+import type { CollectionStatsObject } from '../../modules/stats';
 
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
 
@@ -73,7 +73,7 @@ type CollectionProps = {
     id: string;
   };
   scopedModals: any[];
-  stats: StatsObject;
+  stats: CollectionStatsObject;
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = (
@@ -107,7 +107,7 @@ const Collection: React.FunctionComponent<CollectionProps> = (
         name: trackingIdForTabName(tabs[activeSubTab] || 'Unknown'),
       });
     }
-  });
+  }, []);
 
   const onSubTabClicked = useCallback(
     (idx, name) => {

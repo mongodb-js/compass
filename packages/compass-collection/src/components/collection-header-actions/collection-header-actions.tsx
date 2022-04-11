@@ -8,6 +8,10 @@ import React from 'react';
 
 import ViewInformation from './view-information';
 
+const editViewButtonStyles = css({
+  marginLeft: spacing[2],
+});
+
 const collectionHeaderActionsStyles = css({
   flexGrow: 2,
   display: 'flex',
@@ -51,6 +55,7 @@ const CollectionHeaderActions: React.FunctionComponent<CollectionHeaderActionsPr
         {isReadonly && sourceName && !editViewName && (
           <Button
             data-testid="collection-header-actions-edit-button"
+            className={editViewButtonStyles}
             size={ButtonSize.XSmall}
             onClick={onEditViewClicked}
           >

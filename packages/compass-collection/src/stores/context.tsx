@@ -5,6 +5,8 @@ import { ErrorBoundary } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 
+import type { CollectionStatsObject } from '../modules/stats';
+
 const { debug } = createLoggerAndTelemetry(
   'mongodb-compass:compass-collection:context'
 );
@@ -46,7 +48,7 @@ type ContextProps = {
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
   scopedModals?: any[];
-  stats?: any;
+  stats?: CollectionStatsObject;
 };
 
 /**
