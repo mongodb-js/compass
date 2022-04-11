@@ -1,12 +1,11 @@
 import React from 'react';
-import { css, uiColors } from '@mongodb-js/compass-components';
+import { css, spacing } from '@mongodb-js/compass-components';
 
 import CollectionStatsItem from '../collection-stats-item';
 
 const indexStatsItemStyles = css({
-  paddingLeft: '15px',
-  paddingRight: '3px',
-  borderRight: `1px solid ${uiColors.gray.light2}`,
+  paddingLeft: spacing[1],
+  paddingRight: spacing[1],
   flexBasis: 'auto',
   flexGrow: 0,
   flexShrink: 0,
@@ -20,17 +19,13 @@ const indexStatsItemStyles = css({
 
 type IndexStatsItemProps = {
   indexCount: string;
-  totalIndexSize: string;
-  avgIndexSize: string;
 };
 
 /**
  * The index stats item component.
  */
-const IndexStatsItem: React.FunctionComponent<any> = ({
+const IndexStatsItem: React.FunctionComponent<IndexStatsItemProps> = ({
   indexCount,
-  totalIndexSize,
-  avgIndexSize,
 }: IndexStatsItemProps) => {
   return (
     <div data-testid="index-stats-item" className={indexStatsItemStyles}>
@@ -38,17 +33,6 @@ const IndexStatsItem: React.FunctionComponent<any> = ({
         dataTestId="index-count"
         label="Indexes"
         value={indexCount}
-        primary
-      />
-      <CollectionStatsItem
-        dataTestId="total-index-size"
-        label="total size"
-        value={totalIndexSize}
-      />
-      <CollectionStatsItem
-        dataTestId="avg-index-size"
-        label="avg. size"
-        value={avgIndexSize}
       />
     </div>
   );

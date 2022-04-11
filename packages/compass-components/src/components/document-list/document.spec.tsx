@@ -119,4 +119,17 @@ describe('Document', function () {
       expect(doc.get('num').currentType).to.eq('String');
     });
   });
+
+  it('should render decrypted fields specially', function () {
+    const obj = {
+      _id: 0,
+      key1: 'a',
+      key2: 'b',
+      key3: 'c',
+      [Symbol.for('@@mdb.decryptedKeys')]: ['key1', 'key2'],
+    };
+    doc = new HadronDocument(obj);
+    render(<Document value={doc}></Document>);
+    expect(screen.getAllByTitle('Encrypted with CSFLE')).to.have.lengthOf(2);
+  });
 });
