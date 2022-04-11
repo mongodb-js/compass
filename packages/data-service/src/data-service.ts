@@ -371,7 +371,6 @@ class DataService extends EventEmitter {
     const listCollections = async () => {
       try {
         const collections = await db.listCollections(filter, { nameOnly }).toArray();
-        console.log('all collecitons', collections);
         return collections;
       } catch (err) {
         // Currently Compass should not fail if listCollections failed for

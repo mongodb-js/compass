@@ -60,7 +60,6 @@ store.onActivated = (appRegistry) => {
     if (metadata.namespace) {
       const namespace = toNS(metadata.namespace);
       if (namespace.collection !== '') {
-        console.log('selecting namespace', metadata);
         store.dispatch(
           selectOrCreateTab({
             namespace: metadata.namespace,
