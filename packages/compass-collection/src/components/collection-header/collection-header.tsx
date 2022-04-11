@@ -16,6 +16,7 @@ import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
 import CollectionStats from '../collection-stats';
+import type { StatsObject } from '../../modules/stats';
 
 const collectionHeaderStyles = css({
   paddingTop: spacing[3],
@@ -96,14 +97,7 @@ type CollectionHeaderProps = {
   sourceViewOn?: string;
   editViewName?: string;
   pipeline: Document[];
-  stats: {
-    documentCount: string;
-    storageSize: string;
-    avgDocumentSize: string;
-    indexCount: string;
-    totalIndexSize: string;
-    avgIndexSize: string;
-  };
+  stats: StatsObject;
 };
 
 class CollectionHeader extends Component<CollectionHeaderProps> {

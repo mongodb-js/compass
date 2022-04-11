@@ -9,12 +9,12 @@ const PREFIX = 'collection';
 /**
  * Collection details updated action name.
  */
-export const UPDATE_COLLECTION_DETAILS = `${PREFIX}/tabs/UPDATE_COLLECTION_DETAILS`;
+export const UPDATE_COLLECTION_DETAILS = `${PREFIX}/stats/UPDATE_COLLECTION_DETAILS`;
 
 /**
  * Collection details reset action name.
  */
-export const RESET_COLLECTION_DETAILS = `${PREFIX}/tabs/RESET_COLLECTION_DETAILS`;
+export const RESET_COLLECTION_DETAILS = `${PREFIX}/stats/RESET_COLLECTION_DETAILS`;
 
 /**
  * Invalid stats.
@@ -22,12 +22,12 @@ export const RESET_COLLECTION_DETAILS = `${PREFIX}/tabs/RESET_COLLECTION_DETAILS
 const INVALID = 'N/A';
 
 export interface StatsObject {
-  documentCount: number | string;
-  storageSize: number | string;
-  avgDocumentSize: number | string;
-  indexCount: number | string;
-  totalIndexSize: number | string;
-  avgIndexSize: number | string;
+  documentCount: string;
+  storageSize: string;
+  avgDocumentSize: string;
+  indexCount: string;
+  totalIndexSize: string;
+  avgIndexSize: string;
 }
 
 const avg = (size: number, count: number) => {

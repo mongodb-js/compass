@@ -5,15 +5,7 @@ import { render, screen } from '@testing-library/react';
 import { spy } from 'sinon';
 
 import Collection from '../collection';
-
-const STATS = {
-  documentCount: 'N/A',
-  storageSize: 'N/A',
-  avgDocumentSize: 'N/A',
-  indexCount: 'N/A',
-  totalIndexSize: 'N/A',
-  avgIndexSize: 'N/A',
-};
+import { INITIAL_STATE as STATS_INITIAL_STATE } from '../../modules/stats';
 
 describe('Collection [Component]', function () {
   let changeSubTabSpy;
@@ -42,7 +34,7 @@ describe('Collection [Component]', function () {
         selectOrCreateTab={selectOrCreateTabSpy}
         sourceReadonly={sourceReadonly}
         pipeline={[]}
-        stats={STATS}
+        stats={STATS_INITIAL_STATE}
       />
     );
   });

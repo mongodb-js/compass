@@ -6,15 +6,7 @@ import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 
 import CollectionHeader from '../collection-header';
-
-const STATS = {
-  documentCount: 'N/A',
-  storageSize: 'N/A',
-  avgDocumentSize: 'N/A',
-  indexCount: 'N/A',
-  totalIndexSize: 'N/A',
-  avgIndexSize: 'N/A',
-};
+import { INITIAL_STATE as STATS_INITIAL_STATE } from '../../modules/stats';
 
 describe('CollectionHeader [Component]', function () {
   context('when the collection is not readonly', function () {
@@ -32,7 +24,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS}
+          stats={STATS_INITIAL_STATE}
         />
       );
     });
@@ -83,7 +75,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS}
+          stats={STATS_INITIAL_STATE}
         />
       );
     });
@@ -132,7 +124,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS}
+          stats={STATS_INITIAL_STATE}
         />
       );
     });
@@ -167,7 +159,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS}
+          stats={STATS_INITIAL_STATE}
         />
       );
     });
@@ -211,7 +203,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS}
+          stats={STATS_INITIAL_STATE}
         />
       );
 

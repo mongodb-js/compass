@@ -6,6 +6,7 @@ import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 
 import createContext from '../stores/context';
+import type { StatsObject } from '../modules/stats';
 
 /**
  * The prefix.
@@ -78,7 +79,7 @@ export interface WorkspaceTabObject {
   sourceReadonly?: any;
   sourceViewOn?: string;
   localAppRegistry: AppRegistry;
-  stats: any;
+  stats: StatsObject;
 }
 
 /**

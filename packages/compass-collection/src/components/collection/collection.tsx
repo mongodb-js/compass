@@ -10,6 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
+import type { StatsObject } from '../../modules/stats';
 
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
 
@@ -72,14 +73,7 @@ type CollectionProps = {
     id: string;
   };
   scopedModals: any[];
-  stats: {
-    documentCount: string;
-    storageSize: string;
-    avgDocumentSize: string;
-    indexCount: string;
-    totalIndexSize: string;
-    avgIndexSize: string;
-  };
+  stats: StatsObject;
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = (
