@@ -7,12 +7,15 @@ import type { SinonSpy } from 'sinon';
 
 import { PipelineActions } from './pipeline-actions';
 
+const initialEnableExport = process.env.COMPASS_ENABLE_AGGREGATION_EXPORT;
+
 describe('PipelineActions', function () {
   describe('options visible', function () {
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
     let onExportAggregationResultsSpy: SinonSpy;
     beforeEach(function () {
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
       onExportAggregationResultsSpy = spy();
@@ -26,8 +29,11 @@ describe('PipelineActions', function () {
       );
     });
 
-    it('run action button', function () {
+    afterEach(function () {
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
+    });
 
+    it('run action button', function () {
       const button = screen.getByTestId('pipeline-toolbar-run-button');
       expect(button).to.exist;
 
@@ -38,23 +44,15 @@ describe('PipelineActions', function () {
     });
 
     it('export action button', function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
-      render(
-        <PipelineActions
-          isOptionsVisible={true}
-          onRunAggregation={onRunAggregationSpy}
-          onToggleOptions={onToggleOptionsSpy}
-          onExportAggregationResults={onExportAggregationResultsSpy}
-        />
+      const button = screen.getByTestId(
+        'pipeline-toolbar-export-aggregation-button'
       );
-      const button = screen.getByTestId('pipeline-toolbar-export-aggregation-button');
       expect(button).to.exist;
 
       userEvent.click(button);
 
       expect(onExportAggregationResultsSpy.calledOnce).to.be.true;
       expect(onExportAggregationResultsSpy.firstCall.args).to.be.empty;
-      delete process.env.COMPASS_ENABLE_AGGREGATION_EXPORT
     });
 
     it('toggle options action button', function () {

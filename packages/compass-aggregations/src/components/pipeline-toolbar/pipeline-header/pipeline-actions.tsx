@@ -42,7 +42,8 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onExportAggregationResults
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
-  const showExportButton = process.env.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true'
+  const showExportButton =
+    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true';
   return (
     <div className={containerStyles}> 
       {showExportButton && (

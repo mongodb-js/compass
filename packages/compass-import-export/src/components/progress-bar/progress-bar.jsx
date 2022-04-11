@@ -42,13 +42,15 @@ class ProgressBar extends PureComponent {
 
   static defaultProps = {
     progressLabel(formattedWritten, formattedTotal, isAggregation) {
-      let output = `${formattedWritten}\u00A0`;
-      if (!isAggregation) {
-        output += `/\u00A0${formattedTotal}`;
+      if (isAggregation) {
+        return formattedWritten;
       }
-      return output;
+      return `${formattedWritten}\u00A0/\u00A0${formattedTotal}`
     },
-    progressTitle(formattedWritten, formattedTotal) {
+    progressTitle(formattedWritten, formattedTotal, isAggregation) {
+      if (isAggregation) {
+        return `${formattedWritten} documents`;
+      }
       return `${formattedWritten} documents out of ${formattedTotal}`;
     },
   };
@@ -123,7 +125,7 @@ class ProgressBar extends PureComponent {
         className={style('status-stats')}
         title={progressTitle(formattedWritten, formattedTotal, isAggregation)}
       >
-        {progressLabel(formattedWritten, formattedTotal)}
+        {progressLabel(formattedWritten, formattedTotal, isAggregation)}
       </p>
     );
   }

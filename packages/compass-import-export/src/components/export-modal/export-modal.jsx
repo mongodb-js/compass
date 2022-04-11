@@ -11,7 +11,6 @@ import ErrorBox from '../error-box';
 
 import revealFile from '../../utils/reveal-file';
 import formatNumber from '../../utils/format-number';
-import { isEmpty } from 'lodash';
 import {
   STARTED,
   CANCELED,
@@ -84,7 +83,7 @@ class ExportModal extends PureComponent {
     toggleFullCollection: PropTypes.func.isRequired,
     selectExportFileType: PropTypes.func.isRequired,
     selectExportFileName: PropTypes.func.isRequired,
-    aggregation: PropTypes.object,
+    isAggregation: PropTypes.bool.isRequired,
   };
 
   componentDidMount = () => {
@@ -281,7 +280,7 @@ class ExportModal extends PureComponent {
         exportedDocsCount={this.props.exportedDocsCount}
         selectExportFileType={this.props.selectExportFileType}
         selectExportFileName={this.props.selectExportFileName}
-        isAggregation={!isEmpty(this.props.aggregation)}
+        isAggregation={this.props.isAggregation}
       />
     );
   }
@@ -365,9 +364,9 @@ class ExportModal extends PureComponent {
       this.props.status === COMPLETED && this.props.exportStep === FILETYPE
         ? 'Close'
         : 'Cancel';
-    const entityToExport = isEmpty(this.props.aggregation)
-      ? 'Collection'
-      : 'Aggregation from ';
+    const entityToExport = this.props.isAggregation
+      ? 'Aggregation from'
+      : 'Collection';
     return (
       <Modal
         // Because this modal is rendered outside of the
@@ -391,7 +390,7 @@ class ExportModal extends PureComponent {
           )}
         </Modal.Body>
         <Modal.Footer>
-          {this.props.aggregation ? '' : this.renderBackButton()}
+          {this.props.isAggregation ? '' : this.renderBackButton()}
           <TextButton
             dataTestId={`${closeButton.toLowerCase()}-button`}
             text={closeButton}
@@ -428,7 +427,7 @@ const mapStateToProps = (state) => {
     exportedDocsCount: state.exportData.exportedDocsCount,
     // 0 is a valid number of documents, only ignore null or undefined
     count: state.exportData.count ?? null,
-    aggregation: state.exportData.aggregation,
+    isAggregation: Boolean(state.exportData.aggregation),
   };
 };
 

@@ -183,7 +183,7 @@ describe('export [module]', function () {
           store.dispatch(actions.onError(true));
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
-            aggregation: {},
+            aggregation: null,
             isOpen: true,
             dest: undefined,
             exporter: undefined,
@@ -216,7 +216,7 @@ describe('export [module]', function () {
           store.dispatch(actions.closeExport());
           expect(store.getState().exportData).to.deep.equal({
             isOpen: false,
-            aggregation: {},
+            aggregation: null,
             dest: undefined,
             exporter: undefined,
             exportedDocsCount: 10,
@@ -247,7 +247,7 @@ describe('export [module]', function () {
           store.getState().exportData.status = PROCESS_STATUS.CANCELED;
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
-            aggregation: {},
+            aggregation: null,
             isOpen: true,
             dest: undefined,
             exporter: undefined,
@@ -279,7 +279,7 @@ describe('export [module]', function () {
           store.dispatch(actions.onError(true));
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
-            aggregation: {},
+            aggregation: null,
             isOpen: true,
             dest: undefined,
             exporter: undefined,
@@ -311,7 +311,7 @@ describe('export [module]', function () {
         );
         store.dispatch(actions.onProgress(0.7, 100));
         expect(store.getState().exportData).to.deep.equal({
-          aggregation: {},
+          aggregation: null,
           isOpen: true,
           exportedDocsCount: 100,
           progress: 0.7,
@@ -334,7 +334,7 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
-          aggregation: {},
+          aggregation: null,
           isOpen: false,
           count: 0,
           exportStep: EXPORT_STEP.QUERY,
@@ -357,7 +357,7 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
-          aggregation: {},
+          aggregation: null,
           isOpen: false,
           progress: 0,
           count: 0,
@@ -382,7 +382,7 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
-          aggregation: {},
+          aggregation: null,
           isOpen: false,
           progress: 0,
           count: 0,
@@ -406,7 +406,7 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
-          aggregation: {},
+          aggregation: null,
           isOpen: false,
           count: 0,
           exportedDocsCount: 0,
@@ -430,7 +430,7 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
-          aggregation: {},
+          aggregation: null,
           isOpen: false,
           count: 0,
           exportedDocsCount: 0,
@@ -452,7 +452,7 @@ describe('export [module]', function () {
       it('returns the new state', function () {
         store.dispatch(actions.closeExport());
         expect(store.getState().exportData).to.deep.equal({
-          aggregation: {},
+          aggregation: null,
           isOpen: false,
           exportedDocsCount: 0,
           progress: 0,
