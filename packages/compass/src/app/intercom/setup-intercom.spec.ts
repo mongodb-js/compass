@@ -27,8 +27,6 @@ async function testRunSetupIntercom(
 
   sinon.spy(preferences, 'isFeatureEnabled');
 
-  console.log(preferences.serialize());
-
   await setupIntercom(
     preferences,
     user,
