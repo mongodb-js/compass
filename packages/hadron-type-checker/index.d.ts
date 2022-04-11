@@ -26,7 +26,7 @@ export type TypeCastMap = {
   MaxKey: MaxKey;
   MinKey: MinKey;
   Null: null;
-  Object: Object;
+  Object: Record<string, unknown>;
   ObjectId: ObjectId;
   BSONRegExp: BSONRegExp;
   String: string;

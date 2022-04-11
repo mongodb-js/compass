@@ -112,7 +112,7 @@ function useHadronElement(el: HadronElementType) {
   return {
     id: el.uuid,
     key: {
-      value: el.currentKey,
+      value: String(el.currentKey),
       change(newVal: string) {
         setIsDuplicateKey(el.isDuplicateKey(newVal));
         el.rename(newVal);
@@ -486,7 +486,7 @@ export const HadronElement: React.FunctionComponent<{
             <ValueEditor
               type={type.value}
               originalValue={value.originalValue}
-              value={value.value as string}
+              value={value.value}
               valid={value.valid}
               validationMessage={value.validationMessage}
               onChange={(newVal) => {

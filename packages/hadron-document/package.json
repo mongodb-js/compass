@@ -12,29 +12,45 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
+  "engines": {
+    "node": ">=14.17.5"
+  },
   "license": "SSPL",
   "keywords": [
     "mongodb-js"
   ],
-  "main": "index.js",
-  "types": "./index.d.ts",
+  "main": "lib/index.js",
   "exports": {
-    "webpack": "./src/index.js",
-    "require": "./index.js"
+    "webpack": "./src/index.ts",
+    "require": "./lib/index.js",
+    "import": "./lib/.esm-wrapper.mjs"
   },
+  "types": "./lib/index.d.ts",
+  "files": [
+    "lib",
+    "package.json",
+    "README.md"
+  ],
   "scripts": {
-    "test-check-ci": "npm test",
-    "test": "mocha",
-    "check": "npm run lint && npm run depcheck",
-    "compile": "babel ./src --out-dir ./lib",
-    "pretest": "npm run compile",
-    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck",
-    "test-ci": "npm run test",
+    "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
-    "bootstrap": "npm run compile"
+    "clean": "rimraf lib",
+    "precompile": "npm run clean",
+    "compile": "tsc -p tsconfig.json",
+    "depcheck": "depcheck",
+    "eslint": "eslint",
+    "prettier": "prettier",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "check": "npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
+    "test": "mocha",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-watch": "npm run test -- --watch",
+    "test-ci": "npm run test-cov",
+    "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
+    "bson": "^4.4.1",
     "debug": "4.3.0",
     "eventemitter3": "^4.0.0",
     "hadron-type-checker": "^6.8.0",
@@ -43,19 +59,18 @@
     "lodash.isequal": "^4.5.0",
     "lodash.isplainobject": "^4.0.6",
     "lodash.isstring": "^4.0.1",
-    "lodash.keys": "^4.2.0",
-    "uuid": "^7.0.3"
+    "lodash.keys": "^4.2.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/core": "^7.14.3",
-    "@babel/plugin-proposal-decorators": "^7.14.2",
-    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
-    "@babel/preset-env": "^7.14.2",
-    "@babel/preset-react": "^7.13.13",
-    "@babel/register": "^7.13.16",
-    "babel-loader": "^8.2.2",
-    "bson": "^4.4.1",
+    "@mongodb-js/eslint-config-compass": "^0.7.0",
+    "@mongodb-js/mocha-config-compass": "^0.10.0",
+    "@mongodb-js/prettier-config-compass": "^0.5.0",
+    "@mongodb-js/tsconfig-compass": "^0.6.0",
+    "@types/lodash.isstring": "^4.0.6",
+    "@types/lodash.isarray": "^4.0.6",
+    "@types/lodash.isplainobject": "^4.0.6",
+    "@types/lodash.keys": "^4.2.6",
+    "@types/lodash.isequal": "^4.5.5",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
