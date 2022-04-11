@@ -139,4 +139,35 @@ describe('ObjectGenerator', function() {
       });
     });
   });
+
+  context('with decrypted fields', function() {
+    it('preserves encrypted fields', function() {
+      const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
+      const object = {
+        a: 1,
+        b: {
+          c: 2,
+          d: Object.assign([
+            3, 4
+          ], { [DECRYPTED_KEYS]: ['0'] }),
+          [DECRYPTED_KEYS]: ['c']
+        },
+        [DECRYPTED_KEYS]: ['a']
+      };
+      const doc = new Document(object);
+
+      // NB: Symbols are not covered by chai .to.deep.equal:
+      const generated = doc.generateObject();
+      expect(generated).to.deep.equal(object);
+      expect(generated[DECRYPTED_KEYS]).to.deep.equal(object[DECRYPTED_KEYS]);
+      expect(generated.b[DECRYPTED_KEYS]).to.deep.equal(object.b[DECRYPTED_KEYS]);
+      expect(generated.b.d[DECRYPTED_KEYS]).to.deep.equal(object.b.d[DECRYPTED_KEYS]);
+
+      const generatedOriginal = doc.generateOriginalObject();
+      expect(generatedOriginal).to.deep.equal(object);
+      expect(generatedOriginal[DECRYPTED_KEYS]).to.deep.equal(object[DECRYPTED_KEYS]);
+      expect(generatedOriginal.b[DECRYPTED_KEYS]).to.deep.equal(object.b[DECRYPTED_KEYS]);
+      expect(generatedOriginal.b.d[DECRYPTED_KEYS]).to.deep.equal(object.b.d[DECRYPTED_KEYS]);
+    });
+  });
 });

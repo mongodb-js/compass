@@ -89,7 +89,7 @@ class Element extends EventEmitter {
    * @param {String} key - The key.
    * @param {Object} value - The value.
    * @param {Boolean} added - Is the element a new 'addition'?
-   * @param {Element} parent - The parent element.
+   * @param {Element|Document} parent - The parent element.
    * @param {Element} previousElement - The previous element in the list.
    * @param {Element} nextElement - The next element in the list.
    */
@@ -115,6 +115,18 @@ class Element extends EventEmitter {
       this.value = value;
       this.currentValue = value;
     }
+
+    // The AutoEncrypter marks decrypted entries in a document
+    // for us with a special symbol. We opt into this behavior
+    // in the devtools-connect package.
+    let parentValue;
+    if (this.parent) {
+      parentValue = this.parent.isRoot() ?
+        this.parent.doc :
+        this.parent.originalExpandableValue;
+    }
+    const parentDecryptedKeys = parentValue && parentValue[Symbol.for('@@mdb.decryptedKeys')];
+    this.decrypted = (parentDecryptedKeys || []).map(String).includes(String(key));
   }
 
   _getLevel() {
@@ -487,12 +499,62 @@ class Element extends EventEmitter {
   }
 
   /**
+   * Determine if the value has been decrypted via CSFLE.
+   *
+   * Warning: This does *not* apply to the children of decrypted elements!
+   * This only returns true for the exact field that was decrypted.
+   *
+   * a: Object
+   *  \-- b: Object <- decrypted
+   *      \-- c: number
+   *
+   * a.isValueDecrypted() === false
+   * a.get('b').isValueDecrypted() === true
+   * a.get('b').get('c').isValueDecrypted() === true
+   *
+   * @returns {Boolean} If the value was encrypted on the server and is now decrypted.
+   */
+  isValueDecrypted() {
+    return this.decrypted;
+  }
+
+  /**
+   * Detemine if this value or any of its children were marked
+   * as having been decrypted with CSFLE.
+   *
+   * Warning: This does *not* apply to the children of decrypted elements!
+   * This only returns true for the exact field that was decrypted
+   * and its parents.
+   *
+   * a: Object
+   *  \-- b: Object <- decrypted
+   *      \-- c: number
+   *
+   * a.containsDecryptedChildren() === true
+   * a.get('b').containsDecryptedChildren() === true
+   * a.get('b').get('c').containsDecryptedChildren() === false
+   *
+   * @returns {Boolean} If any child of this element has been decrypted directly.
+   */
+  containsDecryptedChildren() {
+    if (this.isValueDecrypted()) {
+      return true;
+    }
+    for (const element of this.elements || []) {
+      if (element.containsDecryptedChildren()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Determine if the value is editable.
    *
    * @returns {Boolean} If the value is editable.
    */
   isValueEditable() {
-    return this.isKeyEditable() && !UNEDITABLE_TYPES.includes(this.currentType);
+    return this._isKeyLegallyEditable() && !UNEDITABLE_TYPES.includes(this.currentType);
   }
 
   /**
@@ -502,9 +564,13 @@ class Element extends EventEmitter {
    */
   isParentEditable() {
     if (this.parent && !this.parent.isRoot()) {
-      return this.parent.isKeyEditable();
+      return this.parent._isKeyLegallyEditable();
     }
     return true;
+  }
+
+  _isKeyLegallyEditable() {
+    return this.isParentEditable() && (this.isAdded() || (this.currentKey !== ID));
   }
 
   /**
@@ -513,7 +579,7 @@ class Element extends EventEmitter {
    * @returns {Boolean} If the key is editable.
    */
   isKeyEditable() {
-    return this.isParentEditable() && (this.isAdded() || (this.currentKey !== ID));
+    return this._isKeyLegallyEditable() && !this.containsDecryptedChildren();
   }
 
   /**
