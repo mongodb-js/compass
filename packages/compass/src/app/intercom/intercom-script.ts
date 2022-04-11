@@ -15,7 +15,6 @@ export type IntercomMetadata = {
 type WindowWithIntercomGlobals = Window &
   typeof globalThis & {
     Intercom?: (...args: any[]) => any;
-  } & {
     attachEvent?: (...args: any[]) => any;
   };
 
