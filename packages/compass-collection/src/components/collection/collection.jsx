@@ -15,6 +15,7 @@ function Collection({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   statsPlugin,
   statsStore,
   editViewName,
@@ -63,6 +64,7 @@ function Collection({
           namespace={namespace}
           isReadonly={isReadonly}
           isTimeSeries={isTimeSeries}
+          isClustered={isClustered}
           statsPlugin={statsPlugin}
           statsStore={statsStore}
           editViewName={editViewName}
@@ -102,6 +104,7 @@ Collection.propTypes = {
   namespace: PropTypes.string.isRequired,
   isTimeSeries: PropTypes.bool,
   isReadonly: PropTypes.bool.isRequired,
+  isClustered: PropTypes.bool.isRequired,
   tabs: PropTypes.array.isRequired,
   views: PropTypes.array.isRequired,
   scopedModals: PropTypes.array.isRequired,

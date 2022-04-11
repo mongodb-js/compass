@@ -6,6 +6,7 @@ import CollectionHeaderActions from '../collection-header-actions';
 import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
+import ClusteredBadge from './clustered-badge';
 
 import styles from './collection-header.module.less';
 
@@ -17,6 +18,7 @@ class CollectionHeader extends Component {
     namespace: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
+    isClustered: PropTypes.bool.isRequired,
     statsPlugin: PropTypes.func.isRequired,
     selectOrCreateTab: PropTypes.func.isRequired,
     statsStore: PropTypes.object.isRequired,
@@ -102,6 +104,7 @@ class CollectionHeader extends Component {
           </div>
           {this.props.isReadonly && <ReadOnlyBadge />}
           {this.props.isTimeSeries && <TimeSeriesBadge />}
+          {this.props.isClustered && <ClusteredBadge />}
           {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
           <CollectionHeaderActions
             editViewName={this.props.editViewName}

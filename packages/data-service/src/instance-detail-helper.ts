@@ -67,6 +67,7 @@ type CollectionDetails = {
   specialish: boolean;
   normal: boolean;
   readonly: boolean;
+  clustered: boolean;
   collation: Document | null;
   view_on: string | null;
   pipeline: Document[] | null;
@@ -359,6 +360,7 @@ export function adaptCollectionInfo({
     validator,
     validationAction,
     validationLevel,
+    clusteredIndex
   } = options ?? {};
 
   const hasValidation = Boolean(
@@ -383,5 +385,6 @@ export function adaptCollectionInfo({
     validation: hasValidation
       ? { validator, validationAction, validationLevel }
       : null,
+    clustered: !!clusteredIndex
   };
 }

@@ -40,6 +40,7 @@ store.onActivated = (appRegistry) => {
             editViewName: metadata.editViewName,
             sourceReadonly: metadata.sourceReadonly,
             isTimeSeries: !!metadata.isTimeSeries,
+            isClustered: !!metadata.isClustered,
             sourceViewOn: metadata.sourceViewOn,
             sourcePipeline: metadata.sourcePipeline,
             query: metadata.query,
@@ -59,11 +60,13 @@ store.onActivated = (appRegistry) => {
     if (metadata.namespace) {
       const namespace = toNS(metadata.namespace);
       if (namespace.collection !== '') {
+        console.log('selecting namespace', metadata);
         store.dispatch(
           selectOrCreateTab({
             namespace: metadata.namespace,
             isReadonly: metadata.isReadonly,
             isTimeSeries: metadata.isTimeSeries,
+            isClustered: metadata.isClustered,
             sourceName: metadata.sourceName,
             editViewName: metadata.editViewName,
             sourceReadonly: metadata.sourceReadonly,
