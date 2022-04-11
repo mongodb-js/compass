@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
+import { Toolbar, css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import PipelineHeader from './pipeline-header';
@@ -53,7 +53,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
-    <div
+    <Toolbar
       className={cx(
         containerStyles,
         containerDisplayStyles,
@@ -61,19 +61,21 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
       )}
       data-testid="pipeline-toolbar"
     >
-      <div className={headerAndOptionsRowStyles}>
-        <PipelineHeader
-          isOptionsVisible={isOptionsVisible}
-          onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
-        />
-        {isOptionsVisible && <PipelineOptions />}
-      </div>
-      {isSettingsVisible && (
-        <div className={settingsRowStyles}>
-          <PipelineSettings />
+      <>
+        <div className={headerAndOptionsRowStyles}>
+          <PipelineHeader
+            isOptionsVisible={isOptionsVisible}
+            onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
+          />
+          {isOptionsVisible && <PipelineOptions />}
         </div>
-      )}
-    </div>
+        {isSettingsVisible && (
+          <div className={settingsRowStyles}>
+            <PipelineSettings />
+          </div>
+        )}
+      </>
+    </Toolbar>
   );
 };
 

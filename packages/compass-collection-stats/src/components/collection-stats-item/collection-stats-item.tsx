@@ -1,43 +1,57 @@
 import React from 'react';
-import { css, uiColors } from '@mongodb-js/compass-components';
+import {
+  css,
+  uiColors,
+  spacing,
+  Disclaimer,
+  Overline,
+  withTheme,
+} from '@mongodb-js/compass-components';
 
 const collectionStatsItemStyles = css({
-  marginRight: '12px',
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  textAlign: 'center',
+  marginRight: spacing[3] - spacing[1],
 });
 
-const PrimaryLabelStyles = css({
+const darkThemeLabelStyles = css({
   textTransform: 'uppercase',
   fontSize: '10px',
   fontWeight: 'bold',
   display: 'inline-block',
-  marginRight: ' 5px',
-  color: uiColors.gray.dark3,
+  color: uiColors.gray.base,
 });
 
-const LabelStyles = css({
+const lightThemeLabelStyles = css({
   textTransform: 'uppercase',
   fontSize: '10px',
   fontWeight: 'bold',
-  color: uiColors.gray.base,
-  lineHeight: '12px',
+  display: 'inline-block',
+  color: uiColors.gray.dark2,
 });
 
-const PrimaryValueStyles = css({
-  color: uiColors.gray.dark3,
+const darkThemeValueStyles = css({
+  textTransform: 'lowercase',
+  color: uiColors.green.light2,
   display: 'inline-block',
   fontSize: '24px',
   lineHeight: '24px',
 });
 
-const ValueStyles = css({
-  color: uiColors.gray.base,
-  fontSize: '14px',
+const lightThemeValueStyles = css({
+  textTransform: 'lowercase',
+  color: uiColors.green.base,
+  display: 'inline-block',
+  fontSize: '24px',
+  lineHeight: '24px',
 });
 
 type CollectionStatsItemProps = {
+  darkMode?: boolean;
   label: string;
   value: any;
-  primary?: boolean;
   dataTestId: string;
 };
 
@@ -45,23 +59,23 @@ type CollectionStatsItemProps = {
  * Component for a single collection stats item.
  */
 const CollectionStatsItem: React.FunctionComponent<CollectionStatsItemProps> =
-  ({ primary, dataTestId, label, value }: CollectionStatsItemProps) => {
+  ({ darkMode, dataTestId, label, value }: CollectionStatsItemProps) => {
     return (
       <div className={collectionStatsItemStyles} data-testid={dataTestId}>
-        <div
-          className={primary ? PrimaryLabelStyles : LabelStyles}
-          data-testid={`${dataTestId}-label${primary ? '-primary' : ''}`}
-        >
-          {label}
-        </div>
-        <div
-          className={primary ? PrimaryValueStyles : ValueStyles}
-          data-testid={`${dataTestId}-value${primary ? '-primary' : ''}`}
+        <Overline
+          className={darkMode ? darkThemeValueStyles : lightThemeValueStyles}
+          data-testid={`${dataTestId}-value`}
         >
           {value}
-        </div>
+        </Overline>
+        <Disclaimer
+          className={darkMode ? darkThemeLabelStyles : lightThemeLabelStyles}
+          data-testid={`${dataTestId}-label`}
+        >
+          {label}
+        </Disclaimer>
       </div>
     );
   };
 
-export default CollectionStatsItem;
+export default withTheme(CollectionStatsItem);

@@ -1,4 +1,4 @@
-const HadronDocument = require('hadron-document');
+const HadronDocument = require('hadron-document').Document;
 const sinon = require('sinon');
 const chai = require('chai');
 const expect = chai.expect;
