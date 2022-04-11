@@ -5,8 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { Icon, css, cx, uiColors } from '../../index';
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
@@ -137,6 +136,7 @@ function useHadronElement(el: HadronElementType) {
         el.isValueEditable() &&
         el.currentType !== 'Object' &&
         el.currentType !== 'Array',
+      decrypted: el.isValueDecrypted(),
       valid: isValid,
       validationMessage: !isValid ? el.invalidTypeMessage ?? null : null,
       startEdit: editor.start.bind(editor),
@@ -466,6 +466,17 @@ export const HadronElement: React.FunctionComponent<{
         </div>
         <div className={elementDivider} role="presentation">
           :&nbsp;
+          {
+            /* TODO(COMPASS-5706): figure out exact placement */
+            value.decrypted && (
+              <span
+                data-test-id="hadron-document-element-decrypted-icon"
+                title="Encrypted with CSFLE"
+              >
+                <Icon glyph="Key" size="small" />
+              </span>
+            )
+          }
         </div>
         <div
           className={elementValue}

@@ -819,6 +819,103 @@ describe('Element', function() {
     });
   });
 
+  describe('#isValueDecrypted', function() {
+    it('returns false when the element was not decrypted and is not nested', function() {
+      const doc = new Document({ a: 1 });
+      expect(doc.get('a').isValueDecrypted()).to.equal(false);
+    });
+
+    it('returns false when the element was not decrypted and is nested', function() {
+      const doc = new Document({ a: { b: 1 } });
+      expect(doc.get('a').get('b').isValueDecrypted()).to.equal(false);
+    });
+
+    it('returns true when the element was decrypted and is not nested', function() {
+      const doc = new Document({
+        a: { b: 1 },
+        [Symbol.for('@@mdb.decryptedKeys')]: ['a']
+      });
+      expect(doc.get('a').isValueDecrypted()).to.equal(true);
+      expect(doc.get('a').get('b').isValueDecrypted()).to.equal(false);
+    });
+
+    it('returns true when the element was decrypted and is nested', function() {
+      const doc = new Document({
+        a: {
+          b: 1,
+          c: 2,
+          d: Object.assign([
+            3, 4
+          ], { [Symbol.for('@@mdb.decryptedKeys')]: ['0'] }),
+          [Symbol.for('@@mdb.decryptedKeys')]: ['b']
+        }
+      });
+      expect(doc.get('a').isValueDecrypted()).to.equal(false);
+      expect(doc.get('a').get('b').isValueDecrypted()).to.equal(true);
+      expect(doc.get('a').get('c').isValueDecrypted()).to.equal(false);
+      expect(doc.get('a').get('d').isValueDecrypted()).to.equal(false);
+      expect(doc.get('a').get('d').at(0).isValueDecrypted()).to.equal(true);
+      expect(doc.get('a').get('d').at(1).isValueDecrypted()).to.equal(false);
+    });
+  });
+
+  describe('#containsDecryptedChildren', function() {
+    it('returns false when the element was not decrypted and is not nested', function() {
+      const doc = new Document({ a: 1 });
+      expect(doc.get('a').containsDecryptedChildren()).to.equal(false);
+    });
+
+    it('returns false when the element was not decrypted and is nested', function() {
+      const doc = new Document({ a: { b: 1 } });
+      expect(doc.get('a').get('b').containsDecryptedChildren()).to.equal(false);
+    });
+
+    it('returns true when the element was decrypted and is not nested', function() {
+      const doc = new Document({
+        a: { b: 1 },
+        [Symbol.for('@@mdb.decryptedKeys')]: ['a']
+      });
+      expect(doc.get('a').containsDecryptedChildren()).to.equal(true);
+      expect(doc.get('a').get('b').containsDecryptedChildren()).to.equal(false);
+    });
+
+    it('returns true when the element was decrypted and is nested', function() {
+      const doc = new Document({
+        a: {
+          b: 1,
+          c: 2,
+          d: Object.assign([
+            3, 4
+          ], { [Symbol.for('@@mdb.decryptedKeys')]: ['0'] }),
+          [Symbol.for('@@mdb.decryptedKeys')]: ['b']
+        }
+      });
+      // Note: This is the only case in which .containsDecryptedChildren()
+      // and .isValueDecrypted() differ.
+      expect(doc.get('a').containsDecryptedChildren()).to.equal(true);
+      expect(doc.get('a').get('b').containsDecryptedChildren()).to.equal(true);
+      expect(doc.get('a').get('c').containsDecryptedChildren()).to.equal(false);
+      expect(doc.get('a').get('d').containsDecryptedChildren()).to.equal(true);
+      expect(doc.get('a').get('d').at(0).containsDecryptedChildren()).to.equal(true);
+      expect(doc.get('a').get('d').at(1).containsDecryptedChildren()).to.equal(false);
+    });
+
+    context('#isKeyEditable', function() {
+      it('is affected by #containsDecryptedChildren', function() {
+        const doc = new Document({
+          a: {
+            b: 1,
+            c: 2,
+            [Symbol.for('@@mdb.decryptedKeys')]: ['b']
+          }
+        });
+        expect(doc.get('a').isKeyEditable()).to.equal(false);
+        expect(doc.get('a').get('b').isKeyEditable()).to.equal(false);
+        expect(doc.get('a').get('c').isKeyEditable()).to.equal(true);
+      });
+    });
+  });
+
   describe('#isModified', function() {
     context('when the element has no children', function() {
       context('when the element is not modified', function() {
