@@ -428,7 +428,7 @@ export class Document extends EventEmitter {
    *
    * @returns {true} Always true.
    */
-  isRoot(): true {
+  isRoot(): this is Document {
     return true;
   }
 

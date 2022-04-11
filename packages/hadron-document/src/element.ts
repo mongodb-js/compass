@@ -153,8 +153,8 @@ export class Element extends EventEmitter {
     let parentValue;
     if (this.parent) {
       parentValue = this.parent.isRoot()
-        ? (this.parent as Document).doc
-        : (this.parent as Element).originalExpandableValue;
+        ? this.parent.doc
+        : this.parent.originalExpandableValue;
     }
     const parentDecryptedKeys =
       parentValue && (parentValue as any)[Symbol.for('@@mdb.decryptedKeys')];
@@ -622,7 +622,7 @@ export class Element extends EventEmitter {
    */
   isParentEditable(): boolean {
     if (this.parent && !this.parent.isRoot()) {
-      return (this.parent as Element)._isKeyLegallyEditable();
+      return this.parent._isKeyLegallyEditable();
     }
     return true;
   }
@@ -731,7 +731,7 @@ export class Element extends EventEmitter {
       if (element.isRoot()) {
         element.emit(evt, ...data);
       } else {
-        (element as Element)._bubbleUp(evt, ...data);
+        element._bubbleUp(evt, ...data);
       }
     }
   }
