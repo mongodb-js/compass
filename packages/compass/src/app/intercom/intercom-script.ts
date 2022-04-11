@@ -66,10 +66,16 @@ export class IntercomScript {
 
       const ic = win.Intercom;
       if (typeof ic === 'function') {
+        debug(
+          'intercom function was present on the page, reattaching and updating',
+          {
+            ...metadata,
+          }
+        );
+
         ic('reattach_activator');
         ic('update', {
           ...metadata,
-          widget: { activator: '#IntercomDefaultWidget' },
         });
       } else {
         const d = win.document;
@@ -97,7 +103,7 @@ export class IntercomScript {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             x.parentNode!.insertBefore(s, x);
             debug('intercom script injected');
-            win.Intercom!('boot', metadata);
+            win.Intercom!('boot', { ...metadata });
             log.info(
               mongoLogId(1_001_000_111),
               'Intercom',
