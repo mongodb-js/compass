@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 type AutoFocusInfo = {
   id: string;
-  type: 'key' | 'value';
+  type: 'key' | 'value' | 'type';
 } | null;
 
 export const AutoFocusContext = createContext<AutoFocusInfo>(null);
