@@ -27,6 +27,16 @@ class DeclarationStore {
     return varName;
   }
 
+    /**
+   * Stringify the variable declarations
+   *
+   * @param {string} sep - Seperator string placed between elements in the resulting string of declarations
+   * @returns {string} All the declarations as a string seperated by a line-break
+   */
+     toString(sep = '\n\n') {
+      return Object.keys(this.store).join(sep);
+    }
+
   /**
    * Check if the template + varRoot + declaration combo already exists
    *
@@ -38,8 +48,8 @@ class DeclarationStore {
   alreadyDeclared(template, varRoot, declaration) {
     const existing = this.candidates(template, varRoot);
     for (var i = 0; i < existing.length; i++) {
-      const mock = `${this.varTemplateRoot(template, varRoot)}${i > 0 ? i : ''}`;
-      const current = this.store[declaration(mock)];
+      const candidate = `${this.varTemplateRoot(template, varRoot)}${i > 0 ? i : ''}`;
+      const current = this.store[declaration(candidate)];
       if (current !== undefined) {
         return current;
       }
