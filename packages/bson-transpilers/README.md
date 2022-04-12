@@ -87,7 +87,7 @@ The `DeclarationStore` class maintains an internal state concerning variable dec
 ```javascript
 // within the args template
 (state, arg) => {
-  return state.declarationStore.add("objectID", (varName) => {
+  return state.declarationStore.add("Temp", "objectID", (varName) => {
     return [
       `${varName}, err := primitive.ObjectIDFromHex(${arg})`,
       'if err != nil {',
@@ -98,7 +98,7 @@ The `DeclarationStore` class maintains an internal state concerning variable dec
 }
 ```
 
-Note that each use of the same variable name will result in an increment being added to the declaration statement. For example, if the variable name `objectID` is used two times the resulting declaration statements will use `objectID` for the first declaration and `objectID2` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `argsTemplate` function.
+Note that each use of the same variable name will result in an increment being added to the declaration statement. For example, if the variable name `objectIDForTemp` is used two times the resulting declaration statements will use `objectIDForTemp` for the first declaration and `objectID2ForTemp` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `argsTemplate` function.
 
 The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver, syntax via state, for use:
 
