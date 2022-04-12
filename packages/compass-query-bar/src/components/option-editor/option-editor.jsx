@@ -130,7 +130,7 @@ class OptionEditor extends Component {
         onLoad={(editor) => {
           this.editor = editor;
           this.editor.setBehavioursEnabled(true);
-          this.editor.commands.addVarCommand({
+          this.editor.commands.addCommand({
             name: 'executeQuery',
             bindKey: {
               win: 'Enter', mac: 'Enter'
