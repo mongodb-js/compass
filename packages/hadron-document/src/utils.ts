@@ -59,10 +59,6 @@ function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
       (value as any)[key] = +entry.$numberDouble;
       continue;
     }
-    if (key.startsWith('$')) {
-      // Do not recurse into other EJSON-specific keys.
-      continue;
-    }
     makeEJSONIdiomatic(entry);
   }
 }
