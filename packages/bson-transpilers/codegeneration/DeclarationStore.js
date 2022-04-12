@@ -27,16 +27,6 @@ class DeclarationStore {
     return varName;
   }
 
-    /**
-   * Stringify the variable declarations
-   *
-   * @param {string} sep - Seperator string placed between elements in the resulting string of declarations
-   * @returns {string} All the declarations as a string seperated by a line-break
-   */
-     toString(sep = '\n\n') {
-      return Object.keys(this.store).join(sep);
-    }
-
   /**
    * Check if the template + varRoot + declaration combo already exists
    *
