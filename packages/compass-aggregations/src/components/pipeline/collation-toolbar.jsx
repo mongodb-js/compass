@@ -95,7 +95,7 @@ class CollationToolbar extends PureComponent {
             Collation
           </div>
           <input
-            data-test-id="collation-string"
+            data-testid="collation-string"
             placeholder="{ locale: 'simple' }"
             type="text"
             onChange={this.onCollationChange}
@@ -114,9 +114,9 @@ class CollationToolbar extends PureComponent {
                 Max Time MS
               </div>
               <input
-                data-test-id="max-time-ms"
-                id="aggregation-limit"
-                aria-describedby="aggregation-limit-description"
+                data-testid="max-time-ms"
+                id="max-time-limit"
+                aria-describedby="max-time-limit"
                 type="number"
                 min="0"
                 placeholder={DEFAULT_MAX_TIME_MS}

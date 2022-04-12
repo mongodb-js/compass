@@ -568,7 +568,7 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 export const StageContainer = '[data-test-id="stage-container"]';
 export const CreateNewPipelineButton = 'button#create-new-pipeline';
 export const ToggleAggregationCollation = '[data-test-id="toggle-collation"]';
-export const AggregationCollationInput = '[data-test-id="collation-string"]';
+export const AggregationCollationInput = '[data-testid="collation-string"]';
 export const AggregationSettingsButton =
   '[data-test-id="aggregation-settings"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
