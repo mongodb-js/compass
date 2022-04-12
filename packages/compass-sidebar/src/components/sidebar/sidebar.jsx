@@ -237,7 +237,6 @@ const mapStateToProps = (state) => ({
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-  csfleMode: state.csfleMode,
 });
 
 /**

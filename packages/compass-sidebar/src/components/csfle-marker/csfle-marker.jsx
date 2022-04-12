@@ -1,6 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css, Icon, Badge, BadgeVariant } from '@mongodb-js/compass-components';
+import {
+  css,
+  Icon,
+  Badge,
+  BadgeVariant,
+  mergeProps,
+  useFocusRing
+} from '@mongodb-js/compass-components';
 
 // Let's not worry too much about styling here until
 // the sidebar is redone soon anyway.
@@ -9,12 +16,10 @@ const badgeContainerStyles = css({
 });
 
 const badgeButtonStyles = css({
-  '&': {
-    background: 'inherit',
-    padding: 0,
-    margin: 0,
-    border: 'none',
-  },
+  background: 'inherit',
+  padding: 0,
+  margin: 0,
+  border: 'none',
   '&:hover': {
     cursor: 'pointer'
   }
@@ -24,9 +29,22 @@ function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
   if (!csfleMode || csfleMode === 'unavailable') {
     return null;
   }
+
+  const focusRingProps = useFocusRing();
+  const buttonProps = mergeProps(
+    {
+      type: 'button',
+      'aria-label': 'Open connection CSFLE configuration',
+      title: 'Connection CSFLE configuration',
+      className: badgeButtonStyles,
+      onClick: () => toggleCSFLEModalVisible()
+    },
+    focusRingProps
+  );
+
   return (
     <div className={badgeContainerStyles}>
-      <button className={badgeButtonStyles} onClick={() => toggleCSFLEModalVisible()}>
+      <button {...buttonProps}>
         <Badge variant={csfleMode === 'enabled' ? BadgeVariant.DarkGray : BadgeVariant.LightGray}>
           <Icon glyph="Key" />
           CSFLE

@@ -10,6 +10,7 @@ import DataService from './data-service';
 import type { ConnectionOptions } from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
+import { truncate } from 'lodash';
 
 const TEST_DOCS = [
   {
@@ -1660,6 +1661,11 @@ describe('DataService', function () {
       dataService.setCSFLEEnabled(false);
 
       expect(dataService._initializedClient('CRUD')).to.equal(b);
+      expect(dataService._initializedClient('META')).to.equal(b);
+
+      dataService.setCSFLEEnabled(true);
+
+      expect(dataService._initializedClient('CRUD')).to.equal(a);
       expect(dataService._initializedClient('META')).to.equal(b);
     });
   });

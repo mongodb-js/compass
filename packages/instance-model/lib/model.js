@@ -254,6 +254,7 @@ const InstanceModel = AmpersandModel.extend(
 
         this.set({ refreshingStatus: 'ready', refreshingStatusError: null });
       } catch (err) {
+        console.log("refreshingStatusError!", err.stack)
         this.set({
           refreshingStatus: 'error',
           refreshingStatusError: err.message,
