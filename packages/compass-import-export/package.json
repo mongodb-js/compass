@@ -71,6 +71,7 @@
     "electron": "^13.5.1",
     "fast-csv": "^3.4.0",
     "flat": "cipacda/flat",
+    "hadron-document": "^7.9.0",
     "hadron-react-buttons": "^5.7.0",
     "hadron-react-components": "^5.13.0",
     "lodash": "^4.17.21",

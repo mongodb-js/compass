@@ -1,4 +1,4 @@
-import { Element } from '../..';
+import { Element } from '../../src';
 import { StandardEditor } from '../../src/editor';
 import { expect } from 'chai';
 

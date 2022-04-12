@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Document } from '../';
+import { Document } from '../src/';
 import { ObjectGenerator } from '../src/object-generator';
 
 describe('ObjectGenerator', function () {

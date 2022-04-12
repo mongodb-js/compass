@@ -1,5 +1,5 @@
 import { Double } from 'bson';
-import { Element } from '../..';
+import { Element } from '../../src';
 import { DoubleEditor } from '../../src/editor';
 import { expect } from 'chai';
 

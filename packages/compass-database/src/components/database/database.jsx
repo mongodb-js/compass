@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import styles from './database.module.less';
+
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATABASES');
 
 class Database extends Component {
   static displayName = 'DatabaseComponent';
@@ -37,6 +40,14 @@ class Database extends Component {
         <ErrorBoundary
           displayName={role.displayName}
           key={i}
+          onError={(error, errorInfo) => {
+            log.error(
+              mongoLogId(1001000109),
+              'Database Workspace',
+              'Rendering database tab failed',
+              { name: role.name, error: error.message, errorInfo }
+            );
+          }}
         >
           <role.component />
         </ErrorBoundary>
