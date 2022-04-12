@@ -155,7 +155,7 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  it('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
+  it.only('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
     // set a collation
     await browser.clickVisible(Selectors.ToggleAggregationCollation);
     const collationInput = await browser.$(Selectors.AggregationCollationInput);
@@ -224,6 +224,14 @@ describe('Collection aggregations tab', function () {
 
     // disable it
     await browser.clickVisible(Selectors.stageToggle(1));
+
+    await browser.waitUntil(
+      async () => {
+        const stageToggle = await browser.$(Selectors.stageToggle(1));
+        return (await stageToggle.getAttribute('aria-checked')) === 'false';
+      },
+      { timeoutMsg: 'Expected stage toggle to be turned off' }
+    );
 
     // export to language
     await browser.clickVisible(Selectors.ExportAggregationToLanguage);

@@ -156,9 +156,9 @@ class PipelineWorkspace extends PureComponent {
           return this.stageListContainerRef ?? document.body
         }}
         helperClass="dragging"
-        // Slight delay to prevent sortable logic messing with interactive
-        // elements in the handler toolbar component
-        pressDelay={10}
+        // Slight distance requirement to prevent sortable logic messing with
+        // interactive elements in the handler toolbar component
+        distance={10}
       >
         {this.props.pipeline.map((stage, idx) => {
           return this.renderStage(stage, idx);
