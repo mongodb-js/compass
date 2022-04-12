@@ -16,10 +16,33 @@ class DeclarationStore {
    * @returns {string} the variable name with root and appended count
    */
   add(varRoot, declaration) {
+    // Don't push existing declarations
+    const current = this.alreadyDeclared(varRoot, declaration);
+    if (current !== undefined) {
+      return current;
+    }
     const varName = this.next(varRoot);
     const data = { varName: varName, declaration: declaration(varName) };
     this.store.push(data);
     return data.varName;
+  }
+
+  /**
+   * Check if the varRoot + declaration combo already exists
+   *
+   * @param {string} varRoot - The root of the variable name to be appended by the occurance count
+   * @param {function} declaration - The code block to be prepended to the driver syntax
+   * @returns {string | undefined} the current variable name with root associated with the declaration, if it exists
+   */
+  alreadyDeclared(varRoot, declaration) {
+    const existing = this.store.filter(h => h.varName.startsWith(varRoot));
+    for (var i = 0; i < existing.length; i++) {
+      const mock = `${varRoot}${i > 0 ? i : ''}`;
+      if (this.store.find(e => e.declaration === declaration(mock)) !== undefined) {
+        return existing[i].varName;
+      }
+    }
+    return undefined;
   }
 
   /**
