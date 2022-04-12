@@ -75,7 +75,7 @@ const HadronDocument: React.FunctionComponent<{
   }, [elements, visibleFieldsCount]);
   const [autoFocus, setAutoFocus] = useState<{
     id: string;
-    type: 'key' | 'value';
+    type: 'key' | 'value' | 'type';
   } | null>(null);
 
   useEffect(() => {

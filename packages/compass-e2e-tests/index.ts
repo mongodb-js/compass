@@ -50,14 +50,10 @@ async function setup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
   // When working on the tests it is faster to just keep the server running.
-  // insert-data is idempotent anyway.
   if (!disableStartStop) {
     debug('Starting MongoDB server');
     crossSpawn.sync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   }
-
-  debug('Importing test fixtures');
-  crossSpawn.sync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
 
   try {
     debug('Clearing out past logs');
@@ -152,6 +148,9 @@ async function main() {
   // the time-to-first-query.ts test.
   // So yeah.. this is a bit of a micro optimisation.
   const tests = [FIRST_TEST, ...rawTests.filter((t) => t !== FIRST_TEST)];
+
+  // Ensure the insert-data mocha hooks are run.
+  tests.unshift(path.join('helpers', 'insert-data.ts'));
 
   const bail = process.argv.includes('--bail');
 
