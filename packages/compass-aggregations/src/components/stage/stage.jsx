@@ -48,7 +48,6 @@ class Stage extends Component {
     isTimeSeries: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     sourceName: PropTypes.string,
-    // connectDragSource: PropTypes.func.isRequired,
     stage: PropTypes.string.isRequired,
     stageOperator: PropTypes.string,
     snippet: PropTypes.string,
@@ -142,7 +141,6 @@ class Stage extends Component {
       >
         <DragHandleToolbar
           allowWrites={this.props.allowWrites}
-          // connectDragSource={this.props.connectDragSource}
           env={this.props.env}
           isTimeSeries={this.props.isTimeSeries}
           isReadonly={this.props.isReadonly}

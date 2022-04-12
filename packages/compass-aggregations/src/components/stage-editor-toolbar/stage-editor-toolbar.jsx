@@ -17,7 +17,6 @@ class StageEditorToolbar extends PureComponent {
   static displayName = 'StageEditorToolbar';
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
-    // connectDragSource: PropTypes.func.isRequired,
     env: PropTypes.string.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
