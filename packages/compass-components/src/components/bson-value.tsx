@@ -54,7 +54,7 @@ const bsonValue = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  display: 'inline'
+  display: 'inline',
 });
 
 const bsonValuePrewrap = css({
