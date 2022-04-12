@@ -336,7 +336,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
   }
   returnFunctionCallLhsRhs(lhs, rhs, lhsType, l) {
     if (lhsType.argsTemplate) {
-      rhs = lhsType.argsTemplate.bind(this.state)(l, ...rhs);
+      rhs = lhsType.argsTemplate.bind(this.getState())(l, ...rhs);
     } else {
       rhs = `(${rhs.join(', ')})`;
     }
@@ -500,7 +500,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
       ? lhsType.template()
       : defaultT;
     const rhs = lhsType.argsTemplate
-      ? lhsType.argsTemplate.bind(this.state)(lhsArg, ...args)
+      ? lhsType.argsTemplate.bind(this.getState())(lhsArg, ...args)
       : defaultA;
     const lhs = skipLhs ? '' : lhsArg;
     return this.Syntax.new.template
@@ -522,7 +522,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     let args = '';
     const keysAndValues = this.getKeyValueList(ctx);
     if (ctx.type.argsTemplate) {
-      args = ctx.type.argsTemplate.bind(this.state)(
+      args = ctx.type.argsTemplate.bind(this.getState())(
         this.getKeyValueList(ctx).map((k) => {
           return [this.getKeyStr(k), this.visit(this.getValue(k))];
         }),
@@ -551,7 +551,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (ctx.type.argsTemplate) { // NOTE: not currently being used anywhere.
       args = visitedElements.map((arg, index) => {
         const last = !visitedElements[index + 1];
-        return ctx.type.argsTemplate.bind(this.state)(arg, ctx.indentDepth, last);
+        return ctx.type.argsTemplate.bind(this.getState())(arg, ctx.indentDepth, last);
       }).join('');
     } else {
       args = visitedElements.join(', ');

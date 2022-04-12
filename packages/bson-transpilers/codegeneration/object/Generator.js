@@ -92,7 +92,7 @@ module.exports = (Visitor) => class Generator extends Visitor {
     }
 
     if (lhsType && lhsType.argsTemplate) {
-      return lhsType.argsTemplate.bind(this.state)(lhs, ...args);
+      return lhsType.argsTemplate.bind(this.getState())(lhs, ...args);
     }
 
     let expr;
