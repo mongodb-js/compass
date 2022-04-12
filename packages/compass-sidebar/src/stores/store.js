@@ -23,7 +23,7 @@ store.onActivated = (appRegistry) => {
       changeInstance({
         refreshingStatus: instance.refreshingStatus,
         databasesStatus: instance.databasesStatus,
-        isCSFLEConnection: instance.isCSFLEConnection
+        csfleMode: instance.csfleMode,
       })
     );
   }, 300);
@@ -63,6 +63,11 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
     store.dispatch(changeConnectionInfo(connectionInfo));
+
+    appRegistry.on('toggle-csfle-enabled', (enabled) => {
+      dataService.setCSFLEEnabled(enabled);
+      appRegistry.emit('refresh-data');
+    });
   });
 
   appRegistry.on('instance-destroyed', () => {
@@ -73,6 +78,10 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('instance-created', ({ instance }) => {
     onInstanceChange(instance);
     onDatabasesChange(instance.databases);
+
+    instance.on('change:csfleMode', () => {
+      onInstanceChange(instance);
+    });
 
     instance.on('change:refreshingStatus', () => {
       onInstanceChange(instance);

@@ -8,23 +8,38 @@ const badgeContainerStyles = css({
   padding: '0px 0px 6px 36px'
 });
 
-function CSFLEMarker({ isCSFLEConnection }) {
-  if (!isCSFLEConnection) {
+const badgeButtonStyles = css({
+  '&': {
+    background: 'inherit',
+    padding: 0,
+    margin: 0,
+    border: 'none',
+  },
+  '&:hover': {
+    cursor: 'pointer'
+  }
+});
+
+function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
+  if (!csfleMode || csfleMode === 'unavailable') {
     return null;
   }
   return (
     <div className={badgeContainerStyles}>
-      <Badge variant={BadgeVariant.DarkGray}>
-        <Icon glyph="Key" />
-        CSFLE
-      </Badge>
+      <button className={badgeButtonStyles} onClick={() => toggleCSFLEModalVisible()}>
+        <Badge variant={csfleMode === 'enabled' ? BadgeVariant.DarkGray : BadgeVariant.LightGray}>
+          <Icon glyph="Key" />
+          CSFLE
+        </Badge>
+      </button>
     </div>
   );
 }
 
 CSFLEMarker.displayName = 'CSFLEMarker';
 CSFLEMarker.propTypes = {
-  isCSFLEConnection: PropTypes.boolean
+  csfleMode: PropTypes.string,
+  toggleCSFLEModalVisible: PropTypes.func.isRequired,
 };
 
 export default CSFLEMarker;
