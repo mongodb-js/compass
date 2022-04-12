@@ -86,7 +86,7 @@ const InstanceComponent = ({
                 key={tab.name}
                 onError={(err, errorInfo) => {
                   log.error(
-                    mongoLogId(1_001_000_110),
+                    mongoLogId(1001000110),
                     'Instance Workspace',
                     'Rendering instance tab failed',
                     { name: tab.name, error: err.message, errorInfo }

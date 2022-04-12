@@ -114,7 +114,7 @@ function Connections({
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {
               log.error(
-                mongoLogId(1_001_000_108),
+                mongoLogId(1001000108),
                 'Connect Form',
                 'Rendering connect form failed',
                 { error: error.message, errorInfo }

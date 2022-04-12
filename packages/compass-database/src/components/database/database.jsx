@@ -42,7 +42,7 @@ class Database extends Component {
           key={i}
           onError={(error, errorInfo) => {
             log.error(
-              mongoLogId(1_001_000_109),
+              mongoLogId(1001000109),
               'Database Workspace',
               'Rendering database tab failed',
               { name: role.name, error: error.message, errorInfo }

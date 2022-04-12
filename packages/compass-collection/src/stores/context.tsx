@@ -317,7 +317,7 @@ const createContext = ({
         displayName={role.component.displayName}
         onError={(error, errorInfo) => {
           log.error(
-            mongoLogId(1_001_000_107),
+            mongoLogId(1001000107),
             'Collection Workspace',
             'Rendering collection tab failed',
             { name: role.name, error: error.message, errorInfo }
