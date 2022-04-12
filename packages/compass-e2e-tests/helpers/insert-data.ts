@@ -15,7 +15,16 @@ async function dropDatabase(db: Db) {
 }
 
 async function createBlankCollection(db: Db, name: string) {
-  await db.createCollection(name);
+  try {
+    await db.createCollection(name);
+  } catch (err) {
+    const codeName = (err as MongoServerError).codeName;
+    if (codeName === 'NamespaceExists') {
+      await db.collection(name).deleteMany({});
+    } else {
+      throw err;
+    }
+  }
 }
 
 let client: MongoClient;
@@ -33,14 +42,15 @@ after(async () => {
 beforeEach(async () => {
   // Drop the databases that get created by tests just in case tests failed to
   // clean them up.
-  await dropDatabase(client.db('my-sidebar-database'));
-  await dropDatabase(client.db('my-instance-database'));
+  await Promise.all(
+    ['test', 'my-sidebar-database', 'my-instance-database'].map((db) =>
+      dropDatabase(client.db(db))
+    )
+  );
+});
 
+export async function createDummyCollections(): Promise<void> {
   const db = client.db('test');
-
-  // Drop the entire test db where we create lots of collections during test runs
-  await dropDatabase(db);
-
   const promises = [];
 
   // Create some empty collections for the import tests so each one won't have
@@ -64,8 +74,12 @@ beforeEach(async () => {
   }
 
   await Promise.all(promises);
+}
+
+export async function createNumbersCollection(): Promise<void> {
+  const db = client.db('test');
 
   await db
     .collection('numbers')
     .insertMany([...Array(1000).keys()].map((i) => ({ i, j: 0 })));
-});
+}

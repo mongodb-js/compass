@@ -7,6 +7,7 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Element } from 'webdriverio';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -91,12 +92,11 @@ describe('Collection documents tab', function () {
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   beforeEach(async function () {
-    console.log('navigating to test.numbers.Documents');
+    await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
   });
 

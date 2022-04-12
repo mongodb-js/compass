@@ -30,32 +30,7 @@ async function navigateToCollection(
   await sidebarFilterInputElement.setValue(collectionName);
   const collectionElement = await browser.$(collectionSelector);
 
-  // If we're not finding the collection in the sidebar immediately,
-  // click the refresh button on the sidebar. This mostly handles the case
-  // in which we've connected Compass in a before() hook, but the
-  // insert-test-data hooks in the beforeEach() hook have not run yet,
-  // but also makes the tests more resilient in general.
-  let foundCollection = false;
-  const refreshSidebarPromise = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000).unref());
-    if (foundCollection) {
-      return;
-    }
-    // If the collection is not found after 1 second, refresh.
-    await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
-    const refreshIdleIcon = await browser.$(
-      Selectors.SidebarInstanceRefreshIdle
-    );
-    await refreshIdleIcon.waitForDisplayed();
-    // TODO: Figure out why we first need to clear the search element here
-    await sidebarFilterInputElement.setValue('');
-    await sidebarFilterInputElement.setValue(collectionName);
-  };
-  await Promise.race([
-    collectionElement.waitForDisplayed(),
-    refreshSidebarPromise,
-  ]);
-  foundCollection = true;
+  await collectionElement.waitForDisplayed();
 
   // click it and wait for the collection header to become visible
   await browser.clickVisible(collectionSelector);
