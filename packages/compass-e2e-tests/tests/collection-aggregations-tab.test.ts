@@ -225,6 +225,14 @@ describe('Collection aggregations tab', function () {
     // disable it
     await browser.clickVisible(Selectors.stageToggle(1));
 
+    await browser.waitUntil(
+      async () => {
+        const stageToggle = await browser.$(Selectors.stageToggle(1));
+        return (await stageToggle.getAttribute('aria-checked')) === 'false';
+      },
+      { timeoutMsg: 'Expected stage toggle to be turned off' }
+    );
+
     // export to language
     await browser.clickVisible(Selectors.ExportAggregationToLanguage);
     const text = await browser.exportToLanguage('Ruby');
