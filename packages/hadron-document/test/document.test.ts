@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import Document from '../';
+import Document from '../src/';
 import SharedExamples from './shared-examples';
-import { ObjectId } from 'bson';
+import { ObjectId, Long } from 'bson';
 
 describe('Document', function () {
   describe('#get', function () {
@@ -1557,6 +1557,64 @@ describe('Document', function () {
         it('does not increment the loaded count', function () {
           expect(elements.loaded).to.equal(3);
         });
+      });
+    });
+  });
+
+  describe('EJSON', function () {
+    describe('Document.FromJSON', function () {
+      it('parses strings in EJSON strict mode', function () {
+        const parsed = Document.FromEJSON('{"a": 1}');
+        expect(parsed.get('a').currentType).to.equal('Int32');
+      });
+    });
+
+    describe('Document.FromJSONArray', function () {
+      it('parses arrays', function () {
+        const parsed = Document.FromEJSONArray('[{"a": 1}]');
+        expect(parsed).to.have.lengthOf(1);
+        expect(parsed[0].get('a').currentType).to.equal('Int32');
+      });
+
+      it('lifts single objects to a singleton arrays', function () {
+        const parsed = Document.FromEJSONArray('{"a": 1}');
+        expect(parsed).to.have.lengthOf(1);
+        expect(parsed[0].get('a').currentType).to.equal('Int32');
+      });
+    });
+
+    describe('#toEJSON', function () {
+      it('serializes Int32/Double as relaxed but not Int64', function () {
+        const doc = new Document({
+          a: 1,
+          b: 1.5,
+          c: Long.fromNumber(2),
+        });
+        expect(doc.toEJSON('current', { indent: null })).to.equal(
+          '{"a":1,"b":1.5,"c":{"$numberLong":"2"}}'
+        );
+      });
+
+      it('optionally serializes the current or the original document', function () {
+        const doc = new Document({
+          a: 1,
+          b: 1.5,
+          c: Long.fromNumber(2),
+        });
+        doc.get('a').edit(2);
+        expect(doc.toEJSON('current', { indent: null })).to.equal(
+          '{"a":2,"b":1.5,"c":{"$numberLong":"2"}}'
+        );
+        expect(doc.toEJSON('original', { indent: null })).to.equal(
+          '{"a":1,"b":1.5,"c":{"$numberLong":"2"}}'
+        );
+      });
+
+      it('allows specifying JSON indent', function () {
+        const doc = new Document({ a: 1 });
+        expect(doc.toEJSON('current', { indent: '>' })).to.equal(
+          '{\n>"a": 1\n}'
+        );
       });
     });
   });

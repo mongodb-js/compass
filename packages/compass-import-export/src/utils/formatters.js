@@ -3,7 +3,7 @@
 /* eslint-disable complexity */
 
 import * as csv from 'fast-csv';
-import { EJSON } from 'bson';
+import HadronDocument from 'hadron-document';
 import { serialize as flatten } from './bson-csv';
 import { Transform } from 'stream';
 import { EOL } from 'os';
@@ -22,7 +22,9 @@ export const createJSONFormatter = function ({ brackets = true } = {}) {
           this.push(EOL);
         }
       }
-      const s = EJSON.stringify(doc, null, brackets ? 2 : null);
+      const s = new HadronDocument(doc).toEJSON('current', {
+        indent: brackets ? 2 : undefined,
+      });
       if (this._counter === undefined) {
         this._counter = 0;
         if (brackets) {
