@@ -3,7 +3,7 @@ import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
 import { StatusRow, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
-import { CancelLoader } from '@mongodb-js/compass-components';
+import { CancelLoader, WorkspaceContainer } from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
 import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
@@ -125,11 +125,9 @@ class DocumentList extends React.Component {
     }
 
     return (
-      <div className="column-container">
-        <div className="column main">
-          {this.renderViews()}
-        </div>
-      </div>
+      <WorkspaceContainer>
+        {this.renderViews()}
+      </WorkspaceContainer>
     );
   }
 
