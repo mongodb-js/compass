@@ -6,7 +6,7 @@ describe('DeclarationStore', () => {
     const ds = new DeclarationStore();
 
     ds.add('Temp', 'objectID', (varName) => { return `objectId${varName}`; });
-    assert.strictEqual(ds.store.length, 1);
+    assert.strictEqual(ds.length(), 1);
   });
   it('returns incremented variable names given the pre-incremented variable root-name', () => {
     const ds = new DeclarationStore();

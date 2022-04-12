@@ -5,7 +5,7 @@
  */
 class DeclarationStore {
   constructor() {
-    this.store = [];
+    this.store = {};
   }
 
   /**
@@ -23,9 +23,8 @@ class DeclarationStore {
       return current;
     }
     const varName = this.next(template, varRoot);
-    const data = { template: template, varName: varName, declaration: declaration(varName) };
-    this.store.push(data);
-    return data.varName;
+    this.store[declaration(varName)] = varName;
+    return varName;
   }
 
   /**
@@ -40,19 +39,20 @@ class DeclarationStore {
     const existing = this.candidates(template, varRoot);
     for (var i = 0; i < existing.length; i++) {
       const mock = `${this.varTemplateRoot(template, varRoot)}${i > 0 ? i : ''}`;
-
-      // Check if the declaration and template are the same
-      const matching = (e) => e.declaration === declaration(mock) && e.template === template;
-      if (this.store.find(e => matching(e)) !== undefined) {
-        return existing[i].varName;
+      const current = this.store[declaration(mock)];
+      if (current !== undefined) {
+        return current;
       }
     }
-    return undefined;
   }
 
   candidates(template, varRoot) {
     const varTemplateRoot = this.varTemplateRoot(template, varRoot);
-    return this.store.filter(h => h.varName.startsWith(varTemplateRoot));
+    return Object.values(this.store).filter(varName => varName.startsWith(varTemplateRoot));
+  }
+
+  length() {
+    return Object.keys(this.store).length;
   }
 
   /**
@@ -78,7 +78,7 @@ class DeclarationStore {
    * @returns {string} All the declarations as a string seperated by a line-break
    */
   toString(sep = '\n\n') {
-    return this.store.map((value) => value.declaration).join(sep);
+    return Object.keys(this.store).join(sep);
   }
 
   varTemplateRoot(template, varRoot) {
