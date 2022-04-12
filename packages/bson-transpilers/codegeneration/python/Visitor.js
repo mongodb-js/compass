@@ -338,7 +338,7 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       if (op === 'in' || op === 'notin') {
         skip = true;
         if (this.Syntax.in) {
-          return `${str}${this.Syntax.in.template(
+          return `${str}${this.Syntax.in.template.bind(this.getState())(
             this.visit(arr[i - 1]), op, this.visit(arr[i + 1]))}`;
         }
         return `${str} ${this.visit(arr[i - 1])} ${op} ${this.visit(arr[i + 1])}`;

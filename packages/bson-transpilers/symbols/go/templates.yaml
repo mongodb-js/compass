@@ -51,6 +51,8 @@ Templates:
             delete spec.options;
             delete spec.filter;
 
+            const indent = (depth) => '    '.repeat(depth)
+
             const comment = []
                 .concat('// Requires the MongodDB Go Driver')
                 .concat('// https://github.com/mongodb/mongo-go-driver')
@@ -58,30 +60,55 @@ Templates:
 
             const connect = []
                 .concat('ctx := context.TODO()')
-                .concat('')
+                .concat(this.declarations.length() > 0 ? `\n${this.declarations.toString()}\n` : '')
                 .concat('// Set client options')
                 .concat('clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")')
                 .concat('')
                 .concat('// Connect to MongoDB')
                 .concat('client, err := mongo.Connect(ctx, clientOptions)')
                 .concat('if err != nil {')
-                .concat('  log.Fatal(err)')
+                .concat('    log.Fatal(err)')
                 .concat('}')
                 .concat('defer client.Disconnect(ctx)')
                 .join('\n');
 
-            const coll = `coll := client.Database("${options.database}").Collection("${options.collection}")`;
+            const coll = []
+                .concat(`coll := client.Database("${options.database}").Collection("${options.collection}")`)
+                .join('\n');
 
             if ('aggregation' in spec) {
                 return []
                     .concat(comment)
                     .concat(connect)
                     .concat('')
-                    .concat(`${coll}.Aggregate(ctx, ${spec.aggregation})`)
+                    .concat('// Open an aggregation cursor')
+                    .concat(`${coll}`)
+                    .concat(`_, err = coll.Aggregate(ctx, ${spec.aggregation})`)
+                    .concat('if err != nil {')
+                    .concat('    log.Fatal(err)')
+                    .concat('}')
                     .join('\n');
             }
 
-            return 'reeeeeep';
+            const findOptions = []
+            if (spec.project)
+                findOptions.push(`options.Find().SetProjection(${spec.project})`);
+            if (spec.sort)
+                findOptions.push(`options.Find().SetSort(${spec.sort})`);
+
+            const optsStr = findOptions.length > 0 ? `,\n${indent(1)}${findOptions.join(`,\n${indent(1)}`)}` : ''
+
+            return []
+                .concat(comment)
+                .concat(connect)
+                .concat('')
+                .concat('// Find data')
+                .concat(`${coll}`)
+                .concat(`_, err = coll.Find(ctx, ${filter}${optsStr})`)
+                .concat('if err != nil {')
+                .concat('    log.Fatal(err)')
+                .concat('}')
+                .join('\n');
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
@@ -95,20 +122,20 @@ Templates:
         }
     InSyntaxTemplate: &InSyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
-            let prefix = '';
-            if (op.includes('!') || op.includes('not'))
-                prefix = '!';
-            const contains = []
-                .concat(`${prefix}func(elems bson.A, v interface{}) bool {`)
+            this.declarations.addFunction([]
+                .concat(`var contains = func(elems bson.A, v interface{}) bool {`)
                 .concat('  for _, s := range elems {')
                 .concat('    if v == s {')
                 .concat('      return true')
                 .concat('    }')
                 .concat('  }')
                 .concat('  return false')
-                .concat(`}(${rhs}, ${lhs})`)
-                .join('\n');
-            return contains;
+                .concat('}')
+                .join('\n'));
+            let prefix = '';
+            if (op.includes('!') || op.includes('not'))
+                prefix = '!';
+            return `${prefix}contains(${rhs}, ${lhs})`;
         }
     AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
         (args) => args.join(' && ')
@@ -273,31 +300,28 @@ Templates:
             return (scope === undefined) ? `{${code}}` : `{${code}, ${scope}}`;
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
-        () => {
-            return []
-                .concat("func(hex string) primitive.ObjectID {")
-                .concat("    if hex == \"\" {")
-                .concat("        return primitive.NewObjectID()")
-                .concat("    }")
-                .concat("    objectID, err := primitive.ObjectIDFromHex(hex)")
-                .concat("    if err != nil {")
-                .concat("        log.Fatal(err)")
-                .concat("    }")
-                .concat("    return objectID")
-                .concat("}")
-                .join("\n");
-        }
+        () => ''
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (_, arg) => {
             if (arg === undefined || arg === '')
-                return '("")';
+                return 'primitive.NewObjectID()';
 
             // Double quote stringify
             const singleQuoted = arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'';
             const doubleQuoted = arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"';
             if (singleQuoted || doubleQuoted)
                 arg = arg.substr(1, arg.length - 2);
-            return `("${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+            arg = `"${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            this.declarations.addFunction([]
+                .concat('var objectIDFromHex = func(hex string) primitive.ObjectID {')
+                .concat(`   objectID, err := primitive.ObjectIDFromHex(hex)`)
+                .concat('   if err != nil {')
+                .concat('       log.Fatal(err)')
+                .concat('   }')
+                .concat('   return objectID')
+                .concat('}')
+                .join('\n'));
+            return `objectIDFromHex(${arg})`
         }
     BinarySymbolTemplate: &BinarySymbolTemplate null
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null
@@ -318,15 +342,16 @@ Templates:
                 arg = 0;
             switch(type) {
                 case '_string':
-                    return []
-                        .concat("func(str string) float64 {")
-                        .concat("    f64, err := strconv.ParseFloat(str, 64)")
-                        .concat("    if err != nil {")
-                        .concat("        log.Fatal(err)")
-                        .concat("    }")
-                        .concat("    return f64")
-                        .concat(`}(${arg})`)
-                        .join("\n");
+                    this.declarations.addFunction([]
+                        .concat('var parseFloat64 = func(str string) float64 {')
+                        .concat('   f64, err := strconv.ParseFloat(str, 64)')
+                        .concat('   if err != nil {')
+                        .concat('       log.Fatal(err)')
+                        .concat('   }')
+                        .concat('   return f64')
+                        .concat('}')
+                        .join('\n'));
+                    return `parseFloat64(${arg})`
                 default:
                     return `float64(${arg})`;
             }
@@ -339,15 +364,16 @@ Templates:
                 arg = 0
             switch(type) {
                 case '_string':
-                    return []
-                        .concat("func(str string) int32 {")
-                        .concat("    i64, err := strconv.ParseInt(str, 10, 32)")
-                        .concat("    if err != nil {")
-                        .concat("        log.Fatal(err)")
-                        .concat("    }")
-                        .concat("    return int32(i64)")
-                        .concat(`}(${arg})`)
-                        .join("\n");
+                    this.declarations.addFunction([]
+                        .concat('var parseInt32 = func(str string) int32 {')
+                        .concat('i64, err := sstrconv.ParseInt(str, 10, 32)')
+                        .concat('   if err != nil {')
+                        .concat('       log.Fatal(err)')
+                        .concat('   }')
+                        .concat('   return int32(i64)')
+                        .concat('}')
+                        .join('\n'));
+                    return `parseInt32(${arg})`;
                 default:
                     return `int32(${arg})`;
             }
@@ -356,22 +382,23 @@ Templates:
         () => ''
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
-            if (!arg) {
+            if (!arg)
                 arg = 0
+            switch(type) {
+                case '_string':
+                    this.declarations.addFunction([]
+                        .concat('var parseInt = func(str string) int64 {')
+                        .concat('   i64, err := strconv.ParseInt(str}, 10, 64)')
+                        .concat('   if err != nil {')
+                        .concat('       log.Fatal(err)')
+                        .concat('   }')
+                        .concat('   return i64')
+                        .concat('}')
+                        .join('\n'));
+                    return `parseInt64(${arg})`;
+                default:
+                    return `int64(${arg})`;
             }
-            if (type === '_string') {
-                suffix = '!';
-                return []
-                    .concat("func(str string) int64 {")
-                    .concat("    i, err := strconv.Atoi(str)")
-                    .concat("    if err != nil {")
-                    .concat("        log.Fatal(err)")
-                    .concat("    }")
-                    .concat("    return int64(i)")
-                    .concat(`}(${arg})`)
-                    .join("\n");
-            }
-            return `int64(${arg})`;
         }
     RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
         () => 'regex'
@@ -399,17 +426,7 @@ Templates:
             return `(${structParts.join(", ")})`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
-        () => {
-            return []
-                .concat("func(str string) primitive.Decimal128 {")
-                .concat("    d, err := primitive.ParseDecimal128(str)")
-                .concat("    if err != nil {")
-                .concat("        log.Fatal(err)")
-                .concat("    }")
-                .concat("    return d")
-                .concat("}")
-                .join("\n");
-        }
+        () => ''
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (_, arg) => {
             if (!arg)
@@ -420,7 +437,18 @@ Templates:
             const doubleQuoted = arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"';
             if (singleQuoted || doubleQuoted)
                 arg = arg.substr(1, arg.length - 2);
-            return `("${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}")`;
+            arg = `"${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+
+            this.declarations.addFunction([]
+                .concat('var parseDecimal128 = func(str string) primitive.Decimal128 {')
+                .concat('   d128, err := primitive.ParseDecimal128(str)')
+                .concat('   if err != nil {')
+                .concat('       log.Fatal(err)')
+                .concat('   }')
+                .concat('   return d128')
+                .concat('}')
+                .join('\n'));
+            return `parseDecimal128(${arg})`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
         () => 'primitive.MinKey'
@@ -488,9 +516,9 @@ Templates:
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
         () => ''
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
-        (lhs) => `${lhs} == `
+        () => ''
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
-        (arg) => arg
+        (arg1, arg2) => `${arg1} == ${arg2}`
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
         (lhs) => `${lhs}.Timestamp()`
     ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate !!js/function >
@@ -665,37 +693,33 @@ Templates:
     TimestampGreaterThanArgsTemplate: &TimestampGreaterThanArgsTemplate !!js/function >
         (lhs, rhs) => `primitive.CompareTimestamp(${lhs}, ${rhs}) == 1`
     TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate !!js/function >
-        (lhs) => {
-            return []
-                .concat("func(rhs primitive.Timestamp) bool {")
-                .concat(`    lhs := ${lhs}`)
-                .concat(`    c := primitive.CompareTimestamp(lhs, rhs)`)
-                .concat("")
-                .concat("    // returns true if lhs == rhs or lhs > rhs")
-                .concat("    return return c == 0 || c == 1")
-                .concat(`}`)
-                .join("\n");
-        }
+        () => ''
     TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
-        (_, rhs) => `(${rhs})`
+        (arg1, arg2) => {
+            this.declarations.addFunction([]
+                .concat('var timestampGEQ = func(tm1, tm2) bool {')
+                .concat('   c := primitive.CompareTimestamp(tm1, tm2)')
+                .concat('   return c == 1 || c == 0')
+                .concat('}')
+                .join('\n'));
+            return `timestampGEQ(${arg1}, ${arg2})`;
+        }
     TimestampLessThanTemplate: &TimestampLessThanTemplate !!js/function >
         (lhs) => ''
     TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate !!js/function >
         (lhs, rhs) => `primitive.CompareTimestamp(${lhs}, ${rhs}) == -1`
     TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate !!js/function >
-        (lhs) => {
-            return []
-                .concat("func(rhs primitive.Timestamp) bool {")
-                .concat(`    lhs := ${lhs}`)
-                .concat(`    c := primitive.CompareTimestamp(lhs, rhs)`)
-                .concat("")
-                .concat("    // returns true if lhs == rhs or lhs < rhs")
-                .concat("    return return c == 0 || c == -1")
-                .concat(`}`)
-                .join("\n");
-        }
+        () => ''
     TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
-        (_, rhs) => `(${rhs})`
+        (arg1, arg2) => {
+            this.declarations.addFunction([]
+                .concat('var timestampLEQ = func(tm1, tm2) bool {')
+                .concat('   c := primitive.CompareTimestamp(tm1, tm2)')
+                .concat('   return c == -1 || c == 0')
+                .concat('}')
+                .join('\n'));
+            return `timestampLEQ(${arg1}, ${arg2})`;
+        }
     SymbolValueOfTemplate: &SymbolValueOfTemplate !!js/function >
         () => ''
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate !!js/function >
@@ -760,45 +784,50 @@ Templates:
         () => 'int64'
     LongSymbolFromNumberArgsTemplate: &LongSymbolFromNumberArgsTemplate null
     LongSymbolFromStringTemplate: &LongSymbolFromStringTemplate !!js/function >
-        () => {
-            return []
-                .concat("func(str string) int64 {")
-                .concat("    i, err := strconv.Atoi(str)")
-                .concat("    if err != nil {")
-                .concat("        log.Fatal(err)")
-                .concat("    }")
-                .concat("    return int64(i)")
-                .concat("}")
-                .join("\n");
-        }
+        () => ''
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
-        (_, arg) => `(${arg})`
+        (_, arg) => {
+            this.declarations.addFunction([]
+                .concat('var int64FromString = func(str string) int64 {')
+                .concat('   f64, err := strconv.Atoi(str)')
+                .concat('   if err != nil {')
+                .concat('       log.Fatal(err)')
+                .concat('   }')
+                .concat('   return f64')
+                .concat('}')
+                .join('\n'));
+            return `int64FromString(${arg})`;
+        }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
-        () => {
-            return []
-                .concat("func(str string) float64 {")
-                .concat("    f, err := strconv.ParseFloat(str, 64)")
-                .concat("    if err != nil {")
-                .concat("        log.Fatal(err)")
-                .concat("    }")
-                .concat("    return f")
-                .concat(`}`)
-                .join("\n");
+        () => ''
+    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
+        (_, arg) => {
+            this.declarations.addFunction([]
+                .concat('var parseFloat64 = func(str string) float64 {')
+                .concat('   f64, err := strconv.ParseFloat(str, 64)')
+                .concat('   if err != nil {')
+                .concat('       log.Fatal(err)')
+                .concat('   }')
+                .concat('   return f64')
+                .concat('}')
+                .join('\n'));
+            return `parseFloat64(${arg})`
         }
-    Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate null
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
-        () => {
-            return []
-                .concat("func(hex string) primitive.ObjectID {")
-                .concat("    objectID, err := primitive.ObjectIDFromHex(hex)")
-                .concat("    if err != nil {")
-                .concat("        log.Fatal(err)")
-                .concat("    }")
-                .concat("    return objectID")
-                .concat(`}`)
-                .join("\n");
+        () => ''
+    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
+        (_, arg) => {
+            this.declarations.addFunction([]
+                .concat('var objectIDFromHex = func(hex string) primitive.ObjectID {')
+                .concat(`   objectID, err := primitive.ObjectIDFromHex(${arg})`)
+                .concat('   if err != nil {')
+                .concat('       log.Fatal(err)')
+                .concat('   }')
+                .concat('   return objectID')
+                .concat('}')
+                .join('\n'));
+            return `objectIDFromHex(${arg})`
         }
-    ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate null
     ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
         () => 'primitive.NewObjectIDFromTimestamp'
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
@@ -819,8 +848,10 @@ Templates:
     #############################################
     ImportTemplate: &ImportTemplate !!js/function >
         (args) => {
-            console.log("ARGS--", args)
-            const flattenedArgs = [...new Set(Object.values(args))].sort();
+            const driver = args.driver || [];
+            delete args['driver'];
+
+            const flattenedArgs = [...driver, ...new Set(Object.values(args))].sort();
             const universal = [];
             const all = universal
                 .concat(flattenedArgs)
@@ -831,7 +862,12 @@ Templates:
                 .concat(')')
                 .join('\n');
         }
-    DriverImportTemplate: &DriverImportTemplate null
+    DriverImportTemplate: &DriverImportTemplate !!js/function >
+        (args) => {
+            return [
+                    "go.mongodb.org/mongo-driver/mongo",
+                    "context"]
+        }
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null

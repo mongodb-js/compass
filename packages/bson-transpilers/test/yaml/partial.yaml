@@ -30,14 +30,7 @@ tests:
           csharp: Decimal128
           shell: NumberDecimal
           ruby: BSON::Decimal128
-          go: |-
-            func(str string) primitive.Decimal128 {
-                d, err := primitive.ParseDecimal128(str)
-                if err != nil {
-                    log.Fatal(err)
-                }
-                return d
-            }
+          go: ''
     - input:
           javascript: Double
           python: float
@@ -79,14 +72,7 @@ tests:
           csharp: Decimal128
           shell: NumberDecimal
           ruby: BSON::Decimal128
-          go: |-
-            func(str string) primitive.Decimal128 {
-                d, err := primitive.ParseDecimal128(str)
-                if err != nil {
-                    log.Fatal(err)
-                }
-                return d
-            }
+          go: ''
     - input:
           javascript: ObjectId
           python: ObjectId
@@ -97,17 +83,7 @@ tests:
           csharp: ObjectId
           shell: ObjectId
           ruby: BSON::ObjectId
-          go: |-
-            func(hex string) primitive.ObjectID {
-                if hex == "" {
-                    return primitive.NewObjectID()
-                }
-                objectID, err := primitive.ObjectIDFromHex(hex)
-                if err != nil {
-                    log.Fatal(err)
-                }
-                return objectID
-            }
+          go: ''
     - input:
           javascript: Code
           python: Code
@@ -246,17 +222,7 @@ tests:
           csharp: new ObjectId().ToString()
           shell: new ObjectId().toString()
           ruby: BSON::ObjectId.new.to_s
-          go: |-
-            func(hex string) primitive.ObjectID {
-                if hex == "" {
-                    return primitive.NewObjectID()
-                }
-                objectID, err := primitive.ObjectIDFromHex(hex)
-                if err != nil {
-                    log.Fatal(err)
-                }
-                return objectID
-            }("").String()
+          go: primitive.NewObjectID().String()
     - input:
           javascript: ObjectId().getTimestamp
       output:
@@ -266,17 +232,7 @@ tests:
           csharp: new ObjectId().Timestamp
           shell: new ObjectId().getTimestamp()
           ruby: BSON::ObjectId.new.to_time
-          go: |-
-            func(hex string) primitive.ObjectID {
-                if hex == "" {
-                    return primitive.NewObjectID()
-                }
-                objectID, err := primitive.ObjectIDFromHex(hex)
-                if err != nil {
-                    log.Fatal(err)
-                }
-                return objectID
-            }("").Timestamp()
+          go: primitive.NewObjectID().Timestamp()
     - input:
           javascript: ObjectId().equals
       output:
@@ -286,17 +242,7 @@ tests:
           csharp: new ObjectId().Equals
           shell: new ObjectId().equals
           ruby: BSON::ObjectId.new ==
-          go: |-
-            func(hex string) primitive.ObjectID {
-                if hex == "" {
-                    return primitive.NewObjectID()
-                }
-                objectID, err := primitive.ObjectIDFromHex(hex)
-                if err != nil {
-                    log.Fatal(err)
-                }
-                return objectID
-            }("") ==
+          go: ''
     - input:
           javascript: Long(1, 100).toInt
       output:
@@ -556,14 +502,7 @@ tests:
           csharp: Decimal128.Parse("5.3E-6175").ToString
           shell: new NumberDecimal(5.3E-6175).toString
           ruby: BSON::Decimal128.new('5.3E-6175').to_s
-          go: |-
-            func(str string) primitive.Decimal128 {
-                d, err := primitive.ParseDecimal128(str)
-                if err != nil {
-                    log.Fatal(err)
-                }
-                return d
-            }("5.3E-6175").String()
+          go: parseDecimal128("5.3E-6175").String()
     - input:
           javascript: Timestamp(1, 100).toString
       output:
@@ -623,14 +562,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) >=
           shell: new Timestamp(1, 100) >=
           ruby: BSON::Timestamp.new(1, 100) >=
-          go: |-
-            func(rhs primitive.Timestamp) bool {
-                lhs := primitive.Timestamp{T: 1, I: 100}
-                c := primitive.CompareTimestamp(lhs, rhs)
-
-                // returns true if lhs == rhs or lhs > rhs
-                return return c == 0 || c == 1
-            }
+          go: ''
     - input:
           javascript: Timestamp(1, 100).lessThan
       output:
@@ -650,14 +582,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) <=
           shell: new Timestamp(1, 100) <=
           ruby: BSON::Timestamp.new(1, 100) <=
-          go: |-
-            func(rhs primitive.Timestamp) bool {
-                lhs := primitive.Timestamp{T: 1, I: 100}
-                c := primitive.CompareTimestamp(lhs, rhs)
-
-                // returns true if lhs == rhs or lhs < rhs
-                return return c == 0 || c == -1
-            }
+          go: ''
     - input:
           javascript: Timestamp(1, 100).getLowBits
       output:

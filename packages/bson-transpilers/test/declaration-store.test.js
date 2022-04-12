@@ -11,14 +11,14 @@ describe('DeclarationStore', () => {
   it('returns incremented variable names given the pre-incremented variable root-name', () => {
     const ds = new DeclarationStore();
 
-    ds.add('Temp', 'objectID', () => { return 1; });
-    assert.strictEqual(ds.next('Temp', 'objectID'), 'objectIDForTemp1');
+    ds.add('ForTemp', 'objectID', () => { return 1; });
+    assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp1');
 
-    ds.add('Temp', 'objectID', () => { return 2; });
-    assert.strictEqual(ds.next('Temp', 'objectID'), 'objectIDForTemp2');
+    ds.add('ForTemp', 'objectID', () => { return 2; });
+    assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp2');
 
-    ds.add('Temp', 'objectID', () => { return 3; });
-    assert.strictEqual(ds.next('Temp', 'objectID'), 'objectIDForTemp3');
+    ds.add('ForTemp', 'objectID', () => { return 3; });
+    assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp3');
   });
   it('stringifies multiple variables declarations', () => {
     const ds = new DeclarationStore();
@@ -39,8 +39,8 @@ describe('DeclarationStore', () => {
         .concat('}')
         .join('\n');
     };
-    ds.add('Temp', 'objectID', declaration1);
-    ds.add('Temp', 'objectID', declaration2);
+    ds.add('ForTemp', 'objectID', declaration1);
+    ds.add('ForTemp', 'objectID', declaration2);
 
     const expected = []
       .concat('objectIDForTemp, err := primitive.ObjectIDFromHex()')
@@ -84,9 +84,9 @@ describe('DeclarationStore', () => {
         .join('\n');
     };
 
-    ds.add('Temp', 'objectID', declaration1);
-    ds.add('Temp', 'objectID', declaration2);
-    ds.add('Temp', 'objectID', declaration3);
+    ds.add('ForTemp', 'objectID', declaration1);
+    ds.add('ForTemp', 'objectID', declaration2);
+    ds.add('ForTemp', 'objectID', declaration3);
 
     const expected = []
       .concat('objectIDForTemp, err := primitive.ObjectIDFromHex()')
@@ -130,9 +130,9 @@ describe('DeclarationStore', () => {
         .join('\n');
     };
 
-    ds.add('Temp', 'objectID', declaration1);
-    ds.add('Temp', 'objectID', declaration2);
-    ds.add('Temp', 'objectID', declaration3);
+    ds.add('ForTemp', 'objectID', declaration1);
+    ds.add('ForTemp', 'objectID', declaration2);
+    ds.add('ForTemp', 'objectID', declaration3);
 
     const expected = []
       .concat('objectIDForTemp, err := primitive.ObjectIDFromHex()')
@@ -176,9 +176,9 @@ describe('DeclarationStore', () => {
         .join('\n');
     };
 
-    ds.add('TempA', 'objectID', declaration1);
-    ds.add('TempA', 'objectID', declaration2);
-    ds.add('TempB', 'objectID', declaration3);
+    ds.add('ForTempA', 'objectID', declaration1);
+    ds.add('ForTempA', 'objectID', declaration2);
+    ds.add('ForTempB', 'objectID', declaration3);
 
     const expected = []
       .concat('objectIDForTempA, err := primitive.ObjectIDFromHex()')

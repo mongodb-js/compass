@@ -5,7 +5,7 @@
  */
 class DeclarationStore {
   constructor() {
-    this.store = {};
+    this.clear();
   }
 
   /**
@@ -28,6 +28,13 @@ class DeclarationStore {
     return varName;
   }
 
+  addFunction(fn) {
+    console.log(fn)
+    if (!this.funcs[fn]) {
+      this.funcs[fn] = true;
+    }
+  }
+
   alreadyDeclared(templateID, varRoot, declaration) {
     const existing = this.candidates(templateID, varRoot);
     for (var i = 0; i < existing.length; i++) {
@@ -44,8 +51,13 @@ class DeclarationStore {
     return Object.values(this.store).filter(varName => varName.startsWith(varTemplateRoot));
   }
 
+  clear() {
+    this.store = {};
+    this.funcs = {};
+  }
+
   length() {
-    return Object.keys(this.store).length;
+    return Object.keys(this.store).length + Object.keys(this.funcs).length;
   }
 
   next(templateID, varRoot) {
@@ -63,11 +75,11 @@ class DeclarationStore {
    * @returns {string} all the declarations as a string seperated by a line-break
    */
   toString(sep = '\n\n') {
-    return Object.keys(this.store).join(sep);
+    return [...Object.keys(this.store), ...Object.keys(this.funcs)].join(sep);
   }
 
   varTemplateRoot(templateID, varRoot) {
-    return `${varRoot}For${templateID}`;
+    return `${varRoot}${templateID}`;
   }
 }
 

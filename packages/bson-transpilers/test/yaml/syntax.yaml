@@ -172,14 +172,7 @@ tests:
           object: "false"
           ruby: "[\n  1, 2\n].include?(4)"
           go: |-
-            func(elems bson.A, v interface{}) bool {
-              for _, s := range elems {
-                if v == s {
-                  return true
-                }
-              }
-              return false
-            }(bson.A{
+            contains(bson.A{
                 1,
                 2,
             }, 4)
@@ -194,14 +187,7 @@ tests:
           object: "true"
           ruby: "![\n  1, 2\n].include?(4)"
           go: |-
-            !func(elems bson.A, v interface{}) bool {
-              for _, s := range elems {
-                if v == s {
-                  return true
-                }
-              }
-              return false
-            }(bson.A{
+            !contains(bson.A{
                 1,
                 2,
             }, 4)

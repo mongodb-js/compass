@@ -70,6 +70,10 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     return this.state;
   }
 
+  clearDeclarations() {
+    this.getState().declarations.clear();
+  }
+
   /**
    * PUBLIC: As code is generated, any classes that require imports are tracked
    * in this.Imports. Each class has a "code" defined in the symbol table.
@@ -106,7 +110,6 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
         obj[c] = this.Imports[c].template(this.requiredImports[c]);
         return obj;
       }, {});
-    console.log("this.Imports.import", this.requiredImports, importTemplate(imports))
     return importTemplate(imports);
   }
 

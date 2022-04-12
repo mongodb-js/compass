@@ -148,6 +148,7 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
   return {
     compileWithDriver: (input, idiomatic) => {
       transpiler.clearImports();
+      transpiler.clearDeclarations();
 
       const result = {};
       Object.keys(input).map((k) => {
@@ -171,11 +172,17 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
           'Generating driver syntax not implemented for current language'
         );
       }
-      return transpiler.Syntax.driver(result);
+      return transpiler.Syntax.driver.bind(transpiler.getState())(result);
     },
     compile: compile,
     getImports: (driverSyntax) => {
       return transpiler.getImports(driverSyntax);
+    },
+    getState: () => {
+      return transpiler.getState();
+    },
+    clearDeclarations: () => {
+      return transpiler.clearDeclarations();
     }
   };
 };
