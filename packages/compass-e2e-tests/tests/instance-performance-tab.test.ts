@@ -12,7 +12,6 @@ describe('Instance performance tab', function () {
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
-
     await browser.navigateToInstanceTab('Performance');
   });
 
