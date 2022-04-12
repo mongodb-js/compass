@@ -221,7 +221,7 @@ class StageEditor extends Component {
             }}
             onLoad={(editor) => {
               this.editor = editor;
-              this.editor.commands.addCommand({
+              this.editor.commands.addVarCommand({
                 name: 'executePipeline',
                 bindKey: {
                   win: 'Ctrl-Enter',

@@ -163,7 +163,7 @@ module.exports = (Visitor) => class Generator extends Visitor {
         return this.Syntax.equality.template(s, op, this.visit(arr[i + 1]));
       }
       if (op === 'in' || op === 'notin') {
-        return this.Syntax.in.template(s, op, this.visit(arr[i + 1]));
+        return this.Syntax.in.template.bind(this.state)(s, op, this.visit(arr[i + 1]));
       }
       throw new BsonTranspilersRuntimeError(`Unrecognized operation ${op}`);
     }, this.visit(ctx.children[0]));
