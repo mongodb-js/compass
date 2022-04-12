@@ -34,14 +34,14 @@ class DeclarationStore {
    * @param {string} template - Name/alias of the template needing the declaration
    * @param {string} varRoot - The root of the variable name to be appended by the occurance count
    * @param {function} declaration - The code block to be prepended to the driver syntax
-   * @returns {string | undefined} the current variable name with root associated with the declaration, if it exists
+   * @returns {string | undefined} The current variable name with root associated with the declaration, if it exists
    */
   alreadyDeclared(template, varRoot, declaration) {
     const existing = this.candidates(template, varRoot);
     for (var i = 0; i < existing.length; i++) {
       const mock = `${this.varTemplateRoot(template, varRoot)}${i > 0 ? i : ''}`;
 
-      // check if the declaration and template are the same
+      // Check if the declaration and template are the same
       const matching = (e) => e.declaration === declaration(mock) && e.template === template;
       if (this.store.find(e => matching(e)) !== undefined) {
         return existing[i].varName;
@@ -60,7 +60,7 @@ class DeclarationStore {
    *
    * @param {string} template - Name/alias of the template needing the declaration
    * @param {string} varRoot - The root of the variable name to be appended by the occurance count
-   * @returns {string} the variable name with root and appended count
+   * @returns {string} The variable name with root and appended count
    */
   next(template, varRoot) {
     const existing = this.candidates(template, varRoot);
@@ -74,8 +74,8 @@ class DeclarationStore {
   /**
    * Stringify the variable declarations
    *
-   * @param {string} sep - seperator string placed between elements in the resulting string of declarations
-   * @returns {string} all the declarations as a string seperated by a line-break
+   * @param {string} sep - Seperator string placed between elements in the resulting string of declarations
+   * @returns {string} All the declarations as a string seperated by a line-break
    */
   toString(sep = '\n\n') {
     return this.store.map((value) => value.declaration).join(sep);
