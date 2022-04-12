@@ -127,7 +127,10 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
-    await browser.setAceValue(Selectors.InsertJSONEditor, '{ "foo": 10 }');
+    await browser.setAceValue(
+      Selectors.InsertJSONEditor,
+      '{ "foo": 10, "long": { "$numberLong": "99" } }'
+    );
 
     // confirm
     const insertConfirm = await browser.$(Selectors.InsertConfirm);
@@ -156,6 +159,7 @@ describe('Collection import', function () {
 
     expect(result).to.deep.equal({
       foo: '10',
+      long: '99',
     });
   });
 

@@ -401,6 +401,53 @@ FindIterable<Document> result = collection.find(filter);`);
     );
   });
 
+  it('supports view/edit for Int64 values via json view', async function () {
+    await browser.runFindOperation('Documents', '{ i: 123 }');
+    await browser.clickVisible(Selectors.SelectJSONView);
+
+    const document = await browser.$(Selectors.DocumentJSONEntry);
+    await document.waitForDisplayed();
+
+    await waitForJSON(browser, document);
+
+    const json = await document.getText();
+    expect(json.replace(/\s+/g, ' ')).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
+    );
+
+    await browser.hover('[data-test-id="editable-json"]');
+    await browser.clickVisible('[data-testid="edit-document-button"]');
+
+    const newjson = JSON.stringify({
+      ...JSON.parse(json),
+      j: { $numberLong: '12345' },
+    });
+
+    await browser.setAceValue(
+      '[data-test-id="editable-json"] #ace-editor',
+      newjson
+    );
+
+    const footer = await document.$(Selectors.DocumentFooterMessage);
+    expect(await footer.getText()).to.equal('Document Modified.');
+
+    const button = await document.$('[data-test-id="update-document-button"]');
+    await button.click();
+    await footer.waitForDisplayed({ reverse: true });
+
+    await browser.runFindOperation('Documents', '{ i: 123 }');
+    await browser.clickVisible(Selectors.SelectJSONView);
+
+    const modifiedDocument = await browser.$(Selectors.DocumentJSONEntry);
+    await modifiedDocument.waitForDisplayed();
+
+    await waitForJSON(browser, modifiedDocument);
+
+    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": \{\.\.\.\} \}$/
+    );
+  });
+
   it('supports view/edit via table view', async function () {
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);
