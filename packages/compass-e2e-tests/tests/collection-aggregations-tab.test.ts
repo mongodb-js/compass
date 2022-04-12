@@ -155,7 +155,7 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  it.only('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
+  it('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
     // set a collation
     await browser.clickVisible(Selectors.ToggleAggregationCollation);
     const collationInput = await browser.$(Selectors.AggregationCollationInput);
