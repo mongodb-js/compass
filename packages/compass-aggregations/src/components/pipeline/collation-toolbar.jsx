@@ -5,10 +5,13 @@ import classnames from 'classnames';
 
 import styles from './collation-toolbar.module.less';
 
+import { DEFAULT_MAX_TIME_MS } from '../../constants';
+
 /**
  * The help URL for collation.
  */
 const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
+const HELP_URL_MAX_TIME_MS = 'https://www.mongodb.com/docs/manual/reference/method/cursor.maxTimeMS/';
 
 /**
  * The collation toolbar component.
@@ -20,8 +23,10 @@ class CollationToolbar extends PureComponent {
     collation: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
     collationChanged: PropTypes.func.isRequired,
     collationString: PropTypes.string,
+    maxTimeMS: PropTypes.number,
     collationStringChanged: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired
+    openLink: PropTypes.func.isRequired,
+    maxTimeMSChanged: PropTypes.func,
   };
 
   static defaultProps = { collation: {}, collationString: ''};
@@ -36,6 +41,12 @@ class CollationToolbar extends PureComponent {
   onCollationChange = (evt) => {
     this.props.collationStringChanged(evt.target.value);
     this.props.collationChanged(evt.target.value);
+  };
+
+  onMaxTimeMsChanged = (evt) => {
+    if (this.props.maxTimeMSChanged) {
+      this.props.maxTimeMSChanged(parseInt(evt.currentTarget.value, 10));
+    }
   };
 
   /**
@@ -58,27 +69,26 @@ class CollationToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const isNewToolbar =
+      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true';
     return (
       <div
         data-testid="legacy-collation-toolbar"
         className={classnames(styles['collation-toolbar'], {
-          [styles['collation-toolbar-in-new-toolbar']]:
-            global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR ===
-            'true',
+          [styles['collation-toolbar-in-new-toolbar']]: isNewToolbar,
         })}
       >
         <div
           onBlur={this._onBlur}
           onFocus={this._onFocus}
           className={classnames(
-            styles['collation-toolbar-input-wrapper'],
+            styles['toolbar-input-wrapper'],
             { [ styles['has-focus'] ]: this.state.hasFocus }
           )}
         >
           <div
-            className={classnames(
-              styles['collation-toolbar-input-label'],
-              { [ styles['has-error'] ]: (this.props.collation === false) }
+            className={classnames(styles['toolbar-input-label'],
+            { [ styles['has-error'] ]: (this.props.collation === false) }
             )}
             data-testid="collation-toolbar-input-label">
             <InfoSprinkle helpLink={HELP_URL_COLLATION} onClickHandler={this.props.openLink} />
@@ -89,7 +99,32 @@ class CollationToolbar extends PureComponent {
             placeholder="{ locale: 'simple' }"
             type="text"
             onChange={this.onCollationChange}
-            value={this.props.collationString} />
+            value={this.props.collationString}
+          />
+          {isNewToolbar && (
+            <div className={classnames(styles['max-time-ms'])}>
+              <div
+                className={classnames(styles['toolbar-input-label'])}
+                data-testid="maxtimems-toolbar-input-label"
+              >
+                <InfoSprinkle
+                  helpLink={HELP_URL_MAX_TIME_MS}
+                  onClickHandler={this.props.openLink}
+                />
+                Max Time MS
+              </div>
+              <input
+                data-test-id="max-time-ms"
+                id="aggregation-limit"
+                aria-describedby="aggregation-limit-description"
+                type="number"
+                min="0"
+                placeholder={DEFAULT_MAX_TIME_MS}
+                value={this.props.maxTimeMS}
+                onChange={this.onMaxTimeMsChanged}
+              />
+            </div>
+          )}
         </div>
       </div>
     );

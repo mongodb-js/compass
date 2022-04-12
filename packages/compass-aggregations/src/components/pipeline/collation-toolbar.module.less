@@ -17,7 +17,7 @@
   border: none,
 }
 
-.collation-toolbar-input-wrapper {
+.toolbar-input-wrapper {
   width: 100%;
   height: 30px;
   position: relative;
@@ -29,22 +29,22 @@
   padding: 4px;
   margin-right: 5px;
 
-  .collation-toolbar-input-label {
+  .toolbar-input-label {
     background: @gray5;
     color: @pw;
     white-space: nowrap;
     border-radius: 14px;
-    padding: 2px 1px;
+    padding: 2px 4px;
     margin-right: 5px;
     text-transform: uppercase;
     font-weight: bold;
     font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 11px;
     flex-grow: 0;
-    width: 117px;
 
     i {
       margin-right: 3px;
+      margin-left: 0px;
     }
   }
 
@@ -59,6 +59,11 @@
 
   input:focus {
     outline-width: 0;
+  }
+
+  .max-time-ms {
+    width: 30%;
+    display: flex;
   }
 }
 
