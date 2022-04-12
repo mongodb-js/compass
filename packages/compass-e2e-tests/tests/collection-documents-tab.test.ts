@@ -398,8 +398,8 @@ FindIterable<Document> result = collection.find(filter);`);
     );
   });
 
-  it('supports view/edit for Int64 values via json view', async function () {
-    await browser.runFindOperation('Documents', '{ i: 32 }');
+  it.only('supports view/edit for Int64 values via json view', async function () {
+    await browser.runFindOperation('Documents', '{ i: 123 }');
     await browser.clickVisible(Selectors.SelectJSONView);
 
     const document = await browser.$(Selectors.DocumentJSONEntry);
@@ -409,7 +409,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     const json = await document.getText();
     expect(json.replace(/\s+/g, ' ')).to.match(
-      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
     );
 
     await browser.hover('[data-test-id="editable-json"]');
@@ -432,7 +432,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
-    await browser.runFindOperation('Documents', '{ i: 32 }');
+    await browser.runFindOperation('Documents', '{ i: 123 }');
     await browser.clickVisible(Selectors.SelectJSONView);
 
     const modifiedDocument = await browser.$(Selectors.DocumentJSONEntry);
@@ -441,7 +441,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await waitForJSON(browser, modifiedDocument);
 
     expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": \{\.\.\.\} \}$/
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": \{\.\.\.\} \}$/
     );
   });
 
