@@ -89,7 +89,7 @@ const tabBottomBorderStyles = css({
 
 const selectedTabBottomBorderStyles = css({
   height: `${spacing[1]}px`,
-  backgroundColor: uiColors.green.dark1,
+  backgroundColor: uiColors.green.base,
   transition: 'height 150ms ease-out',
 });
 
