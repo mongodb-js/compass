@@ -51,7 +51,7 @@ describe('Instance sidebar', function () {
 
     const serverVersionText = await serverVersionTextElement.getText(); // the version number changes constantly and is different in CI
     expect(serverVersionText).to.include('MongoDB');
-    //expect(serverVersionText).to.include('Community');
+    expect(serverVersionText).to.include('Community');
   });
 
   it('contains a dbs/collections tree view', async function () {
