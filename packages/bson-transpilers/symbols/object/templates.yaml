@@ -275,7 +275,7 @@ Templates:
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate null # Args: lhs, arg, argType
     LongSymbolTemplate: &LongSymbolTemplate null # No args
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function > # Args: lhs, arg, argType
-        (_state, lhs, arg) => {
+        (lhs, arg) => {
             return lhs.fromNumber(arg);
         }
     RegExpSymbolTemplate: &RegExpSymbolTemplate null # No args
@@ -300,7 +300,7 @@ Templates:
     NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null # Args: lhs, arg, argType
     DateSymbolTemplate: &DateSymbolTemplate null # No args
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
-        (_state, lhs, date, isString) => {
+        (lhs, date, isString) => {
             if (isString) {
                 return date.toString();
             }
@@ -329,7 +329,7 @@ Templates:
             return lhs.toString();
         }
     ObjectIdToStringArgsTemplate: &ObjectIdToStringArgsTemplate !!js/function >
-        (_state, lhs) => {
+        (lhs) => {
             return lhs;
         }
     ObjectIdEqualsTemplate: &ObjectIdEqualsTemplate !!js/function >
@@ -337,7 +337,7 @@ Templates:
             return lhs;
         }
     ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
-        (_state, lhs, rhs) => {
+        (lhs, rhs) => {
             return lhs.equals(rhs);
         }
     ObjectIdGetTimestampTemplate: &ObjectIdGetTimestampTemplate !!js/function >
@@ -345,7 +345,7 @@ Templates:
             return lhs.getTimestamp();
         }
     ObjectIdGetTimestampArgsTemplate: &ObjectIdGetTimestampArgsTemplate !!js/function >
-        (_state, lhs) => {
+        (lhs) => {
             return lhs;
         }
     ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
@@ -374,15 +374,15 @@ Templates:
             return lhs.oid;
         }
     DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
-        (_state, lhs, rhs) => {
+        (lhs, rhs) => {
             return lhs;
         }
     DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate !!js/function >
-        (_state, lhs, rhs) => {
+        (lhs, rhs) => {
             return lhs;
         }
     DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function >
-        (_state, lhs, rhs) => {
+        (lhs, rhs) => {
             return lhs;
         }
     LongEqualsTemplate: &LongEqualsTemplate null
@@ -458,16 +458,15 @@ Templates:
             return lhs.getLowBits();
         }
     TimestampGetLowBitsArgsTemplate: &TimestampGetLowBitsArgsTemplate !!js/function >
-        (_state, lhs, rhs) => {
-            console.log("--->", lhs)
+        (lhs, rhs) => {
             return lhs;
         }
     TimestampGetHighBitsTemplate: &TimestampGetHighBitsTemplate !!js/function >
         (lhs, rhs) => {
             return lhs.getHighBits();
         }
-    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate !!js/function >
-        (_state, lhs, rhs) => {
+    TimestampGetHighBitsArgsTemplate: &TimestampGetHighBitsArgsTemplate  !!js/function >
+        (lhs, rhs) => {
             return lhs;
         }
     TimestampTTemplate: &TimestampTTemplate !!js/function >
@@ -483,7 +482,7 @@ Templates:
             return new Date(lhs.getHighBits() * 1000);
         }
     TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate !!js/function >
-        (_state, lhs, rhs) => {
+        (lhs, rhs) => {
             return lhs;
         }
     TimestampCompareTemplate: &TimestampCompareTemplate null

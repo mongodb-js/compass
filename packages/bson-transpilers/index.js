@@ -167,7 +167,7 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
           'Generating driver syntax not implemented for current language'
         );
       }
-      return transpiler.Syntax.driver(transpiler.getState(), result);
+      return transpiler.Syntax.driver(result);
     },
     compile: compile,
     getImports: (driverSyntax) => {

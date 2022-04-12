@@ -1,5 +1,5 @@
 /**
- * Stores declarations for the driver syntax
+ * Stores declarations for use in the DriverTemplate
  *
  * @returns {object}
  */
@@ -9,36 +9,29 @@ class DeclarationStore {
   }
 
   /**
-   * Add declaration statements by a pre-incremented variable root-name
+   * Add declarations by templateID + varRoot + declaration combo.  Duplications will not be collected, rather the add
+   * method will return the existing declaration's variable name.
    *
-   * @param {string} template - Name/alias of the template needing the declaration
+   * @param {string} templateID - Name/alias of the template the declaration is being made for
    * @param {string} varRoot - The root of the variable name to be appended by the occurance count
    * @param {function} declaration - The code block to be prepended to the driver syntax
    * @returns {string} the variable name with root and appended count
    */
-  add(template, varRoot, declaration) {
+  add(templateID, varRoot, declaration) {
     // Don't push existing declarations
-    const current = this.alreadyDeclared(template, varRoot, declaration);
+    const current = this.alreadyDeclared(templateID, varRoot, declaration);
     if (current !== undefined) {
       return current;
     }
-    const varName = this.next(template, varRoot);
+    const varName = this.next(templateID, varRoot);
     this.store[declaration(varName)] = varName;
     return varName;
   }
 
-  /**
-   * Check if the template + varRoot + declaration combo already exists
-   *
-   * @param {string} template - Name/alias of the template needing the declaration
-   * @param {string} varRoot - The root of the variable name to be appended by the occurance count
-   * @param {function} declaration - The code block to be prepended to the driver syntax
-   * @returns {string | undefined} the current variable name with root associated with the declaration, if it exists
-   */
-  alreadyDeclared(template, varRoot, declaration) {
-    const existing = this.candidates(template, varRoot);
+  alreadyDeclared(templateID, varRoot, declaration) {
+    const existing = this.candidates(templateID, varRoot);
     for (var i = 0; i < existing.length; i++) {
-      const candidate = `${this.varTemplateRoot(template, varRoot)}${i > 0 ? i : ''}`;
+      const candidate = `${this.varTemplateRoot(templateID, varRoot)}${i > 0 ? i : ''}`;
       const current = this.store[declaration(candidate)];
       if (current !== undefined) {
         return current;
@@ -46,15 +39,8 @@ class DeclarationStore {
     }
   }
 
-  /**
-   * Get all the existing stored data that could match the given template + varRoot combo
-   *
-   * @param {string} template - Name/alias of the template needing the declaration
-   * @param {string} varRoot - The root of the variable name to be appended by the occurance count
-   * @returns {Array} all variable names that could potentially have the same decelaration for template + varRoot
-   */
-  candidates(template, varRoot) {
-    const varTemplateRoot = this.varTemplateRoot(template, varRoot);
+  candidates(templateID, varRoot) {
+    const varTemplateRoot = this.varTemplateRoot(templateID, varRoot);
     return Object.values(this.store).filter(varName => varName.startsWith(varTemplateRoot));
   }
 
@@ -62,20 +48,12 @@ class DeclarationStore {
     return Object.keys(this.store).length;
   }
 
-  /**
-   * Get the next variable name given a pre-incremented variable root-name
-   *
-   * @param {string} template - Name/alias of the template needing the declaration
-   * @param {string} varRoot - The root of the variable name to be appended by the occurance count
-   * @returns {string} the variable name with root and appended count
-   */
-  next(template, varRoot) {
-    const existing = this.candidates(template, varRoot);
+  next(templateID, varRoot) {
+    const existing = this.candidates(templateID, varRoot);
 
-    // If the data does not exist in the store, then the count should append nothing to the variable
-    // name
+    // If the data does not exist in the store, then the count should append nothing to the variable name
     const count = existing.length > 0 ? existing.length : '';
-    return `${this.varTemplateRoot(template, varRoot)}${count}`;
+    return `${this.varTemplateRoot(templateID, varRoot)}${count}`;
   }
 
   /**
@@ -88,8 +66,8 @@ class DeclarationStore {
     return Object.keys(this.store).join(sep);
   }
 
-  varTemplateRoot(template, varRoot) {
-    return `${varRoot}For${template}`;
+  varTemplateRoot(templateID, varRoot) {
+    return `${varRoot}For${templateID}`;
   }
 }
 
