@@ -398,7 +398,7 @@ FindIterable<Document> result = collection.find(filter);`);
     );
   });
 
-  it.only('supports view/edit for Int64 values via json view', async function () {
+  it('supports view/edit for Int64 values via json view', async function () {
     await browser.runFindOperation('Documents', '{ i: 123 }');
     await browser.clickVisible(Selectors.SelectJSONView);
 
