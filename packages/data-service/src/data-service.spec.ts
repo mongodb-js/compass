@@ -1647,7 +1647,7 @@ describe('DataService', function () {
       });
     });
 
-    it('allows disabling/enabling the split-client model for CSFLE', async function () {
+    it('allows disabling/enabling the split-client model for CSFLE', function () {
       const dataService: any = createDataServiceWithMockedClient({});
       const a = {};
       const b = {};
