@@ -6,6 +6,8 @@ import {
   withTheme,
   Link,
   spacing,
+  H3,
+  cx,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import React, { Component } from 'react';
@@ -18,13 +20,6 @@ import ViewBadge from './view-badge';
 import CollectionStats from '../collection-stats';
 import type { CollectionStatsObject } from '../../modules/stats';
 
-const collectionHeaderTitleDBStyles = css({
-  fontSize: spacing[4],
-  lineHeight: `${spacing[5]}px`,
-  display: 'flex',
-  alignItems: 'center',
-});
-
 const collectionHeaderStyles = css({
   paddingTop: spacing[3],
   paddingBottom: spacing[1],
@@ -34,75 +29,61 @@ const collectionHeaderStyles = css({
   justifyContent: 'space-between',
 });
 
+const collectionHeaderTitleStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  padding: `0 ${spacing[3]}px`,
+  margin: 0,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+const collectionHeaderDBLinkStyles = css({
+  cursor: 'pointer',
+  textDecoration: 'none',
+  '&:hover,&:focus': {
+    textDecoration: 'underline',
+  },
+  backgroundColor: 'transparent',
+  border: 'none',
+  display: 'inline',
+  padding: 0,
+});
+
+const collectionHeaderDBLinkLightStyles = css({
+  color: uiColors.green.base,
+});
+
+const collectionHeaderDBLinkDarkStyles = css({
+  color: uiColors.green.light2,
+});
+
 const collectionHeaderNamespaceStyles = css({
   backgroundColor: 'transparent',
   border: 'none',
-  display: 'inline',
+  display: 'flex',
+  whiteSpace: 'nowrap',
 });
 
-const collectionHeaderTitleStyles = css({
-  fontSize: spacing[4],
-  fontWeight: 'normal',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+const collectionHeaderDBNameStyles = css({
   display: 'flex',
   alignItems: 'center',
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
-  margin: 0,
-  lineHeight: `${spacing[5]}px`,
 });
 
-const collectionHeaderTitleDBLinkLightStyles = css({
+const collectionHeaderDBNameLightStyles = css({
   color: uiColors.green.base,
-  flexShrink: 2,
-  flexBasis: 'auto',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  cursor: 'pointer',
-  textDecoration: 'none',
-  '&:hover,&:focus': {
-    textDecoration: 'underline',
-  },
-  backgroundColor: 'transparent',
-  border: 'none',
-  display: 'inline',
-  padding: 0,
 });
 
-const collectionHeaderTitleDBLinkDarkStyles = css({
+const collectionHeaderDBNameDarkStyles = css({
   color: uiColors.green.light2,
-  flexShrink: 2,
-  flexBasis: 'auto',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  cursor: 'pointer',
-  textDecoration: 'none',
-  '&:hover,&:focus': {
-    textDecoration: 'underline',
-  },
-  backgroundColor: 'transparent',
-  border: 'none',
-  display: 'inline',
-  padding: 0,
 });
 
 const collectionHeaderTitleCollectionLightStyles = css({
   color: uiColors.gray.dark1,
-  flexBasis: 'auto',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
 });
 
 const collectionHeaderTitleCollectionDarkStyles = css({
   color: uiColors.gray.light1,
-  flexBasis: 'auto',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
 });
 
 type CollectionHeaderProps = {
@@ -177,18 +158,27 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             <Link
               data-testid="collection-header-title-db"
               as="button"
-              className={
+              className={cx(
+                collectionHeaderDBLinkStyles,
                 this.props.darkMode
-                  ? collectionHeaderTitleDBLinkDarkStyles
-                  : collectionHeaderTitleDBLinkLightStyles
-              }
+                  ? collectionHeaderDBLinkDarkStyles
+                  : collectionHeaderDBLinkLightStyles
+              )}
               hideExternalIcon={true}
               onClick={() => this.handleDBClick(database)}
             >
-              <div className={collectionHeaderTitleDBStyles}>{database}</div>
+              <H3
+                className={cx(
+                  collectionHeaderDBNameStyles,
+                  this.props.darkMode
+                    ? collectionHeaderDBNameDarkStyles
+                    : collectionHeaderDBNameLightStyles
+                )}
+              >
+                {database}
+              </H3>
             </Link>
-            <span>.</span>
-            <span
+            <H3
               data-testid="collection-header-title-collection"
               className={
                 this.props.darkMode
@@ -196,8 +186,8 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
                   : collectionHeaderTitleCollectionLightStyles
               }
             >
-              {collection}
-            </span>
+              {`.${collection}`}
+            </H3>
           </div>
           {this.props.isReadonly && <ReadOnlyBadge />}
           {this.props.isTimeSeries && <TimeSeriesBadge />}

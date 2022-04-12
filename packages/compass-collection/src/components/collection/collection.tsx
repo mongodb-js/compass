@@ -7,6 +7,7 @@ import {
   css,
   withTheme,
   uiColors,
+  cx,
 } from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
@@ -18,19 +19,18 @@ function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
 }
 
-const collectionLightStyles = css({
+const collectionStyles = css({
   display: 'flex',
   alignItems: 'stretch',
   height: '100%',
   width: '100%',
+});
+
+const collectionLightStyles = css({
   background: uiColors.white,
 });
 
 const collectionDarkStyles = css({
-  display: 'flex',
-  alignItems: 'stretch',
-  height: '100%',
-  width: '100%',
   backgroundColor: uiColors.gray.dark3,
 });
 
@@ -134,7 +134,10 @@ const Collection: React.FunctionComponent<CollectionProps> = (
 
   return (
     <div
-      className={darkMode ? collectionDarkStyles : collectionLightStyles}
+      className={cx(
+        collectionStyles,
+        darkMode ? collectionDarkStyles : collectionLightStyles
+      )}
       data-testid="collection"
     >
       <div className={collectionContainerStyles}>

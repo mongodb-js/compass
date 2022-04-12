@@ -9,6 +9,7 @@ import React from 'react';
 
 const collectionHeaderBadgeStyles = css({
   marginLeft: spacing[2],
+  whiteSpace: 'nowrap',
 });
 
 const ViewBadge = (): React.ReactElement => (

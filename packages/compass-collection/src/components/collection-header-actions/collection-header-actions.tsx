@@ -19,9 +19,7 @@ const collectionHeaderActionsStyles = css({
 });
 
 const collectionHeaderActionsReadonlyStyles = css({
-  margin: `0px ${spacing[1]}px`,
-  marginLeft: 'auto',
-  fontSize: spacing[3],
+  marginLeft: spacing[2],
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',

@@ -8,6 +8,7 @@ import React from 'react';
 
 const collectionHeaderBadgeStyles = css({
   marginLeft: spacing[2],
+  whiteSpace: 'nowrap',
 });
 
 const ReadOnlyBadge = (): React.ReactElement => (

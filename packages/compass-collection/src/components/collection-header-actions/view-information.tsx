@@ -1,31 +1,51 @@
-import { css, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Subtitle,
+  uiColors,
+  cx,
+  withTheme,
+} from '@mongodb-js/compass-components';
 import React from 'react';
 
 const collectionHeaderActionsReadonlyStyles = css({
   marginLeft: spacing[2],
-  fontSize: spacing[3],
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   alignItems: 'inherit',
+  fontWeight: 'normal',
+});
+
+const collectionHeaderActionsReadonlyLightStyles = css({
+  color: uiColors.gray.dark1,
+});
+
+const collectionHeaderActionsReadonlyDarkStyles = css({
+  color: uiColors.gray.light1,
 });
 
 type ViewInformationProps = {
+  darkMode?: boolean;
   sourceName: string;
 };
 
 const ViewInformation: React.FunctionComponent<ViewInformationProps> = ({
+  darkMode,
   sourceName,
 }: ViewInformationProps) => {
   return (
-    <div
+    <Subtitle
       data-testid="collection-view-on"
-      className={collectionHeaderActionsReadonlyStyles}
+      className={cx(
+        collectionHeaderActionsReadonlyStyles,
+        darkMode
+          ? collectionHeaderActionsReadonlyDarkStyles
+          : collectionHeaderActionsReadonlyLightStyles
+      )}
       title={sourceName}
     >
       view on: {sourceName}
-    </div>
+    </Subtitle>
   );
 };
 
-export default ViewInformation;
+export default withTheme(ViewInformation);

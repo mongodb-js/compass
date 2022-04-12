@@ -158,8 +158,15 @@ store.onActivated = (appRegistry: AppRegistry) => {
    */
   appRegistry.on('open-namespace-in-new-tab', (metadata) => {
     if (metadata.namespace) {
+      store.dispatch(namespaceChanged(metadata.namespace));
+
       const namespace = toNS(metadata.namespace);
-      if (namespace.collection !== '') {
+      const { database, collection, ns } = namespace;
+
+      if (database !== '' && collection !== '') {
+        const collectionModel =
+          store[kInstance].databases.get(database).collections.get(ns) ?? null;
+        store.dispatch(updateCollectionDetails(collectionModel));
         store.dispatch(
           createNewTab({
             namespace: metadata.namespace,
@@ -172,7 +179,6 @@ store.onActivated = (appRegistry: AppRegistry) => {
             sourcePipeline: metadata.sourcePipeline,
             query: metadata.query,
             aggregation: metadata.aggregation,
-            stats: metadata.stats,
           })
         );
       }
@@ -205,7 +211,6 @@ store.onActivated = (appRegistry: AppRegistry) => {
             sourceReadonly: metadata.sourceReadonly,
             sourceViewOn: metadata.sourceViewOn,
             sourcePipeline: metadata.sourcePipeline,
-            stats: metadata.stats,
           })
         );
       }
