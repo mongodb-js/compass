@@ -46,6 +46,13 @@ class DeclarationStore {
     }
   }
 
+  /**
+   * Get all the existing stored data that could match the given template + varRoot combo
+   *
+   * @param {string} template - Name/alias of the template needing the declaration
+   * @param {string} varRoot - The root of the variable name to be appended by the occurance count
+   * @returns {Array} all variable names that could potentially have the same decelaration for template + varRoot
+   */
   candidates(template, varRoot) {
     const varTemplateRoot = this.varTemplateRoot(template, varRoot);
     return Object.values(this.store).filter(varName => varName.startsWith(varTemplateRoot));
