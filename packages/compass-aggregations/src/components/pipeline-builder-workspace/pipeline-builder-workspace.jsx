@@ -4,10 +4,20 @@ import PropTypes from 'prop-types';
 import Stage from '../stage';
 import Input from '../input';
 import AddStage from '../add-stage';
-import SortableStageList from './sortable-stage-list';
+// import SortableStageList from './sortable-stage-list';
 import ModifySourceBanner from '../modify-source-banner';
 
+import { sortableContainer, sortableElement } from 'react-sortable-hoc';
+
 import styles from './pipeline-builder-workspace.module.less';
+
+const SortableStage = sortableElement(({ idx, ...props }) => {
+  return <Stage index={idx} {...props}></Stage>;
+});
+
+const SortableContainer = sortableContainer(({ children }) => {
+  return <div>{children}</div>;
+});
 
 /**
  * The pipeline workspace component.
@@ -56,9 +66,11 @@ class PipelineWorkspace extends PureComponent {
    * @param {Number} fromIndex - The original index.
    * @param {Number} toIndex - The index to move to.
    */
-  onStageMoved = (fromIndex, toIndex) => {
-    this.props.stageMoved(fromIndex, toIndex);
-    this.props.runStage(0);
+  onStageMoved = ({ oldIndex, newIndex }) => {
+    if (oldIndex !== newIndex) {
+      this.props.stageMoved(oldIndex, newIndex);
+      this.props.runStage(0);
+    }
   }
 
   /**
@@ -81,10 +93,12 @@ class PipelineWorkspace extends PureComponent {
    *
    * @returns {Component} The component.
    */
-  renderStage = (stage, i, connectDragSource) => {
-    return (<Stage
+  renderStage = (stage, i) => {
+    return (<SortableStage
+      key={stage.id}
+      idx={i}
+      index={i}
       allowWrites={this.props.allowWrites}
-      connectDragSource={connectDragSource}
       env={this.props.env}
       isTimeSeries={this.props.isTimeSeries}
       isReadonly={this.props.isReadonly}
@@ -105,7 +119,6 @@ class PipelineWorkspace extends PureComponent {
       fromStageOperators={stage.fromStageOperators || false}
       previewDocuments={stage.previewDocuments}
       runStage={this.props.runStage}
-      index={i}
       openLink={this.props.openLink}
       runOutStage={this.props.runOutStage}
       gotoOutResults={this.props.gotoOutResults}
@@ -120,7 +133,6 @@ class PipelineWorkspace extends PureComponent {
       stageToggled={this.props.stageToggled}
       fields={this.props.fields}
       setIsModified={this.props.setIsModified}
-      key={stage.id}
       isOverviewOn={this.props.isOverviewOn}
       projections={this.props.projections}
       projectionsChanged={this.props.projectionsChanged}
@@ -134,11 +146,25 @@ class PipelineWorkspace extends PureComponent {
    * @returns {Component} The component.
    */
   renderStageList = () => {
-    return (<SortableStageList
-      items={this.props.pipeline}
-      onMove={this.onStageMoved}
-      renderItem={this.renderStage}
-    />);
+    return (
+      <SortableContainer
+        axis="y"
+        lockAxis="y"
+        onSortEnd={this.onStageMoved}
+        useDragHandle
+        transitionDuration={0}
+        helperContainer={() => {
+          return this.stageListContainerRef ?? document.body
+        }}
+        // Sligt delay to prevent sortable logic messing with interactive
+        // elements in the handler toolbar component
+        pressDelay={10}
+      >
+        {this.props.pipeline.map((stage, idx) => {
+          return this.renderStage(stage, idx);
+        })}
+      </SortableContainer>
+    );
   }
 
   /**
@@ -152,6 +178,9 @@ class PipelineWorkspace extends PureComponent {
       <div
         data-testid="pipeline-builder-workspace"
         className={styles['pipeline-workspace-container-container']}
+        ref={(ref) => {
+          this.stageListContainerRef = ref;
+        }}
       >
         <div className={styles['pipeline-workspace-container']}>
           <div className={styles['pipeline-workspace']}>
