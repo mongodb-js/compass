@@ -215,4 +215,17 @@ describe('DeclarationStore', () => {
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
+  it('get length of sets', () => {
+    const ds = new DeclarationStore();
+    const declaration1 = 'var x := func() {}';
+    const declaration2 = 'var x := func() {}';
+    const declaration3 = 'var y := func() {}';
+
+    ds.addFunc(declaration1);
+    ds.addFunc(declaration2);
+    ds.addFunc(declaration3);
+    ds.addVar('x', 'y', () => 'z');
+
+    assert.strictEqual(ds.length(), 3);
+  });
 });
