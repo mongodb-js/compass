@@ -5,7 +5,7 @@ import { ErrorBoundary } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 
-const { debug } = createLoggerAndTelemetry(
+const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:compass-collection:context'
 );
 
@@ -316,11 +316,11 @@ const createContext = ({
         key={i}
         displayName={role.component.displayName}
         onError={(error, errorInfo) => {
-          debug(
-            'error rendering collection view',
-            role.component.displayName,
-            error,
-            errorInfo
+          log.error(
+            mongoLogId(1001000107),
+            'Collection Workspace',
+            'Rendering collection tab failed',
+            { name: role.name, error: error.message, errorInfo }
           );
         }}
       >

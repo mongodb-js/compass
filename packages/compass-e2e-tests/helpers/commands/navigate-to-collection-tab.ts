@@ -29,6 +29,7 @@ async function navigateToCollection(
   );
   await sidebarFilterInputElement.setValue(collectionName);
   const collectionElement = await browser.$(collectionSelector);
+
   await collectionElement.waitForDisplayed();
 
   // click it and wait for the collection header to become visible

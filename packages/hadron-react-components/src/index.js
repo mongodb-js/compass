@@ -9,7 +9,6 @@ import StoreConnector from './store-connector';
 import Tooltip from './tooltip';
 import ViewSwitcher from './view-switcher';
 import ZeroState from './zero-state';
-import WithDragDropContext from './with-drag-drop-context';
 
 export {
   FormInput,
@@ -22,6 +21,5 @@ export {
   StoreConnector,
   Tooltip,
   ViewSwitcher,
-  ZeroState,
-  WithDragDropContext
+  ZeroState
 };
