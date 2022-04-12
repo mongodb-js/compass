@@ -93,7 +93,10 @@ describe('Collection documents tab', function () {
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+  });
 
+  beforeEach(async function () {
+    console.log('navigating to test.numbers.Documents');
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
   });
 

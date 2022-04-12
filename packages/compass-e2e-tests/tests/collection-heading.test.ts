@@ -15,7 +15,9 @@ describe('Collection heading', function () {
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+  });
 
+  beforeEach(async function () {
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
   });
 
