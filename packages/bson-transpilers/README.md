@@ -62,18 +62,18 @@ Any transpiler errors that occur will be thrown. To catch them, wrap the
 
 ### State
 
-The `CodeGenerationVisitor` class manages a global state which is passed as the first argument into the language-specific `argsTemplate` functions.  This state is intended to be used as a solution for the `argsTemplate` functions to communicate with the `DriverTemplate` function.  For example:
+The `CodeGenerationVisitor` class manages a global state which is bound to the `argsTemplate` functions.  This state is intended to be used as a solution for the `argsTemplate` functions to communicate with the `DriverTemplate` function.  For example:
 
 ```yaml
 ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
-    (state, _) => {
-        state.oneLineStatement = "Hello World";
+    (_) => {
+        this.oneLineStatement = "Hello World";
         return '';
     }
 
 DriverTemplate: &DriverTemplate !!js/function >
-    (state, _spec) => {
-      return state.oneLineStatement;
+    (_spec) => {
+      return this.oneLineStatement;
     }
 ```
 
@@ -86,8 +86,8 @@ The `DeclarationStore` class maintains an internal state concerning variable dec
 
 ```javascript
 // within the args template
-(state, arg) => {
-  return state.declarationStore.add("Temp", "objectID", (varName) => {
+(arg) => {
+  return this.declarations.add("Temp", "objectID", (varName) => {
     return [
       `${varName}, err := primitive.ObjectIDFromHex(${arg})`,
       'if err != nil {',
@@ -103,11 +103,10 @@ Note that each use of the same variable name will result in an increment being a
 The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver, syntax via state, for use:
 
 ```javascript
-(state, spec) => {
+(spec) => {
   const comment = '// some comment'
   const client = 'client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(cs.String()))'
-  const declarations = state.declarationStore.toString()
-  return "#{comment}\n\n#{client}\n\n${declarations}"
+  return "#{comment}\n\n#{client}\n\n${this.declarations.toString()}"
 }
 ```
 
