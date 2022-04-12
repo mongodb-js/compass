@@ -9,6 +9,11 @@ export async function connectWithConnectionString(
   timeout = defaultTimeoutMS,
   connectionStatus: 'success' | 'failure' | 'either' = 'success'
 ): Promise<void> {
+  const sidebar = await browser.$(Selectors.SidebarTitle);
+  if (await sidebar.isDisplayed()) {
+    await browser.disconnect();
+  }
+
   await browser.setValueVisible(
     Selectors.ConnectionStringInput,
     connectionString
