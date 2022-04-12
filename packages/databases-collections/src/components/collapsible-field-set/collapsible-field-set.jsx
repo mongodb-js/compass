@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, Description, IconButton, Icon, Label } from '@mongodb-js/compass-components';
+import { Checkbox, Description, Label, Link } from '@mongodb-js/compass-components';
 import { useId } from '@react-aria/utils';
 
 import FieldSet from '../field-set/field-set';
@@ -14,7 +14,6 @@ function CollapsibleFieldSet({
   label,
   dataTestId,
   onToggle,
-  openLink,
   toggled
 }) {
   const labelId = dataTestId ? `toggle-${dataTestId}` : useId();
@@ -36,19 +35,14 @@ function CollapsibleFieldSet({
                   className={styles.description}
                 >
                   {description}
-                  {!!helpUrl && !!openLink && (
-                    <IconButton
-                      className={styles['info-btn']}
+                  {!!helpUrl && (
+                    <Link
+                      className={styles['info-link']}
+                      href={helpUrl}
                       aria-label="Time-series collections documentation"
-                      onClick={() => {
-                        openLink(helpUrl);
-                      }}
                     >
-                      <Icon
-                        glyph="InfoWithCircle"
-                        size="small"
-                      />
-                    </IconButton>
+                      Learn More
+                    </Link>
                   )}
                 </Description>
               )
@@ -76,8 +70,7 @@ CollapsibleFieldSet.propTypes = {
   disabled: PropTypes.bool,
   helpUrl: PropTypes.string,
   onToggle: PropTypes.func.isRequired,
-  toggled: PropTypes.bool,
-  openLink: PropTypes.func
+  toggled: PropTypes.bool
 };
 
 export default CollapsibleFieldSet;

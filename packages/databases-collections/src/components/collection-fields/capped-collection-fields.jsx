@@ -11,8 +11,7 @@ function CappedCollectionFields({
   isCapped,
   isTimeSeries,
   onChangeCappedSize,
-  onChangeIsCapped,
-  openLink
+  onChangeIsCapped
 }) {
   return (
     <CollapsibleFieldSet
@@ -22,7 +21,6 @@ function CappedCollectionFields({
       label="Capped Collection"
       dataTestId="capped-collection-fields"
       helpUrl={HELP_URL_CAPPED}
-      openLink={openLink}
       description="Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
     >
       <TextInput

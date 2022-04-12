@@ -5,8 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { Icon, css, cx, uiColors } from '../../index';
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
@@ -41,20 +40,14 @@ function getEditorByType(type: HadronElementType['type']) {
 function useElementEditor(el: HadronElementType) {
   const editor = useRef<EditorType | null>(null);
 
-  if (!editor.current) {
+  if (
+    !editor.current ||
+    editor.current?.element !== el ||
+    editor.current?.type !== el.currentType
+  ) {
     const Editor = getEditorByType(el.currentType);
     editor.current = new Editor(el);
   }
-
-  useEffect(() => {
-    if (
-      editor.current?.element.uuid !== el.uuid ||
-      editor.current?.element.currentType !== el.currentType
-    ) {
-      const Editor = getEditorByType(el.currentType);
-      editor.current = new Editor(el);
-    }
-  }, [el, el.uuid, el.currentType]);
 
   return editor.current;
 }
@@ -113,7 +106,7 @@ function useHadronElement(el: HadronElementType) {
   return {
     id: el.uuid,
     key: {
-      value: el.currentKey,
+      value: String(el.currentKey),
       change(newVal: string) {
         setIsDuplicateKey(el.isDuplicateKey(newVal));
         el.rename(newVal);
@@ -137,8 +130,11 @@ function useHadronElement(el: HadronElementType) {
         el.isValueEditable() &&
         el.currentType !== 'Object' &&
         el.currentType !== 'Array',
+      decrypted: el.isValueDecrypted(),
       valid: isValid,
       validationMessage: !isValid ? el.invalidTypeMessage ?? null : null,
+      startEdit: editor.start.bind(editor),
+      completeEdit: editor.complete.bind(editor),
     },
     type: {
       value: el.currentType,
@@ -241,7 +237,7 @@ const elementExpand = css({
 const elementKey = css({
   flex: 'none',
   fontWeight: 'bold',
-  maxWidth: '70%',
+  maxWidth: '60%',
 });
 
 const elementDivider = css({
@@ -287,13 +283,15 @@ const lineNumberCountHidden = css({
 
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
+  editable: boolean;
   editingEnabled: boolean;
-  onEditStart?: (id: string, field: 'key' | 'value') => void;
+  onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
   allExpanded: boolean;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
 }> = ({
   value: element,
+  editable,
   editingEnabled,
   onEditStart,
   allExpanded,
@@ -356,59 +354,65 @@ export const HadronElement: React.FunctionComponent<{
         data-id={element.uuid}
         {...elementProps}
       >
-        <div className={elementActions}>
-          <div className={cx(actions, shouldShowActions && actionsVisible)}>
-            <EditActions
-              onRevert={revert}
-              onRemove={remove}
-              editing={editingEnabled}
-            ></EditActions>
+        {editable && (
+          <div className={elementActions}>
+            <div className={cx(actions, shouldShowActions && actionsVisible)}>
+              <EditActions
+                onRevert={revert}
+                onRemove={remove}
+                editing={editingEnabled}
+              ></EditActions>
+            </div>
           </div>
-        </div>
-        <div
-          className={cx(
-            elementLineNumber,
-            editingEnabled && lineNumberCount,
-            shouldShowActions && lineNumberCountHidden,
-            removed
-              ? lineNumberRemoved
-              : editingEnabled && !isValid && lineNumberInvalid
-          )}
-          style={{ minWidth: lineNumberMinWidth }}
-        >
+        )}
+        {editable && (
           <div
             className={cx(
-              actions,
-              addFieldActionsContainer,
-              shouldShowActions && actionsVisible
+              elementLineNumber,
+              editingEnabled && lineNumberCount,
+              shouldShowActions && lineNumberCountHidden,
+              removed
+                ? lineNumberRemoved
+                : editingEnabled && !isValid && lineNumberInvalid
             )}
+            style={{ minWidth: lineNumberMinWidth }}
           >
-            <AddFieldActions
-              editing={editingEnabled}
-              type={type.value}
-              parentType={
-                parentType && parentType === 'Document' ? 'Object' : parentType
-              }
-              keyName={key.value}
-              onAddFieldAfterElement={() => {
-                const el = element.insertSiblingPlaceholder();
-                onAddElement(el);
-              }}
-              onAddFieldToElement={
-                type.value === 'Object' || type.value === 'Array'
-                  ? () => {
-                      const el = element.insertPlaceholder();
-                      onAddElement(el);
-                      setExpanded(true);
-                    }
-                  : undefined
-              }
-            ></AddFieldActions>
+            <div
+              className={cx(
+                actions,
+                addFieldActionsContainer,
+                shouldShowActions && actionsVisible
+              )}
+            >
+              <AddFieldActions
+                editing={editingEnabled}
+                type={type.value}
+                parentType={
+                  parentType && parentType === 'Document'
+                    ? 'Object'
+                    : parentType
+                }
+                keyName={key.value}
+                onAddFieldAfterElement={() => {
+                  const el = element.insertSiblingPlaceholder();
+                  onAddElement(el);
+                }}
+                onAddFieldToElement={
+                  type.value === 'Object' || type.value === 'Array'
+                    ? () => {
+                        const el = element.insertPlaceholder();
+                        onAddElement(el);
+                        setExpanded(true);
+                      }
+                    : undefined
+                }
+              ></AddFieldActions>
+            </div>
           </div>
-        </div>
+        )}
         <div
           className={elementSpacer}
-          style={{ width: spacing[2] + spacing[3] * level }}
+          style={{ width: (editable ? spacing[2] : 0) + spacing[3] * level }}
         >
           {/* spacer for nested documents */}
         </div>
@@ -456,6 +460,17 @@ export const HadronElement: React.FunctionComponent<{
         </div>
         <div className={elementDivider} role="presentation">
           :&nbsp;
+          {
+            /* TODO(COMPASS-5706): figure out exact placement */
+            value.decrypted && (
+              <span
+                data-test-id="hadron-document-element-decrypted-icon"
+                title="Encrypted with CSFLE"
+              >
+                <Icon glyph="Key" size="small" />
+              </span>
+            )
+          }
         </div>
         <div
           className={elementValue}
@@ -465,7 +480,7 @@ export const HadronElement: React.FunctionComponent<{
             <ValueEditor
               type={type.value}
               originalValue={value.originalValue}
-              value={value.value as string}
+              value={value.value}
               valid={value.valid}
               validationMessage={value.validationMessage}
               onChange={(newVal) => {
@@ -478,23 +493,50 @@ export const HadronElement: React.FunctionComponent<{
               onEditStart={() => {
                 onEditStart?.(element.uuid, 'value');
               }}
+              onFocus={() => {
+                value.startEdit();
+              }}
+              onBlur={() => {
+                value.completeEdit();
+              }}
             ></ValueEditor>
           ) : (
-            <BSONValue
-              type={type.value as any}
-              value={value.originalValue}
-            ></BSONValue>
+            <div
+              data-testid={
+                editable && !editingEnabled
+                  ? 'hadron-document-clickable-value'
+                  : undefined
+              }
+              onDoubleClick={() => {
+                if (editable && !editingEnabled) {
+                  onEditStart?.(element.uuid, 'type');
+                }
+              }}
+            >
+              <BSONValue
+                type={type.value as any}
+                value={value.originalValue}
+              ></BSONValue>
+            </div>
           )}
         </div>
-        <div className={elementType} data-testid="hadron-document-element-type">
-          <TypeEditor
-            editing={editingEnabled}
-            type={type.value}
-            onChange={(newType) => {
-              type.change(newType);
-            }}
-          ></TypeEditor>
-        </div>
+        {editable && (
+          <div
+            className={elementType}
+            data-testid="hadron-document-element-type"
+          >
+            <TypeEditor
+              editing={editingEnabled}
+              type={type.value}
+              // See above
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus={autoFocus?.id === id && autoFocus.type === 'type'}
+              onChange={(newType) => {
+                type.change(newType);
+              }}
+            ></TypeEditor>
+          </div>
+        )}
       </div>
       {expandable &&
         expanded &&
@@ -503,6 +545,7 @@ export const HadronElement: React.FunctionComponent<{
             <HadronElement
               key={el.uuid}
               value={el}
+              editable={editable}
               editingEnabled={editingEnabled}
               onEditStart={onEditStart}
               allExpanded={allExpanded}

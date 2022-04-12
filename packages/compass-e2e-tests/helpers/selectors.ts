@@ -203,6 +203,12 @@ export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
 export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const SidebarInstanceRefreshButton =
+  '[data-test-id="sidebar-instance-stats-refresh-button"]';
+export const SidebarInstanceRefreshSpinning =
+  '[data-test-id="sidebar-instance-stats-refresh-spinning"]';
+export const SidebarInstanceRefreshIdle =
+  '[data-test-id="sidebar-instance-stats-refresh-idle"]';
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -244,8 +250,12 @@ export const FavoriteSaveButton =
 export const CreateDatabaseModal = '[data-testid="create_database_modal"]';
 export const CreateDatabaseDatabaseName = '[data-testid="database-name"]';
 export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
+export const CreateDatabaseErrorMessage =
+  '[data-testid="create_database_modal"] [role="alert"]';
 export const CreateDatabaseCreateButton =
   '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateDatabaseCancelButton =
+  '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 
 // Drop database modal
 export const DropDatabaseModal = '[data-testid="drop_database_modal"]';
@@ -257,8 +267,12 @@ export const DropDatabaseDropButton =
 // Create collection modal
 export const CreateCollectionModal = '[data-testid="create_collection_modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
+export const CreateCollectionErrorMessage =
+  '[data-testid="create_collection_modal"] [role="alert"]';
 export const CreateCollectionCreateButton =
   '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateCollectionCancelButton =
+  '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 export const CreateCollectionCappedCheckboxLabel =
   '[data-testid="capped-collection-fields"] #toggle-capped-collection-fields-label';
 export const CreateCollectionCappedSizeInput =
@@ -394,12 +408,20 @@ export const CollectionTab = '.test-tab-nav-bar-tab';
 export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
-export const DocumentCountValue = '[data-test-id="document-count-value"]';
-export const StorageSizeValue = '[data-test-id="storage-size-value"]';
-export const AvgDocumentSizeValue = '[data-test-id="avg-document-size-value"]';
-export const IndexCountValue = '[data-test-id="index-count-value"]';
-export const TotalIndexSizeValue = '[data-test-id="total-index-size-value"]';
-export const AvgIndexSizeValue = '[data-test-id="avg-index-size-value"]';
+export const DocumentCountValue = '[data-testid="document-count-value"]';
+export const CollectionStatsTooltip =
+  '[data-testid="collection-stats-tooltip"]';
+export const TooltipDocumentsCountValue =
+  '[data-testid="tooltip-documents-count"]';
+export const TooltipDocumentsStorageSize =
+  '[data-testid="tooltip-documents-storage-size"]';
+export const TooltipDocumentsAvgSize =
+  '[data-testid="tooltip-documents-avg-size"]';
+export const IndexCountValue = '[data-testid="index-count-value"]';
+export const TooltipIndexesCount = '[data-testid="tooltip-indexes-count"]';
+export const TooltipIndexesTotalSize =
+  '[data-testid="tooltip-indexes-total-size"]';
+export const TooltipIndexesAvgSize = '[data-testid="tooltip-indexes-avg-size"]';
 
 export const collectionTab = (tabName: string, selected?: boolean): string => {
   const selector = `${CollectionTab}[name="${tabName}"]`;
@@ -752,8 +774,8 @@ export const queryBarActionsMenu = (tabName: string): string => {
   return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
 };
 
-// Tabs at the top
-export const CloseCollectionTab = '[data-test-id="close-collection-tab"]';
+// Workspace tabs at the top
+export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 
 // Export modal
 export const ExportModal = '[data-test-id="export-modal"]';

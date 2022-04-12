@@ -21,6 +21,7 @@ const editorReset = css({
   boxShadow: 'none',
   outline: 'none',
   backgroundColor: 'transparent',
+  maxWidth: '100%',
 });
 
 const editorOutline = css({
@@ -91,6 +92,7 @@ export const KeyEditor: React.FunctionComponent<{
                   onChange={(evt) => {
                     onChange(evt.currentTarget.value);
                   }}
+                  // See ./element.tsx
                   // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus={autoFocus}
                   className={cx(
@@ -143,9 +145,7 @@ const editorTextarea = css({
   verticalAlign: 'top',
 });
 
-const valueContainer = css({
-  display: 'inline-block',
-});
+const valueContainer = css({});
 
 function getCustomColorStyle(type: string): string {
   return hasCustomColor(type) ? css({ color: VALUE_COLOR_BY_TYPE[type] }) : '';
@@ -159,8 +159,10 @@ export const ValueEditor: React.FunctionComponent<{
   valid: boolean;
   validationMessage: string | null;
   originalValue: TypeCastMap[keyof TypeCastMap];
-  onChange(newVal: string): void;
   autoFocus?: boolean;
+  onChange(newVal: string): void;
+  onFocus(): void;
+  onBlur(): void;
 }> = ({
   editing,
   onEditStart,
@@ -169,8 +171,10 @@ export const ValueEditor: React.FunctionComponent<{
   valid,
   validationMessage,
   originalValue,
-  onChange,
   autoFocus,
+  onChange,
+  onFocus,
+  onBlur,
 }) => {
   const val = String(value);
 
@@ -231,6 +235,9 @@ export const ValueEditor: React.FunctionComponent<{
                       onChange={(evt) => {
                         onChange(evt.currentTarget.value);
                       }}
+                      onFocus={onFocus}
+                      onBlur={onBlur}
+                      // See ./element.tsx
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus={autoFocus}
                       className={cx(
@@ -252,6 +259,9 @@ export const ValueEditor: React.FunctionComponent<{
                     onChange={(evt) => {
                       onChange(evt.currentTarget.value);
                     }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    // See ./element.tsx
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus={autoFocus}
                     className={cx(
@@ -312,10 +322,11 @@ const typeEditorActive = css({
 
 export const TypeEditor: React.FunctionComponent<{
   editing?: boolean;
+  autoFocus?: boolean;
   type: HadronElementType['type'];
   onChange(newVal: HadronElementType['type']): void;
   visuallyActive?: boolean;
-}> = ({ editing, type, onChange, visuallyActive }) => {
+}> = ({ editing, autoFocus, type, onChange, visuallyActive }) => {
   return (
     <>
       {editing && (
@@ -325,6 +336,9 @@ export const TypeEditor: React.FunctionComponent<{
         <select
           value={type}
           data-testid="hadron-document-type-editor"
+          // See ./element.tsx
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus={autoFocus}
           onChange={(evt) => {
             onChange(evt.currentTarget.value as HadronElementType['type']);
           }}

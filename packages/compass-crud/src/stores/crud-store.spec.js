@@ -1,4 +1,3 @@
-import { EJSON } from 'bson';
 import util from 'util';
 import Connection from 'mongodb-connection-model';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
@@ -201,8 +200,6 @@ describe('store', function() {
           path: [],
           types: []
         },
-        updateError: null,
-        updateSuccess: null,
         version: '3.4.0',
         view: 'List'
       });
@@ -767,100 +764,6 @@ describe('store', function() {
         expect(stub.getCall(0).args[2]).to.deep.equal({
           _id: 'testing',
           name: 'Desert Sand',
-          yes: 'no'
-        });
-      });
-    });
-  });
-
-  describe('#replaceExtJsonDocument', () => {
-    let store;
-    let actions;
-
-    beforeEach(() => {
-      actions = configureActions();
-      store = configureStore({
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-        dataProvider: {
-          error: null,
-          dataProvider: dataService
-        },
-        actions: actions,
-        namespace: 'compass-crud.test',
-        noRefreshOnConfigure: true
-      });
-    });
-
-    context('when there is no error', () => {
-      const doc = { _id: '591801a468f9e7024b623939', cat: 'Nori' };
-      const hadronDoc = new HadronDocument(doc);
-      const stringifiedDoc = EJSON.stringify(doc);
-      const ejsonDoc = EJSON.parse(stringifiedDoc);
-
-      beforeEach(() => {
-        store.state.docs = [ hadronDoc ];
-      });
-
-      it('replaces the document in the list', async() => {
-        const listener = waitForState(store, (state) => {
-          expect(state.updateSuccess).to.equal(true);
-          expect(state.docs[0]).to.not.equal(hadronDoc);
-        });
-
-        store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
-
-        await listener;
-      });
-    });
-
-    context('when the update errors', () => {
-      const doc = { _id: '591801a468f9e7024b623939', cat: 'Nori' };
-      const hadronDoc = new HadronDocument(doc);
-      const stringifiedDoc = EJSON.stringify(doc);
-      const ejsonDoc = EJSON.parse(stringifiedDoc);
-
-      beforeEach(() => {
-        sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
-      });
-
-      it('sets the error for the document', async() => {
-        const listener = waitForState(store, (state) => {
-          expect(state.updateError).to.equal('error happened');
-        });
-
-        store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
-
-        await listener;
-      });
-    });
-
-    context('when update is called on an edited doc in sharded collection', () => {
-      const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
-      const hadronDoc = new HadronDocument(doc);
-      const stringifiedDoc = EJSON.stringify(doc);
-      const ejsonDoc = EJSON.parse(stringifiedDoc);
-      let stub;
-
-      beforeEach(() => {
-        store.state.shardKeys = { yes: 1 };
-        stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
-      });
-
-      afterEach(() => {
-        store.state.shardKeys = null;
-      });
-
-      it('has the shard key in the query', () => {
-        store.replaceExtJsonDocument(ejsonDoc, hadronDoc);
-
-        expect(stub.getCall(0).args[1]).to.deep.equal({
-          _id: 'testing',
-          yes: 'no'
-        });
-        expect(stub.getCall(0).args[2]).to.deep.equal({
-          _id: 'testing',
-          name: 'Beach Sand',
           yes: 'no'
         });
       });

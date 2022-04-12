@@ -1,8 +1,14 @@
 import { expect } from 'chai';
+import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
+import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import {
+  createDummyCollections,
+  createNumbersCollection,
+} from '../helpers/insert-data';
 
 describe('Database collections tab', function () {
   let compass: Compass;
@@ -11,8 +17,6 @@ describe('Database collections tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   after(async function () {
@@ -20,6 +24,9 @@ describe('Database collections tab', function () {
   });
 
   beforeEach(async function () {
+    await createDummyCollections();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
     await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
@@ -175,8 +182,11 @@ describe('Database collections tab', function () {
     // TODO: how do we make sure this is really a collection with a custom collation?
   });
 
-  // This needs mongodb 5
-  it.skip('can create a time series collection', async function () {
+  it('can create a time series collection', async function () {
+    if (semver.lt(MONGODB_VERSION, '5.0.0')) {
+      return this.skip();
+    }
+
     const collectionName = 'my-timeseries-collection';
 
     // open the create collection modal from the button at the top

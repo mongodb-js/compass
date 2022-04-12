@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeInstance = (instance) => ({
   type: CHANGE_INSTANCE,
-  instance: instance,
+  instance: instance
 });

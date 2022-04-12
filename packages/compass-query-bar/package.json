@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "7.19.0",
+  "version": "7.20.0",
   "apiVersion": "3.0.0",
   "description": "Renders a component for executing MongoDB queries through a GUI.",
   "main": "lib/index.js",
@@ -44,7 +44,7 @@
   "peerDependencies": {
     "ace-builds": "^1.4.3",
     "debug": "*",
-    "hadron-react-components": "^5.12.0",
+    "hadron-react-components": "^5.13.0",
     "mongodb-ace-autocompleter": "*",
     "mongodb-ace-mode": "^1.6.0",
     "mongodb-ace-theme-query": "^1.6.0",
@@ -86,8 +86,8 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app-registry": "^8.9.0",
-    "hadron-react-components": "^5.12.0",
+    "hadron-app-registry": "^8.10.0",
+    "hadron-react-components": "^5.13.0",
     "html-webpack-plugin": "^3.2.0",
     "htmlhint": "^0.11.0",
     "ignore-loader": "^0.1.2",
@@ -111,7 +111,7 @@
     "mongodb-ace-autocompleter": "^0.11.0",
     "mongodb-ace-mode": "^1.6.0",
     "mongodb-ace-theme-query": "^1.6.0",
-    "mongodb-connection-model": "^21.14.0",
+    "mongodb-connection-model": "^21.15.0",
     "mongodb-query-parser": "^2.4.4",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
@@ -148,7 +148,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.9.0",
+    "@mongodb-js/compass-logging": "^0.10.0",
     "lodash": "^4.17.15",
     "mongodb-query-util": "^0.2.1"
   }

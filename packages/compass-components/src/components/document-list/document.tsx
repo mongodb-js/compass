@@ -57,17 +57,17 @@ const hadronDocument = css({
 const HadronDocument: React.FunctionComponent<{
   value: HadronDocumentType;
   visibleFieldsCount?: number;
-  expanded: boolean;
-  editable: boolean;
+  expanded?: boolean;
+  editable?: boolean;
+  editing?: boolean;
   onEditStart?: () => void;
-  editing: boolean;
 }> = ({
   value: document,
   visibleFieldsCount,
-  expanded,
-  editable,
+  expanded = false,
+  editable = false,
+  editing = false,
   onEditStart,
-  editing,
 }) => {
   const { elements } = useHadronDocument(document);
   const visibleElements = useMemo(() => {
@@ -75,7 +75,7 @@ const HadronDocument: React.FunctionComponent<{
   }, [elements, visibleFieldsCount]);
   const [autoFocus, setAutoFocus] = useState<{
     id: string;
-    type: 'key' | 'value';
+    type: 'key' | 'value' | 'type';
   } | null>(null);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const HadronDocument: React.FunctionComponent<{
     <div
       className={hadronDocument}
       data-testid="hadron-document"
-      data-id={document.getStringId()}
+      data-id={document.uuid}
     >
       <AutoFocusContext.Provider value={autoFocus}>
         {visibleElements.map((el) => {
@@ -96,6 +96,7 @@ const HadronDocument: React.FunctionComponent<{
             <HadronElement
               value={el}
               key={el.uuid}
+              editable={editable}
               editingEnabled={editing}
               allExpanded={expanded}
               onEditStart={

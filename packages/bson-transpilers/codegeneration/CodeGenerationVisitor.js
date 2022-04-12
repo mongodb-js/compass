@@ -10,6 +10,7 @@ const {
 } = require('../helper/error');
 
 const { removeQuotes } = require('../helper/format');
+const DeclarationStore = require('./DeclarationStore');
 
 /**
  * Class for code generation. Goes in between ANTLR generated visitor and
@@ -24,6 +25,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     super();
     this.idiomatic = true; // PUBLIC
     this.clearImports();
+    this.state = { declarations: new DeclarationStore() };
   }
 
   clearImports() {
@@ -62,6 +64,10 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    */
   start(ctx) {
     return this.returnResult(ctx).trim();
+  }
+
+  getState() {
+    return this.state;
   }
 
   /**
@@ -331,7 +337,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
   }
   returnFunctionCallLhsRhs(lhs, rhs, lhsType, l) {
     if (lhsType.argsTemplate) {
-      rhs = lhsType.argsTemplate(l, ...rhs);
+      rhs = lhsType.argsTemplate.bind(this.getState())(l, ...rhs);
     } else {
       rhs = `(${rhs.join(', ')})`;
     }
@@ -495,7 +501,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
       ? lhsType.template()
       : defaultT;
     const rhs = lhsType.argsTemplate
-      ? lhsType.argsTemplate(lhsArg, ...args)
+      ? lhsType.argsTemplate.bind(this.getState())(lhsArg, ...args)
       : defaultA;
     const lhs = skipLhs ? '' : lhsArg;
     return this.Syntax.new.template
@@ -517,7 +523,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     let args = '';
     const keysAndValues = this.getKeyValueList(ctx);
     if (ctx.type.argsTemplate) {
-      args = ctx.type.argsTemplate(
+      args = ctx.type.argsTemplate.bind(this.getState())(
         this.getKeyValueList(ctx).map((k) => {
           return [this.getKeyStr(k), this.visit(this.getValue(k))];
         }),
@@ -546,7 +552,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     if (ctx.type.argsTemplate) { // NOTE: not currently being used anywhere.
       args = visitedElements.map((arg, index) => {
         const last = !visitedElements[index + 1];
-        return ctx.type.argsTemplate(arg, ctx.indentDepth, last);
+        return ctx.type.argsTemplate.bind(this.getState())(arg, ctx.indentDepth, last);
       }).join('');
     } else {
       args = visitedElements.join(', ');

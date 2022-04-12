@@ -63,48 +63,25 @@
     align-items: stretch;
     overflow-x: scroll;
     margin: 10px;
+    padding: 10px;
+  }
 
-    :global {
-      .document {
-        background-color: @pw;
-        margin: 10px;
-        padding: 0;
-        border: 1px solid @gray6;
-        border-radius: 4px;
-        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
-        width: 350px;
-        min-height: 150px;
-        overflow: scroll;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
+  &-document-card {
+    flex: none;
+    border: 1px solid @gray6;
+    border-radius: 4px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    height: 150px;
+    overflow: scroll;
+  }
 
-        &-contents {
-          flex-basis: 150px;
-          flex-grow: 1;
-          flex-shrink: 0;
-          overflow: auto;
-          padding: 20px;
-        }
+  &-document-card:not(:first-child) {
+    margin-left: 20px;
+  }
 
-        &-elements {
-          padding: 0px;
-          margin-bottom: 0px;
-        }
-      }
-
-      .document::-webkit-scrollbar {
-        display: none;
-      }
-
-      .document-contents::-webkit-scrollbar {
-        display: none;
-      }
-
-      .element-value-is-string {
-        word-break: normal;
-      }
-    }
+  &-document-card::-webkit-scrollbar {
+    display: none;
   }
 }
 

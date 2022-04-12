@@ -1,4 +1,3 @@
-import { EJSON } from 'bson';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty } from 'lodash';
@@ -211,8 +210,6 @@ const configureStore = (options = {}) => {
         isEditable: true,
         view: LIST,
         count: 0,
-        updateSuccess: null,
-        updateError: null,
         insert: this.getInitialInsertState(),
         table: this.getInitialTableState(),
         query: this.getInitialQueryState(),
@@ -381,7 +378,7 @@ const configureStore = (options = {}) => {
      */
     copyToClipboard(doc) {
       track('Document Copied', { mode: this.modeForTelemetry() });
-      const documentJSON = EJSON.stringify(doc.generateObject(), null, 2);
+      const documentJSON = doc.toEJSON();
       let input = document.createElement(INPUT);
       input.type = TYPE;
       input.setAttribute(STYLES, DISPLAY);
@@ -407,12 +404,10 @@ const configureStore = (options = {}) => {
           if (error) {
             // emit on the document(list view) and success state(json view)
             doc.emit('remove-error', error.message);
-            this.state.updateError = error.message;
             this.trigger(this.state);
           } else {
             // emit on the document(list view) and success state(json view)
             doc.emit('remove-success');
-            this.state.updateSuccess = true;
 
             const payload = { view: this.state.view, ns: this.state.ns };
             this.localAppRegistry.emit('document-deleted', payload);
@@ -427,7 +422,6 @@ const configureStore = (options = {}) => {
         });
       } else {
         doc.emit('remove-error', DELETE_ERROR);
-        this.state.updateError = DELETE_ERROR;
         this.trigger(this.state);
       }
     },
@@ -519,36 +513,6 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * Update the provided document given a document object.
-     *
-     * @param {Object} doc - EJSON document object.
-     * @param {Document} originalDoc - origin Hadron document getting modified.
-     */
-    replaceExtJsonDocument(doc, originalDoc) {
-      track('Document Updated', { mode: this.modeForTelemetry() });
-      const opts = { returnDocument: 'after', promoteValues: false };
-      const query = originalDoc.getOriginalKeysAndValuesForSpecifiedKeys({
-        _id: 1,
-        ...(this.state.shardKeys || {})
-      });
-      this.dataService.findOneAndReplace(this.state.ns, query, doc, opts, (error, d) => {
-        if (error) {
-          this.state.updateError = error.message;
-          this.trigger(this.state);
-        } else {
-          this.state.updateSuccess = true;
-
-          this.localAppRegistry.emit('document-updated', this.state.view);
-          this.globalAppRegistry.emit('document-updated', this.state.view);
-
-          const index = this.findDocumentIndex(originalDoc);
-          this.state.docs[index] = new HadronDocument(d);
-          this.trigger(this.state);
-        }
-      });
-    },
-
-    /**
      * Find the index of the document in the list.
      *
      * @param {Document} doc - The hadron document.
@@ -559,15 +523,6 @@ const configureStore = (options = {}) => {
       return findIndex(this.state.docs, (d) => {
         return doc.getStringId() === d.getStringId();
       });
-    },
-
-    /**
-     * Clear update statuses, if updateSuccess or updateError were set by
-     * replaceExtJsonDocument.
-     */
-    clearUpdateStatus() {
-      if (this.state.updateSuccess) this.setState({ updateSuccess: null });
-      if (this.state.updateError) this.setState({ updateError: null });
     },
 
     /**
@@ -698,7 +653,7 @@ const configureStore = (options = {}) => {
         }
       }
 
-      const jsonDoc = EJSON.stringify(hadronDoc.generateObject(), null, 2);
+      const jsonDoc = hadronDoc.toEJSON();
 
       this.setState({
         insert: {
@@ -744,7 +699,7 @@ const configureStore = (options = {}) => {
      */
     toggleInsertDocument(view) {
       if (view === 'JSON') {
-        const jsonDoc = EJSON.stringify(this.state.insert.doc.generateObject(), null, 2);
+        const jsonDoc = this.state.insert.toEJSON();
 
         this.setState({
           insert: {
@@ -763,7 +718,7 @@ const configureStore = (options = {}) => {
         if (this.state.insert.jsonDoc === '') {
           hadronDoc = this.state.insert.doc;
         } else {
-          hadronDoc = new HadronDocument(EJSON.parse(this.state.insert.jsonDoc), false);
+          hadronDoc = HadronDocument.FromEJSON(this.state.insert.jsonDoc);
         }
 
         this.setState({
@@ -824,7 +779,9 @@ const configureStore = (options = {}) => {
      * Insert a single document.
      */
     insertMany() {
-      const docs = EJSON.parse(this.state.insert.jsonDoc);
+      const docs =
+        HadronDocument.FromEJSONArray(this.state.insert.jsonDoc)
+          .map(doc => doc.generateObject());
       track('Document Inserted', {
         mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
         multiple: docs.length > 1
@@ -877,7 +834,7 @@ const configureStore = (options = {}) => {
       let doc;
 
       if (this.state.insert.jsonView) {
-        doc = EJSON.parse(this.state.insert.jsonDoc);
+        doc = HadronDocument.FromEJSON(this.state.insert.jsonDoc).generateObject();
       } else {
         doc = this.state.insert.doc.generateObject();
       }

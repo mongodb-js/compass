@@ -1,18 +1,18 @@
 {
   "name": "@mongodb-js/compass-serverstats",
   "productName": "Compass Server Stats plugin",
-  "version": "15.20.0",
+  "version": "15.21.0",
   "apiVersion": "3.0.0",
   "description": "Compass Real Time Server Stats Component.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "exports": {
     "webpack": "./src/index.js",
-    "browser": "./lib/browser.js",
-    "require": "./lib/index.js"
+    "browser": "./dist/browser.js",
+    "require": "./dist/index.js"
   },
   "scripts": {
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./lib",
+    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "test": "mocha",
@@ -27,9 +27,10 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@mongodb-js/compass-components": "^0.13.0",
     "d3": "^3.5.17",
     "hadron-react-buttons": "^5.7.0",
-    "hadron-react-components": "^5.12.0",
+    "hadron-react-components": "^5.13.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
@@ -45,8 +46,9 @@
     "reflux": "^0.4.1"
   },
   "devDependencies": {
-    "@mongodb-js/mocha-config-compass": "^0.9.0",
-    "@mongodb-js/webpack-config-compass": "^0.6.0",
+    "@mongodb-js/compass-components": "^0.13.0",
+    "@mongodb-js/mocha-config-compass": "^0.10.0",
+    "@mongodb-js/webpack-config-compass": "^0.7.0",
     "chai": "^4.1.2",
     "debug": "4.3.0",
     "depcheck": "^1.4.1",
@@ -56,13 +58,13 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.1.0",
     "eslint-plugin-react": "^7.24.0",
-    "hadron-app": "^4.20.0",
-    "hadron-app-registry": "^8.9.0",
+    "hadron-app": "^4.21.0",
+    "hadron-app-registry": "^8.10.0",
     "hadron-react-buttons": "^5.7.0",
-    "hadron-react-components": "^5.12.0",
+    "hadron-react-components": "^5.13.0",
     "mocha": "^8.4.0",
-    "mongodb-connection-model": "^21.14.0",
-    "mongodb-data-service": "^21.18.0",
+    "mongodb-connection-model": "^21.15.0",
+    "mongodb-data-service": "^21.19.0",
     "mongodb-ns": "^2.3.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",

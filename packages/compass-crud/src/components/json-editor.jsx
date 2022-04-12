@@ -1,9 +1,9 @@
-import { EJSON } from 'bson';
 import React from 'react';
 import PropTypes from 'prop-types';
 import jsonParse from 'fast-json-parse';
-import { TextButton } from 'hadron-react-buttons';
 import { DocumentList } from '@mongodb-js/compass-components';
+import HadronDocument from 'hadron-document';
+import UpdateDocumentFooter from './document-footer';
 import RemoveDocumentFooter from './remove-document-footer';
 
 import 'ace-builds';
@@ -29,35 +29,6 @@ const CONTENTS = `${BASE}-contents`;
  */
 const TEST_ID = 'editable-json';
 
-/**
- * Different modes of editing: Progress, Success, Editing, Viewing, and Error.
- */
-const PROGRESS = 'Progress';
-const SUCCESS = 'Success';
-const EDITING = 'Editing';
-const VIEWING = 'Viewing';
-const ERROR = 'Error';
-
-/**
- * Map of modes to styles.
- */
-const MODES = {
-  'Progress': 'is-in-progress',
-  'Success': 'is-success',
-  'Error': 'is-error',
-  'Editing': 'is-modified',
-  'Viewing': 'is-viewing'
-};
-
-/**
- * Messages to be displayed when editing a document: empty, modified, updating,
- * updated and invalid document.
- */
-const EMPTY = '';
-const MODIFIED = 'Document Modified.';
-const UPDATING = 'Updating Document.';
-const UPDATED = 'Document Updated.';
-const INVALID_MESSAGE = 'Update not permitted while document contains errors.';
 
 /**
  * Component for a single editable document in a list of json documents.
@@ -73,19 +44,19 @@ class EditableJson extends React.Component {
    */
   constructor(props) {
     super(props);
+
+    const value = this._getObjectAsString();
+
     this.state = {
       editing: false,
       deleting: false,
       deleteFinished: false,
-      mode: VIEWING,
-      message: EMPTY,
-      expandAll: false,
-      json: null
+      containsErrors: false,
+      value,
+      initialValue: value
     };
 
-    this.boundForceUpdate = this.forceUpdate.bind(this);
     this.boundHandleCancel = this.handleCancel.bind(this);
-    this.boundHandleUpdateError = this.handleUpdateError.bind(this);
     this.boundHandleUpdateSuccess = this.handleUpdateSuccess.bind(this);
     this.boundHandleRemoveSuccess = this.handleRemoveSuccess.bind(this);
   }
@@ -94,29 +65,79 @@ class EditableJson extends React.Component {
    * Fold up all nested values when loading editors.
    */
   componentDidMount() {
+    this.subscribeToDocumentEvents(this.props.doc);
     this.editor.getSession().foldAll(2);
   }
 
-  /**
-   * Subscribe to the update store on mount.
-   *
-   * Fold all documents on update as well, since we might get fresh documents
-   * from the query bar.
-   */
-  componentDidUpdate(prevProps) {
-    if (!this.state.editing) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.doc !== prevProps.doc) {
+      this.unsubscribeFromDocumentEvents(prevProps.doc);
+      this.subscribeToDocumentEvents(this.props.doc);
+      const newValue = this._getObjectAsString();
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        editing: false,
+        deleting: false,
+        value: newValue,
+        initialValue: newValue,
+      });
+    }
+
+    if (
+      prevState.editing !== this.state.editing &&
+      this.state.editing === false
+    ) {
       this.editor.getSession().foldAll(2);
     }
-    if (this.state.editing && this.props.updateError) {
-      this.handleUpdateError();
-    } else if (this.state.deleting && this.props.updateSuccess) {
-      this.handleRemoveSuccess();
-    } else if (this.state.editing && this.props.updateSuccess) {
-      this.handleUpdateSuccess();
-    } else if (this.props.doc !== prevProps.doc) {
-      // If the underlying document changed, that means that the collection
-      // contents have been refreshed. Treat that like cancelling the edit.
-      this.handleCancel();
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeFromDocumentEvents(this.props.doc);
+  }
+
+  _getObjectAsString() {
+    return this.props.doc.toEJSON();
+  }
+
+  /**
+   * Subscribe to the hadron document events.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  subscribeToDocumentEvents(doc) {
+    doc.on('remove-success', this.boundHandleRemoveSuccess);
+    doc.on('update-success', this.boundHandleUpdateSuccess);
+  }
+
+  /**
+   * Unsubscribe from the hadron document events.
+   *
+   * @param {Document} doc - The hadron document.
+   */
+  unsubscribeFromDocumentEvents(doc) {
+    doc.removeListener('remove-success', this.boundHandleRemoveSuccess);
+    doc.removeListener('update-success', this.boundHandleUpdateSuccess);
+  }
+
+  /**
+   * Fires when the document update was successful.
+   */
+  handleUpdateSuccess() {
+    if (this.state.editing) {
+      setTimeout(() => {
+        this.setState({ editing: false });
+      }, 500);
+    }
+  }
+
+  /**
+   * Handle the successful remove.
+   */
+  handleRemoveSuccess() {
+    if (this.state.deleting) {
+      setTimeout(() => {
+        this.setState({ deleting: false, deleteFinished: true });
+      }, 500);
     }
   }
 
@@ -127,54 +148,8 @@ class EditableJson extends React.Component {
     this.setState({
       editing: false,
       deleting: false,
-      mode: VIEWING,
-      message: EMPTY,
-      json: EJSON.stringify(this.props.doc.generateObject(), null, 2)
+      value: this._getObjectAsString(),
     });
-
-    this.props.clearUpdateStatus();
-  }
-
-  /**
-   * Handle user clicking update button.
-   */
-  handleUpdate() {
-    this.setState({ mode: PROGRESS, message: UPDATING });
-    this.props.replaceExtJsonDocument(EJSON.parse(this.state.json), this.props.doc);
-  }
-
-  /**
-   * Fires when the json document update was successful.
-   */
-  handleUpdateSuccess() {
-    setTimeout(() => {
-      this.setState({mode: SUCCESS, message: UPDATED});
-      setTimeout(() => {
-        this.props.clearUpdateStatus();
-        this.setState({editing: false, message: EMPTY, mode: VIEWING});
-      }, 500);
-    }, 250);
-  }
-
-  /**
-   * Handle an error with the document update.
-   *
-   * @param {String} message - The error message.
-   */
-  handleUpdateError() {
-    if (this.state.mode !== ERROR || this.state.message !== this.props.updateError) {
-      this.setState({ mode: ERROR, message: this.props.updateError });
-    }
-  }
-
-  /**
-   * Handle the successful remove.
-   */
-  handleRemoveSuccess() {
-    setTimeout(() => {
-      this.props.clearUpdateStatus();
-      this.setState({ deleting: false, deleteFinished: true });
-    }, 500);
   }
 
   /**
@@ -205,7 +180,10 @@ class EditableJson extends React.Component {
    * Handles canceling a delete.
    */
   handleCancelRemove() {
-    this.setState({ deleting: false, deleteFinished: false });
+    this.setState({
+      deleting: false,
+      deleteFinished: false
+    });
   }
 
   /**
@@ -221,21 +199,7 @@ class EditableJson extends React.Component {
    * @param {String} value - changed value of json doc being edited.
    */
   handleOnChange(value) {
-    if (!!jsonParse(value).err) {
-      this.setState({ json: value, mode: ERROR, message: INVALID_MESSAGE });
-    } else {
-      this.setState({ json: value, mode: EDITING, message: MODIFIED });
-    }
-  }
-
-  /**
-   * Check if document has errors: based on JSON.parse() and updateError set by
-   * replaceExtJsonDocument.
-   *
-   * @returns {Bool} if errors are present in the current json doc.
-   */
-  hasErrors() {
-    return !!jsonParse(this.state.json).err || this.props.updateError;
+    this.setState({ value, containsErrors: !!jsonParse(value).err });
   }
 
   /**
@@ -255,15 +219,6 @@ class EditableJson extends React.Component {
   }
 
   /**
-   * Get the style of the footer based on the current mode.
-   *
-   * @returns {String} The style.
-   */
-  footerStyle() {
-    return `document-footer document-footer-${MODES[this.state.mode]}`;
-  }
-
-  /**
    * Render the actions component.
    *
    * @returns {Component} The actions component.
@@ -273,9 +228,9 @@ class EditableJson extends React.Component {
       if (!this.state.editing && !this.state.deleting) {
         return (
           <DocumentList.DocumentActionsGroup
-            onEdit={this.handleEdit.bind(this)}
+            onEdit={!this.props.isTimeSeries && this.handleEdit.bind(this)}
             onCopy={this.handleCopy.bind(this)}
-            onRemove={this.handleDelete.bind(this)}
+            onRemove={!this.props.isTimeSeries && this.handleDelete.bind(this)}
             onClone={this.handleClone.bind(this)}
           />
         );
@@ -295,11 +250,9 @@ class EditableJson extends React.Component {
       minLines: 2,
       maxLines: Infinity,
       showGutter: true,
-      // TODO: set this to false when editing
       readOnly: !this.state.editing,
       highlightActiveLine: false,
       highlightGutterLine: false,
-      // TODO: set this to true when editing
       showLineNumbers: this.state.editing,
       vScrollBarAlwaysVisible: false,
       hScrollBarAlwaysVisible: false,
@@ -311,15 +264,11 @@ class EditableJson extends React.Component {
       useWorker: false
     };
 
-    const value = this.state.json !== null
-      ? this.state.json
-      : EJSON.stringify(this.props.doc.generateObject(), null, 2);
-
     return (
       <div className="json-ace-editor">
         <Ace
           mode="json"
-          value={value}
+          value={this.state.value}
           theme="mongodb"
           width="100%"
           editorProps={{$blockScrolling: Infinity}}
@@ -338,33 +287,25 @@ class EditableJson extends React.Component {
   renderFooter() {
     if (this.state.editing) {
       return (
-        <div className={this.footerStyle()}>
-          <div data-test-id="document-message"
-            className="document-footer-message"
-            title={this.state.message}>
-            {this.state.message}
-          </div>
-          <div className="document-footer-actions">
-            <TextButton
-              className="btn btn-borderless btn-xs cancel"
-              text="Cancel"
-              dataTestId="cancel-document-button"
-              clickHandler={this.boundHandleCancel} />
-            <TextButton
-              className="btn btn-default btn-xs"
-              text="Replace"
-              disabled={this.hasErrors()}
-              dataTestId="update-document-button"
-              clickHandler={this.handleUpdate.bind(this)} />
-          </div>
-        </div>
+        <UpdateDocumentFooter
+          doc={this.props.doc}
+          replaceDocument={() => {
+            this.props.doc.apply(HadronDocument.FromEJSON(this.state.value));
+            this.props.replaceDocument(this.props.doc);
+          }}
+          cancelHandler={this.handleCancel.bind(this)}
+          editing={this.state.editing}
+          modified={this.state.value !== this.state.initialValue}
+          containsErrors={this.state.containsErrors}
+        />
       );
     } else if (this.state.deleting) {
       return (
         <RemoveDocumentFooter
           doc={this.props.doc}
           removeDocument={this.props.removeDocument}
-          cancelHandler={this.handleCancelRemove.bind(this)} />
+          cancelHandler={this.handleCancelRemove.bind(this)}
+        />
       );
     }
   }
@@ -391,17 +332,12 @@ EditableJson.displayName = 'EditableJson';
 
 EditableJson.propTypes = {
   doc: PropTypes.object.isRequired,
-  updateSuccess: PropTypes.bool,
-  replaceExtJsonDocument: PropTypes.func.isRequired,
-  updateError: PropTypes.string,
-  removeDocument: PropTypes.func.isRequired,
-  clearUpdateStatus: PropTypes.func.isRequired,
-  version: PropTypes.string.isRequired,
   editable: PropTypes.bool,
-  tz: PropTypes.string,
-  expandAll: PropTypes.bool,
+  isTimeSeries: PropTypes.bool,
+  removeDocument: PropTypes.func.isRequired,
+  replaceDocument: PropTypes.func.isRequired,
+  updateDocument: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired,
-  openImportFileDialog: PropTypes.func.isRequired,
   copyToClipboard: PropTypes.func.isRequired
 };
 

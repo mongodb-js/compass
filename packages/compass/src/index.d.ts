@@ -36,7 +36,6 @@ declare module 'process' {
         HADRON_AUTO_UPDATE_ENDPOINT: string;
 
         // Feature flags.
-        USE_NEW_CONNECT_FORM?: 'true' | 'false';
         /**
          * Currently Compass uses `darkreader` to globally change the views of
          * Compass to a dark theme. Turning on this feature flag stops darkreader
@@ -48,7 +47,8 @@ declare module 'process' {
         /**
          * Enable new aggregation pipeline toolbar
          */
-        COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true',
+        COMPASS_CSFLE_SUPPORT?: 'true' | 'false';
+        COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
       }
     }
   }

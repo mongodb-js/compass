@@ -16,11 +16,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  AppRegistryRoles,
-  useAppRegistryContext,
-  useAppRegistryRole,
-} from '../contexts/app-registry-context';
+import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
@@ -97,9 +93,7 @@ function hideCollectionSubMenu() {
 
 function Home({ appName }: { appName: string }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
-  const connectRole = useAppRegistryRole(AppRegistryRoles.APPLICATION_CONNECT);
   const connectedDataService = useRef<DataService>();
-  const showNewConnectForm = process.env.USE_NEW_CONNECT_FORM !== 'false';
 
   const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
     reducer,
@@ -120,10 +114,6 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     });
   }
 
-  // TODO: Remove this comment once we only have one connections package:
-  // This is currently only used by the new connections package.
-  // We've moved to calling the `data-service-connected` event here instead
-  // of inside `connections`/`compass-connect` and instead call it here.
   function onConnected(
     connectionInfo: ConnectionInfo,
     dataService: DataService
@@ -203,18 +193,13 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       void handleDisconnectClicked();
     }
 
-    // TODO: Once we merge https://jira.mongodb.org/browse/COMPASS-5302
-    // we can remove this check and handle the disconnect event here by default.
-    if (showNewConnectForm) {
-      // Setup ipc listener.
-      ipc.ipcRenderer?.on('app:disconnect', onDisconnect);
+    ipc.ipcRenderer?.on('app:disconnect', onDisconnect);
 
-      return () => {
-        // Clean up the ipc listener.
-        ipc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
-      };
-    }
-  }, [appRegistry, showNewConnectForm, onDataServiceDisconnected]);
+    return () => {
+      // Clean up the ipc listener.
+      ipc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
+    };
+  }, [appRegistry, onDataServiceDisconnected]);
   useEffect(() => {
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
@@ -257,28 +242,10 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     );
   }
 
-  if (showNewConnectForm) {
-    return (
-      <div className={homeViewStyles} data-test-id="home-view">
-        <div className={homePageStyles}>
-          <Connections onConnected={onConnected} appName={appName} />
-        </div>
-      </div>
-    );
-  }
-
-  if (!connectRole) {
-    return null;
-  }
-
-  const Connect = connectRole[0].component;
   return (
-    <div
-      className={`with-global-bootstrap-styles ${homeViewStyles}`}
-      data-test-id="home-view"
-    >
+    <div className={homeViewStyles} data-test-id="home-view">
       <div className={homePageStyles}>
-        <Connect />
+        <Connections onConnected={onConnected} appName={appName} />
       </div>
     </div>
   );

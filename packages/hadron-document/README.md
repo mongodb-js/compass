@@ -16,17 +16,17 @@ npm install --save hadron-document
 ```javascript
 'use strict';
 
-const Document = require('hadron-document');
+const { Document } = require('hadron-document');
 
 var object = {
   _id: 'aphex-twin',
   name: 'Aphex Twin',
-  locations: [ 'London' ],
+  locations: ['London'],
   emails: {
     home: 'home@aphextwin.com',
-    work: 'work@aphextwin.com'
-  }
-}
+    work: 'work@aphextwin.com',
+  },
+};
 
 var doc = new Document(object);
 ```
