@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 describe('Time to first query', function () {
   let compass: Compass | undefined;
@@ -16,6 +17,10 @@ describe('Time to first query', function () {
       await afterTests(compass);
       compass = undefined;
     }
+  });
+
+  beforeEach(async function () {
+    await createNumbersCollection();
   });
 
   it('can open compass, connect to a database and run a query on a collection (new version)', async function () {

@@ -6,6 +6,7 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -26,11 +27,11 @@ describe('Collection aggregations tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   beforeEach(async function () {
+    await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     // Get us back to the empty stage every time. Also test the Create New
