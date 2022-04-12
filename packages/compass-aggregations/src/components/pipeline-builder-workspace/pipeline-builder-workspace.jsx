@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import Stage from '../stage';
 import Input from '../input';
 import AddStage from '../add-stage';
-// import SortableStageList from './sortable-stage-list';
 import ModifySourceBanner from '../modify-source-banner';
 
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
@@ -156,7 +155,8 @@ class PipelineWorkspace extends PureComponent {
         helperContainer={() => {
           return this.stageListContainerRef ?? document.body
         }}
-        // Sligt delay to prevent sortable logic messing with interactive
+        helperClass="dragging"
+        // Slight delay to prevent sortable logic messing with interactive
         // elements in the handler toolbar component
         pressDelay={10}
       >

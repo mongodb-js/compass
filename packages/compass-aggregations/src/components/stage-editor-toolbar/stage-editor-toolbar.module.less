@@ -18,14 +18,16 @@
   cursor: move;
   cursor: grab;
 
-  &:active {
+  :global(.dragging) & {
     cursor: grabbing;
   }
+
   &-right {
     display: flex;
     justify-content: flex-end;
     flex-grow: 4;
   }
+
   &-errored {
     background: @redLight3;
   }
