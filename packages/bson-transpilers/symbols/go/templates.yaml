@@ -122,7 +122,7 @@ Templates:
         }
     InSyntaxTemplate: &InSyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
-            this.declarations.addFunction([]
+            this.declarations.addFunc([]
                 .concat(`var contains = func(elems bson.A, v interface{}) bool {`)
                 .concat('  for _, s := range elems {')
                 .concat('    if v == s {')
@@ -312,7 +312,7 @@ Templates:
             if (singleQuoted || doubleQuoted)
                 arg = arg.substr(1, arg.length - 2);
             arg = `"${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            this.declarations.addFunction([]
+            this.declarations.addFunc([]
                 .concat('var objectIDFromHex = func(hex string) primitive.ObjectID {')
                 .concat(`   objectID, err := primitive.ObjectIDFromHex(hex)`)
                 .concat('   if err != nil {')
@@ -342,7 +342,7 @@ Templates:
                 arg = 0;
             switch(type) {
                 case '_string':
-                    this.declarations.addFunction([]
+                    this.declarations.addFunc([]
                         .concat('var parseFloat64 = func(str string) float64 {')
                         .concat('   f64, err := strconv.ParseFloat(str, 64)')
                         .concat('   if err != nil {')
@@ -364,7 +364,7 @@ Templates:
                 arg = 0
             switch(type) {
                 case '_string':
-                    this.declarations.addFunction([]
+                    this.declarations.addFunc([]
                         .concat('var parseInt32 = func(str string) int32 {')
                         .concat('i64, err := sstrconv.ParseInt(str, 10, 32)')
                         .concat('   if err != nil {')
@@ -386,7 +386,7 @@ Templates:
                 arg = 0
             switch(type) {
                 case '_string':
-                    this.declarations.addFunction([]
+                    this.declarations.addFunc([]
                         .concat('var parseInt = func(str string) int64 {')
                         .concat('   i64, err := strconv.ParseInt(str}, 10, 64)')
                         .concat('   if err != nil {')
@@ -439,7 +439,7 @@ Templates:
                 arg = arg.substr(1, arg.length - 2);
             arg = `"${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
 
-            this.declarations.addFunction([]
+            this.declarations.addFunc([]
                 .concat('var parseDecimal128 = func(str string) primitive.Decimal128 {')
                 .concat('   d128, err := primitive.ParseDecimal128(str)')
                 .concat('   if err != nil {')
@@ -696,7 +696,7 @@ Templates:
         () => ''
     TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
         (arg1, arg2) => {
-            this.declarations.addFunction([]
+            this.declarations.addFunc([]
                 .concat('var timestampGEQ = func(tm1, tm2) bool {')
                 .concat('   c := primitive.CompareTimestamp(tm1, tm2)')
                 .concat('   return c == 1 || c == 0')
@@ -712,7 +712,7 @@ Templates:
         () => ''
     TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
         (arg1, arg2) => {
-            this.declarations.addFunction([]
+            this.declarations.addFunc([]
                 .concat('var timestampLEQ = func(tm1, tm2) bool {')
                 .concat('   c := primitive.CompareTimestamp(tm1, tm2)')
                 .concat('   return c == -1 || c == 0')
@@ -787,7 +787,7 @@ Templates:
         () => ''
     LongSymbolFromStringArgsTemplate: &LongSymbolFromStringArgsTemplate !!js/function >
         (_, arg) => {
-            this.declarations.addFunction([]
+            this.declarations.addFunc([]
                 .concat('var int64FromString = func(str string) int64 {')
                 .concat('   f64, err := strconv.Atoi(str)')
                 .concat('   if err != nil {')
@@ -802,7 +802,7 @@ Templates:
         () => ''
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
         (_, arg) => {
-            this.declarations.addFunction([]
+            this.declarations.addFunc([]
                 .concat('var parseFloat64 = func(str string) float64 {')
                 .concat('   f64, err := strconv.ParseFloat(str, 64)')
                 .concat('   if err != nil {')
@@ -817,7 +817,7 @@ Templates:
         () => ''
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
         (_, arg) => {
-            this.declarations.addFunction([]
+            this.declarations.addFunc([]
                 .concat('var objectIDFromHex = func(hex string) primitive.ObjectID {')
                 .concat(`   objectID, err := primitive.ObjectIDFromHex(${arg})`)
                 .concat('   if err != nil {')

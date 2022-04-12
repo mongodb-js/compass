@@ -5,19 +5,19 @@ describe('DeclarationStore', () => {
   it('adds data using #add', () => {
     const ds = new DeclarationStore();
 
-    ds.add('Temp', 'objectID', (varName) => { return `objectId${varName}`; });
+    ds.addVar('Temp', 'objectID', (varName) => { return `objectId${varName}`; });
     assert.strictEqual(ds.length(), 1);
   });
   it('returns incremented variable names given the pre-incremented variable root-name', () => {
     const ds = new DeclarationStore();
 
-    ds.add('ForTemp', 'objectID', () => { return 1; });
+    ds.addVar('ForTemp', 'objectID', () => { return 1; });
     assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp1');
 
-    ds.add('ForTemp', 'objectID', () => { return 2; });
+    ds.addVar('ForTemp', 'objectID', () => { return 2; });
     assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp2');
 
-    ds.add('ForTemp', 'objectID', () => { return 3; });
+    ds.addVar('ForTemp', 'objectID', () => { return 3; });
     assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp3');
   });
   it('stringifies multiple variables declarations', () => {
@@ -39,8 +39,8 @@ describe('DeclarationStore', () => {
         .concat('}')
         .join('\n');
     };
-    ds.add('ForTemp', 'objectID', declaration1);
-    ds.add('ForTemp', 'objectID', declaration2);
+    ds.addVar('ForTemp', 'objectID', declaration1);
+    ds.addVar('ForTemp', 'objectID', declaration2);
 
     const expected = []
       .concat('objectIDForTemp, err := primitive.ObjectIDFromHex()')
@@ -84,9 +84,9 @@ describe('DeclarationStore', () => {
         .join('\n');
     };
 
-    ds.add('ForTemp', 'objectID', declaration1);
-    ds.add('ForTemp', 'objectID', declaration2);
-    ds.add('ForTemp', 'objectID', declaration3);
+    ds.addVar('ForTemp', 'objectID', declaration1);
+    ds.addVar('ForTemp', 'objectID', declaration2);
+    ds.addVar('ForTemp', 'objectID', declaration3);
 
     const expected = []
       .concat('objectIDForTemp, err := primitive.ObjectIDFromHex()')
@@ -130,9 +130,9 @@ describe('DeclarationStore', () => {
         .join('\n');
     };
 
-    ds.add('ForTemp', 'objectID', declaration1);
-    ds.add('ForTemp', 'objectID', declaration2);
-    ds.add('ForTemp', 'objectID', declaration3);
+    ds.addVar('ForTemp', 'objectID', declaration1);
+    ds.addVar('ForTemp', 'objectID', declaration2);
+    ds.addVar('ForTemp', 'objectID', declaration3);
 
     const expected = []
       .concat('objectIDForTemp, err := primitive.ObjectIDFromHex()')
@@ -147,7 +147,7 @@ describe('DeclarationStore', () => {
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('ignores duplications over different temps', () => {
+  it('ignores duplications over different variables', () => {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -176,9 +176,9 @@ describe('DeclarationStore', () => {
         .join('\n');
     };
 
-    ds.add('ForTempA', 'objectID', declaration1);
-    ds.add('ForTempA', 'objectID', declaration2);
-    ds.add('ForTempB', 'objectID', declaration3);
+    ds.addVar('ForTempA', 'objectID', declaration1);
+    ds.addVar('ForTempA', 'objectID', declaration2);
+    ds.addVar('ForTempB', 'objectID', declaration3);
 
     const expected = []
       .concat('objectIDForTempA, err := primitive.ObjectIDFromHex()')
@@ -197,5 +197,35 @@ describe('DeclarationStore', () => {
       .concat('}')
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
+  });
+  it('ignores duplications over different functions', () => {
+    const ds = new DeclarationStore();
+    const declaration1 = 'var x := func() {}';
+    const declaration2 = 'var x := func() {}';
+    const declaration3 = 'var y := func() {}';
+
+    ds.addFunc(declaration1);
+    ds.addFunc(declaration2);
+    ds.addFunc(declaration3);
+
+    const expected = []
+      .concat('var x := func() {}')
+      .concat('')
+      .concat('var y := func() {}')
+      .join('\n');
+    assert.strictEqual(ds.toString(), expected);
+  });
+  it('get length of sets', () => {
+    const ds = new DeclarationStore();
+    const declaration1 = 'var x := func() {}';
+    const declaration2 = 'var x := func() {}';
+    const declaration3 = 'var y := func() {}';
+
+    ds.addFunc(declaration1);
+    ds.addFunc(declaration2);
+    ds.addFunc(declaration3);
+    ds.addVar('x', 'y', () => 'z');
+
+    assert.strictEqual(ds.length(), 3);
   });
 });
