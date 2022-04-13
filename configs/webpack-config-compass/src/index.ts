@@ -34,7 +34,7 @@ const sharedResolveOptions = {
   mainFields: ['compass:module', 'compass:main', 'module', 'main'],
   exportsFields: ['compass:exports', 'exports'],
   extensions: ['.jsx', '.tsx', '.ts', '...'],
-}
+};
 
 export function createElectronMainConfig(
   args: Partial<ConfigArgs>
@@ -66,7 +66,7 @@ export function createElectronMainConfig(
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
-      ...sharedResolveOptions
+      ...sharedResolveOptions,
     },
     plugins: [new WebpackPluginMulticompilerProgress()],
   };
@@ -136,7 +136,7 @@ export function createElectronRendererConfig(
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
-      ...sharedResolveOptions
+      ...sharedResolveOptions,
     },
   };
 
@@ -241,7 +241,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       ...toCommonJsExternal(builtinModules),
     },
     resolve: {
-      ...sharedResolveOptions
+      ...sharedResolveOptions,
     },
   };
 }
