@@ -158,12 +158,12 @@ tests:
           javascript: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me'
         ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
         job_code: 1 } } ]}"
-        #   shell: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me' ] }
-        # } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
-        # job_code: 1 } } ]}"
-        #   python: "{'pipeline': [ { '$match': { '$expr': { '$eq': [ '$manager', '$$me'
-        # ] } } }, { '$project': { 'managers': 0 } }, { '$sort': { 'startQuarter': 1,
-        # 'notes':1, 'job_code': 1 } } ]}"
+          shell: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me' ] }
+        } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
+        job_code: 1 } } ]}"
+          python: "{'pipeline': [ { '$match': { '$expr': { '$eq': [ '$manager', '$$me'
+        ] } } }, { '$project': { 'managers': 0 } }, { '$sort': { 'startQuarter': 1,
+        'notes':1, 'job_code': 1 } } ]}"
       output:
           java: "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", \n
         \       new Document(\"$expr\", \n        new Document(\"$eq\", Arrays.asList(\"$manager\",
