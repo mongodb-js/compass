@@ -7,8 +7,6 @@ const errorContainerStyles = css({
   position: 'relative'
 });
 
-// const debug = require('debug')('mongodb-compass:server-stats:dberror-component');
-
 /**
  * Represents the component that renders DB Errors.
  */

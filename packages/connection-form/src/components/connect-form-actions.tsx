@@ -42,10 +42,8 @@ function ConnectFormActions({
 }): React.ReactElement {
   return (
     <div className={formActionStyles}>
-      {warnings && <WarningSummary warnings={warnings} />}
-      {errors && (
-        <ErrorSummary dataTestId="connection-error-summary" errors={errors} />
-      )}
+      <WarningSummary warnings={warnings} />
+      <ErrorSummary dataTestId="connection-error-summary" errors={errors} />
       <div className={formActionButtonsStyles}>
         {saveButton !== 'hidden' && (
           <Button
