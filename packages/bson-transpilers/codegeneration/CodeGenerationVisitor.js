@@ -55,15 +55,24 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     return this[rule](ctx);
   }
 
+  returnResultWithDeclarations(ctx) {
+    let result = this.returnResult(ctx);
+    if (this.getState().declarations.length() > 0) {
+      result = `${this.getState().declarations.toString() + '\n\n'}${result}`;
+    }
+    return result;
+  }
+
   /**
    * PUBLIC: This is the entry point for the compiler. Each visitor must define
    * an attribute called "startNode".
    *
    * @param {ParserRuleContext} ctx
+   * @param {Boolean} useDeclarations - prepend the result string with declarations
    * @return {String}
    */
-  start(ctx) {
-    return this.returnResult(ctx).trim();
+  start(ctx, useDeclarations = false) {
+    return (useDeclarations ? this.returnResultWithDeclarations(ctx) : this.returnResult(ctx)).trim();
   }
 
   getState() {
@@ -536,7 +545,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     }
     ctx.indentDepth--;
     if (ctx.type.template) {
-      return ctx.type.template(args, ctx.indentDepth);
+      return ctx.type.template.bind(this.getState())(args, ctx.indentDepth);
     }
     return this.visitChildren(ctx);
   }

@@ -129,8 +129,9 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
         idiomatic;
       if (!driverSyntax) {
         transpiler.clearImports();
+        transpiler.clearDeclarations();
       }
-      return transpiler.start(tree);
+      return transpiler.start(tree, !driverSyntax);
     } catch (e) {
       if (e.code && e.code.includes('BSONTRANSPILERS')) {
         throw e;
