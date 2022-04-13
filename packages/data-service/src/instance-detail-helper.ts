@@ -3,6 +3,7 @@ import type {
   MongoClient,
   Document,
   MongoClientOptions,
+  AutoEncryptionOptions,
 } from 'mongodb';
 import {
   isEnterprise,
@@ -179,7 +180,11 @@ function checkIsAtlas(
 export function checkIsCSFLEConnection(client: {
   options: MongoClientOptions;
 }): boolean {
-  const kmsProviders = client.options?.autoEncryption?.kmsProviders;
+  return hasAnyKMSProvider(client.options?.autoEncryption);
+}
+
+export function hasAnyKMSProvider(autoEncryption?: AutoEncryptionOptions): boolean {
+  const kmsProviders = autoEncryption?.kmsProviders;
   return (
     Object.values(kmsProviders ?? {})
       .flatMap((kms) => Object.values(kms))

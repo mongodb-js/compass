@@ -7,7 +7,7 @@ import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
 import DataService from './data-service';
-import type { ConnectionOptions } from './connection-options';
+import type { ConnectionFleOptions, ConnectionOptions } from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
 
@@ -1343,6 +1343,29 @@ describe('DataService', function () {
           expect(commandSpy.args[0][0]).to.deep.equal({
             killSessions: [session.id],
           });
+        });
+      });
+    });
+
+    describe('CSFLE logging', function () {
+      it('picks a selected set of CSFLE options for logging', function () {
+        const fleOptions: ConnectionFleOptions = {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'abc.def',
+            schemaMap: {'a.b': {}},
+            kmsProviders: {
+              aws: { accessKeyId: 'id', secretAccessKey: 'secret' },
+              local: { key: 'secret' },
+              kmip: { endpoint: '' }
+            }
+          }
+        };
+        expect(dataService._csfleLogInformation(fleOptions)).to.deep.equal({
+          storeCredentials: false,
+          keyVaultNamespace: 'abc.def',
+          schemaMapNamespaces: ['a.b'],
+          kmsProviders: ['aws', 'local']
         });
       });
     });
