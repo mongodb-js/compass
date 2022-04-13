@@ -1,5 +1,5 @@
 import { ObjectID as ObjectId } from 'bson';
-import { Element } from '../..';
+import { Element } from '../../src';
 import { ObjectIdEditor } from '../../src/editor';
 import { expect } from 'chai';
 

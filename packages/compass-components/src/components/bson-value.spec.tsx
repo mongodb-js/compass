@@ -38,6 +38,11 @@ describe('BSONValue', function () {
       expected: "UUID('48b481f0-31c7-4b2d-81d4-987ac69262a9')",
     },
     {
+      type: 'Binary',
+      value: new Binary('120=', Binary.SUBTYPE_UUID),
+      expected: "UUID('3132303d')",
+    },
+    {
       type: 'Code',
       value: new Code('var a = 1', { foo: 2 }),
       expected: 'Code(\'var a = 1\', {"foo":2})',

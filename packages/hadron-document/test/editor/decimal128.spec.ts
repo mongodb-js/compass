@@ -1,5 +1,5 @@
 import { Decimal128 } from 'bson';
-import { Element } from '../..';
+import { Element } from '../../src';
 import { Decimal128Editor } from '../../src/editor';
 import { expect } from 'chai';
 

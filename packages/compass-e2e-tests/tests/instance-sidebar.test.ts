@@ -3,6 +3,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -13,7 +14,10 @@ describe('Instance sidebar', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+  });
 
+  beforeEach(async function () {
+    await createNumbersCollection();
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 

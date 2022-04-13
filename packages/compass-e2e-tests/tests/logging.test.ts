@@ -199,6 +199,7 @@ describe('Logging and Telemetry integration', function () {
           msg: 'Connecting',
           attr: (actual: any) => {
             expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
+            expect(actual.csfle).to.equal(null);
           },
         },
         {

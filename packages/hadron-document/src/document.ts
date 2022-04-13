@@ -2,9 +2,11 @@
 import type { Element } from './element';
 import { LinkedList, Events as ElementEvents } from './element';
 import EventEmitter from 'eventemitter3';
-import { UUID } from 'bson';
+import { EJSON, UUID } from 'bson';
 import ObjectGenerator from './object-generator';
 import type { BSONObject, BSONValue } from './utils';
+import { objectToIdiomaticEJSON } from './utils';
+import type { HadronEJSONOptions } from './utils';
 
 /**
  * The event constant.
@@ -59,7 +61,10 @@ export class Document extends EventEmitter {
     this.currentType = 'Document';
   }
 
-  apply(doc: BSONObject): void {
+  apply(doc: BSONObject | Document): void {
+    if (typeof doc?.generateObject === 'function') {
+      doc = doc.generateObject();
+    }
     const updatedKeys: (string | number)[] = [];
     let prevKey = null;
     for (const [key, value] of Object.entries(doc)) {
@@ -460,6 +465,41 @@ export class Document extends EventEmitter {
    */
   static get Events(): typeof Events {
     return Events;
+  }
+
+  /**
+   * Parse a new Document from extended JSON input.
+   */
+  static FromEJSON(input: string): Document {
+    const parsed = EJSON.parse(input, { relaxed: false });
+    return new Document(parsed as BSONObject);
+  }
+
+  /**
+   * Parse multiple Document from extended JSON input.
+   * If the input consists of only a single document without
+   * `[array]` brackets, return an array consisting of only
+   * that document.
+   */
+  static FromEJSONArray(input: string): Document[] {
+    const parsed = EJSON.parse(input, { relaxed: false });
+    return Array.isArray(parsed)
+      ? parsed.map((doc) => new Document(doc as BSONObject))
+      : [new Document(parsed as BSONObject)];
+  }
+
+  /**
+   * Convert this Document instance into a human-readable EJSON string.
+   */
+  toEJSON(
+    source: 'original' | 'current' = 'current',
+    options: HadronEJSONOptions = {}
+  ): string {
+    const obj =
+      source === 'original'
+        ? this.generateOriginalObject()
+        : this.generateObject();
+    return objectToIdiomaticEJSON(obj, options);
   }
 }
 

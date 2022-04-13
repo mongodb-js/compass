@@ -1,4 +1,3 @@
-import { EJSON } from 'bson';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty } from 'lodash';
@@ -379,7 +378,7 @@ const configureStore = (options = {}) => {
      */
     copyToClipboard(doc) {
       track('Document Copied', { mode: this.modeForTelemetry() });
-      const documentJSON = EJSON.stringify(doc.generateObject(), null, 2);
+      const documentJSON = doc.toEJSON();
       let input = document.createElement(INPUT);
       input.type = TYPE;
       input.setAttribute(STYLES, DISPLAY);
@@ -654,7 +653,7 @@ const configureStore = (options = {}) => {
         }
       }
 
-      const jsonDoc = EJSON.stringify(hadronDoc.generateObject(), null, 2);
+      const jsonDoc = hadronDoc.toEJSON();
 
       this.setState({
         insert: {
@@ -700,7 +699,7 @@ const configureStore = (options = {}) => {
      */
     toggleInsertDocument(view) {
       if (view === 'JSON') {
-        const jsonDoc = EJSON.stringify(this.state.insert.doc.generateObject(), null, 2);
+        const jsonDoc = this.state.insert.toEJSON();
 
         this.setState({
           insert: {
@@ -719,7 +718,7 @@ const configureStore = (options = {}) => {
         if (this.state.insert.jsonDoc === '') {
           hadronDoc = this.state.insert.doc;
         } else {
-          hadronDoc = new HadronDocument(EJSON.parse(this.state.insert.jsonDoc), false);
+          hadronDoc = HadronDocument.FromEJSON(this.state.insert.jsonDoc);
         }
 
         this.setState({
@@ -780,7 +779,9 @@ const configureStore = (options = {}) => {
      * Insert a single document.
      */
     insertMany() {
-      const docs = EJSON.parse(this.state.insert.jsonDoc);
+      const docs =
+        HadronDocument.FromEJSONArray(this.state.insert.jsonDoc)
+          .map(doc => doc.generateObject());
       track('Document Inserted', {
         mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
         multiple: docs.length > 1
@@ -833,7 +834,7 @@ const configureStore = (options = {}) => {
       let doc;
 
       if (this.state.insert.jsonView) {
-        doc = EJSON.parse(this.state.insert.jsonDoc);
+        doc = HadronDocument.FromEJSON(this.state.insert.jsonDoc).generateObject();
       } else {
         doc = this.state.insert.doc.generateObject();
       }
