@@ -10,7 +10,6 @@ import DataService from './data-service';
 import type { ConnectionOptions } from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
-import { truncate } from 'lodash';
 
 const TEST_DOCS = [
   {
