@@ -88,7 +88,7 @@ class CollationToolbar extends PureComponent {
         >
           <div
             className={classnames(
-              styles['collation-toolbar-input-label'],
+              styles['toolbar-input-label'],
               { [ styles['has-error'] ]: (this.props.collation === false) }
             )}
             data-testid="collation-toolbar-input-label">
