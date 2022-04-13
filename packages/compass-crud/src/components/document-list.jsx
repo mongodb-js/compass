@@ -126,9 +126,7 @@ class DocumentList extends React.Component {
 
     return (
       <WorkspaceContainer>
-        {/* <div className="content-container"> */}
         {this.renderViews()}
-        {/* </div> */}
       </WorkspaceContainer>
     );
   }
