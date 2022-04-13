@@ -183,7 +183,9 @@ export function checkIsCSFLEConnection(client: {
   return hasAnyKMSProvider(client.options?.autoEncryption);
 }
 
-export function hasAnyKMSProvider(autoEncryption?: AutoEncryptionOptions): boolean {
+export function hasAnyKMSProvider(
+  autoEncryption?: AutoEncryptionOptions
+): boolean {
   const kmsProviders = autoEncryption?.kmsProviders;
   return (
     Object.values(kmsProviders ?? {})

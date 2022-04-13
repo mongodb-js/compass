@@ -7,7 +7,10 @@ import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
 import DataService from './data-service';
-import type { ConnectionFleOptions, ConnectionOptions } from './connection-options';
+import type {
+  ConnectionFleOptions,
+  ConnectionOptions,
+} from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
 
@@ -1353,19 +1356,19 @@ describe('DataService', function () {
           storeCredentials: false,
           autoEncryption: {
             keyVaultNamespace: 'abc.def',
-            schemaMap: {'a.b': {}},
+            schemaMap: { 'a.b': {} },
             kmsProviders: {
               aws: { accessKeyId: 'id', secretAccessKey: 'secret' },
               local: { key: 'secret' },
-              kmip: { endpoint: '' }
-            }
-          }
+              kmip: { endpoint: '' },
+            },
+          },
         };
         expect(dataService._csfleLogInformation(fleOptions)).to.deep.equal({
           storeCredentials: false,
           keyVaultNamespace: 'abc.def',
           schemaMapNamespaces: ['a.b'],
-          kmsProviders: ['aws', 'local']
+          kmsProviders: ['aws', 'local'],
         });
       });
     });
