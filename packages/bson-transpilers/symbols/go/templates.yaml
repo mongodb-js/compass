@@ -889,12 +889,15 @@ Templates:
     100ImportTemplate: &100ImportTemplate !!js/function >
         (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     101ImportTemplate: &101ImportTemplate !!js/function >
-        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive', 'log']
     102ImportTemplate: &102ImportTemplate null
     103ImportTemplate: &103ImportTemplate null
-    104ImportTemplate: &104ImportTemplate null
-    105ImportTemplate: &105ImportTemplate null
-    106ImportTemplate: &106ImportTemplate null
+    104ImportTemplate: &104ImportTemplate !!js/function >
+        (args) => ['log', 'strconv']
+    105ImportTemplate: &105ImportTemplate !!js/function >
+        (args) => ['log', 'strconv']
+    106ImportTemplate: &106ImportTemplate !!js/function >
+        (args) => ['log', 'strconv']
     107ImportTemplate: &107ImportTemplate !!js/function >
         (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     108ImportTemplate: &108ImportTemplate !!js/function >
@@ -902,21 +905,11 @@ Templates:
     109ImportTemplate: &109ImportTemplate !!js/function >
         (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     110ImportTemplate: &110ImportTemplate !!js/function >
-        (args) => {
-            return [
-                'go.mongodb.org/mongo-driver/bson/primitive',
-                'log'
-            ]
-        }
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     111ImportTemplate: &111ImportTemplate !!js/function >
         (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     112ImportTemplate: &112ImportTemplate !!js/function >
-        (args) => {
-            return [
-                'go.mongodb.org/mongo-driver/bson/primitive',
-                'log'
-            ]
-        }
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive', 'log']
     113ImportTemplate: &113ImportTemplate null
     114ImportTemplate: &114ImportTemplate null
     200ImportTemplate: &200ImportTemplate !!js/function >

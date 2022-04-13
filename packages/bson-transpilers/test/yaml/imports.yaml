@@ -175,6 +175,7 @@ tests:
             import (
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
+              "log"
             )
     - description: Single import Double
       input:
@@ -208,6 +209,8 @@ tests:
           go: |-
             import (
               "go.mongodb.org/mongo-driver/bson"
+              "log"
+              "strconv"
             )
     - description: Single import NumberLong
       input:
@@ -228,6 +231,8 @@ tests:
           go: |-
             import (
               "go.mongodb.org/mongo-driver/bson"
+              "log"
+              "strconv"
             )
     - description: Single import MinKey
       input:
@@ -526,6 +531,8 @@ tests:
             import (
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
+              "log"
+              "strconv"
               "time.Time"
             )
     - description: All filter builder imports

@@ -148,7 +148,6 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
 
   return {
     compileWithDriver: (input, idiomatic) => {
-      console.log("C")
       transpiler.clearImports();
       transpiler.clearDeclarations();
 
