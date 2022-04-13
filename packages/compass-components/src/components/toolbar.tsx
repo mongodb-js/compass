@@ -18,7 +18,7 @@ const toolbarDarkThemeStyles = css({
 type ToolbarProps = {
   className?: string;
   darkMode?: boolean;
-  children: React.ReactChildren;
+  children: React.ReactNode;
   'data-testid'?: string;
 };
 function UnthemedToolbar({
