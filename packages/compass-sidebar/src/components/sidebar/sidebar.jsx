@@ -107,7 +107,7 @@ class Sidebar extends PureComponent {
   }
 
   handleSetConnectionIsCSFLEEnabled(enabled) {
-    this.props.globalAppRegistryEmit('toggle-csfle-enabled', enabled);
+    this.props.globalAppRegistryEmit('sidebar-toggle-csfle-enabled', enabled);
   }
 
   isReadonlyDistro() {

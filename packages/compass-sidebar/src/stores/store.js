@@ -64,7 +64,8 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
     store.dispatch(changeConnectionInfo(connectionInfo));
 
-    appRegistry.on('toggle-csfle-enabled', (enabled) => {
+    appRegistry.removeAllListeners('sidebar-toggle-csfle-enabled');
+    appRegistry.on('sidebar-toggle-csfle-enabled', (enabled) => {
       dataService.setCSFLEEnabled(enabled);
       appRegistry.emit('refresh-data');
     });
