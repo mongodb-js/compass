@@ -205,12 +205,15 @@ async function main(argv) {
     files: ['dist'],
     license: 'SSPL',
     main: 'dist/index.js',
+    'compass:main': 'src/index.ts',
     exports: {
-      webpack: './src/index.ts',
       require: './dist/index.js',
       ...(!isPlugin && {
         import: './dist/.esm-wrapper.mjs',
       }),
+    },
+    'compass:exports': {
+      '.': './src/index.ts',
     },
     types: './dist/index.d.ts',
     scripts: {

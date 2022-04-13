@@ -14,10 +14,13 @@
   },
   "license": "SSPL",
   "main": "index.js",
+  "compass:main": "index.js",
   "types": "./index.d.ts",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "keywords": [
     "mongodb-js"
