@@ -4,6 +4,10 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import {
+  createDummyCollections,
+  createNumbersCollection,
+} from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -91,14 +95,12 @@ describe('Collection import', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   beforeEach(async function () {
-    await browser.shellEval(
-      'db.getSiblingDB("test").getCollection("json-array").deleteMany({});'
-    );
+    await createNumbersCollection();
+    await createDummyCollections();
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   after(async function () {
@@ -125,7 +127,10 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
-    await browser.setAceValue(Selectors.InsertJSONEditor, '{ "foo": 10 }');
+    await browser.setAceValue(
+      Selectors.InsertJSONEditor,
+      '{ "foo": 10, "long": { "$numberLong": "99" } }'
+    );
 
     // confirm
     const insertConfirm = await browser.$(Selectors.InsertConfirm);
@@ -154,6 +159,7 @@ describe('Collection import', function () {
 
     expect(result).to.deep.equal({
       foo: '10',
+      long: '99',
     });
   });
 

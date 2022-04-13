@@ -40,7 +40,6 @@ describe('StageEditorToolbar [Component]', function() {
         isReadonly={false}
         isTimeSeries={false}
         sourceName={null}
-        connectDragSource={(reactNode) => reactNode}
         isEnabled
         isExpanded
         allowWrites

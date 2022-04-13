@@ -1,5 +1,5 @@
 import { Int32 } from 'bson';
-import { Element } from '../..';
+import { Element } from '../../src';
 import { Int32Editor } from '../../src/editor';
 import { expect } from 'chai';
 

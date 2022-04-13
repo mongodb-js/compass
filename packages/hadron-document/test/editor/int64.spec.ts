@@ -1,5 +1,5 @@
 import { Long } from 'bson';
-import { Element } from '../..';
+import { Element } from '../../src';
 import { Int64Editor } from '../../src/editor';
 import { expect } from 'chai';
 
