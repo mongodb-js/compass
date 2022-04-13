@@ -14,7 +14,7 @@ const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
 
 const { default: styles } = require('./instance.module.less');
 
-const { debug } = createLoggerAndTelemetry(
+const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:compass-collection:context'
 );
 
@@ -84,8 +84,13 @@ const InstanceComponent = ({
               <ErrorBoundary
                 displayName={tab.displayName}
                 key={tab.name}
-                onError={(renderingError, errorInfo) => {
-                  debug('error rendering instance view', tab.name, renderingError, errorInfo);
+                onError={(err, errorInfo) => {
+                  log.error(
+                    mongoLogId(1001000110),
+                    'Instance Workspace',
+                    'Rendering instance tab failed',
+                    { name: tab.name, error: err.message, errorInfo }
+                  );
                 }}
               >
                 <tab.component />

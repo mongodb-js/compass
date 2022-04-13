@@ -203,6 +203,12 @@ export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
 export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const SidebarInstanceRefreshButton =
+  '[data-test-id="sidebar-instance-stats-refresh-button"]';
+export const SidebarInstanceRefreshSpinning =
+  '[data-test-id="sidebar-instance-stats-refresh-spinning"]';
+export const SidebarInstanceRefreshIdle =
+  '[data-test-id="sidebar-instance-stats-refresh-idle"]';
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
