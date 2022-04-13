@@ -354,5 +354,49 @@ describe('tls-option-handler', function () {
         ).searchParams.get('tlsCAFile')
       ).to.equal('%2Fpath%2Fto%2Ffile.pem');
     });
+
+    it('should set useSystemCA to true and remove CA file from options', function () {
+      const connectionStringUrl = new ConnectionStringUrl(
+        'mongodb://a:b@outerspace:123/?directConnection=true&tlsCAFile=%2Fpath%2Fto%2Ffile.pem'
+      );
+
+      const res = handleUpdateTlsOption({
+        action: {
+          key: 'useSystemCA',
+          value: 'true',
+          type: 'update-tls-option',
+        },
+        connectionStringUrl,
+        connectionOptions: {
+          connectionString: connectionStringUrl.toString(),
+        },
+      });
+      expect(res.connectionOptions).to.have.property('useSystemCA', true);
+      expect(
+        new ConnectionStringUrl(
+          res.connectionOptions.connectionString
+        ).searchParams.get('tlsCAFile')
+      ).to.equal(null);
+    });
+
+    it('should remove useSystemCA property', function () {
+      const connectionStringUrl = new ConnectionStringUrl(
+        'mongodb://a:b@outerspace:123/?directConnection=true&tlsCAFile=%2Fpath%2Fto%2Ffile.pem'
+      );
+
+      const res = handleUpdateTlsOption({
+        action: {
+          key: 'useSystemCA',
+          value: null,
+          type: 'update-tls-option',
+        },
+        connectionStringUrl,
+        connectionOptions: {
+          useSystemCA: true,
+          connectionString: connectionStringUrl.toString(),
+        },
+      });
+      expect(res.connectionOptions).not.to.have.property('useSystemCA');
+    });
   });
 });
