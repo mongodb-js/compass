@@ -50,7 +50,10 @@ import type {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
-import type { ConnectionOptions } from './connection-options';
+import type {
+  ConnectionFleOptions,
+  ConnectionOptions,
+} from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
 import {
   adaptCollectionInfo,
@@ -59,6 +62,7 @@ import {
   checkIsCSFLEConnection,
   getInstance,
   getDatabasesByRoles,
+  hasAnyKMSProvider,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
@@ -591,6 +595,7 @@ class DataService extends EventEmitter {
 
     log.info(mongoLogId(1_001_000_014), this._logCtx(), 'Connecting', {
       url: redactConnectionString(this._connectionOptions.connectionString),
+      csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
     });
 
     try {
@@ -2051,6 +2056,26 @@ class DataService extends EventEmitter {
           log.info(logId, this._logCtx(), op);
         }
       }
+    };
+  }
+
+  _csfleLogInformation(fleOptions?: Readonly<ConnectionFleOptions>) {
+    if (!fleOptions || !hasAnyKMSProvider(fleOptions.autoEncryption))
+      return null;
+    return {
+      storeCredentials: fleOptions.storeCredentials,
+      schemaMapNamespaces: Object.keys(
+        fleOptions.autoEncryption?.schemaMap ?? {}
+      ),
+      keyVaultNamespace: fleOptions.autoEncryption.keyVaultNamespace,
+      kmsProviders: Object.entries(
+        fleOptions.autoEncryption?.kmsProviders ?? {}
+      )
+        .filter(
+          ([, kmsOptions]) =>
+            Object.values(kmsOptions).filter(Boolean).length > 0
+        )
+        .map(([kmsProviderName]) => kmsProviderName),
     };
   }
 }
