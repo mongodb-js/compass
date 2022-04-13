@@ -126,7 +126,9 @@ class DocumentList extends React.Component {
 
     return (
       <WorkspaceContainer>
+        {/* <div className="content-container"> */}
         {this.renderViews()}
+        {/* </div> */}
       </WorkspaceContainer>
     );
   }
@@ -232,7 +234,7 @@ class DocumentList extends React.Component {
    */
   render() {
     return (
-      <div className="content-container content-container-documents compass-documents">
+      <div className="compass-documents">
         <div className="controls-container">
           {this.renderQueryBar()}
           <Toolbar
