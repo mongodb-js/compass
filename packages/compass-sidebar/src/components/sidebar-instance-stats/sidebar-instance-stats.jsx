@@ -78,10 +78,11 @@ class SidebarInstanceStats extends PureComponent {
         <div className={styles['sidebar-instance-stats-refresh-button-container']}>
           <button
             onClick={this.onRefresh}
+            data-test-id="sidebar-instance-stats-refresh-button"
             className={styles['sidebar-instance-stats-refresh-button']}
             disabled={isRefreshing}
           >
-            <i className={refreshClassName}/>
+            <i className={refreshClassName} data-test-id={`sidebar-instance-stats-refresh-${isRefreshing ? 'spinning' : 'idle'}`} />
           </button>
         </div>
       </div>
