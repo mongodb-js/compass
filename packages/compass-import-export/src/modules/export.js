@@ -447,15 +447,15 @@ export const startExport = () => {
 
     let exportSucceded = true;
 
-    const dest = fs.createWriteStream(exportData.fileName);
     let numDocsActuallyExported = 0;
     const { columns, source, numDocsToExport } = await getExportSource(
       dataService,
       ns,
       exportData
-    );
+      );
     try {
-      const progress = createProgressStream({
+        const dest = fs.createWriteStream(exportData.fileName);
+        const progress = createProgressStream({
         objectMode: true,
         length: numDocsToExport,
         time: 250 /* ms */,

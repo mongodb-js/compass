@@ -234,7 +234,7 @@ class ExportModal extends PureComponent {
         >
           <QueryViewer
             ns={this.props.ns}
-            query={this.props.query}
+            query={this.props.query ?? {}}
             disabled={isFullCollection}
           />
         </div>
