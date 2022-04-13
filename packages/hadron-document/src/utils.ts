@@ -51,6 +51,10 @@ function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
 
   for (const key of Object.keys(value)) {
     const entry = (value as any)[key];
+    // We are only interested in object-like values, skip everything else
+    if (typeof entry !== 'object' || entry === null) {
+      continue;
+    }
     if (entry.$numberInt) {
       (value as any)[key] = +entry.$numberInt;
       continue;

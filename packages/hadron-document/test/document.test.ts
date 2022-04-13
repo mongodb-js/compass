@@ -1584,6 +1584,17 @@ describe('Document', function () {
     });
 
     describe('#toEJSON', function () {
+      it('handles null values', function () {
+        const doc = new Document({
+          a: 1,
+          b: { foo: 2 },
+          null_val: null,
+        });
+        expect(doc.toEJSON('current', { indent: null })).to.equal(
+          '{"a":1,"b":{"foo":2},"null_val":null}'
+        );
+      });
+
       it('serializes Int32/Double as relaxed but not Int64', function () {
         const doc = new Document({
           a: 1,
