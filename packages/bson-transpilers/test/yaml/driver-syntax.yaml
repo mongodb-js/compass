@@ -92,7 +92,7 @@ tests:
                     // Connect to MongoDB
                     client, err := mongo.Connect(ctx, clientOptions)
                     if err != nil {
-                        log.Fatal(err)
+                      log.Fatal(err)
                     }
                     defer client.Disconnect(ctx)
 
@@ -103,7 +103,7 @@ tests:
                         {"y", primitive.NewObjectID()},
                     })
                     if err != nil {
-                        log.Fatal(err)
+                      log.Fatal(err)
                     }
             imports:
                 python: |-
@@ -132,10 +132,11 @@ tests:
                 ruby: require 'mongo'
                 go: |-
                   import (
-                      context
-                      go.mongodb.org/mongo-driver/bson
-                      go.mongodb.org/mongo-driver/bson/primitive
-                      go.mongodb.org/mongo-driver/mongo
+                    "context"
+                    "go.mongodb.org/mongo-driver/bson"
+                    "go.mongodb.org/mongo-driver/bson/primitive"
+                    "go.mongodb.org/mongo-driver/mongo"
+                    "log"
                   )
     query:
         -
@@ -219,7 +220,7 @@ tests:
                   // Connect to MongoDB
                   client, err := mongo.Connect(ctx, clientOptions)
                   if err != nil {
-                      log.Fatal(err)
+                    log.Fatal(err)
                   }
                   defer client.Disconnect(ctx)
 
@@ -227,7 +228,7 @@ tests:
                   coll := client.Database("db").Collection("collection")
                   _, err = coll.Find(ctx, bson.D{{"x", int64(0)}})
                   if err != nil {
-                      log.Fatal(err)
+                    log.Fatal(err)
                   }
             imports:
                 python: |-
@@ -253,9 +254,10 @@ tests:
                 ruby: require 'mongo'
                 go: |-
                   import (
-                      context
-                      go.mongodb.org/mongo-driver/bson
-                      go.mongodb.org/mongo-driver/mongo
+                    "context"
+                    "go.mongodb.org/mongo-driver/bson"
+                    "go.mongodb.org/mongo-driver/mongo"
+                    "log"
                   )
         -
             description: 'generate driver syntax with filter and other options'
@@ -435,17 +437,17 @@ tests:
                   // Connect to MongoDB
                   client, err := mongo.Connect(ctx, clientOptions)
                   if err != nil {
-                      log.Fatal(err)
+                    log.Fatal(err)
                   }
                   defer client.Disconnect(ctx)
 
                   // Find data
                   coll := client.Database("db").Collection("collection")
                   _, err = coll.Find(ctx, bson.D{{"x", int64(0)}},
-                      options.Find().SetProjection(bson.D{{"y", primitive.NewObjectID()}}),
-                      options.Find().SetSort(bson.D{{"name", 1}}))
+                    options.Find().SetProjection(bson.D{{"y", primitive.NewObjectID()}}),
+                    options.Find().SetSort(bson.D{{"name", 1}}))
                   if err != nil {
-                      log.Fatal(err)
+                    log.Fatal(err)
                   }
             imports:
                 python: |-
@@ -473,10 +475,11 @@ tests:
                 ruby: require 'mongo'
                 go: |-
                   import (
-                      context
-                      go.mongodb.org/mongo-driver/bson
-                      go.mongodb.org/mongo-driver/bson/primitive
-                      go.mongodb.org/mongo-driver/mongo
+                    "context"
+                    "go.mongodb.org/mongo-driver/bson"
+                    "go.mongodb.org/mongo-driver/bson/primitive"
+                    "go.mongodb.org/mongo-driver/mongo"
+                    "log"
                   )
     declarations:
         -
@@ -492,11 +495,11 @@ tests:
                   ctx := context.TODO()
 
                   var objectIDFromHex = func(hex string) primitive.ObjectID {
-                     objectID, err := primitive.ObjectIDFromHex(hex)
-                     if err != nil {
-                         log.Fatal(err)
-                     }
-                     return objectID
+                    objectID, err := primitive.ObjectIDFromHex(hex)
+                    if err != nil {
+                      log.Fatal(err)
+                    }
+                    return objectID
                   }
 
                   // Set client options
@@ -505,7 +508,7 @@ tests:
                   // Connect to MongoDB
                   client, err := mongo.Connect(ctx, clientOptions)
                   if err != nil {
-                      log.Fatal(err)
+                    log.Fatal(err)
                   }
                   defer client.Disconnect(ctx)
 
@@ -513,13 +516,14 @@ tests:
                   coll := client.Database("db").Collection("collection")
                   _, err = coll.Aggregate(ctx, bson.D{{"x", objectIDFromHex("5a7382114ec1f67ae445f778")}})
                   if err != nil {
-                      log.Fatal(err)
+                    log.Fatal(err)
                   }
             imports:
                 go: |-
                   import (
-                      context
-                      go.mongodb.org/mongo-driver/bson
-                      go.mongodb.org/mongo-driver/bson/primitive
-                      go.mongodb.org/mongo-driver/mongo
+                    "context"
+                    "go.mongodb.org/mongo-driver/bson"
+                    "go.mongodb.org/mongo-driver/bson/primitive"
+                    "go.mongodb.org/mongo-driver/mongo"
+                    "log"
                   )

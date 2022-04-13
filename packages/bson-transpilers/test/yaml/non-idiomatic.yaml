@@ -60,7 +60,23 @@ tests:
       output:
           java: new Document()
           object: "{}"
-          go: bson.D{{}}
+          go: bson.D{}
+    - description: Doc with declaration
+      input:
+          javascript: "{x: new ObjectId('5ab901c29ee65f5c8550c5b9')}"
+          shell: "{x: ObjectId('5ab901c29ee65f5c8550c5b9')}"
+          python: "{'x': ObjectId('5ab901c29ee65f5c8550c5b9')}"
+      output:
+          go: |-
+            var objectIDFromHex = func(hex string) primitive.ObjectID {
+              objectID, err := primitive.ObjectIDFromHex(hex)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return objectID
+            }
+
+            bson.D{{"x", objectIDFromHex("5ab901c29ee65f5c8550c5b9")}}
     - description: Two items in document
       input:
           javascript: "{x: 'x', n: '4'}"
@@ -142,12 +158,12 @@ tests:
           javascript: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me'
         ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
         job_code: 1 } } ]}"
-          shell: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me' ] }
-        } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
-        job_code: 1 } } ]}"
-          python: "{'pipeline': [ { '$match': { '$expr': { '$eq': [ '$manager', '$$me'
-        ] } } }, { '$project': { 'managers': 0 } }, { '$sort': { 'startQuarter': 1,
-        'notes':1, 'job_code': 1 } } ]}"
+        #   shell: "{'pipeline': [ { $match: { $expr: { '$eq': [ '$manager', '$$me' ] }
+        # } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1,
+        # job_code: 1 } } ]}"
+        #   python: "{'pipeline': [ { '$match': { '$expr': { '$eq': [ '$manager', '$$me'
+        # ] } } }, { '$project': { 'managers': 0 } }, { '$sort': { 'startQuarter': 1,
+        # 'notes':1, 'job_code': 1 } } ]}"
       output:
           java: "new Document(\"pipeline\", Arrays.asList(new Document(\"$match\", \n
         \       new Document(\"$expr\", \n        new Document(\"$eq\", Arrays.asList(\"$manager\",

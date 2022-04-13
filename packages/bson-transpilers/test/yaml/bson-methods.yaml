@@ -63,7 +63,16 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             object: "'5ab901c29ee65f5c8550c5b9'"
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
-            go: objectIDFromHex("5ab901c29ee65f5c8550c5b9").String()
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9").String()
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
@@ -75,7 +84,16 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             object: new Date('2018-03-26T14:20:50.000Z')
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time
-            go: objectIDFromHex("5ab901c29ee65f5c8550c5b9").Timestamp()
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9").Timestamp()
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
@@ -86,22 +104,58 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             object: true
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9') == BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
-            go: objectIDFromHex("5ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
     -   input:
             javascript: new ObjectId('6ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             shell: ObjectId('6ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
         output:
-            go: objectIDFromHex("6ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("6ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
     -   input:
             python: ObjectId('5ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
         output:
             object: true
-            go: objectIDFromHex("5ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
     -   input:
             python: ObjectId('6ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
         output:
             object: false
-            go: objectIDFromHex("6ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("6ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
     -   input:
             javascript: new ObjectId().equals(new ObjectId())
             shell: ObjectId().equals(ObjectId())
@@ -505,7 +559,16 @@ tests:
             shell: new NumberDecimal(5.3E-6175).toString()
             output: "'5.3E-6175'"
             ruby: BSON::Decimal128.new('5.3E-6175').to_s
-            go: parseDecimal128("5.3E-6175").String()
+            go: |-
+                var parseDecimal128 = func(str string) primitive.Decimal128 {
+                  d128, err := primitive.ParseDecimal128(str)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return d128
+                }
+
+                parseDecimal128("5.3E-6175").String()
     Timestamp-methods:
     -   input:
             javascript: Timestamp(1, 100).toString()
@@ -566,7 +629,13 @@ tests:
             shell: new Timestamp(1, 100) >= new Timestamp(2, 99)
             object: 'true'
             ruby: BSON::Timestamp.new(1, 100) >= BSON::Timestamp.new(2, 99)
-            go: "timestampGEQ(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})"
+            go: |-
+                var timestampGEQ = func(tm1, tm2) bool {
+                   c := primitive.CompareTimestamp(tm1, tm2)
+                   return c == 1 || c == 0
+                }
+
+                timestampGEQ(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})
     -   input:
             javascript: Timestamp(1, 100).lessThan(Timestamp(2, 99))
         output:
@@ -586,7 +655,13 @@ tests:
             shell: new Timestamp(1, 100) <= new Timestamp(2, 99)
             object: 'false'
             ruby: BSON::Timestamp.new(1, 100) <= BSON::Timestamp.new(2, 99)
-            go: "timestampLEQ(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})"
+            go: |-
+                var timestampLEQ = func(tm1, tm2) bool {
+                   c := primitive.CompareTimestamp(tm1, tm2)
+                   return c == -1 || c == 0
+                }
+
+                timestampLEQ(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})
     -   input:
             javascript: Timestamp(1, 100).getLowBits()
             python: Timestamp(1, 100).time
@@ -682,7 +757,16 @@ tests:
             python: ObjectId('5ab901c29ee65f5c8550c5b9')
             object: new ObjectId('5ab901c29ee65f5c8550c5b9')
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
-            go: objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9")
     -   input:
             python: ObjectId.from_datetime(datetime(1972, 2, 3))
             shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT')) # TODO: just takes in number?
@@ -837,7 +921,16 @@ tests:
             python: Int64(int('5'))
             object: new Long(5, 0)
             ruby: "'5'.to_i"
-            go: int64FromString("5")
+            go: |-
+                var int64FromString = func(str string) int64 {
+                  f64, err := strconv.Atoi(str)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return f64
+                }
+
+                int64FromString("5")
     -   input:
             javascript: Long.fromString('5', 10)
         output:
@@ -847,7 +940,16 @@ tests:
             python: Int64(int('5'))
             object: new Long(5, 0)
             ruby: "'5'.to_i"
-            go: int64FromString("5")
+            go: |-
+                var int64FromString = func(str string) int64 {
+                  f64, err := strconv.Atoi(str)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return f64
+                }
+
+                int64FromString("5")
     -   input:
             javascript: Long.fromBits(-1, 2147483647)
         output:
@@ -872,7 +974,16 @@ tests:
             python: Decimal128('5')
             object: Decimal128.fromString("5")
             ruby: BSON::Decimal128.new('5')
-            go: parseFloat64("5")
+            go: |-
+                var parseDecimal128 = func(str string) primitive.Decimal128 {
+                  d128, err := primitive.ParseDecimal128(str)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return d128
+                }
+
+                parseDecimal128("5")
     BSONRegex-utils:
     -   input:
             python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L))

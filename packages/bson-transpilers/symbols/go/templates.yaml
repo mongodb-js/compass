@@ -51,7 +51,7 @@ Templates:
             delete spec.options;
             delete spec.filter;
 
-            const indent = (depth) => '    '.repeat(depth)
+            const indent = (depth) => '  '.repeat(depth)
 
             const comment = []
                 .concat('// Requires the MongodDB Go Driver')
@@ -67,7 +67,7 @@ Templates:
                 .concat('// Connect to MongoDB')
                 .concat('client, err := mongo.Connect(ctx, clientOptions)')
                 .concat('if err != nil {')
-                .concat('    log.Fatal(err)')
+                .concat('  log.Fatal(err)')
                 .concat('}')
                 .concat('defer client.Disconnect(ctx)')
                 .join('\n');
@@ -85,7 +85,7 @@ Templates:
                     .concat(`${coll}`)
                     .concat(`_, err = coll.Aggregate(ctx, ${spec.aggregation})`)
                     .concat('if err != nil {')
-                    .concat('    log.Fatal(err)')
+                    .concat('  log.Fatal(err)')
                     .concat('}')
                     .join('\n');
             }
@@ -106,7 +106,7 @@ Templates:
                 .concat(`${coll}`)
                 .concat(`_, err = coll.Find(ctx, ${filter}${optsStr})`)
                 .concat('if err != nil {')
-                .concat('    log.Fatal(err)')
+                .concat('  log.Fatal(err)')
                 .concat('}')
                 .join('\n');
         }
@@ -200,7 +200,7 @@ Templates:
         (args, depth) => {
             // If there are no args, then there is nothing for us to format
             if (args.length === 0)
-                return '{}';
+                return '';
 
             depth++;
             const indent = '\n' + '    '.repeat(depth);
@@ -314,11 +314,11 @@ Templates:
             arg = `"${arg.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
             this.declarations.addFunc([]
                 .concat('var objectIDFromHex = func(hex string) primitive.ObjectID {')
-                .concat(`   objectID, err := primitive.ObjectIDFromHex(hex)`)
-                .concat('   if err != nil {')
-                .concat('       log.Fatal(err)')
-                .concat('   }')
-                .concat('   return objectID')
+                .concat(`  objectID, err := primitive.ObjectIDFromHex(hex)`)
+                .concat('  if err != nil {')
+                .concat('    log.Fatal(err)')
+                .concat('  }')
+                .concat('  return objectID')
                 .concat('}')
                 .join('\n'));
             return `objectIDFromHex(${arg})`
@@ -344,11 +344,11 @@ Templates:
                 case '_string':
                     this.declarations.addFunc([]
                         .concat('var parseFloat64 = func(str string) float64 {')
-                        .concat('   f64, err := strconv.ParseFloat(str, 64)')
-                        .concat('   if err != nil {')
-                        .concat('       log.Fatal(err)')
-                        .concat('   }')
-                        .concat('   return f64')
+                        .concat('  f64, err := strconv.ParseFloat(str, 64)')
+                        .concat('  if err != nil {')
+                        .concat('    log.Fatal(err)')
+                        .concat('  }')
+                        .concat('  return f64')
                         .concat('}')
                         .join('\n'));
                     return `parseFloat64(${arg})`
@@ -367,10 +367,10 @@ Templates:
                     this.declarations.addFunc([]
                         .concat('var parseInt32 = func(str string) int32 {')
                         .concat('i64, err := sstrconv.ParseInt(str, 10, 32)')
-                        .concat('   if err != nil {')
-                        .concat('       log.Fatal(err)')
-                        .concat('   }')
-                        .concat('   return int32(i64)')
+                        .concat('  if err != nil {')
+                        .concat('    log.Fatal(err)')
+                        .concat('  }')
+                        .concat('  return int32(i64)')
                         .concat('}')
                         .join('\n'));
                     return `parseInt32(${arg})`;
@@ -388,11 +388,11 @@ Templates:
                 case '_string':
                     this.declarations.addFunc([]
                         .concat('var parseInt = func(str string) int64 {')
-                        .concat('   i64, err := strconv.ParseInt(str}, 10, 64)')
-                        .concat('   if err != nil {')
-                        .concat('       log.Fatal(err)')
-                        .concat('   }')
-                        .concat('   return i64')
+                        .concat('  i64, err := strconv.ParseInt(str, 10, 64)')
+                        .concat('  if err != nil {')
+                        .concat('    log.Fatal(err)')
+                        .concat('  }')
+                        .concat('  return i64')
                         .concat('}')
                         .join('\n'));
                     return `parseInt64(${arg})`;
@@ -441,11 +441,11 @@ Templates:
 
             this.declarations.addFunc([]
                 .concat('var parseDecimal128 = func(str string) primitive.Decimal128 {')
-                .concat('   d128, err := primitive.ParseDecimal128(str)')
-                .concat('   if err != nil {')
-                .concat('       log.Fatal(err)')
-                .concat('   }')
-                .concat('   return d128')
+                .concat('  d128, err := primitive.ParseDecimal128(str)')
+                .concat('  if err != nil {')
+                .concat('    log.Fatal(err)')
+                .concat('  }')
+                .concat('  return d128')
                 .concat('}')
                 .join('\n'));
             return `parseDecimal128(${arg})`;
@@ -789,11 +789,11 @@ Templates:
         (_, arg) => {
             this.declarations.addFunc([]
                 .concat('var int64FromString = func(str string) int64 {')
-                .concat('   f64, err := strconv.Atoi(str)')
-                .concat('   if err != nil {')
-                .concat('       log.Fatal(err)')
-                .concat('   }')
-                .concat('   return f64')
+                .concat('  f64, err := strconv.Atoi(str)')
+                .concat('  if err != nil {')
+                .concat('    log.Fatal(err)')
+                .concat('  }')
+                .concat('  return f64')
                 .concat('}')
                 .join('\n'));
             return `int64FromString(${arg})`;
@@ -803,15 +803,15 @@ Templates:
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
         (_, arg) => {
             this.declarations.addFunc([]
-                .concat('var parseFloat64 = func(str string) float64 {')
-                .concat('   f64, err := strconv.ParseFloat(str, 64)')
-                .concat('   if err != nil {')
-                .concat('       log.Fatal(err)')
-                .concat('   }')
-                .concat('   return f64')
+                .concat('var parseDecimal128 = func(str string) primitive.Decimal128 {')
+                .concat('  d128, err := primitive.ParseDecimal128(str)')
+                .concat('  if err != nil {')
+                .concat('    log.Fatal(err)')
+                .concat('  }')
+                .concat('  return d128')
                 .concat('}')
                 .join('\n'));
-            return `parseFloat64(${arg})`
+            return `parseDecimal128(${arg})`;
         }
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
         () => ''
@@ -819,11 +819,11 @@ Templates:
         (_, arg) => {
             this.declarations.addFunc([]
                 .concat('var objectIDFromHex = func(hex string) primitive.ObjectID {')
-                .concat(`   objectID, err := primitive.ObjectIDFromHex(${arg})`)
-                .concat('   if err != nil {')
-                .concat('       log.Fatal(err)')
-                .concat('   }')
-                .concat('   return objectID')
+                .concat(`  objectID, err := primitive.ObjectIDFromHex(hex)`)
+                .concat('  if err != nil {')
+                .concat('    log.Fatal(err)')
+                .concat('  }')
+                .concat('  return objectID')
                 .concat('}')
                 .join('\n'));
             return `objectIDFromHex(${arg})`
@@ -848,14 +848,15 @@ Templates:
     #############################################
     ImportTemplate: &ImportTemplate !!js/function >
         (args) => {
-            const driver = args.driver || [];
+            const imports = Object.values(args).flat()
+            const driverImports = args.driver || [];
             delete args['driver'];
 
-            const flattenedArgs = [...driver, ...new Set(Object.values(args))].sort();
+            const flattenedArgs = Array.from(new Set([...driverImports, ...imports])).sort();
             const universal = [];
             const all = universal
                 .concat(flattenedArgs)
-                .map((i) => `    ${i}`);
+                .map((i) => `  "${i}"`);
             return []
                 .concat('import (')
                 .concat(all.join('\n'))
@@ -866,7 +867,9 @@ Templates:
         (args) => {
             return [
                     "go.mongodb.org/mongo-driver/mongo",
-                    "context"]
+                    "context",
+                    "log"
+            ]
         }
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
@@ -877,37 +880,47 @@ Templates:
     6ImportTemplate: &6ImportTemplate null
     7ImportTemplate: &7ImportTemplate null
     8ImportTemplate: &8ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     9ImportTemplate: &9ImportTemplate null
     10ImportTemplate: &10ImportTemplate !!js/function >
-        () => "go.mongodb.org/mongo-driver/bson"
+        () => ['go.mongodb.org/mongo-driver/bson']
     11ImportTemplate: &11ImportTemplate null
     12ImportTemplate: &12ImportTemplate null
     100ImportTemplate: &100ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     101ImportTemplate: &101ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     102ImportTemplate: &102ImportTemplate null
     103ImportTemplate: &103ImportTemplate null
     104ImportTemplate: &104ImportTemplate null
     105ImportTemplate: &105ImportTemplate null
     106ImportTemplate: &106ImportTemplate null
     107ImportTemplate: &107ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     108ImportTemplate: &108ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     109ImportTemplate: &109ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     110ImportTemplate: &110ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => {
+            return [
+                'go.mongodb.org/mongo-driver/bson/primitive',
+                'log'
+            ]
+        }
     111ImportTemplate: &111ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => ['go.mongodb.org/mongo-driver/bson/primitive']
     112ImportTemplate: &112ImportTemplate !!js/function >
-        (args) => "go.mongodb.org/mongo-driver/bson/primitive"
+        (args) => {
+            return [
+                'go.mongodb.org/mongo-driver/bson/primitive',
+                'log'
+            ]
+        }
     113ImportTemplate: &113ImportTemplate null
     114ImportTemplate: &114ImportTemplate null
     200ImportTemplate: &200ImportTemplate !!js/function >
-        (args) => "time.Time"
+        (args) => ['time.Time']
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null
     301ImportTemplate: &301ImportTemplate null

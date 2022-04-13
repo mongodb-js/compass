@@ -50,6 +50,7 @@ const loadSymbolTable = (dir, inputLang, outputLang) => {
     if (!fs.existsSync(path.join('symbols', file))) {
       throw new Error(`${inputLang} not yet implemented as input language`);
     }
+    // replace
     return str + fs.readFileSync(path.join('symbols', file));
   }, '');
   yaml.load(contents); // load contents so YAML errors are caught here

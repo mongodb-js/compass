@@ -126,7 +126,16 @@ tests:
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
-          go: objectIDFromHex("5a7382114ec1f67ae445f778")
+          go: |-
+            var objectIDFromHex = func(hex string) primitive.ObjectID {
+              objectID, err := primitive.ObjectIDFromHex(hex)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return objectID
+            }
+
+            objectIDFromHex("5a7382114ec1f67ae445f778")
     - description: 'hex string arg named'
       input:
           python: ObjectId(oid='5a7382114ec1f67ae445f778')
@@ -138,7 +147,16 @@ tests:
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
-          go: objectIDFromHex("5a7382114ec1f67ae445f778")
+          go: |-
+            var objectIDFromHex = func(hex string) primitive.ObjectID {
+              objectID, err := primitive.ObjectIDFromHex(hex)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return objectID
+            }
+
+            objectIDFromHex("5a7382114ec1f67ae445f778")
     DBRef:
     - description: 'NEW (string, ObjectID) args'
       input:
@@ -248,7 +266,16 @@ tests:
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
           ruby: "'3'.to_i"
-          go: parseInt32("3")
+          go: |-
+            var parseInt32 = func(str string) int32 {
+            i64, err := sstrconv.ParseInt(str, 10, 32)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return int32(i64)
+            }
+
+            parseInt32("3")
     - description: 'no arg'
       input:
           shell: NumberInt()
@@ -342,7 +369,16 @@ tests:
           csharp: Convert.ToDouble("3")
           object: new Double('3')
           ruby: "'3'.to_f"
-          go: parseFloat64("3")
+          go: |-
+            var parseFloat64 = func(str string) float64 {
+              f64, err := strconv.ParseFloat(str, 64)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return f64
+            }
+
+            parseFloat64("3")
     - description: 'decimal arg'
       input:
           javascript: Double(3.0001)
@@ -435,7 +471,16 @@ tests:
           csharp: Convert.ToInt64("9223372036854775807")
           object: Long.fromString('9223372036854775807')
           ruby: "'9223372036854775807'.to_i"
-          go: parseInt64("9223372036854775807")
+          go: |-
+            var parseInt = func(str string) int64 {
+              i64, err := strconv.ParseInt(str, 10, 64)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return i64
+            }
+
+            parseInt64("9223372036854775807")
     Decimal128:
     - description: 'buffer arg'
       input:
@@ -447,7 +492,16 @@ tests:
           csharp: Decimal128.Parse("5.3E-6175")
           object: Decimal128.fromString('5.3E-6175')
           ruby: BSON::Decimal128.new('5.3E-6175')
-          go: parseDecimal128("5.3E-6175")
+          go: |-
+            var parseDecimal128 = func(str string) primitive.Decimal128 {
+              d128, err := primitive.ParseDecimal128(str)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return d128
+            }
+
+            parseDecimal128("5.3E-6175")
     - description: 'string arg'
       input:
           shell: NumberDecimal('5')

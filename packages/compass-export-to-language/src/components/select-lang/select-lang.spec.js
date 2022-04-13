@@ -20,7 +20,8 @@ describe('SelectLang [Component]', () => {
       { value: 'javascript', label: 'Node' },
       { value: 'csharp', label: 'C#' },
       { value: 'python', label: 'Python 3' },
-      { value: 'ruby', label: 'Ruby' }
+      { value: 'ruby', label: 'Ruby' },
+      { value: 'go', label: 'Go' }
     ];
 
     beforeEach(() => {

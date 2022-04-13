@@ -502,7 +502,16 @@ tests:
           csharp: Decimal128.Parse("5.3E-6175").ToString
           shell: new NumberDecimal(5.3E-6175).toString
           ruby: BSON::Decimal128.new('5.3E-6175').to_s
-          go: parseDecimal128("5.3E-6175").String()
+          go: |-
+            var parseDecimal128 = func(str string) primitive.Decimal128 {
+              d128, err := primitive.ParseDecimal128(str)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return d128
+            }
+
+            parseDecimal128("5.3E-6175").String()
     - input:
           javascript: Timestamp(1, 100).toString
       output:

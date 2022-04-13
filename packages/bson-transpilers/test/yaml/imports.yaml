@@ -77,8 +77,8 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import Code with scope
       input:
@@ -102,8 +102,8 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import ObjectId
       input:
@@ -125,8 +125,9 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+              "log"
             )
     - description: Single import Timestamp
       input:
@@ -147,8 +148,8 @@ tests:
               } = require('mongodb');
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import DBRef
       input:
@@ -172,8 +173,8 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import Double
       input:
@@ -206,7 +207,7 @@ tests:
           ruby: ''
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
+              "go.mongodb.org/mongo-driver/bson"
             )
     - description: Single import NumberLong
       input:
@@ -226,7 +227,7 @@ tests:
           ruby: ''
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
+              "go.mongodb.org/mongo-driver/bson"
             )
     - description: Single import MinKey
       input:
@@ -248,8 +249,8 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import MaxKey
       input:
@@ -271,8 +272,8 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import RegExp
       input:
@@ -292,8 +293,8 @@ tests:
           ruby: ''
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import BSONRegExp
       input:
@@ -309,8 +310,8 @@ tests:
           python: from bson import Regex
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import literal regex
       input:
@@ -329,8 +330,8 @@ tests:
           ruby: ''
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import Timestamp
       input:
@@ -352,8 +353,8 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import Symbol
       input:
@@ -374,8 +375,8 @@ tests:
           ruby: ''
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
             )
     - description: Single import NumberDecimal
       input:
@@ -397,8 +398,9 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+              "log"
             )
     - description: Single import Date as string
       input:
@@ -417,8 +419,8 @@ tests:
           ruby: ''
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                time.Time
+              "go.mongodb.org/mongo-driver/bson"
+              "time.Time"
             )
     - description: Single import Date() as object
       input:
@@ -436,8 +438,8 @@ tests:
           ruby: ''
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                time.Time
+              "go.mongodb.org/mongo-driver/bson"
+              "time.Time"
             )
     - description: Single import ISODate
       input:
@@ -454,8 +456,8 @@ tests:
           ruby: ''
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                time.Time
+              "go.mongodb.org/mongo-driver/bson"
+              "time.Time"
             )
     - description: Multiple imports without Date to string
       input: {}
@@ -522,9 +524,9 @@ tests:
           ruby: require 'bson'
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
-                go.mongodb.org/mongo-driver/bson/primitive
-                time.Time
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+              "time.Time"
             )
     - description: All filter builder imports
       input:
@@ -616,7 +618,7 @@ tests:
               import com.mongodb.client.model.geojson.Position;
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
+              "go.mongodb.org/mongo-driver/bson"
             )
     - description: All agg builder imports
       input:
@@ -678,7 +680,7 @@ tests:
               import com.mongodb.client.model.GraphLookupOptions;
           go: |-
             import (
-                go.mongodb.org/mongo-driver/bson
+              "go.mongodb.org/mongo-driver/bson"
             )
     - description: all geometry builder imports
       input:
