@@ -219,9 +219,9 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
     target: opts.target,
     module: {
       rules: [
-        javascriptLoader(opts),
+        javascriptLoader(opts, true),
         nodeLoader(opts),
-        cssLoader(opts),
+        cssLoader(opts, true),
         lessLoader(opts),
         assetsLoader(opts),
         sourceLoader(opts),
