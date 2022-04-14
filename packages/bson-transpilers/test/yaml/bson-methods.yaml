@@ -795,6 +795,61 @@ tests:
             output: "'2'"
             ruby: ":'2'.inspect"
             go: primitive.Symbol("2")
+            rust: format!("{:?}", Bson::Symbol("2"))
+    ObjectId-utils:
+    - input:
+          javascript: ObjectId.createFromHexString('5ab901c29ee65f5c8550c5b9')
+      output:
+          shell: new ObjectId('5ab901c29ee65f5c8550c5b9')
+          java: new ObjectId("5ab901c29ee65f5c8550c5b9")
+          csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
+          python: ObjectId('5ab901c29ee65f5c8550c5b9')
+          object: new ObjectId('5ab901c29ee65f5c8550c5b9')
+          ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
+          rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
+          go: |-
+            var objectIDFromHex = func(hex string) primitive.ObjectID {
+              objectID, err := primitive.ObjectIDFromHex(hex)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return objectID
+            }
+
+            objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+    - input:
+          python: ObjectId.from_datetime(datetime(1972, 2, 3))
+          shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT')) # TODO: just takes in number?
+      output:
+          javascript: ObjectId.createFromTime(new Date('Thu, 03 Feb 1972 00:00:00 GMT').getTime() / 1000)
+          java: new ObjectId(new java.util.Date(65923200000L))
+          csharp: new ObjectId.GenerateNewId(new DateTime(1972, 2, 3, 0, 0, 0))
+          shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))
+          # TODO: fix? this previously called ObjectId.createFromTime with a Date, but that function does not actually take a Date argument
+          # object: new ObjectId('03ede8800000000000000000')
+          ruby: BSON::ObjectId.from_time(Time.utc(1972, 2, 3, 0, 0, 0))
+    - input:
+          javascript: ObjectId.createFromTime(1522075031)
+      output:
+          shell: ObjectId.fromDate(new Date(1522075031000))
+          javascript: ObjectId.createFromTime(152207503)
+          java: new ObjectId(new java.util.Date(1522075031000L))
+          csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031))
+          python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031))
+          object: new ObjectId('62bdd85a0000000000000000')
+          ruby: BSON::ObjectId.from_time(Time.at(1522075031))
+          go: primitive.NewObjectIDFromTimestamp(time.Unix(1522075031, int64(0)))
+    - input:
+          javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9')
+          python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
+      output:
+          shell: new ObjectId('5ab901c29ee65f5c8550c5b9')
+          java: ObjectId.isValid("5ab901c29ee65f5c8550c5b9")
+          csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
+          python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
+          object: 'true'
+          ruby: BSON::ObjectId.legal?('5ab901c29ee65f5c8550c5b9')
+          go: primitive.IsValidObjectID("5ab901c29ee65f5c8550c5b9")
 #    Binary-utils:
 #    - input:
 #          javascript: Binary.SUBTYPE_DEFAULT
