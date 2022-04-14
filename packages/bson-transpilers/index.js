@@ -28,6 +28,7 @@ const getJavascriptGenerator = require('./codegeneration/javascript/Generator');
 const getObjectGenerator = require('./codegeneration/object/Generator');
 const getRubyGenerator = require('./codegeneration/ruby/Generator.js');
 const getGoGenerator = require('./codegeneration/go/Generator.js');
+const getRustGenerator = require('./codegeneration/rust/Generator.js');
 
 const javascriptjavasymbols = require('./lib/symbol-table/javascripttojava');
 const javascriptpythonsymbols = require('./lib/symbol-table/javascripttopython');
@@ -36,6 +37,7 @@ const javascriptshellsymbols = require('./lib/symbol-table/javascripttoshell');
 const javascriptobjectsymbols = require('./lib/symbol-table/javascripttoobject');
 const javascriptrubysymbols = require('./lib/symbol-table/javascripttoruby');
 const javascriptgosymbols = require('./lib/symbol-table/javascripttogo');
+const javascriptrustsymbols = require('./lib/symbol-table/javascripttorust');
 
 const shelljavasymbols = require('./lib/symbol-table/shelltojava');
 const shellpythonsymbols = require('./lib/symbol-table/shelltopython');
@@ -44,6 +46,7 @@ const shelljavascriptsymbols = require('./lib/symbol-table/shelltojavascript');
 const shellobjectsymbols = require('./lib/symbol-table/shelltoobject');
 const shellrubysymbols = require('./lib/symbol-table/shelltoruby');
 const shellgosymbols = require('./lib/symbol-table/shelltogo');
+const shellrustsymbols = require('./lib/symbol-table/shelltorust');
 
 const pythonjavasymbols = require('./lib/symbol-table/pythontojava');
 const pythonshellsymbols = require('./lib/symbol-table/pythontoshell');
@@ -52,6 +55,7 @@ const pythonjavascriptsymbols = require('./lib/symbol-table/pythontojavascript')
 const pythonobjectsymbols = require('./lib/symbol-table/pythontoobject');
 const pythonrubysymbols = require('./lib/symbol-table/pythontoruby');
 const pythongosymbols = require('./lib/symbol-table/pythontogo');
+const pythonrustsymbols = require('./lib/symbol-table/pythontorust');
 
 /**
  * Constructs the parse tree from the JS or Shell code given by the user.
@@ -225,6 +229,12 @@ module.exports = {
       getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
       getGoGenerator,
       javascriptgosymbols
+    ),
+    rust: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getRustGenerator,
+      javascriptrustsymbols
     )
   },
   shell: {
@@ -269,6 +279,12 @@ module.exports = {
       getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
       getGoGenerator,
       shellgosymbols
+    ),
+    rust: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getRustGenerator,
+      shellrustsymbols
     )
   },
   python: {
@@ -313,6 +329,12 @@ module.exports = {
       getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
       getGoGenerator,
       pythongosymbols
+    ),
+    rust: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getRustGenerator,
+      pythonrustsymbols
     )
   },
   getTree: {

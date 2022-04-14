@@ -1,18 +1,7 @@
-ignores: [
-  "@mongodb-js/prettier-config-compass",
-  "@mongodb-js/tsconfig-compass",
-  "eventemitter3",
-  "resolve",
-  "ts-node",
-
-  // Externals
-  "keytar",
-  "kerberos",
-  "mongodb-client-encryption",
-  "punycode",
-  "keytar",
-  "os-dns-native",
-  "system-ca",
-  "bson-ext",
-  "snappy",
-]
+ignores:
+  - '@mongodb-js/prettier-config-compass'
+  - '@mongodb-js/tsconfig-compass'
+  - 'eventemitter3'
+  - 'resolve'
+ignore-patterns:
+  - 'dist'

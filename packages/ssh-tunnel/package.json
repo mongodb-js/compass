@@ -23,10 +23,13 @@
   ],
   "license": "Apache-2.0",
   "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "webpack": "./src/index.ts",
     "require": "./dist/index.js",
     "import": "./dist/.esm-wrapper.mjs"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

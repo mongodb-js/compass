@@ -80,6 +80,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import Code with scope
       input:
           shell: "{x: Code('code', {x: 1})}"
@@ -105,6 +108,10 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::JavaScriptCodeWithScope;
+              use mongodb::bson::doc;
     - description: Single import ObjectId
       input:
           shell: "{x: ObjectId()}"
@@ -129,6 +136,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson/primitive"
               "log"
             )
+          rust: |-
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -151,6 +161,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
     - description: Single import DBRef
       input:
           shell: "{x: DBRef('db', ObjectId())}"
@@ -177,6 +190,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson/primitive"
               "log"
             )
+          rust: |-
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: Single import Double
       input:
           shell: "{x: 1}"
@@ -190,6 +206,7 @@ tests:
           python: ''
           javascript: ''
           ruby: ''
+          rust: use mongodb::bson::doc;
     - description: Single import NumberInt
       input:
           shell: "{x: NumberInt(1)}"
@@ -212,6 +229,7 @@ tests:
               "log"
               "strconv"
             )
+          rust: use mongodb::bson::doc;
     - description: Single import NumberLong
       input:
           shell: "{x: NumberLong(1)}"
@@ -234,6 +252,7 @@ tests:
               "log"
               "strconv"
             )
+          rust: use mongodb::bson::doc;
     - description: Single import MinKey
       input:
           shell: "{x: MinKey()}"
@@ -257,6 +276,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import MaxKey
       input:
           shell: "{x: MaxKey()}"
@@ -280,6 +302,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import RegExp
       input:
           shell: "{x: RegExp('abc')}"
@@ -301,6 +326,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import BSONRegExp
       input:
           javascript: "{x: BSONRegExp('abc')}"
@@ -318,6 +346,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import literal regex
       input:
           shell: "{x: /abc/g}"
@@ -338,6 +369,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -361,6 +395,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: |-
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
@@ -383,6 +420,7 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "go.mongodb.org/mongo-driver/bson/primitive"
             )
+          rust: use mongodb::bson::doc;
     - description: Single import NumberDecimal
       input:
           shell: "{x: NumberDecimal(1)}"
@@ -407,6 +445,7 @@ tests:
               "go.mongodb.org/mongo-driver/bson/primitive"
               "log"
             )
+          rust: use mongodb::bson::doc;
     - description: Single import Date as string
       input:
           shell: "{x: Date()}"
@@ -427,6 +466,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "time.Time"
             )
+          rust: |-
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Single import Date() as object
       input:
           shell: "{x: new Date()}"
@@ -446,6 +488,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "time.Time"
             )
+          rust: |-
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Single import ISODate
       input:
           shell: "{x: ISODate()}"
@@ -464,6 +509,9 @@ tests:
               "go.mongodb.org/mongo-driver/bson"
               "time.Time"
             )
+          rust: |-
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Multiple imports without Date to string
       input: {}
       output:
@@ -472,6 +520,7 @@ tests:
           javascript: ''
           ruby: ''
           go: ''
+          rust: ''
     - description: Multiple imports
       input:
           shell: "{  0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
@@ -535,6 +584,14 @@ tests:
               "strconv"
               "time.Time"
             )
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::DateTime;
+              use mongodb::bson::JavaScriptCodeWithScope;
+              use mongodb::bson::Regex;
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:
