@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { DocumentListView, DocumentJsonView } from '@mongodb-js/compass-crud';
 import type { Document } from 'mongodb';
 import HadronDocument from 'hadron-document';
-import { css } from '@mongodb-js/compass-components';
+import { css, spacing } from '@mongodb-js/compass-components';
 
 export type ResultsViewType = 'document' | 'json';
 
@@ -10,6 +10,8 @@ const containerStyles = css({
   ol: {
     padding: 0,
   },
+  marginLeft: spacing[3] + spacing[1],
+  marginRight: spacing[4] + spacing[1],
 });
 
 const PipelineResultsList: React.FunctionComponent<{

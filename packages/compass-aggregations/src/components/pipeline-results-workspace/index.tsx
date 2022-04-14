@@ -28,8 +28,6 @@ type PipelineResultsWorkspaceProps = {
 };
 
 const containerStyles = css({
-  paddingLeft: spacing[3] + spacing[1],
-  paddingRight: spacing[5] + spacing[1],
   overflow: 'hidden',
   height: '100vh',
   display: 'grid',
@@ -44,6 +42,8 @@ const containerStyles = css({
 });
 
 const headerStyles = css({
+  paddingLeft: spacing[3] + spacing[1],
+  paddingRight: spacing[5] + spacing[1],
   gridArea: 'header',
   display: 'flex',
   gap: spacing[2],

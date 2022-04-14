@@ -31,7 +31,7 @@ function CancelLoader({
 }): React.ReactElement {
   return (
     <div className={containerStyles} data-testid={dataTestId}>
-      <SpinLoader size="24px" />
+      <SpinLoader size={`${spacing[4]}px`} />
       <Subtitle className={textStyles}>{progressText}</Subtitle>
       <Button variant="primaryOutline" onClick={onCancel}>
         {cancelText}
