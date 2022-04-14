@@ -95,10 +95,9 @@ var preferencesProps = {
    */
 
   /** Master switch to disable all network traffic, which includes
-   * - Google maps
+   * - Maps
    * - Bugsnag
    * - Intercom
-   * - Google Analytics
    * - Auto-updates
    * @type {Boolean}
    */
