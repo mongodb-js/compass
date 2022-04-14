@@ -9,9 +9,12 @@
   "homepage": "https://github.com/mongodb-js/compass",
   "version": "5.13.0",
   "main": "lib/index.js",
+  "compass:main": "src/index.js",
   "exports": {
-    "webpack": "./src/index.js",
     "require": "./lib/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "repository": {
     "type": "git",

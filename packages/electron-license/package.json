@@ -19,9 +19,12 @@
     "electron-license": "bin/electron-license.js"
   },
   "main": "index.js",
+  "compass:main": "index.js",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "dependencies": {
     "bluebird": "^3.7.2",

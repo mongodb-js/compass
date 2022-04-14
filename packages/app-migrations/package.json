@@ -20,9 +20,12 @@
     "email": "compass@mongodb.com"
   },
   "main": "index.js",
+  "compass:main": "index.js",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.10.0",
