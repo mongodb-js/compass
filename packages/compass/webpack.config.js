@@ -91,7 +91,6 @@ module.exports = (_env, args) => {
     // published releases
     HADRON_METRICS_BUGSNAG_KEY: null,
     HADRON_METRICS_INTERCOM_APP_ID: null,
-    HADRON_METRICS_STITCH_APP_ID: null,
     HADRON_METRICS_SEGMENT_API_KEY: null,
     HADRON_METRICS_SEGMENT_HOST: null,
   };
