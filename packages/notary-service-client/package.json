@@ -14,9 +14,12 @@
     "notary": "cli.js"
   },
   "main": "index.js",
+  "compass:main": "index.js",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "repository": {

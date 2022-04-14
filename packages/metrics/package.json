@@ -17,9 +17,12 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "main": "index.js",
+  "compass:main": "index.js",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "dependencies": {
     "ampersand-collection": "^2.0.1",

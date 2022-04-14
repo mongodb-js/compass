@@ -1,55 +1,21 @@
-import { css } from '@leafygreen-ui/emotion';
 import React from 'react';
+import { spacing } from '@leafygreen-ui/tokens';
+import { css } from '@leafygreen-ui/emotion';
+import { uiColors } from '@leafygreen-ui/palette';
 
-const cancelLoaderStyle = css({
-  height: '100%',
+import { Subtitle, Button } from './leafygreen';
+import { SpinLoader } from './spin-loader';
+
+const containerStyles = css({
   display: 'flex',
+  gap: spacing[2],
   flexDirection: 'column',
-  alignItems: 'center',
   justifyContent: 'center',
-  padding: '10px 0',
+  alignItems: 'center',
 });
 
-const progressTextStyle = css({
-  margin: '0 auto 30px',
-  textAlign: 'left',
-  fontSize: '24px',
-  color: '#807f7f',
-  fontWeight: 200,
-});
-
-const spinnerStyle = css({
-  animation: 'fa-spin 2s infinite linear',
-  width: '40px',
-  textAlign: 'center',
-  display: 'inline-block',
-  textRendering: 'auto',
-  font: 'normal normal normal 20px/1 FontAwesome',
-  '&::before': {
-    boxSizing: 'border-box',
-    content: '"\\f1ce"',
-  },
-});
-
-const buttonStyle = css({
-  padding: '0 10px 0 10px',
-  height: '28px',
-  fontWeight: 'bold',
-  fontSize: '13px',
-  lineHeight: '26px',
-  textTransform: 'uppercase',
-  backgroundColor: 'transparent',
-  border: '1px solid #13AA52',
-  borderRadius: '3px',
-  boxShadow: 'none',
-  color: '#13AA52',
-  fontFamily: 'Akzidenz',
-  WebkitAppearance: 'button',
-  cursor: 'pointer',
-  overflow: 'visible',
-  margin: 0,
-  boxSizing: 'border-box',
-  outline: 'none',
+const textStyles = css({
+  color: uiColors.green.dark2,
 });
 
 function CancelLoader({
@@ -64,16 +30,12 @@ function CancelLoader({
   onCancel: () => void;
 }): React.ReactElement {
   return (
-    <div data-testid={dataTestId} className={cancelLoaderStyle}>
-      <div className={progressTextStyle}>
-        <i className={spinnerStyle} />
-        {progressText}
-      </div>
-      <div>
-        <button className={buttonStyle} onClick={onCancel}>
-          {cancelText}
-        </button>
-      </div>
+    <div className={containerStyles} data-testid={dataTestId}>
+      <SpinLoader size={`${spacing[4]}px`} />
+      <Subtitle className={textStyles}>{progressText}</Subtitle>
+      <Button variant="primaryOutline" onClick={onCancel}>
+        {cancelText}
+      </Button>
     </div>
   );
 }
