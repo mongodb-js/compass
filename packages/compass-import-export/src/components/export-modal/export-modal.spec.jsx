@@ -12,13 +12,17 @@ function renderModal() {
 describe('ExportModal Component', function () {
   let state;
 
-  describe('Export Query', function() {
+  describe('Export Query', function () {
     beforeEach(function () {
       state = store.getState();
 
       // all the state for all export stores is the same state until we make a copy here
       // (otherwise we break tests in other files)
-      state.exportData = { ...state.exportData, isOpen: true, query: {filter: {}} };
+      state.exportData = {
+        ...state.exportData,
+        isOpen: true,
+        query: { filter: {} },
+      };
     });
 
     it('should render zero results', function () {
@@ -58,7 +62,7 @@ describe('ExportModal Component', function () {
     });
   });
 
-  describe('Export Aggregation', function() {
+  describe('Export Aggregation', function () {
     beforeEach(function () {
       state = store.getState();
       state.exportData = {
@@ -66,10 +70,10 @@ describe('ExportModal Component', function () {
         isOpen: true,
         query: null,
         isAggregation: true,
-        exportStep: 'FILETYPE'
+        exportStep: 'FILETYPE',
       };
     });
-    it('renders modal on export screen', function() {
+    it('renders modal on export screen', function () {
       const modal = renderModal();
       expect(modal.find('[data-test-id="cancel-button"]')).to.have.lengthOf(1);
       expect(modal.find('[data-test-id="export-button"]')).to.have.lengthOf(1);

@@ -69,7 +69,7 @@ describe('export [module]', function () {
         fileType,
         tempFile
       ) {
-        store.dispatch(actions.openExport('foo.bar', {filter: {}}, 0, null));
+        store.dispatch(actions.openExport('foo.bar', { filter: {} }, 0, null));
         store.dispatch(actions.updateSelectedFields(selectedFields));
         store.dispatch(actions.selectExportFileName(tempFile));
         store.dispatch(actions.selectExportFileType(fileType));
