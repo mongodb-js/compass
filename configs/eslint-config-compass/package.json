@@ -5,7 +5,6 @@
   "license": "SSPL",
   "main": "index.js",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
   },
   "files": [

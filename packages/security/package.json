@@ -14,9 +14,12 @@
     "mongodb.js"
   ],
   "main": "index.js",
+  "compass:main": "index.js",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "scripts": {
     "check": "npm run lint && npm run depcheck",

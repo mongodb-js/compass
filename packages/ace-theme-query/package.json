@@ -3,9 +3,12 @@
   "version": "1.6.0",
   "description": "MongoDB Theme for the ACE Editor in the Query Bar",
   "main": "index.js",
+  "compass:main": "index.js",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "repository": {
     "type": "git",

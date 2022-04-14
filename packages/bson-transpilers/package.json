@@ -10,9 +10,12 @@
     "Irina Shestak <irina.shestak@mongodb.com>"
   ],
   "main": "index.js",
+  "compass:main": "index.js",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "scripts": {
     "start": "node index.js",
