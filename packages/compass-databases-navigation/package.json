@@ -23,10 +23,13 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "webpack": "./src/index.ts",
     "require": "./dist/index.js",
     "import": "./dist/.esm-wrapper.mjs"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "scripts": {
     "bootstrap": "npm run compile",

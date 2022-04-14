@@ -5,9 +5,12 @@
   "apiVersion": "3.0.0",
   "description": "Home",
   "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "webpack": "./src/index.ts",
     "require": "./dist/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "scripts": {
     "clean": "rimraf ./dist",

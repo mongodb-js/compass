@@ -5,10 +5,13 @@
   "apiVersion": "3.0.0",
   "description": "Compass Real Time Server Stats Component.",
   "main": "dist/index.js",
+  "compass:main": "src/index.js",
   "exports": {
-    "webpack": "./src/index.js",
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "scripts": {
     "compile": "npm run webpack -- --mode production",

@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "mike-lischke.vscode-antlr4",
+    "ryanluker.vscode-coverage-gutters"
+  ]
+}
