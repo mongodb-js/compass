@@ -63,6 +63,8 @@ const {
   loadTheme
 } = require('./theme');
 
+const { setupIntercom } = require('./intercom');
+
 ipc.once('app:launched', function() {
   console.log('in app:launched');
   if (process.env.NODE_ENV === 'development') {
@@ -351,9 +353,9 @@ app.extend({
       [
         // check if migrations are required
         migrateApp.bind(state),
-        // get preferences from IndexedDB
+        // get preferences
         state.fetchPreferences.bind(state),
-        // get user from IndexedDB
+        // get user
         state.fetchUser.bind(state)
       ],
       function(err) {
@@ -396,6 +398,9 @@ app.extend({
             'preferences-loaded',
             state.preferences
           );
+
+          setupIntercom(state.preferences, state.user);
+
           // signal to main process that app is ready
           ipc.call('window:renderer-ready');
           // catch a data refresh coming from window-manager

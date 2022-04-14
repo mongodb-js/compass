@@ -253,7 +253,6 @@ const transformPackageJson = (CONFIG, done) => {
   // Set via evergreen
   distributions[contents.distribution].metrics_bugsnag_key = process.env.HADRON_METRICS_BUGSNAG_KEY;
   distributions[contents.distribution].metrics_intercom_app_id = process.env.HADRON_METRICS_INTERCOM_APP_ID;
-  distributions[contents.distribution].metrics_stitch_app_id = process.env.HADRON_METRICS_STITCH_APP_ID;
 
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
 
