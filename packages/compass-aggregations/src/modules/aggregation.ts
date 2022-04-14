@@ -6,6 +6,9 @@ import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
+import { ActionTypes as WorkspaceActionTypes } from './workspace';
+import type { Actions as WorkspaceActions } from './workspace';
+
 import createLogger from '@mongodb-js/compass-logging';
 
 const { log, mongoLogId } = createLogger('compass-aggregations');
@@ -57,14 +60,20 @@ export type State = {
 
 export const INITIAL_STATE: State = {
   documents: [],
-  page: 0,
+  page: 1,
   limit: 20,
   isLast: false,
   loading: false,
 };
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case WorkspaceActionTypes.WorkspaceChanged:
+      return {
+        ...INITIAL_STATE,
+        page: 1,
+        limit: 20,
+      };
     case ActionTypes.AggregationStarted:
       return {
         ...state,
@@ -238,7 +247,7 @@ export const exportAggregationResults = (): ThunkAction<
       maxTimeMS,
       collation,
     } = getState();
-    
+
     const stages = pipeline
       .map(generateStage)
       .filter((stage) => Object.keys(stage).length > 0);
@@ -247,9 +256,11 @@ export const exportAggregationResults = (): ThunkAction<
       allowDiskUse: true,
       collation: collation || undefined,
     };
-    dispatch(globalAppRegistryEmit('open-export', { namespace, aggregation: {
-      stages, options
-    }, count: 0 }));
+    dispatch(globalAppRegistryEmit('open-export', {
+      namespace, aggregation: {
+        stages, options
+      }, count: 0
+    }));
     return;
   }
 }

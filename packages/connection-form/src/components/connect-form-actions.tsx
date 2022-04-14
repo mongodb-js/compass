@@ -2,11 +2,12 @@ import React from 'react';
 import {
   Button,
   ButtonVariant,
+  ErrorSummary,
+  WarningSummary,
   spacing,
   uiColors,
   css,
 } from '@mongodb-js/compass-components';
-import { ErrorSummary, WarningSummary } from './validation-summary';
 import type {
   ConnectionFormError,
   ConnectionFormWarning,
@@ -41,8 +42,8 @@ function ConnectFormActions({
 }): React.ReactElement {
   return (
     <div className={formActionStyles}>
-      {warnings.length ? <WarningSummary warnings={warnings} /> : ''}
-      {errors.length ? <ErrorSummary errors={errors} /> : ''}
+      <WarningSummary warnings={warnings} />
+      <ErrorSummary dataTestId="connection-error-summary" errors={errors} />
       <div className={formActionButtonsStyles}>
         {saveButton !== 'hidden' && (
           <Button
