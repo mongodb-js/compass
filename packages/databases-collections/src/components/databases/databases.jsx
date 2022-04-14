@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { ZeroState } from 'hadron-react-components';
-import { Banner, BannerVariant } from '@mongodb-js/compass-components';
+import { Banner, BannerVariant, Link, WorkspaceContainer } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
 
 import styles from './databases.module.less';
@@ -21,18 +21,16 @@ const ERROR_WARNING = 'An error occurred while loading databases';
 
 function NonGenuineZeroState() {
   return (
-    <div className="column-container">
-      <div className="column main">
-        <div data-testid="databases-non-genuine-warning" className={styles['databases-non-genuine-warning']}>
-          <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
-          <ZeroState header={HEADER} subtext={SUBTEXT}>
-            <a className="zero-state-link" href={DOCUMENTATION_LINK}>
-              Try MongoDB Atlas
-            </a>
-          </ZeroState>
-        </div>
+    <WorkspaceContainer>
+      <div data-testid="databases-non-genuine-warning" className={styles['databases-non-genuine-warning']}>
+        <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
+        <ZeroState header={HEADER} subtext={SUBTEXT}>
+          <Link className={styles['databases-try-atlas-link']} href={DOCUMENTATION_LINK}>
+            Try MongoDB Atlas
+          </Link>
+        </ZeroState>
       </div>
-    </div>
+    </WorkspaceContainer>
   );
 }
 
