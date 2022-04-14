@@ -13,6 +13,8 @@ import RowActionsRenderer from './table-view/row-actions-renderer';
 import HeaderComponent from './table-view/header-cell-renderer';
 import CellEditor from './table-view/cell-editor';
 
+import './document-table-view.less';
+
 /* eslint react/sort-comp:0 */
 
 const MIXED = 'Mixed';
@@ -833,13 +835,15 @@ class DocumentTableView extends React.Component {
    */
   render() {
     return (
-      <div className="ag-parent">
-        <BreadcrumbComponent
-          collection={this.collection}
-          pathChanged={this.props.pathChanged}
-          path={this.props.table.path}
-          types={this.props.table.types} />
-        {this.AGGrid}
+      <div className="document-table-view-container">
+        <div className="ag-parent">
+          <BreadcrumbComponent
+            collection={this.collection}
+            pathChanged={this.props.pathChanged}
+            path={this.props.table.path}
+            types={this.props.table.types} />
+          {this.AGGrid}
+        </div>
       </div>
     );
   }
