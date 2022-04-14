@@ -315,9 +315,9 @@ async function main(argv) {
     .concat(
       isReact ? ['@types/chai-dom', '@types/react', '@types/react-dom'] : []
     )
-    .map((dep) => ` - "${dep}"`)
+    .map((dep) => ` - '${dep}'`)
     .join('\n');
-  const depcheckrcContent = `ignores:\n${ignores}\n`;
+  const depcheckrcContent = `ignores:\n${ignores}\nignore-patterns:\n - 'dist'\n`;
 
   const prettierrcPath = path.join(packagePath, '.prettierrc.json');
   const prettierrcContent = JSON.stringify(
