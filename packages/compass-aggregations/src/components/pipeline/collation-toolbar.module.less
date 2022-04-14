@@ -34,7 +34,7 @@
     color: @pw;
     white-space: nowrap;
     border-radius: 14px;
-    padding: 2px 4px;
+    padding: 2px 8px 2px 4px;
     margin-right: 5px;
     text-transform: uppercase;
     font-weight: bold;
@@ -62,9 +62,16 @@
   }
 
   .max-time-ms {
-    width: 30%;
     display: flex;
+    min-width: 170px;
+    
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
   }
+
 }
 
 .has-focus {
