@@ -286,7 +286,7 @@ tests:
           ruby: "'3'.to_i"
           go: |-
             var parseInt32 = func(str string) int32 {
-            i64, err := sstrconv.ParseInt(str, 10, 32)
+            i64, err := strconv.ParseInt(str, 10, 32)
               if err != nil {
                 log.Fatal(err)
               }

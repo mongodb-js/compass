@@ -370,7 +370,7 @@ Templates:
                 case '_string':
                     this.declarations.addFunc([]
                         .concat('var parseInt32 = func(str string) int32 {')
-                        .concat('i64, err := sstrconv.ParseInt(str, 10, 32)')
+                        .concat('i64, err := strconv.ParseInt(str, 10, 32)')
                         .concat('  if err != nil {')
                         .concat('    log.Fatal(err)')
                         .concat('  }')
