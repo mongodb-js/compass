@@ -82,7 +82,7 @@ tests:
                       'y' => BSON::ObjectId.new
                     })
                 go: |-
-                    // Requires the MongodDB Go Driver
+                    // Requires the MongoDB Go Driver
                     // https://github.com/mongodb/mongo-go-driver
                     ctx := context.TODO()
 
