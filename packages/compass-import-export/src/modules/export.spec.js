@@ -69,6 +69,7 @@ describe('export [module]', function () {
         fileType,
         tempFile
       ) {
+        store.dispatch(actions.openExport('foo.bar', { filter: {} }, 0, null));
         store.dispatch(actions.updateSelectedFields(selectedFields));
         store.dispatch(actions.selectExportFileName(tempFile));
         store.dispatch(actions.selectExportFileType(fileType));
@@ -177,12 +178,13 @@ describe('export [module]', function () {
             actions.onModalOpen({
               namespace: 'test',
               count: 200,
-              query: { filter: {} },
+              query: null,
             })
           );
           store.dispatch(actions.onError(true));
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
+            aggregation: null,
             isOpen: true,
             dest: undefined,
             exporter: undefined,
@@ -190,7 +192,7 @@ describe('export [module]', function () {
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
             isFullCollection: false,
-            query: { filter: {} },
+            query: null,
             error: true,
             fields: {},
             allFields: {},
@@ -208,20 +210,21 @@ describe('export [module]', function () {
             actions.onModalOpen({
               namespace: 'test',
               count: 200,
-              query: { filter: {} },
+              query: null,
             })
           );
           store.dispatch(actions.onFinished(10));
           store.dispatch(actions.closeExport());
           expect(store.getState().exportData).to.deep.equal({
             isOpen: false,
+            aggregation: null,
             dest: undefined,
             exporter: undefined,
             exportedDocsCount: 10,
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
             isFullCollection: false,
-            query: { filter: {} },
+            query: null,
             error: null,
             fields: {},
             allFields: {},
@@ -239,12 +242,13 @@ describe('export [module]', function () {
             actions.onModalOpen({
               namespace: 'test',
               count: 200,
-              query: { filter: {} },
+              query: null,
             })
           );
           store.getState().exportData.status = PROCESS_STATUS.CANCELED;
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
+            aggregation: null,
             isOpen: true,
             dest: undefined,
             exporter: undefined,
@@ -252,7 +256,7 @@ describe('export [module]', function () {
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
             isFullCollection: false,
-            query: { filter: {} },
+            query: null,
             error: null,
             fields: {},
             allFields: {},
@@ -270,12 +274,13 @@ describe('export [module]', function () {
             actions.onModalOpen({
               namespace: 'test',
               count: 200,
-              query: { filter: {} },
+              query: null,
             })
           );
           store.dispatch(actions.onError(true));
           store.dispatch(actions.onFinished(10));
           expect(store.getState().exportData).to.deep.equal({
+            aggregation: null,
             isOpen: true,
             dest: undefined,
             exporter: undefined,
@@ -283,7 +288,7 @@ describe('export [module]', function () {
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
             isFullCollection: false,
-            query: { filter: {} },
+            query: null,
             error: true,
             fields: {},
             allFields: {},
@@ -302,17 +307,18 @@ describe('export [module]', function () {
           actions.onModalOpen({
             namespace: 'test',
             count: 200,
-            query: { filter: {} },
+            query: null,
           })
         );
         store.dispatch(actions.onProgress(0.7, 100));
         expect(store.getState().exportData).to.deep.equal({
+          aggregation: null,
           isOpen: true,
           exportedDocsCount: 100,
           progress: 0.7,
           exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
-          query: { filter: {} },
+          query: null,
           error: null,
           fields: {},
           allFields: {},
@@ -329,6 +335,7 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
+          aggregation: null,
           isOpen: false,
           count: 0,
           exportStep: EXPORT_STEP.QUERY,
@@ -337,7 +344,7 @@ describe('export [module]', function () {
           allFields: {},
           progress: 0,
           isFullCollection: false,
-          query: { filter: {} },
+          query: null,
           error: null,
           fileName: '',
           fileType: 'csv',
@@ -351,6 +358,7 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
+          aggregation: null,
           isOpen: false,
           progress: 0,
           count: 0,
@@ -361,7 +369,7 @@ describe('export [module]', function () {
           fields: {},
           allFields: {},
           isFullCollection: false,
-          query: { filter: {} },
+          query: null,
           error: null,
           fileName: 'testing.json',
           fileType: 'json',
@@ -375,6 +383,7 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
+          aggregation: null,
           isOpen: false,
           progress: 0,
           count: 0,
@@ -383,7 +392,7 @@ describe('export [module]', function () {
           isFullCollection: false,
           fields: {},
           allFields: {},
-          query: { filter: {} },
+          query: null,
           error: null,
           fileName: '',
           fileType: 'json',
@@ -398,12 +407,13 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
+          aggregation: null,
           isOpen: false,
           count: 0,
           exportedDocsCount: 0,
           exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
-          query: { filter: {} },
+          query: null,
           fields: fields,
           allFields: {},
           progress: 0,
@@ -421,12 +431,13 @@ describe('export [module]', function () {
 
       it('returns the new state', function () {
         expect(reducer(undefined, action)).to.deep.equal({
+          aggregation: null,
           isOpen: false,
           count: 0,
           exportedDocsCount: 0,
           exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
-          query: { filter: {} },
+          query: null,
           fields: {},
           allFields: fields,
           progress: 0,
@@ -442,12 +453,13 @@ describe('export [module]', function () {
       it('returns the new state', function () {
         store.dispatch(actions.closeExport());
         expect(store.getState().exportData).to.deep.equal({
+          aggregation: null,
           isOpen: false,
           exportedDocsCount: 0,
           progress: 0,
           exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
-          query: { filter: {} },
+          query: null,
           error: null,
           fields: {},
           allFields: {},
@@ -458,7 +470,33 @@ describe('export [module]', function () {
         });
       });
     });
-
+    context('when the action type is ON_MODAL_OPEN', function () {
+      it('should go to select file type if is an aggregation', function () {
+        const action = actions.onModalOpen({
+          aggregation: { foo: 'bar' },
+          namespace: 'foobar',
+          count: 0,
+          query: null,
+        });
+        store.dispatch(action);
+        expect(store.getState().exportData).to.deep.equal({
+          aggregation: { foo: 'bar' },
+          isOpen: true,
+          exportedDocsCount: 0,
+          progress: 0,
+          exportStep: EXPORT_STEP.FILETYPE,
+          isFullCollection: false,
+          query: null,
+          error: null,
+          fields: {},
+          allFields: {},
+          fileName: '',
+          fileType: FILE_TYPES.JSON,
+          status: PROCESS_STATUS.UNSPECIFIED,
+          count: 0,
+        });
+      });
+    });
     context('when the action type is not defined', function () {
       it('returns the initial state', function () {
         expect(reducer('', {})).to.equal('');
@@ -483,6 +521,23 @@ describe('export [module]', function () {
           query: { filter: {} },
         })
       ).to.deep.equal({
+        aggregation: undefined,
+        type: actions.ON_MODAL_OPEN,
+        namespace: 'test',
+        count: 100,
+        query: { filter: {} },
+      });
+    });
+    it('should support aggregation', function () {
+      expect(
+        actions.onModalOpen({
+          namespace: 'test',
+          count: 100,
+          query: { filter: {} },
+          aggregation: { foo: 'bar' },
+        })
+      ).to.deep.equal({
+        aggregation: { foo: 'bar' },
         type: actions.ON_MODAL_OPEN,
         namespace: 'test',
         count: 100,
