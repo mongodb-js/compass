@@ -47,6 +47,7 @@ class ExportSelectOutput extends PureComponent {
     cancelExport: PropTypes.func.isRequired,
     selectExportFileType: PropTypes.func.isRequired,
     selectExportFileName: PropTypes.func.isRequired,
+    isAggregation: PropTypes.bool.isRequired,
   };
 
   /**
@@ -111,6 +112,7 @@ class ExportSelectOutput extends PureComponent {
           cancel={this.props.cancelExport}
           message={MESSAGES[this.props.status]}
           docsWritten={this.props.exportedDocsCount}
+          isAggregation={this.props.isAggregation}
         />
       </div>
     );
