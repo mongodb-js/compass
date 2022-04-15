@@ -13,7 +13,7 @@ class DeclarationStore {
    * method will return the existing declaration's variable name.
    *
    * @param {string} templateID - Name/alias of the template the declaration is being made for
-   * @param {string} varRoot - The root of the variable name to be appended by the occurance count
+   * @param {string} varRoot - The root of the variable name to be appended by the occurrence count
    * @param {function} declaration - The code block to be prepended to the driver syntax
    * @returns {string} the variable name with root and appended count
    */
