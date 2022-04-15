@@ -54,8 +54,8 @@ Templates:
             const indent = (depth) => '  '.repeat(depth)
 
             const comment = []
-                .concat('// Requires the MongodDB Go Driver')
-                .concat('// https://github.com/mongodb/mongo-go-driver')
+                .concat('// Requires the MongoDB Go Driver')
+                .concat('// https://go.mongodb.org/mongo-driver')
                 .join('\n');
 
             const connect = []

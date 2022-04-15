@@ -83,7 +83,7 @@ tests:
                     })
                 go: |-
                     // Requires the MongoDB Go Driver
-                    // https://github.com/mongodb/mongo-go-driver
+                    // https://go.mongodb.org/mongo-driver
                     ctx := context.TODO()
 
                     // Set client options
@@ -228,8 +228,8 @@ tests:
                       'x' => 0
                     })
                 go: |-
-                  // Requires the MongodDB Go Driver
-                  // https://github.com/mongodb/mongo-go-driver
+                  // Requires the MongoDB Go Driver
+                  // https://go.mongodb.org/mongo-driver
                   ctx := context.TODO()
 
                   // Set client options
@@ -461,8 +461,8 @@ tests:
                       collation: collation
                     })
                 go: |-
-                  // Requires the MongodDB Go Driver
-                  // https://github.com/mongodb/mongo-go-driver
+                  // Requires the MongoDB Go Driver
+                  // https://go.mongodb.org/mongo-driver
                   ctx := context.TODO()
 
                   // Set client options
@@ -555,8 +555,8 @@ tests:
                 python: { aggregation: "{'x': ObjectId('5a7382114ec1f67ae445f778')}", options: { uri: 'mongodb://localhost:27017', database: 'db', collection: 'collection'} }
             output:
                 go: |-
-                  // Requires the MongodDB Go Driver
-                  // https://github.com/mongodb/mongo-go-driver
+                  // Requires the MongoDB Go Driver
+                  // https://go.mongodb.org/mongo-driver
                   ctx := context.TODO()
 
                   var objectIDFromHex = func(hex string) primitive.ObjectID {
