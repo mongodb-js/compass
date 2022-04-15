@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { exportAggregationResults, runAggregation } from '../../../modules/aggregation';
+import type { RootState } from '../../../modules';
 
 const containerStyles = css({
   display: 'flex',
@@ -29,6 +30,7 @@ const optionStyles = css({
 });
 
 type PipelineActionsProps = {
+  isPipelineInvalid: boolean;
   isOptionsVisible: boolean;
   onRunAggregation: () => void;
   onToggleOptions: () => void;
@@ -36,16 +38,17 @@ type PipelineActionsProps = {
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
+  isPipelineInvalid,
   isOptionsVisible,
   onRunAggregation,
   onToggleOptions,
-  onExportAggregationResults
+  onExportAggregationResults,
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
   const showExportButton =
     process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true';
   return (
-    <div className={containerStyles}> 
+    <div className={containerStyles}>
       {showExportButton && (
         <Button
           data-testid="pipeline-toolbar-export-aggregation-button"
@@ -54,6 +57,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           onClick={() => {
             onExportAggregationResults();
           }}
+          disabled={isPipelineInvalid}
         >
           Export
         </Button>
@@ -65,6 +69,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         onClick={() => {
           onRunAggregation();
         }}
+        disabled={isPipelineInvalid}
       >
         Run
       </Button>
@@ -84,7 +89,13 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   );
 };
 
-export default connect(null, {
+const mapState = ({ pipeline }: RootState) => ({
+  isPipelineInvalid: pipeline.some((x) => !x.isValid),
+});
+
+const mapDispatch = {
   onRunAggregation: runAggregation,
-  onExportAggregationResults: exportAggregationResults
-})(PipelineActions);
+  onExportAggregationResults: exportAggregationResults,
+};
+
+export default connect(mapState, mapDispatch)(PipelineActions);
