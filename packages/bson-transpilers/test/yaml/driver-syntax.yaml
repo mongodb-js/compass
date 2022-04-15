@@ -94,7 +94,11 @@ tests:
                     if err != nil {
                       log.Fatal(err)
                     }
-                    defer client.Disconnect(ctx)
+                    defer func() {
+                      if err := client.Disconnect(ctx); err != nil {
+                        log.Fatal(err)
+                      }
+                    }()
 
                     // Open an aggregation cursor
                     coll := client.Database("db").Collection("collection")
@@ -236,7 +240,11 @@ tests:
                   if err != nil {
                     log.Fatal(err)
                   }
-                  defer client.Disconnect(ctx)
+                  defer func() {
+                    if err := client.Disconnect(ctx); err != nil {
+                      log.Fatal(err)
+                    }
+                  }()
 
                   // Find data
                   coll := client.Database("db").Collection("collection")
@@ -465,7 +473,11 @@ tests:
                   if err != nil {
                     log.Fatal(err)
                   }
-                  defer client.Disconnect(ctx)
+                  defer func() {
+                    if err := client.Disconnect(ctx); err != nil {
+                      log.Fatal(err)
+                    }
+                  }()
 
                   // Find data
                   coll := client.Database("db").Collection("collection")
@@ -563,7 +575,11 @@ tests:
                   if err != nil {
                     log.Fatal(err)
                   }
-                  defer client.Disconnect(ctx)
+                  defer func() {
+                    if err := client.Disconnect(ctx); err != nil {
+                      log.Fatal(err)
+                    }
+                  }()
 
                   // Open an aggregation cursor
                   coll := client.Database("db").Collection("collection")

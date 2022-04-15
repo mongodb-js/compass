@@ -69,7 +69,11 @@ Templates:
                 .concat('if err != nil {')
                 .concat('  log.Fatal(err)')
                 .concat('}')
-                .concat('defer client.Disconnect(ctx)')
+                .concat('defer func() {')
+                .concat('  if err := client.Disconnect(ctx); err != nil {')
+                .concat('    log.Fatal(err)')
+                .concat('  }')
+                .concat('}()')
                 .join('\n');
 
             const coll = []
@@ -695,15 +699,7 @@ Templates:
     TimestampGreaterThanOrEqualTemplate: &TimestampGreaterThanOrEqualTemplate !!js/function >
         () => ''
     TimestampGreaterThanOrEqualArgsTemplate: &TimestampGreaterThanOrEqualArgsTemplate !!js/function >
-        (arg1, arg2) => {
-            this.declarations.addFunc([]
-                .concat('var timestampGEQ = func(tm1, tm2) bool {')
-                .concat('   c := primitive.CompareTimestamp(tm1, tm2)')
-                .concat('   return c == 1 || c == 0')
-                .concat('}')
-                .join('\n'));
-            return `timestampGEQ(${arg1}, ${arg2})`;
-        }
+        (arg1, arg2) => `primitive.CompareTimestamp(${arg1}, ${arg2}) >= 0`
     TimestampLessThanTemplate: &TimestampLessThanTemplate !!js/function >
         (lhs) => ''
     TimestampLessThanArgsTemplate: &TimestampLessThanArgsTemplate !!js/function >
@@ -711,15 +707,7 @@ Templates:
     TimestampLessThanOrEqualTemplate: &TimestampLessThanOrEqualTemplate !!js/function >
         () => ''
     TimestampLessThanOrEqualArgsTemplate: &TimestampLessThanOrEqualArgsTemplate !!js/function >
-        (arg1, arg2) => {
-            this.declarations.addFunc([]
-                .concat('var timestampLEQ = func(tm1, tm2) bool {')
-                .concat('   c := primitive.CompareTimestamp(tm1, tm2)')
-                .concat('   return c == -1 || c == 0')
-                .concat('}')
-                .join('\n'));
-            return `timestampLEQ(${arg1}, ${arg2})`;
-        }
+        (arg1, arg2) => `primitive.CompareTimestamp(${arg1}, ${arg2}) <= 0`
     SymbolValueOfTemplate: &SymbolValueOfTemplate !!js/function >
         () => ''
     SymbolValueOfArgsTemplate: &SymbolValueOfArgsTemplate !!js/function >

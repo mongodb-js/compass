@@ -54,6 +54,7 @@ tests:
             object: "'test code'"
             ruby: BSON::Code.new('test code').javascript
             go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"test code\")}.Code"
+            # Rust doesn't have a code attribute
     -   input:
             python: ObjectId('5ab901c29ee65f5c8550c5b9').binary
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').toString()
@@ -667,13 +668,7 @@ tests:
             shell: new Timestamp(1, 100) >= new Timestamp(2, 99)
             object: 'true'
             ruby: BSON::Timestamp.new(1, 100) >= BSON::Timestamp.new(2, 99)
-            go: |-
-                var timestampGEQ = func(tm1, tm2) bool {
-                   c := primitive.CompareTimestamp(tm1, tm2)
-                   return c == 1 || c == 0
-                }
-
-                timestampGEQ(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) >= 0"
             rust: "Timestamp { time: 1, increment: 100 } >= Timestamp { time: 2, increment: 99 }"
     -   input:
             javascript: Timestamp(1, 100).lessThan(Timestamp(2, 99))
@@ -695,13 +690,7 @@ tests:
             shell: new Timestamp(1, 100) <= new Timestamp(2, 99)
             object: 'false'
             ruby: BSON::Timestamp.new(1, 100) <= BSON::Timestamp.new(2, 99)
-            go: |-
-                var timestampLEQ = func(tm1, tm2) bool {
-                   c := primitive.CompareTimestamp(tm1, tm2)
-                   return c == -1 || c == 0
-                }
-
-                timestampLEQ(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) <= 0"
             rust: "Timestamp { time: 1, increment: 100 } <= Timestamp { time: 2, increment: 99 }"
     -   input:
             javascript: Timestamp(1, 100).getLowBits()
