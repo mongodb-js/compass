@@ -28,7 +28,6 @@ declare module 'process' {
         HADRON_READONLY: 'true' | 'false';
         HADRON_ISOLATED: 'true' | 'false';
         HADRON_CHANNEL: 'stable' | 'beta' | 'dev';
-        HADRON_METRICS_BUGSNAG_KEY?: string;
         HADRON_METRICS_INTERCOM_APP_ID?: string;
         HADRON_METRICS_SEGMENT_API_KEY?: string;
         HADRON_METRICS_SEGMENT_HOST?: string;
