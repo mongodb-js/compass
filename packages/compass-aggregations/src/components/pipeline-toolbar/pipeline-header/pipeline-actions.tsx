@@ -8,7 +8,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 
-import { runAggregation } from '../../../modules/aggregation';
+import { exportAggregationResults, runAggregation } from '../../../modules/aggregation';
 
 const containerStyles = css({
   display: 'flex',
@@ -32,16 +32,32 @@ type PipelineActionsProps = {
   isOptionsVisible: boolean;
   onRunAggregation: () => void;
   onToggleOptions: () => void;
+  onExportAggregationResults: () => void;
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isOptionsVisible,
   onRunAggregation,
   onToggleOptions,
+  onExportAggregationResults
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
+  const showExportButton =
+    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true';
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles}> 
+      {showExportButton && (
+        <Button
+          data-testid="pipeline-toolbar-export-aggregation-button"
+          variant="default"
+          size="small"
+          onClick={() => {
+            onExportAggregationResults();
+          }}
+        >
+          Export
+        </Button>
+      )}
       <Button
         data-testid="pipeline-toolbar-run-button"
         variant="primary"
@@ -70,4 +86,5 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
 
 export default connect(null, {
   onRunAggregation: runAggregation,
+  onExportAggregationResults: exportAggregationResults
 })(PipelineActions);

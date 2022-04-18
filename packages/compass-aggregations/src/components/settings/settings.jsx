@@ -98,15 +98,49 @@ class Settings extends PureComponent {
     }
   }
 
+  renderMaxTimeMs() {
+    const isNewToolbar =
+      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true';
+    if (isNewToolbar) {
+      return null;
+    }
+
+    const maxTimeMS = this.props.settings.isDirty
+      ? this.props.settings.maxTimeMS
+      : this.props.maxTimeMS;
+
+    return (
+      <div className={classnames(styles['input-group'])}>
+        <div className={classnames(styles['input-meta'])}>
+          <Label htmlFor="aggregation-max-time-ms">Max Time</Label>
+          <Description id="aggregation-max-time-ms-description">
+            Specifies a cumulative time limit in milliseconds for processing
+            operations on a cursor. Max timeout prevents long hang times.
+          </Description>
+        </div>
+        <div className={classnames(styles['input-control'])}>
+          <input
+            id="aggregation-max-time-ms"
+            aria-describedby="aggregation-max-time-ms-description"
+            type="number"
+            placeholder={DEFAULT_MAX_TIME_MS}
+            min="0"
+            step="1000"
+            value={maxTimeMS}
+            onChange={this.onMaxTimeoutChanged.bind(this)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   renderFields() {
     let commentModeChecked = this.props.isCommenting;
     let sampleSize = this.props.limit;
-    let maxTimeMS = this.props.maxTimeMS;
 
     if (this.props.settings.isDirty) {
       commentModeChecked = this.props.settings.isCommentMode;
       sampleSize = this.props.settings.sampleSize;
-      maxTimeMS = this.props.settings.maxTimeMS;
     }
 
     return (
@@ -146,27 +180,7 @@ class Settings extends PureComponent {
             />
           </div>
         </div>
-        <div className={classnames(styles['input-group'])}>
-          <div className={classnames(styles['input-meta'])}>
-            <Label htmlFor="aggregation-max-time-ms">Max Time</Label>
-            <Description id="aggregation-max-time-ms-description">
-              Specifies a cumulative time limit in milliseconds for processing
-              operations on a cursor. Max timeout prevents long hang times.
-            </Description>
-          </div>
-          <div className={classnames(styles['input-control'])}>
-            <input
-              id="aggregation-max-time-ms"
-              aria-describedby="aggregation-max-time-ms-description"
-              type="number"
-              placeholder={DEFAULT_MAX_TIME_MS}
-              min="0"
-              step="1000"
-              value={maxTimeMS}
-              onChange={this.onMaxTimeoutChanged.bind(this)}
-            />
-          </div>
-        </div>
+        {this.renderMaxTimeMs()}
         {this.renderLargeLimit()}
       </div>
     );

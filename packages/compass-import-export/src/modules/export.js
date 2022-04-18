@@ -1,6 +1,7 @@
 /* eslint-disable valid-jsdoc */
 import fs from 'fs';
 import { promisify } from 'util';
+import { isEmpty } from 'lodash';
 
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
@@ -57,7 +58,7 @@ export const INITIAL_STATE = {
   exportStep: EXPORT_STEP.QUERY,
   isFullCollection: false,
   progress: 0,
-  query: FULL_QUERY,
+  query: null,
   error: null,
   fields: {},
   allFields: {},
@@ -66,6 +67,7 @@ export const INITIAL_STATE = {
   status: PROCESS_STATUS.UNSPECIFIED,
   exportedDocsCount: 0,
   count: 0,
+  aggregation: null,
 };
 
 /**
@@ -126,12 +128,18 @@ const reducer = (state = INITIAL_STATE, action) => {
   }
 
   if (action.type === ON_MODAL_OPEN) {
-    return {
+    const newState = {
       ...INITIAL_STATE,
       count: action.count,
-      query: action.query,
+      query: action.query || null,
+      aggregation: action.aggregation || null,
       isOpen: true,
     };
+
+    if (action.aggregation) {
+      newState.exportStep = EXPORT_STEP.FILETYPE;
+    }
+    return newState;
   }
 
   if (action.type === CLOSE) {
@@ -277,11 +285,12 @@ export const queryChanged = (query) => ({
  * @param {Number} document count given current query.
  * @param {Object} current query.
  */
-export const onModalOpen = ({ namespace, count, query }) => ({
+export const onModalOpen = ({ namespace, count, query, aggregation }) => ({
   type: ON_MODAL_OPEN,
   namespace,
   count,
   query,
+  aggregation,
 });
 
 /**
@@ -362,23 +371,37 @@ const fetchDocumentCount = async (dataService, ns, query) => {
  *
  * @api public
  */
-export const openExport = ({ namespace, query, count: maybeCount }) => {
+export const openExport = ({
+  namespace,
+  query,
+  count: maybeCount,
+  aggregation,
+}) => {
   return async (dispatch, getState) => {
     track('Export Opened');
     const {
       dataService: { dataService },
     } = getState();
-
     try {
-      const count =
-        maybeCount ?? (await fetchDocumentCount(dataService, namespace, query));
+      let count = maybeCount;
+      if (!isEmpty(query)) {
+        count =
+          count ?? (await fetchDocumentCount(dataService, namespace, query));
+      }
 
       dispatch(nsChanged(namespace));
-      dispatch(onModalOpen({ namespace, query, count }));
+      dispatch(onModalOpen({ namespace, query, count, aggregation }));
     } catch (e) {
       dispatch(onError(e));
     }
   };
+};
+
+const getQuery = (query, isFullCollection) => {
+  if (isFullCollection || !query) {
+    return FULL_QUERY;
+  }
+  return query;
 };
 
 export const sampleFields = () => {
@@ -389,9 +412,7 @@ export const sampleFields = () => {
       dataService: { dataService },
     } = getState();
 
-    const spec = exportData.isFullCollection
-      ? { filter: {} }
-      : exportData.query;
+    const spec = getQuery(exportData.query, exportData.isFullCollection);
 
     try {
       const allFields = await loadFields(dataService, ns, {
@@ -426,70 +447,23 @@ export const startExport = () => {
 
     let exportSucceded = true;
 
-    const spec = exportData.isFullCollection
-      ? { filter: {} }
-      : exportData.query;
-    const numDocsToExport = exportData.isFullCollection
-      ? await fetchDocumentCount(dataService, ns, spec)
-      : exportData.count;
-    // filter out only the fields we want to include in our export data
-    const projection = Object.fromEntries(
-      Object.entries(exportData.fields).filter(
-        (keyAndValue) => keyAndValue[1] === 1
-      )
-    );
-    if (
-      Object.keys(projection).length > 0 &&
-      (undefined === exportData.fields._id || exportData.fields._id === 0)
-    ) {
-      projection._id = 0;
-    }
-    log.info(
-      mongoLogId(1001000083),
-      'Export',
-      'Start reading from collection',
-      {
-        ns,
-        numDocsToExport,
-        spec,
-        projection,
-      }
-    );
-    const progress = createProgressStream({
-      objectMode: true,
-      length: numDocsToExport,
-      time: 250 /* ms */,
-    });
-
-    progress.on('progress', function (info) {
-      dispatch(onProgress(info.percentage, info.transferred));
-    });
-
-    log.info(mongoLogId(1001000084), 'Export', 'Start writing to file', {
+    let numDocsActuallyExported = 0;
+    const { columns, source, numDocsToExport } = await getExportSource(
+      dataService,
       ns,
-      fileType: exportData.fileType,
-      fileName: exportData.fileName,
-      fields: Object.keys(exportData.allFields),
-    });
-    // Pick the columns that are going to be matched by the projection,
-    // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
-    // has an entry in the projection object.
-    const columns = Object.keys(exportData.fields).filter((field) =>
-      field
-        .split('.')
-        .some(
-          (_part, index, parts) =>
-            projection[parts.slice(0, index + 1).join('.')]
-        )
+      exportData
     );
     try {
       const dest = fs.createWriteStream(exportData.fileName);
-      debug('executing pipeline');
-      const source = dataService.fetch(ns, spec.filter || {}, {
-        projection,
-        limit: spec.limit,
-        skip: spec.skip,
+      const progress = createProgressStream({
+        objectMode: true,
+        length: numDocsToExport,
+        time: 250 /* ms */,
       });
+      progress.on('progress', function (info) {
+        dispatch(onProgress(info.percentage, info.transferred));
+      });
+      debug('executing pipeline');
       const exporter = new CursorExporter({
         cursor: source,
         type: exportData.fileType,
@@ -501,8 +475,9 @@ export const startExport = () => {
       exporter.on('progress', function (transferred) {
         let percent = 0;
         if (numDocsToExport > 0) {
-          percent = (transferred * 100) / this.numDocsToExport;
+          percent = (transferred * 100) / numDocsToExport;
         }
+        numDocsActuallyExported = transferred;
         progress.emit('progress', {
           percentage: percent,
           transferred,
@@ -516,7 +491,7 @@ export const startExport = () => {
         numDocsToExport,
         fileName: exportData.fileName,
       });
-      dispatch(onFinished(numDocsToExport));
+      dispatch(onFinished(numDocsActuallyExported));
       /**
        * TODO: lucas: For metrics:
        *
@@ -557,6 +532,80 @@ export const startExport = () => {
         success: exportSucceded,
       });
     }
+  };
+};
+
+const getExportSource = (dataService, ns, exportData) => {
+  if (exportData.aggregation) {
+    const { stages, options } = exportData.aggregation;
+    return getAggregationExportSource(dataService, ns, stages, options);
+  }
+  return getQueryExportSource(
+    dataService,
+    ns,
+    exportData.query,
+    exportData.fields,
+    exportData.count,
+    exportData.isFullCollection
+  );
+};
+
+const getAggregationExportSource = (dataService, ns, stages, options) => {
+  return {
+    columns: true,
+    source: dataService.aggregate(ns, stages, options),
+    numDocsToExport: 0,
+  };
+};
+
+const getQueryExportSource = async (
+  dataService,
+  ns,
+  query,
+  fields,
+  count,
+  isFullCollection
+) => {
+  const spec = getQuery(query, isFullCollection);
+  const numDocsToExport = isFullCollection
+    ? await fetchDocumentCount(dataService, ns, spec)
+    : count;
+  // filter out only the fields we want to include in our export data
+  const projection = Object.fromEntries(
+    Object.entries(fields).filter((keyAndValue) => keyAndValue[1] === 1)
+  );
+  if (
+    Object.keys(projection).length > 0 &&
+    (undefined === fields._id || fields._id === 0)
+  ) {
+    projection._id = 0;
+  }
+  log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
+    ns,
+    numDocsToExport,
+    spec,
+    projection,
+  });
+  const source = dataService.fetch(ns, spec.filter || {}, {
+    projection,
+    limit: spec.limit,
+    skip: spec.skip,
+  });
+  // Pick the columns that are going to be matched by the projection,
+  // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
+  // has an entry in the projection object.
+  const columns = Object.keys(fields).filter((field) =>
+    field
+      .split('.')
+      .some(
+        (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]
+      )
+  );
+
+  return {
+    columns,
+    source,
+    numDocsToExport,
   };
 };
 

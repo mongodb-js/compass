@@ -1,4 +1,4 @@
-const PerformanceComponent = require('./components');
+const { PerformanceComponent } = require('./components');
 const ServerStatsStore = require('./stores/server-stats-graphs-store');
 const CurrentOpStore = require('./stores/current-op-store');
 const TopStore = require('./stores/top-store');

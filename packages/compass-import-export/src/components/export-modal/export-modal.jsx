@@ -11,7 +11,6 @@ import ErrorBox from '../error-box';
 
 import revealFile from '../../utils/reveal-file';
 import formatNumber from '../../utils/format-number';
-
 import {
   STARTED,
   CANCELED,
@@ -68,7 +67,7 @@ class ExportModal extends PureComponent {
     fileType: PropTypes.string,
     fileName: PropTypes.string,
     ns: PropTypes.string.isRequired,
-    query: PropTypes.object.isRequired,
+    query: PropTypes.object,
     status: PropTypes.string.isRequired,
     fields: PropTypes.object.isRequired,
     exportedDocsCount: PropTypes.number,
@@ -84,6 +83,7 @@ class ExportModal extends PureComponent {
     toggleFullCollection: PropTypes.func.isRequired,
     selectExportFileType: PropTypes.func.isRequired,
     selectExportFileName: PropTypes.func.isRequired,
+    isAggregation: PropTypes.bool.isRequired,
   };
 
   componentDidMount = () => {
@@ -234,7 +234,7 @@ class ExportModal extends PureComponent {
         >
           <QueryViewer
             ns={this.props.ns}
-            query={this.props.query}
+            query={this.props.query ?? {}}
             disabled={isFullCollection}
           />
         </div>
@@ -280,6 +280,7 @@ class ExportModal extends PureComponent {
         exportedDocsCount={this.props.exportedDocsCount}
         selectExportFileType={this.props.selectExportFileType}
         selectExportFileName={this.props.selectExportFileName}
+        isAggregation={this.props.isAggregation}
       />
     );
   }
@@ -363,7 +364,9 @@ class ExportModal extends PureComponent {
       this.props.status === COMPLETED && this.props.exportStep === FILETYPE
         ? 'Close'
         : 'Cancel';
-
+    const entityToExport = this.props.isAggregation
+      ? 'Aggregation from'
+      : 'Collection';
     return (
       <Modal
         // Because this modal is rendered outside of the
@@ -376,7 +379,7 @@ class ExportModal extends PureComponent {
         data-test-id="export-modal"
       >
         <Modal.Header closeButton>
-          Export Collection {this.props.ns}
+          Export {entityToExport} {this.props.ns}
         </Modal.Header>
         <Modal.Body>
           {this.renderExportOptions()}
@@ -387,7 +390,7 @@ class ExportModal extends PureComponent {
           )}
         </Modal.Body>
         <Modal.Footer>
-          {this.renderBackButton()}
+          {!this.props.isAggregation && this.renderBackButton()}
           <TextButton
             dataTestId={`${closeButton.toLowerCase()}-button`}
             text={closeButton}
@@ -424,6 +427,7 @@ const mapStateToProps = (state) => {
     exportedDocsCount: state.exportData.exportedDocsCount,
     // 0 is a valid number of documents, only ignore null or undefined
     count: state.exportData.count ?? null,
+    isAggregation: Boolean(state.exportData.aggregation),
   };
 };
 
