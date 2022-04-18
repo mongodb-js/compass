@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { expect } from 'chai';
 
 import IndexList from '../index-list';
 import IndexComponent from '../index-component';
@@ -15,10 +16,10 @@ const indexes = [
   }
 ];
 
-describe('index-list [Component]', () => {
+describe('index-list [Component]', function() {
   let component;
-  describe('render', () => {
-    beforeEach(() => {
+  describe('render', function() {
+    beforeEach(function() {
       component = mount(<IndexList
         isWritable
         isReadonly={false}
@@ -28,10 +29,10 @@ describe('index-list [Component]', () => {
         openLink={()=>{}}
       />);
     });
-    afterEach(() => {
+    afterEach(function() {
       component = null;
     });
-    it('renders the list', () => {
+    it('renders the list', function() {
       expect(component.find(IndexComponent)).to.have.lengthOf(2);
     });
   });

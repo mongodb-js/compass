@@ -1,14 +1,16 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import IndexHeaderColumn from '../index-header-column';
 import styles from './index-header-column.module.less';
 
-describe('index-header-column [Component]', () => {
+describe('index-header-column [Component]', function() {
   let component;
   let sortSpy;
-  describe('not active', () => {
-    beforeEach(() => {
+  describe('not active', function() {
+    beforeEach(function() {
       sortSpy = sinon.spy();
       component = mount(<IndexHeaderColumn
         indexes={[]}
@@ -19,24 +21,24 @@ describe('index-header-column [Component]', () => {
         name="testname"
       />);
     });
-    afterEach(() => {
+    afterEach(function() {
       component = null;
       sortSpy = null;
     });
-    it('renders the correct root classname', () => {
+    it('renders the correct root classname', function() {
       expect(component.find('[data-test-id="testid"]')).to.be.present();
     });
-    it('is inactive', () => {
+    it('is inactive', function() {
       expect(component.find(`.${styles['index-header-column']}`)).to.be.present();
     });
-    it('sorts when clicked on', () => {
+    it('sorts when clicked on', function() {
       component.find(`.${styles['index-header-column-sort']}`).simulate('click');
       expect(sortSpy.calledOnce).to.equal(true);
       expect(sortSpy.args).to.deep.equal([[[], 'testname', 'fa-sort-desc']]);
     });
   });
-  describe('active', () => {
-    beforeEach(() => {
+  describe('active', function() {
+    beforeEach(function() {
       sortSpy = sinon.spy();
       component = mount(<IndexHeaderColumn
         indexes={[]}
@@ -47,17 +49,17 @@ describe('index-header-column [Component]', () => {
         name="testname"
       />);
     });
-    afterEach(() => {
+    afterEach(function() {
       component = null;
       sortSpy = null;
     });
-    it('renders the correct root classname', () => {
+    it('renders the correct root classname', function() {
       expect(component.find('[data-test-id="testid"]')).to.be.present();
     });
-    it('is active', () => {
+    it('is active', function() {
       expect(component.find(`.${styles['index-header-column-active']}`)).to.be.present();
     });
-    it('sorts when clicked on', () => {
+    it('sorts when clicked on', function() {
       component.find(`.${styles['index-header-column-sort']}`).simulate('click');
       expect(sortSpy.calledOnce).to.equal(true);
       expect(sortSpy.args).to.deep.equal([[[], 'testname', 'fa-sort-asc']]);

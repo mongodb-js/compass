@@ -1,4 +1,6 @@
 /* eslint-disable no-use-before-define */
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import reducer, {
   loadIndexesFromDb,
@@ -14,29 +16,29 @@ import reducer, {
 
 import { HANDLE_ERROR } from './error';
 
-describe('indexes module', () => {
-  describe('#reducer', () => {
-    context('when an action is provided', () => {
-      context('when the action is LOAD_INDEXES', () => {
-        it('returns the default sorted', () => {
+describe('indexes module', function() {
+  describe('#reducer', function() {
+    context('when an action is provided', function() {
+      context('when the action is LOAD_INDEXES', function() {
+        it('returns the default sorted', function() {
           expect(
             reducer(undefined, loadIndexes(defaultSort))
           ).to.deep.equal(defaultSort);
         });
       });
 
-      context('when the action is SORT_INDEXES', () => {
-        context('when the column is Usage', () => {
-          context('when sorting asc', () => {
-            it('returns the sorted indexes list', () => {
+      context('when the action is SORT_INDEXES', function() {
+        context('when the column is Usage', function() {
+          context('when sorting asc', function() {
+            it('returns the sorted indexes list', function() {
               expect(
                 reducer(undefined, sortIndexes(defaultSort, USAGE, ASC))
               ).to.deep.equal(usageSort);
             });
           });
 
-          context('when sorting desc', () => {
-            it('returns the sorted indexes list', () => {
+          context('when sorting desc', function() {
+            it('returns the sorted indexes list', function() {
               expect(
                 reducer(undefined, sortIndexes(defaultSort, USAGE, DESC))
               ).to.deep.equal(usageSortDesc);
@@ -44,17 +46,17 @@ describe('indexes module', () => {
           });
         });
 
-        context('when the column is Name and Definition', () => {
-          context('when sorting asc', () => {
-            it('returns the sorted indexes list', () => {
+        context('when the column is Name and Definition', function() {
+          context('when sorting asc', function() {
+            it('returns the sorted indexes list', function() {
               expect(
                 reducer(undefined, sortIndexes(usageSort, DEFAULT, ASC))
               ).to.deep.equal(defaultSort);
             });
           });
 
-          context('when sorting desc', () => {
-            it('returns the sorted indexes list', () => {
+          context('when sorting desc', function() {
+            it('returns the sorted indexes list', function() {
               expect(
                 reducer(undefined, sortIndexes(usageSort, DEFAULT, DESC))
               ).to.deep.equal(defaultSortDesc);
@@ -63,22 +65,22 @@ describe('indexes module', () => {
         });
       });
 
-      context('when an action is not provided', () => {
-        it('returns the default state', () => {
+      context('when an action is not provided', function() {
+        it('returns the default state', function() {
           expect(reducer(undefined, {})).to.deep.equal([]);
         });
       });
     });
   });
 
-  describe('#loadIndexes', () => {
-    it('returns the action', () => {
+  describe('#loadIndexes', function() {
+    it('returns the action', function() {
       expect(loadIndexes([])).to.deep.equal({ type: LOAD_INDEXES, indexes: [] });
     });
   });
 
-  describe('#sortIndexes', () => {
-    it('returns the action', () => {
+  describe('#sortIndexes', function() {
+    it('returns the action', function() {
       expect(sortIndexes([], 'Database Name', DESC)).to.deep.equal({
         type: SORT_INDEXES,
         indexes: [],
@@ -87,18 +89,18 @@ describe('indexes module', () => {
       });
     });
   });
-  describe('#loadIndexesFromDb', () => {
+  describe('#loadIndexesFromDb', function() {
     let actionSpy;
     let emitSpy;
-    beforeEach(() => {
+    beforeEach(function() {
       actionSpy = sinon.spy();
       emitSpy = sinon.spy();
     });
-    afterEach(() => {
+    afterEach(function() {
       actionSpy = null;
       emitSpy = null;
     });
-    it('returns loadIndexes action with empty list for readonly', () => {
+    it('returns loadIndexes action with empty list for readonly', function() {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           expect(res).to.deep.equal({ type: LOAD_INDEXES, indexes: [] });
@@ -116,7 +118,7 @@ describe('indexes module', () => {
       expect(actionSpy.calledOnce).to.equal(true);
     });
 
-    it('returns loadIndexes action with error for error state', () => {
+    it('returns loadIndexes action with error for error state', function() {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           if (res.type === LOAD_INDEXES) {
@@ -145,7 +147,7 @@ describe('indexes module', () => {
       expect(actionSpy.calledTwice).to.equal(true);
     });
 
-    it('returns loadIndexes action with sorted and modelled indexes', () => {
+    it('returns loadIndexes action with sorted and modelled indexes', function() {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           expect(Object.keys(res)).to.deep.equal(['type', 'indexes']);

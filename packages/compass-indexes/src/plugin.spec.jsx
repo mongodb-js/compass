@@ -1,15 +1,17 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
-import IndexesPlugin from './plugin';
-import configureStore from './stores';
+import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 
-describe('Indexes [Plugin]', () => {
+import IndexesPlugin from './plugin';
+import configureStore from './stores';
+
+describe('Indexes [Plugin]', function() {
   let component;
   let store;
 
-  beforeEach((done) => {
+  beforeEach(function(done) {
     store = configureStore({
       localAppRegistry: new AppRegistry()
     });
@@ -17,13 +19,13 @@ describe('Indexes [Plugin]', () => {
     done();
   });
 
-  afterEach((done) => {
+  afterEach(function(done) {
     store = null;
     component = null;
     done();
   });
 
-  it('should contain a <Provider /> with a store prop', () => {
+  it('should contain a <Provider /> with a store prop', function() {
     expect(component.find(Provider).first().props('store')).to.be.an('object');
   });
 });

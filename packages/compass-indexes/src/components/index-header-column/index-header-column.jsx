@@ -57,7 +57,7 @@ class IndexHeaderColumn extends PureComponent {
         {this.props.name}
         <i
           className={classnames(styles['index-header-column-sort'], `fa fa-fw ${this.props.sortOrder}`)}
-          onClick={this.handleIndexSort.bind(this)}/>
+        />
       </th>
     );
   }

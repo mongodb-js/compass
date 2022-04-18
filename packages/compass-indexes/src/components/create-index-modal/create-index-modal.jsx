@@ -332,7 +332,6 @@ class CreateIndexModal extends PureComponent {
             data-test-id="create-index-modal">
 
             <ModalInput
-              autoFocus
               id="create-index-name"
               name="Choose an index name"
               value={this.props.name}
@@ -350,15 +349,17 @@ class CreateIndexModal extends PureComponent {
               </button>
             </div>
 
-            <div className={styles['create-index-modal-toggle-bar']}
-              onClick={this.handleToggleBarClick.bind(this)}>
+            <button
+              className={styles['create-index-modal-toggle-bar']}
+              onClick={this.handleToggleBarClick.bind(this)}
+            >
               <div className={styles['create-index-modal-toggle-bar-header']}>
                 {this.props.showOptions ?
                   <i className="fa fa-angle-down"/> :
                   <i className="fa fa-angle-right"/>}
                 <p className={styles['create-index-modal-toggle-bar-header-text']}> Options</p>
               </div>
-            </div>
+            </button>
 
             {this.renderOptions()}
 

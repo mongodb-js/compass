@@ -1,18 +1,21 @@
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import { dropIndex } from '../drop-index';
 import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET } from '../reset';
 
-describe('drop index is background module', () => {
+describe('drop index is background module', function() {
   let errorSpy;
   let progressSpy;
   let visibleSpy;
   let resetSpy;
   let clearErrorSpy;
   let emitSpy;
-  describe('#dropIndex', () => {
-    beforeEach(() => {
+  describe('#dropIndex', function() {
+    beforeEach(function() {
       errorSpy = sinon.spy();
       progressSpy = sinon.spy();
       visibleSpy = sinon.spy();
@@ -20,7 +23,7 @@ describe('drop index is background module', () => {
       clearErrorSpy = sinon.spy();
       emitSpy = sinon.spy();
     });
-    afterEach(() => {
+    afterEach(function() {
       errorSpy = null;
       progressSpy = null;
       visibleSpy = null;
@@ -28,7 +31,7 @@ describe('drop index is background module', () => {
       clearErrorSpy = null;
       emitSpy = null;
     });
-    it('calls dropIndex with correct options', () => {
+    it('calls dropIndex with correct options', function() {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           switch (res.type) {
@@ -71,7 +74,7 @@ describe('drop index is background module', () => {
       expect(visibleSpy.calledOnce).to.equal(true, 'toggleIsVisible not called');
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
-    it('handles error in dropIndex', () => {
+    it('handles error in dropIndex', function() {
       const dispatch = (res) => {
         switch (res.type) {
           case TOGGLE_IN_PROGRESS:

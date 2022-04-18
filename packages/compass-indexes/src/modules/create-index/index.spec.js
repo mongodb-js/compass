@@ -1,18 +1,21 @@
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import { createIndex, createName } from '../create-index';
 import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET } from '../reset';
 
-describe('create index is background module', () => {
+describe('create index is background module', function() {
   let errorSpy;
   let progressSpy;
   let visibleSpy;
   let resetSpy;
   let clearErrorSpy;
   let emitSpy;
-  describe('#createIndex', () => {
-    beforeEach(() => {
+  describe('#createIndex', function() {
+    beforeEach(function() {
       errorSpy = sinon.spy();
       progressSpy = sinon.spy();
       visibleSpy = sinon.spy();
@@ -20,7 +23,7 @@ describe('create index is background module', () => {
       clearErrorSpy = sinon.spy();
       emitSpy = sinon.spy();
     });
-    afterEach(() => {
+    afterEach(function() {
       errorSpy = null;
       progressSpy = null;
       visibleSpy = null;
@@ -28,7 +31,7 @@ describe('create index is background module', () => {
       clearErrorSpy = null;
       emitSpy = null;
     });
-    it('errors if fields are undefined', () => {
+    it('errors if fields are undefined', function() {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
           type: HANDLE_ERROR,
@@ -42,7 +45,7 @@ describe('create index is background module', () => {
       createIndex()(dispatch, state);
       expect(errorSpy.calledOnce).to.equal(true);
     });
-    it('errors if TTL is not number', () => {
+    it('errors if TTL is not number', function() {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
           type: HANDLE_ERROR,
@@ -58,7 +61,7 @@ describe('create index is background module', () => {
       createIndex()(dispatch, state);
       expect(errorSpy.calledOnce).to.equal(true);
     });
-    it('errors if PFE is not JSON', () => {
+    it('errors if PFE is not JSON', function() {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
           type: HANDLE_ERROR,
@@ -74,7 +77,7 @@ describe('create index is background module', () => {
       createIndex()(dispatch, state);
       expect(errorSpy.calledOnce).to.equal(true);
     });
-    it('calls createIndex with correct options', () => {
+    it('calls createIndex with correct options', function() {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           switch (res.type) {
@@ -136,7 +139,7 @@ describe('create index is background module', () => {
       expect(visibleSpy.calledOnce).to.equal(true, 'toggleIsVisible not called');
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
-    it('generates name if empty', () => {
+    it('generates name if empty', function() {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           switch (res.type) {
@@ -196,7 +199,7 @@ describe('create index is background module', () => {
       expect(visibleSpy.calledOnce).to.equal(true, 'toggleIsVisible not called');
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
-    it('handles error in createIndex', () => {
+    it('handles error in createIndex', function() {
       const dispatch = (res) => {
         switch (res.type) {
           case TOGGLE_IN_PROGRESS:
@@ -242,19 +245,19 @@ describe('create index is background module', () => {
     });
   });
 
-  describe('#createName', () => {
-    context('when the index is not a wildcard index', () => {
+  describe('#createName', function() {
+    context('when the index is not a wildcard index', function() {
       const fields = [ { name: 'name' }, { name: 'age' }];
       const spec = { name: 1, age: -1 };
-      it('generates a name with all fields and directions', () => {
+      it('generates a name with all fields and directions', function() {
         expect(createName(fields, spec)).to.equal('name_1_age_-1');
       });
     });
 
-    context('when the index is a wildcard', () => {
+    context('when the index is a wildcard', function() {
       const fields = [ { name: 'name' }, { name: 'age' }];
       const spec = { name: '$**name.first', age: '$**age.years' };
-      it('generates a name with all fields and wilcard replacement', () => {
+      it('generates a name with all fields and wilcard replacement', function() {
         expect(createName(fields, spec)).to.equal('name_wildcardname.first_age_wildcardage.years');
       });
     });

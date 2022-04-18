@@ -6,9 +6,7 @@ import configureCreateIndexStore from './stores/create-index';
 import configureDropIndexStore from './stores/drop-index';
 import IndexDefinitionType from './components/index-definition-type';
 
-/**
- * A sample role for the component.
- */
+// Compass Plugin role definition.
 const ROLE = {
   name: 'Indexes',
   component: IndexesPlugin,

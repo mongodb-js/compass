@@ -37,7 +37,7 @@ class TypeColumn extends PureComponent {
    */
   renderType() {
     let tooltipOptions = {};
-    if (this.props.index.type === 'text' || 'wildcard') {
+    if (this.props.index.type === 'text' || this.props.index.type === 'wildcard') {
       const tooltipText = `${this._textTooltip()}`;
       tooltipOptions = {
         'data-tip': tooltipText,
