@@ -32,7 +32,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
   let circleControl;
 
   const options = {
-    view: null
+    view: null,
   };
 
   let circleCenter;
@@ -69,11 +69,11 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
         QueryAction.setGeoWithinValue({
           field: options.fieldName,
           center: [circleCenter.lng, circleCenter.lat],
-          radius: mileDistance / 3963.2
+          radius: mileDistance / 3963.2,
         });
       } else {
         QueryAction.clearValue({
-          field: options.fieldName
+          field: options.fieldName,
         });
       }
     }
@@ -81,12 +81,15 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     function distance(ll0, ll1) {
       const p0 = project(ll0);
       const p1 = project(ll1);
-      const dist = Math.sqrt((p1.x - p0.x) * (p1.x - p0.x) + (p1.y - p0.y) * (p1.y - p0.y));
+      const dist = Math.sqrt(
+        (p1.x - p0.x) * (p1.x - p0.x) + (p1.y - p0.y) * (p1.y - p0.y)
+      );
       return dist;
     }
 
-    const drag = d3.behavior.drag()
-      .on('drag', function(d, i) {
+    const drag = d3.behavior
+      .drag()
+      .on('drag', function (d, i) {
         if (circleSelected) {
           dragging = true;
           const p = d3.mouse(container.node());
@@ -106,9 +109,9 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
           return;
         }
       })
-      .on('dragend', function() {
+      .on('dragend', function () {
         // kind of a dirty hack...
-        setTimeout(function() {
+        setTimeout(function () {
           dragging = false;
           dispatchQueryActions();
         }, 100);
@@ -130,64 +133,64 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
 
     this.clear = clear;
 
-    update = function(g) {
+    update = function (g) {
       if (g) {
         container = g;
       }
       if (!circleCenter || !circleOuter) return;
       const dist = distance(circleCenter, circleOuter);
       const circleLasso = container.selectAll('circle.lasso').data([dist]);
-      circleLasso.enter().append('circle')
-        .classed('lasso', true)
-        .style({
-          stroke: SELECTED_COLOR,
-          'stroke-width': 2,
-          fill: SELECTED_COLOR,
-          'fill-opacity': 0.1
-        });
+      circleLasso.enter().append('circle').classed('lasso', true).style({
+        stroke: SELECTED_COLOR,
+        'stroke-width': 2,
+        fill: SELECTED_COLOR,
+        'fill-opacity': 0.1,
+      });
 
-      circleLasso
-        .attr({
-          cx: project(circleCenter).x,
-          cy: project(circleCenter).y,
-          r: dist
-        });
+      circleLasso.attr({
+        cx: project(circleCenter).x,
+        cy: project(circleCenter).y,
+        r: dist,
+      });
 
       const line = container.selectAll('line.lasso').data([circleOuter]);
-      line.enter().append('line')
-        .classed('lasso', true)
-        .style({
-          stroke: CONTROL_COLOR,
-          'stroke-dasharray': '2 2'
-        });
+      line.enter().append('line').classed('lasso', true).style({
+        stroke: CONTROL_COLOR,
+        'stroke-dasharray': '2 2',
+      });
 
       line.attr({
         x1: project(circleCenter).x,
         y1: project(circleCenter).y,
         x2: project(circleOuter).x,
-        y2: project(circleOuter).y
+        y2: project(circleOuter).y,
       });
 
-      const controls = container.selectAll('circle.control')
+      const controls = container
+        .selectAll('circle.control')
         .data([circleCenter, circleOuter]);
-      controls.enter().append('circle')
-        .classed('control', true)
-        .style({
-          'cursor': 'move'
-        });
+      controls.enter().append('circle').classed('control', true).style({
+        cursor: 'move',
+      });
 
-      controls.attr({
-        cx: function(d) { return project(d).x; },
-        cy: function(d) { return project(d).y; },
-        r: 5,
-        stroke: CONTROL_COLOR,
-        fill: CONTROL_COLOR,
-        'fill-opacity': 0.7
-      }).call(drag)
-        .on('mousedown', function() {
+      controls
+        .attr({
+          cx: function (d) {
+            return project(d).x;
+          },
+          cy: function (d) {
+            return project(d).y;
+          },
+          r: 5,
+          stroke: CONTROL_COLOR,
+          fill: CONTROL_COLOR,
+          'fill-opacity': 0.7,
+        })
+        .call(drag)
+        .on('mousedown', function () {
           map.dragPan.disable();
         })
-        .on('mouseup', function() {
+        .on('mouseup', function () {
           map.dragPan.enable();
         });
 
@@ -205,7 +208,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     }
     this.setCircle = setCircle;
 
-    container.on('mousedown.circle', function() {
+    container.on('mousedown.circle', function () {
       if (!d3.event.shiftKey) return;
       if (dragging && circleSelected) return;
       if (!dragging && circleSelected) {
@@ -227,7 +230,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
       update();
     });
 
-    container.on('mousemove.circle', function() {
+    container.on('mousemove.circle', function () {
       if (circleSelected || !circleCenter) return;
       // we draw a guideline for where the next point would go.
       const p = d3.mouse(this);
@@ -237,7 +240,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
       dispatchQueryActions();
     });
 
-    container.on('mouseup.circle', function() {
+    container.on('mouseup.circle', function () {
       mousedown = false;
       if (dragging && circleSelected) return;
 
@@ -255,19 +258,19 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
       }
     });
 
-    this.projection = function(val) {
+    this.projection = function (val) {
       if (!val) return project;
       project = val;
       return this;
     };
 
-    this.inverseProjection = function(val) {
+    this.inverseProjection = function (val) {
       if (!val) return unproject;
       unproject = val;
       return this;
     };
 
-    this.distance = function(ll) {
+    this.distance = function (ll) {
       if (!ll) ll = circleOuter;
       return distance(circleCenter, ll);
     };
@@ -286,20 +289,24 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
       return;
     }
     const center = get(options.query, '$geoWithin.$centerSphere[0]');
-    const radius = get(options.query, '$geoWithin.$centerSphere[1]', 0) * 3963.2;
+    const radius =
+      get(options.query, '$geoWithin.$centerSphere[1]', 0) * 3963.2;
     if (!center || !radius) {
       circleControl.clear(true);
       return;
     }
     // only redraw if the center/radius is different to the existing circle
-    if (radius !== mileDistance || !isEqual(center, [circleCenter.lng, circleCenter.lat])) {
+    if (
+      radius !== mileDistance ||
+      !isEqual(center, [circleCenter.lng, circleCenter.lat])
+    ) {
       circleControl.setCircle(center, radius);
     }
   }
   // --- end chart setup ---
 
   function chart(selection) {
-    selection.each(function(data) {
+    selection.each(function (data) {
       function getLL(d) {
         if (d instanceof mapboxgl.LngLat) return d;
         return new mapboxgl.LngLat(+d[0], +d[1]);
@@ -314,19 +321,27 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
 
       // append inner div once
       const innerDiv = el.selectAll('div.map').data([null]);
-      innerDiv.enter().append('div')
-        .attr('class', 'map');
+      innerDiv.enter().append('div').attr('class', 'map');
 
-      innerDiv
-        .style({
-          width: innerWidth + 'px',
-          height: innerHeight + 'px',
-          padding: margin.top + 'px ' + margin.right + 'px ' + margin.bottom
-            + 'px ' + margin.left + 'px;'
-        });
+      innerDiv.style({
+        width: innerWidth + 'px',
+        height: innerHeight + 'px',
+        padding:
+          margin.top +
+          'px ' +
+          margin.right +
+          'px ' +
+          margin.bottom +
+          'px ' +
+          margin.left +
+          'px;',
+      });
 
       // Add maps help overlay of how to $geoWithin
-      const mapoverlay = el.selectAll('div.map-overlay').data([null]).enter()
+      const mapoverlay = el
+        .selectAll('div.map-overlay')
+        .data([null])
+        .enter()
         .append('div')
         .classed('map-overlay', true);
       mapoverlay
@@ -340,7 +355,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
 
       // compute bounds from data
       const bounds = new mapboxgl.LngLatBounds();
-      data.forEach(function(d) {
+      data.forEach(function (d) {
         bounds.extend(getLL(d));
       });
 
@@ -351,7 +366,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
           // not allowed to whitelabel the map ever due to OpenStreetMaps license.
           // attributionControl: false,
           style: 'mapbox://openmaptiles.4qljc88t',
-          center: bounds.getCenter()
+          center: bounds.getCenter(),
         });
         map.dragPan.enable();
         map.scrollZoom.enable();
@@ -367,79 +382,76 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
 
         circleControl = new CircleSelector(svg)
           .projection(project)
-          .inverseProjection(function(a) {
-            return map.unproject({x: a[0], y: a[1]});
+          .inverseProjection(function (a) {
+            return map.unproject({ x: a[0], y: a[1] });
           });
 
         // when lasso changes, update point selections
-        circleControl.on('update', function() {
+        circleControl.on('update', function () {
           svg.selectAll('circle.dot').style({
-            fill: function(d) {
+            fill: function (d) {
               const thisDist = circleControl.distance(d);
               const circleDist = circleControl.distance();
               if (thisDist < circleDist) {
                 return SELECTED_COLOR;
               }
               return UNSELECTED_COLOR;
-            }
+            },
           });
         });
-        circleControl.on('clear', function() {
+        circleControl.on('clear', function () {
           svg.selectAll('circle.dot').style('fill', UNSELECTED_COLOR);
         });
 
         /* eslint no-inner-declarations: 0 */
-        render = function() {
+        render = function () {
           // update points
           dots.attr({
-            cx: function(d) {
+            cx: function (d) {
               const x = project(d).x;
               return x;
             },
-            cy: function(d) {
+            cy: function (d) {
               const y = project(d).y;
               return y;
-            }
+            },
           });
           // update circle
           circleControl.update(svg);
         };
 
         // re-render our visualization whenever the view changes
-        map.on('viewreset', function() {
+        map.on('viewreset', function () {
           render();
         });
-        map.on('move', function() {
+        map.on('move', function () {
           render();
         });
 
-        defer(function() {
+        defer(function () {
           map.resize();
           map.fitBounds(bounds, {
             linear: true,
-            padding: 20
+            padding: 20,
           });
         });
       } // end if (!map) ...
 
       // draw data points
-      dots = svg.selectAll('circle.dot')
-        .data(data);
-      dots.enter().append('circle').classed('dot', true)
-        .attr('r', 4)
-        .style({
-          fill: UNSELECTED_COLOR,
-          stroke: 'white',
-          'stroke-opacity': 0.6,
-          'stroke-width': 1
-        });
+      dots = svg.selectAll('circle.dot').data(data);
+      dots.enter().append('circle').classed('dot', true).attr('r', 4).style({
+        fill: UNSELECTED_COLOR,
+        stroke: 'white',
+        'stroke-opacity': 0.6,
+        'stroke-width': 1,
+      });
 
       selectFromQuery();
       render();
     }); // end selection.each()
   }
 
-  chart.width = function(value) {
+  chart.width = function (value) {
     if (!arguments.length) {
       return width;
     }
@@ -447,7 +459,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     return chart;
   };
 
-  chart.height = function(value) {
+  chart.height = function (value) {
     if (!arguments.length) {
       return height;
     }
@@ -455,7 +467,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     return chart;
   };
 
-  chart.options = function(value) {
+  chart.options = function (value) {
     if (!arguments.length) {
       return options;
     }
@@ -463,7 +475,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     return chart;
   };
 
-  chart.geoSelection = function(value) {
+  chart.geoSelection = function (value) {
     if (!value) {
       circleControl.clear();
       return;
@@ -471,7 +483,7 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     circleControl.setCircle(value[0], value[1]);
   };
 
-  chart.cleanup = function() {
+  chart.cleanup = function () {
     return chart;
   };
 

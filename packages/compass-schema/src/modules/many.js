@@ -25,7 +25,7 @@ const minicharts_d3fns_many = (appRegistry) => {
     scale: false,
     labels: false, // label defaults will be set further below
     selectable: true, // setting to false disables query builder for this chart
-    selectionType: 'distinct' //  can be `distinct` or `range`
+    selectionType: 'distinct', //  can be `distinct` or `range`
   };
 
   const xScale = d3.scale.ordinal();
@@ -33,14 +33,13 @@ const minicharts_d3fns_many = (appRegistry) => {
   const labelScale = d3.scale.ordinal();
 
   // set up tooltips
-  const tip = d3.tip()
+  const tip = d3
+    .tip()
     .attr('class', 'd3-tip d3-tip-many')
     .direction('n')
     .offset([-9, 0]);
-  const brush = d3.svg.brush()
-    .on('brush', brushed)
-    .on('brushend', brushend);
-    // --- end chart setup ---
+  const brush = d3.svg.brush().on('brush', brushed).on('brushend', brushend);
+  // --- end chart setup ---
 
   function handleDrag() {
     // ignore this event when shift is pressed for distinct selections.
@@ -54,7 +53,7 @@ const minicharts_d3fns_many = (appRegistry) => {
     // add `unselected` class to all elements
     bars.classed('unselected', true);
     // get elements within the brush
-    const selected = bars.filter(function(d) {
+    const selected = bars.filter(function (d) {
       const left = xScale(d.label);
       const right = left + xScale.rangeBand();
       return s[0] <= right && left <= s[1];
@@ -68,7 +67,7 @@ const minicharts_d3fns_many = (appRegistry) => {
       if (selected[0].length === 0) {
         // clear value
         QueryAction.clearValue({
-          field: options.fieldName
+          field: options.fieldName,
         });
         return;
       }
@@ -77,15 +76,15 @@ const minicharts_d3fns_many = (appRegistry) => {
         const values = map(selected.data(), 'value');
         QueryAction.setDistinctValues({
           field: options.fieldName,
-          value: values.map((v) => options.promoter(v))
+          value: values.map((v) => options.promoter(v)),
         });
         return;
       }
       // numeric types
-      const minValue = minBy(selected.data(), function(d) {
+      const minValue = minBy(selected.data(), function (d) {
         return d.value;
       });
-      const maxValue = maxBy(selected.data(), function(d) {
+      const maxValue = maxBy(selected.data(), function (d) {
         return d.value;
       });
 
@@ -93,7 +92,7 @@ const minicharts_d3fns_many = (appRegistry) => {
         // if not binned and values are the same, single equality query
         QueryAction.setValue({
           field: options.fieldName,
-          value: options.promoter(minValue.bson)
+          value: options.promoter(minValue.bson),
         });
         return;
       }
@@ -103,7 +102,7 @@ const minicharts_d3fns_many = (appRegistry) => {
         field: options.fieldName,
         min: options.promoter(minValue.value),
         max: options.promoter(maxValue.value + maxValue.dx),
-        maxInclusive: maxValue.dx === 0
+        maxInclusive: maxValue.dx === 0,
       });
     }
   }
@@ -115,7 +114,6 @@ const minicharts_d3fns_many = (appRegistry) => {
   function brushend() {
     d3.select(this).call(brush.clear());
   }
-
 
   /**
    * Handles event of single mousedown (either as click, or beginning of a
@@ -142,19 +140,25 @@ const minicharts_d3fns_many = (appRegistry) => {
 
     if (options.selectionType === 'distinct') {
       // distinct values, behavior dependent on shift key
-      const qbAction = d3.event.shiftKey ?
-        QueryAction.toggleDistinctValue : QueryAction.setValue;
+      const qbAction = d3.event.shiftKey
+        ? QueryAction.toggleDistinctValue
+        : QueryAction.setValue;
       qbAction({
         field: options.fieldName,
         value: options.promoter(d.value),
-        unsetIfSet: true
+        unsetIfSet: true,
       });
     } else if (d3.event.shiftKey && lastNonShiftRangeValue) {
       QueryAction.setRangeValues({
         field: options.fieldName,
         min: options.promoter(Math.min(d.value, lastNonShiftRangeValue.value)),
-        max: options.promoter(Math.max(d.value + d.dx, lastNonShiftRangeValue.value + lastNonShiftRangeValue.dx)),
-        maxInclusive: d.dx === 0
+        max: options.promoter(
+          Math.max(
+            d.value + d.dx,
+            lastNonShiftRangeValue.value + lastNonShiftRangeValue.dx
+          )
+        ),
+        maxInclusive: d.dx === 0,
       });
     } else {
       // remember non-shift value so that range can be extended with shift
@@ -165,14 +169,14 @@ const minicharts_d3fns_many = (appRegistry) => {
           field: options.fieldName,
           min: options.promoter(d.value),
           max: options.promoter(d.value + d.dx),
-          unsetIfSet: true
+          unsetIfSet: true,
         });
       } else {
         // bars don't represent bins, build single value query
         QueryAction.setValue({
           field: options.fieldName,
           value: options.promoter(d.bson),
-          unsetIfSet: true
+          unsetIfSet: true,
         });
       }
     }
@@ -182,7 +186,8 @@ const minicharts_d3fns_many = (appRegistry) => {
     const brushNode = parent.find('g.brush')[0];
     const start = d3.mouse(background)[0];
 
-    const w = d3.select(window)
+    const w = d3
+      .select(window)
       .on('mousemove', mousemove)
       .on('mouseup', mouseup);
 
@@ -209,26 +214,26 @@ const minicharts_d3fns_many = (appRegistry) => {
     }
     // handle distinct selections
     if (options.selectionType === 'distinct') {
-      bars.each(function(d) {
+      bars.each(function (d) {
         d.hasDistinct = hasDistinctValue(options.query, d.value);
       });
-      bars.classed('selected', function(d) {
+      bars.classed('selected', function (d) {
         return d.hasDistinct;
       });
-      bars.classed('unselected', function(d) {
+      bars.classed('unselected', function (d) {
         return !d.hasDistinct;
       });
     } else if (options.selectionType === 'range') {
-      bars.each(function(d) {
+      bars.each(function (d) {
         d.inRange = inValueRange(options.query, d);
       });
-      bars.classed('selected', function(d) {
+      bars.classed('selected', function (d) {
         return d.inRange === 'yes';
       });
-      bars.classed('half-selected', function(d) {
+      bars.classed('half-selected', function (d) {
         return d.inRange === 'partial';
       });
-      bars.classed('unselected', function(d) {
+      bars.classed('unselected', function (d) {
         return d.inRange === 'no';
       });
     }
@@ -236,29 +241,27 @@ const minicharts_d3fns_many = (appRegistry) => {
 
   function chart(selection) {
     /* eslint complexity: 0 */
-    selection.each(function(data) {
+    selection.each(function (data) {
       const values = pluck(data, 'count');
       const maxValue = d3.max(values);
       const sumValues = d3.sum(values);
-      const percentFormat = shared.friendlyPercentFormat(maxValue / sumValues * 100);
+      const percentFormat = shared.friendlyPercentFormat(
+        (maxValue / sumValues) * 100
+      );
       let labels = options.labels;
       el = d3.select(this);
 
-      xScale
-        .domain(pluck(data, 'label'))
-        .rangeRoundBands([0, width], 0.3, 0.0);
+      xScale.domain(pluck(data, 'label')).rangeRoundBands([0, width], 0.3, 0.0);
 
       brush.x(xScale);
       brush.extent(brush.extent());
 
-      yScale
-        .domain([0, maxValue])
-        .range([height, 0]);
+      yScale.domain([0, maxValue]).range([height, 0]);
 
       // set label defaults
       if (options.labels) {
         labels = {
-          'text-anchor': function(d, i) {
+          'text-anchor': function (d, i) {
             if (i === 0) {
               return 'start';
             }
@@ -267,53 +270,61 @@ const minicharts_d3fns_many = (appRegistry) => {
             }
             return 'middle';
           },
-          x: labels['text-anchor'] === 'middle' ? xScale.rangeBand() / 2 : function(d, i) {
-            if (i === 0) {
-              return 0;
-            }
-            if (i === data.length - 1) {
-              return xScale.rangeBand();
-            }
-            return xScale.rangeBand() / 2;
-          },
+          x:
+            labels['text-anchor'] === 'middle'
+              ? xScale.rangeBand() / 2
+              : function (d, i) {
+                  if (i === 0) {
+                    return 0;
+                  }
+                  if (i === data.length - 1) {
+                    return xScale.rangeBand();
+                  }
+                  return xScale.rangeBand() / 2;
+                },
           y: height + 5,
           dy: '0.75em',
-          text: function(d) {
+          text: function (d) {
             return d.count;
           },
-          ...labels
+          ...labels,
         };
       }
 
       // setup tool tips
-      tip.html(function(d, i) {
+      tip.html(function (d, i) {
         if (typeof d.tooltip === 'function') {
           return d.tooltip(d, i);
         }
-        return d.tooltip || shared.tooltip(shared.truncateTooltip(d.label), percentFormat(d.count / sumValues * 100));
+        return (
+          d.tooltip ||
+          shared.tooltip(
+            shared.truncateTooltip(d.label),
+            percentFormat((d.count / sumValues) * 100)
+          )
+        );
       });
       el.call(tip);
 
       // draw scale labels and lines if requested
       if (options.scale) {
-        const triples = function(v) {
+        const triples = function (v) {
           return [v, v / 2, 0];
         };
 
-        const scaleLabels = map(triples(maxValue / sumValues * 100), function(x) {
-          return percentFormat(x, true);
-        });
+        const scaleLabels = map(
+          triples((maxValue / sumValues) * 100),
+          function (x) {
+            return percentFormat(x, true);
+          }
+        );
 
-        labelScale
-          .domain(scaleLabels)
-          .rangePoints([0, height]);
+        labelScale.domain(scaleLabels).rangePoints([0, height]);
 
-        const legend = el.selectAll('g.legend')
-          .data(scaleLabels);
+        const legend = el.selectAll('g.legend').data(scaleLabels);
 
         // create new legend elements
-        const legendEnter = legend.enter().append('g')
-          .attr('class', 'legend');
+        const legendEnter = legend.enter().append('g').attr('class', 'legend');
 
         legendEnter
           .append('text')
@@ -330,25 +341,24 @@ const minicharts_d3fns_many = (appRegistry) => {
           .attr('y2', 0);
 
         // update legend elements
-        legend
-          .attr('transform', function(d) {
-            return 'translate(0, ' + labelScale(d) + ')';
-          });
+        legend.attr('transform', function (d) {
+          return 'translate(0, ' + labelScale(d) + ')';
+        });
 
-        legend.select('text')
-          .text(function(d) {
-            return d;
-          });
+        legend.select('text').text(function (d) {
+          return d;
+        });
 
-        legend.select('line')
-          .attr('x2', width);
+        legend.select('line').attr('x2', width);
 
         legend.exit().remove();
       }
 
       if (options.selectable) {
         const gBrush = el.selectAll('.brush').data([0]);
-        gBrush.enter().append('g')
+        gBrush
+          .enter()
+          .append('g')
           .attr('class', 'brush')
           .call(brush)
           .selectAll('rect')
@@ -357,19 +367,16 @@ const minicharts_d3fns_many = (appRegistry) => {
       }
 
       // select all g.bar elements
-      const bar = el.selectAll('.bar')
-        .data(data, function(d) {
-          return d.label; // identify data by its label
-        });
+      const bar = el.selectAll('.bar').data(data, function (d) {
+        return d.label; // identify data by its label
+      });
 
       // create new bar elements as needed
-      const barEnter = bar.enter().append('g')
-        .attr('class', 'bar');
+      const barEnter = bar.enter().append('g').attr('class', 'bar');
 
-      bar
-        .attr('transform', function(d) {
-          return 'translate(' + xScale(d.label) + ', 0)';
-        });
+      bar.attr('transform', function (d) {
+        return 'translate(' + xScale(d.label) + ', 0)';
+      });
 
       // if background bars are used, fill whole area with background bar color first
       if (options.bgbars) {
@@ -385,7 +392,8 @@ const minicharts_d3fns_many = (appRegistry) => {
       // create mouseover and click handlers
       if (options.bgbars) {
         // ... on a separate front "glass" pane if we use background bars
-        barEnter.append('rect')
+        barEnter
+          .append('rect')
           .attr('class', 'glass')
           .attr('width', xScale.rangeBand())
           .attr('height', height)
@@ -393,7 +401,8 @@ const minicharts_d3fns_many = (appRegistry) => {
           .on('mouseout', tip.hide);
       } else {
         // ... or attach tooltips directly to foreground bars if we don't use background bars
-        barEnter.selectAll('.fg')
+        barEnter
+          .selectAll('.fg')
           .on('mouseover', tip.show)
           .on('mouseout', tip.hide);
 
@@ -403,7 +412,8 @@ const minicharts_d3fns_many = (appRegistry) => {
       }
 
       if (options.labels) {
-        barEnter.append('text')
+        barEnter
+          .append('text')
           .attr('x', labels.x)
           .attr('dx', labels.dx)
           .attr('y', labels.y)
@@ -411,20 +421,21 @@ const minicharts_d3fns_many = (appRegistry) => {
           .attr('text-anchor', labels['text-anchor']);
       }
 
-
       // now update _all_ bar elements (old and new) based on changes
       // in data and width/height
-      bar.selectAll('.bg')
+      bar
+        .selectAll('.bg')
         .attr('width', xScale.rangeBand())
         .attr('height', height);
 
-      bar.selectAll('.fg')
+      bar
+        .selectAll('.fg')
         // .transition()
-        .attr('y', function(d) {
+        .attr('y', function (d) {
           return yScale(d.count);
         })
         .attr('width', xScale.rangeBand())
-        .attr('height', function(d) {
+        .attr('height', function (d) {
           return height - yScale(d.count);
         });
 
@@ -447,7 +458,7 @@ const minicharts_d3fns_many = (appRegistry) => {
     });
   }
 
-  chart.width = function(value) {
+  chart.width = function (value) {
     if (!arguments.length) {
       return width;
     }
@@ -455,7 +466,7 @@ const minicharts_d3fns_many = (appRegistry) => {
     return chart;
   };
 
-  chart.height = function(value) {
+  chart.height = function (value) {
     if (!arguments.length) {
       return height;
     }
@@ -463,7 +474,7 @@ const minicharts_d3fns_many = (appRegistry) => {
     return chart;
   };
 
-  chart.options = function(value) {
+  chart.options = function (value) {
     if (!arguments.length) {
       return options;
     }
@@ -471,7 +482,7 @@ const minicharts_d3fns_many = (appRegistry) => {
     return chart;
   };
 
-  chart.cleanup = function() {
+  chart.cleanup = function () {
     tip.destroy();
     return chart;
   };
