@@ -37,5 +37,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const dataServiceConnected = (dataService) => ({
   type: DATA_SERVICE_CONNECTED,
-  dataService: dataService
+  dataService: dataService,
 });

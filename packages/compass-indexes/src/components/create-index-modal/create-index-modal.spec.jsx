@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import { CreateIndexModal } from '../create-index-modal';
 import styles from './create-index-modal.module.less';
 
-describe('CreateIndexModal [Component]', function() {
+describe('CreateIndexModal [Component]', function () {
   let component;
   let toggleIsVisibleSpy;
   let updateFieldNameSpy;
@@ -26,8 +26,8 @@ describe('CreateIndexModal [Component]', function() {
   let changePartialFilterExpressionSpy;
   let changeCollationOptionSpy;
   let changeNameSpy;
-  context('when the modal is visible', function() {
-    beforeEach(function() {
+  context('when the modal is visible', function () {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       updateFiedTypeSpy = sinon.spy();
       updateFieldNameSpy = sinon.spy();
@@ -52,7 +52,7 @@ describe('CreateIndexModal [Component]', function() {
           showOptions={false}
           inProgress={false}
           schemaFields={[]}
-          fields={[{name: '', type: ''}]}
+          fields={[{ name: '', type: '' }]}
           dataService={{}}
           isBackground={false}
           isUnique={false}
@@ -86,7 +86,7 @@ describe('CreateIndexModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       toggleIsVisibleSpy = null;
       updateFiedTypeSpy = null;
       updateFieldNameSpy = null;
@@ -113,69 +113,90 @@ describe('CreateIndexModal [Component]', function() {
       component = null;
     });
 
-    it('displays the modal', function() {
+    it('displays the modal', function () {
       expect(component.find('.modal')).to.be.present();
     });
 
-    it('renders the correct root classname', function() {
-      expect(component.find(`.${styles['create-index-modal']}`)).to.be.present();
+    it('renders the correct root classname', function () {
+      expect(
+        component.find(`.${styles['create-index-modal']}`)
+      ).to.be.present();
     });
 
-    it('renders the header text', function() {
+    it('renders the header text', function () {
       expect(component.find('.modal-title')).to.have.text('Create Index');
     });
 
-    it('renders the cancel button', function() {
-      expect(component.find('[data-test-id="cancel-create-index-button"]').hostNodes()).to.have.text('Cancel');
+    it('renders the cancel button', function () {
+      expect(
+        component
+          .find('[data-test-id="cancel-create-index-button"]')
+          .hostNodes()
+      ).to.have.text('Cancel');
     });
 
-    it('renders the create button', function() {
-      expect(component.find('[data-test-id="create-index-button"]').hostNodes()).to.have.text('Create Index');
+    it('renders the create button', function () {
+      expect(
+        component.find('[data-test-id="create-index-button"]').hostNodes()
+      ).to.have.text('Create Index');
     });
 
-    it('renders the modal form', function() {
-      expect(component.find('[name="create-index-modal-form"]')).to.be.present();
+    it('renders the modal form', function () {
+      expect(
+        component.find('[name="create-index-modal-form"]')
+      ).to.be.present();
     });
 
-    context('when changing the index name', function() {
-      it('calls the change index name function', function() {
-        component.find('#create-index-name').hostNodes().simulate('change', {target: {value: 'iName'}});
+    context('when changing the index name', function () {
+      it('calls the change index name function', function () {
+        component
+          .find('#create-index-name')
+          .hostNodes()
+          .simulate('change', { target: { value: 'iName' } });
         expect(changeNameSpy.calledWith('iName')).to.equal(true);
       });
     });
 
-    context('when adding a field', function() {
-      it('calls the addField function', function() {
+    context('when adding a field', function () {
+      it('calls the addField function', function () {
         component.find('#add-field').hostNodes().simulate('click');
         expect(addFieldSpy.called).to.equal(true);
       });
     });
 
-    context('when clicking cancel', function() {
-      it('closes the modal', function() {
-        component.find('[data-test-id="cancel-create-index-button"]').hostNodes().simulate('click');
+    context('when clicking cancel', function () {
+      it('closes the modal', function () {
+        component
+          .find('[data-test-id="cancel-create-index-button"]')
+          .hostNodes()
+          .simulate('click');
         expect(toggleIsVisibleSpy.calledOnce).to.equal(true);
         expect(resetFormSpy.called).to.equal(true);
       });
     });
 
-    context('when clicking create', function() {
-      it('creates the index', function() {
-        component.find('[data-test-id="create-index-button"]').hostNodes().simulate('click');
+    context('when clicking create', function () {
+      it('creates the index', function () {
+        component
+          .find('[data-test-id="create-index-button"]')
+          .hostNodes()
+          .simulate('click');
         expect(createIndexSpy.called).to.equal(true);
       });
     });
 
-    context('when clicking show options', function() {
-      it('shows options', function() {
-        component.find(`.${styles['create-index-modal-toggle-bar']}`).simulate('click');
+    context('when clicking show options', function () {
+      it('shows options', function () {
+        component
+          .find(`.${styles['create-index-modal-toggle-bar']}`)
+          .simulate('click');
         expect(toggleShowOptionsSpy.called).to.equal(true);
       });
     });
   });
 
-  context('when the checkbox options are visible', function() {
-    beforeEach(function() {
+  context('when the checkbox options are visible', function () {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       updateFiedTypeSpy = sinon.spy();
       updateFieldNameSpy = sinon.spy();
@@ -200,7 +221,7 @@ describe('CreateIndexModal [Component]', function() {
           showOptions
           inProgress={false}
           schemaFields={[]}
-          fields={[{name: '', type: ''}]}
+          fields={[{ name: '', type: '' }]}
           dataService={{}}
           isBackground={false}
           isUnique={false}
@@ -234,7 +255,7 @@ describe('CreateIndexModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       toggleIsVisibleSpy = null;
       updateFiedTypeSpy = null;
       updateFieldNameSpy = null;
@@ -257,65 +278,95 @@ describe('CreateIndexModal [Component]', function() {
       component = null;
     });
 
-    it('displays the options', function() {
+    it('displays the options', function () {
       expect(
         component.find('[data-test-id="create-index-modal-options"]')
       ).to.be.present();
     });
-    context('background', function() {
-      it('calls the toggleIsBackground function', function() {
-        component.find('[data-test-id="toggle-is-background"]').find('[type="checkbox"]').simulate('change', { target: { checked: true } });
+    context('background', function () {
+      it('calls the toggleIsBackground function', function () {
+        component
+          .find('[data-test-id="toggle-is-background"]')
+          .find('[type="checkbox"]')
+          .simulate('change', { target: { checked: true } });
         expect(toggleIsBackgroundSpy.called).to.equal(true);
       });
-      it('calls the clickLink function', function() {
-        component.find('[data-test-id="toggle-is-background"]').find('.info-sprinkle').simulate('click');
+      it('calls the clickLink function', function () {
+        component
+          .find('[data-test-id="toggle-is-background"]')
+          .find('.info-sprinkle')
+          .simulate('click');
         expect(openLinkSpy.called).to.equal(true);
       });
-      context('unique', function() {
-        it('calls the toggleIsUnique function', function() {
-          component.find('[data-test-id="toggle-is-unique"]').find('[type="checkbox"]').simulate('change', { target: { checked: true } });
+      context('unique', function () {
+        it('calls the toggleIsUnique function', function () {
+          component
+            .find('[data-test-id="toggle-is-unique"]')
+            .find('[type="checkbox"]')
+            .simulate('change', { target: { checked: true } });
           expect(toggleIsUniqueSpy.called).to.equal(true);
         });
-        it('calls the clickLink function', function() {
-          component.find('[data-test-id="toggle-is-unique"]').find('.info-sprinkle').simulate('click');
+        it('calls the clickLink function', function () {
+          component
+            .find('[data-test-id="toggle-is-unique"]')
+            .find('.info-sprinkle')
+            .simulate('click');
           expect(openLinkSpy.called).to.equal(true);
         });
       });
-      context('ttl', function() {
-        it('calls the toggleIsTtl function', function() {
-          component.find('[data-test-id="toggle-is-ttl"]').find('[type="checkbox"]').simulate('change', { target: { checked: true } });
+      context('ttl', function () {
+        it('calls the toggleIsTtl function', function () {
+          component
+            .find('[data-test-id="toggle-is-ttl"]')
+            .find('[type="checkbox"]')
+            .simulate('change', { target: { checked: true } });
           expect(toggleIsTtlSpy.called).to.equal(true);
         });
-        it('calls the clickLink function', function() {
-          component.find('[data-test-id="toggle-is-ttl"]').find('.info-sprinkle').simulate('click');
+        it('calls the clickLink function', function () {
+          component
+            .find('[data-test-id="toggle-is-ttl"]')
+            .find('.info-sprinkle')
+            .simulate('click');
           expect(openLinkSpy.called).to.equal(true);
         });
       });
-      context('partialFilterExpression', function() {
-        it('calls the toggleIsPartialFilterExpression function', function() {
-          component.find('[data-test-id="toggle-is-pfe"]').find('[type="checkbox"]').simulate('change', { target: { checked: true } });
+      context('partialFilterExpression', function () {
+        it('calls the toggleIsPartialFilterExpression function', function () {
+          component
+            .find('[data-test-id="toggle-is-pfe"]')
+            .find('[type="checkbox"]')
+            .simulate('change', { target: { checked: true } });
           expect(toggleIsPartialFilterExpressionSpy.called).to.equal(true);
         });
-        it('calls the clickLink function', function() {
-          component.find('[data-test-id="toggle-is-pfe"]').find('.info-sprinkle').simulate('click');
+        it('calls the clickLink function', function () {
+          component
+            .find('[data-test-id="toggle-is-pfe"]')
+            .find('.info-sprinkle')
+            .simulate('click');
           expect(openLinkSpy.called).to.equal(true);
         });
       });
-      context('customCollation', function() {
-        it('calls the toggleIsCustomCollation function', function() {
-          component.find('[data-test-id="toggle-is-custom-collation"]').find('[type="checkbox"]').simulate('change', { target: { checked: true } });
+      context('customCollation', function () {
+        it('calls the toggleIsCustomCollation function', function () {
+          component
+            .find('[data-test-id="toggle-is-custom-collation"]')
+            .find('[type="checkbox"]')
+            .simulate('change', { target: { checked: true } });
           expect(toggleIsCustomCollationSpy.called).to.equal(true);
         });
-        it('calls the clickLink function', function() {
-          component.find('[data-test-id="toggle-is-custom-collation"]').find('.info-sprinkle').simulate('click');
+        it('calls the clickLink function', function () {
+          component
+            .find('[data-test-id="toggle-is-custom-collation"]')
+            .find('.info-sprinkle')
+            .simulate('click');
           expect(openLinkSpy.called).to.equal(true);
         });
       });
     });
   });
 
-  context('when the options are visible', function() {
-    beforeEach(function() {
+  context('when the options are visible', function () {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       updateFiedTypeSpy = sinon.spy();
       updateFieldNameSpy = sinon.spy();
@@ -340,7 +391,7 @@ describe('CreateIndexModal [Component]', function() {
           showOptions
           inProgress={false}
           schemaFields={[]}
-          fields={[{name: '', type: ''}]}
+          fields={[{ name: '', type: '' }]}
           dataService={{}}
           isBackground
           isUnique
@@ -374,7 +425,7 @@ describe('CreateIndexModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       toggleIsVisibleSpy = null;
       updateFiedTypeSpy = null;
       updateFieldNameSpy = null;
@@ -397,29 +448,37 @@ describe('CreateIndexModal [Component]', function() {
       component = null;
     });
 
-    it('displays the options', function() {
+    it('displays the options', function () {
       expect(
         component.find('[data-test-id="create-index-modal-options"]')
       ).to.be.present();
     });
-    context('ttl', function() {
-      it('calls the ttl function', function() {
-        component.find('#ttl-value').find('input').simulate('change', { target: { value: '101' } });
+    context('ttl', function () {
+      it('calls the ttl function', function () {
+        component
+          .find('#ttl-value')
+          .find('input')
+          .simulate('change', { target: { value: '101' } });
         expect(changeTtlSpy.called).to.equal(true);
         expect(changeTtlSpy.args[0][0]).to.equal('101');
       });
     });
-    context('partial filter expression', function() {
-      it('calls the partialFilterExpresion function', function() {
-        component.find('#partial-filter-expression-value').find('input').simulate('change', { target: { value: '{"x": 1}' } });
+    context('partial filter expression', function () {
+      it('calls the partialFilterExpresion function', function () {
+        component
+          .find('#partial-filter-expression-value')
+          .find('input')
+          .simulate('change', { target: { value: '{"x": 1}' } });
         expect(changePartialFilterExpressionSpy.called).to.equal(true);
-        expect(changePartialFilterExpressionSpy.args[0][0]).to.equal('{"x": 1}');
+        expect(changePartialFilterExpressionSpy.args[0][0]).to.equal(
+          '{"x": 1}'
+        );
       });
     });
   });
 
-  context('when the modal is not visible', function() {
-    beforeEach(function() {
+  context('when the modal is not visible', function () {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       updateFiedTypeSpy = sinon.spy();
       updateFieldNameSpy = sinon.spy();
@@ -444,7 +503,7 @@ describe('CreateIndexModal [Component]', function() {
           showOptions={false}
           inProgress={false}
           schemaFields={[]}
-          fields={[{name: '', type: ''}]}
+          fields={[{ name: '', type: '' }]}
           dataService={{}}
           isBackground={false}
           isUnique={false}
@@ -478,7 +537,7 @@ describe('CreateIndexModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       toggleIsVisibleSpy = null;
       updateFiedTypeSpy = null;
       updateFieldNameSpy = null;
@@ -501,12 +560,12 @@ describe('CreateIndexModal [Component]', function() {
       component = null;
     });
 
-    it('does not display the modal', function() {
+    it('does not display the modal', function () {
       expect(component.find('.modal')).to.not.be.present();
     });
   });
-  context('when the modal is visible and in progress', function() {
-    beforeEach(function() {
+  context('when the modal is visible and in progress', function () {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       updateFiedTypeSpy = sinon.spy();
       updateFieldNameSpy = sinon.spy();
@@ -530,7 +589,7 @@ describe('CreateIndexModal [Component]', function() {
           showOptions={false}
           inProgress
           schemaFields={[]}
-          fields={[{name: '', type: ''}]}
+          fields={[{ name: '', type: '' }]}
           dataService={{}}
           isBackground={false}
           isUnique={false}
@@ -564,7 +623,7 @@ describe('CreateIndexModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       toggleIsVisibleSpy = null;
       updateFiedTypeSpy = null;
       updateFieldNameSpy = null;
@@ -587,14 +646,14 @@ describe('CreateIndexModal [Component]', function() {
       component = null;
     });
 
-    it('displays in progress message', function() {
-      expect(
-        component.find('[data-test-id="modal-message"]').text()
-      ).to.equal('Create in Progress');
+    it('displays in progress message', function () {
+      expect(component.find('[data-test-id="modal-message"]').text()).to.equal(
+        'Create in Progress'
+      );
     });
   });
-  context('when the modal is visible and error', function() {
-    beforeEach(function() {
+  context('when the modal is visible and error', function () {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       updateFiedTypeSpy = sinon.spy();
       updateFieldNameSpy = sinon.spy();
@@ -618,7 +677,7 @@ describe('CreateIndexModal [Component]', function() {
           showOptions={false}
           inProgress={false}
           schemaFields={[]}
-          fields={[{name: '', type: ''}]}
+          fields={[{ name: '', type: '' }]}
           dataService={{}}
           isBackground={false}
           isUnique={false}
@@ -653,7 +712,7 @@ describe('CreateIndexModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       toggleIsVisibleSpy = null;
       updateFiedTypeSpy = null;
       updateFieldNameSpy = null;
@@ -676,8 +735,10 @@ describe('CreateIndexModal [Component]', function() {
       component = null;
     });
 
-    it('displays the error message', function() {
-      expect(component.find('[data-test-id="modal-message"]').text()).to.equal('test error');
+    it('displays the error message', function () {
+      expect(component.find('[data-test-id="modal-message"]').text()).to.equal(
+        'test error'
+      );
     });
   });
 });

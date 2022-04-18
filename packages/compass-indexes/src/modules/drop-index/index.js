@@ -3,25 +3,24 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import dataService from '../data-service';
 import appRegistry, {
-  localAppRegistryEmit
+  localAppRegistryEmit,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import error, {
-  clearError, handleError,
-  INITIAL_STATE as ERROR_INITIAL_STATE
+  clearError,
+  handleError,
+  INITIAL_STATE as ERROR_INITIAL_STATE,
 } from '../error';
 import inProgress, {
   toggleInProgress,
-  INITIAL_STATE as IN_PROGRESS_INITIAL_STATE
+  INITIAL_STATE as IN_PROGRESS_INITIAL_STATE,
 } from '../in-progress';
 import isVisible, {
   toggleIsVisible,
-  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
+  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
 } from '../is-visible';
-import name, {
-  INITIAL_STATE as NAME_INITIAL_STATE
-} from '../drop-index/name';
+import name, { INITIAL_STATE as NAME_INITIAL_STATE } from '../drop-index/name';
 import confirmName, {
-  INITIAL_STATE as CONFIRM_NAME_INITIAL_STATE
+  INITIAL_STATE as CONFIRM_NAME_INITIAL_STATE,
 } from '../drop-index/confirm-name';
 
 import { RESET_FORM } from '../reset-form';
@@ -42,7 +41,7 @@ const reducer = combineReducers({
   error,
   name,
   confirmName,
-  namespace
+  namespace,
 });
 
 /**
@@ -61,7 +60,7 @@ const rootReducer = (state, action) => {
       isVisible: IS_VISIBLE_INITIAL_STATE,
       error: ERROR_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
-      confirmName: CONFIRM_NAME_INITIAL_STATE
+      confirmName: CONFIRM_NAME_INITIAL_STATE,
     };
   }
   return reducer(state, action);

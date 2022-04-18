@@ -3,7 +3,7 @@ import reducer from '../modules';
 import thunk from 'redux-thunk';
 import {
   localAppRegistryActivated,
-  globalAppRegistryActivated
+  globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { writeStateChanged } from '../modules/is-writable';
 import { readonlyViewChanged } from '../modules/is-readonly-view';
@@ -49,10 +49,12 @@ const configureStore = (options = {}) => {
     const globalAppRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-    globalAppRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
-      store.dispatch(writeStateChanged(state.isWritable));
-      store.dispatch(getDescription(state.description));
-    });
+    globalAppRegistry
+      .getStore('DeploymentAwareness.WriteStateStore')
+      .listen((state) => {
+        store.dispatch(writeStateChanged(state.isWritable));
+        store.dispatch(getDescription(state.description));
+      });
 
     globalAppRegistry.on('refresh-data', () => {
       store.dispatch(loadIndexesFromDb());
@@ -69,7 +71,11 @@ const configureStore = (options = {}) => {
   }
 
   if (options.dataProvider) {
-    setDataProvider(store, options.dataProvider.error, options.dataProvider.dataProvider);
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
   }
 
   store.subscribe(() => {

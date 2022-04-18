@@ -4,7 +4,11 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
-import { ModalStatusMessage, ModalCheckbox, ModalInput } from 'hadron-react-components';
+import {
+  ModalStatusMessage,
+  ModalCheckbox,
+  ModalInput,
+} from 'hadron-react-components';
 import pluck from 'lodash.pluck';
 
 import styles from './create-index-modal.module.less';
@@ -17,7 +21,7 @@ import {
   addField,
   removeField,
   updateFieldType,
-  updateFieldName
+  updateFieldName,
 } from '../../modules/create-index/fields';
 import { changeName } from '../../modules/create-index/name';
 import { changeSchemaFields } from '../../modules/create-index/schema-fields';
@@ -25,21 +29,13 @@ import { clearError, handleError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleIsBackground } from '../../modules/create-index/is-background';
 import { toggleIsUnique } from '../../modules/create-index/is-unique';
-import {
-  toggleIsPartialFilterExpression
-} from '../../modules/create-index/is-partial-filter-expression';
+import { toggleIsPartialFilterExpression } from '../../modules/create-index/is-partial-filter-expression';
 import { toggleIsTtl } from '../../modules/create-index/is-ttl';
 import { changeTtl } from '../../modules/create-index/ttl';
 import { toggleIsWildcard } from '../../modules/create-index/is-wildcard';
-import {
-  changeWildcardProjection
-} from '../../modules/create-index/wildcard-projection';
-import {
-  changePartialFilterExpression
-} from '../../modules/create-index/partial-filter-expression';
-import {
-  toggleIsCustomCollation
-} from '../../modules/create-index/is-custom-collation';
+import { changeWildcardProjection } from '../../modules/create-index/wildcard-projection';
+import { changePartialFilterExpression } from '../../modules/create-index/partial-filter-expression';
+import { toggleIsCustomCollation } from '../../modules/create-index/is-custom-collation';
 import { changeCollationOption } from '../../modules/create-index/collation';
 import { openLink } from '../../modules/link';
 import { createIndex } from '../../modules/create-index';
@@ -92,7 +88,7 @@ class CreateIndexModal extends PureComponent {
     changeWildcardProjection: PropTypes.func.isRequired,
     changePartialFilterExpression: PropTypes.func.isRequired,
     changeCollationOption: PropTypes.func.isRequired,
-    changeName: PropTypes.func.isRequired
+    changeName: PropTypes.func.isRequired,
   };
 
   /**
@@ -102,9 +98,8 @@ class CreateIndexModal extends PureComponent {
    */
   constructor(props) {
     super(props);
-    this.CollationSelect = global.hadronApp.appRegistry.getComponent(
-      'Collation.Select'
-    );
+    this.CollationSelect =
+      global.hadronApp.appRegistry.getComponent('Collation.Select');
   }
 
   handleShow() {
@@ -176,7 +171,8 @@ class CreateIndexModal extends PureComponent {
           updateFieldName={this.props.updateFieldName}
           updateFieldType={this.props.updateFieldType}
           addField={this.props.addField}
-          removeField={this.props.removeField} />
+          removeField={this.props.removeField}
+        />
       );
     });
   }
@@ -196,24 +192,29 @@ class CreateIndexModal extends PureComponent {
           titleClassName={styles['create-index-modal-options-checkbox']}
           checked={this.props.isBackground}
           helpUrl={getIndexHelpLink('BACKGROUND')}
-          onClickHandler={() => (this.props.toggleIsBackground(!this.props.isBackground))}
-          onLinkClickHandler={this.props.openLink} />
+          onClickHandler={() =>
+            this.props.toggleIsBackground(!this.props.isBackground)
+          }
+          onLinkClickHandler={this.props.openLink}
+        />
         <ModalCheckbox
           name="Create unique index"
           data-test-id="toggle-is-unique"
           titleClassName={styles['create-index-modal-options-checkbox']}
           checked={this.props.isUnique}
           helpUrl={getIndexHelpLink('UNIQUE')}
-          onClickHandler={() => (this.props.toggleIsUnique(!this.props.isUnique))}
-          onLinkClickHandler={this.props.openLink} />
+          onClickHandler={() => this.props.toggleIsUnique(!this.props.isUnique)}
+          onLinkClickHandler={this.props.openLink}
+        />
         <ModalCheckbox
           name="Create TTL"
           data-test-id="toggle-is-ttl"
           titleClassName={styles['create-index-modal-options-param']}
           checked={this.props.isTtl}
           helpUrl={getIndexHelpLink('TTL')}
-          onClickHandler={() => (this.props.toggleIsTtl(!this.props.isTtl))}
-          onLinkClickHandler={this.props.openLink} />
+          onClickHandler={() => this.props.toggleIsTtl(!this.props.isTtl)}
+          onLinkClickHandler={this.props.openLink}
+        />
         {this.renderTtl()}
         <ModalCheckbox
           name="Partial Filter Expression"
@@ -221,8 +222,13 @@ class CreateIndexModal extends PureComponent {
           titleClassName={styles['create-index-modal-options-param']}
           checked={this.props.isPartialFilterExpression}
           helpUrl={getIndexHelpLink('PARTIAL')}
-          onClickHandler={() => (this.props.toggleIsPartialFilterExpression(!this.props.isPartialFilterExpression))}
-          onLinkClickHandler={this.props.openLink} />
+          onClickHandler={() =>
+            this.props.toggleIsPartialFilterExpression(
+              !this.props.isPartialFilterExpression
+            )
+          }
+          onLinkClickHandler={this.props.openLink}
+        />
         {this.renderPartialFilterExpression()}
         <ModalCheckbox
           name="Use Custom Collation"
@@ -230,8 +236,11 @@ class CreateIndexModal extends PureComponent {
           titleClassName={styles['create-index-modal-options-param']}
           checked={this.props.isCustomCollation}
           helpUrl={getIndexHelpLink('COLLATION_REF')}
-          onClickHandler={() => (this.props.toggleIsCustomCollation(!this.props.isCustomCollation))}
-          onLinkClickHandler={this.props.openLink} />
+          onClickHandler={() =>
+            this.props.toggleIsCustomCollation(!this.props.isCustomCollation)
+          }
+          onLinkClickHandler={this.props.openLink}
+        />
         {this.renderCollation()}
         <ModalCheckbox
           name="Wildcard Projection"
@@ -239,8 +248,11 @@ class CreateIndexModal extends PureComponent {
           titleClassName={styles['create-index-modal-options-param']}
           checked={this.props.isWildcard}
           helpUrl={getIndexHelpLink('WILDCARD')}
-          onClickHandler={() => (this.props.toggleIsWildcard(!this.props.isWildcard))}
-          onLinkClickHandler={this.props.openLink} />
+          onClickHandler={() =>
+            this.props.toggleIsWildcard(!this.props.isWildcard)
+          }
+          onLinkClickHandler={this.props.openLink}
+        />
         {this.renderWildcard()}
       </div>
     );
@@ -254,7 +266,8 @@ class CreateIndexModal extends PureComponent {
             id="ttl-value"
             name="seconds"
             value={this.props.ttl}
-            onChangeHandler={(evt) => (this.props.changeTtl(evt.target.value))} />
+            onChangeHandler={(evt) => this.props.changeTtl(evt.target.value)}
+          />
         </div>
       );
     }
@@ -267,7 +280,10 @@ class CreateIndexModal extends PureComponent {
             id="wildcard-projection-value"
             name=""
             value={this.props.wildcardProjection}
-            onChangeHandler={(evt) => (this.props.changeWildcardProjection(evt.target.value))} />
+            onChangeHandler={(evt) =>
+              this.props.changeWildcardProjection(evt.target.value)
+            }
+          />
         </div>
       );
     }
@@ -280,7 +296,10 @@ class CreateIndexModal extends PureComponent {
             id="partial-filter-expression-value"
             name=""
             value={this.props.partialFilterExpression}
-            onChangeHandler={(evt) => (this.props.changePartialFilterExpression(evt.target.value))} />
+            onChangeHandler={(evt) =>
+              this.props.changePartialFilterExpression(evt.target.value)
+            }
+          />
         </div>
       );
     }
@@ -329,22 +348,26 @@ class CreateIndexModal extends PureComponent {
           <form
             name="create-index-modal-form"
             onSubmit={this.onFormSubmit.bind(this)}
-            data-test-id="create-index-modal">
-
+            data-test-id="create-index-modal"
+          >
             <ModalInput
               id="create-index-name"
               name="Choose an index name"
               value={this.props.name}
-              onChangeHandler={(evt) => (this.props.changeName(evt.target.value))} />
+              onChangeHandler={(evt) => this.props.changeName(evt.target.value)}
+            />
 
             <div className={styles['create-index-modal-fields']}>
-              <p className={styles['create-index-modal-fields-description']}>Configure the index definition</p>
+              <p className={styles['create-index-modal-fields-description']}>
+                Configure the index definition
+              </p>
               {this.renderIndexFields()}
 
               <button
                 onClick={this.handleAddField.bind(this)}
                 id="add-field"
-                className="btn btn-primary btn-sm btn-full-width">
+                className="btn btn-primary btn-sm btn-full-width"
+              >
                 Add another field
               </button>
             </div>
@@ -354,30 +377,42 @@ class CreateIndexModal extends PureComponent {
               onClick={this.handleToggleBarClick.bind(this)}
             >
               <div className={styles['create-index-modal-toggle-bar-header']}>
-                {this.props.showOptions ?
-                  <i className="fa fa-angle-down"/> :
-                  <i className="fa fa-angle-right"/>}
-                <p className={styles['create-index-modal-toggle-bar-header-text']}> Options</p>
+                {this.props.showOptions ? (
+                  <i className="fa fa-angle-down" />
+                ) : (
+                  <i className="fa fa-angle-right" />
+                )}
+                <p
+                  className={
+                    styles['create-index-modal-toggle-bar-header-text']
+                  }
+                >
+                  {' '}
+                  Options
+                </p>
               </div>
             </button>
 
             {this.renderOptions()}
 
-            {!(this.props.error === null || this.props.error === undefined) ?
+            {!(this.props.error === null || this.props.error === undefined) ? (
               <ModalStatusMessage
                 icon="times"
                 message={this.props.error}
                 type="error"
-                className={styles['create-index-modal-message']}/>
-              : null}
+                className={styles['create-index-modal-message']}
+              />
+            ) : null}
 
-            {this.props.inProgress && (this.props.error === null || this.props.error === undefined) ?
+            {this.props.inProgress &&
+            (this.props.error === null || this.props.error === undefined) ? (
               <ModalStatusMessage
                 icon="spinner"
                 message="Create in Progress"
                 type="in-progress"
-                className={styles['create-index-modal-message']}/>
-              : null}
+                className={styles['create-index-modal-message']}
+              />
+            ) : null}
           </form>
         </Modal.Body>
 
@@ -387,13 +422,15 @@ class CreateIndexModal extends PureComponent {
             dataTestId="cancel-create-index-button"
             disabled={this.props.inProgress}
             text="Cancel"
-            clickHandler={this.handleClose.bind(this)} />
+            clickHandler={this.handleClose.bind(this)}
+          />
           <TextButton
             className="btn btn-primary btn-sm"
             disabled={!this.props.fields.length || this.props.inProgress}
             dataTestId="create-index-button"
             text="Create Index"
-            clickHandler={this.props.createIndex} />
+            clickHandler={this.props.createIndex}
+          />
         </Modal.Footer>
       </Modal>
     );
@@ -425,42 +462,39 @@ const mapStateToProps = (state) => ({
   partialFilterExpression: state.partialFilterExpression,
   isCustomCollation: state.isCustomCollation,
   collation: state.collation,
-  name: state.name
+  name: state.name,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedCreateIndexModal = connect(
-  mapStateToProps,
-  {
-    toggleInProgress,
-    toggleShowOptions,
-    changeSchemaFields,
-    clearError,
-    handleError,
-    toggleIsVisible,
-    toggleIsBackground,
-    toggleIsTtl,
-    toggleIsWildcard,
-    toggleIsUnique,
-    toggleIsPartialFilterExpression,
-    toggleIsCustomCollation,
-    changePartialFilterExpression,
-    changeTtl,
-    changeWildcardProjection,
-    changeCollationOption,
-    openLink,
-    changeName,
-    createIndex,
-    resetForm,
-    addField,
-    removeField,
-    updateFieldName,
-    updateFieldType
-  },
-)(CreateIndexModal);
+const MappedCreateIndexModal = connect(mapStateToProps, {
+  toggleInProgress,
+  toggleShowOptions,
+  changeSchemaFields,
+  clearError,
+  handleError,
+  toggleIsVisible,
+  toggleIsBackground,
+  toggleIsTtl,
+  toggleIsWildcard,
+  toggleIsUnique,
+  toggleIsPartialFilterExpression,
+  toggleIsCustomCollation,
+  changePartialFilterExpression,
+  changeTtl,
+  changeWildcardProjection,
+  changeCollationOption,
+  openLink,
+  changeName,
+  createIndex,
+  resetForm,
+  addField,
+  removeField,
+  updateFieldName,
+  updateFieldType,
+})(CreateIndexModal);
 
 export default MappedCreateIndexModal;
 export { CreateIndexModal };

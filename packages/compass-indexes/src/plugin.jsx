@@ -6,8 +6,8 @@ import Indexes from './components/indexes';
 class Plugin extends Component {
   static displayName = 'IndexesPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.

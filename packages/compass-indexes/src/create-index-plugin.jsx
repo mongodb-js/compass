@@ -6,8 +6,8 @@ import CreateIndexModal from './components/create-index-modal';
 class CreateIndexPlugin extends Component {
   static displayName = 'CreateIndexPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.

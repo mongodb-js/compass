@@ -9,17 +9,20 @@ const WriteStateStore = Reflux.createStore({
   mixins: [StateMixin.store],
   getInitialState() {
     return { isWritable: true, description: 'store initial state description' };
-  }
+  },
 });
 
-describe('IndexesStore [Store]', function() {
+describe('IndexesStore [Store]', function () {
   const appRegistry = new AppRegistry();
   const localAppRegistry = new AppRegistry();
-  appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
+  appRegistry.registerStore(
+    'DeploymentAwareness.WriteStateStore',
+    WriteStateStore
+  );
 
   let store;
 
-  beforeEach(function() {
+  beforeEach(function () {
     store = configureStore({
       globalAppRegistry: appRegistry,
       localAppRegistry: localAppRegistry,
@@ -30,43 +33,48 @@ describe('IndexesStore [Store]', function() {
           indexes: (ns, options, callback) => {
             callback('err', []);
           },
-          isConnected: () => true
-        }
+          isConnected: () => true,
+        },
       },
-      isReadonly: true
+      isReadonly: true,
     });
   });
 
-  it('activates the app registry module', function() {
-    expect(store.getState().appRegistry.globalAppRegistry).to.deep.equal(appRegistry);
+  it('activates the app registry module', function () {
+    expect(store.getState().appRegistry.globalAppRegistry).to.deep.equal(
+      appRegistry
+    );
   });
 
-  it('sets the namespace', function() {
+  it('sets the namespace', function () {
     expect(store.getState().namespace).to.equal('test.coll');
   });
 
-  it('sets is readonly', function() {
+  it('sets is readonly', function () {
     expect(store.getState().isReadonlyView).to.equal(true);
   });
 
-  it('sets the data service', function() {
+  it('sets the data service', function () {
     expect(store.getState().dataService).to.not.equal(null);
   });
 
-  context('when write state changes', function() {
-    beforeEach(function() {
+  context('when write state changes', function () {
+    beforeEach(function () {
       expect(store.getState().isWritable).to.equal(true); // initial state
-      WriteStateStore.setState({ isWritable: false, description: 'test description' });
+      WriteStateStore.setState({
+        isWritable: false,
+        description: 'test description',
+      });
     });
 
-    it('dispatches the change write state action', function() {
+    it('dispatches the change write state action', function () {
       expect(store.getState().isWritable).to.equal(false);
       expect(store.getState().description).to.equal('test description');
     });
   });
 
-  context('refresh-data emitted', function() {
-    it('dispatches the load indexes action', function() {
+  context('refresh-data emitted', function () {
+    it('dispatches the load indexes action', function () {
       localAppRegistry.emit('refresh-data');
       expect(store.getState().indexes).to.deep.equal([]);
     });

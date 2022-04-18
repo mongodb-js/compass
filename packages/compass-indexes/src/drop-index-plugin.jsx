@@ -6,8 +6,8 @@ import DropIndexModal from './components/drop-index-modal';
 class DropIndexPlugin extends Component {
   static displayName = 'DropIndexPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.
