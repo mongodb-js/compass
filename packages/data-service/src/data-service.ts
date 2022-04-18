@@ -20,7 +20,6 @@ import type {
   DeleteResult,
   Document,
   EstimatedDocumentCountOptions,
-  ExplainOptions,
   Filter,
   FindCursor,
   FindOneAndReplaceOptions,
@@ -1084,7 +1083,7 @@ class DataService extends EventEmitter {
   explain(
     ns: string,
     filter: Filter<Document>,
-    options: ExplainOptions,
+    options: FindOptions,
     callback: Callback<Document>
   ): void {
     const logop = this._startLogOp(

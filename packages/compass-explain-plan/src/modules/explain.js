@@ -298,6 +298,8 @@ export const fetchExplainPlan = (query) => {
 
           return dispatch(explainPlanFetched(explain));
         }
+        // Reset the error.
+        explain.error = null;
 
         if (isAggregationExplainOutput(data)) {
           // Queries against time series collections are run against
