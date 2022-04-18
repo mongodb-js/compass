@@ -1,8 +1,7 @@
 import L from 'leaflet';
+import fetch from 'node-fetch';
 
 import { COPYRIGHT_URL } from './constants';
-
-let fetch = require('node-fetch');
 
 /**
  * Fetches attribution objects from the attribution endpoint (currently the raw API).

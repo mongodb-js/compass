@@ -11,7 +11,7 @@ class ValueBubble extends Component {
   static propTypes = {
     localAppRegistry: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
-    queryValue: PropTypes.string,
+    queryValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     value: PropTypes.any.isRequired,
   };
 

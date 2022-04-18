@@ -10,7 +10,7 @@ class UniqueMiniChart extends Component {
   static propTypes = {
     localAppRegistry: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
-    queryValue: PropTypes.string,
+    queryValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     type: PropTypes.object.isRequired,
     width: PropTypes.number,
   };
