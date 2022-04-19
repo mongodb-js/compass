@@ -5,6 +5,7 @@ import { TextInput } from '@mongodb-js/compass-components';
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 import FieldSet from '../field-set/field-set';
 
+// TODO: change this link to remove v5.3 once clustered-collections is in current
 const HELP_URL_CLUSTERED = 'https://www.mongodb.com/docs/v5.3/core/clustered-collections/';
 
 const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +

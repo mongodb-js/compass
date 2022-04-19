@@ -85,4 +85,29 @@ describe('CappedCollectionFields [Component]', () => {
       expect(component.find(Checkbox).props().disabled).to.equal(false);
     });
   });
+
+  context('when isClustered prop is true', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CappedCollectionFields
+          isTimeSeries={false}
+          isCapped={false}
+          isClustered
+          onChangeCappedSize={() => {}}
+          onChangeIsCapped={() => {}}
+          cappedSize={'0'}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the checkbox disabled', () => {
+      expect(component.find(Checkbox).props().disabled).to.equal(true);
+    });
+  });
 });
