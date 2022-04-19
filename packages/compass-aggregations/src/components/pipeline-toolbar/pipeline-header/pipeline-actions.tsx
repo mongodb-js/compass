@@ -6,9 +6,13 @@ import {
   spacing,
   Link,
   Icon,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
-import { exportAggregationResults, runAggregation } from '../../../modules/aggregation';
+import {
+  exportAggregationResults,
+  runAggregation,
+} from '../../../modules/aggregation';
 
 const containerStyles = css({
   display: 'flex',
@@ -22,7 +26,7 @@ const optionsButtonStyles = css({
   display: 'inline',
   height: spacing[4] + spacing[1],
   ':focus': {
-    outline: '5px auto rgba(0, 150, 255, 1)',
+    outline: `${spacing[1]}px auto ${uiColors.focus}`,
   },
 });
 
@@ -77,6 +81,9 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
       </Button>
       <Link
         aria-label={optionsLabel}
+        aria-expanded={isOptionsVisible}
+        aria-controls="pipeline-options"
+        id="pipeline-toolbar-options"
         as="button"
         className={optionsButtonStyles}
         data-testid="pipeline-toolbar-options-button"
