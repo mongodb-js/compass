@@ -93,8 +93,8 @@ const mapState = ({
     documentCount: documents.length,
   }),
   isCountDisabled: Boolean(error),
-  isPrevDisabled: page <= 1 || loading || Boolean(error),
-  isNextDisabled: isLast || loading || Boolean(error),
+  isPrevDisabled: page <= 1 || loading,
+  isNextDisabled: isLast || loading,
 });
 
 const mapDispatch = {
