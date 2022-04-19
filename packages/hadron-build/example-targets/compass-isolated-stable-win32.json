@@ -1,0 +1,155 @@
+{
+  "dir": "<%= compassPackagePath %>",
+  "out": "<%= compassPackagePath %>/dist",
+  "distribution": "compass-isolated",
+  "id": "mongodb-compass-isolated",
+  "name": "mongodb-compass-isolated",
+  "readonly": true,
+  "isolated": true,
+  "productName": "MongoDB Compass Isolated Edition",
+  "bundleId": "com.mongodb.compass.isolated",
+  "upgradeCode": "516F2BE1-4417-4F31-BAA1-364A59404775",
+  "version": "1.2.3",
+  "platform": "win32",
+  "arch": "x64",
+  "description": "The MongoDB GUI",
+  "author": "MongoDB Inc",
+  "shortcutFolderName": "MongoDB",
+  "slug": "mongodb-compass-isolated",
+  "semver": {
+    "options": {
+      "loose": false,
+      "includePrerelease": false
+    },
+    "loose": false,
+    "raw": "1.2.3",
+    "major": 1,
+    "minor": 2,
+    "patch": 3,
+    "prerelease": [],
+    "build": [],
+    "version": "1.2.3"
+  },
+  "channel": "stable",
+  "autoUpdateBaseUrl": "https://compass.mongodb.com",
+  "asar": {
+    "unpack": [
+      "**/@mongosh/node-runtime-worker-thread/**",
+      "**/interruptor/**",
+      "**/kerberos/**",
+      "**/snappy/**",
+      "**/mongodb-client-encryption/index.js",
+      "**/mongodb-client-encryption/package.json",
+      "**/mongodb-client-encryption/lib/**",
+      "**/mongodb-client-encryption/build/**",
+      "**/bl/**",
+      "**/nan/**",
+      "**/node_modules/bindings/**",
+      "**/file-uri-to-path/**",
+      "**/bson/**",
+      "**/os-dns-native/**",
+      "**/debug/**",
+      "**/ms/**",
+      "**/bindings/**",
+      "**/ipv6-normalize/**",
+      "**/node-addon-api/**",
+      "**/win-export-certificate-and-key/**",
+      "**/macos-export-certificate-and-key/**",
+      "**/system-ca/**"
+    ]
+  },
+  "rebuild": {
+    "onlyModules": [
+      "interruptor",
+      "keytar",
+      "kerberos",
+      "os-dns-native",
+      "win-export-certificate-and-key",
+      "macos-export-certificate-and-key"
+    ]
+  },
+  "macosEntitlements": "<%= compassPackagePath %>/scripts/macos-entitlements.xml",
+  "packagerOptions": {
+    "dir": "<%= compassPackagePath %>",
+    "out": "<%= compassPackagePath %>/dist",
+    "overwrite": true,
+    "appCopyright": "2022 MongoDB Inc",
+    "buildVersion": "1.2.3",
+    "appVersion": "1.2.3",
+    "prune": false,
+    "ignore": "node_modules/|.cache/|dist/|test/|.user-data|.deps/",
+    "platform": "win32",
+    "arch": "x64",
+    "sign": null,
+    "afterExtract": [
+      null
+    ],
+    "name": "MongoDBCompassIsolatedEdition",
+    "icon": "<%= compassPackagePath %>/app-icons/win32/mongodb-compass.ico",
+    "version-string": {
+      "CompanyName": "MongoDB Inc",
+      "FileDescription": "The MongoDB GUI",
+      "ProductName": "MongoDB Compass Isolated Edition",
+      "InternalName": "mongodb-compass-isolated"
+    }
+  },
+  "appPath": "<%= compassPackagePath %>/dist/MongoDBCompassIsolatedEdition-win32-x64",
+  "resources": "<%= compassPackagePath %>/dist/MongoDBCompassIsolatedEdition-win32-x64/resources",
+  "windows_msi_filename": "MongoDBCompassIsolatedEdition.msi",
+  "windows_msi_label": "MongoDBCompassIsolatedEdition.msi",
+  "windows_setup_filename": "MongoDB Compass Isolated EditionSetup.exe",
+  "windows_setup_label": "MongoDB Compass Isolated EditionSetup.exe",
+  "windows_zip_filename": "MongoDB Compass Isolated Edition-windows.zip",
+  "windows_zip_label": "MongoDB Compass Isolated Edition-windows.zip",
+  "windows_nupkg_full_filename": "MongoDBCompassIsolatedEdition-1.2.3-full.nupkg",
+  "windows_nupkg_full_label": "MongoDBCompassIsolatedEdition-1.2.3-full.nupkg",
+  "windows_releases_filename": "compass-isolated-RELEASES",
+  "windows_releases_label": "compass-isolated-RELEASES",
+  "assets": [
+    {
+      "name": "mongodb-compass-isolated-1.2.3-win32-x64.exe",
+      "path": "<%= compassPackagePath %>/dist/MongoDB Compass Isolated EditionSetup.exe"
+    },
+    {
+      "name": "mongodb-compass-isolated-1.2.3-win32-x64.msi",
+      "path": "<%= compassPackagePath %>/dist/MongoDBCompassIsolatedEdition.msi"
+    },
+    {
+      "name": "mongodb-compass-isolated-1.2.3-win32-x64.zip",
+      "path": "<%= compassPackagePath %>/dist/MongoDB Compass Isolated Edition-windows.zip"
+    },
+    {
+      "name": "mongodb-compass-isolated-RELEASES",
+      "path": "<%= compassPackagePath %>/dist/compass-isolated-RELEASES"
+    },
+    {
+      "name": "LICENSE",
+      "path": "<%= compassPackagePath %>/dist/LICENSE"
+    },
+    {
+      "name": "version",
+      "path": "<%= compassPackagePath %>/dist/version"
+    },
+    {
+      "name": "MongoDBCompassIsolatedEdition-1.2.3-full.nupkg",
+      "path": "<%= compassPackagePath %>/dist/MongoDBCompassIsolatedEdition-1.2.3-full.nupkg"
+    }
+  ],
+  "installerOptions": {
+    "loadingGif": "<%= compassPackagePath %>/app-icons/win32/mongodb-compass-installer-loading.gif",
+    "iconUrl": "https://compass.mongodb.com/favicon.ico",
+    "appDirectory": "<%= compassPackagePath %>/dist/MongoDBCompassIsolatedEdition-win32-x64",
+    "outputDirectory": "<%= compassPackagePath %>/dist",
+    "authors": "MongoDB Inc",
+    "version": "1.2.3",
+    "exe": "MongoDBCompassIsolatedEdition.exe",
+    "setupExe": "MongoDB Compass Isolated EditionSetup.exe",
+    "title": "MongoDB Compass Isolated Edition",
+    "productName": "MongoDB Compass Isolated Edition",
+    "description": "The MongoDB GUI",
+    "name": "MongoDBCompassIsolatedEdition",
+    "noMsi": true
+  },
+  "app_archive_name": "MongoDB Compass Isolated Edition-windows.zip",
+  "resourcesAppDir": "<%= compassPackagePath %>/dist/MongoDBCompassIsolatedEdition-win32-x64/resources/app"
+}

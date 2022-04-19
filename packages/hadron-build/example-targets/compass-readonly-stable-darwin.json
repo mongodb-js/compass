@@ -1,0 +1,135 @@
+{
+  "dir": "<%= compassPackagePath %>",
+  "out": "<%= compassPackagePath %>/dist",
+  "distribution": "compass-readonly",
+  "id": "mongodb-compass-readonly",
+  "name": "mongodb-compass-readonly",
+  "readonly": true,
+  "isolated": true,
+  "productName": "MongoDB Compass Readonly",
+  "bundleId": "com.mongodb.compass.readonly",
+  "upgradeCode": "2176EC1D-EF71-49D4-B3B4-9E15B289D79A",
+  "version": "1.2.3",
+  "platform": "darwin",
+  "arch": "x64",
+  "description": "The MongoDB GUI",
+  "author": "MongoDB Inc",
+  "shortcutFolderName": "MongoDB",
+  "slug": "mongodb-compass-readonly",
+  "semver": {
+    "options": {
+      "loose": false,
+      "includePrerelease": false
+    },
+    "loose": false,
+    "raw": "1.2.3",
+    "major": 1,
+    "minor": 2,
+    "patch": 3,
+    "prerelease": [],
+    "build": [],
+    "version": "1.2.3"
+  },
+  "channel": "stable",
+  "autoUpdateBaseUrl": "https://compass.mongodb.com",
+  "asar": {
+    "unpack": [
+      "**/@mongosh/node-runtime-worker-thread/**",
+      "**/interruptor/**",
+      "**/kerberos/**",
+      "**/snappy/**",
+      "**/mongodb-client-encryption/index.js",
+      "**/mongodb-client-encryption/package.json",
+      "**/mongodb-client-encryption/lib/**",
+      "**/mongodb-client-encryption/build/**",
+      "**/bl/**",
+      "**/nan/**",
+      "**/node_modules/bindings/**",
+      "**/file-uri-to-path/**",
+      "**/bson/**",
+      "**/os-dns-native/**",
+      "**/debug/**",
+      "**/ms/**",
+      "**/bindings/**",
+      "**/ipv6-normalize/**",
+      "**/node-addon-api/**",
+      "**/win-export-certificate-and-key/**",
+      "**/macos-export-certificate-and-key/**",
+      "**/system-ca/**"
+    ]
+  },
+  "rebuild": {
+    "onlyModules": [
+      "interruptor",
+      "keytar",
+      "kerberos",
+      "os-dns-native",
+      "win-export-certificate-and-key",
+      "macos-export-certificate-and-key"
+    ]
+  },
+  "macosEntitlements": "<%= compassPackagePath %>/scripts/macos-entitlements.xml",
+  "packagerOptions": {
+    "dir": "<%= compassPackagePath %>",
+    "out": "<%= compassPackagePath %>/dist",
+    "overwrite": true,
+    "appCopyright": "2022 MongoDB Inc",
+    "buildVersion": "1.2.3",
+    "appVersion": "1.2.3",
+    "prune": false,
+    "ignore": "node_modules/|.cache/|dist/|test/|.user-data|.deps/",
+    "platform": "darwin",
+    "arch": "x64",
+    "sign": null,
+    "afterExtract": [
+      null
+    ],
+    "name": "MongoDB Compass Readonly",
+    "icon": "<%= compassPackagePath %>/app-icons/darwin/mongodb-compass.icns",
+    "appBundleId": "com.mongodb.compass.readonly",
+    "appCategoryType": "public.app-category.productivity",
+    "protocols": []
+  },
+  "truncatedProductName": "MongoDB Compass Readonly",
+  "appPath": "<%= compassPackagePath %>/dist/MongoDB Compass Readonly-darwin-x64/MongoDB Compass Readonly.app",
+  "resources": "<%= compassPackagePath %>/dist/MongoDB Compass Readonly-darwin-x64/MongoDB Compass Readonly.app/Contents/Resources",
+  "osx_dmg_filename": "MongoDB Compass Readonly.dmg",
+  "osx_dmg_label": "MongoDB Compass Readonly.dmg",
+  "osx_zip_filename": "MongoDB Compass Readonly.zip",
+  "osx_zip_label": "MongoDB Compass Readonly.zip",
+  "assets": [
+    {
+      "name": "mongodb-compass-readonly-1.2.3-darwin-x64.dmg",
+      "path": "<%= compassPackagePath %>/dist/MongoDB Compass Readonly.dmg"
+    },
+    {
+      "name": "mongodb-compass-readonly-1.2.3-darwin-x64.zip",
+      "path": "<%= compassPackagePath %>/dist/MongoDB Compass Readonly.zip"
+    }
+  ],
+  "installerOptions": {
+    "dmgPath": "<%= compassPackagePath %>/dist/MongoDB Compass Readonly.dmg",
+    "title": "MongoDB Compass Readonly",
+    "overwrite": true,
+    "out": "<%= compassPackagePath %>/dist",
+    "icon": "<%= compassPackagePath %>/app-icons/darwin/mongodb-compass.icns",
+    "appPath": "<%= compassPackagePath %>/dist/MongoDB Compass Readonly-darwin-x64/MongoDB Compass Readonly.app",
+    "background": "<%= compassPackagePath %>/app-icons/darwin/background.png",
+    "contents": [
+      {
+        "x": 322,
+        "y": 243,
+        "type": "link",
+        "path": "/Applications"
+      },
+      {
+        "x": 93,
+        "y": 243,
+        "type": "file",
+        "path": "<%= compassPackagePath %>/dist/MongoDB Compass Readonly-darwin-x64/MongoDB Compass Readonly.app"
+      }
+    ]
+  },
+  "app_archive_name": "MongoDB Compass Readonly.zip",
+  "resourcesAppDir": "<%= compassPackagePath %>/dist/MongoDB Compass Readonly-darwin-x64/MongoDB Compass Readonly.app/Contents/Resources/app"
+}
