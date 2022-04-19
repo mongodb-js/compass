@@ -17,7 +17,7 @@ const nameStyles = css({
 
 const modifiedStyles = css({
   fontStyle: 'italic',
-  whiteSpace: 'pre-wrap',
+  whiteSpace: 'nowrap',
 });
 
 type PipelineNameProps = {
@@ -45,7 +45,7 @@ export const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
           <Body>{name}</Body>
         </Tooltip>
       )}
-      {isModified && <span className={modifiedStyles}> - modified</span>}
+      {isModified && <span className={modifiedStyles}>&nbsp;– modified</span>}
     </Body>
   );
 };

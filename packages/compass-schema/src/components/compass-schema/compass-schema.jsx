@@ -163,12 +163,16 @@ class Schema extends Component {
   }
 
   renderAnalyzing() {
-    return (<CancelLoader
-      dataTestId="analyzing-documents"
-      progressText="Analyzing Documents"
-      cancelText="Stop"
-      onCancel={this.onCancelClicked.bind(this)}
-    />);
+    return (
+      <div className={styles.loader}>
+        <CancelLoader
+          dataTestId="analyzing-documents"
+          progressText="Analyzing Documents"
+          cancelText="Stop"
+          onCancel={this.onCancelClicked.bind(this)}
+        />
+      </div>
+    );
   }
 
   /**

@@ -17,7 +17,6 @@ ignores: [
   "lodash.result",
   "mongodb-collection-model",
   "mongodb-database-model",
-  "mongodb-js-metrics",
   "mongodb-reflux-store",
   "raf",
   "reflux-state-mixin",

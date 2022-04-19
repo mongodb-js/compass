@@ -10,7 +10,6 @@ ignores: [
   "karma-webpack",
   "mime-db",
   "mongodb-connection-model",
-  "mongodb-js-metrics",
   "sshpk",
   "tough-cookie",
   "webpack-bundle-analyzer",
