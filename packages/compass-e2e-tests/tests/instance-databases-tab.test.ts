@@ -5,6 +5,10 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { LOG_PATH } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import {
+  createDummyCollections,
+  createNumbersCollection,
+} from '../helpers/insert-data';
 
 describe('Instance databases tab', function () {
   let compass: Compass;
@@ -13,11 +17,12 @@ describe('Instance databases tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   beforeEach(async function () {
+    await createDummyCollections();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
     await browser.navigateToInstanceTab('Databases');
   });
 

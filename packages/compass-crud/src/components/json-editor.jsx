@@ -1,8 +1,8 @@
-import { EJSON } from 'bson';
 import React from 'react';
 import PropTypes from 'prop-types';
 import jsonParse from 'fast-json-parse';
 import { DocumentList } from '@mongodb-js/compass-components';
+import HadronDocument from 'hadron-document';
 import UpdateDocumentFooter from './document-footer';
 import RemoveDocumentFooter from './remove-document-footer';
 
@@ -96,7 +96,7 @@ class EditableJson extends React.Component {
   }
 
   _getObjectAsString() {
-    return EJSON.stringify(this.props.doc.generateObject(), null, 2);
+    return this.props.doc.toEJSON();
   }
 
   /**
@@ -290,7 +290,7 @@ class EditableJson extends React.Component {
         <UpdateDocumentFooter
           doc={this.props.doc}
           replaceDocument={() => {
-            this.props.doc.apply(EJSON.parse(this.state.value));
+            this.props.doc.apply(HadronDocument.FromEJSON(this.state.value));
             this.props.replaceDocument(this.props.doc);
           }}
           cancelHandler={this.handleCancel.bind(this)}

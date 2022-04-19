@@ -79,8 +79,10 @@ export function handleUpdateTlsOption({
   if (action.key === 'useSystemCA') {
     if (action.value) {
       updatedSearchParams.delete('tlsCAFile');
+      updatedConnectionOptions.useSystemCA = true;
+    } else {
+      delete updatedConnectionOptions.useSystemCA;
     }
-    updatedConnectionOptions.useSystemCA = !!action.value;
   } else if (!action.value) {
     updatedSearchParams.delete(action.key);
   } else {
@@ -92,7 +94,7 @@ export function handleUpdateTlsOption({
     updatedSearchParams.set(action.key, action.value);
 
     if (action.key === 'tlsCAFile') {
-      updatedConnectionOptions.useSystemCA = false;
+      delete updatedConnectionOptions.useSystemCA;
     }
   }
 

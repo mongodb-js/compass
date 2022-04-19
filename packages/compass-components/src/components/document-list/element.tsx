@@ -40,20 +40,14 @@ function getEditorByType(type: HadronElementType['type']) {
 function useElementEditor(el: HadronElementType) {
   const editor = useRef<EditorType | null>(null);
 
-  if (!editor.current) {
+  if (
+    !editor.current ||
+    editor.current?.element !== el ||
+    editor.current?.type !== el.currentType
+  ) {
     const Editor = getEditorByType(el.currentType);
     editor.current = new Editor(el);
   }
-
-  useEffect(() => {
-    if (
-      editor.current?.element.uuid !== el.uuid ||
-      editor.current?.element.currentType !== el.currentType
-    ) {
-      const Editor = getEditorByType(el.currentType);
-      editor.current = new Editor(el);
-    }
-  }, [el, el.uuid, el.currentType]);
 
   return editor.current;
 }
@@ -112,7 +106,7 @@ function useHadronElement(el: HadronElementType) {
   return {
     id: el.uuid,
     key: {
-      value: el.currentKey,
+      value: String(el.currentKey),
       change(newVal: string) {
         setIsDuplicateKey(el.isDuplicateKey(newVal));
         el.rename(newVal);
@@ -291,7 +285,7 @@ export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
   editingEnabled: boolean;
-  onEditStart?: (id: string, field: 'key' | 'value') => void;
+  onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
   allExpanded: boolean;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
@@ -486,7 +480,7 @@ export const HadronElement: React.FunctionComponent<{
             <ValueEditor
               type={type.value}
               originalValue={value.originalValue}
-              value={value.value as string}
+              value={value.value}
               valid={value.valid}
               validationMessage={value.validationMessage}
               onChange={(newVal) => {
@@ -507,10 +501,23 @@ export const HadronElement: React.FunctionComponent<{
               }}
             ></ValueEditor>
           ) : (
-            <BSONValue
-              type={type.value as any}
-              value={value.originalValue}
-            ></BSONValue>
+            <div
+              data-testid={
+                editable && !editingEnabled
+                  ? 'hadron-document-clickable-value'
+                  : undefined
+              }
+              onDoubleClick={() => {
+                if (editable && !editingEnabled) {
+                  onEditStart?.(element.uuid, 'type');
+                }
+              }}
+            >
+              <BSONValue
+                type={type.value as any}
+                value={value.originalValue}
+              ></BSONValue>
+            </div>
           )}
         </div>
         {editable && (
@@ -521,6 +528,9 @@ export const HadronElement: React.FunctionComponent<{
             <TypeEditor
               editing={editingEnabled}
               type={type.value}
+              // See above
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus={autoFocus?.id === id && autoFocus.type === 'type'}
               onChange={(newType) => {
                 type.change(newType);
               }}

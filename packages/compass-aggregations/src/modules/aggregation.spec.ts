@@ -50,7 +50,7 @@ describe('aggregation module', function () {
   it('should return the initial state', function () {
     expect(reducer(undefined, {} as any)).to.deep.equal({
       documents: [],
-      page: 0,
+      page: 1,
       limit: 20,
       isLast: false,
       loading: false,

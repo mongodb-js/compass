@@ -30,6 +30,12 @@ import { sharedExternals } from './externals';
 import { WebpackPluginMulticompilerProgress } from './webpack-plugin-multicompiler-progress';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
+const sharedResolveOptions = {
+  mainFields: ['compass:module', 'compass:main', 'module', 'main'],
+  exportsFields: ['compass:exports', 'exports'],
+  extensions: ['.jsx', '.tsx', '.ts', '...'],
+};
+
 export function createElectronMainConfig(
   args: Partial<ConfigArgs>
 ): WebpackConfig {
@@ -60,7 +66,7 @@ export function createElectronMainConfig(
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
-      extensions: ['.jsx', '.tsx', '.ts', '...'],
+      ...sharedResolveOptions,
     },
     plugins: [new WebpackPluginMulticompilerProgress()],
   };
@@ -130,7 +136,7 @@ export function createElectronRendererConfig(
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
-      extensions: ['.jsx', '.tsx', '.ts', '...'],
+      ...sharedResolveOptions,
     },
   };
 
@@ -219,9 +225,9 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
     target: opts.target,
     module: {
       rules: [
-        javascriptLoader(opts),
+        javascriptLoader(opts, true),
         nodeLoader(opts),
-        cssLoader(opts),
+        cssLoader(opts, true),
         lessLoader(opts),
         assetsLoader(opts),
         sourceLoader(opts),
@@ -235,7 +241,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       ...toCommonJsExternal(builtinModules),
     },
     resolve: {
-      extensions: ['.jsx', '.tsx', '.ts', '...'],
+      ...sharedResolveOptions,
     },
   };
 }

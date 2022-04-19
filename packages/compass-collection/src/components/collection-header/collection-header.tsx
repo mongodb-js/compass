@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import type AppRegistry from 'hadron-app-registry';
 import {
   css,
@@ -27,6 +26,7 @@ const collectionHeaderStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
+  background: uiColors.white,
 });
 
 const collectionHeaderTitleStyles = css({

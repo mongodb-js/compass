@@ -18,6 +18,11 @@ import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
 import { Modal } from './components/modal';
 import { ModalTitle } from './components/modal-title';
+import { Toolbar } from './components/toolbar';
+import {
+  ErrorSummary,
+  WarningSummary,
+} from './components/error-warning-summary';
 import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
@@ -53,6 +58,7 @@ export {
   Accordion,
   CancelLoader,
   ConfirmationModal,
+  ErrorSummary,
   FileInput,
   Modal,
   ModalTitle,
@@ -60,6 +66,8 @@ export {
   SpinLoader,
   ResizeHandle,
   ResizeDirection,
+  Toolbar,
+  WarningSummary,
   WorkspaceTabs,
 };
 export {

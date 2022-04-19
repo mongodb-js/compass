@@ -8,10 +8,13 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "main": "lib/index.js",
+  "compass:main": "src/index.js",
   "types": "lib/index.d.ts",
   "exports": {
-    "webpack": "./src/index.js",
     "require": "./lib/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "apiVersion": "3.0.0",
   "scripts": {

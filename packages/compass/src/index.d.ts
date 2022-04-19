@@ -30,7 +30,6 @@ declare module 'process' {
         HADRON_CHANNEL: 'stable' | 'beta' | 'dev';
         HADRON_METRICS_BUGSNAG_KEY?: string;
         HADRON_METRICS_INTERCOM_APP_ID?: string;
-        HADRON_METRICS_STITCH_APP_ID?: string;
         HADRON_METRICS_SEGMENT_API_KEY?: string;
         HADRON_METRICS_SEGMENT_HOST?: string;
         HADRON_AUTO_UPDATE_ENDPOINT: string;
@@ -44,11 +43,13 @@ declare module 'process' {
          */
         COMPASS_LG_DARKMODE?: 'true' | 'false';
 
+        COMPASS_CSFLE_SUPPORT?: 'true' | 'false';
+
         /**
          * Enable new aggregation pipeline toolbar
          */
-        COMPASS_CSFLE_SUPPORT?: 'true' | 'false';
         COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
+        COMPASS_ENABLE_AGGREGATION_EXPORT?: 'true' | 'false';
       }
     }
   }

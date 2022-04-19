@@ -4,9 +4,9 @@ const chai = require('chai');
 const expect = chai.expect;
 const React = require('react');
 const { shallow } = require('enzyme');
-const { StatusRow } = require('hadron-react-components');
+const { Banner } = require('@mongodb-js/compass-components');
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');
-const PerformanceComponent = require('../../src/components/');
+const { PerformanceComponent } = require('../../src/components/');
 
 describe('rtss', () => {
   const appDataService = app.dataService;
@@ -32,8 +32,8 @@ describe('rtss', () => {
     });
 
     it('displays the top not available in mongos message', () => {
-      const state = component.find(StatusRow);
-      expect(state.dive()).to.have.text(
+      const state = component.find(Banner);
+      expect(state.dive().text()).to.include(
         'Top command is not available for mongos, some charts may not show any data.'
       );
     });

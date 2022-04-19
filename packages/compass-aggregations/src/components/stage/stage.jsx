@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { Resizable } from 're-resizable';
+import { sortableHandle } from 'react-sortable-hoc';
 
 import ResizeHandle from '../resize-handle/resize-handle';
 import StageEditorToolbar from '../stage-editor-toolbar';
@@ -10,6 +11,10 @@ import StagePreview from '../stage-preview';
 import StagePreviewToolbar from '../stage-preview-toolbar';
 
 import styles from './stage.module.less';
+
+const DragHandleToolbar = sortableHandle((props) => {
+  return <StageEditorToolbar {...props}></StageEditorToolbar>
+})
 
 const resizeableDirections = {
   top: false,
@@ -43,7 +48,6 @@ class Stage extends Component {
     isTimeSeries: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     sourceName: PropTypes.string,
-    connectDragSource: PropTypes.func.isRequired,
     stage: PropTypes.string.isRequired,
     stageOperator: PropTypes.string,
     snippet: PropTypes.string,
@@ -135,9 +139,8 @@ class Stage extends Component {
           right: <ResizeHandle />,
         }}
       >
-        <StageEditorToolbar
+        <DragHandleToolbar
           allowWrites={this.props.allowWrites}
-          connectDragSource={this.props.connectDragSource}
           env={this.props.env}
           isTimeSeries={this.props.isTimeSeries}
           isReadonly={this.props.isReadonly}

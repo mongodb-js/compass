@@ -1,6 +1,6 @@
 import { createJSONFormatter, createCSVFormatter } from './formatters';
 import stream from 'stream';
-import { EJSON, ObjectID, Binary } from 'bson';
+import { EJSON, ObjectID, Binary, Long } from 'bson';
 import { createCSVParser } from './import-parser';
 import fs from 'fs';
 import { promisify } from 'util';
@@ -88,6 +88,36 @@ describe('formatters', function () {
 
         expect(parsed).to.deep.equal(docs);
       });
+    });
+  });
+  describe('should format Longs correctly', function () {
+    afterEach(async function () {
+      try {
+        await rm(FIXTURES.JSON_MULTI_SMALL_DOCS);
+      } catch (e) {
+        // noop
+      }
+    });
+
+    it('works for input with Long data', async function () {
+      const long = Long.fromString('9007199254740993');
+
+      const docs = [
+        {
+          _id: new ObjectID('5e5ea7558d35931a05eafec0'),
+          test: long,
+        },
+      ];
+      const source = stream.Readable.from(docs);
+      const formatter = createJSONFormatter({ brackets: true });
+      const dest = fs.createWriteStream(FIXTURES.JSON_MULTI_SMALL_DOCS);
+
+      await pipeline(source, formatter, dest);
+
+      const contents = await readFile(FIXTURES.JSON_MULTI_SMALL_DOCS);
+      const parsed = EJSON.parse(contents, { relaxed: false });
+
+      expect(parsed).to.deep.equal(docs);
     });
   });
   describe('jsonl', function () {
