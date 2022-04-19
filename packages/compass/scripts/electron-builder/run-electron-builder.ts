@@ -6,6 +6,7 @@ import { installProductionDeps } from './hooks/install-production-deps';
 import { rebuildNativeModules } from './hooks/rebuild-native-modules';
 import { replaceLibffmpeg } from './hooks/replace-ffmpeg';
 import packageJson from './../../package.json';
+import { copyChromiumLicense } from './hooks/copy-chromium-license';
 
 const compassPackageRoot = path.resolve(__dirname, '..', '..');
 const electronBuilderWorkingDir = path.resolve(
@@ -16,12 +17,20 @@ const distDir = path.resolve(electronBuilderWorkingDir, 'dist');
 const projectDir = path.resolve(electronBuilderWorkingDir, 'project');
 const bulidResourcesDir = path.resolve(electronBuilderWorkingDir, 'build');
 
-function prepareProjectDir() {
+async function prepareProjectDir() {
   mkdirpSync(projectDir);
 
   for (const file of ['package.json', 'LICENSE', 'build']) {
     copySync(file, path.join(projectDir, file));
   }
+
+  await installProductionDeps({ appDir: projectDir });
+  await rebuildNativeModules({
+    appDir: projectDir,
+    electronVersion: packageJson.devDependencies.electron,
+  });
+
+  copyChromiumLicense({ appDir: projectDir });
 }
 
 export async function runElectronBuilder(distributionInfo: {
@@ -36,7 +45,7 @@ export async function runElectronBuilder(distributionInfo: {
   // Since we are going to run npm install we will use a different project dir
   // just for running electron-builder so it won't confuse the configuration
   // of the monorepo.
-  prepareProjectDir();
+  await prepareProjectDir();
 
   await build({
     publish: 'never',
