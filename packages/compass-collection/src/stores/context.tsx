@@ -5,8 +5,6 @@ import { ErrorBoundary } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 
-import type { CollectionStatsObject } from '../modules/stats';
-
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:compass-collection:context'
 );
@@ -48,7 +46,6 @@ type ContextProps = {
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
   scopedModals?: any[];
-  stats?: CollectionStatsObject;
 };
 
 /**
@@ -85,7 +82,6 @@ const setupStore = ({
   sourcePipeline,
   query,
   aggregation,
-  stats,
 }: ContextProps) => {
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
@@ -105,7 +101,6 @@ const setupStore = ({
     sourcePipeline: sourcePipeline,
     query,
     aggregation,
-    stats,
   });
   localAppRegistry?.registerStore(role.storeName, store);
 
@@ -242,7 +237,6 @@ const createContext = ({
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = state.appRegistry;
   const roles = globalAppRegistry.getRole('Collection.Tab') || [];
-  const stats = state.stats;
 
   // Filter roles for feature support in the server.
   const filteredRoles = roles.filter((role: any) => {
@@ -303,7 +297,6 @@ const createContext = ({
       sourcePipeline,
       query,
       aggregation,
-      stats,
     });
 
     // Add the tab.
@@ -361,7 +354,6 @@ const createContext = ({
     scopedModals,
     localAppRegistry,
     sourcePipeline,
-    stats,
   };
 };
 

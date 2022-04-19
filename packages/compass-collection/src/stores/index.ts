@@ -108,6 +108,10 @@ const rootReducer = (state: any, action: AnyAction): any => {
 
 const store: any = createStore(rootReducer, applyMiddleware(thunk));
 
+// We use these symbols so that nothing from outside can access these values on
+// the store
+const kInstance = Symbol('instance');
+
 /**
  * This hook is Compass specific to listen to app registry events.
  *
@@ -116,10 +120,6 @@ const store: any = createStore(rootReducer, applyMiddleware(thunk));
 store.onActivated = (appRegistry: AppRegistry) => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const ipc = require('hadron-ipc');
-
-  // We use these symbols so that nothing from outside can access these values on
-  // the store
-  const kInstance = Symbol('instance');
 
   /**
    * When instance is created.

@@ -15,6 +15,7 @@ import {
   changeActiveSubTab,
 } from '../../modules/tabs';
 import type { WorkspaceTabObject } from '../../modules/tabs';
+import type { CollectionStatsObject } from '../../modules/stats';
 import Collection from '../collection';
 
 const workspaceStyles = css({
@@ -117,6 +118,7 @@ type WorkspaceProps = {
     activeSubTab: number;
     id: string;
   };
+  stats: CollectionStatsObject;
 };
 
 /**
@@ -242,7 +244,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
             selectOrCreateTab={this.props.selectOrCreateTab}
             globalAppRegistry={this.props.appRegistry}
             localAppRegistry={tab.localAppRegistry}
-            stats={tab.stats}
+            stats={this.props.stats}
           />
         </div>
       );
@@ -296,6 +298,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
 const mapStateToProps = (state: any) => ({
   tabs: state.tabs,
   appRegistry: state.appRegistry,
+  stats: state.stats,
 });
 
 /**
