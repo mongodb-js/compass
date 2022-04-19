@@ -159,7 +159,7 @@ class DataService extends EventEmitter {
   }
 
   setCSFLEEnabled(enabled: boolean): void {
-    log.info(mongoLogId(1_001_000_111), this._logCtx(), 'Setting CSFLE mode', {
+    log.info(mongoLogId(1_001_000_117), this._logCtx(), 'Setting CSFLE mode', {
       enabled,
     });
     this._useCRUDClient = enabled;
