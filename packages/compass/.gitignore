@@ -1,6 +1,4 @@
 npm-debug.log
-build/
-dist/
 node_modules
 .DS_Store
 .idea/
@@ -18,3 +16,6 @@ expansions.yml
 .vscode
 src/app/fonts/akzid*
 .compile-cache-mappings.json
+/electron_builder
+/build/
+/dist/

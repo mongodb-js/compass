@@ -136,6 +136,8 @@
     "compile": "npm run webpack -- --mode production",
     "release": "node release/index.js",
     "package-compass": "hadron-build release",
+    "prepackage-compass-electron-builder": "npm run compile",
+    "package-compass-electron-builder": "ts-node scripts/package-compass.ts",
     "test-release-tasks": "cross-env MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID='' mocha \"./release/*.spec.js\"",
     "upload": "hadron-build upload",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
@@ -161,8 +163,8 @@
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
-    "os-dns-native": "^1.2.0",
     "mongodb-client-encryption": "^2.0.0",
+    "os-dns-native": "^1.2.0",
     "system-ca": "^1.0.2"
   },
   "devDependencies": {
@@ -204,6 +206,9 @@
     "@mongodb-js/webpack-config-compass": "^0.7.0",
     "@octokit/rest": "^18.5.3",
     "@types/analytics-node": "^3.1.7",
+    "@types/fs-extra": "^9.0.13",
+    "@types/make-fetch-happen": "^9.0.2",
+    "@types/unzipper": "^0.10.5",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-router": "^3.0.2",
@@ -223,7 +228,8 @@
     "debug": "4.3.0",
     "debug-menu": "^0.3.0",
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
+    "electron": "13.5.1",
+    "electron-builder": "^23.0.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^10.1.0",
     "electron-rebuild": "^3.2.7",
@@ -262,12 +268,13 @@
     "sinon": "^8.1.1",
     "sinon-chai": "^3.7.0",
     "storage-mixin": "^4.13.0",
+    "unzipper": "^0.10.11",
     "uuid": "^3.0.0",
     "web-vitals": "^2.1.2"
   },
   "optionalDependencies": {
-    "vscode-windows-registry": "1.0.2",
     "macos-export-certificate-and-key": "^1.1.1",
+    "vscode-windows-registry": "1.0.2",
     "win-export-certificate-and-key": "^1.1.1"
   },
   "engines": {

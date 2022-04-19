@@ -1,9 +1,10 @@
 import { rebuild } from 'electron-rebuild';
 import type { BeforeBuildContext } from 'electron-builder';
 
-export async function rebuildNativeModules(
-  context: BeforeBuildContext
-): Promise<void> {
+export async function rebuildNativeModules(context: {
+  appDir: string;
+  electronVersion?: string | null;
+}): Promise<void> {
   const { appDir, electronVersion } = context;
 
   if (typeof electronVersion !== 'string') {

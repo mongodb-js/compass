@@ -2,37 +2,51 @@ import { build, Platform } from 'electron-builder';
 import { rmSync, mkdirpSync, copySync } from 'fs-extra';
 import path from 'path';
 
-import type { DistributionConfig } from '../../../compass-build/src/build-config';
 import { installProductionDeps } from './hooks/install-production-deps';
 import { rebuildNativeModules } from './hooks/rebuild-native-modules';
 import { replaceLibffmpeg } from './hooks/replace-ffmpeg';
+import packageJson from './../../package.json';
 
-function recreateProjectDir(projectDir: string, files: string[]) {
-  rmSync(path.resolve(projectDir), {
-    recursive: true,
-    force: true,
-  });
+const compassPackageRoot = path.resolve(__dirname, '..', '..');
+const electronBuilderWorkingDir = path.resolve(
+  compassPackageRoot,
+  'electron_builder'
+);
+const distDir = path.resolve(electronBuilderWorkingDir, 'dist');
+const projectDir = path.resolve(electronBuilderWorkingDir, 'project');
+const bulidResourcesDir = path.resolve(electronBuilderWorkingDir, 'build');
+
+function prepareProjectDir() {
   mkdirpSync(projectDir);
 
-  for (const file of files) {
+  for (const file of ['package.json', 'LICENSE', 'build']) {
     copySync(file, path.join(projectDir, file));
   }
 }
 
-export async function runElectronBuilder(
-  projectDir: string,
-  distributionInfo: { bundleId: string; productName: string }
-): Promise<void> {
+export async function runElectronBuilder(distributionInfo: {
+  bundleId: string;
+  productName: string;
+}): Promise<void> {
+  rmSync(path.resolve(electronBuilderWorkingDir), {
+    recursive: true,
+    force: true,
+  });
+
   // Since we are going to run npm install we will use a different project dir
   // just for running electron-builder so it won't confuse the configuration
   // of the monorepo.
-  recreateProjectDir(projectDir, ['package.json', 'LICENSE', 'build']);
+  prepareProjectDir();
 
   await build({
     publish: 'never',
     projectDir: projectDir,
     targets: Platform.MAC.createTarget(),
     config: {
+      directories: {
+        output: distDir,
+        buildResources: bulidResourcesDir,
+      },
       copyright: `${new Date().getFullYear()} MongoDB Inc`,
       mac: {
         // skip codesign
