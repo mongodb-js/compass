@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import type { AnyAction } from 'redux';
 import type AppRegistry from 'hadron-app-registry';
 import type { Document } from 'mongodb';
@@ -6,7 +5,6 @@ import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 
 import createContext from '../stores/context';
-import type { CollectionStatsObject } from '../modules/stats';
 
 /**
  * The prefix.
@@ -79,7 +77,6 @@ export interface WorkspaceTabObject {
   sourceReadonly?: any;
   sourceViewOn?: string;
   localAppRegistry: AppRegistry;
-  stats: CollectionStatsObject;
 }
 
 /**
@@ -88,7 +85,9 @@ export interface WorkspaceTabObject {
 export const INITIAL_STATE = [];
 
 const showCollectionSubmenu = ({ isReadOnly }: { isReadOnly: boolean }) => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { ipcRenderer } = require('hadron-ipc');
+
   if (ipcRenderer) {
     ipcRenderer.call('window:show-collection-submenu', {
       isReadOnly,
@@ -134,7 +133,6 @@ const doSelectNamespace = (state: any, action: AnyAction) => {
         sourceReadonly: action.sourceReadonly,
         sourceViewOn: action.sourceViewOn,
         localAppRegistry: action.context.localAppRegistry,
-        stats: action.context.stats,
       });
     } else {
       newState.push({ ...tab });
@@ -183,7 +181,6 @@ const doCreateTab = (state: any, action: AnyAction) => {
     sourceReadonly: action.sourceReadonly,
     sourceViewOn: action.sourceViewOn,
     localAppRegistry: action.context.localAppRegistry,
-    stats: action.context.stats,
   });
   return newState;
 };
@@ -391,7 +388,6 @@ export const createTab = ({
   sourceViewOn,
   query,
   aggregation,
-  stats,
 }: any): any => ({
   type: CREATE_TAB,
   id,
@@ -405,7 +401,6 @@ export const createTab = ({
   sourceViewOn,
   query,
   aggregation,
-  stats,
 });
 
 /**
@@ -433,7 +428,6 @@ export const selectNamespace = ({
   context,
   sourceReadonly,
   sourceViewOn,
-  stats,
 }: any): any => ({
   type: SELECT_NAMESPACE,
   id,
@@ -445,7 +439,6 @@ export const selectNamespace = ({
   context,
   sourceReadonly,
   sourceViewOn,
-  stats,
 });
 
 /**
@@ -592,7 +585,6 @@ export const selectOrCreateTab = ({
   sourceReadonly,
   sourceViewOn,
   sourcePipeline,
-  stats,
 }: any): any => {
   return (dispatch: any, getState: any) => {
     const state = getState();
@@ -607,7 +599,6 @@ export const selectOrCreateTab = ({
           sourceReadonly,
           sourceViewOn,
           sourcePipeline,
-          stats,
         })
       );
     } else {
@@ -628,7 +619,6 @@ export const selectOrCreateTab = ({
             sourceReadonly,
             sourceViewOn,
             sourcePipeline,
-            stats,
           })
         );
       }
@@ -653,7 +643,6 @@ export const createNewTab = ({
   sourcePipeline,
   query,
   aggregation,
-  stats,
 }: any): any => {
   return (dispatch: any, getState: any) => {
     const state = getState();
@@ -668,7 +657,6 @@ export const createNewTab = ({
       sourcePipeline,
       query,
       aggregation,
-      stats,
     });
     dispatch(
       createTab({
@@ -683,7 +671,6 @@ export const createNewTab = ({
         sourceViewOn,
         query,
         aggregation,
-        stats,
       })
     );
     showCollectionSubmenu({ isReadOnly: isReadonly });
@@ -705,7 +692,6 @@ export const replaceTabContent = ({
   sourceReadonly,
   sourceViewOn,
   sourcePipeline,
-  stats,
 }: any): any => {
   return (dispatch: any, getState: any) => {
     const state = getState();
@@ -718,7 +704,6 @@ export const replaceTabContent = ({
       sourceName,
       editViewName,
       sourcePipeline,
-      stats,
     });
     dispatch(
       selectNamespace({
@@ -731,7 +716,6 @@ export const replaceTabContent = ({
         context,
         sourceReadonly: !!sourceReadonly,
         sourceViewOn,
-        stats,
       })
     );
     showCollectionSubmenu({ isReadOnly: isReadonly });
