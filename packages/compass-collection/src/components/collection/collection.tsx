@@ -101,13 +101,18 @@ const Collection: React.FunctionComponent<CollectionProps> = (
     scopedModals,
     stats,
   } = props;
+  const activeSubTabName =
+    tabs && tabs.length > 0
+      ? trackingIdForTabName(tabs[activeSubTab] || 'Unknown')
+      : null;
+
   useEffect(() => {
-    if (tabs && tabs.length > 0) {
+    if (activeSubTabName) {
       track('Screen', {
-        name: trackingIdForTabName(tabs[activeSubTab] || 'Unknown'),
+        name: activeSubTabName,
       });
     }
-  }, []);
+  }, [activeSubTabName]);
 
   const onSubTabClicked = useCallback(
     (idx, name) => {
@@ -119,7 +124,6 @@ const Collection: React.FunctionComponent<CollectionProps> = (
       }
       localAppRegistry.emit('subtab-changed', name);
       globalAppRegistry.emit('compass:screen:viewed', { screen: name });
-      track('Screen', { name: trackingIdForTabName(name) });
       changeActiveSubTab(idx, id);
     },
     [
