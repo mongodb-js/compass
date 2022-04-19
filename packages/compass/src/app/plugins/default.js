@@ -14,7 +14,6 @@ module.exports = [
   require('@mongodb-js/compass-deployment-awareness'),
   require('@mongodb-js/compass-import-export'),
   require('@mongodb-js/compass-instance'),
-  require('@mongodb-js/compass-metrics'),
   require('@mongodb-js/compass-plugin-info'),
   require('@mongodb-js/compass-query-bar'),
   require('@mongodb-js/compass-query-history'),
