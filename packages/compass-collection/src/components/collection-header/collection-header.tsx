@@ -32,6 +32,7 @@ const collectionHeaderStyles = css({
 const collectionHeaderTitleStyles = css({
   display: 'flex',
   alignItems: 'center',
+  flex: '1 1 100%',
   padding: `0 ${spacing[3]}px`,
   margin: 0,
   overflow: 'hidden',
@@ -200,7 +201,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             sourceName={this.props.sourceName}
           />
         </div>
-        {!this.props.isReadonly && (
+        {!this.props.isReadonly && !this.props.editViewName && (
           <CollectionStats
             isTimeSeries={this.props.isTimeSeries}
             {...this.props.stats}

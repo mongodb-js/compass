@@ -13,9 +13,9 @@ const editViewButtonStyles = css({
 });
 
 const collectionHeaderActionsStyles = css({
-  flexGrow: 2,
   display: 'flex',
-  alignItems: 'inherit',
+  marginLeft: 'auto',
+  alignItems: 'center',
 });
 
 const collectionHeaderActionsReadonlyStyles = css({
@@ -23,7 +23,7 @@ const collectionHeaderActionsReadonlyStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  alignItems: 'inherit',
+  alignItems: 'center',
 });
 
 type CollectionHeaderActionsProps = {
