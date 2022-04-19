@@ -1,5 +1,4 @@
 import { rebuild } from 'electron-rebuild';
-import type { BeforeBuildContext } from 'electron-builder';
 
 export async function rebuildNativeModules(context: {
   appDir: string;
