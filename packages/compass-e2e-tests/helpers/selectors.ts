@@ -203,6 +203,12 @@ export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
 export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const SidebarInstanceRefreshButton =
+  '[data-test-id="sidebar-instance-stats-refresh-button"]';
+export const SidebarInstanceRefreshSpinning =
+  '[data-test-id="sidebar-instance-stats-refresh-spinning"]';
+export const SidebarInstanceRefreshIdle =
+  '[data-test-id="sidebar-instance-stats-refresh-idle"]';
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -402,13 +408,20 @@ export const CollectionTab = '.test-tab-nav-bar-tab';
 export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
-export const DocumentCountValue =
-  '[data-testid="document-count-value-primary"]';
-export const StorageSizeValue = '[data-testid="storage-size-value"]';
-export const AvgDocumentSizeValue = '[data-testid="avg-document-size-value"]';
-export const IndexCountValue = '[data-testid="index-count-value-primary"]';
-export const TotalIndexSizeValue = '[data-testid="total-index-size-value"]';
-export const AvgIndexSizeValue = '[data-testid="avg-index-size-value"]';
+export const DocumentCountValue = '[data-testid="document-count-value"]';
+export const CollectionStatsTooltip =
+  '[data-testid="collection-stats-tooltip"]';
+export const TooltipDocumentsCountValue =
+  '[data-testid="tooltip-documents-count"]';
+export const TooltipDocumentsStorageSize =
+  '[data-testid="tooltip-documents-storage-size"]';
+export const TooltipDocumentsAvgSize =
+  '[data-testid="tooltip-documents-avg-size"]';
+export const IndexCountValue = '[data-testid="index-count-value"]';
+export const TooltipIndexesCount = '[data-testid="tooltip-indexes-count"]';
+export const TooltipIndexesTotalSize =
+  '[data-testid="tooltip-indexes-total-size"]';
+export const TooltipIndexesAvgSize = '[data-testid="tooltip-indexes-avg-size"]';
 
 export const collectionTab = (tabName: string, selected?: boolean): string => {
   const selector = `${CollectionTab}[name="${tabName}"]`;

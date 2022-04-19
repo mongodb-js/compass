@@ -5,9 +5,12 @@
   "apiVersion": "3.0.0",
   "description": "Compass Database Plugin",
   "main": "lib/index.js",
+  "compass:main": "src/index.js",
   "exports": {
-    "webpack": "./src/index.js",
     "require": "./lib/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -43,6 +46,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@mongodb-js/compass-components": "^0.13.0",
+    "@mongodb-js/compass-logging": "^0.10.0",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "chai": "^4.1.2",

@@ -5,10 +5,13 @@
   "apiVersion": "3.0.0",
   "description": "Compass Aggregation Pipeline Builder",
   "main": "dist/index.js",
+  "compass:main": "src/index.js",
   "exports": {
-    "webpack": "./src/index.js",
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "scripts": {
     "prepublishOnly": "npm run compile",
@@ -97,6 +100,7 @@
     "react": "^16.14.0",
     "react-ace": "^9.5.0",
     "react-dom": "^16.14.0",
+    "react-sortable-hoc": "^2.0.0",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^3.0.0",
@@ -118,8 +122,6 @@
     "mongodb-ns": "^2.3.0",
     "re-resizable": "^6.9.0",
     "react-bootstrap": "^0.32.4",
-    "react-dnd": "^10.0.2",
-    "react-dnd-html5-backend": "^10.0.2",
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.2.0",
     "redux": "^4.1.2",

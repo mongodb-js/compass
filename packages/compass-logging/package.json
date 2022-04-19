@@ -26,9 +26,12 @@
     "hadron-ipc": "^2.9.0"
   },
   "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "webpack": "./src/index.ts",
     "require": "./dist/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

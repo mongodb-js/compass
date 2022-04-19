@@ -50,7 +50,10 @@ import type {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
-import type { ConnectionOptions } from './connection-options';
+import type {
+  ConnectionFleOptions,
+  ConnectionOptions,
+} from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
 import {
   adaptCollectionInfo,
@@ -58,6 +61,8 @@ import {
   getPrivilegesByDatabaseAndCollection,
   checkIsCSFLEConnection,
   getInstance,
+  getDatabasesByRoles,
+  hasAnyKMSProvider,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
@@ -344,6 +349,21 @@ class DataService extends EventEmitter {
     return authenticatedUserPrivileges;
   }
 
+  private async _getRolesOrFallback(
+    roles:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+      | null = null
+  ) {
+    if (roles) {
+      return roles;
+    }
+    const {
+      authInfo: { authenticatedUserRoles },
+    } = await this.connectionStatus();
+
+    return authenticatedUserRoles;
+  }
+
   /**
    * List all collections for a database.
    */
@@ -370,7 +390,9 @@ class DataService extends EventEmitter {
 
     const listCollections = async () => {
       try {
-        const collections = await db.listCollections(filter, { nameOnly }).toArray();
+        const collections = await db
+          .listCollections(filter, { nameOnly })
+          .toArray();
         return collections;
       } catch (err) {
         // Currently Compass should not fail if listCollections failed for
@@ -443,10 +465,14 @@ class DataService extends EventEmitter {
   async listDatabases({
     nameOnly,
     privileges = null,
+    roles = null,
   }: {
     nameOnly?: true;
     privileges?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null;
+    roles?:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
   } = {}): Promise<{ _id: string; name: string }[]> {
     const logop = this._startLogOp(
@@ -501,16 +527,33 @@ class DataService extends EventEmitter {
         .map((name) => ({ name }));
     };
 
+    const getDatabasesFromRoles = async () => {
+      const databases = getDatabasesByRoles(
+        await this._getRolesOrFallback(roles),
+        // https://jira.mongodb.org/browse/HELP-32199
+        // Atlas shared tier MongoDB server version v5+ does not return
+        // `authenticatedUserPrivileges` as part of the `connectionStatus`.
+        // As a workaround we show the databases the user has
+        // certain general built-in roles for.
+        // This does not cover custom user roles which can
+        // have custom privileges that we can't currently fetch.
+        ['read', 'readWrite', 'dbAdmin', 'dbOwner']
+      );
+      return databases.map((name) => ({ name }));
+    };
+
     try {
-      const [listedDatabases, databasesFromPrivileges] = await Promise.all([
-        listDatabases(),
-        getDatabasesFromPrivileges(),
-      ]);
+      const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
+        await Promise.all([
+          listDatabases(),
+          getDatabasesFromPrivileges(),
+          getDatabasesFromRoles(),
+        ]);
 
       const databases = uniqueBy(
         // NB: Order is important, we want listed collections to take precedence
         // if they were fetched successfully
-        [...databasesFromPrivileges, ...listedDatabases],
+        [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
         'name'
       ).map((db) => {
         return { _id: db.name, name: db.name, ...adaptDatabaseInfo(db) };
@@ -541,6 +584,7 @@ class DataService extends EventEmitter {
 
     log.info(mongoLogId(1_001_000_014), this._logCtx(), 'Connecting', {
       url: redactConnectionString(this._connectionOptions.connectionString),
+      csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
     });
 
     try {
@@ -1989,6 +2033,26 @@ class DataService extends EventEmitter {
           log.info(logId, this._logCtx(), op);
         }
       }
+    };
+  }
+
+  _csfleLogInformation(fleOptions?: Readonly<ConnectionFleOptions>) {
+    if (!fleOptions || !hasAnyKMSProvider(fleOptions.autoEncryption))
+      return null;
+    return {
+      storeCredentials: fleOptions.storeCredentials,
+      schemaMapNamespaces: Object.keys(
+        fleOptions.autoEncryption?.schemaMap ?? {}
+      ),
+      keyVaultNamespace: fleOptions.autoEncryption.keyVaultNamespace,
+      kmsProviders: Object.entries(
+        fleOptions.autoEncryption?.kmsProviders ?? {}
+      )
+        .filter(
+          ([, kmsOptions]) =>
+            Object.values(kmsOptions).filter(Boolean).length > 0
+        )
+        .map(([kmsProviderName]) => kmsProviderName),
     };
   }
 }

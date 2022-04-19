@@ -9,9 +9,12 @@
   "homepage": "https://github.com/mongodb-js/compass",
   "version": "5.13.0",
   "main": "lib/index.js",
+  "compass:main": "src/index.js",
   "exports": {
-    "webpack": "./src/index.js",
     "require": "./lib/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "repository": {
     "type": "git",
@@ -43,8 +46,6 @@
   "dependencies": {
     "lodash.isfunction": "^3.0.8",
     "react-bootstrap": "^0.32.0",
-    "react-dnd": "^7.3.2",
-    "react-dnd-html5-backend": "^7.2.0",
     "react-tooltip": "^3.11.1"
   },
   "devDependencies": {

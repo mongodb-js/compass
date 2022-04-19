@@ -83,7 +83,7 @@ function KMSProviderFieldsForm<KMSProvider extends keyof KMSProviders>({
       )}
       {!noTLS && (
         <KMSTLSOptions
-          kmsProvider="gcp"
+          kmsProvider={kmsProvider}
           autoEncryptionOptions={autoEncryptionOptions}
           updateConnectionFormField={updateConnectionFormField}
           clientCertIsOptional={clientCertIsOptional}

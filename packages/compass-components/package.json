@@ -4,11 +4,14 @@
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
     "types": "./lib/index.d.ts",
-    "webpack": "./src/index.ts",
     "require": "./lib/index.js",
     "import": "./lib/.esm-wrapper.mjs"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "types": "./lib/index.d.ts",
   "files": [
@@ -70,7 +73,7 @@
     "bson": "^4.6.1",
     "hadron-document": "^7.9.0",
     "hadron-type-checker": "^6.8.0",
-    "react-sortable-hoc": "^1.11.0",
+    "react-sortable-hoc": "^2.0.0",
     "react-window": "^1.8.6"
   },
   "peerDependencies": {

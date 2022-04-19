@@ -7,7 +7,10 @@ import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
 import DataService from './data-service';
-import type { ConnectionOptions } from './connection-options';
+import type {
+  ConnectionFleOptions,
+  ConnectionOptions,
+} from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
 
@@ -1346,6 +1349,29 @@ describe('DataService', function () {
         });
       });
     });
+
+    describe('CSFLE logging', function () {
+      it('picks a selected set of CSFLE options for logging', function () {
+        const fleOptions: ConnectionFleOptions = {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'abc.def',
+            schemaMap: { 'a.b': {} },
+            kmsProviders: {
+              aws: { accessKeyId: 'id', secretAccessKey: 'secret' },
+              local: { key: 'secret' },
+              kmip: { endpoint: '' },
+            },
+          },
+        };
+        expect(dataService._csfleLogInformation(fleOptions)).to.deep.equal({
+          storeCredentials: false,
+          keyVaultNamespace: 'abc.def',
+          schemaMapNamespaces: ['a.b'],
+          kmsProviders: ['aws', 'local'],
+        });
+      });
+    });
   });
 
   context('with mocked client', function () {
@@ -1396,6 +1422,56 @@ describe('DataService', function () {
         expect(dbs).to.deep.eq(['foo']);
       });
 
+      it('returns databases with `read`, `readWrite`, `dbAdmin`, `dbOwner` roles roles', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            connectionStatus: {
+              authInfo: {
+                authenticatedUserPrivileges: [],
+                authenticatedUserRoles: [
+                  {
+                    role: 'readWrite',
+                    db: 'pineapple',
+                  },
+                  {
+                    role: 'dbAdmin',
+                    db: 'pineapple',
+                  },
+                  {
+                    role: 'dbAdmin',
+                    db: 'readerOfPineapple',
+                  },
+                  {
+                    role: 'dbOwner',
+                    db: 'pineappleBoss',
+                  },
+                  {
+                    role: 'customRole',
+                    db: 'mint',
+                  },
+                  {
+                    role: 'read',
+                    db: 'foo',
+                  },
+                  {
+                    role: 'readWrite',
+                    db: 'watermelon',
+                  },
+                ],
+              },
+            },
+          },
+        });
+        const dbs = (await dataService.listDatabases()).map((db) => db.name);
+        expect(dbs).to.deep.eq([
+          'pineapple',
+          'readerOfPineapple',
+          'pineappleBoss',
+          'foo',
+          'watermelon',
+        ]);
+      });
+
       it('filters out databases with no name from privileges', async function () {
         const dataService = createDataServiceWithMockedClient({
           commands: {
@@ -1419,7 +1495,7 @@ describe('DataService', function () {
         expect(dbs).to.deep.eq(['bar']);
       });
 
-      it('merges databases from listDatabases and privileges', async function () {
+      it('merges databases from listDatabases, privileges, and roles', async function () {
         const dataService = createDataServiceWithMockedClient({
           commands: {
             listDatabases: { databases: [{ name: 'foo' }, { name: 'bar' }] },
@@ -1435,12 +1511,26 @@ describe('DataService', function () {
                     actions: ['find'],
                   },
                 ],
+                authenticatedUserRoles: [
+                  {
+                    role: 'readWrite',
+                    db: 'pineapple',
+                  },
+                  {
+                    role: 'dbAdmin',
+                    db: 'pineapple',
+                  },
+                  {
+                    role: 'customRole',
+                    db: 'mint',
+                  },
+                ],
               },
             },
           },
         });
         const dbs = (await dataService.listDatabases()).map((db) => db.name);
-        expect(dbs).to.deep.eq(['foo', 'buz', 'bar']);
+        expect(dbs).to.deep.eq(['pineapple', 'foo', 'buz', 'bar']);
       });
 
       it('returns result from privileges even if listDatabases threw any error', async function () {

@@ -3,6 +3,7 @@ import type {
   MongoClient,
   Document,
   MongoClientOptions,
+  AutoEncryptionOptions,
 } from 'mongodb';
 import {
   isEnterprise,
@@ -180,7 +181,13 @@ function checkIsAtlas(
 export function checkIsCSFLEConnection(client: {
   options: MongoClientOptions;
 }): boolean {
-  const kmsProviders = client.options?.autoEncryption?.kmsProviders;
+  return hasAnyKMSProvider(client.options?.autoEncryption);
+}
+
+export function hasAnyKMSProvider(
+  autoEncryption?: AutoEncryptionOptions
+): boolean {
+  const kmsProviders = autoEncryption?.kmsProviders;
   return (
     Object.values(kmsProviders ?? {})
       .flatMap((kms) => Object.values(kms))
@@ -274,6 +281,31 @@ export function getPrivilegesByDatabaseAndCollection(
   return result;
 }
 
+// Return a list of the databases which have a role matching one of the roles.
+export function getDatabasesByRoles(
+  authenticatedUserRoles:
+    | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+    | null = null,
+  possibleRoles: string[] | null = null
+): string[] {
+  const roles = authenticatedUserRoles ?? [];
+
+  const results = new Set<string>();
+
+  const filteredRoles =
+    possibleRoles && possibleRoles.length > 0
+      ? roles.filter(({ role }) => {
+          return possibleRoles.includes(role);
+        })
+      : roles;
+
+  for (const { db } of filteredRoles) {
+    results.add(db);
+  }
+
+  return [...results];
+}
+
 function isNotAuthorized(err: AnyError) {
   if (!err) {
     return false;
@@ -360,7 +392,7 @@ export function adaptCollectionInfo({
     validator,
     validationAction,
     validationLevel,
-    clusteredIndex
+    clusteredIndex,
   } = options ?? {};
 
   const hasValidation = Boolean(
@@ -382,9 +414,9 @@ export function adaptCollectionInfo({
     collation: collation ?? null,
     view_on: viewOn ?? null,
     pipeline: pipeline ?? null,
+    clustered: clusteredIndex ? true : false,
     validation: hasValidation
       ? { validator, validationAction, validationLevel }
       : null,
-    clustered: !!clusteredIndex
   };
 }

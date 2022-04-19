@@ -1,4 +1,3 @@
-import { EJSON } from 'bson';
 import util from 'util';
 import Connection from 'mongodb-connection-model';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';

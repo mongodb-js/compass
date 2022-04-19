@@ -1,18 +1,9 @@
-ignores: [
-  "lodash.filter",
-  "lodash.isempty",
-  "@babel/cli",
-  "@babel/register",
-  "bson-transpilers",
-  "core-js",
-  "d3-flextree",
-  "d3-timer",
-  "font-awesome",
-  "karma-electron",
-  "karma-sourcemap-loader",
-  "karma-webpack",
-  "resolve",
-  "webpack-bundle-analyzer",
-  "webpack-cli",
-  "mongodb-compass"
-]
+ignores:
+ - "@mongodb-js/prettier-config-compass"
+ - "@mongodb-js/tsconfig-compass"
+ - "@types/chai"
+ - "@types/sinon-chai"
+ - "sinon"
+ - "@types/chai-dom"
+ - "@types/react"
+ - "@types/react-dom"

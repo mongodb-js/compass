@@ -54,6 +54,7 @@ const bsonValue = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  display: 'inline',
 });
 
 const bsonValuePrewrap = css({
@@ -102,7 +103,19 @@ export const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> =
         };
       }
       if (value.sub_type === Binary.SUBTYPE_UUID) {
-        return { stringifiedValue: `UUID('${value.toUUID().toHexString()}')` };
+        let uuid: string;
+
+        try {
+          // Try to get the pretty hex version of the UUID
+          uuid = value.toUUID().toString();
+        } catch {
+          // If uuid is not following the uuid format converting it to UUID will
+          // fail, we don't want the UI to fail rendering it and instead will
+          // just display "unformatted" hex value of the binary whatever it is
+          uuid = value.toString('hex');
+        }
+
+        return { stringifiedValue: `UUID('${uuid}')` };
       }
       return {
         stringifiedValue: `Binary('${truncate(

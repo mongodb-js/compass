@@ -1,36 +1,9 @@
-.content-container {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
-
 .compass-documents {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   width: 100%;
+  height: 100%;
   flex-grow: 1;
-
-  .column {
-    &-container {
-      position: relative;
-      flex-grow: 1;
-      flex-shrink: 1;
-      flex-basis: auto;
-      flex-direction: column;
-      display: flex;
-      overflow: auto;
-      background: #f5f6f7;
-    }
-
-    &.main {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      margin-bottom: 0;
-      padding: 0;
-    }
-  }
+  position: relative;
 }
