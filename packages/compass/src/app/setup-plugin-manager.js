@@ -22,22 +22,11 @@ app.appRegistry = appRegistry;
 const ROOT = path.join(__dirname, '..', '..');
 
 /**
- * The current distribution information.
- */
-const DISTRIBUTION =
-  pkg.config.hadron.distributions[process.env.HADRON_DISTRIBUTION];
-
-/**
- * The plugins directory constant.
- */
-const PLUGINS_DIR = 'plugins-directory';
-
-/**
  * Location of the dev plugins.
  */
 const DEV_PLUGINS = path.join(
   electron.remote.app.getPath('home'),
-  DISTRIBUTION[PLUGINS_DIR]
+  '.mongodb', process.env.HADRON_DISTRIBUTION, 'plugins',
 );
 
 marky.mark('Loading plugins');

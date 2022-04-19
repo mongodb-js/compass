@@ -20,7 +20,7 @@ declare module 'process' {
         HADRON_PRODUCT:
           | 'mongodb-compass'
           | 'mongodb-compass-readonly'
-          | 'mongodb-isolated';
+          | 'mongodb-compass-isolated';
         HADRON_PRODUCT_NAME:
           | 'MongoDB Compass'
           | 'MongoDB Compass Readonly'
