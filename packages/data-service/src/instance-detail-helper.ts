@@ -104,12 +104,12 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
-  isCSFLEConnection: boolean;
+  csfleMode: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export async function getInstance(
   client: MongoClient
-): Promise<Omit<InstanceDetails, 'isCSFLEConnection'>> {
+): Promise<Omit<InstanceDetails, 'csfleMode'>> {
   const adminDb = client.db('admin');
   const [
     connectionStatus,
