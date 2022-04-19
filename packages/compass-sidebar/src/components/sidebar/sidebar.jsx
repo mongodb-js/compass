@@ -106,6 +106,10 @@ class Sidebar extends PureComponent {
     }
   }
 
+  handleSetConnectionIsCSFLEEnabled(enabled) {
+    this.props.globalAppRegistryEmit('sidebar-toggle-csfle-enabled', enabled);
+  }
+
   isReadonlyDistro() {
     return process.env.HADRON_READONLY === 'true';
   }
@@ -183,6 +187,7 @@ class Sidebar extends PureComponent {
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
             connectionInfo={this.props.connectionInfo}
             updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
+            setConnectionIsCSFLEEnabled={(enabled) => this.handleSetConnectionIsCSFLEEnabled(enabled)}
           />
         )}
         <NavigationItems
@@ -232,7 +237,6 @@ const mapStateToProps = (state) => ({
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-  isCSFLEConnection: state.isCSFLEConnection,
 });
 
 /**
