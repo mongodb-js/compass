@@ -79,8 +79,17 @@ class Settings extends PureComponent {
           <div className={classnames(styles['input-meta'])}>
             <Label htmlFor='aggregation-limit'>Limit</Label>
             <Description id="aggregation-limit-description">
-              Limits input documents before $group, $bucket, and $bucketAuto
-              stages. Set a limit to make the collection run faster.
+              {global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !==
+              'true' ? (
+                  'Limits input documents before $group, $bucket, and $bucketAuto stages. Set a limit to make the collection run faster.'
+              ) : (
+                <>
+                  Limits input documents before $group, $bucket, and $bucketAuto
+                  stages. Set a limit to make the preview run faster.
+                  <br />
+                  Note: this setting will not apply when running the pipeline.
+                </>
+              )}
             </Description>
           </div>
           <div className={classnames(styles['input-control'])}>
