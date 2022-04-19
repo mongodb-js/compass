@@ -13,16 +13,19 @@ const WriteStateStore = Reflux.createStore({
 });
 
 describe('IndexesStore [Store]', function () {
-  const appRegistry = new AppRegistry();
-  const localAppRegistry = new AppRegistry();
-  appRegistry.registerStore(
-    'DeploymentAwareness.WriteStateStore',
-    WriteStateStore
-  );
+  let appRegistry;
+  let localAppRegistry;
 
   let store;
 
   beforeEach(function () {
+    appRegistry = new AppRegistry();
+    localAppRegistry = new AppRegistry();
+    appRegistry.registerStore(
+      'DeploymentAwareness.WriteStateStore',
+      WriteStateStore
+    );
+
     store = configureStore({
       globalAppRegistry: appRegistry,
       localAppRegistry: localAppRegistry,
