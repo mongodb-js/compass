@@ -37,7 +37,7 @@
   "dependencies": {
     "ampersand-collection": "^2.0.2",
     "ampersand-model": "^8.0.1",
-    "mongodb-ns": "^2.3.0"
+    "mongodb-ns": "^2.4.0"
   },
   "peerDependencies": {
     "mongodb-data-service": "^21.19.0"
