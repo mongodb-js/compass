@@ -19,7 +19,6 @@ import detectCoordinates from '../../modules/detect-coordinates';
 const expandCollapseFieldSchemaStyles = css({
   color: uiColors.gray.dark2,
   minWidth: 0,
-  // marginRight: spacing[1],
   marginLeft: -spacing[3],
 });
 
