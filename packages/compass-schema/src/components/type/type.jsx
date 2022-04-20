@@ -138,9 +138,7 @@ class Type extends Component {
       ? '{"top": -25, "left": 0}'
       : '{"top": 10, "left": 0}';
     return (
-      /* eslint-disable jsx-a11y/click-events-have-key-events */
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-      <div
+      <button
         {...tooltipOptions}
         className={cls}
         style={style}
@@ -151,9 +149,8 @@ class Type extends Component {
         <div className="schema-field-type" />
         {subtypes}
         {this.props.showSubTypes ? null : label}
-      </div>
+      </button>
     );
-    /* eslint-enable jsx-a11y/click-events-have-key-events */
   }
 }
 
