@@ -1,7 +1,7 @@
-@import (reference) "mongodb-compass/src/app/styles/index.less";
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
 
 // minicharts
-@mc-blue0: #43B1E5;
+@mc-blue0: #43b1e5;
 @mc-blue1: lighten(@mc-blue0, 7.5%);
 @mc-blue2: lighten(@mc-blue0, 15%);
 @mc-blue3: lighten(@mc-blue0, 22.5%);
@@ -23,11 +23,17 @@
   flex-shrink: 1;
 }
 
+.loader {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .schema {
   width: 100%;
   padding: 15px;
   flex-grow: 1;
-  overflow: auto; 
+  overflow: auto;
 
   &-zero-state {
     height: 100%;
@@ -64,7 +70,6 @@
 
 :global {
   .schema-field-list {
-
     // .list-group;
     .schema-field {
       // .list-group-item;
@@ -187,7 +192,8 @@
         display: inline-block;
       }
 
-      &.schema-field-object, &.schema-field-array {
+      &.schema-field-object,
+      &.schema-field-array {
         .schema-field-name {
           cursor: pointer;
         }
@@ -241,7 +247,9 @@
         background: @chart0;
       }
 
-      .schema-field-type-list > .schema-field-wrapper:not(.active) > .schema-field-type {
+      .schema-field-type-list
+        > .schema-field-wrapper:not(.active)
+        > .schema-field-type {
         // nested array subtypes
         background: @gray5;
       }
@@ -369,7 +377,8 @@
     }
   }
 
-  .layer, .layer svg {
+  .layer,
+  .layer svg {
     position: absolute;
   }
 
@@ -393,7 +402,7 @@
 
     circle {
       fill: @mc-fg-selected;
-      fill-opacity:0.2;
+      fill-opacity: 0.2;
       stroke: @mc-fg-selected;
       stroke-width: 2px;
     }
@@ -413,10 +422,11 @@
 
     g.brush rect.extent {
       fill: @mc-fg-selected;
-      fill-opacity:0.2;
+      fill-opacity: 0.2;
     }
 
-    .hour, .weekday {
+    .hour,
+    .weekday {
       .bar {
         cursor: default !important;
       }
@@ -448,7 +458,6 @@
       }
 
       &.few {
-
         rect {
           stroke: white;
           stroke-width: 2px;
@@ -511,7 +520,8 @@
       shape-rendering: crispEdges;
     }
 
-    .axis path, .axis line {
+    .axis path,
+    .axis line {
       fill: none;
       stroke: @gray7;
       shape-rendering: crispEdges;
@@ -534,10 +544,10 @@
   }
 
   .map {
-    position:absolute;
-    top:0;
-    bottom:0;
-    width:100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
     float: left;
     svg {
       position: absolute;
@@ -576,9 +586,9 @@
     left: 25px;
 
     &-button {
-      background-image: linear-gradient(-180deg, #FFFFFF 0%, #F6F6F6 100%);
-      border: 2px solid #DDDDDD;
-      box-shadow: inset 0 -1px 0 0 #DDDDDD;
+      background-image: linear-gradient(-180deg, #ffffff 0%, #f6f6f6 100%);
+      border: 2px solid #dddddd;
+      box-shadow: inset 0 -1px 0 0 #dddddd;
       border-radius: 5px;
       font-size: 11px;
       padding: 15px 4px;
@@ -620,7 +630,7 @@
 
   /* Northward tooltips */
   .d3-tip.n:after {
-    content: "\25BC";
+    content: '\25BC';
     margin: -4px 0 0 0;
     top: 100%;
     left: 0;
@@ -629,7 +639,7 @@
 
   /* Eastward tooltips */
   .d3-tip.e:after {
-    content: "\25C0";
+    content: '\25C0';
     margin: -4px 0 0 0;
     top: 50%;
     left: -8px;
@@ -637,7 +647,7 @@
 
   /* Southward tooltips */
   .d3-tip.s:after {
-    content: "\25B2";
+    content: '\25B2';
     margin: 0 0 1px 0;
     top: -8px;
     left: 0;
@@ -646,7 +656,7 @@
 
   /* Westward tooltips */
   .d3-tip.w:after {
-    content: "\25B6";
+    content: '\25B6';
     margin: -4px 0 0 -1px;
     top: 50%;
     left: 100%;

@@ -13,7 +13,7 @@ class NameColumn extends PureComponent {
   static displayName = 'NameColumn';
 
   static propTypes = {
-    index: PropTypes.object.isRequired
+    index: PropTypes.object.isRequired,
   };
 
   /**
@@ -25,10 +25,14 @@ class NameColumn extends PureComponent {
     return (
       <td className={classnames(styles['name-column'])}>
         <div className="index-definition">
-          <div className={classnames(styles['name-column-name'])} data-test-id="name-column-name" title={this.props.index.name}>
+          <div
+            className={classnames(styles['name-column-name'])}
+            data-test-id="name-column-name"
+            title={this.props.index.name}
+          >
             {this.props.index.name}
           </div>
-          <IndexDefinitionType index={this.props.index}/>
+          <IndexDefinitionType index={this.props.index} />
         </div>
       </td>
     );

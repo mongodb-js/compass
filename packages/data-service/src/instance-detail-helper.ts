@@ -3,6 +3,7 @@ import type {
   MongoClient,
   Document,
   MongoClientOptions,
+  AutoEncryptionOptions,
 } from 'mongodb';
 import {
   isEnterprise,
@@ -103,12 +104,12 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
-  isCSFLEConnection: boolean;
+  csfleMode: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export async function getInstance(
   client: MongoClient
-): Promise<Omit<InstanceDetails, 'isCSFLEConnection'>> {
+): Promise<Omit<InstanceDetails, 'csfleMode'>> {
   const adminDb = client.db('admin');
   const [
     connectionStatus,
@@ -179,7 +180,13 @@ function checkIsAtlas(
 export function checkIsCSFLEConnection(client: {
   options: MongoClientOptions;
 }): boolean {
-  const kmsProviders = client.options?.autoEncryption?.kmsProviders;
+  return hasAnyKMSProvider(client.options?.autoEncryption);
+}
+
+export function hasAnyKMSProvider(
+  autoEncryption?: AutoEncryptionOptions
+): boolean {
+  const kmsProviders = autoEncryption?.kmsProviders;
   return (
     Object.values(kmsProviders ?? {})
       .flatMap((kms) => Object.values(kms))

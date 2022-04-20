@@ -7,7 +7,10 @@ import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
 import DataService from './data-service';
-import type { ConnectionOptions } from './connection-options';
+import type {
+  ConnectionFleOptions,
+  ConnectionOptions,
+} from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
 
@@ -1346,6 +1349,29 @@ describe('DataService', function () {
         });
       });
     });
+
+    describe('CSFLE logging', function () {
+      it('picks a selected set of CSFLE options for logging', function () {
+        const fleOptions: ConnectionFleOptions = {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'abc.def',
+            schemaMap: { 'a.b': {} },
+            kmsProviders: {
+              aws: { accessKeyId: 'id', secretAccessKey: 'secret' },
+              local: { key: 'secret' },
+              kmip: { endpoint: '' },
+            },
+          },
+        };
+        expect(dataService._csfleLogInformation(fleOptions)).to.deep.equal({
+          storeCredentials: false,
+          keyVaultNamespace: 'abc.def',
+          schemaMapNamespaces: ['a.b'],
+          kmsProviders: ['aws', 'local'],
+        });
+      });
+    });
   });
 
   context('with mocked client', function () {
@@ -1645,6 +1671,27 @@ describe('DataService', function () {
         );
         expect(colls).to.deep.eq(['bar']);
       });
+    });
+
+    it('allows disabling/enabling the split-client model for CSFLE', function () {
+      const dataService: any = createDataServiceWithMockedClient({});
+      const a = {};
+      const b = {};
+      dataService._crudClient = a;
+      dataService._metadataClient = b;
+
+      expect(dataService._initializedClient('CRUD')).to.equal(a);
+      expect(dataService._initializedClient('META')).to.equal(b);
+
+      dataService.setCSFLEEnabled(false);
+
+      expect(dataService._initializedClient('CRUD')).to.equal(b);
+      expect(dataService._initializedClient('META')).to.equal(b);
+
+      dataService.setCSFLEEnabled(true);
+
+      expect(dataService._initializedClient('CRUD')).to.equal(a);
+      expect(dataService._initializedClient('META')).to.equal(b);
     });
   });
 });

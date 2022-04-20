@@ -5,10 +5,13 @@
   "apiVersion": "3.0.0",
   "description": "Compass Real Time Server Stats Component.",
   "main": "dist/index.js",
+  "compass:main": "src/index.js",
   "exports": {
-    "webpack": "./src/index.js",
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "scripts": {
     "compile": "npm run webpack -- --mode production",
@@ -30,7 +33,6 @@
     "@mongodb-js/compass-components": "^0.13.0",
     "d3": "^3.5.17",
     "hadron-react-buttons": "^5.7.0",
-    "hadron-react-components": "^5.13.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
@@ -61,11 +63,10 @@
     "hadron-app": "^4.21.0",
     "hadron-app-registry": "^8.10.0",
     "hadron-react-buttons": "^5.7.0",
-    "hadron-react-components": "^5.13.0",
     "mocha": "^8.4.0",
     "mongodb-connection-model": "^21.15.0",
     "mongodb-data-service": "^21.19.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",

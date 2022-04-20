@@ -20,9 +20,12 @@
     "dist"
   ],
   "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "webpack": "./src/index.ts",
     "require": "./dist/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "types": "./dist/index.d.ts",
   "repository": {
@@ -54,7 +57,7 @@
     "@mongodb-js/compass-components": "^0.13.0",
     "hadron-react-components": "^5.12.0",
     "mongodb-data-service": "^21.18.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "numeral": "*",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -84,7 +87,7 @@
     "mocha": "^8.4.0",
     "mongodb-data-service": "^21.18.0",
     "mongodb-instance-model": "^11.20.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "numeral": "^2.0.6",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",

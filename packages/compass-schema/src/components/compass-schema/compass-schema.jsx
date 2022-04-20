@@ -2,7 +2,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StatusRow, ZeroState } from 'hadron-react-components';
-import { Button, ButtonSize, ButtonVariant, CancelLoader, Link } from '@mongodb-js/compass-components';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+  CancelLoader,
+  Link,
+} from '@mongodb-js/compass-components';
 import Field from '../field';
 import AnalysisCompleteMessage from '../analysis-complete-message';
 import ZeroGraphic from '../zero-graphic';
@@ -14,23 +20,25 @@ import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_ERROR,
   ANALYSIS_STATE_COMPLETE,
-  ANALYSIS_STATE_TIMEOUT
+  ANALYSIS_STATE_TIMEOUT,
 } from '../../constants/analysis-states';
 
 const ERROR_WARNING = 'An error occurred during schema analysis';
-const OUTDATED_WARNING = 'The schema content is outdated and no longer in sync'
-  + ' with the documents view. Press "Analyze" again to see the schema for the'
-  + ' current query.';
+const OUTDATED_WARNING =
+  'The schema content is outdated and no longer in sync' +
+  ' with the documents view. Press "Analyze" again to see the schema for the' +
+  ' current query.';
 
-const INCREASE_MAX_TIME_MS_HINT = 'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
+const INCREASE_MAX_TIME_MS_HINT =
+  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
 
 const HEADER = 'Explore your schema';
 
-const SUBTEXT = 'Quickly visualize your schema to understand the frequency, types and ranges of'
-  + '\xa0fields in your data set.';
+const SUBTEXT =
+  'Quickly visualize your schema to understand the frequency, types and ranges of' +
+  '\xa0fields in your data set.';
 
 const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/';
-
 
 /**
  * Component for the entire schema view component.
@@ -46,7 +54,7 @@ class Schema extends Component {
       ANALYSIS_STATE_ANALYZING,
       ANALYSIS_STATE_ERROR,
       ANALYSIS_STATE_COMPLETE,
-      ANALYSIS_STATE_TIMEOUT
+      ANALYSIS_STATE_TIMEOUT,
     ]),
     outdated: PropTypes.bool,
     isActiveTab: PropTypes.bool,
@@ -54,8 +62,8 @@ class Schema extends Component {
     maxTimeMS: PropTypes.number,
     schema: PropTypes.any,
     count: PropTypes.number,
-    resultId: PropTypes.number
-  }
+    resultId: PropTypes.number,
+  };
 
   constructor(props) {
     super(props);
@@ -97,7 +105,11 @@ class Schema extends Component {
     const analysisState = this.props.analysisState;
 
     if (analysisState === ANALYSIS_STATE_ERROR) {
-      return <StatusRow style="error">{ERROR_WARNING}: {this.props.errorMessage}</StatusRow>;
+      return (
+        <StatusRow style="error">
+          {ERROR_WARNING}: {this.props.errorMessage}
+        </StatusRow>
+      );
     }
 
     if (analysisState === ANALYSIS_STATE_TIMEOUT) {
@@ -105,12 +117,12 @@ class Schema extends Component {
     }
 
     if (analysisState === ANALYSIS_STATE_COMPLETE) {
-      return (
-        this.props.outdated ?
-          <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow> :
-          <AnalysisCompleteMessage
-            sampleSize={this.props.schema ? this.props.schema.count : 0}
-          />
+      return this.props.outdated ? (
+        <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>
+      ) : (
+        <AnalysisCompleteMessage
+          sampleSize={this.props.schema ? this.props.schema.count : 0}
+        />
       );
     }
 
@@ -128,7 +140,8 @@ class Schema extends Component {
           key={field.name}
           actions={this.props.actions}
           localAppRegistry={this.props.store.localAppRegistry}
-          {...field} />
+          {...field}
+        />
       );
     });
   }
@@ -137,9 +150,7 @@ class Schema extends Component {
     return (
       <div className={styles['schema-zero-state']}>
         <ZeroGraphic />
-        <ZeroState
-          header={HEADER}
-          subtext={SUBTEXT}>
+        <ZeroState header={HEADER} subtext={SUBTEXT}>
           <div>
             <Button
               onClick={this.onApplyClicked.bind(this)}
@@ -163,12 +174,16 @@ class Schema extends Component {
   }
 
   renderAnalyzing() {
-    return (<CancelLoader
-      dataTestId="analyzing-documents"
-      progressText="Analyzing Documents"
-      cancelText="Stop"
-      onCancel={this.onCancelClicked.bind(this)}
-    />);
+    return (
+      <div className={styles.loader}>
+        <CancelLoader
+          dataTestId="analyzing-documents"
+          progressText="Analyzing Documents"
+          cancelText="Stop"
+          onCancel={this.onCancelClicked.bind(this)}
+        />
+      </div>
+    );
   }
 
   /**
@@ -177,22 +192,14 @@ class Schema extends Component {
    */
   renderContent() {
     if (this.props.analysisState === ANALYSIS_STATE_INITIAL) {
-      return (
-        this.renderInitialScreen()
-      );
+      return this.renderInitialScreen();
     }
 
     if (this.props.analysisState === ANALYSIS_STATE_ANALYZING) {
-      return (
-        this.renderAnalyzing()
-      );
+      return this.renderAnalyzing();
     }
 
-    return (
-      <div className="schema-field-list">
-        {this.renderFieldList()}
-      </div>
-    );
+    return <div className="schema-field-list">{this.renderFieldList()}</div>;
   }
 
   /**
@@ -214,9 +221,7 @@ class Schema extends Component {
           />
           {this.renderBanner()}
         </div>
-        <div className={styles.schema}>
-          {this.renderContent()}
-        </div>
+        <div className={styles.schema}>{this.renderContent()}</div>
       </div>
     );
   }

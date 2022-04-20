@@ -5,23 +5,23 @@ import type { Actions as AggregationActions } from './aggregation';
 
 export type Workspace = 'builder' | 'results';
 
-enum ActionTypes {
-  ChangeWorkspace = 'compass-aggregations/changeWorkspace',
+export enum ActionTypes {
+  WorkspaceChanged = 'compass-aggregations/workspaceChanged',
 }
 
-type ChangeWorkspaceAction = {
-  type: ActionTypes.ChangeWorkspace;
+type WorkspaceChangedAction = {
+  type: ActionTypes.WorkspaceChanged;
   view: Workspace;
 };
 
-export type Actions = ChangeWorkspaceAction;
+export type Actions = WorkspaceChangedAction;
 export type State = Workspace;
 
 export const INITIAL_STATE: State = 'builder';
 
 const reducer: Reducer<State, Actions | AggregationActions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case ActionTypes.ChangeWorkspace:
+    case ActionTypes.WorkspaceChanged:
       return action.view;
     case AggregationActionTypes.AggregationStarted:
       return 'results';
@@ -30,8 +30,8 @@ const reducer: Reducer<State, Actions | AggregationActions> = (state = INITIAL_S
   }
 };
 
-export const changeWorkspace = (view: Workspace): ChangeWorkspaceAction => ({
-  type: ActionTypes.ChangeWorkspace,
+export const changeWorkspace = (view: Workspace): WorkspaceChangedAction => ({
+  type: ActionTypes.WorkspaceChanged,
   view,
 });
 

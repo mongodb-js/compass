@@ -37,13 +37,20 @@ class ProgressBar extends PureComponent {
     progressLabel: PropTypes.func,
     progressTitle: PropTypes.func,
     withErrors: PropTypes.bool,
+    isAggregation: PropTypes.bool,
   };
 
   static defaultProps = {
-    progressLabel(formattedWritten, formattedTotal) {
+    progressLabel(formattedWritten, formattedTotal, isAggregation) {
+      if (isAggregation) {
+        return formattedWritten;
+      }
       return `${formattedWritten}\u00A0/\u00A0${formattedTotal}`;
     },
-    progressTitle(formattedWritten, formattedTotal) {
+    progressTitle(formattedWritten, formattedTotal, isAggregation) {
+      if (isAggregation) {
+        return `${formattedWritten} documents`;
+      }
       return `${formattedWritten} documents out of ${formattedTotal}`;
     },
   };
@@ -102,7 +109,13 @@ class ProgressBar extends PureComponent {
   };
 
   renderStats() {
-    const { docsTotal, docsWritten, progressLabel, progressTitle } = this.props;
+    const {
+      docsTotal,
+      docsWritten,
+      progressLabel,
+      progressTitle,
+      isAggregation,
+    } = this.props;
 
     const formattedWritten = formatNumber(docsWritten);
     const formattedTotal = formatNumber(docsTotal);
@@ -110,9 +123,9 @@ class ProgressBar extends PureComponent {
     return (
       <p
         className={style('status-stats')}
-        title={progressTitle(formattedWritten, formattedTotal)}
+        title={progressTitle(formattedWritten, formattedTotal, isAggregation)}
       >
-        {progressLabel(formattedWritten, formattedTotal)}
+        {progressLabel(formattedWritten, formattedTotal, isAggregation)}
       </p>
     );
   }
@@ -123,8 +136,14 @@ class ProgressBar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const { message, status, docsProcessed, docsTotal, docsWritten } =
-      this.props;
+    const {
+      message,
+      status,
+      docsProcessed,
+      docsTotal,
+      docsWritten,
+      isAggregation,
+    } = this.props;
 
     if (status === UNSPECIFIED) {
       return null;
@@ -132,18 +151,21 @@ class ProgressBar extends PureComponent {
 
     return (
       <div className={style('chart-wrapper')}>
-        <div className={style()}>
-          <div
-            className={this.getBarClassName()}
-            style={{ width: toPercentage(docsWritten, docsTotal) }}
-          />
-          {Boolean(docsProcessed) && (
+        {!isAggregation && (
+          <div className={style()}>
             <div
-              className={this.getBarClassName(true)}
-              style={{ width: toPercentage(docsProcessed, docsTotal) }}
+              className={this.getBarClassName()}
+              style={{ width: toPercentage(docsWritten, docsTotal) }}
             />
-          )}
-        </div>
+            {Boolean(docsProcessed) && (
+              <div
+                className={this.getBarClassName(true)}
+                style={{ width: toPercentage(docsProcessed, docsTotal) }}
+              />
+            )}
+          </div>
+        )}
+
         <div className={styles['progress-bar-status']}>
           <p className={this.getMessageClassName()}>
             {message}

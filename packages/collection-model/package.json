@@ -17,10 +17,13 @@
     "mongodb-js"
   ],
   "main": "index.js",
+  "compass:main": "index.js",
   "types": "./index.d.ts",
   "exports": {
-    "webpack": "./index.js",
     "require": "./index.js"
+  },
+  "compass:exports": {
+    ".": "./index.js"
   },
   "scripts": {
     "check": "npm run lint && npm run depcheck",
@@ -34,7 +37,7 @@
   "dependencies": {
     "ampersand-collection": "^2.0.2",
     "ampersand-model": "^8.0.1",
-    "mongodb-ns": "^2.3.0"
+    "mongodb-ns": "^2.4.0"
   },
   "peerDependencies": {
     "mongodb-data-service": "^21.19.0"

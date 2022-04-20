@@ -4,9 +4,13 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
+import { ActionTypes as WorkspaceActionTypes } from './workspace';
+import type { Actions as WorkspaceActions } from './workspace';
 
 import createLogger from '@mongodb-js/compass-logging';
+
 const { log, mongoLogId } = createLogger('compass-aggregations');
 
 export enum ActionTypes {
@@ -56,14 +60,20 @@ export type State = {
 
 export const INITIAL_STATE: State = {
   documents: [],
-  page: 0,
+  page: 1,
   limit: 20,
   isLast: false,
   loading: false,
 };
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case WorkspaceActionTypes.WorkspaceChanged:
+      return {
+        ...INITIAL_STATE,
+        page: 1,
+        limit: 20,
+      };
     case ActionTypes.AggregationStarted:
       return {
         ...state,
@@ -224,4 +234,34 @@ const fetchAggregationData = (page: number): ThunkAction<
   }
 };
 
+export const exportAggregationResults = (): ThunkAction<
+  void,
+  RootState,
+  void,
+  Actions
+> => {
+  return (dispatch, getState) => {
+    const {
+      pipeline,
+      namespace,
+      maxTimeMS,
+      collation,
+    } = getState();
+
+    const stages = pipeline
+      .map(generateStage)
+      .filter((stage) => Object.keys(stage).length > 0);
+    const options: AggregateOptions = {
+      maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+      allowDiskUse: true,
+      collation: collation || undefined,
+    };
+    dispatch(globalAppRegistryEmit('open-export', {
+      namespace, aggregation: {
+        stages, options
+      }, count: 0
+    }));
+    return;
+  }
+}
 export default reducer;

@@ -5,9 +5,12 @@
   "apiVersion": "3.0.0",
   "description": "Home",
   "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "webpack": "./src/index.ts",
     "require": "./dist/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "scripts": {
     "clean": "rimraf ./dist",
@@ -41,7 +44,7 @@
     "hadron-react-buttons": "^5.7.0",
     "hadron-react-components": "^5.13.0",
     "mongodb-data-service": "^21.19.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "react": "^16.14.0",
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
@@ -69,7 +72,7 @@
     "hadron-react-components": "^5.13.0",
     "mocha": "^8.4.0",
     "mongodb-data-service": "^21.19.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",
     "react": "^16.14.0",

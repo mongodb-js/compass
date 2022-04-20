@@ -5,9 +5,12 @@
   "apiVersion": "3.0.0",
   "description": "Plugin for viewing the list of, creating, and dropping databases and collections",
   "main": "lib/index.js",
+  "compass:main": "src/index.js",
   "exports": {
-    "webpack": "./src/index.js",
     "require": "./lib/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "scripts": {
     "clean": "rimraf lib",
@@ -86,7 +89,7 @@
     "mongodb-connection-model": "^21.15.0",
     "mongodb-data-service": "^21.19.0",
     "mongodb-instance-model": "^11.21.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "numeral": "^2.0.6",

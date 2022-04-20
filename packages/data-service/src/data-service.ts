@@ -20,7 +20,6 @@ import type {
   DeleteResult,
   Document,
   EstimatedDocumentCountOptions,
-  ExplainOptions,
   Filter,
   FindCursor,
   FindOneAndReplaceOptions,
@@ -50,7 +49,10 @@ import type {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
-import type { ConnectionOptions } from './connection-options';
+import type {
+  ConnectionFleOptions,
+  ConnectionOptions,
+} from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
 import {
   adaptCollectionInfo,
@@ -59,6 +61,7 @@ import {
   checkIsCSFLEConnection,
   getInstance,
   getDatabasesByRoles,
+  hasAnyKMSProvider,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
@@ -105,8 +108,15 @@ class DataService extends EventEmitter {
     options: MongoClientOptions;
   };
 
+  // Use two separate clients in the CSFLE case, one with CSFLE
+  // enabled, one disabled. _initializedClient() can be used
+  // to fetch the right one. _useCRUDClient can be used to control
+  // this behavior after connecting, i.e. for disabling and
+  // enabling CSFLE on an already-connected DataService instance.
   private _metadataClient?: MongoClient;
   private _crudClient?: MongoClient;
+  private _useCRUDClient = true;
+
   private _tunnel?: SshTunnel;
 
   /**
@@ -145,6 +155,13 @@ class DataService extends EventEmitter {
 
   getReadPreference(): ReadPreferenceLike {
     return this._initializedClient('CRUD').readPreference;
+  }
+
+  setCSFLEEnabled(enabled: boolean): void {
+    log.info(mongoLogId(1_001_000_117), this._logCtx(), 'Setting CSFLE mode', {
+      enabled,
+    });
+    this._useCRUDClient = enabled;
   }
 
   /**
@@ -577,6 +594,7 @@ class DataService extends EventEmitter {
 
     log.info(mongoLogId(1_001_000_014), this._logCtx(), 'Connecting', {
       url: redactConnectionString(this._connectionOptions.connectionString),
+      csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
     });
 
     try {
@@ -1079,7 +1097,7 @@ class DataService extends EventEmitter {
   explain(
     ns: string,
     filter: Filter<Document>,
-    options: ExplainOptions,
+    options: FindOptions,
     callback: Callback<Document>
   ): void {
     const logop = this._startLogOp(
@@ -1132,13 +1150,22 @@ class DataService extends EventEmitter {
    * Get the current instance details.
    */
   async instance(): Promise<InstanceDetails> {
+    let csfleMode: InstanceDetails['csfleMode'];
+    if (this._crudClient && checkIsCSFLEConnection(this._crudClient)) {
+      if (this._useCRUDClient) {
+        csfleMode = 'enabled';
+      } else {
+        csfleMode = 'disabled';
+      }
+    } else {
+      csfleMode = 'unavailable';
+    }
+
     try {
       const instanceData = {
         ...(await getInstance(this._initializedClient('META'))),
         // Need to get the CSFLE flag from the CRUD client, not the META one
-        isCSFLEConnection: checkIsCSFLEConnection(
-          this._initializedClient('CRUD')
-        ),
+        csfleMode,
       };
 
       log.info(
@@ -1797,7 +1824,10 @@ class DataService extends EventEmitter {
     if (type !== 'CRUD' && type !== 'META') {
       throw new Error(`Invalid client type: ${type as string}`);
     }
-    const client = type === 'CRUD' ? this._crudClient : this._metadataClient;
+    const client =
+      type === 'CRUD' && this._useCRUDClient
+        ? this._crudClient
+        : this._metadataClient;
     if (!client) {
       throw new Error('Client not yet initialized');
     }
@@ -2025,6 +2055,26 @@ class DataService extends EventEmitter {
           log.info(logId, this._logCtx(), op);
         }
       }
+    };
+  }
+
+  _csfleLogInformation(fleOptions?: Readonly<ConnectionFleOptions>) {
+    if (!fleOptions || !hasAnyKMSProvider(fleOptions.autoEncryption))
+      return null;
+    return {
+      storeCredentials: fleOptions.storeCredentials,
+      schemaMapNamespaces: Object.keys(
+        fleOptions.autoEncryption?.schemaMap ?? {}
+      ),
+      keyVaultNamespace: fleOptions.autoEncryption.keyVaultNamespace,
+      kmsProviders: Object.entries(
+        fleOptions.autoEncryption?.kmsProviders ?? {}
+      )
+        .filter(
+          ([, kmsOptions]) =>
+            Object.values(kmsOptions).filter(Boolean).length > 0
+        )
+        .map(([kmsProviderName]) => kmsProviderName),
     };
   }
 }

@@ -25,9 +25,12 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "webpack": "./src/index.ts",
     "require": "./dist/index.js"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -60,7 +63,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.10.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-redux": "*",

@@ -10,30 +10,30 @@ const configureActions = () => {
     /**
      * starts schema analysis with the current query
      */
-    startAnalysis: {sync: false},
+    startAnalysis: { sync: false },
     /**
      * stops schema analysis
      */
-    stopAnalysis: {sync: true},
+    stopAnalysis: { sync: true },
     /**
      * Reset store
      */
-    reset: {sync: false},
+    reset: { sync: false },
     /**
      * set new maxTimeMS value
      */
-    setMaxTimeMS: {sync: true},
+    setMaxTimeMS: { sync: true },
     /**
      * reset maxTimeMS value to default
      */
-    resetMaxTimeMS: {sync: true},
+    resetMaxTimeMS: { sync: true },
     /**
      * Resize the minicharts.
      */
-    resizeMiniCharts: {sync: true},
-    geoLayerAdded: {sync: true},
-    geoLayersEdited: {sync: true},
-    geoLayersDeleted: {sync: true}
+    resizeMiniCharts: { sync: true },
+    geoLayerAdded: { sync: true },
+    geoLayersEdited: { sync: true },
+    geoLayersDeleted: { sync: true },
   });
 };
 

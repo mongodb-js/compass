@@ -1,7 +1,7 @@
 /* eslint-disable react/sort-comp */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BSONValue } from '@mongodb-js/compass-components';
+import { BSONValue, Icon } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 
 /**
@@ -202,6 +202,17 @@ class CellRenderer extends React.Component {
 
     return (
       <div className={className}>
+        {
+          /* TODO(COMPASS-5706): figure out exact placement */
+          this.props.value.decrypted && (
+            <span
+              data-test-id="hadron-document-element-decrypted-icon"
+              title="Encrypted with CSFLE"
+            >
+              <Icon glyph="Key" size="small" />
+            </span>
+          )
+        }
         {element}
       </div>
     );
