@@ -56,7 +56,7 @@ export async function replaceLibffmpeg(
         )
       : context.appOutDir;
 
-  let libFileName = 'libffmpeg.dll';
+  let libFileName = 'ffmpeg.dll';
   if (context.electronPlatformName === 'darwin') {
     libFileName = 'libffmpeg.dylib';
   } else if (context.electronPlatformName === 'linux') {

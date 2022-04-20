@@ -19,7 +19,7 @@ const distDir = path.resolve(electronBuilderWorkingDir, 'dist');
 const projectDir = path.resolve(electronBuilderWorkingDir, 'project');
 const bulidResourcesDir = path.resolve(electronBuilderWorkingDir, 'build');
 
-async function prepareProjectDir() {
+async function prepareProjectDir(distributionInfo: { productName: string }) {
   console.log('Creating project dir', projectDir);
   mkdirpSync(projectDir);
 
@@ -36,6 +36,8 @@ async function prepareProjectDir() {
     version,
     dependencies,
     engines,
+    author,
+    description,
     license,
     devDependencies,
     repository,
@@ -46,6 +48,9 @@ async function prepareProjectDir() {
     JSON.stringify({
       name,
       version,
+      productName: distributionInfo.productName,
+      description,
+      author,
       engines,
       license,
       dependencies,
@@ -83,7 +88,7 @@ export async function runElectronBuilder(distributionInfo: {
   // Since we are going to run npm install we will use a different project dir
   // just for running electron-builder so it won't confuse the configuration
   // of the monorepo.
-  await prepareProjectDir();
+  await prepareProjectDir(distributionInfo);
 
   const electronBuilderConfig: Configuration = {
     publish: [],
@@ -124,11 +129,13 @@ export async function runElectronBuilder(distributionInfo: {
     },
     squirrelWindows: {
       msi: false,
+      remoteReleases: false,
       iconUrl: 'https://compass.mongodb.com/favicon.ico',
       loadingGif: path.resolve(
         __dirname,
         '../../app-icons/win32/mongodb-compass-installer-loading.gif'
       ),
+      name: distributionInfo.productName.replace(/ /g, ''),
     },
     appId: distributionInfo.bundleId,
     productName: distributionInfo.productName,
@@ -174,10 +181,17 @@ export async function runElectronBuilder(distributionInfo: {
     JSON.parse(JSON.stringify(electronBuilderConfig))
   );
 
+  const target =
+    process.platform === 'darwin'
+      ? Platform.MAC.createTarget()
+      : process.platform === 'win32'
+      ? Platform.WINDOWS.createTarget()
+      : Platform.LINUX.createTarget();
+
   await build({
     publish: 'never',
     projectDir: projectDir,
-    targets: Platform.MAC.createTarget(),
+    targets: target,
     config: electronBuilderConfig,
   });
 }
