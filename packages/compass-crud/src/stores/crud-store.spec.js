@@ -206,6 +206,41 @@ describe('store', function() {
     });
   });
 
+  describe('#toggleInsertDocument', () => {
+    let store;
+    let actions;
+
+    beforeEach(() => {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        actions: actions
+      });
+      store.openInsertDocumentDialog({ foo: 1 });
+    });
+
+    it('switches between JSON and Document view', async() => {
+      let listener;
+
+      listener = waitForState(store, (state) => {
+        expect(state).to.have.nested.property('insert.jsonView', false);
+      });
+
+      store.toggleInsertDocument('List');
+
+      await listener;
+
+      listener = waitForState(store, (state) => {
+        expect(state).to.have.nested.property('insert.jsonView', true);
+      });
+
+      store.toggleInsertDocument('JSON');
+
+      await listener;
+    });
+  });
+
   describe('#onCollectionChanged', () => {
     let store;
     let actions;
