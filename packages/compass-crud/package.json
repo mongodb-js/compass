@@ -98,7 +98,7 @@
     "mongodb-ace-mode": "^1.6.0",
     "mongodb-connection-model": "^21.15.0",
     "mongodb-data-service": "^21.19.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "mongodb-runner": "^4.8.3",
     "node-loader": "^0.6.0",
     "numeral": "^2.0.6",

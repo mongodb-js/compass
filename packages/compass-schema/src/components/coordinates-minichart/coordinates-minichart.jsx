@@ -30,7 +30,7 @@ const UNSELECTED_COLOR = '#43B1E5';
  * map.
  * @param {react-leaflet.Map} map The rendered component ref.
  */
-const attachAttribution = async function(map) {
+const attachAttribution = async function (map) {
   let attributionMessage = '';
   if (map) {
     const bounds = map.leafletElement.getBounds();
@@ -58,10 +58,13 @@ const attachAttribution = async function(map) {
  * @param {Array<Double>} value
  * @returns {Boolean}
  */
-const isValidLatLng = value => {
+const isValidLatLng = (value) => {
   if (isNaN(+value[0]) || isNaN(+value[1])) {
     // eslint-disable-next-line no-console
-    console.warn('@mongodb-js/compass-schema:coordinates-minichart: Dropping invalid coordinate value', value);
+    console.warn(
+      '@mongodb-js/compass-schema:coordinates-minichart: Dropping invalid coordinate value',
+      value
+    );
     return false;
   }
 
@@ -73,7 +76,7 @@ const isValidLatLng = value => {
  * @param {Array} value `[long, lat]`
  * @returns {Object}
  */
-const valueToGeoPoint = value => {
+const valueToGeoPoint = (value) => {
   const [lng, lat] = [+value[0], +value[1]];
 
   const point = {
@@ -87,9 +90,9 @@ const valueToGeoPoint = value => {
     fields: [
       {
         key: '[longitude, latitude]',
-        value: `[Lat = ${lat}, Long = ${lng}]`
-      }
-    ]
+        value: `[Lat = ${lat}, Long = ${lng}]`,
+      },
+    ],
   };
   return point;
 };
@@ -119,17 +122,17 @@ class CoordinatesMinichart extends PureComponent {
       count: PropTypes.number.isRequired,
       probability: PropTypes.number.isRequired,
       unique: PropTypes.number,
-      values: PropTypes.array
+      values: PropTypes.array,
     }),
     width: PropTypes.number.isRequired,
     actions: PropTypes.object.isRequired,
     height: PropTypes.number.isRequired,
-    fieldName: PropTypes.string.isRequired
+    fieldName: PropTypes.string.isRequired,
   };
 
   state = {
     ready: false,
-    attributionMessage: ''
+    attributionMessage: '',
   };
 
   /**
@@ -137,11 +140,11 @@ class CoordinatesMinichart extends PureComponent {
    * with the maximum zoom level possible.
    */
   fitMapBounds() {
-    const { map } = this.refs;
+    const map = this.mapRef;
     if (!map) {
       return;
     }
-    const leaflet = this.refs.map.leafletElement;
+    const leaflet = map.leafletElement;
 
     const values = this.props.type.values.filter(isValidLatLng);
 
@@ -150,13 +153,15 @@ class CoordinatesMinichart extends PureComponent {
     if (values.length === 1) {
       bounds = L.latLng(+values[0][1], +values[0][0]).toBounds(800);
     } else {
-      values.forEach(v => {
+      values.forEach((v) => {
         bounds.extend(L.latLng(+v[1], +v[0]));
       });
     }
     // If the bounds are equal, we need to extend them otherwise leaflet will error.
-    if (bounds._northEast.lat === bounds._southWest.lat &&
-      bounds._northEast.lng === bounds._southWest.lng) {
+    if (
+      bounds._northEast.lat === bounds._southWest.lat &&
+      bounds._northEast.lng === bounds._southWest.lng
+    ) {
       bounds._northEast.lat = bounds._northEast.lat + 0.1;
       bounds._southWest.lng = bounds._southWest.lng - 0.1;
     }
@@ -182,13 +187,12 @@ class CoordinatesMinichart extends PureComponent {
       return;
     }
 
-    const { map } = this.refs;
-    const attributionMessage = await attachAttribution(map);
+    const attributionMessage = await attachAttribution(this.mapRef);
     this.setState({ attributionMessage });
   }
 
   invalidateMapSize() {
-    const { map } = this.refs;
+    const map = this.mapRef;
     if (!map) {
       return;
     }
@@ -208,33 +212,30 @@ class CoordinatesMinichart extends PureComponent {
    * @returns {react.Component}
    */
   renderMapItems() {
-    const {
-      fieldName
-    } = this.props;
+    const { fieldName } = this.props;
 
     const values = this.props.type.values.filter(isValidLatLng);
 
-    const geopoints = values
-      .map(value => {
-        const v = valueToGeoPoint(value);
-        v.fields[0].key = fieldName;
-        return v;
-      });
+    const geopoints = values.map((value) => {
+      const v = valueToGeoPoint(value);
+      v.fields[0].key = fieldName;
+      return v;
+    });
 
     return <GeoscatterMapItem data={geopoints} />;
   }
 
   onCreated = (evt) => {
     this.props.actions.geoLayerAdded(this.props.fieldName, evt.layer);
-  }
+  };
 
   onEdited = (evt) => {
     this.props.actions.geoLayersEdited(this.props.fieldName, evt.layers);
-  }
+  };
 
   onDeleted = (evt) => {
     this.props.actions.geoLayersDeleted(evt.layers);
-  }
+  };
 
   /**
    * Values plotted to a leaftlet.js map with attribution
@@ -248,8 +249,11 @@ class CoordinatesMinichart extends PureComponent {
         minZoom={1}
         viewport={{ center: [0, 0], zoom: 1 }}
         whenReady={this.whenMapReady}
-        ref="map"
-        onMoveend={this.onMoveEnd}>
+        ref={(ref) => {
+          this.mapRef = ref;
+        }}
+        onMoveend={this.onMoveEnd}
+      >
         {this.renderMapItems()}
         <TileLayer url={DEFAULT_TILE_URL} attribution={attributionMessage} />
         <FeatureGroup>
@@ -265,7 +269,7 @@ class CoordinatesMinichart extends PureComponent {
               rectangle: false,
               polyline: false,
               marker: false,
-              circlemarker: false
+              circlemarker: false,
             }}
           />
         </FeatureGroup>

@@ -16,8 +16,8 @@ class MiniChart extends Component {
     fieldName: PropTypes.string.isRequired,
     actions: PropTypes.object.isRequired,
     type: PropTypes.object.isRequired,
-    nestedDocType: PropTypes.object
-  }
+    nestedDocType: PropTypes.object,
+  };
 
   constructor(props) {
     super(props);
@@ -25,7 +25,7 @@ class MiniChart extends Component {
       containerWidth: null,
       filter: {},
       valid: true,
-      userTyping: false
+      userTyping: false,
     };
     this.resizeListener = this.handleResize.bind(this);
   }
@@ -42,7 +42,7 @@ class MiniChart extends Component {
       this.setState({
         filter: store.filter,
         valid: store.valid,
-        userTyping: store.userTyping
+        userTyping: store.userTyping,
       });
     };
 
@@ -50,7 +50,8 @@ class MiniChart extends Component {
     onQueryChanged(QueryStore.state);
 
     this.unsubscribeQueryStore = QueryStore.listen(onQueryChanged);
-    this.unsubscribeMiniChartResize = this.props.actions.resizeMiniCharts.listen(this.resizeListener);
+    this.unsubscribeMiniChartResize =
+      this.props.actions.resizeMiniCharts.listen(this.resizeListener);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -81,8 +82,14 @@ class MiniChart extends Component {
 
   minichartFactory() {
     // cast all numeric types to Number pseudo-type
-    const typeName = [ CONSTANTS.DECIMAL_128, CONSTANTS.DOUBLE, CONSTANTS.INT_32, CONSTANTS.LONG ].includes(
-      this.props.type.name) ? CONSTANTS.NUMBER : this.props.type.name;
+    const typeName = [
+      CONSTANTS.DECIMAL_128,
+      CONSTANTS.DOUBLE,
+      CONSTANTS.INT_32,
+      CONSTANTS.LONG,
+    ].includes(this.props.type.name)
+      ? CONSTANTS.NUMBER
+      : this.props.type.name;
 
     const fieldName = this.props.fieldName;
     const queryValue = this.state.filter[fieldName];
@@ -90,7 +97,10 @@ class MiniChart extends Component {
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 
-    if ([ CONSTANTS.STRING, CONSTANTS.NUMBER ].includes(typeName) && !hasDuplicates) {
+    if (
+      [CONSTANTS.STRING, CONSTANTS.NUMBER].includes(typeName) &&
+      !hasDuplicates
+    ) {
       return (
         <UniqueMiniChart
           localAppRegistry={this.props.localAppRegistry}
@@ -116,11 +126,7 @@ class MiniChart extends Component {
       );
     }
     if (typeName === 'Document') {
-      return (
-        <DocumentMinichart
-          nestedDocType={this.props.nestedDocType}
-        />
-      );
+      return <DocumentMinichart nestedDocType={this.props.nestedDocType} />;
     }
     if (typeName === 'Array') {
       return (
@@ -151,9 +157,15 @@ class MiniChart extends Component {
   }
 
   render() {
-    const minichart = this.state.containerWidth ? this.minichartFactory() : null;
+    const minichart = this.state.containerWidth
+      ? this.minichartFactory()
+      : null;
     return (
-      <div ref={(chart) => { this._mc = chart; }}>
+      <div
+        ref={(chart) => {
+          this._mc = chart;
+        }}
+      >
         {minichart}
       </div>
     );

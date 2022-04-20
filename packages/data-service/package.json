@@ -70,7 +70,7 @@
     "mongodb-connection-model": "^21.15.0",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb-index-model": "^3.9.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

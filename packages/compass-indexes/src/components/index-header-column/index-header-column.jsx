@@ -17,8 +17,7 @@ class IndexHeaderColumn extends PureComponent {
     sortColumn: PropTypes.string.isRequired,
     dataTestId: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    sortIndexes: PropTypes.func.isRequired
-
+    sortIndexes: PropTypes.func.isRequired,
   };
 
   /**
@@ -31,9 +30,9 @@ class IndexHeaderColumn extends PureComponent {
     evt.stopPropagation();
     let order;
     if (this.props.sortColumn === this.props.name) {
-      order = (this.props.sortOrder === ASC) ? DESC : ASC;
+      order = this.props.sortOrder === ASC ? DESC : ASC;
     } else {
-      order = (this.props.sortColumn === DEFAULT) ? ASC : DESC;
+      order = this.props.sortColumn === DEFAULT ? ASC : DESC;
     }
     this.props.sortIndexes(this.props.indexes, this.props.name, order);
   }
@@ -53,11 +52,15 @@ class IndexHeaderColumn extends PureComponent {
       <th
         data-test-id={this.props.dataTestId}
         className={this._renderClassName()}
-        onClick={this.handleIndexSort.bind(this)}>
+        onClick={this.handleIndexSort.bind(this)}
+      >
         {this.props.name}
         <i
-          className={classnames(styles['index-header-column-sort'], `fa fa-fw ${this.props.sortOrder}`)}
-          onClick={this.handleIndexSort.bind(this)}/>
+          className={classnames(
+            styles['index-header-column-sort'],
+            `fa fa-fw ${this.props.sortOrder}`
+          )}
+        />
       </th>
     );
   }

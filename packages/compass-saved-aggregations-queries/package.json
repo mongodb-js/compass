@@ -68,7 +68,7 @@
     "@react-aria/utils": "^3.11.0",
     "bson": "^4.6.1",
     "fuse.js": "^6.5.3",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-redux": "^5.1.2",

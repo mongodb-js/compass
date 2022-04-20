@@ -79,6 +79,7 @@ describe('Sidebar [Component]', () => {
             changeDatabases={() => {}}
             changeFilterRegex={() => {}}
             updateAndSaveConnectionInfo={()=>{}}
+            setConnectionIsCSFLEEnabled={() =>{}}
             saveFavorite={saveFavoriteSpy}
           />
         </Provider>
@@ -177,6 +178,7 @@ describe('Sidebar [Component]', () => {
         <Provider store={SidebarStore}>
           <Sidebar
             updateAndSaveConnectionInfo={()=>{}}
+            setConnectionIsCSFLEEnabled={() => {}}
             connectionInfo={connectionInfo}
           />
         </Provider>

@@ -1672,5 +1672,26 @@ describe('DataService', function () {
         expect(colls).to.deep.eq(['bar']);
       });
     });
+
+    it('allows disabling/enabling the split-client model for CSFLE', function () {
+      const dataService: any = createDataServiceWithMockedClient({});
+      const a = {};
+      const b = {};
+      dataService._crudClient = a;
+      dataService._metadataClient = b;
+
+      expect(dataService._initializedClient('CRUD')).to.equal(a);
+      expect(dataService._initializedClient('META')).to.equal(b);
+
+      dataService.setCSFLEEnabled(false);
+
+      expect(dataService._initializedClient('CRUD')).to.equal(b);
+      expect(dataService._initializedClient('META')).to.equal(b);
+
+      dataService.setCSFLEEnabled(true);
+
+      expect(dataService._initializedClient('CRUD')).to.equal(a);
+      expect(dataService._initializedClient('META')).to.equal(b);
+    });
   });
 });
