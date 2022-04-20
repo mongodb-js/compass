@@ -13,8 +13,6 @@ import { loadIndexesFromDb, parseErrorMsg } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { namespaceChanged } from '../modules/namespace';
 
-const debug = require('debug')('mongodb-compass:stores:IndexesStore');
-
 /**
  * Handle setting up the data provider.
  *
@@ -77,11 +75,6 @@ const configureStore = (options = {}) => {
       options.dataProvider.dataProvider
     );
   }
-
-  store.subscribe(() => {
-    const state = store.getState();
-    debug('IndexesStore changed to', state);
-  });
 
   return store;
 };
