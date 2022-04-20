@@ -87,7 +87,7 @@ class Settings extends PureComponent {
                   Limits input documents before $group, $bucket, and $bucketAuto
                   stages. Set a limit to make the preview run faster.
                   <br />
-                  Note: this setting is only applied for the document previews, it is not applied when the pipeline is `Run`.
+                  Note: this setting is only applied for the document previews, it is not applied when the pipeline is run.
                 </>
               )}
             </Description>
