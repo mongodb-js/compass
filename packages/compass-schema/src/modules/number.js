@@ -7,17 +7,17 @@ import many from './many';
 import shared from './shared';
 
 /**
-* extracts a Javascript number from a BSON type.
-*
-* @param {Any} value     value to be converted to a number
-* @return {Number}       converted value
-*/
+ * extracts a Javascript number from a BSON type.
+ *
+ * @param {Any} value     value to be converted to a number
+ * @return {Number}       converted value
+ */
 function extractNumericValueFromBSON(value) {
   if (value && value._bsontype) {
-    if ([ 'Decimal128', 'Long' ].includes(value._bsontype)) {
+    if (['Decimal128', 'Long'].includes(value._bsontype)) {
       return parseFloat(value.toString(), 10);
     }
-    if ([ 'Double', 'Int32' ].includes(value._bsontype)) {
+    if (['Double', 'Int32'].includes(value._bsontype)) {
       return value.value;
     }
   }
@@ -29,14 +29,14 @@ const minicharts_d3fns_number = (appRegistry) => {
   let width = 400;
   let height = 100;
   const options = {
-    view: null
+    view: null,
   };
   const margin = shared.margin;
   const xBinning = d3.scale.linear();
   const manyChart = many(appRegistry);
 
   function chart(selection) {
-    selection.each(function(data) {
+    selection.each(function (data) {
       let grouped;
       const el = d3.select(this);
       const innerWidth = width - margin.left - margin.right;
@@ -44,10 +44,10 @@ const minicharts_d3fns_number = (appRegistry) => {
 
       // transform data
       if (options.unique < 20) {
-        const g = groupBy(data, function(d) {
+        const g = groupBy(data, function (d) {
           return extractNumericValueFromBSON(d);
         });
-        const gr = map(g, function(v, k) {
+        const gr = map(g, function (v, k) {
           v.label = k;
           v.x = parseFloat(k, 10);
           v.value = v.x;
@@ -56,24 +56,23 @@ const minicharts_d3fns_number = (appRegistry) => {
           v.bson = v[0];
           return v;
         });
-        grouped = sortBy(gr, function(v) {
+        grouped = sortBy(gr, function (v) {
           return v.value;
         });
       } else {
         // use the linear scale just to get nice binning values
-        xBinning
-          .domain(d3.extent(data))
-          .range([0, innerWidth]);
+        xBinning.domain(d3.extent(data)).range([0, innerWidth]);
 
         // Generate a histogram using approx. twenty uniformly-spaced bins
         const ticks = xBinning.ticks(20);
-        const hist = d3.layout.histogram()
+        const hist = d3.layout
+          .histogram()
           .bins(ticks)
           .value(extractNumericValueFromBSON);
 
         grouped = hist(data);
 
-        grouped.forEach(function(d, i) {
+        grouped.forEach(function (d, i) {
           let label;
           if (i === 0) {
             label = '< ' + (d.x + d.dx);
@@ -101,7 +100,7 @@ const minicharts_d3fns_number = (appRegistry) => {
         labels = true;
       } else {
         labels = {
-          text: function(d, i) {
+          text: function (d, i) {
             if (i === 0) {
               return 'min: ' + d3.min(data);
             }
@@ -109,7 +108,7 @@ const minicharts_d3fns_number = (appRegistry) => {
               return 'max: ' + d3.max(data);
             }
             return '';
-          }
+          },
         };
       }
 
@@ -126,7 +125,7 @@ const minicharts_d3fns_number = (appRegistry) => {
     });
   }
 
-  chart.width = function(value) {
+  chart.width = function (value) {
     if (!arguments.length) {
       return width;
     }
@@ -134,7 +133,7 @@ const minicharts_d3fns_number = (appRegistry) => {
     return chart;
   };
 
-  chart.height = function(value) {
+  chart.height = function (value) {
     if (!arguments.length) {
       return height;
     }
@@ -142,7 +141,7 @@ const minicharts_d3fns_number = (appRegistry) => {
     return chart;
   };
 
-  chart.options = function(value) {
+  chart.options = function (value) {
     if (!arguments.length) {
       return options;
     }
@@ -150,7 +149,7 @@ const minicharts_d3fns_number = (appRegistry) => {
     return chart;
   };
 
-  chart.cleanup = function() {
+  chart.cleanup = function () {
     manyChart.cleanup();
     return chart;
   };

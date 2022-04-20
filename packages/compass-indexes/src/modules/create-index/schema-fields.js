@@ -1,7 +1,8 @@
 /**
  * Change schema fields.
  */
-export const CHANGE_SCHEMA_FIELDS = 'indexes/create-index/name/CHANGE_SCHEMA_FIELDS';
+export const CHANGE_SCHEMA_FIELDS =
+  'indexes/create-index/name/CHANGE_SCHEMA_FIELDS';
 
 /**
  * The initial state of the schema fields.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeSchemaFields = (schemaFields) => ({
   type: CHANGE_SCHEMA_FIELDS,
-  schemaFields: schemaFields
+  schemaFields: schemaFields,
 });

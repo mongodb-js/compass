@@ -37,5 +37,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsVisible = (isVisible) => ({
   type: TOGGLE_IS_VISIBLE,
-  isVisible: isVisible
+  isVisible: isVisible,
 });

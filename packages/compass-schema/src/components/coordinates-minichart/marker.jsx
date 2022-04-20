@@ -7,7 +7,7 @@ import CustomPopup from './marker-popup';
 const DEFAULT_STYLES = {
   weight: 1,
   radius: 5,
-  fillOpacity: 0.6
+  fillOpacity: 0.6,
 };
 
 // Give a popup to a react-leaflet marker component
@@ -21,10 +21,10 @@ const popupComponent = (ParentComponent, properties) => {
   return (
     <ParentComponent
       {...props}
-      onMouseOver={e => {
+      onMouseOver={(e) => {
         e.target.openPopup();
       }}
-      onMouseOut={e => {
+      onMouseOut={(e) => {
         e.target.closePopup();
       }}
     >

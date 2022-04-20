@@ -117,7 +117,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isstring": "^4.0.1",
     "mongodb": "^4.4.1",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "re-resizable": "^6.9.0",
     "react-bootstrap": "^0.32.4",
     "react-redux": "^5.0.6",

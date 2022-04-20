@@ -33,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsCustomCollation = (isCustomCollation) => ({
   type: TOGGLE_IS_CUSTOM_COLLATION,
-  isCustomCollation: isCustomCollation
+  isCustomCollation: isCustomCollation,
 });

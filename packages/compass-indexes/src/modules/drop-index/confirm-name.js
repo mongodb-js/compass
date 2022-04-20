@@ -1,7 +1,8 @@
 /**
  * Create confirm name action.
  */
-export const CHANGE_CONFIRM_NAME = 'indexes/drop-index/confirm-name/CHANGE_CONFIRM_NAME';
+export const CHANGE_CONFIRM_NAME =
+  'indexes/drop-index/confirm-name/CHANGE_CONFIRM_NAME';
 
 /**
  * The initial state of the confirm name.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeConfirmName = (name) => ({
   type: CHANGE_CONFIRM_NAME,
-  name: name
+  name: name,
 });

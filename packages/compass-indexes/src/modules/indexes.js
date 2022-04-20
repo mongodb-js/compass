@@ -42,9 +42,11 @@ export const INITIAL_STATE = [];
  * @returns {Function} The comparator function.
  */
 const _propertiesComparator = (order) => {
-  return function(a, b) {
-    const aValue = (a.cardinality === 'compound') ? 'compound' : (a.properties[0] || '');
-    const bValue = (b.cardinality === 'compound') ? 'compound' : (b.properties[0] || '');
+  return function (a, b) {
+    const aValue =
+      a.cardinality === 'compound' ? 'compound' : a.properties[0] || '';
+    const bValue =
+      b.cardinality === 'compound' ? 'compound' : b.properties[0] || '';
     if (aValue > bValue) {
       return order;
     }
@@ -64,11 +66,11 @@ const _propertiesComparator = (order) => {
  * @returns {Function} The function.
  */
 const _comparator = (field, odr) => {
-  const order = (odr === ASC) ? 1 : -1;
+  const order = odr === ASC ? 1 : -1;
   if (field === 'properties') {
     return _propertiesComparator(order);
   }
-  return function(a, b) {
+  return function (a, b) {
     if (a[field] > b[field]) {
       return order;
     }
@@ -102,21 +104,21 @@ const _field = (f) => {
  * @returns {Array} The index models.
  */
 const _convertToModels = (indexes) => {
-  const maxSize = max(indexes.map((index) => {
-    return index.size;
-  }));
+  const maxSize = max(
+    indexes.map((index) => {
+      return index.size;
+    })
+  );
   return map(indexes, (index) => {
     const model = new IndexModel(new IndexModel().parse(index));
-    model.relativeSize = model.size / maxSize * 100;
+    model.relativeSize = (model.size / maxSize) * 100;
     return model;
   });
 };
 
 export const modelAndSort = (indexes, sortColumn, sortOrder) => {
   return _convertToModels(indexes).sort(
-    _comparator(
-      _field(sortColumn),
-      sortOrder)
+    _comparator(_field(sortColumn), sortOrder)
   );
 };
 
@@ -138,7 +140,6 @@ export const parseErrorMsg = (err) => {
   return 'Unknown error';
 };
 
-
 /**
  * Reducer function for handle state changes to indexes.
  *
@@ -149,7 +150,9 @@ export const parseErrorMsg = (err) => {
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SORT_INDEXES) {
-    return [...action.indexes].sort(_comparator(_field(action.column), action.order));
+    return [...action.indexes].sort(
+      _comparator(_field(action.column), action.order)
+    );
   } else if (action.type === LOAD_INDEXES) {
     return action.indexes;
   }
@@ -165,7 +168,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const loadIndexes = (indexes) => ({
   type: LOAD_INDEXES,
-  indexes: indexes
+  indexes: indexes,
 });
 
 /**
@@ -181,7 +184,7 @@ export const sortIndexes = (indexes, column, order) => ({
   type: SORT_INDEXES,
   indexes: indexes,
   column: column,
-  order: order
+  order: order,
 });
 
 /**
