@@ -11,8 +11,8 @@ class ArrayMinichart extends Component {
 
   static propTypes = {
     type: PropTypes.object.isRequired,
-    nestedDocType: PropTypes.object
-  }
+    nestedDocType: PropTypes.object,
+  };
 
   render() {
     let arrayOfFieldsMessage = '';
@@ -23,7 +23,9 @@ class ArrayMinichart extends Component {
     }
 
     const minLength = min(this.props.type.lengths);
-    const averageLength = numeral(this.props.type.average_length).format('0.0[0]');
+    const averageLength = numeral(this.props.type.average_length).format(
+      '0.0[0]'
+    );
     const maxLength = max(this.props.type.lengths);
 
     return (

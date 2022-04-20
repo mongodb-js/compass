@@ -10,10 +10,10 @@ class UniqueMiniChart extends Component {
   static propTypes = {
     localAppRegistry: PropTypes.object.isRequired,
     fieldName: PropTypes.string.isRequired,
-    queryValue: PropTypes.string,
+    queryValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     type: PropTypes.object.isRequired,
-    width: PropTypes.number
-  }
+    width: PropTypes.number,
+  };
 
   constructor(props) {
     super(props);
@@ -24,7 +24,7 @@ class UniqueMiniChart extends Component {
     e.stopPropagation();
     e.preventDefault();
     this.setState({
-      sample: sampleSize(this.props.type.values, 20)
+      sample: sampleSize(this.props.type.values, 20),
     });
   }
 
@@ -52,7 +52,7 @@ class UniqueMiniChart extends Component {
       );
     });
     const style = {
-      width: this.props.width
+      width: this.props.width,
     };
 
     return (
@@ -67,9 +67,7 @@ class UniqueMiniChart extends Component {
             </IconButton>
           </dt>
           <dd>
-            <ul className="list-inline">
-              {randomValueList}
-            </ul>
+            <ul className="list-inline">{randomValueList}</ul>
           </dd>
         </dl>
       </div>
