@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
-import DropIndexModal from './components/drop-index-modal';
+import CreateIndexModal from './components/create-index-modal';
 
-class DropIndexPlugin extends Component {
-  static displayName = 'DropIndexPlugin';
+class CreateIndexPlugin extends Component {
+  static displayName = 'CreateIndexPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.
@@ -17,10 +17,10 @@ class DropIndexPlugin extends Component {
   render() {
     return (
       <Provider store={this.props.store}>
-        <DropIndexModal />
+        <CreateIndexModal />
       </Provider>
     );
   }
 }
 
-export default DropIndexPlugin;
+export default CreateIndexPlugin;

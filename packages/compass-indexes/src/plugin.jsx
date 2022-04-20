@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
-import CreateIndexModal from './components/create-index-modal';
+import Indexes from './components/indexes';
 
-class CreateIndexPlugin extends Component {
-  static displayName = 'CreateIndexPlugin';
+class Plugin extends Component {
+  static displayName = 'IndexesPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.
@@ -17,10 +17,10 @@ class CreateIndexPlugin extends Component {
   render() {
     return (
       <Provider store={this.props.store}>
-        <CreateIndexModal />
+        <Indexes />
       </Provider>
     );
   }
 }
 
-export default CreateIndexPlugin;
+export default Plugin;
