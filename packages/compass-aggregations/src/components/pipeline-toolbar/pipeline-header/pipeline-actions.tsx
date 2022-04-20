@@ -9,6 +9,7 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 
+import type { RootState } from '../../../modules';
 import {
   exportAggregationResults,
   runAggregation,
@@ -37,6 +38,7 @@ const optionStyles = css({
 });
 
 type PipelineActionsProps = {
+  isPipelineInvalid: boolean;
   isOptionsVisible: boolean;
   onRunAggregation: () => void;
   onToggleOptions: () => void;
@@ -44,6 +46,7 @@ type PipelineActionsProps = {
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
+  isPipelineInvalid,
   isOptionsVisible,
   onRunAggregation,
   onToggleOptions,
@@ -64,6 +67,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           onClick={() => {
             onExportAggregationResults();
           }}
+          disabled={isPipelineInvalid}
         >
           Export
         </Button>
@@ -76,6 +80,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         onClick={() => {
           onRunAggregation();
         }}
+        disabled={isPipelineInvalid}
       >
         Run
       </Button>
@@ -99,7 +104,15 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   );
 };
 
-export default connect(null, {
+const mapState = ({ pipeline }: RootState) => ({
+  isPipelineInvalid: pipeline.some(
+    (x) => x.isEnabled && (!x.isValid || x.error)
+  ),
+});
+
+const mapDispatch = {
   onRunAggregation: runAggregation,
   onExportAggregationResults: exportAggregationResults,
-})(PipelineActions);
+};
+
+export default connect(mapState, mapDispatch)(PipelineActions);
