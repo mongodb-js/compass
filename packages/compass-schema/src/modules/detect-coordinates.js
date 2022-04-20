@@ -12,14 +12,18 @@ const _ = require('lodash');
  *                         coordinates or false if bounds check fails.
  */
 function _zipCoordinates(values) {
-  const lons = _.filter(values, function(val, idx) {
+  const lons = _.filter(values, function (val, idx) {
     return idx % 2 === 0;
   });
-  const lats = _.filter(values, function(val, idx) {
+  const lats = _.filter(values, function (val, idx) {
     return idx % 2 === 1;
   });
-  if (_.min(lons) >= -180 && _.max(lons) <= 180 &&
-    _.min(lats) >= -90 && _.max(lats) <= 90) {
+  if (
+    _.min(lons) >= -180 &&
+    _.max(lons) <= 180 &&
+    _.min(lats) >= -90 &&
+    _.max(lats) <= 90
+  ) {
     return _.zip(lons, lats);
   }
   return false;
@@ -38,9 +42,11 @@ function _detectLegacyPairs(type) {
   if (!type.lengths) {
     return false;
   }
-  if (!_.every(type.lengths, function(length) {
-    return length === 2;
-  })) {
+  if (
+    !_.every(type.lengths, function (length) {
+      return length === 2;
+    })
+  ) {
     return false;
   }
   // make sure the array only contains numbers
@@ -54,7 +60,9 @@ function _detectLegacyPairs(type) {
     return false;
   }
   // support both promoted Number type and unpromoted Double, Decimal128 or Int32
-  if (!_.includes(['Number', 'Double', 'Int32', 'Decimal128'], type.types[0].name)) {
+  if (
+    !_.includes(['Number', 'Double', 'Int32', 'Decimal128'], type.types[0].name)
+  ) {
     return false;
   }
   return _zipCoordinates(type.types[0].values);
@@ -101,9 +109,11 @@ function _detectGeoJSON(type) {
   if (typeField.types[0].name !== 'String') {
     return false;
   }
-  if (!_.every(typeField.types[0].values, function(value) {
-    return value === 'Point';
-  })) {
+  if (
+    !_.every(typeField.types[0].values, function (value) {
+      return value === 'Point';
+    })
+  ) {
     return false;
   }
   // check that `coordinate` has one type `Array`

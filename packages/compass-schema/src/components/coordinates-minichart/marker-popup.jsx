@@ -18,8 +18,8 @@ CustomPopup.propTypes = {
 
 const CustomPopupFields = ({ fields }) => {
   return fields
-    .filter(field => field.key)
-    .map(field => {
+    .filter((field) => field.key)
+    .map((field) => {
       const { key, value } = field;
 
       return (
