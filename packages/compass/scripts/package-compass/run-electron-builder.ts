@@ -4,11 +4,11 @@ import { rmSync, mkdirpSync, copySync } from 'fs-extra';
 import path from 'path';
 import fs from 'fs';
 
-import { installProductionDeps } from './hooks/install-production-deps';
-import { rebuildNativeModules } from './hooks/rebuild-native-modules';
-import { replaceLibffmpeg } from './hooks/replace-ffmpeg';
-import packageJson from './../../package.json';
-import { copyChromiumLicense } from './hooks/copy-chromium-license';
+import { installProductionDeps } from './install-production-deps';
+import { rebuildNativeModules } from './rebuild-native-modules';
+import { replaceLibffmpeg } from './replace-ffmpeg';
+import packageJson from '../../package.json';
+import { copyChromiumLicense } from './copy-chromium-license';
 
 const compassPackageRoot = path.resolve(__dirname, '..', '..');
 const electronBuilderWorkingDir = path.resolve(

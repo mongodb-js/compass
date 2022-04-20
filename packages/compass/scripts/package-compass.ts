@@ -1,5 +1,5 @@
 import path from 'path';
-import { runElectronBuilder } from './electron-builder/run-electron-builder';
+import { runElectronBuilder } from './package-compass/run-electron-builder';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const HadronBuildTarget = require('hadron-build/lib/target');
