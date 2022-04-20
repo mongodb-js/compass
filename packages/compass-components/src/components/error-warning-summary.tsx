@@ -20,7 +20,9 @@ const listStyle = css({
 
 const summaryStyles = css({
   display: 'flex',
-  justifyContent: 'space-between',
+});
+
+const actionButtonStyles = css({
   marginLeft: 'auto',
 });
 
@@ -98,6 +100,7 @@ export function ErrorSummary({
             data-testid="banner-action"
             size="xsmall"
             onClick={() => onAction()}
+            className={actionButtonStyles}
           >
             {actionText}
           </Button>
