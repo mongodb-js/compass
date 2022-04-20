@@ -1,11 +1,34 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Type from '../type';
-import Minichart from '../minichart';
-import detectCoordinates from '../../modules/detect-coordinates';
+import {
+  Subtitle,
+  IconButton,
+  Icon,
+  css,
+  uiColors,
+  spacing,
+} from '@mongodb-js/compass-components';
 import sortBy from 'lodash.sortby';
 import get from 'lodash.get';
 import find from 'lodash.find';
+
+import Type from '../type';
+import Minichart from '../minichart';
+import detectCoordinates from '../../modules/detect-coordinates';
+
+const expandCollapseFieldSchemaStyles = css({
+  color: uiColors.gray.dark2,
+  minWidth: 0,
+  // marginRight: spacing[1],
+  marginLeft: -spacing[3],
+});
+
+const fieldNameStyles = css({
+  fontWeight: 'bold',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
 
 /**
  * The full schema component class.
@@ -121,10 +144,10 @@ class Field extends Component {
   }
 
   /**
-   * onclick handler to toggle collapsed/expanded state. This will hide/show
+   * onClick handler to toggle collapsed/expanded state. This will hide/show
    * the nested fields and turn the disclosure triangle sideways.
    */
-  titleClicked() {
+  onToggleCollapseClicked() {
     this.setState({ collapsed: !this.state.collapsed });
   }
 
@@ -173,16 +196,27 @@ class Field extends Component {
       <div className={cls}>
         <div className="row">
           <div className="col-sm-4">
-            {/* eslint-disable jsx-a11y/click-events-have-key-events */}
-            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-            <div
-              className="schema-field-name"
-              onClick={this.titleClicked.bind(this)}
-            >
-              <span className={nestedDocType ? 'caret' : ''} />
-              <span>{this.props.name}</span>
+            <div className="schema-field-name">
+              {nestedDocType && (
+                <>
+                  <IconButton
+                    className={expandCollapseFieldSchemaStyles}
+                    aria-label={
+                      this.state.collapsed
+                        ? 'Expand Document Schema'
+                        : 'Collapse Document Schema'
+                    }
+                    onClick={this.onToggleCollapseClicked.bind(this)}
+                  >
+                    <Icon
+                      glyph={this.state.collapsed ? 'CaretRight' : 'CaretDown'}
+                    />
+                  </IconButton>
+                  &nbsp;
+                </>
+              )}
+              <Subtitle className={fieldNameStyles}>{this.props.name}</Subtitle>
             </div>
-            {/* eslint-enable jsx-a11y/click-events-have-key-events */}
 
             <div className="schema-field-type-list">{typeList}</div>
           </div>
