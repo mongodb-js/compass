@@ -230,6 +230,7 @@
     "depcheck": "^1.4.1",
     "electron": "13.5.1",
     "electron-builder": "^23.0.3",
+    "electron-builder-squirrel-windows": "^23.0.6",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^10.1.0",
     "electron-rebuild": "^3.2.7",
