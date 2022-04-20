@@ -1,7 +1,8 @@
 /**
  * Change is unique action name.
  */
-export const TOGGLE_IS_UNIQUE = 'indexes/create-indexes/is-unique/TOGGLE_IS_UNIQUE';
+export const TOGGLE_IS_UNIQUE =
+  'indexes/create-indexes/is-unique/TOGGLE_IS_UNIQUE';
 
 /**
  * The initial state of the is writable attribute.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsUnique = (isUnique) => ({
   type: TOGGLE_IS_UNIQUE,
-  isUnique: isUnique
+  isUnique: isUnique,
 });

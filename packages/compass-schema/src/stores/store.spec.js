@@ -1,105 +1,107 @@
 import configureStore from '.';
 import AppRegistry from 'hadron-app-registry';
+import { expect } from 'chai';
+
 import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
 
-describe('Schema Store', () => {
-  describe('#configureStore', () => {
+describe('Schema Store', function () {
+  describe('#configureStore', function () {
     let store;
     const localAppRegistry = new AppRegistry();
     const globalAppRegistry = new AppRegistry();
     const dataService = 'test';
     const namespace = 'db.coll';
 
-    beforeEach(() => {
+    beforeEach(function () {
       store = configureStore({
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry,
         dataProvider: {
           error: null,
-          dataProvider: dataService
+          dataProvider: dataService,
         },
-        namespace: namespace
+        namespace: namespace,
       });
     });
 
-    afterEach(() => {
+    afterEach(function () {
       store = null;
     });
 
-    it('sets the local app registry', () => {
+    it('sets the local app registry', function () {
       expect(store.localAppRegistry).to.equal(localAppRegistry);
     });
 
-    it('sets the global app registry', () => {
+    it('sets the global app registry', function () {
       expect(store.globalAppRegistry).to.equal(globalAppRegistry);
     });
 
-    it('sets the data provider', () => {
+    it('sets the data provider', function () {
       expect(store.dataService).to.equal(dataService);
     });
 
-    it('sets the namespace', () => {
+    it('sets the namespace', function () {
       expect(store.ns).to.equal(namespace);
     });
 
-    it('defaults analysis state to initial', () => {
+    it('defaults analysis state to initial', function () {
       expect(store.state.analysisState).to.equal(ANALYSIS_STATE_INITIAL);
     });
 
-    it('defaults the error to empty', () => {
+    it('defaults the error to empty', function () {
       expect(store.state.errorMessage).to.equal('');
     });
 
-    it('defaults max time ms to the default', () => {
+    it('defaults max time ms to the default', function () {
       expect(store.query.maxTimeMS).to.equal(60000);
     });
 
-    it('defaults the schema to null', () => {
+    it('defaults the schema to null', function () {
       expect(store.state.schema).to.equal(null);
     });
   });
 
-  context('when query change events are emitted', () => {
+  context('when query change events are emitted', function () {
     let store;
     const localAppRegistry = new AppRegistry();
     const filter = { name: 'test' };
     const limit = 50;
     const project = { name: 1 };
 
-    beforeEach(() => {
+    beforeEach(function () {
       store = configureStore({ localAppRegistry: localAppRegistry });
       localAppRegistry.emit('query-changed', {
         filter: filter,
         limit: limit,
-        project: project
+        project: project,
       });
     });
 
-    afterEach(() => {
+    afterEach(function () {
       store = null;
     });
 
-    it('sets the filter', () => {
+    it('sets the filter', function () {
       expect(store.query.filter).to.deep.equal(filter);
     });
 
-    it('sets the limit', () => {
+    it('sets the limit', function () {
       expect(store.query.limit).to.deep.equal(limit);
     });
 
-    it('sets the project', () => {
+    it('sets the project', function () {
       expect(store.query.project).to.deep.equal(project);
     });
   });
 
-  context('schema analysis tracking', () => {
+  context('schema analysis tracking', function () {
     let store;
 
-    beforeEach(() => {
+    beforeEach(function () {
       store = configureStore();
     });
 
-    it('calculates the correct depth of schema', () => {
+    it('calculates the correct depth of schema', function () {
       let schema = {
         fields: [],
       };
@@ -134,7 +136,7 @@ describe('Schema Store', () => {
                   {
                     bsonType: 'Double',
                     path: 'tags',
-                  }
+                  },
                 ],
               },
             ],
@@ -166,7 +168,7 @@ describe('Schema Store', () => {
                             path: 'location.coordinates',
                           },
                         ],
-                      }
+                      },
                     ],
                     type: 'Array',
                   },
@@ -177,7 +179,7 @@ describe('Schema Store', () => {
                       {
                         bsonType: 'String',
                         path: 'location.type',
-                      }
+                      },
                     ],
                     type: 'String',
                   },
@@ -213,7 +215,7 @@ describe('Schema Store', () => {
                             path: 'location.coordinates',
                           },
                         ],
-                      }
+                      },
                     ],
                     type: 'Array',
                   },
@@ -224,7 +226,7 @@ describe('Schema Store', () => {
                       {
                         bsonType: 'String',
                         path: 'location.type',
-                      }
+                      },
                     ],
                     type: 'String',
                   },
@@ -235,105 +237,153 @@ describe('Schema Store', () => {
           },
           {
             path: 'investments',
-            types: [{
-              bsonType: 'Array',
-              path: 'investments',
-              types: [{
-                bsonType: 'Document',
+            types: [
+              {
+                bsonType: 'Array',
                 path: 'investments',
-                fields: [{
-                  path: 'investments.funding_round',
-                  types: [{
+                types: [
+                  {
                     bsonType: 'Document',
-                    path: 'investments.funding_round',
-                    fields: [{
-                      path: 'investments.funding_round.company',
-                      types: [{
-                        bsonType: 'Document',
-                        path: 'investments.funding_round.company',
-                        fields: [{
-                          path: 'investments.funding_round.company.name',
-                          types: [{
-                            bsonType: 'String',
-                            path: 'investments.funding_round.company.name',
-                          }],
-                        }, {
-                          path: 'investments.funding_round.company.permalink',
-                          types: [{
-                            bsonType: 'String',
-                            path: 'investments.funding_round.company.permalink',
-                          }],
-                        }],
-                      }],
-                      type: 'Document',
-                    }, {
-                      path: 'investments.funding_round.funded_day',
-                      types: [{
-                        bsonType: 'Int32',
-                        path: 'investments.funding_round.funded_day',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.funded_day',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.funded_month',
-                      types: [{
-                        bsonType: 'Int32',
-                        path: 'investments.funding_round.funded_month',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.funded_month',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.funded_year',
-                      types: [{
-                        bsonType: 'Int32',
-                        path: 'investments.funding_round.funded_year',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.funded_year',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.raised_amount',
-                      types: [{
-                        bsonType: 'Int32',
-                        path: 'investments.funding_round.raised_amount',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.raised_amount',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.raised_currency_code',
-                      types: [{
-                        bsonType: 'String',
-                        path: 'investments.funding_round.raised_currency_code',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.raised_currency_code',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.round_code',
-                      types: [{
-                        bsonType: 'String',
-                        path: 'investments.funding_round.round_code',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.source_description',
-                      types: [{
-                        bsonType: 'String',
-                        path: 'investments.funding_round.source_description',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.source_url',
-                      types: [{
-                        bsonType: 'String',
-                        path: 'investments.funding_round.source_url',
-                      }],
-                    }],
-                  }],
-                }],
-              }],
-            }],
+                    path: 'investments',
+                    fields: [
+                      {
+                        path: 'investments.funding_round',
+                        types: [
+                          {
+                            bsonType: 'Document',
+                            path: 'investments.funding_round',
+                            fields: [
+                              {
+                                path: 'investments.funding_round.company',
+                                types: [
+                                  {
+                                    bsonType: 'Document',
+                                    path: 'investments.funding_round.company',
+                                    fields: [
+                                      {
+                                        path: 'investments.funding_round.company.name',
+                                        types: [
+                                          {
+                                            bsonType: 'String',
+                                            path: 'investments.funding_round.company.name',
+                                          },
+                                        ],
+                                      },
+                                      {
+                                        path: 'investments.funding_round.company.permalink',
+                                        types: [
+                                          {
+                                            bsonType: 'String',
+                                            path: 'investments.funding_round.company.permalink',
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                                type: 'Document',
+                              },
+                              {
+                                path: 'investments.funding_round.funded_day',
+                                types: [
+                                  {
+                                    bsonType: 'Int32',
+                                    path: 'investments.funding_round.funded_day',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.funded_day',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.funded_month',
+                                types: [
+                                  {
+                                    bsonType: 'Int32',
+                                    path: 'investments.funding_round.funded_month',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.funded_month',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.funded_year',
+                                types: [
+                                  {
+                                    bsonType: 'Int32',
+                                    path: 'investments.funding_round.funded_year',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.funded_year',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.raised_amount',
+                                types: [
+                                  {
+                                    bsonType: 'Int32',
+                                    path: 'investments.funding_round.raised_amount',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.raised_amount',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.raised_currency_code',
+                                types: [
+                                  {
+                                    bsonType: 'String',
+                                    path: 'investments.funding_round.raised_currency_code',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.raised_currency_code',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.round_code',
+                                types: [
+                                  {
+                                    bsonType: 'String',
+                                    path: 'investments.funding_round.round_code',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.source_description',
+                                types: [
+                                  {
+                                    bsonType: 'String',
+                                    path: 'investments.funding_round.source_description',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.source_url',
+                                types: [
+                                  {
+                                    bsonType: 'String',
+                                    path: 'investments.funding_round.source_url',
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
             type: 'Array',
           },
         ],
@@ -341,7 +391,7 @@ describe('Schema Store', () => {
       expect(store.calculateSchemaDepth(schema)).to.equal(4);
     });
 
-    it('checks if schema contains geo data', () => {
+    it('checks if schema contains geo data', function () {
       let schema = {
         fields: [],
       };
@@ -376,7 +426,7 @@ describe('Schema Store', () => {
                   {
                     bsonType: 'Double',
                     path: 'tags',
-                  }
+                  },
                 ],
               },
             ],
@@ -408,7 +458,7 @@ describe('Schema Store', () => {
                             path: 'location.coordinates',
                           },
                         ],
-                      }
+                      },
                     ],
                     type: 'Array',
                   },
@@ -420,7 +470,7 @@ describe('Schema Store', () => {
                         bsonType: 'String',
                         path: 'location.type',
                         values: ['Point', 'Point'],
-                      }
+                      },
                     ],
                     type: 'String',
                   },
@@ -456,7 +506,7 @@ describe('Schema Store', () => {
                             path: 'location.coordinates',
                           },
                         ],
-                      }
+                      },
                     ],
                     type: 'Array',
                   },
@@ -467,8 +517,15 @@ describe('Schema Store', () => {
                       {
                         bsonType: 'String',
                         path: 'location.type',
-                        values: ['LineString', 'LineString', 'LineString', null, undefined, 123],
-                      }
+                        values: [
+                          'LineString',
+                          'LineString',
+                          'LineString',
+                          null,
+                          undefined,
+                          123,
+                        ],
+                      },
                     ],
                     type: 'String',
                   },
@@ -479,105 +536,153 @@ describe('Schema Store', () => {
           },
           {
             path: 'investments',
-            types: [{
-              bsonType: 'Array',
-              path: 'investments',
-              types: [{
-                bsonType: 'Document',
+            types: [
+              {
+                bsonType: 'Array',
                 path: 'investments',
-                fields: [{
-                  path: 'investments.funding_round',
-                  types: [{
+                types: [
+                  {
                     bsonType: 'Document',
-                    path: 'investments.funding_round',
-                    fields: [{
-                      path: 'investments.funding_round.company',
-                      types: [{
-                        bsonType: 'Document',
-                        path: 'investments.funding_round.company',
-                        fields: [{
-                          path: 'investments.funding_round.company.name',
-                          types: [{
-                            bsonType: 'String',
-                            path: 'investments.funding_round.company.name',
-                          }],
-                        }, {
-                          path: 'investments.funding_round.company.permalink',
-                          types: [{
-                            bsonType: 'String',
-                            path: 'investments.funding_round.company.permalink',
-                          }],
-                        }],
-                      }],
-                      type: 'Document',
-                    }, {
-                      path: 'investments.funding_round.funded_day',
-                      types: [{
-                        bsonType: 'Int32',
-                        path: 'investments.funding_round.funded_day',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.funded_day',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.funded_month',
-                      types: [{
-                        bsonType: 'Int32',
-                        path: 'investments.funding_round.funded_month',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.funded_month',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.funded_year',
-                      types: [{
-                        bsonType: 'Int32',
-                        path: 'investments.funding_round.funded_year',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.funded_year',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.raised_amount',
-                      types: [{
-                        bsonType: 'Int32',
-                        path: 'investments.funding_round.raised_amount',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.raised_amount',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.raised_currency_code',
-                      types: [{
-                        bsonType: 'String',
-                        path: 'investments.funding_round.raised_currency_code',
-                      }, {
-                        bsonType: 'Null',
-                        path: 'investments.funding_round.raised_currency_code',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.round_code',
-                      types: [{
-                        bsonType: 'String',
-                        path: 'investments.funding_round.round_code',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.source_description',
-                      types: [{
-                        bsonType: 'String',
-                        path: 'investments.funding_round.source_description',
-                      }],
-                    }, {
-                      path: 'investments.funding_round.source_url',
-                      types: [{
-                        bsonType: 'String',
-                        path: 'investments.funding_round.source_url',
-                      }],
-                    }],
-                  }],
-                }],
-              }],
-            }],
+                    path: 'investments',
+                    fields: [
+                      {
+                        path: 'investments.funding_round',
+                        types: [
+                          {
+                            bsonType: 'Document',
+                            path: 'investments.funding_round',
+                            fields: [
+                              {
+                                path: 'investments.funding_round.company',
+                                types: [
+                                  {
+                                    bsonType: 'Document',
+                                    path: 'investments.funding_round.company',
+                                    fields: [
+                                      {
+                                        path: 'investments.funding_round.company.name',
+                                        types: [
+                                          {
+                                            bsonType: 'String',
+                                            path: 'investments.funding_round.company.name',
+                                          },
+                                        ],
+                                      },
+                                      {
+                                        path: 'investments.funding_round.company.permalink',
+                                        types: [
+                                          {
+                                            bsonType: 'String',
+                                            path: 'investments.funding_round.company.permalink',
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                                type: 'Document',
+                              },
+                              {
+                                path: 'investments.funding_round.funded_day',
+                                types: [
+                                  {
+                                    bsonType: 'Int32',
+                                    path: 'investments.funding_round.funded_day',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.funded_day',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.funded_month',
+                                types: [
+                                  {
+                                    bsonType: 'Int32',
+                                    path: 'investments.funding_round.funded_month',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.funded_month',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.funded_year',
+                                types: [
+                                  {
+                                    bsonType: 'Int32',
+                                    path: 'investments.funding_round.funded_year',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.funded_year',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.raised_amount',
+                                types: [
+                                  {
+                                    bsonType: 'Int32',
+                                    path: 'investments.funding_round.raised_amount',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.raised_amount',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.raised_currency_code',
+                                types: [
+                                  {
+                                    bsonType: 'String',
+                                    path: 'investments.funding_round.raised_currency_code',
+                                  },
+                                  {
+                                    bsonType: 'Null',
+                                    path: 'investments.funding_round.raised_currency_code',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.round_code',
+                                types: [
+                                  {
+                                    bsonType: 'String',
+                                    path: 'investments.funding_round.round_code',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.source_description',
+                                types: [
+                                  {
+                                    bsonType: 'String',
+                                    path: 'investments.funding_round.source_description',
+                                  },
+                                ],
+                              },
+                              {
+                                path: 'investments.funding_round.source_url',
+                                types: [
+                                  {
+                                    bsonType: 'String',
+                                    path: 'investments.funding_round.source_url',
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
             type: 'Array',
           },
         ],
