@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsTtl = (isTtl) => ({
   type: TOGGLE_IS_TTL,
-  isTtl: isTtl
+  isTtl: isTtl,
 });

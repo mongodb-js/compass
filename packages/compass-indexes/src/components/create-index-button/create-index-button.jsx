@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 class CreateIndexButton extends PureComponent {
   static displayName = 'CreateIndexButton';
   static propTypes = {
-    localAppRegistry: PropTypes.object.isRequired
+    localAppRegistry: PropTypes.object.isRequired,
   };
 
   /**
@@ -47,7 +47,8 @@ class CreateIndexButton extends PureComponent {
           isCollectionLevel
           text="Create Index"
           tooltipId="index-is-not-writable"
-          clickHandler={this.clickCreateHandler.bind(this)} />
+          clickHandler={this.clickCreateHandler.bind(this)}
+        />
       </div>
     );
   }
