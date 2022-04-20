@@ -1,7 +1,8 @@
 /**
  * Create index partial filter expression action.
  */
-export const CHANGE_PARTIAL_FILTER_EXPRESSION = 'indexes/create-index/partial-filter-expression/CHANGE_PARTIAL_FILTER_EXPRESSION';
+export const CHANGE_PARTIAL_FILTER_EXPRESSION =
+  'indexes/create-index/partial-filter-expression/CHANGE_PARTIAL_FILTER_EXPRESSION';
 
 /**
  * The initial state of the partial filter expression.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changePartialFilterExpression = (partialFilterExpression) => ({
   type: CHANGE_PARTIAL_FILTER_EXPRESSION,
-  partialFilterExpression: partialFilterExpression
+  partialFilterExpression: partialFilterExpression,
 });

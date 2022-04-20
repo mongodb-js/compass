@@ -21,9 +21,8 @@ class IndexComponent extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     localAppRegistry: PropTypes.object.isRequired,
     changeName: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired
+    openLink: PropTypes.func.isRequired,
   };
-
 
   /**
    * Render the index.
@@ -32,20 +31,31 @@ class IndexComponent extends PureComponent {
    */
   render() {
     return (
-      <tr className={classnames(styles['index-component'])} data-test-id={`index-component-${this.props.index.name}`}>
+      <tr
+        className={classnames(styles['index-component'])}
+        data-test-id={`index-component-${this.props.index.name}`}
+      >
         <NameColumn index={this.props.index} />
-        <TypeColumn index={this.props.index} openLink={this.props.openLink}/>
+        <TypeColumn index={this.props.index} openLink={this.props.openLink} />
         <SizeColumn
           size={this.props.index.size}
-          relativeSize={this.props.index.relativeSize} />
-        <UsageColumn usage={this.props.index.usageCount} since={this.props.index.usageSince} />
-        <PropertyColumn index={this.props.index} openLink={this.props.openLink}/>
+          relativeSize={this.props.index.relativeSize}
+        />
+        <UsageColumn
+          usage={this.props.index.usageCount}
+          since={this.props.index.usageSince}
+        />
+        <PropertyColumn
+          index={this.props.index}
+          openLink={this.props.openLink}
+        />
         <DropColumn
           indexName={this.props.index.name}
           isReadonly={this.props.isReadonly}
           isWritable={this.props.isWritable}
           localAppRegistry={this.props.localAppRegistry}
-          changeName={this.props.changeName} />
+          changeName={this.props.changeName}
+        />
       </tr>
     );
   }

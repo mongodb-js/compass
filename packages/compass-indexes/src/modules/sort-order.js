@@ -5,7 +5,6 @@ import { SORT_INDEXES, ASC } from './indexes';
  */
 export const INITIAL_STATE = ASC;
 
-
 /**
  * Reducer function for handle state changes to sortOrder.
  *

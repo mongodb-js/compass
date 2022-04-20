@@ -6,14 +6,15 @@ import { handleError } from '../error';
  * Create field names.
  */
 export const ADD_FIELD = 'indexes/create-index/fields/ADD_FIELD';
-export const UPDATE_FIELD_TYPE = 'indexes/create-index/fields/UPDATE_FIELD_TYPE';
+export const UPDATE_FIELD_TYPE =
+  'indexes/create-index/fields/UPDATE_FIELD_TYPE';
 export const REMOVE_FIELD = 'indexes/create-index/fields/REMOVE_FIELD';
 export const CHANGE_FIELDS = 'indexes/create-index/fields/CHANGE_FIELDS';
 
 /**
  * The initial state of the field names.
  */
-export const INITIAL_STATE = [{name: '', type: ''}];
+export const INITIAL_STATE = [{ name: '', type: '' }];
 
 /**
  * Reducer function for handle state changes to the field names.
@@ -26,7 +27,7 @@ export const INITIAL_STATE = [{name: '', type: ''}];
 export default function reducer(state = INITIAL_STATE, action) {
   const fields = [...state];
   if (action.type === ADD_FIELD) {
-    fields.push({name: '', type: ''});
+    fields.push({ name: '', type: '' });
     return fields;
   }
   if (action.type === REMOVE_FIELD) {
@@ -48,20 +49,20 @@ export default function reducer(state = INITIAL_STATE, action) {
 }
 
 export const addField = () => ({
-  type: ADD_FIELD
+  type: ADD_FIELD,
 });
 export const removeField = (idx) => ({
   type: REMOVE_FIELD,
-  idx: idx
+  idx: idx,
 });
 export const updateFieldType = (idx, fType) => ({
   type: UPDATE_FIELD_TYPE,
   idx: idx,
-  fType: fType
+  fType: fType,
 });
 export const changeFields = (fields) => ({
   type: CHANGE_FIELDS,
-  fields: fields
+  fields: fields,
 });
 
 export const updateFieldName = (idx, name) => {
@@ -70,11 +71,11 @@ export const updateFieldName = (idx, name) => {
     const fields = [...state.fields];
     if (idx >= 0 && idx < state.fields.length) {
       // check if field name exists
-      if (state.fields.some(field => field.name === name)) {
+      if (state.fields.some((field) => field.name === name)) {
         dispatch(handleError('Index keys must be unique'));
         return;
       }
-      const field = {...fields[idx]};
+      const field = { ...fields[idx] };
       field.name = name;
       fields[idx] = field;
       dispatch(changeFields(fields));

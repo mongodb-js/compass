@@ -15,7 +15,7 @@ class IndexList extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     localAppRegistry: PropTypes.object.isRequired,
     changeName: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired
+    openLink: PropTypes.func.isRequired,
   };
 
   /**
@@ -37,11 +37,7 @@ class IndexList extends PureComponent {
         />
       );
     });
-    return (
-      <tbody data-test-id="index-list">
-        {indexes}
-      </tbody>
-    );
+    return <tbody data-test-id="index-list">{indexes}</tbody>;
   }
 }
 

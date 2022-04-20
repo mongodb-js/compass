@@ -16,9 +16,8 @@ class SizeColumn extends PureComponent {
 
   static propTypes = {
     size: PropTypes.number.isRequired,
-    relativeSize: PropTypes.number.isRequired
+    relativeSize: PropTypes.number.isRequired,
   };
-
 
   _format(size) {
     const precision = size <= 1000 ? '0' : '0.0';
@@ -32,28 +31,35 @@ class SizeColumn extends PureComponent {
    */
   render() {
     const indexSize = this._format(this.props.size).split(' ');
-    const tooltipText = `${this.props.relativeSize.toFixed(2)}% compared to largest index`;
+    const tooltipText = `${this.props.relativeSize.toFixed(
+      2
+    )}% compared to largest index`;
     const tooltipOptions = {
       'data-tip': tooltipText,
       'data-for': TOOLTIP_ID,
       'data-effect': 'solid',
-      'data-border': true
+      'data-border': true,
     };
     return (
       <td className={classnames(styles['size-column'])}>
         <div
           className={classnames(styles['size-column-quantity'])}
-          data-test-id="index-table-size">
+          data-test-id="index-table-size"
+        >
           {indexSize[0]}
         </div>
         <div className={classnames(styles['size-column-unit'])}>
           {indexSize[1]}
         </div>
-        <div {...tooltipOptions} className={classnames(styles['size-column-progress'])}>
-          <ReactTooltip id={TOOLTIP_ID}/>
+        <div
+          {...tooltipOptions}
+          className={classnames(styles['size-column-progress'])}
+        >
+          <ReactTooltip id={TOOLTIP_ID} />
           <div
             className={classnames(styles['size-column-progress-bar'])}
-            style={{'width': `${this.props.relativeSize}%`}}/>
+            style={{ width: `${this.props.relativeSize}%` }}
+          />
         </div>
       </td>
     );
