@@ -8,7 +8,6 @@ import type { AnyAction, Dispatch } from 'redux';
 import type { DataService } from 'mongodb-data-service';
 import { parseNamespace } from '../utils/stage';
 import { createId } from './id';
-
 import {
   DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
@@ -17,6 +16,11 @@ import {
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import type { AggregateOptions, Document } from 'mongodb';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry(
+  'COMPASS-AGGREGATIONS-UI'
+);
 
 export type Projection = {
   name: string;
@@ -295,7 +299,6 @@ const deleteStage = (state: State, action: AnyAction): State => {
  * @returns {Object} The new state.
  */
 const moveStage = (state: State, action: AnyAction): State => {
-  if (action.fromIndex === action.toIndex) return state;
   const newState = copyState(state);
   newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
   return newState;
@@ -441,9 +444,18 @@ export default function reducer(state = [emptyStage()], action: AnyAction): Stat
 /**
  * Action creator for adding a stage.
  */
-export const stageAdded = (): AnyAction => ({
-  type: STAGE_ADDED
-});
+export const stageAdded =
+  (): ThunkAction<void, RootState, void, AnyAction> => (dispatch, getState) => {
+    const { pipeline } = getState();
+    track('Aggregation Edited', {
+      num_stages: pipeline.length,
+      stage_action: 'stage_added',
+      stage_name: null
+    });
+    dispatch({
+      type: STAGE_ADDED
+    });
+  };
 
 /**
  * Action creator for adding a stage after current one.
@@ -451,10 +463,20 @@ export const stageAdded = (): AnyAction => ({
  *
  * @returns {Object} the stage added after action.
  */
-export const stageAddedAfter = (index: number): AnyAction => ({
-  index: index,
-  type: STAGE_ADDED_AFTER
-});
+export const stageAddedAfter =
+  (index: number): ThunkAction<void, RootState, void, AnyAction> =>
+  (dispatch, getState) => {
+    const { pipeline } = getState();
+    track('Aggregation Edited', {
+      num_stages: pipeline.length,
+      stage_action: 'stage_added',
+      stage_name: null
+    });
+    dispatch({
+      type: STAGE_ADDED_AFTER,
+      index
+    });
+  };
 
 /**
  * Action creator for stage changed events.
@@ -489,10 +511,20 @@ export const stageCollapseToggled = (index: number): AnyAction => ({
  *
  * @returns {Object} The stage deleted action.
  */
-export const stageDeleted = (index: number): AnyAction => ({
-  type: STAGE_DELETED,
-  index: index
-});
+export const stageDeleted =
+  (index: number): ThunkAction<void, RootState, void, AnyAction> =>
+  (dispatch, getState) => {
+    const { pipeline } = getState();
+    track('Aggregation Edited', {
+      num_stages: pipeline.length,
+      stage_action: 'stage_removed',
+      stage_name: pipeline[index].stageOperator
+    });
+    dispatch({
+      type: STAGE_DELETED,
+      index
+    });
+  };
 
 /**
  * Action creator for stage moved events.
@@ -502,11 +534,25 @@ export const stageDeleted = (index: number): AnyAction => ({
  *
  * @returns {Object} The stage moved action.
  */
-export const stageMoved = (fromIndex: number, toIndex: number): AnyAction => ({
-  type: STAGE_MOVED,
-  fromIndex: fromIndex,
-  toIndex: toIndex
-});
+export const stageMoved =
+  (
+    fromIndex: number,
+    toIndex: number
+  ): ThunkAction<void, RootState, void, AnyAction> =>
+  (dispatch, getState) => {
+    if (fromIndex === toIndex) return;
+    const { pipeline } = getState();
+    track('Aggregation Edited', {
+      num_stages: pipeline.length,
+      stage_action: 'stage_reordered',
+      stage_name: pipeline[fromIndex].stageOperator
+    });
+    dispatch({
+      type: STAGE_MOVED,
+      fromIndex: fromIndex,
+      toIndex: toIndex
+    });
+  };
 
 /**
  * Action creator for stage operator selected events.
@@ -518,13 +564,29 @@ export const stageMoved = (fromIndex: number, toIndex: number): AnyAction => ({
  *
  * @returns {Object} The stage operator selected action.
  */
-export const stageOperatorSelected = (index: number, operator: string, isCommenting: boolean, env: string): AnyAction => ({
-  type: STAGE_OPERATOR_SELECTED,
-  index: index,
-  stageOperator: operator,
-  isCommenting: isCommenting,
-  env: env
-});
+export const stageOperatorSelected =
+  (
+    index: number,
+    stageOperator: string,
+    isCommenting: boolean,
+    env: string
+  ): ThunkAction<void, RootState, void, AnyAction> =>
+  (dispatch, getState) => {
+    const { pipeline } = getState();
+    if (pipeline[index].stageOperator === stageOperator) return;
+    track('Aggregation Edited', {
+      num_stages: pipeline.length,
+      stage_action: 'stage_renamed',
+      stage_name: stageOperator
+    });
+    dispatch({
+      type: STAGE_OPERATOR_SELECTED,
+      index,
+      stageOperator,
+      isCommenting,
+      env
+    });
+  };
 
 /**
  * Handles toggling a stage on/off.

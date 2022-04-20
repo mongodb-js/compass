@@ -1,7 +1,6 @@
 /* eslint-disable valid-jsdoc */
 import fs from 'fs';
 import { promisify } from 'util';
-import { isEmpty } from 'lodash';
 
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
@@ -378,16 +377,16 @@ export const openExport = ({
   aggregation,
 }) => {
   return async (dispatch, getState) => {
-    track('Export Opened');
+    const isAggregation = !!aggregation;
+    track('Export Opened', { type: isAggregation ? 'aggregation' : 'query' });
     const {
       dataService: { dataService },
     } = getState();
     try {
-      let count = maybeCount;
-      if (!isEmpty(query)) {
-        count =
-          count ?? (await fetchDocumentCount(dataService, namespace, query));
-      }
+      const count = isAggregation
+        ? null
+        : maybeCount ??
+          (await fetchDocumentCount(dataService, namespace, query));
 
       dispatch(nsChanged(namespace));
       dispatch(onModalOpen({ namespace, query, count, aggregation }));
@@ -523,6 +522,7 @@ export const startExport = () => {
       return dispatch(onError(err));
     } finally {
       track('Export Completed', {
+        type: exportData.aggregation ? 'aggregation' : 'query',
         all_docs: exportData.isFullCollection,
         file_type: exportData.fileType,
         all_fields: Object.values(exportData.fields).every(
