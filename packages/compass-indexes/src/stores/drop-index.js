@@ -4,7 +4,7 @@ import reducer from '../modules/drop-index';
 import { dataServiceConnected } from '../modules/data-service';
 import {
   localAppRegistryActivated,
-  globalAppRegistryActivated
+  globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { parseErrorMsg } from '../modules/indexes';
 import { handleError } from '../modules/error';
@@ -56,7 +56,11 @@ const configureStore = (options = {}) => {
 
   // Set the data provider - this must happen last.
   if (options.dataProvider) {
-    setDataProvider(store, options.dataProvider.error, options.dataProvider.dataProvider);
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
   }
 
   return store;

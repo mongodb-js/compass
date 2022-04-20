@@ -38,5 +38,5 @@ export default reducer;
  */
 export const writeStateChanged = (isWritable) => ({
   type: WRITE_STATE_CHANGED,
-  isWritable: isWritable
+  isWritable: isWritable,
 });

@@ -38,5 +38,5 @@ export default reducer;
  */
 export const getDescription = (description) => ({
   type: GET_DESCRIPTION,
-  description: description
+  description: description,
 });

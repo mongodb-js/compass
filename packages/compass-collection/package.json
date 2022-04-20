@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.10.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-redux": "*",

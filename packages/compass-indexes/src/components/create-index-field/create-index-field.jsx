@@ -16,7 +16,7 @@ const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere', 'text'];
  */
 const DEFAULT_FIELD = {
   name: 'Select or type a field name',
-  type: 'Select a type'
+  type: 'Select a type',
 };
 
 /**
@@ -34,7 +34,7 @@ class CreateIndexField extends PureComponent {
     addField: PropTypes.func.isRequired,
     removeField: PropTypes.func.isRequired,
     updateFieldName: PropTypes.func.isRequired,
-    updateFieldType: PropTypes.func.isRequired
+    updateFieldType: PropTypes.func.isRequired,
   };
 
   /**
@@ -46,7 +46,7 @@ class CreateIndexField extends PureComponent {
     return this.props.fields.map((elem) => ({
       value: elem,
       label: elem,
-      disabled: this.props.disabledFields.some(field => (field === elem))
+      disabled: this.props.disabledFields.some((field) => field === elem),
     }));
   }
 
@@ -58,7 +58,7 @@ class CreateIndexField extends PureComponent {
   getDropdownTypes() {
     return INDEX_TYPES.map((elem) => ({
       value: elem,
-      label: elem
+      label: elem,
     }));
   }
 
@@ -108,7 +108,10 @@ class CreateIndexField extends PureComponent {
 
     return (
       <div className={classnames(styles['create-index-field'])}>
-        <div className={classnames(styles['create-index-field-dropdown-name'])} data-test-id="create-index-modal-field-select">
+        <div
+          className={classnames(styles['create-index-field-dropdown-name'])}
+          data-test-id="create-index-modal-field-select"
+        >
           <Select.Creatable
             value={this.props.field.name}
             placeholder={DEFAULT_FIELD.name}
@@ -116,9 +119,13 @@ class CreateIndexField extends PureComponent {
             onChange={this.selectFieldName.bind(this)}
             clearable={false}
             promptTextCreator={this._promptText}
-            className={hasNameError} />
+            className={hasNameError}
+          />
         </div>
-        <div className={classnames(styles['create-index-field-dropdown-type'])} data-test-id="create-index-modal-type-select">
+        <div
+          className={classnames(styles['create-index-field-dropdown-type'])}
+          data-test-id="create-index-modal-type-select"
+        >
           <Select
             value={this.props.field.type}
             placeholder={DEFAULT_FIELD.type}
@@ -126,13 +133,15 @@ class CreateIndexField extends PureComponent {
             onChange={this.selectFieldType.bind(this)}
             clearable={false}
             searchable={false}
-            className={hasTypeError} />
+            className={hasTypeError}
+          />
         </div>
         <div>
           <button
             disabled={this.props.isRemovable}
             className="btn btn-primary btn-circle"
-            onClick={this.remove.bind(this)}>
+            onClick={this.remove.bind(this)}
+          >
             <i className="fa fa-minus" aria-hidden="true" />
           </button>
         </div>
