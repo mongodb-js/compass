@@ -9,5 +9,5 @@ export const RESET_FORM = 'indexes/reset-form';
  * @return {Object} The action creator.
  */
 export const resetForm = () => ({
-  type: RESET_FORM
+  type: RESET_FORM,
 });

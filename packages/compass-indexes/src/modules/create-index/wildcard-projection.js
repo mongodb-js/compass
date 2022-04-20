@@ -1,7 +1,8 @@
 /**
  * Create index wildcard projection action.
  */
-export const CHANGE_WILDCARD_PROJECTION = 'indexes/create-index/wildcard-projection/CHANGE_WILDCARD_PROJECTION';
+export const CHANGE_WILDCARD_PROJECTION =
+  'indexes/create-index/wildcard-projection/CHANGE_WILDCARD_PROJECTION';
 
 /**
  * The initial state of the wildcard projection.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeWildcardProjection = (wildcardProjection) => ({
   type: CHANGE_WILDCARD_PROJECTION,
-  wildcardProjection: wildcardProjection
+  wildcardProjection: wildcardProjection,
 });

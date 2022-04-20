@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { InfoSprinkle } from 'hadron-react-components';
 import pluralize from 'pluralize';
 
-const SCHEMA_ANALYSIS_DOCS_LINK = 'https://docs.mongodb.com/compass/current/sampling#sampling';
+const SCHEMA_ANALYSIS_DOCS_LINK =
+  'https://docs.mongodb.com/compass/current/sampling#sampling';
 
 /**
  * Component for the analysis message.
@@ -12,8 +13,8 @@ class AnalysisCompleteMessage extends Component {
   static displayName = 'AnalysisCompleteMessageComponent';
 
   static propTypes = {
-    sampleSize: PropTypes.number.isRequired
-  }
+    sampleSize: PropTypes.number.isRequired,
+  };
 
   _openLink(link) {
     const { shell } = require('electron');
@@ -31,7 +32,8 @@ class AnalysisCompleteMessage extends Component {
 
     return (
       <div className="analysis-message">
-        This report is based on a sample of&nbsp;<b>{sampleSize}</b>&nbsp;{documentsNoun}.
+        This report is based on a sample of&nbsp;<b>{sampleSize}</b>&nbsp;
+        {documentsNoun}.
         <InfoSprinkle
           helpLink={SCHEMA_ANALYSIS_DOCS_LINK}
           onClickHandler={this._openLink.bind(this)}

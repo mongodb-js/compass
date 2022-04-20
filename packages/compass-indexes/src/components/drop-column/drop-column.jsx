@@ -14,7 +14,7 @@ class DropColumn extends PureComponent {
     indexName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    localAppRegistry: PropTypes.object.isRequired
+    localAppRegistry: PropTypes.object.isRequired,
   };
 
   /**
@@ -25,7 +25,11 @@ class DropColumn extends PureComponent {
   clickDropHandler(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    this.props.localAppRegistry.emit('toggle-drop-index-modal', true, this.props.indexName);
+    this.props.localAppRegistry.emit(
+      'toggle-drop-index-modal',
+      true,
+      this.props.indexName
+    );
   }
 
   /**
@@ -34,7 +38,11 @@ class DropColumn extends PureComponent {
    * @returns {Boolean} If the index can be dropped.
    */
   isDroppable() {
-    return this.props.isWritable && this.props.indexName !== '_id_' && !this.props.isReadonly;
+    return (
+      this.props.isWritable &&
+      this.props.indexName !== '_id_' &&
+      !this.props.isReadonly
+    );
   }
 
   /**
@@ -45,14 +53,15 @@ class DropColumn extends PureComponent {
   render() {
     return (
       <td className={classnames(styles['drop-column'])}>
-        {this.isDroppable() ?
+        {this.isDroppable() ? (
           <button
             className="drop-btn btn btn-default btn-sm"
             type="button"
-            onClick={this.clickDropHandler.bind(this)}>
-            <i className="drop-column-icon fa fa-trash-o"/>
+            onClick={this.clickDropHandler.bind(this)}
+          >
+            <i className="drop-column-icon fa fa-trash-o" />
           </button>
-          : null}
+        ) : null}
       </td>
     );
   }

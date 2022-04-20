@@ -1,7 +1,8 @@
 /**
  * Change collation option action name.
  */
-export const CHANGE_COLLATION_OPTION = 'indexes/create-index/collation/CHANGE_COLLATION_OPTION';
+export const CHANGE_COLLATION_OPTION =
+  'indexes/create-index/collation/CHANGE_COLLATION_OPTION';
 
 /**
  * The initial state of the collation.
@@ -34,5 +35,5 @@ export default function reducer(state = INITIAL_STATE, action) {
 export const changeCollationOption = (field, value) => ({
   type: CHANGE_COLLATION_OPTION,
   field: field,
-  value: value
+  value: value,
 });

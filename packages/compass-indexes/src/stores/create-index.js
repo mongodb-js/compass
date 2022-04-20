@@ -4,7 +4,7 @@ import reducer from '../modules/create-index';
 import { dataServiceConnected } from '../modules/data-service';
 import {
   localAppRegistryActivated,
-  globalAppRegistryActivated
+  globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { changeSchemaFields } from '../modules/create-index/schema-fields';
@@ -39,9 +39,11 @@ const configureStore = (options = {}) => {
     store.dispatch(localAppRegistryActivated(localAppRegistry));
 
     localAppRegistry.on('fields-changed', (state) => {
-      store.dispatch(changeSchemaFields(
-        Object.keys(state.fields).filter(name => name !== '_id')
-      ));
+      store.dispatch(
+        changeSchemaFields(
+          Object.keys(state.fields).filter((name) => name !== '_id')
+        )
+      );
     });
 
     localAppRegistry.on('toggle-create-index-modal', (isVisible) => {
@@ -65,7 +67,11 @@ const configureStore = (options = {}) => {
 
   // Set the data provider - this must happen second.
   if (options.dataProvider) {
-    setDataProvider(store, options.dataProvider.error, options.dataProvider.dataProvider);
+    setDataProvider(
+      store,
+      options.dataProvider.error,
+      options.dataProvider.dataProvider
+    );
   }
 
   return store;

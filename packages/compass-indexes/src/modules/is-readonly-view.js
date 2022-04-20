@@ -1,7 +1,8 @@
 /**
  * The readonly view changed action name.
  */
-export const READONLY_VIEW_CHANGED = 'indexes/is-readonly-view/READONLY_VIEW_CHANGED';
+export const READONLY_VIEW_CHANGED =
+  'indexes/is-readonly-view/READONLY_VIEW_CHANGED';
 
 /**
  * The initial state of the is readonly view attribute.
@@ -31,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const readonlyViewChanged = (isReadonlyView) => ({
   type: READONLY_VIEW_CHANGED,
-  isReadonlyView: isReadonlyView
+  isReadonlyView: isReadonlyView,
 });
