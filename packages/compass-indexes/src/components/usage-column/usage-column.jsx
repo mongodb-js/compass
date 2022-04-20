@@ -11,7 +11,8 @@ const TOOLTIP_ID = 'index-usage';
 /**
  * No usage stats constant.
  */
-const NO_USAGE_STATS = 'Either the server does not support the $indexStats command' +
+const NO_USAGE_STATS =
+  'Either the server does not support the $indexStats command' +
   'or the user is not authorized to execute it.';
 
 /**
@@ -22,7 +23,7 @@ class UsageColumn extends PureComponent {
 
   static propTypes = {
     usage: PropTypes.any,
-    since: PropTypes.any
+    since: PropTypes.any,
   };
 
   /**
@@ -64,13 +65,17 @@ class UsageColumn extends PureComponent {
       'data-for': TOOLTIP_ID,
       'data-effect': 'solid',
       'data-border': true,
-      'data-multiline': true
+      'data-multiline': true,
     };
     return (
       <td className={classnames(styles['usage-column'])}>
         <span>
-          <div {...tooltipOptions} className={classnames(styles['usage-column-quantity'])} data-test-id="index-table-usage">
-            <ReactTooltip id={TOOLTIP_ID}/>
+          <div
+            {...tooltipOptions}
+            className={classnames(styles['usage-column-quantity'])}
+            data-test-id="index-table-usage"
+          >
+            <ReactTooltip id={TOOLTIP_ID} />
             {usage}
           </div>
           {this.renderSince()}

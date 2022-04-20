@@ -11,7 +11,7 @@ import {
   ANALYSIS_STATE_COMPLETE,
   ANALYSIS_STATE_ERROR,
   ANALYSIS_STATE_INITIAL,
-  ANALYSIS_STATE_TIMEOUT
+  ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
 import { TAB_NAME } from '../constants/plugin';
 
@@ -23,11 +23,19 @@ const DEFAULT_SAMPLE_SIZE = 1000;
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
-const MONGODB_GEO_TYPES = ['Point', 'LineString', 'Polygon', 'MultiPoint', 'MultiLineString', 'MultiPolygon', 'GeometryCollection'];
+const MONGODB_GEO_TYPES = [
+  'Point',
+  'LineString',
+  'Polygon',
+  'MultiPoint',
+  'MultiLineString',
+  'MultiPolygon',
+  'GeometryCollection',
+];
 
 function getErrorState(err) {
   const errorMessage = (err && err.message) || 'Unknown error';
-  const errorCode = (err && err.code);
+  const errorCode = err && err.code;
 
   let analysisState;
 
@@ -86,9 +94,8 @@ export const setLocalAppRegistry = (store, appRegistry) => {
   store.localAppRegistry = appRegistry;
 };
 
-
 function resultId() {
-  return Math.floor(Math.random() * (2 ** 53));
+  return Math.floor(Math.random() * 2 ** 53);
 }
 
 /**
@@ -103,19 +110,18 @@ const configureStore = (options = {}) => {
    * The reflux store for the schema.
    */
   const store = Reflux.createStore({
-
     mixins: [StateMixin.store],
     listenables: options.actions,
 
     /**
      * Initialize the document list store.
      */
-    init: function() {
+    init: function () {
       this.query = {
         filter: {},
         project: null,
         limit: DEFAULT_SAMPLE_SIZE,
-        maxTimeMS: DEFAULT_MAX_TIME_MS
+        maxTimeMS: DEFAULT_MAX_TIME_MS,
       };
       this.ns = '';
       this.geoLayers = {};
@@ -150,7 +156,7 @@ const configureStore = (options = {}) => {
         schema: null,
         outdated: false,
         isActiveTab: false,
-        resultId: resultId()
+        resultId: resultId(),
       };
     },
 
@@ -165,14 +171,14 @@ const configureStore = (options = {}) => {
         !this.state.isActiveTab
       ) {
         this.setState({
-          outdated: true
+          outdated: true,
         });
       }
     },
 
     onSubTabChanged(name) {
       this.setState({
-        isActiveTab: name === TAB_NAME
+        isActiveTab: name === TAB_NAME,
       });
     },
 
@@ -180,16 +186,19 @@ const configureStore = (options = {}) => {
       this.geoLayers = {};
 
       process.nextTick(() => {
-        this.globalAppRegistry.emit(
-          'compass:schema:schema-sampled',
-          { ...this.state, geo: this.geoLayers }
-        );
+        this.globalAppRegistry.emit('compass:schema:schema-sampled', {
+          ...this.state,
+          geo: this.geoLayers,
+        });
       });
     },
 
     geoLayerAdded(field, layer) {
       this.geoLayers = addLayer(field, layer, this.geoLayers);
-      this.localAppRegistry.emit('compass:schema:geo-query', generateGeoQuery(this.geoLayers));
+      this.localAppRegistry.emit(
+        'compass:schema:geo-query',
+        generateGeoQuery(this.geoLayers)
+      );
     },
 
     geoLayersEdited(field, layers) {
@@ -226,7 +235,7 @@ const configureStore = (options = {}) => {
       if (!input) {
         return paths;
       }
-      input.forEach(({types, fields, path, bsonType}) => {
+      input.forEach(({ types, fields, path, bsonType }) => {
         /*
          * Given the strucutre of schema, in case of an array,
          * the path to an array item is still the same because indexes are not
@@ -255,7 +264,10 @@ const configureStore = (options = {}) => {
         return result;
       }
       for (const { path, values, types, fields } of input) {
-        if (path.endsWith('.type') && intersection(MONGODB_GEO_TYPES, values).length > 0) {
+        if (
+          path.endsWith('.type') &&
+          intersection(MONGODB_GEO_TYPES, values).length > 0
+        ) {
           result = true;
         }
         if (!result) {
@@ -281,21 +293,21 @@ const configureStore = (options = {}) => {
       track('Schema Analyzed', trackEvent);
     },
 
-    startAnalysis: async function() {
+    startAnalysis: async function () {
       if (this.schemaAnalysis) {
         return;
       }
 
       const query = this.query || {};
 
-      const sampleSize = query.limit ?
-        Math.min(DEFAULT_SAMPLE_SIZE, query.limit) :
-        DEFAULT_SAMPLE_SIZE;
+      const sampleSize = query.limit
+        ? Math.min(DEFAULT_SAMPLE_SIZE, query.limit)
+        : DEFAULT_SAMPLE_SIZE;
 
       const samplingOptions = {
         query: query.filter,
         size: sampleSize,
-        fields: query.project
+        fields: query.project,
       };
 
       const driverOptions = {
@@ -318,7 +330,7 @@ const configureStore = (options = {}) => {
           analysisState: ANALYSIS_STATE_ANALYZING,
           errorMessage: '',
           outdated: false,
-          schema: null
+          schema: null,
         });
 
         const analysisStartTime = Date.now();
@@ -326,11 +338,11 @@ const configureStore = (options = {}) => {
         const analysisTime = Date.now() - analysisStartTime;
 
         this.setState({
-          analysisState: schema ?
-            ANALYSIS_STATE_COMPLETE :
-            ANALYSIS_STATE_INITIAL,
+          analysisState: schema
+            ? ANALYSIS_STATE_COMPLETE
+            : ANALYSIS_STATE_INITIAL,
           schema: schema,
-          resultId: resultId()
+          resultId: resultId(),
         });
 
         this._trackSchemaAnalyzed(analysisTime);
@@ -346,7 +358,7 @@ const configureStore = (options = {}) => {
 
     storeDidUpdate(prevState) {
       debug('schema store changed from', prevState, 'to', this.state);
-    }
+    },
   });
 
   // Set the app registry if preset. This must happen first.
@@ -365,7 +377,10 @@ const configureStore = (options = {}) => {
     /**
      * When `Share Schema as JSON` clicked in menu show a dialog message.
      */
-    options.localAppRegistry.on('menu-share-schema-json', store.handleSchemaShare);
+    options.localAppRegistry.on(
+      'menu-share-schema-json',
+      store.handleSchemaShare
+    );
 
     setLocalAppRegistry(store, options.localAppRegistry);
   }

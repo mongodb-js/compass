@@ -31,7 +31,7 @@ class DropIndexModal extends PureComponent {
     toggleInProgress: PropTypes.func.isRequired,
     changeConfirmName: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
-    dropIndex: PropTypes.func.isRequired
+    dropIndex: PropTypes.func.isRequired,
   };
 
   onFormSubmit(evt) {
@@ -82,30 +82,38 @@ class DropIndexModal extends PureComponent {
       >
         <div>
           <p className={styles['drop-index-modal-confirm']}>
-            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-              Type the index name
+            <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+            Type the index name
             <strong> {this.props.name} </strong>
-              to drop
+            to drop
           </p>
         </div>
-        <form
-          onSubmit={this.onFormSubmit.bind(this)}>
+        <form onSubmit={this.onFormSubmit.bind(this)}>
           <div className="form-group">
             <input
               type="text"
               className="form-control"
               data-test-id="confirm-drop-index-name"
               value={this.props.confirmName}
-              onChange={(evt) => (this.props.changeConfirmName(evt.target.value))}
+              onChange={(evt) => this.props.changeConfirmName(evt.target.value)}
             />
           </div>
-          {!(this.props.error === null || this.props.error === undefined) ?
-            <ModalStatusMessage icon="times" message={this.props.error} type="error" />
-            : null}
+          {!(this.props.error === null || this.props.error === undefined) ? (
+            <ModalStatusMessage
+              icon="times"
+              message={this.props.error}
+              type="error"
+            />
+          ) : null}
 
-          {this.props.inProgress && (this.props.error === null || this.props.error === undefined) ?
-            <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
-            : null}
+          {this.props.inProgress &&
+          (this.props.error === null || this.props.error === undefined) ? (
+            <ModalStatusMessage
+              icon="spinner"
+              message="Drop in Progress"
+              type="in-progress"
+            />
+          ) : null}
         </form>
       </ConfirmationModal>
     );
@@ -125,26 +133,23 @@ const mapStateToProps = (state) => ({
   inProgress: state.inProgress,
   error: state.error,
   name: state.name,
-  confirmName: state.confirmName
+  confirmName: state.confirmName,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedDropIndexModal = connect(
-  mapStateToProps,
-  {
-    toggleIsVisible,
-    toggleInProgress,
-    clearError,
-    handleError,
-    changeName,
-    changeConfirmName,
-    dropIndex,
-    resetForm
-  },
-)(DropIndexModal);
+const MappedDropIndexModal = connect(mapStateToProps, {
+  toggleIsVisible,
+  toggleInProgress,
+  clearError,
+  handleError,
+  changeName,
+  changeConfirmName,
+  dropIndex,
+  resetForm,
+})(DropIndexModal);
 
 export default MappedDropIndexModal;
 export { DropIndexModal };
