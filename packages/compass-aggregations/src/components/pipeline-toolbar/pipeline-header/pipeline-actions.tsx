@@ -6,9 +6,13 @@ import {
   spacing,
   Link,
   Icon,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
-import { exportAggregationResults, runAggregation } from '../../../modules/aggregation';
+import {
+  exportAggregationResults,
+  runAggregation,
+} from '../../../modules/aggregation';
 
 const containerStyles = css({
   display: 'flex',
@@ -20,6 +24,10 @@ const optionsButtonStyles = css({
   backgroundColor: 'transparent',
   border: 'none',
   display: 'inline',
+  height: spacing[4] + spacing[1],
+  ':focus': {
+    outline: `${spacing[1]}px auto ${uiColors.focus}`,
+  },
 });
 
 const optionStyles = css({
@@ -39,15 +47,17 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isOptionsVisible,
   onRunAggregation,
   onToggleOptions,
-  onExportAggregationResults
+  onExportAggregationResults,
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
   const showExportButton =
     process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true';
+  const optionsLabel = isOptionsVisible ? 'Less Options' : 'More Options';
   return (
-    <div className={containerStyles}> 
+    <div className={containerStyles}>
       {showExportButton && (
         <Button
+          aria-label={'Export aggregation'}
           data-testid="pipeline-toolbar-export-aggregation-button"
           variant="default"
           size="small"
@@ -59,6 +69,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         </Button>
       )}
       <Button
+        aria-label={'Run aggregation'}
         data-testid="pipeline-toolbar-run-button"
         variant="primary"
         size="small"
@@ -69,6 +80,10 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         Run
       </Button>
       <Link
+        aria-label={optionsLabel}
+        aria-expanded={isOptionsVisible}
+        aria-controls="pipeline-options"
+        id="pipeline-toolbar-options"
         as="button"
         className={optionsButtonStyles}
         data-testid="pipeline-toolbar-options-button"
@@ -76,7 +91,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         onClick={() => onToggleOptions()}
       >
         <div className={optionStyles}>
-          {isOptionsVisible ? 'Less' : 'More'} Options{' '}
+          {optionsLabel}
           <Icon glyph={optionsIcon} />
         </div>
       </Link>
@@ -86,5 +101,5 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
 
 export default connect(null, {
   onRunAggregation: runAggregation,
-  onExportAggregationResults: exportAggregationResults
+  onExportAggregationResults: exportAggregationResults,
 })(PipelineActions);
