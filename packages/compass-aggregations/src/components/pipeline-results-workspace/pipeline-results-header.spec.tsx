@@ -37,9 +37,9 @@ describe('PipelineResultsHeader Component', function () {
   });
 
   it('retries on error', function () {
+    expect(onRetrySpy.calledOnce).to.be.false;
     const container = screen.getByTestId('pipeline-results-error');
     userEvent.click(within(container).getByTestId('banner-action'));
-
     expect(onRetrySpy.calledOnce).to.be.true;
   });
 });

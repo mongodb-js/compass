@@ -61,11 +61,12 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
 
     return (
       <div data-testid="pipeline-results-workspace" className={containerStyles}>
-        <PipelineResultsHeader
-          className={headerStyles}
-          resultsView={resultsViewType}
-          onChangeResultsView={setResultsViewType}
-        />
+        <div className={headerStyles}>
+          <PipelineResultsHeader
+            resultsView={resultsViewType}
+            onChangeResultsView={setResultsViewType}
+          />
+        </div>
         <div className={resultsStyles}>
           <PipelineResultsList documents={documents} view={resultsViewType} />
           <div className={cx(isResultsListHidden && centeredContentStyles)}>

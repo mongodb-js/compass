@@ -10,7 +10,6 @@ import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
 
 type PipelineResultsHeaderProps = {
-  className: string;
   error?: string;
   onRetry: () => void;
   onChangeResultsView: (viewType: ResultsViewType) => void;
@@ -25,9 +24,9 @@ const controlsStyles = css({
 });
 
 export const PipelineResultsHeader: React.FunctionComponent<PipelineResultsHeaderProps> =
-  ({ className, error, onRetry, onChangeResultsView, resultsView }) => {
+  ({ error, onRetry, onChangeResultsView, resultsView }) => {
     return (
-      <div data-testid="pipeline-results-header" className={className}>
+      <div data-testid="pipeline-results-header">
         <div className={controlsStyles}>
           <PipelinePagination />
           <PipelineResultsViewControls

@@ -36,7 +36,7 @@ type AggregationFinishedAction = {
 type AggregationFailedAction = {
   type: ActionTypes.AggregationFailed;
   error: string;
-  errorPage: number;
+  page: number;
 };
 
 type LastPageReachedAction = {
@@ -58,7 +58,6 @@ export type State = {
   loading: boolean;
   abortController?: AbortController;
   error?: string;
-  errorPage?: number;
 };
 
 export const INITIAL_STATE: State = {
@@ -102,7 +101,7 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
         loading: false,
         abortController: undefined,
         error: action.error,
-        errorPage: action.errorPage,
+        page: action.page,
       };
     case ActionTypes.LastPageReached:
       return {
@@ -167,12 +166,9 @@ export const retryAggregation = (): ThunkAction<
 > => {
   return (dispatch, getState) => {
     const {
-      aggregation: { errorPage }
+      aggregation: { page }
     } = getState();
-    if (!errorPage) {
-      return;
-    }
-    dispatch(fetchAggregationData(errorPage));
+    dispatch(fetchAggregationData(page));
   };
 };
 
@@ -203,7 +199,7 @@ const fetchAggregationData = (page: number): ThunkAction<
       maxTimeMS,
       collation,
       dataService: { dataService },
-      aggregation: { limit, documents: _documents, page: _page },
+      aggregation: { limit, documents: _documents, page: _page, isLast: _isLast },
     } = getState();
 
     if (!dataService) {
@@ -252,13 +248,13 @@ const fetchAggregationData = (page: number): ThunkAction<
           type: ActionTypes.AggregationFinished,
           documents: _documents,
           page: _page,
-          isLast: _documents.length < limit,
+          isLast: _isLast,
         });
       } else {
         dispatch({
           type: ActionTypes.AggregationFailed,
           error: (e as Error).message,
-          errorPage: page,
+          page,
         });
         log.warn(mongoLogId(1001000106), 'Aggregations', 'Failed to run aggregation');
       }

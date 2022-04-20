@@ -21,6 +21,7 @@ const listStyle = css({
 const summaryStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
+  marginLeft: 'auto',
 });
 
 function Summary({ messages }: { messages: string[] }): React.ReactElement {
