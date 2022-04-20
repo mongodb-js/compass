@@ -206,7 +206,7 @@ describe('store', function() {
     });
   });
 
-  describe.only('#toggleInsertDocument', () => {
+  describe('#toggleInsertDocument', () => {
     let store;
     let actions;
 
