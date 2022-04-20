@@ -2,7 +2,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import mongodbQueryParser from 'mongodb-query-parser';
 
 import CappedCollectionFields from './capped-collection-fields';
 import CollectionName from './collection-name';
@@ -15,14 +14,6 @@ import Collation from './collation';
 
 function asNumber(value) {
   return !_.isNil(value) && `${value}` ? +value : undefined;
-}
-
-function asBSON(value) {
-  try {
-    return mongodbQueryParser(value);
-  } catch (err) {
-    return undefined;
-  }
 }
 
 function omitEmptyFormFields(obj) {

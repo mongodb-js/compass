@@ -36,7 +36,6 @@
     "hadron-ipc": "^2.9.0",
     "hadron-react-buttons": "^5.7.0",
     "hadron-react-components": "^5.13.0",
-    "mongodb-query-parser": "^2.4.4",
     "numeral": "*",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
