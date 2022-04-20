@@ -699,7 +699,7 @@ const configureStore = (options = {}) => {
      */
     toggleInsertDocument(view) {
       if (view === 'JSON') {
-        const jsonDoc = this.state.insert.toEJSON();
+        const jsonDoc = this.state.insert.doc.toEJSON();
 
         this.setState({
           insert: {
