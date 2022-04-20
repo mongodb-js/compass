@@ -105,7 +105,9 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
 };
 
 const mapState = ({ pipeline }: RootState) => ({
-  isPipelineInvalid: pipeline.some((x) => x.isEnabled && !x.isValid),
+  isPipelineInvalid: pipeline.some(
+    (x) => x.isEnabled && (!x.isValid || x.error)
+  ),
 });
 
 const mapDispatch = {
