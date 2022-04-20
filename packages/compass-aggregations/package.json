@@ -87,7 +87,7 @@
     "hadron-react-buttons": "^5.7.0",
     "hadron-react-components": "^5.13.0",
     "mocha": "^8.4.0",
-    "mongodb-ace-autocompleter": "^0.11.0",
+    "mongodb-ace-autocompleter": "^0.12.0",
     "mongodb-ace-mode": "^1.6.0",
     "mongodb-ace-theme": "^1.6.0",
     "mongodb-connection-model": "^21.15.0",
