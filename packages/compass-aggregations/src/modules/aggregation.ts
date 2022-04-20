@@ -256,7 +256,7 @@ const fetchAggregationData = (page: number): ThunkAction<
           error: (e as Error).message,
           page,
         });
-        log.warn(mongoLogId(1001000106), 'Aggregations', 'Failed to run aggregation');
+        log.warn(mongoLogId(1001000106), 'Aggregations', 'Failed to run aggregation', { message: (e as Error).message });
       }
     }
   }
