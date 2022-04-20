@@ -21,11 +21,13 @@ import reducer, {
   STAGE_OPERATOR_SELECTED,
   STAGE_PREVIEW_UPDATED,
   LOADING_STAGE_RESULTS,
-  STAGE_TOGGLED
+  STAGE_TOGGLED,
+  replaceAceTokens,
 } from './pipeline';
 import { generatePipelineStages } from './pipeline';
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 
 const LIMIT_TO_PROCESS = 100000;
 const LIMIT_TO_DISPLAY = 20;
@@ -78,6 +80,53 @@ describe('pipeline module', function() {
         it('returns the new state', function() {
           expect(reducer(state, stageOperatorSelected(0, '$collStats'))[0].stageOperator).
             to.equal('$collStats');
+        });
+      });
+
+      context('when the stage operator is changed', function() {
+        it('changes the stage value if its a new stage', function() {
+          STAGE_OPERATORS.forEach(({name, comment, snippet, env: envs}) => {
+            envs.forEach((env) => {
+              const newState = reducer([
+                { stageOperator: '' },
+              ], stageOperatorSelected(0, name, true, env));
+              expect(newState[0].stageOperator, `${name} stageOperator on ${env} env.`).to.equal(name);
+              expect(newState[0].stage, `${name} stage on ${env} env.`).to.equal(`${comment}${snippet}`);
+              expect(newState[0].snippet, `${name} snippet on ${env} env.`).to.equal(`${comment}${snippet}`);
+            });
+          });
+        });
+        it('changes the stage value if no changes were made to stage', function() {
+          const geoNear = STAGE_OPERATORS.find(({ name }) => name === '$geoNear');
+          const stage = {
+            stageOperator: geoNear.name,
+            stage: replaceAceTokens(`${geoNear.comment}${geoNear.snippet}`),
+            snippet: `${geoNear.comment}${geoNear.snippet}`,
+          };
+          STAGE_OPERATORS.filter(x => x.name !== '$geoNear').forEach(({name, comment, snippet, env: envs}) => {
+            envs.forEach((env) => {
+              const newState = reducer([{...stage}], stageOperatorSelected(0, name, true, env));
+              expect(newState[0].stageOperator, `${name} stageOperator on ${env} env.`).to.equal(name);
+              expect(newState[0].stage, `${name} stage on ${env} env.`).to.equal(`${comment}${snippet}`);
+              expect(newState[0].snippet, `${name} snippet on ${env} env.`).to.equal(`${comment}${snippet}`);
+            });
+          });
+        });
+        it('does not change the stage value if stage contains changes', function() {
+          const limit = STAGE_OPERATORS.find(({name}) => name === '$limit');
+          const stage = {
+            stageOperator: limit.name,
+            stage: '20',
+            snippet: `${limit.comment}${limit.snippet}`,
+          };
+          STAGE_OPERATORS.filter(x => x.name !== '$limit').forEach(({name, env: envs}) => {
+            envs.forEach((env) => {
+              const newState = reducer([{...stage}], stageOperatorSelected(0, name, true, env));
+              expect(newState[0].stageOperator, `${name} stageOperator on ${env} env.`).to.equal(name);
+              expect(newState[0].stage, `${name} stage on ${env} env.`).to.equal('20');
+              expect(newState[0].snippet, `${name} snippet on ${env} env.`).to.equal('20');
+            });
+          });
         });
       });
     });
