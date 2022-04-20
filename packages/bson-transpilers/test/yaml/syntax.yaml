@@ -20,7 +20,7 @@ tests:
           csharp: "1 + 2"
           object: "3"
           ruby: "1 + 2"
-          go: 1+2
+          go: 1 + 2
           rust: "1 + 2"
     - input:
           javascript: "1 \n +2"
@@ -34,7 +34,7 @@ tests:
           csharp: "1 + 2"
           object: "3"
           ruby: "1 + 2"
-          go: 1+2
+          go: 1 + 2
           rust: "1 + 2"
     compare:
     - input:
@@ -270,7 +270,7 @@ tests:
           csharp: "1 + 2"
           object: "3"
           ruby: "1 + 2"
-          go: 1+2
+          go: 1 + 2
           rust: "1 + 2"
     - input:
           javascript: "1 /* a \ncom\nmen\nt*/"
@@ -296,7 +296,7 @@ tests:
           csharp: "1 + 2"
           object: "3"
           ruby: "1 + 2"
-          go: 1+2
+          go: 1 + 2
           rust: "1 + 2"
     parens:
     - input:

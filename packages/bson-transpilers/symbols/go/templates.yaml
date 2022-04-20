@@ -147,8 +147,35 @@ Templates:
         (args) => args.join(' || ')
     NotSyntaxTemplate: &NotSyntaxTemplate !!js/function >
         (arg) => `!${arg}`
-    UnarySyntaxTemplate: &UnarySyntaxTemplate null
-    BinarySyntaxTemplate: &BinarySyntaxTemplate null
+    UnarySyntaxTemplate: &UnarySyntaxTemplate !!js/function >
+        (op, val) => {
+            switch(op) {
+                case '+':
+                    return val;
+                case '~':
+                    return `!${val}`;
+                default:
+                    return `${op}${val}`;
+            }
+            return `${op}${val}`;
+        }
+    BinarySyntaxTemplate: &BinarySyntaxTemplate !!js/function >
+        (args) => {
+            return args.reduce((s, op, i, arr) => {
+                if (i % 2 === 0) {
+                    return s;
+                }
+                const rhs = arr[i + 1];
+                switch(op) {
+                    case '//':
+                        return `${s} / ${rhs}`
+                    case '**':
+                        return `math.Pow(${s}, ${rhs})`
+                    default:
+                        return `${s} ${op} ${rhs}`;
+                }
+            }, args[0]);
+        }
     ParensSyntaxTemplate: &ParensSyntaxTemplate null
     EosTemplate: &EosSyntaxTemplate null # No args. End-of-line
     EofTemplate: &EofSyntaxTemplate null # No args. End-of-file
@@ -172,7 +199,23 @@ Templates:
                 str = str.substr(1, str.length - 2);
             return `"${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
         }
-    RegexTypeTemplate: &RegexTypeTemplate null
+    RegexTypeTemplate: &RegexTypeTemplate !!js/function >
+        (pattern, flags) => {
+            // Wrap string in double quotes
+            const doubleStringify = (str) => {
+                const singleQuoted = str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'';
+                const doubleQuoted = str.charAt(0) === '"' && str.charAt(str.length - 1) === '"';
+                if (singleQuoted || doubleQuoted)
+                    str = str.substr(1, str.length - 2);
+                return `"${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+            }
+
+            const structParts = [];
+            structParts.push(`Pattern: ${doubleStringify(pattern)}`);
+            if (flags)
+                structParts.push(`Options: ${doubleStringify(flags)}`);
+            return `primitive.Regex(${structParts.join(", ")})`;
+        }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => literal.toLowerCase()
     IntegerTypeTemplate: &IntegerTypeTemplate null # args: literal, argType (i.e. '_string', '_decimal' etc)
@@ -196,8 +239,10 @@ Templates:
             const indent = '\n' + '    '.repeat(depth);
             return `${indent}${arg},`;
         }
-    NullTypeTemplate: &NullTypeTemplate null # No args
-    UndefinedTypeTemplate: &UndefinedTypeTemplate null # No args:
+    NullTypeTemplate: &NullTypeTemplate !!js/function >
+        () => 'primitive.Null'
+    UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
+        () => 'primitive.Undefined'
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) =>  `bson.D{${literal}}`
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
@@ -473,14 +518,46 @@ Templates:
             return `{T: ${low}, I: ${high}}`
         }
     # non bson-specific
-    NumberSymbolTemplate: &NumberSymbolTemplate null
-    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate null
+    NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
+        () => ''
+    NumberSymbolArgsTemplate: &NumberSymbolArgsTemplate !!js/function >
+        (lhs, arg, type) => {
+            arg = arg === undefined ? 0 : arg;
+
+            switch(type) {
+                case '_string':
+                    if (arg.indexOf('.') !== -1) {
+                        this.declarations.addFunc([]
+                            .concat('var parseFloat64 = func(str string) float64 {')
+                            .concat('  f64, err := strconv.ParseFloat(str, 64)')
+                            .concat('  if err != nil {')
+                            .concat('    log.Fatal(err)')
+                            .concat('  }')
+                            .concat('  return f64')
+                            .concat('}')
+                            .join('\n'));
+                        return `parseFloat64(${arg})`
+                    }
+                    this.declarations.addFunc([]
+                        .concat('var parseInt = func(str string) int64 {')
+                        .concat('  i64, err := strconv.ParseInt(str, 10, 64)')
+                        .concat('  if err != nil {')
+                        .concat('    log.Fatal(err)')
+                        .concat('  }')
+                        .concat('  return i64')
+                        .concat('}')
+                        .join('\n'));
+                    return `parseInt64(${arg})`;
+                default:
+                    return `${arg}`
+            }
+        }
     DateSymbolTemplate: &DateSymbolTemplate !!js/function >
         () => 'time.Date'
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
         (lhs, date, isString) => {
             if (date === null)
-                return `${lhs}.Now()`;
+                return `time.Now()`;
 
             const dateStr = [
                 date.getUTCFullYear(),
@@ -489,7 +566,7 @@ Templates:
                 date.getUTCHours(),
                 date.getUTCMinutes(),
                 date.getUTCSeconds(),
-                'nil',
+                '0',
                 'time.UTC'
             ].join(', ');
 
@@ -725,8 +802,10 @@ Templates:
     Decimal128ToStringArgsTemplate: &Decimal128ToStringArgsTemplate !!js/function >
         () => ''
     # non bson-specific
-    DateSymbolNowTemplate: &DateSymbolNowTemplate null
-    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate null
+    DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
+        () => 'time.Now()'
+    DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate !!js/function >
+        () => ''
 
     #############################################
     #         Symbol Attributes/Methods         #
