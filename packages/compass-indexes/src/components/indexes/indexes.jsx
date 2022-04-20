@@ -34,7 +34,7 @@ class Indexes extends PureComponent {
     reset: PropTypes.func.isRequired,
     error: PropTypes.string,
     changeName: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired
+    openLink: PropTypes.func.isRequired,
   };
 
   renderComponent() {
@@ -47,7 +47,8 @@ class Indexes extends PureComponent {
             indexes={this.props.indexes}
             sortColumn={this.props.sortColumn}
             sortOrder={this.props.sortOrder}
-            sortIndexes={this.props.sortIndexes} />
+            sortIndexes={this.props.sortIndexes}
+          />
           <IndexList
             isWritable={this.props.isWritable}
             isReadonly={this.props.isReadonly}
@@ -69,22 +70,20 @@ class Indexes extends PureComponent {
         </StatusRow>
       );
     }
-    return (
-      <StatusRow style="error">
-        {this.props.error}
-      </StatusRow>
-    );
+    return <StatusRow style="error">{this.props.error}</StatusRow>;
   }
 
   renderCreateIndexButton() {
-    if (!this.props.isReadonly && !this.props.isReadonlyView && (this.props.error === null || this.props.error === undefined)) {
+    if (
+      !this.props.isReadonly &&
+      !this.props.isReadonlyView &&
+      (this.props.error === null || this.props.error === undefined)
+    ) {
       return (
         <CreateIndexButton localAppRegistry={this.props.localAppRegistry} />
       );
     }
-    return (
-      <div className="create-index-btn action-bar" />
-    );
+    return <div className="create-index-btn action-bar" />;
   }
 
   /**
@@ -98,9 +97,10 @@ class Indexes extends PureComponent {
         <div className="controls-container">
           {this.renderCreateIndexButton()}
         </div>
-        {(this.props.isReadonlyView || !(this.props.error === null || this.props.error === undefined)) ?
-          this.renderBanner() :
-          this.renderComponent()}
+        {this.props.isReadonlyView ||
+        !(this.props.error === null || this.props.error === undefined)
+          ? this.renderBanner()
+          : this.renderComponent()}
       </div>
     );
   }
@@ -123,25 +123,22 @@ const mapStateToProps = (state) => ({
   dataService: state.dataService,
   sortColumn: state.sortColumn,
   sortOrder: state.sortOrder,
-  localAppRegistry: state.appRegistry.localAppRegistry
+  localAppRegistry: state.appRegistry.localAppRegistry,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedIndexes = connect(
-  mapStateToProps,
-  {
-    writeStateChanged,
-    getDescription,
-    dataServiceConnected,
-    sortIndexes,
-    reset,
-    changeName,
-    openLink
-  },
-)(Indexes);
+const MappedIndexes = connect(mapStateToProps, {
+  writeStateChanged,
+  getDescription,
+  dataServiceConnected,
+  sortIndexes,
+  reset,
+  changeName,
+  openLink,
+})(Indexes);
 
 export default MappedIndexes;
 export { Indexes };

@@ -24,33 +24,27 @@ class Field extends Component {
     name: PropTypes.string,
     path: PropTypes.string,
     types: PropTypes.array,
-    fields: PropTypes.array
-  }
+    fields: PropTypes.array,
+  };
 
   constructor(props) {
     super(props);
-    this.state = {
-      // whether the nested fields are collapsed (true) or expanded (false)
-      collapsed: true,
-      // a reference to the active type object (only null initially)
-      activeType: null
-    };
-  }
 
-  componentWillMount() {
-    // sort the types in descending order and push undefined to the end
-    const types = sortBy(this.props.types, (type) => {
+    // Sort the types in descending order and push undefined to the end.
+    const types = sortBy(props.types, (type) => {
       if (type.name === 'Undefined') {
         return -Infinity;
       }
       return type.probability;
     }).reverse();
 
-    // sets the active type to the first type in the props.types array
-    this.setState({
+    this.state = {
+      // Whether the nested fields are collapsed (true) or expanded (false).
+      collapsed: true,
+      // Set the active type to the first type in the props.types array.
       types: types,
-      activeType: types.length > 0 ? types[0] : null
-    });
+      activeType: types.length > 0 ? types[0] : null,
+    };
   }
 
   /**
@@ -73,15 +67,12 @@ class Field extends Component {
             key={field.name}
             actions={this.props.actions}
             localAppRegistry={this.props.localAppRegistry}
-            {...field} />
+            {...field}
+          />
         );
       });
     }
-    return (
-      <div className="schema-field-list">
-        {fieldList}
-      </div>
-    );
+    return <div className="schema-field-list">{fieldList}</div>;
   }
 
   /**
@@ -134,7 +125,7 @@ class Field extends Component {
    * the nested fields and turn the disclosure triangle sideways.
    */
   titleClicked() {
-    this.setState({collapsed: !this.state.collapsed});
+    this.setState({ collapsed: !this.state.collapsed });
   }
 
   /**
@@ -145,7 +136,7 @@ class Field extends Component {
    * @param {Object} type   object of the clicked type
    */
   renderType(type) {
-    this.setState({activeType: type});
+    this.setState({ activeType: type });
   }
 
   /**
@@ -155,7 +146,8 @@ class Field extends Component {
    */
   render() {
     // top-level class of this component
-    const cls = FIELD_CLASS + ' ' + (this.state.collapsed ? 'collapsed' : 'expanded');
+    const cls =
+      FIELD_CLASS + ' ' + (this.state.collapsed ? 'collapsed' : 'expanded');
 
     // types represented as horizontal bars with labels
     const typeList = this.state.types.map((type) => {
@@ -181,13 +173,18 @@ class Field extends Component {
       <div className={cls}>
         <div className="row">
           <div className="col-sm-4">
-            <div className="schema-field-name" onClick={this.titleClicked.bind(this)}>
+            {/* eslint-disable jsx-a11y/click-events-have-key-events */}
+            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+            <div
+              className="schema-field-name"
+              onClick={this.titleClicked.bind(this)}
+            >
               <span className={nestedDocType ? 'caret' : ''} />
               <span>{this.props.name}</span>
             </div>
-            <div className="schema-field-type-list">
-              {typeList}
-            </div>
+            {/* eslint-enable jsx-a11y/click-events-have-key-events */}
+
+            <div className="schema-field-type-list">{typeList}</div>
           </div>
           <div className="col-sm-7 col-sm-offset-1">
             <Minichart

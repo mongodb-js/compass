@@ -42,7 +42,7 @@
     "lodash.get": "^4.4.2",
     "mongodb-collection-model": "^4.21.0",
     "mongodb-database-model": "^1.10.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "raf": "^3.4.1",
     "storage-mixin": "^4.13.0",
     "uuid": "^3.3.2"

@@ -28,21 +28,20 @@
 
   &-toggle-bar {
     cursor: pointer;
+    outline: none;
+    border: none;
+    background: none;
+    width: fit-content;
+
     &-header {
       margin-top: 10px;
-
-      i {
-        margin-left: -5px;
-      }
 
       &-text {
         display: inline;
         margin-left: 4px;
-        margin-right: -9px;
       }
     }
   }
-
 
   &-options {
     &-checkbox {
@@ -62,7 +61,6 @@
       margin-left: 10px;
 
       &-wrapper {
-
         :global {
           .form-group {
             display: flex;
