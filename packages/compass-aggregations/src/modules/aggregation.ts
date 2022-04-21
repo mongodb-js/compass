@@ -282,6 +282,7 @@ export const exportAggregationResults = (): ThunkAction<
       namespace,
       maxTimeMS,
       collation,
+      countDocuments: { count }
     } = getState();
 
     const stages = pipeline
@@ -298,7 +299,8 @@ export const exportAggregationResults = (): ThunkAction<
         aggregation: {
           stages,
           options
-        }
+        },
+        count,
       })
     );
     return;
