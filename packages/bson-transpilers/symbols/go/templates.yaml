@@ -214,7 +214,7 @@ Templates:
             structParts.push(`Pattern: ${doubleStringify(pattern)}`);
             if (flags)
                 structParts.push(`Options: ${doubleStringify(flags)}`);
-            return `primitive.Regex(${structParts.join(", ")})`;
+            return `primitive.Regex{${structParts.join(", ")}}`;
         }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => literal.toLowerCase()

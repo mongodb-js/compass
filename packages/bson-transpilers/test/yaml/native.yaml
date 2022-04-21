@@ -1516,7 +1516,7 @@ tests:
           object: "RegExp('')"
           ruby: "/(?:)/"
           rust: "Regex { pattern: \"(?:)\".to_string(), options: \"\".to_string() }"
-          go: 'primitive.Regex(Pattern: "(?:)")'
+          go: 'primitive.Regex{Pattern: "(?:)"}'
     - description: "RegExp without options"
       input:
           javascript: "new RegExp('abc')"
@@ -1531,7 +1531,7 @@ tests:
           object: "new RegExp('abc')"
           ruby: "/abc/"
           rust: "Regex { pattern: \"abc\".to_string(), options: \"\".to_string() }"
-          go: 'primitive.Regex(Pattern: "abc")'
+          go: 'primitive.Regex{Pattern: "abc"}'
     - description: "RegExp with named but only A flag"
       input:
           python: "re.compile('abc', flags=re.A)"
@@ -1543,7 +1543,7 @@ tests:
           object: "new RegExp('abc')"
           ruby: "/abc/"
           rust: "Regex { pattern: \"abc\".to_string(), options: \"\".to_string() }"
-          go: 'primitive.Regex(Pattern: "abc")'
+          go: 'primitive.Regex{Pattern: "abc"}'
     - description: "regex object with im flags as args"
       input:
           javascript: "new RegExp('ab+c', 'im')"
@@ -1558,7 +1558,7 @@ tests:
           object: "new RegExp('ab+c', 'im')"
           ruby: "/ab+c/im"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"im\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab+c", Options: "im")'
+          go: 'primitive.Regex{Pattern: "ab+c", Options: "im"}'
     - description: "regex object with named flags as args"
       input:
           python: "re.compile('ab+c', flags=re.I | re.M | re.A)"
@@ -1570,7 +1570,7 @@ tests:
           object: "new RegExp('ab+c', 'im')"
           ruby: "/ab+c/im"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"im\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab+c", Options: "im")'
+          go: 'primitive.Regex{Pattern: "ab+c", Options: "im"}'
     - description: "regex object with ig flags as args"
       input:
           javascript: "new RegExp('ab+c', 'ig')"
@@ -1584,7 +1584,7 @@ tests:
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab+c", Options: "gi")'
+          go: 'primitive.Regex{Pattern: "ab+c", Options: "gi"}'
     - description: "regex object with forward slash"
       input:
           javascript: "new RegExp('ab/cd')"
@@ -1599,7 +1599,7 @@ tests:
           object: "new RegExp('ab\\/cd')"
           ruby: "/ab\\/cd/"
           rust: "Regex { pattern: \"ab\\/cd\".to_string(), options: \"\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab\/cd")'
+          go: 'primitive.Regex{Pattern: "ab\/cd"}'
     - description: "regex object with escaped double quote"
       input:
           javascript: "new RegExp('ab\\\"ab')"
@@ -1614,7 +1614,7 @@ tests:
           object: "new RegExp('ab\"ab')"
           ruby: "/ab\"ab/"
           rust: "Regex { pattern: \"ab\\\"ab\".to_string(), options: \"\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab\"ab")'
+          go: 'primitive.Regex{Pattern: "ab\"ab"}'
     - description: "regex object with nonescaped double quote"
       input:
           javascript: "new RegExp('ab\"ab')"
@@ -1629,7 +1629,7 @@ tests:
           object: "new RegExp('ab\"ab')"
           ruby: "/ab\"ab/"
           rust: "Regex { pattern: \"ab\\\"ab\".to_string(), options: \"\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab\"ab")'
+          go: 'primitive.Regex{Pattern: "ab\"ab"}'
     - description: "regex object with escaped single quote"
       input:
           javascript: "new RegExp('ab\\'ab')"
@@ -1644,7 +1644,7 @@ tests:
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
           rust: "Regex { pattern: \"ab'ab\".to_string(), options: \"\".to_string() }"
-          go: "primitive.Regex(Pattern: \"ab'ab\")"
+          go: "primitive.Regex{Pattern: \"ab'ab\"}"
     - description: "regex object with nonescaped single quote"
       input:
           javascript: "new RegExp(\"ab'ab\")"
@@ -1659,7 +1659,7 @@ tests:
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
           rust: "Regex { pattern: \"ab'ab\".to_string(), options: \"\".to_string() }"
-          go: "primitive.Regex(Pattern: \"ab'ab\")"
+          go: "primitive.Regex{Pattern: \"ab'ab\"}"
     - description: "regex object with newline"
       input:
           javascript: "new RegExp(\"\\\\n\")"
@@ -1674,7 +1674,7 @@ tests:
           object: /\n/
           ruby: /\n/
           rust: "Regex { pattern: \"\\n\".to_string(), options: \"\".to_string() }"
-          go: 'primitive.Regex(Pattern: "\n")'
+          go: 'primitive.Regex{Pattern: "\n"}'
     - description: "regex literal with ig flags"
       input:
           javascript: "/ab+c/ig"
@@ -1688,7 +1688,7 @@ tests:
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab+c", Options: "gi")'
+          go: 'primitive.Regex{Pattern: "ab+c", Options: "gi"}'
     - description: "regex object with regex literal arg"
       input:
           javascript: "new RegExp(/ab+c/, 'i')"
@@ -1703,7 +1703,7 @@ tests:
           object: "new RegExp('ab+c', 'i')"
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab+c", Options: "i")'
+          go: 'primitive.Regex{Pattern: "ab+c", Options: "i"}'
     - description: "python regex without ascii flag defaults to unicode"
       input:
           python: "re.compile('ab+c')"
@@ -1716,5 +1716,5 @@ tests:
           object: "new RegExp('ab+c', 'u')"
           ruby: "/ab+c/"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"u\".to_string() }"
-          go: 'primitive.Regex(Pattern: "ab+c", Options: "u")'
+          go: 'primitive.Regex{Pattern: "ab+c", Options: "u"}'
 
