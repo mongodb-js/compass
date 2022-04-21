@@ -9,6 +9,7 @@ import CollectionHeaderActions from '../collection-header-actions';
 import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
+import ClusteredBadge from './clustered-badge';
 
 const collectionHeaderStyles = css({
   paddingTop: '15px',
@@ -60,6 +61,7 @@ type CollectionHeaderProps = {
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
+  isClustered: boolean;
   statsPlugin: React.FunctionComponent<{ store: any }>;
   selectOrCreateTab: (options: any) => any;
   statsStore: any;
@@ -91,6 +93,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
       namespace: this.props.editViewName,
       isReadonly: true,
       isTimeSeries: this.props.isTimeSeries,
+      isClustered: this.props.isClustered,
       sourceName: this.props.namespace,
       editViewName: null,
       sourceReadonly: this.props.isReadonly,
@@ -152,6 +155,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
           </div>
           {this.props.isReadonly && <ReadOnlyBadge />}
           {this.props.isTimeSeries && <TimeSeriesBadge />}
+          {this.props.isClustered && <ClusteredBadge />}
           {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
           <CollectionHeaderActions
             editViewName={this.props.editViewName}

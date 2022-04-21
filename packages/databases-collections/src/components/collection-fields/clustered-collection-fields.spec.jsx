@@ -2,24 +2,24 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Checkbox, Select } from '@mongodb-js/compass-components';
+import { Checkbox, TextInput } from '@mongodb-js/compass-components';
 
-import TimeSeriesFields from './time-series-fields';
+import ClusteredCollectionFields from './clustered-collection-fields';
 import FieldSet from '../field-set/field-set';
 
-describe('TimeSeriesFields [Component]', () => {
-  context('when isTimeSeries prop is true', () => {
+describe('ClusteredCollectionFields [Component]', () => {
+  context('when isClustered prop is true', () => {
     let component;
 
     beforeEach(() => {
       component = mount(
-        <TimeSeriesFields
-          isTimeSeries
+        <ClusteredCollectionFields
+          isTimeSeries={false}
           isCapped={false}
-          isClustered={false}
-          onChangeIsTimeSeries={() => {}}
+          isClustered
+          clusteredIndex={{}}
+          onChangeIsClustered={() => {}}
           onChangeField={() => {}}
-          timeSeries={{}}
           expireAfterSeconds=""
         />
       );
@@ -30,22 +30,22 @@ describe('TimeSeriesFields [Component]', () => {
     });
 
     it('renders the field sets', () => {
-      expect(component.find(FieldSet).length).to.equal(5);
+      expect(component.find(FieldSet).length).to.equal(3);
     });
   });
 
-  context('when isTimeSeries prop is false', () => {
+  context('when isClustered prop is false', () => {
     let component;
 
     beforeEach(() => {
       component = mount(
-        <TimeSeriesFields
+        <ClusteredCollectionFields
           isTimeSeries={false}
           isCapped={false}
           isClustered={false}
-          onChangeIsTimeSeries={() => {}}
+          clusteredIndex={{}}
+          onChangeIsClustered={() => {}}
           onChangeField={() => {}}
-          timeSeries={{}}
           expireAfterSeconds=""
         />
       );
@@ -59,25 +59,25 @@ describe('TimeSeriesFields [Component]', () => {
       expect(component.find(FieldSet).length).to.equal(1);
     });
 
-    it('has the time-series checkbox enabled', () => {
+    it('has the clustered checkbox enabled', () => {
       expect(component.find(Checkbox).props().disabled).to.equal(false);
     });
   });
 
-  describe('when the time series checkbox is clicked', () => {
+  describe('when the clustered checkbox is clicked', () => {
     let component;
     let onChangeSpy;
 
     beforeEach(() => {
       onChangeSpy = sinon.spy();
       component = mount(
-        <TimeSeriesFields
+        <ClusteredCollectionFields
           isTimeSeries={false}
           isCapped={false}
           isClustered={false}
-          onChangeIsTimeSeries={onChangeSpy}
+          clusteredIndex={{}}
+          onChangeIsClustered={onChangeSpy}
           onChangeField={() => {}}
-          timeSeries={{}}
           expireAfterSeconds=""
         />
       );
@@ -103,13 +103,13 @@ describe('TimeSeriesFields [Component]', () => {
 
     beforeEach(() => {
       component = mount(
-        <TimeSeriesFields
+        <ClusteredCollectionFields
           isTimeSeries={false}
           isCapped
           isClustered={false}
-          onChangeIsTimeSeries={() => {}}
+          clusteredIndex={{}}
+          onChangeIsClustered={() => {}}
           onChangeField={() => {}}
-          timeSeries={{}}
           expireAfterSeconds=""
         />
       );
@@ -119,54 +119,8 @@ describe('TimeSeriesFields [Component]', () => {
       component = null;
     });
 
-    it('has the time-series checkbox disabled', () => {
+    it('has the clustered checkbox disabled', () => {
       expect(component.find(Checkbox).props().disabled).to.equal(true);
-    });
-  });
-
-  context('when rendered', () => {
-    let component;
-    let onChangeSpy;
-    let onChangeFieldSpy;
-
-    beforeEach(() => {
-      onChangeSpy = sinon.spy();
-      onChangeFieldSpy = sinon.spy();
-
-      component = mount(
-        <TimeSeriesFields
-          isTimeSeries
-          isCapped={false}
-          isClustered={false}
-          onChangeIsTimeSeries={onChangeSpy}
-          onChangeField={onChangeFieldSpy}
-          timeSeries={{}}
-          expireAfterSeconds=""
-        />
-      );
-    });
-
-    afterEach(() => {
-      component = null;
-      onChangeSpy = null;
-      onChangeFieldSpy = null;
-    });
-
-    describe('when a granularity is chosen', () => {
-      beforeEach(() => {
-        component.find(Select).at(0).props().onChange('hours');
-        component.update();
-      });
-
-      it('calls the onchange with granularity set', () => {
-        expect(onChangeFieldSpy.callCount).to.equal(1);
-        expect(onChangeFieldSpy.firstCall.args[0]).to.deep.equal(
-          'timeSeries.granularity'
-        );
-        expect(onChangeFieldSpy.firstCall.args[1]).to.deep.equal(
-          'hours'
-        );
-      });
     });
   });
 });

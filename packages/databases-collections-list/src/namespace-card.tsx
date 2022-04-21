@@ -112,6 +112,7 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
     ({ className, children, ...props } = {}) => {
       return (
         <Badge
+          data-testid={`collection-badge-${name}`}
           className={cx(cardBadge, className)}
           variant={variant}
           {...props}

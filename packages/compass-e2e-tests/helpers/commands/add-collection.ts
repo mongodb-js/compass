@@ -22,6 +22,10 @@ type AddCollectionOptions = {
     granularity: string;
     expireAfterSeconds: number;
   };
+  clustered?: {
+    name: string;
+    expireAfterSeconds: number;
+  };
 };
 
 export async function addCollection(
@@ -108,6 +112,24 @@ export async function addCollection(
     await expireField.setValue(
       options.timeseries.expireAfterSeconds.toString()
     );
+  }
+
+  if (options && options.clustered) {
+    await browser.clickVisible(
+      Selectors.CreateCollectionClusteredCheckboxLabel
+    );
+
+    const nameField = await browser.$(
+      Selectors.CreateCollectionClusteredNameField
+    );
+    await nameField.waitForDisplayed();
+    await nameField.setValue(options.clustered.name);
+
+    const expireField = await browser.$(
+      Selectors.CreateCollectionClusteredExpireAfterSeconds
+    );
+    await expireField.waitForDisplayed();
+    await expireField.setValue(options.clustered.expireAfterSeconds.toString());
   }
 
   await browser.clickVisible(Selectors.CreateCollectionCreateButton);
