@@ -32,7 +32,7 @@ document.body.appendChild(root);
 
 // // Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
-import { DataService } from 'mongodb-data-service';
+import { DataServiceImpl } from 'mongodb-data-service';
 
 const localAppRegistry = new AppRegistry();
 const store = configureStore({
@@ -71,7 +71,7 @@ const connection = new Connection({
   port: 27017,
   ns: 'admin'
 });
-const dataService = new DataService(connection);
+const dataService = new DataServiceImpl(connection);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);

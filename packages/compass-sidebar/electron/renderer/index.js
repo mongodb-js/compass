@@ -58,7 +58,7 @@ render(SidebarPlugin);
 
 // Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
-import { DataService } from 'mongodb-data-service';
+import { DataServiceImpl } from 'mongodb-data-service';
 
 const connection = new Connection({
   hostname: '127.0.0.1',
@@ -70,7 +70,7 @@ const connection = new Connection({
   readPreference: 'primaryPreferred',
   attributes: { hostanme: 'localhost' }
 });
-const dataService = new DataService(connection);
+const dataService = new DataServiceImpl(connection);
 
 global.hadronApp.instance.genuineMongoDB = { isGenuine: false, dbType: 'cosmos' };
 

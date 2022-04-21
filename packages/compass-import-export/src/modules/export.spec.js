@@ -9,7 +9,7 @@ import AppRegistry from 'hadron-app-registry';
 import FILE_TYPES from '../constants/file-types';
 import reducer, * as actions from './export';
 import store from '../stores/export-store';
-import { DataService } from 'mongodb-data-service';
+import { DataServiceImpl } from 'mongodb-data-service';
 import { promisify } from 'util';
 import { once } from 'events';
 import { dataServiceConnected, globalAppRegistryActivated } from './compass';
@@ -21,7 +21,7 @@ describe('export [module]', function () {
   describe('#reducer', function () {
     context('#startExport', function () {
       const globalAppRegistry = new AppRegistry();
-      const dataService = new DataService({
+      const dataService = new DataServiceImpl({
         connectionString: 'mongodb://localhost:27018/local',
       });
       const createCollection = promisify(dataService.createCollection).bind(
