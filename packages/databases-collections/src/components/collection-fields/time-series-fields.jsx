@@ -46,7 +46,6 @@ function TimeSeriesFields({
 
   const onInputChange = useCallback(
     (e) => {
-      console.log(e, Object.keys(e));
       const { name, value } = e.currentTarget;
       onChangeField(name, value);
     },
