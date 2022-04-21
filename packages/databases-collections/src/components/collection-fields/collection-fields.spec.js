@@ -114,7 +114,7 @@ describe('CollectionFields [Component]', () => {
       component = null;
     });
 
-    it('shows time series options', () => {
+    it('does not show time series options', () => {
       expect(component.text().includes('Time-Series')).to.equal(false);
     });
   });

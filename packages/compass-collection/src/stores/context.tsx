@@ -34,6 +34,7 @@ type ContextProps = {
   serverVersion?: string;
   isReadonly?: boolean;
   isTimeSeries?: boolean;
+  isClustered?: boolean;
   actions?: any;
   allowWrites?: boolean;
   sourceName?: string;
@@ -78,6 +79,7 @@ const setupStore = ({
   serverVersion,
   isReadonly,
   isTimeSeries,
+  isClustered,
   actions,
   allowWrites,
   sourceName,
@@ -97,6 +99,7 @@ const setupStore = ({
     serverVersion: serverVersion,
     isReadonly: isReadonly,
     isTimeSeries,
+    isClustered,
     actions: actions,
     allowWrites: allowWrites,
     sourceName: sourceName,
@@ -122,6 +125,7 @@ const setupStore = ({
  * @property {String} options.serverVersion - The server version.
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series collection.
+ * @property {Boolean} options.isClustered - If the collection is a clustered index collection.
  * @property {Boolean} options.allowWrites - If writes are allowed.
  * @property {String} options.key - The plugin key.
  *
@@ -136,6 +140,7 @@ const setupPlugin = ({
   serverVersion,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   allowWrites,
   key,
@@ -150,6 +155,7 @@ const setupPlugin = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    isClustered,
     sourceName,
     actions,
     allowWrites,
@@ -174,6 +180,7 @@ const setupPlugin = ({
  * @property {String} options.serverVersion - The server version.
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series.
+ * @property {Boolean} options.isClustered - If the collection is a time-series.
  * @property {Boolean} options.allowWrites - If we allow writes.
  *
  * @returns {Array} The components.
@@ -186,6 +193,7 @@ const setupScopedModals = ({
   serverVersion,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   allowWrites,
 }: ContextProps) => {
@@ -201,6 +209,7 @@ const setupScopedModals = ({
         serverVersion,
         isReadonly,
         isTimeSeries,
+        isClustered,
         sourceName,
         allowWrites,
         key: i,
@@ -229,6 +238,7 @@ const createContext = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   isDataLake,
   sourceName,
   editViewName,
@@ -273,6 +283,7 @@ const createContext = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    isClustered,
     actions: queryBarActions,
     allowWrites: !isDataLake,
     query,
@@ -293,6 +304,7 @@ const createContext = ({
       serverVersion,
       isReadonly,
       isTimeSeries,
+      isClustered,
       actions,
       allowWrites: !isDataLake,
       sourceName,
@@ -340,6 +352,7 @@ const createContext = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    isClustered,
     sourceName,
     actions: {},
     allowWrites: !isDataLake,
@@ -355,6 +368,7 @@ const createContext = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    isClustered,
     sourceName,
     allowWrites: !isDataLake,
   });
