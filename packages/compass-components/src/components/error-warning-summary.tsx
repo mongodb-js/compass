@@ -4,7 +4,7 @@ import { Variant as BannerVariant } from '@leafygreen-ui/banner';
 import { css } from '@leafygreen-ui/emotion';
 
 import { InlineDefinition } from './inline-definition';
-import { Banner } from './leafygreen';
+import { Banner, Button } from './leafygreen';
 
 type ErrorOrWarning = { message: string };
 
@@ -16,6 +16,14 @@ const listStyle = css({
   padding: 0,
   margin: 0,
   listStylePosition: 'inside',
+});
+
+const summaryStyles = css({
+  display: 'flex',
+});
+
+const actionButtonStyles = css({
+  marginLeft: 'auto',
 });
 
 function Summary({ messages }: { messages: string[] }): React.ReactElement {
@@ -69,9 +77,13 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
 export function ErrorSummary({
   errors,
   dataTestId,
+  onAction,
+  actionText,
 }: {
   dataTestId?: string;
   errors: ErrorOrWarning[];
+  onAction?: () => void;
+  actionText?: string;
 }): React.ReactElement | null {
   if (!errors || !errors.length) return null;
 
@@ -81,7 +93,19 @@ export function ErrorSummary({
       variant={BannerVariant.Danger}
       className={bannerStyle}
     >
-      <Summary messages={errors.map((err) => err.message)}></Summary>
+      <div className={summaryStyles}>
+        <Summary messages={errors.map((err) => err.message)}></Summary>
+        {onAction && actionText && (
+          <Button
+            data-testid="banner-action"
+            size="xsmall"
+            onClick={() => onAction()}
+            className={actionButtonStyles}
+          >
+            {actionText}
+          </Button>
+        )}
+      </div>
     </Banner>
   );
 }

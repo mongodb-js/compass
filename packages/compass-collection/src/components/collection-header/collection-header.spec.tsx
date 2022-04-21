@@ -18,6 +18,7 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={false}
           isTimeSeries={false}
+          isClustered={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
@@ -69,6 +70,7 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={true}
           isTimeSeries={false}
+          isClustered={false}
           globalAppRegistry={globalAppRegistry}
           sourceName="orig.coll"
           namespace="db.coll"
@@ -118,6 +120,7 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={true}
           isTimeSeries={false}
+          isClustered={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
@@ -153,6 +156,7 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={false}
           isTimeSeries={true}
+          isClustered={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
@@ -179,6 +183,46 @@ describe('CollectionHeader [Component]', function () {
     });
   });
 
+  context('when the collection is a clustered collection', function () {
+    const globalAppRegistry = new AppRegistry();
+    const selectOrCreateTabSpy = spy();
+
+    beforeEach(function () {
+      render(
+        <CollectionHeader
+          isReadonly={false}
+          isTimeSeries={false}
+          isClustered={true}
+          sourceName={null}
+          globalAppRegistry={globalAppRegistry}
+          namespace="db.coll"
+          selectOrCreateTab={selectOrCreateTabSpy}
+          sourceReadonly={false}
+          pipeline={[]}
+          stats={STATS_INITIAL_STATE}
+        />
+      );
+    });
+
+    afterEach(cleanup);
+
+    it('does not render the source collection', function () {
+      expect(screen.queryByTestId('collection-view-on')).to.not.exist;
+    });
+
+    it('does not render the readonly badge', function () {
+      expect(screen.queryByTestId('collection-badge-readonly')).to.not.exist;
+    });
+
+    it('does not render the time-series badge', function () {
+      expect(screen.queryByTestId('collection-badge-timeseries')).to.not.exist;
+    });
+
+    it('renders the clustered badge', function () {
+      expect(screen.getByTestId('collection-badge-clustered')).to.exist;
+    });
+  });
+
   context('when the db name is clicked', function () {
     it('emits the open event to the app registry', function () {
       const selectOrCreateTabSpy = spy();
@@ -190,6 +234,7 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={false}
           isTimeSeries={false}
+          isClustered={false}
           globalAppRegistry={
             {
               emit: (eventName, dbName) => {

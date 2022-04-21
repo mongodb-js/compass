@@ -51,6 +51,7 @@ type CollectionProps = {
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
+  isClustered: boolean;
   editViewName?: string;
   sourceReadonly: boolean;
   sourceViewOn?: string;
@@ -76,31 +77,29 @@ type CollectionProps = {
   stats: CollectionStatsObject;
 };
 
-const Collection: React.FunctionComponent<CollectionProps> = (
-  props: CollectionProps
-) => {
-  const {
-    darkMode,
-    namespace,
-    isReadonly,
-    isTimeSeries,
-    editViewName,
-    sourceReadonly,
-    sourceViewOn,
-    selectOrCreateTab,
-    pipeline,
-    sourceName,
-    activeSubTab,
-    id,
-    queryHistoryIndexes,
-    tabs,
-    views,
-    localAppRegistry,
-    globalAppRegistry,
-    changeActiveSubTab,
-    scopedModals,
-    stats,
-  } = props;
+const Collection: React.FunctionComponent<CollectionProps> = ({
+  darkMode,
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  isClustered,
+  stats,
+  editViewName,
+  sourceReadonly,
+  sourceViewOn,
+  selectOrCreateTab,
+  pipeline,
+  sourceName,
+  activeSubTab,
+  id,
+  queryHistoryIndexes,
+  tabs,
+  views,
+  localAppRegistry,
+  globalAppRegistry,
+  changeActiveSubTab,
+  scopedModals,
+}: CollectionProps) => {
   const activeSubTabName =
     tabs && tabs.length > 0
       ? trackingIdForTabName(tabs[activeSubTab] || 'Unknown')
@@ -150,6 +149,7 @@ const Collection: React.FunctionComponent<CollectionProps> = (
           namespace={namespace}
           isReadonly={isReadonly}
           isTimeSeries={isTimeSeries}
+          isClustered={isClustered}
           editViewName={editViewName}
           sourceReadonly={sourceReadonly}
           sourceViewOn={sourceViewOn}

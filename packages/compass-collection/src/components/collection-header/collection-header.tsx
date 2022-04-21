@@ -18,11 +18,12 @@ import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
 import CollectionStats from '../collection-stats';
 import type { CollectionStatsObject } from '../../modules/stats';
+import ClusteredBadge from './clustered-badge';
 
 const collectionHeaderStyles = css({
   paddingTop: spacing[3],
   paddingBottom: spacing[1],
-  minHeight: spacing[6] + spacing[1],
+  minHeight: +spacing[6] + +spacing[1],
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -33,7 +34,7 @@ const collectionHeaderTitleStyles = css({
   display: 'flex',
   alignItems: 'center',
   flex: '1 1 100%',
-  padding: `0 ${spacing[3]}px`,
+  padding: `0 ${String(spacing[3])}px`,
   margin: 0,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -93,6 +94,7 @@ type CollectionHeaderProps = {
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
+  isClustered: boolean;
   selectOrCreateTab: (options: any) => any;
   sourceName: string;
   sourceReadonly: boolean;
@@ -123,6 +125,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
       namespace: this.props.editViewName,
       isReadonly: true,
       isTimeSeries: this.props.isTimeSeries,
+      isClustered: this.props.isClustered,
       sourceName: this.props.namespace,
       editViewName: null,
       sourceReadonly: this.props.isReadonly,
@@ -192,6 +195,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
           </div>
           {this.props.isReadonly && <ReadOnlyBadge />}
           {this.props.isTimeSeries && <TimeSeriesBadge />}
+          {this.props.isClustered && <ClusteredBadge />}
           {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
           <CollectionHeaderActions
             editViewName={this.props.editViewName}

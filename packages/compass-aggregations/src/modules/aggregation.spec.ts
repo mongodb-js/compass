@@ -101,12 +101,11 @@ describe('aggregation module', function () {
   });
 
   it('cancels an aggregation', async function () {
+    const documents = [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }];
     const store = getMockedStore({
       isLast: false,
       loading: false,
-      documents: [
-        { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
-      ],
+      documents,
       limit: 4,
       page: 2,
     });
@@ -146,12 +145,12 @@ describe('aggregation module', function () {
     expect(killSessionsCatchSpy.getCalls().map(x => x.args), 'calls killSessions with correct args').to.deep.equal([[]]);
     expect(cursorCloseSpy.getCalls().map(x => x.args), 'calls cursorClose with correct args').to.deep.equal([[]]);
     expect(store.getState().aggregation).to.deep.equal({
-      documents: [],
+      documents,
       isLast: false,
       page: 2,
       limit: 4,
       loading: false,
-      error: 'The operation was cancelled.',
+      error: undefined,
       abortController: undefined,
     });
   });

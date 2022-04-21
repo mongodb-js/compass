@@ -157,6 +157,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
           namespace: activeTab.namespace,
           isReadonly: activeTab.isReadonly,
           isTimeSeries: activeTab.isTimeSeries,
+          isClustered: activeTab.isClustered,
           sourceName: activeTab.sourceName,
           editViewName: activeTab.editViewName,
           sourceReadonly: activeTab.sourceReadonly,
@@ -227,6 +228,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
             namespace={tab.namespace}
             isReadonly={tab.isReadonly}
             isTimeSeries={tab.isTimeSeries}
+            isClustered={tab.isClustered}
             sourceName={tab.sourceName}
             editViewName={tab.editViewName}
             sourceReadonly={tab.sourceReadonly}
