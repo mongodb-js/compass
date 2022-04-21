@@ -66,6 +66,7 @@ export interface WorkspaceTabObject {
   activeSubTabName: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
+  isClustered: boolean;
   tabs: string[];
   views: JSX.Element[];
   subtab: WorkspaceTabObject;
@@ -122,6 +123,7 @@ const doSelectNamespace = (state: any, action: any) => {
         activeSubTabName: action.context.tabs[subTabIndex],
         isReadonly: action.isReadonly,
         isTimeSeries: action.isTimeSeries,
+        isClustered: action.isClustered,
         tabs: action.context.tabs,
         views: action.context.views,
         subtab: action.context.subtab,
@@ -172,6 +174,7 @@ const doCreateTab = (state: any, action: any) => {
     activeSubTabName: action.context.tabs[subTabIndex],
     isReadonly: action.isReadonly,
     isTimeSeries: action.isTimeSeries,
+    isClustered: action.isClustered,
     tabs: action.context.tabs,
     views: action.context.views,
     subtab: action.context.subtab,
@@ -385,6 +388,7 @@ export const createTab = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   context,
@@ -398,6 +402,7 @@ export const createTab = ({
   namespace: namespace,
   isReadonly: isReadonly || false,
   isTimeSeries: isTimeSeries || false,
+  isClustered: isClustered || false,
   sourceName: sourceName,
   editViewName: editViewName,
   context: context,
@@ -414,6 +419,7 @@ export const createTab = ({
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
  * @param {Boolean} isTimeSeries - Is the collection time-series?
+ * @param {Boolean} isClustered - Is the collection clustered?
  * @param {String} sourceName - The source namespace.
  * @param {String} editViewName - The name of the view we are editing.
  * @param {Object} context - The tab context.
@@ -427,6 +433,7 @@ export const selectNamespace = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   context,
@@ -438,6 +445,7 @@ export const selectNamespace = ({
   namespace: namespace,
   isReadonly: isReadonly || false,
   isTimeSeries,
+  isClustered,
   sourceName: sourceName,
   editViewName: editViewName,
   context: context,
@@ -584,6 +592,7 @@ export const selectOrCreateTab = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -598,6 +607,7 @@ export const selectOrCreateTab = ({
           namespace,
           isReadonly,
           isTimeSeries,
+          isClustered,
           sourceName,
           editViewName,
           sourceReadonly,
@@ -618,6 +628,7 @@ export const selectOrCreateTab = ({
             namespace,
             isReadonly,
             isTimeSeries,
+            isClustered,
             sourceName,
             editViewName,
             sourceReadonly,
@@ -640,6 +651,7 @@ export const createNewTab = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -656,6 +668,7 @@ export const createNewTab = ({
       isReadonly,
       isDataLake: state.isDataLake,
       isTimeSeries,
+      isClustered,
       sourceName,
       editViewName,
       sourcePipeline,
@@ -668,6 +681,7 @@ export const createNewTab = ({
         namespace,
         isReadonly,
         isTimeSeries,
+        isClustered,
         sourceName,
         editViewName,
         context,
@@ -691,6 +705,7 @@ export const replaceTabContent = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -705,6 +720,7 @@ export const replaceTabContent = ({
       isReadonly,
       isDataLake: state.isDataLake,
       isTimeSeries,
+      isClustered,
       sourceName,
       editViewName,
       sourcePipeline,
@@ -715,6 +731,7 @@ export const replaceTabContent = ({
         namespace,
         isReadonly,
         isTimeSeries,
+        isClustered,
         sourceName,
         editViewName,
         context,

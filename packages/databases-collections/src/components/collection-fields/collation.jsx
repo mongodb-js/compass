@@ -42,8 +42,7 @@ Collation.propTypes = {
   collation: PropTypes.object.isRequired,
   isCustomCollation: PropTypes.bool.isRequired,
   onChangeCollationOption: PropTypes.func.isRequired,
-  onChangeIsCustomCollation: PropTypes.func.isRequired,
-  openLink: PropTypes.func.isRequired
+  onChangeIsCustomCollation: PropTypes.func.isRequired
 };
 
 export default Collation;

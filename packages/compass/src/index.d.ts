@@ -45,6 +45,8 @@ declare module 'process' {
 
         COMPASS_CSFLE_SUPPORT?: 'true' | 'false';
 
+        COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
+
         /**
          * Enable new aggregation pipeline toolbar
          */
