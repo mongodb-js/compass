@@ -72,7 +72,7 @@
     "electron-installer-debian": "^3.0.0",
     "electron-installer-dmg": "^3.0.0",
     "electron-installer-redhat": "^2.0.0",
-    "electron-winstaller": "2.5.1"
+    "electron-winstaller": "^5.0.0"
   },
   "license": "SSPL",
   "bugs": {
