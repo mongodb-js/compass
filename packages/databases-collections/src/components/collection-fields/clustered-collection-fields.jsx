@@ -10,7 +10,7 @@ const HELP_URL_CLUSTERED = 'https://www.mongodb.com/docs/v5.3/core/clustered-col
 
 const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +
   'automatic deletion of documents older than the specified number of seconds. ' +
-  '_id must be a date or an array that contains date values.';
+  'The _id field must be a date or an array that contains date values.';
 
 function ClusteredCollectionFields({
   isCapped,
