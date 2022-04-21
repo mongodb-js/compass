@@ -21,6 +21,7 @@ describe('PipelineActions', function () {
       onExportAggregationResultsSpy = spy();
       render(
         <PipelineActions
+          isPipelineInvalid={false}
           isOptionsVisible={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
@@ -76,6 +77,7 @@ describe('PipelineActions', function () {
       onToggleOptionsSpy = spy();
       render(
         <PipelineActions
+          isPipelineInvalid={false}
           isOptionsVisible={false}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
@@ -93,6 +95,51 @@ describe('PipelineActions', function () {
 
       expect(onToggleOptionsSpy.calledOnce).to.be.true;
       expect(onToggleOptionsSpy.firstCall.args).to.be.empty;
+    });
+  });
+
+  describe('disables actions when pipeline is invalid', function () {
+    let onRunAggregationSpy: SinonSpy;
+    let onExportAggregationResultsSpy: SinonSpy;
+    beforeEach(function () {
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
+      onRunAggregationSpy = spy();
+      onExportAggregationResultsSpy = spy();
+      render(
+        <PipelineActions
+          isPipelineInvalid={true}
+          isOptionsVisible={true}
+          onRunAggregation={onRunAggregationSpy}
+          onToggleOptions={() => {}}
+          onExportAggregationResults={onExportAggregationResultsSpy}
+        />
+      );
+    });
+
+    afterEach(function () {
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
+    });
+
+    it('run action disabled', function () {
+      const button = screen.getByTestId('pipeline-toolbar-run-button');
+      expect(button.getAttribute('disabled')).to.exist;
+
+      userEvent.click(button, undefined, {
+        skipPointerEventsCheck: true,
+      });
+      expect(onRunAggregationSpy.calledOnce).to.be.false;
+    });
+
+    it('export action disabled', function () {
+      const button = screen.getByTestId(
+        'pipeline-toolbar-export-aggregation-button'
+      );
+      expect(button.getAttribute('disabled')).to.exist;
+
+      userEvent.click(button, undefined, {
+        skipPointerEventsCheck: true,
+      });
+      expect(onExportAggregationResultsSpy.calledOnce).to.be.false;
     });
   });
 });

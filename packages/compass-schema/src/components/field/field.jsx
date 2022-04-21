@@ -1,16 +1,53 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Type from '../type';
-import Minichart from '../minichart';
-import detectCoordinates from '../../modules/detect-coordinates';
+import {
+  Subtitle,
+  Icon,
+  css,
+  uiColors,
+  spacing,
+} from '@mongodb-js/compass-components';
 import sortBy from 'lodash.sortby';
 import get from 'lodash.get';
 import find from 'lodash.find';
 
-/**
- * The full schema component class.
- */
-const FIELD_CLASS = 'schema-field';
+import Type from '../type';
+import Minichart from '../minichart';
+import detectCoordinates from '../../modules/detect-coordinates';
+
+const toggleCollapseButtonIconStyles = css({
+  // flexShrink: 0,
+  // flexGrow: 1,
+  color: uiColors.gray.dark2,
+});
+
+const fieldNameStyles = css({
+  fontWeight: 'bold',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+const expandCollapseFieldButtonStyles = css({
+  display: 'flex',
+  marginLeft: -spacing[3],
+  alignItems: 'center',
+  border: 'none',
+  background: 'none',
+  borderRadius: '6px',
+  boxShadow: 'none',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  transition: 'box-shadow 150ms ease-in-out',
+  '&:hover': {
+    cursor: 'pointer',
+  },
+  '&:focus-visible': {
+    outline: 'none',
+    boxShadow: `0 0 0 3px ${uiColors.focus}`,
+  },
+});
 
 /**
  * Component for the entire document list.
@@ -45,34 +82,6 @@ class Field extends Component {
       types: types,
       activeType: types.length > 0 ? types[0] : null,
     };
-  }
-
-  /**
-   * returns the field list (an array of <Field /> components) for nested
-   * subdocuments.
-   *
-   * @return {component}  Field list or empty div
-   */
-  getChildren() {
-    const fields = get(this.getNestedDocType(), 'fields', []);
-    let fieldList;
-
-    if (this.state.collapsed) {
-      // return empty div if field is collapsed
-      fieldList = [];
-    } else {
-      fieldList = fields.map((field) => {
-        return (
-          <Field
-            key={field.name}
-            actions={this.props.actions}
-            localAppRegistry={this.props.localAppRegistry}
-            {...field}
-          />
-        );
-      });
-    }
-    return <div className="schema-field-list">{fieldList}</div>;
   }
 
   /**
@@ -121,10 +130,10 @@ class Field extends Component {
   }
 
   /**
-   * onclick handler to toggle collapsed/expanded state. This will hide/show
+   * onClick handler to toggle collapsed/expanded state. This will hide/show
    * the nested fields and turn the disclosure triangle sideways.
    */
-  titleClicked() {
+  onToggleCollapseClicked() {
     this.setState({ collapsed: !this.state.collapsed });
   }
 
@@ -145,10 +154,6 @@ class Field extends Component {
    * @returns {React.Component} A react component for a single field
    */
   render() {
-    // top-level class of this component
-    const cls =
-      FIELD_CLASS + ' ' + (this.state.collapsed ? 'collapsed' : 'expanded');
-
     // types represented as horizontal bars with labels
     const typeList = this.state.types.map((type) => {
       // allow for semantic types and convert the type, e.g. geo coordinates
@@ -168,22 +173,44 @@ class Field extends Component {
     const activeType = this.state.activeType;
     const nestedDocType = this.getNestedDocType();
 
+    const fieldAccordionButtonId = `$$${this.props.path}.${this.props.name}-button`;
+    const fieldListRegionId = `$$${this.props.path}.${this.props.name}-fields-region`;
+
     // children fields in case of nested array / document
     return (
-      <div className={cls}>
+      <div className="schema-field">
         <div className="row">
           <div className="col-sm-4">
-            {/* eslint-disable jsx-a11y/click-events-have-key-events */}
-            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-            <div
-              className="schema-field-name"
-              onClick={this.titleClicked.bind(this)}
-            >
-              <span className={nestedDocType ? 'caret' : ''} />
-              <span>{this.props.name}</span>
+            <div className="schema-field-name">
+              {nestedDocType ? (
+                <button
+                  className={expandCollapseFieldButtonStyles}
+                  id={fieldAccordionButtonId}
+                  type="button"
+                  aria-label={
+                    this.state.collapsed
+                      ? 'Expand Document Schema'
+                      : 'Collapse Document Schema'
+                  }
+                  aria-expanded={this.state.collapsed ? 'false' : 'true'}
+                  aria-controls={fieldListRegionId}
+                  onClick={this.onToggleCollapseClicked.bind(this)}
+                >
+                  <Icon
+                    className={toggleCollapseButtonIconStyles}
+                    glyph={this.state.collapsed ? 'CaretRight' : 'CaretDown'}
+                  />
+                  &nbsp;
+                  <Subtitle className={fieldNameStyles}>
+                    {this.props.name}
+                  </Subtitle>
+                </button>
+              ) : (
+                <Subtitle className={fieldNameStyles}>
+                  {this.props.name}
+                </Subtitle>
+              )}
             </div>
-            {/* eslint-enable jsx-a11y/click-events-have-key-events */}
-
             <div className="schema-field-type-list">{typeList}</div>
           </div>
           <div className="col-sm-7 col-sm-offset-1">
@@ -196,7 +223,23 @@ class Field extends Component {
             />
           </div>
         </div>
-        {this.getChildren()}
+        {!this.state.collapsed && (
+          <div
+            className="schema-field-list"
+            id={fieldListRegionId}
+            role="region"
+            aria-labelledby={fieldAccordionButtonId}
+          >
+            {get(this.getNestedDocType(), 'fields', []).map((field) => (
+              <Field
+                key={field.name}
+                actions={this.props.actions}
+                localAppRegistry={this.props.localAppRegistry}
+                {...field}
+              />
+            ))}
+          </div>
+        )}
       </div>
     );
   }
