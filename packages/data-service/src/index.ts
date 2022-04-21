@@ -6,7 +6,7 @@ import {
   promisifyAmpersandMethod,
 } from './connection-storage';
 import { getConnectionTitle } from './connection-title';
-import DataService from './data-service';
+import { DataService, DataServiceImpl } from './data-service';
 import {
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,
@@ -23,6 +23,7 @@ export {
   ConnectionOptions,
   ConnectionStorage,
   DataService,
+  DataServiceImpl,
   connect,
   getConnectionTitle,
   convertConnectionModelToInfo,
