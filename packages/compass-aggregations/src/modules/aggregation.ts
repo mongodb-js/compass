@@ -5,6 +5,7 @@ import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { PROMISE_CANCELLED_ERROR } from '../utils/cancellable-promise';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import type { Actions as WorkspaceActions } from './workspace';
@@ -36,6 +37,7 @@ type AggregationFinishedAction = {
 type AggregationFailedAction = {
   type: ActionTypes.AggregationFailed;
   error: string;
+  page: number;
 };
 
 type LastPageReachedAction = {
@@ -100,6 +102,7 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
         loading: false,
         abortController: undefined,
         error: action.error,
+        page: action.page,
       };
     case ActionTypes.LastPageReached:
       return {
@@ -159,7 +162,26 @@ export const fetchNextPage = (): ThunkAction<
   };
 };
 
-export const cancelAggregation = (): ThunkAction<void, RootState, void, Actions> => {
+export const retryAggregation = (): ThunkAction<
+  void,
+  RootState,
+  void,
+  Actions
+> => {
+  return (dispatch, getState) => {
+    const {
+      aggregation: { page }
+    } = getState();
+    return dispatch(fetchAggregationData(page));
+  };
+};
+
+export const cancelAggregation = (): ThunkAction<
+  void,
+  RootState,
+  void,
+  Actions
+> => {
   return (_dispatch, getState) => {
     track('Aggregation Canceled');
     const {
@@ -182,7 +204,7 @@ const fetchAggregationData = (page: number): ThunkAction<
       maxTimeMS,
       collation,
       dataService: { dataService },
-      aggregation: { limit },
+      aggregation: { limit, documents: _documents, page: _page, isLast: _isLast },
     } = getState();
 
     if (!dataService) {
@@ -225,15 +247,25 @@ const fetchAggregationData = (page: number): ThunkAction<
         });
       }
     } catch (e) {
+      // On cancel, we show the previous state
+      if ((e as Error).name === PROMISE_CANCELLED_ERROR) {
+        dispatch({
+          type: ActionTypes.AggregationFinished,
+          documents: _documents,
+          page: _page,
+          isLast: _isLast,
+        });
+      } else {
+        dispatch({
+          type: ActionTypes.AggregationFailed,
+          error: (e as Error).message,
+          page,
+        });
+        log.warn(mongoLogId(1001000106), 'Aggregations', 'Failed to run aggregation', { message: (e as Error).message });
+      }
       if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {
         track('Aggregation Timed Out', { max_time_ms: maxTimeMS ?? null });
       }
-
-      dispatch({
-        type: ActionTypes.AggregationFailed,
-        error: (e as Error).message,
-      });
-      log.warn(mongoLogId(1001000106), 'Aggregations', 'Failed to run aggregation');
     }
   }
 };
