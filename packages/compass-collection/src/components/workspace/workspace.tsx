@@ -89,15 +89,12 @@ function getIconGlyphForCollectionType(type: string) {
 
 type WorkspaceProps = {
   tabs: WorkspaceTabObject[];
-  closeTab: (index: number) => {
-    type: string;
-    index: number;
-  };
+  closeTab: (index: number) => void;
   createNewTab: (props: any) => any;
   selectOrCreateTab: (props: any) => any;
   appRegistry: AppRegistry;
-  prevTab: () => { type: string };
-  nextTab: () => { type: string };
+  prevTab: () => void;
+  nextTab: () => void;
   moveTab: (
     fromIndex: number,
     toIndex: number

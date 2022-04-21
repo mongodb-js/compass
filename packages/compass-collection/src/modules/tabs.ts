@@ -5,6 +5,7 @@ import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 
 import createContext from '../stores/context';
+import { appRegistryEmit } from './app-registry';
 
 /**
  * The prefix.
@@ -448,15 +449,15 @@ export const selectNamespace = ({
  *
  * @returns {Object} The close tab action.
  */
-export const closeTab = (
-  index: number
-): {
-  type: string;
-  index: number;
-} => ({
-  type: CLOSE_TAB,
-  index: index,
-});
+export const closeTab =
+  (index: number): any =>
+  (dispatch: any, getState: any) => {
+    const { tabs } = getState();
+    if (tabs.length === 1) {
+      dispatch(appRegistryEmit('all-collection-tabs-closed'));
+    }
+    dispatch({ type: CLOSE_TAB, index: index });
+  };
 
 /**
  * Action creator for move tab.
