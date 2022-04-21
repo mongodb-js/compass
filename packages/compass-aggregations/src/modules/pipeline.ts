@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { ADL, ATLAS, STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
-import { generateStage, generateStageAsString } from './stage';
+import { generateStage, generateStageAsString, validateStage } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
@@ -41,8 +41,8 @@ export type Pipeline = {
   isLoading: boolean;
   isComplete: boolean;
   previewDocuments: Document[];
-  syntaxError: Error | null;
-  error: Error | null;
+  syntaxError: string | null;
+  error: string | null;
   projections: Projection[];
   fromStageOperators?: boolean;
   snippet?: string;
@@ -335,6 +335,10 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
     } else {
       newState[action.index].isMissingAtlasOnlyStageSupport = false;
     }
+
+    const { isValid, syntaxError } = validateStage(newState[action.index]);
+    newState[action.index].isValid = isValid;
+    newState[action.index].syntaxError = syntaxError;
     return newState;
   }
   return state;
