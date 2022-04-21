@@ -1,4 +1,4 @@
-import reducer, {
+import _reducer, {
   stageAdded,
   stageChanged,
   stageCollapseToggled,
@@ -12,16 +12,12 @@ import reducer, {
   generatePipelineAsString,
   loadingStageResults,
   gotoOutResults,
-  STAGE_ADDED,
-  STAGE_ADDED_AFTER,
   STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
-  STAGE_DELETED,
-  STAGE_MOVED,
-  STAGE_OPERATOR_SELECTED,
   STAGE_PREVIEW_UPDATED,
   LOADING_STAGE_RESULTS,
-  STAGE_TOGGLED
+  STAGE_TOGGLED,
+  INITIAL_STATE
 } from './pipeline';
 import { generatePipelineStages } from './pipeline';
 import sinon from 'sinon';
@@ -29,6 +25,19 @@ import { expect } from 'chai';
 
 const LIMIT_TO_PROCESS = 100000;
 const LIMIT_TO_DISPLAY = 20;
+
+const reducer = (prevState = INITIAL_STATE, _action) => {
+  let action = _action;
+  if (typeof _action === 'function') {
+    _action(
+      (a) => {
+        action = a;
+      },
+      () => ({ pipeline: prevState })
+    );
+  }
+  return _reducer(prevState, action);
+};
 
 describe('pipeline module', function() {
   describe('#reducer', function() {
@@ -228,50 +237,6 @@ describe('pipeline module', function() {
     });
   });
 
-  describe('#stageAdded', function() {
-    it('returns the STAGE_ADDED action', function() {
-      expect(stageAdded()).to.deep.equal({
-        type: STAGE_ADDED
-      });
-    });
-  });
-
-  describe('#stageAddedAfter', function() {
-    context('without checking sequence', function() {
-      it('returns the STAGE_ADDED_AFTER action', function() {
-        expect(stageAddedAfter(0)).to.deep.equal({
-          type: STAGE_ADDED_AFTER,
-          index: 0
-        });
-      });
-    });
-
-    context('with checking sequence', function() {
-      const state = [
-        {
-          stage: '{ name: 1 }',
-          isValid: true,
-          isEnabled: true,
-          stageOperator: '$project',
-          isExpanded: true
-        },
-        {
-          stage: '{ name: -1 }',
-          isValid: true,
-          isEnabled: true,
-          stageOperator: '$sort',
-          isExpanded: true
-        }
-      ];
-
-      it('inserts new stage in the middle', function() {
-        expect(reducer(state, stageAddedAfter(0))[1].stageOperator).to.equal(
-          ''
-        );
-      });
-    });
-  });
-
   describe('#stageChanged', function() {
     it('returns the STAGE_CHANGED action', function() {
       expect(stageChanged('{}', 0)).to.deep.equal({
@@ -291,42 +256,11 @@ describe('pipeline module', function() {
     });
   });
 
-  describe('#stageDeleted', function() {
-    it('returns the STAGE_DELETED action', function() {
-      expect(stageDeleted(0)).to.deep.equal({
-        type: STAGE_DELETED,
-        index: 0
-      });
-    });
-  });
-
-  describe('#stageOperatorSelected', function() {
-    it('returns the STAGE_OPERATOR_SELECTED action', function() {
-      expect(stageOperatorSelected(0, '$collStats', true, 'atlas')).to.deep.equal({
-        type: STAGE_OPERATOR_SELECTED,
-        index: 0,
-        stageOperator: '$collStats',
-        isCommenting: true,
-        env: 'atlas'
-      });
-    });
-  });
-
   describe('#stageToggled', function() {
     it('returns the STAGE_TOGGLED action', function() {
       expect(stageToggled(0)).to.deep.equal({
         type: STAGE_TOGGLED,
         index: 0
-      });
-    });
-  });
-
-  describe('#stageMoved', function() {
-    it('returns the STAGE_MOVED action', function() {
-      expect(stageMoved(0, 5)).to.deep.equal({
-        type: STAGE_MOVED,
-        fromIndex: 0,
-        toIndex: 5
       });
     });
   });
