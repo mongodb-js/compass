@@ -3,6 +3,8 @@ import { build, Platform } from 'electron-builder';
 import { rmSync, mkdirpSync, copySync } from 'fs-extra';
 import path from 'path';
 import fs from 'fs';
+import type { Options as WinInstallerOptions } from 'electron-winstaller';
+import { createWindowsInstaller } from 'electron-winstaller';
 
 import { installProductionDeps } from './install-production-deps';
 import { rebuildNativeModules } from './rebuild-native-modules';
@@ -112,7 +114,7 @@ export async function runElectronBuilder(distributionInfo: {
         __dirname,
         '../../app-icons/win32/mongodb-compass.ico'
       ),
-      target: ['squirrel', 'zip'],
+      target: ['zip'],
     },
     linux: {
       icon: path.resolve(
@@ -170,7 +172,29 @@ export async function runElectronBuilder(distributionInfo: {
       await installProductionDeps(context);
       await rebuildNativeModules(context);
     },
-    afterPack: replaceLibffmpeg,
+    afterPack: async (context) => {
+      await replaceLibffmpeg(context);
+
+      const winInstallerOptions: WinInstallerOptions = {
+        loadingGif: path.resolve(
+          __dirname,
+          '../../app-icons/win32/mongodb-compass-installer-loading.gif'
+        ),
+        iconUrl: 'https://compass.mongodb.com/favicon.ico',
+        appDirectory: context.appOutDir,
+        outputDirectory: distDir,
+        authors: 'MongoDB Inc',
+        version: packageJson.version,
+        exe: 'MongoDBCompassDev.exe',
+        setupExe: 'MongoDB Compass DevSetup.exe',
+        title: 'MongoDB Compass Dev',
+        description: 'The MongoDB GUI',
+        name: 'MongoDBCompassDev',
+        noMsi: true,
+      };
+
+      await createWindowsInstaller(winInstallerOptions);
+    },
     nodeGypRebuild: false,
     npmRebuild: false,
     buildDependenciesFromSource: false,
