@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import type { AggregateOptions, Document } from 'mongodb';
+import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
@@ -9,10 +9,11 @@ import { PROMISE_CANCELLED_ERROR } from '../utils/cancellable-promise';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import type { Actions as WorkspaceActions } from './workspace';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-import createLogger from '@mongodb-js/compass-logging';
-
-const { log, mongoLogId } = createLogger('compass-aggregations');
+const { log, mongoLogId, track } = createLoggerAndTelemetry(
+  'COMPASS-AGGREGATIONS-UI'
+);
 
 export enum ActionTypes {
   AggregationStarted = 'compass-aggregations/aggregationStarted',
@@ -116,45 +117,48 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
 };
 
 export const runAggregation = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions
 > => {
-  return (dispatch) => dispatch(fetchAggregationData(1));
+  return (dispatch) => {
+    track('Aggregation Executed');
+    return dispatch(fetchAggregationData(1));
+  };
 };
 
 export const fetchPrevPage = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions
 > => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const {
       aggregation: { page }
     } = getState();
     if (page <= 1) {
       return;
     }
-    dispatch(fetchAggregationData(page - 1));
+    return dispatch(fetchAggregationData(page - 1));
   };
 };
 
 export const fetchNextPage = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions
 > => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const {
       aggregation: { isLast, page }
     } = getState();
     if (isLast) {
       return;
     }
-    dispatch(fetchAggregationData(page + 1));
+    return dispatch(fetchAggregationData(page + 1));
   };
 };
 
@@ -168,7 +172,7 @@ export const retryAggregation = (): ThunkAction<
     const {
       aggregation: { page }
     } = getState();
-    dispatch(fetchAggregationData(page));
+    return dispatch(fetchAggregationData(page));
   };
 };
 
@@ -179,15 +183,16 @@ export const cancelAggregation = (): ThunkAction<
   Actions
 > => {
   return (_dispatch, getState) => {
+    track('Aggregation Canceled');
     const {
-      aggregation: { abortController },
+      aggregation: { abortController }
     } = getState();
     abortController?.abort();
   };
 };
 
 const fetchAggregationData = (page: number): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions
@@ -258,6 +263,9 @@ const fetchAggregationData = (page: number): ThunkAction<
         });
         log.warn(mongoLogId(1001000106), 'Aggregations', 'Failed to run aggregation', { message: (e as Error).message });
       }
+      if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {
+        track('Aggregation Timed Out', { max_time_ms: maxTimeMS ?? null });
+      }
     }
   }
 };
@@ -284,11 +292,15 @@ export const exportAggregationResults = (): ThunkAction<
       allowDiskUse: true,
       collation: collation || undefined,
     };
-    dispatch(globalAppRegistryEmit('open-export', {
-      namespace, aggregation: {
-        stages, options
-      }, count: 0
-    }));
+    dispatch(
+      globalAppRegistryEmit('open-export', {
+        namespace,
+        aggregation: {
+          stages,
+          options
+        }
+      })
+    );
     return;
   }
 }
