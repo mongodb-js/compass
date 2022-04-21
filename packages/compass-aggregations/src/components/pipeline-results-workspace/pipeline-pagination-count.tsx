@@ -47,7 +47,7 @@ export const PipelinePaginationCount: React.FunctionComponent<PipelinePagination
       );
     }
 
-    if (count) {
+    if (count !== undefined) {
       return (
         <div data-testid={testId}>
           <Body>of {count}</Body>
@@ -61,6 +61,7 @@ export const PipelinePaginationCount: React.FunctionComponent<PipelinePagination
           trigger={({ children, ...props }) => (
             <Link
               {...props}
+              aria-label={'count results'}
               as="button"
               data-testid="pipeline-pagination-count-button"
               hideExternalIcon={true}

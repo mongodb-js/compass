@@ -44,9 +44,7 @@ export const INITIAL_STATE: State = {
 const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
-      return {
-        ...INITIAL_STATE,
-      };
+      return INITIAL_STATE;
     case ActionTypes.CountStarted:
       return {
         loading: true,
@@ -58,7 +56,6 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
       };
     case ActionTypes.CountFailed:
       return {
-        ...state,
         loading: false,
       };
     default:
@@ -99,7 +96,7 @@ export const countDocuments = (): ThunkAction<
       const documents = await cursor.toArray();
       dispatch({
         type: ActionTypes.CountFinished,
-        count: documents[0].count,
+        count: documents[0]?.count ?? 0,
       });
     } catch (e) {
       dispatch({ type: ActionTypes.CountFailed });
