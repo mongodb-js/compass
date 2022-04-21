@@ -41,7 +41,7 @@ function ClusteredCollectionFields({
     >
       <FieldSet>
         <TextInput
-          name="clustered.name"
+          name="clusteredIndex.name"
           value={clusteredIndex.name}
           label="name"
           data-testid="clustered-index-name"
