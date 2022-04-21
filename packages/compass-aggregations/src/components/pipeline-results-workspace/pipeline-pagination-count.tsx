@@ -63,7 +63,7 @@ export const PipelinePaginationCount: React.FunctionComponent<PipelinePagination
               {...props}
               aria-label={'count results'}
               as="button"
-              data-testid="pipeline-pagination-count-button"
+              data-testid="pipeline-pagination-count-action"
               hideExternalIcon={true}
               className={countButtonStyles}
               onClick={() => onCount()}
