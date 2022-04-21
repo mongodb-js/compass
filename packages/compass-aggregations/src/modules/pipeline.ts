@@ -4,6 +4,7 @@ import { generateStage, generateStageAsString, validateStage } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
+import decomment from 'decomment';
 import type { AnyAction, Dispatch } from 'redux';
 import type { DataService } from 'mongodb-data-service';
 import { parseNamespace } from '../utils/stage';
@@ -225,9 +226,9 @@ const copyState = (state: State): State => state.map(s => Object.assign({}, s));
  *
  * @returns {Object} The stage operator details.
  */
-const getStageOperator = (name: string): StageOperator | undefined => {
+const getStageOperator = (name: string, env: string): StageOperator | undefined => {
   return (STAGE_OPERATORS as StageOperator[]).find((op) => {
-    return op.name === name;
+    return op.name === name && op.env.includes(env);
   });
 };
 
@@ -314,12 +315,15 @@ const moveStage = (state: State, action: AnyAction): State => {
  */
 const selectStageOperator = (state: State, action: AnyAction): State => {
   const operatorName = action.stageOperator;
-  if (operatorName !== state[action.index].stageOperator) {
+  const oldStage = state[action.index];
+  if (operatorName !== oldStage.stageOperator) {
     const newState = copyState(state);
-    const operatorDetails = getStageOperator(operatorName);
-    const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
-    const comment = (operatorDetails || {}).comment || '';
-    const value = action.isCommenting ? `${comment}${snippet}` : snippet;
+    // if the value of the existing state operator has not been modified by user,
+    // we can easily replace it or else persist the one user changed
+    let value = getStageDefaultValue(operatorName, action.isCommenting, action.env);
+    if (hasUserChangedStage(oldStage, action.env)) {
+      value = oldStage.stage;
+    }
     newState[action.index].stageOperator = operatorName;
     newState[action.index].stage = value;
     newState[action.index].snippet = value;
@@ -342,6 +346,31 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
     return newState;
   }
   return state;
+};
+
+
+const getStageDefaultValue = (stageOperator: string, isCommenting: boolean, env: string): string => {
+  const operatorDetails = getStageOperator(stageOperator, env);
+  const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
+  const comment = (operatorDetails || {}).comment || '';
+  return isCommenting ? `${comment}${snippet}` : snippet;
+};
+
+export const replaceAceTokens = (str: string): string => {
+  const regex = /\${[0-9]+:?([a-z0-9.()]+)?}/ig;
+  return str.replace(regex, function (_match, replaceWith) {
+    return replaceWith ?? '';
+  });
+}
+
+const hasUserChangedStage = (stage: Pipeline, env: string): boolean => {
+  if (!stage.stageOperator || !stage.stage) {
+    return false;
+  }
+  const value = decomment(stage.stage);
+  // The default value contains ace specific tokens (${1:name}).
+  const defaultValue = getStageDefaultValue(stage.stageOperator, false, env);
+  return value !== replaceAceTokens(defaultValue);
 };
 
 /**
@@ -612,7 +641,6 @@ export const stageToggled = (index: number): AnyAction => ({
  * @param {Error} error - The error.
  * @param {Boolean} isComplete - If the preview is complete.
  * @param {string} env -
- * todo(@mabaasit): find usages of this function
  *
  * @returns {Object} The action.
  */
