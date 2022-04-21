@@ -2,7 +2,7 @@ import React from 'react';
 import { Badge, BadgeVariant, css } from '@mongodb-js/compass-components';
 
 const collectionHeaderBadgeStyles = css({
-  marginLeft: '8px',
+  marginLeft: spacing[2],
 });
 
 const ClusteredBadge = (): React.ReactElement => (
