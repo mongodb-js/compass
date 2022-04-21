@@ -226,7 +226,7 @@ const fetchAggregationData = (page: number): ThunkAction<
       }
     } catch (e) {
       if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {
-        track('Aggregation Timed Out');
+        track('Aggregation Timed Out', { max_time_ms: maxTimeMS ?? null });
       }
 
       dispatch({
