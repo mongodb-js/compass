@@ -1,7 +1,7 @@
 import mongodbQueryParser from 'mongodb-query-parser';
 import decomment from 'decomment';
 
-const PARSE_ERROR = 'Stage must be a properly formatted document.';
+export const PARSE_ERROR = 'Stage must be a properly formatted document.';
 
 function parse(...args) {
   const parsed = mongodbQueryParser(...args);
@@ -63,6 +63,18 @@ export function gatherProjections(state, stage) {
     }
   });
   return projections;
+}
+
+/**
+ * @param {import('./pipeline').Pipeline} stage - The stage.
+ */
+export function validateStage(stage) {
+  try {
+    parse(decomment(stage.stage));
+    return { isValid: true, syntaxError: null };
+  } catch (e) {
+    return { isValid: false, syntaxError: PARSE_ERROR };
+  }
 }
 
 /**

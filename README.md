@@ -73,7 +73,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**mongodb-explain-plan-model**](packages/explain-plan-model): Ampersand model abstraction for MongoDB explain plans (3.0+)
 - [**mongodb-index-model**](packages/index-model): MongoDB index model.
 - [**mongodb-instance-model**](packages/instance-model): MongoDB instance model.
-- [**mongodb-security**](packages/security): Portable business logic of MongoDB security model
 - [**storage-mixin**](packages/storage-mixin): Ampersand model mixin to persist data via various storage backends
 
 ### Shared Configuration Files

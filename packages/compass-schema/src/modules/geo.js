@@ -9,7 +9,7 @@ const RADIANS = 3963.2;
  * @returns {Number} radians.
  */
 const radians = (meters) => {
-  return (meters / METERS_IN_MILE) / RADIANS;
+  return meters / METERS_IN_MILE / RADIANS;
 };
 
 /**
@@ -24,10 +24,10 @@ const polygon = (layer) => ({
     $geoWithin: {
       $geometry: {
         type: 'Polygon',
-        coordinates: layer.coordinates
-      }
-    }
-  }
+        coordinates: layer.coordinates,
+      },
+    },
+  },
 });
 
 /**
@@ -40,9 +40,9 @@ const polygon = (layer) => ({
 const centerSphere = (layer) => ({
   [layer.field]: {
     $geoWithin: {
-      $centerSphere: [[ layer.lng, layer.lat ], radians(layer.radius) ]
-    }
-  }
+      $centerSphere: [[layer.lng, layer.lat], radians(layer.radius)],
+    },
+  },
 });
 
 /**
@@ -54,7 +54,7 @@ const centerSphere = (layer) => ({
  */
 const coordinates = (ring) => {
   return ring.map((latlngs) => {
-    const coords = latlngs.map((latlng) => ([ latlng.lng, latlng.lat ]));
+    const coords = latlngs.map((latlng) => [latlng.lng, latlng.lat]);
     // Leaflet doesn't close the ring for us.
     coords.push(coords[0]);
     return coords;
@@ -84,7 +84,7 @@ const generateSingle = (layer) => {
  * @returns {Object} The query.
  */
 const generateMulti = (layers) => ({
-  $or: layers.map(layer => generateSingle(layer))
+  $or: layers.map((layer) => generateSingle(layer)),
 });
 
 /**
@@ -118,7 +118,7 @@ const addCircleLayer = (field, layer, allLayers) => {
     lat: layer._latlng.lat,
     lng: layer._latlng.lng,
     radius: layer._mRadius,
-    type: 'circle'
+    type: 'circle',
   };
   return layers;
 };
@@ -137,7 +137,7 @@ const addPolygonLayer = (field, layer, allLayers) => {
   layers[layer._leaflet_id] = {
     field: field,
     coordinates: coordinates(layer._latlngs),
-    type: 'polygon'
+    type: 'polygon',
   };
   return layers;
 };

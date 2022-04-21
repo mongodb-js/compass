@@ -1,7 +1,8 @@
 /**
  * Change show options action name.
  */
-export const TOGGLE_SHOW_OPTIONS = 'indexes/create-indexes/show-options/TOGGLE_SHOW_OPTIONS';
+export const TOGGLE_SHOW_OPTIONS =
+  'indexes/create-indexes/show-options/TOGGLE_SHOW_OPTIONS';
 
 /**
  * The initial state of the is writable attribute.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleShowOptions = (showOptions) => ({
   type: TOGGLE_SHOW_OPTIONS,
-  showOptions: showOptions
+  showOptions: showOptions,
 });
