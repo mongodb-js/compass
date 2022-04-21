@@ -1,23 +1,15 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
-import {
-  css,
-  cx,
-  spacing,
-  Body,
-  uiColors,
-  CancelLoader,
-} from '@mongodb-js/compass-components';
+import { css, cx, spacing, CancelLoader } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { cancelAggregation } from '../../modules/aggregation';
 
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelineResultsList from './pipeline-results-list';
-import PipelinePagination from './pipeline-pagination';
 import PipelineEmptyResults from './pipeline-empty-results';
-import PipelineResultsViewControls from './pipeline-results-view-controls';
+import PipelineResultsHeader from './pipeline-results-header';
 
 type PipelineResultsWorkspaceProps = {
   documents: Document[];
@@ -45,10 +37,7 @@ const headerStyles = css({
   paddingLeft: spacing[3] + spacing[1],
   paddingRight: spacing[5] + spacing[1],
   gridArea: 'header',
-  display: 'flex',
   gap: spacing[2],
-  justifyContent: 'flex-end',
-  alignItems: 'center',
 });
 
 const resultsStyles = css({
@@ -63,24 +52,19 @@ const centeredContentStyles = css({
   alignItems: 'center',
 });
 
-const errorMessageStyles = css({
-  color: uiColors.red.base,
-});
-
 export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspaceProps> =
-  ({ documents, hasEmptyResults, loading, error, onCancel }) => {
+  ({ documents, hasEmptyResults, loading, onCancel }) => {
     const [resultsViewType, setResultsViewType] =
       useState<ResultsViewType>('document');
 
-    const isResultsListHidden = loading || Boolean(error) || hasEmptyResults;
+    const isResultsListHidden = loading || hasEmptyResults;
 
     return (
       <div data-testid="pipeline-results-workspace" className={containerStyles}>
         <div className={headerStyles}>
-          <PipelinePagination />
-          <PipelineResultsViewControls
-            value={resultsViewType}
-            onChange={setResultsViewType}
+          <PipelineResultsHeader
+            resultsView={resultsViewType}
+            onChangeResultsView={setResultsViewType}
           />
         </div>
         <div className={resultsStyles}>
@@ -95,7 +79,6 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
               />
             )}
             {hasEmptyResults && <PipelineEmptyResults />}
-            {error && <Body className={errorMessageStyles}>{error}</Body>}
           </div>
         </div>
       </div>
