@@ -168,7 +168,7 @@ export default class CollectionFields extends PureComponent {
           isTimeSeries={isTimeSeries}
           isClustered={isClustered}
           onChangeIsTimeSeries={(newIsTimeSeries) => this.setState(
-            { isTimeSeries: newIsTimeSeries },
+            { isTimeSeries: newIsTimeSeries, expireAfterSeconds: '' },
             this.updateOptions
           )}
           onChangeField={(fieldName, value) =>
@@ -186,7 +186,7 @@ export default class CollectionFields extends PureComponent {
           clusteredIndex={clusteredIndex}
           expireAfterSeconds={expireAfterSeconds}
           onChangeIsClustered={(newIsClustered) => this.setState(
-            { isClustered: newIsClustered },
+            { isClustered: newIsClustered, expireAfterSeconds: '' },
             this.updateOptions
           )}
           onChangeField={(fieldName, value) => {
