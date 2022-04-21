@@ -108,7 +108,7 @@ export interface DataServiceEventMap {
   topologyClosed: (evt: TopologyClosedEvent) => void;
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   serverHeartbeatSucceeded: (evt: ServerHeartbeatSucceededEvent) => void;
-  ServerHeartbeatFailedEvent: (evt: ServerHeartbeatFailedEvent) => void;
+  serverHeartbeatFailedEvent: (evt: ServerHeartbeatFailedEvent) => void;
 }
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
