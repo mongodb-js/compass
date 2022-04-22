@@ -10,21 +10,19 @@ const path = require('path');
 const { promisify } = require('util');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
-const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg')
-  .default;
+const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 const execFile = promisify(childProcess.execFile);
-
 const notary = require('@mongodb-js/mongodb-notary-service-client');
+const tarPack = require('tar-pack').pack;
+const which = require('which');
 
 async function sign(src) {
-  await notary(src)
-    .then((res) => res && debug(':dancers: successfully signed %s', src))
-    .catch((nerr) => debug('Notary failed!', nerr));
+  debug('Signing ... %s', src);
+  await notary(src);
+  debug('Successfully signed %s', src);
 }
-
-const tarPack = require('tar-pack').pack;
 
 function tar(srcDirectory, dest) {
   return new Promise(function(resolve, reject) {
@@ -38,8 +36,6 @@ function tar(srcDirectory, dest) {
       });
   });
 }
-
-const which = require('which');
 
 function _canBuildInstaller(ext) {
   var bin = null;
