@@ -35,6 +35,7 @@ type CollectionProps = {
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
+  isClustered: boolean;
   statsPlugin: React.FunctionComponent<{ store: any }>;
   statsStore: any;
   editViewName?: string;
@@ -65,6 +66,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   statsPlugin,
   statsStore,
   editViewName,
@@ -121,6 +123,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           namespace={namespace}
           isReadonly={isReadonly}
           isTimeSeries={isTimeSeries}
+          isClustered={isClustered}
           statsPlugin={statsPlugin}
           statsStore={statsStore}
           editViewName={editViewName}

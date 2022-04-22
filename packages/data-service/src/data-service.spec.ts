@@ -6,7 +6,8 @@ import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
-import DataService from './data-service';
+import type { DataService } from './data-service';
+import { DataServiceImpl } from './data-service';
 import type {
   ConnectionFleOptions,
   ConnectionOptions,
@@ -47,7 +48,7 @@ describe('DataService', function () {
       mongoClient = new MongoClient(connectionOptions.connectionString);
       await mongoClient.connect();
 
-      dataService = new DataService(connectionOptions);
+      dataService = new DataServiceImpl(connectionOptions);
       await dataService.connect();
     });
 
@@ -85,18 +86,18 @@ describe('DataService', function () {
       });
 
       it('returns false when not connected initially', function () {
-        dataServiceIsConnected = new DataService(connectionOptions);
+        dataServiceIsConnected = new DataServiceImpl(connectionOptions);
         expect(dataServiceIsConnected.isConnected()).to.equal(false);
       });
 
       it('returns true if client is connected', async function () {
-        dataServiceIsConnected = new DataService(connectionOptions);
+        dataServiceIsConnected = new DataServiceImpl(connectionOptions);
         await dataServiceIsConnected.connect();
         expect(dataServiceIsConnected.isConnected()).to.equal(true);
       });
 
       it('returns false if client is disconnected', async function () {
-        dataServiceIsConnected = new DataService(connectionOptions);
+        dataServiceIsConnected = new DataServiceImpl(connectionOptions);
 
         await dataServiceIsConnected.connect();
         await dataServiceIsConnected.disconnect();
@@ -107,7 +108,7 @@ describe('DataService', function () {
 
     describe('#setupListeners', function () {
       it('emits log events for MongoClient heartbeat events', function () {
-        const dataService: any = new DataService(null as any);
+        const dataService: any = new DataServiceImpl(null as any);
         const client: Pick<MongoClient, 'on' | 'emit'> =
           new EventEmitter() as any;
         const logEntries: any[] = [];
@@ -1017,7 +1018,7 @@ describe('DataService', function () {
       });
 
       it("it returns null when a topology description event hasn't yet occured", function () {
-        const testService = new DataService(connectionOptions);
+        const testService = new DataServiceImpl(connectionOptions);
         expect(testService.getLastSeenTopology()).to.equal(null);
       });
     });
@@ -1364,7 +1365,9 @@ describe('DataService', function () {
             },
           },
         };
-        expect(dataService._csfleLogInformation(fleOptions)).to.deep.equal({
+        expect(
+          (dataService as DataServiceImpl)._csfleLogInformation(fleOptions)
+        ).to.deep.equal({
           storeCredentials: false,
           keyVaultNamespace: 'abc.def',
           schemaMapNamespaces: ['a.b'],
@@ -1376,7 +1379,7 @@ describe('DataService', function () {
 
   context('with mocked client', function () {
     function createDataServiceWithMockedClient(clientConfig) {
-      const dataService = new DataService({
+      const dataService = new DataServiceImpl({
         connectionString: 'mongodb://localhost:27020',
       });
       const client = createMongoClientMock(clientConfig);
