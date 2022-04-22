@@ -4,6 +4,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
+import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import type { Actions as WorkspaceActions } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 
@@ -11,16 +12,22 @@ import { ActionTypes as WorkspaceActionTypes } from './workspace';
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
   CountFinished = 'compass-aggregations/countFinished',
+  CountCancelled = 'compass-aggregations/countCancelled',
   CountFailed = 'compass-aggregations/countFailed',
 };
 
 type CountStartedAction = {
   type: ActionTypes.CountStarted;
+  abortController: AbortController;
 };
 
 type CountFinishedAction = {
   type: ActionTypes.CountFinished;
   count: number;
+};
+
+type CountCancelledAction = {
+  type: ActionTypes.CountCancelled;
 };
 
 type CountFailedAction = {
@@ -30,11 +37,13 @@ type CountFailedAction = {
 export type Actions =
   | CountStartedAction
   | CountFinishedAction
+  | CountCancelledAction
   | CountFailedAction;
 
 export type State = {
   count?: number;
   loading: boolean;
+  abortController?: AbortController;
 };
 
 export const INITIAL_STATE: State = {
@@ -48,19 +57,37 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
     case ActionTypes.CountStarted:
       return {
         loading: true,
+        abortController: action.abortController,
       };
     case ActionTypes.CountFinished:
       return {
         loading: false,
+        abortController: undefined,
         count: action.count,
+      };
+    case ActionTypes.CountCancelled:
+      return {
+        ...state,
+        abortController: undefined,
       };
     case ActionTypes.CountFailed:
       return {
+        ...state,
         loading: false,
+        abortController: undefined,
       };
     default:
       return state;
   }
+};
+
+export const cancelCount = (): ThunkAction<void, RootState, void, Actions> => {
+  return (_dispatch, getState) => {
+    const {
+      countDocuments: { abortController }
+    } = getState();
+    abortController?.abort();
+  };
 };
 
 export const countDocuments = (): ThunkAction<
@@ -83,23 +110,37 @@ export const countDocuments = (): ThunkAction<
     }
 
     try {
-      dispatch({ type: ActionTypes.CountStarted });
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+      dispatch({
+        type: ActionTypes.CountStarted,
+        abortController,
+      });
+
       const stages = pipeline.map(generateStage).filter(x => Object.keys(x).length > 0);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS || DEFAULT_MAX_TIME_MS,
         allowDiskUse: true,
         collation: collation || undefined,
       };
-      const cursor = dataService
-        .aggregate(namespace, [...stages, { $count: 'count' }], options)
-        .skip(0).limit(1)
-      const documents = await cursor.toArray();
+
+      const documents = await aggregatePipeline(
+        dataService,
+        signal,
+        namespace,
+        [...stages, { $count: 'count' }],
+        options,
+        0,
+        1,
+      );
       dispatch({
         type: ActionTypes.CountFinished,
         count: documents[0]?.count ?? 0,
       });
     } catch (e) {
-      dispatch({ type: ActionTypes.CountFailed });
+      dispatch({
+        type: ActionTypes.CountFailed,
+      });
     }
   }
 }
