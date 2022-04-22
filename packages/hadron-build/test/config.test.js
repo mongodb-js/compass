@@ -128,7 +128,6 @@ describe('hadron-build::config', () => {
     it('should have the platform specific installer options', () => {
       let opts = res.installerOptions;
       expect(opts).to.have.property('loadingGif');
-      expect(opts).to.have.property('signWithParams');
       expect(opts).to.have.property('iconUrl');
       expect(opts).to.have.property('appDirectory');
       expect(opts).to.have.property('outputDirectory');
