@@ -9,6 +9,7 @@ import React from 'react';
 import ViewInformation from './view-information';
 
 const editViewButtonStyles = css({
+  flex: 'none',
   marginLeft: spacing[2],
 });
 
@@ -20,10 +21,8 @@ const collectionHeaderActionsStyles = css({
 
 const collectionHeaderActionsReadonlyStyles = css({
   marginLeft: spacing[2],
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
   alignItems: 'center',
+  flex: 'none',
 });
 
 type CollectionHeaderActionsProps = {

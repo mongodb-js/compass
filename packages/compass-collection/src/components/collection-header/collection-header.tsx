@@ -23,11 +23,11 @@ import ClusteredBadge from './clustered-badge';
 const collectionHeaderStyles = css({
   paddingTop: spacing[3],
   paddingBottom: spacing[1],
-  minHeight: +spacing[6] + +spacing[1],
+  height: +spacing[6] + +spacing[2],
+  flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  background: uiColors.white,
 });
 
 const collectionHeaderTitleStyles = css({
@@ -36,11 +36,13 @@ const collectionHeaderTitleStyles = css({
   flex: '1 1 100%',
   padding: `0 ${String(spacing[3])}px`,
   margin: 0,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+  width: '100%',
 });
 
 const collectionHeaderDBLinkStyles = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
   cursor: 'pointer',
   textDecoration: 'none',
   '&:hover,&:focus': {
@@ -65,6 +67,8 @@ const collectionHeaderNamespaceStyles = css({
   border: 'none',
   display: 'flex',
   whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 const collectionHeaderDBNameStyles = css({
@@ -78,6 +82,12 @@ const collectionHeaderDBNameLightStyles = css({
 
 const collectionHeaderDBNameDarkStyles = css({
   color: uiColors.green.light2,
+});
+
+const collectionHeaderCollectionStyles = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 const collectionHeaderTitleCollectionLightStyles = css({
@@ -184,11 +194,12 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             </Link>
             <H3
               data-testid="collection-header-title-collection"
-              className={
+              className={cx(
+                collectionHeaderCollectionStyles,
                 this.props.darkMode
                   ? collectionHeaderTitleCollectionDarkStyles
                   : collectionHeaderTitleCollectionLightStyles
-              }
+              )}
             >
               {`.${collection}`}
             </H3>

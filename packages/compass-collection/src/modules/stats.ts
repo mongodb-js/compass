@@ -50,17 +50,14 @@ const format = (value: any, format = 'a') => {
   return numeral(value).format(precision + format);
 };
 
-/**
- * The initial state.
- */
-export const INITIAL_STATE = {
+export const getInitialState = (): CollectionStatsObject => ({
   documentCount: INVALID,
   storageSize: INVALID,
   avgDocumentSize: INVALID,
   indexCount: INVALID,
   totalIndexSize: INVALID,
   avgIndexSize: INVALID,
-};
+});
 
 export const resetCollectionDetails = (): { type: string } => {
   return {
@@ -88,7 +85,7 @@ export const updateCollectionDetails = (
     storage_size,
     free_storage_size,
   } = collectionModel;
-  let stats = INITIAL_STATE;
+  let stats = getInitialState();
 
   if (!['initial', 'fetching', 'error'].includes(status)) {
     stats = {
@@ -116,13 +113,13 @@ export const updateCollectionDetails = (
  * @returns {any} The new state.
  */
 const reducer = (
-  state = INITIAL_STATE,
+  state = getInitialState(),
   action: AnyAction
 ): CollectionStatsObject => {
   if (action.type === UPDATE_COLLECTION_DETAILS) {
     return action.stats;
   } else if (action.type === RESET_COLLECTION_DETAILS) {
-    return INITIAL_STATE;
+    return getInitialState();
   }
   return state;
 };

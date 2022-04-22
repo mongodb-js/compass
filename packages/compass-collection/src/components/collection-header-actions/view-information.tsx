@@ -10,6 +10,8 @@ import React from 'react';
 
 const collectionHeaderActionsReadonlyStyles = css({
   marginLeft: spacing[2],
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   alignItems: 'inherit',
   fontWeight: 'normal',

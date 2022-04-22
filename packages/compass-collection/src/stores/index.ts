@@ -24,7 +24,7 @@ import isDataLake, {
 import stats, {
   updateCollectionDetails,
   resetCollectionDetails,
-  INITIAL_STATE as STATS_INITIAL_STATE,
+  getInitialState as getInitialStatsState,
 } from '../modules/stats';
 import tabs, {
   selectOrCreateTab,
@@ -63,7 +63,7 @@ export const INITIAL_STATE = {
   serverVersion: SERVER_VERSION_INITIAL_STATE,
   tabs: TABS_INITIAL_STATE,
   isDataLake: IS_DATA_LAKE_INITIAL_STATE,
-  stats: STATS_INITIAL_STATE,
+  stats: getInitialStatsState(),
   namespace: NS_INITIAL_STATE,
 };
 
