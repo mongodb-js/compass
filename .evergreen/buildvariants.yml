@@ -42,7 +42,7 @@ buildvariants:
 
   - name: windows
     display_name: Windows (Test and Package)
-    run_on: windows-vsCurrent-large
+    run_on: windows-64-2019
     tasks:
       - name: test
       - name: test-electron

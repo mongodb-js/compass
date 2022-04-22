@@ -11,6 +11,7 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
+
 const Target = require('../lib/target');
 const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
