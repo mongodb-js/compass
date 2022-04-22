@@ -50,6 +50,6 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.1.0",
     "mongodb": "^4.4.0",
-    "mongodb-runner": "^4.8.3"
+    "mongodb-runner": "^4.9.0"
   }
 }

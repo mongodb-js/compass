@@ -46,7 +46,7 @@ export default class CollectionFields extends PureComponent {
       databaseName: '',
       timeSeries: {},
       expireAfterSeconds: '',
-      clusteredIndex: { unique: true, key: { _id: 1 } }
+      clusteredIndex: { name: '', unique: true, key: { _id: 1 } }
     }
   };
 
