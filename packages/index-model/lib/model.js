@@ -109,7 +109,7 @@ var IndexModel = Model.extend({
       }
     },
     type: {
-      deps: ['geo', 'hashed', 'text', 'wildcard'],
+      deps: ['geo', 'hashed', 'text', 'wildcard', 'clustered'],
       fn: function() {
         if (this.geo) {
           return 'geospatial';
