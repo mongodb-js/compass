@@ -14,6 +14,7 @@ const HELP_URLS = {
     'https://docs.mongodb.org/manual/applications/geospatial-indexes/#geospatial-indexes',
   WILDCARD: 'https://docs.mongodb.com/manual/core/index-wildcard/',
   // TODO: add an entry for CLUSTERED once the docs become available
+  // see https://jira.mongodb.org/browse/COMPASS-5760
   TEXT: 'https://docs.mongodb.org/manual/core/index-text/',
   HASHED: 'https://docs.mongodb.org/manual/core/index-hashed/',
   REGULAR: 'https://docs.mongodb.com/manual/indexes/#single-field',
