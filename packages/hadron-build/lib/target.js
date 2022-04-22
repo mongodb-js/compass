@@ -18,8 +18,8 @@ const execFile = promisify(childProcess.execFile);
 
 const notary = require('@mongodb-js/mongodb-notary-service-client');
 
-function sign(src) {
-  notary(src)
+async function sign(src) {
+  await notary(src)
     .then((res) => res && debug(':dancers: successfully signed %s', src))
     .catch((nerr) => debug('Notary failed!', nerr));
 }
@@ -375,10 +375,6 @@ class Target {
     /**
      * @see https://jira/mongodb.org/browse/BUILD-920
      */
-    // const signWithParams = process.env.NOTARY_AUTH_TOKEN
-    //   ? 'yes'
-    //   : process.env.SIGNTOOL_PARAMS;
-    // this.installerOptions.signWithParams = signWithParams;
 
     /**
      * The ICO file to use as the icon for the generated Setup.exe.
@@ -388,9 +384,14 @@ class Target {
     }
 
     this.createInstaller = async() => {
-      const electronWinstaller = require('electron-winstaller');
+      await sign(
+        path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
 
+      const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
+
+      // sign the app setup.exe
+      await sign(this.dest(this.windows_setup_filename));
 
       await fs.promises.rename(
         this.dest('RELEASES'),
@@ -407,7 +408,6 @@ class Target {
         description: this.description,
         manufacturer: this.author,
         version: windowsInstallerVersion(this.installerVersion || this.version),
-        // signWithParams: '',
         shortcutFolderName: this.shortcutFolderName || this.author,
         programFilesFolderName: this.programFilesFolderName || this.productName,
         appUserModelId: this.bundleId,
@@ -425,6 +425,9 @@ class Target {
 
       await msiCreator.create();
       await msiCreator.compile();
+
+      // sign the MSI
+      await notary(this.dest(this.packagerOptions.name + '.msi'));
     };
   }
 
