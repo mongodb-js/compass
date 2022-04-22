@@ -7,15 +7,15 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
   #
   # TODO: https://jira.mongodb.org/browse/COMPASS-4888
 
-  echo "Fetching signtool -> notary-service hack..."
-  curl -fs \
-    -o "signtool.exe" \
-    --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-  rm -f node_modules/electron-winstaller/vendor/signtool.exe
-  rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-  chmod +x signtool.exe
-  cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-  cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
+  # echo "Fetching signtool -> notary-service hack..."
+  # curl -fs \
+  #   -o "signtool.exe" \
+  #   --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
+  # rm -f node_modules/electron-winstaller/vendor/signtool.exe
+  # rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+  # chmod +x signtool.exe
+  # cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+  # cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
 
   echo "Starting Installer Service..."
   net start MSIServer
