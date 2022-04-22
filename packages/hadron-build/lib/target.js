@@ -375,10 +375,10 @@ class Target {
     /**
      * @see https://jira/mongodb.org/browse/BUILD-920
      */
-    const signWithParams = process.env.NOTARY_AUTH_TOKEN
-      ? 'yes'
-      : process.env.SIGNTOOL_PARAMS;
-    this.installerOptions.signWithParams = signWithParams;
+    // const signWithParams = process.env.NOTARY_AUTH_TOKEN
+    //   ? 'yes'
+    //   : process.env.SIGNTOOL_PARAMS;
+    // this.installerOptions.signWithParams = signWithParams;
 
     /**
      * The ICO file to use as the icon for the generated Setup.exe.

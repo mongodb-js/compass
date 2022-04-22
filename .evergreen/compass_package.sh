@@ -11,12 +11,12 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
   # curl -fs \
   #   -o "signtool.exe" \
   #   --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
-  cl .evergreen/signtool.c
-  rm -f node_modules/electron-winstaller/vendor/signtool.exe
-  rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-  chmod +x signtool.exe
-  cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
-  cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
+  # cl .evergreen/signtool.c
+  # rm -f node_modules/electron-winstaller/vendor/signtool.exe
+  # rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+  # chmod +x signtool.exe
+  # cp signtool.exe node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
+  # cp signtool.exe node_modules/electron-winstaller/vendor/signtool.exe
 
   echo "Starting Installer Service..."
   net start MSIServer
