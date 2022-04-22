@@ -5,7 +5,7 @@ import 'mongodb-compass/src/app/styles/index.less';
 
 const React = require('react');
 const ReactDOM = require('react-dom');
-const { DataService } = require('mongodb-data-service');
+const { DataServiceImpl } = require('mongodb-data-service');
 const Connection = require('mongodb-connection-model');
 const app = require('hadron-app');
 const { AppRegistry } = require('hadron-app-registry');
@@ -38,7 +38,7 @@ global.hadronApp.appRegistry.registerStore(
 global.hadronApp.appRegistry.registerStore('RTSS.TopStore', TopStore);
 global.hadronApp.instance = { host: { cpu_cores: 4 } };
 
-const dataService = new DataService(CONNECTION);
+const dataService = new DataServiceImpl(CONNECTION);
 dataService.connect((error, ds) => {
   global.hadronApp.appRegistry.onActivated();
   global.hadronApp.appRegistry.emit('data-service-connected', error, ds);

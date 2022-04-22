@@ -10,7 +10,7 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import DeploymentAwarenessPlugin, { activate } from '../../src/index.js';
-import { DataService } from 'mongodb-data-service';
+import { DataServiceImpl } from 'mongodb-data-service';
 import Connection from 'mongodb-connection-model';
 
 const appRegistry = new AppRegistry();
@@ -50,7 +50,7 @@ const render = Component => {
 // Render our plugin - don't remove the following line.
 render(DeploymentAwarenessPlugin);
 
-const dataService = new DataService(CONNECTION);
+const dataService = new DataServiceImpl(CONNECTION);
 
 dataService.connect((error, ds) => {
   global.hadronApp.dataService = ds;
