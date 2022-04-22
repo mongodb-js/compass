@@ -59,7 +59,7 @@
     "mongodb": "^4.4.0",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb-log-writer": "^1.1.4",
-    "mongodb-runner": "^4.8.3",
+    "mongodb-runner": "^4.9.0",
     "nyc": "^15.1.0",
     "prettier": "*",
     "resolve-mongodb-srv": "^1.1.1",
