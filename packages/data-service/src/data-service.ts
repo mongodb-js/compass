@@ -65,6 +65,7 @@ import {
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
+import type { CollectionInfo, CollectionInfoNameOnly } from './run-command';
 import type {
   Callback,
   CollectionDetails,
@@ -73,6 +74,8 @@ import type {
 } from './types';
 import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
+import type { CSFLECollectionTracker } from './csfle-collection-tracker';
+import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -108,8 +111,13 @@ export interface DataServiceEventMap {
   topologyClosed: (evt: TopologyClosedEvent) => void;
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   serverHeartbeatSucceeded: (evt: ServerHeartbeatSucceededEvent) => void;
-  serverHeartbeatFailedEvent: (evt: ServerHeartbeatFailedEvent) => void;
+  serverHeartbeatFailed: (evt: ServerHeartbeatFailedEvent) => void;
+  updatedCollectionInfo: (
+    opts: { databaseName: string; nameOnly?: boolean },
+    result: CollectionInfoNameOnly & Partial<CollectionInfo>
+  ) => void;
 }
+
 export interface DataService {
   // TypeScript uses something like this itself for its EventTarget definitions.
   on<K extends keyof DataServiceEventMap>(
@@ -703,6 +711,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   private _metadataClient?: MongoClient;
   private _crudClient?: MongoClient;
   private _useCRUDClient = true;
+  private _csfleCollectionTracker?: CSFLECollectionTracker;
 
   private _tunnel?: SshTunnel;
 
@@ -749,6 +758,18 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       enabled,
     });
     this._useCRUDClient = enabled;
+  }
+
+  getCSFLEMode(): 'enabled' | 'disabled' | 'unavailable' {
+    if (this._crudClient && checkIsCSFLEConnection(this._crudClient)) {
+      if (this._useCRUDClient) {
+        return 'enabled';
+      } else {
+        return 'disabled';
+      }
+    } else {
+      return 'unavailable';
+    }
   }
 
   collection(ns: string, options: unknown, callback: Callback<Document>): void {
@@ -937,7 +958,19 @@ export class DataServiceImpl extends EventEmitter implements DataService {
 
     const listCollections = async () => {
       try {
-        return await db.listCollections(filter, { nameOnly }).toArray();
+        const cursor = db.listCollections(filter, { nameOnly });
+        // Iterate instead of using .toArray() so we can emit
+        // collection info update events as they come in.
+        const results = [];
+        for await (const result of cursor) {
+          this.emit(
+            'updatedCollectionInfo',
+            { databaseName, nameOnly },
+            result
+          );
+          results.push(result);
+        }
+        return results;
       } catch (err) {
         // Currently Compass should not fail if listCollections failed for
         // any possible reason to preserve current behavior. We probably
@@ -1147,6 +1180,10 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       this._crudClient = crudClient;
       this._tunnel = tunnel;
       this._mongoClientConnectionOptions = connectionOptions;
+      this._csfleCollectionTracker = new CSFLECollectionTrackerImpl(
+        this,
+        this._crudClient
+      );
     } finally {
       this._isConnecting = false;
     }
@@ -1544,22 +1581,11 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   async instance(): Promise<InstanceDetails> {
-    let csfleMode: InstanceDetails['csfleMode'];
-    if (this._crudClient && checkIsCSFLEConnection(this._crudClient)) {
-      if (this._useCRUDClient) {
-        csfleMode = 'enabled';
-      } else {
-        csfleMode = 'disabled';
-      }
-    } else {
-      csfleMode = 'unavailable';
-    }
-
     try {
       const instanceData = {
         ...(await getInstance(this._initializedClient('META'))),
         // Need to get the CSFLE flag from the CRUD client, not the META one
-        csfleMode,
+        csfleMode: this.getCSFLEMode(),
       };
 
       log.info(
@@ -2121,6 +2147,13 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       throw new Error('Client not yet initialized');
     }
     return client;
+  }
+
+  getCSFLECollectionTracker(): CSFLECollectionTracker {
+    if (!this._csfleCollectionTracker) {
+      throw new Error('Client not yet initialized');
+    }
+    return this._csfleCollectionTracker;
   }
 
   async databaseStats(
