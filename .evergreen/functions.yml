@@ -75,7 +75,7 @@ post:
     params:
       local_files_include_filter:
         - src/.deps/.npm/_logs/*.log
-      remote_file: ${project}/${revision_order_id}/${build_variant}/${task_name}
+      remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
   - <<: *save-diagnostic-file
     params:
@@ -291,7 +291,7 @@ functions:
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${app_archive_name}
-        remote_file: ${project}/${revision_order_id}/${app_archive_name}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${app_archive_name}
     - command: shell.exec
       params:
         working_dir: src
@@ -410,104 +410,104 @@ functions:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_setup_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_setup_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_setup_filename}
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_msi_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_msi_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_msi_filename}
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_zip_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_zip_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_zip_filename}
         content_type: application/zip
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_nupkg_full_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_nupkg_full_filename}
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_releases_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_releases_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_releases_filename}
 
   save-macos-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${osx_dmg_filename}
-        remote_file: ${project}/${revision_order_id}/${osx_dmg_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${osx_dmg_filename}
         content_type: application/x-apple-diskimage
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${osx_zip_filename}
-        remote_file: ${project}/${revision_order_id}/${osx_zip_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${osx_zip_filename}
         content_type: application/zip
 
   save-rhel-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_rpm_filename}
-        remote_file: ${project}/${revision_order_id}/${linux_rpm_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision_order_id}/${linux_tar_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
 
   save-ubuntu-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_deb_filename}
-        remote_file: ${project}/${revision_order_id}/${linux_deb_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${linux_deb_filename}
         content_type: application/vnd.debian.binary-package
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision_order_id}/${linux_tar_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
 
   get-artifacts:
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_setup_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_setup_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_setup_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_msi_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_msi_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_msi_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_zip_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_zip_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_zip_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_nupkg_full_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_nupkg_full_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_releases_filename}
-        remote_file: ${project}/${revision_order_id}/${windows_releases_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${windows_releases_filename}
 
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${osx_dmg_filename}
-        remote_file: ${project}/${revision_order_id}/${osx_dmg_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${osx_dmg_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${osx_zip_filename}
-        remote_file: ${project}/${revision_order_id}/${osx_zip_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${osx_zip_filename}
 
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_rpm_filename}
-        remote_file: ${project}/${revision_order_id}/${linux_rpm_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${linux_rpm_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_deb_filename}
-        remote_file: ${project}/${revision_order_id}/${linux_deb_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${linux_deb_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision_order_id}/${linux_tar_filename}
+        remote_file: ${project}/${github_commit}${github_pr_number}${revision_order_id}/${linux_tar_filename}
 
   generate-tasks:
     - command: generate.tasks
