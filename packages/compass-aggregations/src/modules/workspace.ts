@@ -1,7 +1,10 @@
 import type { Reducer } from 'redux';
 
-import { ActionTypes as AggregationActionTypes } from './aggregation';
+import { ActionTypes as AggregationActionTypes, cancelAggregation } from './aggregation';
 import type { Actions as AggregationActions } from './aggregation';
+import type { ThunkAction } from 'redux-thunk';
+import type { RootState } from '.';
+import { cancelCount } from './count-documents';
 
 export type Workspace = 'builder' | 'results';
 
@@ -30,9 +33,17 @@ const reducer: Reducer<State, Actions | AggregationActions> = (state = INITIAL_S
   }
 };
 
-export const changeWorkspace = (view: Workspace): WorkspaceChangedAction => ({
-  type: ActionTypes.WorkspaceChanged,
-  view,
-});
-
+export const changeWorkspace = (view: Workspace): ThunkAction<void, RootState, void, Actions> => {
+  return (dispatch) => {
+    // As user switches to builder view, we cancel running ops
+    if (view === 'builder') {
+      dispatch(cancelAggregation());
+      dispatch(cancelCount());
+    }
+    dispatch({
+      type: ActionTypes.WorkspaceChanged,
+      view,
+    });
+  };
+};
 export default reducer;
