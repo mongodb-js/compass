@@ -30,7 +30,7 @@
     "puppeteer": "*"
   },
   "dependencies": {
-    "mongodb-compass": "^0.0.0-dev.0"
+    "mongodb-compass": "^0.0.1-dev.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.7.0",

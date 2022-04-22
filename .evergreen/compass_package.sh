@@ -8,9 +8,10 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
   # TODO: https://jira.mongodb.org/browse/COMPASS-4888
 
   echo "Fetching signtool -> notary-service hack..."
-  curl -fs \
-    -o "signtool.exe" \
-    --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
+  # curl -fs \
+  #   -o "signtool.exe" \
+  #   --url "https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe"
+  cl .evergreen/signtool.c
   rm -f node_modules/electron-winstaller/vendor/signtool.exe
   rm -f node_modules/@mongodb-js/electron-wix-msi/vendor/signtool.exe
   chmod +x signtool.exe
