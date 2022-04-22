@@ -46,7 +46,7 @@
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "pretest": "mongodb-runner start --enterprise --mongodb-version '>= 6.0.0-rc0' --topology=replicaset --secondaries=0 --port=27018",
+    "pretest": "mongodb-runner start --enterprise --mongodb-version \">=6.0.0-rc0\" --topology=replicaset --secondaries=0 --port=27018",
     "test": "mocha",
     "test-connectivity": "mocha ./src/connect.spec.ts",
     "posttest": "mongodb-runner stop --port=27018",

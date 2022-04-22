@@ -145,7 +145,7 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
 
   constructor(
     dataService: Pick<DataService, 'on' | 'listCollections'>,
-    crudClient: MongoClient,
+    crudClient: MongoClient
   ) {
     this._dataService = dataService;
     this._crudClient = crudClient;
