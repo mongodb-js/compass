@@ -247,5 +247,13 @@ describe('Database collections tab', function () {
     await collectionCard
       .$('[data-testid="collection-badge-clustered"]')
       .waitForDisplayed();
+
+    await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
+
+    const typeElement = await browser.$(
+      `[data-test-id="index-component-${indexName}"] [data-test-id="index-table-type"]`
+    );
+    await typeElement.waitForDisplayed();
+    expect(await typeElement.getText()).to.equal('CLUSTERED');
   });
 });

@@ -55,6 +55,9 @@ class TypeColumn extends PureComponent {
         'data-border': true,
       };
     }
+
+    const helpLink = getIndexHelpLink(this.props.index.type.toUpperCase());
+
     return (
       <div
         {...tooltipOptions}
@@ -64,10 +67,12 @@ class TypeColumn extends PureComponent {
         data-test-id="index-table-type"
       >
         {this.props.index.type}
-        <InfoSprinkle
-          helpLink={getIndexHelpLink(this.props.index.type.toUpperCase())}
-          onClickHandler={this.props.openLink}
-        />
+        {helpLink && (
+          <InfoSprinkle
+            helpLink={helpLink}
+            onClickHandler={this.props.openLink}
+          />
+        )}
       </div>
     );
   }
