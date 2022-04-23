@@ -39,12 +39,16 @@ const pipelineActionStyles = css({
 
 type PipelineHeaderProps = {
   isOptionsVisible: boolean;
+  showRunButton: boolean;
+  showExportButton: boolean;
   onShowSavedPipelines: () => void;
   onToggleOptions: () => void;
 };
 
 export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   onShowSavedPipelines,
+  showRunButton,
+  showExportButton,
   onToggleOptions,
   isOptionsVisible,
 }) => {
@@ -69,6 +73,8 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
         <PipelineActions
           onToggleOptions={onToggleOptions}
           isOptionsVisible={isOptionsVisible}
+          showRunButton={showRunButton}
+          showExportButton={showExportButton}
         />
       </div>
     </div>

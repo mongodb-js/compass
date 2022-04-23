@@ -40,6 +40,8 @@ const optionStyles = css({
 type PipelineActionsProps = {
   isPipelineInvalid: boolean;
   isOptionsVisible: boolean;
+  showRunButton: boolean;
+  showExportButton: boolean;
   onRunAggregation: () => void;
   onToggleOptions: () => void;
   onExportAggregationResults: () => void;
@@ -48,13 +50,16 @@ type PipelineActionsProps = {
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isPipelineInvalid,
   isOptionsVisible,
+  showRunButton,
+  showExportButton: _showExportButton,
   onRunAggregation,
   onToggleOptions,
   onExportAggregationResults,
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
   const showExportButton =
-    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true';
+    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true' &&
+    _showExportButton;
   const optionsLabel = isOptionsVisible ? 'Less Options' : 'More Options';
   return (
     <div className={containerStyles}>
@@ -72,7 +77,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Export
         </Button>
       )}
-      <Button
+      {showRunButton && <Button
         aria-label={'Run aggregation'}
         data-testid="pipeline-toolbar-run-button"
         variant="primary"
@@ -83,7 +88,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         disabled={isPipelineInvalid}
       >
         Run
-      </Button>
+      </Button>}
       <Link
         aria-label={optionsLabel}
         aria-expanded={isOptionsVisible}
