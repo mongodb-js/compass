@@ -1,0 +1,94 @@
+{
+  "name": "@mongodb-js/compass-build",
+  "description": "Build scripts for MongoDB Compass",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
+  "private": true,
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "SSPL",
+  "main": "dist/index.js",
+  "compass:main": "src/index.ts",
+  "exports": {
+    "require": "./dist/index.js",
+    "import": "./dist/.esm-wrapper.mjs"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "bootstrap": "npm run compile",
+    "prepublishOnly": "npm run compile",
+    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "typecheck": "tsc --noEmit",
+    "eslint": "eslint",
+    "prettier": "prettier",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "depcheck": "depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
+    "test": "mocha",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-watch": "npm run test -- --watch",
+    "test-ci": "npm run test-cov",
+    "reformat": "npm run prettier -- --write ."
+  },
+  "devDependencies": {
+    "@mongodb-js/eslint-config-compass": "^0.7.0",
+    "@mongodb-js/mocha-config-compass": "^0.10.0",
+    "@mongodb-js/prettier-config-compass": "^0.5.0",
+    "@mongodb-js/tsconfig-compass": "^0.6.0",
+    "@types/chai": "^4.2.21",
+    "@types/command-exists": "^1.2.0",
+    "@types/download": "^8.0.1",
+    "@types/electron-installer-dmg": "^3.0.1",
+    "@types/mocha": "^9.0.0",
+    "@types/sinon-chai": "^3.2.5",
+    "chai": "^4.3.6",
+    "depcheck": "^1.4.1",
+    "electron-installer-debian": "^3.1.0",
+    "electron-installer-dmg": "^3.0.0",
+    "electron-installer-redhat": "^3.3.0",
+    "electron-winstaller": "^5.0.0",
+    "eslint": "^7.25.0",
+    "gen-esm-wrapper": "^1.1.0",
+    "mocha": "^8.4.0",
+    "nyc": "^15.1.0",
+    "prettier": "2.3.2",
+    "sinon": "^9.2.3",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "@mongodb-js/devtools-github-repo": "^1.1.0",
+    "@mongodb-js/electron-wix-msi": "^3.0.0",
+    "@mongodb-js/mongodb-notary-service-client": "^1.7.0",
+    "@octokit/rest": "^18.12.0",
+    "command-exists": "^1.2.9",
+    "commander": "^9.2.0",
+    "debug": "^4.3.4",
+    "download": "^8.0.0",
+    "electron": "^13.6.9",
+    "electron-packager": "^15.5.1",
+    "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
+    "electron-rebuild": "^3.2.7",
+    "lodash": "^4.17.21",
+    "minimatch": "^5.0.1",
+    "node-abi": "^3.15.0",
+    "zip-a-folder": "^1.1.3",
+    "zip-folder": "^1.0.0"
+  }
+}

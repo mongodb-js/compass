@@ -1,6 +1,6 @@
 // @ts-check
 const path = require('path');
-const HadronBuildTarget = require('hadron-build/lib/target');
+
 const {
   createElectronMainConfig,
   createElectronRendererConfig,
@@ -71,28 +71,9 @@ module.exports = (_env, args) => {
     },
   };
 
-  const target = new HadronBuildTarget(__dirname);
-
   // This should be provided either with env vars directly or from hadron-build
   // when application is compiled
-  const hadronEnvConfig = {
-    // Required env variables with defaults
-    HADRON_APP_VERSION: target.version,
-    HADRON_DISTRIBUTION: target.distribution,
-    HADRON_PRODUCT: target.name,
-    HADRON_PRODUCT_NAME: isServe(opts)
-      ? `${target.productName} Local`
-      : target.productName,
-    HADRON_READONLY: String(target.readonly),
-    HADRON_ISOLATED: String(target.isolated),
-    HADRON_CHANNEL: target.channel,
-    HADRON_AUTO_UPDATE_ENDPOINT: target.autoUpdateBaseUrl,
-    // Optional env variables that will be set only by Evergreen CI for publicly
-    // published releases
-    HADRON_METRICS_INTERCOM_APP_ID: null,
-    HADRON_METRICS_SEGMENT_API_KEY: null,
-    HADRON_METRICS_SEGMENT_HOST: null,
-  };
+  const hadronEnvConfig = getHadronEnvConfig(opts);
 
   return [
     merge(mainConfig, {
@@ -120,3 +101,47 @@ module.exports = (_env, args) => {
     }),
   ];
 };
+
+
+function getHadronEnvConfig(opts) {
+  const hadronEnvConfig = {
+    HADRON_APP_VERSION: null,
+    HADRON_DISTRIBUTION: null,
+    HADRON_PRODUCT: null,
+    HADRON_PRODUCT_NAME: null,
+    HADRON_READONLY: null,
+    HADRON_ISOLATED: null,
+    HADRON_CHANNEL: null,
+    HADRON_AUTO_UPDATE_ENDPOINT: null,
+    HADRON_METRICS_INTERCOM_APP_ID: null,
+    HADRON_METRICS_SEGMENT_API_KEY: null,
+    HADRON_METRICS_SEGMENT_HOST: null,
+  };
+
+  if (process.env.EVERGREEN) {
+
+    const missingVars = Object.keys(hadronEnvConfig).filter(varName => !process.env[varName]);
+
+    if (missingVars.length) {
+      throw new Error(`Compilation failed, missing required variables: ${missingVars.join(', ')}`);
+    }
+
+    return hadronEnvConfig;
+  }
+
+  const packageJson = require('./package.json');
+
+  return {
+    ...hadronEnvConfig,
+    HADRON_APP_VERSION: packageJson.version,
+    HADRON_DISTRIBUTION: 'compass',
+    HADRON_PRODUCT: 'MongoDB Compass',
+    HADRON_PRODUCT_NAME: isServe(opts)
+      ? `MongoDB Compass Dev Local`
+      : 'MongoDB Compass Dev',
+    HADRON_READONLY: 'false',
+    HADRON_ISOLATED: 'false',
+    HADRON_CHANNEL: 'dev',
+    HADRON_AUTO_UPDATE_ENDPOINT: "https://compass.mongodb.com",
+  }
+}
