@@ -9,8 +9,8 @@ import type {
   LinuxPackageType,
   CompassDistribution,
   PackageType,
-} from '../src/package/package';
-import { packageCompass } from '../src/package/package';
+} from './package/package';
+import { packageCompass } from './package/package';
 
 const DARWIN_PACKAGE_TYPES: Set<DarwinPackageType> = new Set(['zip', 'dmg']);
 const WIN32_PACKAGE_TYPES: Set<Win32PackageType> = new Set([
@@ -109,7 +109,7 @@ async function validateSourcePath(sourcePath: string) {
 async function main() {
   program
     .addArgument(
-      new Argument('<sourcePath>', 'Path of the compass package').default(
+      new Argument('[sourcePath]', 'Path of the compass package').default(
         process.cwd()
       )
     )

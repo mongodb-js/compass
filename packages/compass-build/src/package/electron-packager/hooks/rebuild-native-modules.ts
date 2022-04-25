@@ -6,6 +6,8 @@ export async function rebuildNativeModules(
   },
   context: { buildPath: string; electronVersion: string }
 ): Promise<void> {
+  console.info('Rebuilding native modules', { options, context });
+
   await rebuild({
     ...options,
     electronVersion: context.electronVersion,

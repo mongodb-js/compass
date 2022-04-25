@@ -1,8 +1,9 @@
 import type { Options as ElectronPackagerInternalOptions } from 'electron-packager';
 import electronPackager from 'electron-packager';
-import minimatch from 'minimatch';
 import path from 'path';
 import util from 'util';
+import { promises as fs } from 'fs';
+import cpy from 'cpy';
 
 import { installProductionDeps } from './hooks/install-production-deps';
 import { rebuildNativeModules } from './hooks/rebuild-native-modules';
@@ -22,7 +23,7 @@ export type ElectronPackagerOptions = {
   /**
    * Source dir
    */
-  dir: string;
+  sourcePath: string;
 
   /**
    * Output dir
@@ -70,17 +71,44 @@ export type ElectronPackagerOptions = {
 export async function runElectronPackager(
   options: ElectronPackagerOptions
 ): Promise<void> {
-  const afterCopy = async (
-    buildPath: string,
-    electronVersion: string,
-    platform: string,
-    arch: string
-  ) => {
-    const context = { buildPath, electronVersion, platform, arch };
+  const dir = path.resolve(options.out, 'tmp');
 
-    await installProductionDeps(context);
-    await rebuildNativeModules(options.rebuild, context);
-  };
+  await fs.mkdir(dir, { recursive: true });
+
+  await cpy(options.files, dir, { cwd: options.sourcePath, parents: true });
+  const packageJson = JSON.parse(
+    await fs.readFile(path.resolve(options.sourcePath, 'package.json'), 'utf-8')
+  );
+
+  await fs.writeFile(
+    path.resolve(dir, 'package.json'),
+    JSON.stringify(
+      {
+        name: packageJson.name,
+        version: packageJson.version,
+        private: true,
+        main: packageJson.main,
+        engines: packageJson.engines,
+        dependencies: packageJson.dependencies,
+        devDependencies: {
+          electron: packageJson.devDependencies?.electron,
+        },
+      },
+      null,
+      2
+    )
+  );
+
+  await installProductionDeps({ buildPath: dir });
+  await rebuildNativeModules(options.rebuild, {
+    buildPath: dir,
+    electronVersion: JSON.parse(
+      await fs.readFile(
+        path.resolve(dir, 'node_modules', 'electron', 'package.json'),
+        'utf-8'
+      )
+    ).version,
+  });
 
   const afterExtract = async (
     buildPath: string,
@@ -97,7 +125,7 @@ export async function runElectronPackager(
   };
 
   await electronPackager({
-    dir: options.dir,
+    dir,
     out: options.out,
     overwrite: true,
     appCopyright: options.copyright,
@@ -106,15 +134,19 @@ export async function runElectronPackager(
 
     // copy all files matched by options.files
     // and ignore everything else
-    ignore: (filePath: string) => {
-      const patterns = options.files.map((pattern) =>
-        path.resolve(options.dir, pattern)
-      );
+    // ignore: (filePath: string) => {
+    //   const patterns = options.files.map((pattern) =>
+    //     path.resolve(options.dir, pattern)
+    //   );
 
-      return !minimatch(filePath, `{${patterns.join(',')}}`, {
-        matchBase: true,
-      });
-    },
+    //   const willIgnore = !minimatch(filePath, `{${patterns.join(',')}}`, {
+    //     matchBase: true,
+    //   });
+
+    //   console.log(console.log('ignore', willIgnore, filePath));
+
+    //   return willIgnore;
+    // },
     platform: options.platform,
     arch: options.arch,
     asar:
@@ -125,7 +157,7 @@ export async function runElectronPackager(
               .concat(options.asar?.unpack || [])
               .join(',')}}`,
           },
-    afterCopy: [util.callbackify(afterCopy)],
+    // afterCopy: [util.callbackify(afterCopy)],
     afterExtract: [replaceFfmpeg, util.callbackify(afterExtract)],
     name: options.name,
     protocols: [],
