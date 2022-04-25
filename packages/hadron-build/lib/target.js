@@ -14,13 +14,14 @@ const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-cod
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 const execFile = promisify(childProcess.execFile);
-const notary = require('@mongodb-js/mongodb-notary-service-client');
+const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const tarPack = require('tar-pack').pack;
 const which = require('which');
+const { signPackage } = require('./sign-package');
 
-async function sign(src) {
+async function signWithNotaryClientJs(src) {
   debug('Signing ... %s', src);
-  await notary(src);
+  await mongodbNotaryServiceClient(src);
   debug('Successfully signed %s', src);
 }
 
@@ -380,14 +381,14 @@ class Target {
     }
 
     this.createInstaller = async() => {
-      await sign(
+      await signPackage(
         path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
 
       const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
 
       // sign the app setup.exe
-      await sign(this.dest(this.windows_setup_filename));
+      await signPackage(this.dest(this.windows_setup_filename));
 
       await fs.promises.rename(
         this.dest('RELEASES'),
@@ -423,7 +424,7 @@ class Target {
       await msiCreator.compile();
 
       // sign the MSI
-      await notary(this.dest(this.packagerOptions.name + '.msi'));
+      await signPackage(this.dest(this.packagerOptions.name + '.msi'));
     };
   }
 
@@ -701,7 +702,7 @@ class Target {
         const createRpm = require('electron-installer-redhat');
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
-          return sign(this.dest(this.linux_rpm_filename));
+          return signWithNotaryClientJs(this.dest(this.linux_rpm_filename));
         });
       });
     };
