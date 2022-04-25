@@ -204,7 +204,8 @@ functions:
           # "mongo*" for some helpful output from the test tooling we are using
           DEBUG=${debug} \
             MONGODB_VERSION=${mongodb_version|4.4.x} \
-              npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
     - command: shell.exec
@@ -228,7 +229,8 @@ functions:
 
           DEBUG=${debug} \
             MONGODB_VERSION=${mongodb_version|4.4.x} \
-              npm run --unsafe-perm test-ci-electron -- --stream
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
     - command: shell.exec
@@ -334,7 +336,11 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.4.x} npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4.4.x} \
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
@@ -355,7 +361,10 @@ functions:
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.4.x} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4.4.x} \
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
     - command: shell.exec

@@ -3,9 +3,7 @@ import configureStore from './stores';
 import configureActions from './actions';
 import { TAB_NAME } from './constants/plugin';
 
-/**
- * A sample role for the component.
- */
+// Compass plugin role definition.
 const ROLE = {
   component: CompassSchemaPlugin,
   name: TAB_NAME,
@@ -14,7 +12,7 @@ const ROLE = {
   configureStore: configureStore,
   configureActions: configureActions,
   storeName: 'Schema.Store',
-  actionName: 'Schema.Actions'
+  actionName: 'Schema.Actions',
 };
 
 /**

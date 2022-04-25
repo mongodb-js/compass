@@ -1,7 +1,8 @@
 /**
  * Change is background action name.
  */
-export const TOGGLE_IS_BACKGROUND = 'indexes/create-indexes/is-background/TOGGLE_IS_BACKGROUND';
+export const TOGGLE_IS_BACKGROUND =
+  'indexes/create-indexes/is-background/TOGGLE_IS_BACKGROUND';
 
 /**
  * The initial state of the is writable attribute.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsBackground = (isBackground) => ({
   type: TOGGLE_IS_BACKGROUND,
-  isBackground: isBackground
+  isBackground: isBackground,
 });

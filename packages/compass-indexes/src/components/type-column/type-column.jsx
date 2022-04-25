@@ -20,11 +20,16 @@ class TypeColumn extends PureComponent {
 
   static propTypes = {
     index: PropTypes.object.isRequired,
-    openLink: PropTypes.func.isRequired
+    openLink: PropTypes.func.isRequired,
   };
 
   _textTooltip() {
-    const info = pick(this.props.index.extra, ['weights', 'default_language', 'language_override', 'wildcardProjection']);
+    const info = pick(this.props.index.extra, [
+      'weights',
+      'default_language',
+      'language_override',
+      'wildcardProjection',
+    ]);
     return map(info, (v, k) => {
       return format('%s: %j', k, v);
     }).join('<br />');
@@ -37,23 +42,37 @@ class TypeColumn extends PureComponent {
    */
   renderType() {
     let tooltipOptions = {};
-    if (this.props.index.type === 'text' || 'wildcard') {
+    if (
+      this.props.index.type === 'text' ||
+      this.props.index.type === 'wildcard'
+    ) {
       const tooltipText = `${this._textTooltip()}`;
       tooltipOptions = {
         'data-tip': tooltipText,
         'data-for': TOOLTIP_ID,
         'data-effect': 'solid',
         'data-multiline': true,
-        'data-border': true
+        'data-border': true,
       };
     }
+
+    const helpLink = getIndexHelpLink(this.props.index.type.toUpperCase());
+
     return (
-      <div {...tooltipOptions} className={classnames(styles[`type-column-property-${this.props.index.type}`])} data-test-id="index-table-type">
+      <div
+        {...tooltipOptions}
+        className={classnames(
+          styles[`type-column-property-${this.props.index.type}`]
+        )}
+        data-test-id="index-table-type"
+      >
         {this.props.index.type}
-        <InfoSprinkle
-          helpLink={getIndexHelpLink(this.props.index.type.toUpperCase())}
-          onClickHandler={this.props.openLink}
-        />
+        {helpLink && (
+          <InfoSprinkle
+            helpLink={helpLink}
+            onClickHandler={this.props.openLink}
+          />
+        )}
       </div>
     );
   }

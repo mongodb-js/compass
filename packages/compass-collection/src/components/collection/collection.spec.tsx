@@ -23,6 +23,7 @@ describe('Collection [Component]', function () {
       <Collection
         isReadonly={false}
         isTimeSeries={false}
+        isClustered={false}
         sourceName={null}
         tabs={[]}
         views={[]}

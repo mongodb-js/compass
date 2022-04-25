@@ -70,7 +70,7 @@
     "mongodb-connection-model": "^21.15.0",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb-index-model": "^3.9.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-ns": "^2.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -91,7 +91,7 @@
     "kerberos": "^2.0.0",
     "mocha": "^8.4.0",
     "mongodb": "^4.4.0",
-    "mongodb-runner": "^4.8.3",
+    "mongodb-runner": "^4.9.0",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",
     "rimraf": "^3.0.2",

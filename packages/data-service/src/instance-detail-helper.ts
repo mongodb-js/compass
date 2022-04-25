@@ -68,6 +68,7 @@ type CollectionDetails = {
   specialish: boolean;
   normal: boolean;
   readonly: boolean;
+  clustered: boolean;
   collation: Document | null;
   view_on: string | null;
   pipeline: Document[] | null;
@@ -104,12 +105,12 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
-  isCSFLEConnection: boolean;
+  csfleMode: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export async function getInstance(
   client: MongoClient
-): Promise<Omit<InstanceDetails, 'isCSFLEConnection'>> {
+): Promise<Omit<InstanceDetails, 'csfleMode'>> {
   const adminDb = client.db('admin');
   const [
     connectionStatus,
@@ -391,6 +392,7 @@ export function adaptCollectionInfo({
     validator,
     validationAction,
     validationLevel,
+    clusteredIndex,
   } = options ?? {};
 
   const hasValidation = Boolean(
@@ -412,6 +414,7 @@ export function adaptCollectionInfo({
     collation: collation ?? null,
     view_on: viewOn ?? null,
     pipeline: pipeline ?? null,
+    clustered: clusteredIndex ? true : false,
     validation: hasValidation
       ? { validator, validationAction, validationLevel }
       : null,

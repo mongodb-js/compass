@@ -79,14 +79,14 @@ render(ExplainPlanPlugin);
 
 // Data service initialization and connection
 import Connection from 'mongodb-connection-model';
-import { DataService } from 'mongodb-data-service';
+import { DataServiceImpl } from 'mongodb-data-service';
 
 const connection = new Connection({
   hostname: '127.0.0.1',
   port: 27017,
   ns: 'admin'
 });
-const dataService = new DataService(connection);
+const dataService = new DataServiceImpl(connection);
 
 appRegistry.emit('data-service-initialized', dataService);
 

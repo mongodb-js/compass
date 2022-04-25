@@ -44,7 +44,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const handleError = (error) => ({
   type: HANDLE_ERROR,
-  error: error
+  error: error,
 });
 
 /**
@@ -53,5 +53,5 @@ export const handleError = (error) => ({
  * @returns {Object} The action.
  */
 export const clearError = () => ({
-  type: CLEAR_ERROR
+  type: CLEAR_ERROR,
 });

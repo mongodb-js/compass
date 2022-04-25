@@ -55,6 +55,7 @@ interface Collection {
     namespace: string;
     isReadonly: boolean;
     isTimeSeries: boolean;
+    isClustered: boolean;
     sourceName?: string;
     sourceReadonly?: boolean;
     sourceViewon?: string;
