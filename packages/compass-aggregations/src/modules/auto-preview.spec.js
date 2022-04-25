@@ -1,11 +1,11 @@
-import reducer, { toggleAutoPreview, TOGGLE_AUTO_PREVIEW } from './auto-preview';
+import reducer, { toggleAutoPreview, ActionTypes } from './auto-preview';
 import { expect } from 'chai';
 
 describe('auto preview module', function() {
   describe('#toggleAutoPreview', function() {
-    it('returns the TOGGLE_AUTO_PREVIEW action', function() {
+    it('returns the AutoPreviewToggled action', function() {
       expect(toggleAutoPreview()).to.deep.equal({
-        type: TOGGLE_AUTO_PREVIEW
+        type: ActionTypes.AutoPreviewToggled
       });
     });
   });

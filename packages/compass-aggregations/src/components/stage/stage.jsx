@@ -211,6 +211,7 @@ class Stage extends Component {
             gotoOutResults={this.props.gotoOutResults}
             gotoMergeResults={this.props.gotoMergeResults}
             openLink={this.props.openLink}
+            isAutoPreviewing={this.props.isAutoPreviewing}
           />
         )}
       </div>

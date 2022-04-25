@@ -28,8 +28,6 @@ const toggleLabelStyles = css({
   marginBottom: 0,
   padding: 0,
   textTransform: 'uppercase',
-  // todo: remove this post removal of global styles
-  margin: 'inherit !important',
 });
 
 type PipelineExtraSettingsProps = {
