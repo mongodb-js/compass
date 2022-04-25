@@ -20,6 +20,8 @@ describe('PipelineHeader', function () {
       <Provider store={configureStore()}>
         <PipelineHeader
           isOptionsVisible={true}
+          showRunButton={true}
+          showExportButton={true}
           onShowSavedPipelines={onShowSavedPipelinesSpy}
           onToggleOptions={onToggleOptionsSpy}
         />
