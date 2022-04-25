@@ -46,7 +46,7 @@ export const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSetting
         <div className={toggleStyles}>
           <Toggle
             id="auto-preview"
-            size="small"
+            size="xsmall"
             aria-label="Toggle Auto Preview"
             onChange={() => onToggleAutoPreview()}
             data-testid="pipeline-toolbar-preview-toggle"

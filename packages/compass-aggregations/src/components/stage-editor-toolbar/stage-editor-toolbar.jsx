@@ -7,6 +7,7 @@ import ToggleStage from './toggle-stage';
 import StageGrabber from './stage-grabber';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
+import { Tooltip } from 'hadron-react-components';
 
 import styles from './stage-editor-toolbar.module.less';
 
@@ -34,8 +35,30 @@ class StageEditorToolbar extends PureComponent {
     stageDeleted: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
-    runStage: PropTypes.func.isRequired
+    runStage: PropTypes.func.isRequired,
+    isAutoPreviewing: PropTypes.bool,
   };
+
+  renderTooltip() {
+    const stages = {
+      $out: 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.',
+      $merge: 'The $merge operator will cause the pipeline to persist the results to the specified location.'
+    };
+    const { isAutoPreviewing, stageOperator } = this.props;
+    if (!isAutoPreviewing && Object.keys(stages).includes(stageOperator)) {
+      return (
+        <span
+          data-tip={stages[stageOperator]}
+          data-for="stage-tooltip"
+          data-place="left"
+          data-html="true"
+        >
+          <i className="info-sprinkle" />
+          <Tooltip id="stage-tooltip" />
+        </span>
+      );
+    }
+  }
 
   /**
    * Renders the stage editor toolbar.
@@ -76,6 +99,7 @@ class StageEditorToolbar extends PureComponent {
           stageToggled={this.props.stageToggled}
         />
         <div className={styles['stage-editor-toolbar-right']}>
+          {this.renderTooltip()}
           <DeleteStage
             index={this.props.index}
             runStage={this.props.runStage}

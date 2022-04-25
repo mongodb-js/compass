@@ -124,21 +124,7 @@ class Stage extends Component {
 
   renderEditor() {
     return (
-      <Resizable
-        className={styles['stage-editor']}
-        defaultSize={{
-          width: '388px',
-          height: 'auto'
-        }}
-        minWidth="260px"
-        maxWidth="92%"
-        enable={resizeableDirections}
-        ref={c => { this.resizableRef = c; }}
-        handleWrapperClass={styles['stage-resize-handle-wrapper']}
-        handleComponent={{
-          right: <ResizeHandle />,
-        }}
-      >
+      <>
         <DragHandleToolbar
           allowWrites={this.props.allowWrites}
           env={this.props.env}
@@ -158,6 +144,7 @@ class Stage extends Component {
           stageDeleted={this.props.stageDeleted}
           setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion}
+          isAutoPreviewing={this.props.isAutoPreviewing}
         />
         {this.props.isExpanded && (
           <StageEditor
@@ -180,6 +167,35 @@ class Stage extends Component {
             newPipelineFromPaste={this.props.newPipelineFromPaste}
           />
         )}
+      </>
+    );
+  }
+
+  renderResizableEditor() {
+    const { isAutoPreviewing } = this.props;
+    const editor = this.renderEditor();
+    if (!isAutoPreviewing) {
+      return <div className={styles['stage-editor-no-preview']}>{editor}</div>;
+    }
+    return (
+      <Resizable
+        className={styles['stage-editor']}
+        defaultSize={{
+          width: '388px',
+          height: 'auto',
+        }}
+        minWidth="260px"
+        maxWidth="92%"
+        enable={resizeableDirections}
+        ref={(c) => {
+          this.resizableRef = c;
+        }}
+        handleWrapperClass={styles['stage-resize-handle-wrapper']}
+        handleComponent={{
+          right: <ResizeHandle />,
+        }}
+      >
+        {editor}
       </Resizable>
     );
   }
@@ -211,7 +227,6 @@ class Stage extends Component {
             gotoOutResults={this.props.gotoOutResults}
             gotoMergeResults={this.props.gotoMergeResults}
             openLink={this.props.openLink}
-            isAutoPreviewing={this.props.isAutoPreviewing}
           />
         )}
       </div>
@@ -236,8 +251,8 @@ class Stage extends Component {
         <div className={classnames(styles.stage, {
           [styles['stage-errored']]: this.props.error
         })} style={{ opacity }}>
-          {this.renderEditor()}
-          {this.renderPreview()}
+          {this.renderResizableEditor()}
+          {this.props.isAutoPreviewing && this.renderPreview()}
         </div>
       </div>
     );
