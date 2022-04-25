@@ -28,7 +28,7 @@ function generateComment(file) {
  *  - `NOTARY_AUTH_TOKEN` The password for using the selected signing key
  *  - `NOTARY_URL` The URL of the notary service
  */
-export async function signPackage(file) {
+async function signPackage(file) {
   const signingComment = generateComment(file);
   debug('Signing package %s, comment=%s', file, signingComment);
   if (!file) {
@@ -88,7 +88,8 @@ export async function signPackage(file) {
     }
   }
 }
-export function spawnSync(command, args, options, ignoreErrors = false) {
+
+function spawnSync(command, args, options, ignoreErrors = false) {
   var _a;
   const result = spawn.sync(command, args, options);
   if (result.error) {
@@ -112,3 +113,5 @@ export function spawnSync(command, args, options, ignoreErrors = false) {
   }
   return result;
 }
+
+module.exports = { signPackage };
