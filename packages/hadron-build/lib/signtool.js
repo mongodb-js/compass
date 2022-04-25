@@ -1,7 +1,7 @@
 const download = require('download');
 const fs = require('fs');
 const debug = require('debug')('hadron-build:signtool');
-const childProcess = require('child_process');
+const { execFileSync } = require('child_process');
 const path = require('path');
 
 async function signtool(fileToSign) {
@@ -21,25 +21,21 @@ async function signtool(fileToSign) {
   }
 
   const signtoolUrl = 'https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe';
-  const signtoolPath = path.resolve('signtool.exe');
+  const signtoolPath = path.resolve('signtool/signtool.exe');
 
   // eslint-disable-next-line no-sync
   if (!fs.existsSync(signtoolPath)) {
     debug(`Downloading signtool.exe from ${signtoolUrl} to ${signtoolPath}`);
-    await download(signtoolUrl, 'signtool.exe', {
-      extract: true,
+    await download(signtoolUrl, path.dirname(signtoolPath), {
       strip: 1 // remove leading platform + arch directory
     });
   }
 
-  debug(`Running signtool.exe to sign '${signtoolPath}'`);
+  const execArgs = [signtoolPath, [path.resolve(fileToSign)], { stdio: 'inherit' }];
+  debug(`Running signtool.exe to sign '${signtoolPath}'`, { execaArgs: execArgs });
 
   // eslint-disable-next-line no-sync
-  const {status} = childProcess.spawnSync('signtool.exe', ['yes', path.resolve(fileToSign)], { stdio: 'inherit' });
-
-  if (status !== 0) {
-    throw new Error('Signature failed: signtool.exe exited with non-zero exit code.');
-  }
+  await execFileSync(...execArgs);
 }
 
 module.exports = { signtool };
