@@ -13,7 +13,11 @@ describe('PipelineToolbar', function () {
     beforeEach(function () {
       render(
         <Provider store={configureStore({})}>
-          <PipelineToolbar isSettingsVisible={true} />
+          <PipelineToolbar
+            isSettingsVisible={true}
+            showExportButton={true}
+            showRunButton={true}
+          />
         </Provider>
       );
       toolbar = screen.getByTestId('pipeline-toolbar');

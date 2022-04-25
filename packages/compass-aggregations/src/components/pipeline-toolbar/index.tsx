@@ -46,10 +46,14 @@ const settingsRowStyles = css({
 
 type PipelineToolbarProps = {
   isSettingsVisible: boolean;
+  showRunButton: boolean;
+  showExportButton: boolean;
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
-  isSettingsVisible
+  isSettingsVisible,
+  showRunButton,
+  showExportButton
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
@@ -66,6 +70,8 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           <PipelineHeader
             isOptionsVisible={isOptionsVisible}
             onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
+            showRunButton={showRunButton}
+            showExportButton={showExportButton}
           />
           {isOptionsVisible && <PipelineOptions />}
         </div>
