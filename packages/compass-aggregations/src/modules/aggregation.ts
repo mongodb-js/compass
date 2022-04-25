@@ -187,8 +187,12 @@ export const cancelAggregation = (): ThunkAction<
     const {
       aggregation: { abortController }
     } = getState();
-    abortController?.abort();
+    _abortAggregation(abortController);
   };
+};
+
+const _abortAggregation = (controller?: AbortController): void => {
+  controller?.abort();
 };
 
 const fetchAggregationData = (page: number): ThunkAction<
@@ -204,12 +208,21 @@ const fetchAggregationData = (page: number): ThunkAction<
       maxTimeMS,
       collation,
       dataService: { dataService },
-      aggregation: { limit, documents: _documents, page: _page, isLast: _isLast },
+      aggregation: {
+        limit,
+        page: _page,
+        isLast: _isLast,
+        documents: _documents,
+        abortController: _abortController,
+      },
     } = getState();
 
     if (!dataService) {
       return;
     }
+
+    // Cancel the existing aggregate
+    _abortAggregation(_abortController);
 
     try {
       const abortController = new AbortController();
