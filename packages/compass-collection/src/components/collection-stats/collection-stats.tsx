@@ -7,7 +7,6 @@ import IndexStatsItem from '../index-stats-item';
 const collectionStatsStyles = css({
   textAlign: 'right',
   paddingRight: 0,
-  justifyContent: 'flex-end',
   display: 'flex',
   float: 'right',
 });
@@ -16,10 +15,6 @@ const collectionStatsBodyStyles = css({
   display: 'flex',
   flexDirection: 'row',
   marginRight: spacing[3],
-});
-
-const collectionStatsEmptyStyles = css({
-  display: 'none',
 });
 
 const tooltipDocumentsListStyles = css({
@@ -42,14 +37,10 @@ type CollectionStatsProps = {
   indexCount: string;
   totalIndexSize: string;
   avgIndexSize: string;
-  isReadonly?: boolean;
   isTimeSeries?: boolean;
-  isEditing?: boolean;
 };
 
 const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
-  isReadonly,
-  isEditing,
   isTimeSeries,
   documentCount,
   storageSize,
@@ -58,15 +49,6 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
   totalIndexSize,
   avgIndexSize,
 }: CollectionStatsProps) => {
-  if (isReadonly === true || isEditing === true) {
-    return (
-      <div
-        data-testid="collection-stats-empty"
-        className={collectionStatsEmptyStyles}
-      />
-    );
-  }
-
   return (
     <div data-testid="collection-stats" className={collectionStatsStyles}>
       <Tooltip

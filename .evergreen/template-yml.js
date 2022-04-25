@@ -37,7 +37,7 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-40x-community',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '4.0.x-community'
+        mongodb_version: '4.0.x'
       }
     }
   },
@@ -45,7 +45,8 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-40x-enterprise',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '4.0.x'
+        mongodb_version: '4.0.x',
+        mongodb_use_enterprise: 'yes'
       }
     }
   },
@@ -53,7 +54,7 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-42x-community',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '4.2.x-community'
+        mongodb_version: '4.2.x'
       }
     }
   },
@@ -61,7 +62,8 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-42x-enterprise',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '4.2.x'
+        mongodb_version: '4.2.x',
+        mongodb_use_enterprise: 'yes'
       }
     }
   },
@@ -69,7 +71,7 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-44x-community',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '4.4.x-community'
+        mongodb_version: '4.4.x'
       }
     }
   },
@@ -77,7 +79,8 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-44x-enterprise',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '4.4.x'
+        mongodb_version: '4.4.x',
+        mongodb_use_enterprise: 'yes'
       }
     }
   },
@@ -85,7 +88,7 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-5x-community',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '5.x.x-community'
+        mongodb_version: '5.x.x'
       }
     }
   },
@@ -93,7 +96,8 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-5x-enterprise',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '5.x.x'
+        mongodb_version: '5.x.x',
+        mongodb_use_enterprise: 'yes'
       }
     }
   }

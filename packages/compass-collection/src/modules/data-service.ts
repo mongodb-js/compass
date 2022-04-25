@@ -1,3 +1,6 @@
+import type { AnyAction } from 'redux';
+import type { DataService } from 'mongodb-data-service';
+
 /**
  * The prefix.
  */
@@ -24,7 +27,13 @@ export const INITIAL_STATE = {
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: any): any {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): {
+  error: any;
+  dataService: DataService | null;
+} {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,
@@ -42,7 +51,10 @@ export default function reducer(state = INITIAL_STATE, action: any): any {
  *
  * @returns {Object} The data service connected action.
  */
-export const dataServiceConnected = (error: any, dataService: any): any => ({
+export const dataServiceConnected = (
+  error: any,
+  dataService: DataService
+): any => ({
   type: DATA_SERVICE_CONNECTED,
   error: error,
   dataService: dataService,

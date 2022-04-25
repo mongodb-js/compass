@@ -125,6 +125,8 @@ class Pipeline extends PureComponent {
     sourceName: PropTypes.string,
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
+    showExportButton: PropTypes.bool.isRequired,
+    showRunButton: PropTypes.bool.isRequired
   };
 
   static defaultProps = {
@@ -248,7 +250,12 @@ class Pipeline extends PureComponent {
         />
       );
     }
-    return <PipelineToolbar />;
+    return (
+      <PipelineToolbar
+        showRunButton={this.props.showRunButton}
+        showExportButton={this.props.showExportButton}
+      />
+    );
   }
 
   renderPipelineWorkspace() {

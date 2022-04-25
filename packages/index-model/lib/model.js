@@ -102,8 +102,14 @@ var IndexModel = Model.extend({
         return !!this.extra.collation;
       }
     },
+    clustered: {
+      deps: ['extra'],
+      fn: function() {
+        return !!this.extra.clustered;
+      }
+    },
     type: {
-      deps: ['geo', 'hashed', 'text', 'wildcard'],
+      deps: ['geo', 'hashed', 'text', 'wildcard', 'clustered'],
       fn: function() {
         if (this.geo) {
           return 'geospatial';
@@ -116,6 +122,9 @@ var IndexModel = Model.extend({
         }
         if (this.wildcard) {
           return 'wildcard';
+        }
+        if (this.clustered) {
+          return 'clustered';
         }
         return 'regular';
       }

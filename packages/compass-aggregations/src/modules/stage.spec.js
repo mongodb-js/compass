@@ -1,8 +1,55 @@
-import { generateStage, generateStageAsString} from './stage';
+import { generateStage, generateStageAsString, validateStage, PARSE_ERROR } from './stage';
 import bson from 'bson';
 import { expect } from 'chai';
 
 describe('Stage module', function() {
+  describe("validates stage", function() {
+    it('validates correct stage', function() {
+      expect(validateStage({
+        stage: '{}'
+      })).to.deep.equal({
+        isValid: true,
+        syntaxError: null,
+      });
+
+      expect(validateStage({
+        stage: '{name: 1}'
+      })).to.deep.equal({
+        isValid: true,
+        syntaxError: null,
+      });
+
+      expect(validateStage({
+        stage: '/** some comment */\n{name: /foo/i}'
+      })).to.deep.equal({
+        isValid: true,
+        syntaxError: null,
+      });
+    });
+
+    it('validates incorrect stage', function() {
+      expect(validateStage({
+        stage: '{'
+      })).to.deep.equal({
+        isValid: false,
+        syntaxError: PARSE_ERROR,
+      });
+
+      expect(validateStage({
+        stage: '{name: }'
+      })).to.deep.equal({
+        isValid: false,
+        syntaxError: PARSE_ERROR,
+      });
+
+      expect(validateStage({
+        stage: '/** some comment }\n{name: /foo/i}'
+      })).to.deep.equal({
+        isValid: false,
+        syntaxError: PARSE_ERROR,
+      });
+    })
+  })
   describe('#generateStage + #generateStageAsString', function() {
     context('when the stage text is empty', function() {
       const stage = {

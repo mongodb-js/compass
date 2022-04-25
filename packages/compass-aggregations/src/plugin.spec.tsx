@@ -8,7 +8,9 @@ const renderWithFeatureFlagValue = ({ toolbarEnabled, exportButtonEnabled }: { t
   process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = toolbarEnabled;
   process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = exportButtonEnabled;
   const store = configureStore({});
-  render(<Aggregations store={store} />);
+  render(
+    <Aggregations showExportButton={true} showRunButton={true} store={store} />
+  );
 };
 
 describe('Aggregations [Plugin]', function () {

@@ -36,33 +36,6 @@ describe('CollectionStats [Component]', function () {
     });
   });
 
-  describe('When the collection is a view', function () {
-    afterEach(cleanup);
-
-    before(function () {
-      render(
-        <CollectionStats
-          isReadonly
-          documentCount=""
-          storageSize=""
-          avgDocumentSize=""
-          indexCount=""
-          totalIndexSize=""
-          avgIndexSize=""
-        />
-      );
-    });
-
-    it('renders an empty state', function () {
-      expect(screen.getByTestId('collection-stats-empty')).to.exist;
-    });
-
-    it('does not render the document and index stats', function () {
-      expect(screen.queryByTestId('document-stats-item')).to.not.exist;
-      expect(screen.queryByTestId('index-stats-item')).to.not.exist;
-    });
-  });
-
   describe('when the collection is a time-series collection', function () {
     afterEach(cleanup);
 

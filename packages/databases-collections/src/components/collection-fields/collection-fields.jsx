@@ -8,6 +8,8 @@ import CollectionName from './collection-name';
 import DatabaseName from './database-name';
 import hasTimeSeriesSupport from './has-time-series-support';
 import TimeSeriesFields from './time-series-fields';
+import hasClusteredCollectionSupport from './has-clustered-collection-support';
+import ClusteredCollectionFields from './clustered-collection-fields';
 import Collation from './collation';
 
 function asNumber(value) {
@@ -36,13 +38,15 @@ export default class CollectionFields extends PureComponent {
     isCapped: false,
     isCustomCollation: false,
     isTimeSeries: false,
+    isClustered: false,
     fields: {
       cappedSize: '',
       collation: {},
       collectionName: '',
       databaseName: '',
       timeSeries: {},
-      expireAfterSeconds: ''
+      expireAfterSeconds: '',
+      clusteredIndex: { name: '', unique: true, key: { _id: 1 } }
     }
   };
 
@@ -61,7 +65,7 @@ export default class CollectionFields extends PureComponent {
   }
 
   buildOptions() {
-    const { isCapped, isCustomCollation, isTimeSeries, fields } = this.state;
+    const { isCapped, isCustomCollation, isTimeSeries, isClustered, fields } = this.state;
 
     const cappedOptions = isCapped
       ? { capped: true, size: asNumber(fields.cappedSize) }
@@ -78,10 +82,20 @@ export default class CollectionFields extends PureComponent {
       }
       : {};
 
+    const clusteredOptions = isClustered
+      ? {
+        clusteredIndex: {
+          ...fields.clusteredIndex,
+        },
+        expireAfterSeconds: asNumber(fields.expireAfterSeconds),
+      }
+      : {};
+
     return omitEmptyFormFields({
       ...collationOptions,
       ...cappedOptions,
-      ...timeSeriesOptions
+      ...timeSeriesOptions,
+      ...clusteredOptions
     });
   }
 
@@ -95,7 +109,8 @@ export default class CollectionFields extends PureComponent {
       fields,
       isCapped,
       isCustomCollation,
-      isTimeSeries
+      isTimeSeries,
+      isClustered
     } = this.state;
 
     const {
@@ -104,7 +119,8 @@ export default class CollectionFields extends PureComponent {
       cappedSize,
       collation,
       timeSeries,
-      expireAfterSeconds
+      expireAfterSeconds,
+      clusteredIndex
     } = fields;
 
     return (<>
@@ -127,6 +143,7 @@ export default class CollectionFields extends PureComponent {
         cappedSize={`${cappedSize}`}
         isCapped={isCapped}
         isTimeSeries={isTimeSeries}
+        isClustered={isClustered}
         onChangeCappedSize={(newCappedSizeString) =>
           this.setField('cappedSize', newCappedSizeString)
         }
@@ -149,15 +166,33 @@ export default class CollectionFields extends PureComponent {
         <TimeSeriesFields
           isCapped={isCapped}
           isTimeSeries={isTimeSeries}
+          isClustered={isClustered}
           onChangeIsTimeSeries={(newIsTimeSeries) => this.setState(
-            { isTimeSeries: newIsTimeSeries },
+            { isTimeSeries: newIsTimeSeries, expireAfterSeconds: '' },
             this.updateOptions
           )}
-          onChangeTimeSeriesField={(fieldName, value) =>
+          onChangeField={(fieldName, value) =>
             this.setField(fieldName, value)
           }
           timeSeries={timeSeries}
           expireAfterSeconds={expireAfterSeconds}
+        />
+      )}
+      {hasClusteredCollectionSupport(serverVersion) && (
+        <ClusteredCollectionFields
+          isCapped={isCapped}
+          isTimeSeries={isTimeSeries}
+          isClustered={isClustered}
+          clusteredIndex={clusteredIndex}
+          expireAfterSeconds={expireAfterSeconds}
+          onChangeIsClustered={(newIsClustered) => this.setState(
+            { isClustered: newIsClustered, expireAfterSeconds: '' },
+            this.updateOptions
+          )}
+          onChangeField={(fieldName, value) => {
+            this.setField(fieldName, value);
+          }
+          }
         />
       )}
     </>);

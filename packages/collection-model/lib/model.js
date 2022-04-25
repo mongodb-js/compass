@@ -99,8 +99,9 @@ function pickCollectionInfo({
   collation,
   pipeline,
   validation,
+  clustered
 }) {
-  return { readonly, view_on, collation, pipeline, validation };
+  return { readonly, view_on, collation, pipeline, validation, clustered };
 }
 
 /**
@@ -122,6 +123,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
 
     // Normalized values from collectionInfo command
     readonly: 'boolean',
+    clustered: 'boolean',
     view_on: 'string',
     collation: 'object',
     pipeline: 'array',
@@ -233,7 +235,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     },
 
     properties: {
-      deps: ['collation', 'type', 'capped', 'readonly'],
+      deps: ['collation', 'type', 'capped', 'clustered', 'readonly'],
       fn() {
         return getProperties(this);
       },
@@ -287,6 +289,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       namespace: this.ns,
       isReadonly: this.readonly,
       isTimeSeries: this.isTimeSeries,
+      isClustered: this.clustered
     };
     if (this.sourceId) {
       try {

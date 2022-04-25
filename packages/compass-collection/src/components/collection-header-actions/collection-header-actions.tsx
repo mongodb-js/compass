@@ -1,22 +1,28 @@
-import { Button, ButtonSize, css } from '@mongodb-js/compass-components';
+import {
+  Button,
+  ButtonSize,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import React from 'react';
 
 import ViewInformation from './view-information';
 
+const editViewButtonStyles = css({
+  flex: 'none',
+  marginLeft: spacing[2],
+});
+
 const collectionHeaderActionsStyles = css({
-  flexGrow: 2,
   display: 'flex',
-  alignItems: 'inherit',
+  marginLeft: 'auto',
+  alignItems: 'center',
 });
 
 const collectionHeaderActionsReadonlyStyles = css({
-  margin: '0px 8px',
-  marginLeft: 'auto',
-  fontSize: '16px',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  alignItems: 'inherit',
+  marginLeft: spacing[2],
+  alignItems: 'center',
+  flex: 'none',
 });
 
 type CollectionHeaderActionsProps = {
@@ -46,6 +52,7 @@ const CollectionHeaderActions: React.FunctionComponent<CollectionHeaderActionsPr
         {isReadonly && sourceName && !editViewName && (
           <Button
             data-testid="collection-header-actions-edit-button"
+            className={editViewButtonStyles}
             size={ButtonSize.XSmall}
             onClick={onEditViewClicked}
           >

@@ -2,9 +2,16 @@ import type AppRegistry from 'hadron-app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 import React, { useCallback, useEffect } from 'react';
-import { TabNavBar, css } from '@mongodb-js/compass-components';
+import {
+  TabNavBar,
+  css,
+  withTheme,
+  uiColors,
+  cx,
+} from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
+import type { CollectionStatsObject } from '../../modules/stats';
 
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
 
@@ -17,6 +24,14 @@ const collectionStyles = css({
   alignItems: 'stretch',
   height: '100%',
   width: '100%',
+});
+
+const collectionLightStyles = css({
+  background: uiColors.white,
+});
+
+const collectionDarkStyles = css({
+  backgroundColor: uiColors.gray.dark3,
 });
 
 const collectionContainerStyles = css({
@@ -32,11 +47,11 @@ const collectionModalContainerStyles = css({
 });
 
 type CollectionProps = {
+  darkMode?: boolean;
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
-  statsPlugin: React.FunctionComponent<{ store: any }>;
-  statsStore: any;
+  isClustered: boolean;
   editViewName?: string;
   sourceReadonly: boolean;
   sourceViewOn?: string;
@@ -59,14 +74,16 @@ type CollectionProps = {
     id: string;
   };
   scopedModals: any[];
+  stats: CollectionStatsObject;
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
+  darkMode,
   namespace,
   isReadonly,
   isTimeSeries,
-  statsPlugin,
-  statsStore,
+  isClustered,
+  stats,
   editViewName,
   sourceReadonly,
   sourceViewOn,
@@ -83,13 +100,18 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   changeActiveSubTab,
   scopedModals,
 }: CollectionProps) => {
+  const activeSubTabName =
+    tabs && tabs.length > 0
+      ? trackingIdForTabName(tabs[activeSubTab] || 'Unknown')
+      : null;
+
   useEffect(() => {
-    if (tabs && tabs.length > 0) {
+    if (activeSubTabName) {
       track('Screen', {
-        name: trackingIdForTabName(tabs[activeSubTab] || 'Unknown'),
+        name: activeSubTabName,
       });
     }
-  }, []);
+  }, [activeSubTabName]);
 
   const onSubTabClicked = useCallback(
     (idx, name) => {
@@ -101,10 +123,10 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
       }
       localAppRegistry.emit('subtab-changed', name);
       globalAppRegistry.emit('compass:screen:viewed', { screen: name });
-      track('Screen', { name: trackingIdForTabName(name) });
       changeActiveSubTab(idx, id);
     },
     [
+      id,
       activeSubTab,
       queryHistoryIndexes,
       localAppRegistry,
@@ -114,21 +136,27 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 
   return (
-    <div className={collectionStyles} data-testid="collection">
+    <div
+      className={cx(
+        collectionStyles,
+        darkMode ? collectionDarkStyles : collectionLightStyles
+      )}
+      data-testid="collection"
+    >
       <div className={collectionContainerStyles}>
         <CollectionHeader
           globalAppRegistry={globalAppRegistry}
           namespace={namespace}
           isReadonly={isReadonly}
           isTimeSeries={isTimeSeries}
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
+          isClustered={isClustered}
           editViewName={editViewName}
           sourceReadonly={sourceReadonly}
           sourceViewOn={sourceViewOn}
           selectOrCreateTab={selectOrCreateTab}
           pipeline={pipeline}
           sourceName={sourceName}
+          stats={stats}
         />
         <TabNavBar
           data-test-id="collection-tabs"
@@ -140,7 +168,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           mountAllViews
         />
       </div>
-
       <div className={collectionModalContainerStyles}>
         {scopedModals.map((modal: any) => (
           <modal.component
@@ -154,4 +181,4 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 };
 
-export default Collection;
+export default withTheme(Collection);

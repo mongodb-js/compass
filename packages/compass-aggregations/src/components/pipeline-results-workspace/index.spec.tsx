@@ -37,12 +37,6 @@ describe('PipelineResultsWorkspace', function () {
     expect(container).to.exist;
     expect(within(container).getByTestId('pipeline-results-loader')).to.exist;
   });
-  it('renders error state', function () {
-    renderPipelineResultsWorkspace({ error: 'Some error happened' });
-    const container = screen.getByTestId('pipeline-results-workspace');
-    expect(container).to.exist;
-    expect(within(container).getByText('Some error happened')).to.exist;
-  });
   it('renders empty results state', function () {
     renderPipelineResultsWorkspace({ hasEmptyResults: true });
     const container = screen.getByTestId('pipeline-results-workspace');

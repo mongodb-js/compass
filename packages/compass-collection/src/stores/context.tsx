@@ -34,6 +34,7 @@ type ContextProps = {
   serverVersion?: string;
   isReadonly?: boolean;
   isTimeSeries?: boolean;
+  isClustered?: boolean;
   actions?: any;
   allowWrites?: boolean;
   sourceName?: string;
@@ -41,13 +42,10 @@ type ContextProps = {
   sourcePipeline?: Document[];
   query?: any;
   aggregation?: any;
-  isEditing?: boolean;
   key?: number;
   state?: any;
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
-  statsPlugin?: React.FunctionComponent<{ store: any }>;
-  statsStore?: any;
   scopedModals?: any[];
 };
 
@@ -78,6 +76,7 @@ const setupStore = ({
   serverVersion,
   isReadonly,
   isTimeSeries,
+  isClustered,
   actions,
   allowWrites,
   sourceName,
@@ -97,6 +96,7 @@ const setupStore = ({
     serverVersion: serverVersion,
     isReadonly: isReadonly,
     isTimeSeries,
+    isClustered,
     actions: actions,
     allowWrites: allowWrites,
     sourceName: sourceName,
@@ -122,6 +122,7 @@ const setupStore = ({
  * @property {String} options.serverVersion - The server version.
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series collection.
+ * @property {Boolean} options.isClustered - If the collection is a clustered index collection.
  * @property {Boolean} options.allowWrites - If writes are allowed.
  * @property {String} options.key - The plugin key.
  *
@@ -136,6 +137,7 @@ const setupPlugin = ({
   serverVersion,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   allowWrites,
   key,
@@ -150,6 +152,7 @@ const setupPlugin = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    isClustered,
     sourceName,
     actions,
     allowWrites,
@@ -174,6 +177,7 @@ const setupPlugin = ({
  * @property {String} options.serverVersion - The server version.
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series.
+ * @property {Boolean} options.isClustered - If the collection is a time-series.
  * @property {Boolean} options.allowWrites - If we allow writes.
  *
  * @returns {Array} The components.
@@ -186,6 +190,7 @@ const setupScopedModals = ({
   serverVersion,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   allowWrites,
 }: ContextProps) => {
@@ -201,6 +206,7 @@ const setupScopedModals = ({
         serverVersion,
         isReadonly,
         isTimeSeries,
+        isClustered,
         sourceName,
         allowWrites,
         key: i,
@@ -229,6 +235,7 @@ const createContext = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   isDataLake,
   sourceName,
   editViewName,
@@ -273,6 +280,7 @@ const createContext = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    isClustered,
     actions: queryBarActions,
     allowWrites: !isDataLake,
     query,
@@ -293,6 +301,7 @@ const createContext = ({
       serverVersion,
       isReadonly,
       isTimeSeries,
+      isClustered,
       actions,
       allowWrites: !isDataLake,
       sourceName,
@@ -310,6 +319,15 @@ const createContext = ({
       queryHistoryIndexes.push(i);
     }
 
+    const tabProps = {
+      store,
+      actions,
+      ...(role.name === 'Aggregations' && {
+        showExportButton: true,
+        showRunButton: true,
+      }),
+    };
+
     // Add the view.
     views.push(
       <ErrorBoundary
@@ -324,26 +342,9 @@ const createContext = ({
           );
         }}
       >
-        <role.component store={store} actions={actions} />
+        <role.component {...tabProps} />
       </ErrorBoundary>
     );
-  });
-
-  const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
-  const statsPlugin = statsRole.component;
-  const statsStore = setupStore({
-    role: statsRole,
-    globalAppRegistry,
-    localAppRegistry,
-    dataService: state.dataService,
-    namespace,
-    serverVersion,
-    isReadonly,
-    isTimeSeries,
-    sourceName,
-    actions: {},
-    allowWrites: !isDataLake,
-    isEditing: Boolean(editViewName),
   });
 
   // Setup the scoped modals
@@ -355,6 +356,7 @@ const createContext = ({
     serverVersion,
     isReadonly,
     isTimeSeries,
+    isClustered,
     sourceName,
     allowWrites: !isDataLake,
   });
@@ -371,8 +373,6 @@ const createContext = ({
     tabs,
     views,
     queryHistoryIndexes,
-    statsPlugin,
-    statsStore,
     scopedModals,
     localAppRegistry,
     sourcePipeline,

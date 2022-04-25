@@ -1,3 +1,4 @@
+import type { AnyAction } from 'redux';
 import type AppRegistry from 'hadron-app-registry';
 
 /**
@@ -23,7 +24,10 @@ export const INITIAL_STATE = null;
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: any): any {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): AppRegistry | null {
   if (action.type === APP_REGISTRY_ACTIVATED) {
     return action.appRegistry;
   }
@@ -55,7 +59,7 @@ export const appRegistryActivated = (
  *
  * @returns {Function} The thunk function.
  */
-export const appRegistryEmit = (name: string, metadata: any): any => {
+export const appRegistryEmit = (name: string, metadata?: any): any => {
   return (dispatch: any, getState: any) => {
     const state = getState();
     if (state.appRegistry) {

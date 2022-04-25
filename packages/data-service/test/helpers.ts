@@ -58,6 +58,13 @@ export function createMongoClientMock({
         databaseName,
         listCollections() {
           return {
+            *[Symbol.asyncIterator]() {
+              const colls = collections[databaseName] ?? [];
+              if (colls instanceof Error) {
+                throw colls;
+              }
+              yield* colls.map((name) => ({ name, type: 'collection' }));
+            },
             toArray() {
               const colls = collections[databaseName] ?? [];
               if (colls instanceof Error) {

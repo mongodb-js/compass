@@ -1,10 +1,11 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+import type { AnyAction } from 'redux';
 import type AppRegistry from 'hadron-app-registry';
 import type { Document } from 'mongodb';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 
-import createContext from './context';
+import createContext from '../stores/context';
+import { appRegistryEmit } from './app-registry';
 
 /**
  * The prefix.
@@ -66,12 +67,11 @@ export interface WorkspaceTabObject {
   activeSubTabName: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
+  isClustered: boolean;
   tabs: string[];
   views: JSX.Element[];
   subtab: WorkspaceTabObject;
   queryHistoryIndexes: number[];
-  statsPlugin: React.FunctionComponent<{ store: any }>;
-  statsStore: any;
   pipeline: Document[];
   scopedModals: any[];
   sourceName: string;
@@ -87,7 +87,9 @@ export interface WorkspaceTabObject {
 export const INITIAL_STATE = [];
 
 const showCollectionSubmenu = ({ isReadOnly }: { isReadOnly: boolean }) => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { ipcRenderer } = require('hadron-ipc');
+
   if (ipcRenderer) {
     ipcRenderer.call('window:show-collection-submenu', {
       isReadOnly,
@@ -110,7 +112,7 @@ const doClearTabs = () => {
  *
  * @returns {Object} The new state.
  */
-const doSelectNamespace = (state: any, action: any) => {
+const doSelectNamespace = (state: any, action: AnyAction) => {
   return state.reduce((newState: any, tab: WorkspaceTabObject) => {
     if (tab.isActive) {
       const subTabIndex = action.editViewName ? 1 : 0;
@@ -122,12 +124,11 @@ const doSelectNamespace = (state: any, action: any) => {
         activeSubTabName: action.context.tabs[subTabIndex],
         isReadonly: action.isReadonly,
         isTimeSeries: action.isTimeSeries,
+        isClustered: action.isClustered,
         tabs: action.context.tabs,
         views: action.context.views,
         subtab: action.context.subtab,
         queryHistoryIndexes: action.context.queryHistoryIndexes,
-        statsPlugin: action.context.statsPlugin,
-        statsStore: action.context.statsStore,
         pipeline: action.context.sourcePipeline,
         scopedModals: action.context.scopedModals,
         sourceName: action.sourceName,
@@ -151,7 +152,7 @@ const doSelectNamespace = (state: any, action: any) => {
  *
  * @returns {Object} The new state.
  */
-const doCreateTab = (state: any, action: any) => {
+const doCreateTab = (state: any, action: AnyAction) => {
   const newState = state.map((tab: WorkspaceTabObject) => {
     return { ...tab, isActive: false };
   });
@@ -172,12 +173,11 @@ const doCreateTab = (state: any, action: any) => {
     activeSubTabName: action.context.tabs[subTabIndex],
     isReadonly: action.isReadonly,
     isTimeSeries: action.isTimeSeries,
+    isClustered: action.isClustered,
     tabs: action.context.tabs,
     views: action.context.views,
     subtab: action.context.subtab,
     queryHistoryIndexes: action.context.queryHistoryIndexes,
-    statsPlugin: action.context.statsPlugin,
-    statsStore: action.context.statsStore,
     scopedModals: action.context.scopedModals,
     sourceName: action.sourceName,
     pipeline: action.context.sourcePipeline,
@@ -197,7 +197,7 @@ const doCreateTab = (state: any, action: any) => {
  *
  * @returns {Object} The new state.
  */
-const doCloseTab = (state: any, action: any) => {
+const doCloseTab = (state: any, action: AnyAction) => {
   const closeIndex = action.index;
   const activeIndex = state.findIndex((tab: WorkspaceTabObject) => {
     return tab.isActive;
@@ -223,7 +223,7 @@ const doCloseTab = (state: any, action: any) => {
   }, []);
 };
 
-const doCollectionDropped = (state: any, action: any) => {
+const doCollectionDropped = (state: any, action: AnyAction) => {
   const tabs = state.filter((tab: WorkspaceTabObject) => {
     return tab.namespace !== action.namespace;
   });
@@ -235,7 +235,7 @@ const doCollectionDropped = (state: any, action: any) => {
   return tabs;
 };
 
-const doDatabaseDropped = (state: any, action: any) => {
+const doDatabaseDropped = (state: any, action: AnyAction) => {
   const tabs = state.filter((tab: WorkspaceTabObject) => {
     const tabDbName = toNS(tab.namespace).database;
     return tabDbName !== action.name;
@@ -256,7 +256,7 @@ const doDatabaseDropped = (state: any, action: any) => {
  *
  * @returns {Object} The new state.
  */
-const doMoveTab = (state: any, action: any) => {
+const doMoveTab = (state: any, action: AnyAction) => {
   if (action.fromIndex === action.toIndex) return state;
   const newState = state.map((tab: WorkspaceTabObject) => ({ ...tab }));
   newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
@@ -309,7 +309,7 @@ const doPrevTab = (state: any) => {
  *
  * @returns {Object} The new state.
  */
-const doSelectTab = (state: any, action: any) => {
+const doSelectTab = (state: any, action: AnyAction) => {
   return state.map((tab: WorkspaceTabObject, i: number) => {
     return { ...tab, isActive: action.index === i ? true : false };
   });
@@ -323,7 +323,7 @@ const doSelectTab = (state: any, action: any) => {
  *
  * @returns {Array} The new state.
  */
-const doChangeActiveSubTab = (state: any, action: any) => {
+const doChangeActiveSubTab = (state: any, action: AnyAction) => {
   return state.map((tab: WorkspaceTabObject) => {
     const subTab =
       action.id === tab.id ? action.activeSubTab : tab.activeSubTab;
@@ -360,7 +360,7 @@ const MAPPINGS = {
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: any): any {
+export default function reducer(state = INITIAL_STATE, action: AnyAction): any {
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : state;
 }
@@ -385,6 +385,7 @@ export const createTab = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   context,
@@ -394,15 +395,16 @@ export const createTab = ({
   aggregation,
 }: any): any => ({
   type: CREATE_TAB,
-  id: id,
-  namespace: namespace,
-  isReadonly: isReadonly || false,
-  isTimeSeries: isTimeSeries || false,
-  sourceName: sourceName,
-  editViewName: editViewName,
-  context: context,
-  sourceReadonly: sourceReadonly,
-  sourceViewOn: sourceViewOn,
+  id,
+  namespace,
+  isReadonly: !!isReadonly,
+  isTimeSeries: !!isTimeSeries,
+  isClustered: !!isClustered,
+  sourceName,
+  editViewName,
+  context,
+  sourceReadonly,
+  sourceViewOn,
   query,
   aggregation,
 });
@@ -414,6 +416,7 @@ export const createTab = ({
  * @param {String} namespace - The namespace.
  * @param {Boolean} isReadonly - Is the collection readonly?
  * @param {Boolean} isTimeSeries - Is the collection time-series?
+ * @param {Boolean} isClustered - Is the collection clustered?
  * @param {String} sourceName - The source namespace.
  * @param {String} editViewName - The name of the view we are editing.
  * @param {Object} context - The tab context.
@@ -427,6 +430,7 @@ export const selectNamespace = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   context,
@@ -434,15 +438,16 @@ export const selectNamespace = ({
   sourceViewOn,
 }: any): any => ({
   type: SELECT_NAMESPACE,
-  id: id,
-  namespace: namespace,
-  isReadonly: isReadonly || false,
+  id,
+  namespace,
+  isReadonly: !!isReadonly,
   isTimeSeries,
-  sourceName: sourceName,
-  editViewName: editViewName,
-  context: context,
-  sourceReadonly: sourceReadonly,
-  sourceViewOn: sourceViewOn,
+  sourceName,
+  editViewName,
+  context,
+  sourceReadonly,
+  sourceViewOn,
+  isClustered,
 });
 
 /**
@@ -452,15 +457,15 @@ export const selectNamespace = ({
  *
  * @returns {Object} The close tab action.
  */
-export const closeTab = (
-  index: number
-): {
-  type: string;
-  index: number;
-} => ({
-  type: CLOSE_TAB,
-  index: index,
-});
+export const closeTab =
+  (index: number): any =>
+  (dispatch: any, getState: any) => {
+    const { tabs } = getState();
+    if (tabs.length === 1) {
+      dispatch(appRegistryEmit('all-collection-tabs-closed'));
+    }
+    dispatch({ type: CLOSE_TAB, index: index });
+  };
 
 /**
  * Action creator for move tab.
@@ -584,6 +589,7 @@ export const selectOrCreateTab = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -598,6 +604,7 @@ export const selectOrCreateTab = ({
           namespace,
           isReadonly,
           isTimeSeries,
+          isClustered,
           sourceName,
           editViewName,
           sourceReadonly,
@@ -618,6 +625,7 @@ export const selectOrCreateTab = ({
             namespace,
             isReadonly,
             isTimeSeries,
+            isClustered,
             sourceName,
             editViewName,
             sourceReadonly,
@@ -640,6 +648,7 @@ export const createNewTab = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -656,6 +665,7 @@ export const createNewTab = ({
       isReadonly,
       isDataLake: state.isDataLake,
       isTimeSeries,
+      isClustered,
       sourceName,
       editViewName,
       sourcePipeline,
@@ -668,6 +678,7 @@ export const createNewTab = ({
         namespace,
         isReadonly,
         isTimeSeries,
+        isClustered,
         sourceName,
         editViewName,
         context,
@@ -691,6 +702,7 @@ export const replaceTabContent = ({
   namespace,
   isReadonly,
   isTimeSeries,
+  isClustered,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -705,6 +717,7 @@ export const replaceTabContent = ({
       isReadonly,
       isDataLake: state.isDataLake,
       isTimeSeries,
+      isClustered,
       sourceName,
       editViewName,
       sourcePipeline,
@@ -715,6 +728,7 @@ export const replaceTabContent = ({
         namespace,
         isReadonly,
         isTimeSeries,
+        isClustered,
         sourceName,
         editViewName,
         context,

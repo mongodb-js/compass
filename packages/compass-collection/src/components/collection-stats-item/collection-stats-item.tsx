@@ -4,7 +4,7 @@ import {
   uiColors,
   spacing,
   Disclaimer,
-  Overline,
+  H3,
   withTheme,
 } from '@mongodb-js/compass-components';
 
@@ -18,40 +18,33 @@ const collectionStatsItemStyles = css({
 
 const darkThemeLabelStyles = css({
   textTransform: 'uppercase',
-  fontSize: '10px',
-  fontWeight: 'bold',
+  color: uiColors.gray.light1,
   display: 'inline-block',
-  color: uiColors.gray.base,
+  fontWeight: 'bold',
 });
 
 const lightThemeLabelStyles = css({
   textTransform: 'uppercase',
-  fontSize: '10px',
-  fontWeight: 'bold',
+  color: uiColors.gray.dark1,
   display: 'inline-block',
-  color: uiColors.gray.dark2,
 });
 
 const darkThemeValueStyles = css({
   textTransform: 'lowercase',
   color: uiColors.green.light2,
   display: 'inline-block',
-  fontSize: '24px',
-  lineHeight: '24px',
 });
 
 const lightThemeValueStyles = css({
   textTransform: 'lowercase',
   color: uiColors.green.base,
   display: 'inline-block',
-  fontSize: '24px',
-  lineHeight: '24px',
 });
 
 type CollectionStatsItemProps = {
   darkMode?: boolean;
   label: string;
-  value: any;
+  value: string;
   dataTestId: string;
 };
 
@@ -62,12 +55,12 @@ const CollectionStatsItem: React.FunctionComponent<CollectionStatsItemProps> =
   ({ darkMode, dataTestId, label, value }: CollectionStatsItemProps) => {
     return (
       <div className={collectionStatsItemStyles} data-testid={dataTestId}>
-        <Overline
+        <H3
           className={darkMode ? darkThemeValueStyles : lightThemeValueStyles}
           data-testid={`${dataTestId}-value`}
         >
           {value}
-        </Overline>
+        </H3>
         <Disclaimer
           className={darkMode ? darkThemeLabelStyles : lightThemeLabelStyles}
           data-testid={`${dataTestId}-label`}

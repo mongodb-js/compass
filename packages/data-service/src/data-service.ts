@@ -65,6 +65,7 @@ import {
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
+import type { CollectionInfo, CollectionInfoNameOnly } from './run-command';
 import type {
   Callback,
   CollectionDetails,
@@ -73,6 +74,8 @@ import type {
 } from './types';
 import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
+import type { CSFLECollectionTracker } from './csfle-collection-tracker';
+import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -100,7 +103,599 @@ interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
 }
 
-class DataService extends EventEmitter {
+export interface DataServiceEventMap {
+  serverDescriptionChanged: (evt: ServerDescriptionChangedEvent) => void;
+  serverOpening: (evt: ServerOpeningEvent) => void;
+  serverClosed: (evt: ServerClosedEvent) => void;
+  topologyOpening: (evt: TopologyOpeningEvent) => void;
+  topologyClosed: (evt: TopologyClosedEvent) => void;
+  topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
+  serverHeartbeatSucceeded: (evt: ServerHeartbeatSucceededEvent) => void;
+  serverHeartbeatFailed: (evt: ServerHeartbeatFailedEvent) => void;
+  collectionInfoFetched: (
+    opts: { databaseName: string; nameOnly?: boolean },
+    result: CollectionInfoNameOnly & Partial<CollectionInfo>
+  ) => void;
+}
+
+export interface DataService {
+  // TypeScript uses something like this itself for its EventTarget definitions.
+  on<K extends keyof DataServiceEventMap>(
+    event: K,
+    listener: DataServiceEventMap[K]
+  ): this;
+  once<K extends keyof DataServiceEventMap>(
+    event: K,
+    listener: DataServiceEventMap[K]
+  ): this;
+  emit<K extends keyof DataServiceEventMap>(
+    event: K,
+    ...args: DataServiceEventMap[K] extends (...args: infer P) => any
+      ? P
+      : never
+  ): unknown;
+
+  getMongoClientConnectionOptions():
+    | { url: string; options: MongoClientOptions }
+    | undefined;
+  getConnectionOptions(): Readonly<ConnectionOptions>;
+  getConnectionString(): ConnectionStringUrl;
+  getReadPreference(): ReadPreferenceLike;
+  setCSFLEEnabled(enabled: boolean): void;
+
+  /**
+   * Get the kitchen sink information about a collection.
+   *
+   * @param ns - The namespace.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  collection(ns: string, options: unknown, callback: Callback<Document>): void;
+
+  /**
+   * Get the stats for all collections in the database.
+   *
+   * @param databaseName - The database name.
+   * @param callback - The callback.
+   */
+  collections(
+    databaseName: string,
+    callback: Callback<CollectionStats[]>
+  ): void;
+
+  /**
+   * Get the stats for a collection.
+   *
+   * @param databaseName - The database name.
+   * @param collectionName - The collection name.
+   * @param callback - The callback.
+   */
+  collectionStats(
+    databaseName: string,
+    collectionName: string,
+    callback: Callback<CollectionStats>
+  ): void;
+
+  /**
+   * Returns normalized collection info provided by listCollection command for a
+   * specific collection
+   *
+   * @param dbName database name
+   * @param collName collection name
+   */
+  collectionInfo(
+    dbName: string,
+    collName: string
+  ): Promise<ReturnType<typeof adaptCollectionInfo> | null>;
+
+  /**
+   * Execute a command.
+   *
+   * @param databaseName - The db name.
+   * @param comm - The command.
+   * @param callback - The callback.
+   */
+  command(
+    databaseName: string,
+    comm: Document,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Is the data service allowed to perform write operations.
+   *
+   * @returns If the data service is writable.
+   */
+  isWritable(): boolean;
+
+  /**
+   * Is the data service connected to a mongos.
+   *
+   * @returns If the data service is connected to a mongos.
+   */
+  isMongos(): boolean;
+
+  /**
+   * Return the current topology type, as reported by the driver's topology
+   * update events.
+   *
+   * @returns The current topology type.
+   */
+  currentTopologyType(): TopologyType;
+
+  connectionStatus(): Promise<ConnectionStatusWithPrivileges>;
+
+  /**
+   * List all collections for a database.
+   */
+  listCollections(
+    databaseName: string,
+    filter?: Document,
+    options?: {
+      nameOnly?: true;
+      privileges?:
+        | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+        | null;
+    }
+  ): Promise<ReturnType<typeof adaptCollectionInfo>[]>;
+
+  /**
+   * List all databases on the currently connected instance.
+   */
+  listDatabases(options?: {
+    nameOnly?: true;
+    privileges?:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null;
+    roles?:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+      | null;
+  }): Promise<{ _id: string; name: string }[]>;
+
+  connect(): Promise<void>;
+
+  /**
+   * Count the number of documents in the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param options - The query options.
+   * @param callback - The callback function.
+   */
+  estimatedCount(
+    ns: string,
+    options: EstimatedDocumentCountOptions,
+    callback: Callback<number>
+  ): void;
+
+  /**
+   * Count the number of documents in the collection for the provided filter
+   * and options.
+   *
+   * @param ns - The namespace to search on.
+   * @param options - The query options.
+   * @param callback - The callback function.
+   */
+  count(
+    ns: string,
+    filter: Filter<Document>,
+    options: CountDocumentsOptions,
+    callback: Callback<number>
+  ): void;
+
+  /**
+   * Creates a collection
+   *
+   * @param ns - The namespace.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  createCollection(
+    ns: string,
+    options: CreateCollectionOptions,
+    callback: Callback<Collection<Document>>
+  ): void;
+
+  /**
+   * Creates an index
+   *
+   * @param ns - The namespace.
+   * @param spec - The index specification.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  createIndex(
+    ns: string,
+    spec: IndexSpecification,
+    options: CreateIndexesOptions,
+    callback: Callback<string>
+  ): void;
+
+  /**
+   * Get the kitchen sink information about a database and all its collections.
+   *
+   * @param name - The database name.
+   * @param options - The query options.
+   * @param callback - The callback.
+   */
+  database(name: string, options: unknown, callback: Callback<Document>): void;
+
+  /**
+   * Delete a single document from the collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  deleteOne(
+    ns: string,
+    filter: Filter<Document>,
+    options: DeleteOptions,
+    callback: Callback<DeleteResult>
+  ): void;
+
+  /**
+   * Deletes multiple documents from a collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  deleteMany(
+    ns: string,
+    filter: Filter<Document>,
+    options: DeleteOptions,
+    callback: Callback<DeleteResult>
+  ): void;
+
+  /**
+   * Disconnect the service.
+   * @param callback - The callback.
+   */
+  disconnect(): Promise<void>;
+
+  /**
+   * Drops a collection from a database
+   *
+   * @param ns - The namespace.
+   * @param callback - The callback.
+   */
+  dropCollection(ns: string, callback: Callback<boolean>): void;
+
+  /**
+   * Drops a database
+   *
+   * @param name - The database name.
+   * @param callback - The callback.
+   */
+  dropDatabase(name: string, callback: Callback<boolean>): void;
+
+  /**
+   * Drops an index from a collection
+   *
+   * @param ns - The namespace.
+   * @param name - The index name.
+   * @param callback - The callback.
+   */
+  dropIndex(ns: string, name: string, callback: Callback<Document>): void;
+
+  /**
+   * Execute an aggregation framework pipeline with the provided options on the
+   * collection.
+   *
+   *
+   * @param ns - The namespace to search on.
+   * @param pipeline - The aggregation pipeline.
+   * @param options - The aggregation options.
+   * @param callback - The callback function.
+   */
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    options?: AggregateOptions
+  ): AggregationCursor;
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    callback: Callback<AggregationCursor>
+  ): void;
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions | undefined,
+    callback: Callback<AggregationCursor>
+  ): void;
+
+  /**
+   * Find documents for the provided filter and options on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The query filter.
+   * @param options - The query options.
+   * @param callback - The callback function.
+   */
+  find(
+    ns: string,
+    filter: Filter<Document>,
+    options: FindOptions,
+    callback: Callback<Document[]>
+  ): void;
+
+  /**
+   * Fetch documents for the provided filter and options on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The query filter.
+   * @param options - The query options.
+   */
+  fetch(ns: string, filter: Filter<Document>, options: FindOptions): FindCursor;
+
+  /**
+   * Find one document and replace it with the replacement.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The filter.
+   * @param replacement - The replacement doc.
+   * @param options - The query options.
+   * @param callback - The callback.
+   */
+  findOneAndReplace(
+    ns: string,
+    filter: Filter<Document>,
+    replacement: Document,
+    options: FindOneAndReplaceOptions,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Find one document and update it with the update operations.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The filter.
+   * @param update - The update operations doc.
+   * @param options - The query options.
+   * @param callback - The callback.
+   */
+  findOneAndUpdate(
+    ns: string,
+    filter: Filter<Document>,
+    update: Document,
+    options: FindOneAndUpdateOptions,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Returns explain plan for the provided filter and options on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The query filter.
+   * @param options - The query options.
+   * @param callback - The callback function.
+   */
+  explain(
+    ns: string,
+    filter: Filter<Document>,
+    options: FindOptions,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Get the indexes for the collection.
+   *
+   * @param ns - The collection namespace.
+   * @param options - The options (unused).
+   * @param callback - The callback.
+   */
+  indexes(ns: string, options: unknown, callback: Callback<Document>): void;
+
+  /**
+   * Get the current instance details.
+   */
+  instance(): Promise<InstanceDetails>;
+
+  /**
+   * Insert a single document into the database.
+   *
+   * @param ns - The namespace.
+   * @param doc - The document to insert.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  insertOne(
+    ns: string,
+    doc: Document,
+    options: InsertOneOptions,
+    callback: Callback<InsertOneResult<Document>>
+  ): void;
+
+  /**
+   * Inserts multiple documents into the collection.
+   *
+   * @param ns - The namespace.
+   * @param docs - The documents to insert.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  insertMany(
+    ns: string,
+    docs: Document[],
+    options: BulkWriteOptions,
+    callback: Callback<InsertManyResult<Document>>
+  ): void;
+
+  /**
+   * Inserts multiple documents into the collection.
+   *
+   * @param ns - The namespace.
+   * @param docs - The documents to insert.
+   * @param options - The options.
+   * @deprecated
+   */
+  putMany(
+    ns: string,
+    docs: Document[],
+    options: BulkWriteOptions
+  ): Promise<InsertManyResult<Document>>;
+
+  /**
+   * Update a collection.
+   *
+   * @param ns - The namespace.
+   * @param flags - The flags.
+   * @param callback - The callback.
+   */
+  updateCollection(
+    ns: string,
+    // Collection name to update that will be passed to the collMod command will
+    // be derived from the provided namespace, this is why we are explicitly
+    // prohibiting to pass collMod flag here
+    flags: Document & { collMod?: never },
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Update a single document in the collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param update - The update.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  updateOne(
+    ns: string,
+    filter: Filter<Document>,
+    update: Document | UpdateFilter<Document>,
+    options: UpdateOptions,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Updates multiple documents in the collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param update - The update.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options: UpdateOptions,
+    callback: Callback<Document | UpdateResult>
+  ): void;
+
+  /**
+   * Returns the results of currentOp.
+   *
+   * @param includeAll - if true also list currently idle operations in the result.
+   * @param callback - The callback.
+   */
+  currentOp(includeAll: boolean, callback: Callback<Document>): void;
+
+  /**
+   * Returns the most recent topology description from the server's SDAM events.
+   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
+   */
+  getLastSeenTopology(): null | TopologyDescription;
+
+  /**
+   * Returns the result of serverStats.
+   */
+  serverstats(callback: Callback<Document>): void;
+
+  /**
+   * Returns the result of top.
+   *
+   * @param callback - the callback.
+   */
+  top(callback: Callback<Document>): void;
+
+  /**
+   * Create a new view.
+   *
+   * @param name - The collectionName for the view.
+   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param pipeline - The agggregation pipeline for the view.
+   * @param options - Options e.g. collation.
+   * @param callback - The callback.
+   */
+  createView(
+    name: string,
+    sourceNs: string,
+    pipeline: Document[],
+    options: CreateCollectionOptions,
+    callback: Callback<Collection<Document>>
+  ): void;
+
+  /**
+   * Update an existing view.
+   *
+   * @param name - The collectionName for the view.
+   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param pipeline - The agggregation pipeline for the view.
+   * @param options - Options e.g. collation.
+   * @param callback - The callback.
+   */
+  updateView(
+    name: string,
+    sourceNs: string,
+    pipeline: Document[],
+    options: Document,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Convenience for dropping a view as a passthrough to `dropCollection()`.
+   *
+   * @param ns - The namespace.
+   * @param callback - The callback.
+   */
+  dropView(ns: string, callback: Callback<boolean>): void;
+
+  /**
+   * Sample documents from the collection.
+   *
+   * @param ns  - The namespace to sample.
+   * @param args - The sampling options.
+   * @param options - Driver options (ie. maxTimeMs, session, batchSize ...)
+   */
+  sample(
+    ns: string,
+    args?: { query?: Filter<Document>; size?: number; fields?: Document },
+    options?: AggregateOptions
+  ): AggregationCursor;
+
+  /**
+   * Create a ClientSession that can be passed to commands.
+   */
+  startSession(clientType: ClientType): CompassClientSession;
+
+  /**
+   * Kill a session and terminate all in progress operations.
+   * @param clientSession - a ClientSession (can be created with startSession())
+   */
+  killSessions(
+    sessions: CompassClientSession | CompassClientSession[]
+  ): Promise<Document>;
+
+  isConnected(): boolean;
+
+  /**
+   * Get the stats for a database.
+   *
+   * @param name - The database name.
+   * @param callback - The callback.
+   */
+  databaseStats(
+    name: string
+  ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }>;
+}
+
+export class DataServiceImpl extends EventEmitter implements DataService {
   private readonly _connectionOptions: Readonly<ConnectionOptions>;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
@@ -116,6 +711,7 @@ class DataService extends EventEmitter {
   private _metadataClient?: MongoClient;
   private _crudClient?: MongoClient;
   private _useCRUDClient = true;
+  private _csfleCollectionTracker?: CSFLECollectionTracker;
 
   private _tunnel?: SshTunnel;
 
@@ -164,13 +760,18 @@ class DataService extends EventEmitter {
     this._useCRUDClient = enabled;
   }
 
-  /**
-   * Get the kitchen sink information about a collection.
-   *
-   * @param ns - The namespace.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
+  getCSFLEMode(): 'enabled' | 'disabled' | 'unavailable' {
+    if (this._crudClient && checkIsCSFLEConnection(this._crudClient)) {
+      if (this._useCRUDClient) {
+        return 'enabled';
+      } else {
+        return 'disabled';
+      }
+    } else {
+      return 'unavailable';
+    }
+  }
+
   collection(ns: string, options: unknown, callback: Callback<Document>): void {
     // @ts-expect-error async typings are not nice :(
     async.parallel(
@@ -195,12 +796,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Get the stats for all collections in the database.
-   *
-   * @param databaseName - The database name.
-   * @param callback - The callback.
-   */
   collections(
     databaseName: string,
     callback: Callback<CollectionStats[]>
@@ -225,13 +820,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Get the stats for a collection.
-   *
-   * @param databaseName - The database name.
-   * @param collectionName - The collection name.
-   * @param callback - The callback.
-   */
   collectionStats(
     databaseName: string,
     collectionName: string,
@@ -260,13 +848,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Returns normalized collection info provided by listCollection command for a
-   * specific collection
-   *
-   * @param dbName database name
-   * @param collName collection name
-   */
   async collectionInfo(
     dbName: string,
     collName: string
@@ -279,13 +860,6 @@ class DataService extends EventEmitter {
     }
   }
 
-  /**
-   * Execute a command.
-   *
-   * @param databaseName - The db name.
-   * @param comm - The command.
-   * @param callback - The callback.
-   */
   command(
     databaseName: string,
     comm: Document,
@@ -301,30 +875,14 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Is the data service allowed to perform write operations.
-   *
-   * @returns If the data service is writable.
-   */
   isWritable(): boolean {
     return this._isWritable;
   }
 
-  /**
-   * Is the data service connected to a mongos.
-   *
-   * @returns If the data service is connected to a mongos.
-   */
   isMongos(): boolean {
     return this._topologyType === 'Sharded';
   }
 
-  /**
-   * Return the current topology type, as reported by the driver's topology
-   * update events.
-   *
-   * @returns The current topology type.
-   */
   currentTopologyType(): TopologyType {
     return this._topologyType;
   }
@@ -377,9 +935,6 @@ class DataService extends EventEmitter {
     return authenticatedUserRoles;
   }
 
-  /**
-   * List all collections for a database.
-   */
   async listCollections(
     databaseName: string,
     filter: Document = {},
@@ -403,7 +958,19 @@ class DataService extends EventEmitter {
 
     const listCollections = async () => {
       try {
-        return await db.listCollections(filter, { nameOnly }).toArray();
+        const cursor = db.listCollections(filter, { nameOnly });
+        // Iterate instead of using .toArray() so we can emit
+        // collection info update events as they come in.
+        const results = [];
+        for await (const result of cursor) {
+          this.emit(
+            'collectionInfoFetched',
+            { databaseName, nameOnly },
+            result
+          );
+          results.push(result);
+        }
+        return results;
       } catch (err) {
         // Currently Compass should not fail if listCollections failed for
         // any possible reason to preserve current behavior. We probably
@@ -469,9 +1036,6 @@ class DataService extends EventEmitter {
     }
   }
 
-  /**
-   * List all databases on the currently connected instance.
-   */
   async listDatabases({
     nameOnly,
     privileges = null,
@@ -616,18 +1180,15 @@ class DataService extends EventEmitter {
       this._crudClient = crudClient;
       this._tunnel = tunnel;
       this._mongoClientConnectionOptions = connectionOptions;
+      this._csfleCollectionTracker = new CSFLECollectionTrackerImpl(
+        this,
+        this._crudClient
+      );
     } finally {
       this._isConnecting = false;
     }
   }
 
-  /**
-   * Count the number of documents in the collection.
-   *
-   * @param ns - The namespace to search on.
-   * @param options - The query options.
-   * @param callback - The callback function.
-   */
   estimatedCount(
     ns: string,
     options: EstimatedDocumentCountOptions,
@@ -647,14 +1208,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Count the number of documents in the collection for the provided filter
-   * and options.
-   *
-   * @param ns - The namespace to search on.
-   * @param options - The query options.
-   * @param callback - The callback function.
-   */
   count(
     ns: string,
     filter: Filter<Document>,
@@ -676,13 +1229,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Creates a collection
-   *
-   * @param ns - The namespace.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   createCollection(
     ns: string,
     options: CreateCollectionOptions,
@@ -706,14 +1252,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Creates an index
-   *
-   * @param ns - The namespace.
-   * @param spec - The index specification.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   createIndex(
     ns: string,
     spec: IndexSpecification,
@@ -735,13 +1273,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Get the kitchen sink information about a database and all its collections.
-   *
-   * @param name - The database name.
-   * @param options - The query options.
-   * @param callback - The callback.
-   */
   database(name: string, options: unknown, callback: Callback<Document>): void {
     const asyncColls = promisify(this.collections.bind(this));
 
@@ -756,14 +1287,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Delete a single document from the collection.
-   *
-   * @param ns - The namespace.
-   * @param filter - The filter.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   deleteOne(
     ns: string,
     filter: Filter<Document>,
@@ -785,14 +1308,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Deletes multiple documents from a collection.
-   *
-   * @param ns - The namespace.
-   * @param filter - The filter.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   deleteMany(
     ns: string,
     filter: Filter<Document>,
@@ -818,10 +1333,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Disconnect the service.
-   * @param callback - The callback.
-   */
   async disconnect(): Promise<void> {
     log.info(mongoLogId(1_001_000_016), this._logCtx(), 'Disconnecting');
 
@@ -844,12 +1355,6 @@ class DataService extends EventEmitter {
     }
   }
 
-  /**
-   * Drops a collection from a database
-   *
-   * @param ns - The namespace.
-   * @param callback - The callback.
-   */
   dropCollection(ns: string, callback: Callback<boolean>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_059),
@@ -866,12 +1371,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Drops a database
-   *
-   * @param name - The database name.
-   * @param callback - The callback.
-   */
   dropDatabase(name: string, callback: Callback<boolean>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_040),
@@ -890,13 +1389,6 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Drops an index from a collection
-   *
-   * @param ns - The namespace.
-   * @param name - The index name.
-   * @param callback - The callback.
-   */
   dropIndex(ns: string, name: string, callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_060),
@@ -913,16 +1405,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Execute an aggregation framework pipeline with the provided options on the
-   * collection.
-   *
-   *
-   * @param ns - The namespace to search on.
-   * @param pipeline - The aggregation pipeline.
-   * @param options - The aggregation options.
-   * @param callback - The callback function.
-   */
   aggregate(
     ns: string,
     pipeline: Document[],
@@ -963,14 +1445,6 @@ class DataService extends EventEmitter {
     return cursor;
   }
 
-  /**
-   * Find documents for the provided filter and options on the collection.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The query filter.
-   * @param options - The query options.
-   * @param callback - The callback function.
-   */
   find(
     ns: string,
     filter: Filter<Document>,
@@ -991,13 +1465,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Fetch documents for the provided filter and options on the collection.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The query filter.
-   * @param options - The query options.
-   */
   fetch(
     ns: string,
     filter: Filter<Document>,
@@ -1014,15 +1481,6 @@ class DataService extends EventEmitter {
     return this._collection(ns, 'CRUD').find(filter, options);
   }
 
-  /**
-   * Find one document and replace it with the replacement.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The filter.
-   * @param replacement - The replacement doc.
-   * @param options - The query options.
-   * @param callback - The callback.
-   */
   findOneAndReplace(
     ns: string,
     filter: Filter<Document>,
@@ -1050,15 +1508,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Find one document and update it with the update operations.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The filter.
-   * @param update - The update operations doc.
-   * @param options - The query options.
-   * @param callback - The callback.
-   */
   findOneAndUpdate(
     ns: string,
     filter: Filter<Document>,
@@ -1086,14 +1535,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Returns explain plan for the provided filter and options on the collection.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The query filter.
-   * @param options - The query options.
-   * @param callback - The callback function.
-   */
   explain(
     ns: string,
     filter: Filter<Document>,
@@ -1119,13 +1560,6 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Get the indexes for the collection.
-   *
-   * @param ns - The collection namespace.
-   * @param options - The options (unused).
-   * @param callback - The callback.
-   */
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_047),
@@ -1146,26 +1580,12 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Get the current instance details.
-   */
   async instance(): Promise<InstanceDetails> {
-    let csfleMode: InstanceDetails['csfleMode'];
-    if (this._crudClient && checkIsCSFLEConnection(this._crudClient)) {
-      if (this._useCRUDClient) {
-        csfleMode = 'enabled';
-      } else {
-        csfleMode = 'disabled';
-      }
-    } else {
-      csfleMode = 'unavailable';
-    }
-
     try {
       const instanceData = {
         ...(await getInstance(this._initializedClient('META'))),
         // Need to get the CSFLE flag from the CRUD client, not the META one
-        csfleMode,
+        csfleMode: this.getCSFLEMode(),
       };
 
       log.info(
@@ -1186,14 +1606,6 @@ class DataService extends EventEmitter {
     }
   }
 
-  /**
-   * Insert a single document into the database.
-   *
-   * @param ns - The namespace.
-   * @param doc - The document to insert.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   insertOne(
     ns: string,
     doc: Document,
@@ -1215,14 +1627,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Inserts multiple documents into the collection.
-   *
-   * @param ns - The namespace.
-   * @param docs - The documents to insert.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   insertMany(
     ns: string,
     docs: Document[],
@@ -1247,14 +1651,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Inserts multiple documents into the collection.
-   *
-   * @param ns - The namespace.
-   * @param docs - The documents to insert.
-   * @param options - The options.
-   * @deprecated
-   */
   putMany(
     ns: string,
     docs: Document[],
@@ -1263,13 +1659,6 @@ class DataService extends EventEmitter {
     return this._collection(ns, 'CRUD').insertMany(docs, options);
   }
 
-  /**
-   * Update a collection.
-   *
-   * @param ns - The namespace.
-   * @param flags - The flags.
-   * @param callback - The callback.
-   */
   updateCollection(
     ns: string,
     // Collection name to update that will be passed to the collMod command will
@@ -1301,15 +1690,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Update a single document in the collection.
-   *
-   * @param ns - The namespace.
-   * @param filter - The filter.
-   * @param update - The update.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   updateOne(
     ns: string,
     filter: Filter<Document>,
@@ -1337,15 +1717,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Updates multiple documents in the collection.
-   *
-   * @param ns - The namespace.
-   * @param filter - The filter.
-   * @param update - The update.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   updateMany(
     ns: string,
     filter: Filter<Document>,
@@ -1373,12 +1744,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Returns the results of currentOp.
-   *
-   * @param includeAll - if true also list currently idle operations in the result.
-   * @param callback - The callback.
-   */
   currentOp(includeAll: boolean, callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_053),
@@ -1410,17 +1775,10 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Returns the most recent topology description from the server's SDAM events.
-   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
-   */
   getLastSeenTopology(): null | TopologyDescription {
     return this._lastSeenTopology;
   }
 
-  /**
-   * Returns the result of serverStats.
-   */
   serverstats(callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_061),
@@ -1441,11 +1799,6 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Returns the result of top.
-   *
-   * @param callback - the callback.
-   */
   top(callback: Callback<Document>): void {
     const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
     this._initializedClient('META')
@@ -1461,15 +1814,6 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Create a new view.
-   *
-   * @param name - The collectionName for the view.
-   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
-   * @param pipeline - The agggregation pipeline for the view.
-   * @param options - Options e.g. collation.
-   * @param callback - The callback.
-   */
   createView(
     name: string,
     sourceNs: string,
@@ -1503,15 +1847,6 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Update an existing view.
-   *
-   * @param name - The collectionName for the view.
-   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
-   * @param pipeline - The agggregation pipeline for the view.
-   * @param options - Options e.g. collation.
-   * @param callback - The callback.
-   */
   updateView(
     name: string,
     sourceNs: string,
@@ -1548,23 +1883,10 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Convenience for dropping a view as a passthrough to `dropCollection()`.
-   *
-   * @param ns - The namespace.
-   * @param callback - The callback.
-   */
   dropView(ns: string, callback: Callback<boolean>): void {
     this.dropCollection(ns, callback);
   }
 
-  /**
-   * Sample documents from the collection.
-   *
-   * @param ns  - The namespace to sample.
-   * @param args - The sampling options.
-   * @param options - Driver options (ie. maxTimeMs, session, batchSize ...)
-   */
   sample(
     ns: string,
     {
@@ -1600,9 +1922,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Create a ClientSession that can be passed to commands.
-   */
   startSession(clientType: ClientType): CompassClientSession {
     const session = this._initializedClient(
       clientType
@@ -1611,10 +1930,6 @@ class DataService extends EventEmitter {
     return session;
   }
 
-  /**
-   * Kill a session and terminate all in progress operations.
-   * @param clientSession - a ClientSession (can be created with startSession())
-   */
   killSessions(
     sessions: CompassClientSession | CompassClientSession[]
   ): Promise<Document> {
@@ -1834,12 +2149,13 @@ class DataService extends EventEmitter {
     return client;
   }
 
-  /**
-   * Get the stats for a database.
-   *
-   * @param name - The database name.
-   * @param callback - The callback.
-   */
+  getCSFLECollectionTracker(): CSFLECollectionTracker {
+    if (!this._csfleCollectionTracker) {
+      throw new Error('Client not yet initialized');
+    }
+    return this._csfleCollectionTracker;
+  }
+
   async databaseStats(
     name: string
   ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {

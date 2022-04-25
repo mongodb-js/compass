@@ -34,7 +34,7 @@ describe('PipelineStages', function () {
       ).to.exist;
     });
 
-    it('renders button to add first stage', function () {
+    it('renders button to add first stage - when pipeline is empty', function () {
       expect(within(container).getByTestId('pipeline-toolbar-add-stage-button'))
         .to.exist;
     });
@@ -66,11 +66,14 @@ describe('PipelineStages', function () {
       container = screen.getByTestId('toolbar-pipeline-stages');
     });
     it('renders text to show no stages are in pipeline', function () {
-      expect(
-        within(container).findByText(
-          'Your pipeline is currently empty. To get started select the first stage.'
-        )
-      ).to.exist;
+      expect(within(container).findByText('Your pipeline is currently empty.'))
+        .to.exist;
+    });
+
+    it('does not render button to add first stage - when pipeline is not empty', function () {
+      expect(() => {
+        within(container).getByTestId('pipeline-toolbar-add-stage-button');
+      }).to.throw;
     });
   });
 

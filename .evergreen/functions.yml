@@ -205,7 +205,8 @@ functions:
           # "mongo*" for some helpful output from the test tooling we are using
           DEBUG=${debug} \
             MONGODB_VERSION=${mongodb_version|4.4.x} \
-              npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
     - command: shell.exec
@@ -229,7 +230,8 @@ functions:
 
           DEBUG=${debug} \
             MONGODB_VERSION=${mongodb_version|4.4.x} \
-              npm run --unsafe-perm test-ci-electron -- --stream
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
     - command: shell.exec
@@ -335,7 +337,11 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.4.x} npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4.4.x} \
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
@@ -356,7 +362,10 @@ functions:
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.4.x} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4.4.x} \
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
     - command: shell.exec
@@ -376,6 +385,27 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           source .evergreen/start-docker-envs.sh
           npm run test-connectivity --workspace mongodb-data-service
+
+  test-csfle:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          rm -rf mongodb-csfle && mkdir -p mongodb-csfle
+          (cd mongodb-csfle && \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --csfle --version '>= 6.0.0-rc1') | \
+            tar -xvz)
+          export COMPASS_CSFLE_LIBRARY_PATH=$(echo $PWD/mongodb-csfle/lib/mongo_csfle_v1.*)
+          npm run test-csfle --workspace mongodb-data-service
 
   save-windows-artifacts:
     - <<: *save-artifact

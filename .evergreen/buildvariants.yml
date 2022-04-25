@@ -40,6 +40,12 @@ buildvariants:
     tasks:
       - name: test-connectivity
 
+  - name: ubuntu_csfle_tests
+    display_name: CSFLE Tests
+    run_on: ubuntu2004-large
+    tasks:
+      - name: test-csfle
+
   - name: windows
     display_name: Windows (Test and Package)
     run_on: windows-vsCurrent-large

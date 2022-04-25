@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * The prefix.
  */
@@ -21,21 +23,12 @@ export const INITIAL_STATE = false;
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: any): boolean {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): boolean {
   if (action.type === IS_DATA_LAKE_CHANGED) {
     return action.isDataLake;
   }
   return state;
 }
-
-/**
- * Action creator for is data lake changed events.
- *
- * @param {Boolean} isDataLake - Is data lake.
- *
- * @returns {Object} The is data lake changed action.
- */
-export const isDataLakeChanged = (isDataLake?: boolean): any => ({
-  type: IS_DATA_LAKE_CHANGED,
-  isDataLake: isDataLake || false,
-});
