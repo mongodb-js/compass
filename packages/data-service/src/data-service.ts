@@ -112,7 +112,7 @@ export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   serverHeartbeatSucceeded: (evt: ServerHeartbeatSucceededEvent) => void;
   serverHeartbeatFailed: (evt: ServerHeartbeatFailedEvent) => void;
-  updatedCollectionInfo: (
+  collectionInfoFetched: (
     opts: { databaseName: string; nameOnly?: boolean },
     result: CollectionInfoNameOnly & Partial<CollectionInfo>
   ) => void;
@@ -964,7 +964,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         const results = [];
         for await (const result of cursor) {
           this.emit(
-            'updatedCollectionInfo',
+            'collectionInfoFetched',
             { databaseName, nameOnly },
             result
           );

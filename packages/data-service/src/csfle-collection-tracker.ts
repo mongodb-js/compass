@@ -151,8 +151,8 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     this._crudClient = crudClient;
 
     this._dataService.on(
-      'updatedCollectionInfo',
-      this._onUpdatedCollectionInfo.bind(this)
+      'collectionInfoFetched',
+      this._updateCollectionInfoFromDataService.bind(this)
     );
     this._processClientSchemaDefinitions();
 
@@ -268,7 +268,7 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     return info;
   }
 
-  _onUpdatedCollectionInfo(
+  _updateCollectionInfoFromDataService(
     opts: { databaseName: string; nameOnly?: boolean },
     result: CollectionInfoNameOnly & Partial<CollectionInfo>
   ): void {
