@@ -235,6 +235,7 @@ const configureStore = (options = {}) => {
         doc: null,
         jsonDoc: null,
         message: '',
+        csfleState: 'none',
         mode: MODIFYING,
         jsonView: false,
         isOpen: false,
@@ -427,13 +428,40 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Ensure that updating the given document is allowed
+     * (currently only in the sense that for CSFLE-enabled clients,
+     * there is no risk of writing back unencrypted data).
+     * If this is not the case, returns false and emit `update-error`
+     * on the document object.
+     *
+     * @param {string} ns The collection namespace
+     * @param {Document} doc A HadronDocument instance
+     * @returns {boolean} Whether updating is allowed.
+     */
+    async _verifyUpdateAllowed(ns, doc) {
+      if (this.dataService.getCSFLEMode && this.dataService.getCSFLEMode() === 'enabled') {
+        // Editing the document and then being informed that
+        // doing so is disallowed might not be great UX, but
+        // since we are mostly targeting typical FLE2 use cases,
+        // it's probably not worth spending too much time on this.
+        const isAllowed = await this.dataService.getCSFLECollectionTracker().isUpdateAllowed(
+          ns, doc.generateOriginalObject());
+        if (!isAllowed) {
+          doc.emit('update-error', 'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.');
+          return false;
+        }
+      }
+      return true;
+    },
+
+    /**
      * Update the provided document unless the elements being changed were
      * changed in the background. If the elements being changed were changed
      * in the background, block the update.
      *
      * @param {Document} doc - The hadron document.
      */
-    updateDocument(doc) {
+    async updateDocument(doc) {
       track('Document Updated', { mode: this.modeForTelemetry() });
       try {
         // We add the shard keys here, if there are any, because that is
@@ -450,26 +478,28 @@ const configureStore = (options = {}) => {
 
         const opts = { returnDocument: 'after', promoteValues: false };
 
-        this.dataService.findOneAndUpdate(
+        if (!await this._verifyUpdateAllowed(this.state.ns, doc)) {
+          // _verifyUpdateAllowed emitted update-error
+          return;
+        }
+        const [ error, d ] = await new Promise(resolve => this.dataService.findOneAndUpdate(
           this.state.ns,
           query,
           updateDoc,
           opts,
-          (error, d) => {
-            if (error) {
-              doc.emit('update-error', error.message);
-            } else if (d) {
-              doc.emit('update-success', d);
-              this.localAppRegistry.emit('document-updated', this.state.view);
-              this.globalAppRegistry.emit('document-updated', this.state.view);
-              const index = this.findDocumentIndex(doc);
-              this.state.docs[index] = new HadronDocument(d);
-              this.trigger(this.state);
-            } else {
-              doc.emit('update-blocked');
-            }
-          }
-        );
+          (...cbArgs) => resolve(cbArgs)));
+        if (error) {
+          doc.emit('update-error', error.message);
+        } else if (d) {
+          doc.emit('update-success', d);
+          this.localAppRegistry.emit('document-updated', this.state.view);
+          this.globalAppRegistry.emit('document-updated', this.state.view);
+          const index = this.findDocumentIndex(doc);
+          this.state.docs[index] = new HadronDocument(d);
+          this.trigger(this.state);
+        } else {
+          doc.emit('update-blocked');
+        }
       } catch (err) {
         doc.emit('update-error', `An error occured when attempting to update the document: ${err.message}`);
       }
@@ -480,15 +510,26 @@ const configureStore = (options = {}) => {
      *
      * @param {Document} doc - The hadron document.
      */
-    replaceDocument(doc) {
+    async replaceDocument(doc) {
       track('Document Updated', { mode: this.modeForTelemetry() });
-      const object = doc.generateObject();
-      const opts = { returnDocument: 'after', promoteValues: false };
-      const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
-        _id: 1,
-        ...(this.state.shardKeys || {})
-      });
-      this.dataService.findOneAndReplace(this.state.ns, query, object, opts, (error, d) => {
+      try {
+        const object = doc.generateObject();
+        const opts = { returnDocument: 'after', promoteValues: false };
+        const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
+          _id: 1,
+          ...(this.state.shardKeys || {})
+        });
+
+        if (!await this._verifyUpdateAllowed(this.state.ns, doc)) {
+          // _verifyUpdateAllowed emitted update-error
+          return;
+        }
+        const [ error, d ] = await new Promise(resolve => this.dataService.findOneAndReplace(
+          this.state.ns,
+          query,
+          object,
+          opts,
+          (...cbArgs) => resolve(cbArgs)));
         if (error) {
           doc.emit('update-error', error.message);
         } else {
@@ -499,7 +540,9 @@ const configureStore = (options = {}) => {
           this.state.docs[index] = new HadronDocument(d);
           this.trigger(this.state);
         }
-      });
+      } catch (err) {
+        doc.emit('update-error', `An error occured when attempting to update the document: ${err.message}`);
+      }
     },
 
     /**
@@ -638,7 +681,7 @@ const configureStore = (options = {}) => {
      * @param {Object} doc - The document to insert.
      * @param {Boolean} clone - Whether this is a clone operation.
      */
-    openInsertDocumentDialog(doc, clone) {
+    async openInsertDocumentDialog(doc, clone) {
       const hadronDoc = new HadronDocument(doc, false);
 
       if (clone) {
@@ -653,6 +696,23 @@ const configureStore = (options = {}) => {
         }
       }
 
+      let csfleState = 'none';
+      const dataServiceCSFLEMode = this.dataService.getCSFLEMode && this.dataService.getCSFLEMode();
+      if (dataServiceCSFLEMode === 'enabled') {
+        // Show a warning if this is a CSFLE-enabled connection but this collection
+        // does not have a schema.
+        const csfleCollectionTracker = this.dataService.getCSFLECollectionTracker();
+        if (!await csfleCollectionTracker.hasKnownSchemaForCollection(this.state.ns)) {
+          csfleState = 'no-known-schema';
+        } else if (!await csfleCollectionTracker.isUpdateAllowed(this.state.ns, doc)) {
+          csfleState = 'incomplete-schema-for-cloned-doc';
+        } else {
+          csfleState = 'has-known-schema';
+        }
+      } else if (dataServiceCSFLEMode === 'disabled') {
+        csfleState = 'csfle-disabled';
+      }
+
       const jsonDoc = hadronDoc.toEJSON();
 
       this.setState({
@@ -661,6 +721,7 @@ const configureStore = (options = {}) => {
           jsonDoc: jsonDoc,
           jsonView: true,
           message: '',
+          csfleState,
           mode: MODIFYING,
           isOpen: true,
           isCommentNeeded: true
@@ -707,6 +768,7 @@ const configureStore = (options = {}) => {
             jsonView: true,
             jsonDoc: jsonDoc,
             message: '',
+            csfleState: this.state.insert.csfleState,
             mode: MODIFYING,
             isOpen: true,
             isCommentNeeded: this.state.insert.isCommentNeeded
@@ -727,6 +789,7 @@ const configureStore = (options = {}) => {
             jsonView: false,
             jsonDoc: this.state.insert.jsonDoc,
             message: '',
+            csfleState: this.state.insert.csfleState,
             mode: MODIFYING,
             isOpen: true,
             isCommentNeeded: this.state.insert.isCommentNeeded
@@ -748,6 +811,7 @@ const configureStore = (options = {}) => {
           jsonDoc: this.state.insert.jsonDoc,
           jsonView: jsonView,
           message: '',
+          csfleState: this.state.insert.csfleState,
           mode: MODIFYING,
           isOpen: true,
           isCommentNeeded: this.state.insert.isCommentNeeded
@@ -768,6 +832,7 @@ const configureStore = (options = {}) => {
           jsonDoc: value,
           jsonView: true,
           message: '',
+          csfleState: this.state.insert.csfleState,
           mode: MODIFYING,
           isOpen: true,
           isCommentNeeded: this.state.insert.isCommentNeeded
