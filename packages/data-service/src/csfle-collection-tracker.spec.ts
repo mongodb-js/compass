@@ -6,8 +6,6 @@ import type { AutoEncryptionOptions, MongoClient } from 'mongodb';
 import { UUID } from 'bson';
 import connect from './connect';
 
-const IS_CI = process.env.EVERGREEN_BUILD_VARIANT || process.env.CI === 'true';
-
 describe('CSFLECollectionTracker', function () {
   const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
   const SOME_UUID1 = new UUID(
@@ -23,7 +21,7 @@ describe('CSFLECollectionTracker', function () {
   let dbName: string;
 
   before(function () {
-    if (!IS_CI && !process.env.COMPASS_CSFLE_LIBRARY_PATH) {
+    if (!process.env.COMPASS_CSFLE_LIBRARY_PATH) {
       return this.skip();
     }
     dbName = `test-${Date.now()}-${(Math.random() * 10000) | 0}`;

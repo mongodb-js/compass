@@ -1005,7 +1005,7 @@ describe('DataService', function () {
         const topology = dataService.getLastSeenTopology();
 
         expect(topology).to.not.be.null;
-        expect(topology!.servers.has('localhost:27018')).to.equal(true);
+        expect(topology!.servers.has('127.0.0.1:27018')).to.equal(true);
 
         expect(topology).to.deep.include({
           compatible: true,
@@ -1013,7 +1013,7 @@ describe('DataService', function () {
           localThresholdMS: 15,
           logicalSessionTimeoutMinutes: 30,
           stale: false,
-          type: 'ReplicaSetWithPrimary',
+          type: 'Single',
         });
       });
 
