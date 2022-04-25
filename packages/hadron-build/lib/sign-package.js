@@ -1,9 +1,8 @@
-import { promises as fs } from 'fs';
-import os from 'os';
-import path from 'path';
-import * as spawn from 'cross-spawn';
-
-import createDebug from 'debug';
+const { promises: fs } = require('fs');
+const os = require('os');
+const path = require('path');
+const spawn = require('cross-spawn');
+const createDebug = require('debug');
 const debug = createDebug('mongodb-compass:hadron-build:sign-package');
 
 function generateComment(file) {
@@ -106,7 +105,7 @@ export function spawnSync(command, args, options, ignoreErrors = false) {
     console.error(result.stdout);
     console.error(result.stderr);
     if (!ignoreErrors) {
-      throw new Error(`Spawn exited non-zero for ${command}, args: ${args.join(',')}: ${((_a = result.status) === null || _a === void 0 ? void 0 : _a.toString()) || ''}`);
+      throw new Error(`Spawn exited non-zero for ${command}, args: ${args.join(',')}: ${result.status}`);
     } else {
       console.warn('Ignoring error and continuing...');
     }
