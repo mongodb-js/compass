@@ -319,6 +319,15 @@ const createContext = ({
       queryHistoryIndexes.push(i);
     }
 
+    const tabProps = {
+      store,
+      actions,
+      ...(role.name === 'Aggregations' && {
+        showExportButton: true,
+        showRunButton: true,
+      }),
+    };
+
     // Add the view.
     views.push(
       <ErrorBoundary
@@ -333,7 +342,7 @@ const createContext = ({
           );
         }}
       >
-        <role.component store={store} actions={actions} />
+        <role.component {...tabProps} />
       </ErrorBoundary>
     );
   });

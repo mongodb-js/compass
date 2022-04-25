@@ -98,7 +98,7 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.is_localhost).to.equal(true);
         expect(connectionAttempt.properties.is_atlas_url).to.equal(false);
         expect(connectionAttempt.properties.is_dataLake).to.equal(false);
-        expect(connectionAttempt.properties.is_enterprise).to.equal(false);
+        expect(connectionAttempt.properties.is_enterprise).to.be.a('boolean');
         expect(connectionAttempt.properties.is_public_cloud).to.equal(false);
         expect(connectionAttempt.properties.is_do_url).to.equal(false);
 

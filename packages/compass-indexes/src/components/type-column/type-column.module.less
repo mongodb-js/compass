@@ -12,6 +12,13 @@
 
 @index-quantity-color: #5382a8;
 @index-quantity-bg: #eaedf4;
+
+@index-wildcard-color: #548273;
+@index-wildcard-bg: #e8eceb;
+
+@index-clustered-color: #548273;
+@index-clustered-bg: #e8eceb;
+
 .type-column {
   width: auto;
   padding-left: 24px;
@@ -69,7 +76,15 @@
       text-align: center;
       white-space: nowrap;
       margin-right: 15px;
-      .pill(@index-geo-color, @index-geo-bg);
+      .pill(@index-wildcard-color, @index-wildcard-bg);
+    }
+
+    &-clustered {
+      display: inline-block;
+      text-align: center;
+      white-space: nowrap;
+      margin-right: 15px;
+      .pill(@index-clustered-color, @index-clustered-bg);
     }
 
     &-regular {
