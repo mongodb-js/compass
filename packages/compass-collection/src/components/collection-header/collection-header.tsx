@@ -1,6 +1,13 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import type AppRegistry from 'hadron-app-registry';
-import { css, uiColors } from '@mongodb-js/compass-components';
+import {
+  css,
+  uiColors,
+  withTheme,
+  Link,
+  spacing,
+  H3,
+  cx,
+} from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import React, { Component } from 'react';
 import toNS from 'mongodb-ns';
@@ -9,67 +16,102 @@ import CollectionHeaderActions from '../collection-header-actions';
 import ReadOnlyBadge from './read-only-badge';
 import TimeSeriesBadge from './time-series-badge';
 import ViewBadge from './view-badge';
+import CollectionStats from '../collection-stats';
+import type { CollectionStatsObject } from '../../modules/stats';
 import ClusteredBadge from './clustered-badge';
 
 const collectionHeaderStyles = css({
-  paddingTop: '15px',
-  paddingBottom: '5px',
-  minHeight: '64px',
-  background: uiColors.white,
-});
-
-const collectionHeaderNamespaceStyles = css({
-  display: 'contents',
+  paddingTop: spacing[3],
+  paddingBottom: spacing[1],
+  height: +spacing[6] + +spacing[2],
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
 });
 
 const collectionHeaderTitleStyles = css({
-  fontSize: '24px',
-  fontWeight: 'normal',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
   display: 'flex',
-  paddingLeft: '15px',
-  paddingRight: '15px',
-  margin: 0,
-  lineHeight: '32px',
   alignItems: 'center',
+  flex: '1 1 100%',
+  padding: `0 ${String(spacing[3])}px`,
+  margin: 0,
+  width: '100%',
 });
 
-const collectionHeaderTitleDBStyles = css({
-  color: ' #337ab7',
-  flexShrink: 2,
-  flexBasis: 'auto',
+const collectionHeaderDBLinkStyles = css({
+  whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
   cursor: 'pointer',
   textDecoration: 'none',
   '&:hover,&:focus': {
     textDecoration: 'underline',
   },
+  backgroundColor: 'transparent',
+  border: 'none',
+  display: 'inline',
+  padding: 0,
 });
 
-const collectionHeaderTitleCollectionStyles = css({
-  flexBasis: 'auto',
+const collectionHeaderDBLinkLightStyles = css({
+  color: uiColors.green.base,
+});
+
+const collectionHeaderDBLinkDarkStyles = css({
+  color: uiColors.green.light2,
+});
+
+const collectionHeaderNamespaceStyles = css({
+  backgroundColor: 'transparent',
+  border: 'none',
+  display: 'flex',
+  whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+});
+
+const collectionHeaderDBNameStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const collectionHeaderDBNameLightStyles = css({
+  color: uiColors.green.base,
+});
+
+const collectionHeaderDBNameDarkStyles = css({
+  color: uiColors.green.light2,
+});
+
+const collectionHeaderCollectionStyles = css({
   whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+const collectionHeaderTitleCollectionLightStyles = css({
+  color: uiColors.gray.dark1,
+});
+
+const collectionHeaderTitleCollectionDarkStyles = css({
+  color: uiColors.gray.light1,
 });
 
 type CollectionHeaderProps = {
+  darkMode?: boolean;
   globalAppRegistry: AppRegistry;
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
   isClustered: boolean;
-  statsPlugin: React.FunctionComponent<{ store: any }>;
   selectOrCreateTab: (options: any) => any;
-  statsStore: any;
   sourceName: string;
   sourceReadonly: boolean;
   sourceViewOn?: string;
   editViewName?: string;
   pipeline: Document[];
+  stats: CollectionStatsObject;
 };
 
 class CollectionHeader extends Component<CollectionHeaderProps> {
@@ -107,15 +149,6 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
   };
 
   /**
-   * Render the stats.
-   *
-   * @returns {Component} The component.
-   */
-  renderStats(): React.ReactElement {
-    return <this.props.statsPlugin store={this.props.statsStore} />;
-  }
-
-  /**
    * Render CollectionHeader component.
    *
    * @returns {React.Component} The rendered component.
@@ -127,7 +160,6 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
 
     return (
       <div className={collectionHeaderStyles} data-testid="collection-header">
-        {!this.props.isReadonly && this.renderStats()}
         <div
           title={`${database}.${collection}`}
           className={collectionHeaderTitleStyles}
@@ -137,21 +169,40 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             data-testid="collection-header-namespace"
             className={collectionHeaderNamespaceStyles}
           >
-            <a
+            <Link
               data-testid="collection-header-title-db"
-              className={collectionHeaderTitleDBStyles}
+              as="button"
+              className={cx(
+                collectionHeaderDBLinkStyles,
+                this.props.darkMode
+                  ? collectionHeaderDBLinkDarkStyles
+                  : collectionHeaderDBLinkLightStyles
+              )}
+              hideExternalIcon={true}
               onClick={() => this.handleDBClick(database)}
-              href="#"
             >
-              {database}
-            </a>
-            <span>.</span>
-            <span
+              <H3
+                className={cx(
+                  collectionHeaderDBNameStyles,
+                  this.props.darkMode
+                    ? collectionHeaderDBNameDarkStyles
+                    : collectionHeaderDBNameLightStyles
+                )}
+              >
+                {database}
+              </H3>
+            </Link>
+            <H3
               data-testid="collection-header-title-collection"
-              className={collectionHeaderTitleCollectionStyles}
+              className={cx(
+                collectionHeaderCollectionStyles,
+                this.props.darkMode
+                  ? collectionHeaderTitleCollectionDarkStyles
+                  : collectionHeaderTitleCollectionLightStyles
+              )}
             >
-              {collection}
-            </span>
+              {`.${collection}`}
+            </H3>
           </div>
           {this.props.isReadonly && <ReadOnlyBadge />}
           {this.props.isTimeSeries && <TimeSeriesBadge />}
@@ -165,9 +216,15 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
             sourceName={this.props.sourceName}
           />
         </div>
+        {!this.props.isReadonly && !this.props.editViewName && (
+          <CollectionStats
+            isTimeSeries={this.props.isTimeSeries}
+            {...this.props.stats}
+          />
+        )}
       </div>
     );
   }
 }
 
-export default CollectionHeader;
+export default withTheme(CollectionHeader);

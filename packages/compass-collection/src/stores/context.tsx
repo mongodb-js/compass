@@ -42,13 +42,10 @@ type ContextProps = {
   sourcePipeline?: Document[];
   query?: any;
   aggregation?: any;
-  isEditing?: boolean;
   key?: number;
   state?: any;
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
-  statsPlugin?: React.FunctionComponent<{ store: any }>;
-  statsStore?: any;
   scopedModals?: any[];
 };
 
@@ -350,24 +347,6 @@ const createContext = ({
     );
   });
 
-  const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
-  const statsPlugin = statsRole.component;
-  const statsStore = setupStore({
-    role: statsRole,
-    globalAppRegistry,
-    localAppRegistry,
-    dataService: state.dataService,
-    namespace,
-    serverVersion,
-    isReadonly,
-    isTimeSeries,
-    isClustered,
-    sourceName,
-    actions: {},
-    allowWrites: !isDataLake,
-    isEditing: Boolean(editViewName),
-  });
-
   // Setup the scoped modals
   const scopedModals = setupScopedModals({
     globalAppRegistry,
@@ -394,8 +373,6 @@ const createContext = ({
     tabs,
     views,
     queryHistoryIndexes,
-    statsPlugin,
-    statsStore,
     scopedModals,
     localAppRegistry,
     sourcePipeline,

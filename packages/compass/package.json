@@ -156,6 +156,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
+    "@mongodb-js/compass-components": "^0.13.0",
     "@mongosh/node-runtime-worker-thread": "^1.2.3",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
@@ -169,8 +170,6 @@
     "@mongodb-js/compass-app-stores": "^5.21.0",
     "@mongodb-js/compass-auto-updates": "^3.21.0",
     "@mongodb-js/compass-collection": "^3.24.0",
-    "@mongodb-js/compass-collection-stats": "^6.21.0",
-    "@mongodb-js/compass-components": "^0.13.0",
     "@mongodb-js/compass-crud": "^12.22.0",
     "@mongodb-js/compass-database": "^2.21.0",
     "@mongodb-js/compass-databases-collections": "^0.22.0",
