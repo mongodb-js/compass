@@ -162,7 +162,7 @@
     "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
     "os-dns-native": "^1.2.0",
-    "mongodb-client-encryption": "^2.0.0",
+    "mongodb-client-encryption": "^2.1.0",
     "system-ca": "^1.0.2"
   },
   "devDependencies": {
@@ -170,7 +170,6 @@
     "@mongodb-js/compass-app-stores": "^5.21.0",
     "@mongodb-js/compass-auto-updates": "^3.21.0",
     "@mongodb-js/compass-collection": "^3.24.0",
-    "@mongodb-js/compass-collection-stats": "^6.21.0",
     "@mongodb-js/compass-crud": "^12.22.0",
     "@mongodb-js/compass-database": "^2.21.0",
     "@mongodb-js/compass-databases-collections": "^0.22.0",

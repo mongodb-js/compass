@@ -4,7 +4,6 @@ module.exports = [
   require('@mongodb-js/compass-auto-updates'),
   require('@mongodb-js/compass-export-to-language'),
   require('@mongodb-js/compass-collection'),
-  require('@mongodb-js/compass-collection-stats'),
   require('@mongodb-js/compass-crud'),
   require('@mongodb-js/compass-database'),
   require('@mongodb-js/compass-databases-collections'),
