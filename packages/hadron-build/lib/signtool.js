@@ -32,7 +32,14 @@ async function signtool(fileToSign) {
   }
 
   const execArgs = [signtoolPath, [path.resolve(fileToSign)], { stdio: 'inherit' }];
-  debug(`Running signtool.exe to sign '${signtoolPath}'`, { execaArgs: execArgs });
+  debug(`Running signtool.exe to sign '${signtoolPath}'`, {
+    execaArgs: execArgs,
+    env: {
+      NOTARY_SIGNING_COMMENT: process.env.NOTARY_SIGNING_COMMENT,
+      NOTARY_URL: process.env.NOTARY_URL,
+      NOTARY_SIGNING_KEY: process.env.NOTARY_SIGNING_KEY,
+    }
+  });
 
   // eslint-disable-next-line no-sync
   await execFileSync(...execArgs);
