@@ -860,6 +860,7 @@ const configureStore = (options = {}) => {
               jsonDoc: this.state.insert.jsonDoc,
               jsonView: true,
               message: error.message,
+              csfleState: this.state.insert.csfleState,
               mode: ERROR,
               isOpen: true,
               isCommentNeeded: this.state.insert.isCommentNeeded
@@ -912,6 +913,7 @@ const configureStore = (options = {}) => {
               jsonDoc: this.state.insert.jsonDoc,
               jsonView: this.state.insert.jsonView,
               message: error.message,
+              csfleState: this.state.insert.csfleState,
               mode: ERROR,
               isOpen: true,
               isCommentNeeded: this.state.insert.isCommentNeeded
