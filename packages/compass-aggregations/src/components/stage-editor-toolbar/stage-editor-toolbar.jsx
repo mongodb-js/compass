@@ -53,7 +53,7 @@ class StageEditorToolbar extends PureComponent {
           data-place="left"
           data-html="true"
         >
-          <i className="info-sprinkle" />
+          <i className={classnames(styles['info-icon'], "info-sprinkle")} />
           <Tooltip id="stage-tooltip" />
         </span>
       );
@@ -99,7 +99,7 @@ class StageEditorToolbar extends PureComponent {
           stageToggled={this.props.stageToggled}
         />
         <div className={styles['stage-editor-toolbar-right']}>
-          {this.renderTooltip()}
+          {global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true' && this.renderTooltip()}
           <DeleteStage
             index={this.props.index}
             runStage={this.props.runStage}
