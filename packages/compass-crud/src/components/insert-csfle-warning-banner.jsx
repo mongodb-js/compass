@@ -40,7 +40,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
       );
 
     default:
-      return <Banner variant={BannerVariant.Danger}>Unknown CSFLE state {csfleState} (Compass bug)</Banner>;
+      throw new Error(`Unknown CSFLE state ${csfleState} (Compass bug)`);
   }
 }
 
