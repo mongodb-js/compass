@@ -388,7 +388,7 @@ class Target {
 
     this.createInstaller = async() => {
       await signWindowsPackage(
-        path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
+        path.join(this.installerOptions.appDirectory, this.installerOptions.setupExe));
 
       const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
