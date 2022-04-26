@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import classnames from 'classnames';
 import styles from './create-index-field.module.less';
+import { hasColumnarIndexesSupport } from '../../utils/has-columnar-indexes-support';
 
 import Select from 'react-select-plus';
 
@@ -29,6 +29,7 @@ class CreateIndexField extends PureComponent {
     fields: PropTypes.array.isRequired,
     field: PropTypes.object.isRequired,
     idx: PropTypes.number.isRequired,
+    serverVersion: PropTypes.string.isRequired,
     disabledFields: PropTypes.array.isRequired,
     isRemovable: PropTypes.bool.isRequired,
     addField: PropTypes.func.isRequired,
@@ -56,6 +57,13 @@ class CreateIndexField extends PureComponent {
    * @returns {Array} The React components for each item in the field and type dropdowns.
    */
   getDropdownTypes() {
+    if (!hasColumnarIndexesSupport(this.props.serverVersion)) {
+      return INDEX_TYPES.filter((elem) => elem !== 'columnar').map((elem) => ({
+        value: elem,
+        label: elem,
+      }));
+    }
+
     return INDEX_TYPES.map((elem) => ({
       value: elem,
       label: elem,
@@ -107,9 +115,9 @@ class CreateIndexField extends PureComponent {
     const hasTypeError = this.props.field.type !== '' ? '' : 'has-error';
 
     return (
-      <div className={classnames(styles['create-index-field'])}>
+      <div className={styles['create-index-field']}>
         <div
-          className={classnames(styles['create-index-field-dropdown-name'])}
+          className={styles['create-index-field-dropdown-name']}
           data-test-id="create-index-modal-field-select"
         >
           <Select.Creatable
@@ -123,7 +131,7 @@ class CreateIndexField extends PureComponent {
           />
         </div>
         <div
-          className={classnames(styles['create-index-field-dropdown-type'])}
+          className={styles['create-index-field-dropdown-type']}
           data-test-id="create-index-modal-type-select"
         >
           <Select

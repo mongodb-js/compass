@@ -45,9 +45,8 @@ import { resetForm } from '../../modules/reset-form';
 
 import getIndexHelpLink from '../../utils/index-link-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { hasColumnarIndexesSupport } from '../../utils/has-columnar-indexes-support';
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
-
-const ENABLE_COLUMNAR = true;
 
 /**
  * Component for the create index modal.
@@ -74,6 +73,7 @@ class CreateIndexModal extends PureComponent {
     isCustomCollation: PropTypes.bool.isRequired,
     collation: PropTypes.object.isRequired,
     name: PropTypes.string.isRequired,
+    serverVersion: PropTypes.string.isRequired,
     updateFieldName: PropTypes.func.isRequired,
     updateFieldType: PropTypes.func.isRequired,
     addField: PropTypes.func.isRequired,
@@ -174,6 +174,7 @@ class CreateIndexModal extends PureComponent {
           idx={idx}
           field={field}
           disabledFields={disabledFields}
+          serverVersion={this.props.serverVersion}
           isRemovable={!(this.props.fields.length > 1)}
           updateFieldName={this.props.updateFieldName}
           updateFieldType={this.props.updateFieldType}
@@ -261,7 +262,7 @@ class CreateIndexModal extends PureComponent {
           onLinkClickHandler={this.props.openLink}
         />
         {this.renderWildcard()}
-        {ENABLE_COLUMNAR && (
+        {hasColumnarIndexesSupport(this.props.serverVersion) && (
           <>
             <ModalCheckbox
               name="Columnar Projection"
@@ -503,6 +504,7 @@ const mapStateToProps = (state) => ({
   isCustomCollation: state.isCustomCollation,
   collation: state.collation,
   name: state.name,
+  serverVersion: state.serverVersion,
 });
 
 /**

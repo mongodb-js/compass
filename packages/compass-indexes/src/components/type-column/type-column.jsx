@@ -9,7 +9,6 @@ import getIndexHelpLink from '../../utils/index-link-helper';
 
 const TOOLTIP_ID = 'index-type';
 
-import classnames from 'classnames';
 import styles from './type-column.module.less';
 
 /**
@@ -29,6 +28,7 @@ class TypeColumn extends PureComponent {
       'default_language',
       'language_override',
       'wildcardProjection',
+      'columnarProjection',
     ]);
     return map(info, (v, k) => {
       return format('%s: %j', k, v);
@@ -44,7 +44,8 @@ class TypeColumn extends PureComponent {
     let tooltipOptions = {};
     if (
       this.props.index.type === 'text' ||
-      this.props.index.type === 'wildcard'
+      this.props.index.type === 'wildcard' ||
+      this.props.index.type === 'columnar'
     ) {
       const tooltipText = `${this._textTooltip()}`;
       tooltipOptions = {
@@ -61,9 +62,7 @@ class TypeColumn extends PureComponent {
     return (
       <div
         {...tooltipOptions}
-        className={classnames(
-          styles[`type-column-property-${this.props.index.type}`]
-        )}
+        className={styles[`type-column-property-${this.props.index.type}`]}
         data-test-id="index-table-type"
       >
         {this.props.index.type}
@@ -84,7 +83,7 @@ class TypeColumn extends PureComponent {
    */
   render() {
     return (
-      <td className={classnames(styles['type-column'])}>
+      <td className={styles['type-column']}>
         {this.renderType()}
         <ReactTooltip id={TOOLTIP_ID} />
       </td>

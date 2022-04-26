@@ -64,6 +64,7 @@ import name, {
   INITIAL_STATE as NAME_INITIAL_STATE,
 } from '../create-index/name';
 import namespace from '../namespace';
+import serverVersion from '../server-version';
 
 import schemaFields from '../create-index/schema-fields';
 import { RESET_FORM } from '../reset-form';
@@ -98,6 +99,7 @@ const reducer = combineReducers({
   partialFilterExpression,
   name,
   namespace,
+  serverVersion,
 });
 
 /**
