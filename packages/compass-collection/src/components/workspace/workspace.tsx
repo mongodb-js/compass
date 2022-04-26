@@ -13,8 +13,9 @@ import {
   moveTab,
   selectTab,
   changeActiveSubTab,
-} from '../../stores/tabs';
-import type { WorkspaceTabObject } from '../../stores/tabs';
+} from '../../modules/tabs';
+import type { WorkspaceTabObject } from '../../modules/tabs';
+import type { CollectionStatsObject } from '../../modules/stats';
 import Collection from '../collection';
 
 const workspaceStyles = css({
@@ -88,15 +89,12 @@ function getIconGlyphForCollectionType(type: string) {
 
 type WorkspaceProps = {
   tabs: WorkspaceTabObject[];
-  closeTab: (index: number) => {
-    type: string;
-    index: number;
-  };
+  closeTab: (index: number) => void;
   createNewTab: (props: any) => any;
   selectOrCreateTab: (props: any) => any;
   appRegistry: AppRegistry;
-  prevTab: () => { type: string };
-  nextTab: () => { type: string };
+  prevTab: () => void;
+  nextTab: () => void;
   moveTab: (
     fromIndex: number,
     toIndex: number
@@ -117,6 +115,7 @@ type WorkspaceProps = {
     activeSubTab: number;
     id: string;
   };
+  stats: CollectionStatsObject;
 };
 
 /**
@@ -238,14 +237,13 @@ class Workspace extends PureComponent<WorkspaceProps> {
             views={tab.views}
             scopedModals={tab.scopedModals}
             queryHistoryIndexes={tab.queryHistoryIndexes}
-            statsPlugin={tab.statsPlugin}
-            statsStore={tab.statsStore}
             activeSubTab={tab.activeSubTab}
             pipeline={tab.pipeline}
             changeActiveSubTab={this.props.changeActiveSubTab}
             selectOrCreateTab={this.props.selectOrCreateTab}
             globalAppRegistry={this.props.appRegistry}
             localAppRegistry={tab.localAppRegistry}
+            stats={this.props.stats}
           />
         </div>
       );
@@ -299,6 +297,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
 const mapStateToProps = (state: any) => ({
   tabs: state.tabs,
   appRegistry: state.appRegistry,
+  stats: state.stats,
 });
 
 /**

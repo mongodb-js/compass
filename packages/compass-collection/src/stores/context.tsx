@@ -42,13 +42,10 @@ type ContextProps = {
   sourcePipeline?: Document[];
   query?: any;
   aggregation?: any;
-  isEditing?: boolean;
   key?: number;
   state?: any;
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
-  statsPlugin?: React.FunctionComponent<{ store: any }>;
-  statsStore?: any;
   scopedModals?: any[];
 };
 
@@ -322,6 +319,15 @@ const createContext = ({
       queryHistoryIndexes.push(i);
     }
 
+    const tabProps = {
+      store,
+      actions,
+      ...(role.name === 'Aggregations' && {
+        showExportButton: true,
+        showRunButton: true,
+      }),
+    };
+
     // Add the view.
     views.push(
       <ErrorBoundary
@@ -336,27 +342,9 @@ const createContext = ({
           );
         }}
       >
-        <role.component store={store} actions={actions} />
+        <role.component {...tabProps} />
       </ErrorBoundary>
     );
-  });
-
-  const statsRole = globalAppRegistry.getRole('Collection.HUD')[0];
-  const statsPlugin = statsRole.component;
-  const statsStore = setupStore({
-    role: statsRole,
-    globalAppRegistry,
-    localAppRegistry,
-    dataService: state.dataService,
-    namespace,
-    serverVersion,
-    isReadonly,
-    isTimeSeries,
-    isClustered,
-    sourceName,
-    actions: {},
-    allowWrites: !isDataLake,
-    isEditing: Boolean(editViewName),
   });
 
   // Setup the scoped modals
@@ -385,8 +373,6 @@ const createContext = ({
     tabs,
     views,
     queryHistoryIndexes,
-    statsPlugin,
-    statsStore,
     scopedModals,
     localAppRegistry,
     sourcePipeline,

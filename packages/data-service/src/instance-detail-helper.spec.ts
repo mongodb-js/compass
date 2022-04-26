@@ -55,14 +55,11 @@ describe('instance-detail-helper', function () {
         });
 
         it('should have build info', function () {
-          expect(instanceDetails).to.have.nested.property(
-            'build.isEnterprise',
-            false
-          );
+          expect(instanceDetails.build.isEnterprise).to.be.a('boolean');
 
           expect(instanceDetails)
             .to.have.nested.property('build.version')
-            .match(/^\d+?\.\d+?\.\d+?$/);
+            .match(/^\d+\.\d+\.\d+(-.+)?$/);
         });
 
         it('should have host info', function () {

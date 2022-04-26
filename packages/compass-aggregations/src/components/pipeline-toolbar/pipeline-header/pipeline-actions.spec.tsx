@@ -23,6 +23,8 @@ describe('PipelineActions', function () {
         <PipelineActions
           isPipelineInvalid={false}
           isOptionsVisible={true}
+          showRunButton={true}
+          showExportButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
           onExportAggregationResults={onExportAggregationResultsSpy}
@@ -79,6 +81,8 @@ describe('PipelineActions', function () {
         <PipelineActions
           isPipelineInvalid={false}
           isOptionsVisible={false}
+          showRunButton={true}
+          showExportButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
         />
@@ -109,6 +113,8 @@ describe('PipelineActions', function () {
         <PipelineActions
           isPipelineInvalid={true}
           isOptionsVisible={true}
+          showRunButton={true}
+          showExportButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={() => {}}
           onExportAggregationResults={onExportAggregationResultsSpy}
