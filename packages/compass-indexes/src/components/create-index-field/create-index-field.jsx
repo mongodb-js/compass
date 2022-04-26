@@ -9,7 +9,7 @@ import Select from 'react-select-plus';
 /**
  * Current allowed types for indexes.
  */
-const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere', 'text'];
+const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere', 'text', 'columnar'];
 
 /**
  * Default values for field name and type as presented in the UI

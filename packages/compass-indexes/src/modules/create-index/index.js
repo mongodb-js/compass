@@ -44,6 +44,9 @@ import isTtl, {
 import isWildcard, {
   INITIAL_STATE as IS_WILDCARD_INITIAL_STATE,
 } from '../create-index/is-wildcard';
+import isColumnar, {
+  INITIAL_STATE as IS_COLUMNAR_INITIAL_STATE,
+} from '../create-index/is-columnar';
 import isPartialFilterExpression, {
   INITIAL_STATE as IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
 } from '../create-index/is-partial-filter-expression';
@@ -51,6 +54,9 @@ import ttl, { INITIAL_STATE as TTL_INITIAL_STATE } from '../create-index/ttl';
 import wildcardProjection, {
   INITIAL_STATE as WILDCARD_PROJECTION_INITIAL_STATE,
 } from '../create-index/wildcard-projection';
+import columnarProjection, {
+  INITIAL_STATE as COLUMNAR_PROJECTION_INITIAL_STATE,
+} from '../create-index/columnar-projection';
 import partialFilterExpression, {
   INITIAL_STATE as PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
 } from '../create-index/partial-filter-expression';
@@ -84,9 +90,11 @@ const reducer = combineReducers({
   isUnique,
   isTtl,
   isWildcard,
+  isColumnar,
   isPartialFilterExpression,
   ttl,
   wildcardProjection,
+  columnarProjection,
   partialFilterExpression,
   name,
   namespace,
@@ -115,8 +123,10 @@ const rootReducer = (state, action) => {
       isUnique: IS_UNIQUE_INITIAL_STATE,
       isTtl: IS_TTL_INITIAL_STATE,
       isWildcard: IS_WILDCARD_INITIAL_STATE,
+      isColumnar: IS_COLUMNAR_INITIAL_STATE,
       isPartialFilterExpression: IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       ttl: TTL_INITIAL_STATE,
+      columnarProjection: COLUMNAR_PROJECTION_INITIAL_STATE,
       wildcardProjection: WILDCARD_PROJECTION_INITIAL_STATE,
       partialFilterExpression: PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
@@ -180,6 +190,14 @@ export const createIndex = () => {
         return;
       }
     }
+    if (state.isColumnar) {
+      try {
+        options.columnarProjection = EJSON.parse(state.columnarProjection);
+      } catch (err) {
+        dispatch(handleError(`Bad ColumnarProjection: ${String(err)}`));
+        return;
+      }
+    }
     if (state.isPartialFilterExpression) {
       try {
         options.partialFilterExpression = EJSON.parse(
@@ -199,6 +217,7 @@ export const createIndex = () => {
           background: state.isBackground,
           unique: state.isUnique,
           ttl: state.isTtl,
+          columnar: state.isColumnar,
           wildcard: state.isWildcard,
           custom_collation: state.isCustomCollation,
           geo:
@@ -214,6 +233,7 @@ export const createIndex = () => {
             isPartialFilterExpression: state.isPartialFilterExpression,
             isTTL: state.isTtl,
             isUnique: state.isUnique,
+            isColumnar: state.isColumnar,
             isWildcard: state.isWildcard,
             collation: state.collation,
             ttl: state.ttl,

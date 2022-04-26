@@ -12,9 +12,10 @@ const HELP_URLS = {
   GEOHAYSTACK: 'https://docs.mongodb.org/manual/core/geohaystack/',
   GEOSPATIAL:
     'https://docs.mongodb.org/manual/applications/geospatial-indexes/#geospatial-indexes',
-  WILDCARD: 'https://docs.mongodb.com/manual/core/index-wildcard/',
+  WILDCARD: 'https://docs.mongodb.com/manual/core/columnar-wildcard/',
   // TODO: add an entry for CLUSTERED once the docs become available
   // see https://jira.mongodb.org/browse/COMPASS-5760
+  // TODO: add an entry for COLUMNAR once the docs become available
   TEXT: 'https://docs.mongodb.org/manual/core/index-text/',
   HASHED: 'https://docs.mongodb.org/manual/core/index-hashed/',
   REGULAR: 'https://docs.mongodb.com/manual/indexes/#single-field',
@@ -30,7 +31,7 @@ const HELP_URLS = {
  * @param {String} section - The name of the section to open.
  * @returns {String} - the link.
  */
-function getIndexHelpLink(section) {
+function getIndexHelpLink(section: keyof typeof HELP_URLS) {
   return HELP_URLS[section] || null;
 }
 

@@ -33,7 +33,9 @@ import { toggleIsPartialFilterExpression } from '../../modules/create-index/is-p
 import { toggleIsTtl } from '../../modules/create-index/is-ttl';
 import { changeTtl } from '../../modules/create-index/ttl';
 import { toggleIsWildcard } from '../../modules/create-index/is-wildcard';
+import { toggleIsColumnar } from '../../modules/create-index/is-columnar';
 import { changeWildcardProjection } from '../../modules/create-index/wildcard-projection';
+import { changeColumnarProjection } from '../../modules/create-index/columnar-projection';
 import { changePartialFilterExpression } from '../../modules/create-index/partial-filter-expression';
 import { toggleIsCustomCollation } from '../../modules/create-index/is-custom-collation';
 import { changeCollationOption } from '../../modules/create-index/collation';
@@ -44,6 +46,8 @@ import { resetForm } from '../../modules/reset-form';
 import getIndexHelpLink from '../../utils/index-link-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+
+const ENABLE_COLUMNAR = true;
 
 /**
  * Component for the create index modal.
@@ -56,14 +60,15 @@ class CreateIndexModal extends PureComponent {
     inProgress: PropTypes.bool.isRequired,
     schemaFields: PropTypes.array.isRequired,
     fields: PropTypes.array.isRequired,
-    dataService: PropTypes.object,
     isVisible: PropTypes.bool.isRequired,
     isBackground: PropTypes.bool.isRequired,
     isUnique: PropTypes.bool.isRequired,
     isTtl: PropTypes.bool.isRequired,
     ttl: PropTypes.string.isRequired,
     isWildcard: PropTypes.bool.isRequired,
+    isColumnar: PropTypes.bool.isRequired,
     wildcardProjection: PropTypes.string.isRequired,
+    columnarProjection: PropTypes.string.isRequired,
     isPartialFilterExpression: PropTypes.bool.isRequired,
     partialFilterExpression: PropTypes.string.isRequired,
     isCustomCollation: PropTypes.bool.isRequired,
@@ -79,12 +84,14 @@ class CreateIndexModal extends PureComponent {
     toggleIsBackground: PropTypes.func.isRequired,
     toggleIsTtl: PropTypes.func.isRequired,
     toggleIsWildcard: PropTypes.func.isRequired,
+    toggleIsColumnar: PropTypes.func.isRequired,
     toggleIsPartialFilterExpression: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
     createIndex: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     changeTtl: PropTypes.func.isRequired,
+    changeColumnarProjection: PropTypes.func.isRequired,
     changeWildcardProjection: PropTypes.func.isRequired,
     changePartialFilterExpression: PropTypes.func.isRequired,
     changeCollationOption: PropTypes.func.isRequired,
@@ -254,6 +261,22 @@ class CreateIndexModal extends PureComponent {
           onLinkClickHandler={this.props.openLink}
         />
         {this.renderWildcard()}
+        {ENABLE_COLUMNAR && (
+          <>
+            <ModalCheckbox
+              name="Columnar Projection"
+              data-test-id="toggle-is-columnar"
+              titleClassName={styles['create-index-modal-options-param']}
+              checked={this.props.isColumnar}
+              helpUrl={getIndexHelpLink('COLUMNAR')}
+              onClickHandler={() =>
+                this.props.toggleIsColumnar(!this.props.isColumnar)
+              }
+              onLinkClickHandler={this.props.openLink}
+            />
+            {this.renderColumnarIndexOptions()}
+          </>
+        )}
       </div>
     );
   }
@@ -282,6 +305,22 @@ class CreateIndexModal extends PureComponent {
             value={this.props.wildcardProjection}
             onChangeHandler={(evt) =>
               this.props.changeWildcardProjection(evt.target.value)
+            }
+          />
+        </div>
+      );
+    }
+  }
+  renderColumnarIndexOptions() {
+    if (this.props.showOptions && this.props.isColumnar) {
+      return (
+        <div className={styles['create-index-modal-options-param-wrapper']}>
+          <ModalInput
+            id="columnar-projection-value"
+            name=""
+            value={this.props.columnarProjection}
+            onChangeHandler={(evt) =>
+              this.props.changeColumnarProjection(evt.target.value)
             }
           />
         </div>
@@ -445,7 +484,6 @@ class CreateIndexModal extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  dataService: state.dataService,
   fields: state.fields,
   inProgress: state.inProgress,
   showOptions: state.showOptions,
@@ -456,6 +494,8 @@ const mapStateToProps = (state) => ({
   isTtl: state.isTtl,
   ttl: state.ttl,
   isWildcard: state.isWildcard,
+  isColumnar: state.isColumnar,
+  columnarProjection: state.columnarProjection,
   wildcardProjection: state.wildcardProjection,
   isUnique: state.isUnique,
   isPartialFilterExpression: state.isPartialFilterExpression,
@@ -479,12 +519,14 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   toggleIsBackground,
   toggleIsTtl,
   toggleIsWildcard,
+  toggleIsColumnar,
   toggleIsUnique,
   toggleIsPartialFilterExpression,
   toggleIsCustomCollation,
   changePartialFilterExpression,
   changeTtl,
   changeWildcardProjection,
+  changeColumnarProjection,
   changeCollationOption,
   openLink,
   changeName,
