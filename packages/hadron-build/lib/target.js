@@ -367,7 +367,12 @@ class Target {
       authors: this.author,
       version: this.version,
       exe: `${this.packagerOptions.name}.exe`,
-      setupExe: this.windows_setup_filename,
+      setupExe: path.resolve(
+        path.dirname(this.windows_setup_filename),
+        // the notary service don't like file names containing spaces
+        // this can be also fixed in the notary client
+        path.basename(this.windows_setup_filename).replace(/ /g, '')
+      ),
       title: this.productName,
       productName: this.productName,
       description: this.description,
@@ -388,7 +393,7 @@ class Target {
 
     this.createInstaller = async() => {
       await signWindowsPackage(
-        path.join(this.installerOptions.appDirectory, this.installerOptions.setupExe));
+        path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
 
       const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
