@@ -3,6 +3,7 @@ ignores: [
   "@mongodb-js/prettier-config-compass",
   "@mongodb-js/tsconfig-compass",
   "@types/whatwg-url",
-  # Optional dependency of mongodb node driver that we need for testing
-  "kerberos"
+  # Optional dependencies of mongodb node driver that we need for testing
+  "kerberos",
+  "mongodb-client-encryption"
 ]

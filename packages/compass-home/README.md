@@ -5,7 +5,6 @@ The Compass plugin responsible for gluing together other plugins:
 - [compass-aggregations][compass-aggregations]
 - [compass-auto-updates][compass-auto-updates]
 - [compass-collection][compass-collection]
-- [compass-collection-stats][compass-collection-stats]
 - [compass-crud][compass-crud]
 - [compass-database][compass-database]
 - [compass-databases-collections][compass-databases-collections]
@@ -92,7 +91,6 @@ For completeness, below is a list of directories present in this module:
 [compass-aggregations]: ../compass-aggregations
 [compass-auto-updates]: ../compass-auto-updates
 [compass-collection]: ../compass-collection
-[compass-collection-stats]: ../compass-collection-stats
 [compass-crud]: ../compass-crud
 [compass-database]: ../compass-database
 [compass-databases-collections]: ../compass-databases-collections
