@@ -367,12 +367,7 @@ class Target {
       authors: this.author,
       version: this.version,
       exe: `${this.packagerOptions.name}.exe`,
-      setupExe: path.resolve(
-        path.dirname(this.windows_setup_filename),
-        // the notary service don't like file names containing spaces
-        // this can be also fixed in the notary client
-        path.basename(this.windows_setup_filename).replace(/ /g, '')
-      ),
+      setupExe: this.windows_setup_filename.replace(/ /g, ''),
       title: this.productName,
       productName: this.productName,
       description: this.description,
