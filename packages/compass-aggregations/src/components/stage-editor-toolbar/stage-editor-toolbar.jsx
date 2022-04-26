@@ -7,7 +7,7 @@ import ToggleStage from './toggle-stage';
 import StageGrabber from './stage-grabber';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
-import { Tooltip } from 'hadron-react-components';
+import { Tooltip, Body, Icon } from '@mongodb-js/compass-components';
 
 import styles from './stage-editor-toolbar.module.less';
 
@@ -47,15 +47,16 @@ class StageEditorToolbar extends PureComponent {
     const { isAutoPreviewing, stageOperator } = this.props;
     if (!isAutoPreviewing && Object.keys(stages).includes(stageOperator)) {
       return (
-        <span
-          data-tip={stages[stageOperator]}
-          data-for="stage-tooltip"
-          data-place="left"
-          data-html="true"
+        <Tooltip
+          trigger={({ children, ...props }) => (
+            <span {...props} className={styles['tooltip-icon']}>
+              {children}
+              <Icon glyph="InfoWithCircle" />
+            </span>
+          )}
         >
-          <i className={classnames(styles['info-icon'], "info-sprinkle")} />
-          <Tooltip id="stage-tooltip" />
-        </span>
+          <Body>{stages[stageOperator]}</Body>
+        </Tooltip>
       );
     }
   }
