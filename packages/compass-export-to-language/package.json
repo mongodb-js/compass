@@ -48,6 +48,7 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
+    "@mongodb-js/compass-components": "^0.13.0",
     "ace-builds": "^1.4.3",
     "autoprefixer": "^9.6.4",
     "babel-loader": "^8.2.2",

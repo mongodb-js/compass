@@ -1,32 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import 'ace-builds';
-import AceEditor from 'react-ace';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
+import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
 
 import styles from './option-editor.module.less';
-
-import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme-query';
-
-/**
- * Options for the ACE editor.
- */
-const OPTIONS = {
-  enableLiveAutocompletion: true,
-  tabSize: 2,
-  useSoftTabs: true,
-  fontSize: 11,
-  minLines: 1,
-  maxLines: 10,
-  highlightActiveLine: false,
-  showPrintMargin: false,
-  showGutter: false,
-  useWorker: false,
-  mode: 'ace/mode/mongodb'
-};
-
 class OptionEditor extends Component {
   static displayName = 'OptionEditor';
 
@@ -57,8 +35,7 @@ class OptionEditor extends Component {
    */
   constructor(props) {
     super(props);
-    const textCompleter = tools.textCompleter;
-    this.completer = new QueryAutoCompleter(props.serverVersion, textCompleter, props.schemaFields);
+    this.completer = new QueryAutoCompleter(props.serverVersion, EditorTextCompleter, props.schemaFields);
     this.boundOnFieldsChanged = this.onFieldsChanged.bind(this);
   }
 
@@ -113,19 +90,22 @@ class OptionEditor extends Component {
    */
   render() {
     return (
-      <AceEditor
+      <Editor
+        variant={EditorVariant.Shell}
         className={styles['option-editor']}
-        mode="javascript" // will be set to mongodb as part of OPTIONS
         theme="mongodb-query"
-        width="100%"
-        value={this.props.value}
-        onChange={this.onChangeQuery}
-        editorProps={{ $blockScrolling: Infinity }}
+        text={this.props.value}
+        onChangeText={this.onChangeQuery}
         name={`query-bar-option-input-${this.props.label}`}
-        setOptions={OPTIONS}
-        onFocus={() => {
-          tools.setCompleters([ this.completer ]);
-        }}
+        options={({
+          useSoftTabs: true,
+          minLines: 1,
+          maxLines: 10,
+          highlightActiveLine: false,
+          showPrintMargin: false,
+          showGutter: false
+        })}
+        completer={this.completer}
         placeholder={this.props.placeholder}
         onLoad={(editor) => {
           this.editor = editor;

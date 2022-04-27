@@ -2,13 +2,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-import 'ace-builds';
-import Ace from 'react-ace';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
-
-import 'ace-builds/src-noconflict/mode-json';
+import { Editor, EditorVariant } from '@mongodb-js/compass-components';
 
 import styles from './insert-json-document.module.less';
 
@@ -16,21 +10,6 @@ import styles from './insert-json-document.module.less';
  * The comment block.
  */
 const EDITOR_COMMENT = '/** \n* Paste one or more documents here\n*/\n';
-
-/**
- * Ace editor settings.
- */
-const OPTIONS = {
-  tabSize: 2,
-  fontSize: 11,
-  minLines: 2,
-  maxLines: Infinity,
-  showGutter: true,
-  readOnly: false,
-  highlightActiveLine: true,
-  highlightGutterLine: true,
-  useWorker: false
-};
 
 class InsertJsonDocument extends Component {
   componentDidMount() {
@@ -63,15 +42,15 @@ class InsertJsonDocument extends Component {
 
     return (
       <div className={classnames(styles.editor)}>
-        <Ace
-          mode="json"
-          defaultValue={EDITOR_COMMENT}
-          value={value}
-          onChange={this.onChange.bind(this)}
-          theme="mongodb"
-          width="100%"
-          editorProps={{$blockScrolling: Infinity}}
-          setOptions={OPTIONS}
+        <Editor
+          variant={EditorVariant.EJSON}
+          placeholder={EDITOR_COMMENT}
+          text={value}
+          onChangeText={this.onChange.bind(this)}
+          options={({
+            highlightActiveLine: true,
+            highlightGutterLine: true,
+          })}
           onLoad={(editor) => { this.editor = editor; }}/>
       </div>
     );
