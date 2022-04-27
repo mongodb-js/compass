@@ -99,9 +99,10 @@ function pickCollectionInfo({
   collation,
   pipeline,
   validation,
-  clustered
+  clustered,
+  fle,
 }) {
-  return { readonly, view_on, collation, pipeline, validation, clustered };
+  return { readonly, view_on, collation, pipeline, validation, clustered, fle };
 }
 
 /**
@@ -124,6 +125,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     // Normalized values from collectionInfo command
     readonly: 'boolean',
     clustered: 'boolean',
+    fle: 'boolean',
     view_on: 'string',
     collation: 'object',
     pipeline: 'array',
@@ -205,37 +207,32 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         return getNamespaceInfo(this._id).normal;
       },
     },
-
     isTimeSeries: {
       deps: ['type'],
       fn() {
         return this.type === 'timeseries';
       },
     },
-
     isView: {
       deps: ['type'],
       fn() {
         return this.type === 'view';
       },
     },
-
     sourceId: {
       deps: ['view_on'],
       fn() {
         return this.view_on ? `${this.database}.${this.view_on}` : null;
       },
     },
-
     source: {
       deps: ['sourceId'],
       fn() {
         return this.collection.get(this.sourceId) ?? null;
       },
     },
-
     properties: {
-      deps: ['collation', 'type', 'capped', 'clustered', 'readonly'],
+      deps: ['collation', 'type', 'capped', 'clustered', 'readonly', 'fle'],
       fn() {
         return getProperties(this);
       },
@@ -285,11 +282,13 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       }
       // We don't care if it fails to get stats from server for any reason
     }
+
     const collectionMetadata = {
       namespace: this.ns,
       isReadonly: this.readonly,
       isTimeSeries: this.isTimeSeries,
-      isClustered: this.clustered
+      isClustered: this.clustered,
+      isFLE: this.fle,
     };
     if (this.sourceId) {
       try {

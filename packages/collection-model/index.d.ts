@@ -56,6 +56,7 @@ interface Collection {
     isReadonly: boolean;
     isTimeSeries: boolean;
     isClustered: boolean;
+    isFLE: boolean;
     sourceName?: string;
     sourceReadonly?: boolean;
     sourceViewon?: string;

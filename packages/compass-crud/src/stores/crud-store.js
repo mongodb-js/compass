@@ -137,7 +137,6 @@ export const setIsReadonly = (store, isReadonly) => {
   store.onReadonlyChanged(isReadonly);
 };
 
-
 /**
  * Set the isTimeSeries flag in the store.
  *
@@ -306,7 +305,7 @@ const configureStore = (options = {}) => {
      * @param {Boolean} isReadonly - If the collection is readonly.
      */
     onReadonlyChanged(isReadonly) {
-      this.setState({ isReadonly: isReadonly });
+      this.setState({ isReadonly });
     },
 
     /**
@@ -315,7 +314,7 @@ const configureStore = (options = {}) => {
      * @param {Boolean} isTimeSeries - If the collection is time-series.
      */
     onTimeSeriesChanged(isTimeSeries) {
-      this.setState({ isTimeSeries: isTimeSeries });
+      this.setState({ isTimeSeries });
     },
 
     /**

@@ -71,6 +71,7 @@ type CollectionDetails = {
   clustered: boolean;
   collation: Document | null;
   view_on: string | null;
+  fle: boolean;
   pipeline: Document[] | null;
   validation: {
     validator: Document;
@@ -393,6 +394,7 @@ export function adaptCollectionInfo({
     validationAction,
     validationLevel,
     clusteredIndex,
+    encryptedFields,
   } = options ?? {};
 
   const hasValidation = Boolean(
@@ -415,6 +417,7 @@ export function adaptCollectionInfo({
     view_on: viewOn ?? null,
     pipeline: pipeline ?? null,
     clustered: clusteredIndex ? true : false,
+    fle: encryptedFields ? true : false,
     validation: hasValidation
       ? { validator, validationAction, validationLevel }
       : null,

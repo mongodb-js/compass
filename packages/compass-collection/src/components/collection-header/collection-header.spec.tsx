@@ -19,6 +19,7 @@ describe('CollectionHeader [Component]', function () {
           isReadonly={false}
           isTimeSeries={false}
           isClustered={false}
+          isFLE={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
@@ -71,8 +72,9 @@ describe('CollectionHeader [Component]', function () {
           isReadonly={true}
           isTimeSeries={false}
           isClustered={false}
-          globalAppRegistry={globalAppRegistry}
+          isFLE={false}
           sourceName="orig.coll"
+          globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
@@ -121,6 +123,7 @@ describe('CollectionHeader [Component]', function () {
           isReadonly={true}
           isTimeSeries={false}
           isClustered={false}
+          isFLE={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
@@ -157,6 +160,7 @@ describe('CollectionHeader [Component]', function () {
           isReadonly={false}
           isTimeSeries={true}
           isClustered={false}
+          isFLE={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
@@ -193,6 +197,7 @@ describe('CollectionHeader [Component]', function () {
           isReadonly={false}
           isTimeSeries={false}
           isClustered={true}
+          isFLE={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
@@ -223,6 +228,35 @@ describe('CollectionHeader [Component]', function () {
     });
   });
 
+  context('when the collection is a fle collection', function () {
+    const globalAppRegistry = new AppRegistry();
+    const selectOrCreateTabSpy = spy();
+
+    beforeEach(function () {
+      render(
+        <CollectionHeader
+          isReadonly={false}
+          isTimeSeries={false}
+          isClustered={false}
+          isFLE={true}
+          sourceName={null}
+          globalAppRegistry={globalAppRegistry}
+          namespace="db.coll"
+          selectOrCreateTab={selectOrCreateTabSpy}
+          sourceReadonly={false}
+          pipeline={[]}
+          stats={STATS_INITIAL_STATE}
+        />
+      );
+    });
+
+    afterEach(cleanup);
+
+    it('renders the clustered badge', function () {
+      expect(screen.getByTestId('collection-badge-fle')).to.exist;
+    });
+  });
+
   context('when the db name is clicked', function () {
     it('emits the open event to the app registry', function () {
       const selectOrCreateTabSpy = spy();
@@ -235,6 +269,7 @@ describe('CollectionHeader [Component]', function () {
           isReadonly={false}
           isTimeSeries={false}
           isClustered={false}
+          isFLE={false}
           globalAppRegistry={
             {
               emit: (eventName, dbName) => {
