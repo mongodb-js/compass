@@ -10,7 +10,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ExportToLanguagePlugin, { activate } from '../../src/index.js';
 import ExportToLanguageStandalone from './components/export-to-language-standalone';
-import configureStore, { setDataProvider, setNamespace } from '../../src/stores';
+import configureStore, { setNamespace } from '../../src/stores';
 
 const appRegistry = new AppRegistry();
 
@@ -63,7 +63,6 @@ const dataService = new DataServiceImpl(connection);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  setDataProvider(store, error, ds);
   setNamespace(store, 'citibike.trips');
 });
 
