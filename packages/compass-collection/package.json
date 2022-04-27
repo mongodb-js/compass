@@ -56,11 +56,11 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.13.0",
     "bson": "*",
+    "hadron-ipc": "^2.9.0",
     "mongodb": "^4.4.1",
     "mongodb-collection-model": "^4.21.0",
     "mongodb-data-service": "^21.19.0",
     "numeral": "*",
-    "hadron-ipc": "^2.9.0",
     "react": "*",
     "react-dom": "*"
   },
@@ -99,6 +99,7 @@
     "mocha": "^8.4.0",
     "mongodb": "^4.4.1",
     "mongodb-collection-model": "^4.21.0",
+    "mongodb-connection-string-url": "^2.5.2",
     "mongodb-data-service": "^21.19.0",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",

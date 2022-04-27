@@ -4,10 +4,39 @@ import semver from 'semver';
 import { ErrorBoundary } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
+import type { DataService } from 'mongodb-data-service';
+import ConnectionString from 'mongodb-connection-string-url';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:compass-collection:context'
 );
+
+// TODO: replace this with state coming from the right layer.
+// this kind of information should not be derived
+// from dataService as it operates on a lower level,
+// as a consequence here we have to remove the `appName` that only
+// the dataService should be using.
+function getCurrentlyConnectedUri(dataService: DataService) {
+  let connectionStringUrl;
+
+  try {
+    connectionStringUrl = new ConnectionString(
+      dataService.getConnectionOptions().connectionString
+    );
+  } catch (e) {
+    return '<uri>';
+  }
+
+  if (
+    /^mongodb compass/i.exec(
+      connectionStringUrl.searchParams.get('appName') || ''
+    )
+  ) {
+    connectionStringUrl.searchParams.delete('appName');
+  }
+
+  return connectionStringUrl.href;
+}
 
 /**
  * Setup scoped actions for a plugin.
@@ -47,6 +76,7 @@ type ContextProps = {
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
   scopedModals?: any[];
+  connectionString?: string;
 };
 
 /**
@@ -84,13 +114,14 @@ const setupStore = ({
   sourcePipeline,
   query,
   aggregation,
+  connectionString,
 }: ContextProps) => {
   const store = role.configureStore({
     localAppRegistry: localAppRegistry,
     globalAppRegistry: globalAppRegistry,
     dataProvider: {
-      error: dataService.error,
-      dataProvider: dataService.dataService,
+      error: dataService?.error,
+      dataProvider: dataService?.dataService,
     },
     namespace: namespace,
     serverVersion: serverVersion,
@@ -104,6 +135,7 @@ const setupStore = ({
     sourcePipeline: sourcePipeline,
     query,
     aggregation,
+    connectionString,
   });
   localAppRegistry?.registerStore(role.storeName, store);
 
@@ -140,6 +172,7 @@ const setupPlugin = ({
   isClustered,
   sourceName,
   allowWrites,
+  connectionString,
   key,
 }: ContextProps) => {
   const actions = role.configureActions();
@@ -156,6 +189,7 @@ const setupPlugin = ({
     sourceName,
     actions,
     allowWrites,
+    connectionString,
   });
   const plugin = role.component;
   return {
@@ -193,6 +227,7 @@ const setupScopedModals = ({
   isClustered,
   sourceName,
   allowWrites,
+  connectionString,
 }: ContextProps) => {
   const roles = globalAppRegistry?.getRole('Collection.ScopedModal');
   if (roles) {
@@ -209,6 +244,7 @@ const setupScopedModals = ({
         isClustered,
         sourceName,
         allowWrites,
+        connectionString,
         key: i,
       });
     });
@@ -359,6 +395,7 @@ const createContext = ({
     isClustered,
     sourceName,
     allowWrites: !isDataLake,
+    connectionString: getCurrentlyConnectedUri(state.dataService.dataService),
   });
 
   const configureFieldStore = globalAppRegistry.getStore('Field.Store');

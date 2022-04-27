@@ -4,7 +4,6 @@ ignores:
   - '@types/chai'
   - '@types/sinon-chai'
   - 'sinon'
-  - 'babel-plugin-istanbul'
   # peerdep
   - 'core-js'
   # peerdep
@@ -13,5 +12,7 @@ ignores:
   - 'webpack-cli'
   # used implicitly by the webpack loaders file
   - 'browserslist'
+  - '@babel/runtime'
+  - 'babel-plugin-istanbul'
   # recursive
   - 'mongodb-compass'
