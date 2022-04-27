@@ -4,6 +4,7 @@ import {
   BadgeVariant,
   css,
   spacing,
+  Icon,
 } from '@mongodb-js/compass-components';
 
 const collectionHeaderBadgeStyles = css({
@@ -16,7 +17,9 @@ const FLEBadge = (): React.ReactElement => (
     className={collectionHeaderBadgeStyles}
     variant={BadgeVariant.DarkGray}
   >
-    FLE2
+    {/* TODO(COMPASS-5626): use proper name instead of FLE2 */}
+    <Icon glyph="Key" title="FLE2" size="small" />
+    &nbsp;FLE2
   </Badge>
 );
 

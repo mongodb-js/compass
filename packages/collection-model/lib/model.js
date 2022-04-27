@@ -100,9 +100,9 @@ function pickCollectionInfo({
   pipeline,
   validation,
   clustered,
-  fle,
+  fle2,
 }) {
-  return { readonly, view_on, collation, pipeline, validation, clustered, fle };
+  return { readonly, view_on, collation, pipeline, validation, clustered, fle2 };
 }
 
 /**
@@ -125,7 +125,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     // Normalized values from collectionInfo command
     readonly: 'boolean',
     clustered: 'boolean',
-    fle: 'boolean',
+    fle2: 'boolean',
     view_on: 'string',
     collation: 'object',
     pipeline: 'array',
@@ -232,7 +232,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       },
     },
     properties: {
-      deps: ['collation', 'type', 'capped', 'clustered', 'readonly', 'fle'],
+      deps: ['collation', 'type', 'capped', 'clustered', 'readonly', 'fle2'],
       fn() {
         return getProperties(this);
       },
@@ -288,7 +288,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       isReadonly: this.readonly,
       isTimeSeries: this.isTimeSeries,
       isClustered: this.clustered,
-      isFLE: this.fle,
+      isFLE: this.fle2,
     };
     if (this.sourceId) {
       try {
