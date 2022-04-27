@@ -19,6 +19,7 @@ describe('CreateIndexModal [Component]', function () {
   let toggleIsTtlSpy;
   let toggleIsPartialFilterExpressionSpy;
   let toggleIsCustomCollationSpy;
+  let toggleIsColumnstoreSpy;
   let resetFormSpy;
   let createIndexSpy;
   let openLinkSpy;
@@ -208,6 +209,7 @@ describe('CreateIndexModal [Component]', function () {
       toggleIsTtlSpy = sinon.spy();
       toggleIsPartialFilterExpressionSpy = sinon.spy();
       toggleIsCustomCollationSpy = sinon.spy();
+      toggleIsColumnstoreSpy = sinon.spy();
       resetFormSpy = sinon.spy();
       createIndexSpy = sinon.spy();
       openLinkSpy = sinon.spy();
@@ -244,6 +246,7 @@ describe('CreateIndexModal [Component]', function () {
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
+          toggleIsColumnstore={toggleIsColumnstoreSpy}
           resetForm={resetFormSpy}
           createIndex={createIndexSpy}
           openLink={openLinkSpy}
@@ -267,6 +270,7 @@ describe('CreateIndexModal [Component]', function () {
       toggleIsTtlSpy = null;
       toggleIsPartialFilterExpressionSpy = null;
       toggleIsCustomCollationSpy = null;
+      toggleIsColumnstoreSpy = null;
       resetFormSpy = null;
       createIndexSpy = null;
       openLinkSpy = null;
@@ -362,6 +366,22 @@ describe('CreateIndexModal [Component]', function () {
           expect(openLinkSpy.called).to.equal(true);
         });
       });
+      context('serverVersion gte 6.1.0', function () {
+        beforeEach(function () {
+          component.setProps({
+            serverVersion: '6.1.0',
+          });
+        });
+        context('columnstoreIndexes', function () {
+          it('calls the toggleIsColumnstore function', function () {
+            component
+              .find('[data-test-id="toggle-is-columnstore"]')
+              .find('[type="checkbox"]')
+              .simulate('change', { target: { checked: true } });
+            expect(toggleIsColumnstoreSpy.called).to.equal(true);
+          });
+        });
+      });
     });
   });
 
@@ -421,6 +441,7 @@ describe('CreateIndexModal [Component]', function () {
           changePartialFilterExpression={changePartialFilterExpressionSpy}
           changeCollationOption={changeCollationOptionSpy}
           changeName={changeNameSpy}
+          serverVersion="5.0.0"
         />
       );
     });
@@ -473,6 +494,24 @@ describe('CreateIndexModal [Component]', function () {
         expect(changePartialFilterExpressionSpy.args[0][0]).to.equal(
           '{"x": 1}'
         );
+      });
+    });
+    context('server version is lt 6.1.0', function () {
+      it('does not display the columnstore index options', function () {
+        expect(
+          component.find('[data-test-id="toggle-is-columnstore"]')
+        ).to.not.be.present();
+      });
+    });
+    context('server version is gte 6.1.0', function () {
+      beforeEach(function () {
+        component.setProps({ serverVersion: '6.1.0' });
+      });
+
+      it('displays the columnstore index projection options', function () {
+        expect(
+          component.find('[data-test-id="toggle-is-columnstore"]')
+        ).to.be.present();
       });
     });
   });

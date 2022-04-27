@@ -19,8 +19,8 @@
 @index-clustered-color: #548273;
 @index-clustered-bg: #e8eceb;
 
-@index-columnar-color: #548273;
-@index-columnar-bg: #e8eceb;
+@index-columnstore-color: #548273;
+@index-columnstore-bg: #e8eceb;
 
 .type-column {
   width: auto;
@@ -82,12 +82,12 @@
       .pill(@index-wildcard-color, @index-wildcard-bg);
     }
 
-    &-columnar {
+    &-columnstore {
       display: inline-block;
       text-align: center;
       white-space: nowrap;
       margin-right: 15px;
-      .pill(@index-columnar-color, @index-columnar-bg);
+      .pill(@index-columnstore-color, @index-columnstore-bg);
     }
 
     &-clustered {

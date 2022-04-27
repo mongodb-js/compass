@@ -2,14 +2,14 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './create-index-field.module.less';
-import { hasColumnarIndexesSupport } from '../../utils/has-columnar-indexes-support';
+import { hasColumnstoreIndexesSupport } from '../../utils/has-columnstore-indexes-support';
 
 import Select from 'react-select-plus';
 
 /**
  * Current allowed types for indexes.
  */
-const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere', 'text', 'columnar'];
+const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere', 'text', 'columnstore'];
 
 /**
  * Default values for field name and type as presented in the UI
@@ -57,11 +57,13 @@ class CreateIndexField extends PureComponent {
    * @returns {Array} The React components for each item in the field and type dropdowns.
    */
   getDropdownTypes() {
-    if (!hasColumnarIndexesSupport(this.props.serverVersion)) {
-      return INDEX_TYPES.filter((elem) => elem !== 'columnar').map((elem) => ({
-        value: elem,
-        label: elem,
-      }));
+    if (!hasColumnstoreIndexesSupport(this.props.serverVersion)) {
+      return INDEX_TYPES.filter((elem) => elem !== 'columnstore').map(
+        (elem) => ({
+          value: elem,
+          label: elem,
+        })
+      );
     }
 
     return INDEX_TYPES.map((elem) => ({

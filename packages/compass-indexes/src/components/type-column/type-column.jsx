@@ -28,7 +28,7 @@ class TypeColumn extends PureComponent {
       'default_language',
       'language_override',
       'wildcardProjection',
-      'columnarProjection',
+      'columnstoreProjection',
     ]);
     return map(info, (v, k) => {
       return format('%s: %j', k, v);
@@ -45,7 +45,7 @@ class TypeColumn extends PureComponent {
     if (
       this.props.index.type === 'text' ||
       this.props.index.type === 'wildcard' ||
-      this.props.index.type === 'columnar'
+      this.props.index.type === 'columnstore'
     ) {
       const tooltipText = `${this._textTooltip()}`;
       tooltipOptions = {
