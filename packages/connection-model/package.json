@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "21.15.0",
+  "version": "21.16.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -33,7 +33,7 @@
     "mongodb": "^4.4.0"
   },
   "dependencies": {
-    "@mongodb-js/ssh-tunnel": "^1.5.0",
+    "@mongodb-js/ssh-tunnel": "^1.6.0",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "debug": "4.3.0",
@@ -44,7 +44,7 @@
     "raf": "^3.4.1",
     "resolve-mongodb-srv": "^1.1.1",
     "ssh2": "^0.8.7",
-    "storage-mixin": "^4.13.0"
+    "storage-mixin": "^4.14.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
