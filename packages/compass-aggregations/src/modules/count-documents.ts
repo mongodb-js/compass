@@ -12,7 +12,6 @@ import { ActionTypes as WorkspaceActionTypes } from './workspace';
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
   CountFinished = 'compass-aggregations/countFinished',
-  CountCancelled = 'compass-aggregations/countCancelled',
   CountFailed = 'compass-aggregations/countFailed',
 };
 
@@ -26,10 +25,6 @@ type CountFinishedAction = {
   count: number;
 };
 
-type CountCancelledAction = {
-  type: ActionTypes.CountCancelled;
-};
-
 type CountFailedAction = {
   type: ActionTypes.CountFailed;
 };
@@ -37,7 +32,6 @@ type CountFailedAction = {
 export type Actions =
   | CountStartedAction
   | CountFinishedAction
-  | CountCancelledAction
   | CountFailedAction;
 
 export type State = {
@@ -64,11 +58,6 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
         loading: false,
         abortController: undefined,
         count: action.count,
-      };
-    case ActionTypes.CountCancelled:
-      return {
-        ...state,
-        abortController: undefined,
       };
     case ActionTypes.CountFailed:
       return {
