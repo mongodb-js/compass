@@ -58,10 +58,6 @@ describe('create-index-field [Component]', function () {
     it('shows columnstore indexes as a selectable index type', function () {
       const typeSelectComponent = component.find(Select).at(1);
       expect(typeSelectComponent).to.be.present();
-      console.log(
-        'typeSelectComponent.props().options',
-        typeSelectComponent.props().options
-      );
       expect(typeSelectComponent.props().options).to.deep.contain({
         value: 'columnstore',
         label: 'columnstore',
