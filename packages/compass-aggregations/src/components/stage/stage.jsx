@@ -124,21 +124,7 @@ class Stage extends Component {
 
   renderEditor() {
     return (
-      <Resizable
-        className={styles['stage-editor']}
-        defaultSize={{
-          width: '388px',
-          height: 'auto'
-        }}
-        minWidth="260px"
-        maxWidth="92%"
-        enable={resizeableDirections}
-        ref={c => { this.resizableRef = c; }}
-        handleWrapperClass={styles['stage-resize-handle-wrapper']}
-        handleComponent={{
-          right: <ResizeHandle />,
-        }}
-      >
+      <>
         <DragHandleToolbar
           allowWrites={this.props.allowWrites}
           env={this.props.env}
@@ -158,6 +144,7 @@ class Stage extends Component {
           stageDeleted={this.props.stageDeleted}
           setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion}
+          isAutoPreviewing={this.props.isAutoPreviewing}
         />
         {this.props.isExpanded && (
           <StageEditor
@@ -180,6 +167,38 @@ class Stage extends Component {
             newPipelineFromPaste={this.props.newPipelineFromPaste}
           />
         )}
+      </>
+    );
+  }
+
+  renderResizableEditor() {
+    const { isAutoPreviewing } = this.props;
+    const editor = this.renderEditor();
+    if (
+      !isAutoPreviewing &&
+      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true'
+    ) {
+      return <div className={styles['stage-editor-no-preview']}>{editor}</div>;
+    }
+    return (
+      <Resizable
+        className={styles['stage-editor']}
+        defaultSize={{
+          width: '388px',
+          height: 'auto',
+        }}
+        minWidth="260px"
+        maxWidth="92%"
+        enable={resizeableDirections}
+        ref={(c) => {
+          this.resizableRef = c;
+        }}
+        handleWrapperClass={styles['stage-resize-handle-wrapper']}
+        handleComponent={{
+          right: <ResizeHandle />,
+        }}
+      >
+        {editor}
       </Resizable>
     );
   }
@@ -224,6 +243,8 @@ class Stage extends Component {
    */
   render() {
     const opacity = this.getOpacity();
+    const isPreviewHidden = !this.props.isAutoPreviewing
+      && global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR ==='true';
     return (
       <div
         data-test-id="stage-container"
@@ -235,8 +256,8 @@ class Stage extends Component {
         <div className={classnames(styles.stage, {
           [styles['stage-errored']]: this.props.error
         })} style={{ opacity }}>
-          {this.renderEditor()}
-          {this.renderPreview()}
+          {this.renderResizableEditor()}
+          {!isPreviewHidden && this.renderPreview()}
         </div>
       </div>
     );

@@ -47,6 +47,14 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
       ],
       plugins: [
         [
+          require.resolve('@babel/plugin-transform-runtime'),
+          {
+            helpers: true,
+            regenerator: true,
+            corejs: false,
+          },
+        ],
+        [
           require.resolve('@babel/plugin-proposal-decorators'),
           { legacy: true },
         ],

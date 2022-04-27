@@ -6,9 +6,6 @@
   "description": "export to language modal",
   "main": "lib/index.js",
   "compass:main": "src/index.js",
-  "exports": {
-    "require": "./lib/index.js"
-  },
   "compass:exports": {
     ".": "./src/index.js"
   },
@@ -130,7 +127,6 @@
     "@mongodb-js/compass-logging": "^0.10.0",
     "@mongodb-js/mongodb-redux-common": "^1.10.0",
     "js-beautify": "^1.10.2",
-    "mongodb-connection-string-url": "^2.5.2",
     "react-select-plus": "^1.2.0",
     "redux-thunk": "^2.3.0"
   },

@@ -1,3 +1,3 @@
-import configureStore, { setDataProvider, setNamespace } from './store';
-export { setNamespace, setDataProvider };
+import configureStore, { setNamespace } from './store';
+export { setNamespace };
 export default configureStore;

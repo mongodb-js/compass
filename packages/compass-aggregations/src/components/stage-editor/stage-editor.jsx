@@ -219,6 +219,7 @@ class StageEditor extends Component {
             onFocus={() => {
               tools.setCompleters([this.completer]);
             }}
+            showPrintMargin={false}
             onLoad={(editor) => {
               this.editor = editor;
               this.editor.commands.addCommand({
