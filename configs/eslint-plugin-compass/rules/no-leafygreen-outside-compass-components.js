@@ -61,9 +61,9 @@ function isRequireSourceEquals(libName, node) {
   if (node.callee.name === 'require') {
     const [arg] = node.arguments;
     if (typeof libName === 'string') {
-      return arg === 'string';
+      return arg.value === libName;
     } else {
-      return libName.test(arg);
+      return libName.test(arg.value);
     }
   }
 }
@@ -78,10 +78,12 @@ module.exports = {
     },
     fixable: 'code',
     hasSuggestions: true,
-    schema: [], // no options
+    // CWD for testing purposes only
+    schema: [{ type: 'string' }],
   },
   create(context) {
-    const packageName = getPackageNameFromCwd(context.getCwd());
+    const [cwd] = context.options;
+    const packageName = getPackageNameFromCwd(cwd ?? context.getCwd());
 
     const isCompassComponentsPackage =
       packageName === '@mongodb-js/compass-components';
@@ -97,7 +99,7 @@ module.exports = {
         }
       },
       CallExpression(node) {
-        if (isRequireSourceEquals(/^leafygreen-ui/, node)) {
+        if (isRequireSourceEquals(/^@leafygreen-ui/, node)) {
           reportLeafygreenUsage(context, node, node.arguments[0]);
         }
       },
