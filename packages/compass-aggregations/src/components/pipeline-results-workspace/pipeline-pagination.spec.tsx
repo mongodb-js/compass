@@ -3,6 +3,9 @@ import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
+
+import configureStore from '../../stores/store';
 
 import {
   PipelinePagination,
@@ -12,16 +15,18 @@ import {
 
 const renderPipelinePagination = (props: Record<string, unknown> = {}) => {
   render(
-    <PipelinePagination
-      showingFrom={1}
-      showingTo={20}
-      isCountDisabled={false}
-      isPrevDisabled={false}
-      isNextDisabled={false}
-      onPrev={() => {}}
-      onNext={() => {}}
-      {...props}
-    />
+    <Provider store={configureStore()}>
+      <PipelinePagination
+        showingFrom={1}
+        showingTo={20}
+        isCountDisabled={false}
+        isPrevDisabled={false}
+        isNextDisabled={false}
+        onPrev={() => {}}
+        onNext={() => {}}
+        {...props}
+      />
+    </Provider>
   );
 };
 
@@ -33,6 +38,8 @@ describe('PipelinePagination', function () {
       expect(
         within(container).getByTestId('pipeline-pagination-desc').textContent
       ).to.equal('Showing 1 – 20');
+      expect(within(container).getByTestId('pipeline-pagination-count')).to
+        .exist;
       expect(within(container).getByTestId('pipeline-pagination-prev-action'))
         .to.exist;
       expect(within(container).getByTestId('pipeline-pagination-next-action'))

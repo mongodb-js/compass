@@ -97,6 +97,7 @@ describe('aggregation module', function () {
       loading: false,
       error: undefined,
       abortController: undefined,
+      previousPageData: undefined,
     });
   });
 
@@ -152,6 +153,7 @@ describe('aggregation module', function () {
       loading: false,
       error: undefined,
       abortController: undefined,
+      previousPageData: undefined,
     });
   });
 
@@ -205,6 +207,7 @@ describe('aggregation module', function () {
         loading: false,
         error: undefined,
         abortController: undefined,
+        previousPageData: undefined,
       });
     });
     it('nextPage -> on last page', async function () {
@@ -277,6 +280,7 @@ describe('aggregation module', function () {
         loading: false,
         error: undefined,
         abortController: undefined,
+        previousPageData: undefined,
       });
     });
     it('prevPage -> on first page', async function () {
