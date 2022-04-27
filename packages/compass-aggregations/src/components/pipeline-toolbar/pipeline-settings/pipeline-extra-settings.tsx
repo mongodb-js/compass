@@ -28,8 +28,6 @@ const toggleLabelStyles = css({
   marginBottom: 0,
   padding: 0,
   textTransform: 'uppercase',
-  // todo: remove this post removal of global styles
-  margin: 'inherit !important',
 });
 
 type PipelineExtraSettingsProps = {
@@ -48,7 +46,7 @@ export const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSetting
         <div className={toggleStyles}>
           <Toggle
             id="auto-preview"
-            size="small"
+            size="xsmall"
             aria-label="Toggle Auto Preview"
             onChange={() => onToggleAutoPreview()}
             data-testid="pipeline-toolbar-preview-toggle"
