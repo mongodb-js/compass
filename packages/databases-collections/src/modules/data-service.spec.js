@@ -20,7 +20,9 @@ describe('data service module', () => {
       it('returns the default state', () => {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           error: null,
-          dataService: null
+          dataService: null,
+          configuredKMSProviders: [],
+          currentTopologyType: 'Unknown'
         });
       });
     });
@@ -29,7 +31,9 @@ describe('data service module', () => {
       it('returns the new state', () => {
         expect(reducer(undefined, dataServiceConnected('err', 'ds'))).to.deep.equal({
           error: 'err',
-          dataService: 'ds'
+          dataService: 'ds',
+          configuredKMSProviders: [],
+          currentTopologyType: 'Unknown'
         });
       });
     });

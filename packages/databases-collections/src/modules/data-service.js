@@ -13,7 +13,9 @@ export const DATA_SERVICE_CONNECTED = `${PREFIX}/DATA_SERVICE_CONNECTED`;
  */
 export const INITIAL_STATE = {
   error: null,
-  dataService: null
+  dataService: null,
+  configuredKMSProviders: [],
+  currentTopologyType: 'Unknown'
 };
 
 /**
@@ -28,7 +30,9 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,
-      dataService: action.dataService
+      dataService: action.dataService,
+      configuredKMSProviders: action.dataService.configuredKMSProviders ? action.dataService.configuredKMSProviders() : [],
+      currentTopologyType: action.dataService.currentTopologyType ? action.dataService.currentTopologyType() : 'Unknown'
     };
   }
   return state;

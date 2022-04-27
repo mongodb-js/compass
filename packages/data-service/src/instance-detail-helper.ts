@@ -182,18 +182,19 @@ function checkIsAtlas(
 export function checkIsCSFLEConnection(client: {
   options: MongoClientOptions;
 }): boolean {
-  return hasAnyKMSProvider(client.options?.autoEncryption);
+  return configuredKMSProviders(client.options?.autoEncryption).length > 0;
 }
 
-export function hasAnyKMSProvider(
+export function configuredKMSProviders(
   autoEncryption?: AutoEncryptionOptions
-): boolean {
-  const kmsProviders = autoEncryption?.kmsProviders;
-  return (
-    Object.values(kmsProviders ?? {})
-      .flatMap((kms) => Object.values(kms))
-      .filter(Boolean).length > 0
-  );
+): string[] {
+  const kmsProviders = autoEncryption?.kmsProviders ?? {};
+  return Object.entries(kmsProviders)
+    .filter(
+      ([, kmsOptions]) =>
+        Object.values(kmsOptions ?? {}).filter(Boolean).length > 0
+    )
+    .map(([kmsProviderName]) => kmsProviderName);
 }
 
 function buildGenuineMongoDBInfo(

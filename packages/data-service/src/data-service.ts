@@ -61,7 +61,7 @@ import {
   checkIsCSFLEConnection,
   getInstance,
   getDatabasesByRoles,
-  hasAnyKMSProvider,
+  configuredKMSProviders,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
@@ -76,6 +76,11 @@ import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
+import { ClientEncryption } from 'mongodb-client-encryption';
+import type {
+  ClientEncryptionDataKeyProvider,
+  ClientEncryptionCreateDataKeyProviderOptions,
+} from 'mongodb-client-encryption';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -142,6 +147,7 @@ export interface DataService {
   getConnectionString(): ConnectionStringUrl;
   getReadPreference(): ReadPreferenceLike;
   setCSFLEEnabled(enabled: boolean): void;
+  configuredKMSProviders(): string[];
 
   /**
    * Get the kitchen sink information about a collection.
@@ -693,6 +699,12 @@ export interface DataService {
   databaseStats(
     name: string
   ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }>;
+
+  /**
+   * Create a new data encryption key (DEK) using the ClientEncryption
+   * helper class.
+   */
+  createDataKey(provider: string, options?: unknown): Promise<Document>;
 }
 
 export class DataServiceImpl extends EventEmitter implements DataService {
@@ -2374,24 +2386,68 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     };
   }
 
-  _csfleLogInformation(fleOptions?: Readonly<ConnectionFleOptions>) {
-    if (!fleOptions || !hasAnyKMSProvider(fleOptions.autoEncryption))
-      return null;
+  configuredKMSProviders(): string[] {
+    return configuredKMSProviders(
+      this._connectionOptions.fleOptions?.autoEncryption
+    );
+  }
+
+  _csfleLogInformation(
+    fleOptions?: Readonly<ConnectionFleOptions>
+  ): null | Record<string, unknown> {
+    const kmsProviders = configuredKMSProviders(fleOptions?.autoEncryption);
+    if (kmsProviders.length === 0) return null;
     return {
-      storeCredentials: fleOptions.storeCredentials,
+      storeCredentials: fleOptions?.storeCredentials,
       schemaMapNamespaces: Object.keys(
-        fleOptions.autoEncryption?.schemaMap ?? {}
+        fleOptions?.autoEncryption?.schemaMap ?? {}
       ),
-      keyVaultNamespace: fleOptions.autoEncryption.keyVaultNamespace,
-      kmsProviders: Object.entries(
-        fleOptions.autoEncryption?.kmsProviders ?? {}
-      )
-        .filter(
-          ([, kmsOptions]) =>
-            Object.values(kmsOptions).filter(Boolean).length > 0
-        )
-        .map(([kmsProviderName]) => kmsProviderName),
+      keyVaultNamespace: fleOptions?.autoEncryption.keyVaultNamespace,
+      kmsProviders,
     };
+  }
+
+  async createDataKey(
+    provider: ClientEncryptionDataKeyProvider,
+    options?: ClientEncryptionCreateDataKeyProviderOptions
+  ): Promise<Document> {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_123),
+      'Running createDataKey',
+      { provider }
+    );
+
+    const clientEncryption = this._getClientEncryption();
+    let result;
+    try {
+      result = await clientEncryption.createDataKey(provider, options ?? {});
+    } catch (err) {
+      logop(err);
+      throw err;
+    }
+    logop(null);
+    return result;
+  }
+
+  _getClientEncryption(): ClientEncryption {
+    const crudClient = this._initializedClient('CRUD');
+    const autoEncryptionOptions = crudClient.options.autoEncryption;
+    const { proxyHost, proxyPort, proxyUsername, proxyPassword } =
+      crudClient.options;
+
+    return new ClientEncryption(crudClient, {
+      keyVaultNamespace: autoEncryptionOptions.keyVaultNamespace as string,
+      kmsProviders: autoEncryptionOptions.kmsProviders,
+      tlsOptions: autoEncryptionOptions.tlsOptions,
+      proxyOptions: proxyHost
+        ? {
+            proxyHost,
+            proxyPort,
+            proxyUsername,
+            proxyPassword,
+          }
+        : undefined,
+    });
   }
 }
 

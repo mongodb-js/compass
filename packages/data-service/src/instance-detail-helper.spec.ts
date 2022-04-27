@@ -2,8 +2,9 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { ConnectionOptions } from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
-import { checkIsCSFLEConnection } from './instance-detail-helper';
 import {
+  configuredKMSProviders,
+  checkIsCSFLEConnection,
   getDatabasesByRoles,
   getPrivilegesByDatabaseAndCollection,
   getInstance,
@@ -485,6 +486,41 @@ describe('instance-detail-helper', function () {
           },
         })
       ).to.equal(true);
+    });
+  });
+
+  describe('#configuredKMSProviders', function () {
+    it('returns which KMS providers were configured', function () {
+      expect(configuredKMSProviders({})).to.deep.equal([]);
+      expect(
+        configuredKMSProviders({
+          keyVaultNamespace: 'asdf',
+        })
+      ).to.deep.equal([]);
+      expect(
+        configuredKMSProviders({
+          kmsProviders: {
+            aws: {} as any,
+            local: {} as any,
+          },
+        })
+      ).to.deep.equal([]);
+      expect(
+        configuredKMSProviders({
+          kmsProviders: {
+            aws: {} as any,
+            local: { key: 'data' },
+          },
+        })
+      ).to.deep.equal(['local']);
+      expect(
+        configuredKMSProviders({
+          kmsProviders: {
+            aws: { accessKeyId: 'x', secretAccessKey: 'y' },
+            local: { key: 'data' },
+          },
+        })
+      ).to.deep.equal(['aws', 'local']);
     });
   });
 });
