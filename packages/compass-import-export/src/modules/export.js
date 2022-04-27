@@ -383,10 +383,11 @@ export const openExport = ({
       dataService: { dataService },
     } = getState();
     try {
-      const count = isAggregation
-        ? null
-        : maybeCount ??
-          (await fetchDocumentCount(dataService, namespace, query));
+      const count =
+        maybeCount ??
+        (!isAggregation
+          ? await fetchDocumentCount(dataService, namespace, query)
+          : null);
 
       dispatch(nsChanged(namespace));
       dispatch(onModalOpen({ namespace, query, count, aggregation }));
@@ -538,7 +539,11 @@ export const startExport = () => {
 const getExportSource = (dataService, ns, exportData) => {
   if (exportData.aggregation) {
     const { stages, options } = exportData.aggregation;
-    return getAggregationExportSource(dataService, ns, stages, options);
+    return {
+      columns: true,
+      source: dataService.aggregate(ns, stages, options),
+      numDocsToExport: exportData.count,
+    };
   }
   return getQueryExportSource(
     dataService,
@@ -548,14 +553,6 @@ const getExportSource = (dataService, ns, exportData) => {
     exportData.count,
     exportData.isFullCollection
   );
-};
-
-const getAggregationExportSource = (dataService, ns, stages, options) => {
-  return {
-    columns: true,
-    source: dataService.aggregate(ns, stages, options),
-    numDocsToExport: 0,
-  };
 };
 
 const getQueryExportSource = async (
