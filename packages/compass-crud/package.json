@@ -10,9 +10,6 @@
   "main": "lib/index.js",
   "compass:main": "src/index.js",
   "types": "lib/index.d.ts",
-  "exports": {
-    "require": "./lib/index.js"
-  },
   "compass:exports": {
     ".": "./src/index.js"
   },

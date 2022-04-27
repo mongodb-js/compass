@@ -6,9 +6,6 @@
   "description": "The query history sidebar.",
   "main": "lib/index.js",
   "compass:main": "src/index.js",
-  "exports": {
-    "require": "./lib/index.js"
-  },
   "compass:exports": {
     ".": "./src/index.js"
   },
