@@ -208,9 +208,9 @@ async function main(argv) {
     'compass:main': 'src/index.ts',
     exports: {
       require: './dist/index.js',
-      ...(!isPlugin && {
-        import: './dist/.esm-wrapper.mjs',
-      }),
+      ...(isPlugin
+        ? { browser: './dist/browser.js' }
+        : { import: './dist/.esm-wrapper.mjs' }),
     },
     'compass:exports': {
       '.': './src/index.ts',

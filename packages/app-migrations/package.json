@@ -21,12 +21,6 @@
   },
   "main": "index.js",
   "compass:main": "index.js",
-  "exports": {
-    "require": "./index.js"
-  },
-  "compass:exports": {
-    ".": "./index.js"
-  },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.10.0",
     "async": "^3.2.0",

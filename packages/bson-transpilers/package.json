@@ -11,12 +11,6 @@
   ],
   "main": "index.js",
   "compass:main": "index.js",
-  "exports": {
-    "require": "./index.js"
-  },
-  "compass:exports": {
-    ".": "./index.js"
-  },
   "scripts": {
     "start": "node index.js",
     "precompile": "node download-antlr.js",

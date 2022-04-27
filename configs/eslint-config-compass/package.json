@@ -4,9 +4,6 @@
   "description": "Shared Compass eslint configuration",
   "license": "SSPL",
   "main": "index.js",
-  "exports": {
-    "require": "./index.js"
-  },
   "files": [
     "index.js",
     "package.json",
