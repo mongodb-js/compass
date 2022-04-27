@@ -32,7 +32,7 @@ export const toggleAutoPreview = (): ThunkAction<
       autoPreview,
     } = getState();
     if (!autoPreview && global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true') {
-      pipeline.forEach((_stage, index) => dispatch(runStage(index)));
+      dispatch(runStage(0))
     }
     dispatch({
       type: ActionTypes.AutoPreviewToggled
