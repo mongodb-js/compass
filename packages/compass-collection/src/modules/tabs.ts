@@ -68,6 +68,7 @@ export interface WorkspaceTabObject {
   isReadonly: boolean;
   isTimeSeries: boolean;
   isClustered: boolean;
+  isFLE: boolean;
   tabs: string[];
   views: JSX.Element[];
   subtab: WorkspaceTabObject;
@@ -125,6 +126,7 @@ const doSelectNamespace = (state: any, action: AnyAction) => {
         isReadonly: action.isReadonly,
         isTimeSeries: action.isTimeSeries,
         isClustered: action.isClustered,
+        isFLE: action.isFLE,
         tabs: action.context.tabs,
         views: action.context.views,
         subtab: action.context.subtab,
@@ -174,6 +176,7 @@ const doCreateTab = (state: any, action: AnyAction) => {
     isReadonly: action.isReadonly,
     isTimeSeries: action.isTimeSeries,
     isClustered: action.isClustered,
+    isFLE: action.isFLE,
     tabs: action.context.tabs,
     views: action.context.views,
     subtab: action.context.subtab,
@@ -386,6 +389,7 @@ export const createTab = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   editViewName,
   context,
@@ -400,6 +404,7 @@ export const createTab = ({
   isReadonly: !!isReadonly,
   isTimeSeries: !!isTimeSeries,
   isClustered: !!isClustered,
+  isFLE: !!isFLE,
   sourceName,
   editViewName,
   context,
@@ -417,6 +422,7 @@ export const createTab = ({
  * @param {Boolean} isReadonly - Is the collection readonly?
  * @param {Boolean} isTimeSeries - Is the collection time-series?
  * @param {Boolean} isClustered - Is the collection clustered?
+ * @param {Boolean} isFLE - Is the collection FLE?
  * @param {String} sourceName - The source namespace.
  * @param {String} editViewName - The name of the view we are editing.
  * @param {Object} context - The tab context.
@@ -431,6 +437,7 @@ export const selectNamespace = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   editViewName,
   context,
@@ -442,12 +449,13 @@ export const selectNamespace = ({
   namespace,
   isReadonly: !!isReadonly,
   isTimeSeries,
+  isClustered,
+  isFLE,
   sourceName,
   editViewName,
   context,
   sourceReadonly,
   sourceViewOn,
-  isClustered,
 });
 
 /**
@@ -590,6 +598,7 @@ export const selectOrCreateTab = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -605,6 +614,7 @@ export const selectOrCreateTab = ({
           isReadonly,
           isTimeSeries,
           isClustered,
+          isFLE,
           sourceName,
           editViewName,
           sourceReadonly,
@@ -626,6 +636,7 @@ export const selectOrCreateTab = ({
             isReadonly,
             isTimeSeries,
             isClustered,
+            isFLE,
             sourceName,
             editViewName,
             sourceReadonly,
@@ -649,6 +660,7 @@ export const createNewTab = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -666,6 +678,7 @@ export const createNewTab = ({
       isDataLake: state.isDataLake,
       isTimeSeries,
       isClustered,
+      isFLE,
       sourceName,
       editViewName,
       sourcePipeline,
@@ -679,6 +692,7 @@ export const createNewTab = ({
         isReadonly,
         isTimeSeries,
         isClustered,
+        isFLE,
         sourceName,
         editViewName,
         context,
@@ -703,6 +717,7 @@ export const replaceTabContent = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   editViewName,
   sourceReadonly,
@@ -718,6 +733,7 @@ export const replaceTabContent = ({
       isDataLake: state.isDataLake,
       isTimeSeries,
       isClustered,
+      isFLE,
       sourceName,
       editViewName,
       sourcePipeline,
@@ -729,6 +745,7 @@ export const replaceTabContent = ({
         isReadonly,
         isTimeSeries,
         isClustered,
+        isFLE,
         sourceName,
         editViewName,
         context,

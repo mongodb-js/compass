@@ -21,6 +21,7 @@ describe('Collection [Component]', function () {
         isReadonly={false}
         isTimeSeries={false}
         isClustered={false}
+        isFLE={false}
         sourceName={null}
         tabs={[]}
         views={[]}

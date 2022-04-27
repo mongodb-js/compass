@@ -52,6 +52,7 @@ type CollectionProps = {
   isReadonly: boolean;
   isTimeSeries: boolean;
   isClustered: boolean;
+  isFLE: boolean;
   editViewName?: string;
   sourceReadonly: boolean;
   sourceViewOn?: string;
@@ -83,6 +84,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   stats,
   editViewName,
   sourceReadonly,
@@ -150,6 +152,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           isReadonly={isReadonly}
           isTimeSeries={isTimeSeries}
           isClustered={isClustered}
+          isFLE={isFLE}
           editViewName={editViewName}
           sourceReadonly={sourceReadonly}
           sourceViewOn={sourceViewOn}
