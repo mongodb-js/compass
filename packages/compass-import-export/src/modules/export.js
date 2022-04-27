@@ -384,9 +384,10 @@ export const openExport = ({
     } = getState();
     try {
       const count =
-        !isAggregation && !maybeCount
+        maybeCount ??
+        (!isAggregation
           ? await fetchDocumentCount(dataService, namespace, query)
-          : maybeCount;
+          : null);
 
       dispatch(nsChanged(namespace));
       dispatch(onModalOpen({ namespace, query, count, aggregation }));
