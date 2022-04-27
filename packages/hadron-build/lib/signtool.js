@@ -1,4 +1,4 @@
-const download = require('download');
+// const download = require('download');
 const fs = require('fs');
 const debug = require('debug')('hadron-build:signtool');
 const { execFileSync } = require('child_process');
@@ -20,16 +20,7 @@ async function signtool(fileToSign) {
     throw new Error(`Signtool aborted: ${fileToSign} not found.`);
   }
 
-  const signtoolUrl = 'https://s3.amazonaws.com/boxes.10gen.com/build/signtool.exe';
-  const signtoolPath = path.resolve('signtool/signtool.exe');
-
-  // eslint-disable-next-line no-sync
-  if (!fs.existsSync(signtoolPath)) {
-    debug(`Downloading signtool.exe from ${signtoolUrl} to ${signtoolPath}`);
-    await download(signtoolUrl, path.dirname(signtoolPath), {
-      strip: 1 // remove leading platform + arch directory
-    });
-  }
+  const signtoolPath = path.resolve(__dirname, '..', 'signtool/signtool.exe');
 
   const execArgs = [signtoolPath, [path.resolve(fileToSign)], { stdio: 'inherit' }];
   debug(`Running signtool.exe to sign '${signtoolPath}'`, {
