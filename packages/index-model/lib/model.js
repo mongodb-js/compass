@@ -109,9 +109,11 @@ var IndexModel = Model.extend({
       }
     },
     columnstore: {
-      deps: ['extra'],
+      deps: ['extra', 'key'],
       fn: function() {
-        return !!this.extra.columnstore;
+        return _.values(this.key).some(function(k) {
+          return k === 'columnstore';
+        });
       }
     },
     type: {
