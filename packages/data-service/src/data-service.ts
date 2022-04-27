@@ -224,7 +224,7 @@ export interface DataService {
     databaseName: string,
     filter?: Document,
     options?: {
-      nameOnly?: true;
+      nameOnly?: boolean;
       privileges?:
         | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
         | null;
@@ -235,7 +235,7 @@ export interface DataService {
    * List all databases on the currently connected instance.
    */
   listDatabases(options?: {
-    nameOnly?: true;
+    nameOnly?: boolean;
     privileges?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
       | null;
@@ -921,7 +921,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       nameOnly,
       privileges = null,
     }: {
-      nameOnly?: true;
+      nameOnly?: boolean;
       privileges?:
         | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
         | null;
@@ -1008,7 +1008,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     privileges = null,
     roles = null,
   }: {
-    nameOnly?: true;
+    nameOnly?: boolean;
     privileges?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
       | null;

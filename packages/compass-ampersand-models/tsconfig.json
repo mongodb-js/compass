@@ -1,0 +1,9 @@
+{
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "allowJs": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["./src/**/*.spec.*"]
+}
