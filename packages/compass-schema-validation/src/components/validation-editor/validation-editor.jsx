@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import 'ace-builds';
 import { debounce } from 'lodash';
 import { ValidationAutoCompleter } from 'mongodb-ace-autocompleter';
 import { TextButton } from 'hadron-react-buttons';
@@ -12,9 +11,6 @@ import ValidationSelector from '../validation-selector';
 
 import styles from './validation-editor.module.less';
 
-import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
 import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
 
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');

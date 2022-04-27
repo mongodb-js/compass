@@ -14,7 +14,7 @@ const OPTIONS = {
   showGutter: false,
   fixedWidthGutter: false,
   highlightActiveLine: false,
-  highlightGutterLine: false
+  highlightGutterLine: false,
 };
 
 /**

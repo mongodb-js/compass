@@ -77,6 +77,12 @@
     "react-window": "^1.8.6"
   },
   "peerDependencies": {
+    "ace-builds": "^1.4.3",
+    "mongodb-ace-autocompleter": "*",
+    "mongodb-ace-mode": "^1.7.0",
+    "mongodb-ace-theme": "^1.7.0",
+    "mongodb-ace-theme-query": "^1.7.0",
+    "react-ace": "^9.5.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -92,6 +98,12 @@
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
     "@types/react": "^17.0.5",
+    "ace-builds": "^1.4.3",
+    "mongodb-ace-autocompleter": "*",
+    "mongodb-ace-mode": "^1.7.0",
+    "mongodb-ace-theme": "^1.7.0",
+    "mongodb-ace-theme-query": "^1.7.0",
+    "react-ace": "^9.5.0",
     "chai": "^4.3.4",
     "eslint": "^7.25.0",
     "mocha": "^8.4.0",

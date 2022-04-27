@@ -39,7 +39,9 @@ function EncryptedFieldConfigInput({
         <Editor
           variant="Shell"
           text={encryptedFieldConfigToText(encryptedFieldConfig)}
-          onChangeText={(newText) => onChange(textToEncryptedFieldConfig(newText))}
+          onChangeText={(newText) =>
+            onChange(textToEncryptedFieldConfig(newText))
+          }
           name="import-pipeline-editor"
         />
       </FormFieldContainer>

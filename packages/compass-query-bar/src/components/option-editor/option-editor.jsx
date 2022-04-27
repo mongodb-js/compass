@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import 'ace-builds';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
 import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
 

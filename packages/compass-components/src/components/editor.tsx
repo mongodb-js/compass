@@ -27,60 +27,60 @@ import tools from 'ace-builds/src-noconflict/ext-language_tools';
 /**
  * Options for the ACE editor.
  */
- const DEFAULT_OPTIONS: IAceOptions = {
+const DEFAULT_OPTIONS: IAceOptions = {
   enableLiveAutocompletion: false,
   tabSize: 2,
   fontSize: 11,
   minLines: 10,
   maxLines: Infinity,
   showGutter: true,
-  useWorker: false
+  useWorker: false,
 };
 
 // Currently, only EJSON
 const EditorVariant = {
   Shell: 'Shell',
   EJSON: 'EJSON',
-  Generic: 'Generic'
+  Generic: 'Generic',
 } as const;
 
 type EditorProps = {
-  variant: keyof typeof EditorVariant,
-  text?: string,
-  placeholder?: string,
-  options?: Omit<IAceOptions, 'readOnly'>,
-  readOnly?: boolean,
-  completer?: unknown,
-  onChangeText?: (text: string, event?: any) => void
+  variant: keyof typeof EditorVariant;
+  text?: string;
+  placeholder?: string;
+  options?: Omit<IAceOptions, 'readOnly'>;
+  readOnly?: boolean;
+  completer?: unknown;
+  onChangeText?: (text: string, event?: any) => void;
 } & Omit<IAceEditorProps, 'onChange' | 'value'>;
 
-function Editor(
-  {
-    text,
-    variant,
-    placeholder,
-    options,
-    readOnly,
-    onChangeText,
-    completer,
-    onFocus,
-    ...aceProps
-  }: EditorProps): React.ReactElement {
+function Editor({
+  text,
+  variant,
+  placeholder,
+  options,
+  readOnly,
+  onChangeText,
+  completer,
+  onFocus,
+  ...aceProps
+}: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
     ...DEFAULT_OPTIONS,
     ...options,
     ...(typeof readOnly === 'boolean' && { readOnly }),
     ...(variant === 'Shell' && { mode: 'ace/mode/mongodb' }),
-    ...(!!completer && { enableLiveAutocompletion: true })
+    ...(!!completer && { enableLiveAutocompletion: true }),
   };
 
   return (
     <AceEditor
       mode={
-        variant === 'Generic' ? undefined :
-        variant === 'EJSON' ?
-          'json' :
-          'javascript' // set to 'mongodb' as part of setOptions
+        variant === 'Generic'
+          ? undefined
+          : variant === 'EJSON'
+          ? 'json'
+          : 'javascript' // set to 'mongodb' as part of setOptions
       }
       theme="mongodb"
       width="100%"
@@ -92,11 +92,11 @@ function Editor(
       {...aceProps}
       onFocus={(ev: any) => {
         if (completer) {
-          tools.setCompleters([ completer ]);
+          tools.setCompleters([completer]);
         }
         onFocus?.(ev);
       }}
-      />
+    />
   );
 }
 
