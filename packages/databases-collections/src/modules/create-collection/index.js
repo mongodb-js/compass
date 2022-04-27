@@ -16,9 +16,11 @@ import error, {
 } from '../error';
 import { reset, RESET } from '../reset';
 import { prepareMetrics } from '../metrics';
-
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import createDebug from 'debug';
+
 const debug = createDebug('compass-databases-collections:create-collection');
+const { track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
 
 /**
  * Open action name.
@@ -110,6 +112,16 @@ export const createCollection = (data) => {
         if (err) {
           return stopWithError(dispatch, err);
         }
+
+        const trackEvent = {
+          is_capped: !!data.options.capped,
+          has_collation: !!data.options.collation,
+          is_timeseries: !!data.options.timeseries,
+          is_clustered: !!data.options.clusteredIndex,
+          expires: !!data.options.expireAfterSeconds
+        };
+
+        track('Collection Created', trackEvent);
 
         prepareMetrics(collection).then((metrics) => {
           global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
