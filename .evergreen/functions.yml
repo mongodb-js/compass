@@ -386,6 +386,27 @@ functions:
           source .evergreen/start-docker-envs.sh
           npm run test-connectivity --workspace mongodb-data-service
 
+  test-csfle:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          rm -rf mongodb-csfle && mkdir -p mongodb-csfle
+          (cd mongodb-csfle && \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --csfle --version '>= 6.0.0-rc1') | \
+            tar -xvz)
+          export COMPASS_CSFLE_LIBRARY_PATH=$(echo $PWD/mongodb-csfle/lib/mongo_csfle_v1.*)
+          npm run test-csfle --workspace mongodb-data-service
+
   save-windows-artifacts:
     - <<: *save-artifact
       params:

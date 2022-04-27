@@ -38,7 +38,13 @@ buildvariants:
     display_name: Connectivity Tests
     run_on: ubuntu1604-large
     tasks:
-      - name: test-connectivity<% for (const buildVariant of buildVariants) { %>
+      - name: test-connectivity
+
+  - name: ubuntu_csfle_tests
+    display_name: CSFLE Tests
+    run_on: ubuntu2004-large
+    tasks:
+      - name: test-csfle<% for (const buildVariant of buildVariants) { %>
 
   - name: <% out(buildVariant.name) %>
     display_name: <% out(buildVariant.display_name) %>

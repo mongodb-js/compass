@@ -133,6 +133,16 @@ tasks:
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
 
+  - name: test-csfle
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-csfle
+        vars:
+          debug: 'compass*,electron*,hadron*,mongo*'
+
   - name: e2e-coverage
     tags: ['run-on-pr']
     commands:
