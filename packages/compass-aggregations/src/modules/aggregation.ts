@@ -32,7 +32,6 @@ type PreviousPageData = {
 type AggregationStartedAction = {
   type: ActionTypes.AggregationStarted;
   abortController: AbortController;
-  previousPageData: PreviousPageData;
 };
 
 type AggregationFinishedAction = {
@@ -94,7 +93,11 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
         error: undefined,
         documents: [],
         abortController: action.abortController,
-        previousPageData: action.previousPageData,
+        previousPageData: {
+          page: state.page,
+          documents: state.documents,
+          isLast: state.isLast,
+        },
       };
     case ActionTypes.AggregationFinished:
       return {
@@ -238,9 +241,6 @@ const fetchAggregationData = (page: number): ThunkAction<
       dataService: { dataService },
       aggregation: {
         limit,
-        page: _page,
-        isLast: _isLast,
-        documents: _documents,
         abortController: _abortController,
       },
     } = getState();
@@ -258,11 +258,6 @@ const fetchAggregationData = (page: number): ThunkAction<
       dispatch({
         type: ActionTypes.AggregationStarted,
         abortController,
-        previousPageData: {
-          page: _page,
-          isLast: _isLast,
-          documents: _documents,
-        },
       });
 
       const stages = pipeline.map(generateStage).filter(x => Object.keys(x).length > 0);
