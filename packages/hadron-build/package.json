@@ -7,7 +7,8 @@
     "test": "mocha -R spec",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "postinstall": "node signtool/install.js"
   },
   "bin": {
     "hadron-build": "cli.js"
@@ -28,7 +29,6 @@
     "bluebird": "^3.7.2",
     "chalk": "^4.1.0",
     "cli-table": "^0.3.1",
-    "cross-spawn": "^7.0.3",
     "debug": "4.3.0",
     "del": "^2.0.2",
     "download": "^8.0.0",

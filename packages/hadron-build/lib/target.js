@@ -368,6 +368,20 @@ class Target {
       version: this.version,
       exe: `${this.packagerOptions.name}.exe`,
       setupExe: this.windows_setup_filename,
+
+      // This setting will prompt winstaller to try to sign files
+      // for the installer with signtool.exe
+      //
+      // The intended use is to pass custom flags for the signtool.exe bundled
+      // inside winstaller.
+      //
+      // We replace signtool.exe with an "emulated version" that is signing files
+      // via notary service in the postinstall script.
+      //
+      // Here we just set any parameter so that signtool.exe is invoked.
+      //
+      // @see https://jira/mongodb.org/browse/BUILD-920
+      signWithParams: 'sign',
       title: this.productName,
       productName: this.productName,
       description: this.description,
@@ -387,14 +401,12 @@ class Target {
     }
 
     this.createInstaller = async() => {
+      // sign the main application .exe
       await signWindowsPackage(
         path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
 
       const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
-
-      // sign the app setup.exe
-      await signWindowsPackage(this.dest(this.windows_setup_filename));
 
       await fs.promises.rename(
         this.dest('RELEASES'),
