@@ -16,12 +16,6 @@
   "main": "index.js",
   "compass:main": "index.js",
   "types": "./index.d.ts",
-  "exports": {
-    "require": "./index.js"
-  },
-  "compass:exports": {
-    ".": "./index.js"
-  },
   "keywords": [
     "mongodb-js"
   ],
