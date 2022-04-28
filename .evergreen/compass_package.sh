@@ -1,4 +1,7 @@
 #! /usr/bin/env bash
+
+set -e
+
 if [[ "$OSTYPE" == "cygwin" ]]; then
   echo "Starting Installer Service..."
   net start MSIServer
