@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Checkbox, TextInput } from '@mongodb-js/compass-components';
+import { Checkbox } from '@mongodb-js/compass-components';
 
 import ClusteredCollectionFields from './clustered-collection-fields';
 import FieldSet from '../field-set/field-set';

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
 
 import { Icon } from './leafygreen';
 import { defaultFontSize } from '../compass-font-sizes';
+import { withTheme } from '../hooks/use-theme';
 
 const buttonStyles = css({
   fontWeight: 'bold',
@@ -25,6 +26,12 @@ const buttonStyles = css({
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
 });
+const buttonLightThemeStyles = css({
+  color: uiColors.gray.dark2,
+});
+const buttonDarkThemeStyles = css({
+  color: uiColors.white,
+});
 const containerStyles = css({
   marginTop: spacing[3],
   display: 'flex',
@@ -34,10 +41,11 @@ const buttonIconStyles = css({
   marginRight: spacing[1],
 });
 interface AccordionProps {
+  darkMode?: boolean;
   'data-testid'?: string;
   text: string | React.ReactNode;
 }
-function Accordion(
+function UnthemedAccordion(
   props: React.PropsWithChildren<AccordionProps>
 ): React.ReactElement {
   const [open, setOpen] = useState(false);
@@ -48,7 +56,10 @@ function Accordion(
       <div className={containerStyles}>
         <button
           data-testid={props['data-testid']}
-          className={buttonStyles}
+          className={cx(
+            props.darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
+            buttonStyles
+          )}
           id={labelId}
           type="button"
           aria-expanded={open ? 'true' : 'false'}
@@ -74,4 +85,6 @@ function Accordion(
   );
 }
 
-export default Accordion;
+const Accordion = withTheme(UnthemedAccordion);
+
+export { Accordion };

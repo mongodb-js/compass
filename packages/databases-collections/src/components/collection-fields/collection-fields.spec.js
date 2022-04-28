@@ -65,6 +65,9 @@ describe('CollectionFields [Component]', () => {
           serverVersion="5.0"
         />
       );
+      component.find(
+        'button[data-testid="advanced-collection-options"]'
+      ).simulate('click');
     });
 
     afterEach(() => {
@@ -108,6 +111,9 @@ describe('CollectionFields [Component]', () => {
           serverVersion="4.3.0"
         />
       );
+      component.find(
+        'button[data-testid="advanced-collection-options"]'
+      ).simulate('click');
     });
 
     afterEach(() => {
@@ -119,7 +125,7 @@ describe('CollectionFields [Component]', () => {
     });
   });
 
-  context('when rendered', () => {
+  context('when rendered and the advanced collection options are opened', () => {
     let component;
     let onChangeSpy;
 
@@ -132,6 +138,9 @@ describe('CollectionFields [Component]', () => {
           serverVersion="4.3.0"
         />
       );
+      component.find(
+        'button[data-testid="advanced-collection-options"]'
+      ).simulate('click');
     });
 
     afterEach(() => {

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 import { fireEvent, render, screen, cleanup } from '@testing-library/react';
 
-import Accordion from './accordion';
+import { Accordion } from './accordion';
 
 function renderAccordion() {
   return render(

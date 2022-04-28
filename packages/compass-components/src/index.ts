@@ -26,7 +26,7 @@ import {
 import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
-import Accordion from './components/accordion';
+import { Accordion } from './components/accordion';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
