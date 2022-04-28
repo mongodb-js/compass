@@ -14,6 +14,7 @@ import type { IAceEditorProps, IAceOptions } from 'react-ace';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-javascript';
+import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/mode-csharp';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-java';
@@ -37,7 +38,6 @@ const DEFAULT_OPTIONS: IAceOptions = {
   useWorker: false,
 };
 
-// Currently, only EJSON
 const EditorVariant = {
   Shell: 'Shell',
   EJSON: 'EJSON',
@@ -47,7 +47,6 @@ const EditorVariant = {
 type EditorProps = {
   variant: keyof typeof EditorVariant;
   text?: string;
-  placeholder?: string;
   options?: Omit<IAceOptions, 'readOnly'>;
   readOnly?: boolean;
   completer?: unknown;
@@ -57,7 +56,6 @@ type EditorProps = {
 function Editor({
   text,
   variant,
-  placeholder,
   options,
   readOnly,
   onChangeText,
@@ -88,7 +86,6 @@ function Editor({
       onChange={onChangeText}
       editorProps={{ $blockScrolling: Infinity }}
       setOptions={setOptions}
-      defaultValue={placeholder}
       {...aceProps}
       onFocus={(ev: any) => {
         if (completer) {
