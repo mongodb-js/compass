@@ -60,6 +60,8 @@ function collectionPropertyToBadge({
       return { name, variant: 'darkgray' };
     case 'timeseries':
       return { name, variant: 'darkgray', icon: 'TimeSeries' };
+    case 'fle2':
+      return { name, variant: 'darkgray', icon: 'Key' };
     case 'clustered':
       return { name, variant: 'darkgray' };
     case 'readonly':

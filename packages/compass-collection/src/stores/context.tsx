@@ -64,6 +64,7 @@ type ContextProps = {
   isReadonly?: boolean;
   isTimeSeries?: boolean;
   isClustered?: boolean;
+  isFLE?: boolean;
   actions?: any;
   allowWrites?: boolean;
   sourceName?: string;
@@ -107,6 +108,7 @@ const setupStore = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   actions,
   allowWrites,
   sourceName,
@@ -117,22 +119,23 @@ const setupStore = ({
   connectionString,
 }: ContextProps) => {
   const store = role.configureStore({
-    localAppRegistry: localAppRegistry,
-    globalAppRegistry: globalAppRegistry,
+    localAppRegistry,
+    globalAppRegistry,
     dataProvider: {
       error: dataService?.error,
       dataProvider: dataService?.dataService,
     },
-    namespace: namespace,
-    serverVersion: serverVersion,
-    isReadonly: isReadonly,
+    namespace,
+    serverVersion,
+    isReadonly,
     isTimeSeries,
     isClustered,
+    isFLE,
     actions: actions,
-    allowWrites: allowWrites,
-    sourceName: sourceName,
-    editViewName: editViewName,
-    sourcePipeline: sourcePipeline,
+    allowWrites,
+    sourceName,
+    editViewName,
+    sourcePipeline,
     query,
     aggregation,
     connectionString,
@@ -155,6 +158,7 @@ const setupStore = ({
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series collection.
  * @property {Boolean} options.isClustered - If the collection is a clustered index collection.
+ * @property {Boolean} options.isFLE - If the collection is a FLE collection.
  * @property {Boolean} options.allowWrites - If writes are allowed.
  * @property {String} options.key - The plugin key.
  *
@@ -170,6 +174,7 @@ const setupPlugin = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   allowWrites,
   connectionString,
@@ -186,6 +191,7 @@ const setupPlugin = ({
     isReadonly,
     isTimeSeries,
     isClustered,
+    isFLE,
     sourceName,
     actions,
     allowWrites,
@@ -212,6 +218,7 @@ const setupPlugin = ({
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series.
  * @property {Boolean} options.isClustered - If the collection is a time-series.
+ * @property {Boolean} options.isFLE - If the collection is a FLE collection.
  * @property {Boolean} options.allowWrites - If we allow writes.
  *
  * @returns {Array} The components.
@@ -225,6 +232,7 @@ const setupScopedModals = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   allowWrites,
   connectionString,
@@ -242,6 +250,7 @@ const setupScopedModals = ({
         isReadonly,
         isTimeSeries,
         isClustered,
+        isFLE,
         sourceName,
         allowWrites,
         connectionString,
@@ -272,6 +281,7 @@ const createContext = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   isDataLake,
   sourceName,
   editViewName,
@@ -317,6 +327,7 @@ const createContext = ({
     isReadonly,
     isTimeSeries,
     isClustered,
+    isFLE,
     actions: queryBarActions,
     allowWrites: !isDataLake,
     query,
@@ -338,6 +349,7 @@ const createContext = ({
       isReadonly,
       isTimeSeries,
       isClustered,
+      isFLE,
       actions,
       allowWrites: !isDataLake,
       sourceName,
@@ -393,6 +405,7 @@ const createContext = ({
     isReadonly,
     isTimeSeries,
     isClustered,
+    isFLE,
     sourceName,
     allowWrites: !isDataLake,
     connectionString: getCurrentlyConnectedUri(state.dataService.dataService),
