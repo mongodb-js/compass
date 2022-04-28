@@ -86,6 +86,7 @@ function Editor({
       onChange={onChangeText}
       editorProps={{ $blockScrolling: Infinity }}
       setOptions={setOptions}
+      readOnly={readOnly}
       {...aceProps}
       onFocus={(ev: any) => {
         if (completer) {

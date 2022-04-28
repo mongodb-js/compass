@@ -69,6 +69,7 @@ class ImportPipeline extends PureComponent {
             text={this.props.text}
             onChangeText={this.props.changeText}
             options={({minLines: 10})}
+            name="import-pipeline-editor"
             />
         </div>
         {this.renderError()}

@@ -42,7 +42,6 @@ function EncryptedFieldConfigInput({
           onChangeText={(newText) =>
             onChange(textToEncryptedFieldConfig(newText))
           }
-          name="import-pipeline-editor"
         />
       </FormFieldContainer>
       {errorMessage && (
