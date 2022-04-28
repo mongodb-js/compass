@@ -17,15 +17,18 @@ import error, {
 import { reset, RESET } from '../reset';
 import { prepareMetrics } from '../metrics';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import createDebug from 'debug';
 
-const debug = createDebug('compass-databases-collections:create-collection');
-const { track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
+const { debug, track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
 
 /**
  * Open action name.
  */
 const OPEN = 'databases-collections/create-collection/OPEN';
+
+/**
+ * No dots in DB name error message.
+ */
+export const NO_DOT = 'Database names may not contain a "."';
 
 /**
  * The main reducer.
@@ -96,15 +99,21 @@ export const open = (dbName) => ({
   databaseName: dbName
 });
 
-export const createCollection = (data) => {
+export const createCollection = (data, kind = 'Collection') => {
+  // Note: This method can also be called from createDatabase(),
+  // against a different state.
   return (dispatch, getState) => {
     const state = getState();
     const ds = state.dataService.dataService;
-    const dbName = state.databaseName;
+    const dbName = kind === 'Collection' ? state.databaseName : data.database;
     const collName = data.collection;
     const namespace = `${dbName}.${collName}`;
 
     dispatch(clearError());
+
+    if (dbName && dbName.includes('.')) {
+      return dispatch(handleError(new Error(NO_DOT)));
+    }
 
     try {
       dispatch(toggleIsRunning(true));
@@ -121,7 +130,7 @@ export const createCollection = (data) => {
           expires: !!data.options.expireAfterSeconds
         };
 
-        track('Collection Created', trackEvent);
+        track(`${kind} Created`, trackEvent);
 
         prepareMetrics(collection).then((metrics) => {
           global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
