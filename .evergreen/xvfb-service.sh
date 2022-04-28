@@ -1,3 +1,7 @@
+#! /usr/bin/env bash
+
+set -e
+
 XVFB=/usr/bin/Xvfb
 XVFBARGS=":1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset"
 PIDFILE=/var/run/xvfb.pid
