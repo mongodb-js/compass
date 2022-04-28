@@ -46,27 +46,3 @@ export const getSourceViewOn = (database, source) => {
 };
 
 export const TIME_SERIES_COLLECTION_TYPE = 'timeseries';
-
-/**
- * Get the collection metadata to pass to the collection plugin.
- *
- * @param {Object} collection - The collection object.
- * @param {Array} collections - The list of all collections in the db.
- * @param {String} database - The database name.
- * @param {String} editViewName - The name of the view being edited.
- *
- * @returns {Object} The collection metadata.
- */
-export const collectionMetadata = (collection, collections, database, editViewName) => {
-  const source = getSource(collection.view_on, collections);
-  return {
-    namespace: collection._id,
-    isReadonly: collection.readonly,
-    isTimeSeries: collection.type === TIME_SERIES_COLLECTION_TYPE,
-    sourceName: getSourceName(collection.readonly, database, collection.view_on),
-    sourceReadonly: source ? source.readonly : false,
-    sourceViewOn: getSourceViewOn(database, source),
-    sourcePipeline: collection.pipeline,
-    editViewName: editViewName
-  };
-};
