@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Editor, EditorVariant,EditorTextCompleter } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
 import debounce from 'lodash.debounce';
 import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
