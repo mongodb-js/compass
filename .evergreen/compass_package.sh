@@ -1,4 +1,7 @@
 #! /usr/bin/env bash
+
+set -e
+
 if [[ "$OSTYPE" == "cygwin" ]]; then
   # If not possible to remove this hack, we should find a better way
   # to do this instead of directly referencing node_module paths,
