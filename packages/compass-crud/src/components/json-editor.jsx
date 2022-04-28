@@ -6,13 +6,7 @@ import HadronDocument from 'hadron-document';
 import UpdateDocumentFooter from './document-footer';
 import RemoveDocumentFooter from './remove-document-footer';
 
-import 'ace-builds';
-import Ace from 'react-ace';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
-
-import 'ace-builds/src-noconflict/mode-json';
+import { Editor, EditorVariant } from '@mongodb-js/compass-components';
 
 /**
  * The base class.
@@ -244,36 +238,26 @@ class EditableJson extends React.Component {
    * @returns {Component} The footer component.
    */
   renderJson() {
-    const OPTIONS = {
-      tabSize: 2,
-      fontSize: 11,
+    const options = {
       minLines: 2,
-      maxLines: Infinity,
-      showGutter: true,
-      readOnly: !this.state.editing,
       highlightActiveLine: false,
       highlightGutterLine: false,
       showLineNumbers: this.state.editing,
-      vScrollBarAlwaysVisible: false,
-      hScrollBarAlwaysVisible: false,
       fixedWidthGutter: false,
       showPrintMargin: false,
       displayIndentGuides: false,
       wrapBehavioursEnabled: true,
-      foldStyle: 'markbegin',
-      useWorker: false
+      foldStyle: 'markbegin'
     };
 
     return (
       <div className="json-ace-editor">
-        <Ace
-          mode="json"
-          value={this.state.value}
-          theme="mongodb"
-          width="100%"
-          editorProps={{$blockScrolling: Infinity}}
-          onChange={this.handleOnChange.bind(this)}
-          setOptions={OPTIONS}
+        <Editor
+          variant={EditorVariant.EJSON}
+          text={this.state.value}
+          onChangeText={this.handleOnChange.bind(this)}
+          options={options}
+          readOnly={!this.state.editing}
           onLoad={(editor) => { this.editor = editor; }}/>
       </div>
     );
