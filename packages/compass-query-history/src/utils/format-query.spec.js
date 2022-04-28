@@ -81,7 +81,7 @@ describe('formatQuery [Utils]', () => {
   describe('when the property has a Regexp', () => {
     const value = /test/i;
     const filter = { field: value };
-    const expected = '{\n field: RegExp(\'test\', i)\n}';
+    const expected = '{\n field: RegExp("test", \'i\')\n}';
 
     it('returns the shell syntax string', () => {
       expect(formatQuery(filter)).to.equal(expected);

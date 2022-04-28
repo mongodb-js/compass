@@ -59,7 +59,7 @@
     "mongodb-ace-theme": "^1.7.0",
     "mongodb-build-info": "^1.4.0",
     "mongodb-connection-string-url": "^2.5.2",
-    "mongodb-query-parser": "^2.4.4",
+    "mongodb-query-parser": "^2.4.5",
     "react": "^16.14.0",
     "react-ace": "^9.5.0",
     "react-dom": "^16.14.0"
