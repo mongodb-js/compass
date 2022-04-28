@@ -85,7 +85,7 @@
     "mongodb": "^4.4.1",
     "mongodb-ace-theme": "^1.7.0",
     "mongodb-ns": "^2.4.0",
-    "mongodb-query-parser": "^2.4.4",
+    "mongodb-query-parser": "^2.4.5",
     "object-sizeof": "^1.5.1",
     "parse-json": "^5.0.0",
     "peek-stream": "^1.1.3",
