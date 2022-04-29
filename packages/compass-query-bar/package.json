@@ -44,7 +44,7 @@
   "peerDependencies": {
     "debug": "*",
     "hadron-react-components": "^5.14.0",
-    "mongodb-query-parser": "^2.4.4",
+    "mongodb-query-parser": "^2.4.6",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-bootstrap": "^0.32.1",
@@ -105,7 +105,7 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-ace-autocompleter": "^0.12.0",
     "mongodb-connection-model": "^21.16.0",
-    "mongodb-query-parser": "^2.4.5",
+    "mongodb-query-parser": "^2.4.6",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
     "ms": "^2.1.2",
