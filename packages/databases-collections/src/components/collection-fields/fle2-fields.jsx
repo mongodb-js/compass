@@ -1,11 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
+  css,
   Description,
   Editor,
   EditorVariant,
   Label,
   Option,
+  RadioBox,
+  RadioBoxGroup,
   Select,
   SelectSize
 } from '@mongodb-js/compass-components';
@@ -87,32 +90,38 @@ function FLE2Fields({
       </FieldSet>
 
       <FieldSet>
-        <Select
-          label="KMS Provider"
-          description="Optional. If no keyId is specified in the encrypted fields config, Compass will create new data keys for each encrypted field using the specified KMS."
-          name="fle2.kmsProvider"
-          onChange={(newValue) => {
+        <Label htmlFor="createcollection-radioboxgroup">
+          KMS Provider
+        </Label>
+        <Description>
+          Optional. If no keyId is specified in the encrypted fields config,
+          Compass will create new data keys for each encrypted field using the specified KMS.
+        </Description>
+        <RadioBoxGroup
+          onChange={(ev) => {
+            ev.preventDefault();
             onChangeField(
               ['fle2.kmsProvider', 'fle2.keyEncryptionKey'],
-              [newValue, keyEncryptionKeyTemplate[newValue]]
+              [ev.target.value, keyEncryptionKeyTemplate[ev.target.value]]
             );
           }}
-          size={SelectSize.Small}
-          allowDeselect={false}
+          id="createcollection-radioboxgroup"
           value={fle2.kmsProvider}
-          usePortal={false}
         >
-          {
-            (configuredKMSProviders || Object.keys(kmsProviderNames)).map(provider => {
-              return (<Option
-                key={provider}
+          {(configuredKMSProviders || Object.keys(kmsProviderNames)).map(provider => {
+            return (
+              <RadioBox
+                id={`${provider}-kms-button`}
+                data-testid={`${provider}-kms-button`}
+                checked={fle2.kmsProvider === provider}
                 value={provider}
+                key={provider}
               >
                 {kmsProviderNames[provider]}
-              </Option>);
-            })
-          }
-        </Select>
+              </RadioBox>
+            );
+          })}
+        </RadioBoxGroup>
       </FieldSet>
 
       <FieldSet>
