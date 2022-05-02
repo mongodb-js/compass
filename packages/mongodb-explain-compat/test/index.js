@@ -19,4 +19,19 @@ describe('convertExplainCompat', () => {
   it('keeps the old SBE format as-is', () => {
     assert.deepStrictEqual(convertExplainCompat(fixture('out1')), fixture('out1'));
   });
+
+  describe('aggregations', function () {
+    it('keeps old explain plan as-in', function () {
+      assert.deepStrictEqual(
+        convertExplainCompat(fixture('in1.aggregate')),
+        fixture('out1.aggregate')
+      );
+    });
+    it('maps SBE format to pre-SBE format', function () {
+      assert.deepStrictEqual(
+        convertExplainCompat(fixture('in2.aggregate')),
+        fixture('out2.aggregate')
+      );
+    });
+  });
 });

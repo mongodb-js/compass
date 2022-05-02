@@ -72,18 +72,56 @@ function mapStages(queryPlan, sbeExecutionStages) {
   });
 }
 
-module.exports = function(explain) {
+function isAggregationExplain(explain) {
+  return !!explain.stages;
+}
+
+/**
+ * https://wiki.corp.mongodb.com/display/QUERY/Explain+Notes
+ */
+function mapAggregationExplain(explain) {
+  // In aggregations for SBE, the cursor based stage is always first.
+  const firstStage = explain.stages[0]; // {$cursor: {queryPlanner: {}, executionStats: {} }}
+  const firstStageKey = Object.keys(firstStage)[0]; // $cursor
+  if (!firstStageKey.match(/cursor/)) {
+    return explain;
+  }
+  const winningPlan =
+    firstStage[firstStageKey].queryPlanner.winningPlan.queryPlan;
+  firstStage[firstStageKey].queryPlanner.winningPlan = winningPlan;
+
+  firstStage[firstStageKey].executionStats.executionStages = mapStages(
+    winningPlan,
+    firstStage[firstStageKey].executionStats.executionStages
+  );
+  firstStage[firstStageKey].queryPlanner.plannerVersion = 1;
+  explain.stages[0] = firstStage;
+  return explain;
+}
+
+function mapQueryExplain(explain) {
+  explain.queryPlanner.plannerVersion = 1;
+  const winningPlan = explain.queryPlanner.winningPlan.queryPlan;
+  explain.queryPlanner.winningPlan = winningPlan;
+
+  explain.executionStats.executionStages = mapStages(
+    winningPlan,
+    explain.executionStats.executionStages
+  );
+
+  return explain;
+}
+
+module.exports = function (explain) {
   explain = JSON.parse(JSON.stringify(explain));
   if ((explain.explainVersion || 0) < 2) {
     return explain;
   }
   delete explain.explainVersion;
-  explain.queryPlanner.plannerVersion = 1;
-  const winningPlan = explain.queryPlanner.winningPlan.queryPlan;
-  explain.queryPlanner.winningPlan = winningPlan;
-
-  explain.executionStats.executionStages =
-    mapStages(winningPlan, explain.executionStats.executionStages);
-
+  if (isAggregationExplain(explain)) {
+    explain = mapAggregationExplain(explain);
+  } else {
+    explain = mapQueryExplain(explain);
+  }
   return JSON.parse(JSON.stringify(explain));
 };
