@@ -16,7 +16,7 @@
   "license": "SSPL",
   "scripts": {
     "install": "node scripts/download-akzidenz.js",
-    "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor,os-dns-native,win-export-certificate-and-key,macos-export-certificate-and-key --force --prebuild-tag-prefix not-real-prefix-to-force-rebuild",
+    "electron-rebuild": "compass-build rebuild . --project-root-path ../..",
     "prestart": "npm run electron-rebuild",
     "start": "npm run webpack serve -- --mode development",
     "test-electron": "npm run test-main && npm run test-renderer",
@@ -60,6 +60,7 @@
     "@mongodb-js/compass-aggregations": "^8.23.0",
     "@mongodb-js/compass-app-stores": "^5.22.0",
     "@mongodb-js/compass-auto-updates": "^3.22.0",
+    "@mongodb-js/compass-build": "^0.1.0",
     "@mongodb-js/compass-collection": "^3.25.0",
     "@mongodb-js/compass-components": "^0.14.0",
     "@mongodb-js/compass-crud": "^12.23.0",

@@ -53,13 +53,15 @@ export async function preparePackagerSrc(
   );
 
   await installProductionDeps({ buildPath: options.paths.packagerSrc });
-  await rebuildNativeModules(options.paths.packagerSrc);
+  await rebuildNativeModules(options.paths.packagerSrc, {
+    projectRootPath: undefined,
+  });
 }
 
 async function getElectronVersion(dest: string): Promise<string> {
   return JSON.parse(
     await fs.readFile(
-      path.resolve(dest, 'node_modules', 'electron', 'package.json'),
+      require.resolve('electron/package.json', { paths: [dest] }),
       'utf-8'
     )
   ).version;
@@ -80,13 +82,15 @@ async function installProductionDeps(context: {
   });
 }
 
-export async function rebuildNativeModules(buildPath: string): Promise<void> {
+export async function rebuildNativeModules(
+  buildPath: string,
+  options: { projectRootPath?: string }
+): Promise<void> {
+  buildPath = path.resolve(buildPath);
+
+  console.info('Rebuilding native modules', { buildPath, options });
+
   const electronVersion = await getElectronVersion(buildPath);
-
-  // const oldDir = process.cwd();
-  // console.info('Rebuilding native modules', { context });
-  // process.chdir(context.buildPath);
-
   process.env.npm_config_napi_build_version = '7';
 
   await rebuild({
@@ -104,7 +108,9 @@ export async function rebuildNativeModules(buildPath: string): Promise<void> {
     // a bit and required for the electron-rebuild to be able to pick up
     // dependencies inside project root, but outside of their dependants (e.g.
     // a transitive dependency that was hoisted by npm installation process)
-    projectRootPath: buildPath,
+    projectRootPath: options.projectRootPath
+      ? path.resolve(buildPath, options.projectRootPath)
+      : undefined,
     force: true,
     // We want to ensure that we are actually rebuilding native modules on the
     // platform we are packaging. There is currently no direct way of passing a

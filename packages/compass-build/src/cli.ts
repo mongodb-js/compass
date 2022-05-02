@@ -133,6 +133,9 @@ async function main() {
         'process.cwd()'
       )
     )
+    .addOption(
+      new Option('--project-root-path [projectRootPath]', 'Project root path')
+    )
     .action(rebuildNativeModules);
 
   program.addCommand(packageCommand);
