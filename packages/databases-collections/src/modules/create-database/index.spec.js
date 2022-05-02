@@ -1,6 +1,7 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-import reducer, { createDatabase, NO_DOT } from '../create-database';
+import reducer, { createDatabase } from '../create-database';
+import { NO_DOT } from '../create-collection';
 import { reset } from '../reset';
 import { CLEAR_ERROR, HANDLE_ERROR } from '../error';
 

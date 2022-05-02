@@ -1,21 +1,11 @@
 import React, { PureComponent } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-
-import 'ace-builds';
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/mode-javascript';
-import 'ace-builds/src-noconflict/mode-csharp';
-import 'ace-builds/src-noconflict/mode-python';
-import 'ace-builds/src-noconflict/mode-java';
-import 'ace-builds/src-noconflict/mode-ruby';
-import 'ace-builds/src-noconflict/mode-rust';
-
-import 'mongodb-ace-theme';
+import { Editor, EditorVariant } from '@mongodb-js/compass-components';
 
 import styles from './editor.module.less';
 
-class Editor extends PureComponent {
+class ExportToLanguageEditor extends PureComponent {
   static displayName = 'EditorComponent';
 
   static propTypes = {
@@ -34,34 +24,24 @@ class Editor extends PureComponent {
   }
 
   render() {
-    const OPTIONS = {
-      tabSize: 2,
-      fontSize: 11,
-      minLines: 5,
-      maxLines: Infinity,
-      showGutter: true,
-      readOnly: true,
-      highlightActiveLine: false,
-      highlightGutterLine: false,
-      useWorker: false
-    };
-
     const queryStyle = classnames(styles.editor);
 
     return (
       <div className={queryStyle}>
-        <AceEditor
+        <Editor
+          variant={EditorVariant.Generic}
           mode={this.props.language}
-          defaultValue=""
-          value={this.props.value}
-          theme="mongodb"
-          width="100%"
-          editorProps={{$blockScrolling: Infinity}}
-          setOptions={OPTIONS}
+          text={this.props.value}
+          options={({
+            minLines: 5,
+            highlightActiveLine: false,
+            highlightGutterLine: false
+          })}
+          readOnly
           onLoad={(editor) => { this.editor = editor; }}/>
       </div>
     );
   }
 }
 
-export default Editor;
+export default ExportToLanguageEditor;

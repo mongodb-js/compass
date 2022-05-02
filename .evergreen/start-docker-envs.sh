@@ -1,3 +1,7 @@
+#! /usr/bin/env bash
+
+set -e
+
 if ! command -v docker &>/dev/null; then
   echo "docker could not be found"
 elif ! command -v docker-compose &>/dev/null; then
