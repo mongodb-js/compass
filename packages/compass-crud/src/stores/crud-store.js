@@ -509,7 +509,6 @@ const configureStore = (options = {}) => {
       track('Document Updated', { mode: this.modeForTelemetry() });
       try {
         const object = doc.generateObject();
-        const opts = { returnDocument: 'after', promoteValues: false };
         const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
           _id: 1,
           ...(this.state.shardKeys || {})
@@ -519,6 +518,7 @@ const configureStore = (options = {}) => {
           // _verifyUpdateAllowed emitted update-error
           return;
         }
+        // eslint-disable-next-line no-shadow
         const [ error, d ] = await findAndModifyWithFLEFallback(this.dataService, this.state.ns, (ds, ns, opts, cb) => {
           ds.findOneAndReplace(ns, query, object, opts, cb);
         });
