@@ -11,6 +11,7 @@
  * and include in assets.
  * @see [Atom's dump-symbols-task.coffee](https://git.io/va3fG)
  */
+
 const Target = require('../lib/target');
 const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
@@ -249,9 +250,6 @@ const transformPackageJson = (CONFIG, done) => {
     productName: CONFIG.productName
   });
   distributions[contents.distribution].productName = CONFIG.productName;
-
-  // Set via evergreen
-  distributions[contents.distribution].metrics_bugsnag_key = process.env.HADRON_METRICS_BUGSNAG_KEY;
   distributions[contents.distribution].metrics_intercom_app_id = process.env.HADRON_METRICS_INTERCOM_APP_ID;
 
   fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);

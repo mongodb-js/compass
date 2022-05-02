@@ -1,12 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
-
-import 'ace-builds';
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
+import { Editor, EditorVariant, ConfirmationModal } from '@mongodb-js/compass-components';
 
 import styles from './import-pipeline.module.less';
 
@@ -19,20 +13,6 @@ const TITLE = 'New Pipeline From Plain Text';
  * Note.
  */
 const NOTE = 'Supports MongoDB Shell syntax. Pasting a pipeline will create a new pipeline.';
-
-/**
- * Options for the ACE editor.
- */
-const OPTIONS = {
-  enableLiveAutocompletion: false,
-  tabSize: 2,
-  fontSize: 11,
-  minLines: 10,
-  maxLines: Infinity,
-  showGutter: true,
-  useWorker: false,
-  mode: 'ace/mode/mongodb'
-};
 
 /**
  * Import pipeline modal.
@@ -84,16 +64,13 @@ class ImportPipeline extends PureComponent {
           {NOTE}
         </div>
         <div className={styles['import-pipeline-editor']}>
-          <AceEditor
-            mode="javascript" // will be set to mongodb as part of OPTIONS
-            theme="mongodb"
-            width="100%"
-            value={this.props.text}
-            onChange={this.props.changeText}
-            editorProps={{ $blockScrolling: Infinity }}
+          <Editor
+            variant={EditorVariant.Shell}
+            text={this.props.text}
+            onChangeText={this.props.changeText}
+            options={({minLines: 10})}
             name="import-pipeline-editor"
-            setOptions={OPTIONS}
-          />
+            />
         </div>
         {this.renderError()}
       </ConfirmationModal>

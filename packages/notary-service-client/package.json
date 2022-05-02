@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/mongodb-notary-service-client",
   "description": "A client for our notary-service: an API for codesigning.",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
@@ -15,12 +15,6 @@
   },
   "main": "index.js",
   "compass:main": "index.js",
-  "exports": {
-    "require": "./index.js"
-  },
-  "compass:exports": {
-    ".": "./index.js"
-  },
   "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
     "type": "git",

@@ -1,31 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import 'ace-builds';
-import AceEditor from 'react-ace';
+import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
 import debounce from 'lodash.debounce';
 import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
 import styles from './stage-editor.module.less';
 
-import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
-
 const INDEX_STATS = '$indexStats';
-
-/**
- * Options for the ACE editor.
- */
-const OPTIONS = {
-  enableLiveAutocompletion: true,
-  tabSize: 2,
-  fontSize: 11,
-  minLines: 5,
-  maxLines: Infinity,
-  showGutter: true,
-  useWorker: false,
-  mode: 'ace/mode/mongodb'
-};
 
 /**
  * Edit a single stage in the aggregation pipeline.
@@ -65,10 +46,9 @@ class StageEditor extends Component {
    */
   constructor(props) {
     super(props);
-    const textCompleter = tools.textCompleter;
     this.completer = new StageAutoCompleter(
       this.props.serverVersion,
-      textCompleter,
+      EditorTextCompleter,
       this.getFieldsAndProjections(),
       this.props.stageOperator
     );
@@ -205,20 +185,15 @@ class StageEditor extends Component {
     return (
       <div className={styles['stage-editor-container']}>
         <div className={styles['stage-editor']}>
-          <AceEditor
+          <Editor
+            text={this.props.stage}
+            onChangeText={this.onStageChange}
+            variant={EditorVariant.Shell}
             className={styles['stage-editor-ace-editor']}
-            mode="javascript" // will be set to mongodb as part of OPTIONS
-            theme="mongodb"
-            width="100%"
-            // readOnly={this.props.stageOperator === null}
-            value={this.props.stage}
-            onChange={this.onStageChange}
-            editorProps={{ $blockScrolling: Infinity }}
             name={`aggregations-stage-editor-${this.props.index}`}
-            setOptions={OPTIONS}
-            onFocus={() => {
-              tools.setCompleters([this.completer]);
-            }}
+            options={({minLines: 5})}
+            completer={this.completer}
+            showPrintMargin={false}
             onLoad={(editor) => {
               this.editor = editor;
               this.editor.commands.addCommand({

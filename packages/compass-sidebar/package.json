@@ -1,14 +1,11 @@
 {
   "name": "@mongodb-js/compass-sidebar",
   "productName": "Sidebar plugin",
-  "version": "4.22.0",
+  "version": "4.23.0",
   "apiVersion": "3.0.0",
   "description": "Sidebar external plugin",
   "main": "lib/index.js",
   "compass:main": "src/index.js",
-  "exports": {
-    "require": "./lib/index.js"
-  },
   "compass:exports": {
     ".": "./src/index.js"
   },
@@ -32,10 +29,10 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.13.0",
-    "@mongodb-js/connection-form": "^0.4.0",
+    "@mongodb-js/compass-components": "^0.14.0",
+    "@mongodb-js/connection-form": "^0.5.0",
     "debug": "*",
-    "mongodb-data-service": "^21.19.0",
+    "mongodb-data-service": "^21.20.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-bootstrap": "^0.32.1",
@@ -53,13 +50,13 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
-    "@mongodb-js/compass-app-stores": "^5.21.0",
-    "@mongodb-js/compass-components": "^0.13.0",
-    "@mongodb-js/compass-databases-navigation": "^0.7.0",
-    "@mongodb-js/compass-deployment-awareness": "^11.21.0",
-    "@mongodb-js/compass-server-version": "^5.21.0",
-    "@mongodb-js/compass-ssh-tunnel-status": "^6.21.0",
-    "@mongodb-js/connection-form": "^0.4.0",
+    "@mongodb-js/compass-app-stores": "^5.22.0",
+    "@mongodb-js/compass-components": "^0.14.0",
+    "@mongodb-js/compass-databases-navigation": "^0.8.0",
+    "@mongodb-js/compass-deployment-awareness": "^11.22.0",
+    "@mongodb-js/compass-server-version": "^5.22.0",
+    "@mongodb-js/compass-ssh-tunnel-status": "^6.22.0",
+    "@mongodb-js/connection-form": "^0.5.0",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "chai": "^4.2.0",
@@ -77,8 +74,8 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.21.0",
-    "hadron-app-registry": "^8.10.0",
+    "hadron-app": "^4.22.0",
+    "hadron-app-registry": "^8.11.0",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.1",
@@ -99,10 +96,10 @@
     "mini-css-extract-plugin": "^0.9.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^21.15.0",
-    "mongodb-data-service": "^21.19.0",
-    "mongodb-database-model": "^1.10.0",
-    "mongodb-instance-model": "^11.21.0",
+    "mongodb-connection-model": "^21.16.0",
+    "mongodb-data-service": "^21.20.0",
+    "mongodb-database-model": "^1.11.0",
+    "mongodb-instance-model": "^11.22.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
@@ -137,8 +134,8 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.10.0",
-    "@mongodb-js/mongodb-redux-common": "^1.10.0"
+    "@mongodb-js/compass-logging": "^0.11.0",
+    "@mongodb-js/mongodb-redux-common": "^1.11.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

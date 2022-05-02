@@ -10,21 +10,26 @@ const path = require('path');
 const { promisify } = require('util');
 const normalizePkg = require('normalize-package-data');
 const parseGitHubRepoURL = require('parse-github-repo-url');
-const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg')
-  .default;
+const ffmpegAfterExtract = require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
 const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 const execFile = promisify(childProcess.execFile);
+const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
+const tarPack = require('tar-pack').pack;
+const which = require('which');
+const { signtool } = require('./signtool');
 
-const notary = require('@mongodb-js/mongodb-notary-service-client');
-
-function sign(src) {
-  notary(src)
-    .then((res) => res && debug(':dancers: successfully signed %s', src))
-    .catch((nerr) => debug('Notary failed!', nerr));
+async function signLinuxPackage(src) {
+  debug('Signing ... %s', src);
+  await mongodbNotaryServiceClient(src);
+  debug('Successfully signed %s', src);
 }
 
-const tarPack = require('tar-pack').pack;
+async function signWindowsPackage(src) {
+  debug('Signing ... %s', src);
+  await signtool(src);
+  debug('Successfully signed %s', src);
+}
 
 function tar(srcDirectory, dest) {
   return new Promise(function(resolve, reject) {
@@ -38,8 +43,6 @@ function tar(srcDirectory, dest) {
       });
   });
 }
-
-const which = require('which');
 
 function _canBuildInstaller(ext) {
   var bin = null;
@@ -365,6 +368,20 @@ class Target {
       version: this.version,
       exe: `${this.packagerOptions.name}.exe`,
       setupExe: this.windows_setup_filename,
+
+      // This setting will prompt winstaller to try to sign files
+      // for the installer with signtool.exe
+      //
+      // The intended use is to pass custom flags for the signtool.exe bundled
+      // inside winstaller.
+      //
+      // We replace signtool.exe with an "emulated version" that is signing files
+      // via notary service in the postinstall script.
+      //
+      // Here we just set any parameter so that signtool.exe is invoked.
+      //
+      // @see https://jira/mongodb.org/browse/BUILD-920
+      signWithParams: 'sign',
       title: this.productName,
       productName: this.productName,
       description: this.description,
@@ -375,10 +392,6 @@ class Target {
     /**
      * @see https://jira/mongodb.org/browse/BUILD-920
      */
-    const signWithParams = process.env.NOTARY_AUTH_TOKEN
-      ? 'yes'
-      : process.env.SIGNTOOL_PARAMS;
-    this.installerOptions.signWithParams = signWithParams;
 
     /**
      * The ICO file to use as the icon for the generated Setup.exe.
@@ -388,8 +401,11 @@ class Target {
     }
 
     this.createInstaller = async() => {
-      const electronWinstaller = require('electron-winstaller');
+      // sign the main application .exe
+      await signWindowsPackage(
+        path.join(this.installerOptions.appDirectory, this.installerOptions.exe));
 
+      const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
 
       await fs.promises.rename(
@@ -407,7 +423,6 @@ class Target {
         description: this.description,
         manufacturer: this.author,
         version: windowsInstallerVersion(this.installerVersion || this.version),
-        signWithParams: signWithParams,
         shortcutFolderName: this.shortcutFolderName || this.author,
         programFilesFolderName: this.programFilesFolderName || this.productName,
         appUserModelId: this.bundleId,
@@ -425,6 +440,9 @@ class Target {
 
       await msiCreator.create();
       await msiCreator.compile();
+
+      // sign the MSI
+      await signWindowsPackage(this.dest(this.packagerOptions.name + '.msi'));
     };
   }
 
@@ -702,7 +720,7 @@ class Target {
         const createRpm = require('electron-installer-redhat');
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
-          return sign(this.dest(this.linux_rpm_filename));
+          return signLinuxPackage(this.dest(this.linux_rpm_filename));
         });
       });
     };

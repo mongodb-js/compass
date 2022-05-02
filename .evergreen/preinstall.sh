@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 echo "========================="
 echo "Important Environment Variables"
 echo "========================="
@@ -16,9 +18,11 @@ echo "IS_WINDOWS: $IS_WINDOWS"
 echo "IS_RHEL: $IS_RHEL"
 echo "IS_UBUNTU: $IS_UBUNTU"
 
+SCRIPTDIR="$(cd $(dirname "$0"); pwd)"
+
 if [ -n "$IS_WINDOWS" ]; then
     echo "Installing nodejs v$NODE_JS_VERSION for windows..."
-    curl -fs \
+    bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -fs \
     -o ".deps/node-v$NODE_JS_VERSION-win-x64.zip" \
     --url "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-win-x64.zip"
     cd .deps
@@ -40,7 +44,8 @@ if [ -n "$IS_WINDOWS" ]; then
     .evergreen/node-gyp-bug-workaround.sh
 else
     echo "Installing nodejs v${NODE_JS_VERSION} for ${PLATFORM}..."
-    curl -fs \
+
+    bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -fs \
         -o ".deps/node-v${NODE_JS_VERSION}-${PLATFORM}-x64.tar.gz" \
         --url "https://nodejs.org/download/release/v${NODE_JS_VERSION}/node-v${NODE_JS_VERSION}-${PLATFORM}-x64.tar.gz"
     cd .deps
