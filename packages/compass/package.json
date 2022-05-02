@@ -7,7 +7,7 @@
   "version": "0.0.1-dev.0",
   "apiVersion": "3.0.0",
   "main": "build/main.js",
-  "files": ["build/**"],
+  "files": ["build/**", ".npmrc"],
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -48,11 +48,10 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^0.14.0",
     "@mongosh/node-runtime-worker-thread": "^1.2.3",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
-    "keytar": "^7.7.0",
+    "keytar": "7.7.0",
     "os-dns-native": "^1.2.0",
     "mongodb-client-encryption": "^2.1.0",
     "system-ca": "^1.0.2"
@@ -62,6 +61,7 @@
     "@mongodb-js/compass-app-stores": "^5.22.0",
     "@mongodb-js/compass-auto-updates": "^3.22.0",
     "@mongodb-js/compass-collection": "^3.25.0",
+    "@mongodb-js/compass-components": "^0.14.0",
     "@mongodb-js/compass-crud": "^12.23.0",
     "@mongodb-js/compass-database": "^2.22.0",
     "@mongodb-js/compass-databases-collections": "^0.23.0",

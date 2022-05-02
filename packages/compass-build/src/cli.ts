@@ -2,6 +2,7 @@ import { program, Option, Argument, Command } from 'commander';
 import path from 'path';
 import { getPackagePaths } from './config/paths';
 import { packageCompass } from './package/package';
+import { rebuildNativeModules } from './package/prepare';
 
 const DARWIN_PACKAGE_TYPES = ['zip', 'dmg'];
 const WIN32_PACKAGE_TYPES = ['zip', 'msi', 'exe'];
@@ -23,8 +24,6 @@ export type PackageCliOptions = {
   sign: boolean;
   asar: boolean;
 };
-
-async function runUpload(sourcePath: string) {}
 
 async function runPackage(sourcePath: string, options: PackageCliOptions) {
   sourcePath = path.resolve(sourcePath);
@@ -127,8 +126,18 @@ async function main() {
     )
   );
 
+  const rebuildCommand = new Command('rebuild')
+    .addArgument(
+      new Argument('[sourcePath]', 'Path of the compass package').default(
+        process.cwd(),
+        'process.cwd()'
+      )
+    )
+    .action(rebuildNativeModules);
+
   program.addCommand(packageCommand);
   program.addCommand(uploadCommand);
+  program.addCommand(rebuildCommand);
 
   await program.parseAsync(process.argv);
 }

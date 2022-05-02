@@ -34,11 +34,17 @@ export async function preparePackagerSrc(
         version: productConfig.packageJson.version,
         description: productConfig.description,
         private: true,
+        // scripts: {
+        //   'electron-rebuild':
+        //     'electron-rebuild --only kerberos,keytar,interruptor,os-dns-native,win-export-certificate-and-key,macos-export-certificate-and-key --force --prebuild-tag-prefix not-real-prefix-to-force-rebuild',
+        // },
         main: productConfig.packageJson.main,
         engines: productConfig.packageJson.engines,
         dependencies: productConfig.packageJson.dependencies,
         devDependencies: {
           electron: productConfig.packageJson.devDependencies?.electron,
+          // 'electron-rebuild':
+          // productConfig.packageJson.devDependencies?.['electron-rebuild'],
         },
       },
       null,
@@ -47,10 +53,7 @@ export async function preparePackagerSrc(
   );
 
   await installProductionDeps({ buildPath: options.paths.packagerSrc });
-  await rebuildNativeModules({
-    buildPath: options.paths.packagerSrc,
-    electronVersion: await getElectronVersion(options.paths.packagerSrc),
-  });
+  await rebuildNativeModules(options.paths.packagerSrc);
 }
 
 async function getElectronVersion(dest: string): Promise<string> {
@@ -77,11 +80,14 @@ async function installProductionDeps(context: {
   });
 }
 
-async function rebuildNativeModules(context: {
-  buildPath: string;
-  electronVersion: string;
-}): Promise<void> {
-  console.info('Rebuilding native modules', { context });
+export async function rebuildNativeModules(buildPath: string): Promise<void> {
+  const electronVersion = await getElectronVersion(buildPath);
+
+  // const oldDir = process.cwd();
+  // console.info('Rebuilding native modules', { context });
+  // process.chdir(context.buildPath);
+
+  process.env.npm_config_napi_build_version = '7';
 
   await rebuild({
     onlyModules: [
@@ -92,13 +98,13 @@ async function rebuildNativeModules(context: {
       'win-export-certificate-and-key',
       'macos-export-certificate-and-key',
     ],
-    electronVersion: context.electronVersion,
-    buildPath: context.buildPath,
+    electronVersion: electronVersion,
+    buildPath: buildPath,
     // `projectRootPath` is undocumented, but changes modules resolution quite
     // a bit and required for the electron-rebuild to be able to pick up
     // dependencies inside project root, but outside of their dependants (e.g.
     // a transitive dependency that was hoisted by npm installation process)
-    projectRootPath: context.buildPath,
+    projectRootPath: buildPath,
     force: true,
     // We want to ensure that we are actually rebuilding native modules on the
     // platform we are packaging. There is currently no direct way of passing a

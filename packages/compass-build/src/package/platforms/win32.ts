@@ -14,7 +14,7 @@ export async function packageWin32(
 ): Promise<void> {
   const productNameWithoutSpaces = productConfig.productName.replace(/ /g, '');
 
-  const packagedAppPath = await runElectronPackager(options, config, {
+  const packagedAppPath = await runElectronPackager(options, productConfig, {
     name: productNameWithoutSpaces,
     icon: path.resolve(__dirname, '../../../assets/win32/mongodb-compass.ico'),
     win32metadata: {
@@ -36,9 +36,14 @@ export async function packageWin32(
     packagedAppPath,
     productNameWithoutSpaces,
     options,
-    config
+    productConfig
   );
 
-  await createMsi(packagedAppPath, productNameWithoutSpaces, options, config);
-  await createZip(packagedAppPath, options, config);
+  await createMsi(
+    packagedAppPath,
+    productNameWithoutSpaces,
+    options,
+    productConfig
+  );
+  await createZip(packagedAppPath, options, productConfig);
 }

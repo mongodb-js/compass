@@ -5,10 +5,11 @@ import { packageDarwin } from './platforms/darwin';
 import { readConfig } from '../config/product-config';
 import type { PackageOptions } from './package-options';
 import { packageLinux } from './platforms/linux';
+import { packageWin32 } from './platforms/win32';
 
 export async function packageCompass(options: PackageOptions): Promise<void> {
   console.log({ options });
-  const config = await readConfig(options.paths.src, options);
+  const productConfig = await readConfig(options.paths.src, options);
 
   if (options.compile) {
     await compile(options.paths.src, {
@@ -22,15 +23,15 @@ export async function packageCompass(options: PackageOptions): Promise<void> {
   }
 
   if (options.prepare) {
-    await preparePackagerSrc(options, config);
+    await preparePackagerSrc(options, productConfig);
   }
 
   if (options.platform === 'darwin') {
-    await packageDarwin(options, config);
+    await packageDarwin(options, productConfig);
   } else if (options.platform === 'win32') {
-    // await packageWin32(options, config);
+    await packageWin32(options, productConfig);
   } else if (options.platform === 'linux') {
-    await packageLinux(options, config);
+    await packageLinux(options, productConfig);
   } else {
     throw new Error(`Unknown platform '${options.platform as string}'`);
   }

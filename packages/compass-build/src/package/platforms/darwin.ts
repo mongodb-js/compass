@@ -20,7 +20,7 @@ export async function packageDarwin(
     '../../../assets/darwin/mongodb-compass.icns'
   );
 
-  const packagedAppPath = await runElectronPackager(options, config, {
+  const packagedAppPath = await runElectronPackager(options, productConfig, {
     icon: iconPath,
     appBundleId: appBundleId,
     appCategoryType: 'public.app-category.productivity',
@@ -41,6 +41,6 @@ export async function packageDarwin(
     });
   }
 
-  await createDmg(appPath, iconPath, options, config);
-  await createZip(appPath, options, config);
+  await createDmg(appPath, iconPath, options, productConfig);
+  await createZip(appPath, options, productConfig);
 }

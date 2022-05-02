@@ -16,7 +16,7 @@ export async function packageLinux(
     '../../../assets/linux/mongodb-compass.png'
   );
 
-  const packagedAppPath = await runElectronPackager(options, config, {
+  const packagedAppPath = await runElectronPackager(options, productConfig, {
     icon: iconPath,
   });
 
@@ -33,7 +33,7 @@ export async function packageLinux(
     iconPath,
     packageNameWithChannel,
     options,
-    config
+    productConfig
   );
 
   await createRpm(
@@ -41,8 +41,8 @@ export async function packageLinux(
     iconPath,
     packageNameWithChannel,
     options,
-    config
+    productConfig
   );
 
-  await createTar(packagedAppPath, options, config);
+  await createTar(packagedAppPath, options, productConfig);
 }
