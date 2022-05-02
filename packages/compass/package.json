@@ -7,121 +7,13 @@
   "version": "0.0.1-dev.0",
   "apiVersion": "3.0.0",
   "main": "build/main.js",
+  "files": ["build/**"],
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
   "shortcutFolderName": "MongoDB",
   "license": "SSPL",
-  "config": {
-    "hadron": {
-      "endpoint": "https://compass.mongodb.com",
-      "protocols": [
-        {
-          "name": "MongoDB Protocol",
-          "schemes": [
-            "mongodb"
-          ]
-        },
-        {
-          "name": "MongoDB Compass Protocol",
-          "schemes": [
-            "compass"
-          ]
-        }
-      ],
-      "distributions": {
-        "default": "compass",
-        "compass": {
-          "name": "mongodb-compass",
-          "productName": "MongoDB Compass",
-          "bundleId": "com.mongodb.compass",
-          "plugins-directory": ".mongodb/compass/plugins",
-          "upgradeCode": "0152273D-2F9F-4913-B67F-0FCD3557FFD1"
-        },
-        "compass-readonly": {
-          "name": "mongodb-compass-readonly",
-          "productName": "MongoDB Compass Readonly",
-          "bundleId": "com.mongodb.compass.readonly",
-          "plugins-directory": ".mongodb/compass-readonly/plugins",
-          "upgradeCode": "2176EC1D-EF71-49D4-B3B4-9E15B289D79A",
-          "readonly": true
-        },
-        "compass-isolated": {
-          "name": "mongodb-compass-isolated",
-          "productName": "MongoDB Compass Isolated Edition",
-          "bundleId": "com.mongodb.compass.isolated",
-          "plugins-directory": ".mongodb/compass-isolated/plugins",
-          "upgradeCode": "516F2BE1-4417-4F31-BAA1-364A59404775",
-          "isolated": true
-        }
-      },
-      "build": {
-        "win32": {
-          "icon": "app-icons/win32/mongodb-compass.ico",
-          "favicon_url": "https://compass.mongodb.com/favicon.ico",
-          "loading_gif": "app-icons/win32/mongodb-compass-installer-loading.gif",
-          "background": "app-icons/win32/background.jpg",
-          "banner": "app-icons/win32/banner.jpg"
-        },
-        "darwin": {
-          "icon": "app-icons/darwin/mongodb-compass.icns",
-          "dmg_background": "app-icons/darwin/background.png",
-          "app_category_type": "public.app-category.productivity"
-        },
-        "linux": {
-          "icon": "app-icons/linux/mongodb-compass.png",
-          "deb_section": "Databases",
-          "rpm_categories": [
-            "Office",
-            "Database",
-            "Building",
-            "Debugger",
-            "IDE",
-            "GUIDesigner",
-            "Profiling"
-          ]
-        }
-      },
-      "asar": {
-        "unpack": [
-          "**/@mongosh/node-runtime-worker-thread/**",
-          "**/interruptor/**",
-          "**/kerberos/**",
-          "**/snappy/**",
-          "**/mongodb-client-encryption/index.js",
-          "**/mongodb-client-encryption/package.json",
-          "**/mongodb-client-encryption/lib/**",
-          "**/mongodb-client-encryption/build/**",
-          "**/bl/**",
-          "**/nan/**",
-          "**/node_modules/bindings/**",
-          "**/file-uri-to-path/**",
-          "**/bson/**",
-          "**/os-dns-native/**",
-          "**/debug/**",
-          "**/ms/**",
-          "**/bindings/**",
-          "**/ipv6-normalize/**",
-          "**/node-addon-api/**",
-          "**/win-export-certificate-and-key/**",
-          "**/macos-export-certificate-and-key/**",
-          "**/system-ca/**"
-        ]
-      },
-      "rebuild": {
-        "onlyModules": [
-          "interruptor",
-          "keytar",
-          "kerberos",
-          "os-dns-native",
-          "win-export-certificate-and-key",
-          "macos-export-certificate-and-key"
-        ]
-      },
-      "macosEntitlements": "./scripts/macos-entitlements.xml"
-    }
-  },
   "scripts": {
     "install": "node scripts/download-akzidenz.js",
     "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor,os-dns-native,win-export-certificate-and-key,macos-export-certificate-and-key --force --prebuild-tag-prefix not-real-prefix-to-force-rebuild",

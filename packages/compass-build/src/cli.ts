@@ -1,29 +1,11 @@
-import { program, Option, Argument } from 'commander';
+import { program, Option, Argument, Command } from 'commander';
 import path from 'path';
-
-import { promises as fs } from 'fs';
-
-import type {
-  DarwinPackageType,
-  Win32PackageType,
-  LinuxPackageType,
-  CompassDistribution,
-  PackageType,
-} from './package/package';
+import { getPackagePaths } from './config/paths';
 import { packageCompass } from './package/package';
 
-const DARWIN_PACKAGE_TYPES: Set<DarwinPackageType> = new Set(['zip', 'dmg']);
-const WIN32_PACKAGE_TYPES: Set<Win32PackageType> = new Set([
-  'zip',
-  'msi',
-  'exe',
-]);
-
-const LINUX_PACKAGE_TYPES: Set<LinuxPackageType> = new Set([
-  'tar',
-  'deb',
-  'rpm',
-]);
+const DARWIN_PACKAGE_TYPES = ['zip', 'dmg'];
+const WIN32_PACKAGE_TYPES = ['zip', 'msi', 'exe'];
+const LINUX_PACKAGE_TYPES = ['tar', 'deb', 'rpm'];
 
 const ANY_PACKAGE_TYPE_SET = new Set([
   ...DARWIN_PACKAGE_TYPES,
@@ -32,16 +14,21 @@ const ANY_PACKAGE_TYPE_SET = new Set([
 ]);
 
 export type PackageCliOptions = {
-  distribution: CompassDistribution;
+  distribution: string;
   platform: typeof process.platform;
-  packages: PackageType[] | null;
+  packages: string[];
+  prepare: boolean;
   compile: boolean;
   arch: typeof process.arch;
   sign: boolean;
   asar: boolean;
 };
 
-async function run(sourcePath: string, options: PackageCliOptions) {
+async function runUpload(sourcePath: string) {}
+
+async function runPackage(sourcePath: string, options: PackageCliOptions) {
+  sourcePath = path.resolve(sourcePath);
+
   const packagesByPlatform = {
     darwin: DARWIN_PACKAGE_TYPES,
     win32: WIN32_PACKAGE_TYPES,
@@ -59,11 +46,11 @@ async function run(sourcePath: string, options: PackageCliOptions) {
   const allPlatformPackages = new Set(packagesByPlatform[options.platform]);
   const packages = new Set(options.packages || [...allPlatformPackages]);
 
-  const unsupportedPlatformPackages = new Set(
-    [...packages].filter((x) => !allPlatformPackages.has(x))
+  const unsupportedPlatformPackages = [...packages].filter(
+    (x) => !allPlatformPackages.has(x)
   );
 
-  if (unsupportedPlatformPackages.size) {
+  if (unsupportedPlatformPackages.length) {
     throw new Error(
       `${[...unsupportedPlatformPackages].join(', ')} not supported for ${
         options.platform
@@ -71,50 +58,32 @@ async function run(sourcePath: string, options: PackageCliOptions) {
     );
   }
 
-  await validateSourcePath(sourcePath);
-
   await packageCompass({
-    sourcePath: path.resolve(sourcePath),
+    paths: getPackagePaths(sourcePath),
     distribution: options.distribution,
     compile: options.compile,
+    prepare: options.prepare,
     arch: options.arch,
     sign: options.sign,
     asar: options.asar,
     platform: options.platform,
-    packages: packages as
-      | Set<LinuxPackageType>
-      | Set<DarwinPackageType>
-      | Set<Win32PackageType>,
+    packages,
   });
 }
 
-async function validateSourcePath(sourcePath: string) {
-  const packageJsonContent = await fs
-    .readFile(path.resolve(sourcePath, 'package.json'), 'utf-8')
-    .catch((e: Error) => {
-      throw new Error(
-        `Unable to read package.json in ${sourcePath}: ${e.stack || ''}`
-      );
-    });
-
-  const packageJson = JSON.parse(packageJsonContent);
-
-  if (packageJson.name !== 'mongodb-compass') {
-    throw new Error(
-      `The package name in ${sourcePath} is not 'mongodb-compass' as expected`
-    );
-  }
-}
-
 async function main() {
-  program
+  const packageCommand = new Command('package')
     .addArgument(
       new Argument('[sourcePath]', 'Path of the compass package').default(
-        process.cwd()
+        process.cwd(),
+        'process.cwd()'
       )
     )
     .addOption(
-      new Option('[distribution]', 'The Compass distribution to build')
+      new Option(
+        '-d, --distribution <distribution>',
+        'The Compass distribution to build'
+      )
         .choices(['compass', 'compass-isolated', 'compass-readonly'])
         .default('compass')
     )
@@ -139,11 +108,27 @@ async function main() {
         "Don't compile/recompile the application source"
       )
     )
+    .addOption(
+      new Option(
+        '--no-prepare',
+        "Don't recreate the input directory for electron packager"
+      )
+    )
     .addOption(new Option('--no-sign', "Don't sign the artifacts produced"))
     .addOption(
       new Option('--no-asar', "Don't archive the application files with asar")
     )
-    .action(run);
+    .action(runPackage);
+
+  const uploadCommand = new Command('upload').addArgument(
+    new Argument('[sourcePath]', 'Path of the compass package').default(
+      process.cwd(),
+      'process.cwd()'
+    )
+  );
+
+  program.addCommand(packageCommand);
+  program.addCommand(uploadCommand);
 
   await program.parseAsync(process.argv);
 }

@@ -1,0 +1,155 @@
+{
+  "dir": "<%= compassPackagePath %>",
+  "out": "<%= compassPackagePath %>/dist",
+  "distribution": "compass",
+  "id": "mongodb-compass",
+  "name": "mongodb-compass",
+  "readonly": true,
+  "isolated": true,
+  "productName": "MongoDB Compass",
+  "bundleId": "com.mongodb.compass",
+  "upgradeCode": "0152273D-2F9F-4913-B67F-0FCD3557FFD1",
+  "version": "1.2.3",
+  "platform": "win32",
+  "arch": "x64",
+  "description": "The MongoDB GUI",
+  "author": "MongoDB Inc",
+  "shortcutFolderName": "MongoDB",
+  "slug": "mongodb-compass",
+  "semver": {
+    "options": {
+      "loose": false,
+      "includePrerelease": false
+    },
+    "loose": false,
+    "raw": "1.2.3",
+    "major": 1,
+    "minor": 2,
+    "patch": 3,
+    "prerelease": [],
+    "build": [],
+    "version": "1.2.3"
+  },
+  "channel": "stable",
+  "autoUpdateBaseUrl": "https://compass.mongodb.com",
+  "asar": {
+    "unpack": [
+      "**/@mongosh/node-runtime-worker-thread/**",
+      "**/interruptor/**",
+      "**/kerberos/**",
+      "**/snappy/**",
+      "**/mongodb-client-encryption/index.js",
+      "**/mongodb-client-encryption/package.json",
+      "**/mongodb-client-encryption/lib/**",
+      "**/mongodb-client-encryption/build/**",
+      "**/bl/**",
+      "**/nan/**",
+      "**/node_modules/bindings/**",
+      "**/file-uri-to-path/**",
+      "**/bson/**",
+      "**/os-dns-native/**",
+      "**/debug/**",
+      "**/ms/**",
+      "**/bindings/**",
+      "**/ipv6-normalize/**",
+      "**/node-addon-api/**",
+      "**/win-export-certificate-and-key/**",
+      "**/macos-export-certificate-and-key/**",
+      "**/system-ca/**"
+    ]
+  },
+  "rebuild": {
+    "onlyModules": [
+      "interruptor",
+      "keytar",
+      "kerberos",
+      "os-dns-native",
+      "win-export-certificate-and-key",
+      "macos-export-certificate-and-key"
+    ]
+  },
+  "macosEntitlements": "<%= compassPackagePath %>/scripts/macos-entitlements.xml",
+  "packagerOptions": {
+    "dir": "<%= compassPackagePath %>",
+    "out": "<%= compassPackagePath %>/dist",
+    "overwrite": true,
+    "appCopyright": "2022 MongoDB Inc",
+    "buildVersion": "1.2.3",
+    "appVersion": "1.2.3",
+    "prune": false,
+    "ignore": "node_modules/|.cache/|dist/|test/|.user-data|.deps/",
+    "platform": "win32",
+    "arch": "x64",
+    "sign": null,
+    "afterExtract": [
+      null
+    ],
+    "name": "MongoDBCompass",
+    "icon": "<%= compassPackagePath %>/app-icons/win32/mongodb-compass.ico",
+    "version-string": {
+      "CompanyName": "MongoDB Inc",
+      "FileDescription": "The MongoDB GUI",
+      "ProductName": "MongoDB Compass",
+      "InternalName": "mongodb-compass"
+    }
+  },
+  "appPath": "<%= compassPackagePath %>/dist/MongoDBCompass-win32-x64",
+  "resources": "<%= compassPackagePath %>/dist/MongoDBCompass-win32-x64/resources",
+  "windows_msi_filename": "MongoDBCompass.msi",
+  "windows_msi_label": "MongoDBCompass.msi",
+  "windows_setup_filename": "MongoDB CompassSetup.exe",
+  "windows_setup_label": "MongoDB CompassSetup.exe",
+  "windows_zip_filename": "MongoDB Compass-windows.zip",
+  "windows_zip_label": "MongoDB Compass-windows.zip",
+  "windows_nupkg_full_filename": "MongoDBCompass-1.2.3-full.nupkg",
+  "windows_nupkg_full_label": "MongoDBCompass-1.2.3-full.nupkg",
+  "windows_releases_filename": "compass-RELEASES",
+  "windows_releases_label": "compass-RELEASES",
+  "assets": [
+    {
+      "name": "mongodb-compass-1.2.3-win32-x64.exe",
+      "path": "<%= compassPackagePath %>/dist/MongoDB CompassSetup.exe"
+    },
+    {
+      "name": "mongodb-compass-1.2.3-win32-x64.msi",
+      "path": "<%= compassPackagePath %>/dist/MongoDBCompass.msi"
+    },
+    {
+      "name": "mongodb-compass-1.2.3-win32-x64.zip",
+      "path": "<%= compassPackagePath %>/dist/MongoDB Compass-windows.zip"
+    },
+    {
+      "name": "mongodb-compass-RELEASES",
+      "path": "<%= compassPackagePath %>/dist/compass-RELEASES"
+    },
+    {
+      "name": "LICENSE",
+      "path": "<%= compassPackagePath %>/dist/LICENSE"
+    },
+    {
+      "name": "version",
+      "path": "<%= compassPackagePath %>/dist/version"
+    },
+    {
+      "name": "MongoDBCompass-1.2.3-full.nupkg",
+      "path": "<%= compassPackagePath %>/dist/MongoDBCompass-1.2.3-full.nupkg"
+    }
+  ],
+  "installerOptions": {
+    "loadingGif": "<%= compassPackagePath %>/app-icons/win32/mongodb-compass-installer-loading.gif",
+    "iconUrl": "https://compass.mongodb.com/favicon.ico",
+    "appDirectory": "<%= compassPackagePath %>/dist/MongoDBCompass-win32-x64",
+    "outputDirectory": "<%= compassPackagePath %>/dist",
+    "authors": "MongoDB Inc",
+    "version": "1.2.3",
+    "exe": "MongoDBCompass.exe",
+    "setupExe": "MongoDB CompassSetup.exe",
+    "title": "MongoDB Compass",
+    "productName": "MongoDB Compass",
+    "description": "The MongoDB GUI",
+    "name": "MongoDBCompass",
+    "noMsi": true
+  },
+  "app_archive_name": "MongoDB Compass-windows.zip",
+  "resourcesAppDir": "<%= compassPackagePath %>/dist/MongoDBCompass-win32-x64/resources/app"
+}

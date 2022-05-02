@@ -1,0 +1,154 @@
+{
+  "dir": "<%= compassPackagePath %>",
+  "out": "<%= compassPackagePath %>/dist",
+  "distribution": "compass-isolated",
+  "id": "mongodb-compass-isolated",
+  "name": "mongodb-compass-isolated",
+  "readonly": true,
+  "isolated": true,
+  "productName": "MongoDB Compass Isolated Edition",
+  "bundleId": "com.mongodb.compass.isolated",
+  "upgradeCode": "516F2BE1-4417-4F31-BAA1-364A59404775",
+  "version": "1.2.3",
+  "platform": "linux",
+  "arch": "x64",
+  "description": "The MongoDB GUI",
+  "author": "MongoDB Inc",
+  "shortcutFolderName": "MongoDB",
+  "slug": "mongodb-compass-isolated",
+  "semver": {
+    "options": {
+      "loose": false,
+      "includePrerelease": false
+    },
+    "loose": false,
+    "raw": "1.2.3",
+    "major": 1,
+    "minor": 2,
+    "patch": 3,
+    "prerelease": [],
+    "build": [],
+    "version": "1.2.3"
+  },
+  "channel": "stable",
+  "autoUpdateBaseUrl": "https://compass.mongodb.com",
+  "asar": {
+    "unpack": [
+      "**/@mongosh/node-runtime-worker-thread/**",
+      "**/interruptor/**",
+      "**/kerberos/**",
+      "**/snappy/**",
+      "**/mongodb-client-encryption/index.js",
+      "**/mongodb-client-encryption/package.json",
+      "**/mongodb-client-encryption/lib/**",
+      "**/mongodb-client-encryption/build/**",
+      "**/bl/**",
+      "**/nan/**",
+      "**/node_modules/bindings/**",
+      "**/file-uri-to-path/**",
+      "**/bson/**",
+      "**/os-dns-native/**",
+      "**/debug/**",
+      "**/ms/**",
+      "**/bindings/**",
+      "**/ipv6-normalize/**",
+      "**/node-addon-api/**",
+      "**/win-export-certificate-and-key/**",
+      "**/macos-export-certificate-and-key/**",
+      "**/system-ca/**"
+    ]
+  },
+  "rebuild": {
+    "onlyModules": [
+      "interruptor",
+      "keytar",
+      "kerberos",
+      "os-dns-native",
+      "win-export-certificate-and-key",
+      "macos-export-certificate-and-key"
+    ]
+  },
+  "macosEntitlements": "<%= compassPackagePath %>/scripts/macos-entitlements.xml",
+  "packagerOptions": {
+    "dir": "<%= compassPackagePath %>",
+    "out": "<%= compassPackagePath %>/dist",
+    "overwrite": true,
+    "appCopyright": "2022 MongoDB Inc",
+    "buildVersion": "1.2.3",
+    "appVersion": "1.2.3",
+    "prune": false,
+    "ignore": "node_modules/|.cache/|dist/|test/|.user-data|.deps/",
+    "platform": "linux",
+    "arch": "x64",
+    "sign": null,
+    "afterExtract": [
+      null
+    ],
+    "name": "MongoDB Compass Isolated Edition"
+  },
+  "appPath": "<%= compassPackagePath %>/dist/MongoDB Compass Isolated Edition-linux-x64",
+  "resources": "<%= compassPackagePath %>/dist/MongoDB Compass Isolated Edition-linux-x64/resources",
+  "linux_deb_filename": "mongodb-compass-isolated_1.2.3_amd64.deb",
+  "linux_rpm_filename": "mongodb-compass-isolated-1.2.3.x86_64.rpm",
+  "linux_tar_filename": "mongodb-compass-isolated-1.2.3-linux-x64.tar.gz",
+  "assets": [
+    {
+      "name": "mongodb-compass-isolated_1.2.3_amd64.deb",
+      "path": "<%= compassPackagePath %>/dist/mongodb-compass-isolated_1.2.3_amd64.deb"
+    },
+    {
+      "name": "mongodb-compass-isolated-1.2.3.x86_64.rpm",
+      "path": "<%= compassPackagePath %>/dist/mongodb-compass-isolated-1.2.3.x86_64.rpm"
+    },
+    {
+      "name": "mongodb-compass-isolated-1.2.3-linux-x64.tar.gz",
+      "path": "<%= compassPackagePath %>/dist/mongodb-compass-isolated-1.2.3-linux-x64.tar.gz"
+    }
+  ],
+  "installerOptions": {
+    "deb": {
+      "src": "<%= compassPackagePath %>/dist/MongoDB Compass Isolated Edition-linux-x64",
+      "dest": "<%= compassPackagePath %>/dist",
+      "arch": "amd64",
+      "icon": "<%= compassPackagePath %>/app-icons/linux/mongodb-compass.png",
+      "name": "mongodb-compass-isolated",
+      "version": "1.2.3",
+      "bin": "MongoDB Compass Isolated Edition",
+      "section": "Databases",
+      "depends": [
+        "libsecret-1-0",
+        "gnome-keyring",
+        "libgconf-2-4"
+      ]
+    },
+    "rpm": {
+      "src": "<%= compassPackagePath %>/dist/MongoDB Compass Isolated Edition-linux-x64",
+      "dest": "<%= compassPackagePath %>/dist",
+      "arch": "x86_64",
+      "icon": "<%= compassPackagePath %>/app-icons/linux/mongodb-compass.png",
+      "name": "mongodb-compass-isolated",
+      "version": "1.2.3",
+      "revision": "1",
+      "bin": "MongoDB Compass Isolated Edition",
+      "requires": [
+        "lsb-core-noarch",
+        "libXScrnSaver",
+        "gnome-keyring",
+        "libsecret",
+        "GConf2"
+      ],
+      "categories": [
+        "Office",
+        "Database",
+        "Building",
+        "Debugger",
+        "IDE",
+        "GUIDesigner",
+        "Profiling"
+      ],
+      "license": "SSPL"
+    }
+  },
+  "app_archive_name": "mongodb-compass-isolated-1.2.3-linux-x64.tar.gz",
+  "resourcesAppDir": "<%= compassPackagePath %>/dist/MongoDB Compass Isolated Edition-linux-x64/resources/app"
+}

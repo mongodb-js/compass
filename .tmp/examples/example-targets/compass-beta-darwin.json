@@ -1,0 +1,138 @@
+{
+  "dir": "<%= compassPackagePath %>",
+  "out": "<%= compassPackagePath %>/dist",
+  "distribution": "compass",
+  "id": "mongodb-compass",
+  "name": "mongodb-compass",
+  "readonly": true,
+  "isolated": true,
+  "productName": "MongoDB Compass Beta",
+  "bundleId": "com.mongodb.compass",
+  "upgradeCode": "0152273D-2F9F-4913-B67F-0FCD3557FFD1",
+  "version": "1.2.3-beta.0",
+  "platform": "darwin",
+  "arch": "x64",
+  "description": "The MongoDB GUI",
+  "author": "MongoDB Inc",
+  "shortcutFolderName": "MongoDB",
+  "slug": "mongodb-compass-beta",
+  "semver": {
+    "options": {
+      "loose": false,
+      "includePrerelease": false
+    },
+    "loose": false,
+    "raw": "1.2.3-beta.0",
+    "major": 1,
+    "minor": 2,
+    "patch": 3,
+    "prerelease": [
+      "beta",
+      0
+    ],
+    "build": [],
+    "version": "1.2.3-beta.0"
+  },
+  "channel": "beta",
+  "autoUpdateBaseUrl": "https://compass.mongodb.com",
+  "asar": {
+    "unpack": [
+      "**/@mongosh/node-runtime-worker-thread/**",
+      "**/interruptor/**",
+      "**/kerberos/**",
+      "**/snappy/**",
+      "**/mongodb-client-encryption/index.js",
+      "**/mongodb-client-encryption/package.json",
+      "**/mongodb-client-encryption/lib/**",
+      "**/mongodb-client-encryption/build/**",
+      "**/bl/**",
+      "**/nan/**",
+      "**/node_modules/bindings/**",
+      "**/file-uri-to-path/**",
+      "**/bson/**",
+      "**/os-dns-native/**",
+      "**/debug/**",
+      "**/ms/**",
+      "**/bindings/**",
+      "**/ipv6-normalize/**",
+      "**/node-addon-api/**",
+      "**/win-export-certificate-and-key/**",
+      "**/macos-export-certificate-and-key/**",
+      "**/system-ca/**"
+    ]
+  },
+  "rebuild": {
+    "onlyModules": [
+      "interruptor",
+      "keytar",
+      "kerberos",
+      "os-dns-native",
+      "win-export-certificate-and-key",
+      "macos-export-certificate-and-key"
+    ]
+  },
+  "macosEntitlements": "<%= compassPackagePath %>/scripts/macos-entitlements.xml",
+  "packagerOptions": {
+    "dir": "<%= compassPackagePath %>",
+    "out": "<%= compassPackagePath %>/dist",
+    "overwrite": true,
+    "appCopyright": "2022 MongoDB Inc",
+    "buildVersion": "1.2.3-beta.0",
+    "appVersion": "1.2.3-beta.0",
+    "prune": false,
+    "ignore": "node_modules/|.cache/|dist/|test/|.user-data|.deps/",
+    "platform": "darwin",
+    "arch": "x64",
+    "sign": null,
+    "afterExtract": [
+      null
+    ],
+    "name": "MongoDB Compass Beta",
+    "icon": "<%= compassPackagePath %>/app-icons/darwin/mongodb-compass.icns",
+    "appBundleId": "com.mongodb.compass.beta",
+    "appCategoryType": "public.app-category.productivity",
+    "protocols": []
+  },
+  "truncatedProductName": "MongoDB Compass Beta",
+  "appPath": "<%= compassPackagePath %>/dist/MongoDB Compass Beta-darwin-x64/MongoDB Compass Beta.app",
+  "resources": "<%= compassPackagePath %>/dist/MongoDB Compass Beta-darwin-x64/MongoDB Compass Beta.app/Contents/Resources",
+  "osx_dmg_filename": "MongoDB Compass Beta.dmg",
+  "osx_dmg_label": "MongoDB Compass Beta.dmg",
+  "osx_zip_filename": "MongoDB Compass Beta.zip",
+  "osx_zip_label": "MongoDB Compass Beta.zip",
+  "assets": [
+    {
+      "name": "mongodb-compass-1.2.3-beta.0-darwin-x64.dmg",
+      "path": "<%= compassPackagePath %>/dist/MongoDB Compass Beta.dmg"
+    },
+    {
+      "name": "mongodb-compass-1.2.3-beta.0-darwin-x64.zip",
+      "path": "<%= compassPackagePath %>/dist/MongoDB Compass Beta.zip"
+    }
+  ],
+  "installerOptions": {
+    "dmgPath": "<%= compassPackagePath %>/dist/MongoDB Compass Beta.dmg",
+    "title": "MongoDB Compass Beta",
+    "overwrite": true,
+    "out": "<%= compassPackagePath %>/dist",
+    "icon": "<%= compassPackagePath %>/app-icons/darwin/mongodb-compass.icns",
+    "appPath": "<%= compassPackagePath %>/dist/MongoDB Compass Beta-darwin-x64/MongoDB Compass Beta.app",
+    "background": "<%= compassPackagePath %>/app-icons/darwin/background.png",
+    "contents": [
+      {
+        "x": 322,
+        "y": 243,
+        "type": "link",
+        "path": "/Applications"
+      },
+      {
+        "x": 93,
+        "y": 243,
+        "type": "file",
+        "path": "<%= compassPackagePath %>/dist/MongoDB Compass Beta-darwin-x64/MongoDB Compass Beta.app"
+      }
+    ]
+  },
+  "app_archive_name": "MongoDB Compass Beta.zip",
+  "resourcesAppDir": "<%= compassPackagePath %>/dist/MongoDB Compass Beta-darwin-x64/MongoDB Compass Beta.app/Contents/Resources/app"
+}

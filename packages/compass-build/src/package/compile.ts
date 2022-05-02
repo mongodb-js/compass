@@ -9,7 +9,7 @@ type CompileOptions = {
   autoUpdateEndpoint: string;
 };
 
-export async function compileAssets(
+export async function compile(
   sourcePath: string,
   options: CompileOptions
 ): Promise<void> {

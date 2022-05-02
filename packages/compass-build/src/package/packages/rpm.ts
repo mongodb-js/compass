@@ -1,70 +1,57 @@
-import which from 'which';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const electronInstallerRedhat = require('electron-installer-redhat');
+import type { ProductConfig } from '../../config/product-config';
+import type { PackageOptions } from '../package-options';
 
-export type RpmOptions = {
-  /**
-   * @example '<%= compassPackagePath %>/dist/MongoDB Compass Dev-linux-x64'
-   */
-  src: string;
-
-  /**
-   * @example '<%= compassPackagePath %>/dist'
-   */
-  dest: string;
-
-  /**
-   * @example 'x86_64'
-   */
-  arch: string;
-
-  /**
-   * @example '<%= compassPackagePath %>/app-icons/linux/mongodb-compass.png'
-   */
-  icon: string;
-
-  /**
-   * @example 'mongodb-compass-dev'
-   */
-  name: string;
-
-  /**
-   * @example '1.2.3'
-   */
-  version: string;
-
-  /**
-   * @example 'dev.0'
-   */
-  revision: string;
-
-  /**
-   * @example 'MongoDB Compass Dev'
-   */
-  bin: string;
-
-  /**
-   * @example [ 'lsb-core-noarch', 'libXScrnSaver', 'gnome-keyring', 'libsecret', 'GConf2' ]
-   *
-   */
-  requires: string[];
-
-  /**
-   * @example   categories: [ 'Office', 'Database' ]
-   */
-  categories: string[];
-
-  /**
-   * @example 'SSPL'
-   */
-  license: string;
-};
-
-export async function rpm(options: RpmOptions): Promise<void> {
-  if (!(await which('rpmbuild').catch(() => false))) {
-    throw new Error(`Cannot create rpm, rpmbuild is missing`);
+export async function createRpm(
+  packagedAppPath: string,
+  iconPath: string,
+  packageNameWithChannel: string,
+  options: PackageOptions,
+  productConfig: ProductConfig
+): Promise<void> {
+  if (!options.packages.has('rpm')) {
+    console.info('Rpm missing in options. Skipping ...');
+    return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const createRpm = require('electron-installer-redhat');
+  if (options.arch !== 'x64') {
+    throw new Error(`Unsupported architecture ${options.arch}`);
+  }
 
-  await createRpm(options);
+  const [version, revision] = productConfig.version.split('-');
+
+  const rpmOptions = {
+    src: packagedAppPath,
+    dest: options.paths.dest,
+    arch: 'x86_64',
+    icon: iconPath,
+    name: packageNameWithChannel,
+    description: productConfig.description,
+    productDescripiton: productConfig.description,
+    version: version,
+    revision: revision || '1',
+    bin: productConfig.productName,
+    requires: [
+      'lsb-core-noarch',
+      'libXScrnSaver',
+      'gnome-keyring',
+      'libsecret',
+      'GConf2',
+    ],
+    categories: [
+      'Office',
+      'Database',
+      'Building',
+      'Debugger',
+      'IDE',
+      'GUIDesigner',
+      'Profiling',
+    ],
+    license: productConfig.packageJson.license,
+  };
+
+  console.info('Building Rpm with options', rpmOptions);
+  await electronInstallerRedhat(rpmOptions);
+  console.info('Rpm built');
 }

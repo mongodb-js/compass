@@ -1,47 +1,38 @@
-import which from 'which';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const electronInstallerDebian = require('electron-installer-debian');
+import type { ProductConfig } from '../../config/product-config';
+import type { PackageOptions } from '../package-options';
 
-export type DebOptions = {
-  src: string;
-  dest: string;
-  arch: string;
-  /**
-   * @example '<%= compassPackagePath %>/app-icons/linux/mongodb-compass.png';
-   */
-
-  icon: string;
-  /**
-   * @example 'mongodb-compass-dev';
-   */
-  name: string;
-
-  /**
-   * @example '1.2.3~dev.0';
-   */
-  version: string;
-
-  /**
-   * @example 'MongoDB Compass Dev';
-   */
-  bin: string;
-
-  /**
-   * @example 'Databases'
-   */
-  section: string;
-
-  /**
-   * @example ['libsecret-1-0', 'gnome-keyring', 'libgconf-2-4']
-   */
-  depends: string[];
-};
-
-export async function deb(options: DebOptions): Promise<void> {
-  if (!(await which('fakeroot').catch(() => false))) {
-    throw new Error(`Cannot create deb, fakeroot is missing`);
+export async function createDeb(
+  packagedAppPath: string,
+  iconPath: string,
+  packageNameWithChannel: string,
+  options: PackageOptions,
+  productConfig: ProductConfig
+): Promise<void> {
+  if (!options.packages.has('deb')) {
+    console.info('Deb missing in options. Skipping ...');
+    return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const electronInstallerDebian = require('electron-installer-debian');
+  if (options.arch !== 'x64') {
+    throw new Error(`Unsupported architecture ${options.arch}`);
+  }
 
-  await electronInstallerDebian(options);
+  const debOptions = {
+    src: packagedAppPath,
+    dest: options.paths.dest,
+    arch: 'amd64',
+    icon: iconPath,
+    description: productConfig.description,
+    name: packageNameWithChannel,
+    version: productConfig.version.replace('-', '~'),
+    bin: productConfig.productName,
+    section: 'Databases',
+    depends: ['libsecret-1-0', 'gnome-keyring', 'libgconf-2-4'],
+  };
+
+  console.info('Building Deb with options', debOptions);
+  await electronInstallerDebian(debOptions);
+  console.info('Deb built');
 }
