@@ -234,7 +234,7 @@ const configureStore = (options = {}) => {
         doc: null,
         jsonDoc: null,
         message: '',
-        csfleState: 'none',
+        csfleState: { state: 'none' },
         mode: MODIFYING,
         jsonView: false,
         isOpen: false,
@@ -695,21 +695,25 @@ const configureStore = (options = {}) => {
         }
       }
 
-      let csfleState = 'none';
+      const csfleState = { state: 'none' };
       const dataServiceCSFLEMode = this.dataService.getCSFLEMode && this.dataService.getCSFLEMode();
       if (dataServiceCSFLEMode === 'enabled') {
         // Show a warning if this is a CSFLE-enabled connection but this collection
         // does not have a schema.
         const csfleCollectionTracker = this.dataService.getCSFLECollectionTracker();
-        if (!await csfleCollectionTracker.hasKnownSchemaForCollection(this.state.ns)) {
-          csfleState = 'no-known-schema';
+        const { hasSchema, encryptedFields } = await csfleCollectionTracker.knownSchemaForCollection(this.state.ns);
+        if (encryptedFields) {
+          csfleState.encryptedFields = encryptedFields;
+        }
+        if (!hasSchema) {
+          csfleState.state = 'no-known-schema';
         } else if (!await csfleCollectionTracker.isUpdateAllowed(this.state.ns, doc)) {
-          csfleState = 'incomplete-schema-for-cloned-doc';
+          csfleState.state = 'incomplete-schema-for-cloned-doc';
         } else {
-          csfleState = 'has-known-schema';
+          csfleState.state = 'has-known-schema';
         }
       } else if (dataServiceCSFLEMode === 'disabled') {
-        csfleState = 'csfle-disabled';
+        csfleState.state = 'csfle-disabled';
       }
 
       const jsonDoc = hadronDoc.toEJSON();
