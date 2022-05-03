@@ -429,6 +429,7 @@ describe('Collection export', function () {
 
     // de-select _id to just export the i field
     await browser.clickVisible(Selectors.exportModalExportField('_id'));
+    await browser.clickVisible(Selectors.exportModalExportField('j'));
     await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
     // go with the default file type (JSON)
@@ -462,7 +463,7 @@ describe('Collection export', function () {
     const exportCompletedEvent = await telemetryEntry('Export Completed');
     expect(exportCompletedEvent).to.deep.equal({
       all_docs: true,
-      file_type: 'csv',
+      file_type: 'json',
       all_fields: false,
       number_of_docs: 1000,
       success: true,
