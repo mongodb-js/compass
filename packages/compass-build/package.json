@@ -89,6 +89,7 @@
     "electron-rebuild": "^3.2.7",
     "electron-winstaller": "^5.0.0",
     "execa": "^5.1.1",
+    "node-api-version": "^0.1.4",
     "ts-node": "^10.7.0",
     "which": "^2.0.2",
     "zip-a-folder": "^1.1.3"

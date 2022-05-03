@@ -2,30 +2,25 @@ import { program, Option, Argument, Command } from 'commander';
 import path from 'path';
 import { getPackagePaths } from './config/paths';
 import { packageCompass } from './package/package';
-import { rebuildNativeModules } from './package/prepare';
+import { rebuildNativeModules } from './rebuild-native-modules/rebuild-native-modules';
 
 const DARWIN_PACKAGE_TYPES = ['zip', 'dmg'];
 const WIN32_PACKAGE_TYPES = ['zip', 'msi', 'exe'];
 const LINUX_PACKAGE_TYPES = ['tar', 'deb', 'rpm'];
 
-const ANY_PACKAGE_TYPE_SET = new Set([
-  ...DARWIN_PACKAGE_TYPES,
-  ...WIN32_PACKAGE_TYPES,
-  ...LINUX_PACKAGE_TYPES,
-]);
-
-export type PackageCliOptions = {
-  distribution: string;
-  platform: typeof process.platform;
-  packages: string[];
-  prepare: boolean;
-  compile: boolean;
-  arch: typeof process.arch;
-  sign: boolean;
-  asar: boolean;
-};
-
-async function runPackage(sourcePath: string, options: PackageCliOptions) {
+async function runPackage(
+  sourcePath: string,
+  options: {
+    distribution: string;
+    platform: typeof process.platform;
+    packages: string[];
+    prepare: boolean;
+    compile: boolean;
+    arch: typeof process.arch;
+    sign: boolean;
+    asar: boolean;
+  }
+) {
   sourcePath = path.resolve(sourcePath);
 
   const packagesByPlatform = {
@@ -98,7 +93,11 @@ async function main() {
     )
     .addOption(
       new Option('--packages <packages...>', 'One or more packages to build')
-        .choices([...ANY_PACKAGE_TYPE_SET])
+        .choices([
+          ...DARWIN_PACKAGE_TYPES,
+          ...WIN32_PACKAGE_TYPES,
+          ...LINUX_PACKAGE_TYPES,
+        ])
         .default(null, 'all the packages for the choosen platform')
     )
     .addOption(
