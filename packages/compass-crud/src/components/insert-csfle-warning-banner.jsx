@@ -1,9 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Banner, BannerVariant } from '@mongodb-js/compass-components';
+import { css, Banner, BannerVariant } from '@mongodb-js/compass-components';
 
 function InsertCSFLEWarningBanner({ csfleState }) {
-  switch (csfleState) {
+  let fieldsNotice = undefined;
+  if (csfleState.encryptedFields && csfleState.encryptedFields.length > 0) {
+    fieldsNotice = (<div>
+      The following fields will be encrypted according to the collection schema:&nbsp;
+
+      <ul className={css({listStyle: 'inherit'})}>
+        {csfleState.encryptedFields.map(fieldName => <li>{fieldName}</li>)}
+      </ul>
+    </div>);
+  }
+
+  switch (csfleState.state) {
     case 'none':
       return <></>;
 
@@ -20,6 +31,8 @@ function InsertCSFLEWarningBanner({ csfleState }) {
         <Banner variant={BannerVariant.Danger}>
           This insert operation will not encrypt all fields that were encrypted in the original
           document due to a missing or incomplete schema for this collection.
+
+          {fieldsNotice}
         </Banner>
       );
 
@@ -28,6 +41,8 @@ function InsertCSFLEWarningBanner({ csfleState }) {
         <Banner variant={BannerVariant.Info}>
           This insert operation will encrypt all fields that are specified in the schema
           or CSFLE configuration associated with the collection.
+
+          {fieldsNotice}
         </Banner>
       );
 
@@ -40,7 +55,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
       );
 
     default:
-      throw new Error(`Unknown CSFLE state ${csfleState} (Compass bug)`);
+      throw new Error(`Unknown CSFLE state ${csfleState.state} (Compass bug)`);
   }
 }
 

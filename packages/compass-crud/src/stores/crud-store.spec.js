@@ -4,7 +4,7 @@ import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { once } from 'events';
-import configureStore from './crud-store';
+import configureStore, { findAndModifyWithFLEFallback } from './crud-store';
 import configureActions from '../actions';
 
 import chai, { expect } from 'chai';
@@ -174,7 +174,7 @@ describe('store', function() {
           jsonDoc: null,
           jsonView: false,
           message: '',
-          csfleState: 'none',
+          csfleState: { state: 'none' },
           mode: 'modifying'
         },
         isDataLake: false,
@@ -1221,14 +1221,14 @@ describe('store', function() {
 
     context('with CSFLE connection', () => {
       let getCSFLEMode;
-      let hasKnownSchemaForCollection;
+      let knownSchemaForCollection;
       let isUpdateAllowed;
 
       beforeEach(() => {
-        hasKnownSchemaForCollection = sinon.stub();
+        knownSchemaForCollection = sinon.stub();
         isUpdateAllowed = sinon.stub();
         const csfleCollectionTracker = {
-          hasKnownSchemaForCollection,
+          knownSchemaForCollection,
           isUpdateAllowed
         };
         getCSFLEMode = sinon.stub(dataService, 'getCSFLEMode');
@@ -1241,7 +1241,7 @@ describe('store', function() {
 
       it('does not set csfle state if csfle is unavailable', async() => {
         const listener = waitForState(store, (state) => {
-          expect(state.insert.csfleState).to.equal('none');
+          expect(state.insert.csfleState).to.deep.equal({ state: 'none' });
         });
 
         getCSFLEMode.returns('unavailable');
@@ -1251,34 +1251,37 @@ describe('store', function() {
         await listener;
 
         expect(getCSFLEMode).to.have.been.calledOnce;
-        expect(hasKnownSchemaForCollection).not.have.been.called;
+        expect(knownSchemaForCollection).not.have.been.called;
         expect(isUpdateAllowed).to.not.have.been.called;
       });
 
       it('sets csfle state appropiately if the collection has no known schema', async() => {
         const listener = waitForState(store, (state) => {
-          expect(state.insert.csfleState).to.equal('no-known-schema');
+          expect(state.insert.csfleState).to.deep.equal({ state: 'no-known-schema' });
         });
 
         getCSFLEMode.returns('enabled');
-        hasKnownSchemaForCollection.resolves(false);
+        knownSchemaForCollection.resolves({ hasSchema: false });
 
         store.openInsertDocumentDialog(doc, false);
 
         await listener;
 
         expect(getCSFLEMode).to.have.been.calledOnce;
-        expect(hasKnownSchemaForCollection).to.have.been.calledWith('compass-crud.test');
+        expect(knownSchemaForCollection).to.have.been.calledWith('compass-crud.test');
         expect(isUpdateAllowed).to.not.have.been.called;
       });
 
       it('sets csfle state appropiately if cloned document does not fully match schema', async() => {
         const listener = waitForState(store, (state) => {
-          expect(state.insert.csfleState).to.equal('incomplete-schema-for-cloned-doc');
+          expect(state.insert.csfleState).to.deep.equal({
+            state: 'incomplete-schema-for-cloned-doc',
+            encryptedFields: ['x']
+          });
         });
 
         getCSFLEMode.returns('enabled');
-        hasKnownSchemaForCollection.resolves(true);
+        knownSchemaForCollection.resolves({ hasSchema: true, encryptedFields: ['x'] });
         isUpdateAllowed.resolves(false);
 
         store.openInsertDocumentDialog(doc, false);
@@ -1286,17 +1289,20 @@ describe('store', function() {
         await listener;
 
         expect(getCSFLEMode).to.have.been.calledOnce;
-        expect(hasKnownSchemaForCollection).to.have.been.calledWith('compass-crud.test');
+        expect(knownSchemaForCollection).to.have.been.calledWith('compass-crud.test');
         expect(isUpdateAllowed).to.have.been.calledOnce;
       });
 
       it('sets csfle state appropiately if collection has full schema', async() => {
         const listener = waitForState(store, (state) => {
-          expect(state.insert.csfleState).to.equal('has-known-schema');
+          expect(state.insert.csfleState).to.deep.equal({
+            state: 'has-known-schema',
+            encryptedFields: ['x']
+          });
         });
 
         getCSFLEMode.returns('enabled');
-        hasKnownSchemaForCollection.resolves(true);
+        knownSchemaForCollection.resolves({ hasSchema: true, encryptedFields: ['x'] });
         isUpdateAllowed.resolves(true);
 
         store.openInsertDocumentDialog(doc, false);
@@ -1304,17 +1310,17 @@ describe('store', function() {
         await listener;
 
         expect(getCSFLEMode).to.have.been.calledOnce;
-        expect(hasKnownSchemaForCollection).to.have.been.calledWith('compass-crud.test');
+        expect(knownSchemaForCollection).to.have.been.calledWith('compass-crud.test');
         expect(isUpdateAllowed).to.have.been.calledOnce;
       });
 
       it('sets csfle state appropiately if csfle is temporarily disabled', async() => {
         const listener = waitForState(store, (state) => {
-          expect(state.insert.csfleState).to.equal('csfle-disabled');
+          expect(state.insert.csfleState).to.deep.equal({ state: 'csfle-disabled' });
         });
 
         getCSFLEMode.returns('disabled');
-        hasKnownSchemaForCollection.resolves(true);
+        knownSchemaForCollection.resolves({ hasSchema: true, encryptedFields: ['x'] });
         isUpdateAllowed.resolves(true);
 
         store.openInsertDocumentDialog(doc, false);
@@ -1322,7 +1328,7 @@ describe('store', function() {
         await listener;
 
         expect(getCSFLEMode).to.have.been.calledOnce;
-        expect(hasKnownSchemaForCollection).to.not.have.been.called;
+        expect(knownSchemaForCollection).to.not.have.been.called;
         expect(isUpdateAllowed).to.not.have.been.called;
       });
     });
@@ -1886,6 +1892,76 @@ describe('store', function() {
       store.refreshDocuments();
 
       await listener;
+    });
+  });
+
+  describe('#findAndModifyWithFLEFallback', () => {
+    let dataServiceStub;
+
+    beforeEach(() => {
+      dataServiceStub = {
+        find: sinon.stub().callsFake((ns, query, opts, cb) => cb(undefined, [query]))
+      };
+    });
+
+    it('does the original findAndModify operation and nothing more if it succeeds', async() => {
+      const document = { _id: 1234 };
+      const stub = sinon.stub().callsFake((ds, ns, opts, cb) => { cb(undefined, document); });
+      const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
+      expect(error).to.equal(undefined);
+      expect(d).to.equal(document);
+      expect(stub).to.have.callCount(1);
+      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
+      expect(stub.firstCall.args[1]).to.equal('db.coll');
+      expect(stub.firstCall.args[2]).to.deep.equal({ returnDocument: 'after', promoteValues: false });
+    });
+
+    it('does the original findAndModify operation and nothing more if it fails with a non-FLE error', async() => {
+      const err = new Error('failed');
+      const stub = sinon.stub().callsFake((ds, ns, opts, cb) => { cb(err); });
+      const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
+      expect(error).to.equal(err);
+      expect(d).to.equal(undefined);
+      expect(stub).to.have.callCount(1);
+      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
+      expect(stub.firstCall.args[1]).to.equal('db.coll');
+      expect(stub.firstCall.args[2]).to.deep.equal({ returnDocument: 'after', promoteValues: false });
+    });
+
+    it('retries findAndModify with FLE returnDocument: "after"', async() => {
+      const document = { _id: 1234 };
+      const err = Object.assign(new Error('failed'), { code: 6371402 });
+      const stub = sinon.stub();
+      stub.onFirstCall().callsFake((ds, ns, opts, cb) => { cb(err); });
+      stub.onSecondCall().callsFake((ds, ns, opts, cb) => { cb(undefined, document); });
+      const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
+      expect(error).to.equal(undefined);
+      expect(d).to.deep.equal(document);
+      expect(stub).to.have.callCount(2);
+      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
+      expect(stub.firstCall.args[1]).to.equal('db.coll');
+      expect(stub.firstCall.args[2]).to.deep.equal({ returnDocument: 'after', promoteValues: false });
+      expect(stub.secondCall.args[0]).to.equal(dataServiceStub);
+      expect(stub.secondCall.args[1]).to.equal('db.coll');
+      expect(stub.secondCall.args[2]).to.deep.equal({ returnDocument: 'before', promoteValues: false });
+      expect(dataServiceStub.find).to.have.callCount(1);
+      expect(dataServiceStub.find.firstCall.args[0]).to.equal('db.coll');
+      expect(dataServiceStub.find.firstCall.args[1]).to.deep.equal(document);
+      expect(dataServiceStub.find.firstCall.args[2]).to.deep.equal({ returnDocument: 'before', promoteValues: false });
+    });
+
+    it('returns the original error if the fallback find operation fails', async() => {
+      dataServiceStub.find.yields(new Error('find failed'));
+      const document = { _id: 1234 };
+      const err = Object.assign(new Error('failed'), { code: 6371402 });
+      const stub = sinon.stub();
+      stub.onFirstCall().callsFake((ds, ns, opts, cb) => { cb(err); });
+      stub.onSecondCall().callsFake((ds, ns, opts, cb) => { cb(undefined, document); });
+      const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
+      expect(error).to.equal(err);
+      expect(d).to.equal(undefined);
+      expect(stub).to.have.callCount(2);
+      expect(dataServiceStub.find).to.have.callCount(1);
     });
   });
 });

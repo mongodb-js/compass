@@ -420,7 +420,7 @@ describe('Stage module', function() {
         '  maxkey: MaxKey(),\n' +
         '  isodate: ISODate(\'1999-01-01\'),\n' +
         '  regexp: RegExp(/^[a-z0-9_-]{3,16}$/),\n' +
-        '  ts: Timestamp(-321469502, 367)\n' +
+        '  ts: Timestamp({ t: -321469502, i: 367 })\n' +
         '}'
       };
       // bson.Timestamp.fromString('1580226495426', 10)
@@ -477,7 +477,7 @@ describe('Stage module', function() {
       });
 
       it('generates timestamp', function() {
-        expect(generated.ts.low).to.equal(-321469502);
+        expect(generated.ts.high).to.equal(-321469502);
       });
 
       it('returns the stage string', function() {
@@ -493,7 +493,7 @@ describe('Stage module', function() {
  maxkey: MaxKey(),
  isodate: ISODate('1999-01-01T00:00:00.000Z'),
  regexp: RegExp("^[a-z0-9_-]{3,16}$"),
- ts: Timestamp(-321469502, 367)
+ ts: Timestamp(367, -321469502)
 }}`);
       });
     });

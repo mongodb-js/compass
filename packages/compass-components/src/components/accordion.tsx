@@ -4,7 +4,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
 
-import { Icon } from './leafygreen';
+import { Description, Icon } from './leafygreen';
 import { defaultFontSize } from '../compass-font-sizes';
 import { withTheme } from '../hooks/use-theme';
 
@@ -40,14 +40,23 @@ const containerStyles = css({
 const buttonIconStyles = css({
   marginRight: spacing[1],
 });
+const buttonHintStyles = css({
+  margin: 0,
+  marginLeft: spacing[1],
+  padding: 0,
+});
 interface AccordionProps {
   darkMode?: boolean;
   'data-testid'?: string;
   text: string | React.ReactNode;
+  hintText?: string;
 }
-function UnthemedAccordion(
-  props: React.PropsWithChildren<AccordionProps>
-): React.ReactElement {
+function UnthemedAccordion({
+  text,
+  darkMode,
+  hintText,
+  ...props
+}: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const [open, setOpen] = useState(false);
   const regionId = useId('region-');
   const labelId = useId('label-');
@@ -57,7 +66,7 @@ function UnthemedAccordion(
         <button
           data-testid={props['data-testid']}
           className={cx(
-            props.darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
+            darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
             buttonStyles
           )}
           id={labelId}
@@ -72,7 +81,10 @@ function UnthemedAccordion(
             className={buttonIconStyles}
             glyph={open ? 'ChevronDown' : 'ChevronRight'}
           />
-          {props.text}
+          {text}
+          {hintText && (
+            <Description className={buttonHintStyles}>{hintText}</Description>
+          )}
         </button>
       </div>
 
