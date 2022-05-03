@@ -212,4 +212,33 @@ describe('explain-plan-plan', function () {
       expect(it.next().done).to.equal(true);
     });
   });
+
+  context.only('Aggregations', function () {
+    context('SBE plans', function () {
+      let plan: ExplainPlan;
+      beforeEach(async function () {
+        plan = await loadExplainFixture('aggregate_$cursor_sbe.json');
+      });
+
+      it('should have the executionStats object', function () {
+        expect(plan.executionStats).to.be.an('object');
+      });
+
+      it('should detect collection scan', function () {
+        expect(plan.isCollectionScan).to.equal(false);
+      });
+
+      it('should have `usedIndexes`', function () {
+        expect(plan.usedIndexes).to.deep.equal([]);
+      });
+
+      it('should have `inMemorySort` disabled', function () {
+        expect(plan.inMemorySort).to.equal(false);
+      });
+
+      it('should not be a covered query', function () {
+        expect(plan.isCovered).to.equal(false);
+      });
+    });
+  });
 });
