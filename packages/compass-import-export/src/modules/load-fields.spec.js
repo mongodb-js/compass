@@ -138,4 +138,16 @@ describe('getSelectableFields', function () {
       });
     }
   });
+
+  it('excludes driver/server-internal fields by default', function () {
+    const allFields = { 'a': 1, '__safeContent__': 1, '__safeContent__.0': 1 };
+
+    const fields = getSelectableFields(allFields, { maxDepth: 2 });
+
+    expect(fields).to.deep.equal({
+      'a': 1,
+      '__safeContent__': 0,
+      '__safeContent__.0': 0
+    });
+  });
 });
