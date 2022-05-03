@@ -213,8 +213,8 @@ describe('explain-plan-plan', function () {
     });
   });
 
-  context.only('Aggregations', function () {
-    context('SBE plans', function () {
+  context('Aggregations', function () {
+    describe('SBE plan', function () {
       let plan: ExplainPlan;
       beforeEach(async function () {
         plan = await loadExplainFixture('aggregate_$cursor_sbe.json');
@@ -229,7 +229,7 @@ describe('explain-plan-plan', function () {
       });
 
       it('should have `usedIndexes`', function () {
-        expect(plan.usedIndexes).to.deep.equal([]);
+        expect(plan.usedIndexes).to.deep.equal([{ index: "abbr_index", shard: null }]);
       });
 
       it('should have `inMemorySort` disabled', function () {
@@ -238,6 +238,52 @@ describe('explain-plan-plan', function () {
 
       it('should not be a covered query', function () {
         expect(plan.isCovered).to.equal(false);
+      });
+    });
+    context('Classic plan', function () {
+      let plan: ExplainPlan;
+      describe('$geoNearCursor', function () {
+        beforeEach(async function () {
+          plan = await loadExplainFixture('aggregate_$geonearcursor.json');
+        });
+
+        it('should have the executionStats object', function () {
+          expect(plan.executionStats).to.be.an('object');
+        });
+
+        it('should detect collection scan', function () {
+          expect(plan.isCollectionScan).to.equal(false);
+        });
+
+        it('should have `usedIndexes`', function () {
+          expect(plan.usedIndexes).to.deep.equal([{ index: "location_2dsphere", shard: null }]);
+        });
+
+        it('should have `inMemorySort` disabled', function () {
+          expect(plan.inMemorySort).to.equal(false);
+        });
+
+        it('should not be a covered query', function () {
+          expect(plan.isCovered).to.equal(false);
+        });
+      });
+
+      describe('collection scan', function () {
+        beforeEach(async function () {
+          plan = await loadExplainFixture('aggregate_collscan.json');
+        });
+
+        it('should have the executionStats object', function () {
+          expect(plan.executionStats).to.be.an('object');
+        });
+
+        it('should detect collection scan', function () {
+          expect(plan.isCollectionScan).to.equal(true);
+        });
+
+        it('should have `usedIndexes`', function () {
+          expect(plan.usedIndexes).to.deep.equal([]);
+        });
       });
     });
   });

@@ -35,7 +35,7 @@ function getQueryPlannerAndStats(rawExplain: Stage) {
   const firstStage = rawExplain.stages[0];
   const lastStage = rawExplain.stages[rawExplain.stages.length - 1];
   const firstStageKey = Object.keys(firstStage)[0]; // $cursor || $geoNearCursor ...
-  if (!firstStageKey.matchAll(/cursor/i)) {
+  if (!firstStageKey.matchAll(/cursor/ig)) {
     throw new Error('Can not find a cursor stage.');
   }
   const { queryPlanner, executionStats } = firstStage[firstStageKey];
