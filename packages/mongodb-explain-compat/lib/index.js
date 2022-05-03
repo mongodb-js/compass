@@ -76,16 +76,28 @@ function isAggregationExplain(explain) {
   return !!explain.stages;
 }
 
+function isFirstStageCursorType(stages) {
+  return !!getStageCursorKey(stages[0]);
+}
+
+function getStageCursorKey(stage) {
+  return Object.keys(stage).find((x) => x.match(/cursor/i));
+}
+
 /**
  * https://wiki.corp.mongodb.com/display/QUERY/Explain+Notes
  */
 function mapAggregationExplain(explain) {
-  // In aggregations for SBE, the cursor based stage is always first.
-  const firstStage = explain.stages[0]; // {$cursor: {queryPlanner: {}, executionStats: {} }}
-  const firstStageKey = Object.keys(firstStage)[0]; // $cursor
-  if (!firstStageKey.match(/cursor/)) {
+  if (!explain.stages || explain.stages.length === 0) {
     return explain;
   }
+  // In aggregations for SBE, the cursor based stage is always first.
+  if (!isFirstStageCursorType(explain.stages)) {
+    return explain;
+  }
+
+  const firstStage = explain.stages[0];
+  const firstStageKey = getStageCursorKey(firstStage);
   const winningPlan =
     firstStage[firstStageKey].queryPlanner.winningPlan.queryPlan;
   firstStage[firstStageKey].queryPlanner.winningPlan = winningPlan;
@@ -95,7 +107,6 @@ function mapAggregationExplain(explain) {
     firstStage[firstStageKey].executionStats.executionStages
   );
   firstStage[firstStageKey].queryPlanner.plannerVersion = 1;
-  explain.stages[0] = firstStage;
   return explain;
 }
 
