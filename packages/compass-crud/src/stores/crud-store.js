@@ -475,18 +475,14 @@ const configureStore = (options = {}) => {
           return;
         }
 
-        const opts = { returnDocument: 'after', promoteValues: false };
-
         if (!await this._verifyUpdateAllowed(this.state.ns, doc)) {
           // _verifyUpdateAllowed emitted update-error
           return;
         }
-        const [ error, d ] = await new Promise(resolve => this.dataService.findOneAndUpdate(
-          this.state.ns,
-          query,
-          updateDoc,
-          opts,
-          (...cbArgs) => resolve(cbArgs)));
+        const [ error, d ] = await findAndModifyWithFLEFallback(this.dataService, this.state.ns, (ds, ns, opts, cb) => {
+          ds.findOneAndUpdate(ns, query, updateDoc, opts, cb);
+        });
+
         if (error) {
           doc.emit('update-error', error.message);
         } else if (d) {
@@ -513,7 +509,6 @@ const configureStore = (options = {}) => {
       track('Document Updated', { mode: this.modeForTelemetry() });
       try {
         const object = doc.generateObject();
-        const opts = { returnDocument: 'after', promoteValues: false };
         const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
           _id: 1,
           ...(this.state.shardKeys || {})
@@ -523,12 +518,10 @@ const configureStore = (options = {}) => {
           // _verifyUpdateAllowed emitted update-error
           return;
         }
-        const [ error, d ] = await new Promise(resolve => this.dataService.findOneAndReplace(
-          this.state.ns,
-          query,
-          object,
-          opts,
-          (...cbArgs) => resolve(cbArgs)));
+        // eslint-disable-next-line no-shadow
+        const [ error, d ] = await findAndModifyWithFLEFallback(this.dataService, this.state.ns, (ds, ns, opts, cb) => {
+          ds.findOneAndReplace(ns, query, object, opts, cb);
+        });
         if (error) {
           doc.emit('update-error', error.message);
         } else {
@@ -1319,4 +1312,41 @@ export default configureStore;
 
 function resultId() {
   return Math.floor(Math.random() * (2 ** 53));
+}
+
+
+export async function findAndModifyWithFLEFallback(ds, ns, doFindAndModify) {
+  const opts = { returnDocument: 'after', promoteValues: false };
+  let [ error, d ] = await new Promise(resolve => {
+    doFindAndModify(ds, ns, opts, (...cbArgs) => resolve(cbArgs));
+  });
+  const originalError = error;
+
+  // 6371402 is "'findAndModify with encryption only supports new: false'"
+  if (error && +error.code === 6371402) {
+    // For encrypted documents, returnDocument: 'after' is unsupported on the server
+    const fallbackOpts = { returnDocument: 'before', promoteValues: false };
+    [ error, d ] = await new Promise(resolve => {
+      doFindAndModify(ds, ns, fallbackOpts, (...cbArgs) => resolve(cbArgs));
+    });
+
+    if (!error) {
+      let docs;
+      [ error, docs ] = await new Promise(resolve => {
+        ds.find(ns, { _id: d._id }, fallbackOpts, (...cbArgs) => resolve(cbArgs));
+      });
+
+      if (error || !docs || !docs.length) {
+        // Race condition -- most likely, somebody else
+        // deleted the document between the findAndModify command
+        // and the find command. Just return the original error.
+        error = originalError;
+        d = undefined;
+      } else {
+        [d] = docs;
+      }
+    }
+  }
+
+  return [error, d];
 }
