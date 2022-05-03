@@ -44,7 +44,6 @@ interface Pipeline {
   syntaxError: unknown;
   error: unknown;
   projections?: unknown[];
-  fromStageOperators?: boolean;
   executor?: unknown;
   isMissingAtlasOnlyStageSupport?: boolean;
   snippet?: string;

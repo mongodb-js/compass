@@ -6,8 +6,6 @@ import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
 import styles from './stage-editor.module.less';
 
-const INDEX_STATS = '$indexStats';
-
 /**
  * Edit a single stage in the aggregation pipeline.
  */
@@ -27,7 +25,6 @@ class StageEditor extends Component {
     stageChanged: PropTypes.func.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
     isValid: PropTypes.bool.isRequired,
-    fromStageOperators: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
@@ -87,9 +84,12 @@ class StageEditor extends Component {
     );
     this.completer.version = this.props.serverVersion;
     if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
-      this.editor.setValue('');
-      this.editor.insertSnippet(this.props.snippet || '');
       this.editor.focus();
+
+      // When the underlying stage operator changes, re-run the preview.
+      if (this.props.isAutoPreviewing) {
+        this.debounceRun();
+      }
     }
   }
 
@@ -110,11 +110,7 @@ class StageEditor extends Component {
     this.props.projectionsChanged();
     this.props.setIsModified(true);
 
-    if (
-      (this.props.fromStageOperators === false ||
-        this.props.stageOperator === INDEX_STATS) &&
-      this.props.isAutoPreviewing
-    ) {
+    if (this.props.isAutoPreviewing) {
       this.debounceRun();
     }
   };

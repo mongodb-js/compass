@@ -115,7 +115,6 @@ class PipelineWorkspace extends PureComponent {
       isExpanded={stage.isExpanded}
       isCommenting={this.props.isCommenting}
       isAutoPreviewing={this.props.isAutoPreviewing}
-      fromStageOperators={stage.fromStageOperators || false}
       previewDocuments={stage.previewDocuments}
       runStage={this.props.runStage}
       openLink={this.props.openLink}

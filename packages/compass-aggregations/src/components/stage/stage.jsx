@@ -60,7 +60,6 @@ class Stage extends Component {
     isComplete: PropTypes.bool.isRequired,
     // Can be undefined on the initial render
     isMissingAtlasOnlyStageSupport: PropTypes.bool,
-    fromStageOperators: PropTypes.bool.isRequired,
     previewDocuments: PropTypes.array.isRequired,
     index: PropTypes.number.isRequired,
     isCommenting: PropTypes.bool.isRequired,
@@ -98,7 +97,6 @@ class Stage extends Component {
       nextProps.isLoading !== this.props.isLoading ||
       nextProps.isComplete !== this.props.isComplete ||
       nextProps.isMissingAtlasOnlyStageSupport !== this.props.isMissingAtlasOnlyStageSupport ||
-      nextProps.fromStageOperators !== this.props.fromStageOperators ||
       nextProps.index !== this.props.index ||
       nextProps.isCommenting !== this.props.isCommenting ||
       nextProps.isAutoPreviewing !== this.props.isAutoPreviewing ||
@@ -154,7 +152,6 @@ class Stage extends Component {
             error={this.props.error}
             syntaxError={this.props.syntaxError}
             isValid={this.props.isValid}
-            fromStageOperators={this.props.fromStageOperators}
             runStage={this.props.runStage}
             index={this.props.index}
             serverVersion={this.props.serverVersion}
