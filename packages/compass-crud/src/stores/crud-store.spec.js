@@ -174,7 +174,7 @@ describe('store', function() {
           jsonDoc: null,
           jsonView: false,
           message: '',
-          csfleState: 'none',
+          csfleState: { state: 'none' },
           mode: 'modifying'
         },
         isDataLake: false,
