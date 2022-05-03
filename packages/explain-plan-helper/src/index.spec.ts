@@ -33,11 +33,11 @@ describe('explain-plan-plan', function () {
         expect(plan.executionTimeMillis).to.equal(188);
         expect(plan.totalKeysExamined).to.equal(0);
         expect(plan.totalDocsExamined).to.equal(1000000);
-        expect(plan.rawExplainObject).to.be.an('object');
+        expect(plan.executionStats).to.be.an('object');
       });
 
-      it('should have the raw explain object', function () {
-        expect(plan.rawExplainObject).to.be.an('object');
+      it('should have the executionStats object', function () {
+        expect(plan.executionStats).to.be.an('object');
       });
 
       it('should detect collection scan', function () {
@@ -70,8 +70,8 @@ describe('explain-plan-plan', function () {
         expect(plan.totalDocsExamined).to.equal(191665);
       });
 
-      it('should have the raw explain object', function () {
-        expect(plan.rawExplainObject).to.be.an('object');
+      it('should have the executionStats object', function () {
+        expect(plan.executionStats).to.be.an('object');
       });
 
       it('should have `isCollectionScan` disabled', function () {
@@ -206,7 +206,7 @@ describe('explain-plan-plan', function () {
     it('should iterate over stages', function () {
       const it = plan._getStageIterator();
       expect(it.next().value).to.equal(
-        plan.rawExplainObject.executionStats.executionStages
+        plan.executionStats.executionStages
       );
       expect(it.next().value.stage).to.equal('IXSCAN');
       expect(it.next().done).to.equal(true);

@@ -7,6 +7,47 @@ type IndexInformation =
   | { shard: string; index: string }
   | { shard: string; index: null }
   | { shard: null; index: string };
+type ExecutionStats = {
+  executionSuccess: boolean;
+  nReturned: number;
+  executionTimeMillis: number;
+  totalKeysExamined: number;
+  totalDocsExamined: number;
+  executionStages: Stage;
+  allPlansExecution: unknown[];
+}
+
+function isAggregationExplain(rawExplain: Stage) {
+  return !!rawExplain.stages;
+}
+
+/**
+ * https://wiki.corp.mongodb.com/display/QUERY/Explain+Notes
+ */
+function getQueryPlannerAndStats(rawExplain: Stage) {
+  if (!isAggregationExplain(rawExplain)) {
+    return {
+      queryPlanner: rawExplain.queryPlanner,
+      executionStats: rawExplain.executionStats,
+    };
+  }
+
+  const firstStage = rawExplain.stages[0];
+  const lastStage = rawExplain.stages[rawExplain.stages.length - 1];
+  const firstStageKey = Object.keys(firstStage)[0]; // $cursor || $geoNearCursor ...
+  if (!firstStageKey.matchAll(/cursor/i)) {
+    throw new Error('Can not find a cursor stage.');
+  }
+  const { queryPlanner, executionStats } = firstStage[firstStageKey];
+  executionStats.nReturned = lastStage.nReturned;
+  executionStats.executionTimeMillis = rawExplain.stages.reduce((x: any, acc: number) => {
+    return acc + (x.executionTimeMillisEstimate as number);
+  }, 0);
+  return {
+    queryPlanner,
+    executionStats,
+  };
+}
 
 export class ExplainPlan {
   namespace: string;
@@ -16,29 +57,25 @@ export class ExplainPlan {
   executionTimeMillis: number;
   totalKeysExamined: number;
   totalDocsExamined: number;
-  rawExplainObject: Stage;
   originalExplainData: Stage;
+  executionStats: ExecutionStats;
 
   constructor(originalExplainData: Stage) {
     const rawExplainObject = convertExplainCompat(originalExplainData);
-    ExplainPlan.addParentStages(
-      rawExplainObject.executionStats.executionStages
-    );
-    const qpInfo =
-      rawExplainObject.queryPlanner?.winningPlan?.shards?.[0] ??
-      rawExplainObject.queryPlanner;
+    const { executionStats, queryPlanner } = getQueryPlannerAndStats(rawExplainObject);
+    ExplainPlan.addParentStages(executionStats.executionStages);
+    const qpInfo = queryPlanner?.winningPlan?.shards?.[0] ?? queryPlanner;
     const esInfo =
-      rawExplainObject.executionStats?.executionStages?.shards?.[0] ??
-      rawExplainObject.executionStats;
+      executionStats?.executionStages?.shards?.[0] ??
+      executionStats;
+    this.executionStats = executionStats;
     this.namespace = qpInfo.namespace;
     this.parsedQuery = qpInfo.parsedQuery;
     this.executionSuccess = esInfo.executionSuccess;
-    this.nReturned = rawExplainObject.executionStats.nReturned;
-    this.executionTimeMillis =
-      rawExplainObject.executionStats.executionTimeMillis;
-    this.totalKeysExamined = rawExplainObject.executionStats.totalKeysExamined;
-    this.totalDocsExamined = rawExplainObject.executionStats.totalDocsExamined;
-    this.rawExplainObject = rawExplainObject;
+    this.nReturned = executionStats.nReturned;
+    this.executionTimeMillis = executionStats.executionTimeMillis;
+    this.totalKeysExamined = executionStats.totalKeysExamined;
+    this.totalDocsExamined = executionStats.totalDocsExamined;
     this.originalExplainData = originalExplainData;
   }
 
@@ -62,8 +99,7 @@ export class ExplainPlan {
       ret.push({ index, shard });
     }
     if (this.isSharded) {
-      for (const shard of this.rawExplainObject.executionStats.executionStages
-        .shards) {
+      for (const shard of this.executionStats.executionStages.shards) {
         if (!ret.some((indexInfo) => indexInfo.shard === shard.shardName)) {
           ret.push({ index: null, shard: shard.shardName });
         }
@@ -94,12 +130,12 @@ export class ExplainPlan {
   }
 
   get isSharded(): boolean {
-    return !!this.rawExplainObject.executionStats.executionStages.shards;
+    return !!this.executionStats.executionStages.shards;
   }
 
   get numShards(): number {
     return this.isSharded
-      ? this.rawExplainObject.executionStats.executionStages.shards.length
+      ? this.executionStats.executionStages.shards.length
       : 0;
   }
 
@@ -141,7 +177,7 @@ export class ExplainPlan {
 
   /** DFS stack iterator implementation */
   *_getStageIterator(root?: Stage): Iterable<Stage> {
-    const stage = root ?? this.rawExplainObject.executionStats.executionStages;
+    const stage = root ?? this.executionStats.executionStages;
 
     yield stage;
     for (const child of ExplainPlan.getChildStages(stage)) {
