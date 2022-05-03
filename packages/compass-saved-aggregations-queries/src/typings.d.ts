@@ -46,7 +46,6 @@ interface Pipeline {
   projections?: unknown[];
   executor?: unknown;
   isMissingAtlasOnlyStageSupport?: boolean;
-  snippet?: string;
 }
 
 type QueryUpdateAttributes = {

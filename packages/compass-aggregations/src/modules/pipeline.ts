@@ -45,7 +45,6 @@ export type Pipeline = {
   syntaxError: string | null;
   error: string | null;
   projections: Projection[];
-  snippet?: string;
   isMissingAtlasOnlyStageSupport?: boolean;
   executor?: Record<string, unknown>;
 }
@@ -324,7 +323,6 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
     }
     newState[action.index].stageOperator = operatorName;
     newState[action.index].stage = value;
-    newState[action.index].snippet = value;
     newState[action.index].isExpanded = true;
     newState[action.index].isComplete = false;
     newState[action.index].previewDocuments = [];
@@ -345,7 +343,7 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
   return state;
 };
 
-export const replaceAceTokens = (str: string): string => {
+export const replaceOperatorSnippetTokens = (str: string): string => {
   const regex = /\${[0-9]+:?([a-z0-9.()]+)?}/ig;
   return str.replace(regex, function (_match, replaceWith) {
     return replaceWith ?? '';
@@ -356,7 +354,7 @@ const getStageDefaultValue = (stageOperator: string, isCommenting: boolean, env:
   const operatorDetails = getStageOperator(stageOperator, env);
   const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
   const comment = (operatorDetails || {}).comment || '';
-  return replaceAceTokens(isCommenting ? `${comment}${snippet}` : snippet);
+  return replaceOperatorSnippetTokens(isCommenting ? `${comment}${snippet}` : snippet);
 };
 
 const hasUserChangedStage = (stage: Pipeline, env: string): boolean => {

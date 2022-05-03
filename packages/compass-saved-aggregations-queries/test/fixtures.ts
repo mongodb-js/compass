@@ -137,8 +137,6 @@ export const pipelines: Item[] = [
           syntaxError: null,
           error: null,
           projections: [],
-          snippet:
-            '/**\n * Provide the number of documents to limit.\n */\n${1:number}',
           executor: {
             $limit: 3,
           },

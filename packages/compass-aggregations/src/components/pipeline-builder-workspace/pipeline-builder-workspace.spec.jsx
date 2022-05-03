@@ -18,7 +18,6 @@ const PIPELINE_1 = [
     'syntaxError': null,
     'error': null,
     'projections': [],
-    'snippet': '/**\n * query: The query in MQL.\n */\n{\n  ${1:query}\n}',
     'executor': {
       '$match': {
         'x': 1
@@ -38,7 +37,6 @@ const PIPELINE_1 = [
     'syntaxError': null,
     'error': null,
     'projections': [],
-    'snippet': '/**\n * Provide the number of documents to limit.\n */\n${1:number}',
     'executor': {
       '$limit': 3
     }

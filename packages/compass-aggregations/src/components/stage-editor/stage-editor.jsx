@@ -15,7 +15,6 @@ class StageEditor extends Component {
   static propTypes = {
     stage: PropTypes.string,
     stageOperator: PropTypes.string,
-    snippet: PropTypes.string,
     error: PropTypes.string,
     syntaxError: PropTypes.string,
     runStage: PropTypes.func.isRequired,
@@ -73,8 +72,6 @@ class StageEditor extends Component {
   }
 
   /**
-   * On update if the stage operator is changed insert the snippet and focus on the editor.
-   *
    * @param {Object} prevProps - The previous properties.
    */
   componentDidUpdate(prevProps) {
@@ -84,6 +81,7 @@ class StageEditor extends Component {
     );
     this.completer.version = this.props.serverVersion;
     if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
+      // Focus the editor when the stage operator has changed.
       this.editor.focus();
 
       // When the underlying stage operator changes, re-run the preview.

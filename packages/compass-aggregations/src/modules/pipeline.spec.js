@@ -17,7 +17,7 @@ import _reducer, {
   STAGE_PREVIEW_UPDATED,
   LOADING_STAGE_RESULTS,
   STAGE_TOGGLED,
-  replaceAceTokens,
+  replaceOperatorSnippetTokens,
   INITIAL_STATE,
 } from './pipeline';
 import { generatePipelineStages } from './pipeline';
@@ -120,11 +120,7 @@ describe('pipeline module', function () {
               expect(
                 newState[0].stage,
                 `${name} stage on ${env} env.`
-              ).to.equal(`${comment}${snippet}`);
-              expect(
-                newState[0].snippet,
-                `${name} snippet on ${env} env.`
-              ).to.equal(`${comment}${snippet}`);
+              ).to.equal(replaceOperatorSnippetTokens(`${comment}${snippet}`));
             });
           });
         });
@@ -134,8 +130,7 @@ describe('pipeline module', function () {
           );
           const stage = {
             stageOperator: geoNear.name,
-            stage: replaceAceTokens(`${geoNear.comment}${geoNear.snippet}`),
-            snippet: `${geoNear.comment}${geoNear.snippet}`,
+            stage: replaceOperatorSnippetTokens(`${geoNear.comment}${geoNear.snippet}`),
           };
           STAGE_OPERATORS.filter((x) => x.name !== '$geoNear').forEach(
             ({ name, comment, snippet, env: envs }) => {
@@ -151,11 +146,7 @@ describe('pipeline module', function () {
                 expect(
                   newState[0].stage,
                   `${name} stage on ${env} env.`
-                ).to.equal(`${comment}${snippet}`);
-                expect(
-                  newState[0].snippet,
-                  `${name} snippet on ${env} env.`
-                ).to.equal(`${comment}${snippet}`);
+                ).to.equal(replaceOperatorSnippetTokens(`${comment}${snippet}`));
               });
             }
           );
@@ -165,7 +156,6 @@ describe('pipeline module', function () {
           const stage = {
             stageOperator: limit.name,
             stage: '20',
-            snippet: `${limit.comment}${limit.snippet}`,
           };
           STAGE_OPERATORS.filter((x) => x.name !== '$limit').forEach(
             ({ name, env: envs }) => {
@@ -181,10 +171,6 @@ describe('pipeline module', function () {
                 expect(
                   newState[0].stage,
                   `${name} stage on ${env} env.`
-                ).to.equal('20');
-                expect(
-                  newState[0].snippet,
-                  `${name} snippet on ${env} env.`
                 ).to.equal('20');
               });
             }

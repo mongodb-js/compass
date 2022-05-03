@@ -104,7 +104,6 @@ class PipelineWorkspace extends PureComponent {
       sourceName={this.props.sourceName}
       stage={stage.stage}
       stageOperator={stage.stageOperator}
-      snippet={stage.snippet}
       error={stage.error}
       syntaxError={stage.syntaxError}
       isValid={stage.isValid}
