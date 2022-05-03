@@ -25,7 +25,6 @@ describe('StageEditor [Component]', function() {
         isValid={isValid}
         index={0}
         isAutoPreviewing
-        fromStageOperators={false}
         fields={[]}
         serverVersion="3.6.0"
         runStage={runStageSpy}
