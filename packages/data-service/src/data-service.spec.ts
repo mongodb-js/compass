@@ -1375,6 +1375,42 @@ describe('DataService', function () {
         });
       });
     });
+
+    context('with csfle options', function () {
+      let csfleDataService: DataService;
+      let csfleConnectionOptions: ConnectionOptions;
+
+      before(async function () {
+        csfleConnectionOptions = {
+          ...connectionOptions,
+          fleOptions: {
+            storeCredentials: false,
+            autoEncryption: {
+              bypassAutoEncryption: true, // skip mongocryptd/csfle library requirement
+              keyVaultNamespace: `${testDatabaseName}.keyvault`,
+              kmsProviders: {
+                local: { key: 'A'.repeat(128) },
+              },
+            },
+          },
+        };
+
+        csfleDataService = new DataServiceImpl(csfleConnectionOptions);
+        await csfleDataService.connect();
+      });
+
+      after(async function () {
+        await csfleDataService?.disconnect().catch(console.log);
+      });
+
+      it('can create data keys', async function () {
+        const uuid = await csfleDataService.createDataKey('local');
+        const keyDoc = await csfleDataService
+          .fetch(`${testDatabaseName}.keyvault`, {}, {})
+          .next();
+        expect(uuid).to.deep.equal(keyDoc._id);
+      });
+    });
   });
 
   context('with mocked client', function () {
