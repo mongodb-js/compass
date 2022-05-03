@@ -48,7 +48,7 @@ async function setExportFilename(browser: CompassBrowser, filename: string) {
   });
 }
 
-describe('Collection export', function () {
+describe.only('Collection export', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -414,7 +414,7 @@ describe('Collection export', function () {
 
   // Skipping for now because export to JSON seems to include the _id field even
   // if we explicitly deselect it.
-  it.skip('supports full collection to JSON with a subset of fields', async function () {
+  it('supports full collection to JSON with a subset of fields', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     await browser.clickVisible(Selectors.ExportCollectionButton);
