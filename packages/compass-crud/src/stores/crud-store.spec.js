@@ -4,7 +4,7 @@ import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { once } from 'events';
-import configureStore from './crud-store';
+import configureStore, { findAndModifyWithFLEFallback } from './crud-store';
 import configureActions from '../actions';
 
 import chai, { expect } from 'chai';
@@ -1886,6 +1886,76 @@ describe('store', function() {
       store.refreshDocuments();
 
       await listener;
+    });
+  });
+
+  describe('#findAndModifyWithFLEFallback', () => {
+    let dataServiceStub;
+
+    beforeEach(() => {
+      dataServiceStub = {
+        find: sinon.stub().callsFake((ns, query, opts, cb) => cb(undefined, [query]))
+      };
+    });
+
+    it('does the original findAndModify operation and nothing more if it succeeds', async() => {
+      const document = { _id: 1234 };
+      const stub = sinon.stub().callsFake((ds, ns, opts, cb) => { cb(undefined, document); });
+      const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
+      expect(error).to.equal(undefined);
+      expect(d).to.equal(document);
+      expect(stub).to.have.callCount(1);
+      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
+      expect(stub.firstCall.args[1]).to.equal('db.coll');
+      expect(stub.firstCall.args[2]).to.deep.equal({ returnDocument: 'after', promoteValues: false });
+    });
+
+    it('does the original findAndModify operation and nothing more if it fails with a non-FLE error', async() => {
+      const err = new Error('failed');
+      const stub = sinon.stub().callsFake((ds, ns, opts, cb) => { cb(err); });
+      const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
+      expect(error).to.equal(err);
+      expect(d).to.equal(undefined);
+      expect(stub).to.have.callCount(1);
+      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
+      expect(stub.firstCall.args[1]).to.equal('db.coll');
+      expect(stub.firstCall.args[2]).to.deep.equal({ returnDocument: 'after', promoteValues: false });
+    });
+
+    it('retries findAndModify with FLE returnDocument: "after"', async() => {
+      const document = { _id: 1234 };
+      const err = Object.assign(new Error('failed'), { code: 6371402 });
+      const stub = sinon.stub();
+      stub.onFirstCall().callsFake((ds, ns, opts, cb) => { cb(err); });
+      stub.onSecondCall().callsFake((ds, ns, opts, cb) => { cb(undefined, document); });
+      const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
+      expect(error).to.equal(undefined);
+      expect(d).to.deep.equal(document);
+      expect(stub).to.have.callCount(2);
+      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
+      expect(stub.firstCall.args[1]).to.equal('db.coll');
+      expect(stub.firstCall.args[2]).to.deep.equal({ returnDocument: 'after', promoteValues: false });
+      expect(stub.secondCall.args[0]).to.equal(dataServiceStub);
+      expect(stub.secondCall.args[1]).to.equal('db.coll');
+      expect(stub.secondCall.args[2]).to.deep.equal({ returnDocument: 'before', promoteValues: false });
+      expect(dataServiceStub.find).to.have.callCount(1);
+      expect(dataServiceStub.find.firstCall.args[0]).to.equal('db.coll');
+      expect(dataServiceStub.find.firstCall.args[1]).to.deep.equal(document);
+      expect(dataServiceStub.find.firstCall.args[2]).to.deep.equal({ returnDocument: 'before', promoteValues: false });
+    });
+
+    it('returns the original error if the fallback find operation fails', async() => {
+      dataServiceStub.find.yields(new Error('find failed'));
+      const document = { _id: 1234 };
+      const err = Object.assign(new Error('failed'), { code: 6371402 });
+      const stub = sinon.stub();
+      stub.onFirstCall().callsFake((ds, ns, opts, cb) => { cb(err); });
+      stub.onSecondCall().callsFake((ds, ns, opts, cb) => { cb(undefined, document); });
+      const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
+      expect(error).to.equal(err);
+      expect(d).to.equal(undefined);
+      expect(stub).to.have.callCount(2);
+      expect(dataServiceStub.find).to.have.callCount(1);
     });
   });
 });
