@@ -11,6 +11,7 @@ import {
   textToEncryptedFieldConfig,
   encryptedFieldConfigToText,
   adjustCSFLEParams,
+  randomLocalKey,
 } from './csfle-handler';
 
 describe('csfle-handler', function () {
@@ -210,6 +211,13 @@ describe('csfle-handler', function () {
           tlsOptions: { aws: { tlsCertificateKeyFilePassword: '1' } },
         })
       ).to.equal(true);
+    });
+  });
+
+  describe('#randomLocalKey', function () {
+    it('returns random 96-byte base64-encoded strings', function () {
+      expect(randomLocalKey()).to.match(/^[A-Za-z0-9+/]{128}$/);
+      expect(randomLocalKey()).to.not.equal(randomLocalKey());
     });
   });
 
