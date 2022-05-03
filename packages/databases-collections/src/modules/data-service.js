@@ -9,6 +9,11 @@ const PREFIX = 'aggregations/data-service';
 export const DATA_SERVICE_CONNECTED = `${PREFIX}/DATA_SERVICE_CONNECTED`;
 
 /**
+ * Data service updated.
+ */
+export const DATA_SERVICE_UPDATED = `${PREFIX}/DATA_SERVICE_UPDATED`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
@@ -35,6 +40,14 @@ export default function reducer(state = INITIAL_STATE, action) {
       currentTopologyType: action.dataService.currentTopologyType ? action.dataService.currentTopologyType() : 'Unknown'
     };
   }
+  if (action.type === DATA_SERVICE_UPDATED && action.dataService === state.dataService) {
+    return {
+      error: state.error,
+      dataService: action.dataService,
+      configuredKMSProviders: action.dataService.configuredKMSProviders ? action.dataService.configuredKMSProviders() : [],
+      currentTopologyType: action.dataService.currentTopologyType ? action.dataService.currentTopologyType() : 'Unknown'
+    };
+  }
   return state;
 }
 
@@ -49,5 +62,17 @@ export default function reducer(state = INITIAL_STATE, action) {
 export const dataServiceConnected = (error, dataService) => ({
   type: DATA_SERVICE_CONNECTED,
   error: error,
+  dataService: dataService
+});
+
+/**
+ * Action creator for data service updated events.
+ *
+ * @param {DataService} dataService - The data service.
+ *
+ * @returns {Object} The data service connected action.
+ */
+export const dataServiceUpdated = (dataService) => ({
+  type: DATA_SERVICE_UPDATED,
   dataService: dataService
 });
