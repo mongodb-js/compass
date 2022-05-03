@@ -5,7 +5,7 @@ const {
   extractFromString
 } = require('./version');
 
-describe('version', () => {
+describe('version', function() {
   if (!!process.env.EVERGREEN && process.platform === 'darwin') {
     // These tests are not working well on Evergreen macOS machines and we will
     // skip them for now (they will run in GitHub CI)
@@ -14,8 +14,8 @@ describe('version', () => {
     return;
   }
 
-  describe('getMajorMinor', () => {
-    it('returns major and minor form a string', () => {
+  describe('getMajorMinor', function() {
+    it('returns major and minor form a string', function() {
       expect(getMajorMinor('1.2.0')).to.deep.equal([1, 2]);
       expect(getMajorMinor('1.22.0')).to.deep.equal([1, 22]);
       expect(getMajorMinor('22.22.0')).to.deep.equal([22, 22]);
@@ -24,8 +24,8 @@ describe('version', () => {
     });
   });
 
-  describe('sameMajorAndMinor', () => {
-    it('returns true only if major and minor are the same', () => {
+  describe('sameMajorAndMinor', function() {
+    it('returns true only if major and minor are the same', function() {
       expect(sameMajorAndMinor('1.2.0', '1.2.0')).to.be.true;
       expect(sameMajorAndMinor('1.2.0', '1.2.1')).to.be.true;
       expect(sameMajorAndMinor('1.2.1', '1.2.1')).to.be.true;
@@ -37,8 +37,8 @@ describe('version', () => {
     });
   });
 
-  describe('extractFromString', () => {
-    it('gets the correct version', () => {
+  describe('extractFromString', function() {
+    it('gets the correct version', function() {
       const ids = [
         '1.22.1',
         '1.22.1-readonly',

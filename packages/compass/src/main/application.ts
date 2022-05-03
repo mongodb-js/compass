@@ -1,6 +1,7 @@
 import path from 'path';
 import { EventEmitter } from 'events';
-import { app, BrowserWindow } from 'electron';
+import type { BrowserWindow } from 'electron';
+import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import createDebug from 'debug';
 import { CompassLogging } from './logging';
@@ -84,6 +85,7 @@ class CompassApplication {
       debug('All windows closed. Waiting for a new connection window.');
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     app.on('will-quit', async (event: Event) => {
       event.preventDefault(); // Only exit asynchronously, after the cleanup handlers
       await this.runExitHandlers();

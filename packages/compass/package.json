@@ -141,7 +141,7 @@
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "build-info": "hadron-build info",
     "jsx": "babel ./src --out-dir ./lib",
-    "lint": "eslint",
+    "lint": "eslint .",
     "depcheck": "depcheck",
     "test-ci": "npm run test-release-tasks",
     "test-ci-electron": "npm run test-electron",
