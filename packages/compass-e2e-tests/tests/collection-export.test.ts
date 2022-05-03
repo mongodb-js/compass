@@ -48,7 +48,7 @@ async function setExportFilename(browser: CompassBrowser, filename: string) {
   });
 }
 
-describe.only('Collection export', function () {
+describe('Collection export', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
