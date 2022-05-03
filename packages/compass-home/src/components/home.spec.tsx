@@ -26,7 +26,7 @@ const getComponent = (name: string) => {
 const createDataService = () => ({});
 
 describe('Home [Component]', function () {
-  before(function() {
+  before(function () {
     // Skip these tests if we're not running in an electron runtime.
     if (!process.versions.electron) {
       this.skip();
