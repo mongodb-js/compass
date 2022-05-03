@@ -11,7 +11,14 @@ const electronVersion = (() => {
   return `${maj}.${min}`;
 })();
 
-export const javascriptLoader = (args: ConfigArgs) => ({
+/**
+ * "We support the latest two versions Chrome, Firefox and Safari."
+ * @see {@link https://wiki.corp.mongodb.com/display/MMS/Browser+Support}
+ */
+const cloudSupportedBrowserslistConfig =
+  'last 2 Chrome versions, last 2 Safari versions, last 2 Firefox versions';
+
+export const javascriptLoader = (args: ConfigArgs, web = false) => ({
   test: /\.(mjs|jsx?|tsx?)$/,
   exclude: [
     /\bnode_modules\b/,
@@ -28,7 +35,9 @@ export const javascriptLoader = (args: ConfigArgs) => ({
         [
           require.resolve('@babel/preset-env'),
           {
-            targets: { electron: electronVersion },
+            targets: web
+              ? cloudSupportedBrowserslistConfig
+              : { electron: electronVersion },
             useBuiltIns: 'usage',
             corejs: { version: '3.12', proposals: true },
           },
@@ -37,6 +46,14 @@ export const javascriptLoader = (args: ConfigArgs) => ({
         require.resolve('@babel/preset-typescript'),
       ],
       plugins: [
+        [
+          require.resolve('@babel/plugin-transform-runtime'),
+          {
+            helpers: true,
+            regenerator: true,
+            corejs: false,
+          },
+        ],
         [
           require.resolve('@babel/plugin-proposal-decorators'),
           { legacy: true },
@@ -68,7 +85,7 @@ export const nodeLoader = (_args: ConfigArgs) => ({
   use: [{ loader: require.resolve('node-loader') }],
 });
 
-export const cssLoader = (args: ConfigArgs) => ({
+export const cssLoader = (args: ConfigArgs, web = false) => ({
   test: /\.css$/,
   use: [
     args.mode === 'production' && args.target === 'electron-renderer'
@@ -91,7 +108,11 @@ export const cssLoader = (args: ConfigArgs) => ({
           plugins: [
             [
               require.resolve('postcss-preset-env'),
-              { browsers: `electron ${electronVersion}` },
+              {
+                browsers: web
+                  ? cloudSupportedBrowserslistConfig
+                  : `electron ${electronVersion}`,
+              },
             ],
           ],
         },

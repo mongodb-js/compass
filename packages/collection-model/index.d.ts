@@ -55,9 +55,11 @@ interface Collection {
     namespace: string;
     isReadonly: boolean;
     isTimeSeries: boolean;
+    isClustered: boolean;
+    isFLE: boolean;
     sourceName?: string;
     sourceReadonly?: boolean;
-    sourceViewon?: strong;
+    sourceViewon?: string;
     sourcePipeline?: unknown[];
   }>;
   toJSON(opts?: { derived: boolean }): this;

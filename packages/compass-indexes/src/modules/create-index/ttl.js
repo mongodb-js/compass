@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeTtl = (ttl) => ({
   type: CHANGE_TTL,
-  ttl: ttl
+  ttl: ttl,
 });

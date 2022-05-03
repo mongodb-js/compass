@@ -15,10 +15,11 @@ describe('CappedCollectionFields [Component]', () => {
         <CappedCollectionFields
           isTimeSeries
           isCapped={false}
+          isClustered={false}
+          isFLE2={false}
           onChangeCappedSize={() => {}}
           onChangeIsCapped={() => {}}
-          openLink={() => {}}
-          cappedSize={0}
+          cappedSize={'0'}
         />
       );
     });
@@ -40,10 +41,11 @@ describe('CappedCollectionFields [Component]', () => {
         <CappedCollectionFields
           isTimeSeries={false}
           isCapped
+          isClustered={false}
+          isFLE2={false}
           onChangeCappedSize={() => {}}
           onChangeIsCapped={() => {}}
-          openLink={() => {}}
-          cappedSize={0}
+          cappedSize={'0'}
         />
       );
     });
@@ -65,10 +67,11 @@ describe('CappedCollectionFields [Component]', () => {
         <CappedCollectionFields
           isTimeSeries={false}
           isCapped={false}
+          isClustered={false}
+          isFLE2={false}
           onChangeCappedSize={() => {}}
           onChangeIsCapped={() => {}}
-          openLink={() => {}}
-          cappedSize={0}
+          cappedSize={'0'}
         />
       );
     });
@@ -83,6 +86,58 @@ describe('CappedCollectionFields [Component]', () => {
 
     it('has the capped collection checkbox enabled', () => {
       expect(component.find(Checkbox).props().disabled).to.equal(false);
+    });
+  });
+
+  context('when isClustered prop is true', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CappedCollectionFields
+          isTimeSeries={false}
+          isCapped={false}
+          isFLE2={false}
+          isClustered
+          onChangeCappedSize={() => {}}
+          onChangeIsCapped={() => {}}
+          cappedSize={'0'}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the checkbox disabled', () => {
+      expect(component.find(Checkbox).props().disabled).to.equal(true);
+    });
+  });
+
+  context('when isFLE2 prop is true', () => {
+    let component;
+
+    beforeEach(() => {
+      component = mount(
+        <CappedCollectionFields
+          isTimeSeries={false}
+          isCapped={false}
+          isFLE2
+          isClustered={false}
+          onChangeCappedSize={() => {}}
+          onChangeIsCapped={() => {}}
+          cappedSize={'0'}
+        />
+      );
+    });
+
+    afterEach(() => {
+      component = null;
+    });
+
+    it('renders the checkbox disabled', () => {
+      expect(component.find(Checkbox).props().disabled).to.equal(true);
     });
   });
 });

@@ -16,8 +16,9 @@ describe('TimeSeriesFields [Component]', () => {
         <TimeSeriesFields
           isTimeSeries
           isCapped={false}
+          isClustered={false}
           onChangeIsTimeSeries={() => {}}
-          onChangeTimeSeriesField={() => {}}
+          onChangeField={() => {}}
           timeSeries={{}}
           expireAfterSeconds=""
         />
@@ -41,8 +42,10 @@ describe('TimeSeriesFields [Component]', () => {
         <TimeSeriesFields
           isTimeSeries={false}
           isCapped={false}
+          isClustered={false}
+          isFLE2={false}
           onChangeIsTimeSeries={() => {}}
-          onChangeTimeSeriesField={() => {}}
+          onChangeField={() => {}}
           timeSeries={{}}
           expireAfterSeconds=""
         />
@@ -72,8 +75,9 @@ describe('TimeSeriesFields [Component]', () => {
         <TimeSeriesFields
           isTimeSeries={false}
           isCapped={false}
+          isClustered={false}
           onChangeIsTimeSeries={onChangeSpy}
-          onChangeTimeSeriesField={() => {}}
+          onChangeField={() => {}}
           timeSeries={{}}
           expireAfterSeconds=""
         />
@@ -103,8 +107,9 @@ describe('TimeSeriesFields [Component]', () => {
         <TimeSeriesFields
           isTimeSeries={false}
           isCapped
+          isClustered={false}
           onChangeIsTimeSeries={() => {}}
-          onChangeTimeSeriesField={() => {}}
+          onChangeField={() => {}}
           timeSeries={{}}
           expireAfterSeconds=""
         />
@@ -133,8 +138,9 @@ describe('TimeSeriesFields [Component]', () => {
         <TimeSeriesFields
           isTimeSeries
           isCapped={false}
+          isClustered={false}
           onChangeIsTimeSeries={onChangeSpy}
-          onChangeTimeSeriesField={onChangeFieldSpy}
+          onChangeField={onChangeFieldSpy}
           timeSeries={{}}
           expireAfterSeconds=""
         />

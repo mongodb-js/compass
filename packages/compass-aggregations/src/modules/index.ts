@@ -119,6 +119,10 @@ import aggregation, {
   INITIAL_STATE as AGGREGATION_INITIAL_STATE
 } from './aggregation';
 
+import countDocuments, {
+  INITIAL_STATE as COUNT_INITIAL_STATE
+} from './count-documents';
+
 import workspace, {
   INITIAL_STATE as WORKSPACE_INITIAL_STATE
 } from './workspace';
@@ -126,8 +130,8 @@ import workspace, {
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
-import { getDirectory } from '../utils/getDirectory';
-import { PipelineStorage } from '../utils/pipelineStorage';
+import { getDirectory } from '../utils/get-directory';
+import { PipelineStorage } from '../utils/pipeline-storage';
 
 import type { Pipeline, Projection } from './pipeline';
 
@@ -174,6 +178,7 @@ export const INITIAL_STATE = {
   updateViewError: UPDATE_VIEW_ERROR_INITIAL_STATE,
   aggregation: AGGREGATION_INITIAL_STATE,
   workspace: WORKSPACE_INITIAL_STATE,
+  countDocuments: COUNT_INITIAL_STATE,
 };
 
 export type RootState = typeof INITIAL_STATE;
@@ -254,6 +259,7 @@ const appReducer = combineReducers<RootState>({
   updateViewError,
   aggregation,
   workspace,
+  countDocuments,
 });
 
 /**

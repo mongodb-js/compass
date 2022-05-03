@@ -2,10 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import {
-  Modal,
-  FormGroup,
-} from 'react-bootstrap';
+import { Modal, FormGroup } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import ExportSelectOutput from '../export-select-output';
 import ExportSelectFields from '../export-select-fields';
@@ -14,19 +11,14 @@ import ErrorBox from '../error-box';
 
 import revealFile from '../../utils/reveal-file';
 import formatNumber from '../../utils/format-number';
-
 import {
   STARTED,
   CANCELED,
   COMPLETED,
-  UNSPECIFIED
+  UNSPECIFIED,
 } from '../../constants/process-status';
 
-import {
-  QUERY,
-  FIELDS,
-  FILETYPE
-} from '../../constants/export-step';
+import { QUERY, FIELDS, FILETYPE } from '../../constants/export-step';
 
 import {
   closeExport,
@@ -61,7 +53,7 @@ const MESSAGES = {
   [STARTED]: 'Exporting documents...',
   [CANCELED]: 'Export canceled',
   [COMPLETED]: 'Export completed',
-  [UNSPECIFIED]: ''
+  [UNSPECIFIED]: '',
 };
 
 /**
@@ -75,7 +67,7 @@ class ExportModal extends PureComponent {
     fileType: PropTypes.string,
     fileName: PropTypes.string,
     ns: PropTypes.string.isRequired,
-    query: PropTypes.object.isRequired,
+    query: PropTypes.object,
     status: PropTypes.string.isRequired,
     fields: PropTypes.object.isRequired,
     exportedDocsCount: PropTypes.number,
@@ -91,15 +83,22 @@ class ExportModal extends PureComponent {
     toggleFullCollection: PropTypes.func.isRequired,
     selectExportFileType: PropTypes.func.isRequired,
     selectExportFileName: PropTypes.func.isRequired,
+    isAggregation: PropTypes.bool.isRequired,
   };
 
   componentDidMount = () => {
-    document.addEventListener('selectExportFileName', this.handleSelectExportFilename);
-  }
+    document.addEventListener(
+      'selectExportFileName',
+      this.handleSelectExportFilename
+    );
+  };
 
   componentWillUnmount = () => {
-    document.removeEventListener('selectExportFileName', this.handleSelectExportFilename);
-  }
+    document.removeEventListener(
+      'selectExportFileName',
+      this.handleSelectExportFilename
+    );
+  };
 
   /**
    * Get the status message.
@@ -119,7 +118,7 @@ class ExportModal extends PureComponent {
    */
   handleSelectExportFilename = ({ detail }) => {
     this.props.selectExportFileName(detail);
-  }
+  };
 
   /**
    * Handle clicking the cancel button.
@@ -157,7 +156,7 @@ class ExportModal extends PureComponent {
     if (status === FIELDS && Object.entries(this.props.fields).length === 0) {
       this.props.sampleFields();
     }
-  }
+  };
 
   handleRevealClick = () => {
     revealFile(this.props.fileName);
@@ -168,7 +167,7 @@ class ExportModal extends PureComponent {
    */
   handleExportOptionSelect = () => {
     this.props.toggleFullCollection();
-  }
+  };
 
   /**
    * Return back in export flow.
@@ -176,14 +175,14 @@ class ExportModal extends PureComponent {
   handleBackButton = () => {
     const previousState = this.props.exportStep === FILETYPE ? FIELDS : QUERY;
     this.handleChangeModalStatus(previousState);
-  }
+  };
 
   /**
    * Stop form default submission to a whitescreen
    * and start the export if ready.
    * @param {Object} evt - DOM event
    */
-  handleOnSubmit = evt => {
+  handleOnSubmit = (evt) => {
     evt.preventDefault();
     evt.stopPropagation();
     if (this.props.fileName) {
@@ -198,12 +197,12 @@ class ExportModal extends PureComponent {
 
     const queryClassName = classnames({
       [style('query')]: true,
-      [style('query-is-disabled')]: isFullCollection
+      [style('query-is-disabled')]: isFullCollection,
     });
 
     const queryViewerClassName = classnames({
       [style('query-viewer')]: true,
-      [style('query-viewer-is-disabled')]: isFullCollection
+      [style('query-viewer-is-disabled')]: isFullCollection,
     });
 
     // count will be null or undefined if the count query timed out
@@ -214,30 +213,41 @@ class ExportModal extends PureComponent {
     return (
       <FormGroup controlId="export-collection-option">
         <div className={style('radio')}>
-          <label className={queryClassName} data-test-id="export-with-filters-label">
-            <input type="radio"
+          <label
+            className={queryClassName}
+            data-test-id="export-with-filters-label"
+          >
+            <input
+              type="radio"
               data-test-id="export-with-filters"
               value="filter"
               checked={!isFullCollection}
               onChange={this.handleExportOptionSelect}
-              aria-label="Export collection with filters radio button"/>
+              aria-label="Export collection with filters radio button"
+            />
             Export query with filters{resultsSummary} (Recommended)
           </label>
         </div>
-        <div className={queryViewerClassName} data-test-id="query-viewer-wrapper">
+        <div
+          className={queryViewerClassName}
+          data-test-id="query-viewer-wrapper"
+        >
           <QueryViewer
             ns={this.props.ns}
-            query={this.props.query}
-            disabled={isFullCollection}/>
+            query={this.props.query ?? {}}
+            disabled={isFullCollection}
+          />
         </div>
         <div className={style('radio')}>
           <label>
-            <input type="radio"
+            <input
+              type="radio"
               data-test-id="export-full-collection"
               value="full"
               checked={isFullCollection}
               onChange={this.handleExportOptionSelect}
-              aria-label="Export full collection radio button"/>
+              aria-label="Export full collection radio button"
+            />
             Export Full Collection
           </label>
         </div>
@@ -250,7 +260,8 @@ class ExportModal extends PureComponent {
       <ExportSelectFields
         fields={this.props.fields}
         exportStep={this.props.exportStep}
-        updateSelectedFields={this.props.updateSelectedFields}/>
+        updateSelectedFields={this.props.updateSelectedFields}
+      />
     );
   }
 
@@ -268,12 +279,19 @@ class ExportModal extends PureComponent {
         cancelExport={this.props.cancelExport}
         exportedDocsCount={this.props.exportedDocsCount}
         selectExportFileType={this.props.selectExportFileType}
-        selectExportFileName={this.props.selectExportFileName}/>
+        selectExportFileName={this.props.selectExportFileName}
+        isAggregation={this.props.isAggregation}
+      />
     );
   }
 
   renderBackButton() {
-    const backButtonClassname = classnames('btn', 'btn-default', 'btn-sm', style('back-button'));
+    const backButtonClassname = classnames(
+      'btn',
+      'btn-default',
+      'btn-sm',
+      style('back-button')
+    );
 
     if (this.props.exportStep !== QUERY) {
       return (
@@ -281,7 +299,8 @@ class ExportModal extends PureComponent {
           dataTestId="back-button"
           text="< BACK"
           className={backButtonClassname}
-          clickHandler={this.handleBackButton}/>
+          clickHandler={this.handleBackButton}
+        />
       );
     }
   }
@@ -294,7 +313,8 @@ class ExportModal extends PureComponent {
           dataTestId="show-file-button"
           text="Show File"
           className="btn btn-primary btn-sm"
-          clickHandler={this.handleRevealClick}/>
+          clickHandler={this.handleRevealClick}
+        />
       );
     }
     if (this.props.exportStep === QUERY) {
@@ -303,7 +323,8 @@ class ExportModal extends PureComponent {
           dataTestId="select-fields-button"
           text="Select Fields"
           className="btn btn-primary btn-sm"
-          clickHandler={this.handleChangeModalStatus.bind(this, FIELDS)}/>
+          clickHandler={this.handleChangeModalStatus.bind(this, FIELDS)}
+        />
       );
     }
     if (this.props.exportStep === FIELDS) {
@@ -316,7 +337,8 @@ class ExportModal extends PureComponent {
           text="Select Output"
           disabled={emptyFields}
           className="btn btn-primary btn-sm"
-          clickHandler={this.handleChangeModalStatus.bind(this, FILETYPE)}/>
+          clickHandler={this.handleChangeModalStatus.bind(this, FILETYPE)}
+        />
       );
     }
     return (
@@ -325,7 +347,8 @@ class ExportModal extends PureComponent {
         text="Export"
         clickHandler={this.handleExport}
         className="btn btn-primary btn-sm"
-        disabled={this.props.status === STARTED}/>
+        disabled={this.props.status === STARTED}
+      />
     );
   }
 
@@ -341,7 +364,9 @@ class ExportModal extends PureComponent {
       this.props.status === COMPLETED && this.props.exportStep === FILETYPE
         ? 'Close'
         : 'Cancel';
-
+    const entityToExport = this.props.isAggregation
+      ? 'Aggregation from'
+      : 'Collection';
     return (
       <Modal
         // Because this modal is rendered outside of the
@@ -354,7 +379,7 @@ class ExportModal extends PureComponent {
         data-test-id="export-modal"
       >
         <Modal.Header closeButton>
-          Export Collection {this.props.ns}
+          Export {entityToExport} {this.props.ns}
         </Modal.Header>
         <Modal.Body>
           {this.renderExportOptions()}
@@ -365,12 +390,13 @@ class ExportModal extends PureComponent {
           )}
         </Modal.Body>
         <Modal.Footer>
-          {this.renderBackButton()}
+          {!this.props.isAggregation && this.renderBackButton()}
           <TextButton
             dataTestId={`${closeButton.toLowerCase()}-button`}
             text={closeButton}
             clickHandler={this.handleClose}
-            className="btn btn-default btn-sm"/>
+            className="btn btn-default btn-sm"
+          />
           {this.renderNextButton()}
         </Modal.Footer>
       </Modal>
@@ -400,24 +426,22 @@ const mapStateToProps = (state) => {
     isFullCollection: state.exportData.isFullCollection,
     exportedDocsCount: state.exportData.exportedDocsCount,
     // 0 is a valid number of documents, only ignore null or undefined
-    count: state.exportData.count ?? null
+    count: state.exportData.count ?? null,
+    isAggregation: Boolean(state.exportData.aggregation),
   };
 };
 
 /**
  * Export the connected component as the default.
  */
-export default connect(
-  mapStateToProps,
-  {
-    startExport,
-    closeExport,
-    sampleFields,
-    cancelExport,
-    updateSelectedFields,
-    changeExportStep,
-    selectExportFileType,
-    selectExportFileName,
-    toggleFullCollection,
-  }
-)(ExportModal);
+export default connect(mapStateToProps, {
+  startExport,
+  closeExport,
+  sampleFields,
+  cancelExport,
+  updateSelectedFields,
+  changeExportStep,
+  selectExportFileType,
+  selectExportFileName,
+  toggleFullCollection,
+})(ExportModal);

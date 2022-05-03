@@ -6,9 +6,7 @@ import configureCreateIndexStore from './stores/create-index';
 import configureDropIndexStore from './stores/drop-index';
 import IndexDefinitionType from './components/index-definition-type';
 
-/**
- * A sample role for the component.
- */
+// Compass Plugin role definition.
 const ROLE = {
   name: 'Indexes',
   component: IndexesPlugin,
@@ -16,7 +14,7 @@ const ROLE = {
   configureStore: configureStore,
   configureActions: () => {},
   storeName: 'Indexes.Store',
-  actionName: 'Indexes.Actions'
+  actionName: 'Indexes.Actions',
 };
 
 const CREATE_INDEX_ROLE = {
@@ -25,7 +23,7 @@ const CREATE_INDEX_ROLE = {
   configureStore: configureCreateIndexStore,
   configureActions: () => {},
   storeName: 'Indexes.CreateIndexStore',
-  actionName: 'Indexes.CreateIndexActions'
+  actionName: 'Indexes.CreateIndexActions',
 };
 
 const DROP_INDEX_ROLE = {
@@ -34,7 +32,7 @@ const DROP_INDEX_ROLE = {
   configureStore: configureDropIndexStore,
   configureActions: () => {},
   storeName: 'Indexes.DropIndexStore',
-  actionName: 'Indexes.DropIndexActions'
+  actionName: 'Indexes.DropIndexActions',
 };
 
 /**
@@ -45,7 +43,10 @@ function activate(appRegistry) {
   appRegistry.registerRole('Collection.Tab', ROLE);
   appRegistry.registerRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
   appRegistry.registerRole('Collection.ScopedModal', DROP_INDEX_ROLE);
-  appRegistry.registerComponent('Indexes.IndexDefinitionType', IndexDefinitionType);
+  appRegistry.registerComponent(
+    'Indexes.IndexDefinitionType',
+    IndexDefinitionType
+  );
 }
 
 /**

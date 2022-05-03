@@ -13,7 +13,7 @@ function getBSONTypeCastings() {
 class SelectFieldType extends PureComponent {
   static propTypes = {
     selectedType: PropTypes.string,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
   };
 
   onChange(evt) {
@@ -28,6 +28,7 @@ class SelectFieldType extends PureComponent {
      * TODO: lucas: Handle JSON casting.
      */
     return (
+      // eslint-disable-next-line jsx-a11y/no-onchange
       <select defaultValue={selectedType} onChange={onChange}>
         {getBSONTypeCastings().map((name) => (
           <option key={name} value={name}>

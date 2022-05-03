@@ -1,7 +1,8 @@
 /**
  * Change is partial filter expression action name.
  */
-export const TOGGLE_IS_PARTIAL_FILTER_EXPRESSION = 'indexes/create-indexes/is-partial_filter_expression/TOGGLE_IS_PARTIAL_FILTER_EXPRESSION';
+export const TOGGLE_IS_PARTIAL_FILTER_EXPRESSION =
+  'indexes/create-indexes/is-partial_filter_expression/TOGGLE_IS_PARTIAL_FILTER_EXPRESSION';
 
 /**
  * The initial state of the is writable attribute.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsPartialFilterExpression = (isPartialFilterExpression) => ({
   type: TOGGLE_IS_PARTIAL_FILTER_EXPRESSION,
-  isPartialFilterExpression: isPartialFilterExpression
+  isPartialFilterExpression: isPartialFilterExpression,
 });

@@ -1,4 +1,10 @@
-import type { AnyError, MongoClient, Document } from 'mongodb';
+import type {
+  AnyError,
+  MongoClient,
+  Document,
+  MongoClientOptions,
+  AutoEncryptionOptions,
+} from 'mongodb';
 import {
   isEnterprise,
   getGenuineMongoDB,
@@ -62,8 +68,10 @@ type CollectionDetails = {
   specialish: boolean;
   normal: boolean;
   readonly: boolean;
+  clustered: boolean;
   collation: Document | null;
   view_on: string | null;
+  fle2: boolean;
   pipeline: Document[] | null;
   validation: {
     validator: Document;
@@ -98,13 +106,13 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
+  csfleMode: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export async function getInstance(
   client: MongoClient
-): Promise<InstanceDetails> {
+): Promise<Omit<InstanceDetails, 'csfleMode'>> {
   const adminDb = client.db('admin');
-
   const [
     connectionStatus,
     getCmdLineOptsResult,
@@ -169,6 +177,24 @@ function checkIsAtlas(
     return /mongodb(-dev)?\.net$/i.test(firstHost);
   }
   return true;
+}
+
+export function checkIsCSFLEConnection(client: {
+  options: MongoClientOptions;
+}): boolean {
+  return configuredKMSProviders(client.options?.autoEncryption).length > 0;
+}
+
+export function configuredKMSProviders(
+  autoEncryption?: AutoEncryptionOptions
+): string[] {
+  const kmsProviders = autoEncryption?.kmsProviders ?? {};
+  return Object.entries(kmsProviders)
+    .filter(
+      ([, kmsOptions]) =>
+        Object.values(kmsOptions ?? {}).filter(Boolean).length > 0
+    )
+    .map(([kmsProviderName]) => kmsProviderName);
 }
 
 function buildGenuineMongoDBInfo(
@@ -257,6 +283,31 @@ export function getPrivilegesByDatabaseAndCollection(
   return result;
 }
 
+// Return a list of the databases which have a role matching one of the roles.
+export function getDatabasesByRoles(
+  authenticatedUserRoles:
+    | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+    | null = null,
+  possibleRoles: string[] | null = null
+): string[] {
+  const roles = authenticatedUserRoles ?? [];
+
+  const results = new Set<string>();
+
+  const filteredRoles =
+    possibleRoles && possibleRoles.length > 0
+      ? roles.filter(({ role }) => {
+          return possibleRoles.includes(role);
+        })
+      : roles;
+
+  for (const { db } of filteredRoles) {
+    results.add(db);
+  }
+
+  return [...results];
+}
+
 function isNotAuthorized(err: AnyError) {
   if (!err) {
     return false;
@@ -343,6 +394,8 @@ export function adaptCollectionInfo({
     validator,
     validationAction,
     validationLevel,
+    clusteredIndex,
+    encryptedFields,
   } = options ?? {};
 
   const hasValidation = Boolean(
@@ -364,6 +417,8 @@ export function adaptCollectionInfo({
     collation: collation ?? null,
     view_on: viewOn ?? null,
     pipeline: pipeline ?? null,
+    clustered: clusteredIndex ? true : false,
+    fle2: encryptedFields ? true : false,
     validation: hasValidation
       ? { validator, validationAction, validationLevel }
       : null,

@@ -16,8 +16,7 @@ function Collation({
   collation,
   isCustomCollation,
   onChangeCollationOption,
-  onChangeIsCustomCollation,
-  openLink
+  onChangeIsCustomCollation
 }) {
   return (
     <CollapsibleFieldSet
@@ -29,7 +28,6 @@ function Collation({
       toggled={isCustomCollation}
       description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
       helpUrl={HELP_URL_COLLATION}
-      openLink={openLink}
     >
       <CollationFields
         collation={collation}
@@ -44,8 +42,7 @@ Collation.propTypes = {
   collation: PropTypes.object.isRequired,
   isCustomCollation: PropTypes.bool.isRequired,
   onChangeCollationOption: PropTypes.func.isRequired,
-  onChangeIsCustomCollation: PropTypes.func.isRequired,
-  openLink: PropTypes.func.isRequired
+  onChangeIsCustomCollation: PropTypes.func.isRequired
 };
 
 export default Collation;

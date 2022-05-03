@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "21.18.0",
+  "version": "21.20.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -20,10 +20,13 @@
     "mongodb-js"
   ],
   "main": "lib/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "webpack": "./src/index.ts",
     "require": "./lib/index.js",
     "import": "./lib/.esm-wrapper.mjs"
+  },
+  "compass:exports": {
+    ".": "./src/index.ts"
   },
   "types": "./lib/index.d.ts",
   "files": [
@@ -47,6 +50,9 @@
     "test": "mocha",
     "test-connectivity": "mocha ./src/connect.spec.ts",
     "posttest": "mongodb-runner stop --port=27018",
+    "pretest-csfle": "mongodb-runner start --enterprise --mongodb-version \">=6.0.0-rc1\" --topology=replicaset --secondaries=0 --port=27018",
+    "test-csfle": "mocha ./src/csfle-collection-tracker.spec.ts",
+    "posttest-csfle": "mongodb-runner stop --enterprise --mongodb-version \">=6.0.0-rc1\" --topology=replicaset --secondaries=0 --port=27018",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
@@ -57,23 +63,24 @@
     "mongodb": "^4.4.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.9.0",
-    "@mongodb-js/devtools-connect": "^1.2.4",
-    "@mongodb-js/ssh-tunnel": "^1.4.0",
+    "@mongodb-js/compass-logging": "^0.11.0",
+    "@mongodb-js/devtools-connect": "^1.3.1",
+    "@mongodb-js/ssh-tunnel": "^1.6.0",
     "async": "^3.2.0",
     "debug": "4.3.0",
     "lodash": "^4.17.20",
     "mongodb-build-info": "^1.3.0",
-    "mongodb-connection-model": "^21.14.0",
+    "mongodb-client-encryption": "^2.1.0",
+    "mongodb-connection-model": "^21.16.0",
     "mongodb-connection-string-url": "^2.5.2",
-    "mongodb-index-model": "^3.9.0",
-    "mongodb-ns": "^2.3.0",
+    "mongodb-index-model": "^3.10.0",
+    "mongodb-ns": "^2.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
-    "@mongodb-js/eslint-config-compass": "^0.7.0",
-    "@mongodb-js/mocha-config-compass": "^0.9.0",
+    "@mongodb-js/eslint-config-compass": "^0.8.0",
+    "@mongodb-js/mocha-config-compass": "^0.10.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^0.6.0",
     "@types/async": "^3.2.7",
@@ -88,12 +95,12 @@
     "kerberos": "^2.0.0",
     "mocha": "^8.4.0",
     "mongodb": "^4.4.0",
-    "mongodb-runner": "^4.8.3",
+    "mongodb-runner": "^4.9.0",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
-    "storage-mixin": "^4.12.0",
+    "storage-mixin": "^4.14.0",
     "typescript": "^4.3.5"
   }
 }

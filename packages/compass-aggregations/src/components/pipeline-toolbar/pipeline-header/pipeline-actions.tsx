@@ -6,9 +6,14 @@ import {
   spacing,
   Link,
   Icon,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
-import { runAggregation } from '../../../modules/aggregation';
+import type { RootState } from '../../../modules';
+import {
+  exportAggregationResults,
+  runAggregation,
+} from '../../../modules/aggregation';
 
 const containerStyles = css({
   display: 'flex',
@@ -20,6 +25,10 @@ const optionsButtonStyles = css({
   backgroundColor: 'transparent',
   border: 'none',
   display: 'inline',
+  height: spacing[4] + spacing[1],
+  ':focus': {
+    outline: `${spacing[1]}px auto ${uiColors.focus}`,
+  },
 });
 
 const optionStyles = css({
@@ -29,30 +38,62 @@ const optionStyles = css({
 });
 
 type PipelineActionsProps = {
+  isPipelineInvalid: boolean;
   isOptionsVisible: boolean;
+  showRunButton: boolean;
+  showExportButton: boolean;
   onRunAggregation: () => void;
   onToggleOptions: () => void;
+  onExportAggregationResults: () => void;
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
+  isPipelineInvalid,
   isOptionsVisible,
+  showRunButton,
+  showExportButton: _showExportButton,
   onRunAggregation,
   onToggleOptions,
+  onExportAggregationResults,
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
+  const showExportButton =
+    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true' &&
+    _showExportButton;
+  const optionsLabel = isOptionsVisible ? 'Less Options' : 'More Options';
   return (
     <div className={containerStyles}>
-      <Button
+      {showExportButton && (
+        <Button
+          aria-label={'Export aggregation'}
+          data-testid="pipeline-toolbar-export-aggregation-button"
+          variant="default"
+          size="small"
+          onClick={() => {
+            onExportAggregationResults();
+          }}
+          disabled={isPipelineInvalid}
+        >
+          Export
+        </Button>
+      )}
+      {showRunButton && <Button
+        aria-label={'Run aggregation'}
         data-testid="pipeline-toolbar-run-button"
         variant="primary"
         size="small"
         onClick={() => {
           onRunAggregation();
         }}
+        disabled={isPipelineInvalid}
       >
         Run
-      </Button>
+      </Button>}
       <Link
+        aria-label={optionsLabel}
+        aria-expanded={isOptionsVisible}
+        aria-controls="pipeline-options"
+        id="pipeline-toolbar-options"
         as="button"
         className={optionsButtonStyles}
         data-testid="pipeline-toolbar-options-button"
@@ -60,7 +101,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         onClick={() => onToggleOptions()}
       >
         <div className={optionStyles}>
-          {isOptionsVisible ? 'Less' : 'More'} Options{' '}
+          {optionsLabel}
           <Icon glyph={optionsIcon} />
         </div>
       </Link>
@@ -68,6 +109,15 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   );
 };
 
-export default connect(null, {
+const mapState = ({ pipeline }: RootState) => ({
+  isPipelineInvalid: pipeline.some(
+    (x) => x.isEnabled && (!x.isValid || x.error)
+  ),
+});
+
+const mapDispatch = {
   onRunAggregation: runAggregation,
-})(PipelineActions);
+  onExportAggregationResults: exportAggregationResults,
+};
+
+export default connect(mapState, mapDispatch)(PipelineActions);

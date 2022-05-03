@@ -203,6 +203,12 @@ export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
 export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const SidebarInstanceRefreshButton =
+  '[data-test-id="sidebar-instance-stats-refresh-button"]';
+export const SidebarInstanceRefreshSpinning =
+  '[data-test-id="sidebar-instance-stats-refresh-spinning"]';
+export const SidebarInstanceRefreshIdle =
+  '[data-test-id="sidebar-instance-stats-refresh-idle"]';
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -244,8 +250,12 @@ export const FavoriteSaveButton =
 export const CreateDatabaseModal = '[data-testid="create_database_modal"]';
 export const CreateDatabaseDatabaseName = '[data-testid="database-name"]';
 export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
+export const CreateDatabaseErrorMessage =
+  '[data-testid="create_database_modal"] [role="alert"]';
 export const CreateDatabaseCreateButton =
   '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateDatabaseCancelButton =
+  '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 
 // Drop database modal
 export const DropDatabaseModal = '[data-testid="drop_database_modal"]';
@@ -257,8 +267,12 @@ export const DropDatabaseDropButton =
 // Create collection modal
 export const CreateCollectionModal = '[data-testid="create_collection_modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
+export const CreateCollectionErrorMessage =
+  '[data-testid="create_collection_modal"] [role="alert"]';
 export const CreateCollectionCreateButton =
   '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+export const CreateCollectionCancelButton =
+  '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 export const CreateCollectionCappedCheckboxLabel =
   '[data-testid="capped-collection-fields"] #toggle-capped-collection-fields-label';
 export const CreateCollectionCappedSizeInput =
@@ -278,6 +292,13 @@ export const CreateCollectionTimeseriesGranularityMenu =
   '[data-testid="time-series-fields"] #timeSeries-granularity-menu';
 export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
+
+export const CreateCollectionClusteredCheckboxLabel =
+  '[data-testid="clustered-collection-fields"] #toggle-clustered-collection-fields-label';
+export const CreateCollectionClusteredNameField =
+  '[data-testid="clustered-collection-fields"] [name="clusteredIndex.name"]';
+export const CreateCollectionClusteredExpireAfterSeconds =
+  '[data-testid="clustered-collection-fields"] [name="expireAfterSeconds"]';
 
 export const createCollectionCustomCollationFieldButton = (
   fieldName: string
@@ -394,12 +415,20 @@ export const CollectionTab = '.test-tab-nav-bar-tab';
 export const CollectionHeaderTitle = '[data-testid="collection-header-title"]';
 export const CollectionHeaderNamespace =
   '[data-testid="collection-header-namespace"]';
-export const DocumentCountValue = '[data-test-id="document-count-value"]';
-export const StorageSizeValue = '[data-test-id="storage-size-value"]';
-export const AvgDocumentSizeValue = '[data-test-id="avg-document-size-value"]';
-export const IndexCountValue = '[data-test-id="index-count-value"]';
-export const TotalIndexSizeValue = '[data-test-id="total-index-size-value"]';
-export const AvgIndexSizeValue = '[data-test-id="avg-index-size-value"]';
+export const DocumentCountValue = '[data-testid="document-count-value"]';
+export const CollectionStatsTooltip =
+  '[data-testid="collection-stats-tooltip"]';
+export const TooltipDocumentsCountValue =
+  '[data-testid="tooltip-documents-count"]';
+export const TooltipDocumentsStorageSize =
+  '[data-testid="tooltip-documents-storage-size"]';
+export const TooltipDocumentsAvgSize =
+  '[data-testid="tooltip-documents-avg-size"]';
+export const IndexCountValue = '[data-testid="index-count-value"]';
+export const TooltipIndexesCount = '[data-testid="tooltip-indexes-count"]';
+export const TooltipIndexesTotalSize =
+  '[data-testid="tooltip-indexes-total-size"]';
+export const TooltipIndexesAvgSize = '[data-testid="tooltip-indexes-avg-size"]';
 
 export const collectionTab = (tabName: string, selected?: boolean): string => {
   const selector = `${CollectionTab}[name="${tabName}"]`;
@@ -488,12 +517,46 @@ export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
   return `[data-test-id="preview-field-header-${fieldName}"] input[type="checkbox"]`;
 };
 
+// Hadron document editor
+
+export const HadronDocument = '[data-testid="hadron-document"]';
+export const HadronDocumentElement = '[data-testid="hadron-document-element"]';
+export const HadronDocumentKey = '[data-testid="hadron-document-element-key"]';
+export const HadronDocumentClickableKey =
+  '[data-testid="hadron-document-clickable-key"]';
+export const HadronDocumentKeyEditor =
+  '[data-testid="hadron-document-key-editor"]';
+export const HadronDocumentValue =
+  '[data-testid="hadron-document-element-value"]';
+export const HadronDocumentValueEditor =
+  '[data-testid="hadron-document-value-editor"]';
+export const HadronDocumentClickableValue =
+  '[data-testid="hadron-document-clickable-value"]';
+export const HadronDocumentType =
+  '[data-testid="hadron-document-element-type"]';
+export const HadronDocumentAddElementMenuButton =
+  '[data-testid="hadron-document-add-element"]';
+export const HadronDocumentAddChildButton =
+  '[data-testid="hadron-document-add-child"]';
+export const HadronDocumentAddSibling =
+  '[data-testid="hadron-document-add-sibling"]';
+export const HadronDocumentRevertElement =
+  '[data-testid="hadron-document-revert"]';
+export const HadronDocumentRemoveElement =
+  '[data-testid="hadron-document-remove"]';
+
 // Document list view
 
-export const DocumentListFirstItemFields =
-  '[data-test-id="document-list-item"]:first-child .editable-element-field';
-export const DocumentListFirstItemValues =
-  '[data-test-id="document-list-item"]:first-child .element-value, [data-test-id="document-list-item"]:first-child .editable-expandable-element-header-label';
+export const DocumentListItem = '[data-test-id="document-list-item"]';
+export const documentListDocument = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocument}`;
+};
+export const documentListDocumentKey = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentKey}`;
+};
+export const documentListDocumentValue = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
+};
 
 // Query bar history
 
@@ -518,7 +581,7 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 export const StageContainer = '[data-test-id="stage-container"]';
 export const CreateNewPipelineButton = 'button#create-new-pipeline';
 export const ToggleAggregationCollation = '[data-test-id="toggle-collation"]';
-export const AggregationCollationInput = '[data-test-id="collation-string"]';
+export const AggregationCollationInput = '[data-testid="collation-string"]';
 export const AggregationSettingsButton =
   '[data-test-id="aggregation-settings"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
@@ -718,8 +781,8 @@ export const queryBarActionsMenu = (tabName: string): string => {
   return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
 };
 
-// Tabs at the top
-export const CloseCollectionTab = '[data-test-id="close-collection-tab"]';
+// Workspace tabs at the top
+export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 
 // Export modal
 export const ExportModal = '[data-test-id="export-modal"]';

@@ -34,7 +34,7 @@ interface DataLake {
   version: string;
 }
 
-interface MongoDBInstance {
+declare class MongoDBInstanceProps {
   _id: string;
   hostname: string;
   port: string;
@@ -52,6 +52,11 @@ interface MongoDBInstance {
   dataLake: DataLake;
   auth: AuthInfo;
   databases: DatabaseCollection;
+  csfleMode: 'enabled' | 'disabled' | 'unavailable';
+}
+
+declare class MongoDBInstance extends MongoDBInstanceProps {
+  constructor(props: MongoDBInstanceProps);
   fetch(opts: { dataService: DataService; force?: boolean }): Promise<void>;
   fetchDatabases(opts: {
     dataService: DataService;
@@ -75,3 +80,4 @@ interface MongoDBInstance {
 }
 
 export default MongoDBInstance;
+export { MongoDBInstanceProps };

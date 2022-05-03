@@ -1,10 +1,15 @@
 .document {
+  position: relative;
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
   font-size: 11px;
   list-style: none;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   &-contents {
     padding-top: 20px;

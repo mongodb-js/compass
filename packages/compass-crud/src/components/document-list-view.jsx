@@ -29,21 +29,18 @@ class DocumentListView extends React.Component {
    * @return {Array} The document list item components.
    */
   renderDocuments() {
-    return this.props.docs.map((doc, i) => {
+    return this.props.docs.map((doc) => {
       return (
-        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
+        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={doc.uuid}>
           <Document
+            key={doc.uuid}
             doc={doc}
-            tz={this.props.tz}
-            key={i}
             editable={this.props.isEditable}
             isTimeSeries={this.props.isTimeSeries}
-            version={this.props.version}
             copyToClipboard={this.props.copyToClipboard}
             removeDocument={this.props.removeDocument}
             replaceDocument={this.props.replaceDocument}
             updateDocument={this.props.updateDocument}
-            openImportFileDialog={this.props.openImportFileDialog}
             openInsertDocumentDialog={this.props.openInsertDocumentDialog}
           />
         </li>
@@ -67,16 +64,13 @@ class DocumentListView extends React.Component {
 
 DocumentListView.propTypes = {
   docs: PropTypes.array.isRequired,
-  isEditable: PropTypes.bool.isRequired,
+  isEditable: PropTypes.bool,
   isTimeSeries: PropTypes.bool,
-  copyToClipboard: PropTypes.func,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
-  version: PropTypes.string.isRequired,
   openInsertDocumentDialog: PropTypes.func,
-  openImportFileDialog: PropTypes.func,
-  tz: PropTypes.string.isRequired
+  copyToClipboard: PropTypes.func,
 };
 
 DocumentListView.displayName = 'DocumentListView';

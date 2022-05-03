@@ -19,6 +19,7 @@ tests:
           csharp: ''
           shell: NumberLong
           ruby: ''
+          rust: ''
     - input:
           javascript: new Decimal128
           python: Decimal128
@@ -39,6 +40,7 @@ tests:
           csharp: ''
           shell: ''
           ruby: ''
+          rust: ''
     - input:
           javascript: Int32
           python: int
@@ -50,6 +52,7 @@ tests:
           shell: NumberInt
           ruby: ''
           swift: Int32
+          rust: ''
     - input:
           javascript: Long
       output:
@@ -59,6 +62,7 @@ tests:
           csharp: ''
           shell: NumberLong
           ruby: ''
+          rust: ''
     - input:
           javascript: Decimal128
       output:
@@ -78,6 +82,7 @@ tests:
           csharp: ObjectId
           shell: ObjectId
           ruby: BSON::ObjectId
+          rust: ObjectId
     - input:
           javascript: Code
           python: Code
@@ -89,6 +94,7 @@ tests:
           shell: Code
           ruby: BSON::Code
           swift: BSONCode
+          rust: ''
     - input:
           javascript: DBRef
           python: DBRef
@@ -110,6 +116,7 @@ tests:
           shell: Timestamp
           ruby: BSON::Timestamp
           swift: BSONTimestamp
+          rust: Timestamp
     - input:
           javascript: BSONSymbol
       output:
@@ -119,6 +126,7 @@ tests:
           csharp: ''
           shell: ''
           ruby: ''
+          rust: Bson::Symbol
     - input:
           javascript: MinKey
           python: MinKey
@@ -130,6 +138,7 @@ tests:
           shell: MinKey
           ruby: BSON::MinKey
           swift: BSONMinKey
+          rust: Bson::MinKey
     - input:
           javascript: MaxKey
           python: MaxKey
@@ -141,6 +150,7 @@ tests:
           shell: MaxKey
           ruby: BSON::MaxKey
           swift: BSONMaxKey
+          rust: Bson::MaxKey
     - input:
           javascript: BSONRegExp
           python: Regex
@@ -152,6 +162,7 @@ tests:
           shell: RegExp
           ruby: ''
           swift: BSONRegularExpression
+          rust: Regex
     - input:
           javascript: RegExp
           python: re.compile
@@ -162,6 +173,7 @@ tests:
           csharp: Regex
           shell: RegExp
           ruby: ''
+          rust: Regex
     - input:
           python: re
       output:
@@ -171,6 +183,7 @@ tests:
           csharp: ''
           shell: ''
           ruby: ''
+          rust: ''
     - input:
           javascript: Date
           python: datetime
@@ -182,6 +195,7 @@ tests:
           shell: Date
           ruby: Time
           swift: Date
+          rust: DateTime
     - input:
           javascript: ObjectId.createFromTime
           python: ObjectId.from_datetime
@@ -212,6 +226,7 @@ tests:
           shell: new ObjectId().toString()
           ruby: BSON::ObjectId.new.to_s
           swift: BSONObjectID().hex
+          rust: ObjectId::new().to_hex()
     - input:
           javascript: ObjectId().getTimestamp
       output:
@@ -222,6 +237,7 @@ tests:
           shell: new ObjectId().getTimestamp()
           ruby: BSON::ObjectId.new.to_time
           swift: BSONObjectID().timestamp
+          rust: ObjectId::new().timestamp()
     - input:
           javascript: ObjectId().equals
       output:
@@ -232,6 +248,7 @@ tests:
           shell: new ObjectId().equals
           ruby: BSON::ObjectId.new ==
           swift: BSONObjectID() ==
+          rust: ObjectId::new() ==
     - input:
           javascript: Long(1, 100).toInt
       output:
@@ -242,6 +259,7 @@ tests:
           shell: new NumberLong(429496729601).valueOf
           ruby: "429496729601"
           swift: "Int32(429496729601)"
+          rust: 429496729601i64 as i32
     - input:
           javascript: Long(1, 100).toNumber
       output:
@@ -252,6 +270,7 @@ tests:
           shell: new NumberLong(429496729601).floatApprox
           ruby: "429496729601.to_f"
           swift: "Double(429496729601)"
+          rust: 429496729601i64 as f64
     - input:
           javascript: Long(1, 100).toString
       output:
@@ -262,6 +281,7 @@ tests:
           shell: new NumberLong(429496729601).toString
           ruby: '429496729601.to_s'
           swift: '"\(429496729601)"'
+          rust: 429496729601i64
     - input:
           javascript: Long(1, 100).isZero
       output:
@@ -272,6 +292,7 @@ tests:
           shell: new NumberLong(429496729601) === 0
           ruby: 429496729601 == 0
           swift: 429496729601 == 0
+          rust: 429496729601i64 == 0
     - input:
           javascript: Long(1, 100).isNegative
       output:
@@ -282,6 +303,7 @@ tests:
           shell: new NumberLong(429496729601) < 0
           ruby: 429496729601 < 0
           swift: 429496729601 < 0
+          rust: 429496729601i64 < 0
     - input:
           javascript: Long(1, 100).isOdd()
       output:
@@ -292,6 +314,7 @@ tests:
           shell: "(new NumberLong(429496729601) % 2) === 1"
           ruby: (429496729601 % 2) == 1
           swift: 429496729601 % 2 == 1
+          rust: 429496729601i64 % 2 == 1
     - input:
           javascript: Long(1, 100).equals
       output:
@@ -302,6 +325,7 @@ tests:
           shell: new NumberLong(429496729601) ===
           ruby: 429496729601 ==
           swift: 429496729601 ==
+          rust: 429496729601i64 ==
     - input:
           javascript: Long(1, 100).notEquals
       output:
@@ -312,6 +336,7 @@ tests:
           shell: new NumberLong(429496729601) !==
           ruby: 429496729601 !=
           swift: 429496729601 !=
+          rust: 429496729601i64 !=
     - input:
           javascript: Long(1, 100).compare
       output:
@@ -322,6 +347,7 @@ tests:
           shell: new NumberLong(429496729601) -
           ruby: 429496729601 -
           swift: 429496729601 -
+          rust: 429496729601i64 -
     - input:
           javascript: Long(1, 100).greaterThan
       output:
@@ -332,6 +358,7 @@ tests:
           shell: new NumberLong(429496729601) >
           ruby: 429496729601 >
           swift: 429496729601 >
+          rust: 429496729601i64 >
     - input:
           javascript: Long(1, 100).greaterThanOrEqual
       output:
@@ -342,6 +369,7 @@ tests:
           shell: new NumberLong(429496729601) >=
           ruby: 429496729601 >=
           swift: 429496729601 >=
+          rust: 429496729601i64 >=
     - input:
           javascript: Long(1, 100).lessThan
       output:
@@ -352,6 +380,7 @@ tests:
           shell: new NumberLong(429496729601) <
           ruby: 429496729601 <
           swift: 429496729601 <
+          rust: 429496729601i64 <
     - input:
           javascript: Long(1, 100).lessThanOrEqual
       output:
@@ -362,6 +391,7 @@ tests:
           shell: new NumberLong(429496729601) <=
           ruby: 429496729601 <=
           swift: 429496729601 <=
+          rust: 429496729601i64 <=
     - input:
           javascript: Long(1, 100).negate
       output:
@@ -372,6 +402,7 @@ tests:
           shell: "-"
           ruby: "-"
           swift: "-"
+          rust: "-"
     - input:
           javascript: Long(1, 100).add
       output:
@@ -382,6 +413,7 @@ tests:
           shell: new NumberLong(429496729601) +
           ruby: 429496729601 +
           swift: 429496729601 +
+          rust: 429496729601i64 +
     - input:
           javascript: Long(1, 100).subtract
       output:
@@ -392,6 +424,7 @@ tests:
           shell: new NumberLong(429496729601) -
           ruby: 429496729601 -
           swift: 429496729601 -
+          rust: 429496729601i64 -
     - input:
           javascript: Long(1, 100).multiply
       output:
@@ -402,6 +435,7 @@ tests:
           shell: new NumberLong(429496729601) *
           ruby: 429496729601 *
           swift: 429496729601 *
+          rust: 429496729601i64 *
     - input:
           javascript: Long(1, 100).div
       output:
@@ -412,6 +446,7 @@ tests:
           shell: new NumberLong(429496729601) /
           ruby: 429496729601 /
           swift: 429496729601 /
+          rust: 429496729601i64 /
     - input:
           javascript: Long(1, 100).modulo
       output:
@@ -422,6 +457,7 @@ tests:
           shell: new NumberLong(429496729601) %
           ruby: 429496729601 %
           swift: 429496729601 %
+          rust: 429496729601i64 %
     - input:
           javascript: Long(1, 100).not
       output:
@@ -432,6 +468,7 @@ tests:
           shell: "~"
           ruby: "~"
           swift: "~"
+          rust: "~"
     - input:
           javascript: Long(1, 100).and
       output:
@@ -442,6 +479,7 @@ tests:
           shell: new NumberLong(429496729601) &
           ruby: 429496729601 &
           swift: 429496729601 &
+          rust: 429496729601i64 &
     - input:
           javascript: Long(1, 100).or
       output:
@@ -452,6 +490,7 @@ tests:
           shell: new NumberLong(429496729601) |
           ruby: 429496729601 |
           swift: 429496729601 |
+          rust: 429496729601i64 |
     - input:
           javascript: Long(1, 100).xor
       output:
@@ -462,6 +501,7 @@ tests:
           shell: new NumberLong(429496729601) ^
           ruby: 429496729601 ^
           swift: 429496729601 ^
+          rust: 429496729601i64 ^
     - input:
           javascript: Long(1, 100).shiftLeft
       output:
@@ -472,6 +512,7 @@ tests:
           shell: new NumberLong(429496729601) <<
           ruby: 429496729601 <<
           swift: 429496729601 <<
+          rust: 429496729601i64 <<
     - input:
           javascript: Long(1, 100).shiftRight
       output:
@@ -482,6 +523,7 @@ tests:
           shell: new NumberLong(429496729601) >>
           ruby: 429496729601 >>
           swift: 429496729601 >>
+          rust: 429496729601i64 >>
     - input:
           javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).toString
       output:
@@ -502,6 +544,7 @@ tests:
           shell: new Timestamp(1, 100).toString
           ruby: BSON::Timestamp.new(1, 100).to_s
           swift: '"\(BSONTimestamp(timestamp: 1, inc: 100))"'
+          rust: "Timestamp { time: 1, increment: 100 }.to_string()"
     - input:
           javascript: Timestamp(1, 100).equals
       output:
@@ -512,6 +555,7 @@ tests:
           shell: new Timestamp(1, 100) ===
           ruby: BSON::Timestamp.new(1, 100) ==
           swift: 'BSONTimestamp(timestamp: 1, inc: 100) =='
+          rust: "Timestamp { time: 1, increment: 100 } =="
     - input:
           javascript: Timestamp(1, 100).compare
       output:
@@ -521,6 +565,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).CompareTo
           shell: new Timestamp(1, 100) -
           ruby: BSON::Timestamp.new(1, 100) <=>
+          rust: "Timestamp { time: 1, increment: 100 }.cmp"
     - input:
           javascript: Timestamp(1, 100).notEquals
       output:
@@ -531,6 +576,7 @@ tests:
           shell: new Timestamp(1, 100) !==
           ruby: BSON::Timestamp.new(1, 100) !=
           swift: 'BSONTimestamp(timestamp: 1, inc: 100) !='
+          rust: "Timestamp { time: 1, increment: 100 } !="
     - input:
           javascript: Timestamp(1, 100).greaterThan
       output:
@@ -540,6 +586,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) >
           shell: new Timestamp(1, 100) >
           ruby: BSON::Timestamp.new(1, 100) >
+          rust: "Timestamp { time: 1, increment: 100 } >"
     - input:
           javascript: Timestamp(1, 100).greaterThanOrEqual
       output:
@@ -549,6 +596,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) >=
           shell: new Timestamp(1, 100) >=
           ruby: BSON::Timestamp.new(1, 100) >=
+          rust: "Timestamp { time: 1, increment: 100 } >="
     - input:
           javascript: Timestamp(1, 100).lessThan
       output:
@@ -558,6 +606,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) <
           shell: new Timestamp(1, 100) <
           ruby: BSON::Timestamp.new(1, 100) <
+          rust: "Timestamp { time: 1, increment: 100 } <"
     - input:
           javascript: Timestamp(1, 100).lessThanOrEqual
       output:
@@ -567,6 +616,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) <=
           shell: new Timestamp(1, 100) <=
           ruby: BSON::Timestamp.new(1, 100) <=
+          rust: "Timestamp { time: 1, increment: 100 } <="
     - input:
           javascript: Timestamp(1, 100).getLowBits
       output:
@@ -577,6 +627,7 @@ tests:
           shell: new Timestamp(1, 100).getTime
           ruby: BSON::Timestamp.new(1, 100).seconds
           swift: 'BSONTimestamp(timestamp: 1, inc: 100).timestamp'
+          rust: "Timestamp { time: 1, increment: 100 }.time"
     - input:
           javascript: Timestamp(1, 100).getHighBits
       output:
@@ -587,6 +638,7 @@ tests:
           shell: new Timestamp(1, 100).getInc
           ruby: BSON::Timestamp.new(1, 100).increment
           swift: 'BSONTimestamp(timestamp: 1, inc: 100).increment'
+          rust: "Timestamp { time: 1, increment: 100 }.increment"
     - input:
           javascript: BSONSymbol('2').valueOf
       output:
@@ -596,6 +648,7 @@ tests:
           csharp: '"2"'
           shell: "'2'"
           ruby: ":'2'"
+          rust: Bson::Symbol("2").as_symbol().unwrap()
     - input:
           javascript: BSONSymbol('2').toString
       output:
@@ -605,6 +658,7 @@ tests:
           csharp: '"2"'
           shell: "'2'"
           ruby: "'2'"
+          rust: Bson::Symbol("2").as_symbol().unwrap()
     - input:
           javascript: BSONSymbol('2').inspect
       output:
@@ -614,3 +668,4 @@ tests:
           csharp: '"2"'
           shell: "'2'"
           ruby: ":'2'.inspect"
+          rust: format!("{:?}", Bson::Symbol("2"))

@@ -1,9 +1,0 @@
-{
-  "extends": [
-    "mongodb-js/node",
-    "mongodb-js/browser"
-  ],
-  "globals": {
-    "Promise": true
-  }
-}

@@ -77,6 +77,9 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           swift: "import MongoSwift"
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import Code with scope
       input:
           shell: "{x: Code('code', {x: 1})}"
@@ -98,6 +101,10 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           swift: "import MongoSwift"
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::JavaScriptCodeWithScope;
+              use mongodb::bson::doc;
     - description: Single import ObjectId
       input:
           shell: "{x: ObjectId()}"
@@ -117,6 +124,9 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           swift: "import MongoSwift"
+          rust: |-
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -135,6 +145,9 @@ tests:
                 Timestamp
               } = require('mongodb');
           swift: "import MongoSwift"
+          rust: |-
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
     - description: Single import DBRef
       input:
           shell: "{x: DBRef('db', ObjectId())}"
@@ -155,6 +168,9 @@ tests:
                 DBRef
               } = require('mongodb');
           ruby: require 'bson'
+          rust: |-
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: Single import Double
       input:
           shell: "{x: 1}"
@@ -168,6 +184,7 @@ tests:
           python: ''
           javascript: ''
           ruby: ''
+          rust: use mongodb::bson::doc;
     - description: Single import NumberInt
       input:
           shell: "{x: NumberInt(1)}"
@@ -184,6 +201,7 @@ tests:
                 Int32
               } = require('mongodb');
           ruby: ''
+          rust: use mongodb::bson::doc;
     - description: Single import NumberLong
       input:
           shell: "{x: NumberLong(1)}"
@@ -200,6 +218,7 @@ tests:
                 Long
               } = require('mongodb');
           ruby: ''
+          rust: use mongodb::bson::doc;
     - description: Single import MinKey
       input:
           shell: "{x: MinKey()}"
@@ -219,6 +238,9 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           swift: "import MongoSwift"
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import MaxKey
       input:
           shell: "{x: MaxKey()}"
@@ -238,6 +260,9 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           swift: "import MongoSwift"
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::doc;
     - description: Single import RegExp
       input:
           shell: "{x: RegExp('abc')}"
@@ -254,6 +279,9 @@ tests:
           python: import re
           javascript: ''
           ruby: ''
+          rust: |-
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import BSONRegExp
       input:
           javascript: "{x: BSONRegExp('abc')}"
@@ -267,6 +295,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import Regex
           swift: "import MongoSwift"
+          rust: |-
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import literal regex
       input:
           shell: "{x: /abc/g}"
@@ -282,6 +313,9 @@ tests:
           python: import re
           javascript: ''
           ruby: ''
+          rust: |-
+              use mongodb::bson::Regex;
+              use mongodb::bson::doc;
     - description: Single import Timestamp
       input:
           shell: "{x: Timestamp(1, 2)}"
@@ -301,6 +335,9 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           swift: "import MongoSwift"
+          rust: |-
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
     - description: Single import Symbol
       input:
           shell: "{x: Symbol('a')}"
@@ -318,6 +355,7 @@ tests:
                 BSONSymbol
               } = require('mongodb');
           ruby: ''
+          rust: use mongodb::bson::doc;
     - description: Single import NumberDecimal
       input:
           shell: "{x: NumberDecimal(1)}"
@@ -337,6 +375,7 @@ tests:
               } = require('mongodb');
           ruby: require 'bson'
           swift: "import MongoSwift"
+          rust: use mongodb::bson::doc;
     - description: Single import Date as string
       input:
           shell: "{x: Date()}"
@@ -355,6 +394,9 @@ tests:
           swift: |-
               import Foundation
               import MongoSwift
+          rust: |-
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Single import Date() as object
       input:
           shell: "{x: new Date()}"
@@ -369,6 +411,9 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
+          rust: |-
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Single import ISODate
       input:
           shell: "{x: ISODate()}"
@@ -385,6 +430,9 @@ tests:
           swift: |-
               import Foundation
               import MongoSwift
+          rust: |-
+            use mongodb::bson::DateTime;
+            use mongodb::bson::doc;
     - description: Multiple imports without Date to string
       input: {}
       output:
@@ -392,6 +440,7 @@ tests:
           csharp: ''
           javascript: ''
           ruby: ''
+          rust: ''
     - description: Multiple imports
       input:
           shell: "{  0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
@@ -450,6 +499,14 @@ tests:
           swift: |-
               import Foundation
               import MongoSwift
+          rust: |-
+              use mongodb::bson::Bson;
+              use mongodb::bson::DateTime;
+              use mongodb::bson::JavaScriptCodeWithScope;
+              use mongodb::bson::Regex;
+              use mongodb::bson::Timestamp;
+              use mongodb::bson::doc;
+              use mongodb::bson::oid::ObjectId;
     - description: All filter builder imports
       input:
           shell: "[{ $and: [{x: 1}], $expr: 1, all: {$all: [1,2]}, bitsAllClear: {$bitsAllClear:

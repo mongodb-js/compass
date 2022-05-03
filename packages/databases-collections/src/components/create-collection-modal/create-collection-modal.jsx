@@ -8,7 +8,6 @@ import { Banner } from '@mongodb-js/compass-components';
 import { createCollection } from '../../modules/create-collection';
 import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
-import { openLink } from '../../modules/link';
 
 import CollectionFields from '../collection-fields';
 import styles from './create-collection-modal.module.less';
@@ -22,7 +21,8 @@ class CreateCollectionModal extends PureComponent {
     isVisible: PropTypes.bool.isRequired,
     serverVersion: PropTypes.string.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired
+    configuredKMSProviders: PropTypes.array,
+    currentTopologyType: PropTypes.string
   }
 
   constructor() {
@@ -74,7 +74,8 @@ class CreateCollectionModal extends PureComponent {
           serverVersion={this.props.serverVersion}
           withDatabase={false}
           onChange={this.onChange}
-          openLink={this.props.openLink}
+          configuredKMSProviders={this.props.configuredKMSProviders}
+          currentTopologyType={this.props.currentTopologyType}
         />
         {this.renderError()}
       </ConfirmationModal>
@@ -86,14 +87,15 @@ const mapStateToProps = (state) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
   error: state.error,
-  serverVersion: state.serverVersion
+  serverVersion: state.serverVersion,
+  configuredKMSProviders: state.dataService.configuredKMSProviders,
+  currentTopologyType: state.dataService.currentTopologyType
 });
 
 const MappedCreateCollectionModal = connect(
   mapStateToProps,
   {
     createCollection,
-    openLink,
     toggleIsVisible,
     clearError
   },

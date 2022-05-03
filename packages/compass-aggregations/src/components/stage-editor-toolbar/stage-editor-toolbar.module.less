@@ -18,14 +18,22 @@
   cursor: move;
   cursor: grab;
 
-  &:active {
+  :global(.dragging) & {
+    // react-sortable-hoc sets pointer events none to the whole container which
+    // is good, but also means that the cursor will not be changed. For that
+    // reason we set pointer events back to auto for the drag handle when
+    // dragging stage around
+    pointer-events: auto;
     cursor: grabbing;
   }
+
   &-right {
     display: flex;
     justify-content: flex-end;
     flex-grow: 4;
+    align-items: center;
   }
+
   &-errored {
     background: @redLight3;
   }
@@ -46,5 +54,10 @@
         content: "\f05a";
       }
     }
+  }
+
+  .tooltip-icon {
+    margin-top: 6px;
+    margin-right: 6px;
   }
 }

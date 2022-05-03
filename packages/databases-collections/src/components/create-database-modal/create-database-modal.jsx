@@ -6,7 +6,6 @@ import { Banner, ConfirmationModal, Link } from '@mongodb-js/compass-components'
 import { createDatabase } from '../../modules/create-database';
 import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
-import { openLink } from '../../modules/link';
 import CollectionFields from '../collection-fields';
 import styles from './create-database-modal.module.less';
 
@@ -28,7 +27,8 @@ class CreateDatabaseModal extends PureComponent {
     toggleIsVisible: PropTypes.func.isRequired,
     clearError: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
-    openLink: PropTypes.func.isRequired
+    configuredKMSProviders: PropTypes.array,
+    currentTopologyType: PropTypes.string
   }
 
   state = {
@@ -112,7 +112,8 @@ class CreateDatabaseModal extends PureComponent {
           serverVersion={this.props.serverVersion}
           withDatabase
           onChange={this.onChange}
-          openLink={this.props.openLink}
+          configuredKMSProviders={this.props.configuredKMSProviders}
+          currentTopologyType={this.props.currentTopologyType}
         />
         {!hasCollectionName && this.renderCollectionNameRequiredNotice()}
         {this.renderError()}
@@ -131,8 +132,10 @@ class CreateDatabaseModal extends PureComponent {
 const mapStateToProps = (state) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
+  error: state.error,
   serverVersion: state.serverVersion,
-  error: state.error
+  configuredKMSProviders: state.dataService.configuredKMSProviders,
+  currentTopologyType: state.dataService.currentTopologyType
 });
 
 /**
@@ -143,7 +146,6 @@ const MappedCreateDatabaseModal = connect(
   mapStateToProps,
   {
     createDatabase,
-    openLink,
     toggleIsVisible,
     clearError
   },

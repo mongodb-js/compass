@@ -49,9 +49,6 @@ class DocumentFooter extends React.Component {
     this.boundHandleUpdateError = this.handleUpdateError.bind(this);
     this.boundHandleUpdateSuccess = this.handleUpdateSuccess.bind(this);
     this.boundHandleCancel = this.handleCancel.bind(this);
-    if (props.cancelHandler) {
-      this.boundHandleCancel = props.cancelHandler;
-    }
   }
 
   /**
@@ -84,6 +81,13 @@ class DocumentFooter extends React.Component {
       // contents have been refreshed. Treat that like cancelling the edit.
       this.handleCancel();
     }
+    if (
+      this.props.editing !== prevProps.editing ||
+      this.props.containsErrors !== prevProps.containsErrors ||
+      this.props.modified !== prevProps.modified
+    ) {
+      this.handleModification();
+    }
   }
 
   /**
@@ -105,6 +109,10 @@ class DocumentFooter extends React.Component {
    * Handle the user clicking the cancel button.
    */
   handleCancel() {
+    if (this.props.cancelHandler) {
+      this.props.cancelHandler();
+      return;
+    }
     if (this.props.api) {
       this.props.api.stopEditing();
     }
@@ -138,20 +146,20 @@ class DocumentFooter extends React.Component {
   /**
    * Handle an element becoming valid.
    *
-   * @param {String} uuid - The element uuid.
+   * @param {Element} el - Element
    */
-  handleValid(uuid) {
-    pull(this.invalidElements, uuid);
+  handleValid(el) {
+    pull(this.invalidElements, el.uuid);
   }
 
   /**
    * Handle an element becoming invalid.
    *
-   * @param {String} uuid - The element uuid.
+   * @param {Element} el - Element
    */
-  handleInvalid(uuid) {
-    if (!this.invalidElements.includes(uuid)) {
-      this.invalidElements.push(uuid);
+  handleInvalid(el) {
+    if (!this.invalidElements.includes(el.uuid)) {
+      this.invalidElements.push(el.uuid);
       this.handleModification();
     }
   }
@@ -160,10 +168,10 @@ class DocumentFooter extends React.Component {
    * Handle modification to the document.
    */
   handleModification() {
-    const isModified = this.props.doc.isModified();
     if (this.hasErrors()) {
       this.setState({ mode: ERROR_MODE, message: INVALID_MESSAGE });
     } else {
+      const isModified = this.isModified();
       this.setState({
         mode: isModified ? EDITING_MODE : VIEWING_MODE,
         message: isModified ? MODIFIED_MESSAGE : EMPTY_MESSAGE
@@ -178,7 +186,7 @@ class DocumentFooter extends React.Component {
     // When the mode shown is blocked and a user requests to update
     // it means they intend to overwrite/force update values of the document
     // that may have changed in the background.
-    const forceUpdate = this.state.mode === BLOCKED_MODE;
+    const forceUpdate = !this.props.updateDocument || this.state.mode === BLOCKED_MODE;
 
     if (this.props.api) {
       this.props.api.stopEditing();
@@ -198,7 +206,11 @@ class DocumentFooter extends React.Component {
    * @returns {Boolean} If the document has invalid elements.
    */
   hasErrors() {
-    return this.invalidElements.length > 0;
+    return this.props.containsErrors ?? this.invalidElements.length > 0;
+  }
+
+  isModified() {
+    return this.props.modified ?? this.props.doc.isModified();
   }
 
   /**
@@ -232,10 +244,11 @@ class DocumentFooter extends React.Component {
             clickHandler={this.boundHandleCancel} />
           <TextButton
             className="btn btn-default btn-xs"
-            text="Update"
+            text={this.props.updateDocument ? 'Update' : 'Replace'}
             disabled={this.hasErrors()}
             dataTestId="update-document-button"
-            clickHandler={this.handleUpdate.bind(this)} />
+            clickHandler={this.handleUpdate.bind(this)}
+          />
         </div>
       </div>
     );
@@ -247,9 +260,12 @@ DocumentFooter.displayName = 'DocumentFooter';
 DocumentFooter.propTypes = {
   doc: PropTypes.object.isRequired,
   replaceDocument: PropTypes.func.isRequired,
-  updateDocument: PropTypes.func.isRequired,
+  updateDocument: PropTypes.func,
   cancelHandler: PropTypes.func,
-  api: PropTypes.any
+  api: PropTypes.any,
+  editing: PropTypes.bool,
+  modified: PropTypes.bool,
+  containsErrors: PropTypes.bool
 };
 
 export default DocumentFooter;

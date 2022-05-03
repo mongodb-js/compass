@@ -20,15 +20,11 @@ import type { Workspace } from '../../../modules/workspace';
 const containerStyles = css({
   display: 'flex',
   gap: spacing[2],
+  alignItems: 'center',
 });
 
 const descriptionStyles = css({
   padding: 0,
-});
-
-// todo: remove this post removal of global styles
-const resetParaStyles = css({
-  margin: 'inherit !important',
 });
 
 const addStageStyles = css({
@@ -54,31 +50,34 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   onStageAdded,
   onChangeWorkspace,
 }) => {
-  if (stages.filter(Boolean).length === 0) {
-    return (
-      <div className={containerStyles} data-testid="toolbar-pipeline-stages">
-        <Description className={cx(descriptionStyles, resetParaStyles)}>
-          Your pipeline is currently empty. To get started select the&nbsp;
-          <Link
-            className={addStageStyles}
-            as="button"
-            onClick={() => onStageAdded()}
-            hideExternalIcon
-            data-testid="pipeline-toolbar-add-stage-button"
-          >
-            first stage.
-          </Link>
-        </Description>
-      </div>
-    );
-  }
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
-      <Pipeline size="small">
-        {stages.filter(Boolean).map((stage, index) => (
-          <Stage key={`${index}-${stage}`}>{stage}</Stage>
-        ))}
-      </Pipeline>
+      {stages.filter(Boolean).length === 0 ? (
+        <Description className={cx(descriptionStyles)}>
+          Your pipeline is currently empty.
+          {stages.length === 0 && (
+            <>
+              {' '}
+              To get started select the&nbsp;
+              <Link
+                className={addStageStyles}
+                as="button"
+                onClick={() => onStageAdded()}
+                hideExternalIcon
+                data-testid="pipeline-toolbar-add-stage-button"
+              >
+                first stage.
+              </Link>
+            </>
+          )}
+        </Description>
+      ) : (
+        <Pipeline size="small">
+          {stages.filter(Boolean).map((stage, index) => (
+            <Stage key={`${index}-${stage}`}>{stage}</Stage>
+          ))}
+        </Pipeline>
+      )}
       {isEditing && (
         <Button
           data-testid="pipeline-toolbar-edit-button"

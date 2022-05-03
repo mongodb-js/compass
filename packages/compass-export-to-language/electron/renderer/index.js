@@ -10,7 +10,7 @@ import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import ExportToLanguagePlugin, { activate } from '../../src/index.js';
 import ExportToLanguageStandalone from './components/export-to-language-standalone';
-import configureStore, { setDataProvider, setNamespace } from '../../src/stores';
+import configureStore, { setNamespace } from '../../src/stores';
 
 const appRegistry = new AppRegistry();
 
@@ -53,17 +53,16 @@ render(ExportToLanguageStandalone);
 
 // // Data service initialization and connection.
 import Connection from 'mongodb-connection-model';
-import { DataService } from 'mongodb-data-service';
+import { DataServiceImpl } from 'mongodb-data-service';
 
 const connection = new Connection({
   hostname: '127.0.0.1',
   port: 27017
 });
-const dataService = new DataService(connection);
+const dataService = new DataServiceImpl(connection);
 
 dataService.connect((error, ds) => {
   appRegistry.emit('data-service-connected', error, ds);
-  setDataProvider(store, error, ds);
   setNamespace(store, 'citibike.trips');
 });
 

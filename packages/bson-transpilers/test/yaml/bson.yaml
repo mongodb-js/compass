@@ -21,6 +21,7 @@ tests:
           object: new Code('some code')
           ruby: BSON::Code.new('some code')
           swift: 'BSONCode(code: "some code")'
+          rust: Bson::JavaScriptCode("some code".to_string())
     - description: 'string code'
       input:
           javascript: Code('some code')
@@ -35,6 +36,7 @@ tests:
           object: new Code('some code')
           ruby: BSON::Code.new('some code')
           swift: 'BSONCode(code: "some code")'
+          rust: Bson::JavaScriptCode("some code".to_string())
     - description: 'string code and object scope'
       input:
           javascript: "new Code('string', {x: '1'})"
@@ -50,6 +52,10 @@ tests:
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           swift: "BSONCodeWithScope(code: \"string\", scope: [\n    \"x\": \"1\"\n])"
 
+          rust: |-
+            JavaScriptCodeWithScope { code: "string".to_string(), scope: doc! {
+                "x": "1"
+            } }
     - description: 'no args'
       input:
           shell: Code()
@@ -62,6 +68,7 @@ tests:
           object: new Code('')
           ruby: BSON::Code.new
           swift: 'BSONCode(code: "")'
+          rust: Bson::JavaScriptCode("".to_string())
     - description: 'function arg'
       input:
           javascript: Code(function(test) { console.log(test); })
@@ -74,6 +81,7 @@ tests:
           object: new Code('function(test){console.log(test);}')
           ruby: BSON::Code.new('function(test){console.log(test);}')
           swift: 'BSONCode(code: "function(test){console.log(test);}")'
+          rust: Bson::JavaScriptCode("function(test){console.log(test);}".to_string())
     - description: 'named scope arg'
       input:
           python: "Code('string', scope={'x': '1'})"
@@ -89,6 +97,10 @@ tests:
             BSONCodeWithScope(code: "string", scope: [
                 "x": "1"
             ])
+          rust: |-
+            JavaScriptCodeWithScope { code: "string".to_string(), scope: doc! {
+                "x": "1"
+            } }
     ObjectId:
     - description: 'no arg'
       input:
@@ -104,6 +116,7 @@ tests:
           object: new ObjectId()
           ruby: BSON::ObjectId.new
           swift: BSONObjectID()
+          rust: ObjectId::new()
     - description: 'NEW no arg'
       input:
           javascript: new ObjectId()
@@ -117,6 +130,7 @@ tests:
           object: new ObjectId()
           ruby: BSON::ObjectId.new
           swift: BSONObjectID()
+          rust: ObjectId::new()
     - description: 'hex string arg'
       input:
           javascript: new ObjectId('5a7382114ec1f67ae445f778')
@@ -131,6 +145,7 @@ tests:
           object: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
           swift: try BSONObjectID("5a7382114ec1f67ae445f778")
+          rust: ObjectId::parse_str("5a7382114ec1f67ae445f778")?
     - description: 'hex string arg named'
       input:
           python: ObjectId(oid='5a7382114ec1f67ae445f778')
@@ -143,6 +158,7 @@ tests:
           object: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
           swift: try BSONObjectID("5a7382114ec1f67ae445f778")
+          rust: ObjectId::parse_str("5a7382114ec1f67ae445f778")?
     DBRef:
     - description: 'NEW (string, ObjectID) args'
       input:
@@ -225,6 +241,7 @@ tests:
           object: new Int32(3)
           ruby: '3'
           swift: Int32(3)
+          rust: '3'
     - description: 'number arg'
       input:
           javascript: Int32(3)
@@ -239,6 +256,7 @@ tests:
           object: new Int32(3)
           ruby: '3'
           swift: Int32(3)
+          rust: '3'
     - description: 'string arg'
       input:
           javascript: new Int32('3')
@@ -253,6 +271,7 @@ tests:
           object: new Int32('3')
           ruby: "'3'.to_i"
           swift: Int32("3")!
+          rust: '"3".parse::<i32>()?'
     - description: 'no arg'
       input:
           shell: NumberInt()
@@ -266,6 +285,7 @@ tests:
           object: new Int32('0')
           ruby: '0'
           swift: Int32(0)
+          rust: '0'
     - description: 'hex arg'
       input:
           javascript: new Int32(0x3)
@@ -280,6 +300,7 @@ tests:
           object: new Int32(0x3)
           ruby: 0x3.to_i
           swift: Int32(0x3)
+          rust: '0x3'
     - description: 'decimal arg'
       input:
           javascript: new Int32(3.0001)
@@ -294,6 +315,7 @@ tests:
           object: new Int32(3.0001)
           ruby: 3.0001.to_i
           swift: Int32(3.0001)
+          rust: i32::try_from(3.0001)?
     - description: 'octal arg'
       input:
           javascript: new Int32(0o3)
@@ -308,6 +330,7 @@ tests:
           object: new Int32(0o3)
           ruby: 0o3.to_i
           swift: Int32(0o3)
+          rust: 0o3
     Double:
     - description: 'number arg'
       input:
@@ -322,6 +345,7 @@ tests:
           object: new Double(3)
           ruby: 3.to_f
           swift: '3.0'
+          rust: '3.0'
     - description: 'NEW number arg'
       input:
           javascript: new Double(3)
@@ -334,6 +358,7 @@ tests:
           object: new Double(3)
           ruby: 3.to_f
           swift: '3.0'
+          rust: '3.0'
     - description: 'string arg'
       input:
           javascript: Double('3')
@@ -347,6 +372,7 @@ tests:
           object: new Double('3')
           ruby: "'3'.to_f"
           swift: Double("3")!
+          rust: '"3".parse::<f32>()?'
     - description: 'decimal arg'
       input:
           javascript: Double(3.0001)
@@ -360,6 +386,7 @@ tests:
           object: new Double(3.0001)
           ruby: '3.0001'
           swift: '3.0001'
+          rust: '3.0001'
     - description: 'hex arg'
       input:
           javascript: Double(0x3)
@@ -373,6 +400,7 @@ tests:
           object: new Double(0x3)
           ruby: 0x3.to_f
           swift: Double(0x3)
+          rust: f32::try_from(0x3)?
     - description: 'octal arg'
       input:
           javascript: Double(0o3)
@@ -386,6 +414,7 @@ tests:
           object: new Double(0o3)
           ruby: 0o3.to_f
           swift: Double(0o3)
+          rust: f32::try_from(0o3)?
     Long:
     - description: 'number arg'
       input:
@@ -401,6 +430,7 @@ tests:
           object: Long.fromNumber(9223372036854775807)
           ruby: '9223372036854775807'
           swift: '9223372036854775807'
+          rust: 9223372036854775807i64
     - description: 'NEW number arg'
       input:
           javascript: Long(-1, 2147483647)
@@ -414,6 +444,7 @@ tests:
           object: Long.fromNumber(9223372036854775807)
           ruby: '9223372036854775807'
           swift: '9223372036854775807'
+          rust: 9223372036854775807i64
     - description: 'no arg'
       input:
           shell: NumberLong()
@@ -427,6 +458,7 @@ tests:
           object: Long.fromNumber(0)
           ruby: '0'
           swift: '0'
+          rust: 0i64
     - description: 'string arg'
       input:
           shell: NumberLong('9223372036854775807')
@@ -440,6 +472,7 @@ tests:
           object: Long.fromString('9223372036854775807')
           ruby: "'9223372036854775807'.to_i"
           swift: Int64("9223372036854775807")!
+          rust: '"9223372036854775807".parse::<i64>()?'
     Decimal128:
     - description: 'buffer arg'
       input:
@@ -516,6 +549,7 @@ tests:
           object: new MinKey()
           ruby: BSON::MinKey.new
           swift: BSONMinKey()
+          rust: Bson::MinKey
     - description: 'NEW MinKey'
       input:
           javascript: new MinKey()
@@ -529,6 +563,7 @@ tests:
           object: new MinKey()
           ruby: BSON::MinKey.new
           swift: BSONMinKey()
+          rust: Bson::MinKey
     - description: 'MaxKey'
       input:
           javascript: MaxKey()
@@ -543,6 +578,7 @@ tests:
           object: new MaxKey()
           ruby: BSON::MaxKey.new
           swift: BSONMaxKey()
+          rust: Bson::MaxKey
     - description: 'NEW MaxKey'
       input:
           javascript: new MaxKey()
@@ -556,6 +592,7 @@ tests:
           object: new MaxKey()
           ruby: BSON::MaxKey.new
           swift: BSONMaxKey()
+          rust: Bson::MaxKey
     Timestamp:
     - description: 'NEW Timestamp'
       input:
@@ -570,6 +607,7 @@ tests:
           object: new Timestamp(10, 100)
           ruby: BSON::Timestamp.new(10, 100)
           swift: 'BSONTimestamp(timestamp: 10, inc: 100)'
+          rust: "Timestamp { time: 10, increment: 100 }"
     - description: 'Timestamp'
       input:
           javascript: Timestamp(10, 100)
@@ -584,6 +622,7 @@ tests:
           object: new Timestamp(10, 100)
           ruby: BSON::Timestamp.new(10, 100)
           swift: 'BSONTimestamp(timestamp: 10, inc: 100)'
+          rust: "Timestamp { time: 10, increment: 100 }"
     BSONRegExp:
     - description: 'no flags'
       input:
@@ -598,6 +637,7 @@ tests:
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
           ruby: /^[a-z0-9_-]{3,16}$/
           swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "")'
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
     - description: 'NEW no flags'
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$')
@@ -610,6 +650,7 @@ tests:
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
           ruby: /^[a-z0-9_-]{3,16}$/
           swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "")'
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
     - description: 'with flags'
       input:
           javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
@@ -623,6 +664,7 @@ tests:
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           ruby: /^[a-z0-9_-]{3,16}$/imx
           swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "imuxls")'
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'
     - description: 'with flags named'
       input:
           python: Regex('^[a-z0-9_-]{3,16}$', flags='imuxls')
@@ -635,6 +677,7 @@ tests:
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           ruby: /^[a-z0-9_-]{3,16}$/imx
           swift: 'BSONRegularExpression(pattern: "^[a-z0-9_-]{3,16}$", options: "imuxls")'
+          rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'
     Symbol:
     - description: from string
       input:
@@ -648,6 +691,7 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          rust: 'Bson::Symbol("abc")'
     - description: from shell symbol
       input:
           shell: Symbol('abc')
@@ -659,6 +703,7 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          rust: 'Bson::Symbol("abc")'
     - description: NEW from string
       input:
           javascript: new BSONSymbol('abc')
@@ -670,3 +715,4 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          rust: 'Bson::Symbol("abc")'

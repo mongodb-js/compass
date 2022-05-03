@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
-import { css } from '..';
+import { css, cx } from '@leafygreen-ui/emotion';
 
 type ValueProps =
   | {
@@ -22,10 +22,55 @@ type PropsByValueType<V extends ValueTypes> = Omit<
   'type'
 >;
 
-function getClassName(
-  type: ValueTypes | Lowercase<ValueTypes> | string
-): string {
-  return `element-value element-value-is-${type.toLowerCase()}`;
+export const VALUE_COLOR_BY_TYPE: Record<
+  Extract<
+    TypeCastTypes,
+    | 'Int32'
+    | 'Double'
+    | 'Decimal128'
+    | 'Date'
+    | 'Boolean'
+    | 'String'
+    | 'ObjectId'
+  >,
+  string
+> = {
+  Int32: '#145a32',
+  Double: '#1e8449',
+  Decimal128: '#229954',
+  Date: 'firebrick',
+  Boolean: 'purple',
+  String: 'steelblue',
+  ObjectId: 'orangered',
+};
+
+export function hasCustomColor(
+  type: ValueTypes | string
+): type is keyof typeof VALUE_COLOR_BY_TYPE {
+  return type in VALUE_COLOR_BY_TYPE;
+}
+
+const bsonValue = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  display: 'inline',
+});
+
+const bsonValuePrewrap = css({
+  whiteSpace: 'pre-wrap',
+});
+
+function getStyles(type: ValueTypes | string): string {
+  return cx(
+    bsonValue,
+    type === 'String' && bsonValuePrewrap,
+    hasCustomColor(type) &&
+      css({
+        color: VALUE_COLOR_BY_TYPE[type],
+      }),
+    `element-value element-value-is-${type.toLowerCase()}`
+  );
 }
 
 const nonSelectable = css({
@@ -40,7 +85,7 @@ export const ObjectIdValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getClassName('objectid')} title={stringifiedValue}>
+    <div className={getStyles('ObjectId')} title={stringifiedValue}>
       <span className={nonSelectable}>ObjectId(&apos;</span>
       {stringifiedValue}
       <span className={nonSelectable}>&apos;)</span>
@@ -58,7 +103,19 @@ export const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> =
         };
       }
       if (value.sub_type === Binary.SUBTYPE_UUID) {
-        return { stringifiedValue: `UUID('${value.toUUID().toHexString()}')` };
+        let uuid: string;
+
+        try {
+          // Try to get the pretty hex version of the UUID
+          uuid = value.toUUID().toString();
+        } catch {
+          // If uuid is not following the uuid format converting it to UUID will
+          // fail, we don't want the UI to fail rendering it and instead will
+          // just display "unformatted" hex value of the binary whatever it is
+          uuid = value.toString('hex');
+        }
+
+        return { stringifiedValue: `UUID('${uuid}')` };
       }
       return {
         stringifiedValue: `Binary('${truncate(
@@ -69,7 +126,7 @@ export const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> =
     }, [value]);
 
     return (
-      <div className={getClassName('binary')} title={title ?? stringifiedValue}>
+      <div className={getStyles('Binary')} title={title ?? stringifiedValue}>
         {stringifiedValue}
       </div>
     );
@@ -85,7 +142,7 @@ export const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   }, [value.code, value.scope]);
 
   return (
-    <div className={getClassName('code')} title={stringifiedValue}>
+    <div className={getStyles('Code')} title={stringifiedValue}>
       {stringifiedValue}
     </div>
   );
@@ -95,11 +152,15 @@ export const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
-    return new Date(value).toISOString().replace('Z', '+00:00');
+    try {
+      return new Date(value).toISOString().replace('Z', '+00:00');
+    } catch {
+      return String(value);
+    }
   }, [value]);
 
   return (
-    <div className={getClassName('date')} title={stringifiedValue}>
+    <div className={getStyles('Date')} title={stringifiedValue}>
       {stringifiedValue}
     </div>
   );
@@ -113,7 +174,7 @@ export const NumberValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getClassName(type)} title={stringifiedValue}>
+    <div className={getStyles(type)} title={stringifiedValue}>
       {stringifiedValue}
     </div>
   );
@@ -126,7 +187,7 @@ export const StringValue: React.FunctionComponent<PropsByValueType<'String'>> =
     }, [value]);
 
     return (
-      <div className={getClassName('string')} title={value}>
+      <div className={getStyles('String')} title={value}>
         &quot;{truncatedValue}&quot;
       </div>
     );
@@ -140,7 +201,7 @@ export const RegExpValue: React.FunctionComponent<
   }, [value.pattern, value.options]);
 
   return (
-    <div className={getClassName('BSONRegExp')} title={stringifiedValue}>
+    <div className={getStyles('BSONRegExp')} title={stringifiedValue}>
       {stringifiedValue}
     </div>
   );
@@ -154,7 +215,7 @@ export const TimestampValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getClassName('timestamp')} title={stringifiedValue}>
+    <div className={getStyles('Timestamp')} title={stringifiedValue}>
       {stringifiedValue}
     </div>
   );
@@ -167,7 +228,7 @@ export const KeyValue: React.FunctionComponent<{ type: 'MinKey' | 'MaxKey' }> =
     }, [type]);
 
     return (
-      <div className={getClassName(type)} title={stringifiedValue}>
+      <div className={getStyles(type)} title={stringifiedValue}>
         {stringifiedValue}
       </div>
     );
@@ -183,7 +244,7 @@ export const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   }, [value.collection, value.oid, value.db]);
 
   return (
-    <div className={getClassName('dbref')} title={stringifiedValue}>
+    <div className={getStyles('DBRef')} title={stringifiedValue}>
       {stringifiedValue}
     </div>
   );
@@ -197,7 +258,7 @@ export const SymbolValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getClassName('symbol')} title={stringifiedValue}>
+    <div className={getStyles('Symbol')} title={stringifiedValue}>
       {stringifiedValue}
     </div>
   );
@@ -212,7 +273,7 @@ export const UnknownValue: React.FunctionComponent<{
   }, [value]);
 
   return (
-    <div className={getClassName(type)} title={stringifiedValue}>
+    <div className={getStyles(type)} title={stringifiedValue}>
       {stringifiedValue}
     </div>
   );

@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleInProgress = (inProgress) => ({
   type: TOGGLE_IN_PROGRESS,
-  inProgress: inProgress
+  inProgress: inProgress,
 });

@@ -6,8 +6,12 @@ import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
-import DataService from './data-service';
-import type { ConnectionOptions } from './connection-options';
+import type { DataService } from './data-service';
+import { DataServiceImpl } from './data-service';
+import type {
+  ConnectionFleOptions,
+  ConnectionOptions,
+} from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
 
@@ -44,7 +48,7 @@ describe('DataService', function () {
       mongoClient = new MongoClient(connectionOptions.connectionString);
       await mongoClient.connect();
 
-      dataService = new DataService(connectionOptions);
+      dataService = new DataServiceImpl(connectionOptions);
       await dataService.connect();
     });
 
@@ -82,18 +86,18 @@ describe('DataService', function () {
       });
 
       it('returns false when not connected initially', function () {
-        dataServiceIsConnected = new DataService(connectionOptions);
+        dataServiceIsConnected = new DataServiceImpl(connectionOptions);
         expect(dataServiceIsConnected.isConnected()).to.equal(false);
       });
 
       it('returns true if client is connected', async function () {
-        dataServiceIsConnected = new DataService(connectionOptions);
+        dataServiceIsConnected = new DataServiceImpl(connectionOptions);
         await dataServiceIsConnected.connect();
         expect(dataServiceIsConnected.isConnected()).to.equal(true);
       });
 
       it('returns false if client is disconnected', async function () {
-        dataServiceIsConnected = new DataService(connectionOptions);
+        dataServiceIsConnected = new DataServiceImpl(connectionOptions);
 
         await dataServiceIsConnected.connect();
         await dataServiceIsConnected.disconnect();
@@ -104,7 +108,7 @@ describe('DataService', function () {
 
     describe('#setupListeners', function () {
       it('emits log events for MongoClient heartbeat events', function () {
-        const dataService: any = new DataService(null as any);
+        const dataService: any = new DataServiceImpl(null as any);
         const client: Pick<MongoClient, 'on' | 'emit'> =
           new EventEmitter() as any;
         const logEntries: any[] = [];
@@ -1014,7 +1018,7 @@ describe('DataService', function () {
       });
 
       it("it returns null when a topology description event hasn't yet occured", function () {
-        const testService = new DataService(connectionOptions);
+        const testService = new DataServiceImpl(connectionOptions);
         expect(testService.getLastSeenTopology()).to.equal(null);
       });
     });
@@ -1311,7 +1315,7 @@ describe('DataService', function () {
 
       describe('#startSession', function () {
         it('returns a new client session', function () {
-          const session = dataService.startSession();
+          const session = dataService.startSession('CRUD');
           expect(session.constructor.name).to.equal('ClientSession');
 
           // used by killSessions, must be a bson UUID in order to work
@@ -1322,14 +1326,14 @@ describe('DataService', function () {
 
       describe('#killSessions', function () {
         it('does not throw if kill a non existing session', async function () {
-          const session = dataService.startSession();
+          const session = dataService.startSession('CRUD');
           await dataService.killSessions(session);
         });
 
         it('kills a command with a session', async function () {
           const commandSpy = sinon.spy();
           sandbox.replace(
-            (dataService as any)._client,
+            (dataService as any)._crudClient,
             'db',
             () =>
               ({
@@ -1337,7 +1341,7 @@ describe('DataService', function () {
               } as any)
           );
 
-          const session = dataService.startSession();
+          const session = dataService.startSession('CRUD');
           await dataService.killSessions(session);
 
           expect(commandSpy.args[0][0]).to.deep.equal({
@@ -1346,14 +1350,77 @@ describe('DataService', function () {
         });
       });
     });
+
+    describe('CSFLE logging', function () {
+      it('picks a selected set of CSFLE options for logging', function () {
+        const fleOptions: ConnectionFleOptions = {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'abc.def',
+            schemaMap: { 'a.b': {} },
+            kmsProviders: {
+              aws: { accessKeyId: 'id', secretAccessKey: 'secret' },
+              local: { key: 'secret' },
+              kmip: { endpoint: '' },
+            },
+          },
+        };
+        expect(
+          (dataService as DataServiceImpl)._csfleLogInformation(fleOptions)
+        ).to.deep.equal({
+          storeCredentials: false,
+          keyVaultNamespace: 'abc.def',
+          schemaMapNamespaces: ['a.b'],
+          kmsProviders: ['aws', 'local'],
+        });
+      });
+    });
+
+    context('with csfle options', function () {
+      let csfleDataService: DataService;
+      let csfleConnectionOptions: ConnectionOptions;
+
+      before(async function () {
+        csfleConnectionOptions = {
+          ...connectionOptions,
+          fleOptions: {
+            storeCredentials: false,
+            autoEncryption: {
+              bypassAutoEncryption: true, // skip mongocryptd/csfle library requirement
+              keyVaultNamespace: `${testDatabaseName}.keyvault`,
+              kmsProviders: {
+                local: { key: 'A'.repeat(128) },
+              },
+            },
+          },
+        };
+
+        csfleDataService = new DataServiceImpl(csfleConnectionOptions);
+        await csfleDataService.connect();
+      });
+
+      after(async function () {
+        await csfleDataService?.disconnect().catch(console.log);
+      });
+
+      it('can create data keys', async function () {
+        const uuid = await csfleDataService.createDataKey('local');
+        const keyDoc = await csfleDataService
+          .fetch(`${testDatabaseName}.keyvault`, {}, {})
+          .next();
+        expect(uuid).to.deep.equal(keyDoc._id);
+      });
+    });
   });
 
   context('with mocked client', function () {
     function createDataServiceWithMockedClient(clientConfig) {
-      const dataService = new DataService({
+      const dataService = new DataServiceImpl({
         connectionString: 'mongodb://localhost:27020',
       });
-      (dataService as any)._client = createMongoClientMock(clientConfig);
+      const client = createMongoClientMock(clientConfig);
+      (dataService as any)._crudClient = client;
+      (dataService as any)._metadataClient = client;
       return dataService;
     }
 
@@ -1394,6 +1461,56 @@ describe('DataService', function () {
         expect(dbs).to.deep.eq(['foo']);
       });
 
+      it('returns databases with `read`, `readWrite`, `dbAdmin`, `dbOwner` roles roles', async function () {
+        const dataService = createDataServiceWithMockedClient({
+          commands: {
+            connectionStatus: {
+              authInfo: {
+                authenticatedUserPrivileges: [],
+                authenticatedUserRoles: [
+                  {
+                    role: 'readWrite',
+                    db: 'pineapple',
+                  },
+                  {
+                    role: 'dbAdmin',
+                    db: 'pineapple',
+                  },
+                  {
+                    role: 'dbAdmin',
+                    db: 'readerOfPineapple',
+                  },
+                  {
+                    role: 'dbOwner',
+                    db: 'pineappleBoss',
+                  },
+                  {
+                    role: 'customRole',
+                    db: 'mint',
+                  },
+                  {
+                    role: 'read',
+                    db: 'foo',
+                  },
+                  {
+                    role: 'readWrite',
+                    db: 'watermelon',
+                  },
+                ],
+              },
+            },
+          },
+        });
+        const dbs = (await dataService.listDatabases()).map((db) => db.name);
+        expect(dbs).to.deep.eq([
+          'pineapple',
+          'readerOfPineapple',
+          'pineappleBoss',
+          'foo',
+          'watermelon',
+        ]);
+      });
+
       it('filters out databases with no name from privileges', async function () {
         const dataService = createDataServiceWithMockedClient({
           commands: {
@@ -1417,7 +1534,7 @@ describe('DataService', function () {
         expect(dbs).to.deep.eq(['bar']);
       });
 
-      it('merges databases from listDatabases and privileges', async function () {
+      it('merges databases from listDatabases, privileges, and roles', async function () {
         const dataService = createDataServiceWithMockedClient({
           commands: {
             listDatabases: { databases: [{ name: 'foo' }, { name: 'bar' }] },
@@ -1433,12 +1550,26 @@ describe('DataService', function () {
                     actions: ['find'],
                   },
                 ],
+                authenticatedUserRoles: [
+                  {
+                    role: 'readWrite',
+                    db: 'pineapple',
+                  },
+                  {
+                    role: 'dbAdmin',
+                    db: 'pineapple',
+                  },
+                  {
+                    role: 'customRole',
+                    db: 'mint',
+                  },
+                ],
               },
             },
           },
         });
         const dbs = (await dataService.listDatabases()).map((db) => db.name);
-        expect(dbs).to.deep.eq(['foo', 'buz', 'bar']);
+        expect(dbs).to.deep.eq(['pineapple', 'foo', 'buz', 'bar']);
       });
 
       it('returns result from privileges even if listDatabases threw any error', async function () {
@@ -1579,6 +1710,27 @@ describe('DataService', function () {
         );
         expect(colls).to.deep.eq(['bar']);
       });
+    });
+
+    it('allows disabling/enabling the split-client model for CSFLE', function () {
+      const dataService: any = createDataServiceWithMockedClient({});
+      const a = {};
+      const b = {};
+      dataService._crudClient = a;
+      dataService._metadataClient = b;
+
+      expect(dataService._initializedClient('CRUD')).to.equal(a);
+      expect(dataService._initializedClient('META')).to.equal(b);
+
+      dataService.setCSFLEEnabled(false);
+
+      expect(dataService._initializedClient('CRUD')).to.equal(b);
+      expect(dataService._initializedClient('META')).to.equal(b);
+
+      dataService.setCSFLEEnabled(true);
+
+      expect(dataService._initializedClient('CRUD')).to.equal(a);
+      expect(dataService._initializedClient('META')).to.equal(b);
     });
   });
 });

@@ -3,6 +3,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -15,7 +16,10 @@ describe('Collection heading', function () {
     browser = compass.browser;
 
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+  });
 
+  beforeEach(async function () {
+    await createNumbersCollection();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
   });
 
@@ -47,26 +51,50 @@ describe('Collection heading', function () {
     const documentCountValueElement = await browser.$(
       Selectors.DocumentCountValue
     );
-    expect(await documentCountValueElement.getText()).to.equal('1k');
+    expect(await documentCountValueElement.getText()).to.match(/1(\.0)?k/);
     const indexCountValueElement = await browser.$(Selectors.IndexCountValue);
     expect(await indexCountValueElement.getText()).to.equal('1');
+  });
 
-    // all of these unfortunately differ slightly between different versions of mongodb
-    const totalDocumentSizeValueElement = await browser.$(
-      Selectors.StorageSizeValue
+  it('shows tooltip with storage sizes on hover stats', async function () {
+    const documentCountValue = await browser.$(Selectors.DocumentCountValue);
+    await documentCountValue.waitForDisplayed();
+
+    await browser.hover(Selectors.DocumentCountValue);
+
+    const collectionStatsTooltip = await browser.$(
+      Selectors.CollectionStatsTooltip
     );
-    expect(await totalDocumentSizeValueElement.getText()).to.include('KB');
-    const avgDocumentSizeValueElement = await browser.$(
-      Selectors.AvgDocumentSizeValue
+    await collectionStatsTooltip.waitForDisplayed();
+
+    const tooltipDocumentsCountValue = await browser.$(
+      Selectors.TooltipDocumentsCountValue
     );
-    expect(await avgDocumentSizeValueElement.getText()).to.include('B');
-    const totalIndexSizeValueElement = await browser.$(
-      Selectors.TotalIndexSizeValue
+    expect(await tooltipDocumentsCountValue.getText()).to.include('Documents');
+
+    const tooltipDocumentsStorageSize = await browser.$(
+      Selectors.TooltipDocumentsStorageSize
     );
-    expect(await totalIndexSizeValueElement.getText()).to.include('KB');
-    const avgIndexSizeValueElement = await browser.$(
-      Selectors.AvgIndexSizeValue
+    expect(await tooltipDocumentsStorageSize.getText()).to.include(
+      'Storage Size'
     );
-    expect(await avgIndexSizeValueElement.getText()).to.include('KB');
+
+    const tooltipDocumentsAvgSize = await browser.$(
+      Selectors.TooltipDocumentsAvgSize
+    );
+    expect(await tooltipDocumentsAvgSize.getText()).to.include('Avg. Size');
+
+    const tooltipIndexesCount = await browser.$(Selectors.TooltipIndexesCount);
+    expect(await tooltipIndexesCount.getText()).to.include('Indexes');
+
+    const tooltipIndexesTotalSize = await browser.$(
+      Selectors.TooltipIndexesTotalSize
+    );
+    expect(await tooltipIndexesTotalSize.getText()).to.include('Total Size');
+
+    const tooltipIndexesAvgSize = await browser.$(
+      Selectors.TooltipIndexesAvgSize
+    );
+    expect(await tooltipIndexesAvgSize.getText()).to.include('Avg. Size');
   });
 });

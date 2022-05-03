@@ -36,6 +36,15 @@ export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
+// mongodb-runner defaults to stable if the env var isn't there
+export const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
+  // semver interprets these suffixes like a prerelease (ie. alpha or rc) and it
+  // is irrelevant for our version comparisons anyway
+  .replace('-community', '')
+  // HACK: comparisons don't allow X-Ranges and 5.x or 5.x.x installs 5.2.1 so
+  // we can't just map it to 5.0.0
+  .replace(/x/g, '999');
+
 // For the user data dirs
 let i = 0;
 // For the screenshots
@@ -358,6 +367,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     waitforInterval: 100, // default is 500ms
   };
 
+  process.env.COMPASS_CLUSTERED_COLLECTIONS = 'true';
   process.env.APP_ENV = 'webdriverio';
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');

@@ -1,6 +1,5 @@
 /* eslint-disable valid-jsdoc */
 import fs from 'fs';
-import stream from 'stream';
 import { promisify } from 'util';
 
 import PROCESS_STATUS from '../constants/process-status';
@@ -8,14 +7,11 @@ import EXPORT_STEP from '../constants/export-step';
 import FILE_TYPES from '../constants/file-types';
 import { globalAppRegistryEmit, nsChanged } from './compass';
 
-import { createReadableCollectionStream } from '../utils/collection-stream';
-
 const createProgressStream = require('progress-stream');
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { createCSVFormatter, createJSONFormatter } from '../utils/formatters';
 import { loadFields, getSelectableFields } from './load-fields';
-
+import { CursorExporter } from './cursor-exporter';
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'
 );
@@ -49,7 +45,7 @@ export const RESET = `${PREFIX}/RESET`;
  * A full collection query.
  */
 const FULL_QUERY = {
-  filter: {}
+  filter: {},
 };
 
 /**
@@ -61,7 +57,7 @@ export const INITIAL_STATE = {
   exportStep: EXPORT_STEP.QUERY,
   isFullCollection: false,
   progress: 0,
-  query: FULL_QUERY,
+  query: null,
   error: null,
   fields: {},
   allFields: {},
@@ -69,7 +65,8 @@ export const INITIAL_STATE = {
   fileType: FILE_TYPES.JSON,
   status: PROCESS_STATUS.UNSPECIFIED,
   exportedDocsCount: 0,
-  count: 0
+  count: 0,
+  aggregation: null,
 };
 
 /**
@@ -77,11 +74,11 @@ export const INITIAL_STATE = {
  * @param {stream.Writable} dest
  * @api private
  */
-export const onStarted = (source, dest, count) => ({
+export const onStarted = (exporter, dest, count) => ({
   type: STARTED,
-  source: source,
+  exporter: exporter,
   dest: dest,
-  count: count
+  count: count,
 });
 
 /**
@@ -91,15 +88,15 @@ export const onStarted = (source, dest, count) => ({
 export const onProgress = (progress, exportedDocsCount) => ({
   type: PROGRESS,
   progress: progress,
-  exportedDocsCount: exportedDocsCount
+  exportedDocsCount: exportedDocsCount,
 });
 
 /**
  * @api private
  */
-export const onFinished = exportedDocsCount => ({
+export const onFinished = (exportedDocsCount) => ({
   type: FINISHED,
-  exportedDocsCount: exportedDocsCount
+  exportedDocsCount: exportedDocsCount,
 });
 
 /**
@@ -107,9 +104,9 @@ export const onFinished = exportedDocsCount => ({
  * @param {Error} error
  * @api private
  */
-export const onError = error => ({
+export const onError = (error) => ({
   type: ERROR,
-  error: error
+  error: error,
 });
 
 export const reset = () => {
@@ -125,23 +122,29 @@ const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === TOGGLE_FULL_COLLECTION) {
     return {
       ...state,
-      isFullCollection: !state.isFullCollection
+      isFullCollection: !state.isFullCollection,
     };
   }
 
   if (action.type === ON_MODAL_OPEN) {
-    return {
+    const newState = {
       ...INITIAL_STATE,
       count: action.count,
-      query: action.query,
-      isOpen: true
+      query: action.query || null,
+      aggregation: action.aggregation || null,
+      isOpen: true,
     };
+
+    if (action.aggregation) {
+      newState.exportStep = EXPORT_STEP.FILETYPE;
+    }
+    return newState;
   }
 
   if (action.type === CLOSE) {
     return {
       ...state,
-      isOpen: false
+      isOpen: false,
     };
   }
 
@@ -151,9 +154,9 @@ const reducer = (state = INITIAL_STATE, action) => {
       error: null,
       progress: 0,
       status: PROCESS_STATUS.STARTED,
-      source: action.source,
+      exporter: action.exporter,
       dest: action.dest,
-      count: action.count
+      count: action.count,
     };
   }
 
@@ -161,7 +164,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       progress: action.progress,
-      exportedDocsCount: action.exportedDocsCount
+      exportedDocsCount: action.exportedDocsCount,
     };
   }
 
@@ -173,8 +176,8 @@ const reducer = (state = INITIAL_STATE, action) => {
       ...state,
       status: isComplete ? PROCESS_STATUS.COMPLETED : state.status,
       exportedDocsCount: action.exportedDocsCount,
-      source: undefined,
-      dest: undefined
+      exporter: undefined,
+      dest: undefined,
     };
   }
 
@@ -182,22 +185,22 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       status: PROCESS_STATUS.CANCELED,
-      source: undefined,
-      dest: undefined
+      exporter: undefined,
+      dest: undefined,
     };
   }
 
   if (action.type === UPDATE_SELECTED_FIELDS) {
     return {
       ...state,
-      fields: action.fields
+      fields: action.fields,
     };
   }
 
   if (action.type === UPDATE_ALL_FIELDS) {
     return {
       ...state,
-      allFields: action.fields
+      allFields: action.fields,
     };
   }
 
@@ -208,14 +211,14 @@ const reducer = (state = INITIAL_STATE, action) => {
       status: PROCESS_STATUS.UNSPECIFIED,
       exportedDocsCount: 0,
       source: undefined,
-      dest: undefined
+      dest: undefined,
     };
   }
 
   if (action.type === SELECT_FILE_TYPE) {
     return {
       ...state,
-      fileType: action.fileType
+      fileType: action.fileType,
     };
   }
 
@@ -230,7 +233,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       error: action.error,
-      status: PROCESS_STATUS.FAILED
+      status: PROCESS_STATUS.FAILED,
     };
   }
 
@@ -242,7 +245,7 @@ const reducer = (state = INITIAL_STATE, action) => {
  * @api public
  */
 export const toggleFullCollection = () => ({
-  type: TOGGLE_FULL_COLLECTION
+  type: TOGGLE_FULL_COLLECTION,
 });
 
 /**
@@ -250,9 +253,9 @@ export const toggleFullCollection = () => ({
  * @api public
  * @param {String} fileType
  */
-export const selectExportFileType = fileType => ({
+export const selectExportFileType = (fileType) => ({
   type: SELECT_FILE_TYPE,
-  fileType: fileType
+  fileType: fileType,
 });
 
 /**
@@ -260,9 +263,9 @@ export const selectExportFileType = fileType => ({
  * @api public
  * @param {String} fileName
  */
-export const selectExportFileName = fileName => ({
+export const selectExportFileName = (fileName) => ({
   type: SELECT_FILE_NAME,
-  fileName: fileName
+  fileName: fileName,
 });
 
 /**
@@ -270,11 +273,10 @@ export const selectExportFileName = fileName => ({
  * @api public
  * @param {Object} query
  */
-export const queryChanged = query => ({
+export const queryChanged = (query) => ({
   type: QUERY_CHANGED,
-  query: query
+  query: query,
 });
-
 
 /**
  * Populate export modal data on open.
@@ -282,11 +284,12 @@ export const queryChanged = query => ({
  * @param {Number} document count given current query.
  * @param {Object} current query.
  */
-export const onModalOpen = ({ namespace, count, query }) => ({
+export const onModalOpen = ({ namespace, count, query, aggregation }) => ({
   type: ON_MODAL_OPEN,
   namespace,
   count,
-  query
+  query,
+  aggregation,
 });
 
 /**
@@ -294,7 +297,7 @@ export const onModalOpen = ({ namespace, count, query }) => ({
  * @api public
  */
 export const closeExport = () => ({
-  type: CLOSE
+  type: CLOSE,
 });
 
 /**
@@ -304,7 +307,7 @@ export const closeExport = () => ({
  */
 export const updateSelectedFields = (fields) => ({
   type: UPDATE_SELECTED_FIELDS,
-  fields: fields
+  fields: fields,
 });
 
 /**
@@ -314,7 +317,7 @@ export const updateSelectedFields = (fields) => ({
  */
 export const updateAllFields = (fields) => ({
   type: UPDATE_ALL_FIELDS,
-  fields: fields
+  fields: fields,
 });
 
 /**
@@ -324,18 +327,20 @@ export const updateAllFields = (fields) => ({
  */
 export const changeExportStep = (status) => ({
   type: CHANGE_EXPORT_STEP,
-  status: status
+  status: status,
 });
 
-const fetchDocumentCount = async(dataService, ns, query) => {
+const fetchDocumentCount = async (dataService, ns, query) => {
   // When there is no filter/limit/skip try to use the estimated count.
   if (
-    (!query.filter || Object.keys(query.filter).length < 1)
-    && !query.limit
-    && !query.skip
+    (!query.filter || Object.keys(query.filter).length < 1) &&
+    !query.limit &&
+    !query.skip
   ) {
     try {
-      const runEstimatedDocumentCount = promisify(dataService.estimatedCount.bind(dataService));
+      const runEstimatedDocumentCount = promisify(
+        dataService.estimatedCount.bind(dataService)
+      );
       const count = await runEstimatedDocumentCount(ns, {});
       return count;
     } catch (estimatedCountErr) {
@@ -347,14 +352,10 @@ const fetchDocumentCount = async(dataService, ns, query) => {
 
   const runCount = promisify(dataService.count.bind(dataService));
 
-  const count = await runCount(
-    ns,
-    query.filter || {},
-    {
-      ...(query.limit ? { limit: query.limit } : {} ),
-      ...(query.skip ? { skip: query.skip } : {} )
-    }
-  );
+  const count = await runCount(ns, query.filter || {}, {
+    ...(query.limit ? { limit: query.limit } : {}),
+    ...(query.skip ? { skip: query.skip } : {}),
+  });
   return count;
 };
 
@@ -369,48 +370,57 @@ const fetchDocumentCount = async(dataService, ns, query) => {
  *
  * @api public
  */
-export const openExport = ({ namespace, query, count: maybeCount }) => {
-  return async(dispatch, getState) => {
-    track('Export Opened');
+export const openExport = ({
+  namespace,
+  query,
+  count: maybeCount,
+  aggregation,
+}) => {
+  return async (dispatch, getState) => {
+    const isAggregation = !!aggregation;
+    track('Export Opened', { type: isAggregation ? 'aggregation' : 'query' });
     const {
       dataService: { dataService },
     } = getState();
-
     try {
       const count =
-        maybeCount ?? (await fetchDocumentCount(dataService, namespace, query));
+        maybeCount ??
+        (!isAggregation
+          ? await fetchDocumentCount(dataService, namespace, query)
+          : null);
 
       dispatch(nsChanged(namespace));
-      dispatch(onModalOpen({ namespace, query, count }));
+      dispatch(onModalOpen({ namespace, query, count, aggregation }));
     } catch (e) {
       dispatch(onError(e));
     }
   };
 };
 
+const getQuery = (query, isFullCollection) => {
+  if (isFullCollection || !query) {
+    return FULL_QUERY;
+  }
+  return query;
+};
+
 export const sampleFields = () => {
-  return async(dispatch, getState) => {
+  return async (dispatch, getState) => {
     const {
       ns,
       exportData,
-      dataService: { dataService }
+      dataService: { dataService },
     } = getState();
 
-    const spec = exportData.isFullCollection
-      ? { filter: {} }
-      : exportData.query;
+    const spec = getQuery(exportData.query, exportData.isFullCollection);
 
     try {
-      const allFields = await loadFields(
-        dataService,
-        ns,
-        {
-          filter: spec.filter,
-          sampleSize: 50
-        }
-      );
+      const allFields = await loadFields(dataService, ns, {
+        filter: spec.filter,
+        sampleSize: 50,
+      });
       const selectedFields = getSelectableFields(allFields, {
-        maxDepth: 2
+        maxDepth: 2,
       });
 
       dispatch(updateAllFields(allFields));
@@ -428,88 +438,60 @@ export const sampleFields = () => {
  * @api public
  */
 export const startExport = () => {
-  return async(dispatch, getState) => {
+  return async (dispatch, getState) => {
     const {
       ns,
       exportData,
-      dataService: { dataService }
+      dataService: { dataService },
     } = getState();
-    const spec = exportData.isFullCollection
-      ? { filter: {} }
-      : exportData.query;
-    const numDocsToExport = exportData.isFullCollection
-      ? await fetchDocumentCount(dataService, ns, spec)
-      : exportData.count;
-    // filter out only the fields we want to include in our export data
-    const projection = Object.fromEntries(
-      Object.entries(exportData.fields)
-        .filter((keyAndValue) => keyAndValue[1] === 1));
-    if (Object.keys(projection).length > 0 && (undefined === exportData.fields._id || exportData.fields._id === 0)) {
-      projection._id = 0;
-    }
-    log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
+
+    let exportSucceded = true;
+
+    let numDocsActuallyExported = 0;
+    const { columns, source, numDocsToExport } = await getExportSource(
+      dataService,
       ns,
-      numDocsToExport,
-      spec,
-      projection
-    });
-    const source = createReadableCollectionStream(dataService, ns, spec, projection);
-    const progress = createProgressStream({
-      objectMode: true,
-      length: numDocsToExport,
-      time: 250 /* ms */
-    });
-
-    progress.on('progress', function(info) {
-      dispatch(onProgress(info.percentage, info.transferred));
-    });
-
-    log.info(mongoLogId(1001000084), 'Export', 'Start writing to file', {
-      ns,
-      fileType: exportData.fileType,
-      fileName: exportData.fileName,
-      fields: Object.keys(exportData.allFields)
-    });
-    // Pick the columns that are going to be matched by the projection,
-    // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
-    // has an entry in the projection object.
-    const columns = Object.keys(exportData.fields)
-      .filter(field => field.split('.').some(
-        (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]));
-    let formatter;
-    if (exportData.fileType === 'csv') {
-      formatter = createCSVFormatter({ columns });
-    } else {
-      formatter = createJSONFormatter();
-    }
-
-    const dest = fs.createWriteStream(exportData.fileName);
-    debug('executing pipeline');
-    dispatch(onStarted(source, dest, numDocsToExport));
-    stream.pipeline(source, progress, formatter, dest, function(err) {
-      track('Export Completed', {
-        all_docs: exportData.isFullCollection,
-        file_type: exportData.fileType,
-        all_fields: Object.values(exportData.fields).every(
-          (checked) => checked === 1
-        ),
-        number_of_docs: numDocsToExport,
-        success: !err,
+      exportData
+    );
+    try {
+      const dest = fs.createWriteStream(exportData.fileName);
+      const progress = createProgressStream({
+        objectMode: true,
+        length: numDocsToExport,
+        time: 250 /* ms */,
       });
-      if (err) {
-        log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
-          ns,
-          error: err.message
+      progress.on('progress', function (info) {
+        dispatch(onProgress(info.percentage, info.transferred));
+      });
+      debug('executing pipeline');
+      const exporter = new CursorExporter({
+        cursor: source,
+        type: exportData.fileType,
+        columns: columns,
+        output: dest,
+        totalNumberOfDocuments: numDocsToExport,
+      });
+
+      exporter.on('progress', function (transferred) {
+        let percent = 0;
+        if (numDocsToExport > 0) {
+          percent = (transferred * 100) / numDocsToExport;
+        }
+        numDocsActuallyExported = transferred;
+        progress.emit('progress', {
+          percentage: percent,
+          transferred,
         });
-        debug('error running export pipeline', err);
-        return dispatch(onError(err));
-      }
+      });
+
+      dispatch(onStarted(exporter, dest, numDocsToExport));
+      await exporter.start();
       log.info(mongoLogId(1001000086), 'Export', 'Finished export', {
         ns,
         numDocsToExport,
         fileName: exportData.fileName,
       });
-      dispatch(onFinished(numDocsToExport));
+      dispatch(onFinished(numDocsActuallyExported));
       /**
        * TODO: lucas: For metrics:
        *
@@ -531,7 +513,96 @@ export const startExport = () => {
           exportData.fileType
         )
       );
-    });
+    } catch (err) {
+      log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
+        ns,
+        error: err.message,
+      });
+      exportSucceded = false;
+      debug('error running export pipeline', err);
+      return dispatch(onError(err));
+    } finally {
+      track('Export Completed', {
+        type: exportData.aggregation ? 'aggregation' : 'query',
+        all_docs: exportData.isFullCollection,
+        file_type: exportData.fileType,
+        all_fields: Object.values(exportData.fields).every(
+          (checked) => checked === 1
+        ),
+        number_of_docs: numDocsToExport,
+        success: exportSucceded,
+      });
+    }
+  };
+};
+
+const getExportSource = (dataService, ns, exportData) => {
+  if (exportData.aggregation) {
+    const { stages, options } = exportData.aggregation;
+    return {
+      columns: true,
+      source: dataService.aggregate(ns, stages, options),
+      numDocsToExport: exportData.count,
+    };
+  }
+  return getQueryExportSource(
+    dataService,
+    ns,
+    exportData.query,
+    exportData.fields,
+    exportData.count,
+    exportData.isFullCollection
+  );
+};
+
+const getQueryExportSource = async (
+  dataService,
+  ns,
+  query,
+  fields,
+  count,
+  isFullCollection
+) => {
+  const spec = getQuery(query, isFullCollection);
+  const numDocsToExport = isFullCollection
+    ? await fetchDocumentCount(dataService, ns, spec)
+    : count;
+  // filter out only the fields we want to include in our export data
+  const projection = Object.fromEntries(
+    Object.entries(fields).filter((keyAndValue) => keyAndValue[1] === 1)
+  );
+  if (
+    Object.keys(projection).length > 0 &&
+    (undefined === fields._id || fields._id === 0)
+  ) {
+    projection._id = 0;
+  }
+  log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
+    ns,
+    numDocsToExport,
+    spec,
+    projection,
+  });
+  const source = dataService.fetch(ns, spec.filter || {}, {
+    projection,
+    limit: spec.limit,
+    skip: spec.skip,
+  });
+  // Pick the columns that are going to be matched by the projection,
+  // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
+  // has an entry in the projection object.
+  const columns = Object.keys(fields).filter((field) =>
+    field
+      .split('.')
+      .some(
+        (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]
+      )
+  );
+
+  return {
+    columns,
+    source,
+    numDocsToExport,
   };
 };
 
@@ -542,14 +613,18 @@ export const startExport = () => {
 export const cancelExport = () => {
   return (dispatch, getState) => {
     const { exportData } = getState();
-    const { source, dest } = exportData;
+    const { exporter, dest } = exportData;
 
-    if (!source || !dest) {
+    if (!exporter || !dest) {
       debug('no active streams to cancel.');
       return;
     }
-    log.info(mongoLogId(1001000088), 'Export', 'Cancelling export by user request');
-    source.unpipe();
+    log.info(
+      mongoLogId(1001000088),
+      'Export',
+      'Cancelling export by user request'
+    );
+    exporter.cancel();
 
     dispatch({ type: CANCELED });
   };

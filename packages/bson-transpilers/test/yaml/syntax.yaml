@@ -21,6 +21,7 @@ tests:
           object: "3"
           ruby: "1 + 2"
           swift: "1 + 2"
+          rust: "1 + 2"
     - input:
           javascript: "1 \n +2"
           shell: "1 \t\t +2"
@@ -34,6 +35,7 @@ tests:
           object: "3"
           ruby: "1 + 2"
           swift: "1 + 2"
+          rust: "1 + 2"
     compare:
     - input:
           javascript: "1 === 2"
@@ -48,6 +50,7 @@ tests:
           object: "false"
           ruby: "1 == 2"
           swift: "1 == 2"
+          rust: "1 == 2"
     - input:
           javascript: "1 !== 2"
           shell: "1 !== 2"
@@ -61,6 +64,7 @@ tests:
           object: "true"
           ruby: "1 != 2"
           swift: "1 != 2"
+          rust: "1 != 2"
     - input:
           javascript: "true || false"
           shell: "true || false"
@@ -74,6 +78,7 @@ tests:
           object: "true"
           ruby: "true || false"
           swift: "true || false"
+          rust: "true || false"
     - input:
           javascript: "true || false || true"
           shell: "true || false || true"
@@ -87,6 +92,7 @@ tests:
           object: "true"
           ruby: "true || false || true"
           swift: "true || false || true"
+          rust: "true || false || true"
     - input:
           javascript: "true && false"
           shell: "true && false"
@@ -100,6 +106,7 @@ tests:
           object: "false"
           ruby: "true && false"
           swift: "true && false"
+          rust: "true && false"
     - input:
           javascript: "true && false && true"
           shell: "true && false && true"
@@ -113,6 +120,7 @@ tests:
           object: "false"
           ruby: "true && false && true"
           swift: "true && false && true"
+          rust: "true && false && true"
     - input:
           javascript: "!true"
           shell: "!true"
@@ -126,6 +134,7 @@ tests:
           object: "false"
           ruby: "!true"
           swift: "!true"
+          rust: "!true"
     - input:
           javascript: "1 > 2 < 3 >= 4 <= 6"
           shell: "1 > 2 < 3 >= 4 <= 6"
@@ -139,6 +148,7 @@ tests:
           object: "true"
           # ruby: this is invalid syntax in ruby
           # swift: this is invalid syntax in swift
+          # rust: this is invalid syntax in rust
     - input:
           python: "4 is 5"
       output:
@@ -150,6 +160,7 @@ tests:
           object: "false"
           ruby: "4.equal?(5)"
           swift: "4 == 5"
+          rust: "4 == 5"
     - input:
           python: "4 is not 5"
       output:
@@ -161,6 +172,7 @@ tests:
           object: "true"
           ruby: "!4.equal?(5)"
           swift: "4 != 5"
+          rust: "4 != 5"
     - input:
           python: "4 in [1, 2]"
       output:
@@ -176,6 +188,11 @@ tests:
                   1,
                   2
               ].contains(4)
+          rust: |-
+            [
+                1,
+                2
+            ].contains(&4)
     - input:
           python: "4 not in [1, 2]"
       output:
@@ -191,6 +208,11 @@ tests:
                   1,
                   2
               ].contains(4)
+          rust: |-
+            ![
+                1,
+                2
+            ].contains(&4)
     comments:
     - input:
           javascript: "1 // a comment"
@@ -205,6 +227,7 @@ tests:
           object: "1"
           ruby: "1"
           swift: "1"
+          rust: "1"
     - input:
           javascript: "1 /* a comment*/"
           shell: "1 /* a comment*/"
@@ -217,6 +240,7 @@ tests:
           object: "1"
           ruby: "1"
           swift: "1"
+          rust: "1"
     - input:
           javascript: "1 /* a \ncom\nmen\nt*/+2"
           shell: "1 /* a \ncom\nmen\nt*/+2"
@@ -229,6 +253,7 @@ tests:
           object: "3"
           ruby: "1 + 2"
           swift: "1 + 2"
+          rust: "1 + 2"
     - input:
           javascript: "1 /* a \ncom\nmen\nt*/"
           shell: "1 /* a \ncom\nmen\nt*/"
@@ -241,6 +266,7 @@ tests:
           object: "1"
           ruby: "1"
           swift: "1"
+          rust: "1"
     - input:
           javascript: "1 /* a comment*/+2"
           shell: "1 /* a comment*/+2"
@@ -253,6 +279,7 @@ tests:
           object: "3"
           ruby: "1 + 2"
           swift: "1 + 2"
+          rust: "1 + 2"
     parens:
     - input:
           javascript: "(1 === 1)"
@@ -267,6 +294,7 @@ tests:
           object: "true"
           ruby: "(1 == 1)"
           swift: "(1 == 1)"
+          rust: "(1 == 1)"
     - input:
           javascript: "((1 === (1)))"
           shell: "((1 === (1)))"
@@ -280,3 +308,4 @@ tests:
           object: "true"
           ruby: "((1 == (1)))"
           swift: "((1 == (1)))"
+          rust: "((1 == (1)))"

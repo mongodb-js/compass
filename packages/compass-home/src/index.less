@@ -21,17 +21,6 @@
   }
 }
 
-.rtss-databases,
-.rt-perf {
-  //rtss charts
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 100%;
-  flex-grow: 1;
-  overflow: auto;
-}
-
 .controls-container {
   flex-grow: 0;
   flex-shrink: 0;
@@ -39,23 +28,6 @@
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
   z-index: 4;
   border-top: 1px solid @gray7;
-}
-
-.column-container {
-  height: 100%;
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: auto;
-  display: flex;
-  overflow-y: scroll;
-  background: @gray8;
-}
-
-.column.main {
-  height: 100%;
-  flex: 1;
-  margin-bottom: 100px;
-  padding: 0 15px;
 }
 
 // pull these definitions out from below because RTSS header has an internal conflict

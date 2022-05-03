@@ -8,6 +8,7 @@ ignores: [
     'system-ca',
     'win-export-certificate-and-key',
     'macos-export-certificate-and-key',
+    'mongodb-client-encryption',
     # webpack always externalizes 'clipboard' for legacy reasons
     'clipboard'
   ]

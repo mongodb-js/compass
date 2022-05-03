@@ -4,6 +4,10 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import {
+  createDummyCollections,
+  createNumbersCollection,
+} from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -66,14 +70,14 @@ async function getFirstListDocument(browser: CompassBrowser) {
   // and their values are what we expected.
 
   const fieldNameElements = await browser.$$(
-    Selectors.DocumentListFirstItemFields
+    Selectors.documentListDocumentKey(1)
   );
   const fieldNames = await Promise.all(
     fieldNameElements.map((el) => el.getText())
   );
 
   const fieldValueElements = await browser.$$(
-    Selectors.DocumentListFirstItemValues
+    Selectors.documentListDocumentValue(1)
   );
   const fieldValues = await Promise.all(
     fieldValueElements.map((el) => el.getText())
@@ -91,14 +95,12 @@ describe('Collection import', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   beforeEach(async function () {
-    await browser.shellEval(
-      'db.getSiblingDB("test").getCollection("json-array").deleteMany({});'
-    );
+    await createNumbersCollection();
+    await createDummyCollections();
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   after(async function () {
@@ -125,7 +127,10 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
-    await browser.setAceValue(Selectors.InsertJSONEditor, '{ "foo": 10 }');
+    await browser.setAceValue(
+      Selectors.InsertJSONEditor,
+      '{ "foo": 10, "long": { "$numberLong": "99" } }'
+    );
 
     // confirm
     const insertConfirm = await browser.$(Selectors.InsertConfirm);
@@ -154,6 +159,7 @@ describe('Collection import', function () {
 
     expect(result).to.deep.equal({
       foo: '10',
+      long: '99',
     });
   });
 
@@ -178,22 +184,25 @@ describe('Collection import', function () {
     );
 
     // hover over the generated ObjectId to get the '+' for adding a new field
-    await browser.hover(`${Selectors.InsertDialog} .element-value-is-objectid`);
-    await browser.clickVisible(`${Selectors.InsertDialog} .line-number`);
+    await browser.hover(
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}`
+    );
     await browser.clickVisible(
-      `${Selectors.InsertDialog} .line-number .fa-plus-square-o`
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentAddElementMenuButton}`
+    );
+    await browser.clickVisible(
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentAddSibling}`
     );
 
     // Add field data
     const keyInput = await browser.$(
-      `${Selectors.InsertDialog} .editable-element-is-added .editable-element-field`
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentKeyEditor}`
     );
     await keyInput.setValue('bar');
     const valueInput = await browser.$(
-      `${Selectors.InsertDialog} .editable-element-is-added .editable-element-value-wrapper textarea`
+      `${Selectors.InsertDialog} ${Selectors.HadronDocumentElement}:last-child ${Selectors.HadronDocumentValueEditor}`
     );
     await valueInput.setValue('42');
-    await browser.keys(['Enter']);
 
     // confirm
     const insertConfirm = await browser.$(Selectors.InsertConfirm);

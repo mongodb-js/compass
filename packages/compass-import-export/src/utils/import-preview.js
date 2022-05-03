@@ -17,18 +17,18 @@ const debug = createDebug('import-preview');
  * @param {Boolean} fileIsMultilineJSON
  * @returns {stream.Transform}
  */
-export const createPeekStream = function(
+export const createPeekStream = function (
   fileType,
   delimiter,
   fileIsMultilineJSON
 ) {
-  return peek({ maxBuffer: 20 * 1024 }, function(data, swap) {
+  return peek({ maxBuffer: 20 * 1024 }, function (data, swap) {
     return swap(
       null,
       createParser({
         fileType: fileType,
         delimiter: delimiter,
-        fileIsMultilineJSON: fileIsMultilineJSON
+        fileIsMultilineJSON: fileIsMultilineJSON,
       })
     );
   });
@@ -40,15 +40,15 @@ export const createPeekStream = function(
  * @option {Number} MAX_SIZE The number of documents/rows we want to preview [Default `10`]
  * @returns {stream.Writable}
  */
-export default function({
+export default function ({
   MAX_SIZE = 10,
-  fileType
+  fileType,
   // delimiter
   // fileIsMultilineJSON
 } = {}) {
   return new Writable({
     objectMode: true,
-    write: function(doc, encoding, next) {
+    write: function (doc, encoding, next) {
       if (!this.docs) {
         this.docs = [];
         this.fields = [];
@@ -71,7 +71,11 @@ export default function({
             key = key.description;
           }
 
-          assert.equal(typeof key, 'string', `import-preview: expected key to be a String not ${typeof key}`);
+          assert.equal(
+            typeof key,
+            'string',
+            `import-preview: expected key to be a String not ${typeof key}`
+          );
 
           const isCSV = fileType === FILE_TYPES.CSV;
           const item = { path: key, checked: true };
@@ -91,17 +95,19 @@ export default function({
       if (keys.length !== this.fields.length) {
         debug('invariant detected!', {
           expected: this.fields.map((f) => f.path),
-          got: keys
+          got: keys,
         });
       }
 
-      const values = Object.values(docAsDotnotation).map(value => valueToString(value));
+      const values = Object.values(docAsDotnotation).map((value) =>
+        valueToString(value)
+      );
 
       debug('set values', values);
 
       this.values.push(values);
 
       return next(null);
-    }
+    },
   });
 }

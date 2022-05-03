@@ -1,7 +1,7 @@
-ignores: [
-  "@mongodb-js/prettier-config-compass",
-  "@mongodb-js/tsconfig-compass",
-  "eventemitter3",
-  "resolve",
-  "ts-node"
-]
+ignores:
+  - '@mongodb-js/prettier-config-compass'
+  - '@mongodb-js/tsconfig-compass'
+  - 'eventemitter3'
+  - 'resolve'
+ignore-patterns:
+  - 'dist'

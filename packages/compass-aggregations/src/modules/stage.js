@@ -1,7 +1,7 @@
 import mongodbQueryParser from 'mongodb-query-parser';
 import decomment from 'decomment';
 
-const PARSE_ERROR = 'Stage must be a properly formatted document.';
+export const PARSE_ERROR = 'Stage must be a properly formatted document.';
 
 function parse(...args) {
   const parsed = mongodbQueryParser(...args);
@@ -66,11 +66,23 @@ export function gatherProjections(state, stage) {
 }
 
 /**
+ * @param {import('./pipeline').Pipeline} stage - The stage.
+ */
+export function validateStage(stage) {
+  try {
+    parse(decomment(stage.stage));
+    return { isValid: true, syntaxError: null };
+  } catch (e) {
+    return { isValid: false, syntaxError: PARSE_ERROR };
+  }
+}
+
+/**
  * Generates an Object representing the stage to be passed to the DataService.
  *
  * @param {Object} state - The state of the stage.
  *
- * @returns {Record<string, unknown>} The stage as an object.
+ * @returns {import('mongodb').Document} The stage as an object.
  */
 export function generateStage(state) {
   if (!state.isEnabled || !state.stageOperator || state.stage === '') {

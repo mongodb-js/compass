@@ -1,13 +1,13 @@
 {
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
-  "version": "8.20.0",
+  "version": "8.22.0",
   "apiVersion": "3.0.0",
   "description": "The query history sidebar.",
   "main": "lib/index.js",
-  "exports": {
-    "webpack": "./src/index.js",
-    "require": "./lib/index.js"
+  "compass:main": "src/index.js",
+  "compass:exports": {
+    ".": "./src/index.js"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
@@ -43,17 +43,17 @@
     "bootstrap": "npm run compile"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.9.0",
+    "@mongodb-js/compass-logging": "^0.11.0",
     "bson": "^4.4.1",
     "highlight.js": "^9.12.0",
     "lodash": "^4.17.15",
-    "mongodb-data-service": "^21.18.0"
+    "mongodb-data-service": "^21.20.0"
   },
   "peerDependencies": {
     "bson": "^4.4.1",
     "debug": "*",
-    "hadron-react-components": "^5.12.0",
-    "mongodb-query-parser": "^2.4.4",
+    "hadron-react-components": "^5.14.0",
+    "mongodb-query-parser": "^2.4.6",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -61,7 +61,7 @@
     "react-tooltip": "^3.11.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
-    "storage-mixin": "^4.12.0"
+    "storage-mixin": "^4.14.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -94,9 +94,9 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.20.0",
-    "hadron-app-registry": "^8.9.0",
-    "hadron-react-components": "^5.12.0",
+    "hadron-app": "^4.22.0",
+    "hadron-app-registry": "^8.11.0",
+    "hadron-react-components": "^5.14.0",
     "har-validator": "^5.1.3",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
@@ -118,10 +118,9 @@
     "mime-db": "^1.27.0",
     "mocha": "^5.0.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^21.14.0",
-    "mongodb-js-metrics": "^7.9.0",
-    "mongodb-ns": "^2.3.0",
-    "mongodb-query-parser": "^2.4.4",
+    "mongodb-connection-model": "^21.16.0",
+    "mongodb-ns": "^2.4.0",
+    "mongodb-query-parser": "^2.4.6",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
@@ -139,7 +138,7 @@
     "sinon": "^8.1.1",
     "sinon-chai": "^3.4.0",
     "sshpk": "^1.13.0",
-    "storage-mixin": "^4.12.0",
+    "storage-mixin": "^4.14.0",
     "style-loader": "^2.0.0",
     "tough-cookie": "^2.3.2",
     "url-loader": "^3.0.0",

@@ -1,8 +1,14 @@
 import { expect } from 'chai';
+import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
+import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import {
+  createDummyCollections,
+  createNumbersCollection,
+} from '../helpers/insert-data';
 
 describe('Database collections tab', function () {
   let compass: Compass;
@@ -11,8 +17,6 @@ describe('Database collections tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   after(async function () {
@@ -20,6 +24,9 @@ describe('Database collections tab', function () {
   });
 
   beforeEach(async function () {
+    await createDummyCollections();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
     await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
@@ -172,11 +179,16 @@ describe('Database collections tab', function () {
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
-    // TODO: how do we make sure this is really a collection with a custom collation?
+    await collectionCard
+      .$('[data-testid="collection-badge-collation"]')
+      .waitForDisplayed();
   });
 
-  // This needs mongodb 5
-  it.skip('can create a time series collection', async function () {
+  it('can create a time series collection', async function () {
+    if (semver.lt(MONGODB_VERSION, '5.0.0')) {
+      return this.skip();
+    }
+
     const collectionName = 'my-timeseries-collection';
 
     // open the create collection modal from the button at the top
@@ -200,6 +212,48 @@ describe('Database collections tab', function () {
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
-    // TODO: how do we make sure this is really a timeseries collection?
+    await collectionCard
+      .$('[data-testid="collection-badge-timeseries"]')
+      .waitForDisplayed();
+  });
+
+  it('can create a clustered collection', async function () {
+    if (semver.lt(MONGODB_VERSION, '5.3.0')) {
+      return this.skip();
+    }
+
+    const collectionName = 'my-clustered-collection';
+    const indexName = 'my-clustered-index';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(collectionName, {
+      clustered: {
+        name: indexName,
+        expireAfterSeconds: 60,
+      },
+    });
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    await collectionCard
+      .$('[data-testid="collection-badge-clustered"]')
+      .waitForDisplayed();
+
+    await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
+
+    const typeElement = await browser.$(
+      `[data-test-id="index-component-${indexName}"] [data-test-id="index-table-type"]`
+    );
+    await typeElement.waitForDisplayed();
+    expect(await typeElement.getText()).to.equal('CLUSTERED');
   });
 });

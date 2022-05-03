@@ -16,7 +16,6 @@ describe('CollectionFields [Component]', () => {
           onChange={() => {}}
           withDatabase
           serverVersion="5.0"
-          openLink={() => {}}
         />
       );
     });
@@ -39,7 +38,6 @@ describe('CollectionFields [Component]', () => {
         <CollectionFields
           onChange={() => {}}
           serverVersion="5.0"
-          openLink={() => {}}
         />
       );
     });
@@ -65,7 +63,6 @@ describe('CollectionFields [Component]', () => {
           onChange={onChangeSpy}
           withDatabase
           serverVersion="5.0"
-          openLink={() => {}}
         />
       );
     });
@@ -109,7 +106,6 @@ describe('CollectionFields [Component]', () => {
           onChange={() => {}}
           withDatabase
           serverVersion="4.3.0"
-          openLink={() => {}}
         />
       );
     });
@@ -118,32 +114,28 @@ describe('CollectionFields [Component]', () => {
       component = null;
     });
 
-    it('shows time series options', () => {
+    it('does not show time series options', () => {
       expect(component.text().includes('Time-Series')).to.equal(false);
     });
   });
 
   context('when rendered', () => {
     let component;
-    let openLinkSpy;
     let onChangeSpy;
 
     beforeEach(() => {
-      openLinkSpy = sinon.spy();
       onChangeSpy = sinon.spy();
 
       component = mount(
         <CollectionFields
           onChange={onChangeSpy}
           serverVersion="4.3.0"
-          openLink={openLinkSpy}
         />
       );
     });
 
     afterEach(() => {
       component = null;
-      openLinkSpy = null;
       onChangeSpy = null;
     });
 

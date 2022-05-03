@@ -12,6 +12,7 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 chai.use(chaiAsPromised);
 
@@ -56,9 +57,11 @@ describe('Collection export', function () {
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
+  });
 
+  beforeEach(async function () {
+    await createNumbersCollection();
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
-
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
   });
 
@@ -137,6 +140,7 @@ describe('Collection export', function () {
       all_fields: true,
       number_of_docs: 1,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -207,6 +211,7 @@ describe('Collection export', function () {
       all_fields: true,
       number_of_docs: 1000,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -265,6 +270,7 @@ describe('Collection export', function () {
       all_fields: false,
       number_of_docs: 1000,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -333,6 +339,7 @@ describe('Collection export', function () {
       all_fields: true,
       number_of_docs: 1,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -400,6 +407,7 @@ describe('Collection export', function () {
       all_fields: true,
       number_of_docs: 1000,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -458,6 +466,7 @@ describe('Collection export', function () {
       all_fields: false,
       number_of_docs: 1000,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });

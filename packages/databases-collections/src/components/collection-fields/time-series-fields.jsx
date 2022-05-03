@@ -11,6 +11,8 @@ const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
   'as timeField for the time-series collection. ' +
   'This field must have a BSON type date.';
 
+const HELP_URL_TIME_FIELD = 'https://www.mongodb.com/docs/manual/core/timeseries-collections/';
+
 const META_FIELD_INPUT_DESCRIPTION = 'The metaField is the designated field ' +
   'for metadata.';
 
@@ -30,8 +32,10 @@ const GRANULARITY_OPTIONS = [
 function TimeSeriesFields({
   isCapped,
   isTimeSeries,
+  isClustered,
+  isFLE2,
   onChangeIsTimeSeries,
-  onChangeTimeSeriesField,
+  onChangeField,
   timeSeries,
   expireAfterSeconds
 }) {
@@ -44,18 +48,19 @@ function TimeSeriesFields({
   const onInputChange = useCallback(
     (e) => {
       const { name, value } = e.currentTarget;
-      onChangeTimeSeriesField(name, value);
+      onChangeField(name, value);
     },
-    [onChangeTimeSeriesField]
+    [onChangeField]
   );
 
   return (
     <CollapsibleFieldSet
-      disabled={isCapped}
+      disabled={isCapped || isClustered || isFLE2}
       onToggle={checked => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
       dataTestId="time-series-fields"
+      helpUrl={HELP_URL_TIME_FIELD}
       description="Time-series collections efficiently store sequences of measurements over a period of time."
     >
       <FieldSet>
@@ -90,7 +95,7 @@ function TimeSeriesFields({
           name="timeSeries.granularity"
           placeholder="Select a value [optional]"
           description={GRANULARITY_DESCRIPTION}
-          onChange={(val) => onChangeTimeSeriesField('timeSeries.granularity', val)}
+          onChange={(val) => onChangeField('timeSeries.granularity', val)}
           usePortal={false}
           allowDeselect={false}
           value={granularity}
@@ -125,8 +130,10 @@ function TimeSeriesFields({
 TimeSeriesFields.propTypes = {
   isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
+  isClustered: PropTypes.bool.isRequired,
+  isFLE2: PropTypes.bool.isRequired,
   onChangeIsTimeSeries: PropTypes.func.isRequired,
-  onChangeTimeSeriesField: PropTypes.func.isRequired,
+  onChangeField: PropTypes.func.isRequired,
   timeSeries: PropTypes.object.isRequired,
   expireAfterSeconds: PropTypes.string.isRequired
 };

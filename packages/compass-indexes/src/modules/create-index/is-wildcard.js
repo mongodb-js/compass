@@ -1,7 +1,8 @@
 /**
  * Change is wildcard action name.
  */
-export const TOGGLE_IS_WILDCARD = 'indexes/create-indexes/is-wildcard/TOGGLE_IS_WILDCARD';
+export const TOGGLE_IS_WILDCARD =
+  'indexes/create-indexes/is-wildcard/TOGGLE_IS_WILDCARD';
 
 /**
  * The initial state of the is writable attribute.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsWildcard = (isWildcard) => ({
   type: TOGGLE_IS_WILDCARD,
-  isWildcard: isWildcard
+  isWildcard: isWildcard,
 });

@@ -2,7 +2,6 @@ import {
   getSource,
   getSourceName,
   getSourceViewOn,
-  collectionMetadata
 } from './collection';
 
 const COLL = {
@@ -77,21 +76,6 @@ describe('collection module', () => {
     context('when the source is not a view', () => {
       it('returns null', () => {
         expect(getSourceViewOn('db')).to.equal(null);
-      });
-    });
-  });
-
-  describe('#collectionMetadata', () => {
-    it('returns the object to send to the other plugins', () => {
-      expect(collectionMetadata(VIEW_ON_VIEW, COLLECTIONS, 'db', 'db.testView')).to.deep.equal({
-        namespace: 'db.testViewOnView',
-        isReadonly: true,
-        isTimeSeries: false,
-        sourceName: 'db.testView',
-        sourceReadonly: true,
-        sourceViewOn: 'db.test',
-        sourcePipeline: [],
-        editViewName: 'db.testView'
       });
     });
   });

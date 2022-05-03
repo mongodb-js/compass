@@ -42,7 +42,7 @@ class WritableCollectionStream extends Writable {
   }
 
   _collection() {
-    return this.dataService._collection(this.ns);
+    return this.dataService._collection(this.ns, 'CRUD');
   }
 
   _write(document, _encoding, next) {
@@ -161,7 +161,7 @@ class WritableCollectionStream extends Writable {
   }
 }
 
-export const createCollectionWriteStream = function(
+export const createCollectionWriteStream = function (
   dataService,
   ns,
   stopOnErrors
@@ -169,7 +169,7 @@ export const createCollectionWriteStream = function(
   return new WritableCollectionStream(dataService, ns, stopOnErrors);
 };
 
-export const createReadableCollectionStream = function(
+export const createReadableCollectionStream = function (
   dataService,
   ns,
   spec = { filter: {} },
@@ -181,7 +181,7 @@ export const createReadableCollectionStream = function(
     .fetch(ns, spec.filter || {}, {
       projection,
       limit,
-      skip
+      skip,
     })
     .stream();
 };

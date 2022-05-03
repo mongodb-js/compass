@@ -5,8 +5,6 @@ The Compass plugin responsible for gluing together other plugins:
 - [compass-aggregations][compass-aggregations]
 - [compass-auto-updates][compass-auto-updates]
 - [compass-collection][compass-collection]
-- [compass-collection-stats][compass-collection-stats]
-- [compass-connect][compass-connect]
 - [compass-crud][compass-crud]
 - [compass-database][compass-database]
 - [compass-databases-collections][compass-databases-collections]
@@ -17,7 +15,6 @@ The Compass plugin responsible for gluing together other plugins:
 - [compass-import-export][compass-import-export]
 - [compass-indexes][compass-indexes]
 - [compass-instance][compass-instance]
-- [compass-metrics][compass-metrics]
 - [compass-plugin-info][compass-plugin-info]
 - [compass-query-bar][compass-query-bar]
 - [compass-query-history][compass-query-history]
@@ -80,12 +77,12 @@ For completeness, below is a list of directories present in this module:
 - `electron` code to start electron, open a browser window and load the source.
   You don't usually need to touch this, unless you want to render something other
   than the main component in Electron.
-- `lib` compiled version of your components (plain javascript instead of `jsx`) and
+- `dist` compiled version of your components (plain javascript instead of `jsx`) and
   styles (`css` instead of `less`). Never change anything here as this entire folder
   gets automatically created and overwritten.
 - `src` components, actions and stores source code, as well as style files. This is the
   place to implement your own components. `npm run compile` will use `./src` as input
-  and create `./lib`.
+  and create `./dist`.
 - `test` implement your tests here, and name the files `*.test.js`.
 
 [enzyme]: http://airbnb.io/enzyme/
@@ -94,8 +91,6 @@ For completeness, below is a list of directories present in this module:
 [compass-aggregations]: ../compass-aggregations
 [compass-auto-updates]: ../compass-auto-updates
 [compass-collection]: ../compass-collection
-[compass-collection-stats]: ../compass-collection-stats
-[compass-connect]: ../compass-connect
 [compass-crud]: ../compass-crud
 [compass-database]: ../compass-database
 [compass-databases-collections]: ../compass-databases-collections
@@ -106,7 +101,6 @@ For completeness, below is a list of directories present in this module:
 [compass-import-export]: ../compass-import-export
 [compass-indexes]: ../compass-indexes
 [compass-instance]: ../compass-instance
-[compass-metrics]: ../compass-metrics
 [compass-plugin-info]: ../compass-plugin-info
 [compass-query-bar]: ../compass-query-bar
 [compass-query-history]: ../compass-query-history

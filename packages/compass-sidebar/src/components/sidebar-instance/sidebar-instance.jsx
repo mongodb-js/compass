@@ -6,6 +6,8 @@ import SidebarInstanceStats from '../sidebar-instance-stats';
 import SidebarInstanceDetails from '../sidebar-instance-details';
 import NonGenuineWarningPill from '../non-genuine-warning-pill';
 import FavoriteButton from '../favorite-button';
+import CSFLEMarker from '../csfle-marker';
+import CSFLEConnectionModal from '../csfle-connection-modal';
 
 import styles from './sidebar-instance.module.less';
 import { cloneDeep } from 'lodash';
@@ -19,9 +21,11 @@ export const SidebarInstance = ({
   globalAppRegistryEmit,
   detailsPlugins,
   connectionInfo,
-  updateConnectionInfo
+  updateConnectionInfo,
+  setConnectionIsCSFLEEnabled
 }) => {
   const [ isFavoriteModalVisible, setIsFavoriteModalVisible ] = useState(false);
+  const [ isCSFLEModalVisible, setIsCSFLEModalVisible ] = useState(false);
 
   const onClickSaveFavorite = useCallback((newFavoriteInfo) => {
     updateConnectionInfo({
@@ -46,6 +50,16 @@ export const SidebarInstance = ({
         toggleIsFavoriteModalVisible={() => setIsFavoriteModalVisible(
           !isFavoriteModalVisible
         )}
+      />
+      <CSFLEMarker
+        csfleMode={instance?.csfleMode}
+        toggleCSFLEModalVisible={() => setIsCSFLEModalVisible(!isCSFLEModalVisible)}
+      />
+      <CSFLEConnectionModal
+        open={isCSFLEModalVisible}
+        setOpen={(open) => setIsCSFLEModalVisible(open)}
+        csfleMode={instance?.csfleMode}
+        setConnectionIsCSFLEEnabled={setConnectionIsCSFLEEnabled}
       />
       <SaveConnectionModal
         initialFavoriteInfo={connectionInfo.favorite}
@@ -74,7 +88,8 @@ SidebarInstance.propTypes = {
   globalAppRegistryEmit: PropTypes.func.isRequired,
   detailsPlugins: PropTypes.array.isRequired,
   connectionInfo: PropTypes.object.isRequired,
-  updateConnectionInfo: PropTypes.func.isRequired
+  updateConnectionInfo: PropTypes.func.isRequired,
+  setConnectionIsCSFLEEnabled: PropTypes.func.isRequired,
 };
 
 export default SidebarInstance;

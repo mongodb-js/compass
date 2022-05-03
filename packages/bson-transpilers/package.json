@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "apiVersion": "0.0.1",
   "productName": "BSON Transpilers",
   "description": "Source to source compilers using ANTLR",
@@ -10,10 +10,7 @@
     "Irina Shestak <irina.shestak@mongodb.com>"
   ],
   "main": "index.js",
-  "exports": {
-    "webpack": "./index.js",
-    "require": "./index.js"
-  },
+  "compass:main": "index.js",
   "scripts": {
     "start": "node index.js",
     "precompile": "node download-antlr.js",

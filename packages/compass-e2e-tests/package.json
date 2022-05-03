@@ -19,7 +19,6 @@
     "reformat": "npm run prettier -- --write .",
     "start-server": "mongodb-runner start --port 27018 --dbpath ./.mongodb",
     "stop-server": "mongodb-runner stop --port 27018",
-    "insert-data": "ts-node ./scripts/insert-data.ts",
     "unzip-fixtures": "ts-node ./scripts/gunzip.ts fixtures/*.gz",
     "testslow": "env DEBUG=hadron*,mongo*,compass* npm run test -- --disable-start-stop --bail",
     "testfast": "env DEBUG=hadron*,mongo*,compass* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail",
@@ -31,10 +30,10 @@
     "puppeteer": "*"
   },
   "dependencies": {
-    "mongodb-compass": "^0.0.0-dev.0"
+    "mongodb-compass": "^0.0.1-dev.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.7.0",
+    "@mongodb-js/eslint-config-compass": "^0.8.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^0.6.0",
     "@types/chai-as-promised": "^7.1.4",
@@ -54,16 +53,17 @@
     "eslint": "*",
     "fast-glob": "^3.2.7",
     "glob": "^7.1.6",
-    "hadron-build": "^24.14.0",
+    "hadron-build": "^24.16.0",
     "lodash": "^4.17.21",
     "mocha": "*",
     "mongodb": "^4.4.0",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb-log-writer": "^1.1.4",
-    "mongodb-runner": "^4.8.3",
+    "mongodb-runner": "^4.9.0",
     "nyc": "^15.1.0",
     "prettier": "*",
     "resolve-mongodb-srv": "^1.1.1",
+    "semver": "^5.7.1",
     "ts-node": "^10.4.0",
     "webdriverio": "^7.16.13",
     "xvfb-maybe": "^0.2.1"

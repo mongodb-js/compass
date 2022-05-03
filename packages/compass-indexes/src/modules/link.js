@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 const userAgent = navigator.userAgent.toLowerCase();
 
 /**
@@ -13,6 +14,7 @@ export const openLink = (href) => {
       const { shell } = require('electron');
       shell.openExternal(href);
     } else {
+      // eslint-disable-next-line no-undef
       window.open(href, '_new');
     }
   };

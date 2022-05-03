@@ -16,10 +16,8 @@ class Document extends React.Component {
     if (this.props.editable && this.props.isTimeSeries) {
       return (
         <ReadonlyDocument
-          copyToClipboard={this.props.copyToClipboard}
           doc={this.props.doc}
-          tz={this.props.tz}
-          expandAll={this.props.expandAll}
+          copyToClipboard={this.props.copyToClipboard}
           openInsertDocumentDialog={this.props.openInsertDocumentDialog}
         />
       );
@@ -29,10 +27,8 @@ class Document extends React.Component {
     }
     return (
       <ReadonlyDocument
-        copyToClipboard={this.props.copyToClipboard}
         doc={this.props.doc}
-        tz={this.props.tz}
-        expandAll={this.props.expandAll}
+        copyToClipboard={this.props.copyToClipboard}
       />
     );
   }
@@ -42,16 +38,13 @@ Document.displayName = 'Document';
 
 Document.propTypes = {
   doc: PropTypes.object.isRequired,
-  tz: PropTypes.string,
-  copyToClipboard: PropTypes.func,
   editable: PropTypes.bool,
-  expandAll: PropTypes.bool,
   isTimeSeries: PropTypes.bool,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
-  openImportFileDialog: PropTypes.func,
-  openInsertDocumentDialog: PropTypes.func
+  openInsertDocumentDialog: PropTypes.func,
+  copyToClipboard: PropTypes.func
 };
 
 export default Document;

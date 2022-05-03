@@ -1,8 +1,8 @@
 ignores: [
+  '@mongodb-js/prettier-config-compass',
+  '@mongodb-js/tsconfig-compass',
   "debug",
   "lodash.foreach",
-  "react",
-  "react-dom",
   "@babel/register",
   "babel-loader"
 ]

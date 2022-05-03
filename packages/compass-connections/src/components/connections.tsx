@@ -21,7 +21,7 @@ import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
 
-const { debug } = createLoggerAndTelemetry(
+const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
 );
 
@@ -113,7 +113,12 @@ function Connections({
         <div className={formContainerStyles}>
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {
-              debug('error rendering connect form', error, errorInfo);
+              log.error(
+                mongoLogId(1001000108),
+                'Connect Form',
+                'Rendering connect form failed',
+                { error: error.message, errorInfo }
+              );
             }}
           >
             <ConnectionForm

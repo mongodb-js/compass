@@ -3,7 +3,11 @@ import ConnectionString, {
   CommaAndColonSeparatedRecord,
 } from 'mongodb-connection-string-url';
 import type { ConnectionInfo } from './connection-info';
-import type { MongoClientOptions, AuthMechanismProperties } from 'mongodb';
+import type {
+  MongoClientOptions,
+  AuthMechanismProperties,
+  AutoEncryptionOptions,
+} from 'mongodb';
 
 export interface ConnectionSecrets {
   password?: string;
@@ -12,6 +16,7 @@ export interface ConnectionSecrets {
   awsSessionToken?: string;
   tlsCertificateKeyFilePassword?: string;
   proxyPassword?: string;
+  autoEncryption?: AutoEncryptionOptions;
 }
 
 export function mergeSecrets(
@@ -27,10 +32,7 @@ export function mergeSecrets(
   const connectionOptions = connectionInfoWithSecrets.connectionOptions;
 
   const uri = new ConnectionString(connectionOptions.connectionString);
-  // can remove the proxyPassword addition once we have NODE-3633
-  const searchParams = uri.typedSearchParams<
-    MongoClientOptions & { proxyPassword?: string }
-  >();
+  const searchParams = uri.typedSearchParams<MongoClientOptions>();
 
   if (secrets.password) {
     uri.password = secrets.password;
@@ -43,6 +45,13 @@ export function mergeSecrets(
   if (secrets.sshTunnelPassphrase && connectionOptions.sshTunnel) {
     connectionOptions.sshTunnel.identityKeyPassphrase =
       secrets.sshTunnelPassphrase;
+  }
+
+  if (secrets.autoEncryption && connectionOptions.fleOptions?.autoEncryption) {
+    _.merge(
+      connectionOptions.fleOptions?.autoEncryption,
+      secrets.autoEncryption
+    );
   }
 
   if (secrets.tlsCertificateKeyFilePassword) {
@@ -84,10 +93,7 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
 
   const connectionOptions = connectionInfoWithoutSecrets.connectionOptions;
   const uri = new ConnectionString(connectionOptions.connectionString);
-  // can remove the proxyPassword addition once we have NODE-3633
-  const searchParams = uri.typedSearchParams<
-    MongoClientOptions & { proxyPassword?: string }
-  >();
+  const searchParams = uri.typedSearchParams<MongoClientOptions>();
 
   if (uri.password) {
     secrets.password = uri.password;
@@ -136,6 +142,28 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
   }
 
   connectionInfoWithoutSecrets.connectionOptions.connectionString = uri.href;
+
+  if (connectionOptions.fleOptions?.autoEncryption) {
+    const { autoEncryption } = connectionOptions.fleOptions;
+    const kmsProviders = ['aws', 'local', 'azure', 'gcp', 'kmip'] as const;
+    const secretPaths = [
+      'kmsProviders.aws.secretAccessKey',
+      'kmsProviders.aws.sessionToken',
+      'kmsProviders.local.key',
+      'kmsProviders.azure.clientSecret',
+      'kmsProviders.gcp.privateKey',
+      ...kmsProviders.map(
+        (p) => `tlsOptions.${p}.tlsCertificateKeyFilePassword`
+      ),
+    ];
+    connectionOptions.fleOptions.autoEncryption = _.omit(
+      autoEncryption,
+      secretPaths
+    );
+    if (connectionOptions.fleOptions.storeCredentials) {
+      secrets.autoEncryption = _.pick(autoEncryption, secretPaths);
+    }
+  }
 
   return { connectionInfo: connectionInfoWithoutSecrets, secrets };
 }

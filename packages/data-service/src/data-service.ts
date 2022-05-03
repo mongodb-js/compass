@@ -16,12 +16,10 @@ import type {
   CountDocumentsOptions,
   CreateCollectionOptions,
   CreateIndexesOptions,
-  Db,
   DeleteOptions,
   DeleteResult,
   Document,
   EstimatedDocumentCountOptions,
-  ExplainOptions,
   Filter,
   FindCursor,
   FindOneAndReplaceOptions,
@@ -51,16 +49,23 @@ import type {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
-import type { ConnectionOptions } from './connection-options';
+import type {
+  ConnectionFleOptions,
+  ConnectionOptions,
+} from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
 import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
   getPrivilegesByDatabaseAndCollection,
+  checkIsCSFLEConnection,
   getInstance,
+  getDatabasesByRoles,
+  configuredKMSProviders,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import connectMongoClient from './connect-mongo-client';
+import type { CollectionInfo, CollectionInfoNameOnly } from './run-command';
 import type {
   Callback,
   CollectionDetails,
@@ -69,6 +74,13 @@ import type {
 } from './types';
 import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
+import type { CSFLECollectionTracker } from './csfle-collection-tracker';
+import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
+import { ClientEncryption } from 'mongodb-client-encryption';
+import type {
+  ClientEncryptionDataKeyProvider,
+  ClientEncryptionCreateDataKeyProviderOptions,
+} from 'mongodb-client-encryption';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -90,15 +102,629 @@ function isEmptyObject(obj: Record<string, unknown>) {
 
 let id = 0;
 
-class DataService extends EventEmitter {
-  private readonly _connectionOptions: ConnectionOptions;
+type ClientType = 'CRUD' | 'META';
+const kSessionClientType = Symbol('kSessionClientType');
+interface CompassClientSession extends ClientSession {
+  [kSessionClientType]: ClientType;
+}
+
+export interface DataServiceEventMap {
+  serverDescriptionChanged: (evt: ServerDescriptionChangedEvent) => void;
+  serverOpening: (evt: ServerOpeningEvent) => void;
+  serverClosed: (evt: ServerClosedEvent) => void;
+  topologyOpening: (evt: TopologyOpeningEvent) => void;
+  topologyClosed: (evt: TopologyClosedEvent) => void;
+  topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
+  serverHeartbeatSucceeded: (evt: ServerHeartbeatSucceededEvent) => void;
+  serverHeartbeatFailed: (evt: ServerHeartbeatFailedEvent) => void;
+  collectionInfoFetched: (
+    opts: { databaseName: string; nameOnly?: boolean },
+    result: CollectionInfoNameOnly & Partial<CollectionInfo>
+  ) => void;
+}
+
+export interface DataService {
+  // TypeScript uses something like this itself for its EventTarget definitions.
+  on<K extends keyof DataServiceEventMap>(
+    event: K,
+    listener: DataServiceEventMap[K]
+  ): this;
+  once<K extends keyof DataServiceEventMap>(
+    event: K,
+    listener: DataServiceEventMap[K]
+  ): this;
+  emit<K extends keyof DataServiceEventMap>(
+    event: K,
+    ...args: DataServiceEventMap[K] extends (...args: infer P) => any
+      ? P
+      : never
+  ): unknown;
+
+  getMongoClientConnectionOptions():
+    | { url: string; options: MongoClientOptions }
+    | undefined;
+  getConnectionOptions(): Readonly<ConnectionOptions>;
+  getConnectionString(): ConnectionStringUrl;
+  getReadPreference(): ReadPreferenceLike;
+  setCSFLEEnabled(enabled: boolean): void;
+  configuredKMSProviders(): string[];
+
+  /**
+   * Get the kitchen sink information about a collection.
+   *
+   * @param ns - The namespace.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  collection(ns: string, options: unknown, callback: Callback<Document>): void;
+
+  /**
+   * Get the stats for all collections in the database.
+   *
+   * @param databaseName - The database name.
+   * @param callback - The callback.
+   */
+  collections(
+    databaseName: string,
+    callback: Callback<CollectionStats[]>
+  ): void;
+
+  /**
+   * Get the stats for a collection.
+   *
+   * @param databaseName - The database name.
+   * @param collectionName - The collection name.
+   * @param callback - The callback.
+   */
+  collectionStats(
+    databaseName: string,
+    collectionName: string,
+    callback: Callback<CollectionStats>
+  ): void;
+
+  /**
+   * Returns normalized collection info provided by listCollection command for a
+   * specific collection
+   *
+   * @param dbName database name
+   * @param collName collection name
+   */
+  collectionInfo(
+    dbName: string,
+    collName: string
+  ): Promise<ReturnType<typeof adaptCollectionInfo> | null>;
+
+  /**
+   * Execute a command.
+   *
+   * @param databaseName - The db name.
+   * @param comm - The command.
+   * @param callback - The callback.
+   */
+  command(
+    databaseName: string,
+    comm: Document,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Is the data service allowed to perform write operations.
+   *
+   * @returns If the data service is writable.
+   */
+  isWritable(): boolean;
+
+  /**
+   * Is the data service connected to a mongos.
+   *
+   * @returns If the data service is connected to a mongos.
+   */
+  isMongos(): boolean;
+
+  /**
+   * Return the current topology type, as reported by the driver's topology
+   * update events.
+   *
+   * @returns The current topology type.
+   */
+  currentTopologyType(): TopologyType;
+
+  connectionStatus(): Promise<ConnectionStatusWithPrivileges>;
+
+  /**
+   * List all collections for a database.
+   */
+  listCollections(
+    databaseName: string,
+    filter?: Document,
+    options?: {
+      nameOnly?: true;
+      privileges?:
+        | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+        | null;
+    }
+  ): Promise<ReturnType<typeof adaptCollectionInfo>[]>;
+
+  /**
+   * List all databases on the currently connected instance.
+   */
+  listDatabases(options?: {
+    nameOnly?: true;
+    privileges?:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null;
+    roles?:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+      | null;
+  }): Promise<{ _id: string; name: string }[]>;
+
+  connect(): Promise<void>;
+
+  /**
+   * Count the number of documents in the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param options - The query options.
+   * @param callback - The callback function.
+   */
+  estimatedCount(
+    ns: string,
+    options: EstimatedDocumentCountOptions,
+    callback: Callback<number>
+  ): void;
+
+  /**
+   * Count the number of documents in the collection for the provided filter
+   * and options.
+   *
+   * @param ns - The namespace to search on.
+   * @param options - The query options.
+   * @param callback - The callback function.
+   */
+  count(
+    ns: string,
+    filter: Filter<Document>,
+    options: CountDocumentsOptions,
+    callback: Callback<number>
+  ): void;
+
+  /**
+   * Creates a collection
+   *
+   * @param ns - The namespace.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  createCollection(
+    ns: string,
+    options: CreateCollectionOptions,
+    callback: Callback<Collection<Document>>
+  ): void;
+
+  /**
+   * Creates an index
+   *
+   * @param ns - The namespace.
+   * @param spec - The index specification.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  createIndex(
+    ns: string,
+    spec: IndexSpecification,
+    options: CreateIndexesOptions,
+    callback: Callback<string>
+  ): void;
+
+  /**
+   * Get the kitchen sink information about a database and all its collections.
+   *
+   * @param name - The database name.
+   * @param options - The query options.
+   * @param callback - The callback.
+   */
+  database(name: string, options: unknown, callback: Callback<Document>): void;
+
+  /**
+   * Delete a single document from the collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  deleteOne(
+    ns: string,
+    filter: Filter<Document>,
+    options: DeleteOptions,
+    callback: Callback<DeleteResult>
+  ): void;
+
+  /**
+   * Deletes multiple documents from a collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  deleteMany(
+    ns: string,
+    filter: Filter<Document>,
+    options: DeleteOptions,
+    callback: Callback<DeleteResult>
+  ): void;
+
+  /**
+   * Disconnect the service.
+   * @param callback - The callback.
+   */
+  disconnect(): Promise<void>;
+
+  /**
+   * Drops a collection from a database
+   *
+   * @param ns - The namespace.
+   * @param callback - The callback.
+   */
+  dropCollection(ns: string, callback: Callback<boolean>): void;
+
+  /**
+   * Drops a database
+   *
+   * @param name - The database name.
+   * @param callback - The callback.
+   */
+  dropDatabase(name: string, callback: Callback<boolean>): void;
+
+  /**
+   * Drops an index from a collection
+   *
+   * @param ns - The namespace.
+   * @param name - The index name.
+   * @param callback - The callback.
+   */
+  dropIndex(ns: string, name: string, callback: Callback<Document>): void;
+
+  /**
+   * Execute an aggregation framework pipeline with the provided options on the
+   * collection.
+   *
+   *
+   * @param ns - The namespace to search on.
+   * @param pipeline - The aggregation pipeline.
+   * @param options - The aggregation options.
+   * @param callback - The callback function.
+   */
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    options?: AggregateOptions
+  ): AggregationCursor;
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    callback: Callback<AggregationCursor>
+  ): void;
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions | undefined,
+    callback: Callback<AggregationCursor>
+  ): void;
+
+  /**
+   * Find documents for the provided filter and options on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The query filter.
+   * @param options - The query options.
+   * @param callback - The callback function.
+   */
+  find(
+    ns: string,
+    filter: Filter<Document>,
+    options: FindOptions,
+    callback: Callback<Document[]>
+  ): void;
+
+  /**
+   * Fetch documents for the provided filter and options on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The query filter.
+   * @param options - The query options.
+   */
+  fetch(ns: string, filter: Filter<Document>, options: FindOptions): FindCursor;
+
+  /**
+   * Find one document and replace it with the replacement.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The filter.
+   * @param replacement - The replacement doc.
+   * @param options - The query options.
+   * @param callback - The callback.
+   */
+  findOneAndReplace(
+    ns: string,
+    filter: Filter<Document>,
+    replacement: Document,
+    options: FindOneAndReplaceOptions,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Find one document and update it with the update operations.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The filter.
+   * @param update - The update operations doc.
+   * @param options - The query options.
+   * @param callback - The callback.
+   */
+  findOneAndUpdate(
+    ns: string,
+    filter: Filter<Document>,
+    update: Document,
+    options: FindOneAndUpdateOptions,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Returns explain plan for the provided filter and options on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The query filter.
+   * @param options - The query options.
+   * @param callback - The callback function.
+   */
+  explain(
+    ns: string,
+    filter: Filter<Document>,
+    options: FindOptions,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Get the indexes for the collection.
+   *
+   * @param ns - The collection namespace.
+   * @param options - The options (unused).
+   * @param callback - The callback.
+   */
+  indexes(ns: string, options: unknown, callback: Callback<Document>): void;
+
+  /**
+   * Get the current instance details.
+   */
+  instance(): Promise<InstanceDetails>;
+
+  /**
+   * Insert a single document into the database.
+   *
+   * @param ns - The namespace.
+   * @param doc - The document to insert.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  insertOne(
+    ns: string,
+    doc: Document,
+    options: InsertOneOptions,
+    callback: Callback<InsertOneResult<Document>>
+  ): void;
+
+  /**
+   * Inserts multiple documents into the collection.
+   *
+   * @param ns - The namespace.
+   * @param docs - The documents to insert.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  insertMany(
+    ns: string,
+    docs: Document[],
+    options: BulkWriteOptions,
+    callback: Callback<InsertManyResult<Document>>
+  ): void;
+
+  /**
+   * Inserts multiple documents into the collection.
+   *
+   * @param ns - The namespace.
+   * @param docs - The documents to insert.
+   * @param options - The options.
+   * @deprecated
+   */
+  putMany(
+    ns: string,
+    docs: Document[],
+    options: BulkWriteOptions
+  ): Promise<InsertManyResult<Document>>;
+
+  /**
+   * Update a collection.
+   *
+   * @param ns - The namespace.
+   * @param flags - The flags.
+   * @param callback - The callback.
+   */
+  updateCollection(
+    ns: string,
+    // Collection name to update that will be passed to the collMod command will
+    // be derived from the provided namespace, this is why we are explicitly
+    // prohibiting to pass collMod flag here
+    flags: Document & { collMod?: never },
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Update a single document in the collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param update - The update.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  updateOne(
+    ns: string,
+    filter: Filter<Document>,
+    update: Document | UpdateFilter<Document>,
+    options: UpdateOptions,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Updates multiple documents in the collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param update - The update.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options: UpdateOptions,
+    callback: Callback<Document | UpdateResult>
+  ): void;
+
+  /**
+   * Returns the results of currentOp.
+   *
+   * @param includeAll - if true also list currently idle operations in the result.
+   * @param callback - The callback.
+   */
+  currentOp(includeAll: boolean, callback: Callback<Document>): void;
+
+  /**
+   * Returns the most recent topology description from the server's SDAM events.
+   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
+   */
+  getLastSeenTopology(): null | TopologyDescription;
+
+  /**
+   * Returns the result of serverStats.
+   */
+  serverstats(callback: Callback<Document>): void;
+
+  /**
+   * Returns the result of top.
+   *
+   * @param callback - the callback.
+   */
+  top(callback: Callback<Document>): void;
+
+  /**
+   * Create a new view.
+   *
+   * @param name - The collectionName for the view.
+   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param pipeline - The agggregation pipeline for the view.
+   * @param options - Options e.g. collation.
+   * @param callback - The callback.
+   */
+  createView(
+    name: string,
+    sourceNs: string,
+    pipeline: Document[],
+    options: CreateCollectionOptions,
+    callback: Callback<Collection<Document>>
+  ): void;
+
+  /**
+   * Update an existing view.
+   *
+   * @param name - The collectionName for the view.
+   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param pipeline - The agggregation pipeline for the view.
+   * @param options - Options e.g. collation.
+   * @param callback - The callback.
+   */
+  updateView(
+    name: string,
+    sourceNs: string,
+    pipeline: Document[],
+    options: Document,
+    callback: Callback<Document>
+  ): void;
+
+  /**
+   * Convenience for dropping a view as a passthrough to `dropCollection()`.
+   *
+   * @param ns - The namespace.
+   * @param callback - The callback.
+   */
+  dropView(ns: string, callback: Callback<boolean>): void;
+
+  /**
+   * Sample documents from the collection.
+   *
+   * @param ns  - The namespace to sample.
+   * @param args - The sampling options.
+   * @param options - Driver options (ie. maxTimeMs, session, batchSize ...)
+   */
+  sample(
+    ns: string,
+    args?: { query?: Filter<Document>; size?: number; fields?: Document },
+    options?: AggregateOptions
+  ): AggregationCursor;
+
+  /**
+   * Create a ClientSession that can be passed to commands.
+   */
+  startSession(clientType: ClientType): CompassClientSession;
+
+  /**
+   * Kill a session and terminate all in progress operations.
+   * @param clientSession - a ClientSession (can be created with startSession())
+   */
+  killSessions(
+    sessions: CompassClientSession | CompassClientSession[]
+  ): Promise<Document>;
+
+  isConnected(): boolean;
+
+  /**
+   * Get the stats for a database.
+   *
+   * @param name - The database name.
+   * @param callback - The callback.
+   */
+  databaseStats(
+    name: string
+  ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }>;
+
+  /**
+   * Create a new data encryption key (DEK) using the ClientEncryption
+   * helper class.
+   */
+  createDataKey(provider: string, options?: unknown): Promise<Document>;
+}
+
+export class DataServiceImpl extends EventEmitter implements DataService {
+  private readonly _connectionOptions: Readonly<ConnectionOptions>;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
     options: MongoClientOptions;
   };
 
-  private _client?: MongoClient;
+  // Use two separate clients in the CSFLE case, one with CSFLE
+  // enabled, one disabled. _initializedClient() can be used
+  // to fetch the right one. _useCRUDClient can be used to control
+  // this behavior after connecting, i.e. for disabling and
+  // enabling CSFLE on an already-connected DataService instance.
+  private _metadataClient?: MongoClient;
+  private _crudClient?: MongoClient;
+  private _useCRUDClient = true;
+  private _csfleCollectionTracker?: CSFLECollectionTracker;
+
   private _tunnel?: SshTunnel;
 
   /**
@@ -111,7 +737,7 @@ class DataService extends EventEmitter {
   private _topologyType: TopologyType = 'Unknown';
   private _id: number;
 
-  constructor(connectionOptions: ConnectionOptions) {
+  constructor(connectionOptions: Readonly<ConnectionOptions>) {
     super();
     this._id = id++;
     this._connectionOptions = connectionOptions;
@@ -136,16 +762,28 @@ class DataService extends EventEmitter {
   }
 
   getReadPreference(): ReadPreferenceLike {
-    return this._initializedClient.readPreference;
+    return this._initializedClient('CRUD').readPreference;
   }
 
-  /**
-   * Get the kitchen sink information about a collection.
-   *
-   * @param ns - The namespace.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
+  setCSFLEEnabled(enabled: boolean): void {
+    log.info(mongoLogId(1_001_000_117), this._logCtx(), 'Setting CSFLE mode', {
+      enabled,
+    });
+    this._useCRUDClient = enabled;
+  }
+
+  getCSFLEMode(): 'enabled' | 'disabled' | 'unavailable' {
+    if (this._crudClient && checkIsCSFLEConnection(this._crudClient)) {
+      if (this._useCRUDClient) {
+        return 'enabled';
+      } else {
+        return 'disabled';
+      }
+    } else {
+      return 'unavailable';
+    }
+  }
+
   collection(ns: string, options: unknown, callback: Callback<Document>): void {
     // @ts-expect-error async typings are not nice :(
     async.parallel(
@@ -170,12 +808,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Get the stats for all collections in the database.
-   *
-   * @param databaseName - The database name.
-   * @param callback - The callback.
-   */
   collections(
     databaseName: string,
     callback: Callback<CollectionStats[]>
@@ -200,13 +832,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Get the stats for a collection.
-   *
-   * @param databaseName - The database name.
-   * @param collectionName - The collection name.
-   * @param callback - The callback.
-   */
   collectionStats(
     databaseName: string,
     collectionName: string,
@@ -217,7 +842,11 @@ class DataService extends EventEmitter {
       'Fetching collection info',
       { ns: `${databaseName}.${collectionName}` }
     );
-    const db = this._initializedClient.db(databaseName);
+    // Note: The collStats command is not supported on CSFLE-enabled
+    // clients, but the $collStats aggregation stage is.
+    // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
+    // we can switch this over to using the CRUD client instead.
+    const db = this._initializedClient('META').db(databaseName);
     db.command({ collStats: collectionName, verbose: true }, (error, data) => {
       logop(error);
       if (error && !error.message.includes('is a view, not a collection')) {
@@ -231,13 +860,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Returns normalized collection info provided by listCollection command for a
-   * specific collection
-   *
-   * @param dbName database name
-   * @param collName collection name
-   */
   async collectionInfo(
     dbName: string,
     collName: string
@@ -250,19 +872,12 @@ class DataService extends EventEmitter {
     }
   }
 
-  /**
-   * Execute a command.
-   *
-   * @param databaseName - The db name.
-   * @param comm - The command.
-   * @param callback - The callback.
-   */
   command(
     databaseName: string,
     comm: Document,
     callback: Callback<Document>
   ): void {
-    const db = this._initializedClient.db(databaseName);
+    const db = this._initializedClient('META').db(databaseName);
     db.command(comm, (error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
@@ -272,30 +887,14 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Is the data service allowed to perform write operations.
-   *
-   * @returns If the data service is writable.
-   */
   isWritable(): boolean {
     return this._isWritable;
   }
 
-  /**
-   * Is the data service connected to a mongos.
-   *
-   * @returns If the data service is connected to a mongos.
-   */
   isMongos(): boolean {
     return this._topologyType === 'Sharded';
   }
 
-  /**
-   * Return the current topology type, as reported by the driver's topology
-   * update events.
-   *
-   * @returns The current topology type.
-   */
   currentTopologyType(): TopologyType {
     return this._topologyType;
   }
@@ -306,7 +905,7 @@ class DataService extends EventEmitter {
       'Running connectionStatus'
     );
     try {
-      const adminDb = this._initializedClient.db('admin');
+      const adminDb = this._initializedClient('META').db('admin');
       const result = await runCommand(adminDb, {
         connectionStatus: 1,
         showPrivileges: true,
@@ -333,9 +932,21 @@ class DataService extends EventEmitter {
     return authenticatedUserPrivileges;
   }
 
-  /**
-   * List all collections for a database.
-   */
+  private async _getRolesOrFallback(
+    roles:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+      | null = null
+  ) {
+    if (roles) {
+      return roles;
+    }
+    const {
+      authInfo: { authenticatedUserRoles },
+    } = await this.connectionStatus();
+
+    return authenticatedUserRoles;
+  }
+
   async listCollections(
     databaseName: string,
     filter: Document = {},
@@ -355,11 +966,23 @@ class DataService extends EventEmitter {
       { db: databaseName, nameOnly: nameOnly ?? false }
     );
 
-    const db = this._initializedClient.db(databaseName);
+    const db = this._initializedClient('CRUD').db(databaseName);
 
     const listCollections = async () => {
       try {
-        return await db.listCollections(filter, { nameOnly }).toArray();
+        const cursor = db.listCollections(filter, { nameOnly });
+        // Iterate instead of using .toArray() so we can emit
+        // collection info update events as they come in.
+        const results = [];
+        for await (const result of cursor) {
+          this.emit(
+            'collectionInfoFetched',
+            { databaseName, nameOnly },
+            result
+          );
+          results.push(result);
+        }
+        return results;
       } catch (err) {
         // Currently Compass should not fail if listCollections failed for
         // any possible reason to preserve current behavior. We probably
@@ -425,16 +1048,17 @@ class DataService extends EventEmitter {
     }
   }
 
-  /**
-   * List all databases on the currently connected instance.
-   */
   async listDatabases({
     nameOnly,
     privileges = null,
+    roles = null,
   }: {
     nameOnly?: true;
     privileges?:
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null;
+    roles?:
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
   } = {}): Promise<{ _id: string; name: string }[]> {
     const logop = this._startLogOp(
@@ -443,7 +1067,7 @@ class DataService extends EventEmitter {
       { nameOnly: nameOnly ?? false }
     );
 
-    const adminDb = this._initializedClient.db('admin');
+    const adminDb = this._initializedClient('CRUD').db('admin');
 
     const listDatabases = async () => {
       try {
@@ -489,16 +1113,33 @@ class DataService extends EventEmitter {
         .map((name) => ({ name }));
     };
 
+    const getDatabasesFromRoles = async () => {
+      const databases = getDatabasesByRoles(
+        await this._getRolesOrFallback(roles),
+        // https://jira.mongodb.org/browse/HELP-32199
+        // Atlas shared tier MongoDB server version v5+ does not return
+        // `authenticatedUserPrivileges` as part of the `connectionStatus`.
+        // As a workaround we show the databases the user has
+        // certain general built-in roles for.
+        // This does not cover custom user roles which can
+        // have custom privileges that we can't currently fetch.
+        ['read', 'readWrite', 'dbAdmin', 'dbOwner']
+      );
+      return databases.map((name) => ({ name }));
+    };
+
     try {
-      const [listedDatabases, databasesFromPrivileges] = await Promise.all([
-        listDatabases(),
-        getDatabasesFromPrivileges(),
-      ]);
+      const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
+        await Promise.all([
+          listDatabases(),
+          getDatabasesFromPrivileges(),
+          getDatabasesFromRoles(),
+        ]);
 
       const databases = uniqueBy(
         // NB: Order is important, we want listed collections to take precedence
         // if they were fetched successfully
-        [...databasesFromPrivileges, ...listedDatabases],
+        [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
         'name'
       ).map((db) => {
         return { _id: db.name, name: db.name, ...adaptDatabaseInfo(db) };
@@ -514,7 +1155,7 @@ class DataService extends EventEmitter {
   }
 
   async connect(): Promise<void> {
-    if (this._client) {
+    if (this._metadataClient) {
       debug('already connected');
       return;
     }
@@ -529,13 +1170,15 @@ class DataService extends EventEmitter {
 
     log.info(mongoLogId(1_001_000_014), this._logCtx(), 'Connecting', {
       url: redactConnectionString(this._connectionOptions.connectionString),
+      csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
     });
 
     try {
-      const [client, tunnel, connectionOptions] = await connectMongoClient(
-        this._connectionOptions,
-        this.setupListeners.bind(this)
-      );
+      const [metadataClient, crudClient, tunnel, connectionOptions] =
+        await connectMongoClient(
+          this._connectionOptions,
+          this.setupListeners.bind(this)
+        );
 
       const attr = {
         isWritable: this.isWritable(),
@@ -545,21 +1188,19 @@ class DataService extends EventEmitter {
       log.info(mongoLogId(1_001_000_015), this._logCtx(), 'Connected', attr);
       debug('connected!', attr);
 
-      this._client = client;
+      this._metadataClient = metadataClient;
+      this._crudClient = crudClient;
       this._tunnel = tunnel;
       this._mongoClientConnectionOptions = connectionOptions;
+      this._csfleCollectionTracker = new CSFLECollectionTrackerImpl(
+        this,
+        this._crudClient
+      );
     } finally {
       this._isConnecting = false;
     }
   }
 
-  /**
-   * Count the number of documents in the collection.
-   *
-   * @param ns - The namespace to search on.
-   * @param options - The query options.
-   * @param callback - The callback function.
-   */
   estimatedCount(
     ns: string,
     options: EstimatedDocumentCountOptions,
@@ -570,20 +1211,15 @@ class DataService extends EventEmitter {
       'Running estimatedCount',
       { ns }
     );
-    this._collection(ns).estimatedDocumentCount(options, (err, result) => {
-      logop(err, result);
-      callback(err, result!);
-    });
+    this._collection(ns, 'CRUD').estimatedDocumentCount(
+      options,
+      (err, result) => {
+        logop(err, result);
+        callback(err, result!);
+      }
+    );
   }
 
-  /**
-   * Count the number of documents in the collection for the provided filter
-   * and options.
-   *
-   * @param ns - The namespace to search on.
-   * @param options - The query options.
-   * @param callback - The callback function.
-   */
   count(
     ns: string,
     filter: Filter<Document>,
@@ -595,26 +1231,23 @@ class DataService extends EventEmitter {
       'Running countDocuments',
       { ns }
     );
-    this._collection(ns).countDocuments(filter, options, (err, result) => {
-      logop(err, result);
-      callback(err, result!);
-    });
+    this._collection(ns, 'CRUD').countDocuments(
+      filter,
+      options,
+      (err, result) => {
+        logop(err, result);
+        callback(err, result!);
+      }
+    );
   }
 
-  /**
-   * Creates a collection
-   *
-   * @param ns - The namespace.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   createCollection(
     ns: string,
     options: CreateCollectionOptions,
     callback: Callback<Collection<Document>>
   ): void {
     const collectionName = this._collectionName(ns);
-    const db = this._initializedClient.db(this._databaseName(ns));
+    const db = this._initializedClient('CRUD').db(this._databaseName(ns));
     const logop = this._startLogOp(
       mongoLogId(1_001_000_036),
       'Running createCollection',
@@ -631,14 +1264,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Creates an index
-   *
-   * @param ns - The namespace.
-   * @param spec - The index specification.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   createIndex(
     ns: string,
     spec: IndexSpecification,
@@ -650,7 +1275,7 @@ class DataService extends EventEmitter {
       'Running createIndex',
       { ns, spec, options }
     );
-    this._collection(ns).createIndex(spec, options, (error, result) => {
+    this._collection(ns, 'CRUD').createIndex(spec, options, (error, result) => {
       logop(error);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -660,13 +1285,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Get the kitchen sink information about a database and all its collections.
-   *
-   * @param name - The database name.
-   * @param options - The query options.
-   * @param callback - The callback.
-   */
   database(name: string, options: unknown, callback: Callback<Document>): void {
     const asyncColls = promisify(this.collections.bind(this));
 
@@ -681,14 +1299,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Delete a single document from the collection.
-   *
-   * @param ns - The namespace.
-   * @param filter - The filter.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   deleteOne(
     ns: string,
     filter: Filter<Document>,
@@ -700,7 +1310,7 @@ class DataService extends EventEmitter {
       'Running deleteOne',
       { ns }
     );
-    this._collection(ns).deleteOne(filter, options, (error, result) => {
+    this._collection(ns, 'CRUD').deleteOne(filter, options, (error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -710,14 +1320,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Deletes multiple documents from a collection.
-   *
-   * @param ns - The namespace.
-   * @param filter - The filter.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   deleteMany(
     ns: string,
     filter: Filter<Document>,
@@ -729,50 +1331,49 @@ class DataService extends EventEmitter {
       'Running deleteMany',
       { ns }
     );
-    this._collection(ns).deleteMany(filter, options, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    this._collection(ns, 'CRUD').deleteMany(
+      filter,
+      options,
+      (error, result) => {
+        logop(error, result);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
       }
-      callback(null, result!);
-    });
+    );
   }
 
-  /**
-   * Disconnect the service.
-   * @param callback - The callback.
-   */
   async disconnect(): Promise<void> {
     log.info(mongoLogId(1_001_000_016), this._logCtx(), 'Disconnecting');
 
     try {
-      await this._client
-        ?.close(true)
-        .catch((err) => debug('failed to close MongoClient', err));
-
-      await this._tunnel
-        ?.close()
-        .catch((err) => debug('failed to close tunnel', err));
+      await Promise.all([
+        this._metadataClient
+          ?.close(true)
+          .catch((err) => debug('failed to close MongoClient', err)),
+        this._crudClient !== this._metadataClient &&
+          this._crudClient
+            ?.close(true)
+            .catch((err) => debug('failed to close MongoClient', err)),
+        this._tunnel
+          ?.close()
+          .catch((err) => debug('failed to close tunnel', err)),
+      ]);
     } finally {
       this._cleanup();
       log.info(mongoLogId(1_001_000_017), this._logCtx(), 'Fully closed');
     }
   }
 
-  /**
-   * Drops a collection from a database
-   *
-   * @param ns - The namespace.
-   * @param callback - The callback.
-   */
   dropCollection(ns: string, callback: Callback<boolean>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_059),
       'Running dropCollection',
       { ns }
     );
-    this._collection(ns).drop((error, result) => {
+    this._collection(ns, 'CRUD').drop((error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -782,19 +1383,13 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Drops a database
-   *
-   * @param name - The database name.
-   * @param callback - The callback.
-   */
   dropDatabase(name: string, callback: Callback<boolean>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_040),
       'Running dropDatabase',
       { db: name }
     );
-    this._initializedClient
+    this._initializedClient('CRUD')
       .db(this._databaseName(name))
       .dropDatabase((error, result) => {
         logop(error, result);
@@ -806,20 +1401,13 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Drops an index from a collection
-   *
-   * @param ns - The namespace.
-   * @param name - The index name.
-   * @param callback - The callback.
-   */
   dropIndex(ns: string, name: string, callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_060),
       'Running dropIndex',
       { ns, name }
     );
-    this._collection(ns).dropIndex(name, (error, result) => {
+    this._collection(ns, 'CRUD').dropIndex(name, (error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -829,16 +1417,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Execute an aggregation framework pipeline with the provided options on the
-   * collection.
-   *
-   *
-   * @param ns - The namespace to search on.
-   * @param pipeline - The aggregation pipeline.
-   * @param options - The aggregation options.
-   * @param callback - The callback function.
-   */
   aggregate(
     ns: string,
     pipeline: Document[],
@@ -869,7 +1447,7 @@ class DataService extends EventEmitter {
       callback = options;
       options = undefined;
     }
-    const cursor = this._collection(ns).aggregate(pipeline, options);
+    const cursor = this._collection(ns, 'CRUD').aggregate(pipeline, options);
     // async when a callback is provided
     if (isFunction(callback)) {
       process.nextTick(callback, null, cursor);
@@ -879,14 +1457,6 @@ class DataService extends EventEmitter {
     return cursor;
   }
 
-  /**
-   * Find documents for the provided filter and options on the collection.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The query filter.
-   * @param options - The query options.
-   * @param callback - The callback function.
-   */
   find(
     ns: string,
     filter: Filter<Document>,
@@ -896,7 +1466,7 @@ class DataService extends EventEmitter {
     const logop = this._startLogOp(mongoLogId(1_001_000_042), 'Running find', {
       ns,
     });
-    const cursor = this._collection(ns).find(filter, options);
+    const cursor = this._collection(ns, 'CRUD').find(filter, options);
     cursor.toArray((error, documents) => {
       logop(error);
       if (error) {
@@ -907,13 +1477,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Fetch documents for the provided filter and options on the collection.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The query filter.
-   * @param options - The query options.
-   */
   fetch(
     ns: string,
     filter: Filter<Document>,
@@ -927,18 +1490,9 @@ class DataService extends EventEmitter {
 
     logop(null);
 
-    return this._collection(ns).find(filter, options);
+    return this._collection(ns, 'CRUD').find(filter, options);
   }
 
-  /**
-   * Find one document and replace it with the replacement.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The filter.
-   * @param replacement - The replacement doc.
-   * @param options - The query options.
-   * @param callback - The callback.
-   */
   findOneAndReplace(
     ns: string,
     filter: Filter<Document>,
@@ -951,7 +1505,7 @@ class DataService extends EventEmitter {
       'Running findOneAndReplace',
       { ns }
     );
-    this._collection(ns).findOneAndReplace(
+    this._collection(ns, 'CRUD').findOneAndReplace(
       filter,
       replacement,
       options,
@@ -966,15 +1520,6 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Find one document and update it with the update operations.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The filter.
-   * @param update - The update operations doc.
-   * @param options - The query options.
-   * @param callback - The callback.
-   */
   findOneAndUpdate(
     ns: string,
     filter: Filter<Document>,
@@ -987,7 +1532,7 @@ class DataService extends EventEmitter {
       'Running findOneAndUpdate',
       { ns }
     );
-    this._collection(ns).findOneAndUpdate(
+    this._collection(ns, 'CRUD').findOneAndUpdate(
       filter,
       update,
       options,
@@ -1002,18 +1547,10 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Returns explain plan for the provided filter and options on the collection.
-   *
-   * @param ns - The namespace to search on.
-   * @param filter - The query filter.
-   * @param options - The query options.
-   * @param callback - The callback function.
-   */
   explain(
     ns: string,
     filter: Filter<Document>,
-    options: ExplainOptions,
+    options: FindOptions,
     callback: Callback<Document>
   ): void {
     const logop = this._startLogOp(
@@ -1023,7 +1560,7 @@ class DataService extends EventEmitter {
     );
     // @todo thomasr: driver explain() does not yet support verbosity,
     // once it does, should be passed along from the options object.
-    this._collection(ns)
+    this._collection(ns, 'CRUD')
       .find(filter, options)
       .explain((error, explanation) => {
         logop(error);
@@ -1035,13 +1572,6 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Get the indexes for the collection.
-   *
-   * @param ns - The collection namespace.
-   * @param options - The options (unused).
-   * @param callback - The callback.
-   */
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_047),
@@ -1049,7 +1579,7 @@ class DataService extends EventEmitter {
       { ns }
     );
     getIndexes(
-      this._initializedClient,
+      this._initializedClient('CRUD'),
       ns,
       (error: Error | undefined, data: IndexDetails[]) => {
         logop(error);
@@ -1062,12 +1592,13 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Get the current instance details.
-   */
   async instance(): Promise<InstanceDetails> {
     try {
-      const instanceData = await getInstance(this._initializedClient);
+      const instanceData = {
+        ...(await getInstance(this._initializedClient('META'))),
+        // Need to get the CSFLE flag from the CRUD client, not the META one
+        csfleMode: this.getCSFLEMode(),
+      };
 
       log.info(
         mongoLogId(1_001_000_024),
@@ -1087,14 +1618,6 @@ class DataService extends EventEmitter {
     }
   }
 
-  /**
-   * Insert a single document into the database.
-   *
-   * @param ns - The namespace.
-   * @param doc - The document to insert.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   insertOne(
     ns: string,
     doc: Document,
@@ -1106,7 +1629,7 @@ class DataService extends EventEmitter {
       'Running insertOne',
       { ns }
     );
-    this._collection(ns).insertOne(doc, options, (error, result) => {
+    this._collection(ns, 'CRUD').insertOne(doc, options, (error, result) => {
       logop(error, { acknowledged: result?.acknowledged });
       if (error) {
         // @ts-expect-error Callback without result...
@@ -1116,14 +1639,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Inserts multiple documents into the collection.
-   *
-   * @param ns - The namespace.
-   * @param docs - The documents to insert.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   insertMany(
     ns: string,
     docs: Document[],
@@ -1135,7 +1650,7 @@ class DataService extends EventEmitter {
       'Running insertOne',
       { ns }
     );
-    this._collection(ns).insertMany(docs, options, (error, result) => {
+    this._collection(ns, 'CRUD').insertMany(docs, options, (error, result) => {
       logop(error, {
         acknowledged: result?.acknowledged,
         insertedCount: result?.insertedCount,
@@ -1148,29 +1663,14 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Inserts multiple documents into the collection.
-   *
-   * @param ns - The namespace.
-   * @param docs - The documents to insert.
-   * @param options - The options.
-   * @deprecated
-   */
   putMany(
     ns: string,
     docs: Document[],
     options: BulkWriteOptions
   ): Promise<InsertManyResult<Document>> {
-    return this._collection(ns).insertMany(docs, options);
+    return this._collection(ns, 'CRUD').insertMany(docs, options);
   }
 
-  /**
-   * Update a collection.
-   *
-   * @param ns - The namespace.
-   * @param flags - The flags.
-   * @param callback - The callback.
-   */
   updateCollection(
     ns: string,
     // Collection name to update that will be passed to the collMod command will
@@ -1185,7 +1685,7 @@ class DataService extends EventEmitter {
       { ns }
     );
     const collectionName = this._collectionName(ns);
-    const db = this._initializedClient.db(this._databaseName(ns));
+    const db = this._initializedClient('CRUD').db(this._databaseName(ns));
     // Order of arguments is important here, collMod is a command name and it
     // should always be the first one in the object
     const command = {
@@ -1202,15 +1702,6 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Update a single document in the collection.
-   *
-   * @param ns - The namespace.
-   * @param filter - The filter.
-   * @param update - The update.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
   updateOne(
     ns: string,
     filter: Filter<Document>,
@@ -1223,38 +1714,7 @@ class DataService extends EventEmitter {
       'Running updateOne',
       { ns }
     );
-    this._collection(ns).updateOne(filter, update, options, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      callback(null, result!);
-    });
-  }
-
-  /**
-   * Updates multiple documents in the collection.
-   *
-   * @param ns - The namespace.
-   * @param filter - The filter.
-   * @param update - The update.
-   * @param options - The options.
-   * @param callback - The callback.
-   */
-  updateMany(
-    ns: string,
-    filter: Filter<Document>,
-    update: UpdateFilter<Document>,
-    options: UpdateOptions,
-    callback: Callback<Document | UpdateResult>
-  ): void {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_052),
-      'Running updateMany',
-      { ns }
-    );
-    this._collection(ns).updateMany(
+    this._collection(ns, 'CRUD').updateOne(
       filter,
       update,
       options,
@@ -1269,18 +1729,39 @@ class DataService extends EventEmitter {
     );
   }
 
-  /**
-   * Returns the results of currentOp.
-   *
-   * @param includeAll - if true also list currently idle operations in the result.
-   * @param callback - The callback.
-   */
+  updateMany(
+    ns: string,
+    filter: Filter<Document>,
+    update: UpdateFilter<Document>,
+    options: UpdateOptions,
+    callback: Callback<Document | UpdateResult>
+  ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_052),
+      'Running updateMany',
+      { ns }
+    );
+    this._collection(ns, 'CRUD').updateMany(
+      filter,
+      update,
+      options,
+      (error, result) => {
+        logop(error, result);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
+      }
+    );
+  }
+
   currentOp(includeAll: boolean, callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_053),
       'Running currentOp'
     );
-    this._initializedClient
+    this._initializedClient('META')
       .db('admin')
       .command({ currentOp: 1, $all: includeAll }, (error, result) => {
         logop(error);
@@ -1289,7 +1770,7 @@ class DataService extends EventEmitter {
             mongoLogId(1_001_000_054),
             'Searching $cmd.sys.inprog manually'
           );
-          this._initializedClient
+          this._initializedClient('META')
             .db('admin')
             .collection('$cmd.sys.inprog')
             .findOne({ $all: includeAll }, (error2, result2) => {
@@ -1306,60 +1787,45 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Returns the most recent topology description from the server's SDAM events.
-   * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
-   */
   getLastSeenTopology(): null | TopologyDescription {
     return this._lastSeenTopology;
   }
 
-  /**
-   * Returns the result of serverStats.
-   */
   serverstats(callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_061),
       'Running serverStats'
     );
 
-    this._defaultDb.admin().serverStatus((error, result) => {
-      logop(error);
+    this._initializedClient('META')
+      .db()
+      .admin()
+      .serverStatus((error, result) => {
+        logop(error);
 
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      callback(null, result!);
-    });
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
+      });
   }
 
-  /**
-   * Returns the result of top.
-   *
-   * @param callback - the callback.
-   */
   top(callback: Callback<Document>): void {
     const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
-    this._defaultDb.admin().command({ top: 1 }, (error, result) => {
-      logop(error);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      callback(null, result!);
-    });
+    this._initializedClient('META')
+      .db()
+      .admin()
+      .command({ top: 1 }, (error, result) => {
+        logop(error);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result!);
+      });
   }
 
-  /**
-   * Create a new view.
-   *
-   * @param name - The collectionName for the view.
-   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
-   * @param pipeline - The agggregation pipeline for the view.
-   * @param options - Options e.g. collation.
-   * @param callback - The callback.
-   */
   createView(
     name: string,
     sourceNs: string,
@@ -1381,7 +1847,7 @@ class DataService extends EventEmitter {
       }
     );
 
-    this._initializedClient
+    this._initializedClient('CRUD')
       .db(this._databaseName(sourceNs))
       .createCollection(name, options, (error, result) => {
         logop(error, result);
@@ -1393,15 +1859,6 @@ class DataService extends EventEmitter {
       });
   }
 
-  /**
-   * Update an existing view.
-   *
-   * @param name - The collectionName for the view.
-   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
-   * @param pipeline - The agggregation pipeline for the view.
-   * @param options - Options e.g. collation.
-   * @param callback - The callback.
-   */
   updateView(
     name: string,
     sourceNs: string,
@@ -1416,7 +1873,7 @@ class DataService extends EventEmitter {
       collMod: name,
       ...options,
     };
-    const db = this._initializedClient.db(this._databaseName(sourceNs));
+    const db = this._initializedClient('META').db(this._databaseName(sourceNs));
 
     const logop = this._startLogOp(
       mongoLogId(1_001_000_056),
@@ -1438,23 +1895,10 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Convenience for dropping a view as a passthrough to `dropCollection()`.
-   *
-   * @param ns - The namespace.
-   * @param callback - The callback.
-   */
   dropView(ns: string, callback: Callback<boolean>): void {
     this.dropCollection(ns, callback);
   }
 
-  /**
-   * Sample documents from the collection.
-   *
-   * @param ns  - The namespace to sample.
-   * @param args - The sampling options.
-   * @param options - Driver options (ie. maxTimeMs, session, batchSize ...)
-   */
   sample(
     ns: string,
     {
@@ -1490,30 +1934,41 @@ class DataService extends EventEmitter {
     });
   }
 
-  /**
-   * Create a ClientSession that can be passed to commands.
-   */
-  startSession(): ClientSession {
-    return this._initializedClient.startSession();
+  startSession(clientType: ClientType): CompassClientSession {
+    const session = this._initializedClient(
+      clientType
+    ).startSession() as CompassClientSession;
+    session[kSessionClientType] = clientType;
+    return session;
   }
 
-  /**
-   * Kill a session and terminate all in progress operations.
-   * @param clientSession - a ClientSession (can be created with startSession())
-   */
-  killSessions(sessions: ClientSession | ClientSession[]): Promise<Document> {
-    return this._initializedClient.db('admin').command({
-      killSessions: Array.isArray(sessions)
-        ? sessions.map((s) => s.id)
-        : [sessions.id],
-    });
+  killSessions(
+    sessions: CompassClientSession | CompassClientSession[]
+  ): Promise<Document> {
+    const sessionsArray = Array.isArray(sessions) ? sessions : [sessions];
+    const clientTypes = new Set(
+      sessionsArray.map((s) => s[kSessionClientType])
+    );
+    if (clientTypes.size !== 1) {
+      throw new Error(
+        `Cannot kill sessions without a specific client type: [${[
+          ...clientTypes,
+        ].join(', ')}]`
+      );
+    }
+    const [clientType] = clientTypes;
+    return this._initializedClient(clientType)
+      .db('admin')
+      .command({
+        killSessions: sessionsArray.map((s) => s.id),
+      });
   }
 
   isConnected(): boolean {
     // This is better than just returning internal `_isConnecting` as this
     // actually shows when the client is available on the NativeClient instance
     // and connected
-    return !!this._client;
+    return !!this._metadataClient;
   }
 
   /**
@@ -1522,8 +1977,6 @@ class DataService extends EventEmitter {
    * @param {MongoClient} client - The driver client.
    */
   private setupListeners(client: MongoClient): void {
-    this._client = client;
-
     if (client) {
       client.on(
         'serverDescriptionChanged',
@@ -1694,23 +2147,27 @@ class DataService extends EventEmitter {
     }
   }
 
-  private get _initializedClient(): MongoClient {
-    if (!this._client) {
-      throw new Error('client not yet initialized');
+  private _initializedClient(type: ClientType): MongoClient {
+    if (type !== 'CRUD' && type !== 'META') {
+      throw new Error(`Invalid client type: ${type as string}`);
     }
-    return this._client;
+    const client =
+      type === 'CRUD' && this._useCRUDClient
+        ? this._crudClient
+        : this._metadataClient;
+    if (!client) {
+      throw new Error('Client not yet initialized');
+    }
+    return client;
   }
 
-  private get _defaultDb(): Db {
-    return this._initializedClient.db();
+  getCSFLECollectionTracker(): CSFLECollectionTracker {
+    if (!this._csfleCollectionTracker) {
+      throw new Error('Client not yet initialized');
+    }
+    return this._csfleCollectionTracker;
   }
 
-  /**
-   * Get the stats for a database.
-   *
-   * @param name - The database name.
-   * @param callback - The callback.
-   */
   async databaseStats(
     name: string
   ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {
@@ -1720,7 +2177,7 @@ class DataService extends EventEmitter {
       { db: name }
     );
     try {
-      const db = this._initializedClient.db(name);
+      const db = this._initializedClient('META').db(name);
       const stats = await runCommand(db, { dbStats: 1 });
       const normalized = adaptDatabaseInfo(stats);
       return { name, ...normalized };
@@ -1806,8 +2263,8 @@ class DataService extends EventEmitter {
    * @param ns - The namespace.
    */
   // TODO: this is used directly in compass-import-export/collection-stream
-  _collection(ns: string): Collection {
-    return this._initializedClient
+  _collection(ns: string, type: ClientType): Collection {
+    return this._initializedClient(type)
       .db(this._databaseName(ns))
       .collection(this._collectionName(ns));
   }
@@ -1887,10 +2344,10 @@ class DataService extends EventEmitter {
   }
 
   private _cleanup(): void {
-    if (this._client) {
-      this._client.removeAllListeners();
-    }
-    this._client = undefined;
+    this._metadataClient?.removeAllListeners?.();
+    this._crudClient?.removeAllListeners?.();
+    this._metadataClient = undefined;
+    this._crudClient = undefined;
     this._tunnel = undefined;
     this._mongoClientConnectionOptions = undefined;
     this._isWritable = false;
@@ -1927,6 +2384,70 @@ class DataService extends EventEmitter {
         }
       }
     };
+  }
+
+  configuredKMSProviders(): string[] {
+    return configuredKMSProviders(
+      this._connectionOptions.fleOptions?.autoEncryption
+    );
+  }
+
+  _csfleLogInformation(
+    fleOptions?: Readonly<ConnectionFleOptions>
+  ): null | Record<string, unknown> {
+    const kmsProviders = configuredKMSProviders(fleOptions?.autoEncryption);
+    if (kmsProviders.length === 0) return null;
+    return {
+      storeCredentials: fleOptions?.storeCredentials,
+      schemaMapNamespaces: Object.keys(
+        fleOptions?.autoEncryption?.schemaMap ?? {}
+      ),
+      keyVaultNamespace: fleOptions?.autoEncryption.keyVaultNamespace,
+      kmsProviders,
+    };
+  }
+
+  async createDataKey(
+    provider: ClientEncryptionDataKeyProvider,
+    options?: ClientEncryptionCreateDataKeyProviderOptions
+  ): Promise<Document> {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_123),
+      'Running createDataKey',
+      { provider }
+    );
+
+    const clientEncryption = this._getClientEncryption();
+    let result;
+    try {
+      result = await clientEncryption.createDataKey(provider, options ?? {});
+    } catch (err) {
+      logop(err);
+      throw err;
+    }
+    logop(null);
+    return result;
+  }
+
+  _getClientEncryption(): ClientEncryption {
+    const crudClient = this._initializedClient('CRUD');
+    const autoEncryptionOptions = crudClient.options.autoEncryption;
+    const { proxyHost, proxyPort, proxyUsername, proxyPassword } =
+      crudClient.options;
+
+    return new ClientEncryption(crudClient, {
+      keyVaultNamespace: autoEncryptionOptions.keyVaultNamespace as string,
+      kmsProviders: autoEncryptionOptions.kmsProviders,
+      tlsOptions: autoEncryptionOptions.tlsOptions,
+      proxyOptions: proxyHost
+        ? {
+            proxyHost,
+            proxyPort,
+            proxyUsername,
+            proxyPassword,
+          }
+        : undefined,
+    });
   }
 }
 

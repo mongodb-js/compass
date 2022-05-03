@@ -24,6 +24,10 @@ tests:
             [
                 "x": "1"
             ]
+          rust: |-
+            doc! {
+                "x": "1"
+            }
     - input:
           javascript: "{x: '1',}"
           shell: "{x: '1',}"
@@ -40,6 +44,10 @@ tests:
             [
                 "x": "1"
             ]
+          rust: |-
+            doc! {
+                "x": "1"
+            }
     - input:
           javascript: "{x: ['1', '2']}"
           shell: "{x: ['1', '2']}"
@@ -59,6 +67,13 @@ tests:
                     "2"
                 ]
             ]
+          rust: |-
+            doc! {
+                "x": [
+                    "1",
+                    "2"
+                ]
+            }
     - input:
           javascript: "{x: {y: 2}}"
           shell: "{x: {y: 2}}"
@@ -77,6 +92,12 @@ tests:
                     "y": 2
                 ]
             ]
+          rust: |-
+            doc! {
+                "x": doc! {
+                    "y": 2
+                }
+            }
     - input:
           javascript: "{}"
           shell: "{}"
@@ -90,6 +111,7 @@ tests:
           object: "{}"
           ruby: "{}"
           swift: "[:]"
+          rust: "doc! {}"
     - input:
           javascript: "{x: '1', n: '4'}"
           shell: "{x: '1', n: '4'}"
@@ -107,6 +129,11 @@ tests:
                 "x": "1",
                 "n": "4"
             ]
+          rust: |-
+            doc! {
+                "x": "1",
+                "n": "4"
+            }
     - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
@@ -129,6 +156,16 @@ tests:
                     "as": "reports"
                 ]
             ]
+          rust: |-
+            doc! {
+                "graphLookup": doc! {
+                    "from": "raw_data",
+                    "startWith": "$_id",
+                    "connectFromField": "_id",
+                    "connectToField": "manager",
+                    "as": "reports"
+                }
+            }
     - input:
           javascript: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
           shell: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
@@ -157,6 +194,22 @@ tests:
                     ]
                 ]
             ]
+          rust: |-
+            doc! {
+                "status": "A",
+                "$or": [
+                    doc! {
+                        "qty": doc! {
+                            "$lt": 30
+                        }
+                    },
+                    doc! {
+                        "item": doc! {
+                            "$regex": "^p"
+                        }
+                    }
+                ]
+            }
     - input:
           python: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
       output:
@@ -183,6 +236,22 @@ tests:
                     ]
                 ]
             ]
+          rust: |-
+            doc! {
+                "status": "A",
+                "$or": [
+                    doc! {
+                        "qty": doc! {
+                            "$lt": 30
+                        }
+                    },
+                    doc! {
+                        "item": doc! {
+                            "$regex": "^p"
+                        }
+                    }
+                ]
+            }
     Array:
     - input:
           python: "['1', '2']"
@@ -201,6 +270,11 @@ tests:
                 "1",
                 "2"
             ]
+          rust: |-
+            [
+                "1",
+                "2"
+            ]
     - input:
           python: "['1', '2',]"
           javascript: "['1', '2',]"
@@ -214,6 +288,11 @@ tests:
           object: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
           swift: |-
+            [
+                "1",
+                "2"
+            ]
+          rust: |-
             [
                 "1",
                 "2"
@@ -238,6 +317,13 @@ tests:
                 ]
             ]
 
+          rust: |-
+            [
+                "1",
+                doc! {
+                    "settings": "http2"
+                }
+            ]
     - input:
           python: "{ 'pipeline': [{'$match': {'$expr': { '$eq': [ '$manager', '$$me' ] } } }, { '$project': { 'managers': 0}}, {'$sort': { 'startQuarter': 1, 'notes': 1, 'job_code': 1}}]}"
           javascript: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
@@ -277,6 +363,33 @@ tests:
                     ]
                 ]
             ]
+          rust: |-
+            doc! {
+                "pipeline": [
+                    doc! {
+                        "$match": doc! {
+                            "$expr": doc! {
+                                "$eq": [
+                                    "$manager",
+                                    "$$me"
+                                ]
+                            }
+                        }
+                    },
+                    doc! {
+                        "$project": doc! {
+                            "managers": 0
+                        }
+                    },
+                    doc! {
+                        "$sort": doc! {
+                            "startQuarter": 1,
+                            "notes": 1,
+                            "job_code": 1
+                        }
+                    }
+                ]
+            }
 
     - input:
           python: "['1', ['2', '3']]"
@@ -298,6 +411,14 @@ tests:
                     "3"
                 ]
             ]
+          rust: |-
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
     - input:
           python: "[]"
           javascript: "[]"
@@ -311,6 +432,7 @@ tests:
           object: "[]"
           ruby: "[]"
           swift: "[]"
+          rust: "[]"
     - input:
           python: "['1', ('2', '3')]"
       output:
@@ -322,6 +444,14 @@ tests:
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           swift: |-
+            [
+                "1",
+                [
+                    "2",
+                    "3"
+                ]
+            ]
+          rust: |-
             [
                 "1",
                 [
@@ -347,6 +477,12 @@ tests:
                 "1",
                 "2"
             ]
+          rust: |-
+            [
+                Bson::Undefined,
+                "1",
+                "2"
+            ]
     - input:
           javascript: "[,]"
           shell: "[,]"
@@ -361,6 +497,10 @@ tests:
           swift: |-
             [
                 BSON.null
+            ]
+          rust: |-
+            [
+                Bson::Undefined
             ]
     - input:
           javascript: "[,,]"
@@ -377,6 +517,11 @@ tests:
             [
                 BSON.null,
                 BSON.null
+            ]
+          rust: |-
+            [
+                Bson::Undefined,
+                Bson::Undefined
             ]
     - input:
           javascript: "['1',,,,'2']"
@@ -397,6 +542,14 @@ tests:
                 BSON.null,
                 "2"
             ]
+          rust: |-
+            [
+                "1",
+                Bson::Undefined,
+                Bson::Undefined,
+                Bson::Undefined,
+                "2"
+            ]
     Tuple:
     - input:
           python: "()"
@@ -409,6 +562,7 @@ tests:
           object: "[]"
           ruby: "[]"
           swift: '[]'
+          rust: "[]"
     - input:
           python: "(1,)"
       output:
@@ -420,6 +574,10 @@ tests:
           object: "[1]"
           ruby: "[\n  1\n]"
           swift: "[\n    1\n]"
+          rust: |-
+            [
+                1
+            ]
     - input:
           python: "(1)"
       output:
@@ -431,6 +589,7 @@ tests:
           object: "(1)"
           ruby: "(1)"
           swift: "(1)"
+          rust: "(1)"
     - input:
           python: "('1', { 'settings': 'http2' })"
       output:
@@ -447,6 +606,12 @@ tests:
                 [
                     "settings": "http2"
                 ]
+          rust: |-
+            [
+                "1",
+                doc! {
+                    "settings": "http2"
+                }
             ]
     - input:
           python: "('1', ['2', '3'])"
@@ -459,6 +624,7 @@ tests:
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           swift: |-
+          rust: |-
             [
                 "1",
                 [
@@ -477,6 +643,7 @@ tests:
           object: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           swift: |-
+          rust: |-
             [
                 "1",
                 [
@@ -498,6 +665,7 @@ tests:
           object: 2 + 5 - 1
           ruby: 2 + 5 - 1
           swift: 2 + 5 - 1
+          rust: 2 + 5 - 1
     - input:
           javascript: 2 + (4 * 36) / 3
           shell: 2 + (4 * 36) / 3
@@ -512,6 +680,7 @@ tests:
           object: 2 + (4 * 36) / 3
           ruby: 2 + (4 * 36) / 3
           swift: 2 + (4 * 36) / 3
+          rust: 2 + (4 * 36) / 3
     - input:
           python: 10 // 2 % 3
       output:
@@ -523,6 +692,7 @@ tests:
           object: Math.floor(10, 2)%3
           ruby: 10.div(2) % 3
           swift: 10 / 2 % 3
+          rust: 10 / 2 % 3
     - input:
           python: 6 ** 7
       output:
@@ -534,6 +704,7 @@ tests:
           object: Math.pow(6, 7)
           ruby: 6 ** 7
           swift: pow(6, 7)
+          rust: 6.pow(7)
     - input:
           javascript: 1 | 2 ^ 3 & 4 << 6 >> 7
           shell: 1 | 2 ^ 3 & 4 << 6 >> 7
@@ -547,6 +718,7 @@ tests:
           object: 1 | 2 ^ 3 & 4 << 6 >> 7
           ruby: 1 | 2 ^ 3 & 4 << 6 >> 7
           swift: 1 | 2 ^ 3 & 4 << 6 >> 7
+          rust: 1 | 2 ^ 3 & 4 << 6 >> 7
     - input:
           javascript: 2 + +5- -6
           shell: 2 + +5- -6
@@ -560,6 +732,7 @@ tests:
           object: 2 + +5 - -6
           ruby: 2 + +5 - -6
           swift: 2 + +5 - -6
+          rust: 2 + 5 - -6
     unaryops:
     - input:
           javascript: '+1'
@@ -574,6 +747,7 @@ tests:
           object: '+1'
           ruby: '+1'
           swift: '+1'
+          rust: '1'
     - input:
           javascript: '-1'
           shell: '-1'
@@ -587,6 +761,7 @@ tests:
           object: '-1'
           ruby: '-1'
           swift: '-1'
+          rust: '-1'
     - input:
           javascript: '~1'
           shell: '~1'
@@ -600,6 +775,7 @@ tests:
           object: '~1'
           ruby: '~1'
           swift: '~1'
+          rust: '!1'
     Number:
     - input:
           javascript: new Number(2)
@@ -613,6 +789,7 @@ tests:
           object: Number(2)
           ruby: 2.to_f
           swift: '2.0'
+          rust: '2'
     - input:
           javascript: Number(2)
           shell: Number(2)
@@ -625,6 +802,7 @@ tests:
           object: Number(2)
           ruby: 2.to_f
           swift: '2.0'
+          rust: '2'
     - input:
           javascript: Number('2')
           shell: Number('2')
@@ -637,6 +815,7 @@ tests:
           object: Number(2)
           ruby: "'2'.to_f"
           swift: 'Double("2")!'
+          rust: "\"2\".parse::<i32>()?"
     - input:
           shell: Number()
       output:
@@ -648,6 +827,7 @@ tests:
           object: '0'
           ruby: 0.to_f
           swift: '0.0'
+          rust: '0'
     numeric_literals:
     - input:
           javascript: '2'
@@ -662,6 +842,7 @@ tests:
           object: '2'
           ruby: '2'
           swift: '2'
+          rust: '2'
     - input:
           javascript: '429496729601'
           shell: '429496729601'
@@ -675,6 +856,7 @@ tests:
           object: '429496729601'
           ruby: '429496729601'
           swift: '429496729601'
+          rust: '429496729601'
     - input:
           javascript: '2.001'
           shell: '2.001'
@@ -688,6 +870,7 @@ tests:
           object: '2.001'
           ruby: '2.001'
           swift: '2.001'
+          rust: '2.001'
     - input:
           javascript: '0X123ABC'
           shell: '0X123ABC'
@@ -701,6 +884,7 @@ tests:
           object: '0X123ABC'
           ruby: '0X123ABC'
           swift: '0x123ABC'
+          rust: '0x123ABC'
     - input:
           javascript: '0x123abc'
           shell: '0x123abc'
@@ -714,6 +898,7 @@ tests:
           object: '0x123abc'
           ruby: '0x123abc'
           swift: '0x123abc'
+          rust: '0x123abc'
     - input:
           javascript: '0o1234567'
           shell: '0o1234567'
@@ -727,6 +912,7 @@ tests:
           object: '0o1234567'
           ruby: '0o1234567'
           swift: '0o1234567'
+          rust: '0o1234567'
     - input:
           javascript: '01234567'
           shell: '01234567'
@@ -739,6 +925,7 @@ tests:
           object: '01234567'
           ruby: '0o1234567'
           swift: '0o1234567'
+          rust: '0o1234567'
     - input:
           javascript: '001234567'
           shell: '001234567'
@@ -751,6 +938,7 @@ tests:
           object: '001234567'
           ruby: '0o1234567'
           swift: '0o1234567'
+          rust: '0o1234567'
     - input:
           javascript: '0O1234567'
           shell: '0O1234567'
@@ -764,6 +952,7 @@ tests:
           object: '0O1234567'
           ruby: '0o1234567'
           swift: '0o1234567'
+          rust: '0o1234567'
     misc_literals:
     - input:
           javascript: 'true'
@@ -778,6 +967,7 @@ tests:
           object: 'true'
           ruby: 'true'
           swift: 'true'
+          rust: 'true'
     - input:
           javascript: 'false'
           shell: 'false'
@@ -791,6 +981,7 @@ tests:
           object: 'false'
           ruby: 'false'
           swift: 'false'
+          rust: 'false'
     - input:
           javascript: 'null'
           shell: 'null'
@@ -804,6 +995,7 @@ tests:
           object: 'null'
           ruby: 'nil'
           swift: 'BSON.null'
+          rust: 'Bson::Null'
     - input:
           javascript: 'undefined'
           shell: 'undefined'
@@ -816,6 +1008,7 @@ tests:
           object: 'undefined'
           ruby: 'nil'
           swift: BSON.null
+          rust: 'Bson::Undefined'
     string_literals:
     - input:
           javascript: "'string'"
@@ -830,6 +1023,7 @@ tests:
           object: "'string'"
           ruby: "'string'"
           swift: "\"string\""
+          rust: "\"string\""
     - input:
           javascript: "\"string\""
           shell: "\"string\""
@@ -843,6 +1037,7 @@ tests:
           object: "\"string\""
           ruby: "'string'"
           swift: '"string"'
+          rust: "\"string\""
     python_strings:
     - input:
           python: "'''string'''"
@@ -854,6 +1049,7 @@ tests:
           object: "\"string\""
           ruby: "'string'"
           swift: '"string"'
+          rust: "\"string\""
     - input:
           python: "\"\"\"string\"\"\""
       output:
@@ -864,6 +1060,7 @@ tests:
           object: "\"string\""
           ruby: "'string'"
           swift: '"string"'
+          rust: "\"string\""
     - input:
         python: "b'abc'"
       output:
@@ -874,6 +1071,7 @@ tests:
           object: "'abc'"
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
         python: "B'abc'"
       output:
@@ -884,6 +1082,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
         python: "b\"abc\""
       output:
@@ -894,6 +1093,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
           python: "B'abc'"
       output:
@@ -904,6 +1104,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
           python: "u'abc'"
       output:
@@ -914,6 +1115,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
           python: "U'abc'"
       output:
@@ -924,6 +1126,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
           python: "u\"abc\""
       output:
@@ -934,6 +1137,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
           python: "U'abc'"
       output:
@@ -944,6 +1148,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
           python: "fR'abc'"
       output:
@@ -954,6 +1159,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     - input:
           python: "rB'abc'"
       output:
@@ -964,6 +1170,7 @@ tests:
           object: "\"abc\""
           ruby: "'abc'"
           swift: '"abc"'
+          rust: "\"abc\""
     # TODO: unescape escaped quotes
     number_methods:
     - input:
@@ -977,6 +1184,7 @@ tests:
           object: 'new Int32(3)'
           ruby: '3'
           swift: 'Int32(3)'
+          rust: '3'
     - input:
           python: int('3')
       output:
@@ -988,6 +1196,7 @@ tests:
           object: new Int32('3')
           ruby: "'3'.to_i"
           swift: 'Int32("3")!'
+          rust: "\"3\".parse::<i32>()?"
     - input:
           python: int(3.001)
       output:
@@ -999,6 +1208,7 @@ tests:
           object: 'new Int32(3.001)'
           ruby: '3.001.to_i'
           swift: 'Int32(3.001)'
+          rust: 'i32::try_from(3.001)?'
     - input:
           python: int(0x3)
       output:
@@ -1010,6 +1220,7 @@ tests:
           object: 'new Int32(0x3)'
           ruby: '0x3.to_i'
           swift: 'Int32(0x3)'
+          rust: '0x3'
     - input:
           python: int(0o3)
       output:
@@ -1021,6 +1232,7 @@ tests:
           object: 'new Int32(0o3)'
           ruby: '0o3.to_i'
           swift: 'Int32(0o3)'
+          rust: '0o3'
     - input:
           python: float(3)
       output:
@@ -1032,6 +1244,7 @@ tests:
           object: new Double(3)
           ruby: 3.to_f
           swift: '3.0'
+          rust: '3.0'
     - input:
           python: float('3')
       output:
@@ -1043,6 +1256,7 @@ tests:
           object: new Double('3')
           ruby: "'3'.to_f"
           swift: 'Double("3")!'
+          rust: "\"3\".parse::<f32>()?"
     - input:
           python: float(3.001)
       output:
@@ -1054,6 +1268,7 @@ tests:
           object: new Double(3.001)
           ruby: '3.001'
           swift: '3.001'
+          rust: '3.001'
     - input:
           python: float(0x3)
       output:
@@ -1065,6 +1280,7 @@ tests:
           object: new Double(0x3)
           ruby: 0x3.to_f
           swift: 'Double(0x3)'
+          rust: 'f32::try_from(0x3)?'
     - input:
           python: float(0o3)
       output:
@@ -1076,6 +1292,7 @@ tests:
           object: new Double(0o3)
           ruby: 0o3.to_f
           swift: 'Double(0o3)'
+          rust: 'f32::try_from(0o3)?'
     Date:
     - description: now date
       input:
@@ -1091,6 +1308,7 @@ tests:
           object: "new Date()"
           ruby: Time.new.utc
           swift: 'Date()'
+          rust: DateTime::now()
     - description: date.now
       input:
           javascript: Date.now()
@@ -1104,6 +1322,7 @@ tests:
           object: "1" # just checks type and not value
           ruby: Time.now.utc
           swift: 'Date()'
+          rust: "DateTime::now()"
     - input:
           javascript: new Date(1995, 11, 17)
           shell: new Date(1995, 11, 17)
@@ -1127,6 +1346,7 @@ tests:
                   minute: 0,
                   second: 0
               ).date!
+          rust: DateTime::parse_rfc3339_str("1995-12-17T00:00:00.000Z")?
     - input:
           javascript: new Date(1995, 11, 17, 3, 24)
           shell: new Date(1995, 11, 17, 3, 24)
@@ -1150,6 +1370,7 @@ tests:
                   minute: 24,
                   second: 0
               ).date!
+          rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
     - input:
           javascript: new Date(1995, 11, 17, 3, 24, 55)
           shell: new Date(1995, 11, 17, 3, 24, 55)
@@ -1173,6 +1394,7 @@ tests:
                   minute: 24,
                   second: 55
               ).date!
+          rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:55.000Z")?
     - input:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -1196,6 +1418,7 @@ tests:
                   second: 0
               ).date!
 
+          rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
     - input:
           javascript: new Date(819167040000)
           shell: new Date(819167040000)
@@ -1218,6 +1441,7 @@ tests:
                   minute: 24,
                   second: 0
               ).date!
+          rust: DateTime::parse_rfc3339_str("1995-12-17T02:24:00.000Z")?
     date_string:
     - input:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
@@ -1231,6 +1455,7 @@ tests:
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           ruby: Time.utc(1995, 12, 17, 3, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
 
+          rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?.to_rfc3339_string()
     - input:
           javascript: Date(819167040000)
           shell: Date(819167040000)
@@ -1242,6 +1467,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 2, 24, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(819167040000)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
+          rust: DateTime::parse_rfc3339_str("1995-12-17T02:24:00.000Z")?.to_rfc3339_string()
     - input:
           javascript: Date(1995, 11, 17)
           shell: Date(1995, 11, 17)
@@ -1253,6 +1479,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 0, 0, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(1995, 11, 17)
           ruby: Time.utc(1995, 12, 17, 0, 0, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
+          rust: DateTime::parse_rfc3339_str("1995-12-17T00:00:00.000Z")?.to_rfc3339_string()
     ISODate:
     - input:
           shell: new ISODate('1995-12-17T03:24:00.000Z')
@@ -1275,6 +1502,7 @@ tests:
                   second: 0
               ).date!
 
+          rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
     - input:
           shell: ISODate('1995-12-17T03:24:00.000Z')
       output:
@@ -1296,6 +1524,7 @@ tests:
                   second: 0
               ).date!
 
+          rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
     - description: now date
       input:
           shell: ISODate()
@@ -1308,6 +1537,7 @@ tests:
           ruby: Time.new.utc
           swift: Date()
 
+          rust: DateTime::now()
     - description: now date
       input:
           shell: new ISODate()
@@ -1320,6 +1550,7 @@ tests:
           ruby: Time.new.utc
           swift: Date()
 
+          rust: DateTime::now()
     regular_expressions:
     - description: "empty RegExp"
       input:
@@ -1335,6 +1566,7 @@ tests:
           object: "RegExp('')"
           ruby: "/(?:)/"
           swift: 'BSONRegularExpression(pattern: "(?:)", options: "")'
+          rust: "Regex { pattern: \"(?:)\".to_string(), options: \"\".to_string() }"
     - description: "RegExp without options"
       input:
           javascript: "new RegExp('abc')"
@@ -1349,6 +1581,7 @@ tests:
           object: "new RegExp('abc')"
           ruby: "/abc/"
           swift: 'BSONRegularExpression(pattern: "abc", options: "")'
+          rust: "Regex { pattern: \"abc\".to_string(), options: \"\".to_string() }"
     - description: "RegExp with named but only A flag"
       input:
           python: "re.compile('abc', flags=re.A)"
@@ -1360,6 +1593,7 @@ tests:
           object: "new RegExp('abc')"
           ruby: "/abc/"
           swift: 'BSONRegularExpression(pattern: "abc", options: "")'
+          rust: "Regex { pattern: \"abc\".to_string(), options: \"\".to_string() }"
     - description: "regex object with im flags as args"
       input:
           javascript: "new RegExp('ab+c', 'im')"
@@ -1374,6 +1608,7 @@ tests:
           object: "new RegExp('ab+c', 'im')"
           ruby: "/ab+c/im"
           swift: 'BSONRegularExpression(pattern: "ab+c", options: "im")'
+          rust: "Regex { pattern: \"ab+c\".to_string(), options: \"im\".to_string() }"
     - description: "regex object with named flags as args"
       input:
           python: "re.compile('ab+c', flags=re.I | re.M | re.A)"
@@ -1385,6 +1620,7 @@ tests:
           object: "new RegExp('ab+c', 'im')"
           ruby: "/ab+c/im"
           swift: 'BSONRegularExpression(pattern: "ab+c", options: "im")'
+          rust: "Regex { pattern: \"ab+c\".to_string(), options: \"im\".to_string() }"
     - description: "regex object with ig flags as args"
       input:
           javascript: "new RegExp('ab+c', 'ig')"
@@ -1398,6 +1634,7 @@ tests:
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
           swift: 'BSONRegularExpression(pattern: "ab+c", options: "gi")'
+          rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
     - description: "regex object with forward slash"
       input:
           javascript: "new RegExp('ab/cd')"
@@ -1412,6 +1649,7 @@ tests:
           object: "new RegExp('ab\\/cd')"
           ruby: "/ab\\/cd/"
           swift: 'BSONRegularExpression(pattern: "ab\/cd", options: "")'
+          rust: "Regex { pattern: \"ab\\/cd\".to_string(), options: \"\".to_string() }"
     - description: "regex object with escaped double quote"
       input:
           javascript: "new RegExp('ab\\\"ab')"
@@ -1426,6 +1664,7 @@ tests:
           object: "new RegExp('ab\"ab')"
           ruby: "/ab\"ab/"
           swift: 'BSONRegularExpression(pattern: "ab\"ab", options: "")'
+          rust: "Regex { pattern: \"ab\\\"ab\".to_string(), options: \"\".to_string() }"
     - description: "regex object with nonescaped double quote"
       input:
           javascript: "new RegExp('ab\"ab')"
@@ -1440,6 +1679,7 @@ tests:
           object: "new RegExp('ab\"ab')"
           ruby: "/ab\"ab/"
           swift: 'BSONRegularExpression(pattern: "ab\"ab", options: "")'
+          rust: "Regex { pattern: \"ab\\\"ab\".to_string(), options: \"\".to_string() }"
     - description: "regex object with escaped single quote"
       input:
           javascript: "new RegExp('ab\\'ab')"
@@ -1454,6 +1694,7 @@ tests:
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
           swift: "BSONRegularExpression(pattern: \"ab'ab\", options: \"\")"
+          rust: "Regex { pattern: \"ab'ab\".to_string(), options: \"\".to_string() }"
     - description: "regex object with nonescaped single quote"
       input:
           javascript: "new RegExp(\"ab'ab\")"
@@ -1468,6 +1709,7 @@ tests:
           object: "new RegExp('ab\\'ab')"
           ruby: "/ab'ab/"
           swift: "BSONRegularExpression(pattern: \"ab'ab\", options: \"\")"
+          rust: "Regex { pattern: \"ab'ab\".to_string(), options: \"\".to_string() }"
     - description: "regex object with newline"
       input:
           javascript: "new RegExp(\"\\\\n\")"
@@ -1482,6 +1724,7 @@ tests:
           object: /\n/
           ruby: /\n/
           swift: 'BSONRegularExpression(pattern: "\n", options: "")'
+          rust: "Regex { pattern: \"\\n\".to_string(), options: \"\".to_string() }"
     - description: "regex literal with ig flags"
       input:
           javascript: "/ab+c/ig"
@@ -1495,6 +1738,7 @@ tests:
           object: "new RegExp('ab+c', 'gi')"
           ruby: "/ab+c/i"
           swift: 'BSONRegularExpression(pattern: "ab+c", options: "gi")'
+          rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
     - description: "regex object with regex literal arg"
       input:
           javascript: "new RegExp(/ab+c/, 'i')"
@@ -1509,6 +1753,7 @@ tests:
           object: "new RegExp('ab+c', 'i')"
           ruby: "/ab+c/i"
           swift: 'BSONRegularExpression(pattern: "ab+c", options: "i")'
+          rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
     - description: "python regex without ascii flag defaults to unicode"
       input:
           python: "re.compile('ab+c')"
@@ -1521,4 +1766,5 @@ tests:
           object: "new RegExp('ab+c', 'u')"
           ruby: "/ab+c/"
           swift: 'BSONRegularExpression(pattern: "ab+c", options: "u")'
+          rust: "Regex { pattern: \"ab+c\".to_string(), options: \"u\".to_string() }"
 

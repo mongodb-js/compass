@@ -25,12 +25,12 @@ export function serialize(obj) {
      * NOTE: lucas: Trying an existing fork that supports this new option:
      * https://github.com/hughsk/flat/pull/93
      */
-    ignoreValue: function(value) {
+    ignoreValue: function (value) {
       const t = getTypeDescriptorForValue(value);
       if (t.isBSON) {
         return true;
       }
-    }
+    },
   });
 }
 

@@ -35,7 +35,7 @@ const buttonIconStyles = css({
 });
 interface AccordionProps {
   'data-testid'?: string;
-  text: string;
+  text: string | React.ReactNode;
 }
 function Accordion(
   props: React.PropsWithChildren<AccordionProps>

@@ -7,6 +7,7 @@ import ToggleStage from './toggle-stage';
 import StageGrabber from './stage-grabber';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
+import { Tooltip, Body, Icon } from '@mongodb-js/compass-components';
 
 import styles from './stage-editor-toolbar.module.less';
 
@@ -17,7 +18,6 @@ class StageEditorToolbar extends PureComponent {
   static displayName = 'StageEditorToolbar';
   static propTypes = {
     allowWrites: PropTypes.bool.isRequired,
-    connectDragSource: PropTypes.func.isRequired,
     env: PropTypes.string.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
@@ -35,8 +35,31 @@ class StageEditorToolbar extends PureComponent {
     stageDeleted: PropTypes.func.isRequired,
     setIsModified: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
-    runStage: PropTypes.func.isRequired
+    runStage: PropTypes.func.isRequired,
+    isAutoPreviewing: PropTypes.bool,
   };
+
+  renderTooltip() {
+    const stages = {
+      $out: 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.',
+      $merge: 'The $merge operator will cause the pipeline to persist the results to the specified location.'
+    };
+    const { isAutoPreviewing, stageOperator } = this.props;
+    if (!isAutoPreviewing && Object.keys(stages).includes(stageOperator)) {
+      return (
+        <Tooltip
+          trigger={({ children, ...props }) => (
+            <span {...props} className={styles['tooltip-icon']}>
+              {children}
+              <Icon glyph="InfoWithCircle" />
+            </span>
+          )}
+        >
+          <Body>{stages[stageOperator]}</Body>
+        </Tooltip>
+      );
+    }
+  }
 
   /**
    * Renders the stage editor toolbar.
@@ -44,9 +67,7 @@ class StageEditorToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const { connectDragSource } = this.props;
-
-    return connectDragSource(
+    return (
       <div className={classnames(styles['stage-editor-toolbar'], {
         [styles['stage-editor-toolbar-errored']]: this.props.error
       })}>
@@ -79,6 +100,7 @@ class StageEditorToolbar extends PureComponent {
           stageToggled={this.props.stageToggled}
         />
         <div className={styles['stage-editor-toolbar-right']}>
+          {global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true' && this.renderTooltip()}
           <DeleteStage
             index={this.props.index}
             runStage={this.props.runStage}

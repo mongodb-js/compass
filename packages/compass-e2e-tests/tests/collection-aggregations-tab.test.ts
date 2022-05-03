@@ -1,10 +1,12 @@
-import _ from 'lodash';
 import chai from 'chai';
+import semver from 'semver';
 import type { Element } from 'webdriverio';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
+import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -25,11 +27,11 @@ describe('Collection aggregations tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
   beforeEach(async function () {
+    await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     // Get us back to the empty stage every time. Also test the Create New
@@ -63,18 +65,9 @@ describe('Collection aggregations tab', function () {
       stageOperatorOptionsElements.map((element) => element.getText())
     );
 
-    /*
-    TODO: The expected options depend on the mongodb version and probably type
-    (ie. atlas or data lake could have different options). Right now there isn't
-    a reliable way for the tests to know which version of mongodb it is expected
-    to be connected to, but soon when we add tests for all current versions of
-    mongodb we'll deal with that and then we can determine the correct expected
-    options.
+    options.sort();
 
-    In the meantime this is just checking the subset of options that appear on
-    all supported mongodb versions this test might run against.
-    */
-    expect(_.without(options, '$setWindowFields')).to.deep.equal([
+    const expectedAggregations = [
       '$addFields',
       '$bucket',
       '$bucketAuto',
@@ -89,24 +82,38 @@ describe('Collection aggregations tab', function () {
       '$limit',
       '$lookup',
       '$match',
-      '$merge',
       '$out',
       '$project',
       '$redact',
-      '$replaceWith',
       '$replaceRoot',
       '$sample',
       '$search',
       '$searchMeta',
-      '$set',
-      //'$setWindowFields', // New in version 5.0.
       '$skip',
       '$sort',
       '$sortByCount',
-      '$unionWith',
-      '$unset',
       '$unwind',
-    ]);
+    ];
+
+    if (semver.gte(MONGODB_VERSION, '4.2.0')) {
+      expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
+    }
+    if (semver.gte(MONGODB_VERSION, '4.4.0')) {
+      expectedAggregations.push('$unionWith');
+    }
+    if (semver.gte(MONGODB_VERSION, '5.0.0')) {
+      expectedAggregations.push('$setWindowFields');
+    }
+    if (semver.gte(MONGODB_VERSION, '5.1.0')) {
+      expectedAggregations.push('$densify');
+    }
+    if (semver.gte(MONGODB_VERSION, '5.3.0')) {
+      expectedAggregations.push('$fill');
+    }
+
+    expectedAggregations.sort();
+
+    expect(options).to.deep.equal(expectedAggregations);
   });
 
   // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
@@ -217,6 +224,14 @@ describe('Collection aggregations tab', function () {
 
     // disable it
     await browser.clickVisible(Selectors.stageToggle(1));
+
+    await browser.waitUntil(
+      async () => {
+        const stageToggle = await browser.$(Selectors.stageToggle(1));
+        return (await stageToggle.getAttribute('aria-checked')) === 'false';
+      },
+      { timeoutMsg: 'Expected stage toggle to be turned off' }
+    );
 
     // export to language
     await browser.clickVisible(Selectors.ExportAggregationToLanguage);
@@ -368,6 +383,10 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports $merge as the last stage', async function () {
+    if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+      return this.skip();
+    }
+
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$merge');
     await browser.setAceValue(

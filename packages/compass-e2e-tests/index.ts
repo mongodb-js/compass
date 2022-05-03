@@ -21,6 +21,24 @@ import ResultLogger from './helpers/result-logger';
 const debug = Debug('compass-e2e-tests');
 const keychain = createUnlockedKeychain();
 
+const allowedArgs = [
+  '--no-compile',
+  '--no-native-modules',
+  '--test-packaged-app',
+  '--disable-start-stop',
+  '--bail',
+];
+
+for (const arg of process.argv) {
+  if (arg.startsWith('--') && !allowedArgs.includes(arg)) {
+    throw Error(
+      `Unknown command argument "${arg}". Usage:\n\n  npm run test ${allowedArgs
+        .map((arg) => `[${arg}]`)
+        .join(' ')}\n`
+    );
+  }
+}
+
 // We can't import mongodb here yet because native modules will be recompiled
 let metricsClient: MongoClient;
 
@@ -32,14 +50,10 @@ async function setup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
   // When working on the tests it is faster to just keep the server running.
-  // insert-data is idempotent anyway.
   if (!disableStartStop) {
     debug('Starting MongoDB server');
     crossSpawn.sync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   }
-
-  debug('Importing test fixtures');
-  crossSpawn.sync('npm', ['run', 'insert-data'], { stdio: 'inherit' });
 
   try {
     debug('Clearing out past logs');
@@ -134,6 +148,9 @@ async function main() {
   // the time-to-first-query.ts test.
   // So yeah.. this is a bit of a micro optimisation.
   const tests = [FIRST_TEST, ...rawTests.filter((t) => t !== FIRST_TEST)];
+
+  // Ensure the insert-data mocha hooks are run.
+  tests.unshift(path.join('helpers', 'insert-data.ts'));
 
   const bail = process.argv.includes('--bail');
 

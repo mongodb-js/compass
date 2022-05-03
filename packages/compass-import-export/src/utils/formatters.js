@@ -3,18 +3,18 @@
 /* eslint-disable complexity */
 
 import * as csv from 'fast-csv';
-import { EJSON } from 'bson';
+import HadronDocument from 'hadron-document';
 import { serialize as flatten } from './bson-csv';
 import { Transform } from 'stream';
 import { EOL } from 'os';
 /**
  * @returns {Stream.Transform}
  */
-export const createJSONFormatter = function({ brackets = true } = {}) {
+export const createJSONFormatter = function ({ brackets = true } = {}) {
   return new Transform({
     readableObjectMode: false,
     writableObjectMode: true,
-    transform: function(doc, encoding, callback) {
+    transform: function (doc, encoding, callback) {
       if (this._counter >= 1) {
         if (brackets) {
           this.push(',');
@@ -22,7 +22,9 @@ export const createJSONFormatter = function({ brackets = true } = {}) {
           this.push(EOL);
         }
       }
-      const s = EJSON.stringify(doc, null, brackets ? 2 : null);
+      const s = new HadronDocument(doc).toEJSON('current', {
+        indent: brackets ? 2 : undefined,
+      });
       if (this._counter === undefined) {
         this._counter = 0;
         if (brackets) {
@@ -32,24 +34,24 @@ export const createJSONFormatter = function({ brackets = true } = {}) {
       callback(null, s);
       this._counter++;
     },
-    final: function(done) {
+    final: function (done) {
       if (brackets) {
         this.push(']');
       }
       done();
-    }
+    },
   });
 };
 
 /**
  * @returns {Stream.Transform}
  */
-export const createCSVFormatter = function({ columns }) {
+export const createCSVFormatter = function ({ columns }) {
   return csv.format({
     headers: columns,
     alwaysWriteHeaders: true,
-    transform: row => {
+    transform: (row) => {
       return flatten(row);
-    }
+    },
   });
 };

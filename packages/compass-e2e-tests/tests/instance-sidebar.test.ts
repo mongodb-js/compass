@@ -3,6 +3,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -13,7 +14,10 @@ describe('Instance sidebar', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+  });
 
+  beforeEach(async function () {
+    await createNumbersCollection();
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
 
@@ -47,7 +51,7 @@ describe('Instance sidebar', function () {
 
     const serverVersionText = await serverVersionTextElement.getText(); // the version number changes constantly and is different in CI
     expect(serverVersionText).to.include('MongoDB');
-    expect(serverVersionText).to.include('Community');
+    expect(serverVersionText).to.match(/\b(Community|Enterprise)\b/);
   });
 
   it('contains a dbs/collections tree view', async function () {

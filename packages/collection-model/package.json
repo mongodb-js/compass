@@ -2,7 +2,7 @@
   "name": "mongodb-collection-model",
   "description": "MongoDB collection model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "4.20.0",
+  "version": "4.22.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -17,11 +17,8 @@
     "mongodb-js"
   ],
   "main": "index.js",
+  "compass:main": "index.js",
   "types": "./index.d.ts",
-  "exports": {
-    "webpack": "./index.js",
-    "require": "./index.js"
-  },
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
@@ -34,19 +31,19 @@
   "dependencies": {
     "ampersand-collection": "^2.0.2",
     "ampersand-model": "^8.0.1",
-    "mongodb-ns": "^2.3.0"
+    "mongodb-ns": "^2.4.0"
   },
   "peerDependencies": {
-    "mongodb-data-service": "^21.18.0"
+    "mongodb-data-service": "^21.20.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.7.0",
+    "@mongodb-js/eslint-config-compass": "^0.8.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "depcheck": "^1.4.1",
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "mocha": "^8.4.0",
-    "mongodb-data-service": "^21.18.0",
+    "mongodb-data-service": "^21.20.0",
     "xvfb-maybe": "^0.2.1"
   }
 }

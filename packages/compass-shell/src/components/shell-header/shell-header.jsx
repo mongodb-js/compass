@@ -1,4 +1,4 @@
-import { Icon, IconButton, css, spacing, uiColors } from '@mongodb-js/compass-components';
+import { Icon, IconButton, css, spacing, uiColors, keyframes } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
@@ -16,11 +16,28 @@ const shellHeaderLeftStyles = css({
   alignItems: 'center'
 });
 
+
+const shellHeaderDefaultColor = uiColors.gray.light1;
+const shellHeaderFlashColorDark = uiColors.gray.base;
+const shellHeaderFlashColorLight = uiColors.gray.light2;
+const shellLoaderFlash = keyframes`
+  0% { color: ${shellHeaderDefaultColor}; }
+  10% { color: ${shellHeaderFlashColorDark}; }
+  20% { color: ${shellHeaderFlashColorLight}; }
+  30% { color: ${shellHeaderFlashColorDark}; }
+  40% { color: ${shellHeaderFlashColorLight}; }
+  50% { color: ${shellHeaderFlashColorDark}; }
+  60% { color: ${shellHeaderFlashColorLight}; }
+  70% { color: ${shellHeaderFlashColorDark}; }
+  80% { color: ${shellHeaderFlashColorLight}; }
+  100% { color: ${shellHeaderDefaultColor}; }
+`;
+
 const shellHeaderToggleStyles = css({
   background: 'none',
   border: 'none',
   cursor: 'pointer',
-  color: uiColors.gray.light1,
+  color: shellHeaderDefaultColor,
   padding: `0px ${spacing[2]}px`,
   height: '100%',
   display: 'flex',
@@ -34,10 +51,12 @@ const shellHeaderToggleStyles = css({
   transition: 'all 200ms',
   userSelect: 'none',
   textTransform: 'uppercase',
+  animation: `${shellLoaderFlash} 2s linear`,
   '&:hover': {
     color: uiColors.gray.light3
   }
 });
+
 
 const shellHeaderRightStyles = css({
   display: 'flex',

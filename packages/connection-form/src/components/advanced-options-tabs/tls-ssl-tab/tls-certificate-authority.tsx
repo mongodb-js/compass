@@ -7,8 +7,6 @@ import {
   css,
   cx,
 } from '@mongodb-js/compass-components';
-import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import type { MongoClientOptions } from 'mongodb';
 import {
   checkboxDescriptionStyles,
   disabledCheckboxDescriptionStyles,
@@ -21,39 +19,41 @@ const caFieldsContainer = css({
 });
 
 function TLSCertificateAuthority({
-  connectionStringUrl,
+  tlsCAFile,
   useSystemCA,
   disabled,
+  displayDatabaseConnectionUserHints = true,
   handleTlsOptionChanged,
 }: {
-  connectionStringUrl: ConnectionStringUrl;
+  tlsCAFile?: string | null;
   useSystemCA: boolean;
   disabled: boolean;
+  displayDatabaseConnectionUserHints?: boolean;
   handleTlsOptionChanged: (
     key: 'tlsCAFile' | 'useSystemCA',
     value: string | null
   ) => void;
 }): React.ReactElement {
-  const caFile = connectionStringUrl
-    .typedSearchParams<MongoClientOptions>()
-    .get('tlsCAFile');
-
   return (
     <FormFieldContainer className={caFieldsContainer}>
       <FileInput
-        description={'Learn More'}
+        description={
+          displayDatabaseConnectionUserHints ? 'Learn More' : undefined
+        }
         disabled={disabled || useSystemCA}
         id="tlsCAFile"
         dataTestId="tlsCAFile-input"
         label="Certificate Authority (.pem)"
         link={
-          'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
+          displayDatabaseConnectionUserHints
+            ? 'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
+            : undefined
         }
         onChange={(files: string[] | null) => {
           handleTlsOptionChanged('tlsCAFile', files?.[0] ?? null);
         }}
         showFileOnNewLine
-        values={caFile ? [caFile] : undefined}
+        values={tlsCAFile ? [tlsCAFile] : undefined}
         optional
       />
       <Checkbox

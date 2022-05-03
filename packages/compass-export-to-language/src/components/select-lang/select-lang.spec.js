@@ -21,7 +21,8 @@ describe('SelectLang [Component]', () => {
       { value: 'csharp', label: 'C#' },
       { value: 'python', label: 'Python 3' },
       { value: 'ruby', label: 'Ruby' },
-      { value: 'swift', label: 'Swift' }
+      { value: 'swift', label: 'Swift' },
+      { value: 'rust', label: 'Rust' }
     ];
 
     beforeEach(() => {

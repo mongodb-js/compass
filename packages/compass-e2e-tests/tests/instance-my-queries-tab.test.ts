@@ -3,6 +3,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 describe('Instance my queries tab', function () {
   let compass: Compass;
@@ -11,6 +12,9 @@ describe('Instance my queries tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+  });
+  beforeEach(async function () {
+    await createNumbersCollection();
     await browser.connectWithConnectionString('mongodb://localhost:27018/test');
   });
   after(async function () {
@@ -39,7 +43,8 @@ describe('Instance my queries tab', function () {
     await favoriteQueryNameField.setValue(favoriteQueryName);
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
-    await browser.closeCollectionTabs();
+    await browser.closeWorkspaceTabs();
+    await browser.navigateToInstanceTab('Databases');
     await browser.navigateToInstanceTab('My Queries');
 
     await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
@@ -76,7 +81,7 @@ describe('Instance my queries tab', function () {
 
     await createButton.click();
 
-    await browser.closeCollectionTabs();
+    await browser.closeWorkspaceTabs();
     await browser.navigateToInstanceTab('My Queries');
 
     await browser.clickVisible(Selectors.myQueriesItem(savedAggregationName));

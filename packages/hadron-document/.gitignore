@@ -8,3 +8,4 @@ coverage
 *.iml
 .nvmrc
 lib
+dist

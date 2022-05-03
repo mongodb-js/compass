@@ -125,7 +125,8 @@ const InstanceModel = AmpersandModel.extend(
       databasesStatusError: { type: 'string', default: null },
       refreshingStatus: { type: 'string', default: 'initial' },
       refreshingStatusError: { type: 'string', default: null },
-      isAtlas: { type: 'boolean', default: false }
+      isAtlas: { type: 'boolean', default: false },
+      csfleMode: { type: 'string', default: 'unavailable' },
     },
     derived: {
       isRefreshing: {

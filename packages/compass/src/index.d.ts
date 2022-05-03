@@ -28,15 +28,12 @@ declare module 'process' {
         HADRON_READONLY: 'true' | 'false';
         HADRON_ISOLATED: 'true' | 'false';
         HADRON_CHANNEL: 'stable' | 'beta' | 'dev';
-        HADRON_METRICS_BUGSNAG_KEY?: string;
         HADRON_METRICS_INTERCOM_APP_ID?: string;
-        HADRON_METRICS_STITCH_APP_ID?: string;
         HADRON_METRICS_SEGMENT_API_KEY?: string;
         HADRON_METRICS_SEGMENT_HOST?: string;
         HADRON_AUTO_UPDATE_ENDPOINT: string;
 
         // Feature flags.
-        USE_NEW_CONNECT_FORM?: 'true' | 'false';
         /**
          * Currently Compass uses `darkreader` to globally change the views of
          * Compass to a dark theme. Turning on this feature flag stops darkreader
@@ -45,10 +42,15 @@ declare module 'process' {
          */
         COMPASS_LG_DARKMODE?: 'true' | 'false';
 
+        COMPASS_CSFLE_SUPPORT?: 'true' | 'false';
+
+        COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
+
         /**
          * Enable new aggregation pipeline toolbar
          */
-        COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true',
+        COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
+        COMPASS_ENABLE_AGGREGATION_EXPORT?: 'true' | 'false';
       }
     }
   }

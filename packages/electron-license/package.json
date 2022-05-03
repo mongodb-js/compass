@@ -1,7 +1,7 @@
 {
   "name": "electron-license",
   "description": "Tools for electron apps to work with licenses",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
@@ -19,10 +19,7 @@
     "electron-license": "bin/electron-license.js"
   },
   "main": "index.js",
-  "exports": {
-    "webpack": "./index.js",
-    "require": "./index.js"
-  },
+  "compass:main": "index.js",
   "dependencies": {
     "bluebird": "^3.7.2",
     "chalk": "^1.1.1",
