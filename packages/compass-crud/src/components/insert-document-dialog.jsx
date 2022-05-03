@@ -238,7 +238,7 @@ InsertDocumentDialog.propTypes = {
   insertMany: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
   message: PropTypes.string.isRequired,
-  csfleState: PropTypes.string.isRequired,
+  csfleState: PropTypes.object.isRequired,
   mode: PropTypes.string.isRequired,
   version: PropTypes.string.isRequired,
   updateJsonDoc: PropTypes.func.isRequired,
