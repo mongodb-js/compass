@@ -149,7 +149,7 @@ function useHadronElement(el: HadronElementType) {
     level: el.level,
     parentType: el.parent?.currentType,
     removed: el.isRemoved(),
-    internal: el.isInternalField()
+    internal: el.isInternalField(),
   };
 }
 const buttonReset = css({
@@ -242,7 +242,7 @@ const elementKey = css({
 });
 
 const elementKeyInternal = css({
-  color: uiColors.gray.base
+  color: uiColors.gray.base,
 });
 
 const elementDivider = css({
@@ -317,7 +317,7 @@ export const HadronElement: React.FunctionComponent<{
     level,
     parentType,
     removed,
-    internal
+    internal,
   } = useHadronElement(element);
 
   useEffect(() => {
@@ -353,10 +353,7 @@ export const HadronElement: React.FunctionComponent<{
   };
 
   const keyProps = {
-    className: cx(
-      elementKey,
-      internal && elementKeyInternal
-    )
+    className: cx(elementKey, internal && elementKeyInternal),
   };
 
   return (

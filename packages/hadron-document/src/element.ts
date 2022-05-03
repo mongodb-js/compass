@@ -560,7 +560,10 @@ export class Element extends EventEmitter {
    * @returns {Boolean} If no action can be taken.
    */
   isNotActionable(): boolean {
-    return ((this.key === ID || this.isInternalField()) && !this.isAdded()) || !this.isRemovable();
+    return (
+      ((this.key === ID || this.isInternalField()) && !this.isAdded()) ||
+      !this.isRemovable()
+    );
   }
 
   /**
@@ -639,7 +642,8 @@ export class Element extends EventEmitter {
 
   _isKeyLegallyEditable(): boolean {
     return (
-      this.isParentEditable() && (this.isAdded() || (this.currentKey !== ID && !this.isInternalField()))
+      this.isParentEditable() &&
+      (this.isAdded() || (this.currentKey !== ID && !this.isInternalField()))
     );
   }
 

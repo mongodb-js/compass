@@ -68,7 +68,9 @@ class SchemaAnalysis {
         .toArray()
         .catch((err) => Promise.reject(promoteMongoErrorCode(err)));
       const schemaData = await analyzeDocuments(docs);
-      schemaData.fields = schemaData.fields.filter(({ path }) => !isInternalFieldPath(path));
+      schemaData.fields = schemaData.fields.filter(
+        ({ path }) => !isInternalFieldPath(path)
+      );
       log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', {
         ns: this._ns,
       });

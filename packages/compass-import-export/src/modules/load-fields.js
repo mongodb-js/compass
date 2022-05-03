@@ -55,8 +55,10 @@ export function getSelectableFields(fields, { maxDepth } = {}) {
   const selectableFields = Object.keys(fields).map((field) =>
     truncateFieldToDepth(field, maxDepth)
   );
-  return Object.fromEntries(selectableFields.map((field) => {
-    const enabled = !isInternalFieldPath(field);
-    return [field, +enabled];
-  }));
+  return Object.fromEntries(
+    selectableFields.map((field) => {
+      const enabled = !isInternalFieldPath(field);
+      return [field, +enabled];
+    })
+  );
 }

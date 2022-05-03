@@ -35,7 +35,10 @@ export class ObjectGenerator {
    *
    * @returns {Object} The javascript object.
    */
-  static generate(elements: Iterable<Element>, options: ObjectGeneratorOptions = {}): Record<string, unknown> {
+  static generate(
+    elements: Iterable<Element>,
+    options: ObjectGeneratorOptions = {}
+  ): Record<string, unknown> {
     if (elements) {
       const object: Record<string, unknown> = {};
       for (const element of elements) {
@@ -88,7 +91,10 @@ export class ObjectGenerator {
    *
    * @returns {Array} The array.
    */
-  static generateArray(elements: Iterable<Element>, options: ObjectGeneratorOptions = {}): unknown[] {
+  static generateArray(
+    elements: Iterable<Element>,
+    options: ObjectGeneratorOptions = {}
+  ): unknown[] {
     if (elements) {
       const array: unknown[] = [];
       for (const element of elements) {
@@ -116,7 +122,10 @@ export class ObjectGenerator {
    *
    * @returns {Array} The array.
    */
-  static generateOriginalArray(elements: Iterable<Element>, options: ObjectGeneratorOptions = {}): unknown[] {
+  static generateOriginalArray(
+    elements: Iterable<Element>,
+    options: ObjectGeneratorOptions = {}
+  ): unknown[] {
     if (elements) {
       const array: unknown[] = [];
       for (const element of elements) {

@@ -193,7 +193,9 @@ describe('ObjectGenerator', function () {
 
     it('optionally omits the internal field', function () {
       expect(doc.generateObject()).to.deep.equal(object);
-      expect(doc.generateObject({ excludeInternalFields: true })).to.deep.equal({ foo: 'bar' });
+      expect(doc.generateObject({ excludeInternalFields: true })).to.deep.equal(
+        { foo: 'bar' }
+      );
     });
   });
 });
