@@ -26,6 +26,11 @@ export { Events };
 const ID = '_id';
 
 /**
+ * __safeContent__ field constant.
+ */
+const SAFE_CONTENT_FIELD = '__safeContent__';
+
+/**
  * Types that are not editable.
  */
 const UNEDITABLE_TYPES = [
@@ -551,7 +556,7 @@ export class Element extends EventEmitter {
    * @returns {Boolean} If no action can be taken.
    */
   isNotActionable(): boolean {
-    return (this.key === ID && !this.isAdded()) || !this.isRemovable();
+    return ((this.key === ID || this.isInternalField()) && !this.isAdded()) || !this.isRemovable();
   }
 
   /**
@@ -630,7 +635,7 @@ export class Element extends EventEmitter {
 
   _isKeyLegallyEditable(): boolean {
     return (
-      this.isParentEditable() && (this.isAdded() || this.currentKey !== ID)
+      this.isParentEditable() && (this.isAdded() || (this.currentKey !== ID && !this.isInternalField()))
     );
   }
 
@@ -641,6 +646,19 @@ export class Element extends EventEmitter {
    */
   isKeyEditable(): boolean {
     return this._isKeyLegallyEditable() && !this.containsDecryptedChildren();
+  }
+
+  /**
+   * Is this a field that is used internally by the MongoDB driver or server
+   * and not for user consumption?
+   *
+   * @returns {Boolean}
+   */
+  isInternalField(): boolean {
+    if (this.parent && !this.parent.isRoot() && this.parent.isInternalField()) {
+      return true;
+    }
+    return this.currentKey === SAFE_CONTENT_FIELD;
   }
 
   /**

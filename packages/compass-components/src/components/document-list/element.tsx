@@ -149,6 +149,7 @@ function useHadronElement(el: HadronElementType) {
     level: el.level,
     parentType: el.parent?.currentType,
     removed: el.isRemoved(),
+    internal: el.isInternalField()
   };
 }
 const buttonReset = css({
@@ -240,6 +241,10 @@ const elementKey = css({
   maxWidth: '60%',
 });
 
+const elementKeyInternal = css({
+  color: uiColors.gray.base
+});
+
 const elementDivider = css({
   flex: 'none',
   userSelect: 'none',
@@ -312,6 +317,7 @@ export const HadronElement: React.FunctionComponent<{
     level,
     parentType,
     removed,
+    internal
   } = useHadronElement(element);
 
   useEffect(() => {
@@ -344,6 +350,13 @@ export const HadronElement: React.FunctionComponent<{
       removed ? elementRemoved : editingEnabled && !isValid && elementInvalid
     ),
     onClick: onLineClick,
+  };
+
+  const keyProps = {
+    className: cx(
+      elementKey,
+      internal && elementKeyInternal
+    )
   };
 
   return (
@@ -435,7 +448,7 @@ export const HadronElement: React.FunctionComponent<{
             </button>
           )}
         </div>
-        <div className={elementKey} data-testid="hadron-document-element-key">
+        <div {...keyProps} data-testid="hadron-document-element-key">
           {key.editable ? (
             <KeyEditor
               value={key.value}
