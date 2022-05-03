@@ -6,6 +6,7 @@ import isObject from 'lodash.isplainobject';
 import isArray from 'lodash.isarray';
 import isEqual from 'lodash.isequal';
 import isString from 'lodash.isstring';
+import type { ObjectGeneratorOptions } from './object-generator';
 import ObjectGenerator from './object-generator';
 import TypeChecker from 'hadron-type-checker';
 import { UUID } from 'bson';
@@ -26,9 +27,12 @@ export { Events };
 const ID = '_id';
 
 /**
- * __safeContent__ field constant.
+ * Is this the path to a field that is used internally by the
+ * MongoDB driver or server and not for user consumption?
  */
-const SAFE_CONTENT_FIELD = '__safeContent__';
+export function isInternalFieldPath(path: string | number): boolean {
+  return typeof path === 'string' && /^__safeContent__($|\.)/.test(path);
+}
 
 /**
  * Types that are not editable.
@@ -286,12 +290,12 @@ export class Element extends EventEmitter {
    *
    * @returns {Object} The javascript object.
    */
-  generateObject(): BSONValue {
+  generateObject(options?: ObjectGeneratorOptions): BSONValue {
     if (this.currentType === 'Array') {
-      return ObjectGenerator.generateArray(this.elements!);
+      return ObjectGenerator.generateArray(this.elements!, options);
     }
     if (this.currentType === 'Object') {
-      return ObjectGenerator.generate(this.elements!);
+      return ObjectGenerator.generate(this.elements!, options);
     }
     return this.currentValue;
   }
@@ -302,18 +306,18 @@ export class Element extends EventEmitter {
    *
    * @returns {Object} The javascript object.
    */
-  generateOriginalObject(): BSONValue {
+  generateOriginalObject(options?: ObjectGeneratorOptions): BSONValue {
     if (this.type === 'Array') {
       const originalElements = this._generateElements(
         this.originalExpandableValue as BSONArray
       );
-      return ObjectGenerator.generateOriginalArray(originalElements);
+      return ObjectGenerator.generateOriginalArray(originalElements, options);
     }
     if (this.type === 'Object') {
       const originalElements = this._generateElements(
         this.originalExpandableValue as BSONObject
       );
-      return ObjectGenerator.generateOriginal(originalElements);
+      return ObjectGenerator.generateOriginal(originalElements, options);
     }
 
     return this.value;
@@ -655,10 +659,14 @@ export class Element extends EventEmitter {
    * @returns {Boolean}
    */
   isInternalField(): boolean {
-    if (this.parent && !this.parent.isRoot() && this.parent.isInternalField()) {
+    if (!this.parent) return false;
+    if (!this.parent.isRoot() && this.parent.isInternalField()) {
       return true;
     }
-    return this.currentKey === SAFE_CONTENT_FIELD;
+    if (this.parent.isRoot() && isInternalFieldPath(this.currentKey)) {
+      return true;
+    }
+    return false;
   }
 
   /**

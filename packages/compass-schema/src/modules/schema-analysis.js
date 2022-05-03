@@ -1,6 +1,7 @@
 import util from 'util';
-
+import { isInternalFieldPath } from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
 const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-SCHEMA');
 
 import mongodbSchema from 'mongodb-schema';
@@ -67,6 +68,7 @@ class SchemaAnalysis {
         .toArray()
         .catch((err) => Promise.reject(promoteMongoErrorCode(err)));
       const schemaData = await analyzeDocuments(docs);
+      schemaData.fields = schemaData.fields.filter(({ path }) => !isInternalFieldPath(path));
       log.info(mongoLogId(1001000090), 'Schema', 'Schema analysis completed', {
         ns: this._ns,
       });
