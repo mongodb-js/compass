@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Document } from 'mongodb';
 import {
   encryptedFieldConfigToText,
@@ -19,29 +19,56 @@ const errorContainerStyles = css({
   width: '100%',
 });
 
+const ENCRYPTED_FIELDS_MAP_PLACEHOLDER = `{
+/**
+ * // Client-side encrypted fields map configuration:
+ * 'database.collection': {
+ *   fields: [
+ *     {
+ *       keyId: UUID("..."),
+ *       path: '...',
+ *       bsonType: '...',
+ *       queries: [{ queryType: 'equality' }]
+ *     }
+ *   ]
+ * }
+ */
+}
+`;
+
 function EncryptedFieldConfigInput({
-  encryptedFieldConfig,
+  encryptedFieldsMap,
   errorMessage,
+  label,
+  description,
   onChange,
 }: {
-  encryptedFieldConfig: Document | undefined;
+  encryptedFieldsMap: Document | undefined;
   errorMessage: string | undefined;
   onChange: (value: Document | undefined) => void;
+  label: React.ReactNode;
+  description: React.ReactNode;
 }): React.ReactElement {
+  const [hasEditedContent, setHasEditedContent] = useState(false);
+
+  if (encryptedFieldsMap === undefined && !hasEditedContent) {
+    encryptedFieldsMap = textToEncryptedFieldConfig(
+      ENCRYPTED_FIELDS_MAP_PLACEHOLDER
+    );
+  }
+
   return (
     <div>
       <FormFieldContainer>
-        <Label htmlFor="TODO(COMPASS-5653)">EncryptedFieldConfigMap</Label>
-        <Description>
-          Add an optional client-side EncryptedFieldConfigMap for enhanced
-          security.
-        </Description>
+        <Label htmlFor="TODO(COMPASS-5653)">{label}</Label>
+        <Description>{description}</Description>
         <Editor
           variant="Shell"
-          text={encryptedFieldConfigToText(encryptedFieldConfig)}
-          onChangeText={(newText) =>
-            onChange(textToEncryptedFieldConfig(newText))
-          }
+          text={encryptedFieldConfigToText(encryptedFieldsMap)}
+          onChangeText={(newText) => {
+            setHasEditedContent(true);
+            onChange(textToEncryptedFieldConfig(newText));
+          }}
         />
       </FormFieldContainer>
       {errorMessage && (

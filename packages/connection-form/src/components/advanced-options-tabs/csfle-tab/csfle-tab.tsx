@@ -85,6 +85,9 @@ function CSFLETab({
   const autoEncryptionOptions =
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
+  const enableSchemaMapDebugFlag =
+    !!globalThis?.process?.env?.COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP;
+
   const errors = errorsByFieldTab(errors_, 'csfle');
 
   const handleFieldChanged = useCallback(
@@ -137,19 +140,6 @@ function CSFLETab({
           }
           spellCheck={false}
           description="Specify a collection in which data encryption keys are stored in the format <db>.<collection>."
-        />
-      </FormFieldContainer>
-      <FormFieldContainer>
-        <EncryptedFieldConfigInput
-          // TODO(COMPASS-5645): This says 'schemaMap', which is the
-          // FLE1 equivalent of the FLE2 'encryptedFieldConfig[Map?]'.
-          // Once 'encryptedFieldConfig' is available, we will start
-          // using it instead.
-          encryptedFieldConfig={autoEncryptionOptions?.schemaMap}
-          errorMessage={errorMessageByFieldName(errors, 'schemaMap')}
-          onChange={(value: Document | undefined) => {
-            handleFieldChanged('schemaMap', value);
-          }}
         />
       </FormFieldContainer>
       <FormFieldContainer>
@@ -213,6 +203,32 @@ function CSFLETab({
           );
         })}
       </FormFieldContainer>
+      <FormFieldContainer>
+        <EncryptedFieldConfigInput
+          label="EncryptedFieldsMap"
+          description="Add an optional client-side EncryptedFieldsMap for enhanced security."
+          // @ts-expect-error next driver release will have types
+          encryptedFieldsMap={autoEncryptionOptions?.encryptedFieldsMap}
+          errorMessage={errorMessageByFieldName(errors, 'encryptedFieldsMap')}
+          onChange={(value: Document | undefined) => {
+            // @ts-expect-error next driver release will have types
+            handleFieldChanged('encryptedFieldsMap', value);
+          }}
+        />
+      </FormFieldContainer>
+      {enableSchemaMapDebugFlag && (
+        <FormFieldContainer>
+          <EncryptedFieldConfigInput
+            label="SchemaMap"
+            description="Debug: SchemaMap"
+            encryptedFieldsMap={autoEncryptionOptions?.schemaMap}
+            errorMessage={errorMessageByFieldName(errors, 'schemaMap')}
+            onChange={(value: Document | undefined) => {
+              handleFieldChanged('schemaMap', value);
+            }}
+          />
+        </FormFieldContainer>
+      )}
     </div>
   );
 }

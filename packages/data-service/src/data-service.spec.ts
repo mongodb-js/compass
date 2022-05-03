@@ -1358,6 +1358,8 @@ describe('DataService', function () {
           autoEncryption: {
             keyVaultNamespace: 'abc.def',
             schemaMap: { 'a.b': {} },
+            // @ts-expect-error next driver release will have types
+            encryptedFieldsMap: { 'a.c': {} },
             kmsProviders: {
               aws: { accessKeyId: 'id', secretAccessKey: 'secret' },
               local: { key: 'secret' },
@@ -1370,7 +1372,7 @@ describe('DataService', function () {
         ).to.deep.equal({
           storeCredentials: false,
           keyVaultNamespace: 'abc.def',
-          schemaMapNamespaces: ['a.b'],
+          schemaMapNamespaces: ['a.b', 'a.c'],
           kmsProviders: ['aws', 'local'],
         });
       });

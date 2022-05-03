@@ -2399,9 +2399,11 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     if (kmsProviders.length === 0) return null;
     return {
       storeCredentials: fleOptions?.storeCredentials,
-      schemaMapNamespaces: Object.keys(
-        fleOptions?.autoEncryption?.schemaMap ?? {}
-      ),
+      encryptedFieldsMapNamespaces: Object.keys({
+        // @ts-expect-error next driver release will have types
+        ...fleOptions?.autoEncryption?.encryptedFieldsMap,
+        ...fleOptions?.autoEncryption?.schemaMap,
+      }),
       keyVaultNamespace: fleOptions?.autoEncryption.keyVaultNamespace,
       kmsProviders,
     };

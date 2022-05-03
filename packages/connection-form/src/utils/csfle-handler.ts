@@ -179,7 +179,9 @@ export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {
   return !!(
     o.bypassAutoEncryption ||
     o.keyVaultNamespace ||
-    o.schemaMap /* TODO(COMPASS-5645): encryptedFieldConfig */ ||
+    o.schemaMap ||
+    // @ts-expect-error next driver release will have types
+    o.encryptedFieldsMap ||
     [
       ...Object.values(o.tlsOptions ?? {}),
       ...Object.values(o.kmsProviders ?? {}),
@@ -245,10 +247,17 @@ export function adjustCSFLEParams(
 ): ConnectionOptions {
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryptionOptions = connectionOptions.fleOptions?.autoEncryption;
-  // TODO(COMPASS-5645): schemaMap -> encryptedFieldConfig[Map?]
   if (autoEncryptionOptions?.schemaMap?.['$compass.error'] === null) {
     autoEncryptionOptions.schemaMap = textToEncryptedFieldConfig(
       autoEncryptionOptions.schemaMap['$compass.rawText']
+    );
+  }
+  // @ts-expect-error next driver release will have types
+  if (autoEncryptionOptions?.encryptedFieldsMap?.['$compass.error'] === null) {
+    // @ts-expect-error next driver release will have types
+    autoEncryptionOptions.encryptedFieldsMap = textToEncryptedFieldConfig(
+      // @ts-expect-error next driver release will have types
+      autoEncryptionOptions.encryptedFieldsMap['$compass.rawText']
     );
   }
   return connectionOptions;
