@@ -21,7 +21,6 @@ class StageEditor extends Component {
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
     stageChanged: PropTypes.func.isRequired,
-    isAutoPreviewing: PropTypes.bool.isRequired,
     isValid: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
@@ -81,11 +80,6 @@ class StageEditor extends Component {
     if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
       // Focus the editor when the stage operator has changed.
       this.editor.focus();
-
-      // When the underlying stage operator changes, re-run the preview.
-      if (this.props.isAutoPreviewing) {
-        this.debounceRun();
-      }
     }
   }
 
