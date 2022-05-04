@@ -412,8 +412,6 @@ describe('Collection export', function () {
     expect(telemetry.screens()).to.include('export_modal');
   });
 
-  // Skipping for now because export to JSON seems to include the _id field even
-  // if we explicitly deselect it.
   it('supports full collection to JSON with a subset of fields', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
