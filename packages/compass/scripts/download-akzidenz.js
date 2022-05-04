@@ -102,7 +102,7 @@ const download = async(url, destDir) => {
 
     try {
       await fs.rmdir(CACHE_DIR, { recursive: true });
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
   } else {
     console.log(
       'Downloading %d fonts for package %s',
