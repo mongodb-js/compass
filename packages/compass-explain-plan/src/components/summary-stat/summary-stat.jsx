@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, IconButton } from '@mongodb-js/compass-components'
+import { Icon, IconButton } from '@mongodb-js/compass-components';
 
 import styles from './summary-stat.module.less';
 
@@ -14,7 +14,7 @@ class SummaryStat extends Component {
     dataTestId: PropTypes.string,
     dataLink: PropTypes.string, // Info sprinkle (optional)
     label: PropTypes.string.isRequired, // Label of the stat
-    value: PropTypes.any
+    value: PropTypes.any,
   };
 
   /**

@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import ExplainStage from '../explain-stage';
 import styles from './explain-stage.module.less';
 
-describe('ExplainStage [Component]', function() {
+describe('ExplainStage [Component]', function () {
   let component;
   const name = '';
   const nReturned = 1;
@@ -20,7 +20,7 @@ describe('ExplainStage [Component]', function() {
   const xoffset = 0;
   const yoffset = 0;
 
-  beforeEach(function() {
+  beforeEach(function () {
     component = mount(
       <ExplainStage
         name={name}
@@ -34,15 +34,16 @@ describe('ExplainStage [Component]', function() {
         x={x}
         y={y}
         xoffset={xoffset}
-        yoffset={yoffset} />
+        yoffset={yoffset}
+      />
     );
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the correct root classname', function() {
+  it('renders the correct root classname', function () {
     expect(component.find(`.${styles['explain-stage']}`)).to.be.present();
   });
 });

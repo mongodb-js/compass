@@ -4,18 +4,18 @@ import { expect } from 'chai';
 
 import FlexBox from '../flex-box';
 
-describe('FlexBox [Component]', function() {
+describe('FlexBox [Component]', function () {
   let component;
 
-  beforeEach(function() {
+  beforeEach(function () {
     component = mount(<FlexBox />);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the correct root classname', function() {
+  it('renders the correct root classname', function () {
     expect(component.find({ style: { display: 'flex' } })).to.be.present();
   });
 });

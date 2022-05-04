@@ -28,7 +28,7 @@ export const INITIAL_STATE = {
   nodes: [],
   links: [],
   width: 0,
-  height: 0
+  height: 0,
 };
 
 /**
@@ -43,17 +43,21 @@ export const INITIAL_STATE = {
  */
 const extractHighlights = (stage) => {
   switch (stage.name) {
-    case 'IXSCAN': return {
-      'Index Name': stage.details.indexName,
-      'Multi Key Index': stage.details.isMultiKey
-    };
-    case 'PROJECTION': return {
-      'Transform by': JSON.stringify(stage.details.transformBy)
-    };
-    case 'COLLSCAN': return {
-      'Documents Examined': stage.details.docsExamined
-    };
-    default: return {};
+    case 'IXSCAN':
+      return {
+        'Index Name': stage.details.indexName,
+        'Multi Key Index': stage.details.isMultiKey,
+      };
+    case 'PROJECTION':
+      return {
+        'Transform by': JSON.stringify(stage.details.transformBy),
+      };
+    case 'COLLSCAN':
+      return {
+        'Documents Examined': stage.details.docsExamined,
+      };
+    default:
+      return {};
   }
 };
 
@@ -76,16 +80,24 @@ const parseExplain = (parent, obj) => {
   const stage = {
     name: obj.stage || obj.shardName,
     nReturned: obj.nReturned,
-    curStageExecTimeMS: (obj.executionTimeMillisEstimate !== undefined)
-      ? obj.executionTimeMillisEstimate
-      : obj.executionTimeMillis,
-    details: omit(obj, ['inputStage', 'inputStages', 'shards', 'executionStages']),
+    curStageExecTimeMS:
+      obj.executionTimeMillisEstimate !== undefined
+        ? obj.executionTimeMillisEstimate
+        : obj.executionTimeMillis,
+    details: omit(obj, [
+      'inputStage',
+      'inputStages',
+      'shards',
+      'executionStages',
+    ]),
     x: obj.x,
     y: obj.y,
     depth: obj.depth,
     isShard: !!obj.shardName,
     parent,
-    children: [...ExplainPlan.getChildStages(obj)].map(child => parseExplain(parent, child))
+    children: [...ExplainPlan.getChildStages(obj)].map((child) =>
+      parseExplain(parent, child)
+    ),
   };
 
   // Extract highlights relevant for the current stage from details
@@ -141,15 +153,15 @@ const changeTreeStages = (state, action) => {
     explain.rawExplainObject.executionStats.executionStages
   );
 
-  const tree = d3.layout.flextree()
+  const tree = d3.layout
+    .flextree()
     .setNodeSizes(true)
     .nodeSize((d) => {
       const shardHeight = STAGE_CARD_PROPERTIES.SHARD_CARD_HEIGHT;
-      const notShardHeight = STAGE_CARD_PROPERTIES.DEFAULT_CARD_HEIGHT +
-        (
-          keys(d.highlights).length *
-          STAGE_CARD_PROPERTIES.HIGHLIGHT_FIELD_HEIGHT
-        );
+      const notShardHeight =
+        STAGE_CARD_PROPERTIES.DEFAULT_CARD_HEIGHT +
+        keys(d.highlights).length *
+          STAGE_CARD_PROPERTIES.HIGHLIGHT_FIELD_HEIGHT;
       let height = d.isShard ? shardHeight : notShardHeight;
 
       height += STAGE_CARD_PROPERTIES.VERTICAL_PADDING;
@@ -163,15 +175,22 @@ const changeTreeStages = (state, action) => {
   const links = tree.links(nodes);
 
   // compute some boundaries
-  const leafNode = maxBy(nodes, (o) => { return Number(o.depth); });
-  const rightMostNode = maxBy(nodes, (o) => { return Number(o.x); });
-  const leftMostNode = minBy(nodes, (o) => { return Number(o.x); });
+  const leafNode = maxBy(nodes, (o) => {
+    return Number(o.depth);
+  });
+  const rightMostNode = maxBy(nodes, (o) => {
+    return Number(o.x);
+  });
+  const leftMostNode = minBy(nodes, (o) => {
+    return Number(o.x);
+  });
 
   debug('stats', { leafNode, rightMostNode, leftMostNode });
 
   const xDelta = leftMostNode.x;
   const height = leafNode.y + leafNode.y_size;
-  const width = rightMostNode.x + rightMostNode.x_size - leftMostNode.x + 30 + 26;
+  const width =
+    rightMostNode.x + rightMostNode.x_size - leftMostNode.x + 30 + 26;
 
   // Compute current, previous and total execution times of all stages
   const totalExecTimeMS = computeExecTimes(nodes[0]);
@@ -197,7 +216,7 @@ const changeTreeStages = (state, action) => {
  * To not have a huge switch statement in the reducer.
  */
 const MAPPINGS = {
-  [TREE_STAGES_CHANGED]: changeTreeStages
+  [TREE_STAGES_CHANGED]: changeTreeStages,
 };
 
 /**
@@ -215,13 +234,13 @@ export default function reducer(state = INITIAL_STATE, action) {
 }
 
 /**
-* Action creator for the tree stages changed events.
-*
-* @param {Object} explain - The explain plan.
-*
-* @returns {Object} The explain plan fetched action.
-*/
+ * Action creator for the tree stages changed events.
+ *
+ * @param {Object} explain - The explain plan.
+ *
+ * @returns {Object} The explain plan fetched action.
+ */
 export const treeStagesChanged = (explain) => ({
   type: TREE_STAGES_CHANGED,
-  explain
+  explain,
 });

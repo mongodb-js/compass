@@ -9,8 +9,8 @@ import { ExplainTree } from '../explain-tree';
 import { ExplainJSON } from '../explain-json';
 import EXPLAIN_VIEWS from '../../constants/explain-views';
 
-describe('ExplainBody [Component]', function() {
-  context('when there is an error parsing the explain', function() {
+describe('ExplainBody [Component]', function () {
+  context('when there is an error parsing the explain', function () {
     let component;
     const explain = {
       viewType: EXPLAIN_VIEWS.tree,
@@ -22,28 +22,26 @@ describe('ExplainBody [Component]', function() {
       inMemorySort: false,
       indexType: 'UNAVAILABLE',
       index: null,
-      errorParsing: true
+      errorParsing: true,
     };
     const treeStages = {};
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
-        <ExplainBody
-          explain={explain}
-          treeStages={treeStages}
-        />);
+        <ExplainBody explain={explain} treeStages={treeStages} />
+      );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('render the time series banner', function() {
+    it('render the time series banner', function () {
       expect(component.find(ExplainCannotVisualizeBanner)).to.be.present();
     });
   });
 
-  context('when rendered with json view', function() {
+  context('when rendered with json view', function () {
     let component;
     const explain = {
       viewType: EXPLAIN_VIEWS.json,
@@ -54,32 +52,30 @@ describe('ExplainBody [Component]', function() {
       executionTimeMillis: 0,
       inMemorySort: false,
       indexType: 'UNAVAILABLE',
-      index: null
+      index: null,
     };
     const treeStages = {};
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
-        <ExplainBody
-          explain={explain}
-          treeStages={treeStages}
-        />);
+        <ExplainBody explain={explain} treeStages={treeStages} />
+      );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('does not render the ExplainSummary component', function() {
+    it('does not render the ExplainSummary component', function () {
       expect(component.find(ExplainSummary)).to.not.be.present();
     });
 
-    it('renders the ExplainJSON component', function() {
+    it('renders the ExplainJSON component', function () {
       expect(component.find(ExplainJSON)).to.be.present();
     });
   });
 
-  context('when rendered with tree view', function() {
+  context('when rendered with tree view', function () {
     let component;
     const explain = {
       viewType: EXPLAIN_VIEWS.tree,
@@ -90,35 +86,33 @@ describe('ExplainBody [Component]', function() {
       executionTimeMillis: 0,
       inMemorySort: false,
       indexType: 'UNAVAILABLE',
-      index: null
+      index: null,
     };
     const treeStages = {};
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
-        <ExplainBody
-          explain={explain}
-          treeStages={treeStages}
-        />);
+        <ExplainBody explain={explain} treeStages={treeStages} />
+      );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the ExplainSummary component', function() {
+    it('renders the ExplainSummary component', function () {
       expect(component.find(ExplainSummary)).to.be.present();
     });
 
-    it('does not render the ExplainJSON component', function() {
+    it('does not render the ExplainJSON component', function () {
       expect(component.find(ExplainJSON)).to.not.be.present();
     });
 
-    it('renders the ExplainTree component', function() {
+    it('renders the ExplainTree component', function () {
       expect(component.find(ExplainTree)).to.be.present();
     });
 
-    it('does not render the time series banner', function() {
+    it('does not render the time series banner', function () {
       expect(component.find(ExplainCannotVisualizeBanner)).to.not.be.present();
     });
   });

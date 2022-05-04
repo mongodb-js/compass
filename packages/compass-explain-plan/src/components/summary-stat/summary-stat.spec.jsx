@@ -5,20 +5,21 @@ import { expect } from 'chai';
 import SummaryStat from '../summary-stat';
 import styles from './summary-stat.module.less';
 
-describe('SummaryStat [Component]', function() {
+describe('SummaryStat [Component]', function () {
   let component;
-  const dataLink = 'https://docs.mongodb.com/master/reference/explain-results/#explain.executionStats.nReturned';
+  const dataLink =
+    'https://docs.mongodb.com/master/reference/explain-results/#explain.executionStats.nReturned';
   const label = 'Documents Returned:';
 
-  beforeEach(function() {
+  beforeEach(function () {
     component = mount(<SummaryStat dataLink={dataLink} label={label} />);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the correct root classname', function() {
+  it('renders the correct root classname', function () {
     expect(component.find(`.${styles['summary-stat']}`)).to.be.present();
   });
 });

@@ -1,10 +1,13 @@
 import { combineReducers } from 'redux';
 
 import appRegistry, {
-  INITIAL_STATE as APP_REGISTRY_STATE
+  INITIAL_STATE as APP_REGISTRY_STATE,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import dataService, { INITIAL_STATE as DS_STATE } from './data-service';
-import namespace, { INITIAL_STATE as NAMESPACE_STATE, NAMESPACE_CHANGED } from './namespace';
+import namespace, {
+  INITIAL_STATE as NAMESPACE_STATE,
+  NAMESPACE_CHANGED,
+} from './namespace';
 import isEditable, { INITIAL_STATE as IS_EDITABLE_STATE } from './edit-mode';
 import explain, { INITIAL_STATE as EXPLAIN_STATE } from './explain';
 import indexes, { INITIAL_STATE as INDEXES_STATE } from './indexes';
@@ -27,7 +30,7 @@ export const INITIAL_STATE = {
   explain: EXPLAIN_STATE,
   indexes: INDEXES_STATE,
   query: QUERY_STATE,
-  treeStages: TREE_STAGES_STATE
+  treeStages: TREE_STAGES_STATE,
 };
 
 /**
@@ -41,7 +44,7 @@ const appReducer = combineReducers({
   explain,
   indexes,
   query,
-  treeStages
+  treeStages,
 });
 
 /**
@@ -63,7 +66,7 @@ const doNamespaceChanged = (state, action) => {
   const newState = {
     ...INITIAL_STATE,
     dataService: state.dataService,
-    appRegistry: state.appRegistry
+    appRegistry: state.appRegistry,
   };
 
   return appReducer(newState, action);
@@ -74,7 +77,7 @@ const doNamespaceChanged = (state, action) => {
  */
 const MAPPINGS = {
   [NAMESPACE_CHANGED]: doNamespaceChanged,
-  [RESET]: doReset
+  [RESET]: doReset,
 };
 
 /**

@@ -7,7 +7,7 @@ import {
   switchToJSONView,
   fetchExplainPlan,
   changeExplainPlanState,
-  explainStateChanged
+  explainStateChanged,
 } from '../../modules/explain';
 import ExplainStates from '../explain-states';
 import { queryExecuted } from '../../modules/query';
@@ -41,32 +41,27 @@ class ExplainPlan extends Component {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) => pick(
-  state,
-  [
+const mapStateToProps = (state) =>
+  pick(state, [
     'namespace',
     'isEditable',
     'explain',
     'treeStages',
-    'appRegistry'
-  ]
-);
+    'appRegistry',
+  ]);
 
 /**
  * Connects the redux store to the component (dispatch)
  */
-const MappedExplainPlan = connect(
-  mapStateToProps,
-  {
-    namespaceChanged,
-    switchToTreeView,
-    switchToJSONView,
-    fetchExplainPlan,
-    changeExplainPlanState,
-    explainStateChanged,
-    queryExecuted
-  },
-)(ExplainPlan);
+const MappedExplainPlan = connect(mapStateToProps, {
+  namespaceChanged,
+  switchToTreeView,
+  switchToJSONView,
+  fetchExplainPlan,
+  changeExplainPlanState,
+  explainStateChanged,
+  queryExecuted,
+})(ExplainPlan);
 
 export default MappedExplainPlan;
 export { ExplainPlan };

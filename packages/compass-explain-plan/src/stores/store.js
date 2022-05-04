@@ -9,7 +9,7 @@ import { queryChanged } from '../modules/query';
 import { explainStateChanged } from '../modules/explain';
 import {
   localAppRegistryActivated,
-  globalAppRegistryActivated
+  globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import EXPLAIN_STATES from '../constants/explain-states';
@@ -50,7 +50,10 @@ const configureStore = (options = {}) => {
       if (name === 'Explain Plan') {
         const state = store.getState();
 
-        if (state.query.isChanged === true && state.explain.explainState !== EXPLAIN_STATES.INITIAL) {
+        if (
+          state.query.isChanged === true &&
+          state.explain.explainState !== EXPLAIN_STATES.INITIAL
+        ) {
           store.dispatch(explainStateChanged(EXPLAIN_STATES.OUTDATED));
         }
       }

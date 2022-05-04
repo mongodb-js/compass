@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
-import { Icon, IconButton } from '@mongodb-js/compass-components'
+import { Icon, IconButton } from '@mongodb-js/compass-components';
 
 import { IndexDefinitionType } from '../index-definition-type';
 import INDEX_TYPES from '../../constants/index-types';
@@ -17,8 +17,8 @@ class SummaryIndexStat extends Component {
   static propTypes = {
     dataLink: PropTypes.string, // Info sprinkle (optional)
     indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
-    index: PropTypes.object
-  }
+    index: PropTypes.object,
+  };
 
   /**
    * Returns the message.
@@ -30,7 +30,7 @@ class SummaryIndexStat extends Component {
       COLLSCAN: 'No index available for this query.',
       COVERED: 'Query covered by index:',
       MULTIPLE: 'Shard results differ (see details below)',
-      INDEX: 'Query used the following index:'
+      INDEX: 'Query used the following index:',
     };
 
     return typeToMessage[this.props.indexType];
@@ -45,21 +45,23 @@ class SummaryIndexStat extends Component {
     const greenCheckMark = (
       <FontAwesome
         fixedWidth
-        style={{color: '#507b32'}}
-        name="check-circle" />
+        style={{ color: '#507b32' }}
+        name="check-circle"
+      />
     );
     const yellowWarning = (
       <FontAwesome
         fixedWidth
-        style={{color: '#fbb129'}}
-        name="exclamation-triangle" />
+        style={{ color: '#fbb129' }}
+        name="exclamation-triangle"
+      />
     );
     const typeToIcon = {
       COLLSCAN: yellowWarning,
       COVERED: greenCheckMark,
       MULTIPLE: yellowWarning,
       INDEX: null,
-      UNAVAILABLE: null
+      UNAVAILABLE: null,
     };
 
     return typeToIcon[this.props.indexType];
@@ -76,7 +78,7 @@ class SummaryIndexStat extends Component {
       COVERED: '#507b32',
       MULTIPLE: '#7F6A4E',
       INDEX: '#000',
-      UNAVAILABLE: '#000'
+      UNAVAILABLE: '#000',
     };
 
     return typeToColor[this.props.indexType];
@@ -103,11 +105,13 @@ class SummaryIndexStat extends Component {
           </span>
           <span
             className={styles['summary-index-stat-index-message']}
-            style={{color: this.getIndexMessageColor()}}
+            style={{ color: this.getIndexMessageColor() }}
           >
             {this.getIndexMessageText()}
           </span>
-          {this.props.index ? <IndexDefinitionType index={this.props.index} /> : null}
+          {this.props.index ? (
+            <IndexDefinitionType index={this.props.index} />
+          ) : null}
         </div>
       </div>
     );

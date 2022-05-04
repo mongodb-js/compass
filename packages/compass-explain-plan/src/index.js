@@ -7,7 +7,7 @@ const ROLE = {
   order: 4,
   configureStore: configureStore,
   configureActions: () => {},
-  storeName: 'ExplainPlan.Store'
+  storeName: 'ExplainPlan.Store',
 };
 
 /**

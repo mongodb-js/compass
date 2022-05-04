@@ -29,10 +29,10 @@ class ExplainBody extends Component {
       index: PropTypes.object,
       viewType: PropTypes.string.isRequired,
       rawExplainObject: PropTypes.object.isRequired,
-      originalExplainData: PropTypes.object.isRequired
+      originalExplainData: PropTypes.object.isRequired,
     }),
-    treeStages: PropTypes.object.isRequired
-  }
+    treeStages: PropTypes.object.isRequired,
+  };
 
   /**
    * Renders ExplainSummary Component.
@@ -40,14 +40,11 @@ class ExplainBody extends Component {
    * @returns {React.Component} The Summary part of the explain view.
    */
   renderSummary() {
-    if (this.props.explain.viewType !== EXPLAIN_VIEWS.json
-      && !this.props.explain.errorParsing
+    if (
+      this.props.explain.viewType !== EXPLAIN_VIEWS.json &&
+      !this.props.explain.errorParsing
     ) {
-      return (
-        <ExplainSummary
-          {...this.props.explain}
-        />
-      );
+      return <ExplainSummary {...this.props.explain} />;
     }
   }
 
@@ -59,13 +56,13 @@ class ExplainBody extends Component {
   renderDetailsView() {
     if (this.props.explain.viewType === EXPLAIN_VIEWS.json) {
       return (
-        <ExplainJSON originalExplainData={this.props.explain.originalExplainData} />
+        <ExplainJSON
+          originalExplainData={this.props.explain.originalExplainData}
+        />
       );
     }
 
-    return (
-      <ExplainTree {...this.props.treeStages} />
-    );
+    return <ExplainTree {...this.props.treeStages} />;
   }
 
   /**
@@ -79,10 +76,9 @@ class ExplainBody extends Component {
     return (
       <div className={styles['explain-body']}>
         {this.renderSummary()}
-        {explain.errorParsing
-          && explain.viewType === EXPLAIN_VIEWS.tree
-          && <ExplainCannotVisualizeBanner />
-        }
+        {explain.errorParsing && explain.viewType === EXPLAIN_VIEWS.tree && (
+          <ExplainCannotVisualizeBanner />
+        )}
         {this.renderDetailsView()}
       </div>
     );

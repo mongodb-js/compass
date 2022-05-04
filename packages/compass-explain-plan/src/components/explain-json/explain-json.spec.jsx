@@ -8,27 +8,25 @@ import ExplainJSON from '../explain-json';
 
 import styles from './explain-json.module.less';
 
-describe('ExplainJSON [Component]', function() {
+describe('ExplainJSON [Component]', function () {
   let component;
   const originalExplainData = {};
   const appRegistry = new AppRegistry();
 
-  beforeEach(function() {
-    component = mount(
-      <ExplainJSON rawExplainObject={originalExplainData} />
-    );
+  beforeEach(function () {
+    component = mount(<ExplainJSON rawExplainObject={originalExplainData} />);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  before(function() {
+  before(function () {
     global.hadronApp = hadronApp;
     global.hadronApp.appRegistry = appRegistry;
   });
 
-  it('renders the correct root classname', function() {
+  it('renders the correct root classname', function () {
     expect(component.find(`.${styles['explain-json']}`)).to.be.present();
   });
 });

@@ -4,7 +4,6 @@ import { map } from 'lodash';
 
 import styles from './index-definition-type.module.less';
 
-
 /**
  * The IndexDefinitionType component.
  */
@@ -12,8 +11,8 @@ class IndexDefinitionType extends Component {
   static displayName = 'IndexDefinitionType';
 
   static propTypes = {
-    index: PropTypes.object.isRequired
-  }
+    index: PropTypes.object.isRequired,
+  };
 
   /**
    * Renders the direction of the index field.
@@ -41,7 +40,9 @@ class IndexDefinitionType extends Component {
 
     return (
       <span className={styles['index-definition-type-pair-field-type']}>
-        {field.value._bsontype ? this.renderBsonValue(field.value) : field.value}
+        {field.value._bsontype
+          ? this.renderBsonValue(field.value)
+          : field.value}
       </span>
     );
   }
@@ -86,9 +87,7 @@ class IndexDefinitionType extends Component {
 
     return (
       <div className={styles['index-definition']}>
-        <p className={styles['index-definition-type']}>
-          {fields}
-        </p>
+        <p className={styles['index-definition-type']}>{fields}</p>
       </div>
     );
   }

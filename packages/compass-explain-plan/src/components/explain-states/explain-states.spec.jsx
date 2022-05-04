@@ -7,13 +7,13 @@ import { expect } from 'chai';
 import ExplainStates from '../explain-states';
 import styles from './explain-states.module.less';
 
-describe('ExplainStates [Component]', function() {
+describe('ExplainStates [Component]', function () {
   let component;
   const appRegistry = new AppRegistry();
 
   class QueryBar extends React.Component {
     render() {
-      return (<div id="queryBar">Query Bar</div>);
+      return <div id="queryBar">Query Bar</div>;
     }
   }
 
@@ -28,7 +28,7 @@ describe('ExplainStates [Component]', function() {
     inMemorySort: false,
     indexType: 'UNAVAILABLE',
     index: null,
-    explainState: 'initial'
+    explainState: 'initial',
   };
   const fetchExplainPlanSpy = sinon.spy();
   const changeExplainPlanStateSpy = sinon.spy();
@@ -38,11 +38,11 @@ describe('ExplainStates [Component]', function() {
   const query = {};
   const treeStages = {};
 
-  beforeEach(function() {
+  beforeEach(function () {
     appRegistry.registerRole('Query.QueryBar', {
       component: QueryBar,
       configureStore: () => {},
-      configureActions: () => {}
+      configureActions: () => {},
     });
     component = mount(
       <ExplainStates
@@ -55,19 +55,20 @@ describe('ExplainStates [Component]', function() {
         appRegistry={{ localAppRegistry: appRegistry }}
         isEditable={isEditable}
         treeStages={treeStages}
-        queryExecuted={queryExecuted} />
+        queryExecuted={queryExecuted}
+      />
     );
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the wrapper div', function() {
+  it('renders the wrapper div', function () {
     expect(component.find(`.${styles['controls-container']}`)).to.be.present();
   });
 
-  it('renders the read only banner', function() {
+  it('renders the read only banner', function () {
     expect(component.find('StatusRow')).to.be.present();
   });
 });

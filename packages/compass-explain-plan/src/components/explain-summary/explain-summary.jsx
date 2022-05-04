@@ -22,7 +22,7 @@ const HELP_URLS = {
   DOCS_EXAMINED: `${BASE_URL}#explain.executionStats.totalDocsExamined`,
   EXECUTION_TIME: `${BASE_URL}#explain.executionStats.executionTimeMillis`,
   SORT_STAGE: `${BASE_URL}#sort-stage`,
-  INDEX_USED: `${BASE_URL}#collection-scan`
+  INDEX_USED: `${BASE_URL}#collection-scan`,
 };
 
 /**
@@ -38,8 +38,8 @@ class ExplainSummary extends Component {
     executionTimeMillis: PropTypes.number.isRequired,
     inMemorySort: PropTypes.bool.isRequired,
     indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
-    index: PropTypes.object
-  }
+    index: PropTypes.object,
+  };
 
   /**
    * Renders ExplainSummary component.

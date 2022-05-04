@@ -6,8 +6,8 @@ import ExplainPlan from './components/explain-plan';
 class Plugin extends Component {
   static displayName = 'ExplainPlanPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.
