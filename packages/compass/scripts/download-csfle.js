@@ -82,6 +82,7 @@ const download = async(url, destDir) => {
   }
 
   console.log('Downloading csfle artifact', artifactInfo, 'to', CSFLE_DIRECTORY);
+  await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
   const artifactPath = await download(artifactInfo.url, CSFLE_DIRECTORY);
 
   if (artifactInfo.ext === 'zip') {
