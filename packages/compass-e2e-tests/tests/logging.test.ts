@@ -5,7 +5,7 @@ import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry, LogEntry } from '../helpers/telemetry';
 
 describe('Logging and Telemetry integration', function () {
-  describe('after running an example path through Compass', function () {
+  describe.only('after running an example path through Compass', function () {
     let logs: LogEntry[];
     let telemetry: Telemetry;
 
@@ -134,6 +134,17 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.platform).to.equal(process.platform);
             expect(actual.arch).to.equal(process.arch);
           },
+        },
+        {
+          s: 'I',
+          c: 'COMPASS-MAIN',
+          id: 1_001_000_125,
+          ctx: 'CSFLE',
+          msg: 'Found CSFLE library',
+          attr: (actual: any) => {
+            expect(actual.csfleLibraryPath).to.be.a('string');
+            expect(actual.csfleLibraryPath).to.include('mongo_csfle_v1');
+          }
         },
         {
           s: 'I',

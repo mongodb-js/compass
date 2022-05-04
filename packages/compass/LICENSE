@@ -553,5 +553,8 @@
   waiver of all civil liability in connection with the Program, unless a
   warranty or assumption of liability accompanies a copy of the Program in
   return for a fee.
-  
+
                         END OF TERMS AND CONDITIONS
+
+This product also includes the MongoDB Client-Side Field-Level Encryption library
+(mongodb_csfle_v1) which is covered by the MongoDB Enterprise Agreement.

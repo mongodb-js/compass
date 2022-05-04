@@ -8,6 +8,7 @@ import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
+import { setupCSFLELibrary } from './setup-csfle-library';
 
 const debug = createDebug('mongodb-compass:main:application');
 
@@ -37,6 +38,7 @@ class CompassApplication {
       this.setupTelemetry(),
     ]);
 
+    await setupCSFLELibrary();
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();

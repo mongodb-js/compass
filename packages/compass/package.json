@@ -106,7 +106,8 @@
           "**/node-addon-api/**",
           "**/win-export-certificate-and-key/**",
           "**/macos-export-certificate-and-key/**",
-          "**/system-ca/**"
+          "**/system-ca/**",
+          "**/mongo_csfle_v1.*"
         ]
       },
       "rebuild": {
@@ -221,6 +222,7 @@
     "darkreader": "^4.9.40",
     "debug": "4.3.0",
     "debug-menu": "^0.3.0",
+    "decompress": "^4.2.1",
     "depcheck": "^1.4.1",
     "electron": "^13.5.1",
     "electron-devtools-installer": "^3.2.0",
@@ -261,6 +263,7 @@
     "sinon": "^8.1.1",
     "sinon-chai": "^3.7.0",
     "storage-mixin": "^4.14.0",
+    "tar": "^6.1.11",
     "uuid": "^3.0.0",
     "web-vitals": "^2.1.2"
   },

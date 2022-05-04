@@ -7,7 +7,9 @@
 /* eslint-disable no-console */
 const os = require('os');
 const path = require('path');
-const { promises: fs } = require('fs');
+const { promises: fs, createWriteStream } = require('fs');
+const { pipeline } = require('stream');
+const { promisify } = require('util');
 
 const PACKAGE_ROOT = process.cwd();
 
@@ -76,7 +78,7 @@ const download = async(url, destDir) => {
   }
 
   if (!UPDATE_CACHE) {
-    await fs.writeFile(destFilePath, await res.buffer());
+    await promisify(pipeline)(res.body, createWriteStream(destFilePath));
   }
 };
 
