@@ -1,14 +1,16 @@
-@import (reference) "font-awesome/less/font-awesome.less";
 @import (reference) "mongodb-compass/src/app/styles/index.less";
 
 .summary-index-stat {
   font-size: 14px;
-  padding: 6px 0;
+  padding: 4px 0;
   border-top: 1px solid @gray7;
-  height: 50px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-  &-is-index {
+  &-index {
     height: 50px;
+    padding: 4px 0;
   }
 
   &-label {
@@ -22,36 +24,12 @@
   }
 
   &-info-sprinkle {
-    .fa-icon();
-    margin-right: 5px;
-    cursor: pointer;
+    margin-right: 2px;
     color: @gray6;
-    font-size: 12px;
-
-    &:hover {
-      color: @chart1;
-    }
-
-    &:before {
-      content: @fa-var-info-circle;
-    }
   }
 
   &-index-icon {
     color: @alertOrange;
     margin-right: 5px;
-  }
-
-  // has-nreturned modifier changes the value to a blue bubble
-  &-has-nreturned {
-    .summary-stat-value {
-      color: @pw;
-      background: @chart1;
-      font-weight: bold;
-      padding: 2px 6px;
-      font-size: 14px;
-      line-height: 1;
-      border-radius: 20px;
-    }
   }
 }

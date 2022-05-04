@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
-import classnames from 'classnames';
-import { IndexDefinitionType } from '../index-definition-type';
+import { Icon, IconButton } from '@mongodb-js/compass-components'
 
+import { IndexDefinitionType } from '../index-definition-type';
 import INDEX_TYPES from '../../constants/index-types';
 
 import styles from './summary-index-stat.module.less';
@@ -17,8 +17,7 @@ class SummaryIndexStat extends Component {
   static propTypes = {
     dataLink: PropTypes.string, // Info sprinkle (optional)
     indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
-    index: PropTypes.object,
-    openLink: PropTypes.func.isRequired
+    index: PropTypes.object
   }
 
   /**
@@ -89,28 +88,27 @@ class SummaryIndexStat extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const dataLink = this.props.dataLink;
-
     return (
-      <div className={classnames(
-        styles['summary-index-stat'],
-        styles['summary-stat-is-index']
-      )}>
-        <i
-          className={classnames(styles['summary-index-stat-info-sprinkle'])}
-          onClick={this.props.openLink.bind(this, dataLink)} />
-        <span>
-          <span className={classnames(styles['summary-index-stat-index-icon'])}>
+      <div className={styles['summary-index-stat']}>
+        <IconButton
+          className={styles['summary-index-stat-info-sprinkle']}
+          href={this.props.dataLink}
+          aria-label="More information on index usage in explain results"
+        >
+          <Icon glyph="InfoWithCircle" size="small" />
+        </IconButton>
+        <div className={this.props.index && styles['summary-index-stat-index']}>
+          <span className={styles['summary-index-stat-index-icon']}>
             {this.getIndexMessageIcon()}
           </span>
           <span
-            className={classnames(styles['summary-index-stat-index-message'])}
+            className={styles['summary-index-stat-index-message']}
             style={{color: this.getIndexMessageColor()}}
           >
             {this.getIndexMessageText()}
           </span>
-        </span>
-        {this.props.index ? <IndexDefinitionType index={this.props.index} /> : null}
+          {this.props.index ? <IndexDefinitionType index={this.props.index} /> : null}
+        </div>
       </div>
     );
   }

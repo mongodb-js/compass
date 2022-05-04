@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 
@@ -26,7 +25,7 @@ class IndexDefinitionType extends Component {
   renderDirection(field) {
     if (field.value === 1) {
       return (
-        <span className={classnames(styles['index-definition-type-pair-field-sort'])}>
+        <span className={styles['index-definition-type-pair-field-sort']}>
           <i className="fa fa-arrow-circle-up fa-lg" />
         </span>
       );
@@ -34,14 +33,14 @@ class IndexDefinitionType extends Component {
 
     if (field.value === -1) {
       return (
-        <span className={classnames(styles['index-definition-type-pair-field-sort'])}>
+        <span className={styles['index-definition-type-pair-field-sort']}>
           <i className="fa fa-arrow-circle-down fa-lg" />
         </span>
       );
     }
 
     return (
-      <span className={classnames(styles['index-definition-type-pair-field-type'])}>
+      <span className={styles['index-definition-type-pair-field-type']}>
         {field.value._bsontype ? this.renderBsonValue(field.value) : field.value}
       </span>
     );
@@ -77,8 +76,8 @@ class IndexDefinitionType extends Component {
    */
   render() {
     const fields = map(this.props.index.fields.serialize(), (field) => (
-      <span key={field.field} className={classnames(styles['index-definition-type-pair'])}>
-        <span className={classnames(styles['index-definition-type-pair-field'])}>
+      <span key={field.field} className={styles['index-definition-type-pair']}>
+        <span className={styles['index-definition-type-pair-field']}>
           {field.field}
           {this.renderDirection(field)}
         </span>
@@ -86,8 +85,8 @@ class IndexDefinitionType extends Component {
     ));
 
     return (
-      <div className={classnames(styles['index-definition'])}>
-        <p className={classnames(styles['index-definition-type'])}>
+      <div className={styles['index-definition']}>
+        <p className={styles['index-definition-type']}>
           {fields}
         </p>
       </div>
