@@ -1372,7 +1372,7 @@ describe('DataService', function () {
         ).to.deep.equal({
           storeCredentials: false,
           keyVaultNamespace: 'abc.def',
-          encryptedFieldsMapNamespaces: ['a.b', 'a.c'],
+          encryptedFieldsMapNamespaces: ['a.c', 'a.b'],
           kmsProviders: ['aws', 'local'],
         });
       });
