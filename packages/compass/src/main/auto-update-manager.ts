@@ -41,7 +41,7 @@ class CompassAutoUpdateManager {
         'CompassAutoUpdateManager',
         'Skipping setup for unknown product',
         {
-          productId: product,
+          productId: process.env.HADRON_PRODUCT,
         }
       );
 
@@ -55,7 +55,7 @@ class CompassAutoUpdateManager {
         'CompassAutoUpdateManager',
         'Skipping setup on unknown platform',
         {
-          platformId: platform,
+          platformId: process.platform,
         }
       );
 
