@@ -122,7 +122,7 @@ import countDocuments, {
 import workspace, {
   INITIAL_STATE as WORKSPACE_INITIAL_STATE
 } from './workspace';
-import instanceId from './instance-id';
+import aggregationWorkspaceId from './aggregation-workspace-id';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -255,7 +255,7 @@ const appReducer = combineReducers({
   aggregation,
   workspace,
   countDocuments,
-  instanceId
+  aggregationWorkspaceId
 });
 
 export type RootState = ReturnType<typeof appReducer>;
@@ -271,7 +271,7 @@ export type RootState = ReturnType<typeof appReducer>;
 const doNamespaceChanged = (state: RootState, action: AnyAction) => {
   const newState = {
     ...INITIAL_STATE,
-    instanceId: state.instanceId,
+    aggregationWorkspaceId: state.aggregationWorkspaceId,
     env: state.env,
     isTimeSeries: state.isTimeSeries,
     isReadonly: state.isReadonly,
@@ -293,7 +293,7 @@ const doNamespaceChanged = (state: RootState, action: AnyAction) => {
  */
 const doReset= (state: RootState) => ({
   ...INITIAL_STATE,
-  instanceId: state.instanceId
+  aggregationWorkspaceId: state.aggregationWorkspaceId
 });
 
 /**
@@ -321,7 +321,7 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
 
   return {
     ...INITIAL_STATE,
-    instanceId: state.instanceId,
+    aggregationWorkspaceId: state.aggregationWorkspaceId,
     appRegistry: state.appRegistry,
     namespace: savedState.namespace,
     env: savedState.env,
@@ -390,7 +390,7 @@ const doClearPipeline = (state: RootState): RootState => ({
  */
 const createNewPipeline = (state: RootState): RootState => ({
   ...INITIAL_STATE,
-  instanceId: state.instanceId,
+  aggregationWorkspaceId: state.aggregationWorkspaceId,
   appRegistry: state.appRegistry,
   namespace: state.namespace,
   env: state.env,

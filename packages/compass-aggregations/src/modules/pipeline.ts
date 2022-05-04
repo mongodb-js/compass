@@ -843,7 +843,7 @@ const executeAggregation = (
   getState: () => RootState,
   index: number
 ) => {
-  const id = `${getState().instanceId}::${index}`;
+  const id = `${getState().aggregationWorkspaceId}::${index}`;
   const dispatch = getCancelableExecuteAggDispatch(id, _dispatch);
   const debouncedExecuteAgg = getDebouncedExecuteAgg(id);
   debouncedExecuteAgg(dataService, ns, dispatch, getState, index);
@@ -853,12 +853,12 @@ export const clearExecuteAggregation = (
   index?: number
 ): ThunkAction<void, RootState, void, AnyAction> => {
   return (_dispatch, getState) => {
-    const { instanceId } = getState();
+    const { aggregationWorkspaceId } = getState();
 
     const shouldCancel =
       typeof index === 'number'
-        ? (key: string) => key === `${instanceId}::${String(index)}`
-        : (key: string) => key.startsWith(`${instanceId}::`);
+        ? (key: string) => key === `${aggregationWorkspaceId}::${String(index)}`
+        : (key: string) => key.startsWith(`${aggregationWorkspaceId}::`);
 
     for (const [key, debounced] of ExecuteAggDebounceMap.entries()) {
       if (shouldCancel(key)) {
