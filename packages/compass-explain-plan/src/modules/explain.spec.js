@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import { omit } from 'lodash';
 
 import reducer, {
@@ -37,9 +38,9 @@ const explainExample = {
   viewType: 'tree'
 };
 
-describe('explain module', () => {
-  describe('#switchToTreeView', () => {
-    it('returns the SWITCHED_TO_TREE_VIEW action', () => {
+describe('explain module', function() {
+  describe('#switchToTreeView', function() {
+    it('returns the SWITCHED_TO_TREE_VIEW action', function() {
       expect(switchToTreeView()).to.deep.equal({
         type: SWITCHED_TO_TREE_VIEW,
         viewType: 'tree'
@@ -47,8 +48,8 @@ describe('explain module', () => {
     });
   });
 
-  describe('#switchToJSONView', () => {
-    it('returns the SWITCHED_TO_JSON_VIEW action', () => {
+  describe('#switchToJSONView', function() {
+    it('returns the SWITCHED_TO_JSON_VIEW action', function() {
       expect(switchToJSONView()).to.deep.equal({
         type: SWITCHED_TO_JSON_VIEW,
         viewType: 'json'
@@ -56,8 +57,8 @@ describe('explain module', () => {
     });
   });
 
-  describe('#explainStateChanged', () => {
-    it('returns the EXPLAIN_STATE_CHANGED action', () => {
+  describe('#explainStateChanged', function() {
+    it('returns the EXPLAIN_STATE_CHANGED action', function() {
       expect(explainStateChanged('executed')).to.deep.equal({
         type: EXPLAIN_STATE_CHANGED,
         explainState: 'executed'
@@ -65,8 +66,8 @@ describe('explain module', () => {
     });
   });
 
-  describe('#explainPlanFetched', () => {
-    it('returns the EXPLAIN_PLAN_FETCHED action', () => {
+  describe('#explainPlanFetched', function() {
+    it('returns the EXPLAIN_PLAN_FETCHED action', function() {
       expect(explainPlanFetched(explainExample)).to.deep.equal({
         type: EXPLAIN_PLAN_FETCHED,
         explain: explainExample
@@ -74,8 +75,8 @@ describe('explain module', () => {
     });
   });
 
-  describe('#isAggregationExplainOutput', () => {
-    context('with regular find explain output', () => {
+  describe('#isAggregationExplainOutput', function() {
+    context('with regular find explain output', function() {
       const basicFindExplainOutput = {
         explainVersion: '1',
         queryPlanner: {
@@ -89,12 +90,12 @@ describe('explain module', () => {
         }
       };
 
-      it('returns false', () => {
+      it('returns false', function() {
         expect(isAggregationExplainOutput(basicFindExplainOutput)).to.equal(false);
       });
     });
 
-    context('with time series collection find explain output', () => {
+    context('with time series collection find explain output', function() {
       const basicFindExplainOutput = {
         explainVersion: '1',
         stages: [{
@@ -109,15 +110,15 @@ describe('explain module', () => {
         }]
       };
 
-      it('returns true', () => {
+      it('returns true', function() {
         expect(isAggregationExplainOutput(basicFindExplainOutput)).to.equal(true);
       });
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is not presented in the explain module', () => {
-      it('returns the default state', () => {
+  describe('#reducer', function() {
+    context('when the action is not presented in the explain module', function() {
+      it('returns the default state', function() {
         const result = reducer(undefined, { type: 'test' });
 
         // resultId is a random number
@@ -150,32 +151,32 @@ describe('explain module', () => {
       });
     });
 
-    context('when the action is switchToTreeView', () => {
-      it('returns the new state', () => {
+    context('when the action is switchToTreeView', function() {
+      it('returns the new state', function() {
         const explain = reducer(undefined, switchToTreeView());
 
         expect(explain.viewType).to.equal('tree');
       });
     });
 
-    context('when the action is switchToJSONView', () => {
-      it('returns the new state', () => {
+    context('when the action is switchToJSONView', function() {
+      it('returns the new state', function() {
         const explain = reducer(undefined, switchToJSONView());
 
         expect(explain.viewType).to.equal('json');
       });
     });
 
-    context('when the action is explainStateChanged', () => {
-      it('returns the new state', () => {
+    context('when the action is explainStateChanged', function() {
+      it('returns the new state', function() {
         const explain = reducer(undefined, explainStateChanged('initial'));
 
         expect(explain.explainState).to.equal('initial');
       });
     });
 
-    context('when the action is explainPlanFetched', () => {
-      it('returns the new state', () => {
+    context('when the action is explainPlanFetched', function() {
+      it('returns the new state', function() {
         const explain = reducer(undefined, explainPlanFetched(explainExample));
 
         expect(omit(explain, 'resultId')).to.deep.equal(explainExample);

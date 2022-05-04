@@ -1,8 +1,10 @@
+import { expect } from 'chai';
+
 import reducer, { queryChanged, QUERY_CHANGED } from './query';
 
-describe('query module', () => {
-  describe('#queryChanged', () => {
-    it('returns the QUERY_CHANGED action', () => {
+describe('query module', function() {
+  describe('#queryChanged', function() {
+    it('returns the QUERY_CHANGED action', function() {
       const query = {
         filter: {},
         sort: null,
@@ -16,9 +18,9 @@ describe('query module', () => {
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is not query changed', () => {
-      it('returns the default state', () => {
+  describe('#reducer', function() {
+    context('when the action is not query changed', function() {
+      it('returns the default state', function() {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           filter: {},
           sort: null,
@@ -32,8 +34,8 @@ describe('query module', () => {
       });
     });
 
-    context('when the action is query changed', () => {
-      it('returns the new state', () => {
+    context('when the action is query changed', function() {
+      it('returns the new state', function() {
         const query = {
           filter: {},
           sort: null,

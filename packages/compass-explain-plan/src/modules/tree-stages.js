@@ -7,6 +7,7 @@ import { format } from 'util';
 const debug = require('debug')('mongodb-compass:stores:explain-tree-stages');
 
 // This plugin allows for tree layout of variable-sized nodes
+// eslint-disable-next-line no-undef
 window.d3 = global.d3 = d3;
 require('d3-flextree/dist/d3-flextree.js');
 

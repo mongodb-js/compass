@@ -1,6 +1,8 @@
+import { expect } from 'chai';
 import { omit } from 'lodash';
 import AppRegistry from 'hadron-app-registry';
 import { activate } from '@mongodb-js/compass-field-store';
+
 import configureStore from './';
 import {
   switchToTreeView,
@@ -10,11 +12,11 @@ import {
 } from '../modules/explain';
 import { treeStagesChanged } from '../modules/tree-stages';
 
-describe('Explain Plan Store', () => {
+describe('Explain Plan Store', function() {
   let store;
   const appRegistry = new AppRegistry();
 
-  beforeEach(() => {
+  beforeEach(function() {
     store = configureStore({
       localAppRegistry: appRegistry,
       namespace: 'db.coll',
@@ -25,44 +27,44 @@ describe('Explain Plan Store', () => {
     });
   });
 
-  describe('#onActivated', () => {
-    beforeEach(() => {
+  describe('#onActivated', function() {
+    beforeEach(function() {
       activate(appRegistry);
     });
 
-    context('when indexes are connected', () => {
-      beforeEach(() => {
+    context('when indexes are connected', function() {
+      beforeEach(function() {
         appRegistry.emit('indexes-changed', [{ fields: {} }]);
       });
 
-      it('sets the data service in the state', () => {
+      it('sets the data service in the state', function() {
         expect(store.getState().indexes).to.deep.equal([{ fields: {} }]);
       });
     });
 
-    context('when the collection is changed', () => {
-      context('when there is a collection', () => {
-        beforeEach(() => {
+    context('when the collection is changed', function() {
+      context('when there is a collection', function() {
+        beforeEach(function() {
           appRegistry.emit('collection-changed', 'db.coll');
         });
 
-        it('updates the namespace in the store', () => {
+        it('updates the namespace in the store', function() {
           expect(store.getState().namespace).to.equal('db.coll');
         });
       });
     });
 
-    context('when the data service is connected', () => {
-      it('sets the data service in the state', () => {
+    context('when the data service is connected', function() {
+      it('sets the data service in the state', function() {
         expect(store.getState().dataService.dataService).to.equal('ds');
       });
 
-      it('sets the error in the state', () => {
+      it('sets the error in the state', function() {
         expect(store.getState().dataService.error).to.equal('error');
       });
     });
 
-    context('when the query is changed', () => {
+    context('when the query is changed', function() {
       const query = {
         filter: {},
         sort: null,
@@ -73,20 +75,20 @@ describe('Explain Plan Store', () => {
         isChanged: true
       };
 
-      beforeEach(() => {
+      beforeEach(function() {
         appRegistry.emit('query-changed', query);
       });
 
-      it('sets the server version in the state', () => {
+      it('sets the server version in the state', function() {
         expect(store.getState().query).to.deep.equal(query);
       });
     });
   });
 
-  describe('#dispatch', () => {
-    context('when it is the explain module', () => {
-      context('when the action is SWITCHED_TO_TREE_VIEW', () => {
-        it('updates the view type in state to "tree"', (done) => {
+  describe('#dispatch', function() {
+    context('when it is the explain module', function() {
+      context('when the action is SWITCHED_TO_TREE_VIEW', function() {
+        it('updates the view type in state to "tree"', function(done) {
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(store.getState().explain.viewType).to.equal('tree');
@@ -96,8 +98,8 @@ describe('Explain Plan Store', () => {
         });
       });
 
-      context('when the action is SWITCHED_TO_JSON_VIEW', () => {
-        it('updates the view type in state to "json"', (done) => {
+      context('when the action is SWITCHED_TO_JSON_VIEW', function() {
+        it('updates the view type in state to "json"', function(done) {
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(store.getState().explain.viewType).to.equal('json');
@@ -107,10 +109,10 @@ describe('Explain Plan Store', () => {
         });
       });
 
-      context('when the action is EXPLAIN_STATE_CHANGED', () => {
+      context('when the action is EXPLAIN_STATE_CHANGED', function() {
         const explainState = 'executed';
 
-        it('updates the view type in state to "json"', (done) => {
+        it('updates the view type in state to "json"', function(done) {
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(store.getState().explain.explainState).to.equal(explainState);
@@ -120,7 +122,7 @@ describe('Explain Plan Store', () => {
         });
       });
 
-      context('when the action is EXPLAIN_PLAN_FETCHED', () => {
+      context('when the action is EXPLAIN_PLAN_FETCHED', function() {
         const explain = {
           error: null,
           errorParsing: false,
@@ -146,7 +148,7 @@ describe('Explain Plan Store', () => {
           viewType: 'tree'
         };
 
-        it('updates the explain in state', (done) => {
+        it('updates the explain in state', function(done) {
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(omit(store.getState().explain, 'resultId')).to.deep.equal(explain);
@@ -157,8 +159,8 @@ describe('Explain Plan Store', () => {
       });
     });
 
-    context('when it is the tree-stages module', () => {
-      context('when the action is TREE_STAGES_CHANGED', () => {
+    context('when it is the tree-stages module', function() {
+      context('when the action is TREE_STAGES_CHANGED', function() {
         const explain = {
           error: null,
           executionSuccess: true,
@@ -182,7 +184,7 @@ describe('Explain Plan Store', () => {
           viewType: 'tree'
         };
 
-        it('updates the treeStages in state', (done) => {
+        it('updates the treeStages in state', function(done) {
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(store.getState().treeStages).to.deep.equal({

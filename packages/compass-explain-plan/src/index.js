@@ -1,9 +1,6 @@
 import ExplainPlanPlugin from './plugin';
 import configureStore from './stores';
 
-/**
- * A sample role for the component.
- */
 const ROLE = {
   name: 'Explain Plan',
   component: ExplainPlanPlugin,
