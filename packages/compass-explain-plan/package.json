@@ -79,7 +79,6 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-components": "^0.14.0",
-    "@mongodb-js/compass-deployment-awareness": "^11.22.0",
     "@mongodb-js/eslint-config-compass": "^0.8.0",
     "@mongodb-js/mocha-config-compass": "^0.10.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
@@ -99,13 +98,11 @@
     "hadron-react-buttons": "^5.8.0",
     "hadron-react-components": "^5.14.0",
     "mocha": "^8.4.0",
-    "mongodb-index-model": "^3.10.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-redux": "^5.0.6",
-    "react-select-plus": "^1.2.0",
     "redux": "^4.1.2",
     "redux-thunk": "^2.3.0",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
@@ -114,10 +111,10 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-logging": "^0.11.0",
+    "@mongodb-js/explain-plan-helper": "^0.8.0",
     "@mongodb-js/mongodb-redux-common": "^1.11.0",
     "d3-flextree": "1.0.3",
-    "d3-timer": "1.0.10",
-    "lodash": "^4.17.15",
-    "reflux": "^0.4.1"
+    "lodash": "^4.17.15"
   }
 }

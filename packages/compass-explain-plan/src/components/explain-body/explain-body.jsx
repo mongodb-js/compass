@@ -31,7 +31,6 @@ class ExplainBody extends Component {
       rawExplainObject: PropTypes.object.isRequired,
       originalExplainData: PropTypes.object.isRequired
     }),
-    openLink: PropTypes.func.isRequired,
     treeStages: PropTypes.object.isRequired
   }
 
@@ -47,7 +46,6 @@ class ExplainBody extends Component {
       return (
         <ExplainSummary
           {...this.props.explain}
-          openLink={this.props.openLink}
         />
       );
     }

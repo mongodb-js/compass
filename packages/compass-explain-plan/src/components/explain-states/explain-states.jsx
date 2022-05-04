@@ -46,7 +46,6 @@ class ExplainStates extends Component {
 
   static propTypes = {
     isEditable: PropTypes.bool.isRequired,
-    openLink: PropTypes.func.isRequired,
     explain: PropTypes.shape({
       nReturned: PropTypes.number.isRequired,
       totalKeysExamined: PropTypes.number.isRequired,

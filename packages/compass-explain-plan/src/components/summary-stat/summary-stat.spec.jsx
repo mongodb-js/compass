@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import sinon from 'sinon';
 import { expect } from 'chai';
 
 import SummaryStat from '../summary-stat';
@@ -10,10 +9,9 @@ describe('SummaryStat [Component]', function() {
   let component;
   const dataLink = 'https://docs.mongodb.com/master/reference/explain-results/#explain.executionStats.nReturned';
   const label = 'Documents Returned:';
-  const openLinkSpy = sinon.spy();
 
   beforeEach(function() {
-    component = mount(<SummaryStat dataLink={dataLink} label={label} openLink={openLinkSpy} />);
+    component = mount(<SummaryStat dataLink={dataLink} label={label} />);
   });
 
   afterEach(function() {

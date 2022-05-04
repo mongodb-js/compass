@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { pick } from 'lodash';
 import { namespaceChanged } from '../../modules/namespace';
-import { openLink } from '../../modules/link';
 import {
   switchToTreeView,
   switchToJSONView,
@@ -60,7 +59,6 @@ const MappedExplainPlan = connect(
   mapStateToProps,
   {
     namespaceChanged,
-    openLink,
     switchToTreeView,
     switchToJSONView,
     fetchExplainPlan,

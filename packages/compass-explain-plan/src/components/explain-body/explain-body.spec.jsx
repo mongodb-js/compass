@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-import sinon from 'sinon';
 
 import ExplainBody from '../explain-body';
 import { ExplainSummary } from '../explain-summary';
@@ -26,13 +25,11 @@ describe('ExplainBody [Component]', function() {
       errorParsing: true
     };
     const treeStages = {};
-    const openLinkSpy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <ExplainBody
           explain={explain}
-          openLink={openLinkSpy}
           treeStages={treeStages}
         />);
     });
@@ -60,13 +57,11 @@ describe('ExplainBody [Component]', function() {
       index: null
     };
     const treeStages = {};
-    const openLinkSpy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <ExplainBody
           explain={explain}
-          openLink={openLinkSpy}
           treeStages={treeStages}
         />);
     });
@@ -98,13 +93,11 @@ describe('ExplainBody [Component]', function() {
       index: null
     };
     const treeStages = {};
-    const openLinkSpy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <ExplainBody
           explain={explain}
-          openLink={openLinkSpy}
           treeStages={treeStages}
         />);
     });

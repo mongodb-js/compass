@@ -18,7 +18,6 @@ describe('ExplainStates [Component]', function() {
   }
 
   const isEditable = false;
-  const openLinkSpy = sinon.spy();
   const explain = {
     viewType: 'tree',
     rawExplainObject: {},
@@ -55,7 +54,6 @@ describe('ExplainStates [Component]', function() {
         query={query}
         appRegistry={{ localAppRegistry: appRegistry }}
         isEditable={isEditable}
-        openLink={openLinkSpy}
         treeStages={treeStages}
         queryExecuted={queryExecuted} />
     );

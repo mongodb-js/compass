@@ -38,8 +38,7 @@ class ExplainSummary extends Component {
     executionTimeMillis: PropTypes.number.isRequired,
     inMemorySort: PropTypes.bool.isRequired,
     indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
-    index: PropTypes.object,
-    openLink: PropTypes.func.isRequired
+    index: PropTypes.object
   }
 
   /**
@@ -60,34 +59,34 @@ class ExplainSummary extends Component {
               dataLink={HELP_URLS.NRETURNED}
               label="Documents Returned:"
               value={this.props.nReturned}
-              openLink={this.props.openLink} />
+            />
             <SummaryStat
               dataLink={HELP_URLS.KEYS_EXAMINED}
               label="Index Keys Examined:"
               value={this.props.totalKeysExamined}
-              openLink={this.props.openLink} />
+            />
             <SummaryStat
               dataLink={HELP_URLS.DOCS_EXAMINED}
               label="Documents Examined:"
               value={this.props.totalDocsExamined}
-              openLink={this.props.openLink} />
+            />
           </div>
           <div className={styles['summary-stats']}>
             <SummaryStat
               dataLink={HELP_URLS.EXECUTION_TIME}
               label="Actual Query Execution Time (ms):"
               value={this.props.executionTimeMillis}
-              openLink={this.props.openLink} />
+            />
             <SummaryStat
               dataLink={HELP_URLS.SORT_STAGE}
               label="Sorted in Memory:"
               value={inMemorySort}
-              openLink={this.props.openLink} />
+            />
             <SummaryIndexStat
               dataLink={HELP_URLS.INDEX_USED}
               indexType={this.props.indexType}
               index={this.props.index}
-              openLink={this.props.openLink} />
+            />
           </div>
         </FlexBox>
       </div>

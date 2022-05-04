@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import sinon from 'sinon';
 import { expect } from 'chai';
 
 import ExplainSummary from '../explain-summary';
@@ -15,7 +14,6 @@ describe('ExplainSummary [Component]', function() {
   const inMemorySort = false;
   const indexType = 'UNAVAILABLE';
   const index = null;
-  const openLinkSpy = sinon.spy();
 
   beforeEach(function() {
     component = mount(
@@ -27,7 +25,7 @@ describe('ExplainSummary [Component]', function() {
         inMemorySort={inMemorySort}
         indexType={indexType}
         index={index}
-        openLink={openLinkSpy} />
+      />
     );
   });
 

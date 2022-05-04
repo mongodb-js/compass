@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import sinon from 'sinon';
 import { expect } from 'chai';
 
 import SummaryIndexStat from '../summary-index-stat';
@@ -11,7 +10,6 @@ describe('SummaryIndexStat [Component]', function() {
   const dataLink = 'https://docs.mongodb.com/master/reference/explain-results/';
   const indexType = 'MULTIPLE';
   const index = null;
-  const openLinkSpy = sinon.spy();
 
   beforeEach(function() {
     component = mount(
@@ -19,7 +17,7 @@ describe('SummaryIndexStat [Component]', function() {
         dataLink={dataLink}
         indexType={indexType}
         index={index}
-        openLink={openLinkSpy} />
+      />
     );
   });
 
