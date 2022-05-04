@@ -124,7 +124,7 @@
     }
   },
   "scripts": {
-    "install": "node scripts/download-akzidenz.js",
+    "install": "node scripts/download-akzidenz.js && node scripts/download-csfle.js",
     "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor,os-dns-native,win-export-certificate-and-key,macos-export-certificate-and-key --force --prebuild-tag-prefix not-real-prefix-to-force-rebuild",
     "prestart": "npm run electron-rebuild",
     "start": "npm run webpack serve -- --mode development",
