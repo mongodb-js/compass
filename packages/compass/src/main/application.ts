@@ -30,12 +30,8 @@ class CompassApplication {
 
     this.setupUserDirectory();
 
-    await Promise.all([
-      this.setupLogging(),
-      this.setupAutoUpdate(),
-      this.setupSecureStore(),
-      this.setupTelemetry(),
-    ]);
+    await Promise.all([this.setupLogging(), this.setupTelemetry()]);
+    await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
 
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
@@ -44,7 +40,7 @@ class CompassApplication {
   }
 
   static init(): Promise<void> {
-    return this.initPromise ??= this._init();
+    return (this.initPromise ??= this._init());
   }
 
   private static async setupSecureStore(): Promise<void> {
