@@ -19,7 +19,7 @@ import {
   lessLoader,
   assetsLoader,
   resourceLoader,
-  sharedObjectLoader
+  sharedObjectLoader,
 } from './loaders';
 import {
   entriesToNamedEntries,
@@ -60,7 +60,7 @@ export function createElectronMainConfig(
         nodeLoader(opts),
         resourceLoader(opts),
         sharedObjectLoader(opts),
-        sourceLoader(opts)
+        sourceLoader(opts),
       ],
     },
     node: false as const,
@@ -127,7 +127,7 @@ export function createElectronRendererConfig(
         lessLoader(opts),
         assetsLoader(opts),
         sharedObjectLoader(opts),
-        sourceLoader(opts)
+        sourceLoader(opts),
       ],
     },
     plugins: [

@@ -144,7 +144,7 @@ describe('Logging and Telemetry integration', function () {
           attr: (actual: any) => {
             expect(actual.csfleLibraryPath).to.be.a('string');
             expect(actual.csfleLibraryPath).to.include('mongo_csfle_v1');
-          }
+          },
         },
         {
           s: 'I',
