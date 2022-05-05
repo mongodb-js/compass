@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
-import debounce from 'lodash.debounce';
 import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
 import styles from './stage-editor.module.less';
@@ -22,7 +21,6 @@ class StageEditor extends Component {
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
     stageChanged: PropTypes.func.isRequired,
-    isAutoPreviewing: PropTypes.bool.isRequired,
     isValid: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
@@ -48,7 +46,6 @@ class StageEditor extends Component {
       this.getFieldsAndProjections(),
       this.props.stageOperator
     );
-    this.debounceRun = debounce(this.onRunStage, 750);
   }
 
   /**
@@ -83,11 +80,6 @@ class StageEditor extends Component {
     if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
       // Focus the editor when the stage operator has changed.
       this.editor.focus();
-
-      // When the underlying stage operator changes, re-run the preview.
-      if (this.props.isAutoPreviewing) {
-        this.debounceRun();
-      }
     }
   }
 
@@ -103,22 +95,7 @@ class StageEditor extends Component {
       this.props.runStage(0);
       return;
     }
-
     this.props.stageChanged(value, this.props.index);
-    this.props.projectionsChanged();
-    this.props.setIsModified(true);
-
-    if (this.props.isAutoPreviewing) {
-      this.debounceRun();
-    }
-  };
-
-  /**
-   * Need to decorate the change event with the stage index before
-   * dispatching.
-   */
-  onRunStage = () => {
-    this.props.runStage(this.props.index);
   };
 
   /**
@@ -190,16 +167,6 @@ class StageEditor extends Component {
             showPrintMargin={false}
             onLoad={(editor) => {
               this.editor = editor;
-              this.editor.commands.addCommand({
-                name: 'executePipeline',
-                bindKey: {
-                  win: 'Ctrl-Enter',
-                  mac: 'Command-Enter'
-                },
-                exec: () => {
-                  this.onRunStage();
-                }
-              });
             }}
           />
         </div>

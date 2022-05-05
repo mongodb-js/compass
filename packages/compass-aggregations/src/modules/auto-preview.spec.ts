@@ -26,7 +26,7 @@ describe('auto preview module', function () {
   });
 
   it('returns the new state', function () {
-    store.dispatch(toggleAutoPreview() as any);
+    store.dispatch(toggleAutoPreview(false) as any);
     expect(store.getState().autoPreview).to.equal(false);
   });
 
@@ -57,9 +57,8 @@ describe('auto preview module', function () {
 
 
     // by default autoPreview is true
-    store.dispatch(toggleAutoPreview() as any); // sets to false
-    store.dispatch(toggleAutoPreview() as any); // sets to true
-
+    store.dispatch(toggleAutoPreview(false) as any); // sets to false
+    store.dispatch(toggleAutoPreview(true) as any); // sets to true
 
     expect(aggregateSpy.calledOnce, 'aggregates only once').to.be.true;
   });

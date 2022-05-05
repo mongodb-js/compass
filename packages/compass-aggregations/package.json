@@ -66,6 +66,7 @@
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/decomment": "^0.9.2",
+    "@types/lodash.debounce": "^4.0.7",
     "@types/lodash.isempty": "^4.4.6",
     "@types/semver": "^7.3.9",
     "async": "^3.2.0",
