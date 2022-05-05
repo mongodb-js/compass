@@ -5,6 +5,7 @@ import sinon from 'sinon';
 import { Select, TextInput } from '@mongodb-js/compass-components';
 
 import CollectionFields from '.';
+import TimeSeriesFields from './time-series-fields';
 
 describe('CollectionFields [Component]', () => {
   context('when withDatabase prop is true', () => {
@@ -77,6 +78,7 @@ describe('CollectionFields [Component]', () => {
 
     it('shows time series options', () => {
       expect(component.text().includes('Time-Series')).to.equal(true);
+      expect(component.find(TimeSeriesFields)).to.be.present();
     });
 
     describe('when the time series checkbox is clicked', () => {
@@ -121,7 +123,7 @@ describe('CollectionFields [Component]', () => {
     });
 
     it('does not show time series options', () => {
-      expect(component.text().includes('Time-Series')).to.equal(false);
+      expect(component.find(TimeSeriesFields)).to.not.be.present();
     });
   });
 
