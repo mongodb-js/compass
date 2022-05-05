@@ -63,9 +63,7 @@ class CompassAutoUpdateManager {
     }
 
     const autoUpdateManagerOptions = {
-      endpoint:
-        process.env.MONGODB_COMPASS_AUTO_UPDATE_ENDPOINT ??
-        process.env.HADRON_AUTO_UPDATE_ENDPOINT,
+      endpoint: process.env.HADRON_AUTO_UPDATE_ENDPOINT,
       icon: COMPASS_ICON,
       product: product,
       channel: process.env.HADRON_CHANNEL,
