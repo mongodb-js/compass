@@ -55,16 +55,19 @@ async function getHostInformation(host: string) {
   };
 }
 
-function getCsfleInformation(fleOptions: ConnectionInfo['connectionOptions']['fleOptions']): Record<string, unknown> {
+function getCsfleInformation(
+  fleOptions: ConnectionInfo['connectionOptions']['fleOptions']
+): Record<string, unknown> {
   const kmsProviders = configuredKMSProviders(fleOptions?.autoEncryption ?? {});
   const csfleInfo: Record<string, unknown> = {
     is_csfle: kmsProviders.length > 0,
     // @ts-expect-error next driver release has types
-    has_csfle_schema: !!fleOptions?.autoEncryption.encryptedFieldsMap
+    has_csfle_schema: !!fleOptions?.autoEncryption.encryptedFieldsMap,
   };
 
   for (const kmsProvider of ['aws', 'gcp', 'kmip', 'local', 'azure'] as const) {
-    csfleInfo[`has_kms_${kmsProvider}`] = !!fleOptions?.autoEncryption?.kmsProviders?.[kmsProvider];
+    csfleInfo[`has_kms_${kmsProvider}`] =
+      !!fleOptions?.autoEncryption?.kmsProviders?.[kmsProvider];
   }
 
   return csfleInfo;
@@ -95,7 +98,7 @@ async function getConnectionData({
     auth_type: authType.toUpperCase(),
     tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
-    ...getCsfleInformation(fleOptions)
+    ...getCsfleInformation(fleOptions),
   };
 }
 
