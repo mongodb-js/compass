@@ -73,66 +73,138 @@ function mapStages(queryPlan, sbeExecutionStages) {
 }
 
 function isAggregationExplain(explain) {
+  return (
+    isUnshardedAggregationExplain(explain) ||
+    isShardedAggregationExplain(explain)
+  );
+}
+// Only unshared aggregation has stages property
+function isUnshardedAggregationExplain(explain) {
   return !!explain.stages;
 }
+// Only shared aggregation has shards property
+function isShardedAggregationExplain(explain) {
+  return !!explain.shards;
+}
 
-function isFirstStageCursorType(stages) {
-  return !!getStageCursorKey(stages[0]);
+function isShardedFind(explain) {
+  return explain.queryPlanner && explain.queryPlanner.mongosPlannerVersion;
 }
 
 function getStageCursorKey(stage) {
-  return Object.keys(stage).find((x) => x.match(/cursor/i));
+  return Object.keys(stage).find((x) => x.match(/^\$.*cursor/i));
+}
+
+function isCursorStage(stage) {
+  return !!getStageCursorKey(stage);
 }
 
 /**
+ * Converts SBE explain plan to a format that is compatible with the query planner.
  * https://wiki.corp.mongodb.com/display/QUERY/Explain+Notes
+ *
+ * @param {Object} explain Raw explain object.
+ * @returns Classic explain object
  */
-function mapAggregationExplain(explain) {
-  if (!explain.stages || explain.stages.length === 0) {
-    return explain;
-  }
-  // In aggregations for SBE, the cursor based stage is always first.
-  if (!isFirstStageCursorType(explain.stages)) {
-    return explain;
-  }
-
-  const firstStage = explain.stages[0];
-  const firstStageKey = getStageCursorKey(firstStage);
-  const winningPlan =
-    firstStage[firstStageKey].queryPlanner.winningPlan.queryPlan;
-  firstStage[firstStageKey].queryPlanner.winningPlan = winningPlan;
-
-  firstStage[firstStageKey].executionStats.executionStages = mapStages(
-    winningPlan,
-    firstStage[firstStageKey].executionStats.executionStages
-  );
-  firstStage[firstStageKey].queryPlanner.plannerVersion = 1;
-  return explain;
-}
-
-function mapQueryExplain(explain) {
-  explain.queryPlanner.plannerVersion = 1;
-  const winningPlan = explain.queryPlanner.winningPlan.queryPlan;
-  explain.queryPlanner.winningPlan = winningPlan;
-
-  explain.executionStats.executionStages = mapStages(
-    winningPlan,
-    explain.executionStats.executionStages
-  );
-
-  return explain;
-}
-
 module.exports = function (explain) {
   explain = JSON.parse(JSON.stringify(explain));
-  if ((explain.explainVersion || 0) < 2) {
+
+  // In a sharded aggregation, we don't have explainVersion :(
+  // In a sharded find, its represented by explain.queryPlanner.mongosPlannerVersion
+
+  // return explain that uses classic engine (except for sharded response)
+  if (explain.explainVersion && explain.explainVersion < 2) {
     return explain;
   }
   delete explain.explainVersion;
+
   if (isAggregationExplain(explain)) {
-    explain = mapAggregationExplain(explain);
-  } else {
-    explain = mapQueryExplain(explain);
+    if (isShardedAggregationExplain(explain)) {
+      return mapShardedAggregation(explain);
+    }
+    return mapsUnshardedAggregation(explain);
   }
+
+  // Sharded Find
+  if (isShardedFind(explain)) {
+    if (explain.queryPlanner.mongosPlannerVersion < 2) {
+      return explain;
+    }
+    return mapShardedFind(explain);
+  }
+
+  // Unsharded Find
+  return mapUnshardedFind(explain);
+};
+
+function mapsUnshardedAggregation(explain) {
+  if (!explain.stages || explain.stages.length === 0) {
+    return explain;
+  }
+  const stages = explain.stages.map((stage) => {
+    if (!isCursorStage(stage)) {
+      return stage;
+    }
+    const stageKey = getStageCursorKey(stage);
+    stage[stageKey] = _mapPlannerStage(stage[stageKey]);
+    return stage;
+  });
+  explain.stages = stages;
+  return explain;
+}
+function mapShardedAggregation(explain) {
+  if (!explain.shards) {
+    return explain;
+  }
+  const shards = {};
+  for (const shardName of explain.shards) {
+    // Shard with stages
+    if (explain.shards[shardName].stages) {
+      shards[shardName] = mapsUnshardedAggregation(explain.shards[shardName]);
+    } else {
+      shards[shardName] = mapUnshardedFind(explain.shards[shardName]);
+    }
+  }
+  explain.shards = shards;
+  return explain;
+}
+
+function mapShardedFind(explain) {
+  const queryPlanner = explain.queryPlanner;
+  const executionStats = explain.executionStats;
+  if (!queryPlanner.winningPlan.shards) {
+    return explain;
+  }
+  queryPlanner.winningPlan.shards.forEach((shard, index) => {
+    const winningPlan = shard.winningPlan.queryPlan;
+    const executionStages = mapStages(
+      winningPlan,
+      executionStats.executionStages.shards[index].executionStages
+    );
+
+    queryPlanner.winningPlan.shards[index].winningPlan = winningPlan;
+    executionStats.executionStages.shards[index].executionStages =
+      executionStages;
+    return shard;
+  });
+  explain.queryPlanner = queryPlanner;
+  explain.executionStats = executionStats;
   return JSON.parse(JSON.stringify(explain));
+}
+function mapUnshardedFind(explain) {
+  return _mapPlannerStage(explain);
+}
+
+const _mapPlannerStage = (planner) => {
+  if (planner.queryPlanner) {
+    planner.queryPlanner.plannerVersion = 1;
+    const winningPlan = planner.queryPlanner.winningPlan.queryPlan;
+    planner.queryPlanner.winningPlan = winningPlan;
+
+    planner.executionStats.executionStages = mapStages(
+      winningPlan,
+      planner.executionStats.executionStages
+    );
+  }
+  return JSON.parse(JSON.stringify(planner));
 };

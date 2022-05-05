@@ -17,7 +17,10 @@ describe('convertExplainCompat', () => {
     assert.deepStrictEqual(convertExplainCompat(fixture('in2')), fixture('out2'));
   });
   it('keeps the old SBE format as-is', () => {
-    assert.deepStrictEqual(convertExplainCompat(fixture('out1')), fixture('out1'));
+    assert.deepStrictEqual(
+      convertExplainCompat(fixture('in4')),
+      fixture('in4')
+    );
   });
 
   describe('aggregations', function () {
