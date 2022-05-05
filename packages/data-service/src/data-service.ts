@@ -88,7 +88,7 @@ import type {
 } from 'mongodb-client-encryption';
 // mongodb-client-encryption only works properly in a packaged
 // environment with dependency injection
-const ClientEncryption: ClientEncryptionType =
+const ClientEncryption: typeof ClientEncryptionType =
   extension(mongodb).ClientEncryption;
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -2438,7 +2438,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return result;
   }
 
-  _getClientEncryption(): ClientEncryption {
+  _getClientEncryption(): ClientEncryptionType {
     const crudClient = this._initializedClient('CRUD');
     const autoEncryptionOptions = crudClient.options.autoEncryption;
     const { proxyHost, proxyPort, proxyUsername, proxyPassword } =
