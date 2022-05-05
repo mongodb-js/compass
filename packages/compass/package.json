@@ -248,6 +248,7 @@
     "mongodb": "^4.4.0",
     "mongodb-connection-model": "^21.16.0",
     "mongodb-data-service": "^21.20.0",
+    "mongodb-download-url": "^1.2.0",
     "mongodb-instance-model": "^11.22.0",
     "mongodb-log-writer": "^1.1.4",
     "mongodb-url": "^3.0.3",

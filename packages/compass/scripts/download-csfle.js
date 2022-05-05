@@ -64,19 +64,26 @@ const download = async(url, destDir) => {
     );
   }
 
+  const downloadOptions = {
+    enterprise: true,
+    csfle: true
+  };
+  if (process.platform === 'linux') {
+    // The CSFLE shared library is built for different distros,
+    // but since it only depends on glibc, we can just download
+    // a CSFLE library from a distro with a low glibc version
+    // such as RHEL7.
+    downloadOptions.distro = 'rhel70';
+  }
   let artifactInfo;
   // Try getting the latest stable csfle library, if none exists
   // (which is the case at the time of writing), fall back to
   // a 6.0 rc candidate. We can remove this try/catch after 6.0.0.
   try {
-    artifactInfo = await getDownloadURL({
-      enterprise: true,
-      csfle: true
-    });
+    artifactInfo = await getDownloadURL(downloadOptions);
   } catch {
     artifactInfo = await getDownloadURL({
-      enterprise: true,
-      csfle: true,
+      ...downloadOptions,
       version: '>= 6.0.0-rc4'
     });
   }
