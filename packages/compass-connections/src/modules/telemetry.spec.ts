@@ -33,7 +33,7 @@ const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
   currentTopologyType: () => 'Unknown',
 };
 
-describe.only('connection tracking', function () {
+describe('connection tracking', function () {
   beforeEach(function () {
     (global as any).hadronApp = { isFeatureEnabled: () => true };
   });
