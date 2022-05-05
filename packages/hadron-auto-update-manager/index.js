@@ -85,7 +85,7 @@ AutoUpdateManager.prototype.setupAutoUpdater = function() {
   });
 
   autoUpdater.on('checking-for-update', () => {
-    log.info(mongoLogId(1001000125), 'AutoUpdateManager', 'Checking for updates ...');
+    log.info(mongoLogId(1001000135), 'AutoUpdateManager', 'Checking for updates ...');
     this.setState(CheckingState);
   });
 
@@ -110,7 +110,7 @@ AutoUpdateManager.prototype.setupAutoUpdater = function() {
   });
 
   autoUpdater.setFeedURL(this.feedURL);
-  log.info(mongoLogId(1001000124), 'AutoUpdateManager', 'Feed url set',
+  log.info(mongoLogId(1001000136), 'AutoUpdateManager', 'Feed url set',
     {feedURL: this.feedURL});
 };
 
