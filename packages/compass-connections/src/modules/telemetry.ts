@@ -4,6 +4,7 @@ import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoServerError, MongoClientOptions } from 'mongodb';
+import { configuredKMSProviders } from 'mongodb-data-service';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
@@ -54,8 +55,23 @@ async function getHostInformation(host: string) {
   };
 }
 
+function getCsfleInformation(fleOptions: ConnectionInfo['connectionOptions']['fleOptions']): Record<string, unknown> {
+  const kmsProviders = configuredKMSProviders(fleOptions?.autoEncryption ?? {});
+  const csfleInfo: Record<string, unknown> = {
+    is_csfle: kmsProviders.length > 0,
+    // @ts-expect-error next driver release has types
+    has_csfle_schema: !!fleOptions?.autoEncryption.encryptedFieldsMap
+  };
+
+  for (const kmsProvider of ['aws', 'gcp', 'kmip', 'local', 'azure'] as const) {
+    csfleInfo[`has_kms_${kmsProvider}`] = !!fleOptions?.autoEncryption?.kmsProviders?.[kmsProvider];
+  }
+
+  return csfleInfo;
+}
+
 async function getConnectionData({
-  connectionOptions: { connectionString, sshTunnel },
+  connectionOptions: { connectionString, sshTunnel, fleOptions },
 }: Pick<ConnectionInfo, 'connectionOptions'>): Promise<
   Record<string, unknown>
 > {
@@ -79,6 +95,7 @@ async function getConnectionData({
     auth_type: authType.toUpperCase(),
     tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
+    ...getCsfleInformation(fleOptions)
   };
 }
 
