@@ -45,8 +45,6 @@ export type Pipeline = {
   syntaxError: string | null;
   error: string | null;
   projections: Projection[];
-  fromStageOperators?: boolean;
-  snippet?: string;
   isMissingAtlasOnlyStageSupport?: boolean;
   executor?: Record<string, unknown>;
 }
@@ -244,7 +242,6 @@ const changeStage = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   newState[action.index].stage = action.stage;
   newState[action.index].isComplete = false;
-  newState[action.index].fromStageOperators = false;
   return newState;
 };
 
@@ -326,10 +323,8 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
     }
     newState[action.index].stageOperator = operatorName;
     newState[action.index].stage = value;
-    newState[action.index].snippet = value;
     newState[action.index].isExpanded = true;
     newState[action.index].isComplete = false;
-    newState[action.index].fromStageOperators = true;
     newState[action.index].previewDocuments = [];
     if (
       [SEARCH, SEARCH_META, DOCUMENTS].includes(newState[action.index].stageOperator) &&
@@ -348,20 +343,19 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
   return state;
 };
 
-
-const getStageDefaultValue = (stageOperator: string, isCommenting: boolean, env: string): string => {
-  const operatorDetails = getStageOperator(stageOperator, env);
-  const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
-  const comment = (operatorDetails || {}).comment || '';
-  return isCommenting ? `${comment}${snippet}` : snippet;
-};
-
-export const replaceAceTokens = (str: string): string => {
+export const replaceOperatorSnippetTokens = (str: string): string => {
   const regex = /\${[0-9]+:?([a-z0-9.()]+)?}/ig;
   return str.replace(regex, function (_match, replaceWith) {
     return replaceWith ?? '';
   });
 }
+
+const getStageDefaultValue = (stageOperator: string, isCommenting: boolean, env: string): string => {
+  const operatorDetails = getStageOperator(stageOperator, env);
+  const snippet = (operatorDetails || {}).snippet || DEFAULT_SNIPPET;
+  const comment = (operatorDetails || {}).comment || '';
+  return replaceOperatorSnippetTokens(isCommenting ? `${comment}${snippet}` : snippet);
+};
 
 const hasUserChangedStage = (stage: Pipeline, env: string): boolean => {
   if (!stage.stageOperator || !stage.stage) {
@@ -370,7 +364,7 @@ const hasUserChangedStage = (stage: Pipeline, env: string): boolean => {
   const value = decomment(stage.stage);
   // The default value contains ace specific tokens (${1:name}).
   const defaultValue = getStageDefaultValue(stage.stageOperator, false, env);
-  return value !== replaceAceTokens(defaultValue);
+  return value !== defaultValue;
 };
 
 /**

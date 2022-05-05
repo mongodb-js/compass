@@ -43,6 +43,7 @@ describe('TimeSeriesFields [Component]', () => {
           isTimeSeries={false}
           isCapped={false}
           isClustered={false}
+          isFLE2={false}
           onChangeIsTimeSeries={() => {}}
           onChangeField={() => {}}
           timeSeries={{}}

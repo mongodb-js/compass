@@ -3,6 +3,7 @@ import type { Element } from './element';
 import { LinkedList, Events as ElementEvents } from './element';
 import EventEmitter from 'eventemitter3';
 import { EJSON, UUID } from 'bson';
+import type { ObjectGeneratorOptions } from './object-generator';
 import ObjectGenerator from './object-generator';
 import type { BSONObject, BSONValue } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
@@ -90,8 +91,8 @@ export class Document extends EventEmitter {
    *
    * @returns {Object} The javascript object.
    */
-  generateObject(): BSONObject {
-    return ObjectGenerator.generate(this.elements);
+  generateObject(options?: ObjectGeneratorOptions): BSONObject {
+    return ObjectGenerator.generate(this.elements, options);
   }
 
   /**
@@ -99,8 +100,8 @@ export class Document extends EventEmitter {
    *
    * @returns {Object} The original javascript object.
    */
-  generateOriginalObject(): BSONObject {
-    return ObjectGenerator.generateOriginal(this.elements);
+  generateOriginalObject(options?: ObjectGeneratorOptions): BSONObject {
+    return ObjectGenerator.generateOriginal(this.elements, options);
   }
 
   /**

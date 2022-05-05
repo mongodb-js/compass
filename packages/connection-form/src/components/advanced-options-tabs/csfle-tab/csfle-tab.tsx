@@ -198,7 +198,7 @@ function CSFLETab({
               <div className={kmsProviderComponentWrapperStyles}>
                 <KMSProviderFieldsForm
                   errors={errors}
-                  autoEncryptionOptions={autoEncryptionOptions}
+                  connectionOptions={connectionOptions}
                   updateConnectionFormField={updateConnectionFormField}
                   kmsProvider={kmsProvider}
                   fields={

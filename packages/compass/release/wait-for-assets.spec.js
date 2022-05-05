@@ -12,7 +12,7 @@ const path = require('path');
 
 const CompassDownloadCenter = require('./download-center');
 
-describe('waitForAssets', () => {
+describe('waitForAssets', function() {
   if (!!process.env.EVERGREEN && process.platform === 'darwin') {
     // These tests are not working well on Evergreen macOS machines and we will
     // skip them for now (they will run in GitHub CI)
@@ -22,7 +22,7 @@ describe('waitForAssets', () => {
   }
 
   let downloadCenter;
-  beforeEach(async() => {
+  beforeEach(async function() {
     const downloadCenterConfig = await fs.readJSON(
       path.resolve(__dirname, 'fixtures', 'config.json')
     );
@@ -34,7 +34,7 @@ describe('waitForAssets', () => {
     downloadCenter.waitForAsset = sinon.spy(() => Promise.resolve());
   });
 
-  it('waits for all assets', async() => {
+  it('waits for all assets', async function() {
     await waitForAssets('1.23.0', { downloadCenter });
 
     const downloadLinks = downloadCenter.waitForAsset.getCalls()

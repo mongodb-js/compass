@@ -2,6 +2,10 @@ import type { Element } from './element';
 
 const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
 
+export interface ObjectGeneratorOptions {
+  excludeInternalFields?: boolean;
+}
+
 function maybeDecorateWithDecryptedKeys(
   object: Record<string, unknown> | unknown[],
   element: Element
@@ -31,12 +35,18 @@ export class ObjectGenerator {
    *
    * @returns {Object} The javascript object.
    */
-  static generate(elements: Iterable<Element>): Record<string, unknown> {
+  static generate(
+    elements: Iterable<Element>,
+    options: ObjectGeneratorOptions = {}
+  ): Record<string, unknown> {
     if (elements) {
       const object: Record<string, unknown> = {};
       for (const element of elements) {
+        if (options.excludeInternalFields && element.isInternalField()) {
+          continue;
+        }
         if (!element.isRemoved() && element.currentKey !== '') {
-          object[element.currentKey] = element.generateObject();
+          object[element.currentKey] = element.generateObject(options);
           maybeDecorateWithDecryptedKeys(object, element);
         }
       }
@@ -55,13 +65,17 @@ export class ObjectGenerator {
    * @returns {Object} The javascript object.
    */
   static generateOriginal(
-    elements: Iterable<Element>
+    elements: Iterable<Element>,
+    options: ObjectGeneratorOptions = {}
   ): Record<string, unknown> {
     if (elements) {
       const object: Record<string, unknown> = {};
       for (const element of elements) {
+        if (options.excludeInternalFields && element.isInternalField()) {
+          continue;
+        }
         if (!element.isAdded()) {
-          object[element.key] = element.generateOriginalObject();
+          object[element.key] = element.generateOriginalObject(options);
           maybeDecorateWithDecryptedKeys(object, element);
         }
       }
@@ -77,13 +91,19 @@ export class ObjectGenerator {
    *
    * @returns {Array} The array.
    */
-  static generateArray(elements: Iterable<Element>): unknown[] {
+  static generateArray(
+    elements: Iterable<Element>,
+    options: ObjectGeneratorOptions = {}
+  ): unknown[] {
     if (elements) {
       const array: unknown[] = [];
       for (const element of elements) {
+        if (options.excludeInternalFields && element.isInternalField()) {
+          continue;
+        }
         if (!element.isRemoved()) {
           if (element.elements) {
-            array.push(element.generateObject());
+            array.push(element.generateObject(options));
           } else {
             array.push(element.currentValue);
           }
@@ -102,12 +122,18 @@ export class ObjectGenerator {
    *
    * @returns {Array} The array.
    */
-  static generateOriginalArray(elements: Iterable<Element>): unknown[] {
+  static generateOriginalArray(
+    elements: Iterable<Element>,
+    options: ObjectGeneratorOptions = {}
+  ): unknown[] {
     if (elements) {
       const array: unknown[] = [];
       for (const element of elements) {
+        if (options.excludeInternalFields && element.isInternalField()) {
+          continue;
+        }
         if (element.originalExpandableValue) {
-          array.push(element.generateOriginalObject());
+          array.push(element.generateOriginalObject(options));
         } else if (!element.isAdded()) {
           array.push(element.value);
         }

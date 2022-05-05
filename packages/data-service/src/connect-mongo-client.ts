@@ -40,6 +40,14 @@ export default async function connectMongoClientCompass(
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
   };
 
+  if (options.autoEncryption && process.env.COMPASS_CSFLE_LIBRARY_PATH) {
+    options.autoEncryption.extraOptions = {
+      ...options.autoEncryption.extraOptions,
+      // @ts-expect-error next driver release has types
+      csflePath: process.env.COMPASS_CSFLE_LIBRARY_PATH,
+    };
+  }
+
   // If connectionOptions.sshTunnel is defined, open an ssh tunnel.
   //
   // If connectionOptions.sshTunnel is not defined, the tunnel

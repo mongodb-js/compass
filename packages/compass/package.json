@@ -106,7 +106,8 @@
           "**/node-addon-api/**",
           "**/win-export-certificate-and-key/**",
           "**/macos-export-certificate-and-key/**",
-          "**/system-ca/**"
+          "**/system-ca/**",
+          "**/mongo_csfle_v1.*"
         ]
       },
       "rebuild": {
@@ -123,7 +124,7 @@
     }
   },
   "scripts": {
-    "install": "node scripts/download-akzidenz.js",
+    "install": "node scripts/download-akzidenz.js && node scripts/download-csfle.js",
     "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor,os-dns-native,win-export-certificate-and-key,macos-export-certificate-and-key --force --prebuild-tag-prefix not-real-prefix-to-force-rebuild",
     "prestart": "npm run electron-rebuild",
     "start": "npm run webpack serve -- --mode development",
@@ -141,7 +142,7 @@
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "build-info": "hadron-build info",
     "jsx": "babel ./src --out-dir ./lib",
-    "lint": "eslint",
+    "lint": "eslint .",
     "depcheck": "depcheck",
     "test-ci": "npm run test-release-tasks",
     "test-ci-electron": "npm run test-electron",
@@ -156,7 +157,6 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^0.14.0",
     "@mongosh/node-runtime-worker-thread": "^1.2.3",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
@@ -170,6 +170,7 @@
     "@mongodb-js/compass-app-stores": "^5.22.0",
     "@mongodb-js/compass-auto-updates": "^3.22.0",
     "@mongodb-js/compass-collection": "^3.25.0",
+    "@mongodb-js/compass-components": "^0.14.0",
     "@mongodb-js/compass-crud": "^12.23.0",
     "@mongodb-js/compass-database": "^2.22.0",
     "@mongodb-js/compass-databases-collections": "^0.23.0",
@@ -221,6 +222,7 @@
     "darkreader": "^4.9.40",
     "debug": "4.3.0",
     "debug-menu": "^0.3.0",
+    "decompress": "^4.2.1",
     "depcheck": "^1.4.1",
     "electron": "^13.5.1",
     "electron-devtools-installer": "^3.2.0",
@@ -246,6 +248,7 @@
     "mongodb": "^4.4.0",
     "mongodb-connection-model": "^21.16.0",
     "mongodb-data-service": "^21.20.0",
+    "mongodb-download-url": "^1.2.0",
     "mongodb-instance-model": "^11.22.0",
     "mongodb-log-writer": "^1.1.4",
     "mongodb-url": "^3.0.3",
@@ -261,6 +264,7 @@
     "sinon": "^8.1.1",
     "sinon-chai": "^3.7.0",
     "storage-mixin": "^4.14.0",
+    "tar": "^6.1.11",
     "uuid": "^3.0.0",
     "web-vitals": "^2.1.2"
   },

@@ -20,7 +20,9 @@ class CreateCollectionModal extends PureComponent {
     isRunning: PropTypes.bool.isRequired,
     isVisible: PropTypes.bool.isRequired,
     serverVersion: PropTypes.string.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
+    toggleIsVisible: PropTypes.func.isRequired,
+    configuredKMSProviders: PropTypes.array,
+    currentTopologyType: PropTypes.string
   }
 
   constructor() {
@@ -72,6 +74,8 @@ class CreateCollectionModal extends PureComponent {
           serverVersion={this.props.serverVersion}
           withDatabase={false}
           onChange={this.onChange}
+          configuredKMSProviders={this.props.configuredKMSProviders}
+          currentTopologyType={this.props.currentTopologyType}
         />
         {this.renderError()}
       </ConfirmationModal>
@@ -83,7 +87,9 @@ const mapStateToProps = (state) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
   error: state.error,
-  serverVersion: state.serverVersion
+  serverVersion: state.serverVersion,
+  configuredKMSProviders: state.dataService.configuredKMSProviders,
+  currentTopologyType: state.dataService.currentTopologyType
 });
 
 const MappedCreateCollectionModal = connect(

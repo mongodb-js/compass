@@ -12,13 +12,14 @@ function CappedCollectionFields({
   isCapped,
   isClustered,
   isTimeSeries,
+  isFLE2,
   onChangeCappedSize,
   onChangeIsCapped
 }) {
   return (
     <CollapsibleFieldSet
       toggled={isCapped}
-      disabled={isTimeSeries || isClustered}
+      disabled={isTimeSeries || isClustered || isFLE2}
       onToggle={checked => onChangeIsCapped(checked)}
       label="Capped Collection"
       dataTestId="capped-collection-fields"
@@ -45,6 +46,7 @@ CappedCollectionFields.propTypes = {
   isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
   isClustered: PropTypes.bool.isRequired,
+  isFLE2: PropTypes.bool.isRequired,
   onChangeCappedSize: PropTypes.func.isRequired,
   onChangeIsCapped: PropTypes.func.isRequired
 };

@@ -24,7 +24,6 @@ describe('large-limit module', function() {
           isEnabled: true,
           isExpanded: true,
           isValid: true,
-          snippet: '',
           stageOperator: '$project',
           stage: '{_id: 0, avg_price: {$avg: "$price"}}'
         }],
