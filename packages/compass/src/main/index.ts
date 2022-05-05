@@ -1,4 +1,5 @@
 import '../setup-hadron-distribution';
+import './setup-csfle-library';
 import { app } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
 
