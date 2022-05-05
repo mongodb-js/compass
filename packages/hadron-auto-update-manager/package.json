@@ -18,6 +18,7 @@
   "compass:main": "index.js",
   "types": "index.d.ts",
   "dependencies": {
+    "@mongodb-js/compass-logging": "^0.11.0",
     "debug": "4.3.0",
     "got": "^10.4.0",
     "lodash": "^4.17.15"
