@@ -182,7 +182,7 @@ function CSFLETab({
       <FormFieldContainer>
         {options.map(({ title, kmsProvider, ...kmsFieldComponentOptions }) => {
           const accordionTitle = (
-            <span className={css({display: 'flex', alignItems: 'center'})}>
+            <span className={css({ display: 'flex', alignItems: 'center' })}>
               {title}
               <KMSProviderStatusIndicator
                 errors={errors}

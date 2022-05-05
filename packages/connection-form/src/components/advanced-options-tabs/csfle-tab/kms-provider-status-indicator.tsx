@@ -13,7 +13,7 @@ import {
 
 const iconStyles = css({
   marginLeft: spacing[2],
-  display: 'block'
+  display: 'block',
 });
 
 function KMSProviderStatusIndicator<KMSProvider extends keyof KMSProviders>({
@@ -39,26 +39,26 @@ function KMSProviderStatusIndicator<KMSProvider extends keyof KMSProviders>({
   // TODO(COMPASS-5651): Use actual icons here
   if (hasFieldWithError) {
     return (
-      <span
-        title="Error"
-
-      >
-        <Icon glyph="XWithCircle" className={cx(css({ color: uiColors.red.base }), iconStyles)} />
+      <span title="Error">
+        <Icon
+          glyph="XWithCircle"
+          className={cx(css({ color: uiColors.red.base }), iconStyles)}
+        />
       </span>
     );
   } else if (hasAnyFieldSet && isMissingRequiredField) {
     return (
-      <span title="Incomplete configuration" >
+      <span title="Incomplete configuration">
         <Icon glyph="QuestionMarkWithCircle" className={iconStyles} />
       </span>
     );
   } else if (hasAnyFieldSet) {
     return (
-      <span
-        title="Fully configured"
-
-      >
-        <Icon glyph="CheckmarkWithCircle" className={cx(css({ color: uiColors.green.base }), iconStyles)} />
+      <span title="Fully configured">
+        <Icon
+          glyph="CheckmarkWithCircle"
+          className={cx(css({ color: uiColors.green.base }), iconStyles)}
+        />
       </span>
     );
   }
