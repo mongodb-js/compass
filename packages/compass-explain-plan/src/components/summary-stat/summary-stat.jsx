@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, IconButton } from '@mongodb-js/compass-components';
+import { Body, Icon, IconButton } from '@mongodb-js/compass-components';
 
 import styles from './summary-stat.module.less';
 
@@ -39,8 +39,8 @@ class SummaryStat extends Component {
             <Icon glyph="InfoWithCircle" size="small" />
           </IconButton>
         )}
-        <span className={styles['summary-stat-label']}>{label}</span>
-        <span className={styles['summary-stat-value']}>{value}</span>
+        <Body className={styles['summary-stat-label']}>{label}</Body>
+        <Body className={styles['summary-stat-value']}>{value}</Body>
       </div>
     );
   }
