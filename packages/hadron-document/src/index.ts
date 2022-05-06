@@ -1,5 +1,8 @@
 import Document, { Events as DocumentEvents } from './document';
-import Element, { Events as ElementEvents } from './element';
+import Element, {
+  Events as ElementEvents,
+  isInternalFieldPath,
+} from './element';
 import ElementEditor, { Editor } from './editor';
 
 export default Document;
@@ -10,4 +13,5 @@ export {
   ElementEvents,
   ElementEditor,
   Editor,
+  isInternalFieldPath,
 };

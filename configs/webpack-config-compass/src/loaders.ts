@@ -162,6 +162,15 @@ export const resourceLoader = (_args: ConfigArgs) => ({
   type: 'asset/resource',
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const sharedObjectLoader = (_args: ConfigArgs) => ({
+  test: /\.(dylib|so|dll)(\?.+?)?$/,
+  // asset/resource always compiles imports to paths to files, this is a good
+  // strategy for electron main (node.js) process where handling data uris might
+  // be more work than handling files
+  type: 'asset/resource',
+});
+
 export const sourceLoader = (args: ConfigArgs) => ({
   exclude: [
     javascriptLoader(args).test,
@@ -169,6 +178,7 @@ export const sourceLoader = (args: ConfigArgs) => ({
     cssLoader(args).test,
     lessLoader(args).test,
     assetsLoader(args).test,
+    sharedObjectLoader(args).test,
     // Produced by html-webpack-plugin and should not be handled
     /\.(ejs|html)$/,
     // Handled nicely by Webpack by default, no need to load it as raw source

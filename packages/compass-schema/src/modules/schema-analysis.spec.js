@@ -9,7 +9,11 @@ describe('schema-analyis', function () {
     it('returns the schema', async function () {
       const dataService = {
         sample: () => ({
-          toArray: () => Promise.resolve([{ x: 1 }, { y: 2 }]),
+          toArray: () =>
+            Promise.resolve([
+              { x: 1 },
+              { y: 2, __safeContent__: [new bson.Binary('aaaa')] },
+            ]),
         }),
       };
 

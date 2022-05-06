@@ -159,7 +159,8 @@ class EditableDocument extends React.Component {
    * Handle cloning of the document.
    */
   handleClone() {
-    this.props.openInsertDocumentDialog(this.props.doc.generateObject(), true);
+    const clonedDoc = this.props.doc.generateObject({ excludeInternalFields: true });
+    this.props.openInsertDocumentDialog(clonedDoc, true);
   }
 
   /**

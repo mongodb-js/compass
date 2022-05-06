@@ -50,7 +50,6 @@ class Stage extends Component {
     sourceName: PropTypes.string,
     stage: PropTypes.string.isRequired,
     stageOperator: PropTypes.string,
-    snippet: PropTypes.string,
     error: PropTypes.string,
     syntaxError: PropTypes.string,
     isValid: PropTypes.bool.isRequired,
@@ -60,7 +59,6 @@ class Stage extends Component {
     isComplete: PropTypes.bool.isRequired,
     // Can be undefined on the initial render
     isMissingAtlasOnlyStageSupport: PropTypes.bool,
-    fromStageOperators: PropTypes.bool.isRequired,
     previewDocuments: PropTypes.array.isRequired,
     index: PropTypes.number.isRequired,
     isCommenting: PropTypes.bool.isRequired,
@@ -89,7 +87,6 @@ class Stage extends Component {
   shouldComponentUpdate(nextProps) {
     const should = (
       nextProps.stageOperator !== this.props.stageOperator ||
-      nextProps.snippet !== this.props.snippet ||
       nextProps.error !== this.props.error ||
       nextProps.syntaxError !== this.props.syntaxError ||
       nextProps.isValid !== this.props.isValid ||
@@ -98,7 +95,6 @@ class Stage extends Component {
       nextProps.isLoading !== this.props.isLoading ||
       nextProps.isComplete !== this.props.isComplete ||
       nextProps.isMissingAtlasOnlyStageSupport !== this.props.isMissingAtlasOnlyStageSupport ||
-      nextProps.fromStageOperators !== this.props.fromStageOperators ||
       nextProps.index !== this.props.index ||
       nextProps.isCommenting !== this.props.isCommenting ||
       nextProps.isAutoPreviewing !== this.props.isAutoPreviewing ||
@@ -150,11 +146,9 @@ class Stage extends Component {
           <StageEditor
             stage={this.props.stage}
             stageOperator={this.props.stageOperator}
-            snippet={this.props.snippet}
             error={this.props.error}
             syntaxError={this.props.syntaxError}
             isValid={this.props.isValid}
-            fromStageOperators={this.props.fromStageOperators}
             runStage={this.props.runStage}
             index={this.props.index}
             serverVersion={this.props.serverVersion}

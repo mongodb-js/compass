@@ -1,4 +1,5 @@
 import '../setup-hadron-distribution';
+import './setup-csfle-library';
 import { app } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
 
@@ -17,6 +18,7 @@ if (process.env.APP_ENV === 'webdriverio') {
 // @ts-expect-error setVersion is not a public method
 app.setVersion(process.env.HADRON_APP_VERSION);
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 process.on('uncaughtException', handleUncaughtException);
 
 void import('./application').then(({ CompassApplication }) => {
