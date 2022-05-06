@@ -36,7 +36,6 @@ function KMSProviderStatusIndicator<KMSProvider extends keyof KMSProviders>({
       (typeof state === 'string' ? state : state(errors)) === 'error'
   );
 
-  // TODO(COMPASS-5651): Use actual icons here
   if (hasFieldWithError) {
     return (
       <span title="Error">
