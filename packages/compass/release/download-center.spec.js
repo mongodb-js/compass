@@ -7,7 +7,7 @@ const CompassDownloadCenter = require('./download-center');
 chai.use(sinonChai);
 const { expect } = chai;
 
-describe('CompassDownloadCenter', () => {
+describe('CompassDownloadCenter', function() {
   if (!!process.env.EVERGREEN && process.platform === 'darwin') {
     // These tests are not working well on Evergreen macOS machines and we will
     // skip them for now (they will run in GitHub CI)
@@ -18,27 +18,27 @@ describe('CompassDownloadCenter', () => {
 
   let downloadCenter;
   let config;
-  beforeEach(async() => {
+  beforeEach(async function() {
     downloadCenter = new CompassDownloadCenter({});
     config = await fs.readJSON(
       path.resolve(__dirname, 'fixtures', 'config.json')
     );
   });
 
-  describe('getVersion', async() => {
-    it('gets ga version', () => {
+  describe('getVersion', function() {
+    it('gets ga version', function() {
       const gaVersion = downloadCenter.getVersion(config, 'ga');
       expect(gaVersion).to.equal('1.22.1');
     });
 
-    it('gets beta version', () => {
+    it('gets beta version', function() {
       const betaVersion = downloadCenter.getVersion(config, 'beta');
       expect(betaVersion).to.equal('1.23.0-beta.4');
     });
   });
 
-  describe('getAssets', () => {
-    it('returns all the assets for ga', () => {
+  describe('getAssets', function() {
+    it('returns all the assets for ga', function() {
       expect(
         downloadCenter.getAssets(config, 'ga')
           .map((asset) => path.basename(asset.download_link))
@@ -64,7 +64,7 @@ describe('CompassDownloadCenter', () => {
       ]);
     });
 
-    it('returns all the assets for beta', () => {
+    it('returns all the assets for beta', function() {
       expect(
         downloadCenter.getAssets(config, 'beta')
           .map((asset) => path.basename(asset.download_link))
@@ -91,8 +91,8 @@ describe('CompassDownloadCenter', () => {
     });
   });
 
-  describe('replaceVersion', () => {
-    it('replaces all stable version with the new one', async() => {
+  describe('replaceVersion', function() {
+    it('replaces all stable version with the new one', async function() {
       const expected = await fs.readJSON(
         path.resolve(__dirname, 'fixtures', 'expected-ga.json')
       );
@@ -101,7 +101,7 @@ describe('CompassDownloadCenter', () => {
       expect(updated).to.deep.equal(expected);
     });
 
-    it('replaces all beta versions with the new one', async() => {
+    it('replaces all beta versions with the new one', async function() {
       const expected = await fs.readJSON(
         path.resolve(__dirname, 'fixtures', 'expected-beta.json')
       );

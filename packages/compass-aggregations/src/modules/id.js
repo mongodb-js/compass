@@ -28,7 +28,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Action creator for id creation events.
  *
- * @returns {Object} The create id action.
+ * @returns {{ type: string }} The create id action.
  */
 export const createId = () => ({
   type: CREATE_ID

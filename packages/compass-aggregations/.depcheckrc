@@ -3,3 +3,5 @@ ignores:
   - '@mongodb-js/tsconfig-compass'
   - '@mongodb-js/tsconfig-compass'
   - 'mongodb-compass'
+ignore-patterns:
+  - 'dist'

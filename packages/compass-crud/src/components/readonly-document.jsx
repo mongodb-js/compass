@@ -35,7 +35,8 @@ class ReadonlyDocument extends React.Component {
   }
 
   handleClone = () => {
-    this.props.openInsertDocumentDialog(this.props.doc.generateObject(), true);
+    const clonedDoc = this.props.doc.generateObject({ excludeInternalFields: true });
+    this.props.openInsertDocumentDialog(clonedDoc, true);
   }
 
   /**

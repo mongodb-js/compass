@@ -25,7 +25,14 @@ const getComponent = (name: string) => {
 
 const createDataService = () => ({});
 
-describe.skip('Home [Component]', function () {
+describe('Home [Component]', function () {
+  before(function () {
+    // Skip these tests if we're not running in an electron runtime.
+    if (!process.versions.electron) {
+      this.skip();
+    }
+  });
+
   let testAppRegistry: AppRegistry;
   beforeEach(function () {
     testAppRegistry = new AppRegistry();
