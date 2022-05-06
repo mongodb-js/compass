@@ -1,34 +1,35 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
-import { css, cx, spacing, CancelLoader } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  CancelLoader,
+  ErrorSummary,
+  Subtitle,
+  Button,
+  uiColors
+} from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-import { cancelAggregation } from '../../modules/aggregation';
+import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
 
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelineResultsList from './pipeline-results-list';
 import PipelineEmptyResults from './pipeline-empty-results';
 import PipelineResultsHeader from './pipeline-results-header';
-
-type PipelineResultsWorkspaceProps = {
-  documents: Document[];
-  loading: boolean;
-  hasEmptyResults: boolean;
-  error?: string;
-  onCancel: () => void;
-};
+import {
+  getDestinationNamespaceFromStage,
+  isEmptyishStage
+} from '../../modules/stage';
+import { goToNamespace } from '../../modules/pipeline';
 
 const containerStyles = css({
   overflow: 'hidden',
-  height: '100vh',
   display: 'grid',
-  gap: spacing[2],
-  gridTemplateAreas: `
-    "header"
-    "results"
-  `,
-  gridTemplateRows: 'min-content',
+  gridTemplateRows: 'min-content 1fr',
+  gridTemplateColumns: '1fr',
   marginTop: spacing[2],
   marginBottom: spacing[3],
 });
@@ -36,66 +37,201 @@ const containerStyles = css({
 const headerStyles = css({
   paddingLeft: spacing[3] + spacing[1],
   paddingRight: spacing[5] + spacing[1],
-  gridArea: 'header',
-  gap: spacing[2],
 });
 
 const resultsStyles = css({
-  gridArea: 'results',
+  height: '100%',
   overflowY: 'auto',
+  '&:not(:first-child)': {
+    height: `calc(100% - ${spacing[3]}px)`,
+    marginTop: spacing[3]
+  }
 });
 
-const centeredContentStyles = css({
-  height: '100%',
+const results = css({
   display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
+  alignItems: 'flex-start',
+  paddingLeft: spacing[3] + spacing[1],
+  paddingRight: spacing[5] + spacing[1]
 });
+
+const centered = css({
+  width: '100%',
+  height: '100%',
+  paddingTop: spacing[6] * 2,
+  justifyContent: 'center'
+});
+
+const ResultsContainer: React.FunctionComponent<{ center?: boolean }> = ({
+  children,
+  center
+}) => {
+  return <div className={cx(results, center && centered)}>{children}</div>;
+};
+
+const outResult = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: spacing[2],
+  maxWidth: spacing[6] * 8,
+  marginTop: spacing[2],
+  marginBottom: spacing[2]
+});
+
+const outResultText = css({
+  color: uiColors.green.dark2,
+  textAlign: 'center'
+});
+
+const OutResultBanner: React.FunctionComponent<{
+  namespace?: string | null;
+  onClick?: () => void;
+}> = ({ namespace, onClick }) => {
+  return (
+    <div className={outResult}>
+      <Subtitle className={outResultText}>
+        Results persisted
+        {namespace ? ` in ${namespace} namespace` : ''}
+      </Subtitle>
+      {namespace && (
+        <Button variant="primaryOutline" onClick={onClick}>
+          Go to collection
+        </Button>
+      )}
+    </div>
+  );
+};
+
+type PipelineResultsWorkspaceProps = {
+  documents: Document[];
+  isLoading?: boolean;
+  isError?: boolean;
+  error?: string | null;
+  isEmpty?: boolean;
+  isMergeOrOutPipeline?: boolean;
+  mergeOrOutDestination?: string | null;
+  onOutClick?: (ns: string) => void;
+  onCancel: () => void;
+  onRetry: () => void;
+};
 
 export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspaceProps> =
-  ({ documents, hasEmptyResults, loading, onCancel }) => {
+  ({
+    documents,
+    isLoading,
+    error,
+    isError,
+    isEmpty,
+    isMergeOrOutPipeline,
+    mergeOrOutDestination,
+    onOutClick,
+    onRetry,
+    onCancel
+  }) => {
     const [resultsViewType, setResultsViewType] =
       useState<ResultsViewType>('document');
 
-    const isResultsListHidden = loading || hasEmptyResults;
+    let results: React.ReactElement | null = null;
+
+    if (isError && error) {
+      results = (
+        <ResultsContainer>
+          <ErrorSummary
+            dataTestId="pipeline-results-error"
+            errors={[{ message: error }]}
+            onAction={onRetry}
+            actionText="Retry"
+          />
+        </ResultsContainer>
+      );
+    } else if (isLoading) {
+      results = (
+        <ResultsContainer center>
+          <CancelLoader
+            dataTestId="pipeline-results-loader"
+            progressText={
+              isMergeOrOutPipeline
+                ? `Persisting documents${
+                    mergeOrOutDestination
+                      ? ` to ${mergeOrOutDestination} namespace`
+                      : ''
+                  }`
+                : 'Running aggregation'
+            }
+            cancelText="Stop"
+            onCancel={onCancel}
+          />
+        </ResultsContainer>
+      );
+    } else if (isMergeOrOutPipeline) {
+      results = (
+        <ResultsContainer center>
+          <OutResultBanner
+            namespace={mergeOrOutDestination}
+            onClick={() => {
+              if (mergeOrOutDestination) {
+                onOutClick?.(mergeOrOutDestination);
+              }
+            }}
+          ></OutResultBanner>
+        </ResultsContainer>
+      );
+    } else if (isEmpty) {
+      results = (
+        <ResultsContainer center>
+          <PipelineEmptyResults />
+        </ResultsContainer>
+      );
+    } else {
+      results = (
+        <PipelineResultsList documents={documents} view={resultsViewType} />
+      );
+    }
 
     return (
       <div data-testid="pipeline-results-workspace" className={containerStyles}>
-        <div className={headerStyles}>
-          <PipelineResultsHeader
-            resultsView={resultsViewType}
-            onChangeResultsView={setResultsViewType}
-          />
-        </div>
-        <div className={resultsStyles}>
-          <PipelineResultsList documents={documents} view={resultsViewType} />
-          <div className={cx(isResultsListHidden && centeredContentStyles)}>
-            {loading && (
-              <CancelLoader
-                dataTestId="pipeline-results-loader"
-                progressText="Running aggregation"
-                cancelText="Stop"
-                onCancel={() => onCancel()}
-              />
-            )}
-            {hasEmptyResults && <PipelineEmptyResults />}
+        {!isMergeOrOutPipeline && (
+          <div className={headerStyles}>
+            <PipelineResultsHeader
+              resultsView={resultsViewType}
+              onChangeResultsView={setResultsViewType}
+            />
           </div>
-        </div>
+        )}
+        <div className={resultsStyles}>{results}</div>
       </div>
     );
   };
 
 const mapState = ({
-  aggregation: { documents, loading, error },
-}: RootState) => ({
-  documents,
-  error,
-  loading,
-  hasEmptyResults: documents.length === 0 && !error && !loading,
-});
+  pipeline,
+  namespace,
+  aggregation: { documents, loading, error }
+}: RootState) => {
+  const resultPipeline = pipeline.filter(
+    (stageState) => !isEmptyishStage(stageState)
+  );
+  const lastStage = resultPipeline[resultPipeline.length - 1];
+
+  return {
+    documents,
+    isLoading: loading,
+    error,
+    isError: Boolean(error),
+    isEmpty: documents.length === 0,
+    isMergeOrOutPipeline: ['$merge', '$out'].includes(lastStage?.stageOperator),
+    mergeOrOutDestination: getDestinationNamespaceFromStage(
+      namespace,
+      lastStage
+    )
+  };
+};
 
 const mapDispatch = {
   onCancel: cancelAggregation,
+  onRetry: retryAggregation,
+  onOutClick: goToNamespace
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsWorkspace);

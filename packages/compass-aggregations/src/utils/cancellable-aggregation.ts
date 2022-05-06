@@ -1,28 +1,52 @@
-import type { AggregateOptions, Document } from "mongodb";
-import type { DataService } from "mongodb-data-service";
+import type { AggregateOptions, Document } from 'mongodb';
+import type { DataService } from 'mongodb-data-service';
 import createLogger from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLogger('compass-aggregations');
 
 import { raceWithAbort, createCancelError } from './cancellable-promise';
 
-export async function aggregatePipeline(
-  dataService: DataService,
-  signal: AbortSignal,
-  namespace: string,
-  pipeline: Document[],
-  options: AggregateOptions,
-  skip: number,
-  limit: number,
-): Promise<Document[]> {
+const defaultOptions = {
+  promoteValues: false,
+  allowDiskUse: true,
+  bsonRegExp: true
+};
+
+export async function aggregatePipeline({
+  dataService,
+  signal,
+  namespace,
+  pipeline,
+  options,
+  skip,
+  limit
+}: {
+  dataService: DataService;
+  signal: AbortSignal;
+  namespace: string;
+  pipeline: Document[];
+  options: AggregateOptions;
+  skip?: number;
+  limit?: number;
+}): Promise<Document[]> {
   if (signal.aborted) {
     return Promise.reject(createCancelError());
   }
   const session = dataService.startSession('CRUD');
-  const cursor = dataService.aggregate(namespace, pipeline, options).skip(skip).limit(limit);
+  const cursor = dataService.aggregate(
+    namespace,
+    pipeline
+      .concat(skip ? [{ $skip: skip }] : [])
+      .concat(limit ? [{ $limit: limit }] : []),
+    { ...defaultOptions, ...options }
+  );
   const abort = () => {
     cursor.close();
     dataService.killSessions(session).catch(() => {
-      log.warn(mongoLogId(1001000105), 'Aggregations', 'Attempting to kill the session failed')
+      log.warn(
+        mongoLogId(1001000105),
+        'Aggregations',
+        'Attempting to kill the session failed'
+      );
     });
   };
   signal.addEventListener('abort', abort, { once: true });

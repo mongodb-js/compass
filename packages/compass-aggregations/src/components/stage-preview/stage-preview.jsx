@@ -92,19 +92,26 @@ class StagePreview extends Component {
       }
       return (<div className={styles['stage-preview-out']} />);
     }
+
+    const previewOutText =
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true'
+        ? 'The $merge operator will cause the pipeline to persist the results to the specified location. Please confirm to execute.'
+        : 'The $merge operator will cause the pipeline to persist the results to the specified location.'
+
     return (
       <div className={styles['stage-preview-out']}>
         <div className={styles['stage-preview-out-text']}>
-          The $merge operator will cause the pipeline to persist the results
-          to the specified location. Please confirm to execute.
+          {previewOutText}
         </div>
-        <div className={styles['stage-preview-out-button']}>
-          <TextButton
-            dataTestId="save-merge-documents"
-            text="Merge Documents"
-            className="btn btn-xs btn-primary"
-            clickHandler={this.onSaveDocuments} />
-        </div>
+        {process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true' && (
+          <div className={styles['stage-preview-out-button']}>
+            <TextButton
+              dataTestId="save-merge-documents"
+              text="Merge Documents"
+              className="btn btn-xs btn-primary"
+              clickHandler={this.onSaveDocuments} />
+          </div>
+        )}
       </div>
     );
   }
@@ -135,21 +142,27 @@ class StagePreview extends Component {
       }
       return (<div className={styles['stage-preview-out']} />);
     }
+
+    const previewOutText =
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true'
+        ? 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced. Please confirm to execute.'
+        : 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.'
+
     return (
       <div className={styles['stage-preview-out']}>
         <div className={styles['stage-preview-out-text']}>
-          The $out operator will cause the pipeline to persist the results
-          to the specified location (collection, S3, or Atlas). If the collection exists it will be
-          replaced. Please confirm to execute.
+          {previewOutText}
         </div>
-        <div className={styles['stage-preview-out-button']}>
-          <TextButton
-            dataTestId="save-out-documents"
-            text="Save Documents"
-            className="btn btn-xs btn-primary"
-            clickHandler={this.onSaveDocuments}
-          />
-        </div>
+        {process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true' && (
+          <div className={styles['stage-preview-out-button']}>
+            <TextButton
+              dataTestId="save-out-documents"
+              text="Save Documents"
+              className="btn btn-xs btn-primary"
+              clickHandler={this.onSaveDocuments}
+            />
+          </div>
+        )}
       </div>
     );
   }

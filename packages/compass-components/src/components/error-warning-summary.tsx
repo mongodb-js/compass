@@ -1,5 +1,4 @@
 import React from 'react';
-import { spacing } from '@leafygreen-ui/tokens';
 import { Variant as BannerVariant } from '@leafygreen-ui/banner';
 import { css } from '@leafygreen-ui/emotion';
 
@@ -9,7 +8,7 @@ import { Banner, Button } from './leafygreen';
 type ErrorOrWarning = { message: string };
 
 const bannerStyle = css({
-  marginTop: spacing[1],
+  width: '100%',
 });
 
 const listStyle = css({

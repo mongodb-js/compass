@@ -41,6 +41,7 @@ class AggregationCursorMock {
 const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
   const mockedState: RootState = {
     ...INITIAL_STATE,
+    aggregationWorkspaceId: '0',
     aggregation,
   };
   return createStore(rootReducer, mockedState, applyMiddleware(thunk));
@@ -63,8 +64,6 @@ describe('aggregation module', function () {
       hasNext: true,
       documents: mockDocuments,
     });
-    const skipSpy = spy(aggregateMock, 'skip');
-    const limitSpy = spy(aggregateMock, 'limit');
     const toArraySpy = spy(aggregateMock, 'toArray');
 
     const startSessionSpy = spy();
@@ -85,8 +84,6 @@ describe('aggregation module', function () {
     await store.dispatch(runAggregation() as any);
 
     expect(startSessionSpy.getCalls().map(x => x.args), 'calls startSession with correct args').to.deep.equal([['CRUD']]);
-    expect(skipSpy.getCalls().map(x => x.args), 'calls skip with correct args').to.deep.equal([[0]]);
-    expect(limitSpy.getCalls().map(x => x.args), 'calls limit with correct args').to.deep.equal([[20]]);
     expect(toArraySpy.getCalls().map(x => x.args), 'calls toArray with correct args').to.deep.equal([[]]);
 
     expect(store.getState().aggregation).to.deep.equal({
@@ -174,8 +171,6 @@ describe('aggregation module', function () {
         hasNext: true,
         documents: mockDocuments,
       });
-      const skipSpy = spy(aggregateMock, 'skip');
-      const limitSpy = spy(aggregateMock, 'limit');
       const toArraySpy = spy(aggregateMock, 'toArray');
       const startSessionSpy = spy();
       store.dispatch({
@@ -195,8 +190,6 @@ describe('aggregation module', function () {
       await wait();
 
       expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal(['CRUD']);
-      expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([8]);
-      expect(limitSpy.firstCall.args, 'calls limit with correct args').to.deep.equal([4]);
       expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
       expect(store.getState().aggregation).to.deep.equal({
@@ -246,8 +239,6 @@ describe('aggregation module', function () {
         hasNext: true,
         documents: mockDocuments,
       });
-      const skipSpy = spy(aggregateMock, 'skip');
-      const limitSpy = spy(aggregateMock, 'limit');
       const toArraySpy = spy(aggregateMock, 'toArray');
       const startSessionSpy = spy();
 
@@ -268,8 +259,6 @@ describe('aggregation module', function () {
       await wait();
 
       expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal(['CRUD']);
-      expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([0]);
-      expect(limitSpy.firstCall.args, 'calls limit with correct args').to.deep.equal([4]);
       expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
       expect(store.getState().aggregation).to.deep.equal({

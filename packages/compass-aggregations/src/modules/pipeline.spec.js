@@ -407,9 +407,11 @@ describe('pipeline module', function () {
         ]);
       });
       it('returns the pipeline string with only the current stage', function () {
-        expect(generatePipelineAsString(state, 0)).to.deep.equal(`[{$match: {
- name: 'test'
-}}]`);
+        expect(generatePipelineAsString(state, 0)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}]`);
       });
     });
 
@@ -449,13 +451,19 @@ describe('pipeline module', function () {
         ]);
       });
       it('returns the pipeline string with the current and all previous stages', function () {
-        expect(generatePipelineAsString(state, 2)).to.deep.equal(`[{$match: {
- name: 'test'
-}}, {$project: {
- name: 1
-}}, {$sort: {
- name: 1
-}}]`);
+        expect(generatePipelineAsString(state, 2)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}, {
+ $project: {
+  name: 1
+ }
+}, {
+ $sort: {
+  name: 1
+ }
+}]`);
       });
     });
 
@@ -494,11 +502,15 @@ describe('pipeline module', function () {
         ]);
       });
       it('returns the pipeline string with the current and all previous stages', function () {
-        expect(generatePipelineAsString(state, 1)).to.deep.equal(`[{$match: {
- name: 'test'
-}}, {$project: {
- name: 1
-}}]`);
+        expect(generatePipelineAsString(state, 1)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}, {
+ $project: {
+  name: 1
+ }
+}]`);
       });
     });
 

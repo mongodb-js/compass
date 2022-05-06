@@ -14,6 +14,7 @@ import {
   exportAggregationResults,
   runAggregation,
 } from '../../../modules/aggregation';
+import { isEmptyishStage } from '../../../modules/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -38,20 +39,22 @@ const optionStyles = css({
 });
 
 type PipelineActionsProps = {
-  isPipelineInvalid: boolean;
-  isOptionsVisible: boolean;
-  showRunButton: boolean;
-  showExportButton: boolean;
+  isOptionsVisible?: boolean;
+  showRunButton?: boolean;
+  isRunButtonDisabled?: boolean;
+  showExportButton?: boolean;
+  isExportButtonDisabled?: boolean;
   onRunAggregation: () => void;
   onToggleOptions: () => void;
   onExportAggregationResults: () => void;
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
-  isPipelineInvalid,
   isOptionsVisible,
   showRunButton,
+  isRunButtonDisabled,
   showExportButton: _showExportButton,
+  isExportButtonDisabled,
   onRunAggregation,
   onToggleOptions,
   onExportAggregationResults,
@@ -72,7 +75,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           onClick={() => {
             onExportAggregationResults();
           }}
-          disabled={isPipelineInvalid}
+          disabled={isExportButtonDisabled}
         >
           Export
         </Button>
@@ -85,7 +88,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         onClick={() => {
           onRunAggregation();
         }}
-        disabled={isPipelineInvalid}
+        disabled={isRunButtonDisabled}
       >
         Run
       </Button>}
@@ -109,11 +112,23 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   );
 };
 
-const mapState = ({ pipeline }: RootState) => ({
-  isPipelineInvalid: pipeline.some(
-    (x) => x.isEnabled && (!x.isValid || x.error)
-  ),
-});
+const mapState = ({ pipeline }: RootState) => {
+  const resultPipeline = pipeline.filter(
+    (stageState) => !isEmptyishStage(stageState)
+  );
+  const lastStage = resultPipeline[resultPipeline.length - 1];
+  const isMergeOrOutPipeline = ['$merge', '$out'].includes(
+    lastStage?.stageOperator
+  );
+  const isPipelineInvalid = resultPipeline.some(
+    (stageState) => !stageState.isValid || Boolean(stageState.error)
+  );
+
+  return {
+    isRunButtonDisabled: isPipelineInvalid,
+    isExportButtonDisabled: isMergeOrOutPipeline || isPipelineInvalid
+  };
+};
 
 const mapDispatch = {
   onRunAggregation: runAggregation,

@@ -111,7 +111,8 @@ describe('PipelineActions', function () {
       onExportAggregationResultsSpy = spy();
       render(
         <PipelineActions
-          isPipelineInvalid={true}
+          isExportButtonDisabled={true}
+          isRunButtonDisabled={true}
           isOptionsVisible={true}
           showRunButton={true}
           showExportButton={true}
