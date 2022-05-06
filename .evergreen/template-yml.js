@@ -124,12 +124,6 @@ const buildVariants = [
 for (const buildVariant of buildVariants) {
   buildVariant.tasks = [];
   for (const task of testPackagedAppVariations) {
-    // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
-    // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
-    // we can remove this.
-    if (task.name.startsWith('test-packaged-app-5x') && buildVariant.name === 'ubuntu') {
-      continue;
-    }
     buildVariant.tasks.push(task);
   }
 }
