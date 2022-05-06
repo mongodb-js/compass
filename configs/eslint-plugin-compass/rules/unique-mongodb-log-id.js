@@ -11,7 +11,8 @@ const MongoLogIdUsageMap = new Map();
  */
 const UniqueIdsDuplicatedMap = new Map();
 
-const idRegex = /mongoLogId\(([0-9_]{10,13})\)/;
+const idRegex = /mongoLogId\(([0-9_]+)\)(:?.+?\/\/\s+?!dupedLogId)?/;
+const dupedLogIdRegex = /\/\/\s+?!dupedLogId/;
 const ignoreFileRegex = /\.(spec|test)\.(js|jsx|ts|tsx)$/;
 
 function updateUniqueIdsDuplicatedMap() {
@@ -32,8 +33,13 @@ function updateUniqueIdsDuplicatedMap() {
 function updateMongoLogIdUsageMapFromSource(filePath, source) {
   MongoLogIdUsageMap.delete(filePath);
 
-  for (const [, match] of source.getText().matchAll(new RegExp(idRegex, 'g'))) {
-    const id = Number(match.replace(/_/g, ''));
+  for (const [match, group] of source
+    .getText()
+    .matchAll(new RegExp(idRegex, 'g'))) {
+    if (dupedLogIdRegex.test(match)) {
+      continue;
+    }
+    const id = Number(group.replace(/_/g, ''));
     if (MongoLogIdUsageMap.has(filePath)) {
       MongoLogIdUsageMap.get(filePath).push(id);
     } else {
@@ -51,7 +57,7 @@ function updateMongoLogIdUsageMapFromSource(filePath, source) {
 function updateMongoLogIdUsageMapFromGit(cwd = process.cwd()) {
   const { stdout } = spawnSync(
     'git',
-    ['grep', '-o', '--untracked', '-e', 'mongoLogId([0-9_]\\{10,13\\})'],
+    ['grep', '--untracked', '-e', 'mongoLogId([0-9_]\\{1,\\})'],
     { cwd }
   );
 
@@ -68,9 +74,15 @@ function updateMongoLogIdUsageMapFromGit(cwd = process.cwd()) {
       continue;
     }
 
+    if (/\/\/\s+?!dupedLogId/.test(match)) {
+      return;
+    }
+
     const absPath = path.resolve(cwd, filePath);
 
-    const id = Number(match.replace(idRegex, '$1').replace(/_/g, ''));
+    const [, group] = idRegex.exec(match);
+
+    const id = Number(group.replace(/_/g, ''));
 
     if (MongoLogIdUsageMap.has(absPath)) {
       MongoLogIdUsageMap.get(absPath).push(id);
@@ -140,18 +152,29 @@ module.exports = {
           root: {
             type: 'string',
           },
+          min: {
+            type: 'number',
+          },
+          max: {
+            type: 'number',
+          },
         },
       },
     ],
   },
   create(context) {
-    const root = context.options[0]?.root ?? process.cwd();
+    const opts = {
+      root: context.getCwd(),
+      min: 1_001_000_000,
+      max: 1_002_000_000,
+      ...context.options[0],
+    };
 
     if (isFirstRun) {
       // On the first run collect info for all the files in the monorepo using
       // git grep (this is relatively fast, but not fast enough to run it
       // constantly)
-      updateMongoLogIdUsageMapFromGit(root);
+      updateMongoLogIdUsageMapFromGit(opts.root);
       isFirstRun = false;
     }
 
@@ -185,7 +208,7 @@ module.exports = {
             );
           }
 
-          if (id < 1_001_000_000 || id >= 1_002_000_000) {
+          if (id < opts.min || id >= opts.max) {
             return reportWrongIdArgument(
               context,
               arg,
@@ -194,7 +217,7 @@ module.exports = {
           }
 
           if (maybeDupedIdMarker) {
-            if (UniqueIdsDuplicatedMap.get(id) !== true) {
+            if (!UniqueIdsDuplicatedMap.has(id)) {
               context.report({
                 node: maybeDupedIdMarker,
                 data: { id: raw },
