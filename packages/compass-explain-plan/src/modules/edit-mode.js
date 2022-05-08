@@ -1,4 +1,3 @@
-
 /**
  * The prefix.
  */
@@ -39,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const editModeChanged = (isEditable) => ({
   type: EDIT_MODE_CHANGED,
-  isEditable
+  isEditable,
 });
