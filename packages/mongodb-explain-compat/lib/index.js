@@ -88,7 +88,9 @@ function isShardedAggregationExplain(explain) {
 }
 
 function isShardedFind(explain) {
-  return explain.queryPlanner && explain.queryPlanner.mongosPlannerVersion;
+  return (
+    explain.queryPlanner && explain.queryPlanner.mongosPlannerVersion === 1
+  );
 }
 
 function getStageCursorKey(stage) {
@@ -127,9 +129,6 @@ module.exports = function (explain) {
 
   // Sharded Find
   if (isShardedFind(explain)) {
-    if (explain.queryPlanner.mongosPlannerVersion < 2) {
-      return explain;
-    }
     return mapShardedFind(explain);
   }
 
@@ -157,7 +156,7 @@ function mapShardedAggregation(explain) {
     return explain;
   }
   const shards = {};
-  for (const shardName of explain.shards) {
+  for (const shardName in explain.shards) {
     // Shard with stages
     if (explain.shards[shardName].stages) {
       shards[shardName] = mapsUnshardedAggregation(explain.shards[shardName]);
@@ -177,15 +176,16 @@ function mapShardedFind(explain) {
   }
   queryPlanner.winningPlan.shards.forEach((shard, index) => {
     const winningPlan = shard.winningPlan.queryPlan;
-    const executionStages = mapStages(
-      winningPlan,
-      executionStats.executionStages.shards[index].executionStages
-    );
+    if (winningPlan) {
+      const executionStages = mapStages(
+        winningPlan,
+        executionStats.executionStages.shards[index].executionStages
+      );
 
-    queryPlanner.winningPlan.shards[index].winningPlan = winningPlan;
-    executionStats.executionStages.shards[index].executionStages =
-      executionStages;
-    return shard;
+      queryPlanner.winningPlan.shards[index].winningPlan = winningPlan;
+      executionStats.executionStages.shards[index].executionStages =
+        executionStages;
+    }
   });
   explain.queryPlanner = queryPlanner;
   explain.executionStats = executionStats;
@@ -195,8 +195,12 @@ function mapUnshardedFind(explain) {
   return _mapPlannerStage(explain);
 }
 
-const _mapPlannerStage = (planner) => {
-  if (planner.queryPlanner) {
+function _mapPlannerStage(planner) {
+  if (
+    planner.queryPlanner &&
+    planner.queryPlanner.winningPlan &&
+    planner.queryPlanner.winningPlan.queryPlan
+  ) {
     planner.queryPlanner.plannerVersion = 1;
     const winningPlan = planner.queryPlanner.winningPlan.queryPlan;
     planner.queryPlanner.winningPlan = winningPlan;
@@ -207,4 +211,4 @@ const _mapPlannerStage = (planner) => {
     );
   }
   return JSON.parse(JSON.stringify(planner));
-};
+}

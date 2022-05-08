@@ -1,0 +1,189 @@
+{
+  "serverInfo": {
+    "host": "M-C02DR0F9ML85.local",
+    "port": 8080,
+    "version": "5.3.0-rc3",
+    "gitVersion": "cf6ac4d17da6eb6562f503a515ea6aea2ccbf944"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "splitPipeline": null,
+  "shards": {
+    "shard1": {
+      "host": "localhost:8001",
+      "stages": [
+        {
+          "$cursor": {
+            "queryPlanner": {
+              "namespace": "sharded-db.faker",
+              "indexFilterSet": false,
+              "parsedQuery": {
+                "abbreviation": {
+                  "$regex": "png",
+                  "$options": "i"
+                }
+              },
+              "queryHash": "5EBC4870",
+              "planCacheKey": "5EBC4870",
+              "maxIndexedOrSolutionsReached": false,
+              "maxIndexedAndSolutionsReached": false,
+              "maxScansToExplodeReached": false,
+              "winningPlan": {
+                "stage": "GROUP",
+                "planNodeId": 3,
+                "inputStage": {
+                  "stage": "SHARDING_FILTER",
+                  "planNodeId": 2,
+                  "inputStage": {
+                    "stage": "COLLSCAN",
+                    "planNodeId": 1,
+                    "filter": {
+                      "abbreviation": {
+                        "$regex": "png",
+                        "$options": "i"
+                      }
+                    },
+                    "direction": "forward"
+                  }
+                }
+              },
+              "rejectedPlans": [],
+              "plannerVersion": 1
+            },
+            "executionStats": {
+              "executionSuccess": true,
+              "nReturned": 1,
+              "executionTimeMillis": 90,
+              "totalKeysExamined": 0,
+              "totalDocsExamined": 121254,
+              "executionStages": {
+                "stage": "GROUP",
+                "planNodeId": 3,
+                "nReturned": 1,
+                "executionTimeMillisEstimate": 89,
+                "opens": 1,
+                "closes": 1,
+                "saveState": 122,
+                "restoreState": 122,
+                "isEOF": 1,
+                "objSlot": 18,
+                "fields": [],
+                "projectFields": ["_id", "count"],
+                "projectSlots": [15, 17],
+                "forceNewObject": true,
+                "returnOldObject": false,
+                "inputStage": {
+                  "stage": "SHARDING_FILTER",
+                  "planNodeId": 2,
+                  "nReturned": 4083,
+                  "executionTimeMillisEstimate": 89,
+                  "opens": 1,
+                  "closes": 1,
+                  "saveState": 122,
+                  "restoreState": 122,
+                  "isEOF": 1,
+                  "numTested": 4083,
+                  "filter": "shardFilter (s5, s13) ",
+                  "inputStage": {
+                    "stage": "COLLSCAN",
+                    "planNodeId": 1,
+                    "nReturned": 4083,
+                    "executionTimeMillisEstimate": 89,
+                    "opens": 1,
+                    "closes": 1,
+                    "saveState": 122,
+                    "restoreState": 122,
+                    "isEOF": 1,
+                    "numTested": 121254,
+                    "filter": {
+                      "abbreviation": { "$regex": "png", "$options": "i" }
+                    },
+                    "direction": "forward",
+                    "docsExamined": 121254,
+                    "keysExamined": 0
+                  },
+                  "docsExamined": 0,
+                  "keysExamined": 0
+                },
+                "docsExamined": 0,
+                "keysExamined": 0
+              },
+              "allPlansExecution": []
+            }
+          },
+          "nReturned": 1,
+          "executionTimeMillisEstimate": 89
+        },
+        {
+          "$limit": 20,
+          "nReturned": 1,
+          "executionTimeMillisEstimate": 89
+        }
+      ]
+    }
+  },
+  "command": {
+    "aggregate": "faker",
+    "pipeline": [
+      {
+        "$match": {
+          "abbreviation": {
+            "$regularExpression": {
+              "pattern": "png",
+              "options": "i"
+            }
+          }
+        }
+      },
+      {
+        "$group": {
+          "_id": "$abbreviation",
+          "count": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$skip": 0
+      },
+      {
+        "$limit": 20
+      }
+    ],
+    "cursor": {},
+    "allowDiskUse": true,
+    "maxTimeMS": 60000
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": {
+        "t": 1652016186,
+        "i": 2
+      }
+    },
+    "signature": {
+      "hash": {
+        "$binary": {
+          "base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "subType": "00"
+        }
+      },
+      "keyId": 0
+    }
+  },
+  "operationTime": {
+    "$timestamp": {
+      "t": 1652016186,
+      "i": 2
+    }
+  }
+}

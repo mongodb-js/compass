@@ -1,0 +1,114 @@
+{
+  "queryPlanner": {
+    "mongosPlannerVersion": 1,
+    "winningPlan": {
+      "stage": "SINGLE_SHARD",
+      "shards": [
+        {
+          "shardName": "shard1",
+          "connectionString": "shard1/localhost:8001",
+          "serverInfo": {
+            "host": "M-C02DR0F9ML85.local",
+            "port": 8001,
+            "version": "5.3.0-rc3",
+            "gitVersion": "cf6ac4d17da6eb6562f503a515ea6aea2ccbf944"
+          },
+          "namespace": "sharded-db.faker",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "COLLSCAN",
+            "planNodeId": 1,
+            "filter": {},
+            "direction": "forward"
+          },
+          "rejectedPlans": []
+        }
+      ]
+    }
+  },
+  "executionStats": {
+    "nReturned": 0,
+    "executionTimeMillis": 0,
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 0,
+    "executionStages": {
+      "stage": "SINGLE_SHARD",
+      "nReturned": 0,
+      "executionTimeMillis": 0,
+      "totalKeysExamined": 0,
+      "totalDocsExamined": 0,
+      "totalChildMillis": 0,
+      "shards": [
+        {
+          "shardName": "shard1",
+          "executionSuccess": true,
+          "nReturned": 0,
+          "executionTimeMillis": 0,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 0,
+          "executionStages": {
+            "stage": "COLLSCAN",
+            "planNodeId": 1,
+            "nReturned": 0,
+            "executionTimeMillisEstimate": 0,
+            "opens": 1,
+            "closes": 1,
+            "saveState": 0,
+            "restoreState": 0,
+            "isEOF": 1,
+            "numReads": 0,
+            "recordSlot": 5,
+            "recordIdSlot": 6,
+            "fields": [],
+            "outputSlots": [],
+            "filter": {},
+            "direction": "forward",
+            "docsExamined": 0,
+            "keysExamined": 0
+          },
+          "allPlansExecution": []
+        }
+      ]
+    },
+    "allPlansExecution": [{ "shardName": "shard1", "allPlans": [] }]
+  },
+  "serverInfo": {
+    "host": "M-C02DR0F9ML85.local",
+    "port": 8080,
+    "version": "5.3.0-rc3",
+    "gitVersion": "cf6ac4d17da6eb6562f503a515ea6aea2ccbf944"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "command": {
+    "find": "faker",
+    "filter": {},
+    "skip": 0,
+    "limit": 0,
+    "maxTimeMS": 60000,
+    "lsid": { "id": "WZYqmHwuSRqwYxQIw8eiLQ==" },
+    "$clusterTime": {
+      "clusterTime": { "$timestamp": "7094617418382704641" },
+      "signature": { "hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=", "keyId": 0 }
+    },
+    "$db": "sharded-db"
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": { "$timestamp": "7094617418382704642" },
+    "signature": { "hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=", "keyId": 0 }
+  },
+  "operationTime": { "$timestamp": "7094617405497802768" }
+}
