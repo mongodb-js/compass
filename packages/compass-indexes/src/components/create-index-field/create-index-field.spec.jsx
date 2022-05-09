@@ -49,7 +49,19 @@ describe('create-index-field [Component]', function () {
     });
   });
 
-  describe('server version 6.1.0', function () {
+  describe('server version 6.1.0 with env variable COMPASS_COLUMNSTORE_INDEXES = true', function () {
+    let initialEnvVars;
+
+    before(function () {
+      initialEnvVars = Object.assign({}, process.env);
+
+      process.env.COMPASS_COLUMNSTORE_INDEXES = 'true';
+    });
+
+    after(function () {
+      process.env = initialEnvVars;
+    });
+
     beforeEach(function () {
       component = renderCreateIndexField({
         serverVersion: '6.1.0',

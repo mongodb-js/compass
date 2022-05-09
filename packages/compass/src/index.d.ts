@@ -47,6 +47,12 @@ declare module 'process' {
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
 
         /**
+         * Enable columnstore index creation and viewing (6.1 feature)
+         * COMPASS-5665
+         */
+        COMPASS_COLUMNSTORE_INDEXES?: 'true';
+
+        /**
          * Enable new aggregation pipeline toolbar
          */
         COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
@@ -55,7 +61,7 @@ declare module 'process' {
         /**
          * Permanent feature flag for debugging.
          */
-         COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';
+        COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';
       }
     }
   }

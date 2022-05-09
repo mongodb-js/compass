@@ -1,13 +1,20 @@
 import chai from 'chai';
+import semver from 'semver';
+
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  MONGODB_VERSION,
+  beforeTests,
+  afterTests,
+  afterTest,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
-describe('Collection indexes tab', function () {
+describe.only('Collection indexes tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -87,5 +94,74 @@ describe('Collection indexes tab', function () {
     await dropModal.waitForDisplayed({ reverse: true });
 
     await indexComponent.waitForDisplayed({ reverse: true });
+  });
+
+  describe('server version 6.1.0 with env variable COMPASS_COLUMNSTORE_INDEXES = true', function () {
+    let initialEnvVars: NodeJS.ProcessEnv;
+
+    before(function () {
+      initialEnvVars = Object.assign({}, process.env);
+
+      process.env.COMPASS_COLUMNSTORE_INDEXES = 'true';
+    });
+
+    after(function () {
+      process.env = initialEnvVars;
+    });
+
+    it('supports creating a columnstore index', async function () {
+      if (semver.lt(MONGODB_VERSION, '6.1.0')) {
+        return this.skip();
+      }
+
+      await browser.clickVisible(Selectors.CreateIndexButton);
+
+      const createModal = await browser.$(Selectors.CreateIndexModal);
+      await createModal.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.CreateIndexModalFieldSelect);
+
+      const fieldList = await browser.$(
+        `${Selectors.CreateIndexModalFieldSelect} [role="listbox"]`
+      );
+      await fieldList.waitForDisplayed();
+
+      const columnstoreIndexKey = '$**';
+      await fieldList.setValue(columnstoreIndexKey);
+
+      await browser.clickVisible(Selectors.CreateIndexModalTypeSelect);
+      const typeList = await browser.$(
+        `${Selectors.CreateIndexModalTypeSelect} [role="listbox"]`
+      );
+      await typeList.waitForDisplayed();
+      // Click on the columnstore index type.
+      const textOption = await typeList.$('div=columnstore'); // div element with the text "columnstore"
+      textOption.waitForDisplayed();
+      textOption.click();
+
+      await browser.clickVisible(Selectors.CreateIndexConfirmButton);
+
+      await createModal.waitForDisplayed({ reverse: true });
+
+      const indexComponent = await browser.$(
+        Selectors.indexComponent('columnstore')
+      );
+      await indexComponent.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.dropIndexButton('columnstore'));
+
+      const dropModal = await browser.$(Selectors.DropIndexModal);
+      await dropModal.waitForDisplayed();
+
+      const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
+      await confirmInput.waitForDisplayed();
+      await confirmInput.setValue('columnstore');
+
+      await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
+
+      await dropModal.waitForDisplayed({ reverse: true });
+
+      await indexComponent.waitForDisplayed({ reverse: true });
+    });
   });
 });
