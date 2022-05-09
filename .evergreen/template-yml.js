@@ -112,7 +112,7 @@ const buildVariants = [
   {
     name: 'ubuntu',
     display_name: 'Ubuntu (Test and Package)',
-    run_on: 'ubuntu1604-large'
+    run_on: 'ubuntu2004-large'
   },
   {
     name: 'rhel',
