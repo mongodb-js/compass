@@ -59,7 +59,7 @@ function TLSCertificateAuthority({
         optional
       />
       {
-        /* TODO(COMPASS-5635): Enable unconditionally */ hideUseSystemCA && (
+        /* TODO(COMPASS-5635): Enable unconditionally */ !hideUseSystemCA && (
           <Checkbox
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               handleTlsOptionChanged(
