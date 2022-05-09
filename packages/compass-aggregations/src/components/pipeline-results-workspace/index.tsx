@@ -138,8 +138,8 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
       results = (
         <ResultsContainer>
           <ErrorSummary
-            dataTestId="pipeline-results-error"
-            errors={[{ message: error }]}
+            data-testid="pipeline-results-error"
+            errors={error}
             onAction={onRetry}
             actionText="Retry"
           />

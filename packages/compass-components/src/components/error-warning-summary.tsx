@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Variant as BannerVariant } from '@leafygreen-ui/banner';
 import { css } from '@leafygreen-ui/emotion';
 
 import { InlineDefinition } from './inline-definition';
 import { Banner, Button } from './leafygreen';
-
-type ErrorOrWarning = { message: string };
 
 const bannerStyle = css({
   width: '100%',
@@ -73,32 +71,35 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
   );
 }
 
-export function ErrorSummary({
-  errors,
-  dataTestId,
+const BannerWithSummary: React.FunctionComponent<
+  {
+    messages: string | string[];
+    variant: BannerVariant;
+    ['data-testid']?: string;
+  } & (
+    | { actionText: string; onAction(): void }
+    | { actionText?: never; onAction?: never }
+  )
+> = ({
+  ['data-testid']: dataTestId,
+  messages,
   onAction,
   actionText,
-}: {
-  dataTestId?: string;
-  errors: ErrorOrWarning[];
-  onAction?: () => void;
-  actionText?: string;
-}): React.ReactElement | null {
-  if (!errors || !errors.length) return null;
+  variant,
+}) => {
+  const _messages = useMemo(() => {
+    return !Array.isArray(messages) ? [messages] : messages;
+  }, [messages]);
 
   return (
-    <Banner
-      data-testid={dataTestId}
-      variant={BannerVariant.Danger}
-      className={bannerStyle}
-    >
+    <Banner data-testid={dataTestId} variant={variant} className={bannerStyle}>
       <div className={summaryStyles}>
-        <Summary messages={errors.map((err) => err.message)}></Summary>
+        <Summary messages={_messages}></Summary>
         {onAction && actionText && (
           <Button
             data-testid="banner-action"
             size="xsmall"
-            onClick={() => onAction()}
+            onClick={onAction}
             className={actionButtonStyles}
           >
             {actionText}
@@ -107,18 +108,34 @@ export function ErrorSummary({
       </div>
     </Banner>
   );
-}
+};
 
-export function WarningSummary({
-  warnings,
-}: {
-  warnings: ErrorOrWarning[];
-}): React.ReactElement | null {
-  if (!warnings || !warnings.length) return null;
-
+export const ErrorSummary: React.FunctionComponent<
+  { errors: string | string[]; ['data-testid']?: string } & (
+    | { actionText: string; onAction(): void }
+    | { actionText?: never; onAction?: never }
+  )
+> = ({ errors, ...props }) => {
   return (
-    <Banner variant={BannerVariant.Warning} className={bannerStyle}>
-      <Summary messages={warnings.map((warning) => warning.message)}></Summary>
-    </Banner>
+    <BannerWithSummary
+      messages={errors}
+      variant={BannerVariant.Danger}
+      {...props}
+    ></BannerWithSummary>
   );
-}
+};
+
+export const WarningSummary: React.FunctionComponent<
+  { warnings: string | string[]; ['data-testid']?: string } & (
+    | { actionText: string; onAction(): void }
+    | { actionText?: never; onAction?: never }
+  )
+> = ({ warnings, ...props }) => {
+  return (
+    <BannerWithSummary
+      messages={warnings}
+      variant={BannerVariant.Warning}
+      {...props}
+    ></BannerWithSummary>
+  );
+};

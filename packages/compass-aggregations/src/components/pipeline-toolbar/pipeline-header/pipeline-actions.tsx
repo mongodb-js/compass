@@ -8,7 +8,6 @@ import {
   Icon,
   uiColors,
 } from '@mongodb-js/compass-components';
-
 import type { RootState } from '../../../modules';
 import {
   exportAggregationResults,
@@ -68,7 +67,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     <div className={containerStyles}>
       {showExportButton && (
         <Button
-          aria-label={'Export aggregation'}
+          aria-label="Export aggregation"
           data-testid="pipeline-toolbar-export-aggregation-button"
           variant="default"
           size="small"
@@ -80,18 +79,18 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Export
         </Button>
       )}
-      {showRunButton && <Button
-        aria-label={'Run aggregation'}
-        data-testid="pipeline-toolbar-run-button"
-        variant="primary"
-        size="small"
-        onClick={() => {
-          onRunAggregation();
-        }}
-        disabled={isRunButtonDisabled}
-      >
-        Run
-      </Button>}
+      {showRunButton && (
+        <Button
+          aria-label="Run aggregation"
+          data-testid="pipeline-toolbar-run-button"
+          variant="primary"
+          size="small"
+          onClick={onRunAggregation}
+          disabled={isRunButtonDisabled}
+        >
+          Run
+        </Button>
+      )}
       <Link
         aria-label={optionsLabel}
         aria-expanded={isOptionsVisible}
@@ -101,7 +100,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         className={optionsButtonStyles}
         data-testid="pipeline-toolbar-options-button"
         hideExternalIcon={true}
-        onClick={() => onToggleOptions()}
+        onClick={onToggleOptions}
       >
         <div className={optionStyles}>
           {optionsLabel}
@@ -123,10 +122,12 @@ const mapState = ({ pipeline }: RootState) => {
   const isPipelineInvalid = resultPipeline.some(
     (stageState) => !stageState.isValid || Boolean(stageState.error)
   );
+  const isStageStateEmpty = pipeline.length === 0;
 
   return {
-    isRunButtonDisabled: isPipelineInvalid,
-    isExportButtonDisabled: isMergeOrOutPipeline || isPipelineInvalid
+    isRunButtonDisabled: isPipelineInvalid || isStageStateEmpty,
+    isExportButtonDisabled:
+      isMergeOrOutPipeline || isPipelineInvalid || isStageStateEmpty,
   };
 };
 

@@ -1,4 +1,4 @@
-import { AtlasLogoMark, Link } from '@mongodb-js/compass-components';
+import { AtlasLogoMark, Body, Link } from '@mongodb-js/compass-components';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
@@ -125,7 +125,7 @@ class StagePreview extends Component {
     if (this.props.isComplete) {
       if (!this.props.error) {
         return (
-          <div className={styles['stage-preview-out']}>
+          <Body className={styles['stage-preview-out']}>
             <div className={styles['stage-preview-out-text']}>
               Documents persisted to collection: {decomment(this.props.stage)}.
             </div>
@@ -137,7 +137,7 @@ class StagePreview extends Component {
             >
               Go to collection.
             </Link>
-          </div>
+          </Body>
         );
       }
       return (<div className={styles['stage-preview-out']} />);
@@ -149,7 +149,7 @@ class StagePreview extends Component {
         : 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.'
 
     return (
-      <div className={styles['stage-preview-out']}>
+      <Body className={styles['stage-preview-out']}>
         <div className={styles['stage-preview-out-text']}>
           {previewOutText}
         </div>
@@ -163,7 +163,7 @@ class StagePreview extends Component {
             />
           </div>
         )}
-      </div>
+      </Body>
     );
   }
 
