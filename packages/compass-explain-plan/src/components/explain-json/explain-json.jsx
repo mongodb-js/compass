@@ -13,12 +13,12 @@ class ExplainJSON extends Component {
   static displayName = 'ExplainJSONComponent';
 
   static propTypes = {
-    originalExplainData: PropTypes.object.isRequired
-  }
+    originalExplainData: PropTypes.object.isRequired,
+  };
 
   copyToClipboard = () => {
     clipboard.writeText(JSON.stringify(this.props.originalExplainData));
-  }
+  };
 
   /**
    * Renders ExplainJSON component.

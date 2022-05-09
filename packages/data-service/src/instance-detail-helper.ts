@@ -187,14 +187,14 @@ export function checkIsCSFLEConnection(client: {
 
 export function configuredKMSProviders(
   autoEncryption?: AutoEncryptionOptions
-): string[] {
+): (keyof NonNullable<AutoEncryptionOptions['kmsProviders']>)[] {
   const kmsProviders = autoEncryption?.kmsProviders ?? {};
   return Object.entries(kmsProviders)
     .filter(
       ([, kmsOptions]) =>
         Object.values(kmsOptions ?? {}).filter(Boolean).length > 0
     )
-    .map(([kmsProviderName]) => kmsProviderName);
+    .map(([kmsProviderName]) => kmsProviderName as any);
 }
 
 function buildGenuineMongoDBInfo(

@@ -114,6 +114,14 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.server_arch).to.be.a('string');
         expect(connectionAttempt.properties.server_os_family).to.be.a('string');
         expect(connectionAttempt.properties.auth_type).to.be.a('string');
+
+        expect(connectionAttempt.properties.is_csfle).to.equal(false);
+        expect(connectionAttempt.properties.has_csfle_schema).to.equal(false);
+        expect(connectionAttempt.properties.has_kms_local).to.equal(false);
+        expect(connectionAttempt.properties.has_kms_azure).to.equal(false);
+        expect(connectionAttempt.properties.has_kms_kmip).to.equal(false);
+        expect(connectionAttempt.properties.has_kms_gcp).to.equal(false);
+        expect(connectionAttempt.properties.has_kms_aws).to.equal(false);
       });
 
       it('tracks an event for screens that were accessed', function () {

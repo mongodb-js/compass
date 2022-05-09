@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const indexesChanged = (indexes) => ({
   type: INDEXES_CHANGED,
-  indexes
+  indexes,
 });

@@ -1,0 +1,4 @@
+ignores:
+  - '@mongodb-js/prettier-config-compass'
+  # To avoid cyclic dependency
+  - '@mongodb-js/eslint-config-compass'

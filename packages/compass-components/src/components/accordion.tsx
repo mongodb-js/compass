@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
 
-import { Icon } from './leafygreen';
+import { Description, Icon } from './leafygreen';
 import { defaultFontSize } from '../compass-font-sizes';
+import { withTheme } from '../hooks/use-theme';
 
 const buttonStyles = css({
   fontWeight: 'bold',
@@ -25,6 +26,12 @@ const buttonStyles = css({
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
 });
+const buttonLightThemeStyles = css({
+  color: uiColors.gray.dark2,
+});
+const buttonDarkThemeStyles = css({
+  color: uiColors.white,
+});
 const containerStyles = css({
   marginTop: spacing[3],
   display: 'flex',
@@ -33,13 +40,23 @@ const containerStyles = css({
 const buttonIconStyles = css({
   marginRight: spacing[1],
 });
+const buttonHintStyles = css({
+  margin: 0,
+  marginLeft: spacing[1],
+  padding: 0,
+});
 interface AccordionProps {
+  darkMode?: boolean;
   'data-testid'?: string;
   text: string | React.ReactNode;
+  hintText?: string;
 }
-function Accordion(
-  props: React.PropsWithChildren<AccordionProps>
-): React.ReactElement {
+function UnthemedAccordion({
+  text,
+  darkMode,
+  hintText,
+  ...props
+}: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const [open, setOpen] = useState(false);
   const regionId = useId('region-');
   const labelId = useId('label-');
@@ -48,7 +65,10 @@ function Accordion(
       <div className={containerStyles}>
         <button
           data-testid={props['data-testid']}
-          className={buttonStyles}
+          className={cx(
+            darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
+            buttonStyles
+          )}
           id={labelId}
           type="button"
           aria-expanded={open ? 'true' : 'false'}
@@ -61,7 +81,10 @@ function Accordion(
             className={buttonIconStyles}
             glyph={open ? 'ChevronDown' : 'ChevronRight'}
           />
-          {props.text}
+          {text}
+          {hintText && (
+            <Description className={buttonHintStyles}>{hintText}</Description>
+          )}
         </button>
       </div>
 
@@ -74,4 +97,6 @@ function Accordion(
   );
 }
 
-export default Accordion;
+const Accordion = withTheme(UnthemedAccordion);
+
+export { Accordion };
