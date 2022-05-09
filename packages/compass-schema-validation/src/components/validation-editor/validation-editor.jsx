@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import 'ace-builds';
-import AceEditor from 'react-ace';
 import { debounce } from 'lodash';
 import { ValidationAutoCompleter } from 'mongodb-ace-autocompleter';
 import { TextButton } from 'hadron-react-buttons';
@@ -13,27 +11,9 @@ import ValidationSelector from '../validation-selector';
 
 import styles from './validation-editor.module.less';
 
-import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
+import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
 
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
-
-/**
- * Options for the ACE editor.
- */
-const OPTIONS = {
-  enableLiveAutocompletion: true,
-  tabSize: 2,
-  fontSize: 11,
-  minLines: 17,
-  maxLines: Infinity,
-  highlightActiveLine: false,
-  showGutter: true,
-  useWorker: false,
-  mode: 'ace/mode/mongodb',
-  showPrintMargin: false
-};
 
 /**
  * Validation actions options.
@@ -89,11 +69,9 @@ class ValidationEditor extends Component {
    */
   constructor(props) {
     super(props);
-    const textCompleter = tools.textCompleter;
-
     this.completer = new ValidationAutoCompleter(
       props.serverVersion,
-      textCompleter,
+      EditorTextCompleter,
       props.fields
     );
     this.debounceValidatorChanged = debounce((validator, hasErrors) => {
@@ -305,17 +283,16 @@ class ValidationEditor extends Component {
           </div>
           <hr />
           <div className={classnames(styles['brace-editor-container'])}>
-            <AceEditor
-              mode="javascript" // will be set to mongodb as part of OPTIONS
-              theme="mongodb"
-              width="100%"
-              height="100%"
-              value={this.props.validation.validator}
-              onChange={this.onValidatorChange.bind(this)}
-              editorProps={{$blockScrolling: Infinity}}
-              setOptions={OPTIONS}
+            <Editor
+              variant={EditorVariant.Shell}
+              text={this.props.validation.validator}
+              onChangeText={text => this.onValidatorChange(text)}
+              options={({
+                highlightActiveLine: false,
+                showPrintMargin: false
+              })}
               readOnly={!this.props.isEditable}
-              onFocus={() => tools.setCompleters([this.completer])} />
+              completer={this.completer} />
           </div>
           {this.renderValidationMessage()}
         </div>

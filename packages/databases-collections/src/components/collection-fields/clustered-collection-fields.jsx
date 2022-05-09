@@ -48,6 +48,7 @@ function ClusteredCollectionFields({
           data-testid="clustered-index-name"
           type="text"
           description="The clustered index name is optional, otherwise automatically generated."
+          optional
           onChange={onInputChange}
           spellCheck={false}
         />

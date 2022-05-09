@@ -128,8 +128,8 @@ describe('CSFLECollectionTracker', function () {
 
     it('correctly returns whether there is a known schema', async function () {
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test`)
-      ).to.equal(false);
+        await tracker.knownSchemaForCollection(`${dbName}.test`)
+      ).to.deep.equal({ hasSchema: false, encryptedFields: [] });
     });
   });
 
@@ -178,14 +178,14 @@ describe('CSFLECollectionTracker', function () {
 
     it('correctly returns whether there is a known schema', async function () {
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test1`)
-      ).to.equal(false);
+        await tracker.knownSchemaForCollection(`${dbName}.test1`)
+      ).to.deep.equal({ hasSchema: false, encryptedFields: [] });
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test2`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test2`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['a'] });
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test3`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test3`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
     });
   });
 
@@ -210,14 +210,14 @@ describe('CSFLECollectionTracker', function () {
 
     it('correctly returns whether there is a known schema', async function () {
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test1`)
-      ).to.equal(false);
+        await tracker.knownSchemaForCollection(`${dbName}.test1`)
+      ).to.deep.equal({ hasSchema: false, encryptedFields: [] });
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test2`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test2`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['a'] });
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test3`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test3`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
     });
   });
 
@@ -280,14 +280,14 @@ describe('CSFLECollectionTracker', function () {
 
     it('correctly returns whether there is a known schema', async function () {
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test1`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test1`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: [] });
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test2`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test2`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['a'] });
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test3`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test3`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
     });
   });
 
@@ -318,14 +318,14 @@ describe('CSFLECollectionTracker', function () {
 
     it('correctly returns whether there is a known schema', async function () {
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test1`)
-      ).to.equal(false);
+        await tracker.knownSchemaForCollection(`${dbName}.test1`)
+      ).to.deep.equal({ hasSchema: false, encryptedFields: [] });
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test2`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test2`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['a'] });
       expect(
-        await tracker.hasKnownSchemaForCollection(`${dbName}.test3`)
-      ).to.equal(true);
+        await tracker.knownSchemaForCollection(`${dbName}.test3`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
     });
 
     context('when server validation changes', function () {

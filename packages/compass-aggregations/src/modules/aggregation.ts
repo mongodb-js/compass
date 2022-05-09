@@ -19,8 +19,15 @@ export enum ActionTypes {
   AggregationStarted = 'compass-aggregations/aggregationStarted',
   AggregationFinished = 'compass-aggregations/aggregationFinished',
   AggregationFailed = 'compass-aggregations/aggregationFailed',
+  AggregationCancelled = 'compass-aggregations/aggregationCancelled',
   LastPageReached = 'compass-aggregations/lastPageReached',
 }
+
+type PreviousPageData = {
+  page: number;
+  isLast: boolean;
+  documents: Document[];
+};
 
 type AggregationStartedAction = {
   type: ActionTypes.AggregationStarted;
@@ -40,6 +47,10 @@ type AggregationFailedAction = {
   page: number;
 };
 
+type AggregationCancelledAction = {
+  type: ActionTypes.AggregationCancelled;
+};
+
 type LastPageReachedAction = {
   type: ActionTypes.LastPageReached;
   page: number;
@@ -49,6 +60,7 @@ export type Actions =
   | AggregationStartedAction
   | AggregationFinishedAction
   | AggregationFailedAction
+  | AggregationCancelledAction
   | LastPageReachedAction;
 
 export type State = {
@@ -59,6 +71,7 @@ export type State = {
   loading: boolean;
   abortController?: AbortController;
   error?: string;
+  previousPageData?: PreviousPageData;
 };
 
 export const INITIAL_STATE: State = {
@@ -72,11 +85,7 @@ export const INITIAL_STATE: State = {
 const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
-      return {
-        ...INITIAL_STATE,
-        page: 1,
-        limit: 20,
-      };
+      return INITIAL_STATE;
     case ActionTypes.AggregationStarted:
       return {
         ...state,
@@ -84,6 +93,11 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
         error: undefined,
         documents: [],
         abortController: action.abortController,
+        previousPageData: {
+          page: state.page,
+          documents: state.documents,
+          isLast: state.isLast,
+        },
       };
     case ActionTypes.AggregationFinished:
       return {
@@ -94,6 +108,7 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
         loading: false,
         abortController: undefined,
         error: undefined,
+        previousPageData: undefined,
       };
     case ActionTypes.AggregationFailed:
       return {
@@ -103,6 +118,17 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
         abortController: undefined,
         error: action.error,
         page: action.page,
+        previousPageData: undefined,
+      };
+    case ActionTypes.AggregationCancelled:
+      return {
+        ...state,
+        loading: false,
+        abortController: undefined,
+        documents: state.previousPageData?.documents || [],
+        page: state.previousPageData?.page || 1,
+        isLast: state.previousPageData?.isLast || false,
+        previousPageData: undefined,
       };
     case ActionTypes.LastPageReached:
       return {
@@ -182,13 +208,22 @@ export const cancelAggregation = (): ThunkAction<
   void,
   Actions
 > => {
-  return (_dispatch, getState) => {
+  return (dispatch, getState) => {
     track('Aggregation Canceled');
     const {
       aggregation: { abortController }
     } = getState();
-    abortController?.abort();
+    _abortAggregation(abortController);
+    // In order to avoid the race condition between user cancel and cancel triggered
+    // in fetchAggregationData, we dispatch ActionTypes.AggregationCancelled here. 
+    dispatch({
+      type: ActionTypes.AggregationCancelled,
+    });
   };
+};
+
+const _abortAggregation = (controller?: AbortController): void => {
+  controller?.abort();
 };
 
 const fetchAggregationData = (page: number): ThunkAction<
@@ -204,12 +239,18 @@ const fetchAggregationData = (page: number): ThunkAction<
       maxTimeMS,
       collation,
       dataService: { dataService },
-      aggregation: { limit, documents: _documents, page: _page, isLast: _isLast },
+      aggregation: {
+        limit,
+        abortController: _abortController,
+      },
     } = getState();
 
     if (!dataService) {
       return;
     }
+
+    // Cancel the existing aggregate
+    _abortAggregation(_abortController);
 
     try {
       const abortController = new AbortController();
@@ -247,15 +288,8 @@ const fetchAggregationData = (page: number): ThunkAction<
         });
       }
     } catch (e) {
-      // On cancel, we show the previous state
-      if ((e as Error).name === PROMISE_CANCELLED_ERROR) {
-        dispatch({
-          type: ActionTypes.AggregationFinished,
-          documents: _documents,
-          page: _page,
-          isLast: _isLast,
-        });
-      } else {
+      // User cancel is handled in cancelAggregation
+      if ((e as Error).name !== PROMISE_CANCELLED_ERROR) {
         dispatch({
           type: ActionTypes.AggregationFailed,
           error: (e as Error).message,
@@ -282,6 +316,7 @@ export const exportAggregationResults = (): ThunkAction<
       namespace,
       maxTimeMS,
       collation,
+      countDocuments: { count }
     } = getState();
 
     const stages = pipeline
@@ -298,7 +333,8 @@ export const exportAggregationResults = (): ThunkAction<
         aggregation: {
           stages,
           options
-        }
+        },
+        count,
       })
     );
     return;

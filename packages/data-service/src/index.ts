@@ -16,6 +16,7 @@ import {
   extractSecrets,
   mergeSecrets,
 } from './connection-secrets';
+import { configuredKMSProviders } from './instance-detail-helper';
 
 export {
   ConnectionInfo,
@@ -25,6 +26,7 @@ export {
   DataService,
   DataServiceImpl,
   connect,
+  configuredKMSProviders,
   getConnectionTitle,
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,

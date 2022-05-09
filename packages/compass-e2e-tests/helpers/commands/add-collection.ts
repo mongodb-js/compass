@@ -41,6 +41,12 @@ export async function addCollection(
   );
   await collectionInput.setValue(collectionName);
 
+  if (options) {
+    await browser.clickVisible(
+      Selectors.CreateCollectionCollectionOptionsAccordion
+    );
+  }
+
   if (options && options.capped) {
     await browser.clickVisible(Selectors.CreateCollectionCappedCheckboxLabel);
 

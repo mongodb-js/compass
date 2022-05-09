@@ -35,8 +35,8 @@ class ExplainStage extends Component {
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
     xoffset: PropTypes.number.isRequired,
-    yoffset: PropTypes.number.isRequired
-  }
+    yoffset: PropTypes.number.isRequired,
+  };
 
   static defaultProps = {
     name: '',
@@ -49,8 +49,8 @@ class ExplainStage extends Component {
     y: 0,
     xoffset: 0,
     yoffset: 0,
-    details: {}
-  }
+    details: {},
+  };
 
   constructor(props) {
     super(props);
@@ -114,7 +114,10 @@ class ExplainStage extends Component {
       }
 
       return (
-        <li key={camelCase(name)} className={classnames(styles['key-value-pair'])}>
+        <li
+          key={camelCase(name)}
+          className={classnames(styles['key-value-pair'])}
+        >
           <span className={classnames(styles.key)}>{name}</span>
           <span className={classnames(styles.value)}>{value}</span>
         </li>
@@ -128,7 +131,7 @@ class ExplainStage extends Component {
   detailsButtonClicked() {
     const detailsOpen = !this.state.detailsOpen;
 
-    this.setState({detailsOpen});
+    this.setState({ detailsOpen });
   }
 
   /**
@@ -141,8 +144,8 @@ class ExplainStage extends Component {
     const prevStageExMillis = this.props.prevStageExecTimeMS;
 
     // Transforms to get the right percentage of arc for each piece of the clock
-    const curArcStart = ((prevStageExMillis / totalExMillis) * 2 * Math.PI) || 0;
-    const curArcEnd = (((curStageExMillis) / totalExMillis) * 2 * Math.PI) || 0;
+    const curArcStart = (prevStageExMillis / totalExMillis) * 2 * Math.PI || 0;
+    const curArcEnd = (curStageExMillis / totalExMillis) * 2 * Math.PI || 0;
 
     const prevArcStart = 0;
     const prevArcEnd = curArcStart;
@@ -154,42 +157,52 @@ class ExplainStage extends Component {
 
     // Create the SVG container, and apply a transform such that the origin is the
     // center of the canvas. This way, we don't need to position arcs individually.
-    const svgClock = d3.select(clock)
+    const svgClock = d3
+      .select(clock)
       .selectAll('svg')
       .data([null])
-      .enter().append('svg')
+      .enter()
+      .append('svg')
       .attr('width', clockWidth)
       .attr('height', clockHeight)
       .append('g')
       .attr('transform', `translate(${clockWidth / 2},${clockHeight / 2})`);
 
     // Add the prevStageArc arc
-    svgClock.append('path')
+    svgClock
+      .append('path')
       .attr('class', 'prevArcPath')
       .style('fill', '#dfdfdf');
 
     d3.select(clock)
       .select('.prevArcPath')
-      .attr('d', arcGen({
-        startAngle: prevArcStart,
-        endAngle: prevArcEnd,
-        innerRadius: 24,
-        outerRadius: 29
-      }));
+      .attr(
+        'd',
+        arcGen({
+          startAngle: prevArcStart,
+          endAngle: prevArcEnd,
+          innerRadius: 24,
+          outerRadius: 29,
+        })
+      );
 
     // Add the curStageArc arc in blue
-    svgClock.append('path')
+    svgClock
+      .append('path')
       .attr('class', 'currArcPath')
       .style('fill', '#43B1E5');
 
     d3.select(clock)
       .select('.currArcPath')
-      .attr('d', arcGen({
-        startAngle: curArcStart,
-        endAngle: curArcEnd,
-        innerRadius: 24,
-        outerRadius: 29
-      }));
+      .attr(
+        'd',
+        arcGen({
+          startAngle: curArcStart,
+          endAngle: curArcEnd,
+          innerRadius: 24,
+          outerRadius: 29,
+        })
+      );
   }
 
   /**
@@ -203,14 +216,19 @@ class ExplainStage extends Component {
 
     return (
       <div
-        className={classnames(styles['explain-stage'], styles['explain-stage-is-shard'])}
+        className={classnames(
+          styles['explain-stage'],
+          styles['explain-stage-is-shard']
+        )}
         style={{
           zIndex: this.state.detailsOpen ? this.getNewZIndex() : 'initial',
           top,
-          left
+          left,
         }}
       >
-        <h3 className={classnames(styles['stage-header'])}>{this.props.name}</h3>
+        <h3 className={classnames(styles['stage-header'])}>
+          {this.props.name}
+        </h3>
       </div>
     );
   }
@@ -223,7 +241,8 @@ class ExplainStage extends Component {
   renderStageView() {
     const left = this.props.x + this.props.xoffset;
     const top = this.props.y + this.props.yoffset;
-    const deltaExecTime = this.props.curStageExecTimeMS - this.props.prevStageExecTimeMS;
+    const deltaExecTime =
+      this.props.curStageExecTimeMS - this.props.prevStageExecTimeMS;
 
     return (
       <div
@@ -232,21 +251,34 @@ class ExplainStage extends Component {
         style={{
           zIndex: this.state.detailsOpen ? this.getNewZIndex() : 'initial',
           top,
-          left
+          left,
         }}
       >
-        <h3 className={classnames(styles['stage-header'])}>{this.props.name}</h3>
+        <h3 className={classnames(styles['stage-header'])}>
+          {this.props.name}
+        </h3>
         <ul className={classnames(styles.core)}>
-          <li className={classnames(styles['key-value-pair'], styles.nReturned)}>
+          <li
+            className={classnames(styles['key-value-pair'], styles.nReturned)}
+          >
             <span className={classnames(styles.key)}>nReturned</span>
-            <span className={classnames(styles.value)}>{this.props.nReturned}</span>
+            <span className={classnames(styles.value)}>
+              {this.props.nReturned}
+            </span>
           </li>
-          <li className={classnames(styles['key-value-pair'], styles['exec-time'])}>
+          <li
+            className={classnames(
+              styles['key-value-pair'],
+              styles['exec-time']
+            )}
+          >
             <span className={classnames(styles.key)}>Execution Time</span>
             <span className={classnames(styles.value)}>
               <div
                 className={classnames(styles.clock)}
-                ref={(inst) => { clock = inst; }}
+                ref={(inst) => {
+                  clock = inst;
+                }}
               >
                 <div className={classnames(styles.face)}>
                   <span>{deltaExecTime}</span>

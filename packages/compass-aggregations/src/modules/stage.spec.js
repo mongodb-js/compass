@@ -181,7 +181,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$addFields',
         stage: `{
        totalHomework: { $sum: "$homework" } ,
@@ -216,7 +215,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$project',
         stage: '{_id: 0, avg_price: {$avg: "$price"}}'
       };
@@ -248,7 +246,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$bucket',
         stage: `{
      groupBy: "$price",
@@ -302,7 +299,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$count',
         stage: '"fieldname"'
       };
@@ -322,7 +318,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$addFields',
         stage: `{
         isFound:
@@ -406,7 +401,7 @@ describe('Stage module', function() {
 
     context('when the stage has BSON types', function() {
       const stage = {
-        id: 0, isEnabled: true, isExpanded: true, isValid: true, snippet: '',
+        id: 0, isEnabled: true, isExpanded: true, isValid: true,
         stageOperator: '$match',
         stage: '{\n' +
         '  code: Code(\'some code\'),\n' +
@@ -420,7 +415,7 @@ describe('Stage module', function() {
         '  maxkey: MaxKey(),\n' +
         '  isodate: ISODate(\'1999-01-01\'),\n' +
         '  regexp: RegExp(/^[a-z0-9_-]{3,16}$/),\n' +
-        '  ts: Timestamp(-321469502, 367)\n' +
+        '  ts: Timestamp({ t: -321469502, i: 367 })\n' +
         '}'
       };
       // bson.Timestamp.fromString('1580226495426', 10)
@@ -473,11 +468,11 @@ describe('Stage module', function() {
       });
 
       it('generates regexp', function() {
-        expect(generated.regexp).to.deep.equal(new RegExp('^[a-z0-9_-]{3,16}$'));
+        expect(generated.regexp).to.deep.equal(new RegExp("^[a-z0-9_-]{3,16}$"));
       });
 
       it('generates timestamp', function() {
-        expect(generated.ts.low).to.equal(-321469502);
+        expect(generated.ts.high).to.equal(-321469502);
       });
 
       it('returns the stage string', function() {
@@ -492,8 +487,8 @@ describe('Stage module', function() {
  minkey: MinKey(),
  maxkey: MaxKey(),
  isodate: ISODate('1999-01-01T00:00:00.000Z'),
- regexp: RegExp('^[a-z0-9_-]{3,16}$'),
- ts: Timestamp(-321469502, 367)
+ regexp: RegExp("^[a-z0-9_-]{3,16}$"),
+ ts: Timestamp(367, -321469502)
 }}`);
       });
     });

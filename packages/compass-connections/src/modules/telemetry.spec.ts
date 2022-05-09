@@ -1,6 +1,6 @@
 import { once } from 'events';
 import { expect } from 'chai';
-import type { DataService } from 'mongodb-data-service';
+import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 
 import {
   trackConnectionAttemptEvent,
@@ -121,6 +121,13 @@ describe('connection tracking', function () {
       server_version: 'na',
       server_arch: undefined,
       server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -155,6 +162,13 @@ describe('connection tracking', function () {
       server_version: 'na',
       server_arch: undefined,
       server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -212,6 +226,13 @@ describe('connection tracking', function () {
         server_version: 'na',
         server_arch: undefined,
         server_os_family: undefined,
+        is_csfle: false,
+        has_csfle_schema: false,
+        has_kms_aws: false,
+        has_kms_local: false,
+        has_kms_gcp: false,
+        has_kms_kmip: false,
+        has_kms_azure: false,
       };
 
       expect(properties).to.deep.equal(expected);
@@ -247,6 +268,13 @@ describe('connection tracking', function () {
       server_version: 'na',
       server_arch: undefined,
       server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -281,6 +309,13 @@ describe('connection tracking', function () {
       server_version: 'na',
       server_arch: undefined,
       server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -479,6 +514,67 @@ describe('connection tracking', function () {
       is_srv: false,
       error_code: undefined,
       error_name: 'Error',
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
+    };
+
+    expect(properties).to.deep.equal(expected);
+  });
+
+  it('tracks a new connection event - csfle on', async function () {
+    const trackEvent = once(process, 'compass:track');
+    const connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> = {
+      connectionOptions: {
+        connectionString: 'mongodb://127.128.0.0',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            kmsProviders: {
+              local: { key: 'asdf' },
+              aws: { accessKeyId: 'asdf', secretAccessKey: 'asdf' },
+            },
+            // @ts-expect-error next driver release will have types
+            encryptedFieldsMap: {
+              ['foo.bar']: {},
+            },
+          },
+        },
+      },
+    };
+
+    trackNewConnectionEvent(connectionInfo, dataService);
+    const [{ properties }] = await trackEvent;
+
+    const expected = {
+      is_localhost: false,
+      is_public_cloud: false,
+      is_do_url: false,
+      is_atlas_url: false,
+      public_cloud_name: '',
+      auth_type: 'NONE',
+      tunnel: 'none',
+      is_srv: false,
+      topology_type: 'Unknown',
+      is_atlas: false,
+      is_dataLake: false,
+      is_enterprise: false,
+      is_genuine: true,
+      non_genuine_server_name: 'na',
+      server_version: 'na',
+      server_arch: undefined,
+      server_os_family: undefined,
+      is_csfle: true,
+      has_csfle_schema: true,
+      has_kms_aws: true,
+      has_kms_local: true,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
     };
 
     expect(properties).to.deep.equal(expected);

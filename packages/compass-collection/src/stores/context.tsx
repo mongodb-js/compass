@@ -4,10 +4,39 @@ import semver from 'semver';
 import { ErrorBoundary } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
+import type { DataService } from 'mongodb-data-service';
+import ConnectionString from 'mongodb-connection-string-url';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:compass-collection:context'
 );
+
+// TODO: replace this with state coming from the right layer.
+// this kind of information should not be derived
+// from dataService as it operates on a lower level,
+// as a consequence here we have to remove the `appName` that only
+// the dataService should be using.
+function getCurrentlyConnectedUri(dataService: DataService) {
+  let connectionStringUrl;
+
+  try {
+    connectionStringUrl = new ConnectionString(
+      dataService.getConnectionOptions().connectionString
+    );
+  } catch (e) {
+    return '<uri>';
+  }
+
+  if (
+    /^mongodb compass/i.exec(
+      connectionStringUrl.searchParams.get('appName') || ''
+    )
+  ) {
+    connectionStringUrl.searchParams.delete('appName');
+  }
+
+  return connectionStringUrl.href;
+}
 
 /**
  * Setup scoped actions for a plugin.
@@ -35,6 +64,7 @@ type ContextProps = {
   isReadonly?: boolean;
   isTimeSeries?: boolean;
   isClustered?: boolean;
+  isFLE?: boolean;
   actions?: any;
   allowWrites?: boolean;
   sourceName?: string;
@@ -47,6 +77,7 @@ type ContextProps = {
   isDataLake?: boolean;
   queryHistoryIndexes?: number[];
   scopedModals?: any[];
+  connectionString?: string;
 };
 
 /**
@@ -77,6 +108,7 @@ const setupStore = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   actions,
   allowWrites,
   sourceName,
@@ -84,26 +116,29 @@ const setupStore = ({
   sourcePipeline,
   query,
   aggregation,
+  connectionString,
 }: ContextProps) => {
   const store = role.configureStore({
-    localAppRegistry: localAppRegistry,
-    globalAppRegistry: globalAppRegistry,
+    localAppRegistry,
+    globalAppRegistry,
     dataProvider: {
-      error: dataService.error,
-      dataProvider: dataService.dataService,
+      error: dataService?.error,
+      dataProvider: dataService?.dataService,
     },
-    namespace: namespace,
-    serverVersion: serverVersion,
-    isReadonly: isReadonly,
+    namespace,
+    serverVersion,
+    isReadonly,
     isTimeSeries,
     isClustered,
+    isFLE,
     actions: actions,
-    allowWrites: allowWrites,
-    sourceName: sourceName,
-    editViewName: editViewName,
-    sourcePipeline: sourcePipeline,
+    allowWrites,
+    sourceName,
+    editViewName,
+    sourcePipeline,
     query,
     aggregation,
+    connectionString,
   });
   localAppRegistry?.registerStore(role.storeName, store);
 
@@ -123,6 +158,7 @@ const setupStore = ({
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series collection.
  * @property {Boolean} options.isClustered - If the collection is a clustered index collection.
+ * @property {Boolean} options.isFLE - If the collection is a FLE collection.
  * @property {Boolean} options.allowWrites - If writes are allowed.
  * @property {String} options.key - The plugin key.
  *
@@ -138,8 +174,10 @@ const setupPlugin = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   allowWrites,
+  connectionString,
   key,
 }: ContextProps) => {
   const actions = role.configureActions();
@@ -153,9 +191,11 @@ const setupPlugin = ({
     isReadonly,
     isTimeSeries,
     isClustered,
+    isFLE,
     sourceName,
     actions,
     allowWrites,
+    connectionString,
   });
   const plugin = role.component;
   return {
@@ -178,6 +218,7 @@ const setupPlugin = ({
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series.
  * @property {Boolean} options.isClustered - If the collection is a time-series.
+ * @property {Boolean} options.isFLE - If the collection is a FLE collection.
  * @property {Boolean} options.allowWrites - If we allow writes.
  *
  * @returns {Array} The components.
@@ -191,8 +232,10 @@ const setupScopedModals = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   sourceName,
   allowWrites,
+  connectionString,
 }: ContextProps) => {
   const roles = globalAppRegistry?.getRole('Collection.ScopedModal');
   if (roles) {
@@ -207,8 +250,10 @@ const setupScopedModals = ({
         isReadonly,
         isTimeSeries,
         isClustered,
+        isFLE,
         sourceName,
         allowWrites,
+        connectionString,
         key: i,
       });
     });
@@ -236,6 +281,7 @@ const createContext = ({
   isReadonly,
   isTimeSeries,
   isClustered,
+  isFLE,
   isDataLake,
   sourceName,
   editViewName,
@@ -281,6 +327,7 @@ const createContext = ({
     isReadonly,
     isTimeSeries,
     isClustered,
+    isFLE,
     actions: queryBarActions,
     allowWrites: !isDataLake,
     query,
@@ -302,6 +349,7 @@ const createContext = ({
       isReadonly,
       isTimeSeries,
       isClustered,
+      isFLE,
       actions,
       allowWrites: !isDataLake,
       sourceName,
@@ -357,8 +405,10 @@ const createContext = ({
     isReadonly,
     isTimeSeries,
     isClustered,
+    isFLE,
     sourceName,
     allowWrites: !isDataLake,
+    connectionString: getCurrentlyConnectedUri(state.dataService.dataService),
   });
 
   const configureFieldStore = globalAppRegistry.getStore('Field.Store');

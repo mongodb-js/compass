@@ -4,7 +4,10 @@ const dialog = electron.dialog;
 const _ = require('lodash');
 const EventEmitter = require('events').EventEmitter;
 const autoUpdater = require('./auto-updater');
-const debug = require('debug')('hadron-auto-update-manager');
+
+const {createLoggerAndTelemetry} = require('@mongodb-js/compass-logging');
+const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-AUTO-UPDATES');
+
 const ENOSIGNATURE = 'Could not get code signature for running application';
 const app = electron.app;
 
@@ -15,6 +18,7 @@ const UpdateAvailableState = 'update-available';
 const NoUpdateAvailableState = 'no-update-available';
 // const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
+
 
 function AutoUpdateManager(endpointURL, iconURL, product, channel, platform) {
   if (!endpointURL) {
@@ -44,7 +48,17 @@ function AutoUpdateManager(endpointURL, iconURL, product, channel, platform) {
   });
 
   process.nextTick(() => {
-    this.setupAutoUpdater();
+    try {
+      this.setupAutoUpdater();
+    } catch (e) {
+      log.error(mongoLogId(1001000134),
+        'AutoUpdateManager',
+        'Error while setting up the auto updater',
+        {
+          error: e.message
+        }
+      );
+    }
   });
 }
 _.extend(AutoUpdateManager.prototype, EventEmitter.prototype);
@@ -54,31 +68,50 @@ AutoUpdateManager.prototype.setupAutoUpdater = function() {
   // Else we get the default node.js error event handling:
   // die hard if errors are unhandled.
   autoUpdater.on('error', (event, message) => {
+    log.error(mongoLogId(1001000129),
+      'AutoUpdateManager',
+      'Error Downloading Update',
+      {
+        event, message
+      }
+    );
+
     if (message === ENOSIGNATURE) {
       debug('no auto updater for unsigned builds');
       return this.setState('unsupported');
     }
-    debug('Error Downloading Update: ' + message);
+
     return this.setState(ErrorState);
   });
 
-  autoUpdater.setFeedURL(this.feedURL);
-
   autoUpdater.on('checking-for-update', () => {
+    log.info(mongoLogId(1001000135), 'AutoUpdateManager', 'Checking for updates ...');
     this.setState(CheckingState);
   });
 
   autoUpdater.on('update-not-available', () => {
+    log.info(mongoLogId(1001000126), 'AutoUpdateManager', 'Update not available');
     this.setState(NoUpdateAvailableState);
   });
+
   autoUpdater.on('update-available', () => {
+    log.info(mongoLogId(1001000127), 'AutoUpdateManager', 'Update available');
     this.setState(DownloadingState);
   });
+
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseVersion) => {
+    log.info(mongoLogId(1001000128), 'AutoUpdateManager', 'Update downloaded', {
+      releaseVersion
+    });
+
     this.releaseNotes = releaseNotes;
     this.releaseVersion = releaseVersion;
     this.setState(UpdateAvailableState);
   });
+
+  autoUpdater.setFeedURL(this.feedURL);
+  log.info(mongoLogId(1001000136), 'AutoUpdateManager', 'Feed url set',
+    {feedURL: this.feedURL});
 };
 
 /**

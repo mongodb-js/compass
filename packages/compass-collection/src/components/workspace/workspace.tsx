@@ -73,6 +73,8 @@ const DEFAULT_NEW_TAB = {
   namespace: '',
   isReadonly: false,
   isTimeSeries: false,
+  isClustered: false,
+  isFLE: false,
   sourceName: '',
 };
 
@@ -158,6 +160,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
           isReadonly: activeTab.isReadonly,
           isTimeSeries: activeTab.isTimeSeries,
           isClustered: activeTab.isClustered,
+          isFLE: activeTab.isFLE,
           sourceName: activeTab.sourceName,
           editViewName: activeTab.editViewName,
           sourceReadonly: activeTab.sourceReadonly,
@@ -229,6 +232,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
             isReadonly={tab.isReadonly}
             isTimeSeries={tab.isTimeSeries}
             isClustered={tab.isClustered}
+            isFLE={tab.isFLE}
             sourceName={tab.sourceName}
             editViewName={tab.editViewName}
             sourceReadonly={tab.sourceReadonly}

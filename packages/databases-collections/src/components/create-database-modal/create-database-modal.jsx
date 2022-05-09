@@ -26,7 +26,9 @@ class CreateDatabaseModal extends PureComponent {
     createDatabase: PropTypes.func.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
     clearError: PropTypes.func.isRequired,
-    serverVersion: PropTypes.string.isRequired
+    serverVersion: PropTypes.string.isRequired,
+    configuredKMSProviders: PropTypes.array,
+    currentTopologyType: PropTypes.string
   }
 
   state = {
@@ -110,6 +112,8 @@ class CreateDatabaseModal extends PureComponent {
           serverVersion={this.props.serverVersion}
           withDatabase
           onChange={this.onChange}
+          configuredKMSProviders={this.props.configuredKMSProviders}
+          currentTopologyType={this.props.currentTopologyType}
         />
         {!hasCollectionName && this.renderCollectionNameRequiredNotice()}
         {this.renderError()}
@@ -128,8 +132,10 @@ class CreateDatabaseModal extends PureComponent {
 const mapStateToProps = (state) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
+  error: state.error,
   serverVersion: state.serverVersion,
-  error: state.error
+  configuredKMSProviders: state.dataService.configuredKMSProviders,
+  currentTopologyType: state.dataService.currentTopologyType
 });
 
 /**

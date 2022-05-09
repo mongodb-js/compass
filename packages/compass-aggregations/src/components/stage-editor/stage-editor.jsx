@@ -1,31 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import 'ace-builds';
-import AceEditor from 'react-ace';
-import debounce from 'lodash.debounce';
+import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
 import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
 
 import styles from './stage-editor.module.less';
-
-import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
-
-const INDEX_STATS = '$indexStats';
-
-/**
- * Options for the ACE editor.
- */
-const OPTIONS = {
-  enableLiveAutocompletion: true,
-  tabSize: 2,
-  fontSize: 11,
-  minLines: 5,
-  maxLines: Infinity,
-  showGutter: true,
-  useWorker: false,
-  mode: 'ace/mode/mongodb'
-};
 
 /**
  * Edit a single stage in the aggregation pipeline.
@@ -36,7 +14,6 @@ class StageEditor extends Component {
   static propTypes = {
     stage: PropTypes.string,
     stageOperator: PropTypes.string,
-    snippet: PropTypes.string,
     error: PropTypes.string,
     syntaxError: PropTypes.string,
     runStage: PropTypes.func.isRequired,
@@ -44,9 +21,7 @@ class StageEditor extends Component {
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
     stageChanged: PropTypes.func.isRequired,
-    isAutoPreviewing: PropTypes.bool.isRequired,
     isValid: PropTypes.bool.isRequired,
-    fromStageOperators: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
@@ -65,14 +40,12 @@ class StageEditor extends Component {
    */
   constructor(props) {
     super(props);
-    const textCompleter = tools.textCompleter;
     this.completer = new StageAutoCompleter(
       this.props.serverVersion,
-      textCompleter,
+      EditorTextCompleter,
       this.getFieldsAndProjections(),
       this.props.stageOperator
     );
-    this.debounceRun = debounce(this.onRunStage, 750);
   }
 
   /**
@@ -96,8 +69,6 @@ class StageEditor extends Component {
   }
 
   /**
-   * On update if the stage operator is changed insert the snippet and focus on the editor.
-   *
    * @param {Object} prevProps - The previous properties.
    */
   componentDidUpdate(prevProps) {
@@ -107,8 +78,7 @@ class StageEditor extends Component {
     );
     this.completer.version = this.props.serverVersion;
     if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
-      this.editor.setValue('');
-      this.editor.insertSnippet(this.props.snippet || '');
+      // Focus the editor when the stage operator has changed.
       this.editor.focus();
     }
   }
@@ -125,26 +95,7 @@ class StageEditor extends Component {
       this.props.runStage(0);
       return;
     }
-
     this.props.stageChanged(value, this.props.index);
-    this.props.projectionsChanged();
-    this.props.setIsModified(true);
-
-    if (
-      (this.props.fromStageOperators === false ||
-        this.props.stageOperator === INDEX_STATS) &&
-      this.props.isAutoPreviewing
-    ) {
-      this.debounceRun();
-    }
-  };
-
-  /**
-   * Need to decorate the change event with the stage index before
-   * dispatching.
-   */
-  onRunStage = () => {
-    this.props.runStage(this.props.index);
   };
 
   /**
@@ -205,32 +156,17 @@ class StageEditor extends Component {
     return (
       <div className={styles['stage-editor-container']}>
         <div className={styles['stage-editor']}>
-          <AceEditor
+          <Editor
+            text={this.props.stage}
+            onChangeText={this.onStageChange}
+            variant={EditorVariant.Shell}
             className={styles['stage-editor-ace-editor']}
-            mode="javascript" // will be set to mongodb as part of OPTIONS
-            theme="mongodb"
-            width="100%"
-            // readOnly={this.props.stageOperator === null}
-            value={this.props.stage}
-            onChange={this.onStageChange}
-            editorProps={{ $blockScrolling: Infinity }}
             name={`aggregations-stage-editor-${this.props.index}`}
-            setOptions={OPTIONS}
-            onFocus={() => {
-              tools.setCompleters([this.completer]);
-            }}
+            options={({minLines: 5})}
+            completer={this.completer}
+            showPrintMargin={false}
             onLoad={(editor) => {
               this.editor = editor;
-              this.editor.commands.addCommand({
-                name: 'executePipeline',
-                bindKey: {
-                  win: 'Ctrl-Enter',
-                  mac: 'Command-Enter'
-                },
-                exec: () => {
-                  this.onRunStage();
-                }
-              });
             }}
           />
         </div>

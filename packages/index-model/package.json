@@ -2,7 +2,7 @@
   "name": "mongodb-index-model",
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "3.9.0",
+  "version": "3.10.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -18,12 +18,6 @@
   ],
   "main": "index.js",
   "compass:main": "index.js",
-  "exports": {
-    "require": "./index.js"
-  },
-  "compass:exports": {
-    ".": "./index.js"
-  },
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "pretest": "mongodb-runner install && mongodb-runner start --port=27017",

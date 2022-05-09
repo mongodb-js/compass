@@ -11,6 +11,7 @@ import {
   textToEncryptedFieldConfig,
   encryptedFieldConfigToText,
   adjustCSFLEParams,
+  randomLocalKey,
 } from './csfle-handler';
 
 describe('csfle-handler', function () {
@@ -124,9 +125,7 @@ describe('csfle-handler', function () {
       ).to.deep.equal({
         storeCredentials: false,
         autoEncryption: {
-          kmsProviders: {
-            aws: undefined,
-          },
+          kmsProviders: {},
         },
       });
     });
@@ -167,9 +166,7 @@ describe('csfle-handler', function () {
       ).to.deep.equal({
         storeCredentials: false,
         autoEncryption: {
-          tlsOptions: {
-            aws: undefined,
-          },
+          tlsOptions: {},
         },
       });
     });
@@ -210,6 +207,13 @@ describe('csfle-handler', function () {
           tlsOptions: { aws: { tlsCertificateKeyFilePassword: '1' } },
         })
       ).to.equal(true);
+    });
+  });
+
+  describe('#randomLocalKey', function () {
+    it('returns random 96-byte base64-encoded strings', function () {
+      expect(randomLocalKey()).to.match(/^[A-Za-z0-9+/]{128}$/);
+      expect(randomLocalKey()).to.not.equal(randomLocalKey());
     });
   });
 
@@ -323,6 +327,11 @@ describe('csfle-handler', function () {
                 '$compass.rawText': exampleString,
                 '$compass.error': null,
               },
+              // @ts-expect-error next driver release will have types
+              encryptedFieldsMap: {
+                '$compass.rawText': exampleString,
+                '$compass.error': null,
+              },
             },
           },
         };
@@ -332,6 +341,11 @@ describe('csfle-handler', function () {
             storeCredentials: false,
             autoEncryption: {
               schemaMap: {
+                ...exampleObject,
+                '$compass.rawText': exampleString,
+                '$compass.error': null,
+              },
+              encryptedFieldsMap: {
                 ...exampleObject,
                 '$compass.rawText': exampleString,
                 '$compass.error': null,

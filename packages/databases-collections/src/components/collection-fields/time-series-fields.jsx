@@ -33,6 +33,7 @@ function TimeSeriesFields({
   isCapped,
   isTimeSeries,
   isClustered,
+  isFLE2,
   onChangeIsTimeSeries,
   onChangeField,
   timeSeries,
@@ -54,7 +55,7 @@ function TimeSeriesFields({
 
   return (
     <CollapsibleFieldSet
-      disabled={isCapped || isClustered}
+      disabled={isCapped || isClustered || isFLE2}
       onToggle={checked => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
@@ -130,6 +131,7 @@ TimeSeriesFields.propTypes = {
   isCapped: PropTypes.bool.isRequired,
   isTimeSeries: PropTypes.bool.isRequired,
   isClustered: PropTypes.bool.isRequired,
+  isFLE2: PropTypes.bool.isRequired,
   onChangeIsTimeSeries: PropTypes.func.isRequired,
   onChangeField: PropTypes.func.isRequired,
   timeSeries: PropTypes.object.isRequired,
