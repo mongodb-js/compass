@@ -126,7 +126,7 @@ for (const buildVariant of buildVariants) {
   for (const task of testPackagedAppVariations) {
     // 4.0 enterprise and 4.2 enterprise are not supported on Ubuntu 20.04
     // https://docs.google.com/spreadsheets/d/1-sZKW70HbVt2yHOWa18qwBwi-gBcn54tWmronnn89kI/edit#gid=0
-    if (buildVariant.name === 'ubuntu' && task.name.endsWith('enterprise') && (task.name.startsWith('test-packaged-app-40x') || task.name.startsWith('test-packaged-app-42x'))) {
+    if (buildVariant.name === 'ubuntu' && task.name.match(/^test-packaged-app-4[02]x-enterprise$/)) {
       continue;
     }
     buildVariant.tasks.push(task);
