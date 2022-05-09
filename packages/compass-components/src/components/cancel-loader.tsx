@@ -12,10 +12,12 @@ const containerStyles = css({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
+  maxWidth: spacing[6] * 8,
 });
 
 const textStyles = css({
   color: uiColors.green.dark2,
+  textAlign: 'center',
 });
 
 function CancelLoader({
