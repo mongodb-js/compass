@@ -14,7 +14,7 @@ import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
-describe.only('Collection indexes tab', function () {
+describe('Collection indexes tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
