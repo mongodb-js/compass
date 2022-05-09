@@ -30,7 +30,6 @@ const containerStyles = css({
   display: 'grid',
   gridTemplateRows: 'min-content 1fr',
   gridTemplateColumns: '1fr',
-  marginTop: spacing[2],
   marginBottom: spacing[3],
 });
 
