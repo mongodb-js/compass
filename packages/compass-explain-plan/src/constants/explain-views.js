@@ -1,6 +1,6 @@
 const EXPLAIN_VIEWS = {
   json: 'json',
-  tree: 'tree'
+  tree: 'tree',
 };
 
 export default EXPLAIN_VIEWS;

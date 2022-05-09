@@ -76,11 +76,20 @@ import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
-import { ClientEncryption } from 'mongodb-client-encryption';
+
+import * as mongodb from 'mongodb';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore no types for 'extension' available
+import { extension } from 'mongodb-client-encryption';
 import type {
+  ClientEncryption as ClientEncryptionType,
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
 } from 'mongodb-client-encryption';
+// mongodb-client-encryption only works properly in a packaged
+// environment with dependency injection
+const ClientEncryption: typeof ClientEncryptionType =
+  extension(mongodb).ClientEncryption;
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -2399,9 +2408,11 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     if (kmsProviders.length === 0) return null;
     return {
       storeCredentials: fleOptions?.storeCredentials,
-      schemaMapNamespaces: Object.keys(
-        fleOptions?.autoEncryption?.schemaMap ?? {}
-      ),
+      encryptedFieldsMapNamespaces: Object.keys({
+        // @ts-expect-error next driver release will have types
+        ...fleOptions?.autoEncryption?.encryptedFieldsMap,
+        ...fleOptions?.autoEncryption?.schemaMap,
+      }),
       keyVaultNamespace: fleOptions?.autoEncryption.keyVaultNamespace,
       kmsProviders,
     };
@@ -2429,7 +2440,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return result;
   }
 
-  _getClientEncryption(): ClientEncryption {
+  _getClientEncryption(): ClientEncryptionType {
     const crudClient = this._initializedClient('CRUD');
     const autoEncryptionOptions = crudClient.options.autoEncryption;
     const { proxyHost, proxyPort, proxyUsername, proxyPassword } =

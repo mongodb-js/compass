@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, ButtonSize, ButtonVariant, Link } from '@mongodb-js/compass-components';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+  Link,
+} from '@mongodb-js/compass-components';
 import { ZeroState, StatusRow, ViewSwitcher } from 'hadron-react-components';
 import { ZeroGraphic } from '../zero-graphic';
 import { ExplainBody } from '../explain-body';
@@ -31,12 +36,14 @@ const HEADER = 'Evaluate the performance of your query';
 /**
  * Additional text for zero state.
  */
-const SUBTEXT = 'Explain provides key execution metrics that help diagnose slow queries and optimize index usage.';
+const SUBTEXT =
+  'Explain provides key execution metrics that help diagnose slow queries and optimize index usage.';
 
 /**
  * Link to the explain plan documentation.
  */
-const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/query-plan/';
+const DOCUMENTATION_LINK =
+  'https://docs.mongodb.com/compass/master/query-plan/';
 
 /**
  * The ExplainStates component.
@@ -46,7 +53,6 @@ class ExplainStates extends Component {
 
   static propTypes = {
     isEditable: PropTypes.bool.isRequired,
-    openLink: PropTypes.func.isRequired,
     explain: PropTypes.shape({
       nReturned: PropTypes.number.isRequired,
       totalKeysExamined: PropTypes.number.isRequired,
@@ -60,7 +66,7 @@ class ExplainStates extends Component {
       originalExplainData: PropTypes.object.isRequired,
       explainState: PropTypes.string.isRequired,
       error: PropTypes.object,
-      resultId: PropTypes.number.isRequired
+      resultId: PropTypes.number.isRequired,
     }),
     fetchExplainPlan: PropTypes.func.isRequired,
     changeExplainPlanState: PropTypes.func.isRequired,
@@ -69,8 +75,8 @@ class ExplainStates extends Component {
     query: PropTypes.any,
     treeStages: PropTypes.object.isRequired,
     appRegistry: PropTypes.object.isRequired,
-    queryExecuted: PropTypes.func.isRequired
-  }
+    queryExecuted: PropTypes.func.isRequired,
+  };
 
   constructor(props) {
     super(props);
@@ -125,15 +131,17 @@ class ExplainStates extends Component {
    */
   renderBanner() {
     if (!this.props.isEditable) {
-      return (<StatusRow style="warning">{READ_ONLY_WARNING}</StatusRow>);
+      return <StatusRow style="warning">{READ_ONLY_WARNING}</StatusRow>;
     }
 
     if (this.props.explain.explainState === EXPLAIN_STATES.OUTDATED) {
-      return (<StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>);
+      return <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
     }
 
     if (this.props.explain.error) {
-      return (<StatusRow style="error">{this.props.explain.error.message}</StatusRow>);
+      return (
+        <StatusRow style="error">{this.props.explain.error.message}</StatusRow>
+      );
     }
   }
 
@@ -179,9 +187,7 @@ class ExplainStates extends Component {
    */
   renderContent() {
     if (!this.checkIfZeroState()) {
-      return (
-        <ExplainBody key="explain-body" {...this.props} />
-      );
+      return <ExplainBody key="explain-body" {...this.props} />;
     }
   }
 
@@ -209,9 +215,10 @@ class ExplainStates extends Component {
    * @returns {React.Component} The component.
    */
   renderViewSwitcher() {
-    const activeViewTypeButton = this.props.explain.viewType === EXPLAIN_VIEWS.tree
-      ? 'Visual Tree'
-      : 'Raw JSON';
+    const activeViewTypeButton =
+      this.props.explain.viewType === EXPLAIN_VIEWS.tree
+        ? 'Visual Tree'
+        : 'Raw JSON';
 
     return (
       <div className={styles['action-bar']}>
@@ -233,17 +240,15 @@ class ExplainStates extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return (
-      [
-        <div key="controls-container" className={styles['controls-container']}>
-          {this.renderBanner()}
-          {this.renderQueryBar()}
-          {this.renderViewSwitcher()}
-        </div>,
-        this.renderZeroState(),
-        this.renderContent()
-      ]
-    );
+    return [
+      <div key="controls-container" className={styles['controls-container']}>
+        {this.renderBanner()}
+        {this.renderQueryBar()}
+        {this.renderViewSwitcher()}
+      </div>,
+      this.renderZeroState(),
+      this.renderContent(),
+    ];
   }
 }
 

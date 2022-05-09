@@ -125,9 +125,7 @@ describe('csfle-handler', function () {
       ).to.deep.equal({
         storeCredentials: false,
         autoEncryption: {
-          kmsProviders: {
-            aws: undefined,
-          },
+          kmsProviders: {},
         },
       });
     });
@@ -168,9 +166,7 @@ describe('csfle-handler', function () {
       ).to.deep.equal({
         storeCredentials: false,
         autoEncryption: {
-          tlsOptions: {
-            aws: undefined,
-          },
+          tlsOptions: {},
         },
       });
     });
@@ -331,6 +327,11 @@ describe('csfle-handler', function () {
                 '$compass.rawText': exampleString,
                 '$compass.error': null,
               },
+              // @ts-expect-error next driver release will have types
+              encryptedFieldsMap: {
+                '$compass.rawText': exampleString,
+                '$compass.error': null,
+              },
             },
           },
         };
@@ -340,6 +341,11 @@ describe('csfle-handler', function () {
             storeCredentials: false,
             autoEncryption: {
               schemaMap: {
+                ...exampleObject,
+                '$compass.rawText': exampleString,
+                '$compass.error': null,
+              },
+              encryptedFieldsMap: {
                 ...exampleObject,
                 '$compass.rawText': exampleString,
                 '$compass.error': null,

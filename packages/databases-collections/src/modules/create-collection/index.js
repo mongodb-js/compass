@@ -132,6 +132,7 @@ export const createCollection = (data, kind = 'Collection') => {
         has_collation: !!data.options.collation,
         is_timeseries: !!data.options.timeseries,
         is_clustered: !!data.options.clusteredIndex,
+        is_fle2: !!data.options.encryptedFields,
         expires: !!data.options.expireAfterSeconds
       };
 

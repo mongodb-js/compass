@@ -12,7 +12,6 @@ import _reducer, {
   generatePipelineAsString,
   loadingStageResults,
   gotoOutResults,
-  STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
   STAGE_PREVIEW_UPDATED,
   LOADING_STAGE_RESULTS,
@@ -28,12 +27,11 @@ import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 const LIMIT_TO_PROCESS = 100000;
 const LIMIT_TO_DISPLAY = 20;
 
-const reducer = (prevState = INITIAL_STATE, _action) => {
-  let action = _action;
-  if (typeof _action === 'function') {
-    _action(
+const reducer = (prevState = INITIAL_STATE, action) => {
+  if (typeof action === 'function') {
+    action(
       (a) => {
-        action = a;
+        prevState = reducer(prevState, a)
       },
       () => ({ pipeline: prevState })
     );
@@ -323,16 +321,6 @@ describe('pipeline module', function () {
         it('returns the unmodified state', function () {
           expect(reducer(state, stageMoved(1, 1))).to.equal(state);
         });
-      });
-    });
-  });
-
-  describe('#stageChanged', function () {
-    it('returns the STAGE_CHANGED action', function () {
-      expect(stageChanged('{}', 0)).to.deep.equal({
-        type: STAGE_CHANGED,
-        index: 0,
-        stage: '{}',
       });
     });
   });
