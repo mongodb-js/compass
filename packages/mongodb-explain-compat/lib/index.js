@@ -88,9 +88,8 @@ function isShardedAggregationExplain(explain) {
 }
 
 function isShardedFind(explain) {
-  return (
-    explain.queryPlanner && explain.queryPlanner.mongosPlannerVersion === 1
-  );
+  const { mongosPlannerVersion } = explain.queryPlanner ?? {};
+  return !isNaN(mongosPlannerVersion);
 }
 
 function getStageCursorKey(stage) {
@@ -124,7 +123,7 @@ module.exports = function (explain) {
     if (isShardedAggregationExplain(explain)) {
       return mapShardedAggregation(explain);
     }
-    return mapsUnshardedAggregation(explain);
+    return mapUnshardedAggregation(explain);
   }
 
   // Sharded Find
@@ -136,7 +135,7 @@ module.exports = function (explain) {
   return mapUnshardedFind(explain);
 };
 
-function mapsUnshardedAggregation(explain) {
+function mapUnshardedAggregation(explain) {
   if (!explain.stages || explain.stages.length === 0) {
     return explain;
   }
@@ -159,7 +158,7 @@ function mapShardedAggregation(explain) {
   for (const shardName in explain.shards) {
     // Shard with stages
     if (explain.shards[shardName].stages) {
-      shards[shardName] = mapsUnshardedAggregation(explain.shards[shardName]);
+      shards[shardName] = mapUnshardedAggregation(explain.shards[shardName]);
     } else {
       shards[shardName] = mapUnshardedFind(explain.shards[shardName]);
     }
