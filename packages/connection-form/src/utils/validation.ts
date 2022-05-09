@@ -18,6 +18,7 @@ export type FieldName =
   | 'schema'
   | 'proxyHostname'
   | 'schemaMap'
+  | 'encryptedFieldsMap'
   | 'sshHostname'
   | 'sshIdentityKeyFile'
   | 'sshPassword'
@@ -260,17 +261,19 @@ function validateCSFLEErrors(
   autoEncryptionOptions: AutoEncryptionOptions
 ): ConnectionFormError[] {
   const errors: ConnectionFormError[] = [];
-  // TODO(COMPASS-5645): Replace 'schemaMap' with 'encryptedFieldConfig[Map?]'
-  const encryptedFieldConfigError =
-    autoEncryptionOptions.schemaMap?.['$compass.error'];
-  if (encryptedFieldConfigError) {
-    errors.push({
-      fieldTab: 'csfle',
-      fieldName: 'schemaMap',
-      message: `EncryptedFieldConfig is invalid: ${
-        encryptedFieldConfigError as string
-      }`,
-    });
+  for (const fieldName of ['schemaMap', 'encryptedFieldsMap'] as const) {
+    const encryptedFieldConfigError =
+      // @ts-expect-error next driver release will have types
+      autoEncryptionOptions[fieldName]?.['$compass.error'];
+    if (encryptedFieldConfigError) {
+      errors.push({
+        fieldTab: 'csfle',
+        fieldName,
+        message: `EncryptedFieldConfig is invalid: ${
+          encryptedFieldConfigError as string
+        }`,
+      });
+    }
   }
   if (
     autoEncryptionOptions.keyVaultNamespace &&
