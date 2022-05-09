@@ -76,9 +76,7 @@ buildvariants:
       - name: package-readonly
       - name: package-isolated
       - name: test-packaged-app-40x-community
-      - name: test-packaged-app-40x-enterprise
       - name: test-packaged-app-42x-community
-      - name: test-packaged-app-42x-enterprise
       - name: test-packaged-app-44x-community
       - name: test-packaged-app-44x-enterprise
       - name: test-packaged-app-5x-community
