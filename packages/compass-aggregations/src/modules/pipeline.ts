@@ -812,7 +812,7 @@ const getDebouncedExecuteAgg = (id: string): typeof _executeAggregation => {
     return ExecuteAggDebounceMap.get(id)!;
   } else {
     const fn = debounce(_executeAggregation, 750, {
-      leading: true,
+      leading: false,
       trailing: true
     });
     ExecuteAggDebounceMap.set(id, fn);
