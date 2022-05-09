@@ -1,55 +1,85 @@
-import createDebug from 'debug';
 import AutoUpdateManager from 'hadron-auto-update-manager';
 import { ipcMain } from 'hadron-ipc';
 import COMPASS_ICON from './icon';
 
-const debug = createDebug(
-  'mongodb-compass:main:application:auto-update-manager'
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { log, mongoLogId, debug } = createLoggerAndTelemetry(
+  'COMPASS-AUTO-UPDATES'
 );
 
 /**
  * Map package.json product names to API endpoint product names.
  */
-const API_PRODUCT = {
+const API_PRODUCT: Record<string, string> = {
   'mongodb-compass': 'compass',
   'mongodb-compass-readonly': 'compass-readonly',
 };
 
-function isSupportedProduct(str?: string): str is keyof typeof API_PRODUCT {
-  return Object.keys(API_PRODUCT).includes(str as string);
-}
-
 /**
  * Platform API mappings.
  */
-const API_PLATFORM = {
+const API_PLATFORM: Record<string, string> = {
   darwin: 'osx',
   win32: 'windows',
   linux: 'linux',
 };
 
-function isSupportedPlatform(str?: string): str is keyof typeof API_PLATFORM {
-  return Object.keys(API_PLATFORM).includes(str as string);
-}
-
 class CompassAutoUpdateManager {
   private static initCalled = false;
 
   private static _init(): void {
-    if (
-      !isSupportedPlatform(process.platform) ||
-      !isSupportedProduct(process.env.HADRON_PRODUCT)
-    ) {
+    log.info(
+      mongoLogId(1001000130),
+      'CompassAutoUpdateManager',
+      'Initializing'
+    );
+
+    const product = API_PRODUCT[process.env.HADRON_PRODUCT];
+    if (!product) {
+      log.info(
+        mongoLogId(1001000131),
+        'CompassAutoUpdateManager',
+        'Skipping setup for unknown product',
+        {
+          productId: process.env.HADRON_PRODUCT,
+        }
+      );
+
       return;
     }
 
-    const updateManager = new AutoUpdateManager({
+    const platform = API_PLATFORM[process.platform];
+    if (!platform) {
+      log.info(
+        mongoLogId(1001000132),
+        'CompassAutoUpdateManager',
+        'Skipping setup on unknown platform',
+        {
+          platformId: process.platform,
+        }
+      );
+
+      return;
+    }
+
+    const autoUpdateManagerOptions = {
       endpoint: process.env.HADRON_AUTO_UPDATE_ENDPOINT,
       icon: COMPASS_ICON,
-      product: API_PRODUCT[process.env.HADRON_PRODUCT],
+      product: product,
       channel: process.env.HADRON_CHANNEL,
-      platform: API_PLATFORM[process.platform],
-    });
+      platform: platform,
+    };
+
+    log.info(
+      mongoLogId(1001000133),
+      'CompassAutoUpdateManager',
+      'Setting up updateManager',
+      {
+        ...autoUpdateManagerOptions,
+      }
+    );
+
+    const updateManager = new AutoUpdateManager(autoUpdateManagerOptions);
 
     updateManager.on('state-change', (newState) => {
       debug('new state', newState);

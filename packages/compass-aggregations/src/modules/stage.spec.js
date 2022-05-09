@@ -181,7 +181,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$addFields',
         stage: `{
        totalHomework: { $sum: "$homework" } ,
@@ -216,7 +215,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$project',
         stage: '{_id: 0, avg_price: {$avg: "$price"}}'
       };
@@ -248,7 +246,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$bucket',
         stage: `{
      groupBy: "$price",
@@ -302,7 +299,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$count',
         stage: '"fieldname"'
       };
@@ -322,7 +318,6 @@ describe('Stage module', function() {
         isEnabled: true,
         isExpanded: true,
         isValid: true,
-        snippet: '',
         stageOperator: '$addFields',
         stage: `{
         isFound:
@@ -406,7 +401,7 @@ describe('Stage module', function() {
 
     context('when the stage has BSON types', function() {
       const stage = {
-        id: 0, isEnabled: true, isExpanded: true, isValid: true, snippet: '',
+        id: 0, isEnabled: true, isExpanded: true, isValid: true,
         stageOperator: '$match',
         stage: '{\n' +
         '  code: Code(\'some code\'),\n' +

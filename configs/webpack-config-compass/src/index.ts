@@ -19,6 +19,7 @@ import {
   lessLoader,
   assetsLoader,
   resourceLoader,
+  sharedObjectLoader,
 } from './loaders';
 import {
   entriesToNamedEntries,
@@ -50,6 +51,7 @@ export function createElectronMainConfig(
       filename: opts.outputFilename ?? '[name].[contenthash].main.js',
       assetModuleFilename: 'assets/[name].[hash][ext]',
       strictModuleErrorHandling: true,
+      strictModuleExceptionHandling: true,
     },
     mode: opts.mode,
     target: opts.target,
@@ -58,6 +60,7 @@ export function createElectronMainConfig(
         javascriptLoader(opts),
         nodeLoader(opts),
         resourceLoader(opts),
+        sharedObjectLoader(opts),
         sourceLoader(opts),
       ],
     },
@@ -114,6 +117,7 @@ export function createElectronRendererConfig(
       library: getLibraryNameFromCwd(opts.cwd),
       libraryTarget: 'umd',
       strictModuleErrorHandling: true,
+      strictModuleExceptionHandling: true,
     },
     mode: opts.mode,
     target: opts.target,
@@ -124,6 +128,7 @@ export function createElectronRendererConfig(
         cssLoader(opts),
         lessLoader(opts),
         assetsLoader(opts),
+        sharedObjectLoader(opts),
         sourceLoader(opts),
       ],
     },
@@ -219,7 +224,15 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       assetModuleFilename: 'assets/[name][ext]',
       library: getLibraryNameFromCwd(opts.cwd),
       libraryTarget: 'umd',
+      // These two options are subtly different, and while
+      // `strictModuleExceptionHandling` is deprecated, it is the only
+      // one that actually gives us the right behavior currently.
+      // https://github.com/webpack/webpack/blob/3ad4fcac25a976277f2d9cceb37bc81602e96b13/lib/javascript/JavascriptModulesPlugin.js#L1326-L1346
+      // Note that hot module reloading turns these on by default,
+      // so this is only affecting production builds and not the
+      // typical development mode that we work in.
       strictModuleErrorHandling: true,
+      strictModuleExceptionHandling: true,
     },
     mode: opts.mode,
     target: opts.target,

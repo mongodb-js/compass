@@ -32,7 +32,7 @@ const toggleLabelStyles = css({
 
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
-  onToggleAutoPreview: () => void;
+  onToggleAutoPreview: (newVal: boolean) => void;
   onToggleSettings: () => void;
 };
 
@@ -48,7 +48,9 @@ export const PipelineExtraSettings: React.FunctionComponent<PipelineExtraSetting
             id="auto-preview"
             size="xsmall"
             aria-label="Toggle Auto Preview"
-            onChange={() => onToggleAutoPreview()}
+            onChange={(checked) => {
+              onToggleAutoPreview(checked)
+            }}
             data-testid="pipeline-toolbar-preview-toggle"
             checked={isAutoPreview}
           />

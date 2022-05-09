@@ -7,34 +7,33 @@ export enum ActionTypes {
   AutoPreviewToggled = 'compass-aggregations/autoPreviewToggled',
 }
 
-type AutoPreviewToggledAction = {
+export type AutoPreviewToggledAction = {
   type: ActionTypes.AutoPreviewToggled;
+  value: boolean;
 };
 
 export const INITIAL_STATE = true;
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction): boolean {
   if (action.type === ActionTypes.AutoPreviewToggled) {
-    return !state;
+    return action.value;
   }
   return state;
 }
 
-export const toggleAutoPreview = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  AutoPreviewToggledAction
-> => {
-  return (dispatch, getState) => {
-    const {
-      autoPreview,
-    } = getState();
-    if (!autoPreview && global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true') {
-      dispatch(runStage(0))
+export const toggleAutoPreview = (
+  newVal: boolean
+): ThunkAction<void, RootState, void, AutoPreviewToggledAction> => {
+  return (dispatch) => {
+    if (
+      newVal &&
+      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true'
+    ) {
+      dispatch(runStage(0));
     }
     dispatch({
-      type: ActionTypes.AutoPreviewToggled
+      type: ActionTypes.AutoPreviewToggled,
+      value: newVal
     });
   };
 };

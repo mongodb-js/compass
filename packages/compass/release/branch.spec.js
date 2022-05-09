@@ -9,7 +9,7 @@ const {
   lt
 } = require('./branch');
 
-describe('branches', () => {
+describe('branches', function() {
   if (!!process.env.EVERGREEN && process.platform === 'darwin') {
     // These tests are not working well on Evergreen macOS machines and we will
     // skip them for now (they will run in GitHub CI)
@@ -18,8 +18,8 @@ describe('branches', () => {
     return;
   }
 
-  describe('isMainBranch', () => {
-    it('returns true only if branch is main', () => {
+  describe('isMainBranch', function() {
+    it('returns true only if branch is main', function() {
       expect(isMainBranch('main')).to.be.true;
       expect(isMainBranch('beta')).to.be.false;
       expect(isMainBranch('release/1.2.33')).to.be.false;
@@ -27,8 +27,8 @@ describe('branches', () => {
     });
   });
 
-  describe('isReleaseBranch', () => {
-    it('returns true only for a release branch', () => {
+  describe('isReleaseBranch', function() {
+    it('returns true only for a release branch', function() {
       expect(isReleaseBranch('main')).to.be.false;
       expect(isReleaseBranch('beta')).to.be.false;
       expect(isReleaseBranch('release/1.2.33')).to.be.false;
@@ -37,40 +37,40 @@ describe('branches', () => {
     });
   });
 
-  describe('buildReleaseBranchName', () => {
-    it('returns a release branch name from version', () => {
+  describe('buildReleaseBranchName', function() {
+    it('returns a release branch name from version', function() {
       expect(buildReleaseBranchName('1.2')).to.equal('1.2-releases');
     });
   });
 
-  describe('getFirstBeta', () => {
-    it('throws if not release branch', () => {
+  describe('getFirstBeta', function() {
+    it('throws if not release branch', function() {
       expect(() => {
         getFirstBeta('somebranch');
       }).to.throw('not a release branch');
     });
 
-    it('returns the first beta for a release branch', () => {
+    it('returns the first beta for a release branch', function() {
       expect(getFirstBeta('1.22-releases')).to.equal('1.22.0-beta.0');
       expect(getFirstBeta('1.2-releases')).to.equal('1.2.0-beta.0');
     });
   });
 
-  describe('getFirstGa', () => {
-    it('throws if not release branch', () => {
+  describe('getFirstGa', function() {
+    it('throws if not release branch', function() {
       expect(() => {
         getFirstGa('somebranch');
       }).to.throw('not a release branch');
     });
 
-    it('returns the first beta for a release branch', () => {
+    it('returns the first beta for a release branch', function() {
       expect(getFirstGa('1.22-releases')).to.equal('1.22.0');
       expect(getFirstGa('1.2-releases')).to.equal('1.2.0');
     });
   });
 
-  describe('hasVersion', () => {
-    it('returns true if matching', () => {
+  describe('hasVersion', function() {
+    it('returns true if matching', function() {
       expect(
         hasVersion('1.22-releases', '1.22.0')
       ).to.be.true;
@@ -84,7 +84,7 @@ describe('branches', () => {
       ).to.be.true;
     });
 
-    it('returns false if not matching', () => {
+    it('returns false if not matching', function() {
       expect(
         hasVersion('1.22-releases', '1.21.0')
       ).to.be.false;
@@ -103,8 +103,8 @@ describe('branches', () => {
     });
   });
 
-  describe('lt', () => {
-    it('returns true only if branch is lower than version', () => {
+  describe('lt', function() {
+    it('returns true only if branch is lower than version', function() {
       expect(lt('1.22-releases', '1.23.0')).to.be.true;
       expect(lt('1.22-releases', '2.0.0')).to.be.true;
       expect(lt('1.22-releases', '2.22.0')).to.be.true;

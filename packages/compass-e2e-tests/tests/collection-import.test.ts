@@ -669,7 +669,7 @@ describe('Collection import', function () {
     await errorElement.waitForDisplayed();
     const errorText = await errorElement.getText();
     expect(errorText).to.equal(
-      'Argument passed in must be a string of 12 bytes or a string of 24 hex characters'
+      'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
     );
 
     // click the cancel button

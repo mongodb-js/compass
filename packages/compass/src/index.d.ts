@@ -51,6 +51,11 @@ declare module 'process' {
          */
         COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
         COMPASS_ENABLE_AGGREGATION_EXPORT?: 'true' | 'false';
+
+        /**
+         * Permanent feature flag for debugging.
+         */
+         COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';
       }
     }
   }

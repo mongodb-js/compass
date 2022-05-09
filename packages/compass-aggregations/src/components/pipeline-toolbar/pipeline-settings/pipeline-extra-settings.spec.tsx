@@ -24,7 +24,7 @@ describe('PipelineExtraSettings', function () {
     container = screen.getByTestId('pipeline-toolbar-extra-settings');
   });
 
-  it('auto-preview', function () {
+  it('calls onToggleAutoPreview when clicked', function () {
     const toggle = within(container).getByTestId(
       'pipeline-toolbar-preview-toggle'
     );
@@ -32,10 +32,9 @@ describe('PipelineExtraSettings', function () {
     userEvent.click(toggle);
 
     expect(onToggleAutoPreviewSpy.calledOnce).to.be.true;
-    expect(onToggleAutoPreviewSpy.firstCall.args).to.be.empty;
   });
 
-  it('settings', function () {
+  it('calls onToggleSettings when clicked', function () {
     const button = within(container).getByTestId(
       'pipeline-toolbar-settings-button'
     );
@@ -43,6 +42,5 @@ describe('PipelineExtraSettings', function () {
     userEvent.click(button);
 
     expect(onToggleSettingsSpy.calledOnce).to.be.true;
-    expect(onToggleSettingsSpy.firstCall.args).to.be.empty;
   });
 });

@@ -107,7 +107,7 @@ export function handleUpdateCsfleKmsParam({
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let kms: any = {
+  const kms: any = {
     ...(autoEncryption.kmsProviders?.[action.kmsProvider] ?? {}),
   };
   if (!action.value) {
@@ -115,8 +115,11 @@ export function handleUpdateCsfleKmsParam({
   } else {
     kms[action.key] = action.value;
   }
+  const kmsProviders = autoEncryption.kmsProviders ?? {};
   if (Object.keys(kms).length === 0) {
-    kms = undefined;
+    delete kmsProviders[action.kmsProvider];
+  } else {
+    kmsProviders[action.kmsProvider] = kms;
   }
   return {
     connectionOptions: {
@@ -126,10 +129,7 @@ export function handleUpdateCsfleKmsParam({
         ...connectionOptions.fleOptions,
         autoEncryption: {
           ...autoEncryption,
-          kmsProviders: {
-            ...autoEncryption.kmsProviders,
-            [action.kmsProvider]: kms,
-          },
+          kmsProviders,
         },
       },
     },
@@ -148,14 +148,19 @@ export function handleUpdateCsfleKmsTlsParam({
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let tls: any = { ...(autoEncryption.tlsOptions?.[action.kmsProvider] ?? {}) };
+  const tls: any = {
+    ...(autoEncryption.tlsOptions?.[action.kmsProvider] ?? {}),
+  };
   if (!action.value) {
     delete tls[action.key];
   } else {
     tls[action.key] = action.value;
   }
+  const tlsOptions = autoEncryption.tlsOptions ?? {};
   if (Object.keys(tls).length === 0) {
-    tls = undefined;
+    delete tlsOptions[action.kmsProvider];
+  } else {
+    tlsOptions[action.kmsProvider] = tls;
   }
   return {
     connectionOptions: {
@@ -165,10 +170,7 @@ export function handleUpdateCsfleKmsTlsParam({
         ...connectionOptions.fleOptions,
         autoEncryption: {
           ...autoEncryption,
-          tlsOptions: {
-            ...autoEncryption.tlsOptions,
-            [action.kmsProvider]: tls,
-          },
+          tlsOptions,
         },
       },
     },
@@ -179,12 +181,14 @@ export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {
   return !!(
     o.bypassAutoEncryption ||
     o.keyVaultNamespace ||
-    o.schemaMap /* TODO(COMPASS-5645): encryptedFieldConfig */ ||
+    o.schemaMap ||
+    // @ts-expect-error next driver release will have types
+    o.encryptedFieldsMap ||
     [
       ...Object.values(o.tlsOptions ?? {}),
       ...Object.values(o.kmsProviders ?? {}),
     ]
-      .flatMap((o) => Object.values(o))
+      .flatMap((o) => Object.values(o ?? {}))
       .filter(Boolean).length > 0
   );
 }
@@ -245,10 +249,17 @@ export function adjustCSFLEParams(
 ): ConnectionOptions {
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryptionOptions = connectionOptions.fleOptions?.autoEncryption;
-  // TODO(COMPASS-5645): schemaMap -> encryptedFieldConfig[Map?]
   if (autoEncryptionOptions?.schemaMap?.['$compass.error'] === null) {
     autoEncryptionOptions.schemaMap = textToEncryptedFieldConfig(
       autoEncryptionOptions.schemaMap['$compass.rawText']
+    );
+  }
+  // @ts-expect-error next driver release will have types
+  if (autoEncryptionOptions?.encryptedFieldsMap?.['$compass.error'] === null) {
+    // @ts-expect-error next driver release will have types
+    autoEncryptionOptions.encryptedFieldsMap = textToEncryptedFieldConfig(
+      // @ts-expect-error next driver release will have types
+      autoEncryptionOptions.encryptedFieldsMap['$compass.rawText']
     );
   }
   return connectionOptions;
