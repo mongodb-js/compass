@@ -25,7 +25,7 @@ import { expect } from 'chai';
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 
 const LIMIT_TO_PROCESS = 100000;
-const LIMIT_TO_DISPLAY = 20;
+const LIMIT_TO_DISPLAY = 10;
 
 const reducer = (prevState = INITIAL_STATE, action) => {
   if (typeof action === 'function') {

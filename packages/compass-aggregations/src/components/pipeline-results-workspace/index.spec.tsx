@@ -61,7 +61,7 @@ describe('PipelineResultsWorkspace', function () {
     expect(onCancelSpy.calledOnce).to.be.true;
   });
 
-  it('shold render error banner', function () {
+  it('should render error banner', function () {
     const onRetry = spy();
     renderPipelineResultsWorkspace({
       isError: true,
