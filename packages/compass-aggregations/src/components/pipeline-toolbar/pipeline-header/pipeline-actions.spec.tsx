@@ -21,7 +21,6 @@ describe('PipelineActions', function () {
       onExportAggregationResultsSpy = spy();
       render(
         <PipelineActions
-          isPipelineInvalid={false}
           isOptionsVisible={true}
           showRunButton={true}
           showExportButton={true}
@@ -36,17 +35,16 @@ describe('PipelineActions', function () {
       process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
     });
 
-    it('run action button', function () {
+    it('calls onRunAggregation callback on click', function () {
       const button = screen.getByTestId('pipeline-toolbar-run-button');
       expect(button).to.exist;
 
       userEvent.click(button);
 
       expect(onRunAggregationSpy.calledOnce).to.be.true;
-      expect(onRunAggregationSpy.firstCall.args).to.be.empty;
     });
 
-    it('export action button', function () {
+    it('calls onExportAggregationResults on click', function () {
       const button = screen.getByTestId(
         'pipeline-toolbar-export-aggregation-button'
       );
@@ -55,10 +53,9 @@ describe('PipelineActions', function () {
       userEvent.click(button);
 
       expect(onExportAggregationResultsSpy.calledOnce).to.be.true;
-      expect(onExportAggregationResultsSpy.firstCall.args).to.be.empty;
     });
 
-    it('toggle options action button', function () {
+    it('calls onToggleOptions on click', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
       expect(button.textContent.toLowerCase().trim()).to.equal('less options');
@@ -67,7 +64,6 @@ describe('PipelineActions', function () {
       userEvent.click(button);
 
       expect(onToggleOptionsSpy.calledOnce).to.be.true;
-      expect(onToggleOptionsSpy.firstCall.args).to.be.empty;
     });
   });
 
@@ -79,12 +75,12 @@ describe('PipelineActions', function () {
       onToggleOptionsSpy = spy();
       render(
         <PipelineActions
-          isPipelineInvalid={false}
           isOptionsVisible={false}
           showRunButton={true}
           showExportButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
+          onExportAggregationResults={() => {}}
         />
       );
     });
@@ -98,7 +94,6 @@ describe('PipelineActions', function () {
       userEvent.click(button);
 
       expect(onToggleOptionsSpy.calledOnce).to.be.true;
-      expect(onToggleOptionsSpy.firstCall.args).to.be.empty;
     });
   });
 

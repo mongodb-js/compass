@@ -71,9 +71,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           data-testid="pipeline-toolbar-export-aggregation-button"
           variant="default"
           size="small"
-          onClick={() => {
-            onExportAggregationResults();
-          }}
+          onClick={onExportAggregationResults}
           disabled={isExportButtonDisabled}
         >
           Export
