@@ -14,7 +14,7 @@ const Document = (props) => {
   } = props;
 
   const doc = useMemo(() => {
-    if (_doc?.isRoot()) {
+    if (_doc?.isRoot?.()) {
       return _doc;
     }
     return new HadronDocument(_doc);
