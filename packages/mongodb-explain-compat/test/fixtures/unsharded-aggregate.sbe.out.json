@@ -1,0 +1,155 @@
+{
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "plannerVersion": 1,
+          "namespace": "test.test",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "i": {
+              "$lt": 1000
+            }
+          },
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "PROJECTION_SIMPLE",
+            "planNodeId": 2,
+            "transformBy": {
+              "i": true,
+              "_id": true
+            },
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "planNodeId": 1,
+              "filter": {
+                "i": {
+                  "$lt": 1000
+                }
+              },
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 1000,
+          "executionTimeMillis": 61,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 100000,
+          "executionStages": {
+            "stage": "PROJECTION_SIMPLE",
+            "planNodeId": 2,
+            "nReturned": 1000,
+            "executionTimeMillisEstimate": 61,
+            "opens": 1,
+            "closes": 1,
+            "saveState": 100,
+            "restoreState": 100,
+            "isEOF": 1,
+            "objSlot": 9,
+            "rootSlot": 4,
+            "fieldBehavior": "keep",
+            "fields": ["_id", "i"],
+            "projectFields": [],
+            "projectSlots": [],
+            "forceNewObject": true,
+            "returnOldObject": false,
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "planNodeId": 1,
+              "nReturned": 1000,
+              "executionTimeMillisEstimate": 61,
+              "opens": 1,
+              "closes": 1,
+              "saveState": 100,
+              "restoreState": 100,
+              "isEOF": 1,
+              "numTested": 100000,
+              "filter": {
+                "i": {
+                  "$lt": 1000
+                }
+              },
+              "direction": "forward",
+              "docsExamined": 100000,
+              "keysExamined": 0
+            },
+            "transformBy": {
+              "i": true,
+              "_id": true
+            },
+            "docsExamined": 0,
+            "keysExamined": 0
+          }
+        }
+      },
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$unwind": {
+        "path": "$x",
+        "preserveNullAndEmptyArrays": true
+      },
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$limit": 6,
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 0
+    }
+  ],
+  "serverInfo": {
+    "host": "M-C02DR0F9ML85.local",
+    "port": 27017,
+    "version": "5.3.0-rc3",
+    "gitVersion": "cf6ac4d17da6eb6562f503a515ea6aea2ccbf944"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "command": {
+    "aggregate": "faker_hacker",
+    "pipeline": [
+      {
+        "$match": {
+          "i": {
+            "$lt": 1000
+          }
+        }
+      },
+      {
+        "$project": {
+          "x": 1,
+          "i": 1
+        }
+      },
+      {
+        "$unwind": {
+          "path": "$x",
+          "preserveNullAndEmptyArrays": true
+        }
+      },
+      {
+        "$limit": 6
+      }
+    ],
+    "allowDiskUse": true,
+    "cursor": {},
+    "maxTimeMS": 60000,
+    "$db": "test"
+  },
+  "ok": 1
+}

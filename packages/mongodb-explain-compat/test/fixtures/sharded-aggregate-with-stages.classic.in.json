@@ -1,0 +1,132 @@
+{
+  "serverInfo": {
+    "host": "0edf452ec934",
+    "port": 27017,
+    "version": "5.0.8",
+    "gitVersion": "c87e1c23421bf79614baf500fda6622bd90f674e"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "splitPipeline": null,
+  "shards": {
+    "shard1": {
+      "host": "mongodb-shard1:27017",
+      "stages": [
+        {
+          "$cursor": {
+            "queryPlanner": {
+              "namespace": "shard.listings",
+              "indexFilterSet": false,
+              "parsedQuery": {
+                "host_id": {
+                  "$in": [1, 100000000]
+                }
+              },
+              "queryHash": "D240E764",
+              "planCacheKey": "5775F328",
+              "maxIndexedOrSolutionsReached": false,
+              "maxIndexedAndSolutionsReached": false,
+              "maxScansToExplodeReached": false,
+              "winningPlan": {
+                "stage": "PROJECTION_COVERED",
+                "transformBy": {
+                  "host_id": 1,
+                  "_id": 0
+                },
+                "inputStage": {
+                  "stage": "SHARDING_FILTER",
+                  "inputStage": {
+                    "stage": "IXSCAN",
+                    "keyPattern": {
+                      "host_id": 1
+                    },
+                    "indexName": "host_id_1",
+                    "isMultiKey": false,
+                    "multiKeyPaths": {
+                      "host_id": []
+                    },
+                    "isUnique": false,
+                    "isSparse": false,
+                    "isPartial": false,
+                    "indexVersion": 2,
+                    "direction": "forward",
+                    "indexBounds": {
+                      "host_id": ["[1, 1]", "[100000000, 100000000]"]
+                    }
+                  }
+                }
+              },
+              "rejectedPlans": []
+            }
+          }
+        },
+        {
+          "$group": {
+            "_id": "$host_id",
+            "count": {
+              "$sum": {
+                "$const": 1
+              }
+            }
+          }
+        },
+        {
+          "$sort": {
+            "sortKey": {
+              "count": -1
+            }
+          }
+        }
+      ]
+    }
+  },
+  "command": {
+    "aggregate": "listings",
+    "pipeline": [
+      {
+        "$match": {
+          "host_id": {
+            "$in": [1, 100000000]
+          }
+        }
+      },
+      {
+        "$group": {
+          "_id": "$host_id",
+          "count": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$sort": {
+          "count": -1
+        }
+      }
+    ],
+    "cursor": {}
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "t": 1651755440,
+      "i": 1
+    },
+    "signature": {
+      "hash": "820285adc8aac09ff43020064ac10f1ed67184bb",
+      "keyId": "7093538256309977112"
+    }
+  },
+  "operationTime": {
+    "t": 1651755433,
+    "i": 1
+  }
+}

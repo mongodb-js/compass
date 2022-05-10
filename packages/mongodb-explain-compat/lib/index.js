@@ -72,18 +72,142 @@ function mapStages(queryPlan, sbeExecutionStages) {
   });
 }
 
-module.exports = function(explain) {
+function isAggregationExplain(explain) {
+  return (
+    isUnshardedAggregationExplain(explain) ||
+    isShardedAggregationExplain(explain)
+  );
+}
+// Only unshared aggregation has stages property
+function isUnshardedAggregationExplain(explain) {
+  return !!explain.stages;
+}
+// Only shared aggregation has shards property
+function isShardedAggregationExplain(explain) {
+  return !!explain.shards;
+}
+
+function isShardedFind(explain) {
+  const { mongosPlannerVersion } = explain.queryPlanner ?? {};
+  return !isNaN(mongosPlannerVersion);
+}
+
+function getStageCursorKey(stage) {
+  return Object.keys(stage).find((x) => x.match(/^\$.*cursor/i));
+}
+
+function isCursorStage(stage) {
+  return !!getStageCursorKey(stage);
+}
+
+/**
+ * Converts SBE explain plan to a format that is compatible with the query planner.
+ * https://wiki.corp.mongodb.com/display/QUERY/Explain+Notes
+ *
+ * @param {Object} explain Raw explain object.
+ * @returns Classic explain object
+ */
+module.exports = function (explain) {
   explain = JSON.parse(JSON.stringify(explain));
-  if ((explain.explainVersion || 0) < 2) {
+
+  // In a sharded aggregation, we don't have explainVersion :(
+  // In a sharded find, its represented by explain.queryPlanner.mongosPlannerVersion
+
+  // return explain that uses classic engine (except for sharded response)
+  if (explain.explainVersion && explain.explainVersion < 2) {
     return explain;
   }
   delete explain.explainVersion;
-  explain.queryPlanner.plannerVersion = 1;
-  const winningPlan = explain.queryPlanner.winningPlan.queryPlan;
-  explain.queryPlanner.winningPlan = winningPlan;
 
-  explain.executionStats.executionStages =
-    mapStages(winningPlan, explain.executionStats.executionStages);
-
+  if (isAggregationExplain(explain)) {
+    if (isShardedAggregationExplain(explain)) {
+      explain = mapShardedAggregation(explain);
+    } else {
+      explain = mapUnshardedAggregation(explain);
+    }
+  } else {
+    if (isShardedFind(explain)) {
+      explain = mapShardedFind(explain);
+    } else {
+      explain = mapUnshardedFind(explain);
+    }
+  }
   return JSON.parse(JSON.stringify(explain));
 };
+
+function mapUnshardedAggregation(explain) {
+  if (!explain.stages || explain.stages.length === 0) {
+    return explain;
+  }
+  const stages = explain.stages.map((stage) => {
+    if (!isCursorStage(stage)) {
+      return stage;
+    }
+    const stageKey = getStageCursorKey(stage);
+    stage[stageKey] = _mapPlannerStage(stage[stageKey]);
+    return stage;
+  });
+  explain.stages = stages;
+  return explain;
+}
+function mapShardedAggregation(explain) {
+  if (!explain.shards) {
+    return explain;
+  }
+  const shards = {};
+  for (const shardName in explain.shards) {
+    // Shard with stages
+    if (explain.shards[shardName].stages) {
+      shards[shardName] = mapUnshardedAggregation(explain.shards[shardName]);
+    } else {
+      shards[shardName] = mapUnshardedFind(explain.shards[shardName]);
+    }
+  }
+  explain.shards = shards;
+  return explain;
+}
+
+function mapShardedFind(explain) {
+  const queryPlanner = explain.queryPlanner;
+  const executionStats = explain.executionStats;
+  if (!queryPlanner.winningPlan.shards) {
+    return explain;
+  }
+  queryPlanner.winningPlan.shards.forEach((shard, index) => {
+    const winningPlan = shard.winningPlan.queryPlan;
+    if (winningPlan) {
+      const executionStages = mapStages(
+        winningPlan,
+        executionStats.executionStages.shards[index].executionStages
+      );
+
+      queryPlanner.winningPlan.shards[index].winningPlan = winningPlan;
+      executionStats.executionStages.shards[index].executionStages =
+        executionStages;
+    }
+  });
+  explain.queryPlanner = queryPlanner;
+  explain.executionStats = executionStats;
+  return explain;
+}
+function mapUnshardedFind(explain) {
+  return _mapPlannerStage(explain);
+}
+
+function _mapPlannerStage(planner) {
+  if (
+    planner.queryPlanner &&
+    planner.queryPlanner.winningPlan &&
+    planner.queryPlanner.winningPlan.queryPlan
+  ) {
+    planner.queryPlanner.plannerVersion = 1;
+    const winningPlan = planner.queryPlanner.winningPlan.queryPlan;
+    planner.queryPlanner.winningPlan = winningPlan;
+
+    planner.executionStats.executionStages = mapStages(
+      winningPlan,
+      planner.executionStats.executionStages
+    );
+  }
+  return planner;
+}
