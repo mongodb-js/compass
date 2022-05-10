@@ -31,7 +31,7 @@ export interface ConnectionFleOptions {
   /**
    * Encryption options passed to the driver verbatim.
    */
-  autoEncryption: AutoEncryptionOptions;
+  autoEncryption?: AutoEncryptionOptions;
 }
 
 export interface ConnectionSshOptions {
