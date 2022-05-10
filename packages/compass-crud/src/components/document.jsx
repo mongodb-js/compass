@@ -1,40 +1,41 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import HadronDocument from 'hadron-document';
 import EditableDocument from './editable-document';
 import ReadonlyDocument from './readonly-document';
 
-/**
- * Component for a single document in a list of documents.
- */
-class Document extends React.Component {
-  /**
-   * Render a single document list item.
-   *
-   * @returns {React.Component} The component.
-   */
-  render() {
-    if (this.props.editable && this.props.isTimeSeries) {
-      return (
-        <ReadonlyDocument
-          doc={this.props.doc}
-          copyToClipboard={this.props.copyToClipboard}
-          openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-        />
-      );
+const Document = (props) => {
+  const {
+    editable,
+    isTimeSeries,
+    copyToClipboard,
+    openInsertDocumentDialog,
+    doc: _doc,
+  } = props;
+
+  const doc = useMemo(() => {
+    if (_doc.type === 'Document') {
+      return _doc;
     }
-    if (this.props.editable) {
-      return (<EditableDocument {...this.props} />);
-    }
+    return new HadronDocument(_doc);
+  }, [_doc]);
+
+  if (editable && isTimeSeries) {
     return (
       <ReadonlyDocument
-        doc={this.props.doc}
-        copyToClipboard={this.props.copyToClipboard}
+        doc={doc}
+        copyToClipboard={copyToClipboard}
+        openInsertDocumentDialog={openInsertDocumentDialog}
       />
     );
   }
-}
 
-Document.displayName = 'Document';
+  if (editable) {
+    return <EditableDocument {...props} doc={doc} />;
+  }
+
+  return <ReadonlyDocument doc={doc} copyToClipboard={copyToClipboard} />;
+};
 
 Document.propTypes = {
   doc: PropTypes.object.isRequired,
