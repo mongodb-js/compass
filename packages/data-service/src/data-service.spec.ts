@@ -241,7 +241,6 @@ describe('DataService', function () {
             error ? reject(error) : resolve(result);
           });
         });
-        console.log(dataService.currentTopologyType());
         if (
           (buildInfo.versionArray?.[0] ?? 0) <= 5 ||
           dataService.currentTopologyType() === 'Single' ||
