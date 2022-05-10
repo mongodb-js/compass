@@ -19,6 +19,7 @@ import type {
   DeleteOptions,
   DeleteResult,
   Document,
+  DropCollectionOptions,
   EstimatedDocumentCountOptions,
   Filter,
   FindCursor,
@@ -1382,14 +1383,30 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running dropCollection',
       { ns }
     );
-    this._collection(ns, 'CRUD').drop((error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+
+    const client = this._initializedClient('CRUD');
+    const db = client.db(this._databaseName(ns));
+    const collName = this._collectionName(ns);
+    const coll = db.collection(collName);
+
+    db.listCollections({ name: collName }, { nameOnly: false }).toArray(
+      (_errIgnore, result) => {
+        const options: DropCollectionOptions = {};
+        const encryptedFieldsInfo = result?.[0]?.options?.encryptedFields;
+        if (encryptedFieldsInfo) {
+          // @ts-expect-error next driver release has types
+          options.encryptedFields = encryptedFieldsInfo;
+        }
+        coll.drop(options, (error, result) => {
+          logop(error, result);
+          if (error) {
+            // @ts-expect-error Callback without result...
+            return callback(this._translateMessage(error));
+          }
+          callback(null, result!);
+        });
       }
-      callback(null, result!);
-    });
+    );
   }
 
   dropDatabase(name: string, callback: Callback<boolean>): void {

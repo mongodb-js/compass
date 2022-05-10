@@ -51,7 +51,7 @@
     "test-connectivity": "mocha ./src/connect.spec.ts",
     "posttest": "mongodb-runner stop --port=27018",
     "pretest-csfle": "mongodb-runner start --enterprise --mongodb-version \">=6.0.0-rc1\" --topology=replicaset --secondaries=0 --port=27018",
-    "test-csfle": "mocha ./src/csfle-collection-tracker.spec.ts",
+    "test-csfle": "mocha ./src/csfle-collection-tracker.spec.ts ./src/data-service.spec.ts",
     "posttest-csfle": "mongodb-runner stop --enterprise --mongodb-version \">=6.0.0-rc1\" --topology=replicaset --secondaries=0 --port=27018",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
