@@ -25,9 +25,12 @@ class ModalCheckbox extends React.Component {
             {this.props.name}
           </span>
         </label>
-        <InfoSprinkle
-          helpLink={this.props.helpUrl}
-          onClickHandler={this.props.onLinkClickHandler} />
+        {this.props.helpUrl && (
+          <InfoSprinkle
+            helpLink={this.props.helpUrl}
+            onClickHandler={this.props.onLinkClickHandler}
+          />
+        )}
       </div>
     );
   }

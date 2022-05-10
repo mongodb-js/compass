@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import { TextButton } from 'hadron-react-buttons';
-import HadronDocument from 'hadron-document';
 import LoadingOverlay from '../loading-overlay';
 import { OUT, MERGE } from '../../modules/pipeline';
 import decomment from 'decomment';
@@ -211,10 +210,7 @@ class StagePreview extends Component {
         const documents = this.props.documents.map((doc, i) => {
           return (
             <div key={i} className={styles['stage-preview-document-card']}>
-              <Document
-                doc={new HadronDocument(doc)}
-                editable={false}
-              />
+              <Document doc={doc} editable={false} />
             </div>
           );
         });
