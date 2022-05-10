@@ -19,9 +19,10 @@ describe('PipelineHeader', function () {
     render(
       <Provider store={configureStore()}>
         <PipelineHeader
-          isOptionsVisible={true}
-          showRunButton={true}
-          showExportButton={true}
+          isOpenPipelineVisible
+          isOptionsVisible
+          showRunButton
+          showExportButton
           onShowSavedPipelines={onShowSavedPipelinesSpy}
           onToggleOptions={onToggleOptionsSpy}
         />
@@ -43,6 +44,5 @@ describe('PipelineHeader', function () {
     userEvent.click(button);
 
     expect(onShowSavedPipelinesSpy.calledOnce).to.be.true;
-    expect(onShowSavedPipelinesSpy.firstCall.args).to.be.empty;
   });
 });
