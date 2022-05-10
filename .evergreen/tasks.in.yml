@@ -277,12 +277,13 @@ tasks:
           target_platform: '--platform=darwin'
 
   # copied as test-packaged-app-macos due to depends_on variation
-  <% for (const task of testPackagedAppVariations) { %>
+  <% for (const task of allTestPackagedAppTasks) { %>
 
   - name: <% out(task.name) %>
     tags: ['required-for-publish', 'run-on-pr']
     depends_on:
-      - name: package
+      name: package
+      variant: <% out(task.dependVariantName) %>
     commands:
       - func: prepare
       - func: install
