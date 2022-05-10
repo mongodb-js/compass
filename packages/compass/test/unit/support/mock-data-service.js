@@ -1,7 +1,7 @@
 const sinon = require('sinon');
 const app = require('hadron-app');
 const _ = require('lodash');
-const { DataService } = require('mongodb-data-service');
+const { DataServiceImpl } = require('mongodb-data-service');
 
 /**
  * wraps the mocked callbacks and returns either cb(err) or cb(null, res)
@@ -65,7 +65,7 @@ function callbackWrapper(cb, err, res) {
 const mockDataService = function(errors, results) {
   errors = errors || {};
   results = results || {};
-  const dataService = new DataService({});
+  const dataService = new DataServiceImpl({});
   // extract all method names from real data-service
   const methodNames = Object.getOwnPropertyNames(Object.getPrototypeOf(dataService));
   // create new object with all methods, but mock spy functions that return

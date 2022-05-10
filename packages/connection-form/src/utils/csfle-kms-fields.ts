@@ -159,7 +159,8 @@ const LocalFields: KMSField<'local'>[] = [
     errorMessage: (errors) => errorMessageByFieldName(errors, 'local.key'),
     state: (errors) =>
       fieldNameHasError(errors, 'local.key') ? 'error' : 'none',
-    description: 'A 96-byte long base64-encoded string.',
+    description:
+      'A 96-byte long base64-encoded string. Locally managed keys do not require additional setup, but are not recommended for production applications.',
   },
 ];
 

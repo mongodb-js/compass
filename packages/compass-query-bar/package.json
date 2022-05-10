@@ -1,14 +1,11 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "7.20.0",
+  "version": "7.21.0",
   "apiVersion": "3.0.0",
   "description": "Renders a component for executing MongoDB queries through a GUI.",
   "main": "lib/index.js",
   "compass:main": "src/index.js",
-  "exports": {
-    "require": "./lib/index.js"
-  },
   "compass:exports": {
     ".": "./src/index.js"
   },
@@ -45,16 +42,11 @@
     "bootstrap": "npm run compile"
   },
   "peerDependencies": {
-    "ace-builds": "^1.4.3",
     "debug": "*",
-    "hadron-react-components": "^5.13.0",
-    "mongodb-ace-autocompleter": "*",
-    "mongodb-ace-mode": "^1.6.0",
-    "mongodb-ace-theme-query": "^1.6.0",
-    "mongodb-query-parser": "^2.4.4",
+    "hadron-react-components": "^5.14.0",
+    "mongodb-query-parser": "^2.4.6",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
-    "react-ace": "^9.5.0",
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-fontawesome": "^1.6.1",
@@ -69,7 +61,7 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "ace-builds": "^1.4.3",
+    "@mongodb-js/compass-components": "^0.14.0",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
     "chai": "^4.1.2",
@@ -89,8 +81,8 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app-registry": "^8.10.0",
-    "hadron-react-components": "^5.13.0",
+    "hadron-app-registry": "^8.11.0",
+    "hadron-react-components": "^5.14.0",
     "html-webpack-plugin": "^3.2.0",
     "htmlhint": "^0.11.0",
     "ignore-loader": "^0.1.2",
@@ -111,11 +103,9 @@
     "less-loader": "^7.3.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-ace-autocompleter": "^0.11.0",
-    "mongodb-ace-mode": "^1.6.0",
-    "mongodb-ace-theme-query": "^1.6.0",
-    "mongodb-connection-model": "^21.15.0",
-    "mongodb-query-parser": "^2.4.4",
+    "mongodb-ace-autocompleter": "^0.12.0",
+    "mongodb-connection-model": "^21.16.0",
+    "mongodb-query-parser": "^2.4.6",
     "mongodb-reflux-store": "^0.0.1",
     "mongodb-schema": "^8.2.5",
     "ms": "^2.1.2",
@@ -127,7 +117,6 @@
     "postcss-loader": "^2.1.6",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
-    "react-ace": "^9.5.0",
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-fontawesome": "^1.6.1",
@@ -151,7 +140,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.10.0",
+    "@mongodb-js/compass-logging": "^0.11.0",
     "lodash": "^4.17.15",
     "mongodb-query-util": "^0.2.1"
   }

@@ -24,13 +24,13 @@ class ExplainTree extends Component {
     nodes: PropTypes.array,
     links: PropTypes.array,
     width: PropTypes.number,
-    height: PropTypes.number
-  }
+    height: PropTypes.number,
+  };
 
   static defaultProps = { nodes: [], links: [], width: 0, height: 0 };
 
   shouldComponentUpdate(nextProps) {
-    return (nextProps.nodes !== this.props.nodes);
+    return nextProps.nodes !== this.props.nodes;
   }
 
   componentDidUpdate() {
@@ -43,7 +43,7 @@ class ExplainTree extends Component {
    * @returns {React.Component} The rendered component.
    */
   getStages() {
-    return map(this.props.nodes, (stage) => (<ExplainStage {...stage} />));
+    return map(this.props.nodes, (stage) => <ExplainStage {...stage} />);
   }
 
   /**
@@ -57,7 +57,8 @@ class ExplainTree extends Component {
       V${d.target.y}`;
     const svg = d3.select(tree).selectAll('svg[id="links"]').data([null]);
 
-    svg.enter()
+    svg
+      .enter()
       .append('svg')
       .attr('id', 'links')
       .attr('width', '100%')
@@ -65,7 +66,8 @@ class ExplainTree extends Component {
       .append('g');
 
     // Remove unneeded event handlers
-    svg.on('dblclick.zoom', null)
+    svg
+      .on('dblclick.zoom', null)
       .on('touchstart.zoom', null)
       .on('mousewheel.zoom', null)
       .on('MozMousePixelScroll.zoom', null);
@@ -77,7 +79,8 @@ class ExplainTree extends Component {
       .data(this.props.links, (d) => d.target.key)
       .attr('d', elbow);
 
-    links.enter()
+    links
+      .enter()
       .append('path')
       .style({ fill: 'none', stroke: '#dee0e3', 'stroke-width': '6px' })
       .attr('d', elbow);
@@ -95,7 +98,9 @@ class ExplainTree extends Component {
       <div
         className={classnames(styles['explain-tree'])}
         style={{ height: this.props.height, width: this.props.width }}
-        ref={(inst) => { tree = inst; }}
+        ref={(inst) => {
+          tree = inst;
+        }}
       >
         {this.getStages()}
       </div>

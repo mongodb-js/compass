@@ -16,7 +16,7 @@ class IndexHeader extends PureComponent {
     indexes: PropTypes.array.isRequired,
     sortOrder: PropTypes.string.isRequired,
     sortColumn: PropTypes.string.isRequired,
-    sortIndexes: PropTypes.func.isRequired
+    sortIndexes: PropTypes.func.isRequired,
   };
 
   /**
@@ -34,38 +34,41 @@ class IndexHeader extends PureComponent {
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
-            indexes={this.props.indexes} />
+            indexes={this.props.indexes}
+          />
           <IndexHeaderColumn
             dataTestId="index-header-type"
             name="Type"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
-            indexes={this.props.indexes} />
+            indexes={this.props.indexes}
+          />
           <IndexHeaderColumn
             dataTestId="index-header-size"
             name="Size"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
-            indexes={this.props.indexes} />
+            indexes={this.props.indexes}
+          />
           <IndexHeaderColumn
             dataTestId="index-header-usage"
             name="Usage"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
-            indexes={this.props.indexes} />
+            indexes={this.props.indexes}
+          />
           <IndexHeaderColumn
             dataTestId="index-header-properties"
             name="Properties"
             sortOrder={this.props.sortOrder}
             sortColumn={this.props.sortColumn}
             sortIndexes={this.props.sortIndexes}
-            indexes={this.props.indexes} />
-          {(!this.props.isReadonly && this.props.isWritable) ?
-            <th/>
-            : null}
+            indexes={this.props.indexes}
+          />
+          {!this.props.isReadonly && this.props.isWritable ? <th /> : null}
         </tr>
       </thead>
     );

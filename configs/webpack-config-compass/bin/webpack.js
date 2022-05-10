@@ -10,20 +10,24 @@
 // new webpack configuration.
 const path = require('path');
 process.env.WEBPACK_CLI_SKIP_IMPORT_LOCAL = true;
-// TODO: This doesn't work until https://github.com/webpack/webpack-cli/pull/2907 is published
-// process.env.WEBPACK_PACKAGE = path.dirname(
-//   require.resolve('webpack/package.json')
-// );
-// process.env.WEBPACK_DEV_SERVER_PACKAGE = path.dirname(
-//   require.resolve('webpack-dev-server/package.json')
-// );
-const pkgPath = require.resolve(`webpack-cli/package.json`);
+// Make sure webpack-cli and @webpack-cli/serve use webpack modules resolved
+// from the config package to ensure that everything is running a version
+// specified in a single place (this package)
+process.env.WEBPACK_PACKAGE = path.dirname(
+  require.resolve('webpack/package.json')
+);
+process.env.WEBPACK_DEV_SERVER_PACKAGE = path.dirname(
+  require.resolve('webpack-dev-server/package.json')
+);
+const pkgPath = require.resolve('webpack-cli/package.json');
 const pkg = require(pkgPath);
+
 // We handle analyze through env vars instead of just allowing webpack to handle
 // it because webpack default behaviour here is not that great: it will try to
 // start multiple bundle analyzers on the same port and fail. You also can't
 // pass custom args to webpack bin, it will fail with unknown argument error
 const analyze = process.argv.includes('--analyze');
+
 if (analyze) {
   process.env.ANALYZE = 'true';
   process.argv = process.argv.filter((key) => key !== '--analyze');

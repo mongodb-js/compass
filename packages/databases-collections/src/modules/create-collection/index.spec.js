@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import reducer, { createCollection as makeCreateCollection } from './index';
+import reducer, { createCollection as makeCreateCollection, handleFLE2Options } from './index';
 import { reset } from '../reset';
+import { UUID } from 'bson';
 
 import {
   CLEAR_ERROR,
@@ -53,9 +54,9 @@ describe('create collection module', () => {
       global.hadronApp = hadronAppBkp;
     });
 
-    const testCreateCollection = (createCollectionSpy, state, data) => {
+    const testCreateCollection = async(createCollectionSpy, state, data) => {
       const dispatched = [];
-      makeCreateCollection(data)(
+      await makeCreateCollection(data)(
         (evt) => { dispatched.push(evt); },
         () => ({
           dataService: {
@@ -70,12 +71,12 @@ describe('create collection module', () => {
       return dispatched;
     };
 
-    it('creates a simple collection', () => {
+    it('creates a simple collection', async() => {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(
+      const dispatched = await testCreateCollection(
         createCollectionSpy,
         { databaseName: 'db1' },
         { collection: 'coll1', options: {} }
@@ -91,12 +92,12 @@ describe('create collection module', () => {
       );
     });
 
-    it('creates a capped collection', () => {
+    it('creates a capped collection', async() => {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(
+      const dispatched = await testCreateCollection(
         createCollectionSpy,
         { databaseName: 'db1' },
         {
@@ -122,12 +123,12 @@ describe('create collection module', () => {
       );
     });
 
-    it('creates a time-series collection', () => {
+    it('creates a time-series collection', async() => {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(
+      const dispatched = await testCreateCollection(
         createCollectionSpy,
         { databaseName: 'db1' },
         {
@@ -151,12 +152,12 @@ describe('create collection module', () => {
       );
     });
 
-    it('creates a time-series collection with collation', () => {
+    it('creates a time-series collection with collation', async() => {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(
+      const dispatched = await testCreateCollection(
         createCollectionSpy,
         { databaseName: 'db1' },
         {
@@ -186,12 +187,12 @@ describe('create collection module', () => {
       );
     });
 
-    it('creates a collection with collation', () => {
+    it('creates a collection with collation', async() => {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
 
-      const dispatched = testCreateCollection(
+      const dispatched = await testCreateCollection(
         createCollectionSpy,
         { databaseName: 'db1' },
         {
@@ -215,13 +216,13 @@ describe('create collection module', () => {
       );
     });
 
-    it('handles errors from data service', () => {
+    it('handles errors from data service', async() => {
       const err = new Error('error');
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(err)
       );
 
-      const dispatched = testCreateCollection(createCollectionSpy, {}, {});
+      const dispatched = await testCreateCollection(createCollectionSpy, {}, {});
 
 
       expect(dispatched).to.deep.equal(
@@ -234,13 +235,13 @@ describe('create collection module', () => {
       );
     });
 
-    it('handles synchronous exceptions', () => {
+    it('handles synchronous exceptions', async() => {
       const err = new Error('error');
       const createCollectionSpy = sinon.spy(
         () => { throw err; }
       );
 
-      const dispatched = testCreateCollection(createCollectionSpy, {}, {});
+      const dispatched = await testCreateCollection(createCollectionSpy, {}, {});
 
 
       expect(dispatched).to.deep.equal(
@@ -251,6 +252,79 @@ describe('create collection module', () => {
           { type: HANDLE_ERROR, error: err }
         ]
       );
+    });
+  });
+
+  describe('#handleFLE2Options', () => {
+    let ds;
+    let uuid;
+
+    beforeEach(() => {
+      uuid = new UUID().toBinary();
+      ds = {
+        createDataKey: sinon.stub().resolves(uuid)
+      };
+    });
+
+    it('parses an encryptedFields config', async() => {
+      expect(await handleFLE2Options(ds, {
+        encryptedFields: ''
+      })).to.deep.equal({});
+      expect(await handleFLE2Options(ds, {
+        encryptedFields: '{}'
+      })).to.deep.equal({});
+      expect(await handleFLE2Options(ds, {
+        encryptedFields: '{ foo: "bar" }'
+      })).to.deep.equal({ encryptedFields: { foo: 'bar' } });
+    });
+
+    it('rejects unparseable encryptedFields config', async() => {
+      try {
+        await handleFLE2Options(ds, {
+          encryptedFields: '{'
+        });
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.include('Could not parse encryptedFields config');
+      }
+    });
+
+    it('creates data keys for missing fields if kms and key encryption key are provided', async() => {
+      expect(await handleFLE2Options(ds, {
+        encryptedFields: '{ fields: [{ path: "foo", bsonType: "string" }] }',
+        kmsProvider: 'local',
+        keyEncryptionKey: ''
+      })).to.deep.equal({
+        encryptedFields: {
+          fields: [{ path: 'foo', bsonType: 'string', keyId: uuid }]
+        }
+      });
+    });
+
+    it('does not create data keys if encryptedFields.fields is not an array', async() => {
+      expect(await handleFLE2Options(ds, {
+        encryptedFields: '{ fields: {x: "y"} }',
+        kmsProvider: 'local',
+        keyEncryptionKey: ''
+      })).to.deep.equal({
+        encryptedFields: {
+          fields: { x: 'y' }
+        }
+      });
+    });
+
+    it('fails when creating data keys fails', async() => {
+      ds.createDataKey.rejects(new Error('createDataKey failed'));
+      try {
+        await handleFLE2Options(ds, {
+          encryptedFields: '{ fields: [{ path: "foo", bsonType: "string" }] }',
+          kmsProvider: 'local',
+          keyEncryptionKey: ''
+        });
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.equal('createDataKey failed');
+      }
     });
   });
 });

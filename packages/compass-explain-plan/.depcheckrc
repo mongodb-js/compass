@@ -1,17 +1,9 @@
-ignores: [
-  "d3-timer",
-  "@babel/cli",
-  "@babel/register",
-  "@babel/types",
-  "core-js",
-  "font-awesome",
-  "karma-electron",
-  "karma-sourcemap-loader",
-  "karma-webpack",
-  "mongodb-client-encryption",
-  "react-select-plus",
-  "resolve",
-  "webpack-bundle-analyzer",
-  "webpack-cli",
-  "mongodb-compass"
-]
+ignores:
+  - '@mongodb-js/prettier-config-compass'
+  - '@mongodb-js/tsconfig-compass'
+  - '@types/chai'
+  - '@types/sinon-chai'
+  - 'electron'
+  - '@types/chai-dom'
+  - '@types/react'
+  - '@types/react-dom'

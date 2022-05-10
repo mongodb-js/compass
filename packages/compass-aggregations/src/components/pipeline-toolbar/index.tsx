@@ -17,7 +17,7 @@ const containerStyles = css({
 
 const containerDisplayStyles = css({
   display: 'grid',
-  gap: spacing[4],
+  gap: spacing[3],
   gridTemplateAreas: `
   "headerAndOptionsRow"
   `,
@@ -44,12 +44,20 @@ const settingsRowStyles = css({
   gridArea: 'settingsRow'
 });
 
+const optionsStyles = css({
+  marginTop: spacing[2],
+});
+
 type PipelineToolbarProps = {
   isSettingsVisible: boolean;
+  showRunButton: boolean;
+  showExportButton: boolean;
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
-  isSettingsVisible
+  isSettingsVisible,
+  showRunButton,
+  showExportButton
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
@@ -66,8 +74,14 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           <PipelineHeader
             isOptionsVisible={isOptionsVisible}
             onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
+            showRunButton={showRunButton}
+            showExportButton={showExportButton}
           />
-          {isOptionsVisible && <PipelineOptions />}
+          {isOptionsVisible && (
+            <div className={optionsStyles}>
+              <PipelineOptions />
+            </div>
+          )}
         </div>
         {isSettingsVisible && (
           <div className={settingsRowStyles}>

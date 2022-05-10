@@ -1,0 +1,208 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$geoNearCursor": {
+        "queryPlanner": {
+          "namespace": "airbnb.listings",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "location": {
+              "$near": {
+                "type": "Point",
+                "coordinates": [52.5312957, 13.3328254]
+              },
+              "$maxDistance": 10000000
+            }
+          },
+          "queryHash": "1BBAAB57",
+          "planCacheKey": "BD410518",
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "GEO_NEAR_2DSPHERE",
+            "keyPattern": {
+              "location": "2dsphere"
+            },
+            "indexName": "location_2dsphere",
+            "indexVersion": 2,
+            "inputStage": {
+              "stage": "FETCH",
+              "inputStage": {
+                "stage": "IXSCAN",
+                "keyPattern": {
+                  "location": "2dsphere"
+                },
+                "indexName": "location_2dsphere",
+                "isMultiKey": false,
+                "multiKeyPaths": {
+                  "location": []
+                },
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 2,
+                "direction": "forward",
+                "indexBounds": {
+                  "location": [
+                    "[-8466767299456532479, -8430738502437568513]",
+                    "[-8430738502437568512, -8430738502437568512]",
+                    "[-6341068275337658367, -5764607523034234881]",
+                    "[-5764607523034234879, -5188146770730811393]",
+                    "[-5188146770730811391, -4611686018427387905]",
+                    "[1, 2305843009213693951]",
+                    "[2305843009213693953, 4611686018427387903]",
+                    "[4611686018427387905, 5188146770730811391]",
+                    "[5188146770730811393, 5764607523034234879]",
+                    "[5764607523034234881, 5908722711110090751]",
+                    "[6341068275337658369, 6917529027641081855]",
+                    "[6917529027641081857, 7061644215716937727]",
+                    "[7349874591868649473, 7493989779944505343]",
+                    "[7493989779944505345, 7638104968020361215]",
+                    "[7638104968020361217, 7782220156096217087]"
+                  ]
+                }
+              }
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 16116,
+          "executionTimeMillis": 205,
+          "totalKeysExamined": 16116,
+          "totalDocsExamined": 16116,
+          "executionStages": {
+            "stage": "GEO_NEAR_2DSPHERE",
+            "nReturned": 16116,
+            "executionTimeMillisEstimate": 40,
+            "works": 32259,
+            "advanced": 16116,
+            "needTime": 16142,
+            "needYield": 0,
+            "saveState": 49,
+            "restoreState": 49,
+            "isEOF": 1,
+            "keyPattern": {
+              "location": "2dsphere"
+            },
+            "indexName": "location_2dsphere",
+            "indexVersion": 2,
+            "searchIntervals": [
+              {
+                "minDistance": 0,
+                "maxDistance": 10000000,
+                "maxInclusive": true,
+                "nBuffered": 16116,
+                "nReturned": 16116
+              }
+            ],
+            "inputStage": {
+              "stage": "FETCH",
+              "nReturned": 16116,
+              "executionTimeMillisEstimate": 18,
+              "works": 16117,
+              "advanced": 16116,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 48,
+              "restoreState": 48,
+              "isEOF": 1,
+              "docsExamined": 16116,
+              "alreadyHasObj": 0,
+              "inputStage": {
+                "stage": "IXSCAN",
+                "nReturned": 16116,
+                "executionTimeMillisEstimate": 3,
+                "works": 16117,
+                "advanced": 16116,
+                "needTime": 0,
+                "needYield": 0,
+                "saveState": 48,
+                "restoreState": 48,
+                "isEOF": 1,
+                "keyPattern": {
+                  "location": "2dsphere"
+                },
+                "indexName": "location_2dsphere",
+                "isMultiKey": false,
+                "multiKeyPaths": {
+                  "location": []
+                },
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 2,
+                "direction": "forward",
+                "indexBounds": {
+                  "location": [
+                    "[-8466767299456532479, -8430738502437568513]",
+                    "[-8430738502437568512, -8430738502437568512]",
+                    "[-6341068275337658367, -5764607523034234881]",
+                    "[-5764607523034234879, -5188146770730811393]",
+                    "[-5188146770730811391, -4611686018427387905]",
+                    "[1, 2305843009213693951]",
+                    "[2305843009213693953, 4611686018427387903]",
+                    "[4611686018427387905, 5188146770730811391]",
+                    "[5188146770730811393, 5764607523034234879]",
+                    "[5764607523034234881, 5908722711110090751]",
+                    "[6341068275337658369, 6917529027641081855]",
+                    "[6917529027641081857, 7061644215716937727]",
+                    "[7349874591868649473, 7493989779944505343]",
+                    "[7493989779944505345, 7638104968020361215]",
+                    "[7638104968020361217, 7782220156096217087]"
+                  ]
+                },
+                "keysExamined": 16116,
+                "seeks": 1,
+                "dupsTested": 0,
+                "dupsDropped": 0
+              }
+            }
+          },
+          "allPlansExecution": []
+        }
+      },
+      "nReturned": 16116,
+      "executionTimeMillisEstimate": 176
+    }
+  ],
+  "serverInfo": {
+    "host": "e2f43dc8d2c8",
+    "port": 27017,
+    "version": "5.0.3",
+    "gitVersion": "657fea5a61a74d7a79df7aff8e4bcf0bc742b748"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "command": {
+    "aggregate": "listings",
+    "pipeline": [
+      {
+        "$geoNear": {
+          "near": {
+            "type": "Point",
+            "coordinates": [52.5312957, 13.3328254]
+          },
+          "distanceField": "distance",
+          "maxDistance": 10000000
+        }
+      }
+    ],
+    "allowDiskUse": true,
+    "cursor": {},
+    "maxTimeMS": 60000,
+    "$db": "airbnb"
+  },
+  "ok": 1
+}

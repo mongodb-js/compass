@@ -2,13 +2,22 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import { Accordion, spacing, css } from '@mongodb-js/compass-components';
 
 import CappedCollectionFields from './capped-collection-fields';
 import CollectionName from './collection-name';
 import DatabaseName from './database-name';
 import hasTimeSeriesSupport from './has-time-series-support';
 import TimeSeriesFields from './time-series-fields';
+import hasClusteredCollectionSupport from './has-clustered-collection-support';
+import ClusteredCollectionFields from './clustered-collection-fields';
+import hasFLE2Support from './has-fle2-support';
+import FLE2Fields, { ENCRYPTED_FIELDS_PLACEHOLDER } from './fle2-fields';
 import Collation from './collation';
+
+const advancedCollectionOptionsContainerStyles = css({
+  paddingLeft: spacing[3]
+});
 
 function asNumber(value) {
   return !_.isNil(value) && `${value}` ? +value : undefined;
@@ -29,26 +38,45 @@ export default class CollectionFields extends PureComponent {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     serverVersion: PropTypes.string,
-    withDatabase: PropTypes.bool
+    withDatabase: PropTypes.bool,
+    configuredKMSProviders: PropTypes.array,
+    currentTopologyType: PropTypes.string
   }
 
   state = {
     isCapped: false,
     isCustomCollation: false,
     isTimeSeries: false,
+    isClustered: false,
+    isFLE2: false,
     fields: {
       cappedSize: '',
       collation: {},
       collectionName: '',
       databaseName: '',
       timeSeries: {},
-      expireAfterSeconds: ''
+      expireAfterSeconds: '',
+      clusteredIndex: { name: '', unique: true, key: { _id: 1 } },
+      fle2: {
+        encryptedFields: ENCRYPTED_FIELDS_PLACEHOLDER,
+        kmsProvider:
+          (this.props.configuredKMSProviders || []).length === 1 ?
+            this.props.configuredKMSProviders[0] :
+            '',
+        keyEncryptionKey: ''
+      }
     }
   };
 
   setField(fieldName, value) {
     const fields = _.cloneDeep(this.state.fields);
-    _.set(fields, fieldName, value);
+    if (Array.isArray(fieldName)) {
+      for (let i = 0; i < fieldName.length; i++) {
+        _.set(fields, fieldName[i], value[i]);
+      }
+    } else {
+      _.set(fields, fieldName, value);
+    }
     this.setState({ fields }, this.updateOptions);
   }
 
@@ -61,7 +89,7 @@ export default class CollectionFields extends PureComponent {
   }
 
   buildOptions() {
-    const { isCapped, isCustomCollation, isTimeSeries, fields } = this.state;
+    const { isCapped, isCustomCollation, isTimeSeries, isClustered, isFLE2, fields } = this.state;
 
     const cappedOptions = isCapped
       ? { capped: true, size: asNumber(fields.cappedSize) }
@@ -78,10 +106,29 @@ export default class CollectionFields extends PureComponent {
       }
       : {};
 
+    const clusteredOptions = isClustered
+      ? {
+        clusteredIndex: {
+          ...fields.clusteredIndex,
+        },
+        expireAfterSeconds: asNumber(fields.expireAfterSeconds),
+      }
+      : {};
+
+    const fle2Options = isFLE2
+      ? {
+        encryptedFields: fields.fle2.encryptedFields.trim(),
+        kmsProvider: `${fields.fle2.kmsProvider || ''}`,
+        keyEncryptionKey: fields.fle2.keyEncryptionKey.trim()
+      }
+      : {};
+
     return omitEmptyFormFields({
       ...collationOptions,
       ...cappedOptions,
-      ...timeSeriesOptions
+      ...timeSeriesOptions,
+      ...clusteredOptions,
+      ...fle2Options
     });
   }
 
@@ -95,7 +142,9 @@ export default class CollectionFields extends PureComponent {
       fields,
       isCapped,
       isCustomCollation,
-      isTimeSeries
+      isTimeSeries,
+      isClustered,
+      isFLE2
     } = this.state;
 
     const {
@@ -104,7 +153,9 @@ export default class CollectionFields extends PureComponent {
       cappedSize,
       collation,
       timeSeries,
-      expireAfterSeconds
+      expireAfterSeconds,
+      clusteredIndex,
+      fle2
     } = fields;
 
     return (<>
@@ -123,43 +174,89 @@ export default class CollectionFields extends PureComponent {
           newCollectionName
         )}
       />
-      <CappedCollectionFields
-        cappedSize={`${cappedSize}`}
-        isCapped={isCapped}
-        isTimeSeries={isTimeSeries}
-        onChangeCappedSize={(newCappedSizeString) =>
-          this.setField('cappedSize', newCappedSizeString)
-        }
-        onChangeIsCapped={
-          (capped) => this.setState({ isCapped: capped }, this.updateOptions)
-        }
-      />
-      <Collation
-        collation={collation}
-        onChangeCollationOption={(fieldName, value) => {
-          this.setField(`collation.${fieldName}`, value);
-        }}
-        onChangeIsCustomCollation={(customCollation) => this.setState(
-          { isCustomCollation: customCollation },
-          this.updateOptions
-        )}
-        isCustomCollation={isCustomCollation}
-      />
-      {hasTimeSeriesSupport(serverVersion) && (
-        <TimeSeriesFields
-          isCapped={isCapped}
-          isTimeSeries={isTimeSeries}
-          onChangeIsTimeSeries={(newIsTimeSeries) => this.setState(
-            { isTimeSeries: newIsTimeSeries },
-            this.updateOptions
+      <Accordion
+        data-testid="advanced-collection-options"
+        text="Advanced Collection Options"
+        hintText="(e.g. Time-Series, Capped, Clustered collections)"
+      >
+        <div className={advancedCollectionOptionsContainerStyles}>
+          <CappedCollectionFields
+            cappedSize={`${cappedSize}`}
+            isCapped={isCapped}
+            isTimeSeries={isTimeSeries}
+            isClustered={isClustered}
+            isFLE2={isFLE2}
+            onChangeCappedSize={(newCappedSizeString) =>
+              this.setField('cappedSize', newCappedSizeString)
+            }
+            onChangeIsCapped={
+              (capped) => this.setState({ isCapped: capped }, this.updateOptions)
+            }
+          />
+          <Collation
+            collation={collation}
+            onChangeCollationOption={(fieldName, value) => {
+              this.setField(`collation.${fieldName}`, value);
+            }}
+            onChangeIsCustomCollation={(customCollation) => this.setState(
+              { isCustomCollation: customCollation },
+              this.updateOptions
+            )}
+            isCustomCollation={isCustomCollation}
+          />
+          {hasTimeSeriesSupport(serverVersion) && (
+            <TimeSeriesFields
+              isCapped={isCapped}
+              isTimeSeries={isTimeSeries}
+              isClustered={isClustered}
+              isFLE2={isFLE2}
+              onChangeIsTimeSeries={(newIsTimeSeries) => this.setState(
+                { isTimeSeries: newIsTimeSeries, expireAfterSeconds: '' },
+                this.updateOptions
+              )}
+              onChangeField={(fieldName, value) =>
+                this.setField(fieldName, value)
+              }
+              timeSeries={timeSeries}
+              expireAfterSeconds={expireAfterSeconds}
+            />
           )}
-          onChangeTimeSeriesField={(fieldName, value) =>
-            this.setField(fieldName, value)
-          }
-          timeSeries={timeSeries}
-          expireAfterSeconds={expireAfterSeconds}
-        />
-      )}
+          {hasClusteredCollectionSupport(serverVersion) && (
+            <ClusteredCollectionFields
+              isCapped={isCapped}
+              isTimeSeries={isTimeSeries}
+              isClustered={isClustered}
+              clusteredIndex={clusteredIndex}
+              expireAfterSeconds={expireAfterSeconds}
+              onChangeIsClustered={(newIsClustered) => this.setState(
+                { isClustered: newIsClustered, expireAfterSeconds: '' },
+                this.updateOptions
+              )}
+              onChangeField={(fieldName, value) => {
+                this.setField(fieldName, value);
+              }
+              }
+            />
+          )}
+          {hasFLE2Support(serverVersion, this.props.currentTopologyType) && (
+            <FLE2Fields
+              isCapped={isCapped}
+              isTimeSeries={isTimeSeries}
+              isFLE2={isFLE2}
+              fle2={fle2}
+              configuredKMSProviders={this.props.configuredKMSProviders}
+              onChangeIsFLE2={(newIsFLE2) => this.setState(
+                { isFLE2: newIsFLE2, encryptedFields: {}, kmsProvider: '', keyEncryptionKey: {} },
+                this.updateOptions
+              )}
+              onChangeField={(fieldName, value) => {
+                this.setField(fieldName, value);
+              }
+              }
+            />
+          )}
+        </div>
+      </Accordion>
     </>);
   }
 }

@@ -6,14 +6,10 @@ import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 
 import CollectionHeader from '../collection-header';
+import { INITIAL_STATE as STATS_INITIAL_STATE } from '../../modules/stats';
 
 describe('CollectionHeader [Component]', function () {
-  const statsPlugin = () => {
-    return <div />;
-  };
-
   context('when the collection is not readonly', function () {
-    const statsStore = {};
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
 
@@ -22,14 +18,15 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={false}
           isTimeSeries={false}
+          isClustered={false}
+          isFLE={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS_INITIAL_STATE}
         />
       );
     });
@@ -66,7 +63,6 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is readonly', function () {
-    const statsStore = {};
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
 
@@ -75,14 +71,15 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={true}
           isTimeSeries={false}
-          globalAppRegistry={globalAppRegistry}
+          isClustered={false}
+          isFLE={false}
           sourceName="orig.coll"
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
+          globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS_INITIAL_STATE}
         />
       );
     });
@@ -117,7 +114,6 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is readonly but not a view', function () {
-    const statsStore = {};
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
 
@@ -126,14 +122,15 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={true}
           isTimeSeries={false}
+          isClustered={false}
+          isFLE={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS_INITIAL_STATE}
         />
       );
     });
@@ -154,7 +151,6 @@ describe('CollectionHeader [Component]', function () {
   });
 
   context('when the collection is a time-series collection', function () {
-    const statsStore = {};
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
 
@@ -163,14 +159,15 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={false}
           isTimeSeries={true}
+          isClustered={false}
+          isFLE={false}
           sourceName={null}
           globalAppRegistry={globalAppRegistry}
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS_INITIAL_STATE}
         />
       );
     });
@@ -190,9 +187,78 @@ describe('CollectionHeader [Component]', function () {
     });
   });
 
+  context('when the collection is a clustered collection', function () {
+    const globalAppRegistry = new AppRegistry();
+    const selectOrCreateTabSpy = spy();
+
+    beforeEach(function () {
+      render(
+        <CollectionHeader
+          isReadonly={false}
+          isTimeSeries={false}
+          isClustered={true}
+          isFLE={false}
+          sourceName={null}
+          globalAppRegistry={globalAppRegistry}
+          namespace="db.coll"
+          selectOrCreateTab={selectOrCreateTabSpy}
+          sourceReadonly={false}
+          pipeline={[]}
+          stats={STATS_INITIAL_STATE}
+        />
+      );
+    });
+
+    afterEach(cleanup);
+
+    it('does not render the source collection', function () {
+      expect(screen.queryByTestId('collection-view-on')).to.not.exist;
+    });
+
+    it('does not render the readonly badge', function () {
+      expect(screen.queryByTestId('collection-badge-readonly')).to.not.exist;
+    });
+
+    it('does not render the time-series badge', function () {
+      expect(screen.queryByTestId('collection-badge-timeseries')).to.not.exist;
+    });
+
+    it('renders the clustered badge', function () {
+      expect(screen.getByTestId('collection-badge-clustered')).to.exist;
+    });
+  });
+
+  context('when the collection is a fle collection', function () {
+    const globalAppRegistry = new AppRegistry();
+    const selectOrCreateTabSpy = spy();
+
+    beforeEach(function () {
+      render(
+        <CollectionHeader
+          isReadonly={false}
+          isTimeSeries={false}
+          isClustered={false}
+          isFLE={true}
+          sourceName={null}
+          globalAppRegistry={globalAppRegistry}
+          namespace="db.coll"
+          selectOrCreateTab={selectOrCreateTabSpy}
+          sourceReadonly={false}
+          pipeline={[]}
+          stats={STATS_INITIAL_STATE}
+        />
+      );
+    });
+
+    afterEach(cleanup);
+
+    it('renders the clustered badge', function () {
+      expect(screen.getByTestId('collection-badge-fle')).to.exist;
+    });
+  });
+
   context('when the db name is clicked', function () {
     it('emits the open event to the app registry', function () {
-      const statsStore = {};
       const selectOrCreateTabSpy = spy();
 
       let emmittedEventName;
@@ -202,6 +268,8 @@ describe('CollectionHeader [Component]', function () {
         <CollectionHeader
           isReadonly={false}
           isTimeSeries={false}
+          isClustered={false}
+          isFLE={false}
           globalAppRegistry={
             {
               emit: (eventName, dbName) => {
@@ -211,12 +279,11 @@ describe('CollectionHeader [Component]', function () {
             } as AppRegistry
           }
           sourceName="orig.coll"
-          statsPlugin={statsPlugin}
-          statsStore={statsStore}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
+          stats={STATS_INITIAL_STATE}
         />
       );
 

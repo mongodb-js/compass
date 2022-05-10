@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
+import { Body, Icon, IconButton } from '@mongodb-js/compass-components';
 
 import styles from './summary-stat.module.less';
 
@@ -15,7 +15,6 @@ class SummaryStat extends Component {
     dataLink: PropTypes.string, // Info sprinkle (optional)
     label: PropTypes.string.isRequired, // Label of the stat
     value: PropTypes.any,
-    openLink: PropTypes.func.isRequired
   };
 
   /**
@@ -29,25 +28,19 @@ class SummaryStat extends Component {
     const dataLink = this.props.dataLink;
     const dataTestId = this.props.dataTestId;
 
-    // Only render info sprinkle if data link was provided
-    const infoSprinkle = dataLink
-      ? (
-        <i
-          className={classnames(styles['summary-stat-info-sprinkle'])}
-          onClick={this.props.openLink.bind(this, dataLink)} />
-      )
-      : null;
-
-    // nReturned is represented as bubble value, other stats as simple string
-    const modifier = (this.props.dataLink === 'nReturned')
-      ? classnames(styles['summary-stat-has-nreturned'])
-      : '';
-
     return (
-      <div className={classnames(styles['summary-stat'], styles[modifier])} data-test-id={dataTestId}>
-        {infoSprinkle}
-        <span className={classnames(styles['summary-stat-label'])}>{label}</span>
-        <span className={classnames(styles['summary-stat-value'])}>{value}</span>
+      <div className={styles['summary-stat']} data-test-id={dataTestId}>
+        {dataLink && (
+          <IconButton
+            className={styles['summary-stat-info-sprinkle']}
+            href={dataLink}
+            aria-label="More information on index usage in explain results"
+          >
+            <Icon glyph="InfoWithCircle" size="small" />
+          </IconButton>
+        )}
+        <Body className={styles['summary-stat-label']}>{label}</Body>
+        <Body className={styles['summary-stat-value']}>{value}</Body>
       </div>
     );
   }

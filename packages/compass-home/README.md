@@ -5,7 +5,6 @@ The Compass plugin responsible for gluing together other plugins:
 - [compass-aggregations][compass-aggregations]
 - [compass-auto-updates][compass-auto-updates]
 - [compass-collection][compass-collection]
-- [compass-collection-stats][compass-collection-stats]
 - [compass-crud][compass-crud]
 - [compass-database][compass-database]
 - [compass-databases-collections][compass-databases-collections]
@@ -16,7 +15,6 @@ The Compass plugin responsible for gluing together other plugins:
 - [compass-import-export][compass-import-export]
 - [compass-indexes][compass-indexes]
 - [compass-instance][compass-instance]
-- [compass-metrics][compass-metrics]
 - [compass-plugin-info][compass-plugin-info]
 - [compass-query-bar][compass-query-bar]
 - [compass-query-history][compass-query-history]
@@ -93,7 +91,6 @@ For completeness, below is a list of directories present in this module:
 [compass-aggregations]: ../compass-aggregations
 [compass-auto-updates]: ../compass-auto-updates
 [compass-collection]: ../compass-collection
-[compass-collection-stats]: ../compass-collection-stats
 [compass-crud]: ../compass-crud
 [compass-database]: ../compass-database
 [compass-databases-collections]: ../compass-databases-collections
@@ -104,7 +101,6 @@ For completeness, below is a list of directories present in this module:
 [compass-import-export]: ../compass-import-export
 [compass-indexes]: ../compass-indexes
 [compass-instance]: ../compass-instance
-[compass-metrics]: ../compass-metrics
 [compass-plugin-info]: ../compass-plugin-info
 [compass-query-bar]: ../compass-query-bar
 [compass-query-history]: ../compass-query-history

@@ -1,7 +1,13 @@
+export const PROMISE_CANCELLED_ERROR = 'PromiseCancelledError';
+
 const OPERATION_CANCELLED_MESSAGE = 'The operation was cancelled.';
 
+class PromiseCancelledError extends Error {
+  name = PROMISE_CANCELLED_ERROR;
+}
+
 export const createCancelError = (): Error => {
-  return new Error(OPERATION_CANCELLED_MESSAGE);
+  return new PromiseCancelledError(OPERATION_CANCELLED_MESSAGE);
 }
 /*
  * Return a promise you can race (just like a timeout from timeouts/promises).

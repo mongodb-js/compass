@@ -179,7 +179,9 @@ describe('Database collections tab', function () {
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
-    // TODO: how do we make sure this is really a collection with a custom collation?
+    await collectionCard
+      .$('[data-testid="collection-badge-collation"]')
+      .waitForDisplayed();
   });
 
   it('can create a time series collection', async function () {
@@ -210,6 +212,48 @@ describe('Database collections tab', function () {
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
-    // TODO: how do we make sure this is really a timeseries collection?
+    await collectionCard
+      .$('[data-testid="collection-badge-timeseries"]')
+      .waitForDisplayed();
+  });
+
+  it('can create a clustered collection', async function () {
+    if (semver.lt(MONGODB_VERSION, '5.3.0')) {
+      return this.skip();
+    }
+
+    const collectionName = 'my-clustered-collection';
+    const indexName = 'my-clustered-index';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(collectionName, {
+      clustered: {
+        name: indexName,
+        expireAfterSeconds: 60,
+      },
+    });
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    await collectionCard
+      .$('[data-testid="collection-badge-clustered"]')
+      .waitForDisplayed();
+
+    await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
+
+    const typeElement = await browser.$(
+      `[data-test-id="index-component-${indexName}"] [data-test-id="index-table-type"]`
+    );
+    await typeElement.waitForDisplayed();
+    expect(await typeElement.getText()).to.equal('CLUSTERED');
   });
 });

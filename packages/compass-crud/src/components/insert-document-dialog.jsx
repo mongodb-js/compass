@@ -6,6 +6,7 @@ import { ViewSwitcher } from 'hadron-react-components';
 import { Element } from 'hadron-document';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
 
+import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
 import InsertDocumentFooter from './insert-document-footer';
@@ -221,6 +222,7 @@ class InsertDocumentDialog extends React.PureComponent {
           message={this.hasErrors() ? INSERT_INVALID_MESSAGE : this.state.message}
           mode={this.hasErrors() ? 'error' : this.state.mode}
         />
+        <InsertCSFLEWarningBanner csfleState={this.props.csfleState} />
       </ConfirmationModal>
     );
   }
@@ -236,6 +238,7 @@ InsertDocumentDialog.propTypes = {
   insertMany: PropTypes.func.isRequired,
   isOpen: PropTypes.bool.isRequired,
   message: PropTypes.string.isRequired,
+  csfleState: PropTypes.object.isRequired,
   mode: PropTypes.string.isRequired,
   version: PropTypes.string.isRequired,
   updateJsonDoc: PropTypes.func.isRequired,

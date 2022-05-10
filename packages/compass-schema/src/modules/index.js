@@ -11,5 +11,5 @@ export default {
   date,
   string,
   objectid,
-  coordinates
+  coordinates,
 };

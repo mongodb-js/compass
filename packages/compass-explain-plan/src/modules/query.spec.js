@@ -1,24 +1,26 @@
+import { expect } from 'chai';
+
 import reducer, { queryChanged, QUERY_CHANGED } from './query';
 
-describe('query module', () => {
-  describe('#queryChanged', () => {
-    it('returns the QUERY_CHANGED action', () => {
+describe('query module', function () {
+  describe('#queryChanged', function () {
+    it('returns the QUERY_CHANGED action', function () {
       const query = {
         filter: {},
         sort: null,
         project: null,
         skip: 100,
         limit: 0,
-        collation: null
+        collation: null,
       };
 
-      expect(queryChanged(query)).to.deep.equal({type: QUERY_CHANGED, query});
+      expect(queryChanged(query)).to.deep.equal({ type: QUERY_CHANGED, query });
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is not query changed', () => {
-      it('returns the default state', () => {
+  describe('#reducer', function () {
+    context('when the action is not query changed', function () {
+      it('returns the default state', function () {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           filter: {},
           sort: null,
@@ -27,13 +29,13 @@ describe('query module', () => {
           limit: 0,
           collation: null,
           maxTimeMS: 5000,
-          isChanged: false
+          isChanged: false,
         });
       });
     });
 
-    context('when the action is query changed', () => {
-      it('returns the new state', () => {
+    context('when the action is query changed', function () {
+      it('returns the new state', function () {
         const query = {
           filter: {},
           sort: null,
@@ -42,7 +44,7 @@ describe('query module', () => {
           limit: 0,
           collation: null,
           maxTimeMS: 2000,
-          isChanged: true
+          isChanged: true,
         };
 
         expect(reducer(undefined, queryChanged(query))).to.deep.equal(query);

@@ -27,3 +27,4 @@ coverage
 .ackrc
 env-vars.sh
 mongocryptd.pid
+mongodb-csfle

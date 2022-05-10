@@ -14,7 +14,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**@mongodb-js/compass-app-stores**](packages/compass-app-stores): The external stores repo for compass
 - [**@mongodb-js/compass-auto-updates**](packages/compass-auto-updates): Compass Auto Updates Plugin
 - [**@mongodb-js/compass-collection**](packages/compass-collection): Compass Collection Plugin
-- [**@mongodb-js/compass-collection-stats**](packages/compass-collection-stats): Compass Collection Stats Plugin
 - [**@mongodb-js/compass-connections**](packages/compass-connections): Connection Screen
 - [**@mongodb-js/compass-crud**](packages/compass-crud): Compass Plugin for CRUD Operations
 - [**@mongodb-js/compass-database**](packages/compass-database): Compass Database Plugin
@@ -29,7 +28,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**@mongodb-js/compass-indexes**](packages/compass-indexes): Indexes support for Compass
 - [**@mongodb-js/compass-instance**](packages/compass-instance): compass instance plugin
 - [**@mongodb-js/compass-loading**](packages/compass-loading): Compass Loading Screen
-- [**@mongodb-js/compass-metrics**](packages/compass-metrics): Compass Metrics Plugin
 - [**@mongodb-js/compass-plugin-info**](packages/compass-plugin-info): Compass Plugin Information Plugin
 - [**@mongodb-js/compass-query-bar**](packages/compass-query-bar): Renders a component for executing MongoDB queries through a GUI.
 - [**@mongodb-js/compass-query-history**](packages/compass-query-history): The query history sidebar.
@@ -75,8 +73,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**mongodb-explain-plan-model**](packages/explain-plan-model): Ampersand model abstraction for MongoDB explain plans (3.0+)
 - [**mongodb-index-model**](packages/index-model): MongoDB index model.
 - [**mongodb-instance-model**](packages/instance-model): MongoDB instance model.
-- [**mongodb-js-metrics**](packages/metrics): Shareable metric recording.
-- [**mongodb-security**](packages/security): Portable business logic of MongoDB security model
 - [**storage-mixin**](packages/storage-mixin): Ampersand model mixin to persist data via various storage backends
 
 ### Shared Configuration Files

@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "6.8.0",
+  "version": "6.9.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -18,12 +18,6 @@
   ],
   "main": "index.js",
   "compass:main": "index.js",
-  "exports": {
-    "require": "./index.js"
-  },
-  "compass:exports": {
-    ".": "./index.js"
-  },
   "scripts": {
     "test-check-ci": "npm test",
     "test": "mocha",

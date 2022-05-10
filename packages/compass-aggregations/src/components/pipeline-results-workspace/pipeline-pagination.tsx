@@ -11,6 +11,8 @@ import {
 import type { RootState } from '../../modules';
 import { fetchNextPage, fetchPrevPage } from '../../modules/aggregation';
 
+import PipelinePaginationCount from './pipeline-pagination-count';
+
 type PipelinePaginationProps = {
   showingFrom: number;
   showingTo: number;
@@ -27,6 +29,12 @@ const containerStyles = css({
   gap: spacing[2],
 });
 
+const paginationStyles = css({
+  display: 'flex',
+  gap: spacing[1],
+  alignItems: 'center',
+});
+
 export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps> =
   ({
     showingFrom,
@@ -40,9 +48,12 @@ export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps
     return (
       <div className={containerStyles} data-testid="pipeline-pagination">
         {!isCountDisabled && (
-          <Body data-testid="pipeline-pagination-desc">
-            Showing {showingFrom} – {showingTo}
-          </Body>
+          <div className={paginationStyles}>
+            <Body data-testid="pipeline-pagination-desc">
+              Showing {showingFrom} – {showingTo}
+            </Body>
+            <PipelinePaginationCount />
+          </div>
         )}
         <div>
           <IconButton
@@ -85,17 +96,22 @@ export const calculateShowingTo = ({
 
 const mapState = ({
   aggregation: { documents, isLast, page, limit, loading, error },
-}: RootState) => ({
-  showingFrom: calculateShowingFrom({ limit, page }),
-  showingTo: calculateShowingTo({
+  countDocuments: { count },
+}: RootState) => {
+  const showingFrom = calculateShowingFrom({ limit, page });
+  const showingTo = calculateShowingTo({
     limit,
     page,
     documentCount: documents.length,
-  }),
-  isCountDisabled: Boolean(error),
-  isPrevDisabled: page <= 1 || loading || Boolean(error),
-  isNextDisabled: isLast || loading || Boolean(error),
-});
+  });
+  return {
+    showingFrom,
+    showingTo,
+    isCountDisabled: Boolean(error),
+    isPrevDisabled: page <= 1 || loading || Boolean(error),
+    isNextDisabled: isLast || loading || Boolean(error) || count === showingTo,
+  };
+};
 
 const mapDispatch = {
   onPrev: fetchPrevPage,

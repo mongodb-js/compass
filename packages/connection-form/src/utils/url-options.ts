@@ -47,6 +47,12 @@ export const editableUrlOptions = [
   },
   {
     title: 'Miscellaneous Configuration',
-    values: ['appName', 'retryReads', 'retryWrites', 'uuidRepresentation'],
+    values: [
+      'appName',
+      'retryReads',
+      'retryWrites',
+      'srvMaxHosts',
+      'uuidRepresentation',
+    ],
   },
 ];

@@ -41,6 +41,7 @@ class AggregationCursorMock {
 const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
   const mockedState: RootState = {
     ...INITIAL_STATE,
+    aggregationWorkspaceId: '0',
     aggregation,
   };
   return createStore(rootReducer, mockedState, applyMiddleware(thunk));
@@ -63,8 +64,6 @@ describe('aggregation module', function () {
       hasNext: true,
       documents: mockDocuments,
     });
-    const skipSpy = spy(aggregateMock, 'skip');
-    const limitSpy = spy(aggregateMock, 'limit');
     const toArraySpy = spy(aggregateMock, 'toArray');
 
     const startSessionSpy = spy();
@@ -85,8 +84,6 @@ describe('aggregation module', function () {
     await store.dispatch(runAggregation() as any);
 
     expect(startSessionSpy.getCalls().map(x => x.args), 'calls startSession with correct args').to.deep.equal([['CRUD']]);
-    expect(skipSpy.getCalls().map(x => x.args), 'calls skip with correct args').to.deep.equal([[0]]);
-    expect(limitSpy.getCalls().map(x => x.args), 'calls limit with correct args').to.deep.equal([[20]]);
     expect(toArraySpy.getCalls().map(x => x.args), 'calls toArray with correct args').to.deep.equal([[]]);
 
     expect(store.getState().aggregation).to.deep.equal({
@@ -97,16 +94,16 @@ describe('aggregation module', function () {
       loading: false,
       error: undefined,
       abortController: undefined,
+      previousPageData: undefined,
     });
   });
 
   it('cancels an aggregation', async function () {
+    const documents = [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }];
     const store = getMockedStore({
       isLast: false,
       loading: false,
-      documents: [
-        { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
-      ],
+      documents,
       limit: 4,
       page: 2,
     });
@@ -146,13 +143,14 @@ describe('aggregation module', function () {
     expect(killSessionsCatchSpy.getCalls().map(x => x.args), 'calls killSessions with correct args').to.deep.equal([[]]);
     expect(cursorCloseSpy.getCalls().map(x => x.args), 'calls cursorClose with correct args').to.deep.equal([[]]);
     expect(store.getState().aggregation).to.deep.equal({
-      documents: [],
+      documents,
       isLast: false,
       page: 2,
       limit: 4,
       loading: false,
-      error: 'The operation was cancelled.',
+      error: undefined,
       abortController: undefined,
+      previousPageData: undefined,
     });
   });
 
@@ -173,8 +171,6 @@ describe('aggregation module', function () {
         hasNext: true,
         documents: mockDocuments,
       });
-      const skipSpy = spy(aggregateMock, 'skip');
-      const limitSpy = spy(aggregateMock, 'limit');
       const toArraySpy = spy(aggregateMock, 'toArray');
       const startSessionSpy = spy();
       store.dispatch({
@@ -194,8 +190,6 @@ describe('aggregation module', function () {
       await wait();
 
       expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal(['CRUD']);
-      expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([8]);
-      expect(limitSpy.firstCall.args, 'calls limit with correct args').to.deep.equal([4]);
       expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
       expect(store.getState().aggregation).to.deep.equal({
@@ -206,6 +200,7 @@ describe('aggregation module', function () {
         loading: false,
         error: undefined,
         abortController: undefined,
+        previousPageData: undefined,
       });
     });
     it('nextPage -> on last page', async function () {
@@ -244,8 +239,6 @@ describe('aggregation module', function () {
         hasNext: true,
         documents: mockDocuments,
       });
-      const skipSpy = spy(aggregateMock, 'skip');
-      const limitSpy = spy(aggregateMock, 'limit');
       const toArraySpy = spy(aggregateMock, 'toArray');
       const startSessionSpy = spy();
 
@@ -266,8 +259,6 @@ describe('aggregation module', function () {
       await wait();
 
       expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal(['CRUD']);
-      expect(skipSpy.firstCall.args, 'calls skip with correct args').to.deep.equal([0]);
-      expect(limitSpy.firstCall.args, 'calls limit with correct args').to.deep.equal([4]);
       expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
       expect(store.getState().aggregation).to.deep.equal({
@@ -278,6 +269,7 @@ describe('aggregation module', function () {
         loading: false,
         error: undefined,
         abortController: undefined,
+        previousPageData: undefined,
       });
     });
     it('prevPage -> on first page', async function () {

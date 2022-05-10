@@ -54,16 +54,22 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
       {stages.filter(Boolean).length === 0 ? (
         <Description className={cx(descriptionStyles)}>
-          Your pipeline is currently empty. To get started select the&nbsp;
-          <Link
-            className={addStageStyles}
-            as="button"
-            onClick={() => onStageAdded()}
-            hideExternalIcon
-            data-testid="pipeline-toolbar-add-stage-button"
-          >
-            first stage.
-          </Link>
+          Your pipeline is currently empty.
+          {stages.length === 0 && (
+            <>
+              {' '}
+              To get started select the&nbsp;
+              <Link
+                className={addStageStyles}
+                as="button"
+                onClick={() => onStageAdded()}
+                hideExternalIcon
+                data-testid="pipeline-toolbar-add-stage-button"
+              >
+                first stage.
+              </Link>
+            </>
+          )}
         </Description>
       ) : (
         <Pipeline size="small">
@@ -88,9 +94,10 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
 };
 
 const mapState = ({ pipeline, workspace }: RootState) => ({
-  stages: pipeline.map((x) => x.stageOperator),
+  stages: pipeline.map((stageState) => stageState.stageOperator),
   isEditing: workspace === 'results',
 });
+
 const mapDispatch = {
   onStageAdded: stageAdded,
   onChangeWorkspace: changeWorkspace,

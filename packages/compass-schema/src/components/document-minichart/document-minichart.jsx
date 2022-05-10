@@ -7,8 +7,8 @@ class DocumentMinichart extends Component {
   static displayName = 'DocumentMiniChartComponent';
 
   static propTypes = {
-    nestedDocType: PropTypes.object
-  }
+    nestedDocType: PropTypes.object,
+  };
 
   render() {
     let docFieldsMessage = '';

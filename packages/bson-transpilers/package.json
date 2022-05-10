@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "apiVersion": "0.0.1",
   "productName": "BSON Transpilers",
   "description": "Source to source compilers using ANTLR",
@@ -11,12 +11,6 @@
   ],
   "main": "index.js",
   "compass:main": "index.js",
-  "exports": {
-    "require": "./index.js"
-  },
-  "compass:exports": {
-    ".": "./index.js"
-  },
   "scripts": {
     "start": "node index.js",
     "precompile": "node download-antlr.js",

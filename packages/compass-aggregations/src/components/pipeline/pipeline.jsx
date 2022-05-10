@@ -125,6 +125,8 @@ class Pipeline extends PureComponent {
     sourceName: PropTypes.string,
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
+    showExportButton: PropTypes.bool.isRequired,
+    showRunButton: PropTypes.bool.isRequired
   };
 
   static defaultProps = {
@@ -147,13 +149,15 @@ class Pipeline extends PureComponent {
       global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true'
     ) {
       return (
-        <CollationToolbar
-          collation={this.props.collation}
-          collationChanged={this.props.collationChanged}
-          collationString={this.props.collationString}
-          collationStringChanged={this.props.collationStringChanged}
-          openLink={this.props.openLink}
-        />
+        <div className={styles['pipeline-collation-toolbar-container']}>
+          <CollationToolbar
+            collation={this.props.collation}
+            collationChanged={this.props.collationChanged}
+            collationString={this.props.collationString}
+            collationStringChanged={this.props.collationStringChanged}
+            openLink={this.props.openLink}
+          />
+        </div>
       );
     }
     return null;
@@ -162,13 +166,15 @@ class Pipeline extends PureComponent {
   renderModifyingViewSourceError() {
     if (this.props.updateViewError) {
       return (
-        <Banner
-          variant="danger"
-          dismissible
-          onClose={this.props.dismissViewError}
-        >
-          {this.props.updateViewError}
-        </Banner>
+        <div className={styles['pipeline-error-banner-container']}>
+          <Banner
+            variant="danger"
+            dismissible
+            onClose={this.props.dismissViewError}
+          >
+            {this.props.updateViewError}
+          </Banner>
+        </div>
       );
     }
   }
@@ -248,7 +254,12 @@ class Pipeline extends PureComponent {
         />
       );
     }
-    return <PipelineToolbar />;
+    return (
+      <PipelineToolbar
+        showRunButton={this.props.showRunButton}
+        showExportButton={this.props.showExportButton}
+      />
+    );
   }
 
   renderPipelineWorkspace() {

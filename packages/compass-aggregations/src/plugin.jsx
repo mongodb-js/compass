@@ -16,7 +16,14 @@ class Plugin extends Component {
   static displayName = 'AggregationsPlugin';
 
   static propTypes = {
-    store: PropTypes.object.isRequired
+    store: PropTypes.object.isRequired,
+    showExportButton: PropTypes.bool,
+    showRunButton: PropTypes.bool
+  }
+
+  static defaultProps = {
+    showExportButton: false,
+    showRunButton: false,
   }
 
   /**
@@ -27,7 +34,10 @@ class Plugin extends Component {
   render() {
     return (
       <Provider store={this.props.store}>
-        <Aggregations />
+        <Aggregations
+          showExportButton={this.props.showExportButton}
+          showRunButton={this.props.showRunButton}
+        />
       </Provider>
     );
   }

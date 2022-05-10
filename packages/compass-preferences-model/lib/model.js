@@ -95,10 +95,8 @@ var preferencesProps = {
    */
 
   /** Master switch to disable all network traffic, which includes
-   * - Google maps
-   * - Bugsnag
+   * - Maps
    * - Intercom
-   * - Google Analytics
    * - Auto-updates
    * @type {Boolean}
    */
@@ -117,7 +115,7 @@ var preferencesProps = {
     default: false
   },
   /**
-   * Switch to enable/disable error reports (renamed from `bugsnag`)
+   * Switch to enable/disable error reports
    * @type {Boolean}
    */
   trackErrors: {

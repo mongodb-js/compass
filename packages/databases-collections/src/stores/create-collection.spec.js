@@ -20,7 +20,7 @@ describe('CreateCollectionStore [Store]', () => {
     });
 
     context('when the data service is connected', () => {
-      const ds = 'data-service';
+      const ds = { _testId: 'data-service', on() {} };
 
       beforeEach(() => {
         appRegistry.emit('data-service-connected', null, ds);

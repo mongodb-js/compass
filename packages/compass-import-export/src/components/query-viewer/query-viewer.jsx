@@ -2,28 +2,19 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import getShellJS from '../../utils/get-shell-js';
+import { Editor, EditorVariant } from '@mongodb-js/compass-components';
 
 import styles from './query-viewer.module.less';
-
-import 'ace-builds';
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/mode-javascript';
-import 'mongodb-ace-theme';
 
 /**
  * Options for the ACE editor.
  */
 const OPTIONS = {
-  tabSize: 2,
-  fontSize: 11,
   minLines: 5,
-  maxLines: Infinity,
   showGutter: false,
-  readOnly: true,
   fixedWidthGutter: false,
   highlightActiveLine: false,
   highlightGutterLine: false,
-  useWorker: false,
 };
 
 /**
@@ -46,13 +37,11 @@ class QueryViewer extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['query-viewer'])}>
-        <AceEditor
-          mode="javascript"
-          theme="mongodb"
-          width="100%"
-          value={getShellJS(this.props.ns, this.props.query)}
-          editorProps={{ $blockScrolling: Infinity }}
-          setOptions={OPTIONS}
+        <Editor
+          text={getShellJS(this.props.ns, this.props.query)}
+          variant={EditorVariant.Shell}
+          options={OPTIONS}
+          readOnly
         />
       </div>
     );

@@ -277,6 +277,8 @@ export const CreateCollectionCappedCheckboxLabel =
   '[data-testid="capped-collection-fields"] #toggle-capped-collection-fields-label';
 export const CreateCollectionCappedSizeInput =
   '[data-testid="capped-collection-fields"] [data-testid="capped-size"]';
+export const CreateCollectionCollectionOptionsAccordion =
+  '[data-testid="create_collection_modal"] [data-testid="advanced-collection-options"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
   '[data-testid="use-custom-collation-fields"] #toggle-use-custom-collation-fields-label';
 
@@ -292,6 +294,13 @@ export const CreateCollectionTimeseriesGranularityMenu =
   '[data-testid="time-series-fields"] #timeSeries-granularity-menu';
 export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
+
+export const CreateCollectionClusteredCheckboxLabel =
+  '[data-testid="clustered-collection-fields"] #toggle-clustered-collection-fields-label';
+export const CreateCollectionClusteredNameField =
+  '[data-testid="clustered-collection-fields"] [name="clusteredIndex.name"]';
+export const CreateCollectionClusteredExpireAfterSeconds =
+  '[data-testid="clustered-collection-fields"] [name="expireAfterSeconds"]';
 
 export const createCollectionCustomCollationFieldButton = (
   fieldName: string
@@ -574,7 +583,7 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 export const StageContainer = '[data-test-id="stage-container"]';
 export const CreateNewPipelineButton = 'button#create-new-pipeline';
 export const ToggleAggregationCollation = '[data-test-id="toggle-collation"]';
-export const AggregationCollationInput = '[data-test-id="collation-string"]';
+export const AggregationCollationInput = '[data-testid="collation-string"]';
 export const AggregationSettingsButton =
   '[data-test-id="aggregation-settings"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';

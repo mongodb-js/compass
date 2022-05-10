@@ -4,10 +4,10 @@
 //
 // Tooltips for d3.js SVG visualizations
 
-(function(root, factory) {
+(function (root, factory) {
   if (typeof module === 'object' && module.exports) {
     // CommonJS
-    module.exports = function(d3) {
+    module.exports = function (d3) {
       d3.tip = factory(d3);
       return d3.tip;
     };
@@ -15,11 +15,11 @@
     // Browser global.
     root.d3.tip = factory(root.d3);
   }
-}(this, function(d3) {
+})(this, function (d3) {
   // Public - contructs a new tooltip
   //
   // Returns a tip
-  return function() {
+  return function () {
     let direction = d3_tip_direction;
     let offset = d3_tip_offset;
     let node = initNode();
@@ -40,7 +40,7 @@
     // Public - show the tooltip on the screen
     //
     // Returns a tip
-    tip.show = function() {
+    tip.show = function () {
       const args = Array.prototype.slice.call(arguments);
       if (args[args.length - 1] instanceof SVGElement) {
         target = args.pop();
@@ -50,18 +50,19 @@
         poffset = offset.apply(this, args),
         dir = direction.apply(this, args),
         nodel = getNodeEl(),
-        scrollTop = document.documentElement.scrollTop || document.body.scrollTop,
-        scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+        scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollLeft =
+          document.documentElement.scrollLeft || document.body.scrollLeft;
 
       let i = directions.length,
         coords = null;
 
-      nodel.html(content)
-        .style({
-          opacity: 1,
-          'pointer-events': 'all',
-          'display': 'block'
-        });
+      nodel.html(content).style({
+        opacity: 1,
+        'pointer-events': 'all',
+        display: 'block',
+      });
 
       while (i--) {
         nodel.classed(directions[i], false);
@@ -69,7 +70,7 @@
       coords = direction_callbacks.get(dir).apply(this);
       nodel.classed(dir, true).style({
         top: (coords.top + poffset[0] + scrollTop).toString() + 'px',
-        left: (coords.left + poffset[1] + scrollLeft).toString() + 'px'
+        left: (coords.left + poffset[1] + scrollLeft).toString() + 'px',
       });
 
       return tip;
@@ -78,12 +79,12 @@
     // Public - hide the tooltip
     //
     // Returns a tip
-    tip.hide = function() {
+    tip.hide = function () {
       const nodel = getNodeEl();
       nodel.style({
         opacity: 0,
         'pointer-events': 'none',
-        'display': 'none'
+        display: 'none',
       });
       return tip;
     };
@@ -94,7 +95,7 @@
     // v - value of the attribute
     //
     // Returns tip or attribute value
-    tip.attr = function(n, v) {
+    tip.attr = function (n, v) {
       if (arguments.length < 2 && typeof n === 'string') {
         return getNodeEl().attr(n);
       } else {
@@ -111,7 +112,7 @@
     // v - value of the property
     //
     // Returns tip or style property value
-    tip.style = function(n, v) {
+    tip.style = function (n, v) {
       if (arguments.length < 2 && typeof n === 'string') {
         return getNodeEl().style(n);
       } else {
@@ -128,7 +129,7 @@
     //     sw(southwest), ne(northeast) or se(southeast)
     //
     // Returns tip or direction
-    tip.direction = function(v) {
+    tip.direction = function (v) {
       if (!arguments.length) {
         return direction;
       }
@@ -142,7 +143,7 @@
     // v - Array of [x, y] offset
     //
     // Returns offset or
-    tip.offset = function(v) {
+    tip.offset = function (v) {
       if (!arguments.length) {
         return offset;
       }
@@ -156,7 +157,7 @@
     // v - String value of the tip
     //
     // Returns html value or tip
-    tip.html = function(v) {
+    tip.html = function (v) {
       if (!arguments.length) {
         return html;
       }
@@ -168,7 +169,7 @@
     // Public: destroys the tooltip and removes it from the DOM
     //
     // Returns a tip
-    tip.destroy = function() {
+    tip.destroy = function () {
       if (node) {
         getNodeEl().remove();
         node = null;
@@ -194,16 +195,15 @@
         nw: direction_nw,
         ne: direction_ne,
         sw: direction_sw,
-        se: direction_se
+        se: direction_se,
       }),
-
       directions = direction_callbacks.keys();
 
     function direction_n() {
       const bbox = getScreenBBox();
       return {
         top: bbox.n.y - node.offsetHeight,
-        left: bbox.n.x - node.offsetWidth / 2
+        left: bbox.n.x - node.offsetWidth / 2,
       };
     }
 
@@ -211,7 +211,7 @@
       const bbox = getScreenBBox();
       return {
         top: bbox.s.y,
-        left: bbox.s.x - node.offsetWidth / 2
+        left: bbox.s.x - node.offsetWidth / 2,
       };
     }
 
@@ -219,7 +219,7 @@
       const bbox = getScreenBBox();
       return {
         top: bbox.e.y - node.offsetHeight / 2,
-        left: bbox.e.x
+        left: bbox.e.x,
       };
     }
 
@@ -227,7 +227,7 @@
       const bbox = getScreenBBox();
       return {
         top: bbox.w.y - node.offsetHeight / 2,
-        left: bbox.w.x - node.offsetWidth
+        left: bbox.w.x - node.offsetWidth,
       };
     }
 
@@ -235,7 +235,7 @@
       const bbox = getScreenBBox();
       return {
         top: bbox.nw.y - node.offsetHeight,
-        left: bbox.nw.x - node.offsetWidth
+        left: bbox.nw.x - node.offsetWidth,
       };
     }
 
@@ -243,7 +243,7 @@
       const bbox = getScreenBBox();
       return {
         top: bbox.ne.y - node.offsetHeight,
-        left: bbox.ne.x
+        left: bbox.ne.x,
       };
     }
 
@@ -251,7 +251,7 @@
       const bbox = getScreenBBox();
       return {
         top: bbox.sw.y,
-        left: bbox.sw.x - node.offsetWidth
+        left: bbox.sw.x - node.offsetWidth,
       };
     }
 
@@ -259,7 +259,7 @@
       const bbox = getScreenBBox();
       return {
         top: bbox.se.y,
-        left: bbox.e.x
+        left: bbox.e.x,
       };
     }
 
@@ -271,7 +271,7 @@
         opacity: 0,
         'pointer-events': 'none',
         'box-sizing': 'border-box',
-        'display': 'none'
+        display: 'none',
       });
 
       return node.node();
@@ -315,7 +315,10 @@
       let targetel = target;
       if (!targetel) targetel = d3.event.target;
 
-      while ('undefined' === typeof targetel.getScreenCTM && 'undefined' !== targetel.parentNode) {
+      while (
+        'undefined' === typeof targetel.getScreenCTM &&
+        'undefined' !== targetel.parentNode
+      ) {
         targetel = targetel.parentNode;
       }
 
@@ -351,4 +354,4 @@
 
     return tip;
   };
-}));
+});

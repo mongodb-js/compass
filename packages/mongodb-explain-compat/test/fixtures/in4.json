@@ -1,0 +1,68 @@
+{
+  "explainVersion": "1",
+  "queryPlanner": {
+    "namespace": "aggregations.air_airlines",
+    "indexFilterSet": false,
+    "parsedQuery": {},
+    "maxIndexedOrSolutionsReached": false,
+    "maxIndexedAndSolutionsReached": false,
+    "maxScansToExplodeReached": false,
+    "winningPlan": { "stage": "COLLSCAN", "direction": "forward" },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 6048,
+    "executionTimeMillis": 4,
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 6048,
+    "executionStages": {
+      "stage": "COLLSCAN",
+      "nReturned": 6048,
+      "executionTimeMillisEstimate": 1,
+      "works": 6050,
+      "advanced": 6048,
+      "needTime": 1,
+      "needYield": 0,
+      "saveState": 6,
+      "restoreState": 6,
+      "isEOF": 1,
+      "direction": "forward",
+      "docsExamined": 6048
+    },
+    "allPlansExecution": []
+  },
+  "command": {
+    "find": "air_airlines",
+    "filter": {},
+    "skip": 0,
+    "limit": 0,
+    "maxTimeMS": 60000,
+    "$db": "aggregations"
+  },
+  "serverInfo": {
+    "host": "cluster0-shard-00-02.e06dc.azure.mongodb.net",
+    "port": 27017,
+    "version": "5.0.8",
+    "gitVersion": "c87e1c23421bf79614baf500fda6622bd90f674e"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 16793600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 33554432,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": { "$timestamp": "7094241771953061891" },
+    "signature": {
+      "hash": "YIb2ZEHfbZI9czu0w+D/z5Qhw4k=",
+      "keyId": { "low": 55, "high": 1641841422, "unsigned": false }
+    }
+  },
+  "operationTime": { "$timestamp": "7094241771953061891" }
+}

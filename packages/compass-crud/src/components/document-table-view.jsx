@@ -116,7 +116,8 @@ class DocumentTableView extends React.Component {
    * @param {Object} data - The data object.
    */
   handleClone(data) {
-    this.props.openInsertDocumentDialog(data.hadronDocument.generateObject(), true);
+    const clonedDoc = data.hadronDocument.generateObject({ excludeInternalFields: true });
+    this.props.openInsertDocumentDialog(clonedDoc, true);
   }
 
   /**

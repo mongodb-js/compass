@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Document } from 'mongodb';
 import {
   encryptedFieldConfigToText,
@@ -6,6 +6,7 @@ import {
 } from '../../../utils/csfle-handler';
 import FormFieldContainer from '../../form-field-container';
 import {
+  Editor,
   Label,
   Banner,
   Description,
@@ -13,57 +14,61 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import 'ace-builds';
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
-
 const errorContainerStyles = css({
   padding: spacing[3],
   width: '100%',
 });
 
+const ENCRYPTED_FIELDS_MAP_PLACEHOLDER = `{
 /**
- * Options for the ACE editor.
+ * // Client-side encrypted fields map configuration:
+ * 'database.collection': {
+ *   fields: [
+ *     {
+ *       keyId: UUID("..."),
+ *       path: '...',
+ *       bsonType: '...',
+ *       queries: [{ queryType: 'equality' }]
+ *     }
+ *   ]
+ * }
  */
-const OPTIONS = {
-  enableLiveAutocompletion: false,
-  tabSize: 2,
-  fontSize: 11,
-  minLines: 10,
-  maxLines: Infinity,
-  showGutter: true,
-  useWorker: false,
-  mode: 'ace/mode/mongodb',
-};
+}
+`;
 
 function EncryptedFieldConfigInput({
-  encryptedFieldConfig,
+  encryptedFieldsMap,
   errorMessage,
+  label,
+  description,
   onChange,
 }: {
-  encryptedFieldConfig: Document | undefined;
+  encryptedFieldsMap: Document | undefined;
   errorMessage: string | undefined;
   onChange: (value: Document | undefined) => void;
+  label: React.ReactNode;
+  description: React.ReactNode;
 }): React.ReactElement {
+  const [hasEditedContent, setHasEditedContent] = useState(false);
+
+  if (encryptedFieldsMap === undefined && !hasEditedContent) {
+    encryptedFieldsMap = textToEncryptedFieldConfig(
+      ENCRYPTED_FIELDS_MAP_PLACEHOLDER
+    );
+  }
+
   return (
     <div>
       <FormFieldContainer>
-        <Label htmlFor="TODO(COMPASS-5653)">EncryptedFieldConfigMap</Label>
-        <Description>
-          Add an optional client-side EncryptedFieldConfigMap for enhanced
-          security.
-        </Description>
-        <AceEditor
-          mode="javascript" // will be set to mongodb as part of OPTIONS
-          theme="mongodb"
-          width="100%"
-          value={encryptedFieldConfigToText(encryptedFieldConfig)}
-          onChange={(newText) => onChange(textToEncryptedFieldConfig(newText))}
-          editorProps={{ $blockScrolling: Infinity }}
-          name="import-pipeline-editor"
-          setOptions={OPTIONS}
+        <Label htmlFor="TODO(COMPASS-5653)">{label}</Label>
+        <Description>{description}</Description>
+        <Editor
+          variant="Shell"
+          text={encryptedFieldConfigToText(encryptedFieldsMap)}
+          onChangeText={(newText) => {
+            setHasEditedContent(true);
+            onChange(textToEncryptedFieldConfig(newText));
+          }}
         />
       </FormFieldContainer>
       {errorMessage && (

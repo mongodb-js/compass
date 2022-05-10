@@ -68,8 +68,10 @@ type CollectionDetails = {
   specialish: boolean;
   normal: boolean;
   readonly: boolean;
+  clustered: boolean;
   collation: Document | null;
   view_on: string | null;
+  fle2: boolean;
   pipeline: Document[] | null;
   validation: {
     validator: Document;
@@ -104,12 +106,12 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
-  isCSFLEConnection: boolean;
+  csfleMode: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export async function getInstance(
   client: MongoClient
-): Promise<Omit<InstanceDetails, 'isCSFLEConnection'>> {
+): Promise<Omit<InstanceDetails, 'csfleMode'>> {
   const adminDb = client.db('admin');
   const [
     connectionStatus,
@@ -180,18 +182,19 @@ function checkIsAtlas(
 export function checkIsCSFLEConnection(client: {
   options: MongoClientOptions;
 }): boolean {
-  return hasAnyKMSProvider(client.options?.autoEncryption);
+  return configuredKMSProviders(client.options?.autoEncryption).length > 0;
 }
 
-export function hasAnyKMSProvider(
+export function configuredKMSProviders(
   autoEncryption?: AutoEncryptionOptions
-): boolean {
-  const kmsProviders = autoEncryption?.kmsProviders;
-  return (
-    Object.values(kmsProviders ?? {})
-      .flatMap((kms) => Object.values(kms))
-      .filter(Boolean).length > 0
-  );
+): (keyof NonNullable<AutoEncryptionOptions['kmsProviders']>)[] {
+  const kmsProviders = autoEncryption?.kmsProviders ?? {};
+  return Object.entries(kmsProviders)
+    .filter(
+      ([, kmsOptions]) =>
+        Object.values(kmsOptions ?? {}).filter(Boolean).length > 0
+    )
+    .map(([kmsProviderName]) => kmsProviderName as any);
 }
 
 function buildGenuineMongoDBInfo(
@@ -391,6 +394,8 @@ export function adaptCollectionInfo({
     validator,
     validationAction,
     validationLevel,
+    clusteredIndex,
+    encryptedFields,
   } = options ?? {};
 
   const hasValidation = Boolean(
@@ -412,6 +417,8 @@ export function adaptCollectionInfo({
     collation: collation ?? null,
     view_on: viewOn ?? null,
     pipeline: pipeline ?? null,
+    clustered: clusteredIndex ? true : false,
+    fle2: encryptedFields ? true : false,
     validation: hasValidation
       ? { validator, validationAction, validationLevel }
       : null,

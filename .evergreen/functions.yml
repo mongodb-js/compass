@@ -37,9 +37,7 @@ variables:
     NODE_JS_VERSION: '14.17.5'
     NPM_VERSION: '8.3.1'
     # secrets
-    HADRON_METRICS_BUGSNAG_KEY: ${metrics_bugsnag_key}
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
-    HADRON_METRICS_STITCH_APP_ID: ${metrics_stitch_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
     E2E_TESTS_METRICS_URI: ${e2e_tests_metrics_string}
     E2E_TESTS_ATLAS_HOST: ${e2e_tests_atlas_host}
@@ -77,7 +75,7 @@ post:
     params:
       local_files_include_filter:
         - src/.deps/.npm/_logs/*.log
-      remote_file: ${project}/${revision}/${build_variant}/${task_name}
+      remote_file: ${project}/${revision}_${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
   - <<: *save-diagnostic-file
     params:
@@ -206,7 +204,8 @@ functions:
           # "mongo*" for some helpful output from the test tooling we are using
           DEBUG=${debug} \
             MONGODB_VERSION=${mongodb_version|4.4.x} \
-              npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
     - command: shell.exec
@@ -230,7 +229,8 @@ functions:
 
           DEBUG=${debug} \
             MONGODB_VERSION=${mongodb_version|4.4.x} \
-              npm run --unsafe-perm test-ci-electron -- --stream
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
     - command: shell.exec
@@ -291,7 +291,7 @@ functions:
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${app_archive_name}
-        remote_file: ${project}/${revision}/${app_archive_name}
+        remote_file: ${project}/${revision}_${revision_order_id}/${app_archive_name}
     - command: shell.exec
       params:
         working_dir: src
@@ -336,7 +336,11 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.4.x} npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4.4.x} \
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
@@ -357,7 +361,10 @@ functions:
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
-          DEBUG=${debug} MONGODB_VERSION=${mongodb_version|4.4.x} npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          DEBUG=${debug} \
+            MONGODB_VERSION=${mongodb_version|4.4.x} \
+            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
     - command: shell.exec
@@ -378,108 +385,129 @@ functions:
           source .evergreen/start-docker-envs.sh
           npm run test-connectivity --workspace mongodb-data-service
 
+  test-csfle:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          rm -rf mongodb-csfle && mkdir -p mongodb-csfle
+          (cd mongodb-csfle && \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --csfle --version '>= 6.0.0-rc1') | \
+            tar -xvz)
+          export COMPASS_CSFLE_LIBRARY_PATH=$(echo $PWD/mongodb-csfle/lib/mongo_csfle_v1.*)
+          npm run test-csfle --workspace mongodb-data-service
+
   save-windows-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_setup_filename}
-        remote_file: ${project}/${revision}/${windows_setup_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_setup_filename}
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_msi_filename}
-        remote_file: ${project}/${revision}/${windows_msi_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_msi_filename}
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_zip_filename}
-        remote_file: ${project}/${revision}/${windows_zip_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_zip_filename}
         content_type: application/zip
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
-        remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_nupkg_full_filename}
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${windows_releases_filename}
-        remote_file: ${project}/${revision}/${windows_releases_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_releases_filename}
 
   save-macos-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${osx_dmg_filename}
-        remote_file: ${project}/${revision}/${osx_dmg_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${osx_dmg_filename}
         content_type: application/x-apple-diskimage
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${osx_zip_filename}
-        remote_file: ${project}/${revision}/${osx_zip_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${osx_zip_filename}
         content_type: application/zip
 
   save-rhel-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_rpm_filename}
-        remote_file: ${project}/${revision}/${linux_rpm_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}/${linux_tar_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
 
   save-ubuntu-artifacts:
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_deb_filename}
-        remote_file: ${project}/${revision}/${linux_deb_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_filename}
         content_type: application/vnd.debian.binary-package
     - <<: *save-artifact
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}/${linux_tar_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
 
   get-artifacts:
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_setup_filename}
-        remote_file: ${project}/${revision}/${windows_setup_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_setup_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_msi_filename}
-        remote_file: ${project}/${revision}/${windows_msi_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_msi_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_zip_filename}
-        remote_file: ${project}/${revision}/${windows_zip_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_zip_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
-        remote_file: ${project}/${revision}/${windows_nupkg_full_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_nupkg_full_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${windows_releases_filename}
-        remote_file: ${project}/${revision}/${windows_releases_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${windows_releases_filename}
 
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${osx_dmg_filename}
-        remote_file: ${project}/${revision}/${osx_dmg_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${osx_dmg_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${osx_zip_filename}
-        remote_file: ${project}/${revision}/${osx_zip_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${osx_zip_filename}
 
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_rpm_filename}
-        remote_file: ${project}/${revision}/${linux_rpm_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_deb_filename}
-        remote_file: ${project}/${revision}/${linux_deb_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_filename}
     - <<: *get-artifact
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}/${linux_tar_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
 
   generate-tasks:
     - command: generate.tasks

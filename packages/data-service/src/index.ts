@@ -6,7 +6,7 @@ import {
   promisifyAmpersandMethod,
 } from './connection-storage';
 import { getConnectionTitle } from './connection-title';
-import DataService from './data-service';
+import { DataService, DataServiceImpl } from './data-service';
 import {
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,
@@ -16,6 +16,7 @@ import {
   extractSecrets,
   mergeSecrets,
 } from './connection-secrets';
+import { configuredKMSProviders } from './instance-detail-helper';
 
 export {
   ConnectionInfo,
@@ -23,7 +24,9 @@ export {
   ConnectionOptions,
   ConnectionStorage,
   DataService,
+  DataServiceImpl,
   connect,
+  configuredKMSProviders,
   getConnectionTitle,
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,

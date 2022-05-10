@@ -9,9 +9,9 @@ export function ExplainCannotVisualizeBanner() {
       className={styles['explain-cannot-visualize-banner']}
       variant={BannerVariant.Warning}
     >
-      Visual explain plan is not supported with this query on this
-      collection in this Compass release. Please refer to
-      the raw json output of the explain for insight into the operation.
+      Visual explain plan is not supported with this query on this collection in
+      this Compass release. Please refer to the raw json output of the explain
+      for insight into the operation.
     </Banner>
   );
 }

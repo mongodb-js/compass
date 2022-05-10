@@ -2,11 +2,13 @@ import React from 'react';
 import {
   Button,
   ButtonVariant,
+  ErrorSummary,
+  WarningSummary,
   spacing,
   uiColors,
   css,
+  cx,
 } from '@mongodb-js/compass-components';
-import { ErrorSummary, WarningSummary } from './validation-summary';
 import type {
   ConnectionFormError,
   ConnectionFormWarning,
@@ -18,12 +20,17 @@ const formActionStyles = css({
   paddingRight: spacing[4],
 });
 
+const formActionItemStyles = css({
+  marginTop: spacing[3],
+  '&:last-child': {
+    marginBottom: spacing[3],
+  },
+});
+
 const formActionButtonsStyles = css({
   display: 'flex',
   justifyContent: 'flex-end',
   gap: spacing[2],
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
 });
 
 function ConnectFormActions({
@@ -41,9 +48,22 @@ function ConnectFormActions({
 }): React.ReactElement {
   return (
     <div className={formActionStyles}>
-      {warnings.length ? <WarningSummary warnings={warnings} /> : ''}
-      {errors.length ? <ErrorSummary errors={errors} /> : ''}
-      <div className={formActionButtonsStyles}>
+      {warnings.length > 0 && (
+        <div className={formActionItemStyles}>
+          <WarningSummary
+            warnings={warnings.map((warning) => warning.message)}
+          />
+        </div>
+      )}
+      {errors.length > 0 && (
+        <div className={formActionItemStyles}>
+          <ErrorSummary
+            data-testid="connection-error-summary"
+            errors={errors.map((error) => error.message)}
+          />
+        </div>
+      )}
+      <div className={cx(formActionItemStyles, formActionButtonsStyles)}>
         {saveButton !== 'hidden' && (
           <Button
             data-testid="save-connection-button"

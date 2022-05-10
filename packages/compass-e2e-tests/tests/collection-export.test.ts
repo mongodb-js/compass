@@ -140,6 +140,7 @@ describe('Collection export', function () {
       all_fields: true,
       number_of_docs: 1,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -210,6 +211,7 @@ describe('Collection export', function () {
       all_fields: true,
       number_of_docs: 1000,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -268,6 +270,7 @@ describe('Collection export', function () {
       all_fields: false,
       number_of_docs: 1000,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -336,6 +339,7 @@ describe('Collection export', function () {
       all_fields: true,
       number_of_docs: 1,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
@@ -403,13 +407,12 @@ describe('Collection export', function () {
       all_fields: true,
       number_of_docs: 1000,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
 
-  // Skipping for now because export to JSON seems to include the _id field even
-  // if we explicitly deselect it.
-  it.skip('supports full collection to JSON with a subset of fields', async function () {
+  it('supports full collection to JSON with a subset of fields', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     await browser.clickVisible(Selectors.ExportCollectionButton);
@@ -424,6 +427,7 @@ describe('Collection export', function () {
 
     // de-select _id to just export the i field
     await browser.clickVisible(Selectors.exportModalExportField('_id'));
+    await browser.clickVisible(Selectors.exportModalExportField('j'));
     await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
     // go with the default file type (JSON)
@@ -457,10 +461,11 @@ describe('Collection export', function () {
     const exportCompletedEvent = await telemetryEntry('Export Completed');
     expect(exportCompletedEvent).to.deep.equal({
       all_docs: true,
-      file_type: 'csv',
+      file_type: 'json',
       all_fields: false,
       number_of_docs: 1000,
       success: true,
+      type: 'query',
     });
     expect(telemetry.screens()).to.include('export_modal');
   });

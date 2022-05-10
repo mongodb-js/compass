@@ -7,33 +7,55 @@ import type { SinonSpy } from 'sinon';
 
 import { PipelineActions } from './pipeline-actions';
 
+const initialEnableExport = process.env.COMPASS_ENABLE_AGGREGATION_EXPORT;
+
 describe('PipelineActions', function () {
   describe('options visible', function () {
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
+    let onExportAggregationResultsSpy: SinonSpy;
     beforeEach(function () {
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
+      onExportAggregationResultsSpy = spy();
       render(
         <PipelineActions
           isOptionsVisible={true}
+          showRunButton={true}
+          showExportButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
+          onExportAggregationResults={onExportAggregationResultsSpy}
         />
       );
     });
 
-    it('run action button', function () {
+    afterEach(function () {
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
+    });
+
+    it('calls onRunAggregation callback on click', function () {
       const button = screen.getByTestId('pipeline-toolbar-run-button');
       expect(button).to.exist;
 
       userEvent.click(button);
 
       expect(onRunAggregationSpy.calledOnce).to.be.true;
-      expect(onRunAggregationSpy.firstCall.args).to.be.empty;
     });
 
-    it('toggle options action button', function () {
+    it('calls onExportAggregationResults on click', function () {
+      const button = screen.getByTestId(
+        'pipeline-toolbar-export-aggregation-button'
+      );
+      expect(button).to.exist;
+
+      userEvent.click(button);
+
+      expect(onExportAggregationResultsSpy.calledOnce).to.be.true;
+    });
+
+    it('calls onToggleOptions on click', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
       expect(button.textContent.toLowerCase().trim()).to.equal('less options');
@@ -42,7 +64,6 @@ describe('PipelineActions', function () {
       userEvent.click(button);
 
       expect(onToggleOptionsSpy.calledOnce).to.be.true;
-      expect(onToggleOptionsSpy.firstCall.args).to.be.empty;
     });
   });
 
@@ -55,8 +76,11 @@ describe('PipelineActions', function () {
       render(
         <PipelineActions
           isOptionsVisible={false}
+          showRunButton={true}
+          showExportButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
+          onExportAggregationResults={() => {}}
         />
       );
     });
@@ -70,7 +94,54 @@ describe('PipelineActions', function () {
       userEvent.click(button);
 
       expect(onToggleOptionsSpy.calledOnce).to.be.true;
-      expect(onToggleOptionsSpy.firstCall.args).to.be.empty;
+    });
+  });
+
+  describe('disables actions when pipeline is invalid', function () {
+    let onRunAggregationSpy: SinonSpy;
+    let onExportAggregationResultsSpy: SinonSpy;
+    beforeEach(function () {
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
+      onRunAggregationSpy = spy();
+      onExportAggregationResultsSpy = spy();
+      render(
+        <PipelineActions
+          isExportButtonDisabled={true}
+          isRunButtonDisabled={true}
+          isOptionsVisible={true}
+          showRunButton={true}
+          showExportButton={true}
+          onRunAggregation={onRunAggregationSpy}
+          onToggleOptions={() => {}}
+          onExportAggregationResults={onExportAggregationResultsSpy}
+        />
+      );
+    });
+
+    afterEach(function () {
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
+    });
+
+    it('run action disabled', function () {
+      const button = screen.getByTestId('pipeline-toolbar-run-button');
+      expect(button.getAttribute('disabled')).to.exist;
+
+      userEvent.click(button, undefined, {
+        skipPointerEventsCheck: true,
+      });
+      expect(onRunAggregationSpy.calledOnce).to.be.false;
+    });
+
+    it('export action disabled', function () {
+      const button = screen.getByTestId(
+        'pipeline-toolbar-export-aggregation-button'
+      );
+      expect(button.getAttribute('disabled')).to.exist;
+
+      userEvent.click(button, undefined, {
+        skipPointerEventsCheck: true,
+      });
+      expect(onExportAggregationResultsSpy.calledOnce).to.be.false;
     });
   });
 });

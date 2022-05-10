@@ -32,17 +32,20 @@ if [ x"$LOCALAPPDATA" = x"" ]; then
   exit
 fi
 
-set -x
+set -ex
+
+SCRIPTDIR="$(cd $(dirname "$0"); pwd)"
 CACHEDIR="$LOCALAPPDATA/node-gyp/Cache"
 rm -rvf "$CACHEDIR"
 mkdir -p "$CACHEDIR/$NODE_JS_VERSION"
 cd "$CACHEDIR/$NODE_JS_VERSION"
-curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-headers.tar.gz"
+
+bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/node-v$NODE_JS_VERSION-headers.tar.gz"
 tar --strip-components=1 -xvzf "node-v$NODE_JS_VERSION-headers.tar.gz"
 for arch in x64 x86 arm64; do
   mkdir $arch
   pushd $arch
-  curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/win-$arch/node.lib" || echo "no $arch v$NODE_JS_VERSION .lib file"
+  bash "${SCRIPTDIR}/retry-with-backoff.sh" curl -sSfLO "https://nodejs.org/download/release/v$NODE_JS_VERSION/win-$arch/node.lib" || echo "no $arch v$NODE_JS_VERSION .lib file"
   popd
 done
 

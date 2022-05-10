@@ -20,15 +20,21 @@ class PropertyColumn extends PureComponent {
 
   static propTypes = {
     index: PropTypes.object.isRequired,
-    openLink: PropTypes.func.isRequired
+    openLink: PropTypes.func.isRequired,
   };
 
   _partialTooltip() {
-    return format('partialFilterExpression: %j', this.props.index.extra.partialFilterExpression);
+    return format(
+      'partialFilterExpression: %j',
+      this.props.index.extra.partialFilterExpression
+    );
   }
 
   _ttlTooltip() {
-    return format('expireAfterSeconds: %d', this.props.index.extra.expireAfterSeconds);
+    return format(
+      'expireAfterSeconds: %d',
+      this.props.index.extra.expireAfterSeconds
+    );
   }
 
   /**
@@ -39,7 +45,9 @@ class PropertyColumn extends PureComponent {
   renderCardinality() {
     if (this.props.index.cardinality === 'compound') {
       return (
-        <div className={classnames(styles['property-column-property-cardinality'])}>
+        <div
+          className={classnames(styles['property-column-property-cardinality'])}
+        >
           {this.props.index.cardinality}
           <InfoSprinkle
             helpLink={getIndexHelpLink('COMPOUND')}
@@ -61,13 +69,17 @@ class PropertyColumn extends PureComponent {
     const tooltipOptions = {
       'data-for': TOOLTIP_ID,
       'data-effect': 'solid',
-      'data-border': true
+      'data-border': true,
     };
 
     if (prop === 'ttl') {
       tooltipOptions['data-tip'] = this._ttlTooltip();
       return (
-        <div {...tooltipOptions} key={prop} className={classnames(styles['property-column-property'])}>
+        <div
+          {...tooltipOptions}
+          key={prop}
+          className={classnames(styles['property-column-property'])}
+        >
           {prop}
           <InfoSprinkle
             helpLink={getIndexHelpLink('TTL')}
@@ -78,7 +90,11 @@ class PropertyColumn extends PureComponent {
     } else if (prop === 'partial') {
       tooltipOptions['data-tip'] = this._partialTooltip();
       return (
-        <div {...tooltipOptions} key={prop} className={classnames(styles['property-column-property'])}>
+        <div
+          {...tooltipOptions}
+          key={prop}
+          className={classnames(styles['property-column-property'])}
+        >
           {prop}
           <InfoSprinkle
             helpLink={getIndexHelpLink('PARTIAL')}
@@ -88,7 +104,10 @@ class PropertyColumn extends PureComponent {
       );
     }
     return (
-      <div key={prop} className={classnames(styles['property-column-property'])}>
+      <div
+        key={prop}
+        className={classnames(styles['property-column-property'])}
+      >
         {prop}
         <InfoSprinkle
           helpLink={getIndexHelpLink(prop.toUpperCase())}

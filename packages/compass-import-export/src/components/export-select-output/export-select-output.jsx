@@ -47,6 +47,7 @@ class ExportSelectOutput extends PureComponent {
     cancelExport: PropTypes.func.isRequired,
     selectExportFileType: PropTypes.func.isRequired,
     selectExportFileName: PropTypes.func.isRequired,
+    isAggregation: PropTypes.bool.isRequired,
   };
 
   /**

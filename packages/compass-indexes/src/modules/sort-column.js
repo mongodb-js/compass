@@ -5,7 +5,6 @@ import { SORT_INDEXES } from './indexes';
  */
 export const INITIAL_STATE = 'Name and Definition';
 
-
 /**
  * Reducer function for handle state changes to sortColumn.
  *
