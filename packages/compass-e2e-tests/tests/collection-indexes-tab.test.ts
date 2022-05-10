@@ -110,7 +110,7 @@ describe('Collection indexes tab', function () {
     });
 
     it('supports creating a columnstore index', async function () {
-      if (semver.lt(MONGODB_VERSION, '6.1.0')) {
+      if (semver.lt(MONGODB_VERSION, '6.1.0-alpha0')) {
         return this.skip();
       }
 
