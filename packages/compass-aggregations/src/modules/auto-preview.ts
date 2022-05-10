@@ -29,7 +29,7 @@ export const toggleAutoPreview = (
       newVal &&
       global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true'
     ) {
-      dispatch(runStage(0));
+      dispatch(runStage(0, true /* force execute */));
     }
     dispatch({
       type: ActionTypes.AutoPreviewToggled,
