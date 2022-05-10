@@ -181,7 +181,9 @@ export function handleUpdateCsfleKmsTlsParam({
 // as an option, regardless of whether it is filled. Consequently, we need
 // to set it to undefined explicitly if the user wants to disable automatic
 // CSFLE entirely (indicated by removing all CSFLE options).
-export function unsetAutoEncryptionIfEmpty(o?: AutoEncryptionOptions): AutoEncryptionOptions | undefined {
+export function unsetAutoEncryptionIfEmpty(
+  o?: AutoEncryptionOptions
+): AutoEncryptionOptions | undefined {
   return o && hasAnyCsfleOption(o) ? o : undefined;
 }
 
