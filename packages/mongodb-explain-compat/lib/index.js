@@ -121,18 +121,18 @@ module.exports = function (explain) {
 
   if (isAggregationExplain(explain)) {
     if (isShardedAggregationExplain(explain)) {
-      return mapShardedAggregation(explain);
+      explain = mapShardedAggregation(explain);
+    } else {
+      explain = mapUnshardedAggregation(explain);
     }
-    return mapUnshardedAggregation(explain);
+  } else {
+    if (isShardedFind(explain)) {
+      explain = mapShardedFind(explain);
+    } else {
+      explain = mapUnshardedFind(explain);
+    }
   }
-
-  // Sharded Find
-  if (isShardedFind(explain)) {
-    return mapShardedFind(explain);
-  }
-
-  // Unsharded Find
-  return mapUnshardedFind(explain);
+  return JSON.parse(JSON.stringify(explain));
 };
 
 function mapUnshardedAggregation(explain) {
@@ -188,7 +188,7 @@ function mapShardedFind(explain) {
   });
   explain.queryPlanner = queryPlanner;
   explain.executionStats = executionStats;
-  return JSON.parse(JSON.stringify(explain));
+  return explain;
 }
 function mapUnshardedFind(explain) {
   return _mapPlannerStage(explain);
@@ -209,5 +209,5 @@ function _mapPlannerStage(planner) {
       planner.executionStats.executionStages
     );
   }
-  return JSON.parse(JSON.stringify(planner));
+  return planner;
 }
