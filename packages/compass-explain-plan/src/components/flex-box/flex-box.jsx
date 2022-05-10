@@ -10,17 +10,41 @@ class FlexBox extends Component {
 
   static propTypes = {
     children: PropTypes.node,
-    flexDirection: PropTypes.oneOf(['row', 'row-reverse', 'column', 'column-reverse']),
-    justifyContent: PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'space-between', 'space-around']),
-    alignItems: PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'stretch', 'baseline']),
-    alignContent: PropTypes.oneOf(['flex-start', 'flex-end', 'center', 'stretch', 'space-between', 'space-around'])
-  }
+    flexDirection: PropTypes.oneOf([
+      'row',
+      'row-reverse',
+      'column',
+      'column-reverse',
+    ]),
+    justifyContent: PropTypes.oneOf([
+      'flex-start',
+      'flex-end',
+      'center',
+      'space-between',
+      'space-around',
+    ]),
+    alignItems: PropTypes.oneOf([
+      'flex-start',
+      'flex-end',
+      'center',
+      'stretch',
+      'baseline',
+    ]),
+    alignContent: PropTypes.oneOf([
+      'flex-start',
+      'flex-end',
+      'center',
+      'stretch',
+      'space-between',
+      'space-around',
+    ]),
+  };
 
   static defaultProps = {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    alignContent: 'center'
+    alignContent: 'center',
   };
 
   /**
@@ -33,7 +57,7 @@ class FlexBox extends Component {
 
     style.display = 'flex';
 
-    return (<div style={style}>{this.props.children}</div>);
+    return <div style={style}>{this.props.children}</div>;
   }
 }
 

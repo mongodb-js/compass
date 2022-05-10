@@ -49,7 +49,9 @@ export interface CSFLECollectionTracker {
    *
    * @param ns A MongoDB `database.collection` namespace.
    */
-  hasKnownSchemaForCollection(ns: string): Promise<boolean>;
+  knownSchemaForCollection(
+    ns: string
+  ): Promise<{ hasSchema: boolean; encryptedFields: string[] }>;
 }
 
 // A list of field paths for a document.
@@ -204,13 +206,20 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     return true;
   }
 
-  async hasKnownSchemaForCollection(ns: string): Promise<boolean> {
+  async knownSchemaForCollection(
+    ns: string
+  ): Promise<{ hasSchema: boolean; encryptedFields: string[] }> {
     const info = await this._fetchCSFLECollectionInfo(ns);
-    return !!(
+    const hasSchema = !!(
       info.hasServerSchema ||
       info.clientEnforcedEncryptedFields?.length ||
       info.serverEnforcedEncryptedFields?.length
     );
+    const encryptedFields = [
+      ...(info.clientEnforcedEncryptedFields ?? []),
+      ...(info.serverEnforcedEncryptedFields ?? []),
+    ].map((fieldPath) => fieldPath.join('.'));
+    return { hasSchema, encryptedFields };
   }
 
   _processClientSchemaDefinitions(): void {

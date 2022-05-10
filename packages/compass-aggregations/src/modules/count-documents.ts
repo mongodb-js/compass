@@ -8,12 +8,11 @@ import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import type { Actions as WorkspaceActions } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 
-
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
   CountFinished = 'compass-aggregations/countFinished',
   CountFailed = 'compass-aggregations/countFailed',
-};
+}
 
 type CountStartedAction = {
   type: ActionTypes.CountStarted;
@@ -44,7 +43,10 @@ export const INITIAL_STATE: State = {
   loading: false,
 };
 
-const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Actions | WorkspaceActions> = (
+  state = INITIAL_STATE,
+  action
+) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
       return INITIAL_STATE;
@@ -106,31 +108,33 @@ export const countDocuments = (): ThunkAction<
         abortController,
       });
 
-      const stages = pipeline.map(generateStage).filter(x => Object.keys(x).length > 0);
+      const nonEmptyStages = pipeline
+        .map(generateStage)
+        .filter((stage) => Object.keys(stage).length > 0);
+
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS || DEFAULT_MAX_TIME_MS,
-        allowDiskUse: true,
         collation: collation || undefined,
       };
 
-      const documents = await aggregatePipeline(
+      const [{ count }] = await aggregatePipeline({
         dataService,
         signal,
         namespace,
-        [...stages, { $count: 'count' }],
+        pipeline: [...nonEmptyStages, { $count: 'count' }],
         options,
-        0,
-        1,
-      );
+      });
+
       dispatch({
         type: ActionTypes.CountFinished,
-        count: documents[0]?.count ?? 0,
+        count: Number(count),
       });
     } catch (e) {
       dispatch({
         type: ActionTypes.CountFailed,
       });
     }
-  }
-}
+  };
+};
+
 export default reducer;

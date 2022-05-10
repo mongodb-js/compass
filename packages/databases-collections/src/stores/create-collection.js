@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
-import { dataServiceConnected } from '../modules/data-service';
+import { dataServiceConnected, dataServiceUpdated } from '../modules/data-service';
 import { serverVersionChanged } from '../modules/server-version';
 import reducer, { open } from '../modules/create-collection';
 
@@ -16,6 +16,11 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('data-service-connected', (error, dataService) => {
     store.dispatch(dataServiceConnected(error, dataService));
+    if (dataService) {
+      dataService.on('topologyDescriptionChanged', () => {
+        store.dispatch(dataServiceUpdated(dataService));
+      });
+    }
   });
 
   appRegistry.on('server-version-changed', (version) => {

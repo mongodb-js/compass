@@ -1,0 +1,107 @@
+{
+  "queryPlanner": {
+    "mongosPlannerVersion": 1,
+    "winningPlan": {
+      "stage": "SINGLE_SHARD",
+      "shards": [
+        {
+          "shardName": "config",
+          "connectionString": "cfgreplicaset/mongodb-cfg:27017",
+          "serverInfo": {
+            "host": "9a04b7ced080",
+            "port": 27017,
+            "version": "5.0.8",
+            "gitVersion": "c87e1c23421bf79614baf500fda6622bd90f674e"
+          },
+          "namespace": "config.settings",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": { "stage": "EOF" },
+          "rejectedPlans": []
+        }
+      ]
+    }
+  },
+  "executionStats": {
+    "nReturned": 0,
+    "executionTimeMillis": 0,
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 0,
+    "executionStages": {
+      "stage": "SINGLE_SHARD",
+      "nReturned": 0,
+      "executionTimeMillis": 0,
+      "totalKeysExamined": 0,
+      "totalDocsExamined": 0,
+      "totalChildMillis": 0,
+      "shards": [
+        {
+          "shardName": "config",
+          "executionSuccess": true,
+          "nReturned": 0,
+          "executionTimeMillis": 0,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 0,
+          "executionStages": {
+            "stage": "EOF",
+            "nReturned": 0,
+            "executionTimeMillisEstimate": 0,
+            "works": 1,
+            "advanced": 0,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 0,
+            "restoreState": 0,
+            "isEOF": 1
+          },
+          "allPlansExecution": []
+        }
+      ]
+    },
+    "allPlansExecution": [{ "shardName": "config", "allPlans": [] }]
+  },
+  "serverInfo": {
+    "host": "29f78048bf31",
+    "port": 27017,
+    "version": "5.0.8",
+    "gitVersion": "c87e1c23421bf79614baf500fda6622bd90f674e"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "command": {
+    "find": "settings",
+    "filter": {},
+    "skip": 0,
+    "limit": 0,
+    "maxTimeMS": 60000,
+    "lsid": { "id": "6RXH6NFDQPO6MsM58wilQg==" },
+    "$clusterTime": {
+      "clusterTime": { "$timestamp": "7095504741446189057" },
+      "signature": {
+        "hash": "yzTM1O4H7lsp9z6ekzuzG/NhZXk=",
+        "keyId": { "low": 24, "high": 1651831945, "unsigned": false }
+      }
+    },
+    "$db": "config"
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": { "$timestamp": "7095504810165665793" },
+    "signature": {
+      "hash": "5OgcUciAaNSoZzvbGhlCKZUV6Dg=",
+      "keyId": { "low": 24, "high": 1651831945, "unsigned": false }
+    }
+  },
+  "operationTime": { "$timestamp": "7095504810165665793" }
+}

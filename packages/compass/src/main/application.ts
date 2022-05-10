@@ -1,12 +1,14 @@
 import path from 'path';
 import { EventEmitter } from 'events';
-import { app, BrowserWindow } from 'electron';
+import type { BrowserWindow } from 'electron';
+import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import createDebug from 'debug';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
+import { setupCSFLELibrary } from './setup-csfle-library';
 
 const debug = createDebug('mongodb-compass:main:application');
 
@@ -29,13 +31,10 @@ class CompassApplication {
 
     this.setupUserDirectory();
 
-    await Promise.all([
-      this.setupLogging(),
-      this.setupAutoUpdate(),
-      this.setupSecureStore(),
-      this.setupTelemetry(),
-    ]);
+    await Promise.all([this.setupLogging(), this.setupTelemetry()]);
+    await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
 
+    await setupCSFLELibrary();
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
@@ -43,7 +42,7 @@ class CompassApplication {
   }
 
   static init(): Promise<void> {
-    return this.initPromise ??= this._init();
+    return (this.initPromise ??= this._init());
   }
 
   private static async setupSecureStore(): Promise<void> {
@@ -84,6 +83,7 @@ class CompassApplication {
       debug('All windows closed. Waiting for a new connection window.');
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     app.on('will-quit', async (event: Event) => {
       event.preventDefault(); // Only exit asynchronously, after the cleanup handlers
       await this.runExitHandlers();

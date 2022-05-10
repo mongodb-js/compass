@@ -24,9 +24,11 @@ function TLSCertificateAuthority({
   disabled,
   displayDatabaseConnectionUserHints = true,
   handleTlsOptionChanged,
+  hideUseSystemCA,
 }: {
   tlsCAFile?: string | null;
   useSystemCA: boolean;
+  hideUseSystemCA?: boolean;
   disabled: boolean;
   displayDatabaseConnectionUserHints?: boolean;
   handleTlsOptionChanged: (
@@ -56,32 +58,36 @@ function TLSCertificateAuthority({
         values={tlsCAFile ? [tlsCAFile] : undefined}
         optional
       />
-      <Checkbox
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          handleTlsOptionChanged(
-            'useSystemCA',
-            event.target.checked ? 'true' : null
-          );
-        }}
-        data-testid="useSystemCA-input"
-        id="useSystemCA-input"
-        label={
-          <>
-            <Label htmlFor="useSystemCA-input">
-              Use System Certificate Authority
-            </Label>
-            <Description
-              className={cx(checkboxDescriptionStyles, {
-                [disabledCheckboxDescriptionStyles]: disabled,
-              })}
-            >
-              Use the operating system’s Certificate Authority store.
-            </Description>
-          </>
-        }
-        disabled={disabled}
-        checked={useSystemCA}
-      />
+      {
+        /* TODO(COMPASS-5635): Enable unconditionally */ !hideUseSystemCA && (
+          <Checkbox
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              handleTlsOptionChanged(
+                'useSystemCA',
+                event.target.checked ? 'true' : null
+              );
+            }}
+            data-testid="useSystemCA-input"
+            id="useSystemCA-input"
+            label={
+              <>
+                <Label htmlFor="useSystemCA-input">
+                  Use System Certificate Authority
+                </Label>
+                <Description
+                  className={cx(checkboxDescriptionStyles, {
+                    [disabledCheckboxDescriptionStyles]: disabled,
+                  })}
+                >
+                  Use the operating system’s Certificate Authority store.
+                </Description>
+              </>
+            }
+            disabled={disabled}
+            checked={useSystemCA}
+          />
+        )
+      }
     </FormFieldContainer>
   );
 }

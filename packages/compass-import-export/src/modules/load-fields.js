@@ -1,6 +1,7 @@
 import util from 'util';
 import dotnotation from '../utils/dotnotation';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { isInternalFieldPath } from 'hadron-document';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'
@@ -54,5 +55,10 @@ export function getSelectableFields(fields, { maxDepth } = {}) {
   const selectableFields = Object.keys(fields).map((field) =>
     truncateFieldToDepth(field, maxDepth)
   );
-  return Object.fromEntries(selectableFields.map((field) => [field, ENABLED]));
+  return Object.fromEntries(
+    selectableFields.map((field) => {
+      const enabled = !isInternalFieldPath(field);
+      return [field, +enabled];
+    })
+  );
 }

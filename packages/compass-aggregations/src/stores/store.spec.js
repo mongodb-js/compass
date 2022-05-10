@@ -219,7 +219,9 @@ describe('Aggregation Store', function() {
         });
 
         it('resets the rest of the state to initial state', function() {
-          expect(store.getState()).to.deep.equal({
+          // eslint-disable-next-line no-unused-vars
+          const { aggregationWorkspaceId, ...state } = store.getState();
+          expect(state).to.deep.equal({
             allowWrites: INITIAL_STATE.allowWrites,
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',

@@ -25,13 +25,13 @@ export const SWITCHED_TO_TREE_VIEW = `${PREFIX}/SWITCHED_TO_TREE_VIEW`;
 export const SWITCHED_TO_JSON_VIEW = `${PREFIX}/SWITCHED_TO_JSON_VIEW`;
 
 /**
-* The explainState changed action name.
-*/
+ * The explainState changed action name.
+ */
 export const EXPLAIN_STATE_CHANGED = `${PREFIX}/EXPLAIN_STATE_CHANGED`;
 
 /**
-* The explain plan fetched action name.
-*/
+ * The explain plan fetched action name.
+ */
 export const EXPLAIN_PLAN_FETCHED = `${PREFIX}/EXPLAIN_PLAN_FETCHED`;
 
 /**
@@ -60,7 +60,7 @@ export const INITIAL_STATE = {
   totalDocsExamined: 0,
   totalKeysExamined: 0,
   usedIndexes: [],
-  resultId: resultId()
+  resultId: resultId(),
 };
 
 /**
@@ -73,7 +73,7 @@ export const INITIAL_STATE = {
  */
 const switchViewType = (state, action) => ({
   ...state,
-  viewType: action.viewType
+  viewType: action.viewType,
 });
 
 /**
@@ -113,7 +113,7 @@ const MAPPINGS = {
   [SWITCHED_TO_TREE_VIEW]: switchViewType,
   [SWITCHED_TO_JSON_VIEW]: switchViewType,
   [EXPLAIN_STATE_CHANGED]: doChangeExplainPlanState,
-  [EXPLAIN_PLAN_FETCHED]: executeExplainPlan
+  [EXPLAIN_PLAN_FETCHED]: executeExplainPlan,
 };
 
 /**
@@ -137,7 +137,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const switchToTreeView = () => ({
   type: SWITCHED_TO_TREE_VIEW,
-  viewType: EXPLAIN_VIEWS.tree
+  viewType: EXPLAIN_VIEWS.tree,
 });
 
 /**
@@ -147,7 +147,7 @@ export const switchToTreeView = () => ({
  */
 export const switchToJSONView = () => ({
   type: SWITCHED_TO_JSON_VIEW,
-  viewType: EXPLAIN_VIEWS.json
+  viewType: EXPLAIN_VIEWS.json,
 });
 
 /**
@@ -159,19 +159,19 @@ export const switchToJSONView = () => ({
  */
 export const explainStateChanged = (explainState) => ({
   type: EXPLAIN_STATE_CHANGED,
-  explainState
+  explainState,
 });
 
 /**
-* Action creator for the explain plan fetched events.
-*
-* @param {Object} explain - The explain plan.
-*
-* @returns {Object} The explain plan fetched action.
-*/
+ * Action creator for the explain plan fetched events.
+ *
+ * @param {Object} explain - The explain plan.
+ *
+ * @returns {Object} The explain plan fetched action.
+ */
 export const explainPlanFetched = (explain) => ({
   type: EXPLAIN_PLAN_FETCHED,
-  explain
+  explain,
 });
 
 /**
@@ -186,10 +186,10 @@ const getIndexType = (explainPlan) => {
     return 'UNAVAILABLE';
   }
 
-  const indexInfoByShard =
-    groupBy(explainPlan.usedIndexes, 'shard');
-  const indexNamesForAllShards =
-    Object.values(indexInfoByShard).map(entries => entries.map(({ index }) => index));
+  const indexInfoByShard = groupBy(explainPlan.usedIndexes, 'shard');
+  const indexNamesForAllShards = Object.values(indexInfoByShard).map(
+    (entries) => entries.map(({ index }) => index)
+  );
   for (let i = 0; i < indexNamesForAllShards.length; i++) {
     for (let j = i + 1; j < indexNamesForAllShards.length; j++) {
       if (!isEqual(indexNamesForAllShards[i], indexNamesForAllShards[j])) {
@@ -221,18 +221,42 @@ const parseExplainPlan = (explain, data) => {
   const explainPlanModel = new ExplainPlan(data);
 
   const {
-    namespace, parsedQuery, executionSuccess, nReturned, executionTimeMillis,
-    totalKeysExamined, totalDocsExamined, rawExplainObject, originalExplainData,
-    usedIndexes, isCovered, isMultiKey, inMemorySort, isCollectionScan,
-    isSharded, numShards
+    namespace,
+    parsedQuery,
+    executionSuccess,
+    nReturned,
+    executionTimeMillis,
+    totalKeysExamined,
+    totalDocsExamined,
+    rawExplainObject,
+    originalExplainData,
+    usedIndexes,
+    isCovered,
+    isMultiKey,
+    inMemorySort,
+    isCollectionScan,
+    isSharded,
+    numShards,
   } = explainPlanModel;
 
   return {
     ...explain,
-    namespace, parsedQuery, executionSuccess, nReturned, executionTimeMillis,
-    totalKeysExamined, totalDocsExamined, rawExplainObject, originalExplainData,
-    usedIndexes, isCovered, isMultiKey, inMemorySort, isCollectionScan,
-    isSharded, numShards
+    namespace,
+    parsedQuery,
+    executionSuccess,
+    nReturned,
+    executionTimeMillis,
+    totalKeysExamined,
+    totalDocsExamined,
+    rawExplainObject,
+    originalExplainData,
+    usedIndexes,
+    isCovered,
+    isMultiKey,
+    inMemorySort,
+    isCollectionScan,
+    isSharded,
+    numShards,
   };
 };
 
@@ -248,9 +272,11 @@ const parseExplainPlan = (explain, data) => {
 const updateWithIndexesInfo = (explain, indexes) => ({
   ...explain,
   indexType: getIndexType(explain),
-  index: explain.usedIndexes.length > 0 && typeof explain.usedIndexes[0].index === 'string'
-    ? find(indexes, (idx) => (idx.name === explain.usedIndexes[0].index))
-    : null
+  index:
+    explain.usedIndexes.length > 0 &&
+    typeof explain.usedIndexes[0].index === 'string'
+      ? find(indexes, (idx) => idx.name === explain.usedIndexes[0].index)
+      : null,
 });
 
 /**
@@ -282,7 +308,7 @@ export const fetchExplainPlan = (query) => {
       projection: query.project,
       skip: query.skip,
       limit: query.limit,
-      maxTimeMS: query.maxTimeMS
+      maxTimeMS: query.maxTimeMS,
     };
     let explain = state.explain;
 
@@ -337,9 +363,8 @@ export const fetchExplainPlan = (query) => {
         track('Explain Plan Executed', trackEvent);
 
         // Send metrics
-        dispatch(globalAppRegistryEmit(
-          'explain-plan-fetched',
-          {
+        dispatch(
+          globalAppRegistryEmit('explain-plan-fetched', {
             viewMode: explain.viewType,
             executionTimeMS: explain.executionTimeMillis,
             inMemorySort: explain.inMemorySort,
@@ -353,9 +378,9 @@ export const fetchExplainPlan = (query) => {
             numberOfShards: explain.numShards,
             totalDocsExamined: explain.totalDocsExamined,
             totalKeysExamined: explain.totalKeysExamined,
-            usedIndexes: explain.usedIndexes
-          }
-        ));
+            usedIndexes: explain.usedIndexes,
+          })
+        );
 
         return;
       });
@@ -377,5 +402,5 @@ export const changeExplainPlanState = (explainState) => {
 };
 
 function resultId() {
-  return Math.floor(Math.random() * (2 ** 53));
+  return Math.floor(Math.random() * 2 ** 53);
 }

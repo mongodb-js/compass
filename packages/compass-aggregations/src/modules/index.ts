@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { combineReducers } from 'redux';
 import type { AnyAction } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -114,18 +113,16 @@ import { gatherProjections, generateStage } from './stage';
 import updateViewError, {
   INITIAL_STATE as UPDATE_VIEW_ERROR_INITIAL_STATE
 } from './update-view';
-
 import aggregation, {
   INITIAL_STATE as AGGREGATION_INITIAL_STATE
 } from './aggregation';
-
 import countDocuments, {
   INITIAL_STATE as COUNT_INITIAL_STATE
 } from './count-documents';
-
 import workspace, {
   INITIAL_STATE as WORKSPACE_INITIAL_STATE
 } from './workspace';
+import aggregationWorkspaceId from './aggregation-workspace-id';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -181,8 +178,6 @@ export const INITIAL_STATE = {
   countDocuments: COUNT_INITIAL_STATE,
 };
 
-export type RootState = typeof INITIAL_STATE;
-
 /**
  * Reset action constant.
  */
@@ -219,7 +214,7 @@ export const MODIFY_VIEW = 'aggregations/MODIFY_VIEW';
  *
  * @returns {Function} The reducer function.
  */
-const appReducer = combineReducers<RootState>({
+const appReducer = combineReducers({
   appRegistry,
   allowWrites,
   comments,
@@ -260,7 +255,10 @@ const appReducer = combineReducers<RootState>({
   aggregation,
   workspace,
   countDocuments,
+  aggregationWorkspaceId
 });
+
+export type RootState = ReturnType<typeof appReducer>;
 
 /**
  * Handle the namespace change.
@@ -273,6 +271,7 @@ const appReducer = combineReducers<RootState>({
 const doNamespaceChanged = (state: RootState, action: AnyAction) => {
   const newState = {
     ...INITIAL_STATE,
+    aggregationWorkspaceId: state.aggregationWorkspaceId,
     env: state.env,
     isTimeSeries: state.isTimeSeries,
     isReadonly: state.isReadonly,
@@ -292,8 +291,9 @@ const doNamespaceChanged = (state: RootState, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doReset = (): RootState => ({
-  ...INITIAL_STATE
+const doReset= (state: RootState) => ({
+  ...INITIAL_STATE,
+  aggregationWorkspaceId: state.aggregationWorkspaceId
 });
 
 /**
@@ -321,6 +321,7 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
 
   return {
     ...INITIAL_STATE,
+    aggregationWorkspaceId: state.aggregationWorkspaceId,
     appRegistry: state.appRegistry,
     namespace: savedState.namespace,
     env: savedState.env,
@@ -389,6 +390,7 @@ const doClearPipeline = (state: RootState): RootState => ({
  */
 const createNewPipeline = (state: RootState): RootState => ({
   ...INITIAL_STATE,
+  aggregationWorkspaceId: state.aggregationWorkspaceId,
   appRegistry: state.appRegistry,
   namespace: state.namespace,
   env: state.env,
@@ -773,7 +775,7 @@ export const modifyView = (
 ): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch) => {
     dispatch(modifySource(viewName, viewPipeline, readonly, source));
-    dispatch(runStage(0) as any);
+    dispatch(runStage(0));
   };
 };
 

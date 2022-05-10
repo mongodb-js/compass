@@ -117,7 +117,7 @@ var TourView = View.extend({
       deps: ['previousVersion'],
       fn: function() {
         return (this.previousVersion === '0.0.0' || process.env.NODE_ENV === 'testing') ?
-          `Welcome to ${electronApp.getName()}` : `What\'s New in ${electronApp.getName()}`;
+          `Welcome to ${electronApp.getName()}` : `What's New in ${electronApp.getName()}`;
       }
     }
   },

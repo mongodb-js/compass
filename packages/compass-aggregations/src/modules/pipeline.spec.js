@@ -12,12 +12,11 @@ import _reducer, {
   generatePipelineAsString,
   loadingStageResults,
   gotoOutResults,
-  STAGE_CHANGED,
   STAGE_COLLAPSE_TOGGLED,
   STAGE_PREVIEW_UPDATED,
   LOADING_STAGE_RESULTS,
   STAGE_TOGGLED,
-  replaceAceTokens,
+  replaceOperatorSnippetTokens,
   INITIAL_STATE,
 } from './pipeline';
 import { generatePipelineStages } from './pipeline';
@@ -26,14 +25,13 @@ import { expect } from 'chai';
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
 
 const LIMIT_TO_PROCESS = 100000;
-const LIMIT_TO_DISPLAY = 20;
+const LIMIT_TO_DISPLAY = 10;
 
-const reducer = (prevState = INITIAL_STATE, _action) => {
-  let action = _action;
-  if (typeof _action === 'function') {
-    _action(
+const reducer = (prevState = INITIAL_STATE, action) => {
+  if (typeof action === 'function') {
+    action(
       (a) => {
-        action = a;
+        prevState = reducer(prevState, a)
       },
       () => ({ pipeline: prevState })
     );
@@ -120,11 +118,7 @@ describe('pipeline module', function () {
               expect(
                 newState[0].stage,
                 `${name} stage on ${env} env.`
-              ).to.equal(`${comment}${snippet}`);
-              expect(
-                newState[0].snippet,
-                `${name} snippet on ${env} env.`
-              ).to.equal(`${comment}${snippet}`);
+              ).to.equal(replaceOperatorSnippetTokens(`${comment}${snippet}`));
             });
           });
         });
@@ -134,8 +128,7 @@ describe('pipeline module', function () {
           );
           const stage = {
             stageOperator: geoNear.name,
-            stage: replaceAceTokens(`${geoNear.comment}${geoNear.snippet}`),
-            snippet: `${geoNear.comment}${geoNear.snippet}`,
+            stage: replaceOperatorSnippetTokens(`${geoNear.comment}${geoNear.snippet}`),
           };
           STAGE_OPERATORS.filter((x) => x.name !== '$geoNear').forEach(
             ({ name, comment, snippet, env: envs }) => {
@@ -151,11 +144,7 @@ describe('pipeline module', function () {
                 expect(
                   newState[0].stage,
                   `${name} stage on ${env} env.`
-                ).to.equal(`${comment}${snippet}`);
-                expect(
-                  newState[0].snippet,
-                  `${name} snippet on ${env} env.`
-                ).to.equal(`${comment}${snippet}`);
+                ).to.equal(replaceOperatorSnippetTokens(`${comment}${snippet}`));
               });
             }
           );
@@ -165,7 +154,6 @@ describe('pipeline module', function () {
           const stage = {
             stageOperator: limit.name,
             stage: '20',
-            snippet: `${limit.comment}${limit.snippet}`,
           };
           STAGE_OPERATORS.filter((x) => x.name !== '$limit').forEach(
             ({ name, env: envs }) => {
@@ -181,10 +169,6 @@ describe('pipeline module', function () {
                 expect(
                   newState[0].stage,
                   `${name} stage on ${env} env.`
-                ).to.equal('20');
-                expect(
-                  newState[0].snippet,
-                  `${name} snippet on ${env} env.`
                 ).to.equal('20');
               });
             }
@@ -341,16 +325,6 @@ describe('pipeline module', function () {
     });
   });
 
-  describe('#stageChanged', function () {
-    it('returns the STAGE_CHANGED action', function () {
-      expect(stageChanged('{}', 0)).to.deep.equal({
-        type: STAGE_CHANGED,
-        index: 0,
-        stage: '{}',
-      });
-    });
-  });
-
   describe('#stageCollapseToggled', function () {
     it('returns the STAGE_COLLAPSE_TOGGLED action', function () {
       expect(stageCollapseToggled(0)).to.deep.equal({
@@ -433,9 +407,11 @@ describe('pipeline module', function () {
         ]);
       });
       it('returns the pipeline string with only the current stage', function () {
-        expect(generatePipelineAsString(state, 0)).to.deep.equal(`[{$match: {
- name: 'test'
-}}]`);
+        expect(generatePipelineAsString(state, 0)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}]`);
       });
     });
 
@@ -475,13 +451,19 @@ describe('pipeline module', function () {
         ]);
       });
       it('returns the pipeline string with the current and all previous stages', function () {
-        expect(generatePipelineAsString(state, 2)).to.deep.equal(`[{$match: {
- name: 'test'
-}}, {$project: {
- name: 1
-}}, {$sort: {
- name: 1
-}}]`);
+        expect(generatePipelineAsString(state, 2)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}, {
+ $project: {
+  name: 1
+ }
+}, {
+ $sort: {
+  name: 1
+ }
+}]`);
       });
     });
 
@@ -520,11 +502,15 @@ describe('pipeline module', function () {
         ]);
       });
       it('returns the pipeline string with the current and all previous stages', function () {
-        expect(generatePipelineAsString(state, 1)).to.deep.equal(`[{$match: {
- name: 'test'
-}}, {$project: {
- name: 1
-}}]`);
+        expect(generatePipelineAsString(state, 1)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}, {
+ $project: {
+  name: 1
+ }
+}]`);
       });
     });
 

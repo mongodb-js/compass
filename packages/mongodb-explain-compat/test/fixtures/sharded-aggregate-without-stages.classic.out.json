@@ -1,0 +1,181 @@
+{
+  "serverInfo": {
+    "host": "0edf452ec934",
+    "port": 27017,
+    "version": "5.0.8",
+    "gitVersion": "c87e1c23421bf79614baf500fda6622bd90f674e"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "splitPipeline": null,
+  "shards": {
+    "shard1": {
+      "host": "mongodb-shard1:27017",
+      "queryPlanner": {
+        "namespace": "shard.listings",
+        "indexFilterSet": false,
+        "parsedQuery": {
+          "host_id": {
+            "$in": [
+              0,
+              {
+                "$numberLong": "9999999999999"
+              }
+            ]
+          }
+        },
+        "optimizedPipeline": true,
+        "maxIndexedOrSolutionsReached": false,
+        "maxIndexedAndSolutionsReached": false,
+        "maxScansToExplodeReached": false,
+        "winningPlan": {
+          "stage": "FETCH",
+          "inputStage": {
+            "stage": "SHARDING_FILTER",
+            "inputStage": {
+              "stage": "IXSCAN",
+              "keyPattern": {
+                "host_id": 1
+              },
+              "indexName": "host_id_1",
+              "isMultiKey": false,
+              "multiKeyPaths": {
+                "host_id": []
+              },
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": 2,
+              "direction": "forward",
+              "indexBounds": {
+                "host_id": ["[0, 0]", "[9999999999999.0, 9999999999999.0]"]
+              }
+            }
+          }
+        },
+        "rejectedPlans": []
+      },
+      "executionStats": {
+        "executionSuccess": true,
+        "nReturned": 0,
+        "executionTimeMillis": 0,
+        "totalKeysExamined": 1,
+        "totalDocsExamined": 0,
+        "executionStages": {
+          "stage": "FETCH",
+          "nReturned": 0,
+          "executionTimeMillisEstimate": 0,
+          "works": 1,
+          "advanced": 0,
+          "needTime": 0,
+          "needYield": 0,
+          "saveState": 0,
+          "restoreState": 0,
+          "isEOF": 1,
+          "docsExamined": 0,
+          "alreadyHasObj": 0,
+          "inputStage": {
+            "stage": "SHARDING_FILTER",
+            "nReturned": 0,
+            "executionTimeMillisEstimate": 0,
+            "works": 1,
+            "advanced": 0,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 0,
+            "restoreState": 0,
+            "isEOF": 1,
+            "chunkSkips": 0,
+            "inputStage": {
+              "stage": "IXSCAN",
+              "nReturned": 0,
+              "executionTimeMillisEstimate": 0,
+              "works": 1,
+              "advanced": 0,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 0,
+              "restoreState": 0,
+              "isEOF": 1,
+              "keyPattern": {
+                "host_id": 1
+              },
+              "indexName": "host_id_1",
+              "isMultiKey": false,
+              "multiKeyPaths": {
+                "host_id": []
+              },
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": 2,
+              "direction": "forward",
+              "indexBounds": {
+                "host_id": ["[0, 0]", "[9999999999999.0, 9999999999999.0]"]
+              },
+              "keysExamined": 1,
+              "seeks": 1,
+              "dupsTested": 0,
+              "dupsDropped": 0
+            }
+          }
+        },
+        "allPlansExecution": []
+      }
+    }
+  },
+  "command": {
+    "aggregate": "listings",
+    "pipeline": [
+      {
+        "$match": {
+          "host_id": {
+            "$in": [
+              0,
+              {
+                "$numberLong": "9999999999999"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "cursor": {},
+    "allowDiskUse": true,
+    "maxTimeMS": 60000
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": {
+        "t": 1651750716,
+        "i": 1
+      }
+    },
+    "signature": {
+      "hash": {
+        "$binary": {
+          "base64": "cbAILRSfucd24Pgl5CsrsFKhK8U=",
+          "subType": "00"
+        }
+      },
+      "keyId": {
+        "$numberLong": "7093538256309977112"
+      }
+    }
+  },
+  "operationTime": {
+    "$timestamp": {
+      "t": 1651750712,
+      "i": 2
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { Binary } from 'bson';
 import { expect } from 'chai';
 import { Document } from '../src/';
 import { ObjectGenerator } from '../src/object-generator';
@@ -182,6 +183,18 @@ describe('ObjectGenerator', function () {
       );
       expect(generatedOriginal.b.d[DECRYPTED_KEYS]).to.deep.equal(
         object.b.d[DECRYPTED_KEYS]
+      );
+    });
+  });
+
+  context('with __safeContent__ present', function () {
+    const object = { foo: 'bar', __safeContent__: [new Binary('aaaa')] };
+    const doc = new Document(object);
+
+    it('optionally omits the internal field', function () {
+      expect(doc.generateObject()).to.deep.equal(object);
+      expect(doc.generateObject({ excludeInternalFields: true })).to.deep.equal(
+        { foo: 'bar' }
       );
     });
   });

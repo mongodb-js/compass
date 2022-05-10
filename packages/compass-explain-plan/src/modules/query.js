@@ -24,7 +24,7 @@ export const INITIAL_STATE = {
   limit: 0,
   collation: null,
   maxTimeMS: 5000,
-  isChanged: false
+  isChanged: false,
 };
 
 /**
