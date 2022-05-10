@@ -112,7 +112,7 @@ const buildVariants = [
   {
     name: 'ubuntu',
     display_name: 'Ubuntu (Test and Package)',
-    run_on: 'ubuntu1604-large'
+    run_on: 'ubuntu2004-large'
   },
   {
     name: 'rhel',
@@ -124,10 +124,9 @@ const buildVariants = [
 for (const buildVariant of buildVariants) {
   buildVariant.tasks = [];
   for (const task of testPackagedAppVariations) {
-    // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
-    // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
-    // we can remove this.
-    if (task.name.startsWith('test-packaged-app-5x') && buildVariant.name === 'ubuntu') {
+    // 4.0 enterprise and 4.2 enterprise are not supported on Ubuntu 20.04
+    // https://docs.google.com/spreadsheets/d/1-sZKW70HbVt2yHOWa18qwBwi-gBcn54tWmronnn89kI/edit#gid=0
+    if (buildVariant.name === 'ubuntu' && task.name.match(/^test-packaged-app-4[02]x-enterprise$/)) {
       continue;
     }
     buildVariant.tasks.push(task);

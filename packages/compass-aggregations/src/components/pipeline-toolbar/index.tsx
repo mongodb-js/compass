@@ -17,7 +17,7 @@ const containerStyles = css({
 
 const containerDisplayStyles = css({
   display: 'grid',
-  gap: spacing[4],
+  gap: spacing[3],
   gridTemplateAreas: `
   "headerAndOptionsRow"
   `,
@@ -42,6 +42,10 @@ const headerAndOptionsRowStyles = css({
 
 const settingsRowStyles = css({
   gridArea: 'settingsRow'
+});
+
+const optionsStyles = css({
+  marginTop: spacing[2],
 });
 
 type PipelineToolbarProps = {
@@ -73,7 +77,11 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             showRunButton={showRunButton}
             showExportButton={showExportButton}
           />
-          {isOptionsVisible && <PipelineOptions />}
+          {isOptionsVisible && (
+            <div className={optionsStyles}>
+              <PipelineOptions />
+            </div>
+          )}
         </div>
         {isSettingsVisible && (
           <div className={settingsRowStyles}>

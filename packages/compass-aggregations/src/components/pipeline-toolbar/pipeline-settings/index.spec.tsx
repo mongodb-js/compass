@@ -22,7 +22,7 @@ describe('PipelineSettings', function () {
     container = screen.getByTestId('pipeline-settings');
   });
 
-  it('open export to language button', function () {
+  it('calls onExportToLanguage callback when export to language button is clicked', function () {
     const button = within(container).getByTestId(
       'pipeline-toolbar-export-button'
     );
@@ -31,6 +31,5 @@ describe('PipelineSettings', function () {
     userEvent.click(button);
 
     expect(onExportToLanguageSpy.calledOnce).to.be.true;
-    expect(onExportToLanguageSpy.firstCall.args).to.be.empty;
   });
 });

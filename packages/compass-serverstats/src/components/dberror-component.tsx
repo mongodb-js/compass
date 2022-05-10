@@ -21,14 +21,12 @@ function DBErrorComponent({
     setData(data);
   }, [setData]);
 
-  const errors: {
-    message: string
-  }[] = useMemo(() => {
-    return (!data || data.length < 1)
+  const errors = useMemo(() => {
+    return !data || data.length < 1
       ? []
-      : data.map(row => ({
-        message: `Command "${row.ops}" returned error "${row.errorMsg}"`
-      }))
+      : data.map((row) => {
+          return `Command "${row.ops}" returned error "${row.errorMsg}"`;
+        });
   }, [data]);
 
   useEffect(() => {
@@ -45,9 +43,7 @@ function DBErrorComponent({
 
   return (
     <div className={errorContainerStyles}>
-      <ErrorSummary
-        errors={errors}
-      />
+      <ErrorSummary errors={errors} />
     </div>
   );
 }
