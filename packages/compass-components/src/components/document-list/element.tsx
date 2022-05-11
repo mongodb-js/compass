@@ -157,6 +157,9 @@ const buttonReset = css({
   padding: 0,
   border: 'none',
   background: 'none',
+  '&:hover': {
+    cursor: 'pointer',
+  },
 });
 
 const hadronElement = css({
