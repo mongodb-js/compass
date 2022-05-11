@@ -286,14 +286,14 @@ describe('explain-plan-plan', function () {
         });
       });
     });
-    context.only('Sharded aggregation', function () {
+    context('Sharded aggregation', function () {
       describe('single shard with stages', function () {
         let plan: ExplainPlan;
         beforeEach(async function () {
           plan = await loadExplainFixture('single-shard-aggregate-with-stages.json');
         });
         it('return the namespace', function () {
-          expect(plan.namespace).to.equal('sharded-db.faker');
+          expect(plan.namespace).to.equal('sharded-db.listings');
         });
         it('return the number of shards', function () {
           expect(plan.isSharded).to.be.true;
@@ -301,8 +301,15 @@ describe('explain-plan-plan', function () {
         });
         it('return the parsedQuery', function () {
           expect(plan.parsedQuery).to.deep.equal({
-            "abbreviation": {
-              "$eq": "PNG"
+            "address.location": {
+              $maxDistance: 10000,
+              $near: {
+                coordinates: [
+                  -8.61308,
+                  41.1413
+                ],
+                type: "Point"
+              }
             }
           });
         });
@@ -310,10 +317,10 @@ describe('explain-plan-plan', function () {
           expect(plan.executionStats).to.be.an('object');
         });
         it('should detect collection scan', function () {
-          expect(plan.isCollectionScan).to.equal(true);
+          expect(plan.isCollectionScan).to.equal(false);
         });
         it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([{ index: null, shard: "shard1" }]);
+          expect(plan.usedIndexes).to.deep.equal([{ index: 'address_location', shard: "shard1" }]);
         });
         it('should have `inMemorySort` disabled', function () {
           expect(plan.inMemorySort).to.equal(false);
@@ -323,10 +330,10 @@ describe('explain-plan-plan', function () {
           expect(stage.shards).to.have.lengthOf(1);
         });
         it('should have correct execution metrics', function () {
-          expect(plan.executionStats.nReturned).to.equal(20);
-          expect(plan.executionStats.executionTimeMillis).to.equal(0);
-          expect(plan.executionStats.totalKeysExamined).to.equal(0);
-          expect(plan.executionStats.totalDocsExamined).to.equal(581);
+          expect(plan.executionStats.nReturned).to.equal(422); // nReturned is from the last stage
+          expect(plan.executionStats.executionTimeMillis).to.equal(30); // sum of executionTimeMillis from each stage
+          expect(plan.executionStats.totalKeysExamined).to.equal(719);
+          expect(plan.executionStats.totalDocsExamined).to.equal(490);
         });
         it('should find a stage if it is the provided root stage', function () {
           const stage1 = plan.findStageByName('SINGLE_SHARD');

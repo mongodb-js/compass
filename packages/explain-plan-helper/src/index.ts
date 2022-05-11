@@ -66,7 +66,10 @@ export class ExplainPlan {
         }
       }
     }
-    return ret;
+    return ret.filter(
+      (indexInfo, index, arr) =>
+        arr.findIndex((i) => i.index === indexInfo.index && i.shard === indexInfo.shard) === index
+    );
   }
 
   get isCovered(): boolean {
