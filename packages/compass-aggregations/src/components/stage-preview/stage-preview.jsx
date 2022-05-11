@@ -1,9 +1,8 @@
-import { AtlasLogoMark, Link } from '@mongodb-js/compass-components';
+import { AtlasLogoMark, Body, Link } from '@mongodb-js/compass-components';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import { TextButton } from 'hadron-react-buttons';
-import HadronDocument from 'hadron-document';
 import LoadingOverlay from '../loading-overlay';
 import { OUT, MERGE } from '../../modules/pipeline';
 import decomment from 'decomment';
@@ -92,19 +91,26 @@ class StagePreview extends Component {
       }
       return (<div className={styles['stage-preview-out']} />);
     }
+
+    const previewOutText =
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true'
+        ? 'The $merge operator will cause the pipeline to persist the results to the specified location. Please confirm to execute.'
+        : 'The $merge operator will cause the pipeline to persist the results to the specified location.'
+
     return (
       <div className={styles['stage-preview-out']}>
         <div className={styles['stage-preview-out-text']}>
-          The $merge operator will cause the pipeline to persist the results
-          to the specified location. Please confirm to execute.
+          {previewOutText}
         </div>
-        <div className={styles['stage-preview-out-button']}>
-          <TextButton
-            dataTestId="save-merge-documents"
-            text="Merge Documents"
-            className="btn btn-xs btn-primary"
-            clickHandler={this.onSaveDocuments} />
-        </div>
+        {process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true' && (
+          <div className={styles['stage-preview-out-button']}>
+            <TextButton
+              dataTestId="save-merge-documents"
+              text="Merge Documents"
+              className="btn btn-xs btn-primary"
+              clickHandler={this.onSaveDocuments} />
+          </div>
+        )}
       </div>
     );
   }
@@ -118,7 +124,7 @@ class StagePreview extends Component {
     if (this.props.isComplete) {
       if (!this.props.error) {
         return (
-          <div className={styles['stage-preview-out']}>
+          <Body className={styles['stage-preview-out']}>
             <div className={styles['stage-preview-out-text']}>
               Documents persisted to collection: {decomment(this.props.stage)}.
             </div>
@@ -130,27 +136,33 @@ class StagePreview extends Component {
             >
               Go to collection.
             </Link>
-          </div>
+          </Body>
         );
       }
       return (<div className={styles['stage-preview-out']} />);
     }
+
+    const previewOutText =
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true'
+        ? 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced. Please confirm to execute.'
+        : 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.'
+
     return (
-      <div className={styles['stage-preview-out']}>
+      <Body className={styles['stage-preview-out']}>
         <div className={styles['stage-preview-out-text']}>
-          The $out operator will cause the pipeline to persist the results
-          to the specified location (collection, S3, or Atlas). If the collection exists it will be
-          replaced. Please confirm to execute.
+          {previewOutText}
         </div>
-        <div className={styles['stage-preview-out-button']}>
-          <TextButton
-            dataTestId="save-out-documents"
-            text="Save Documents"
-            className="btn btn-xs btn-primary"
-            clickHandler={this.onSaveDocuments}
-          />
-        </div>
-      </div>
+        {process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true' && (
+          <div className={styles['stage-preview-out-button']}>
+            <TextButton
+              dataTestId="save-out-documents"
+              text="Save Documents"
+              className="btn btn-xs btn-primary"
+              clickHandler={this.onSaveDocuments}
+            />
+          </div>
+        )}
+      </Body>
     );
   }
 
@@ -198,10 +210,7 @@ class StagePreview extends Component {
         const documents = this.props.documents.map((doc, i) => {
           return (
             <div key={i} className={styles['stage-preview-document-card']}>
-              <Document
-                doc={new HadronDocument(doc)}
-                editable={false}
-              />
+              <Document doc={doc} editable={false} />
             </div>
           );
         });

@@ -74,9 +74,7 @@ class CollationToolbar extends PureComponent {
     return (
       <div
         data-testid="legacy-collation-toolbar"
-        className={classnames(styles['collation-toolbar'], {
-          [styles['collation-toolbar-in-new-toolbar']]: isNewToolbar,
-        })}
+        className={styles['collation-toolbar']}
       >
         <div
           onBlur={this._onBlur}

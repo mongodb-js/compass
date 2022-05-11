@@ -19,8 +19,8 @@ export enum ActionTypes {
   AggregationStarted = 'compass-aggregations/aggregationStarted',
   AggregationFinished = 'compass-aggregations/aggregationFinished',
   AggregationFailed = 'compass-aggregations/aggregationFailed',
-  AggregationCancelled = 'compass-aggregations/aggregationCancelled',
-  LastPageReached = 'compass-aggregations/lastPageReached',
+  AggregationCancelledByUser = 'compass-aggregations/aggregationCancelledByUser',
+  LastPageReached = 'compass-aggregations/lastPageReached'
 }
 
 type PreviousPageData = {
@@ -48,7 +48,7 @@ type AggregationFailedAction = {
 };
 
 type AggregationCancelledAction = {
-  type: ActionTypes.AggregationCancelled;
+  type: ActionTypes.AggregationCancelledByUser;
 };
 
 type LastPageReachedAction = {
@@ -82,7 +82,10 @@ export const INITIAL_STATE: State = {
   loading: false,
 };
 
-const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Actions | WorkspaceActions> = (
+  state = INITIAL_STATE,
+  action
+) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
       return INITIAL_STATE;
@@ -120,7 +123,7 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (state = INITIAL_STA
         page: action.page,
         previousPageData: undefined,
       };
-    case ActionTypes.AggregationCancelled:
+    case ActionTypes.AggregationCancelledByUser:
       return {
         ...state,
         loading: false,
@@ -150,7 +153,7 @@ export const runAggregation = (): ThunkAction<
 > => {
   return (dispatch) => {
     track('Aggregation Executed');
-    return dispatch(fetchAggregationData(1));
+    return dispatch(fetchAggregationData());
   };
 };
 
@@ -215,9 +218,9 @@ export const cancelAggregation = (): ThunkAction<
     } = getState();
     _abortAggregation(abortController);
     // In order to avoid the race condition between user cancel and cancel triggered
-    // in fetchAggregationData, we dispatch ActionTypes.AggregationCancelled here. 
+    // in fetchAggregationData, we dispatch ActionTypes.AggregationCancelledByUser here.
     dispatch({
-      type: ActionTypes.AggregationCancelled,
+      type: ActionTypes.AggregationCancelledByUser,
     });
   };
 };
@@ -226,23 +229,18 @@ const _abortAggregation = (controller?: AbortController): void => {
   controller?.abort();
 };
 
-const fetchAggregationData = (page: number): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
+const fetchAggregationData = (
+  page = 1
+): ThunkAction<Promise<void>, RootState, void, Actions> => {
   return async (dispatch, getState) => {
     const {
+      id,
       pipeline,
       namespace,
       maxTimeMS,
       collation,
       dataService: { dataService },
-      aggregation: {
-        limit,
-        abortController: _abortController,
-      },
+      aggregation: { limit, abortController: _abortController },
     } = getState();
 
     if (!dataService) {
@@ -255,27 +253,42 @@ const fetchAggregationData = (page: number): ThunkAction<
     try {
       const abortController = new AbortController();
       const signal = abortController.signal;
+
       dispatch({
         type: ActionTypes.AggregationStarted,
-        abortController,
+        abortController
       });
 
-      const stages = pipeline.map(generateStage).filter(x => Object.keys(x).length > 0);
+      const nonEmptyStages = pipeline
+        .map(generateStage)
+        .filter((stage) => Object.keys(stage).length > 0);
+
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS || DEFAULT_MAX_TIME_MS,
-        allowDiskUse: true,
-        collation: collation || undefined,
+        collation: collation || undefined
       };
 
-      const documents = await aggregatePipeline(
+      const lastStage = nonEmptyStages[nonEmptyStages.length - 1] ?? {};
+
+      const isMergeOrOut = ['$merge', '$out'].includes(
+        Object.keys(lastStage)[0]
+      );
+
+      const documents = await aggregatePipeline({
         dataService,
         signal,
         namespace,
-        stages,
+        pipeline: nonEmptyStages,
         options,
-        (page - 1) * limit,
-        limit,
-      );
+        ...(!isMergeOrOut && {
+          skip: (page - 1) * limit,
+          limit,
+        })
+      });
+
+      if (isMergeOrOut) {
+        dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id }));
+      }
 
       if (documents.length === 0) {
         dispatch({ type: ActionTypes.LastPageReached, page });
@@ -289,19 +302,31 @@ const fetchAggregationData = (page: number): ThunkAction<
       }
     } catch (e) {
       // User cancel is handled in cancelAggregation
-      if ((e as Error).name !== PROMISE_CANCELLED_ERROR) {
+      if ((e as Error).name === PROMISE_CANCELLED_ERROR) {
+        return;
+      }
+      // Server errors are surfaced to the user
+      if ((e as MongoServerError).code) {
         dispatch({
           type: ActionTypes.AggregationFailed,
           error: (e as Error).message,
           page,
         });
-        log.warn(mongoLogId(1001000106), 'Aggregations', 'Failed to run aggregation', { message: (e as Error).message });
+        if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {
+          track('Aggregation Timed Out', { max_time_ms: maxTimeMS ?? null });
+        }
+        log.warn(
+          mongoLogId(1001000106),
+          'Aggregations',
+          'Failed to run aggregation',
+          { message: (e as Error).message }
+        );
+        return;
       }
-      if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {
-        track('Aggregation Timed Out', { max_time_ms: maxTimeMS ?? null });
-      }
+      // Anything else is not expected, throw
+      throw e;
     }
-  }
+  };
 };
 
 export const exportAggregationResults = (): ThunkAction<
@@ -322,11 +347,13 @@ export const exportAggregationResults = (): ThunkAction<
     const stages = pipeline
       .map(generateStage)
       .filter((stage) => Object.keys(stage).length > 0);
+
     const options: AggregateOptions = {
       maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
       allowDiskUse: true,
-      collation: collation || undefined,
+      collation: collation || undefined
     };
+
     dispatch(
       globalAppRegistryEmit('open-export', {
         namespace,
@@ -337,7 +364,7 @@ export const exportAggregationResults = (): ThunkAction<
         count,
       })
     );
-    return;
-  }
-}
+  };
+};
+
 export default reducer;

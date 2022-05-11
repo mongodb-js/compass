@@ -1588,7 +1588,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       { ns }
     );
     getIndexes(
-      this._initializedClient('CRUD'),
+      this._initializedClient('META'),
       ns,
       (error: Error | undefined, data: IndexDetails[]) => {
         logop(error);
@@ -2413,7 +2413,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         ...fleOptions?.autoEncryption?.encryptedFieldsMap,
         ...fleOptions?.autoEncryption?.schemaMap,
       }),
-      keyVaultNamespace: fleOptions?.autoEncryption.keyVaultNamespace,
+      keyVaultNamespace: fleOptions?.autoEncryption?.keyVaultNamespace,
       kmsProviders,
     };
   }

@@ -537,8 +537,7 @@ export const stageChanged =
     value: string | undefined,
     index: number
   ): ThunkAction<void, RootState, void, AnyAction> =>
-  (dispatch, getState) => {
-    const { autoPreview } = getState();
+  (dispatch) => {
     dispatch({
       type: STAGE_CHANGED,
       index: index,
@@ -546,9 +545,7 @@ export const stageChanged =
     });
     dispatch(projectionsChanged());
     dispatch(setIsModified(true));
-    if (autoPreview) {
-      dispatch(runStage(index));
-    }
+    dispatch(runStage(index));
   };
 
 /**
@@ -900,10 +897,11 @@ const aggregate = (
     collation: getState().collation || undefined
   };
   dataService.aggregate(ns, pipeline, options, (err, cursor) => {
-    if (err)
+    if (err) {
       return dispatch(
         stagePreviewUpdated([], index, err as Error, false, getState().env)
       );
+    }
     cursor.toArray((e, docs) => {
       dispatch(
         stagePreviewUpdated(docs || [], index, e as Error, true, getState().env)
@@ -1012,6 +1010,10 @@ export const gotoOutResults = (collection: string): ThunkAction<void, RootState,
   };
 };
 
+export const goToNamespace = (namespace: string): AnyAction => {
+  return globalAppRegistryEmit('aggregations-open-result-namespace', namespace);
+};
+
 /**
  * Run just the out stage.
  *
@@ -1035,16 +1037,21 @@ export const runStage = (
 ): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
     const state = getState();
-    if (index < state.pipeline.length) {
-      if (state.id === '') {
-        dispatch(createId());
-      }
-      const { dataService } = state.dataService;
-      if (dataService) {
-        const ns = state.namespace;
-        for (let i = index; i < state.pipeline.length; i++) {
-          executeAggregation(dataService, ns, dispatch, getState, i);
-        }
+    if (!state.autoPreview) {
+      return;
+    }
+    if (index >= state.pipeline.length) {
+      dispatch(clearExecuteAggregation(index));
+      return;
+    }
+    if (state.id === '') {
+      dispatch(createId());
+    }
+    const { dataService } = state.dataService;
+    if (dataService) {
+      const ns = state.namespace;
+      for (let i = index; i < state.pipeline.length; i++) {
+        executeAggregation(dataService, ns, dispatch, getState, i);
       }
     }
   };

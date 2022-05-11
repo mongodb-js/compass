@@ -94,9 +94,10 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
 };
 
 const mapState = ({ pipeline, workspace }: RootState) => ({
-  stages: pipeline.map((x) => x.stageOperator),
+  stages: pipeline.map((stageState) => stageState.stageOperator),
   isEditing: workspace === 'results',
 });
+
 const mapDispatch = {
   onStageAdded: stageAdded,
   onChangeWorkspace: changeWorkspace,

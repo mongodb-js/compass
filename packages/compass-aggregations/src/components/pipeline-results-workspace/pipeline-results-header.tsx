@@ -1,17 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { css, spacing, ErrorSummary } from '@mongodb-js/compass-components';
-
-import type { RootState } from '../../modules';
-import { retryAggregation } from '../../modules/aggregation';
-
+import { css, spacing } from '@mongodb-js/compass-components';
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
 
 type PipelineResultsHeaderProps = {
-  error?: string;
-  onRetry: () => void;
   onChangeResultsView: (viewType: ResultsViewType) => void;
   resultsView: ResultsViewType;
 };
@@ -24,7 +17,7 @@ const controlsStyles = css({
 });
 
 export const PipelineResultsHeader: React.FunctionComponent<PipelineResultsHeaderProps> =
-  ({ error, onRetry, onChangeResultsView, resultsView }) => {
+  ({ onChangeResultsView, resultsView }) => {
     return (
       <div data-testid="pipeline-results-header">
         <div className={controlsStyles}>
@@ -34,24 +27,8 @@ export const PipelineResultsHeader: React.FunctionComponent<PipelineResultsHeade
             onChange={onChangeResultsView}
           />
         </div>
-        {error && (
-          <ErrorSummary
-            dataTestId="pipeline-results-error"
-            errors={[{ message: error }]}
-            onAction={onRetry}
-            actionText="Retry"
-          />
-        )}
       </div>
     );
   };
 
-const mapState = ({ aggregation: { error } }: RootState) => ({
-  error,
-});
-
-const mapDispatch = {
-  onRetry: retryAggregation,
-};
-
-export default connect(mapState, mapDispatch)(PipelineResultsHeader);
+export default PipelineResultsHeader;
