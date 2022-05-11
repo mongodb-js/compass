@@ -211,3 +211,8 @@ function _mapPlannerStage(planner) {
   }
   return planner;
 }
+
+module.exports.getStageCursorKey = getStageCursorKey;
+
+module.exports.isAggregationExplain = isAggregationExplain;
+module.exports.isShardedAggregationExplain = isShardedAggregationExplain;

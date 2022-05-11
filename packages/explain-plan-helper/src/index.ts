@@ -1,53 +1,14 @@
 import convertExplainCompat from 'mongodb-explain-compat';
+import { getPlannerInfo, getExecutionStats } from './helpers';
+import type { ExecutionStats } from './helpers';
 
 const kParent = Symbol('ExplainPlan.kParent');
 
-type Stage = Record<string, any> & { stage: string; [kParent]: Stage | null };
+export type Stage = Record<string, any> & { stage: string;[kParent]: Stage | null };
 type IndexInformation =
   | { shard: string; index: string }
   | { shard: string; index: null }
   | { shard: null; index: string };
-type ExecutionStats = {
-  executionSuccess: boolean;
-  nReturned: number;
-  executionTimeMillis: number;
-  totalKeysExamined: number;
-  totalDocsExamined: number;
-  executionStages: Stage;
-  allPlansExecution: unknown[];
-}
-
-function isAggregationExplain(rawExplain: Stage) {
-  return !!rawExplain.stages;
-}
-
-/**
- * https://wiki.corp.mongodb.com/display/QUERY/Explain+Notes
- */
-function getQueryPlannerAndStats(rawExplain: Stage) {
-  if (!isAggregationExplain(rawExplain)) {
-    return {
-      queryPlanner: rawExplain.queryPlanner,
-      executionStats: rawExplain.executionStats,
-    };
-  }
-
-  const firstStage = rawExplain.stages[0];
-  const lastStage = rawExplain.stages[rawExplain.stages.length - 1];
-  const firstStageKey = Object.keys(firstStage)[0]; // $cursor || $geoNearCursor ...
-  if (!firstStageKey.matchAll(/cursor/ig)) {
-    throw new Error('Can not find a cursor stage.');
-  }
-  const { queryPlanner, executionStats } = firstStage[firstStageKey];
-  executionStats.nReturned = lastStage.nReturned;
-  executionStats.executionTimeMillis = rawExplain.stages.reduce((x: any, acc: number) => {
-    return acc + (x.executionTimeMillisEstimate as number);
-  }, 0);
-  return {
-    queryPlanner,
-    executionStats,
-  };
-}
 
 export class ExplainPlan {
   namespace: string;
@@ -62,9 +23,9 @@ export class ExplainPlan {
 
   constructor(originalExplainData: Stage) {
     const rawExplainObject = convertExplainCompat(originalExplainData);
-    const { executionStats, queryPlanner } = getQueryPlannerAndStats(rawExplainObject);
+    const executionStats = getExecutionStats(rawExplainObject);
     ExplainPlan.addParentStages(executionStats.executionStages);
-    const qpInfo = queryPlanner?.winningPlan?.shards?.[0] ?? queryPlanner;
+    const qpInfo = getPlannerInfo(rawExplainObject);
     const esInfo =
       executionStats?.executionStages?.shards?.[0] ??
       executionStats;
