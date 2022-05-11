@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { Document } from '@mongodb-js/compass-crud';
-import HadronDocument from 'hadron-document';
 
 import styles from './document-preview.module.less';
 
@@ -37,7 +35,7 @@ class DocumentPreview extends Component {
         <div className={styles['document-preview-documents']}>
           <div className={styles['document-preview-document-card']}>
             <Document
-              doc={new HadronDocument(this.props.document)}
+              doc={this.props.document}
               editable={false}
             />
           </div>

@@ -108,8 +108,16 @@ var IndexModel = Model.extend({
         return !!this.extra.clustered;
       }
     },
+    columnstore: {
+      deps: ['extra', 'key'],
+      fn: function() {
+        return _.values(this.key).some(function(k) {
+          return k === 'columnstore';
+        });
+      }
+    },
     type: {
-      deps: ['geo', 'hashed', 'text', 'wildcard', 'clustered'],
+      deps: ['geo', 'hashed', 'text', 'wildcard', 'clustered', 'columnstore'],
       fn: function() {
         if (this.geo) {
           return 'geospatial';
@@ -125,6 +133,9 @@ var IndexModel = Model.extend({
         }
         if (this.clustered) {
           return 'clustered';
+        }
+        if (this.columnstore) {
+          return 'columnstore';
         }
         return 'regular';
       }
