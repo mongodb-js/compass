@@ -45,7 +45,7 @@ tasks:
       - func: save-windows-artifacts
         vars:
           compass_distribution: compass
-        variants: [windows_package]
+        variants: [windows]
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass
@@ -53,11 +53,11 @@ tasks:
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass
-        variants: [rhel_package]
+        variants: [rhel]
       - func: save-ubuntu-artifacts
         vars:
           compass_distribution: compass
-        variants: [ubuntu_package]
+        variants: [ubuntu]
 
   - name: package-isolated
     tags: ['required-for-publish', 'run-on-pr']
@@ -77,7 +77,7 @@ tasks:
       - func: save-windows-artifacts
         vars:
           compass_distribution: compass-isolated
-        variants: [windows_package]
+        variants: [windows]
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass-isolated
@@ -85,11 +85,11 @@ tasks:
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-isolated
-        variants: [rhel_package]
+        variants: [rhel]
       - func: save-ubuntu-artifacts
         vars:
           compass_distribution: compass-isolated
-        variants: [ubuntu_package]
+        variants: [ubuntu]
 
   - name: package-readonly
     tags: ['required-for-publish', 'run-on-pr']
@@ -109,7 +109,7 @@ tasks:
       - func: save-windows-artifacts
         vars:
           compass_distribution: compass-readonly
-        variants: [windows_package]
+        variants: [windows]
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass-readonly
@@ -117,11 +117,11 @@ tasks:
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-readonly
-        variants: [rhel_package]
+        variants: [rhel]
       - func: save-ubuntu-artifacts
         vars:
           compass_distribution: compass-readonly
-        variants: [ubuntu_package]
+        variants: [ubuntu]
 
   - name: test-connectivity
     tags: ['required-for-publish']
@@ -277,13 +277,12 @@ tasks:
           target_platform: '--platform=darwin'
 
   # copied as test-packaged-app-macos due to depends_on variation
-  <% for (const task of allTestPackagedAppTasks) { %>
+  <% for (const task of testPackagedAppVariations) { %>
 
   - name: <% out(task.name) %>
     tags: ['required-for-publish', 'run-on-pr']
     depends_on:
-      name: package
-      variant: <% out(task.dependVariantName) %>
+      - name: package
     commands:
       - func: prepare
       - func: install

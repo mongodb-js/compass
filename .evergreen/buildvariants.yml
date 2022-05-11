@@ -24,19 +24,19 @@ buildvariants:
 
   - name: coverage
     display_name: E2E Coverage
-    run_on: ubuntu2004-large
+    run_on: ubuntu1604-large
     tasks:
       - name: e2e-coverage
 
   - name: ubuntu_publish
     display_name: Publish Artifacts
-    run_on: ubuntu2004-large
+    run_on: ubuntu1604-large
     tasks:
       - name: publish
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu1604-large
     tasks:
       - name: test-connectivity
 
@@ -46,8 +46,8 @@ buildvariants:
     tasks:
       - name: test-csfle
 
-  - name: windows_package
-    display_name: windows (Test and Package)
+  - name: windows
+    display_name: Windows (Test and Package)
     run_on: windows-vsCurrent-large
     tasks:
       - name: test
@@ -56,9 +56,17 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
 
-  - name: ubuntu_package
-    display_name: ubuntu (Test and Package)
+  - name: ubuntu
+    display_name: Ubuntu (Test and Package)
     run_on: ubuntu1604-large
     tasks:
       - name: test
@@ -67,9 +75,15 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
 
-  - name: rhel_package
-    display_name: rhel (Test and Package)
+  - name: rhel
+    display_name: RHEL (Test and Package)
     run_on: rhel76-large
     tasks:
       - name: test
@@ -78,40 +92,11 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
-
-  - name: windows_e2e
-    display_name: windows (E2E)
-    run_on: windows-vsCurrent-large
-    tasks:
-      - name: windows_e2e_test-packaged-app-40x-community
-      - name: windows_e2e_test-packaged-app-40x-enterprise
-      - name: windows_e2e_test-packaged-app-42x-community
-      - name: windows_e2e_test-packaged-app-42x-enterprise
-      - name: windows_e2e_test-packaged-app-44x-community
-      - name: windows_e2e_test-packaged-app-44x-enterprise
-      - name: windows_e2e_test-packaged-app-5x-community
-      - name: windows_e2e_test-packaged-app-5x-enterprise
-
-  - name: ubuntu_e2e
-    display_name: ubuntu (E2E)
-    run_on: ubuntu2004-large
-    tasks:
-      - name: ubuntu_e2e_test-packaged-app-40x-community
-      - name: ubuntu_e2e_test-packaged-app-42x-community
-      - name: ubuntu_e2e_test-packaged-app-44x-community
-      - name: ubuntu_e2e_test-packaged-app-44x-enterprise
-      - name: ubuntu_e2e_test-packaged-app-5x-community
-      - name: ubuntu_e2e_test-packaged-app-5x-enterprise
-
-  - name: rhel_e2e
-    display_name: rhel (E2E)
-    run_on: rhel76-large
-    tasks:
-      - name: rhel_e2e_test-packaged-app-40x-community
-      - name: rhel_e2e_test-packaged-app-40x-enterprise
-      - name: rhel_e2e_test-packaged-app-42x-community
-      - name: rhel_e2e_test-packaged-app-42x-enterprise
-      - name: rhel_e2e_test-packaged-app-44x-community
-      - name: rhel_e2e_test-packaged-app-44x-enterprise
-      - name: rhel_e2e_test-packaged-app-5x-community
-      - name: rhel_e2e_test-packaged-app-5x-enterprise
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
