@@ -4,9 +4,9 @@ import { ipcMain } from 'hadron-ipc';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
+import { getOsInfo } from './get-os-info';
 
-const { log, mongoLogId } =
-  createLoggerAndTelemetry('COMPASS-TELEMETRY');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-TELEMETRY');
 
 interface EventInfo {
   event: string;
@@ -48,7 +48,10 @@ class CompassTelemetry {
       compass_channel: process.env.HADRON_CHANNEL,
     };
 
-    if (this.state === 'waiting-for-user-config' || !this.telemetryAnonymousId) {
+    if (
+      this.state === 'waiting-for-user-config' ||
+      !this.telemetryAnonymousId
+    ) {
       this.queuedEvents.push(info);
       return;
     }
@@ -86,15 +89,27 @@ class CompassTelemetry {
         queuedEvents: this.queuedEvents.length,
       }
     );
-    if (this.state === 'enabled' && this.analytics && this.telemetryAnonymousId) {
-      this.analytics.identify({
-        userId: this.currentUserId,
-        anonymousId: this.telemetryAnonymousId,
-        traits: {
-          platform: process.platform,
-          arch: process.arch,
-        },
-      });
+    if (
+      this.state === 'enabled' &&
+      this.analytics &&
+      this.telemetryAnonymousId
+    ) {
+      void getOsInfo()
+        .catch(() => ({}))
+        .then((osInfo) => {
+          this.analytics?.identify({
+            userId: this.currentUserId,
+            anonymousId: this.telemetryAnonymousId,
+            traits: {
+              platform: process.platform,
+              arch: process.arch,
+              ...osInfo,
+            },
+          });
+        })
+        .catch(() => {
+          //
+        });
     }
 
     let event: EventInfo | undefined;
@@ -114,7 +129,7 @@ class CompassTelemetry {
 
     ipcMain.respondTo(
       'compass:usage:identify',
-      (evt, meta: { currentUserId?: string, telemetryAnonymousId: string }) => {
+      (evt, meta: { currentUserId?: string; telemetryAnonymousId: string }) => {
         // This always happens after the first enable/disable call.
         this.currentUserId = meta.currentUserId;
         this.telemetryAnonymousId = meta.telemetryAnonymousId;
