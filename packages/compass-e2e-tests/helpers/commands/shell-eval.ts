@@ -57,6 +57,7 @@ export async function shellEval(
     } catch (err) {
       // just leave it unparsed for now if there's a parse error because
       // that's really helpful when debugging
+      console.error('Could not parse result:', result);
     }
   }
 
