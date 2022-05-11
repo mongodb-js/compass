@@ -23,7 +23,7 @@ class DeleteStage extends PureComponent {
   onStageDeleted = () => {
     this.props.stageDeleted(this.props.index);
     this.props.setIsModified(true);
-    this.props.runStage(this.props.index);
+    this.props.runStage(this.props.index, true /* force execute */);
   };
 
   /**
