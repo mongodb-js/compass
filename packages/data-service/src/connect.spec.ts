@@ -111,6 +111,23 @@ const envs = createTestEnvs([
   'kerberos',
 ]);
 
+const getConnectionOptions = (connectionId: string): ConnectionOptions => {
+  const connectionOptions = envs.getConnectionOptions(connectionId);
+
+  if (!process.env.COMPASS_CONNECTIVITY_TESTS_HOST) {
+    return connectionOptions;
+  }
+
+  // Allows to replace locahost with an external host for
+  // running tests in docker
+  const connectionString = connectionOptions.connectionString.replace(
+    'localhost',
+    process.env.COMPASS_CONNECTIVITY_TESTS_HOST
+  );
+
+  return { ...connectionOptions, connectionString };
+};
+
 describe('connect', function () {
   describe('atlas', function () {
     it('connects to atlas replica set', async function () {
@@ -260,7 +277,7 @@ describe('connect', function () {
     });
 
     it('connects to an enterprise server', async function () {
-      await testConnection(envs.getConnectionOptions('enterprise'), {
+      await testConnection(getConnectionOptions('enterprise'), {
         authenticatedUserRoles: [],
         authenticatedUsers: [],
       });
@@ -268,7 +285,7 @@ describe('connect', function () {
 
     describe('ldap', function () {
       it('connects with ldap', async function () {
-        await testConnection(envs.getConnectionOptions('ldap'), {
+        await testConnection(getConnectionOptions('ldap'), {
           authenticatedUserRoles: [
             {
               db: 'admin',
@@ -288,7 +305,7 @@ describe('connect', function () {
     describe('scram', function () {
       it('connects with scram (scramReadWriteAnyDatabase)', async function () {
         await testConnection(
-          envs.getConnectionOptions('scramReadWriteAnyDatabase'),
+          getConnectionOptions('scramReadWriteAnyDatabase'),
           {
             authenticatedUserRoles: [
               {
@@ -308,7 +325,7 @@ describe('connect', function () {
 
       it('connects with scram (scramReadWriteAnyDatabaseScramSha1)', async function () {
         await testConnection(
-          envs.getConnectionOptions('scramReadWriteAnyDatabaseScramSha1'),
+          getConnectionOptions('scramReadWriteAnyDatabaseScramSha1'),
           {
             authenticatedUserRoles: [
               {
@@ -328,7 +345,7 @@ describe('connect', function () {
 
       it('connects with scram (scramReadWriteAnyDatabaseScramSha256)', async function () {
         await testConnection(
-          envs.getConnectionOptions('scramReadWriteAnyDatabaseScramSha256'),
+          getConnectionOptions('scramReadWriteAnyDatabaseScramSha256'),
           {
             authenticatedUserRoles: [
               {
@@ -347,7 +364,7 @@ describe('connect', function () {
       });
 
       it('connects with scram (scramOnlyScramSha1)', async function () {
-        await testConnection(envs.getConnectionOptions('scramOnlyScramSha1'), {
+        await testConnection(getConnectionOptions('scramOnlyScramSha1'), {
           authenticatedUserRoles: [
             {
               db: 'admin',
@@ -364,48 +381,42 @@ describe('connect', function () {
       });
 
       it('connects with scram (scramOnlyScramSha256)', async function () {
-        await testConnection(
-          envs.getConnectionOptions('scramOnlyScramSha256'),
-          {
-            authenticatedUserRoles: [
-              {
-                db: 'admin',
-                role: 'readWriteAnyDatabase',
-              },
-            ],
-            authenticatedUsers: [
-              {
-                db: 'admin',
-                user: 'scramSha256',
-              },
-            ],
-          }
-        );
+        await testConnection(getConnectionOptions('scramOnlyScramSha256'), {
+          authenticatedUserRoles: [
+            {
+              db: 'admin',
+              role: 'readWriteAnyDatabase',
+            },
+          ],
+          authenticatedUsers: [
+            {
+              db: 'admin',
+              user: 'scramSha256',
+            },
+          ],
+        });
       });
 
       it('connects with scram (scramEncodedPassword)', async function () {
-        await testConnection(
-          envs.getConnectionOptions('scramEncodedPassword'),
-          {
-            authenticatedUserRoles: [
-              {
-                db: 'admin',
-                role: 'readWriteAnyDatabase',
-              },
-            ],
-            authenticatedUsers: [
-              {
-                db: 'admin',
-                user: 'randomPassword',
-              },
-            ],
-          }
-        );
+        await testConnection(getConnectionOptions('scramEncodedPassword'), {
+          authenticatedUserRoles: [
+            {
+              db: 'admin',
+              role: 'readWriteAnyDatabase',
+            },
+          ],
+          authenticatedUsers: [
+            {
+              db: 'admin',
+              user: 'randomPassword',
+            },
+          ],
+        });
       });
 
       it('connects with scram (scramPrivilegesOnNonExistingDatabases)', async function () {
         await testConnection(
-          envs.getConnectionOptions('scramPrivilegesOnNonExistingDatabases'),
+          getConnectionOptions('scramPrivilegesOnNonExistingDatabases'),
           {
             authenticatedUserRoles: [
               {
@@ -437,7 +448,7 @@ describe('connect', function () {
 
       it('connects with scram (scramPrivilegesOnNonExistingCollections)', async function () {
         await testConnection(
-          envs.getConnectionOptions('scramPrivilegesOnNonExistingCollections'),
+          getConnectionOptions('scramPrivilegesOnNonExistingCollections'),
           {
             authenticatedUserRoles: [
               {
@@ -456,18 +467,15 @@ describe('connect', function () {
       });
 
       it('connects with scram (scramAlternateAuthDb)', async function () {
-        await testConnection(
-          envs.getConnectionOptions('scramAlternateAuthDb'),
-          {
-            authenticatedUserRoles: [{ db: 'authDb', role: 'dbOwner' }],
-            authenticatedUsers: [{ db: 'authDb', user: 'authDb' }],
-          }
-        );
+        await testConnection(getConnectionOptions('scramAlternateAuthDb'), {
+          authenticatedUserRoles: [{ db: 'authDb', role: 'dbOwner' }],
+          authenticatedUsers: [{ db: 'authDb', user: 'authDb' }],
+        });
       });
     });
 
     it('connects to sharded', async function () {
-      await testConnection(envs.getConnectionOptions('sharded'), {
+      await testConnection(getConnectionOptions('sharded'), {
         authenticatedUserRoles: [{ db: 'admin', role: 'root' }],
         authenticatedUsers: [{ db: 'admin', user: 'root' }],
       });
@@ -475,14 +483,14 @@ describe('connect', function () {
 
     describe('ssh', function () {
       it('connects with ssh (sshPassword)', async function () {
-        await testConnection(envs.getConnectionOptions('sshPassword'), {
+        await testConnection(getConnectionOptions('sshPassword'), {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
       });
 
       it('connects with ssh (sshIdentityKey)', async function () {
-        await testConnection(envs.getConnectionOptions('sshIdentityKey'), {
+        await testConnection(getConnectionOptions('sshIdentityKey'), {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
@@ -490,21 +498,21 @@ describe('connect', function () {
 
       it('connects with ssh (sshIdentityKeyWithPassphrase)', async function () {
         await testConnection(
-          envs.getConnectionOptions('sshIdentityKeyWithPassphrase'),
+          getConnectionOptions('sshIdentityKeyWithPassphrase'),
           { authenticatedUserRoles: [], authenticatedUsers: [] }
         );
       });
 
       it('connects with ssh (sshReplicaSetSeedlist)', async function () {
-        await testConnection(
-          envs.getConnectionOptions('sshReplicaSetSeedlist'),
-          { authenticatedUserRoles: [], authenticatedUsers: [] }
-        );
+        await testConnection(getConnectionOptions('sshReplicaSetSeedlist'), {
+          authenticatedUserRoles: [],
+          authenticatedUsers: [],
+        });
       });
 
       it('connects with ssh (sshReplicaSetByReplSetName)', async function () {
         await testConnection(
-          envs.getConnectionOptions('sshReplicaSetByReplSetName'),
+          getConnectionOptions('sshReplicaSetByReplSetName'),
           { authenticatedUserRoles: [], authenticatedUsers: [] }
         );
       });
@@ -512,45 +520,42 @@ describe('connect', function () {
 
     describe('tls', function () {
       it('connects with tls (tlsUnvalidated)', async function () {
-        await testConnection(envs.getConnectionOptions('tlsUnvalidated'), {
+        await testConnection(getConnectionOptions('tlsUnvalidated'), {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
       });
 
       it('connects with tls (tlsServerValidation)', async function () {
-        await testConnection(envs.getConnectionOptions('tlsServerValidation'), {
+        await testConnection(getConnectionOptions('tlsServerValidation'), {
           authenticatedUserRoles: [],
           authenticatedUsers: [],
         });
       });
 
       it('connects with tls (tlsServerValidationSsh)', async function () {
-        await testConnection(
-          envs.getConnectionOptions('tlsServerValidationSsh'),
-          {
-            authenticatedUserRoles: [],
-            authenticatedUsers: [],
-          }
-        );
+        await testConnection(getConnectionOptions('tlsServerValidationSsh'), {
+          authenticatedUserRoles: [],
+          authenticatedUsers: [],
+        });
       });
 
       it('connects with tls (tlsServerAndClientValidation)', async function () {
         await testConnection(
-          envs.getConnectionOptions('tlsServerAndClientValidation'),
+          getConnectionOptions('tlsServerAndClientValidation'),
           { authenticatedUserRoles: [], authenticatedUsers: [] }
         );
       });
 
       it('connects with tls (tlsServerAndClientValidationKeyCrt)', async function () {
         await testConnection(
-          envs.getConnectionOptions('tlsServerAndClientValidationKeyCrt'),
+          getConnectionOptions('tlsServerAndClientValidationKeyCrt'),
           { authenticatedUserRoles: [], authenticatedUsers: [] }
         );
       });
 
       it('connects with tls (tlsX509)', async function () {
-        await testConnection(envs.getConnectionOptions('tlsX509'), {
+        await testConnection(getConnectionOptions('tlsX509'), {
           authenticatedUserRoles: [
             { db: 'test', role: 'readWrite' },
             { db: 'admin', role: 'userAdminAnyDatabase' },
@@ -565,7 +570,7 @@ describe('connect', function () {
       });
 
       it('connects with tls (tlsX509WithSsh)', async function () {
-        await testConnection(envs.getConnectionOptions('tlsX509WithSsh'), {
+        await testConnection(getConnectionOptions('tlsX509WithSsh'), {
           authenticatedUserRoles: [
             { db: 'test', role: 'readWrite' },
             { db: 'admin', role: 'userAdminAnyDatabase' },
@@ -588,7 +593,7 @@ describe('connect', function () {
       });
 
       it('connects to kerberos', async function () {
-        await testConnection(envs.getConnectionOptions('kerberos'), {
+        await testConnection(getConnectionOptions('kerberos'), {
           authenticatedUserRoles: [
             {
               db: 'admin',
@@ -605,7 +610,7 @@ describe('connect', function () {
       });
 
       it('connects to kerberosAlternate', async function () {
-        await testConnection(envs.getConnectionOptions('kerberosAlternate'), {
+        await testConnection(getConnectionOptions('kerberosAlternate'), {
           authenticatedUserRoles: [
             {
               db: 'admin',
@@ -622,7 +627,7 @@ describe('connect', function () {
       });
 
       it('connects to kerberosCrossRealm', async function () {
-        await testConnection(envs.getConnectionOptions('kerberosCrossRealm'), {
+        await testConnection(getConnectionOptions('kerberosCrossRealm'), {
           authenticatedUserRoles: [
             {
               db: 'admin',
