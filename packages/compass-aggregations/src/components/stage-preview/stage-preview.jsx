@@ -1,4 +1,4 @@
-import { AtlasLogoMark, Body, Link } from '@mongodb-js/compass-components';
+import { AtlasLogoMark, Body, css, Link, spacing, VirtualGrid } from '@mongodb-js/compass-components';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
@@ -10,6 +10,18 @@ import decomment from 'decomment';
 import styles from './stage-preview.module.less';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+
+const rowStyles = css({
+  // gap: spacing[2],
+  // paddingLeft: spacing[3],
+  // paddingRight: spacing[3],
+  // paddingBottom: spacing[2],
+
+  display: 'flex',
+  alignItems: 'stretch',
+  overflowX: 'scroll',
+  margin: spacing[3]
+});
 
 /**
  * The stage preview component.
@@ -207,18 +219,43 @@ class StagePreview extends Component {
         return this.renderMergeSection();
       }
       if (this.props.documents.length > 0) {
-        const documents = this.props.documents.map((doc, i) => {
-          return (
-            <div key={i} className={styles['stage-preview-document-card']}>
-              <Document doc={doc} editable={false} />
-            </div>
-          );
-        });
         return (
           <div className={styles['stage-preview-documents']}>
-            {documents}
+            <VirtualGrid
+              data-testid="preview-docs"
+              itemMinWidth={370} 
+              itemHeight={150}
+              itemsCount={this.props.documents.length}
+              renderItem={({ index }) => (
+                <div key={index} className={styles['stage-preview-document-card-container']}>
+                  <div className={styles['stage-preview-document-card']}>
+                    <Document doc={this.props.documents[index]} editable={false} />
+                  </div>
+                </div>
+              )}
+              itemKey={(index) => this.props.documents[index].uuid}
+              // renderHeader={GridControls}
+              // headerHeight={spacing[5] + 36}
+              renderEmptyList={() => (<div>No documents to preview.</div>)}
+              classNames={{ row: rowStyles }}
+              resetActiveItemOnBlur={false}
+              horizontal
+            />
           </div>
-        );
+        )
+
+      //   const documents = this.props.documents.map((doc, i) => {
+      //     return (
+      //       <div key={i} className={styles['stage-preview-document-card']}>
+      //         <Document doc={doc} editable={false} />
+      //       </div>
+      //     );
+      //   });
+      //   return (
+      //     <div className={styles['stage-preview-documents']}>
+      //       {documents}
+      //     </div>
+      //   );
       }
     }
     if (this.props.isLoading) {

@@ -79,6 +79,11 @@ type VirtualGridProps = {
   };
 
   /**
+   * Makes the grid locked on one row.
+   */
+  horizontal?: boolean;
+
+  /**
    * Set to `false` of you want the last focused item to be preserved between
    * focus / blur (default: true)
    */
@@ -250,6 +255,7 @@ export const VirtualGrid = forwardRef<
     overscanCount = 3,
     classNames,
     itemKey,
+    horizontal,
     resetActiveItemOnBlur,
     ...containerProps
   },
@@ -258,9 +264,11 @@ export const VirtualGrid = forwardRef<
   const listRef = useRef<FixedSizeList | null>(null);
   const [rectProps, { width: _width, height }] = useDOMRect();
 
+  // console.log('width', _width);
+  // const width = horizontal ? Math.max(_width, itemMinWidth * itemsCount) : Math.max(_width, itemMinWidth);
   const width = Math.max(_width, itemMinWidth);
-  const colCount = _colCount ?? Math.max(1, Math.floor(width / itemMinWidth));
-  const rowCount = Math.ceil(itemsCount / colCount);
+  const colCount = horizontal ? itemsCount : _colCount ?? Math.max(1, Math.floor(width / itemMinWidth));
+  const rowCount = horizontal ? 1 : Math.ceil(itemsCount / colCount);
 
   const onFocusMove = useCallback(
     (idx) => {
@@ -317,6 +325,7 @@ export const VirtualGrid = forwardRef<
           itemCount={rowCount}
           itemSize={itemHeight}
           overscanCount={overscanCount}
+          layout={horizontal ? 'horizontal' : undefined}
         >
           {Row}
         </FixedSizeList>
