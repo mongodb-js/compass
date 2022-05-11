@@ -36,17 +36,17 @@ describe('get-os-info', function () {
         .filter(Boolean)
         .map((l) => l.split('='));
 
-      const distroId = releaseKv.find(([k]) => k === 'ID');
-      const distroVer = releaseKv.find(([k]) => k === 'VERSION_ID');
+      const distroId = releaseKv.find(([k]) => k === 'ID')[1];
+      const distroVer = releaseKv.find(([k]) => k === 'VERSION_ID')[1];
 
-      // check that we test against actual values and not just undefined
-      expect(distroId[1]).to.match(/^(rhel|ubuntu|debian)$/);
-      expect(distroId[1]).to.match(/^\d+/);
+      // check that we test against actual values and not just an empty string
+      expect(distroId).to.match(/^(rhel|ubuntu|debian)$/);
+      expect(distroVer).to.match(/^\d+/);
 
       const { os_linux_dist, os_linux_release } = osInfo;
       expect({ os_linux_dist, os_linux_release }).to.deep.equal({
-        os_linux_dist: distroId[1],
-        os_linux_release: distroVer[1],
+        os_linux_dist: distroId,
+        os_linux_release: distroVer,
       });
     });
   });
