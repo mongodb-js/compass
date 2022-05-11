@@ -8,7 +8,6 @@ describe('get-os-info', function () {
   let osInfo;
   beforeEach(async function () {
     osInfo = await getOsInfo();
-    console.log('*****', { osInfo });
   });
 
   it('returns info from "os" module', function () {
@@ -40,10 +39,14 @@ describe('get-os-info', function () {
       const distroId = releaseKv.find(([k]) => k === 'ID');
       const distroVer = releaseKv.find(([k]) => k === 'VERSION_ID');
 
+      // check that we test against actual values and not just undefined
+      expect(distroId[1]).to.match(/^(rhel|ubuntu|debian)$/);
+      expect(distroId[1]).to.match(/^\d+/);
+
       const { os_linux_dist, os_linux_release } = osInfo;
       expect({ os_linux_dist, os_linux_release }).to.deep.equal({
-        os_linux_dist: distroId,
-        os_linux_release: distroVer,
+        os_linux_dist: distroId[1],
+        os_linux_release: distroVer[1],
       });
     });
   });

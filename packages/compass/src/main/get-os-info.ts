@@ -23,13 +23,12 @@ export async function getLinuxInfo(releaseFile: string): Promise<{
       .filter(Boolean)
       .map((l) => l.split('='));
 
-    const distId = releaseKv.find(([k]) => k === 'ID');
-    const distVer = releaseKv.find(([k]) => k === 'VERSION_ID');
+    const distId = releaseKv.find(([k]) => k === 'ID')?.[1];
+    const distVer = releaseKv.find(([k]) => k === 'VERSION_ID')?.[1];
 
     return {
-      os_linux_dist: (Array.isArray(distId) ? distId[0] : distId) || 'unknown',
-      os_linux_release:
-        (Array.isArray(distVer) ? distVer[0] : distVer) || 'unknown',
+      os_linux_dist: distId || 'unknown',
+      os_linux_release: distVer || 'unknown',
     };
   } catch (e) {
     // couldn't read /etc/os-release
