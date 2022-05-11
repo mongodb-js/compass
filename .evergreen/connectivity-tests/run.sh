@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
-set -e
+set -ex
+
+cd $(dirname "$0")
+
+echo "building connectivity tests image from ${0}"
+docker build -t devtools-connectivity-tests .
+echo "connectivity tests image built"
 
 MONOREPO_ROOT_DIR="$(cd $(dirname "$0")/../..; pwd)"
 
-docker build -t devtools-connectivity-tests .
+echo running connectivity tests with volume: "${MONOREPO_ROOT_DIR}"
 
 docker run \
   --rm \
