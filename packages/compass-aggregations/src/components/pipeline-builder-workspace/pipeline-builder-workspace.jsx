@@ -68,7 +68,7 @@ class PipelineWorkspace extends PureComponent {
   onStageMoved = ({ oldIndex, newIndex }) => {
     if (oldIndex !== newIndex) {
       this.props.stageMoved(oldIndex, newIndex);
-      this.props.runStage(0);
+      this.props.runStage(0, true /* force execute */);
     }
   }
 
