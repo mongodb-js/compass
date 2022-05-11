@@ -19,6 +19,7 @@ import { EditActions, AddFieldActions } from './element-actions';
 import { FontAwesomeIcon } from './font-awesome-icon';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
+import { usePrevious } from './use-previous';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -54,6 +55,7 @@ function useElementEditor(el: HadronElementType) {
 
 function useHadronElement(el: HadronElementType) {
   const forceUpdate = useForceUpdate();
+  const prevEl = usePrevious(el);
   const editor = useElementEditor(el);
   // NB: Duplicate key state is kept local to the component and not derived on
   // every change so that only the changed key is highlighed as duplicate
@@ -81,6 +83,12 @@ function useHadronElement(el: HadronElementType) {
     },
     [el, forceUpdate]
   );
+
+  useEffect(() => {
+    if (prevEl && prevEl !== el) {
+      forceUpdate();
+    }
+  }, [el, prevEl, forceUpdate]);
 
   useEffect(() => {
     el.on(ElementEvents.Converted, onElementChanged);
@@ -550,10 +558,10 @@ export const HadronElement: React.FunctionComponent<{
       </div>
       {expandable &&
         expanded &&
-        children.map((el) => {
+        children.map((el, idx) => {
           return (
             <HadronElement
-              key={el.uuid}
+              key={idx}
               value={el}
               editable={editable}
               editingEnabled={editingEnabled}
