@@ -85,7 +85,7 @@ describe('csfle-handler', function () {
         }).connectionOptions.fleOptions
       ).to.deep.equal({
         storeCredentials: false,
-        autoEncryption: {},
+        autoEncryption: undefined,
       });
     });
   });
@@ -124,9 +124,7 @@ describe('csfle-handler', function () {
         }).connectionOptions.fleOptions
       ).to.deep.equal({
         storeCredentials: false,
-        autoEncryption: {
-          kmsProviders: {},
-        },
+        autoEncryption: undefined,
       });
     });
   });
@@ -165,9 +163,7 @@ describe('csfle-handler', function () {
         }).connectionOptions.fleOptions
       ).to.deep.equal({
         storeCredentials: false,
-        autoEncryption: {
-          tlsOptions: {},
-        },
+        autoEncryption: undefined,
       });
     });
   });

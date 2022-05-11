@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
-import HadronDocument from 'hadron-document';
 import LoadingOverlay from '../loading-overlay';
 
 import styles from './input-preview.module.less';
@@ -26,7 +25,7 @@ class InputPreview extends Component {
     const documents = (this.props.documents || []).map((doc, i) => {
       return (
         <div key={i} className={styles['input-preview-document-card']}>
-          <Document doc={new HadronDocument(doc)} editable={false}  />
+          <Document doc={doc} editable={false}  />
         </div>
       );
     });
