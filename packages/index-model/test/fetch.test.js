@@ -7,7 +7,7 @@ var _ = require('lodash');
 // var debug = require('debug')('mongodb-index-model:text:fetch');
 
 describe('fetch()', function() {
-  if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
+  if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel_package') {
     // TODO: COMPASS-4866
     // eslint-disable-next-line no-console
     console.warn(

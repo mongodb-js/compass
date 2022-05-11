@@ -652,7 +652,7 @@ class Target {
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
 
-    var isRhel = process.env.EVERGREEN_BUILD_VARIANT === 'rhel';
+    var isRhel = process.env.EVERGREEN_BUILD_VARIANT === 'rhel_package';
     this.linux_tar_filename = `${this.slug}-${this.version}-${
       isRhel ? 'rhel' : this.platform
     }-${this.arch}.tar.gz`;

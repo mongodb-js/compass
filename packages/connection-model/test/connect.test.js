@@ -10,7 +10,7 @@ const setupListeners = () => {};
 
 describe('connection model connector', () => {
   describe('local', () => {
-    if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
+    if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel_package') {
       // TODO: COMPASS-4866
       // eslint-disable-next-line no-console
       console.warn(

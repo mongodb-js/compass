@@ -26,7 +26,7 @@ describe('connectMongoClient', function () {
 
   describe('local', function () {
     before(function () {
-      if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
+      if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel_package') {
         // TODO: COMPASS-4866
         console.warn(
           'test suites using mongodb-runner are flaky on RHEL, skipping'
