@@ -98,8 +98,7 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
   const executionTimeMillis = sumArrayProp(shardStats, 'executionTimeMillis');
   const totalKeysExamined = sumArrayProp(shardStats, 'totalKeysExamined');
   const totalDocsExamined = sumArrayProp(shardStats, 'totalDocsExamined');
-  // merge results of various shards
-  const response: ExecutionStats = {
+  const response = {
     nReturned,
     executionTimeMillis,
     totalKeysExamined,
@@ -114,7 +113,7 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
       totalDocsExamined,
       shards: shardStats,
     }
-  };
+  } as unknown as ExecutionStats;
 
   return response;
 };
@@ -123,6 +122,6 @@ const _getFindStats = (explain: Stage): ExecutionStats => {
 };
 
 
-function sumArrayProp<T>(list: T[], prop: keyof T): number {
-  return list.reduce((acc, x) => acc + (Number(x[prop] ?? 0)), 0);
+function sumArrayProp<T>(arr: T[], prop: keyof T): number {
+  return arr.reduce((acc, x) => acc + Number(x[prop] ?? 0), 0);
 };
