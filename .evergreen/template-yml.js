@@ -103,59 +103,34 @@ const testPackagedAppVariations = [
   }
 ];
 
-// there will be a task (from testPackagedAppVariationsf) per build variant
-const allTestPackagedAppTasks = [];
-
 const buildVariants = [
   {
     name: 'windows',
-    display_name: 'Windows',
+    display_name: 'Windows (Test and Package)',
     run_on: 'windows-vsCurrent-large'
   },
   {
     name: 'ubuntu',
-    display_name: 'Ubuntu',
-    run_on: 'ubuntu2004-large' // will be overridden to ubuntu1604-large for package below
+    display_name: 'Ubuntu (Test and Package)',
+    run_on: 'ubuntu1604-large'
   },
   {
     name: 'rhel',
-    display_name: 'RHEL',
+    display_name: 'RHEL (Test and Package)',
     run_on: 'rhel76-large'
   }
 ];
 
-const packageVariants = buildVariants.map((buildVariant) => {
-  return {
-    ...buildVariant,
-    name: `${buildVariant.name}_package`,
-    display_name: `${buildVariant.name} (Test and Package)`,
-    run_on: buildVariant.name === 'ubuntu' ? 'ubuntu1604-large' : buildVariant.run_on
-  }
-});
-
-const e2eVariants = buildVariants.map((buildVariant) => {
-  return {
-    ...buildVariant,
-    name: `${buildVariant.name}_e2e`,
-    display_name: `${buildVariant.name} (E2E)`,
-  }
-});
-
-for (const e2eVariant of e2eVariants) {
-  e2eVariant.tasks = [];
+for (const buildVariant of buildVariants) {
+  buildVariant.tasks = [];
   for (const task of testPackagedAppVariations) {
-    // 4.0 enterprise and 4.2 enterprise are not supported on Ubuntu 20.04
-    // https://docs.google.com/spreadsheets/d/1-sZKW70HbVt2yHOWa18qwBwi-gBcn54tWmronnn89kI/edit#gid=0
-    if (e2eVariant.name === 'ubuntu_e2e' && task.name.match(/^test-packaged-app-4[02]x-enterprise/)) {
+    // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
+    // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
+    // we can remove this.
+    if (task.name.startsWith('test-packaged-app-5x') && buildVariant.name === 'ubuntu') {
       continue;
     }
-
-    // package ubuntu on 1604, test on 2004
-    const dependVariantName = e2eVariant.name === 'ubuntu_e2e' ? 'ubuntu_package' : `${e2eVariant.name.replace(/_e2e/, '_package')}`;
-    const variantTask = Object.assign({}, task, { dependVariantName, name: `${e2eVariant.name}_${task.name}` });
-
-    allTestPackagedAppTasks.push(variantTask);
-    e2eVariant.tasks.push(variantTask);
+    buildVariant.tasks.push(task);
   }
 }
 
