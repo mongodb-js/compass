@@ -124,7 +124,7 @@ tasks:
         variants: [ubuntu]
 
   - name: test-connectivity
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare
       - func: install
