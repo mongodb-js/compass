@@ -9,7 +9,6 @@
   },
   "main": "lib/index.js",
   "compass:main": "src/index.js",
-  "types": "lib/index.d.ts",
   "compass:exports": {
     ".": "./src/index.js"
   },
@@ -29,7 +28,7 @@
     "depcheck": "depcheck",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "check": "npm run depcheck && npm run lint",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
     "bootstrap": "npm run compile"

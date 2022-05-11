@@ -33,11 +33,12 @@
   "compass:exports": {
     ".": "./src/index.ts"
   },
-  "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
-    "prepublishOnly": "npm run compile",
-    "compile": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
+    "compile": "npm run webpack -- --mode production",
+    "prewebpack": "rimraf ./dist",
+    "webpack": "webpack-compass",
     "precompile": "rimraf dist",
     "eslint": "eslint",
     "prettier": "prettier",

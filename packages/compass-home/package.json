@@ -25,7 +25,7 @@
     "cover": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",
     "eslint": "eslint",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
     "start": "echo \"There is not an electron running environment available for this package. Please run `npm start` from the root to run this.\"",

@@ -28,7 +28,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
     "eslint": "eslint",
     "prettier": "prettier",
