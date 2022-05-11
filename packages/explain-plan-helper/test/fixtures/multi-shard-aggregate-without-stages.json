@@ -1,0 +1,475 @@
+{
+  "serverInfo": {
+    "host": "M-C02DR0F9ML85.fritz.box",
+    "port": 8080,
+    "version": "5.3.0-rc3",
+    "gitVersion": "cf6ac4d17da6eb6562f503a515ea6aea2ccbf944"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "mergeType": "anyShard",
+  "splitPipeline": {
+    "shardsPart": [
+      {
+        "$group": {
+          "_id": {
+            "$const": null
+          },
+          "host_ids": {
+            "$addToSet": "$host_id"
+          }
+        }
+      }
+    ],
+    "mergerPart": [
+      {
+        "$mergeCursors": {
+          "lsid": {
+            "id": {
+              "$binary": {
+                "base64": "DhXbcorMT2WakUnv0cdzBA==",
+                "subType": "04"
+              }
+            },
+            "uid": {
+              "$binary": {
+                "base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+                "subType": "00"
+              }
+            }
+          },
+          "compareWholeSortKey": false,
+          "tailableMode": "normal",
+          "nss": "sharded-db.listings",
+          "allowPartialResults": false,
+          "recordRemoteOpWaitTime": false
+        }
+      },
+      {
+        "$group": {
+          "_id": "$$ROOT._id",
+          "host_ids": {
+            "$addToSet": "$$ROOT.host_ids"
+          },
+          "$doingMerge": true
+        }
+      },
+      {
+        "$unwind": {
+          "path": "$host_ids"
+        }
+      }
+    ]
+  },
+  "shards": {
+    "shard2": {
+      "host": "localhost:8002",
+      "queryPlanner": {
+        "namespace": "sharded-db.listings",
+        "indexFilterSet": false,
+        "parsedQuery": {},
+        "optimizedPipeline": true,
+        "maxIndexedOrSolutionsReached": false,
+        "maxIndexedAndSolutionsReached": false,
+        "maxScansToExplodeReached": false,
+        "winningPlan": {
+          "queryPlan": {
+            "stage": "GROUP",
+            "planNodeId": 3,
+            "inputStage": {
+              "stage": "SHARDING_FILTER",
+              "planNodeId": 2,
+              "inputStage": {
+                "stage": "COLLSCAN",
+                "planNodeId": 1,
+                "filter": {},
+                "direction": "forward"
+              }
+            }
+          },
+          "slotBasedPlan": {
+            "slots": "$$RESULT=s14 env: { s2 = Nothing (SEARCH_META), s4 = 1652303571420 (NOW), s5 = ShardFilterer (shardFilterer), s3 = Timestamp(1652303571, 19) (CLUSTER_TIME), s1 = TimeZoneDatabase(Pacific/Guadalcanal...Africa/Accra) (timeZoneDB) }",
+            "stages": "[3] mkbson s14 [_id = s11, host_ids = s13] true false \n[3] group [s11] [s13 = addToSet (s12)] \n[3] project [s12 = getField (s6, \"host_id\")] \n[3] project [s11 = null] \n[2] filter {shardFilter (s5, s10)} \n[2] project [s10 = if (! exists (s8), Nothing, s9)] \n[2] mkbson s9 [host_id = s8] true false \n[2] project [s8 = let [l1.0 = fillEmpty (getField (s6, \"host_id\"), null)] if (isArray (l1.0), Nothing, l1.0)] \n[1] scan s6 s7 none none none none [] @\"e3e5535e-d23d-4d7f-a494-b265f7f0e8ec\" true false "
+          }
+        },
+        "rejectedPlans": []
+      },
+      "executionStats": {
+        "executionSuccess": true,
+        "nReturned": 0,
+        "executionTimeMillis": 13,
+        "totalKeysExamined": 0,
+        "totalDocsExamined": 0,
+        "executionStages": {
+          "stage": "mkbson",
+          "planNodeId": 3,
+          "nReturned": 0,
+          "executionTimeMillisEstimate": 0,
+          "opens": 1,
+          "closes": 1,
+          "saveState": 0,
+          "restoreState": 0,
+          "isEOF": 1,
+          "objSlot": 14,
+          "fields": [],
+          "projectFields": ["_id", "host_ids"],
+          "projectSlots": [11, 13],
+          "forceNewObject": true,
+          "returnOldObject": false,
+          "inputStage": {
+            "stage": "group",
+            "planNodeId": 3,
+            "nReturned": 0,
+            "executionTimeMillisEstimate": 0,
+            "opens": 1,
+            "closes": 1,
+            "saveState": 0,
+            "restoreState": 0,
+            "isEOF": 1,
+            "groupBySlots": [11],
+            "expressions": {
+              "13": "addToSet (s12) "
+            },
+            "usedDisk": false,
+            "spilledRecords": 0,
+            "spilledBytesApprox": 0,
+            "inputStage": {
+              "stage": "project",
+              "planNodeId": 3,
+              "nReturned": 0,
+              "executionTimeMillisEstimate": 0,
+              "opens": 1,
+              "closes": 1,
+              "saveState": 0,
+              "restoreState": 0,
+              "isEOF": 1,
+              "projections": {
+                "12": "getField (s6, \"host_id\") "
+              },
+              "inputStage": {
+                "stage": "project",
+                "planNodeId": 3,
+                "nReturned": 0,
+                "executionTimeMillisEstimate": 0,
+                "opens": 1,
+                "closes": 1,
+                "saveState": 0,
+                "restoreState": 0,
+                "isEOF": 1,
+                "projections": {
+                  "11": "null "
+                },
+                "inputStage": {
+                  "stage": "filter",
+                  "planNodeId": 2,
+                  "nReturned": 0,
+                  "executionTimeMillisEstimate": 0,
+                  "opens": 1,
+                  "closes": 1,
+                  "saveState": 0,
+                  "restoreState": 0,
+                  "isEOF": 1,
+                  "numTested": 0,
+                  "filter": "shardFilter (s5, s10) ",
+                  "inputStage": {
+                    "stage": "project",
+                    "planNodeId": 2,
+                    "nReturned": 0,
+                    "executionTimeMillisEstimate": 0,
+                    "opens": 1,
+                    "closes": 1,
+                    "saveState": 0,
+                    "restoreState": 0,
+                    "isEOF": 1,
+                    "projections": {
+                      "10": "if (! exists (s8), Nothing, s9) "
+                    },
+                    "inputStage": {
+                      "stage": "mkbson",
+                      "planNodeId": 2,
+                      "nReturned": 0,
+                      "executionTimeMillisEstimate": 0,
+                      "opens": 1,
+                      "closes": 1,
+                      "saveState": 0,
+                      "restoreState": 0,
+                      "isEOF": 1,
+                      "objSlot": 9,
+                      "fields": [],
+                      "projectFields": ["host_id"],
+                      "projectSlots": [8],
+                      "forceNewObject": true,
+                      "returnOldObject": false,
+                      "inputStage": {
+                        "stage": "project",
+                        "planNodeId": 2,
+                        "nReturned": 0,
+                        "executionTimeMillisEstimate": 0,
+                        "opens": 1,
+                        "closes": 1,
+                        "saveState": 0,
+                        "restoreState": 0,
+                        "isEOF": 1,
+                        "projections": {
+                          "8": "let [l1.0 = fillEmpty (getField (s6, \"host_id\"), null)] if (isArray (l1.0), Nothing, l1.0) "
+                        },
+                        "inputStage": {
+                          "stage": "scan",
+                          "planNodeId": 1,
+                          "nReturned": 0,
+                          "executionTimeMillisEstimate": 0,
+                          "opens": 1,
+                          "closes": 1,
+                          "saveState": 0,
+                          "restoreState": 0,
+                          "isEOF": 1,
+                          "numReads": 0,
+                          "recordSlot": 6,
+                          "recordIdSlot": 7,
+                          "fields": [],
+                          "outputSlots": []
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "allPlansExecution": []
+      }
+    },
+    "shard1": {
+      "host": "localhost:8001",
+      "queryPlanner": {
+        "namespace": "sharded-db.listings",
+        "indexFilterSet": false,
+        "parsedQuery": {},
+        "optimizedPipeline": true,
+        "maxIndexedOrSolutionsReached": false,
+        "maxIndexedAndSolutionsReached": false,
+        "maxScansToExplodeReached": false,
+        "winningPlan": {
+          "queryPlan": {
+            "stage": "GROUP",
+            "planNodeId": 3,
+            "inputStage": {
+              "stage": "SHARDING_FILTER",
+              "planNodeId": 2,
+              "inputStage": {
+                "stage": "COLLSCAN",
+                "planNodeId": 1,
+                "filter": {},
+                "direction": "forward"
+              }
+            }
+          },
+          "slotBasedPlan": {
+            "slots": "$$RESULT=s14 env: { s3 = Timestamp(1652303571, 19) (CLUSTER_TIME), s5 = ShardFilterer (shardFilterer), s2 = Nothing (SEARCH_META), s1 = TimeZoneDatabase(America/Catamarca...Egypt) (timeZoneDB), s4 = 1652303571420 (NOW) }",
+            "stages": "[3] mkbson s14 [_id = s11, host_ids = s13] true false \n[3] group [s11] [s13 = addToSet (s12)] \n[3] project [s12 = getField (s6, \"host_id\")] \n[3] project [s11 = null] \n[2] filter {shardFilter (s5, s10)} \n[2] project [s10 = if (! exists (s8), Nothing, s9)] \n[2] mkbson s9 [host_id = s8] true false \n[2] project [s8 = let [l1.0 = fillEmpty (getField (s6, \"host_id\"), null)] if (isArray (l1.0), Nothing, l1.0)] \n[1] scan s6 s7 none none none none [] @\"e3e5535e-d23d-4d7f-a494-b265f7f0e8ec\" true false "
+          }
+        },
+        "rejectedPlans": []
+      },
+      "executionStats": {
+        "executionSuccess": true,
+        "nReturned": 1,
+        "executionTimeMillis": 37,
+        "totalKeysExamined": 0,
+        "totalDocsExamined": 5555,
+        "executionStages": {
+          "stage": "mkbson",
+          "planNodeId": 3,
+          "nReturned": 1,
+          "executionTimeMillisEstimate": 32,
+          "opens": 1,
+          "closes": 1,
+          "saveState": 5,
+          "restoreState": 5,
+          "isEOF": 1,
+          "objSlot": 14,
+          "fields": [],
+          "projectFields": ["_id", "host_ids"],
+          "projectSlots": [11, 13],
+          "forceNewObject": true,
+          "returnOldObject": false,
+          "inputStage": {
+            "stage": "group",
+            "planNodeId": 3,
+            "nReturned": 1,
+            "executionTimeMillisEstimate": 32,
+            "opens": 1,
+            "closes": 1,
+            "saveState": 5,
+            "restoreState": 5,
+            "isEOF": 1,
+            "groupBySlots": [11],
+            "expressions": {
+              "13": "addToSet (s12) "
+            },
+            "usedDisk": false,
+            "spilledRecords": 0,
+            "spilledBytesApprox": 0,
+            "inputStage": {
+              "stage": "project",
+              "planNodeId": 3,
+              "nReturned": 5555,
+              "executionTimeMillisEstimate": 32,
+              "opens": 1,
+              "closes": 1,
+              "saveState": 5,
+              "restoreState": 5,
+              "isEOF": 1,
+              "projections": {
+                "12": "getField (s6, \"host_id\") "
+              },
+              "inputStage": {
+                "stage": "project",
+                "planNodeId": 3,
+                "nReturned": 5555,
+                "executionTimeMillisEstimate": 28,
+                "opens": 1,
+                "closes": 1,
+                "saveState": 5,
+                "restoreState": 5,
+                "isEOF": 1,
+                "projections": {
+                  "11": "null "
+                },
+                "inputStage": {
+                  "stage": "filter",
+                  "planNodeId": 2,
+                  "nReturned": 5555,
+                  "executionTimeMillisEstimate": 28,
+                  "opens": 1,
+                  "closes": 1,
+                  "saveState": 5,
+                  "restoreState": 5,
+                  "isEOF": 1,
+                  "numTested": 5555,
+                  "filter": "shardFilter (s5, s10) ",
+                  "inputStage": {
+                    "stage": "project",
+                    "planNodeId": 2,
+                    "nReturned": 5555,
+                    "executionTimeMillisEstimate": 18,
+                    "opens": 1,
+                    "closes": 1,
+                    "saveState": 5,
+                    "restoreState": 5,
+                    "isEOF": 1,
+                    "projections": {
+                      "10": "if (! exists (s8), Nothing, s9) "
+                    },
+                    "inputStage": {
+                      "stage": "mkbson",
+                      "planNodeId": 2,
+                      "nReturned": 5555,
+                      "executionTimeMillisEstimate": 18,
+                      "opens": 1,
+                      "closes": 1,
+                      "saveState": 5,
+                      "restoreState": 5,
+                      "isEOF": 1,
+                      "objSlot": 9,
+                      "fields": [],
+                      "projectFields": ["host_id"],
+                      "projectSlots": [8],
+                      "forceNewObject": true,
+                      "returnOldObject": false,
+                      "inputStage": {
+                        "stage": "project",
+                        "planNodeId": 2,
+                        "nReturned": 5555,
+                        "executionTimeMillisEstimate": 18,
+                        "opens": 1,
+                        "closes": 1,
+                        "saveState": 5,
+                        "restoreState": 5,
+                        "isEOF": 1,
+                        "projections": {
+                          "8": "let [l1.0 = fillEmpty (getField (s6, \"host_id\"), null)] if (isArray (l1.0), Nothing, l1.0) "
+                        },
+                        "inputStage": {
+                          "stage": "scan",
+                          "planNodeId": 1,
+                          "nReturned": 5555,
+                          "executionTimeMillisEstimate": 13,
+                          "opens": 1,
+                          "closes": 1,
+                          "saveState": 5,
+                          "restoreState": 5,
+                          "isEOF": 1,
+                          "numReads": 5555,
+                          "recordSlot": 6,
+                          "recordIdSlot": 7,
+                          "fields": [],
+                          "outputSlots": []
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "allPlansExecution": []
+      }
+    }
+  },
+  "command": {
+    "aggregate": "listings",
+    "pipeline": [
+      {
+        "$group": {
+          "_id": null,
+          "host_ids": {
+            "$addToSet": "$host_id"
+          }
+        }
+      },
+      {
+        "$unwind": {
+          "path": "$host_ids"
+        }
+      }
+    ],
+    "cursor": {},
+    "allowDiskUse": true,
+    "maxTimeMS": 60000
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": {
+        "t": 1652303571,
+        "i": 24
+      }
+    },
+    "signature": {
+      "hash": {
+        "$binary": {
+          "base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "subType": "00"
+        }
+      },
+      "keyId": 0
+    }
+  },
+  "operationTime": {
+    "$timestamp": {
+      "t": 1652303571,
+      "i": 24
+    }
+  }
+}
