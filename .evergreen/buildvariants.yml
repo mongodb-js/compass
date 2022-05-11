@@ -46,8 +46,8 @@ buildvariants:
     tasks:
       - name: test-csfle
 
-  - name: windows_package
-    display_name: windows (Test and Package)
+  - name: windows
+    display_name: Windows (Test and Package)
     run_on: windows-vsCurrent-large
     tasks:
       - name: test
@@ -56,62 +56,47 @@ buildvariants:
       - name: package
       - name: package-readonly
       - name: package-isolated
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
 
-  - name: ubuntu_package
-    display_name: ubuntu (Test and Package)
-    run_on: ubuntu1604-large
-    tasks:
-      - name: test
-      - name: test-electron
-      - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
-
-  - name: rhel_package
-    display_name: rhel (Test and Package)
-    run_on: rhel76-large
-    tasks:
-      - name: test
-      - name: test-electron
-      - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
-
-  - name: windows_e2e
-    display_name: windows (E2E)
-    run_on: windows-vsCurrent-large
-    tasks:
-      - name: windows_e2e_test-packaged-app-40x-community
-      - name: windows_e2e_test-packaged-app-40x-enterprise
-      - name: windows_e2e_test-packaged-app-42x-community
-      - name: windows_e2e_test-packaged-app-42x-enterprise
-      - name: windows_e2e_test-packaged-app-44x-community
-      - name: windows_e2e_test-packaged-app-44x-enterprise
-      - name: windows_e2e_test-packaged-app-5x-community
-      - name: windows_e2e_test-packaged-app-5x-enterprise
-
-  - name: ubuntu_e2e
-    display_name: ubuntu (E2E)
+  - name: ubuntu
+    display_name: Ubuntu (Test and Package)
     run_on: ubuntu2004-large
     tasks:
-      - name: ubuntu_e2e_test-packaged-app-40x-community
-      - name: ubuntu_e2e_test-packaged-app-42x-community
-      - name: ubuntu_e2e_test-packaged-app-44x-community
-      - name: ubuntu_e2e_test-packaged-app-44x-enterprise
-      - name: ubuntu_e2e_test-packaged-app-5x-community
-      - name: ubuntu_e2e_test-packaged-app-5x-enterprise
+      - name: test
+      - name: test-electron
+      - name: check
+      - name: package
+      - name: package-readonly
+      - name: package-isolated
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
 
-  - name: rhel_e2e
-    display_name: rhel (E2E)
+  - name: rhel
+    display_name: RHEL (Test and Package)
     run_on: rhel76-large
     tasks:
-      - name: rhel_e2e_test-packaged-app-40x-community
-      - name: rhel_e2e_test-packaged-app-40x-enterprise
-      - name: rhel_e2e_test-packaged-app-42x-community
-      - name: rhel_e2e_test-packaged-app-42x-enterprise
-      - name: rhel_e2e_test-packaged-app-44x-community
-      - name: rhel_e2e_test-packaged-app-44x-enterprise
-      - name: rhel_e2e_test-packaged-app-5x-community
-      - name: rhel_e2e_test-packaged-app-5x-enterprise
+      - name: test
+      - name: test-electron
+      - name: check
+      - name: package
+      - name: package-readonly
+      - name: package-isolated
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
