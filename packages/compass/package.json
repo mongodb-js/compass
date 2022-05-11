@@ -204,7 +204,6 @@
     "@mongodb-js/webpack-config-compass": "^0.8.0",
     "@octokit/rest": "^18.5.3",
     "@types/analytics-node": "^3.1.7",
-    "@types/getos": "^3.0.1",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-router": "^3.0.2",
