@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -ex
+# NOTE: do not -x here there are "env" vars in the commands
+set -e
 
 cd $(dirname "$0")
 

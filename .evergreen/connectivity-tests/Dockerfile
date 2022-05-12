@@ -7,8 +7,7 @@ FROM node:14-bullseye
 COPY krb5.conf /etc/krb5.conf
 
 RUN apt-get update -y && \
-    apt-get install \
-    sudo apt-get -y install \
+    apt-get install -y \
     krb5-user \
     libsasl2-modules-gssapi-mit \
     ldap-utils \
@@ -18,15 +17,13 @@ RUN apt-get update -y && \
     libstdc++6 \
     gnome-keyring
 
+ENV COMPASS_RUN_DOCKER_TESTS="true"
+
+COPY entrypoint.sh /entrypoint.sh
+
 WORKDIR /compass-monorepo-root
 
-RUN echo 'password' | kinit mongodb.user@EXAMPLE.COM
-RUN klist
-
-ENV MONGODB_VERSION
-ENV COMPASS_RUN_DOCKER_TESTS=true
-
-CMD ["npm", "run" , "test-connectivity", "--workspace", "mongodb-data-service"]
+CMD ["bash", "/entrypoint.sh"]
 
 
 
