@@ -43,7 +43,6 @@ describe('CSFLECollectionTracker', function () {
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           keyVaultNamespace: `${dbName}.kv`,
           extraOptions: {
-            // @ts-expect-error until next driver bump
             csflePath: process.env.COMPASS_CSFLE_LIBRARY_PATH,
           },
           ...autoEncryption,
@@ -192,7 +191,6 @@ describe('CSFLECollectionTracker', function () {
   context('with client-side FLE2 schema info', function () {
     beforeEach(async function () {
       [tracker, dataService] = await createTracker({
-        // @ts-expect-error next driver release updates types
         encryptedFieldsMap: {
           [`${dbName}.test2`]: {
             fields: [{ path: 'a', keyId: SOME_UUID1, bsonType: 'string' }],
@@ -298,14 +296,12 @@ describe('CSFLECollectionTracker', function () {
         'CRUD'
       );
       await crudClient.db(dbName).createCollection('test2', {
-        // @ts-expect-error next driver release updates types
         encryptedFields: {
           fields: [{ path: 'a', keyId: SOME_UUID1, bsonType: 'string' }],
         },
       });
 
       await crudClient.db(dbName).createCollection('test3', {
-        // @ts-expect-error next driver release updates types
         encryptedFields: {
           fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
         },
@@ -368,7 +364,6 @@ describe('CSFLECollectionTracker', function () {
           dataService as any
         )._initializedClient('META');
         await metadataClient.db(dbName).createCollection('test2', {
-          // @ts-expect-error next driver release updates types
           encryptedFields: {
             fields: [{ path: 'b', keyId: SOME_UUID1, bsonType: 'string' }],
           },

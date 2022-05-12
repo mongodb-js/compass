@@ -2409,7 +2409,6 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return {
       storeCredentials: fleOptions?.storeCredentials,
       encryptedFieldsMapNamespaces: Object.keys({
-        // @ts-expect-error next driver release will have types
         ...fleOptions?.autoEncryption?.encryptedFieldsMap,
         ...fleOptions?.autoEncryption?.schemaMap,
       }),

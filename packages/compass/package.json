@@ -93,6 +93,9 @@
           "**/mongodb-client-encryption/package.json",
           "**/mongodb-client-encryption/lib/**",
           "**/mongodb-client-encryption/build/**",
+          "**/socks/**",
+          "**/smart-buffer/**",
+          "**/ip/**",
           "**/bl/**",
           "**/nan/**",
           "**/node_modules/bindings/**",
@@ -157,7 +160,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongosh/node-runtime-worker-thread": "^1.2.3",
+    "@mongosh/node-runtime-worker-thread": "^1.4.1",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
@@ -245,7 +248,7 @@
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",
     "mocha": "^8.4.0",
-    "mongodb": "^4.4.0",
+    "mongodb": "^4.6.0",
     "mongodb-connection-model": "^21.16.0",
     "mongodb-data-service": "^21.20.0",
     "mongodb-download-url": "^1.2.0",

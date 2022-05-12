@@ -192,7 +192,6 @@ export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {
     o.bypassAutoEncryption ||
     o.keyVaultNamespace ||
     o.schemaMap ||
-    // @ts-expect-error next driver release will have types
     o.encryptedFieldsMap ||
     [
       ...Object.values(o.tlsOptions ?? {}),
@@ -264,11 +263,8 @@ export function adjustCSFLEParams(
       autoEncryptionOptions.schemaMap['$compass.rawText']
     );
   }
-  // @ts-expect-error next driver release will have types
   if (autoEncryptionOptions?.encryptedFieldsMap?.['$compass.error'] === null) {
-    // @ts-expect-error next driver release will have types
     autoEncryptionOptions.encryptedFieldsMap = textToEncryptedFieldConfig(
-      // @ts-expect-error next driver release will have types
       autoEncryptionOptions.encryptedFieldsMap['$compass.rawText']
     );
   }

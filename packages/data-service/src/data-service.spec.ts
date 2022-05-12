@@ -1358,7 +1358,6 @@ describe('DataService', function () {
           autoEncryption: {
             keyVaultNamespace: 'abc.def',
             schemaMap: { 'a.b': {} },
-            // @ts-expect-error next driver release will have types
             encryptedFieldsMap: { 'a.c': {} },
             kmsProviders: {
               aws: { accessKeyId: 'id', secretAccessKey: 'secret' },
