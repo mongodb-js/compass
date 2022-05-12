@@ -10,7 +10,7 @@ echo "building connectivity tests image from ${PWD}"
 docker build -t devtools-connectivity-tests -f "./.evergreen/connectivity-tests/Dockerfile" .
 echo "connectivity tests image built"
 
-echo running connectivity tests with volume: "${MONOREPO_ROOT_DIR}"
+echo running connectivity tests image
 
 docker run \
   --rm \
@@ -23,8 +23,6 @@ docker run \
   -e E2E_TESTS_ATLAS_PASSWORD="${E2E_TESTS_ATLAS_PASSWORD}" \
   -e E2E_TESTS_ATLAS_X509_PEM="${E2E_TESTS_ATLAS_X509_PEM}" \
   -e MONGODB_VERSION="${MONGODB_VERSION}" \
-  # -e COMPASS_CONNECTIVITY_TESTS_HOST="host.docker.internal" \
-  # --add-host host.docker.internal:"${DOCKER_HOST_GATEWAY}" \
   --add-host mongodb-kerberos-1.example.com:"172.0.0.1" \
   --add-host mongodb-kerberos-2.example.com:"172.0.0.1" \
   --add-host mongodb-kerberos-3.examplecrossrealm.com:"172.0.0.1" \
