@@ -227,12 +227,6 @@ function handleUpdateHost({
   try {
     checkForInvalidCharacterInHost(newHostValue, connectionStringUrl.isSRV);
 
-    if (connectionStringUrl.hosts.length === 1 && newHostValue === '') {
-      throw new Error(
-        'Host cannot be empty. The host is the address hostname, IP address, or UNIX domain socket where the mongodb instance is running.'
-      );
-    }
-
     const updatedConnectionString = connectionStringUrl.clone();
     updatedConnectionString.hosts[fieldIndex] = newHostValue || '';
 

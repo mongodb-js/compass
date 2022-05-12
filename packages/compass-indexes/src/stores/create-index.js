@@ -12,6 +12,7 @@ import { parseErrorMsg } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { toggleIsVisible } from '../modules/is-visible';
 import { namespaceChanged } from '../modules/namespace';
+import { serverVersionChanged } from '../modules/server-version';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
@@ -63,6 +64,10 @@ const configureStore = (options = {}) => {
 
   if (options.namespace) {
     store.dispatch(namespaceChanged(options.namespace));
+  }
+
+  if (options.serverVersion) {
+    store.dispatch(serverVersionChanged(options.serverVersion));
   }
 
   // Set the data provider - this must happen second.

@@ -372,26 +372,19 @@ describe('use-connect-form hook', function () {
           );
         });
 
-        it('adds an error to the errors with a message and the host field name', function () {
-          expect(updateResult.errors).to.deep.equal([
-            {
-              fieldName: 'hosts',
-              fieldIndex: 0,
-              fieldTab: 'general',
-              message:
-                'Host cannot be empty. The host is the address hostname, IP address, or UNIX domain socket where the mongodb instance is running.',
-            },
-          ]);
+        it('does not add an error to the errors', function () {
+          expect(updateResult.errors).to.deep.equal([]);
         });
 
-        it('keeps the connection string and url the same', function () {
+        it('produces a well formed connection string', function () {
           expect(
             new ConnectionStringUrl(
-              updateResult.connectionOptions.connectionString
+              updateResult.connectionOptions.connectionString,
+              { looseValidation: true }
             ).hosts
-          ).to.deep.equal(['outerspace:27019']);
+          ).to.deep.equal(['']);
           expect(updateResult.connectionOptions.connectionString).to.equal(
-            'mongodb://outerspace:27019/?ssl=true&directConnection=true'
+            'mongodb:///?ssl=true&directConnection=true'
           );
         });
       });
