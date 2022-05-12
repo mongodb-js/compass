@@ -340,9 +340,18 @@ describe('CSFLECollectionTracker', function () {
           dataService as any
         )._initializedClient('META');
         await metadataClient.db(dbName).dropCollection('test2');
-        await metadataClient.db(dbName).dropCollection('enxcol_.test2.esc').catch(() => {});
-        await metadataClient.db(dbName).dropCollection('enxcol_.test2.ecc').catch(() => {});
-        await metadataClient.db(dbName).dropCollection('enxcol_.test2.ecoc').catch(() => {});
+        await metadataClient
+          .db(dbName)
+          .dropCollection('enxcol_.test2.esc')
+          .catch(() => {});
+        await metadataClient
+          .db(dbName)
+          .dropCollection('enxcol_.test2.ecc')
+          .catch(() => {});
+        await metadataClient
+          .db(dbName)
+          .dropCollection('enxcol_.test2.ecoc')
+          .catch(() => {});
       });
 
       it('ensures that writes fail when server validation has been removed in the background', async function () {
