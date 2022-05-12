@@ -23,8 +23,12 @@ export async function getLinuxInfo(releaseFile: string): Promise<{
       .filter(Boolean)
       .map((l) => l.split('='));
 
-    const distId = releaseKv.find(([k]) => k === 'ID')?.[1];
-    const distVer = releaseKv.find(([k]) => k === 'VERSION_ID')?.[1];
+    const distId = releaseKv
+      .find(([k]) => k === 'ID')?.[1]
+      .replace(/["']/g, '');
+    const distVer = releaseKv
+      .find(([k]) => k === 'VERSION_ID')?.[1]
+      .replace(/["']/g, '');
 
     return {
       os_linux_dist: distId || 'unknown',

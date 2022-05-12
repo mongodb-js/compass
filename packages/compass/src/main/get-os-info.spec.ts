@@ -36,8 +36,12 @@ describe('get-os-info', function () {
         .filter(Boolean)
         .map((l) => l.split('='));
 
-      const distroId = releaseKv.find(([k]) => k === 'ID')[1];
-      const distroVer = releaseKv.find(([k]) => k === 'VERSION_ID')[1];
+      const distroId = releaseKv
+        .find(([k]) => k === 'ID')[1]
+        .replace(/["']/g, '');
+      const distroVer = releaseKv
+        .find(([k]) => k === 'VERSION_ID')[1]
+        .replace(/["']/g, '');
 
       // check that we test against actual values and not just an empty string
       expect(distroId).to.match(/^(rhel|ubuntu|debian)$/);
