@@ -15,6 +15,7 @@ import {
 } from '../../../modules/aggregation';
 import { isEmptyishStage } from '../../../modules/stage';
 import { updateView } from '../../../modules/update-view';
+import { openExplainModal } from '../../../modules/explain';
 
 const containerStyles = css({
   display: 'flex',
@@ -51,6 +52,9 @@ type PipelineActionsProps = {
   isUpdateViewButtonDisabled?: boolean;
   onUpdateView: () => void;
 
+  isExplainButtonDisabled?: boolean;
+  onExplainAggregation: () => void;
+
   isOptionsVisible?: boolean;
   onToggleOptions: () => void;
 };
@@ -63,28 +67,44 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isExportButtonDisabled,
   showUpdateViewButton,
   isUpdateViewButtonDisabled,
+  isExplainButtonDisabled,
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
   onExportAggregationResults,
+  onExplainAggregation,
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
   const showExportButton =
     process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true' &&
     _showExportButton;
+  const showExplainButton =
+    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true';
   const optionsLabel = isOptionsVisible ? 'Less Options' : 'More Options';
   return (
     <div className={containerStyles}>
       {showUpdateViewButton && (
         <Button
           aria-label="Update view"
-          data-testid="pipeline-toolbar-export-aggregation-button"
+          data-testid="pipeline-toolbar-update-view-aggregation-button"
           variant="primary"
           size="small"
           onClick={onUpdateView}
           disabled={isUpdateViewButtonDisabled}
         >
           Update view
+        </Button>
+      )}
+      {showExplainButton && (
+        <Button
+          aria-label="Explain aggregation"
+          data-testid="pipeline-toolbar-explain-aggregation-button"
+          variant="default"
+          size="small"
+          onClick={onExplainAggregation}
+          disabled={isExplainButtonDisabled}
+        >
+          Explain
         </Button>
       )}
       {!showUpdateViewButton && showExportButton && (
@@ -146,6 +166,7 @@ const mapState = ({ pipeline, editViewName, isModified }: RootState) => {
 
   return {
     isRunButtonDisabled: isPipelineInvalid || isStageStateEmpty,
+    isExplainButtonDisabled: isPipelineInvalid,
     isExportButtonDisabled:
       isMergeOrOutPipeline || isPipelineInvalid || isStageStateEmpty,
     showUpdateViewButton: Boolean(editViewName),
@@ -158,6 +179,7 @@ const mapDispatch = {
   onUpdateView: updateView,
   onRunAggregation: runAggregation,
   onExportAggregationResults: exportAggregationResults,
+  onExplainAggregation: openExplainModal,
 };
 
 export default connect(mapState, mapDispatch)(PipelineActions);

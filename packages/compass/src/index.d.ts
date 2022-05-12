@@ -51,6 +51,7 @@ declare module 'process' {
          */
         COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
         COMPASS_ENABLE_AGGREGATION_EXPORT?: 'true' | 'false';
+        COMPASS_ENABLE_AGGREGATION_EXPLAIN?: 'true' | 'false';
 
         /**
          * Permanent feature flag for debugging.
