@@ -118,5 +118,25 @@ module.exports = [
     },
     'name': 'not_wildcard',
     'ns': 'mongodb.fanclub'
-  }
+  },
+  {
+    'v': 1,
+    'key': {
+      '$**': 'columnstore'
+    },
+    'name': 'columnstore_single_subtree',
+    'ns': 'mongodb.fanclub'
+  },
+  {
+    'v': 1,
+    'key': {
+      'address.$**': 'columnstore'
+    },
+    'name': 'columnstore_multi_subtree',
+    'columnstoreProjection': {
+      'borough': 1,
+      'cuisine': 1
+    },
+    'ns': 'mongodb.fanclub'
+  },
 ];

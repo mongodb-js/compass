@@ -19,7 +19,7 @@ import {
 const { debug, log } = createLoggerAndTelemetry('COMPASS-CONNECT');
 
 export default async function connectMongoClientCompass(
-  connectionOptions: ConnectionOptions,
+  connectionOptions: Readonly<ConnectionOptions>,
   setupListeners: (client: MongoClient) => void
 ): Promise<
   [
@@ -42,10 +42,13 @@ export default async function connectMongoClientCompass(
   };
 
   if (options.autoEncryption && process.env.COMPASS_CSFLE_LIBRARY_PATH) {
-    options.autoEncryption.extraOptions = {
-      ...options.autoEncryption.extraOptions,
-      // @ts-expect-error next driver release has types
-      csflePath: process.env.COMPASS_CSFLE_LIBRARY_PATH,
+    options.autoEncryption = {
+      ...options.autoEncryption,
+      extraOptions: {
+        ...options.autoEncryption?.extraOptions,
+        // @ts-expect-error next driver release has types
+        csflePath: process.env.COMPASS_CSFLE_LIBRARY_PATH,
+      },
     };
   }
 

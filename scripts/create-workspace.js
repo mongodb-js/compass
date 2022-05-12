@@ -215,7 +215,7 @@ async function main(argv) {
     'compass:exports': {
       '.': './src/index.ts',
     },
-    types: './dist/index.d.ts',
+    ...(!isPlugin && { types: './dist/index.d.ts' }),
     scripts: {
       // Plugins are bundled by webpack from source and tested with ts-node
       // runtime processor, no need to bootstrap them

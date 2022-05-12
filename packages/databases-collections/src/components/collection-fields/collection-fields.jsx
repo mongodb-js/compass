@@ -238,7 +238,7 @@ export default class CollectionFields extends PureComponent {
               }
             />
           )}
-          {hasFLE2Support(serverVersion, this.props.currentTopologyType) && (
+          {hasFLE2Support(serverVersion, this.props.currentTopologyType, this.props.configuredKMSProviders) && (
             <FLE2Fields
               isCapped={isCapped}
               isTimeSeries={isTimeSeries}

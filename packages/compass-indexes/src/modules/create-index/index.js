@@ -44,6 +44,9 @@ import isTtl, {
 import isWildcard, {
   INITIAL_STATE as IS_WILDCARD_INITIAL_STATE,
 } from '../create-index/is-wildcard';
+import isColumnstore, {
+  INITIAL_STATE as IS_COLUMNSTORE_INITIAL_STATE,
+} from '../create-index/is-columnstore';
 import isPartialFilterExpression, {
   INITIAL_STATE as IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
 } from '../create-index/is-partial-filter-expression';
@@ -51,6 +54,9 @@ import ttl, { INITIAL_STATE as TTL_INITIAL_STATE } from '../create-index/ttl';
 import wildcardProjection, {
   INITIAL_STATE as WILDCARD_PROJECTION_INITIAL_STATE,
 } from '../create-index/wildcard-projection';
+import columnstoreProjection, {
+  INITIAL_STATE as COLUMNSTORE_PROJECTION_INITIAL_STATE,
+} from '../create-index/columnstore-projection';
 import partialFilterExpression, {
   INITIAL_STATE as PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
 } from '../create-index/partial-filter-expression';
@@ -58,6 +64,7 @@ import name, {
   INITIAL_STATE as NAME_INITIAL_STATE,
 } from '../create-index/name';
 import namespace from '../namespace';
+import serverVersion from '../server-version';
 
 import schemaFields from '../create-index/schema-fields';
 import { RESET_FORM } from '../reset-form';
@@ -84,12 +91,15 @@ const reducer = combineReducers({
   isUnique,
   isTtl,
   isWildcard,
+  isColumnstore,
   isPartialFilterExpression,
   ttl,
   wildcardProjection,
+  columnstoreProjection,
   partialFilterExpression,
   name,
   namespace,
+  serverVersion,
 });
 
 /**
@@ -115,8 +125,10 @@ const rootReducer = (state, action) => {
       isUnique: IS_UNIQUE_INITIAL_STATE,
       isTtl: IS_TTL_INITIAL_STATE,
       isWildcard: IS_WILDCARD_INITIAL_STATE,
+      isColumnstore: IS_COLUMNSTORE_INITIAL_STATE,
       isPartialFilterExpression: IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       ttl: TTL_INITIAL_STATE,
+      columnstoreProjection: COLUMNSTORE_PROJECTION_INITIAL_STATE,
       wildcardProjection: WILDCARD_PROJECTION_INITIAL_STATE,
       partialFilterExpression: PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
@@ -180,6 +192,16 @@ export const createIndex = () => {
         return;
       }
     }
+    if (state.isColumnstore) {
+      try {
+        options.columnstoreProjection = EJSON.parse(
+          state.columnstoreProjection
+        );
+      } catch (err) {
+        dispatch(handleError(`Bad ColumnstoreProjection: ${String(err)}`));
+        return;
+      }
+    }
     if (state.isPartialFilterExpression) {
       try {
         options.partialFilterExpression = EJSON.parse(
@@ -199,6 +221,7 @@ export const createIndex = () => {
           background: state.isBackground,
           unique: state.isUnique,
           ttl: state.isTtl,
+          columnstore: state.isColumnstore,
           wildcard: state.isWildcard,
           custom_collation: state.isCustomCollation,
           geo:
@@ -214,6 +237,7 @@ export const createIndex = () => {
             isPartialFilterExpression: state.isPartialFilterExpression,
             isTTL: state.isTtl,
             isUnique: state.isUnique,
+            isColumnstore: state.isColumnstore,
             isWildcard: state.isWildcard,
             collation: state.collation,
             ttl: state.ttl,

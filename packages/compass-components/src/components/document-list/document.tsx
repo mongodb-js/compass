@@ -9,8 +9,10 @@ import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { HadronElement } from './element';
+import { usePrevious } from './use-previous';
 
 function useHadronDocument(doc: HadronDocumentType) {
+  const prevDoc = usePrevious(doc);
   const forceUpdate = useForceUpdate();
 
   const onDocumentFieldsAddedOrRemoved = useCallback(
@@ -27,6 +29,13 @@ function useHadronDocument(doc: HadronDocumentType) {
     },
     [doc, forceUpdate]
   );
+
+  useEffect(() => {
+    // Force update if the document that was passed to the component changed
+    if (prevDoc && prevDoc !== doc) {
+      forceUpdate();
+    }
+  }, [prevDoc, doc, forceUpdate]);
 
   useEffect(() => {
     doc.on(ElementEvents.Added, onDocumentFieldsAddedOrRemoved);
@@ -91,11 +100,11 @@ const HadronDocument: React.FunctionComponent<{
       data-id={document.uuid}
     >
       <AutoFocusContext.Provider value={autoFocus}>
-        {visibleElements.map((el) => {
+        {visibleElements.map((el, idx) => {
           return (
             <HadronElement
+              key={idx}
               value={el}
-              key={el.uuid}
               editable={editable}
               editingEnabled={editing}
               allExpanded={expanded}

@@ -21,10 +21,6 @@
   ],
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
-  "exports": {
-    "require": "./dist/index.js",
-    "import": "./dist/.esm-wrapper.mjs"
-  },
   "compass:exports": {
     ".": "./src/index.ts"
   },
@@ -36,7 +32,7 @@
   ],
   "scripts": {
     "bootstrap": "npm run compile",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "clean": "rimraf dist",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json",

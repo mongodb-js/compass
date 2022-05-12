@@ -25,7 +25,7 @@ class ToggleStage extends PureComponent {
   onStageToggled = () => {
     this.props.stageToggled(this.props.index);
     this.props.setIsModified(true);
-    this.props.runStage(this.props.index);
+    this.props.runStage(this.props.index, true /* force execute */);
   };
 
   /**
