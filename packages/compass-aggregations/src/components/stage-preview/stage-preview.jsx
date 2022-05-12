@@ -209,8 +209,10 @@ class StagePreview extends Component {
       if (this.props.documents.length > 0) {
         const documents = this.props.documents.map((doc, i) => {
           return (
-            <div key={i} className={styles['stage-preview-document-card']}>
-              <Document doc={doc} editable={false} />
+            <div key={i} className={styles['stage-preview-document-card-container']}>
+              <div className={styles['stage-preview-document-card']}>
+                <Document doc={doc} editable={false} />
+              </div>
             </div>
           );
         });
