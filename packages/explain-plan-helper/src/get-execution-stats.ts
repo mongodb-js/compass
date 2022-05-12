@@ -14,14 +14,14 @@ export type ExecutionStats = {
   totalDocsExamined: number;
   executionStages: Stage;
   allPlansExecution: unknown[];
-}
+};
 
 export const getExecutionStats = (explain: Stage): ExecutionStats => {
   const executionStats = isAggregationExplain(explain)
     ? _getAggregationStats(explain)
     : _getFindStats(explain);
   return executionStats;
-}
+};
 const _getAggregationStats = (explain: Stage): ExecutionStats => {
   return isShardedAggregationExplain(explain)
     ? _getShardedAggregationStats(explain)
@@ -38,7 +38,10 @@ const _getUnshardedAggregationStats = (explain: Stage): ExecutionStats => {
 
   const stats = _getFindStats(firstStage[cursorKey]);
   stats.nReturned = lastStage.nReturned;
-  stats.executionTimeMillis = sumArrayProp(explain.stages, 'executionTimeMillisEstimate');
+  stats.executionTimeMillis = sumArrayProp(
+    explain.stages,
+    'executionTimeMillisEstimate'
+  );
   return stats;
 };
 const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
@@ -50,7 +53,7 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
 
     shardStats.push({
       shardName,
-      ...stats
+      ...stats,
     });
   }
 
@@ -72,7 +75,7 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
       totalKeysExamined,
       totalDocsExamined,
       shards: shardStats,
-    }
+    },
   } as unknown as ExecutionStats;
 
   return response;
@@ -83,4 +86,4 @@ const _getFindStats = (explain: Stage): ExecutionStats => {
 
 function sumArrayProp<T>(arr: T[], prop: keyof T): number {
   return arr.reduce((acc, x) => acc + Number(x[prop] ?? 0), 0);
-};
+}

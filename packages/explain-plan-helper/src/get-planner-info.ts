@@ -10,7 +10,7 @@ import type { Stage } from './index';
 type PlannerInfo = {
   namespace: string;
   parsedQuery: Stage;
-}
+};
 
 export const getPlannerInfo = (explain: Stage): PlannerInfo => {
   const queryPlanner = isAggregationExplain(explain)
@@ -20,7 +20,7 @@ export const getPlannerInfo = (explain: Stage): PlannerInfo => {
     namespace: queryPlanner.namespace,
     parsedQuery: queryPlanner.parsedQuery,
   };
-}
+};
 const _getAggregationPlanner = (explain: Stage): Stage => {
   return isShardedAggregationExplain(explain)
     ? _getShardedAggregationPlanner(explain)

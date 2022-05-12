@@ -5,7 +5,10 @@ import type { ExecutionStats } from './get-execution-stats';
 
 const kParent = Symbol('ExplainPlan.kParent');
 
-export type Stage = Record<string, any> & { stage: string; [kParent]: Stage | null };
+export type Stage = Record<string, any> & {
+  stage: string;
+  [kParent]: Stage | null;
+};
 type IndexInformation =
   | { shard: string; index: string }
   | { shard: string; index: null }
@@ -28,8 +31,7 @@ export class ExplainPlan {
     ExplainPlan.addParentStages(executionStats.executionStages);
     const qpInfo = getPlannerInfo(rawExplainObject);
     const esInfo =
-      executionStats?.executionStages?.shards?.[0] ??
-      executionStats;
+      executionStats?.executionStages?.shards?.[0] ?? executionStats;
     this.executionStats = executionStats;
     this.namespace = qpInfo.namespace;
     this.parsedQuery = qpInfo.parsedQuery;
@@ -69,7 +71,9 @@ export class ExplainPlan {
     }
     return ret.filter(
       (indexInfo, index, arr) =>
-        arr.findIndex((i) => i.index === indexInfo.index && i.shard === indexInfo.shard) === index
+        arr.findIndex(
+          (i) => i.index === indexInfo.index && i.shard === indexInfo.shard
+        ) === index
     );
   }
 

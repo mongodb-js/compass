@@ -205,9 +205,7 @@ describe('explain-plan-plan', function () {
 
     it('should iterate over stages', function () {
       const it = plan._getStageIterator();
-      expect(it.next().value).to.equal(
-        plan.executionStats.executionStages
-      );
+      expect(it.next().value).to.equal(plan.executionStats.executionStages);
       expect(it.next().value.stage).to.equal('IXSCAN');
       expect(it.next().done).to.equal(true);
     });
@@ -229,7 +227,9 @@ describe('explain-plan-plan', function () {
       });
 
       it('should have `usedIndexes`', function () {
-        expect(plan.usedIndexes).to.deep.equal([{ index: "abbr_index", shard: null }]);
+        expect(plan.usedIndexes).to.deep.equal([
+          { index: 'abbr_index', shard: null },
+        ]);
       });
 
       it('should have `inMemorySort` disabled', function () {
@@ -256,7 +256,9 @@ describe('explain-plan-plan', function () {
         });
 
         it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([{ index: "location_2dsphere", shard: null }]);
+          expect(plan.usedIndexes).to.deep.equal([
+            { index: 'location_2dsphere', shard: null },
+          ]);
         });
 
         it('should have `inMemorySort` disabled', function () {
@@ -290,7 +292,9 @@ describe('explain-plan-plan', function () {
       describe('single shard with stages', function () {
         let plan: ExplainPlan;
         beforeEach(async function () {
-          plan = await loadExplainFixture('single-shard-aggregate-with-stages.json');
+          plan = await loadExplainFixture(
+            'single-shard-aggregate-with-stages.json'
+          );
         });
         it('return the namespace', function () {
           expect(plan.namespace).to.equal('sharded-db.listings');
@@ -301,16 +305,13 @@ describe('explain-plan-plan', function () {
         });
         it('return the parsedQuery', function () {
           expect(plan.parsedQuery).to.deep.equal({
-            "address.location": {
+            'address.location': {
               $maxDistance: 10000,
               $near: {
-                coordinates: [
-                  -8.61308,
-                  41.1413
-                ],
-                type: "Point"
-              }
-            }
+                coordinates: [-8.61308, 41.1413],
+                type: 'Point',
+              },
+            },
           });
         });
         it('should have executionStats prop', function () {
@@ -320,7 +321,9 @@ describe('explain-plan-plan', function () {
           expect(plan.isCollectionScan).to.equal(false);
         });
         it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([{ index: 'address_location', shard: "shard1" }]);
+          expect(plan.usedIndexes).to.deep.equal([
+            { index: 'address_location', shard: 'shard1' },
+          ]);
         });
         it('should have `inMemorySort` disabled', function () {
           expect(plan.inMemorySort).to.equal(false);
@@ -344,7 +347,9 @@ describe('explain-plan-plan', function () {
       describe('single shard without stages', function () {
         let plan: ExplainPlan;
         beforeEach(async function () {
-          plan = await loadExplainFixture('single-shard-aggregate-without-stages.json');
+          plan = await loadExplainFixture(
+            'single-shard-aggregate-without-stages.json'
+          );
         });
         it('return the namespace', function () {
           expect(plan.namespace).to.equal('sharded-db.faker');
@@ -355,9 +360,9 @@ describe('explain-plan-plan', function () {
         });
         it('return the parsedQuery', function () {
           expect(plan.parsedQuery).to.deep.equal({
-            "abbreviation": {
-              "$eq": "PNG"
-            }
+            abbreviation: {
+              $eq: 'PNG',
+            },
           });
         });
         it('should have executionStats prop', function () {
@@ -367,7 +372,9 @@ describe('explain-plan-plan', function () {
           expect(plan.isCollectionScan).to.equal(true);
         });
         it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([{ index: null, shard: "shard1" }]);
+          expect(plan.usedIndexes).to.deep.equal([
+            { index: null, shard: 'shard1' },
+          ]);
         });
         it('should have `inMemorySort` disabled', function () {
           expect(plan.inMemorySort).to.equal(false);
@@ -392,7 +399,9 @@ describe('explain-plan-plan', function () {
       describe('multi shard with stages', function () {
         let plan: ExplainPlan;
         beforeEach(async function () {
-          plan = await loadExplainFixture('multi-shard-aggregate-with-stages.json');
+          plan = await loadExplainFixture(
+            'multi-shard-aggregate-with-stages.json'
+          );
         });
         it('return the namespace', function () {
           expect(plan.namespace).to.equal('sharded-db.listings');
@@ -403,16 +412,13 @@ describe('explain-plan-plan', function () {
         });
         it('return the parsedQuery', function () {
           expect(plan.parsedQuery).to.deep.equal({
-            "address.location": {
+            'address.location': {
               $maxDistance: 10000,
               $near: {
-                coordinates: [
-                  -8.61308,
-                  41.1413
-                ],
-                type: "Point"
-              }
-            }
+                coordinates: [-8.61308, 41.1413],
+                type: 'Point',
+              },
+            },
           });
         });
         it('should detect collection scan', function () {
@@ -420,8 +426,8 @@ describe('explain-plan-plan', function () {
         });
         it('should have `usedIndexes`', function () {
           expect(plan.usedIndexes).to.deep.equal([
-            { index: 'address_location', shard: "shard2" },
-            { index: 'address_location', shard: "shard1" },
+            { index: 'address_location', shard: 'shard2' },
+            { index: 'address_location', shard: 'shard1' },
           ]);
         });
         it('should have `inMemorySort` disabled', function () {
@@ -446,7 +452,9 @@ describe('explain-plan-plan', function () {
       describe('multi shard without stages', function () {
         let plan: ExplainPlan;
         beforeEach(async function () {
-          plan = await loadExplainFixture('multi-shard-aggregate-without-stages.json');
+          plan = await loadExplainFixture(
+            'multi-shard-aggregate-without-stages.json'
+          );
         });
         it('return the namespace', function () {
           expect(plan.namespace).to.equal('sharded-db.listings');
@@ -463,8 +471,8 @@ describe('explain-plan-plan', function () {
         });
         it('should have `usedIndexes`', function () {
           expect(plan.usedIndexes).to.deep.equal([
-            { index: null, shard: "shard2" },
-            { index: null, shard: "shard1" },
+            { index: null, shard: 'shard2' },
+            { index: null, shard: 'shard1' },
           ]);
         });
         it('should have `inMemorySort` disabled', function () {
