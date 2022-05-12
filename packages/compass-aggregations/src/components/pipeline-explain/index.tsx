@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, H3 } from '@mongodb-js/compass-components';
+import { Modal, H3, Body } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import type { RootState } from '../../modules';
@@ -21,6 +21,7 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
       data-testid="pipeline-explain-modal"
     >
       <H3>Explain</H3>
+      <Body>Implementation in progress ...</Body>
     </Modal>
   );
 };

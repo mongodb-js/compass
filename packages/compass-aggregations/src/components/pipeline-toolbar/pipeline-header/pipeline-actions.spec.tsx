@@ -8,17 +8,21 @@ import type { SinonSpy } from 'sinon';
 import { PipelineActions } from './pipeline-actions';
 
 const initialEnableExport = process.env.COMPASS_ENABLE_AGGREGATION_EXPORT;
+const initialEnableExplain = process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
 
 describe('PipelineActions', function () {
   describe('options visible', function () {
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
     let onExportAggregationResultsSpy: SinonSpy;
+    let onExplainAggregationSpy: SinonSpy;
     beforeEach(function () {
       process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
       onExportAggregationResultsSpy = spy();
+      onExplainAggregationSpy = spy();
       render(
         <PipelineActions
           isOptionsVisible={true}
@@ -27,12 +31,16 @@ describe('PipelineActions', function () {
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
           onExportAggregationResults={onExportAggregationResultsSpy}
+          isExplainButtonDisabled={false}
+          onExplainAggregation={onExplainAggregationSpy}
+          onUpdateView={() => {}}
         />
       );
     });
 
     afterEach(function () {
       process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExplain;
     });
 
     it('calls onRunAggregation callback on click', function () {
@@ -53,6 +61,15 @@ describe('PipelineActions', function () {
       userEvent.click(button);
 
       expect(onExportAggregationResultsSpy.calledOnce).to.be.true;
+    });
+
+    it('calls onExplainAggregation on click', function () {
+      const button = screen.getByTestId(
+        'pipeline-toolbar-explain-aggregation-button'
+      );
+      expect(button).to.exist;
+      userEvent.click(button);
+      expect(onExplainAggregationSpy.calledOnce).to.be.true;
     });
 
     it('calls onToggleOptions on click', function () {
@@ -81,6 +98,8 @@ describe('PipelineActions', function () {
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
           onExportAggregationResults={() => {}}
+          onUpdateView={() => {}}
+          onExplainAggregation={() => {}}
         />
       );
     });
@@ -100,12 +119,16 @@ describe('PipelineActions', function () {
   describe('disables actions when pipeline is invalid', function () {
     let onRunAggregationSpy: SinonSpy;
     let onExportAggregationResultsSpy: SinonSpy;
+    let onExplainAggregationSpy: SinonSpy;
     beforeEach(function () {
       process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
       onRunAggregationSpy = spy();
       onExportAggregationResultsSpy = spy();
+      onExplainAggregationSpy = spy();
       render(
         <PipelineActions
+          isExplainButtonDisabled={true}
           isExportButtonDisabled={true}
           isRunButtonDisabled={true}
           isOptionsVisible={true}
@@ -114,12 +137,15 @@ describe('PipelineActions', function () {
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={() => {}}
           onExportAggregationResults={onExportAggregationResultsSpy}
+          onExplainAggregation={onExplainAggregationSpy}
+          onUpdateView={() => {}}
         />
       );
     });
 
     afterEach(function () {
       process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = initialEnableExplain;
     });
 
     it('run action disabled', function () {
@@ -142,6 +168,18 @@ describe('PipelineActions', function () {
         skipPointerEventsCheck: true,
       });
       expect(onExportAggregationResultsSpy.calledOnce).to.be.false;
+    });
+
+    it('explain action disabled', function () {
+      const button = screen.getByTestId(
+        'pipeline-toolbar-explain-aggregation-button'
+      );
+      expect(button.getAttribute('disabled')).to.exist;
+
+      userEvent.click(button, undefined, {
+        skipPointerEventsCheck: true,
+      });
+      expect(onExplainAggregationSpy.calledOnce).to.be.false;
     });
   });
 });
