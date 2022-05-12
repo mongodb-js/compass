@@ -120,12 +120,12 @@ const getConnectionOptions = (connectionId: string): ConnectionOptions => {
 
   // Allows to replace locahost with an external host for
   // running tests in docker
-  const connectionString = connectionOptions.connectionString.replace(
-    'localhost',
-    process.env.COMPASS_CONNECTIVITY_TESTS_HOST
+  return JSON.parse(
+    JSON.stringify(connectionOptions).replace(
+      /localhost/g,
+      process.env.COMPASS_CONNECTIVITY_TESTS_HOST
+    )
   );
-
-  return { ...connectionOptions, connectionString };
 };
 
 describe('connect', function () {
