@@ -1,8 +1,9 @@
 import assert from 'assert';
+import type { Document } from 'bson';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
 import type { Sort } from 'mongodb';
-import { MongoClient } from 'mongodb';
+import { MongoClient } from 'mongodb-fle';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
@@ -213,6 +214,14 @@ describe('DataService', function () {
         await mongoClient.db(testDatabaseName).createCollection('bar');
       });
 
+      afterEach(async function () {
+        try {
+          await mongoClient.db(testDatabaseName).collection('bar').drop();
+        } catch {
+          /* ignore ns not found */
+        }
+      });
+
       it('drops a collection', function (done) {
         dataService.dropCollection(`${testDatabaseName}.bar`, function (error) {
           assert.equal(null, error);
@@ -224,6 +233,61 @@ describe('DataService', function () {
             })
             .catch(done);
         });
+      });
+
+      it('drops a collection with fle2 options', async function () {
+        const buildInfo = await new Promise<Document>((resolve, reject) => {
+          dataService.command('admin', { buildInfo: 1 }, (error, result) => {
+            error ? reject(error) : resolve(result);
+          });
+        });
+        if (
+          (buildInfo.versionArray?.[0] ?? 0) <= 5 ||
+          dataService.currentTopologyType() === 'Single' ||
+          process.env.COMPASS_CSFLE_SUPPORT !== 'true'
+        ) {
+          return this.skip(); // FLE2 requires 6.0+ replset
+        }
+
+        await mongoClient.db(testDatabaseName).createCollection('fle2', {
+          encryptedFields: {
+            escCollection: 'enxcol_.fle2.esc',
+            eccCollection: 'enxcol_.fle2.ecc',
+            ecocCollection: 'enxcol_.fle2.ecoc',
+            fields: [],
+          },
+        });
+
+        let items = (
+          await mongoClient
+            .db(testDatabaseName)
+            .listCollections({}, { nameOnly: true })
+            .toArray()
+        ).map(({ name }) => name);
+        expect(items).to.include('fle2');
+        expect(items).to.include('enxcol_.fle2.esc');
+        expect(items).to.include('enxcol_.fle2.ecc');
+        expect(items).to.include('enxcol_.fle2.ecoc');
+
+        await new Promise<void>((resolve, reject) => {
+          dataService.dropCollection(
+            `${testDatabaseName}.fle2`,
+            function (error) {
+              error ? reject(error) : resolve();
+            }
+          );
+        });
+
+        items = (
+          await mongoClient
+            .db(testDatabaseName)
+            .listCollections({}, { nameOnly: true })
+            .toArray()
+        ).map(({ name }) => name);
+        expect(items).to.not.include('fle2');
+        expect(items).to.not.include('enxcol_.fle2.esc');
+        expect(items).to.not.include('enxcol_.fle2.ecc');
+        expect(items).to.not.include('enxcol_.fle2.ecoc');
       });
     });
 
@@ -1005,7 +1069,9 @@ describe('DataService', function () {
         const topology = dataService.getLastSeenTopology();
 
         expect(topology).to.not.be.null;
-        expect(topology!.servers.has('127.0.0.1:27018')).to.equal(true);
+        expect(topology!.servers.values().next().value.address).to.be.a(
+          'string'
+        );
 
         expect(topology).to.deep.include({
           compatible: true,
@@ -1013,7 +1079,6 @@ describe('DataService', function () {
           localThresholdMS: 15,
           logicalSessionTimeoutMinutes: 30,
           stale: false,
-          type: 'Single',
         });
       });
 
