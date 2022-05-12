@@ -18,7 +18,7 @@ const explainExample = {
   namespace: 'db.coll',
   numShards: 0,
   parsedQuery: {},
-  rawExplainObject: {},
+  executionStats: {},
   totalDocsExamined: 18801,
   totalKeysExamined: 0,
   usedIndexes: [],

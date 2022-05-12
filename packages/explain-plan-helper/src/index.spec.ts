@@ -33,11 +33,11 @@ describe('explain-plan-plan', function () {
         expect(plan.executionTimeMillis).to.equal(188);
         expect(plan.totalKeysExamined).to.equal(0);
         expect(plan.totalDocsExamined).to.equal(1000000);
-        expect(plan.rawExplainObject).to.be.an('object');
+        expect(plan.executionStats).to.be.an('object');
       });
 
-      it('should have the raw explain object', function () {
-        expect(plan.rawExplainObject).to.be.an('object');
+      it('should have the executionStats object', function () {
+        expect(plan.executionStats).to.be.an('object');
       });
 
       it('should detect collection scan', function () {
@@ -70,8 +70,8 @@ describe('explain-plan-plan', function () {
         expect(plan.totalDocsExamined).to.equal(191665);
       });
 
-      it('should have the raw explain object', function () {
-        expect(plan.rawExplainObject).to.be.an('object');
+      it('should have the executionStats object', function () {
+        expect(plan.executionStats).to.be.an('object');
       });
 
       it('should have `isCollectionScan` disabled', function () {
@@ -205,11 +205,295 @@ describe('explain-plan-plan', function () {
 
     it('should iterate over stages', function () {
       const it = plan._getStageIterator();
-      expect(it.next().value).to.equal(
-        plan.rawExplainObject.executionStats.executionStages
-      );
+      expect(it.next().value).to.equal(plan.executionStats.executionStages);
       expect(it.next().value.stage).to.equal('IXSCAN');
       expect(it.next().done).to.equal(true);
+    });
+  });
+
+  context('Aggregations', function () {
+    describe('SBE plan', function () {
+      let plan: ExplainPlan;
+      beforeEach(async function () {
+        plan = await loadExplainFixture('aggregate_$cursor_sbe.json');
+      });
+
+      it('should have the executionStats object', function () {
+        expect(plan.executionStats).to.be.an('object');
+      });
+
+      it('should detect collection scan', function () {
+        expect(plan.isCollectionScan).to.equal(false);
+      });
+
+      it('should have `usedIndexes`', function () {
+        expect(plan.usedIndexes).to.deep.equal([
+          { index: 'abbr_index', shard: null },
+        ]);
+      });
+
+      it('should have `inMemorySort` disabled', function () {
+        expect(plan.inMemorySort).to.equal(false);
+      });
+
+      it('should not be a covered query', function () {
+        expect(plan.isCovered).to.equal(false);
+      });
+    });
+    context('Classic plan', function () {
+      let plan: ExplainPlan;
+      describe('$geoNearCursor', function () {
+        beforeEach(async function () {
+          plan = await loadExplainFixture('aggregate_$geonearcursor.json');
+        });
+
+        it('should have the executionStats object', function () {
+          expect(plan.executionStats).to.be.an('object');
+        });
+
+        it('should detect collection scan', function () {
+          expect(plan.isCollectionScan).to.equal(false);
+        });
+
+        it('should have `usedIndexes`', function () {
+          expect(plan.usedIndexes).to.deep.equal([
+            { index: 'location_2dsphere', shard: null },
+          ]);
+        });
+
+        it('should have `inMemorySort` disabled', function () {
+          expect(plan.inMemorySort).to.equal(false);
+        });
+
+        it('should not be a covered query', function () {
+          expect(plan.isCovered).to.equal(false);
+        });
+      });
+
+      describe('collection scan', function () {
+        beforeEach(async function () {
+          plan = await loadExplainFixture('aggregate_collscan.json');
+        });
+
+        it('should have the executionStats object', function () {
+          expect(plan.executionStats).to.be.an('object');
+        });
+
+        it('should detect collection scan', function () {
+          expect(plan.isCollectionScan).to.equal(true);
+        });
+
+        it('should have `usedIndexes`', function () {
+          expect(plan.usedIndexes).to.deep.equal([]);
+        });
+      });
+    });
+    context('Sharded aggregation', function () {
+      describe('single shard with stages', function () {
+        let plan: ExplainPlan;
+        beforeEach(async function () {
+          plan = await loadExplainFixture(
+            'single-shard-aggregate-with-stages.json'
+          );
+        });
+        it('return the namespace', function () {
+          expect(plan.namespace).to.equal('sharded-db.listings');
+        });
+        it('return the number of shards', function () {
+          expect(plan.isSharded).to.be.true;
+          expect(plan.numShards).to.equal(1);
+        });
+        it('return the parsedQuery', function () {
+          expect(plan.parsedQuery).to.deep.equal({
+            'address.location': {
+              $maxDistance: 10000,
+              $near: {
+                coordinates: [-8.61308, 41.1413],
+                type: 'Point',
+              },
+            },
+          });
+        });
+        it('should have executionStats prop', function () {
+          expect(plan.executionStats).to.be.an('object');
+        });
+        it('should detect collection scan', function () {
+          expect(plan.isCollectionScan).to.equal(false);
+        });
+        it('should have `usedIndexes`', function () {
+          expect(plan.usedIndexes).to.deep.equal([
+            { index: 'address_location', shard: 'shard1' },
+          ]);
+        });
+        it('should have `inMemorySort` disabled', function () {
+          expect(plan.inMemorySort).to.equal(false);
+        });
+        it('should have a SINGLE_SHARD stage', function () {
+          const stage = plan.findStageByName('SINGLE_SHARD');
+          expect(stage.shards).to.have.lengthOf(1);
+        });
+        it('should have correct execution metrics', function () {
+          expect(plan.executionStats.nReturned).to.equal(422); // nReturned is from the last stage
+          expect(plan.executionStats.executionTimeMillis).to.equal(30); // sum of executionTimeMillis from each stage
+          expect(plan.executionStats.totalKeysExamined).to.equal(719);
+          expect(plan.executionStats.totalDocsExamined).to.equal(490);
+        });
+        it('should find a stage if it is the provided root stage', function () {
+          const stage1 = plan.findStageByName('SINGLE_SHARD');
+          const stage2 = plan.findStageByName('SINGLE_SHARD', stage1);
+          expect(stage1).to.equal(stage2);
+        });
+      });
+      describe('single shard without stages', function () {
+        let plan: ExplainPlan;
+        beforeEach(async function () {
+          plan = await loadExplainFixture(
+            'single-shard-aggregate-without-stages.json'
+          );
+        });
+        it('return the namespace', function () {
+          expect(plan.namespace).to.equal('sharded-db.faker');
+        });
+        it('return the number of shards', function () {
+          expect(plan.isSharded).to.be.true;
+          expect(plan.numShards).to.equal(1);
+        });
+        it('return the parsedQuery', function () {
+          expect(plan.parsedQuery).to.deep.equal({
+            abbreviation: {
+              $eq: 'PNG',
+            },
+          });
+        });
+        it('should have executionStats prop', function () {
+          expect(plan.executionStats).to.be.an('object');
+        });
+        it('should detect collection scan', function () {
+          expect(plan.isCollectionScan).to.equal(true);
+        });
+        it('should have `usedIndexes`', function () {
+          expect(plan.usedIndexes).to.deep.equal([
+            { index: null, shard: 'shard1' },
+          ]);
+        });
+        it('should have `inMemorySort` disabled', function () {
+          expect(plan.inMemorySort).to.equal(false);
+        });
+        it('should have a SINGLE_SHARD stage', function () {
+          const stage = plan.findStageByName('SINGLE_SHARD');
+          expect(stage.shards).to.have.lengthOf(1);
+        });
+        it('should have correct execution metrics', function () {
+          expect(plan.executionStats.nReturned).to.equal(20);
+          expect(plan.executionStats.executionTimeMillis).to.equal(0);
+          expect(plan.executionStats.totalKeysExamined).to.equal(0);
+          expect(plan.executionStats.totalDocsExamined).to.equal(581);
+        });
+        it('should find a stage if it is the provided root stage', function () {
+          const stage1 = plan.findStageByName('SINGLE_SHARD');
+          const stage2 = plan.findStageByName('SINGLE_SHARD', stage1);
+          expect(stage1).to.equal(stage2);
+        });
+      });
+
+      describe('multi shard with stages', function () {
+        let plan: ExplainPlan;
+        beforeEach(async function () {
+          plan = await loadExplainFixture(
+            'multi-shard-aggregate-with-stages.json'
+          );
+        });
+        it('return the namespace', function () {
+          expect(plan.namespace).to.equal('sharded-db.listings');
+        });
+        it('return the number of shards', function () {
+          expect(plan.isSharded).to.be.true;
+          expect(plan.numShards).to.equal(2);
+        });
+        it('return the parsedQuery', function () {
+          expect(plan.parsedQuery).to.deep.equal({
+            'address.location': {
+              $maxDistance: 10000,
+              $near: {
+                coordinates: [-8.61308, 41.1413],
+                type: 'Point',
+              },
+            },
+          });
+        });
+        it('should detect collection scan', function () {
+          expect(plan.isCollectionScan).to.equal(false);
+        });
+        it('should have `usedIndexes`', function () {
+          expect(plan.usedIndexes).to.deep.equal([
+            { index: 'address_location', shard: 'shard2' },
+            { index: 'address_location', shard: 'shard1' },
+          ]);
+        });
+        it('should have `inMemorySort` disabled', function () {
+          expect(plan.inMemorySort).to.equal(false);
+        });
+        it('should have a SHARD_MERGE stage', function () {
+          const stage = plan.findStageByName('SHARD_MERGE');
+          expect(stage.shards).to.have.lengthOf(2);
+        });
+        it('should have correct execution metrics', function () {
+          expect(plan.executionStats.nReturned).to.equal(485); // sum of nReturned from the last stage of each shard
+          expect(plan.executionStats.executionTimeMillis).to.equal(13); // sum of executionTimeMillis from each stage of each shard
+          expect(plan.executionStats.totalKeysExamined).to.equal(719);
+          expect(plan.executionStats.totalDocsExamined).to.equal(490);
+        });
+        it('should find a stage if it is the provided root stage', function () {
+          const stage1 = plan.findStageByName('SINGLE_SHARD');
+          const stage2 = plan.findStageByName('SINGLE_SHARD', stage1);
+          expect(stage1).to.equal(stage2);
+        });
+      });
+      describe('multi shard without stages', function () {
+        let plan: ExplainPlan;
+        beforeEach(async function () {
+          plan = await loadExplainFixture(
+            'multi-shard-aggregate-without-stages.json'
+          );
+        });
+        it('return the namespace', function () {
+          expect(plan.namespace).to.equal('sharded-db.listings');
+        });
+        it('return the number of shards', function () {
+          expect(plan.isSharded).to.be.true;
+          expect(plan.numShards).to.equal(2);
+        });
+        it('return the parsedQuery', function () {
+          expect(plan.parsedQuery).to.deep.equal({});
+        });
+        it('should detect collection scan', function () {
+          expect(plan.isCollectionScan).to.equal(true);
+        });
+        it('should have `usedIndexes`', function () {
+          expect(plan.usedIndexes).to.deep.equal([
+            { index: null, shard: 'shard2' },
+            { index: null, shard: 'shard1' },
+          ]);
+        });
+        it('should have `inMemorySort` disabled', function () {
+          expect(plan.inMemorySort).to.equal(false);
+        });
+        it('should have a SHARD_MERGE stage', function () {
+          const stage = plan.findStageByName('SHARD_MERGE');
+          expect(stage.shards).to.have.lengthOf(2);
+        });
+        it('should have correct execution metrics', function () {
+          expect(plan.executionStats.nReturned).to.equal(1);
+          expect(plan.executionStats.executionTimeMillis).to.equal(50);
+          expect(plan.executionStats.totalKeysExamined).to.equal(0);
+          expect(plan.executionStats.totalDocsExamined).to.equal(5555);
+        });
+        it('should find a stage if it is the provided root stage', function () {
+          const stage1 = plan.findStageByName('SHARD_MERGE');
+          const stage2 = plan.findStageByName('SHARD_MERGE', stage1);
+          expect(stage1).to.equal(stage2);
+        });
+      });
     });
   });
 });
