@@ -19,7 +19,7 @@ ruleTester.run('no-leafygreen-outside-compass-components', rule, {
     {
       code: "import Foo from '@leafygreen-ui/foo-component';",
       parserOptions: { ecmaVersion: 2021, sourceType: 'module' },
-      options: [COMPASS_COMPONENTS],
+      options: [{ cwd: COMPASS_COMPONENTS }],
     },
   ],
   invalid: [
