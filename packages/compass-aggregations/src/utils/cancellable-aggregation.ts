@@ -40,12 +40,15 @@ export async function aggregatePipeline({
     { ...defaultOptions, ...options }
   );
   const abort = () => {
-    cursor.close();
-    dataService.killSessions(session).catch(() => {
+    Promise.all([
+      cursor.close(),
+      dataService.killSessions(session)
+    ]).catch((err) => {
       log.warn(
         mongoLogId(1001000105),
         'Aggregations',
-        'Attempting to kill the session failed'
+        'Attempting to kill the session failed',
+        { error: err.message }
       );
     });
   };

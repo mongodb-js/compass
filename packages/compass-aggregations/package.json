@@ -110,7 +110,7 @@
     "lodash.debounce": "^4.0.8",
     "lodash.isempty": "^4.4.0",
     "lodash.isstring": "^4.0.1",
-    "mongodb": "^4.4.1",
+    "mongodb": "^4.6.0",
     "mongodb-ns": "^2.4.0",
     "re-resizable": "^6.9.0",
     "react-bootstrap": "^0.32.4",

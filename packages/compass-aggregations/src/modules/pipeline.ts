@@ -922,7 +922,7 @@ const aggregate = (
       dispatch(
         stagePreviewUpdated(docs || [], index, e as Error, true, getState().env)
       );
-      cursor.close();
+      void cursor.close();
       dispatch(
         globalAppRegistryEmit('agg-pipeline-executed', {
           id: getState().id,
