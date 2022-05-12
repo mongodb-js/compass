@@ -28,7 +28,6 @@ class ExplainBody extends Component {
       indexType: PropTypes.oneOf(INDEX_TYPES).isRequired,
       index: PropTypes.object,
       viewType: PropTypes.string.isRequired,
-      rawExplainObject: PropTypes.object.isRequired,
       originalExplainData: PropTypes.object.isRequired,
     }),
     treeStages: PropTypes.object.isRequired,

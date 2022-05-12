@@ -87,7 +87,7 @@ function isShardedAggregationExplain(explain) {
   return !!explain.shards;
 }
 
-function isShardedFind(explain) {
+function isShardedFindExplain(explain) {
   const { mongosPlannerVersion } = explain.queryPlanner ?? {};
   return !isNaN(mongosPlannerVersion);
 }
@@ -126,7 +126,7 @@ module.exports = function (explain) {
       explain = mapUnshardedAggregation(explain);
     }
   } else {
-    if (isShardedFind(explain)) {
+    if (isShardedFindExplain(explain)) {
       explain = mapShardedFind(explain);
     } else {
       explain = mapUnshardedFind(explain);
@@ -211,3 +211,9 @@ function _mapPlannerStage(planner) {
   }
   return planner;
 }
+
+module.exports.getStageCursorKey = getStageCursorKey;
+
+module.exports.isAggregationExplain = isAggregationExplain;
+module.exports.isShardedAggregationExplain = isShardedAggregationExplain;
+module.exports.isShardedFindExplain = isShardedFindExplain;

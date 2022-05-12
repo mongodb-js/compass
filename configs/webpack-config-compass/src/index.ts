@@ -1,5 +1,5 @@
 import fs from 'fs';
-import type { WebpackPluginInstance } from 'webpack';
+import type { ResolveOptions, WebpackPluginInstance } from 'webpack';
 import { merge } from 'webpack-merge';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -31,10 +31,31 @@ import { sharedExternals } from './externals';
 import { WebpackPluginMulticompilerProgress } from './webpack-plugin-multicompiler-progress';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-const sharedResolveOptions = {
-  mainFields: ['compass:module', 'compass:main', 'module', 'main'],
-  exportsFields: ['compass:exports', 'exports'],
-  extensions: ['.jsx', '.tsx', '.ts', '...'],
+const sharedResolveOptions = (
+  target: ConfigArgs['target']
+): Pick<ResolveOptions, 'mainFields' | 'exportsFields' | 'extensions'> => {
+  if (typeof target === 'string') {
+    target = [target];
+  }
+  return {
+    // This replicates webpack behavior with additional special `compass:` keys
+    // taking priority over the default ones that webpack uses
+    //
+    // See https://webpack.js.org/configuration/resolve/#resolvemainfields
+    mainFields:
+      target?.includes('web') || target?.includes('webworker')
+        ? [
+            'compass:browser',
+            'compass:module',
+            'compass:main',
+            'browser',
+            'module',
+            'main',
+          ]
+        : ['compass:module', 'compass:main', 'module', 'main'],
+    exportsFields: ['compass:exports', 'exports'],
+    extensions: ['.jsx', '.tsx', '.ts', '...'],
+  };
 };
 
 export function createElectronMainConfig(
@@ -69,7 +90,7 @@ export function createElectronMainConfig(
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
-      ...sharedResolveOptions,
+      ...sharedResolveOptions(opts.target),
     },
     plugins: [new WebpackPluginMulticompilerProgress()],
   };
@@ -141,7 +162,7 @@ export function createElectronRendererConfig(
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
-      ...sharedResolveOptions,
+      ...sharedResolveOptions(opts.target),
     },
   };
 
@@ -254,7 +275,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       ...toCommonJsExternal(builtinModules),
     },
     resolve: {
-      ...sharedResolveOptions,
+      ...sharedResolveOptions(opts.target),
     },
   };
 }

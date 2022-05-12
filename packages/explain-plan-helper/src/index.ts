@@ -1,8 +1,14 @@
 import convertExplainCompat from 'mongodb-explain-compat';
+import { getPlannerInfo } from './get-planner-info';
+import { getExecutionStats } from './get-execution-stats';
+import type { ExecutionStats } from './get-execution-stats';
 
 const kParent = Symbol('ExplainPlan.kParent');
 
-type Stage = Record<string, any> & { stage: string; [kParent]: Stage | null };
+export type Stage = Record<string, any> & {
+  stage: string;
+  [kParent]: Stage | null;
+};
 type IndexInformation =
   | { shard: string; index: string }
   | { shard: string; index: null }
@@ -16,29 +22,24 @@ export class ExplainPlan {
   executionTimeMillis: number;
   totalKeysExamined: number;
   totalDocsExamined: number;
-  rawExplainObject: Stage;
   originalExplainData: Stage;
+  executionStats: ExecutionStats;
 
   constructor(originalExplainData: Stage) {
     const rawExplainObject = convertExplainCompat(originalExplainData);
-    ExplainPlan.addParentStages(
-      rawExplainObject.executionStats.executionStages
-    );
-    const qpInfo =
-      rawExplainObject.queryPlanner?.winningPlan?.shards?.[0] ??
-      rawExplainObject.queryPlanner;
+    const executionStats = getExecutionStats(rawExplainObject);
+    ExplainPlan.addParentStages(executionStats.executionStages);
+    const qpInfo = getPlannerInfo(rawExplainObject);
     const esInfo =
-      rawExplainObject.executionStats?.executionStages?.shards?.[0] ??
-      rawExplainObject.executionStats;
+      executionStats?.executionStages?.shards?.[0] ?? executionStats;
+    this.executionStats = executionStats;
     this.namespace = qpInfo.namespace;
     this.parsedQuery = qpInfo.parsedQuery;
     this.executionSuccess = esInfo.executionSuccess;
-    this.nReturned = rawExplainObject.executionStats.nReturned;
-    this.executionTimeMillis =
-      rawExplainObject.executionStats.executionTimeMillis;
-    this.totalKeysExamined = rawExplainObject.executionStats.totalKeysExamined;
-    this.totalDocsExamined = rawExplainObject.executionStats.totalDocsExamined;
-    this.rawExplainObject = rawExplainObject;
+    this.nReturned = executionStats.nReturned;
+    this.executionTimeMillis = executionStats.executionTimeMillis;
+    this.totalKeysExamined = executionStats.totalKeysExamined;
+    this.totalDocsExamined = executionStats.totalDocsExamined;
     this.originalExplainData = originalExplainData;
   }
 
@@ -62,14 +63,18 @@ export class ExplainPlan {
       ret.push({ index, shard });
     }
     if (this.isSharded) {
-      for (const shard of this.rawExplainObject.executionStats.executionStages
-        .shards) {
+      for (const shard of this.executionStats.executionStages.shards) {
         if (!ret.some((indexInfo) => indexInfo.shard === shard.shardName)) {
           ret.push({ index: null, shard: shard.shardName });
         }
       }
     }
-    return ret;
+    return ret.filter(
+      (indexInfo, index, arr) =>
+        arr.findIndex(
+          (i) => i.index === indexInfo.index && i.shard === indexInfo.shard
+        ) === index
+    );
   }
 
   get isCovered(): boolean {
@@ -94,12 +99,12 @@ export class ExplainPlan {
   }
 
   get isSharded(): boolean {
-    return !!this.rawExplainObject.executionStats.executionStages.shards;
+    return !!this.executionStats.executionStages.shards;
   }
 
   get numShards(): number {
     return this.isSharded
-      ? this.rawExplainObject.executionStats.executionStages.shards.length
+      ? this.executionStats.executionStages.shards.length
       : 0;
   }
 
@@ -141,7 +146,7 @@ export class ExplainPlan {
 
   /** DFS stack iterator implementation */
   *_getStageIterator(root?: Stage): Iterable<Stage> {
-    const stage = root ?? this.rawExplainObject.executionStats.executionStages;
+    const stage = root ?? this.executionStats.executionStages;
 
     yield stage;
     for (const child of ExplainPlan.getChildStages(stage)) {

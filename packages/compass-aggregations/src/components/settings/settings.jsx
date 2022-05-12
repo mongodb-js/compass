@@ -61,7 +61,7 @@ class Settings extends PureComponent {
     this.props.applySettings();
 
     // Updated settings used to run all stages in the current pipeline.
-    this.props.runStage(0);
+    this.props.runStage(0, true /* force execute */);
 
     // Hide the settings panel.
     this.props.toggleSettingsIsExpanded();

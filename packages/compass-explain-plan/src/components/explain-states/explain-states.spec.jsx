@@ -20,7 +20,6 @@ describe('ExplainStates [Component]', function () {
   const isEditable = false;
   const explain = {
     viewType: 'tree',
-    rawExplainObject: {},
     nReturned: 0,
     totalKeysExamined: 0,
     totalDocsExamined: 0,
