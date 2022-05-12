@@ -122,7 +122,7 @@ module.exports = {
     // with no custom filename provided
     //
     // See: https://eslint.org/docs/developer-guide/working-with-rules#the-context-object
-    const dirname = /<.+?>/.test(context.getPhysicalFilename())
+    const dirname = /^<.+?>$/.test(context.getPhysicalFilename())
       ? options.cwd
       : path.dirname(context.getPhysicalFilename());
 
