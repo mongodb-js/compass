@@ -40,7 +40,7 @@ describe('PipelineActions', function () {
 
     afterEach(function () {
       process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExplain;
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = initialEnableExplain;
     });
 
     it('calls onRunAggregation callback on click', function () {
