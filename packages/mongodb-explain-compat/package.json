@@ -1,6 +1,6 @@
 {
   "name": "mongodb-explain-compat",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "description": "Convert mongodb SBE explain output to 4.4 explain output",
   "keywords": [
     "mongodb",
@@ -27,7 +27,7 @@
     "lint": "eslint **/*.js",
     "test": "npm run lint && npm run compile && nyc mocha --colors test/*.js",
     "compile": "gen-esm-wrapper . ./.esm-wrapper.mjs",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "test-ci": "npm run test",
     "depcheck": "depcheck",
     "bootstrap": "npm run compile"
