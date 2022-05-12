@@ -1,10 +1,8 @@
 # "bullseye" is the debian distribution that
-# ubuntu:20.04 is based on, this should allow
-# us to "mount" also node_modules without needing to
-# reinstall / rebootstrap
+# ubuntu:20.04 is based on
 FROM node:14-bullseye
 
-COPY krb5.conf /etc/krb5.conf
+COPY .evergreen/connectivity-tests/krb5.conf /etc/krb5.conf
 
 RUN apt-get update -y && \
     apt-get install -y \
@@ -19,12 +17,10 @@ RUN apt-get update -y && \
 
 ENV COMPASS_RUN_DOCKER_TESTS="true"
 
-COPY entrypoint.sh /entrypoint.sh
-
+COPY . /compass-monorepo-root
 WORKDIR /compass-monorepo-root
 
-CMD ["bash", "/entrypoint.sh"]
+RUN npm i -g npm@8
+RUN npm run bootstrap-ci
 
-
-
-
+CMD ["bash", ".evergreen/connectivity-tests/entrypoint.sh"]
