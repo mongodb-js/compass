@@ -1,11 +1,11 @@
 import convertExplainCompat from 'mongodb-explain-compat';
-import { getPlannerInfo } from './getPlannerInfo';
-import { getExecutionStats } from './getExecutionStats';
-import type { ExecutionStats } from './getExecutionStats';
+import { getPlannerInfo } from './get-planner-info';
+import { getExecutionStats } from './get-execution-stats';
+import type { ExecutionStats } from './get-execution-stats';
 
 const kParent = Symbol('ExplainPlan.kParent');
 
-export type Stage = Record<string, any> & { stage: string;[kParent]: Stage | null };
+export type Stage = Record<string, any> & { stage: string; [kParent]: Stage | null };
 type IndexInformation =
   | { shard: string; index: string }
   | { shard: string; index: null }

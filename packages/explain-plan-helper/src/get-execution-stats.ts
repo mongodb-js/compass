@@ -66,7 +66,7 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
     allPlansExecution: [],
     executionSuccess: true,
     executionStages: {
-      stage: shardStats.length === 1 ? "SINGLE_SHARD" : "SHARD_MERGE",
+      stage: shardStats.length === 1 ? 'SINGLE_SHARD' : 'SHARD_MERGE',
       nReturned,
       executionTimeMillis,
       totalKeysExamined,
