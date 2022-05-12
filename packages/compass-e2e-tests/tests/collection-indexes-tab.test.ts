@@ -96,19 +96,7 @@ describe('Collection indexes tab', function () {
     await indexComponent.waitForDisplayed({ reverse: true });
   });
 
-  describe('server version 6.1.0 with env variable COMPASS_COLUMNSTORE_INDEXES = true', function () {
-    let initialEnvVars: NodeJS.ProcessEnv;
-
-    before(function () {
-      initialEnvVars = Object.assign({}, process.env);
-
-      process.env.COMPASS_COLUMNSTORE_INDEXES = 'true';
-    });
-
-    after(function () {
-      process.env = initialEnvVars;
-    });
-
+  describe('server version 6.1.0', function () {
     it('supports creating a columnstore index', async function () {
       if (semver.lt(MONGODB_VERSION, '6.1.0-alpha0')) {
         return this.skip();
