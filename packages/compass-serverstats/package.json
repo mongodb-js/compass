@@ -25,7 +25,7 @@
     "depcheck": "depcheck",
     "test-ci": "npm run test",
     "test-ci-electron": "npm run test-electron",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "bootstrap": "npm run compile"
   },
   "license": "SSPL",

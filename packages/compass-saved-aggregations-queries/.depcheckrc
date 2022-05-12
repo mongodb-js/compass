@@ -7,6 +7,6 @@ ignores:
   - '@types/chai-dom'
   - '@types/react'
   - '@types/react-dom'
-  # Will come in handy when we will start to add tests
-  - '@testing-library/react'
-  - '@testing-library/user-event'
+ignore-patterns:
+  - 'dist'
+

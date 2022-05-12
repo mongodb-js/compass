@@ -27,7 +27,7 @@
     "lint": "eslint **/*.js",
     "test": "npm run lint && npm run compile && nyc mocha --colors test/*.js",
     "compile": "gen-esm-wrapper . ./.esm-wrapper.mjs",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "test-ci": "npm run test",
     "depcheck": "depcheck",
     "bootstrap": "npm run compile"
