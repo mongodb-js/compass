@@ -1394,7 +1394,6 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         const options: DropCollectionOptions = {};
         const encryptedFieldsInfo = result?.[0]?.options?.encryptedFields;
         if (encryptedFieldsInfo) {
-          // @ts-expect-error next driver release has types
           options.encryptedFields = encryptedFieldsInfo;
         }
         coll.drop(options, (error, result) => {
