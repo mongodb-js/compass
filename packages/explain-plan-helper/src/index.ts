@@ -1,6 +1,7 @@
 import convertExplainCompat from 'mongodb-explain-compat';
-import { getPlannerInfo, getExecutionStats } from './helpers';
-import type { ExecutionStats } from './helpers';
+import { getPlannerInfo } from './getPlannerInfo';
+import { getExecutionStats } from './getExecutionStats';
+import type { ExecutionStats } from './getExecutionStats';
 
 const kParent = Symbol('ExplainPlan.kParent');
 

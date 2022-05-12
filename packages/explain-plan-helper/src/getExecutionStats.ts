@@ -16,46 +16,6 @@ export type ExecutionStats = {
   allPlansExecution: unknown[];
 }
 
-type PlannerInfo = {
-  namespace: string;
-  parsedQuery: Stage;
-}
-
-export const getPlannerInfo = (explain: Stage): PlannerInfo => {
-  const queryPlanner = isAggregationExplain(explain)
-    ? _getAggregationPlanner(explain)
-    : _getFindPlanner(explain);
-  return {
-    namespace: queryPlanner.namespace,
-    parsedQuery: queryPlanner.parsedQuery,
-  };
-}
-const _getAggregationPlanner = (explain: Stage): Stage => {
-  return isShardedAggregationExplain(explain)
-    ? _getShardedAggregationPlanner(explain)
-    : _getUnshardedAggregationPlanner(explain);
-};
-const _getUnshardedAggregationPlanner = (explain: Stage): Stage => {
-  const firstStage = explain.stages[0];
-  const cursorKey = getStageCursorKey(firstStage);
-  if (!cursorKey) {
-    throw new Error('Can not find a cursor stage.');
-  }
-  return _getFindPlanner(firstStage[cursorKey]);
-};
-const _getShardedAggregationPlanner = (explain: Stage): Stage => {
-  // The first shard
-  const firstShardName = Object.keys(explain.shards)[0];
-  const firstShard = explain.shards[firstShardName];
-  if (firstShard.stages) {
-    return _getUnshardedAggregationPlanner(firstShard);
-  }
-  return _getFindPlanner(firstShard);
-};
-const _getFindPlanner = (explain: Stage): Stage => {
-  return explain.queryPlanner;
-};
-
 export const getExecutionStats = (explain: Stage): ExecutionStats => {
   const executionStats = isAggregationExplain(explain)
     ? _getAggregationStats(explain)
@@ -120,7 +80,6 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
 const _getFindStats = (explain: Stage): ExecutionStats => {
   return explain.executionStats;
 };
-
 
 function sumArrayProp<T>(arr: T[], prop: keyof T): number {
   return arr.reduce((acc, x) => acc + Number(x[prop] ?? 0), 0);
