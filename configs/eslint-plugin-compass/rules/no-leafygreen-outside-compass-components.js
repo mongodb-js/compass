@@ -23,20 +23,43 @@ function reportLeafygreenUsage(context, node, source) {
   });
 }
 
-const PackageNameMap = new Map();
+/** @type {Map<string, string> & { findClosest(key: string): string | undefined }} */
+const PackageNameMap = new (class extends Map {
+  /**
+   * @param {string} key
+   * @returns {string | undefined}
+   */
+  findClosest(key) {
+    const closest = [...this.keys()]
+      .sort((a, b) => {
+        return b.length - a.length;
+      })
+      .find((path) => {
+        return key.startsWith(path);
+      });
+    return this.get(closest);
+  }
+})();
 
 /**
- *
- * @param {string} cwd
- * @returns
+ * @param {string} dirname
+ * @returns {string | null}
  */
-function getPackageNameFromCwd(cwd) {
-  if (PackageNameMap.has(cwd)) {
-    return PackageNameMap.get(cwd);
+function getPackageNameForDirname(dirname) {
+  if (!dirname || dirname === '/') {
+    return null;
   }
-  const packageJson = require(path.join(cwd, 'package.json'));
-  PackageNameMap.set(cwd, packageJson.name);
-  return packageJson.name;
+  const maybeName = PackageNameMap.findClosest(dirname);
+  if (maybeName) {
+    return maybeName;
+  }
+  try {
+    const { name } = require(path.join(dirname, 'package.json'));
+    PackageNameMap.set(dirname, name);
+    return name;
+  } catch {
+    return getPackageNameForDirname(path.resolve(dirname, '..'));
+  }
 }
 
 /**
@@ -78,12 +101,32 @@ module.exports = {
     },
     fixable: 'code',
     hasSuggestions: true,
-    // CWD for testing purposes only
-    schema: [{ type: 'string' }],
+
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          // Allows to override CWD for testing purposes
+          cwd: { type: 'string' },
+        },
+      },
+    ],
   },
   create(context) {
-    const [cwd] = context.options;
-    const packageName = getPackageNameFromCwd(cwd ?? context.getCwd());
+    const options = {
+      cwd: context.getCwd(),
+      ...context.options[0],
+    };
+
+    // Physical filenames like `<text>` or `<input>` indicate programmatic usage
+    // with no custom filename provided
+    //
+    // See: https://eslint.org/docs/developer-guide/working-with-rules#the-context-object
+    const dirname = /<.+?>/.test(context.getPhysicalFilename())
+      ? options.cwd
+      : path.dirname(context.getPhysicalFilename());
+
+    const packageName = getPackageNameForDirname(dirname);
 
     const isCompassComponentsPackage =
       packageName === '@mongodb-js/compass-components';
