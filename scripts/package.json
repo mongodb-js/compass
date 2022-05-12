@@ -5,6 +5,9 @@
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
+  "bin": {
+    "compass-scripts": "./cli.js"
+  },
   "private": true,
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",

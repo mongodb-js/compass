@@ -24,7 +24,7 @@
     "test-electron": "xvfb-maybe cross-env NODE_ENV=test karma start",
     "test-cov": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
     "depcheck": "depcheck",
     "test-ci": "npm run test",

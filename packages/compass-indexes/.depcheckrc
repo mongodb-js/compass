@@ -7,3 +7,5 @@ ignores:
   - '@types/chai-dom'
   - '@types/react'
   - '@types/react-dom'
+ignore-patterns:
+  - 'dist'
