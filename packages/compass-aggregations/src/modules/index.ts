@@ -713,7 +713,7 @@ export const getPipelineFromIndexedDB = (pipelineId: string): ThunkAction<void, 
       dispatch(clearPipeline());
       dispatch(restoreSavedPipeline(pipe));
       dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));
-      dispatch(runStage(0) as any);
+      dispatch(runStage(0, true /* force execute */));
     } catch (e: unknown) {
       console.log(e);
     }
@@ -775,7 +775,7 @@ export const modifyView = (
 ): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch) => {
     dispatch(modifySource(viewName, viewPipeline, readonly, source));
-    dispatch(runStage(0));
+    dispatch(runStage(0, true /* force execute */));
   };
 };
 

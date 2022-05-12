@@ -1,0 +1,286 @@
+{
+  "serverInfo": {
+    "host": "M-C02DR0F9ML85.local",
+    "port": 8080,
+    "version": "5.3.0-rc3",
+    "gitVersion": "cf6ac4d17da6eb6562f503a515ea6aea2ccbf944"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "splitPipeline": null,
+  "shards": {
+    "shard1": {
+      "host": "localhost:8001",
+      "queryPlanner": {
+        "namespace": "sharded-db.faker",
+        "indexFilterSet": false,
+        "parsedQuery": {
+          "abbreviation": {
+            "$eq": "PNG"
+          }
+        },
+        "optimizedPipeline": true,
+        "maxIndexedOrSolutionsReached": false,
+        "maxIndexedAndSolutionsReached": false,
+        "maxScansToExplodeReached": false,
+        "winningPlan": {
+          "queryPlan": {
+            "stage": "LIMIT",
+            "planNodeId": 3,
+            "limitAmount": 20,
+            "inputStage": {
+              "stage": "SHARDING_FILTER",
+              "planNodeId": 2,
+              "inputStage": {
+                "stage": "COLLSCAN",
+                "planNodeId": 1,
+                "filter": {
+                  "abbreviation": {
+                    "$eq": "PNG"
+                  }
+                },
+                "direction": "forward"
+              }
+            }
+          },
+          "slotBasedPlan": {
+            "slots": "$$RESULT=s6 $$RID=s7 env: { s3 = Timestamp(1651845416, 1) (CLUSTER_TIME), s2 = Nothing (SEARCH_META), s5 = ShardFilterer (shardFilterer), s1 = TimeZoneDatabase(Europe/Kaliningrad...Asia/Dushanbe) (timeZoneDB), s4 = 1651845424173 (NOW) }",
+            "stages": "[3] limit 20 \n[2] filter {shardFilter (s5, s13)} \n[2] project [s13 = if (! exists (s11), Nothing, s12)] \n[2] mkbson s12 [abbrevation = s11] true false \n[2] project [s11 = let [l1.0 = fillEmpty (getField (s6, \"abbrevation\"), null)] if (isArray (l1.0), Nothing, l1.0)] \n[1] filter {fillEmpty (s10, false)} \n[1] traverse s10 s9 s8 [s6, s7] {s10 || s9} {s10} \nfrom \n    [1] project [s8 = getField (s6, \"abbreviation\")] \n    [1] scan s6 s7 none none none none [] @\"bde8f0e8-b3ab-402e-ac05-1eaaa41c0c31\" true false \nin \n    [1] project [s9 = fillEmpty (s8 == \"PNG\", false)] \n    [1] limit 1 \n    [1] coscan \n"
+          }
+        },
+        "rejectedPlans": []
+      },
+      "executionStats": {
+        "executionSuccess": true,
+        "nReturned": 20,
+        "executionTimeMillis": 0,
+        "totalKeysExamined": 0,
+        "totalDocsExamined": 581,
+        "executionStages": {
+          "stage": "limit",
+          "planNodeId": 3,
+          "nReturned": 20,
+          "executionTimeMillisEstimate": 0,
+          "opens": 1,
+          "closes": 1,
+          "saveState": 0,
+          "restoreState": 0,
+          "isEOF": 1,
+          "limit": 20,
+          "inputStage": {
+            "stage": "filter",
+            "planNodeId": 2,
+            "nReturned": 20,
+            "executionTimeMillisEstimate": 0,
+            "opens": 1,
+            "closes": 1,
+            "saveState": 0,
+            "restoreState": 0,
+            "isEOF": 0,
+            "numTested": 20,
+            "filter": "shardFilter (s5, s13) ",
+            "inputStage": {
+              "stage": "project",
+              "planNodeId": 2,
+              "nReturned": 20,
+              "executionTimeMillisEstimate": 0,
+              "opens": 1,
+              "closes": 1,
+              "saveState": 0,
+              "restoreState": 0,
+              "isEOF": 0,
+              "projections": {
+                "13": "if (! exists (s11), Nothing, s12) "
+              },
+              "inputStage": {
+                "stage": "mkbson",
+                "planNodeId": 2,
+                "nReturned": 20,
+                "executionTimeMillisEstimate": 0,
+                "opens": 1,
+                "closes": 1,
+                "saveState": 0,
+                "restoreState": 0,
+                "isEOF": 0,
+                "objSlot": 12,
+                "fields": [],
+                "projectFields": ["abbrevation"],
+                "projectSlots": [11],
+                "forceNewObject": true,
+                "returnOldObject": false,
+                "inputStage": {
+                  "stage": "project",
+                  "planNodeId": 2,
+                  "nReturned": 20,
+                  "executionTimeMillisEstimate": 0,
+                  "opens": 1,
+                  "closes": 1,
+                  "saveState": 0,
+                  "restoreState": 0,
+                  "isEOF": 0,
+                  "projections": {
+                    "11": "let [l1.0 = fillEmpty (getField (s6, \"abbrevation\"), null)] if (isArray (l1.0), Nothing, l1.0) "
+                  },
+                  "inputStage": {
+                    "stage": "filter",
+                    "planNodeId": 1,
+                    "nReturned": 20,
+                    "executionTimeMillisEstimate": 0,
+                    "opens": 1,
+                    "closes": 1,
+                    "saveState": 0,
+                    "restoreState": 0,
+                    "isEOF": 0,
+                    "numTested": 581,
+                    "filter": "fillEmpty (s10, false) ",
+                    "inputStage": {
+                      "stage": "traverse",
+                      "planNodeId": 1,
+                      "nReturned": 581,
+                      "executionTimeMillisEstimate": 0,
+                      "opens": 1,
+                      "closes": 1,
+                      "saveState": 0,
+                      "restoreState": 0,
+                      "isEOF": 0,
+                      "innerOpens": 0,
+                      "innerCloses": 0,
+                      "inputSlot": 8,
+                      "outputSlot": 10,
+                      "outputSlotInner": 9,
+                      "correlatedSlots": [6, 7],
+                      "nestedArraysDepth": 1,
+                      "fold": "s10 || s9 ",
+                      "final": "s10 ",
+                      "outerStage": {
+                        "stage": "project",
+                        "planNodeId": 1,
+                        "nReturned": 581,
+                        "executionTimeMillisEstimate": 0,
+                        "opens": 1,
+                        "closes": 1,
+                        "saveState": 0,
+                        "restoreState": 0,
+                        "isEOF": 0,
+                        "projections": {
+                          "8": "getField (s6, \"abbreviation\") "
+                        },
+                        "inputStage": {
+                          "stage": "scan",
+                          "planNodeId": 1,
+                          "nReturned": 581,
+                          "executionTimeMillisEstimate": 0,
+                          "opens": 1,
+                          "closes": 1,
+                          "saveState": 0,
+                          "restoreState": 0,
+                          "isEOF": 0,
+                          "numReads": 581,
+                          "recordSlot": 6,
+                          "recordIdSlot": 7,
+                          "fields": [],
+                          "outputSlots": []
+                        }
+                      },
+                      "innerStage": {
+                        "stage": "project",
+                        "planNodeId": 1,
+                        "nReturned": 581,
+                        "executionTimeMillisEstimate": 0,
+                        "opens": 581,
+                        "closes": 1,
+                        "saveState": 0,
+                        "restoreState": 0,
+                        "isEOF": 0,
+                        "projections": {
+                          "9": "fillEmpty (s8 == \"PNG\", false) "
+                        },
+                        "inputStage": {
+                          "stage": "limit",
+                          "planNodeId": 1,
+                          "nReturned": 581,
+                          "executionTimeMillisEstimate": 0,
+                          "opens": 581,
+                          "closes": 1,
+                          "saveState": 0,
+                          "restoreState": 0,
+                          "isEOF": 0,
+                          "limit": 1,
+                          "inputStage": {
+                            "stage": "coscan",
+                            "planNodeId": 1,
+                            "nReturned": 581,
+                            "executionTimeMillisEstimate": 0,
+                            "opens": 581,
+                            "closes": 1,
+                            "saveState": 0,
+                            "restoreState": 0,
+                            "isEOF": 0
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "allPlansExecution": []
+      }
+    }
+  },
+  "command": {
+    "aggregate": "faker",
+    "pipeline": [
+      {
+        "$match": {
+          "abbreviation": {
+            "$eq": "PNG"
+          }
+        }
+      },
+      {
+        "$skip": 0
+      },
+      {
+        "$limit": 20
+      }
+    ],
+    "cursor": {},
+    "allowDiskUse": true,
+    "maxTimeMS": 60000
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": {
+        "t": 1651845421,
+        "i": 1
+      }
+    },
+    "signature": {
+      "hash": {
+        "$binary": {
+          "base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "subType": "00"
+        }
+      },
+      "keyId": 0
+    }
+  },
+  "operationTime": {
+    "$timestamp": {
+      "t": 1651845421,
+      "i": 1
+    }
+  }
+}

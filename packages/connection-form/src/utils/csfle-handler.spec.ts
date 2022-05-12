@@ -85,7 +85,7 @@ describe('csfle-handler', function () {
         }).connectionOptions.fleOptions
       ).to.deep.equal({
         storeCredentials: false,
-        autoEncryption: {},
+        autoEncryption: undefined,
       });
     });
   });
@@ -124,9 +124,7 @@ describe('csfle-handler', function () {
         }).connectionOptions.fleOptions
       ).to.deep.equal({
         storeCredentials: false,
-        autoEncryption: {
-          kmsProviders: {},
-        },
+        autoEncryption: undefined,
       });
     });
   });
@@ -165,9 +163,7 @@ describe('csfle-handler', function () {
         }).connectionOptions.fleOptions
       ).to.deep.equal({
         storeCredentials: false,
-        autoEncryption: {
-          tlsOptions: {},
-        },
+        autoEncryption: undefined,
       });
     });
   });
@@ -327,7 +323,6 @@ describe('csfle-handler', function () {
                 '$compass.rawText': exampleString,
                 '$compass.error': null,
               },
-              // @ts-expect-error next driver release will have types
               encryptedFieldsMap: {
                 '$compass.rawText': exampleString,
                 '$compass.error': null,

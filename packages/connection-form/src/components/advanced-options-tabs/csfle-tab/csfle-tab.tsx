@@ -207,11 +207,9 @@ function CSFLETab({
         <EncryptedFieldConfigInput
           label="EncryptedFieldsMap"
           description="Add an optional client-side EncryptedFieldsMap for enhanced security."
-          // @ts-expect-error next driver release will have types
           encryptedFieldsMap={autoEncryptionOptions?.encryptedFieldsMap}
           errorMessage={errorMessageByFieldName(errors, 'encryptedFieldsMap')}
           onChange={(value: Document | undefined) => {
-            // @ts-expect-error next driver release will have types
             handleFieldChanged('encryptedFieldsMap', value);
           }}
         />
