@@ -25,15 +25,16 @@ export const toggleAutoPreview = (
   newVal: boolean
 ): ThunkAction<void, RootState, void, AutoPreviewToggledAction> => {
   return (dispatch) => {
-    if (
-      newVal &&
-      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true'
-    ) {
-      dispatch(runStage(0));
-    }
     dispatch({
       type: ActionTypes.AutoPreviewToggled,
       value: newVal
     });
+
+    if (
+      newVal &&
+      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true'
+    ) {
+      dispatch(runStage(0, true /* force execute */));
+    }
   };
 };

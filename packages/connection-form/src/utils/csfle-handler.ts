@@ -11,7 +11,7 @@ import queryParser from 'mongodb-query-parser';
 
 const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
   storeCredentials: false,
-  autoEncryption: {},
+  autoEncryption: undefined,
 };
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
@@ -89,7 +89,7 @@ export function handleUpdateCsfleParam({
       fleOptions: {
         ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
-        autoEncryption,
+        autoEncryption: unsetAutoEncryptionIfEmpty(autoEncryption),
       },
     },
   };
@@ -127,10 +127,10 @@ export function handleUpdateCsfleKmsParam({
       fleOptions: {
         ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
-        autoEncryption: {
+        autoEncryption: unsetAutoEncryptionIfEmpty({
           ...autoEncryption,
           kmsProviders,
-        },
+        }),
       },
     },
   };
@@ -168,13 +168,23 @@ export function handleUpdateCsfleKmsTlsParam({
       fleOptions: {
         ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
-        autoEncryption: {
+        autoEncryption: unsetAutoEncryptionIfEmpty({
           ...autoEncryption,
           tlsOptions,
-        },
+        }),
       },
     },
   };
+}
+
+// The driver creates an AutoEncrypter object if `.autoEncryption` has been set
+// as an option, regardless of whether it is filled. Consequently, we need
+// to set it to undefined explicitly if the user wants to disable automatic
+// CSFLE entirely (indicated by removing all CSFLE options).
+export function unsetAutoEncryptionIfEmpty(
+  o?: AutoEncryptionOptions
+): AutoEncryptionOptions | undefined {
+  return o && hasAnyCsfleOption(o) ? o : undefined;
 }
 
 export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {

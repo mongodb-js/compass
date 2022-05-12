@@ -12,6 +12,7 @@ import { dataServiceConnected } from '../modules/data-service';
 import { loadIndexesFromDb, parseErrorMsg } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { namespaceChanged } from '../modules/namespace';
+import { serverVersionChanged } from '../modules/server-version';
 
 /**
  * Handle setting up the data provider.
@@ -61,6 +62,10 @@ const configureStore = (options = {}) => {
 
   if (options.namespace) {
     store.dispatch(namespaceChanged(options.namespace));
+  }
+
+  if (options.serverVersion) {
+    store.dispatch(serverVersionChanged(options.serverVersion));
   }
 
   if (options.isReadonly) {

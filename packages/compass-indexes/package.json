@@ -32,9 +32,8 @@
   "compass:exports": {
     ".": "./src/index.js"
   },
-  "types": "./dist/index.d.ts",
   "scripts": {
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
@@ -104,6 +103,7 @@
     "redux-thunk": "^2.3.0",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^3.0.2",
+    "semver": "^5.4.1",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   },

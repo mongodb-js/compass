@@ -62,7 +62,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
 InsertCSFLEWarningBanner.displayName = 'InsertCSFLEWarningBanner';
 
 InsertCSFLEWarningBanner.propTypes = {
-  csfleState: PropTypes.string.isRequired
+  csfleState: PropTypes.object.isRequired
 };
 
 export default InsertCSFLEWarningBanner;

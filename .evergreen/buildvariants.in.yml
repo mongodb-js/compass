@@ -24,19 +24,19 @@ buildvariants:
 
   - name: coverage
     display_name: E2E Coverage
-    run_on: ubuntu2004-large
+    run_on: ubuntu1604-large
     tasks:
       - name: e2e-coverage
 
   - name: ubuntu_publish
     display_name: Publish Artifacts
-    run_on: ubuntu2004-large
+    run_on: ubuntu1604-large
     tasks:
       - name: publish
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests
-    run_on: ubuntu2004-large
+    run_on: ubuntu1604-large
     tasks:
       - name: test-connectivity
 

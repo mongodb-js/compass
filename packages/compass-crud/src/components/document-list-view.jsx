@@ -29,11 +29,10 @@ class DocumentListView extends React.Component {
    * @return {Array} The document list item components.
    */
   renderDocuments() {
-    return this.props.docs.map((doc) => {
+    return this.props.docs.map((doc, index) => {
       return (
-        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={doc.uuid}>
+        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={index}>
           <Document
-            key={doc.uuid}
             doc={doc}
             editable={this.props.isEditable}
             isTimeSeries={this.props.isTimeSeries}
