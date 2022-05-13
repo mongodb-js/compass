@@ -366,37 +366,22 @@ describe('CreateIndexModal [Component]', function () {
           expect(openLinkSpy.called).to.equal(true);
         });
       });
-      context(
-        'serverVersion gte 6.1.0 with env variable COMPASS_COLUMNSTORE_INDEXES = true',
-        function () {
-          let initialEnvVars;
-
-          before(function () {
-            initialEnvVars = Object.assign({}, process.env);
-
-            process.env.COMPASS_COLUMNSTORE_INDEXES = 'true';
+      context('serverVersion gte 6.1.0', function () {
+        beforeEach(function () {
+          component.setProps({
+            serverVersion: '6.1.0',
           });
-
-          after(function () {
-            process.env = initialEnvVars;
+        });
+        context('columnstoreIndexes', function () {
+          it('calls the toggleIsColumnstore function', function () {
+            component
+              .find('[data-test-id="toggle-is-columnstore"]')
+              .find('[type="checkbox"]')
+              .simulate('change', { target: { checked: true } });
+            expect(toggleIsColumnstoreSpy.called).to.equal(true);
           });
-
-          beforeEach(function () {
-            component.setProps({
-              serverVersion: '6.1.0',
-            });
-          });
-          context('columnstoreIndexes', function () {
-            it('calls the toggleIsColumnstore function', function () {
-              component
-                .find('[data-test-id="toggle-is-columnstore"]')
-                .find('[type="checkbox"]')
-                .simulate('change', { target: { checked: true } });
-              expect(toggleIsColumnstoreSpy.called).to.equal(true);
-            });
-          });
-        }
-      );
+        });
+      });
     });
   });
 
@@ -518,32 +503,17 @@ describe('CreateIndexModal [Component]', function () {
         ).to.not.be.present();
       });
     });
-    context(
-      'server version is gte 6.1.0 with env variable COMPASS_COLUMNSTORE_INDEXES = true',
-      function () {
-        let initialEnvVars;
+    context('server version is gte 6.1.0', function () {
+      beforeEach(function () {
+        component.setProps({ serverVersion: '6.1.0' });
+      });
 
-        before(function () {
-          initialEnvVars = Object.assign({}, process.env);
-
-          process.env.COMPASS_COLUMNSTORE_INDEXES = 'true';
-        });
-
-        after(function () {
-          process.env = initialEnvVars;
-        });
-
-        beforeEach(function () {
-          component.setProps({ serverVersion: '6.1.0' });
-        });
-
-        it('displays the columnstore index projection options', function () {
-          expect(
-            component.find('[data-test-id="toggle-is-columnstore"]')
-          ).to.be.present();
-        });
-      }
-    );
+      it('displays the columnstore index projection options', function () {
+        expect(
+          component.find('[data-test-id="toggle-is-columnstore"]')
+        ).to.be.present();
+      });
+    });
   });
 
   context('when the modal is not visible', function () {

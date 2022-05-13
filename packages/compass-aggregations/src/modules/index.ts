@@ -119,6 +119,11 @@ import aggregation, {
 import countDocuments, {
   INITIAL_STATE as COUNT_INITIAL_STATE
 } from './count-documents';
+
+import explain, {
+  INITIAL_STATE as EXPLAIN_INITIAL_STATE
+} from './explain';
+
 import workspace, {
   INITIAL_STATE as WORKSPACE_INITIAL_STATE
 } from './workspace';
@@ -176,6 +181,7 @@ export const INITIAL_STATE = {
   aggregation: AGGREGATION_INITIAL_STATE,
   workspace: WORKSPACE_INITIAL_STATE,
   countDocuments: COUNT_INITIAL_STATE,
+  explain: EXPLAIN_INITIAL_STATE,
 };
 
 /**
@@ -255,7 +261,8 @@ const appReducer = combineReducers({
   aggregation,
   workspace,
   countDocuments,
-  aggregationWorkspaceId
+  aggregationWorkspaceId,
+  explain,
 });
 
 export type RootState = ReturnType<typeof appReducer>;
@@ -291,7 +298,7 @@ const doNamespaceChanged = (state: RootState, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doReset= (state: RootState) => ({
+const doReset = (state: RootState) => ({
   ...INITIAL_STATE,
   aggregationWorkspaceId: state.aggregationWorkspaceId
 });
