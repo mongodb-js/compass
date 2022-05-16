@@ -10,11 +10,12 @@ type OsInfo = {
   os_linux_release?: string;
 };
 
-export async function getLinuxInfo(releaseFile: string): Promise<{
+async function getLinuxInfo(): Promise<{
   os_linux_dist: string;
   os_linux_release: string;
 }> {
   try {
+    const releaseFile = '/etc/os-release';
     const etcRelease = await fs.readFile(releaseFile, 'utf-8');
 
     const releaseKv = etcRelease
@@ -50,8 +51,6 @@ export async function getOsInfo(): Promise<OsInfo> {
     os_version: os.version(),
     os_arch: os.arch(),
     os_release: os.release(),
-    ...(process.platform === 'linux'
-      ? await getLinuxInfo('/etc/os-release')
-      : {}),
+    ...(process.platform === 'linux' ? await getLinuxInfo() : {}),
   };
 }
