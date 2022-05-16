@@ -234,7 +234,6 @@ export class SshTunnel extends EventEmitter {
         debug('error on socksv5 socket', info, err);
         err.origin = err.origin ?? 'connection';
         this.server.emit('error', err);
-        this.connections.delete(socket as Socket);
       });
 
       socket.once('close', () => {
