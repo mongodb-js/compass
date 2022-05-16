@@ -148,6 +148,74 @@ describe('create index is background module', function () {
       );
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
+    it('generates name if empty', function () {
+      const dispatch = (res) => {
+        if (typeof res !== 'function') {
+          switch (res.type) {
+            case TOGGLE_IN_PROGRESS:
+              progressSpy();
+              break;
+            case RESET:
+              resetSpy();
+              break;
+            case CLEAR_ERROR:
+              clearErrorSpy();
+              break;
+            case TOGGLE_IS_VISIBLE:
+              visibleSpy();
+              break;
+            default:
+              expect(true).to.equal(
+                false,
+                `Unexpected action called ${res.type}`
+              );
+          }
+        }
+      };
+      const state = () => ({
+        fields: [{ name: 'abc', type: '1 (asc)' }],
+        isPartialFilterExpression: true,
+        partialFilterExpression: '{"a": 1}',
+        isBackground: true,
+        isUnique: true,
+        name: '',
+        isCustomCollation: true,
+        collation: 'coll',
+        isTtl: true,
+        ttl: 100,
+        namespace: 'db.coll',
+        appRegistry: {
+          emit: emitSpy,
+        },
+        dataService: {
+          createIndex: (ns, spec, options, cb) => {
+            expect(ns).to.equal('db.coll');
+            expect(spec).to.deep.equal({ abc: 1 });
+            expect(options).to.deep.equal({
+              background: true,
+              collation: 'coll',
+              expireAfterSeconds: 100,
+              name: 'abc_1',
+              partialFilterExpression: { a: 1 },
+              unique: true,
+            });
+            cb(null);
+          },
+        },
+      });
+      createIndex()(dispatch, state);
+      expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
+      expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
+      expect(progressSpy.calledTwice).to.equal(
+        true,
+        'toggleInProgress not called'
+      );
+      expect(visibleSpy.calledOnce).to.equal(
+        true,
+        'toggleIsVisible not called'
+      );
+      expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
+    });
     it('handles error in createIndex', function () {
       const dispatch = (res) => {
         switch (res.type) {
@@ -196,6 +264,26 @@ describe('create index is background module', function () {
         'toggleInProgress not called'
       );
       expect(errorSpy.calledOnce).to.equal(true, 'error should be called');
+    });
+  });
+
+  describe('#createName', function () {
+    context('when the index is not a wildcard index', function () {
+      const fields = [{ name: 'name' }, { name: 'age' }];
+      const spec = { name: 1, age: -1 };
+      it('generates a name with all fields and directions', function () {
+        expect(createName(fields, spec)).to.equal('name_1_age_-1');
+      });
+    });
+
+    context('when the index is a wildcard', function () {
+      const fields = [{ name: 'name' }, { name: 'age' }];
+      const spec = { name: '$**name.first', age: '$**age.years' };
+      it('generates a name with all fields and wilcard replacement', function () {
+        expect(createName(fields, spec)).to.equal(
+          'name_wildcardname.first_age_wildcardage.years'
+        );
+      });
     });
   });
 });

@@ -139,6 +139,11 @@ const rootReducer = (state, action) => {
 
 export default rootReducer;
 
+export const createName = (f, spec) => {
+  const n = f.map((field) => `${field.name}_${spec[field.name]}`).join('_');
+  return n.replace(/\$\*\*/gi, 'wildcard');
+};
+
 /**
  * The create index action.
  *
@@ -167,8 +172,7 @@ export const createIndex = () => {
     options.unique = state.isUnique;
     options.name = state.name;
     if (state.name === '') {
-      // Let the server generate the name.
-      delete options.name;
+      options.name = createName(state.fields, spec);
     }
     if (state.isCustomCollation) {
       options.collation = state.collation;
@@ -219,8 +223,6 @@ export const createIndex = () => {
     }
     dispatch(toggleInProgress(true));
     const ns = state.namespace;
-
-    console.log('create collection options', options);
 
     state.dataService.createIndex(ns, spec, options, (createErr) => {
       if (!createErr) {
