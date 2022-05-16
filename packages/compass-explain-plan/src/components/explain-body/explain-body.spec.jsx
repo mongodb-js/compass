@@ -14,7 +14,6 @@ describe('ExplainBody [Component]', function () {
     let component;
     const explain = {
       viewType: EXPLAIN_VIEWS.tree,
-      rawExplainObject: {},
       nReturned: 0,
       totalKeysExamined: 0,
       totalDocsExamined: 0,
@@ -45,7 +44,6 @@ describe('ExplainBody [Component]', function () {
     let component;
     const explain = {
       viewType: EXPLAIN_VIEWS.json,
-      rawExplainObject: {},
       nReturned: 0,
       totalKeysExamined: 0,
       totalDocsExamined: 0,
@@ -79,7 +77,6 @@ describe('ExplainBody [Component]', function () {
     let component;
     const explain = {
       viewType: EXPLAIN_VIEWS.tree,
-      rawExplainObject: {},
       nReturned: 0,
       totalKeysExamined: 0,
       totalDocsExamined: 0,

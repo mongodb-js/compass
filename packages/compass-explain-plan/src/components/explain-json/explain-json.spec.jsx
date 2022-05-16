@@ -14,7 +14,9 @@ describe('ExplainJSON [Component]', function () {
   const appRegistry = new AppRegistry();
 
   beforeEach(function () {
-    component = mount(<ExplainJSON rawExplainObject={originalExplainData} />);
+    component = mount(
+      <ExplainJSON originalExplainData={originalExplainData} />
+    );
   });
 
   afterEach(function () {

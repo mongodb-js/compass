@@ -538,7 +538,6 @@ describe('connection tracking', function () {
               local: { key: 'asdf' },
               aws: { accessKeyId: 'asdf', secretAccessKey: 'asdf' },
             },
-            // @ts-expect-error next driver release will have types
             encryptedFieldsMap: {
               ['foo.bar']: {},
             },

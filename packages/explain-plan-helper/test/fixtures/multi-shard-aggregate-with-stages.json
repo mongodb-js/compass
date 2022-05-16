@@ -1,0 +1,1332 @@
+{
+  "serverInfo": {
+    "host": "M-C02DR0F9ML85.fritz.box",
+    "port": 8080,
+    "version": "5.3.0-rc3",
+    "gitVersion": "cf6ac4d17da6eb6562f503a515ea6aea2ccbf944"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "mergeType": "anyShard",
+  "splitPipeline": {
+    "shardsPart": [
+      {
+        "$geoNear": {
+          "near": {
+            "type": "Point",
+            "coordinates": [-8.61308, 41.1413]
+          },
+          "distanceField": "distance",
+          "maxDistance": 10000,
+          "query": {},
+          "spherical": false
+        }
+      }
+    ],
+    "mergerPart": [
+      {
+        "$mergeCursors": {
+          "lsid": {
+            "id": {
+              "$binary": {
+                "base64": "ry84bpRERfKg+z68/jr6qg==",
+                "subType": "04"
+              }
+            },
+            "uid": {
+              "$binary": {
+                "base64": "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+                "subType": "00"
+              }
+            }
+          },
+          "sort": {
+            "distance": 1
+          },
+          "compareWholeSortKey": false,
+          "tailableMode": "normal",
+          "nss": "sharded-db.listings",
+          "allowPartialResults": false,
+          "recordRemoteOpWaitTime": false
+        }
+      },
+      {
+        "$group": {
+          "_id": {
+            "$const": null
+          },
+          "host_ids": {
+            "$addToSet": "$host_id"
+          }
+        }
+      },
+      {
+        "$unwind": {
+          "path": "$host_ids"
+        }
+      }
+    ]
+  },
+  "shards": {
+    "shard2": {
+      "host": "localhost:8002",
+      "stages": [
+        {
+          "$geoNearCursor": {
+            "queryPlanner": {
+              "namespace": "sharded-db.listings",
+              "indexFilterSet": false,
+              "parsedQuery": {
+                "address.location": {
+                  "$near": {
+                    "type": "Point",
+                    "coordinates": [-8.61308, 41.1413]
+                  },
+                  "$maxDistance": 10000
+                }
+              },
+              "queryHash": "C6043444",
+              "planCacheKey": "81057A54",
+              "maxIndexedOrSolutionsReached": false,
+              "maxIndexedAndSolutionsReached": false,
+              "maxScansToExplodeReached": false,
+              "winningPlan": {
+                "stage": "SHARDING_FILTER",
+                "inputStage": {
+                  "stage": "GEO_NEAR_2DSPHERE",
+                  "keyPattern": {
+                    "address.location": "2dsphere"
+                  },
+                  "indexName": "address_location",
+                  "indexVersion": 2,
+                  "inputStage": {
+                    "stage": "FETCH",
+                    "inputStage": {
+                      "stage": "IXSCAN",
+                      "keyPattern": {
+                        "address.location": "2dsphere"
+                      },
+                      "indexName": "address_location",
+                      "isMultiKey": false,
+                      "multiKeyPaths": {
+                        "address.location": []
+                      },
+                      "isUnique": false,
+                      "isSparse": false,
+                      "isPartial": false,
+                      "indexVersion": 2,
+                      "direction": "forward",
+                      "indexBounds": {
+                        "address.location": [
+                          "[936748722493063168, 936748722493063168]",
+                          "[947020085241839616, 947020085241839616]",
+                          "[947163296631357440, 947163296631357440]",
+                          "[950259521375174656, 950259521375174656]",
+                          "[954763121002545152, 954763121002545152]"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "rejectedPlans": []
+            },
+            "executionStats": {
+              "executionSuccess": true,
+              "nReturned": 0,
+              "executionTimeMillis": 2,
+              "totalKeysExamined": 0,
+              "totalDocsExamined": 0,
+              "executionStages": {
+                "stage": "SHARDING_FILTER",
+                "nReturned": 0,
+                "executionTimeMillisEstimate": 0,
+                "works": 19,
+                "advanced": 0,
+                "needTime": 18,
+                "needYield": 0,
+                "saveState": 1,
+                "restoreState": 1,
+                "isEOF": 1,
+                "chunkSkips": 0,
+                "inputStage": {
+                  "stage": "GEO_NEAR_2DSPHERE",
+                  "nReturned": 0,
+                  "executionTimeMillisEstimate": 0,
+                  "works": 19,
+                  "advanced": 0,
+                  "needTime": 18,
+                  "needYield": 0,
+                  "saveState": 1,
+                  "restoreState": 1,
+                  "isEOF": 1,
+                  "keyPattern": {
+                    "address.location": "2dsphere"
+                  },
+                  "indexName": "address_location",
+                  "indexVersion": 2,
+                  "searchIntervals": [
+                    {
+                      "minDistance": 0,
+                      "maxDistance": 10000,
+                      "maxInclusive": true,
+                      "nBuffered": 0,
+                      "nReturned": 0
+                    }
+                  ],
+                  "inputStage": {
+                    "stage": "FETCH",
+                    "nReturned": 0,
+                    "executionTimeMillisEstimate": 0,
+                    "works": 1,
+                    "advanced": 0,
+                    "needTime": 0,
+                    "needYield": 0,
+                    "saveState": 0,
+                    "restoreState": 0,
+                    "isEOF": 1,
+                    "docsExamined": 0,
+                    "alreadyHasObj": 0,
+                    "inputStage": {
+                      "stage": "IXSCAN",
+                      "nReturned": 0,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 1,
+                      "advanced": 0,
+                      "needTime": 0,
+                      "needYield": 0,
+                      "saveState": 0,
+                      "restoreState": 0,
+                      "isEOF": 1,
+                      "keyPattern": {
+                        "address.location": "2dsphere"
+                      },
+                      "indexName": "address_location",
+                      "isMultiKey": false,
+                      "multiKeyPaths": {
+                        "address.location": []
+                      },
+                      "isUnique": false,
+                      "isSparse": false,
+                      "isPartial": false,
+                      "indexVersion": 2,
+                      "direction": "forward",
+                      "indexBounds": {
+                        "address.location": [
+                          "[936748722493063168, 936748722493063168]"
+                        ]
+                      },
+                      "keysExamined": 0,
+                      "seeks": 1,
+                      "dupsTested": 0,
+                      "dupsDropped": 0
+                    }
+                  }
+                }
+              },
+              "allPlansExecution": []
+            }
+          },
+          "nReturned": 0,
+          "executionTimeMillisEstimate": 0
+        }
+      ]
+    },
+    "shard1": {
+      "host": "localhost:8001",
+      "stages": [
+        {
+          "$geoNearCursor": {
+            "queryPlanner": {
+              "namespace": "sharded-db.listings",
+              "indexFilterSet": false,
+              "parsedQuery": {
+                "address.location": {
+                  "$near": {
+                    "type": "Point",
+                    "coordinates": [-8.61308, 41.1413]
+                  },
+                  "$maxDistance": 10000
+                }
+              },
+              "queryHash": "C6043444",
+              "planCacheKey": "81057A54",
+              "maxIndexedOrSolutionsReached": false,
+              "maxIndexedAndSolutionsReached": false,
+              "maxScansToExplodeReached": false,
+              "winningPlan": {
+                "stage": "SHARDING_FILTER",
+                "inputStage": {
+                  "stage": "GEO_NEAR_2DSPHERE",
+                  "keyPattern": {
+                    "address.location": "2dsphere"
+                  },
+                  "indexName": "address_location",
+                  "indexVersion": 2,
+                  "inputStages": [
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "rejectedPlans": []
+            },
+            "executionStats": {
+              "executionSuccess": true,
+              "nReturned": 485,
+              "executionTimeMillis": 26,
+              "totalKeysExamined": 719,
+              "totalDocsExamined": 490,
+              "executionStages": {
+                "stage": "SHARDING_FILTER",
+                "nReturned": 485,
+                "executionTimeMillisEstimate": 13,
+                "works": 1218,
+                "advanced": 485,
+                "needTime": 732,
+                "needYield": 0,
+                "saveState": 2,
+                "restoreState": 2,
+                "isEOF": 1,
+                "chunkSkips": 0,
+                "inputStage": {
+                  "stage": "GEO_NEAR_2DSPHERE",
+                  "nReturned": 485,
+                  "executionTimeMillisEstimate": 9,
+                  "works": 1218,
+                  "advanced": 485,
+                  "needTime": 732,
+                  "needYield": 0,
+                  "saveState": 2,
+                  "restoreState": 2,
+                  "isEOF": 1,
+                  "keyPattern": {
+                    "address.location": "2dsphere"
+                  },
+                  "indexName": "address_location",
+                  "indexVersion": 2,
+                  "searchIntervals": [
+                    {
+                      "minDistance": 0,
+                      "maxDistance": 3.3284465774864755,
+                      "maxInclusive": false,
+                      "nBuffered": 1,
+                      "nReturned": 1
+                    },
+                    {
+                      "minDistance": 3.3284465774864755,
+                      "maxDistance": 9.985339732459426,
+                      "maxInclusive": false,
+                      "nBuffered": 1,
+                      "nReturned": 0
+                    },
+                    {
+                      "minDistance": 9.985339732459426,
+                      "maxDistance": 23.299126042405327,
+                      "maxInclusive": false,
+                      "nBuffered": 0,
+                      "nReturned": 1
+                    },
+                    {
+                      "minDistance": 23.299126042405327,
+                      "maxDistance": 49.92669866229713,
+                      "maxInclusive": false,
+                      "nBuffered": 5,
+                      "nReturned": 4
+                    },
+                    {
+                      "minDistance": 49.92669866229713,
+                      "maxDistance": 103.18184390208074,
+                      "maxInclusive": false,
+                      "nBuffered": 4,
+                      "nReturned": 4
+                    },
+                    {
+                      "minDistance": 103.18184390208074,
+                      "maxDistance": 209.69213438164797,
+                      "maxInclusive": false,
+                      "nBuffered": 11,
+                      "nReturned": 10
+                    },
+                    {
+                      "minDistance": 209.69213438164797,
+                      "maxDistance": 422.71271534078244,
+                      "maxInclusive": false,
+                      "nBuffered": 43,
+                      "nReturned": 31
+                    },
+                    {
+                      "minDistance": 422.71271534078244,
+                      "maxDistance": 848.7538772590513,
+                      "maxInclusive": false,
+                      "nBuffered": 70,
+                      "nReturned": 60
+                    },
+                    {
+                      "minDistance": 848.7538772590513,
+                      "maxDistance": 1700.8362010955889,
+                      "maxInclusive": false,
+                      "nBuffered": 177,
+                      "nReturned": 165
+                    },
+                    {
+                      "minDistance": 1700.8362010955889,
+                      "maxDistance": 3405.0008487686646,
+                      "maxInclusive": false,
+                      "nBuffered": 105,
+                      "nReturned": 129
+                    },
+                    {
+                      "minDistance": 3405.0008487686646,
+                      "maxDistance": 6813.330144114816,
+                      "maxInclusive": false,
+                      "nBuffered": 61,
+                      "nReturned": 58
+                    },
+                    {
+                      "minDistance": 6813.330144114816,
+                      "maxDistance": 10000,
+                      "maxInclusive": true,
+                      "nBuffered": 12,
+                      "nReturned": 22
+                    }
+                  ],
+                  "inputStages": [
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 1,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 14,
+                      "advanced": 1,
+                      "needTime": 12,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 1,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 1,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 14,
+                        "advanced": 1,
+                        "needTime": 12,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 14,
+                        "seeks": 13,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 1,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 15,
+                      "advanced": 1,
+                      "needTime": 13,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 1,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 1,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 15,
+                        "advanced": 1,
+                        "needTime": 13,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 15,
+                        "seeks": 14,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 0,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 17,
+                      "advanced": 0,
+                      "needTime": 16,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 0,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 0,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 17,
+                        "advanced": 0,
+                        "needTime": 16,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 17,
+                        "seeks": 17,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 5,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 24,
+                      "advanced": 5,
+                      "needTime": 18,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 5,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 5,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 24,
+                        "advanced": 5,
+                        "needTime": 18,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 24,
+                        "seeks": 19,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 4,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 23,
+                      "advanced": 4,
+                      "needTime": 18,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 4,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 4,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 23,
+                        "advanced": 4,
+                        "needTime": 18,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 23,
+                        "seeks": 19,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 11,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 28,
+                      "advanced": 11,
+                      "needTime": 16,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 11,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 11,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 28,
+                        "advanced": 11,
+                        "needTime": 16,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 28,
+                        "seeks": 17,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 43,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 76,
+                      "advanced": 43,
+                      "needTime": 32,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 43,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 43,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 76,
+                        "advanced": 43,
+                        "needTime": 32,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 76,
+                        "seeks": 33,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 70,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 98,
+                      "advanced": 70,
+                      "needTime": 27,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 70,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 70,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 98,
+                        "advanced": 70,
+                        "needTime": 27,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 98,
+                        "seeks": 28,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 177,
+                      "executionTimeMillisEstimate": 9,
+                      "works": 193,
+                      "advanced": 177,
+                      "needTime": 15,
+                      "needYield": 0,
+                      "saveState": 1,
+                      "restoreState": 1,
+                      "isEOF": 1,
+                      "docsExamined": 177,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 177,
+                        "executionTimeMillisEstimate": 9,
+                        "works": 193,
+                        "advanced": 177,
+                        "needTime": 15,
+                        "needYield": 0,
+                        "saveState": 1,
+                        "restoreState": 1,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 193,
+                        "seeks": 16,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 105,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 127,
+                      "advanced": 105,
+                      "needTime": 21,
+                      "needYield": 0,
+                      "saveState": 0,
+                      "restoreState": 0,
+                      "isEOF": 1,
+                      "docsExamined": 105,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 105,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 127,
+                        "advanced": 105,
+                        "needTime": 21,
+                        "needYield": 0,
+                        "saveState": 0,
+                        "restoreState": 0,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 127,
+                        "seeks": 22,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 61,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 77,
+                      "advanced": 61,
+                      "needTime": 15,
+                      "needYield": 0,
+                      "saveState": 0,
+                      "restoreState": 0,
+                      "isEOF": 1,
+                      "docsExamined": 61,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 61,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 77,
+                        "advanced": 61,
+                        "needTime": 15,
+                        "needYield": 0,
+                        "saveState": 0,
+                        "restoreState": 0,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 77,
+                        "seeks": 16,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    },
+                    {
+                      "stage": "FETCH",
+                      "nReturned": 12,
+                      "executionTimeMillisEstimate": 0,
+                      "works": 27,
+                      "advanced": 12,
+                      "needTime": 14,
+                      "needYield": 0,
+                      "saveState": 0,
+                      "restoreState": 0,
+                      "isEOF": 1,
+                      "docsExamined": 12,
+                      "alreadyHasObj": 0,
+                      "inputStage": {
+                        "stage": "IXSCAN",
+                        "nReturned": 12,
+                        "executionTimeMillisEstimate": 0,
+                        "works": 27,
+                        "advanced": 12,
+                        "needTime": 14,
+                        "needYield": 0,
+                        "saveState": 0,
+                        "restoreState": 0,
+                        "isEOF": 1,
+                        "keyPattern": {
+                          "address.location": "2dsphere"
+                        },
+                        "indexName": "address_location",
+                        "isMultiKey": false,
+                        "multiKeyPaths": {
+                          "address.location": []
+                        },
+                        "isUnique": false,
+                        "isSparse": false,
+                        "isPartial": false,
+                        "indexVersion": 2,
+                        "direction": "forward",
+                        "indexBounds": {
+                          "address.location": [
+                            "[936748722493063168, 936748722493063168]"
+                          ]
+                        },
+                        "keysExamined": 27,
+                        "seeks": 15,
+                        "dupsTested": 0,
+                        "dupsDropped": 0
+                      }
+                    }
+                  ]
+                }
+              },
+              "allPlansExecution": []
+            }
+          },
+          "nReturned": 485,
+          "executionTimeMillisEstimate": 13
+        }
+      ]
+    }
+  },
+  "command": {
+    "aggregate": "listings",
+    "pipeline": [
+      {
+        "$geoNear": {
+          "near": {
+            "type": "Point",
+            "coordinates": [-8.61308, 41.1413]
+          },
+          "distanceField": "distance",
+          "maxDistance": 10000
+        }
+      },
+      {
+        "$group": {
+          "_id": null,
+          "host_ids": {
+            "$addToSet": "$host_id"
+          }
+        }
+      },
+      {
+        "$unwind": {
+          "path": "$host_ids"
+        }
+      }
+    ],
+    "cursor": {},
+    "allowDiskUse": true,
+    "maxTimeMS": 60000
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": {
+        "t": 1652303663,
+        "i": 2
+      }
+    },
+    "signature": {
+      "hash": {
+        "$binary": {
+          "base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "subType": "00"
+        }
+      },
+      "keyId": 0
+    }
+  },
+  "operationTime": {
+    "$timestamp": {
+      "t": 1652303663,
+      "i": 2
+    }
+  }
+}

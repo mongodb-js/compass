@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "21.16.0",
+  "version": "21.17.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -30,10 +30,10 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "peerDependencies": {
-    "mongodb": "^4.4.0"
+    "mongodb": "^4.6.0"
   },
   "dependencies": {
-    "@mongodb-js/ssh-tunnel": "^1.6.0",
+    "@mongodb-js/ssh-tunnel": "^1.7.0",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "debug": "4.3.0",
@@ -55,7 +55,7 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1",
     "mock-require": "^3.0.3",
-    "mongodb": "^4.4.0",
+    "mongodb": "^4.6.0",
     "mongodb-runner": "^4.9.0",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.2",

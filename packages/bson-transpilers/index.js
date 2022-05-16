@@ -27,6 +27,7 @@ const getShellGenerator = require('./codegeneration/shell/Generator');
 const getJavascriptGenerator = require('./codegeneration/javascript/Generator');
 const getObjectGenerator = require('./codegeneration/object/Generator');
 const getRubyGenerator = require('./codegeneration/ruby/Generator.js');
+const getGoGenerator = require('./codegeneration/go/Generator.js');
 const getRustGenerator = require('./codegeneration/rust/Generator.js');
 
 const javascriptjavasymbols = require('./lib/symbol-table/javascripttojava');
@@ -35,6 +36,7 @@ const javascriptcsharpsymbols = require('./lib/symbol-table/javascripttocsharp')
 const javascriptshellsymbols = require('./lib/symbol-table/javascripttoshell');
 const javascriptobjectsymbols = require('./lib/symbol-table/javascripttoobject');
 const javascriptrubysymbols = require('./lib/symbol-table/javascripttoruby');
+const javascriptgosymbols = require('./lib/symbol-table/javascripttogo');
 const javascriptrustsymbols = require('./lib/symbol-table/javascripttorust');
 
 const shelljavasymbols = require('./lib/symbol-table/shelltojava');
@@ -43,6 +45,7 @@ const shellcsharpsymbols = require('./lib/symbol-table/shelltocsharp');
 const shelljavascriptsymbols = require('./lib/symbol-table/shelltojavascript');
 const shellobjectsymbols = require('./lib/symbol-table/shelltoobject');
 const shellrubysymbols = require('./lib/symbol-table/shelltoruby');
+const shellgosymbols = require('./lib/symbol-table/shelltogo');
 const shellrustsymbols = require('./lib/symbol-table/shelltorust');
 
 const pythonjavasymbols = require('./lib/symbol-table/pythontojava');
@@ -51,6 +54,7 @@ const pythoncsharpsymbols = require('./lib/symbol-table/pythontocsharp');
 const pythonjavascriptsymbols = require('./lib/symbol-table/pythontojavascript');
 const pythonobjectsymbols = require('./lib/symbol-table/pythontoobject');
 const pythonrubysymbols = require('./lib/symbol-table/pythontoruby');
+const pythongosymbols = require('./lib/symbol-table/pythontogo');
 const pythonrustsymbols = require('./lib/symbol-table/pythontorust');
 
 /**
@@ -133,8 +137,9 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
         idiomatic;
       if (!driverSyntax) {
         transpiler.clearImports();
+        transpiler.clearDeclarations();
       }
-      return transpiler.start(tree);
+      return transpiler.start(tree, !driverSyntax);
     } catch (e) {
       if (e.code && e.code.includes('BSONTRANSPILERS')) {
         throw e;
@@ -148,6 +153,7 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
   return {
     compileWithDriver: (input, idiomatic) => {
       transpiler.clearImports();
+      transpiler.clearDeclarations();
 
       const result = {};
       Object.keys(input).map((k) => {
@@ -171,7 +177,7 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
           'Generating driver syntax not implemented for current language'
         );
       }
-      return transpiler.Syntax.driver(result);
+      return transpiler.Syntax.driver.bind(transpiler.getState())(result);
     },
     compile: compile,
     getImports: (driverSyntax) => {
@@ -218,6 +224,12 @@ module.exports = {
       getRubyGenerator,
       javascriptrubysymbols
     ),
+    go: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getGoGenerator,
+      javascriptgosymbols
+    ),
     rust: getTranspiler(
       loadJSTree,
       getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
@@ -262,6 +274,12 @@ module.exports = {
       getRubyGenerator,
       shellrubysymbols
     ),
+    go: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getGoGenerator,
+      shellgosymbols
+    ),
     rust: getTranspiler(
       loadJSTree,
       getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
@@ -305,6 +323,12 @@ module.exports = {
       getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
       getRubyGenerator,
       pythonrubysymbols
+    ),
+    go: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getGoGenerator,
+      pythongosymbols
     ),
     rust: getTranspiler(
       loadPyTree,

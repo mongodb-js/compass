@@ -145,13 +145,11 @@ const computeExecTimes = (node) => {
 const changeTreeStages = (state, action) => {
   const explain = action.explain;
 
-  if (!has(explain.rawExplainObject, 'executionStats.executionStages')) {
+  if (!has(explain.executionStats, 'executionStages')) {
     return INITIAL_STATE;
   }
 
-  const parsedExplain = parseExplain(
-    explain.rawExplainObject.executionStats.executionStages
-  );
+  const parsedExplain = parseExplain(explain.executionStats.executionStages);
 
   const tree = d3.layout
     .flextree()

@@ -330,7 +330,6 @@ Templates:
             let db_string = db ? `,\n  '$db' => ${singleStringify(db)}` : ''
             return `.new(\n  '$ref' => ${singleStringify(coll)},\n  '$id' => ${id}${db_string}\n)`
         }
-
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
         () => {
             return '';

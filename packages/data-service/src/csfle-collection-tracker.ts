@@ -102,7 +102,6 @@ function extractEncrytedFieldFromAutoEncryptionOptions(
   return [
     ...extractEncryptedFieldsFromSchema(autoEncryption.schemaMap?.[ns]),
     ...extractEncryptedFieldsFromEncryptedFieldsConfig(
-      // @ts-expect-error next driver release updates types
       autoEncryption?.encryptedFieldsMap?.[ns]
     ),
   ];
@@ -227,7 +226,6 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     const { autoEncryption } = this._crudClient.options;
     for (const ns of [
       ...Object.keys(autoEncryption?.schemaMap ?? {}),
-      // @ts-expect-error next driver release updates types
       ...Object.keys(autoEncryption?.encryptedFieldsMap ?? {}),
     ]) {
       log.info(
