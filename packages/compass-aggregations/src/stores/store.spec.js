@@ -262,6 +262,7 @@ describe('Aggregation Store', function() {
             aggregation: INITIAL_STATE.aggregation,
             workspace: INITIAL_STATE.workspace,
             countDocuments: INITIAL_STATE.countDocuments,
+            explain: INITIAL_STATE.explain,
           });
         });
       });

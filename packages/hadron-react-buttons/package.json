@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "5.8.0",
+  "version": "5.9.0",
   "main": "lib/index.js",
   "compass:main": "src/index.js",
   "compass:exports": {
@@ -32,7 +32,7 @@
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
     "test-ci": "npm run test",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "bootstrap": "npm run compile"
   },
   "peerDependencies": {

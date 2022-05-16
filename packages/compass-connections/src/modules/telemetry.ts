@@ -61,8 +61,7 @@ function getCsfleInformation(
   const kmsProviders = configuredKMSProviders(fleOptions?.autoEncryption ?? {});
   const csfleInfo: Record<string, unknown> = {
     is_csfle: kmsProviders.length > 0,
-    // @ts-expect-error next driver release has types
-    has_csfle_schema: !!fleOptions?.autoEncryption.encryptedFieldsMap,
+    has_csfle_schema: !!fleOptions?.autoEncryption?.encryptedFieldsMap,
   };
 
   for (const kmsProvider of ['aws', 'gcp', 'kmip', 'local', 'azure'] as const) {

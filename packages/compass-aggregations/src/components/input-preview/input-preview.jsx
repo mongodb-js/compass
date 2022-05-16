@@ -24,8 +24,10 @@ class InputPreview extends Component {
   render() {
     const documents = (this.props.documents || []).map((doc, i) => {
       return (
-        <div key={i} className={styles['input-preview-document-card']}>
-          <Document doc={doc} editable={false}  />
+        <div key={i} className={styles['input-preview-document-card-container']}>
+          <div className={styles['input-preview-document-card']}>
+            <Document doc={doc} editable={false} />
+          </div>
         </div>
       );
     });

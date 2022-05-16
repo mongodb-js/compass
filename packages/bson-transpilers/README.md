@@ -3,8 +3,7 @@
 [![downloads][5]][6]
 
 Transpilers for building BSON documents in any language. Current support
-provided for `shell` `javascript` and `python` as inputs. `java`, `c#`, `node`, `shell` and `python` as
-outputs.
+provided for `shell` `javascript` and `python` as inputs. `java`, `c#`, `node`, `shell`, `python`, `ruby` and `go` as outputs.
 
 > ⚠️&nbsp;&nbsp;`shell` output produces code that is compatible only with legacy `mongo` shell not the new `mongosh` shell. See [COMPASS-4930](https://jira.mongodb.org/browse/COMPASS-4930) for some additional context
 
@@ -58,6 +57,57 @@ Any transpiler errors that occur will be thrown. To catch them, wrap the
 - __error.line:__ If it is a syntax error, will have the line.
 - __error.column:__ If it is a syntax error, will have the column.
 - __error.symbol:__ If it is a syntax error, will have the symbol associated with the error.
+
+
+### State
+
+The `CodeGenerationVisitor` class manages a global state which is bound to the `argsTemplate` functions.  This state is intended to be used as a solution for the `argsTemplate` functions to communicate with the `DriverTemplate` function.  For example:
+
+```yaml
+ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
+    (_) => {
+        this.oneLineStatement = "Hello World";
+        return '';
+    }
+
+DriverTemplate: &DriverTemplate !!js/function >
+    (_spec) => {
+      return this.oneLineStatement;
+    }
+```
+
+The output of the driver syntax for this language will be the one-line statement `Hello World`.
+
+#### DeclarationStore
+A more practical use-case of state is to accumulate variable declarations throughout the `argsTemplate` to be rendered by the `DriverTemplate`.  That is, the motivation for using `DeclarationStore` is to prepend the driver syntax with variable declarations rather than using non-idiomatic solutions such as closures.
+
+The `DeclarationStore` class maintains an internal state concerning variable declarations.  For example,
+
+```javascript
+// within the args template
+(arg) => {
+  return this.declarations.add("Temp", "objectID", (varName) => {
+    return [
+      `${varName}, err := primitive.ObjectIDFromHex(${arg})`,
+      'if err != nil {',
+      '   log.Fatal(err)',
+      '}'
+    ].join('\n')
+  })
+}
+```
+
+Note that each use of the same variable name will result in an increment being added to the declaration statement. For example, if the variable name `objectIDForTemp` is used two times the resulting declaration statements will use `objectIDForTemp` for the first declaration and `objectID2ForTemp` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `argsTemplate` function.
+
+The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver, syntax via state, for use:
+
+```javascript
+(spec) => {
+  const comment = '// some comment'
+  const client = 'client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(cs.String()))'
+  return "#{comment}\n\n#{client}\n\n${this.declarations.toString()}"
+}
+```
 
 ### Errors
 There are a few different error classes thrown by `bson-transpilers`, each with

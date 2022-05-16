@@ -263,7 +263,6 @@ function validateCSFLEErrors(
   const errors: ConnectionFormError[] = [];
   for (const fieldName of ['schemaMap', 'encryptedFieldsMap'] as const) {
     const encryptedFieldConfigError =
-      // @ts-expect-error next driver release will have types
       autoEncryptionOptions[fieldName]?.['$compass.error'];
     if (encryptedFieldConfigError) {
       errors.push({

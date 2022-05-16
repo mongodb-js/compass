@@ -779,9 +779,12 @@ const getCancelableExecuteAggDispatch = <
 
 const ExecuteAggInflightMap = new Map<string, () => void>();
 
+type CancellableDebounceExecuteAggregation = typeof _executeAggregation & {
+  cancel(): void
+};
 const ExecuteAggDebounceMap = new Map<
   string,
-  typeof _executeAggregation & { cancel(): void }
+  CancellableDebounceExecuteAggregation
 >();
 
 const _executeAggregation = (
@@ -806,13 +809,16 @@ const _executeAggregation = (
   }
 };
 
-const getDebouncedExecuteAgg = (id: string): typeof _executeAggregation => {
+const getDebouncedExecuteAgg = (id: string): CancellableDebounceExecuteAggregation => {
   if (ExecuteAggDebounceMap.has(id)) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return ExecuteAggDebounceMap.get(id)!;
   } else {
     const fn = debounce(_executeAggregation, 750, {
-      leading: true,
+      // We don't want the documents to re-render while the user is typing
+      // so we want to only have the documents return when the user
+      // finishing typing at the end (trailing) of the debounce.
+      leading: false,
       trailing: true
     });
     ExecuteAggDebounceMap.set(id, fn);
@@ -838,11 +844,21 @@ const executeAggregation = (
   ns: string,
   _dispatch: Dispatch,
   getState: () => RootState,
-  index: number
+  index: number,
+  forceExecute = false
 ) => {
   const id = `${getState().aggregationWorkspaceId}::${index}`;
   const dispatch = getCancelableExecuteAggDispatch(id, _dispatch);
+
   const debouncedExecuteAgg = getDebouncedExecuteAgg(id);
+
+  if (forceExecute) {
+    // Cancel previously in-flight requests.
+    debouncedExecuteAgg.cancel();
+
+    _executeAggregation(dataService, ns, dispatch, getState, index);
+    return;
+  }
   debouncedExecuteAgg(dataService, ns, dispatch, getState, index);
 };
 
@@ -906,7 +922,7 @@ const aggregate = (
       dispatch(
         stagePreviewUpdated(docs || [], index, e as Error, true, getState().env)
       );
-      cursor.close();
+      void cursor.close();
       dispatch(
         globalAppRegistryEmit('agg-pipeline-executed', {
           id: getState().id,
@@ -1033,7 +1049,8 @@ export const runOutStage = (index: number): ThunkAction<void, RootState, void, A
 };
 
 export const runStage = (
-  index: number
+  index: number,
+  forceExecute = false
 ): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
     const state = getState();
@@ -1051,7 +1068,7 @@ export const runStage = (
     if (dataService) {
       const ns = state.namespace;
       for (let i = index; i < state.pipeline.length; i++) {
-        executeAggregation(dataService, ns, dispatch, getState, i);
+        executeAggregation(dataService, ns, dispatch, getState, i, forceExecute);
       }
     }
   };
