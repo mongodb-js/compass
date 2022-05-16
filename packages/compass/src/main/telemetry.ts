@@ -101,6 +101,8 @@ class CompassTelemetry {
             userId: this.currentUserId,
             anonymousId: this.telemetryAnonymousId,
             traits: {
+              channel: process.env.HADRON_CHANNEL,
+              distribution: process.env.HADRON_DISTRIBUTION,
               platform: process.platform,
               arch: process.arch,
               ...osInfo,
