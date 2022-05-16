@@ -118,7 +118,7 @@ export const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
 export const STAGE_PREVIEW_UPDATED = `${PREFIX}/STAGE_PREVIEW_UPDATED`;
 
 /**
- * Loading stage results aciton name.
+ * Loading stage results action name.
  */
 export const LOADING_STAGE_RESULTS = `${PREFIX}/LOADING_STAGE_RESULTS`;
 

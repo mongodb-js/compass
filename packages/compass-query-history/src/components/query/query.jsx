@@ -21,7 +21,7 @@ class Query extends PureComponent {
    *
    * @note:
    * Durran/Jessica: Don't default the attributes as the empty
-   * projection will cause the document list to go into readony mode.
+   * projection will cause the document list to go into readonly mode.
    * We don't allow editing of documents if there is a projection
    * and there's no need for an empty projection in the query bar
    * as the default placeholder will not display.

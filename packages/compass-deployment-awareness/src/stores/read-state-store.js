@@ -44,7 +44,7 @@ const ReadStateStore = Reflux.createStore({
   /**
    * When the data service initialises, update the data service in the state here.
    *
-   * @param {Error | null} _ - The error that might have occured when connecting.
+   * @param {Error | null} _ - The error that might have occurred when connecting.
    * @param {Object} dataService - The data service.
    */
   onDataServiceConnected(_, dataService) {

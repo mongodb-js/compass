@@ -91,7 +91,7 @@ describe('QueryBar [Plugin]', () => {
   describe('when the plugin is rendered with or without a query history button', function() {
     const layout = ['filter'];
 
-    it('query history button renderes by default', function() {
+    it('query history button renders by default', function() {
       component = mount(
         <QueryBarPlugin
           store={store}
@@ -103,7 +103,7 @@ describe('QueryBar [Plugin]', () => {
       expect(component.find('button[data-test-id="query-history-button"]')).to.exist;
     });
 
-    it('query history button renderes when showQueryHistoryButton prop is passed and set to true', function() {
+    it('query history button renders when showQueryHistoryButton prop is passed and set to true', function() {
       component = mount(
         <QueryBarPlugin
           store={store}
@@ -133,7 +133,7 @@ describe('QueryBar [Plugin]', () => {
   describe('when rendered with or without an export to language button', function() {
     const layout = ['filter'];
 
-    it('export to language button renderes by default', function() {
+    it('export to language button renders by default', function() {
       component = mount(
         <QueryBarPlugin
           store={store}
@@ -146,7 +146,7 @@ describe('QueryBar [Plugin]', () => {
       expect(component.find('#query-bar-menu-actions')).to.exist;
     });
 
-    it('export to language button renderes when showExportToLanguageButton prop is passed and set to true', function() {
+    it('export to language button renders when showExportToLanguageButton prop is passed and set to true', function() {
       component = mount(
         <QueryBarPlugin
           store={store}

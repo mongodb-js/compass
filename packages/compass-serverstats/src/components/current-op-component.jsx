@@ -65,7 +65,7 @@ class CurrentOpComponent extends React.Component {
    * Refreshes the component state with the new current op data that was
    * received from the store.
    *
-   * @param {Error} error - The error, if any occured.
+   * @param {Error} error - The error, if any occurred.
    * @param {Object} data - The javascript object for the result of the command.
    */
   refresh(error, data) {

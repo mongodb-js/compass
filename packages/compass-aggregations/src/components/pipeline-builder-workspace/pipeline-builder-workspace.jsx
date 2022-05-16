@@ -73,7 +73,7 @@ class PipelineWorkspace extends PureComponent {
   }
 
   /**
-   * Render the modify source banner if neccessary.
+   * Render the modify source banner if necessary.
    *
    * @returns {Component} The component.
    */

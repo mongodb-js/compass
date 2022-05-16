@@ -17,7 +17,7 @@ import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
 export const RESET = 'validation/reset';
 
 /**
- * The intial state of the root reducer.
+ * The initial state of the root reducer.
  */
 export const INITIAL_STATE = {
   appRegistry: APP_REGISTRY_STATE,

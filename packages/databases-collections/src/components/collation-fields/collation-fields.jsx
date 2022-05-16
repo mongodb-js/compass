@@ -42,7 +42,7 @@ function getCollationValue(value) {
 }
 
 /**
- * A component with collation field input optionss.
+ * A component with collation field input options.
  * This is used in creating collections,
  * creating databases, and creating indexes.
  *

@@ -98,7 +98,7 @@ describe('Int64Editor', function () {
           expect(element.currentValue).to.equal("ceci n'est pas un int64");
         });
 
-        it('curent type is invalid', function () {
+        it('current type is invalid', function () {
           expect(element.isCurrentTypeValid()).to.equal(false);
         });
 

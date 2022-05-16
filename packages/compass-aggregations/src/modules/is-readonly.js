@@ -1,5 +1,5 @@
 /**
- * Is reaonly action.
+ * Is readonly action.
  */
 export const IS_READONLY_CHANGED = 'aggregations/is-readonly/IS_READONLY_CHANGED';
 

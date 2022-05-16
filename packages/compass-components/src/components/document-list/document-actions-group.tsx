@@ -71,8 +71,8 @@ const DocumentActionsGroup: React.FunctionComponent<
   expanded,
   onlyShowOnHover = true,
 }) => {
-  const conatinerRef = useRef<HTMLDivElement | null>(null);
-  const isHovered = useElementParentHoverState(conatinerRef);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isHovered = useElementParentHoverState(containerRef);
   const [showCopyButtonTooltip, setShowCopyButtonTooltip] = useState(false);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const DocumentActionsGroup: React.FunctionComponent<
 
   return (
     <div
-      ref={conatinerRef}
+      ref={containerRef}
       className={actionsGroupContainer}
       style={{
         display: onlyShowOnHover ? (isHovered ? 'flex' : 'none') : 'flex',

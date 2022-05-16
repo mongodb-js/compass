@@ -190,7 +190,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
   /**
    * When a collection namespace is selected in the sidebar.
    *
-   * @param {Object} metatada - The metadata.
+   * @param {Object} metadata - The metadata.
    */
   appRegistry.on('select-namespace', (metadata) => {
     if (metadata.namespace) {

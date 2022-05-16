@@ -48,7 +48,7 @@ describe('Connecting Component', function () {
 
     describe('after a slight delay', function () {
       beforeEach(function () {
-        // Speedup the modal showing annimation.
+        // Speedup the modal showing animation.
         this.clock.tick(300);
       });
 

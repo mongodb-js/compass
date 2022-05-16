@@ -51,7 +51,7 @@ describe('restore previous pipeline', function() {
       });
     });
 
-    context('an empty action type returns an intial state', function() {
+    context('an empty action type returns an initial state', function() {
       it('pipelineObjectId is set', function() {
         expect(reducer(undefined, {})).to.deep.equal({
           isModalVisible: false,

@@ -280,7 +280,7 @@ const updateWithIndexesInfo = (explain, indexes) => ({
 });
 
 /**
- * @param {Object} explainOutput - The explain plan ouput.
+ * @param {Object} explainOutput - The explain plan output.
  *
  * @returns {boolean} true if the output resembles output from an
  * explain on an aggregation query.

@@ -45,7 +45,7 @@ function mapStages(queryPlan, sbeExecutionStages) {
   });
 
   // Sort SBE nodes per-height so that we have a clear 'head' node that
-  // correponds to the query plan node.
+  // corresponds to the query plan node.
   for (const stage of nodeIdToQueryPlan.values()) {
     stage[kSBENodes].sort((s1, s2) => s1[kDepth] - s2[kDepth]);
   }

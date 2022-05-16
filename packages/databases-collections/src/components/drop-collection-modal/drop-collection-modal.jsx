@@ -45,7 +45,7 @@ class DropCollectionModal extends PureComponent {
   }
 
   /**
-   * When user hits enter to submit the form we need to prevent the default bhaviour.
+   * When user hits enter to submit the form we need to prevent the default behaviour.
    *
    * @param {Event} evt - The event.
    */

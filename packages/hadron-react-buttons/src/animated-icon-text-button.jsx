@@ -29,7 +29,7 @@ class AnimatedIconTextButton extends React.Component {
   }
 
   /**
-   * Unsibscribe from the document list store when unmounting.
+   * Unsubscribe from the document list store when unmounting.
    */
   componentWillUnmount() {
     this.unsubscribeStopAnimation();

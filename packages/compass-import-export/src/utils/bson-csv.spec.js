@@ -97,7 +97,7 @@ describe('bson-csv', function () {
           'Date'
         );
       });
-      it('should not lose percision', function () {
+      it('should not lose precision', function () {
         expect(
           bsonCSV.Date.fromString(new Date('2020-03-19T20:02:48.406Z'))
         ).to.deep.equal(new Date('2020-03-19T20:02:48.406Z'));

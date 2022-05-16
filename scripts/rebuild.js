@@ -1,5 +1,5 @@
 /**
- * Similar to electorn-rebuild this script will resolve modules that might need
+ * Similar to electron-rebuild this script will resolve modules that might need
  * a rebuild relative to cwd and rebuild them
  */
 const { promises: fs } = require('fs');

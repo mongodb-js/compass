@@ -19,7 +19,7 @@ module.exports = function(config) {
       stats: 'errors-only'
     },
     // DEV: `useIframe: false` is for launching a new window instead of using an iframe
-    //   In Electron, iframes don't get `nodeIntegration` priveleges yet windows do
+    //   In Electron, iframes don't get `nodeIntegration` privileges yet windows do
     client: {
       useIframe: false,
       mocha: {

@@ -24,8 +24,8 @@ export type Keychain = {
  * Compass uses user keychain through the keytar module. If the keychain is not
  * unlocked, macOS will show a prompt that is asking for password and this will
  * block the tests if there is no user input provided. Usually when running
- * tests with Chromiun the keychain can be switched to the mocked implementation
- * by using --use-mock-keychian flag, but Electron doesn't seem to support this
+ * tests with Chromium the keychain can be switched to the mocked implementation
+ * by using --use-mock-keychain flag, but Electron doesn't seem to support this
  * feature[1][2]. For that reason when running e2e tests we will try to do work
  * around this issue by first checking if the current user default keychain (the
  * one keytar will try to use to store secrets) is unlocked and switch default

@@ -138,7 +138,7 @@ import { PipelineStorage } from '../utils/pipeline-storage';
 import type { Pipeline, Projection } from './pipeline';
 
 /**
- * The intial state of the root reducer.
+ * The initial state of the root reducer.
  */
 export const INITIAL_STATE = {
   appRegistry: APP_REGISTRY_STATE,

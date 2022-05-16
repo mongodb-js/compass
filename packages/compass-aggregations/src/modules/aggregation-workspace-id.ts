@@ -4,7 +4,7 @@ import type { AnyAction, Reducer } from 'redux';
 /**
  * Workspace id that allows to distinguish between different instances of the
  * aggregation plugin (different collection tabs on the screen). Helpful in
- * cases like when we need to differenciate between inflight aggregation
+ * cases like when we need to differentiate between inflight aggregation
  * requests for stages separately for different tabs that can be opened in
  * Compass simultaneously
  */

@@ -42,7 +42,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 /**
  * TODO: lucas: When import complete, maybe:
  * 1. hide “cancel” and replace “import” with “done”?
- * 2. "canel" button -> "close" and import becomes "import another"
+ * 2. "cancel" button -> "close" and import becomes "import another"
  * or "view documents"?
  */
 
@@ -328,7 +328,7 @@ class ExportModal extends PureComponent {
       );
     }
     if (this.props.exportStep === FIELDS) {
-      // if all fields are disselected diable "Select Output" button
+      // if all fields are disselected disable "Select Output" button
       const emptyFields = Object.entries(this.props.fields).length === 0;
 
       return (

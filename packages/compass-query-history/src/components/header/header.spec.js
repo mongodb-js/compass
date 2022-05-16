@@ -74,7 +74,7 @@ describe('Header [Component]', () => {
         actions.showFavorites.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
       });
 
-      it('it should be a no-op twhen the Recents button is clicked', () => {
+      it('it should be a no-op when the Recents button is clicked', () => {
         const node = component.find({ 'data-test-id': 'past-queries-recent' }).hostNodes();
 
         node.simulate('click');

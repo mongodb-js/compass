@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { expect } from 'chai';
 import DatabasesPlugin from './databases-plugin';
 
-describe('Databasees [Plugin]', () => {
+describe('Databases [Plugin]', () => {
   let component;
 
   beforeEach((done) => {

@@ -58,7 +58,7 @@ export interface ConnectFormState {
   sshPasswordUsername?: string;
   sshPasswordPassword?: string;
 
-  // - SSH with Identitity File
+  // - SSH with Identity File
   sshIdentityHost?: string;
   sshIdentityPort?: string;
   sshIdentityUsername?: string;

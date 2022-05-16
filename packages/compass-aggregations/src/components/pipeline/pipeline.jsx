@@ -138,7 +138,7 @@ class Pipeline extends PureComponent {
   };
 
   /**
-   * Render the collation toolbar if neccessary.
+   * Render the collation toolbar if necessary.
    *
    * @returns {Component} The component.
    */
@@ -181,7 +181,7 @@ class Pipeline extends PureComponent {
   }
 
   /**
-   * Render the restore modal if neccessary.
+   * Render the restore modal if necessary.
    *
    * @returns {Component} The component.
    */
