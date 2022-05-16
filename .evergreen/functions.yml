@@ -81,17 +81,9 @@ post:
     params:
       local_files_include_filter:
         - src/packages/compass-e2e-tests/.log/**/*
-  - <<: *save-diagnostic-file
-    params:
-      local_files_include_filter:
         - src/packages/compass-e2e-tests/.nyc_output/coverage.json
-  - <<: *save-diagnostic-file
-    params:
-      local_files_include_filter:
+        - src/packages/compass-e2e-tests/.log/report.json
         - ~/.mongodb/runner/*.log
-  - command: attach.results
-    params:
-      file_location: src/packages/compass-e2e-tests/.log/report.json
 
 functions:
   clone:
