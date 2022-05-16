@@ -65,6 +65,7 @@ const configureStore = (options = {}) => {
         const copyable = state.lastExecutedQuery || this.getInitialState();
 
         for (const key in copyable) {
+          // eslint-disable-next-line no-prototype-builtins
           if (copyable.hasOwnProperty(key)) {
             newState[key] = copyable[key];
           }

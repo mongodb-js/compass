@@ -188,8 +188,8 @@ describe('QueryBar [Plugin]', function() {
           serverVersion="3.4.0" />
       );
 
-      expect(component.find('div[data-test-id="query-bar-options-toggle"]')).to.exist;
-      component.find('div[data-test-id="query-bar-options-toggle"]').simulate('click');
+      expect(component.find('button[data-test-id="query-bar-options-toggle"]')).to.exist;
+      component.find('button[data-test-id="query-bar-options-toggle"]').simulate('click');
       expect(component.find('OptionEditor[label="filter"]').prop('placeholder')).to.not.be.empty;
       expect(component.find('OptionEditor[label="project"]').prop('placeholder')).to.not.be.empty;
       expect(component.find('OptionEditor[label="collation"]').prop('placeholder')).to.not.be.empty;
@@ -217,8 +217,8 @@ describe('QueryBar [Plugin]', function() {
           maxTimeMSPlaceholder="50000" />
       );
 
-      expect(component.find('div[data-test-id="query-bar-options-toggle"]')).to.exist;
-      component.find('div[data-test-id="query-bar-options-toggle"]').simulate('click');
+      expect(component.find('button[data-test-id="query-bar-options-toggle"]')).to.exist;
+      component.find('button[data-test-id="query-bar-options-toggle"]').simulate('click');
       expect(component.find('OptionEditor[label="filter"]').prop('placeholder')).to.equal("{field: 'matchValue'}");
       expect(component.find('OptionEditor[label="project"]').prop('placeholder')).to.equal('{field: 1}');
       expect(component.find('OptionEditor[label="collation"]').prop('placeholder')).to.equal("{locale: 'fr' }");
