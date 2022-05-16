@@ -125,7 +125,7 @@ export class SshTunnel extends EventEmitter {
     debug('starting to listen', { localAddr, localPort });
     await this.serverListen(localPort, localAddr);
 
-    await this.connectSsh(true);
+    await this.connectSsh();
   }
 
   async close(): Promise<void> {
