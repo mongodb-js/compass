@@ -136,7 +136,6 @@ export class SshTunnel extends EventEmitter {
       // close error
       this.serverClose().catch<Error>((e) => e),
       this.closeSshClient(),
-      // TODO: shouldn't we close the open connections first since they depend on the others?
       this.closeOpenConnections(),
     ]);
 
