@@ -63,3 +63,53 @@ export async function aggregatePipeline({
 
   return result;
 }
+
+
+/**
+ * todo: move to data-service (COMPASS-5808)
+ */
+export async function explainPipeline({
+  dataService,
+  signal,
+  namespace,
+  pipeline,
+  options,
+}: {
+  dataService: DataService;
+  signal: AbortSignal;
+  namespace: string;
+  pipeline: Document[];
+  options: AggregateOptions;
+}): Promise<Document> {
+  if (signal.aborted) {
+    return Promise.reject(createCancelError());
+  }
+  const session = dataService.startSession('CRUD');
+  const cursor = dataService.aggregate(
+    namespace,
+    pipeline,
+    options
+  );
+  const abort = () => {
+    Promise.all([
+      cursor.close(),
+      dataService.killSessions(session)
+    ]).catch((err) => {
+      log.warn(
+        mongoLogId(1_001_000_107),
+        'Aggregation explain',
+        'Attempting to kill the session failed',
+        { error: err.message }
+      );
+    });
+  };
+  signal.addEventListener('abort', abort, { once: true });
+  let result = {};
+  try {
+    // todo: support ADL
+    result = await raceWithAbort(cursor.explain(), signal);
+  } finally {
+    signal.removeEventListener('abort', abort);
+  }
+  return result;
+}
