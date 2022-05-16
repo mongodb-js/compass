@@ -18,6 +18,7 @@ import ConfirmNewPipeline from './modals/confirm-new-pipeline';
 import styles from './pipeline.module.less';
 
 import PipelineToolbar from '../pipeline-toolbar';
+import PipelineExplain from '../pipeline-explain';
 import PipelineBuilderWorkspace from '../pipeline-builder-workspace';
 import PipelineResultsWorkspace from '../pipeline-results-workspace';
 import {
@@ -126,7 +127,7 @@ class Pipeline extends PureComponent {
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
     showExportButton: PropTypes.bool.isRequired,
-    showRunButton: PropTypes.bool.isRequired
+    showRunButton: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
@@ -362,6 +363,9 @@ class Pipeline extends PureComponent {
         {this.renderModifyingViewSourceError()}
         {this.renderPipelineWorkspace()}
         {this.renderSavePipeline()}
+        {process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true' && (
+          <PipelineExplain />
+        )}
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}
           isExpanded={this.props.settings.isExpanded}

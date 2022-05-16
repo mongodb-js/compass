@@ -59,6 +59,10 @@ const typescriptParserOptions = {
   },
 };
 
+// The one that the library comes with doesn't allow for numbers and files
+// starting with dots, this modified version handles those
+const kebabcase = /^\.?([a-z0-9]+-)*[a-z0-9]+(?:\..*)?$/;
+
 module.exports = {
   plugins: [
     '@typescript-eslint',
@@ -67,6 +71,7 @@ module.exports = {
     'react',
     'react-hooks',
     '@mongodb-js/compass',
+    'filename-rules',
   ],
   rules: {
     '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
@@ -74,6 +79,7 @@ module.exports = {
       'error',
       { root: path.resolve(__dirname, '..', '..') },
     ],
+    'filename-rules/match': ['error', kebabcase],
   },
   env: { node: true },
   overrides: [
