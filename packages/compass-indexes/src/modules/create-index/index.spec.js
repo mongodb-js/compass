@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { createIndex, createName } from '../create-index';
+import { createIndex } from '../create-index';
 import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
