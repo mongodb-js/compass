@@ -23,9 +23,9 @@ docker run \
   -e E2E_TESTS_ATLAS_PASSWORD="${E2E_TESTS_ATLAS_PASSWORD}" \
   -e E2E_TESTS_ATLAS_X509_PEM="${E2E_TESTS_ATLAS_X509_PEM}" \
   -e MONGODB_VERSION="${MONGODB_VERSION}" \
-  --add-host mongodb-kerberos-1.example.com:"172.0.0.1" \
-  --add-host mongodb-kerberos-2.example.com:"172.0.0.1" \
-  --add-host mongodb-kerberos-3.examplecrossrealm.com:"172.0.0.1" \
+  --add-host mongodb-kerberos-1.example.com:0.0.0.0 \
+  --add-host mongodb-kerberos-2.example.com:0.0.0.0 \
+  --add-host mongodb-kerberos-3.examplecrossrealm.com:0.0.0.0 \
   --network host \
   devtools-connectivity-tests
 
