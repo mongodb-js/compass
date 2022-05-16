@@ -94,6 +94,11 @@ post:
       file_location: src/packages/compass-e2e-tests/.log/report.json
 
 functions:
+  clone:
+    - command: git.get_project
+      params:
+        directory: src
+
   prepare:
     - command: git.get_project
       params:
@@ -383,7 +388,7 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           source .evergreen/start-docker-envs.sh
-          npm run test-connectivity --workspace mongodb-data-service
+          bash .evergreen/connectivity-tests/run.sh
 
   test-csfle:
     - command: shell.exec

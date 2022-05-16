@@ -124,11 +124,9 @@ tasks:
         variants: [ubuntu]
 
   - name: test-connectivity
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
+      - func: clone
       - func: test-connectivity
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
@@ -277,7 +275,7 @@ tasks:
           target_platform: '--platform=darwin'
 
   # copied as test-packaged-app-macos due to depends_on variation
-  
+
 
   - name: test-packaged-app-40x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -296,11 +294,11 @@ tasks:
         vars:
           compass_distribution: compass
       - func: test-packaged-app
-        vars: 
+        vars:
           mongodb_version: 4.0.x
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
+
 
   - name: test-packaged-app-40x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -319,12 +317,12 @@ tasks:
         vars:
           compass_distribution: compass
       - func: test-packaged-app
-        vars: 
+        vars:
           mongodb_version: 4.0.x
           mongodb_use_enterprise: yes
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
+
 
   - name: test-packaged-app-42x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -343,11 +341,11 @@ tasks:
         vars:
           compass_distribution: compass
       - func: test-packaged-app
-        vars: 
+        vars:
           mongodb_version: 4.2.x
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
+
 
   - name: test-packaged-app-42x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -366,12 +364,12 @@ tasks:
         vars:
           compass_distribution: compass
       - func: test-packaged-app
-        vars: 
+        vars:
           mongodb_version: 4.2.x
           mongodb_use_enterprise: yes
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
+
 
   - name: test-packaged-app-44x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -390,11 +388,11 @@ tasks:
         vars:
           compass_distribution: compass
       - func: test-packaged-app
-        vars: 
+        vars:
           mongodb_version: 4.4.x
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
+
 
   - name: test-packaged-app-44x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -413,12 +411,12 @@ tasks:
         vars:
           compass_distribution: compass
       - func: test-packaged-app
-        vars: 
+        vars:
           mongodb_version: 4.4.x
           mongodb_use_enterprise: yes
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
+
 
   - name: test-packaged-app-5x-community
     tags: ['required-for-publish', 'run-on-pr']
@@ -437,11 +435,11 @@ tasks:
         vars:
           compass_distribution: compass
       - func: test-packaged-app
-        vars: 
+        vars:
           mongodb_version: 5.x.x
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
+
 
   - name: test-packaged-app-5x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
@@ -460,9 +458,9 @@ tasks:
         vars:
           compass_distribution: compass
       - func: test-packaged-app
-        vars: 
+        vars:
           mongodb_version: 5.x.x
           mongodb_use_enterprise: yes
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
+
