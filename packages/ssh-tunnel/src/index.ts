@@ -51,7 +51,7 @@ function getSshTunnelConfig(config: Partial<SshTunnelConfig>): SshTunnelConfig {
 
 export class SshTunnel extends EventEmitter {
   private connected = false;
-  private stayConnected = false;
+  private closed = false;
   private connectingPromise?: Promise<void>
   private connections: Set<Socket> = new Set();
   private server: any;
@@ -145,9 +145,7 @@ export class SshTunnel extends EventEmitter {
     }
   }
 
-  private async connectSsh(stayConnected = false): Promise<void> {
-    this.stayConnected = stayConnected || this.stayConnected;
-
+  private async connectSsh(): Promise<void> {
     if (this.connected) {
       debug('already connected');
       return;
@@ -158,7 +156,7 @@ export class SshTunnel extends EventEmitter {
       return this.connectingPromise;
     }
 
-    if (!stayConnected) {
+    if (this.closed) {
       // A socks5 request could come in after we deliberately closed the connection. Don't reconnect in that case.
       throw new Error('Disconnected.');
     }
@@ -193,7 +191,7 @@ export class SshTunnel extends EventEmitter {
   }
 
   private async closeSshClient() {
-    this.stayConnected = false; // stop reconnecting once we close
+    this.closed = true;
     try {
       return once(this.sshClient, 'close');
     } finally {
