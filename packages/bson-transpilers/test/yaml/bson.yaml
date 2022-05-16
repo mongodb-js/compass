@@ -20,6 +20,7 @@ tests:
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
           ruby: BSON::Code.new('some code')
+          go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"some code\")}"
           rust: Bson::JavaScriptCode("some code".to_string())
     - description: 'string code'
       input:
@@ -34,6 +35,7 @@ tests:
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
           ruby: BSON::Code.new('some code')
+          go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"some code\")}"
           rust: Bson::JavaScriptCode("some code".to_string())
     - description: 'string code and object scope'
       input:
@@ -48,6 +50,7 @@ tests:
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: 'new Code("string", {"x": 1})'
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
+          go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"string\"), Scope: bson.D{{\"x\", \"1\"}}}"
           rust: |-
             JavaScriptCodeWithScope { code: "string".to_string(), scope: doc! {
                 "x": "1"
@@ -63,6 +66,7 @@ tests:
           csharp: new BsonJavaScript("")
           object: new Code('')
           ruby: BSON::Code.new
+          go: primitive.CodeWithScope{}
           rust: Bson::JavaScriptCode("".to_string())
     - description: 'function arg'
       input:
@@ -75,6 +79,7 @@ tests:
           csharp: new BsonJavaScript("function(test){console.log(test);}")
           object: new Code('function(test){console.log(test);}')
           ruby: BSON::Code.new('function(test){console.log(test);}')
+          go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"function(test){console.log(test);}\")}"
           rust: Bson::JavaScriptCode("function(test){console.log(test);}".to_string())
     - description: 'named scope arg'
       input:
@@ -87,6 +92,7 @@ tests:
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: "new Code('string', {'x': '1'})"
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
+          go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"string\"), Scope: bson.D{{\"x\", \"1\"}}}"
           rust: |-
             JavaScriptCodeWithScope { code: "string".to_string(), scope: doc! {
                 "x": "1"
@@ -105,6 +111,7 @@ tests:
           csharp: new ObjectId()
           object: new ObjectId()
           ruby: BSON::ObjectId.new
+          go: primitive.NewObjectID()
           rust: ObjectId::new()
     - description: 'NEW no arg'
       input:
@@ -118,6 +125,7 @@ tests:
           csharp: new ObjectId()
           object: new ObjectId()
           ruby: BSON::ObjectId.new
+          go: primitive.NewObjectID()
           rust: ObjectId::new()
     - description: 'hex string arg'
       input:
@@ -132,6 +140,16 @@ tests:
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
+          go: |-
+            var objectIDFromHex = func(hex string) primitive.ObjectID {
+              objectID, err := primitive.ObjectIDFromHex(hex)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return objectID
+            }
+
+            objectIDFromHex("5a7382114ec1f67ae445f778")
           rust: ObjectId::parse_str("5a7382114ec1f67ae445f778")?
     - description: 'hex string arg named'
       input:
@@ -144,6 +162,16 @@ tests:
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
+          go: |-
+            var objectIDFromHex = func(hex string) primitive.ObjectID {
+              objectID, err := primitive.ObjectIDFromHex(hex)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return objectID
+            }
+
+            objectIDFromHex("5a7382114ec1f67ae445f778")
           rust: ObjectId::parse_str("5a7382114ec1f67ae445f778")?
     DBRef:
     - description: 'NEW (string, ObjectID) args'
@@ -226,6 +254,7 @@ tests:
           csharp: '3'
           object: new Int32(3)
           ruby: '3'
+          go: int32(3)
           rust: '3'
     - description: 'number arg'
       input:
@@ -240,6 +269,7 @@ tests:
           csharp: '3'
           object: new Int32(3)
           ruby: '3'
+          go: int32(3)
           rust: '3'
     - description: 'string arg'
       input:
@@ -254,6 +284,16 @@ tests:
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
           ruby: "'3'.to_i"
+          go: |-
+            var parseInt32 = func(str string) int32 {
+            i64, err := strconv.ParseInt(str, 10, 32)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return int32(i64)
+            }
+
+            parseInt32("3")
           rust: '"3".parse::<i32>()?'
     - description: 'no arg'
       input:
@@ -267,6 +307,7 @@ tests:
           csharp: '0'
           object: new Int32('0')
           ruby: '0'
+          go: int32(0)
           rust: '0'
     - description: 'hex arg'
       input:
@@ -281,6 +322,7 @@ tests:
           csharp: Convert.ToInt32(0x3)
           object: new Int32(0x3)
           ruby: 0x3.to_i
+          go: int32(0x3)
           rust: '0x3'
     - description: 'decimal arg'
       input:
@@ -295,6 +337,7 @@ tests:
           csharp: Convert.ToInt32(3.0001)
           object: new Int32(3.0001)
           ruby: 3.0001.to_i
+          go: int32(3.0001)
           rust: i32::try_from(3.0001)?
     - description: 'octal arg'
       input:
@@ -309,6 +352,7 @@ tests:
           csharp: '3'
           object: new Int32(0o3)
           ruby: 0o3.to_i
+          go: int32(0o3)
           rust: 0o3
     Double:
     - description: 'number arg'
@@ -323,6 +367,7 @@ tests:
           csharp: '3.0'
           object: new Double(3)
           ruby: 3.to_f
+          go: float64(3)
           rust: '3.0'
     - description: 'NEW number arg'
       input:
@@ -335,6 +380,7 @@ tests:
           csharp: '3.0'
           object: new Double(3)
           ruby: 3.to_f
+          go: float64(3)
           rust: '3.0'
     - description: 'string arg'
       input:
@@ -348,6 +394,16 @@ tests:
           csharp: Convert.ToDouble("3")
           object: new Double('3')
           ruby: "'3'.to_f"
+          go: |-
+            var parseFloat64 = func(str string) float64 {
+              f64, err := strconv.ParseFloat(str, 64)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return f64
+            }
+
+            parseFloat64("3")
           rust: '"3".parse::<f32>()?'
     - description: 'decimal arg'
       input:
@@ -361,6 +417,7 @@ tests:
           csharp: '3.0001'
           object: new Double(3.0001)
           ruby: '3.0001'
+          go: float64(3.0001)
           rust: '3.0001'
     - description: 'hex arg'
       input:
@@ -374,6 +431,7 @@ tests:
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
           ruby: 0x3.to_f
+          go: float64(0x3)
           rust: f32::try_from(0x3)?
     - description: 'octal arg'
       input:
@@ -387,6 +445,7 @@ tests:
           csharp: '3.0'
           object: new Double(0o3)
           ruby: 0o3.to_f
+          go: float64(0o3)
           rust: f32::try_from(0o3)?
     Long:
     - description: 'number arg'
@@ -402,6 +461,7 @@ tests:
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
           ruby: '9223372036854775807'
+          go: int64(9223372036854775807)
           rust: 9223372036854775807i64
     - description: 'NEW number arg'
       input:
@@ -415,6 +475,7 @@ tests:
           csharp: 9223372036854775807L
           object: Long.fromNumber(9223372036854775807)
           ruby: '9223372036854775807'
+          go: int64(9223372036854775807)
           rust: 9223372036854775807i64
     - description: 'no arg'
       input:
@@ -428,6 +489,7 @@ tests:
           csharp: 0L
           object: Long.fromNumber(0)
           ruby: '0'
+          go: int64(0)
           rust: 0i64
     - description: 'string arg'
       input:
@@ -441,6 +503,16 @@ tests:
           csharp: Convert.ToInt64("9223372036854775807")
           object: Long.fromString('9223372036854775807')
           ruby: "'9223372036854775807'.to_i"
+          go: |-
+            var parseInt = func(str string) int64 {
+              i64, err := strconv.ParseInt(str, 10, 64)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return i64
+            }
+
+            parseInt64("9223372036854775807")
           rust: '"9223372036854775807".parse::<i64>()?'
     Decimal128:
     - description: 'buffer arg'
@@ -453,6 +525,16 @@ tests:
           csharp: Decimal128.Parse("5.3E-6175")
           object: Decimal128.fromString('5.3E-6175')
           ruby: BSON::Decimal128.new('5.3E-6175')
+          go: |-
+            var parseDecimal128 = func(str string) primitive.Decimal128 {
+              d128, err := primitive.ParseDecimal128(str)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return d128
+            }
+
+            parseDecimal128("5.3E-6175")
     - description: 'string arg'
       input:
           shell: NumberDecimal('5')
@@ -512,6 +594,7 @@ tests:
           csharp: BsonMinKey.Value
           object: new MinKey()
           ruby: BSON::MinKey.new
+          go: primitive.MinKey{}
           rust: Bson::MinKey
     - description: 'NEW MinKey'
       input:
@@ -525,6 +608,7 @@ tests:
           csharp: BsonMinKey.Value
           object: new MinKey()
           ruby: BSON::MinKey.new
+          go: primitive.MinKey{}
           rust: Bson::MinKey
     - description: 'MaxKey'
       input:
@@ -539,6 +623,7 @@ tests:
           csharp: BsonMaxKey.Value
           object: new MaxKey()
           ruby: BSON::MaxKey.new
+          go: primitive.MaxKey{}
           rust: Bson::MaxKey
     - description: 'NEW MaxKey'
       input:
@@ -552,6 +637,7 @@ tests:
           csharp: BsonMaxKey.Value
           object: new MaxKey()
           ruby: BSON::MaxKey.new
+          go: primitive.MaxKey{}
           rust: Bson::MaxKey
     Timestamp:
     - description: 'NEW Timestamp'
@@ -566,6 +652,7 @@ tests:
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
           ruby: BSON::Timestamp.new(10, 100)
+          go: "primitive.Timestamp{T: 10, I: 100}"
           rust: "Timestamp { time: 10, increment: 100 }"
     - description: 'Timestamp'
       input:
@@ -580,6 +667,7 @@ tests:
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
           ruby: BSON::Timestamp.new(10, 100)
+          go: "primitive.Timestamp{T: 10, I: 100}"
           rust: "Timestamp { time: 10, increment: 100 }"
     BSONRegExp:
     - description: 'no flags'
@@ -594,6 +682,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
           ruby: /^[a-z0-9_-]{3,16}$/
+          go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
     - description: 'NEW no flags'
       input:
@@ -606,6 +695,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
           ruby: /^[a-z0-9_-]{3,16}$/
+          go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
     - description: 'with flags'
       input:
@@ -619,6 +709,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           ruby: /^[a-z0-9_-]{3,16}$/imx
+          go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\", Options: \"imuxls\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'
     - description: 'with flags named'
       input:
@@ -631,6 +722,7 @@ tests:
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
           ruby: /^[a-z0-9_-]{3,16}$/imx
+          go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\", Options: \"imuxls\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'
     Symbol:
     - description: from string
@@ -645,6 +737,7 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          go: primitive.Symbol("abc")
           rust: 'Bson::Symbol("abc")'
     - description: from shell symbol
       input:
@@ -657,6 +750,7 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          go: primitive.Symbol("abc")
           rust: 'Bson::Symbol("abc")'
     - description: NEW from string
       input:
@@ -669,4 +763,5 @@ tests:
           csharp: '"abc"'
           object: new BSONSymbol('abc')
           ruby: ":'abc'"
+          go: primitive.Symbol("abc")
           rust: 'Bson::Symbol("abc")'

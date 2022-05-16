@@ -1,6 +1,5 @@
 import type { MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
-import { MongoClient as FLEMongoClient } from 'mongodb-fle';
 import { connectMongoClient, hookLogger } from '@mongodb-js/devtools-connect';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import type SSHTunnel from '@mongodb-js/ssh-tunnel';
@@ -46,7 +45,6 @@ export default async function connectMongoClientCompass(
       ...options.autoEncryption,
       extraOptions: {
         ...options.autoEncryption?.extraOptions,
-        // @ts-expect-error next driver release has types
         csflePath: process.env.COMPASS_CSFLE_LIBRARY_PATH,
       },
     };
@@ -63,12 +61,7 @@ export default async function connectMongoClientCompass(
   if (socks5Options) {
     Object.assign(options, socks5Options);
   }
-
-  const BaseMongoClient =
-    process.env.COMPASS_CSFLE_SUPPORT === 'true'
-      ? (FLEMongoClient as unknown as typeof MongoClient)
-      : MongoClient;
-  class CompassMongoClient extends BaseMongoClient {
+  class CompassMongoClient extends MongoClient {
     constructor(url: string, options?: MongoClientOptions) {
       super(url, options);
       if (setupListeners) {

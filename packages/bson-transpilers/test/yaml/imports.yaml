@@ -75,6 +75,11 @@ tests:
                 Code
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Bson;
               use mongodb::bson::doc;
@@ -98,6 +103,11 @@ tests:
                 Code
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Bson;
               use mongodb::bson::JavaScriptCodeWithScope;
@@ -120,6 +130,12 @@ tests:
                 ObjectId
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+              "log"
+            )
           rust: |-
               use mongodb::bson::doc;
               use mongodb::bson::oid::ObjectId;
@@ -140,6 +156,11 @@ tests:
               const {
                 Timestamp
               } = require('mongodb');
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Timestamp;
               use mongodb::bson::doc;
@@ -163,6 +184,12 @@ tests:
                 DBRef
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+              "log"
+            )
           rust: |-
               use mongodb::bson::doc;
               use mongodb::bson::oid::ObjectId;
@@ -196,6 +223,12 @@ tests:
                 Int32
               } = require('mongodb');
           ruby: ''
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "log"
+              "strconv"
+            )
           rust: use mongodb::bson::doc;
     - description: Single import NumberLong
       input:
@@ -213,6 +246,12 @@ tests:
                 Long
               } = require('mongodb');
           ruby: ''
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "log"
+              "strconv"
+            )
           rust: use mongodb::bson::doc;
     - description: Single import MinKey
       input:
@@ -232,6 +271,11 @@ tests:
                 MinKey
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Bson;
               use mongodb::bson::doc;
@@ -253,6 +297,11 @@ tests:
                 MaxKey
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Bson;
               use mongodb::bson::doc;
@@ -272,6 +321,11 @@ tests:
           python: import re
           javascript: ''
           ruby: ''
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Regex;
               use mongodb::bson::doc;
@@ -287,6 +341,11 @@ tests:
               using MongoDB.Bson;
               using MongoDB.Driver;
           python: from bson import Regex
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Regex;
               use mongodb::bson::doc;
@@ -305,6 +364,11 @@ tests:
           python: import re
           javascript: ''
           ruby: ''
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Regex;
               use mongodb::bson::doc;
@@ -326,6 +390,11 @@ tests:
                 Timestamp
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: |-
               use mongodb::bson::Timestamp;
               use mongodb::bson::doc;
@@ -346,6 +415,11 @@ tests:
                 BSONSymbol
               } = require('mongodb');
           ruby: ''
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+            )
           rust: use mongodb::bson::doc;
     - description: Single import NumberDecimal
       input:
@@ -365,6 +439,12 @@ tests:
                 Decimal128
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+              "log"
+            )
           rust: use mongodb::bson::doc;
     - description: Single import Date as string
       input:
@@ -381,6 +461,11 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "time.Time"
+            )
           rust: |-
             use mongodb::bson::DateTime;
             use mongodb::bson::doc;
@@ -398,6 +483,11 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "time.Time"
+            )
           rust: |-
             use mongodb::bson::DateTime;
             use mongodb::bson::doc;
@@ -414,6 +504,11 @@ tests:
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
           ruby: ''
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "time.Time"
+            )
           rust: |-
             use mongodb::bson::DateTime;
             use mongodb::bson::doc;
@@ -424,6 +519,7 @@ tests:
           csharp: ''
           javascript: ''
           ruby: ''
+          go: ''
           rust: ''
     - description: Multiple imports
       input:
@@ -480,6 +576,14 @@ tests:
                 Decimal128
               } = require('mongodb');
           ruby: require 'bson'
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+              "go.mongodb.org/mongo-driver/bson/primitive"
+              "log"
+              "strconv"
+              "time.Time"
+            )
           rust: |-
               use mongodb::bson::Bson;
               use mongodb::bson::DateTime;
@@ -576,6 +680,10 @@ tests:
               import static com.mongodb.client.model.Filters.where;
               import com.mongodb.client.model.geojson.Point;
               import com.mongodb.client.model.geojson.Position;
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+            )
     - description: All agg builder imports
       input:
           shell: "[ { $count: 'field' }, { $facet: { output1: [{ $match: {x: 1} }] } },
@@ -634,6 +742,10 @@ tests:
               import static com.mongodb.client.model.Sorts.orderBy;
               import com.mongodb.client.model.Facet;
               import com.mongodb.client.model.GraphLookupOptions;
+          go: |-
+            import (
+              "go.mongodb.org/mongo-driver/bson"
+            )
     - description: all geometry builder imports
       input:
           shell: "[ {$geometry: {type: 'Point', coordinates: [1, 2]}}, {$geometry: {type:

@@ -32,6 +32,9 @@ const expandButton = css({
   padding: 7,
   transition: 'transform .16s linear',
   transform: 'rotate(0deg)',
+  '&:hover': {
+    cursor: 'pointer',
+  },
 });
 
 const expanded = css({
