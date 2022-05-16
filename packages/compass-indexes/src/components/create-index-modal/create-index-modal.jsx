@@ -32,8 +32,8 @@ import { toggleIsUnique } from '../../modules/create-index/is-unique';
 import { toggleIsPartialFilterExpression } from '../../modules/create-index/is-partial-filter-expression';
 import { toggleIsTtl } from '../../modules/create-index/is-ttl';
 import { changeTtl } from '../../modules/create-index/ttl';
-import { toggleIsWildcard } from '../../modules/create-index/is-wildcard';
-import { toggleIsColumnstore } from '../../modules/create-index/is-columnstore';
+import { toggleHasWildcardProjection } from '../../modules/create-index/has-wildcard-projection';
+import { toggleHasColumnstoreProjection } from '../../modules/create-index/has-columnstore-projection';
 import { changeWildcardProjection } from '../../modules/create-index/wildcard-projection';
 import { changeColumnstoreProjection } from '../../modules/create-index/columnstore-projection';
 import { changePartialFilterExpression } from '../../modules/create-index/partial-filter-expression';
@@ -64,8 +64,8 @@ class CreateIndexModal extends PureComponent {
     isUnique: PropTypes.bool.isRequired,
     isTtl: PropTypes.bool.isRequired,
     ttl: PropTypes.string.isRequired,
-    isWildcard: PropTypes.bool.isRequired,
-    isColumnstore: PropTypes.bool.isRequired,
+    hasWildcardProjection: PropTypes.bool.isRequired,
+    hasColumnstoreProjection: PropTypes.bool.isRequired,
     wildcardProjection: PropTypes.string.isRequired,
     columnstoreProjection: PropTypes.string.isRequired,
     isPartialFilterExpression: PropTypes.bool.isRequired,
@@ -83,8 +83,8 @@ class CreateIndexModal extends PureComponent {
     toggleShowOptions: PropTypes.func.isRequired,
     toggleIsBackground: PropTypes.func.isRequired,
     toggleIsTtl: PropTypes.func.isRequired,
-    toggleIsWildcard: PropTypes.func.isRequired,
-    toggleIsColumnstore: PropTypes.func.isRequired,
+    toggleHasWildcardProjection: PropTypes.func.isRequired,
+    toggleHasColumnstoreProjection: PropTypes.func.isRequired,
     toggleIsPartialFilterExpression: PropTypes.func.isRequired,
     toggleIsCustomCollation: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
@@ -254,10 +254,12 @@ class CreateIndexModal extends PureComponent {
           name="Wildcard Projection"
           data-test-id="toggle-is-wildcard"
           titleClassName={styles['create-index-modal-options-param']}
-          checked={this.props.isWildcard}
+          checked={this.props.hasWildcardProjection}
           helpUrl={getIndexHelpLink('WILDCARD')}
           onClickHandler={() =>
-            this.props.toggleIsWildcard(!this.props.isWildcard)
+            this.props.toggleHasWildcardProjection(
+              !this.props.hasWildcardProjection
+            )
           }
           onLinkClickHandler={this.props.openLink}
         />
@@ -268,10 +270,12 @@ class CreateIndexModal extends PureComponent {
               name="Columnstore Projection"
               data-test-id="toggle-is-columnstore"
               titleClassName={styles['create-index-modal-options-param']}
-              checked={this.props.isColumnstore}
+              checked={this.props.hasColumnstoreProjection}
               helpUrl={getIndexHelpLink('COLUMNSTORE')}
               onClickHandler={() =>
-                this.props.toggleIsColumnstore(!this.props.isColumnstore)
+                this.props.toggleHasColumnstoreProjection(
+                  !this.props.hasColumnstoreProjection
+                )
               }
               onLinkClickHandler={this.props.openLink}
             />
@@ -297,7 +301,7 @@ class CreateIndexModal extends PureComponent {
     }
   }
   renderWildcard() {
-    if (this.props.showOptions && this.props.isWildcard) {
+    if (this.props.showOptions && this.props.hasWildcardProjection) {
       return (
         <div className={styles['create-index-modal-options-param-wrapper']}>
           <ModalInput
@@ -313,7 +317,7 @@ class CreateIndexModal extends PureComponent {
     }
   }
   renderColumnstoreIndexOptions() {
-    if (this.props.showOptions && this.props.isColumnstore) {
+    if (this.props.showOptions && this.props.hasColumnstoreProjection) {
       return (
         <div className={styles['create-index-modal-options-param-wrapper']}>
           <ModalInput
@@ -494,8 +498,8 @@ const mapStateToProps = (state) => ({
   isBackground: state.isBackground,
   isTtl: state.isTtl,
   ttl: state.ttl,
-  isWildcard: state.isWildcard,
-  isColumnstore: state.isColumnstore,
+  hasWildcardProjection: state.hasWildcardProjection,
+  hasColumnstoreProjection: state.hasColumnstoreProjection,
   columnstoreProjection: state.columnstoreProjection,
   wildcardProjection: state.wildcardProjection,
   isUnique: state.isUnique,
@@ -520,8 +524,8 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   toggleIsVisible,
   toggleIsBackground,
   toggleIsTtl,
-  toggleIsWildcard,
-  toggleIsColumnstore,
+  toggleHasWildcardProjection,
+  toggleHasColumnstoreProjection,
   toggleIsUnique,
   toggleIsPartialFilterExpression,
   toggleIsCustomCollation,

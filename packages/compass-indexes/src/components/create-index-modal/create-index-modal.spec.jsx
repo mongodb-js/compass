@@ -19,7 +19,7 @@ describe('CreateIndexModal [Component]', function () {
   let toggleIsTtlSpy;
   let toggleIsPartialFilterExpressionSpy;
   let toggleIsCustomCollationSpy;
-  let toggleIsColumnstoreSpy;
+  let toggleHasColumnstoreProjectionSpy;
   let resetFormSpy;
   let createIndexSpy;
   let openLinkSpy;
@@ -209,7 +209,7 @@ describe('CreateIndexModal [Component]', function () {
       toggleIsTtlSpy = sinon.spy();
       toggleIsPartialFilterExpressionSpy = sinon.spy();
       toggleIsCustomCollationSpy = sinon.spy();
-      toggleIsColumnstoreSpy = sinon.spy();
+      toggleHasColumnstoreProjectionSpy = sinon.spy();
       resetFormSpy = sinon.spy();
       createIndexSpy = sinon.spy();
       openLinkSpy = sinon.spy();
@@ -246,7 +246,7 @@ describe('CreateIndexModal [Component]', function () {
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
-          toggleIsColumnstore={toggleIsColumnstoreSpy}
+          toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
           resetForm={resetFormSpy}
           createIndex={createIndexSpy}
           openLink={openLinkSpy}
@@ -270,7 +270,7 @@ describe('CreateIndexModal [Component]', function () {
       toggleIsTtlSpy = null;
       toggleIsPartialFilterExpressionSpy = null;
       toggleIsCustomCollationSpy = null;
-      toggleIsColumnstoreSpy = null;
+      toggleHasColumnstoreProjectionSpy = null;
       resetFormSpy = null;
       createIndexSpy = null;
       openLinkSpy = null;
@@ -373,12 +373,12 @@ describe('CreateIndexModal [Component]', function () {
           });
         });
         context('columnstoreIndexes', function () {
-          it('calls the toggleIsColumnstore function', function () {
+          it('calls the toggleHasColumnstoreProjection function', function () {
             component
               .find('[data-test-id="toggle-is-columnstore"]')
               .find('[type="checkbox"]')
               .simulate('change', { target: { checked: true } });
-            expect(toggleIsColumnstoreSpy.called).to.equal(true);
+            expect(toggleHasColumnstoreProjectionSpy.called).to.equal(true);
           });
         });
       });
