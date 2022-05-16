@@ -19,6 +19,7 @@ tests:
           csharp: ''
           shell: NumberLong
           ruby: ''
+          go: ''
           rust: ''
     - input:
           javascript: new Decimal128
@@ -30,6 +31,7 @@ tests:
           csharp: Decimal128
           shell: NumberDecimal
           ruby: BSON::Decimal128
+          go: ''
     - input:
           javascript: Double
           python: float
@@ -40,6 +42,7 @@ tests:
           csharp: ''
           shell: ''
           ruby: ''
+          go: ''
           rust: ''
     - input:
           javascript: Int32
@@ -51,6 +54,7 @@ tests:
           csharp: ''
           shell: NumberInt
           ruby: ''
+          go: ''
           rust: ''
     - input:
           javascript: Long
@@ -61,6 +65,7 @@ tests:
           csharp: ''
           shell: NumberLong
           ruby: ''
+          go: ''
           rust: ''
     - input:
           javascript: Decimal128
@@ -71,6 +76,7 @@ tests:
           csharp: Decimal128
           shell: NumberDecimal
           ruby: BSON::Decimal128
+          go: ''
     - input:
           javascript: ObjectId
           python: ObjectId
@@ -81,6 +87,7 @@ tests:
           csharp: ObjectId
           shell: ObjectId
           ruby: BSON::ObjectId
+          go: ''
           rust: ObjectId
     - input:
           javascript: Code
@@ -92,6 +99,7 @@ tests:
           csharp: BsonJavaScript
           shell: Code
           ruby: BSON::Code
+          go: primitive.CodeWithScope
           rust: ''
     - input:
           javascript: DBRef
@@ -113,6 +121,7 @@ tests:
           csharp: BsonTimestamp
           shell: Timestamp
           ruby: BSON::Timestamp
+          go: primitive.Timestamp
           rust: Timestamp
     - input:
           javascript: BSONSymbol
@@ -123,6 +132,7 @@ tests:
           csharp: ''
           shell: ''
           ruby: ''
+          go: primitive.Symbol
           rust: Bson::Symbol
     - input:
           javascript: MinKey
@@ -134,6 +144,7 @@ tests:
           csharp: BsonMinKey
           shell: MinKey
           ruby: BSON::MinKey
+          go: primitive.MinKey
           rust: Bson::MinKey
     - input:
           javascript: MaxKey
@@ -145,6 +156,7 @@ tests:
           csharp: BsonMaxKey
           shell: MaxKey
           ruby: BSON::MaxKey
+          go: primitive.MaxKey
           rust: Bson::MaxKey
     - input:
           javascript: BSONRegExp
@@ -156,6 +168,7 @@ tests:
           csharp: BsonRegularExpression
           shell: RegExp
           ruby: ''
+          go: "primitive.Regex"
           rust: Regex
     - input:
           javascript: RegExp
@@ -167,6 +180,7 @@ tests:
           csharp: Regex
           shell: RegExp
           ruby: ''
+          go: regex
           rust: Regex
     - input:
           python: re
@@ -177,6 +191,7 @@ tests:
           csharp: ''
           shell: ''
           ruby: ''
+          go: ''
           rust: ''
     - input:
           javascript: Date
@@ -188,6 +203,7 @@ tests:
           csharp: DateTime
           shell: Date
           ruby: Time
+          go: time.Date
           rust: DateTime
     - input:
           javascript: ObjectId.createFromTime
@@ -199,6 +215,7 @@ tests:
           csharp: new ObjectId.GenerateNewId
           shell: ObjectId.fromDate
           ruby: BSON::ObjectId.from_time
+          go: primitive.NewObjectIDFromTimestamp
     - input:
           javascript: ObjectId.isValid
           python: ObjectId.is_valid
@@ -209,6 +226,7 @@ tests:
           csharp: new ObjectId
           shell: new ObjectId
           ruby: BSON::ObjectId.legal?
+          go: primitive.IsValidObjectID
     - input:
           javascript: ObjectId().toString
       output:
@@ -218,6 +236,7 @@ tests:
           csharp: new ObjectId().ToString()
           shell: new ObjectId().toString()
           ruby: BSON::ObjectId.new.to_s
+          go: primitive.NewObjectID().String()
           rust: ObjectId::new().to_hex()
     - input:
           javascript: ObjectId().getTimestamp
@@ -228,6 +247,7 @@ tests:
           csharp: new ObjectId().Timestamp
           shell: new ObjectId().getTimestamp()
           ruby: BSON::ObjectId.new.to_time
+          go: primitive.NewObjectID().Timestamp()
           rust: ObjectId::new().timestamp()
     - input:
           javascript: ObjectId().equals
@@ -238,6 +258,7 @@ tests:
           csharp: new ObjectId().Equals
           shell: new ObjectId().equals
           ruby: BSON::ObjectId.new ==
+          go: ''
           rust: ObjectId::new() ==
     - input:
           javascript: Long(1, 100).toInt
@@ -248,6 +269,7 @@ tests:
           csharp: "(int) 429496729601L"
           shell: new NumberLong(429496729601).valueOf
           ruby: "429496729601"
+          go: int(int64(429496729601))
           rust: 429496729601i64 as i32
     - input:
           javascript: Long(1, 100).toNumber
@@ -258,6 +280,7 @@ tests:
           csharp: "(double) 429496729601L"
           shell: new NumberLong(429496729601).floatApprox
           ruby: "429496729601.to_f"
+          go: float64(int64(429496729601))
           rust: 429496729601i64 as f64
     - input:
           javascript: Long(1, 100).toString
@@ -268,6 +291,7 @@ tests:
           csharp: 429496729601L
           shell: new NumberLong(429496729601).toString
           ruby: '429496729601.to_s'
+          go: strconv.Itoa(int64(429496729601))
           rust: 429496729601i64
     - input:
           javascript: Long(1, 100).isZero
@@ -278,6 +302,7 @@ tests:
           csharp: 429496729601L == 0
           shell: new NumberLong(429496729601) === 0
           ruby: 429496729601 == 0
+          go: int64(429496729601) == int64(0)
           rust: 429496729601i64 == 0
     - input:
           javascript: Long(1, 100).isNegative
@@ -288,6 +313,7 @@ tests:
           csharp: 429496729601L < 0
           shell: new NumberLong(429496729601) < 0
           ruby: 429496729601 < 0
+          go: int64(429496729601) < int64(0)
           rust: 429496729601i64 < 0
     - input:
           javascript: Long(1, 100).isOdd()
@@ -298,6 +324,7 @@ tests:
           csharp: 429496729601L % 2 == 1
           shell: "(new NumberLong(429496729601) % 2) === 1"
           ruby: (429496729601 % 2) == 1
+          go: int64(429496729601) % 2 == 1
           rust: 429496729601i64 % 2 == 1
     - input:
           javascript: Long(1, 100).equals
@@ -308,6 +335,7 @@ tests:
           csharp: 429496729601L ==
           shell: new NumberLong(429496729601) ===
           ruby: 429496729601 ==
+          go: int64(429496729601) ==
           rust: 429496729601i64 ==
     - input:
           javascript: Long(1, 100).notEquals
@@ -318,6 +346,7 @@ tests:
           csharp: 429496729601L !=
           shell: new NumberLong(429496729601) !==
           ruby: 429496729601 !=
+          go: int64(429496729601) !=
           rust: 429496729601i64 !=
     - input:
           javascript: Long(1, 100).compare
@@ -328,6 +357,7 @@ tests:
           csharp: 429496729601L -
           shell: new NumberLong(429496729601) -
           ruby: 429496729601 -
+          go: int64(429496729601) -
           rust: 429496729601i64 -
     - input:
           javascript: Long(1, 100).greaterThan
@@ -338,6 +368,7 @@ tests:
           csharp: 429496729601L >
           shell: new NumberLong(429496729601) >
           ruby: 429496729601 >
+          go: int64(429496729601) >
           rust: 429496729601i64 >
     - input:
           javascript: Long(1, 100).greaterThanOrEqual
@@ -348,6 +379,7 @@ tests:
           csharp: 429496729601L >=
           shell: new NumberLong(429496729601) >=
           ruby: 429496729601 >=
+          go: int64(429496729601) >=
           rust: 429496729601i64 >=
     - input:
           javascript: Long(1, 100).lessThan
@@ -358,6 +390,7 @@ tests:
           csharp: 429496729601L <
           shell: new NumberLong(429496729601) <
           ruby: 429496729601 <
+          go: int64(429496729601) <
           rust: 429496729601i64 <
     - input:
           javascript: Long(1, 100).lessThanOrEqual
@@ -368,6 +401,7 @@ tests:
           csharp: 429496729601L <=
           shell: new NumberLong(429496729601) <=
           ruby: 429496729601 <=
+          go: int64(429496729601) <=
           rust: 429496729601i64 <=
     - input:
           javascript: Long(1, 100).negate
@@ -378,6 +412,7 @@ tests:
           csharp: "-"
           shell: "-"
           ruby: "-"
+          go: "-"
           rust: "-"
     - input:
           javascript: Long(1, 100).add
@@ -388,6 +423,7 @@ tests:
           csharp: 429496729601L +
           shell: new NumberLong(429496729601) +
           ruby: 429496729601 +
+          go: int64(429496729601) +
           rust: 429496729601i64 +
     - input:
           javascript: Long(1, 100).subtract
@@ -398,6 +434,7 @@ tests:
           csharp: 429496729601L -
           shell: new NumberLong(429496729601) -
           ruby: 429496729601 -
+          go: int64(429496729601) -
           rust: 429496729601i64 -
     - input:
           javascript: Long(1, 100).multiply
@@ -408,6 +445,7 @@ tests:
           csharp: 429496729601L *
           shell: new NumberLong(429496729601) *
           ruby: 429496729601 *
+          go: int64(429496729601) *
           rust: 429496729601i64 *
     - input:
           javascript: Long(1, 100).div
@@ -418,6 +456,7 @@ tests:
           csharp: 429496729601L /
           shell: new NumberLong(429496729601) /
           ruby: 429496729601 /
+          go: int64(429496729601) /
           rust: 429496729601i64 /
     - input:
           javascript: Long(1, 100).modulo
@@ -428,6 +467,7 @@ tests:
           csharp: 429496729601L %
           shell: new NumberLong(429496729601) %
           ruby: 429496729601 %
+          go: int64(429496729601) %
           rust: 429496729601i64 %
     - input:
           javascript: Long(1, 100).not
@@ -438,6 +478,7 @@ tests:
           csharp: "~"
           shell: "~"
           ruby: "~"
+          go: "^"
           rust: "~"
     - input:
           javascript: Long(1, 100).and
@@ -448,6 +489,7 @@ tests:
           csharp: 429496729601L &
           shell: new NumberLong(429496729601) &
           ruby: 429496729601 &
+          go: int64(429496729601) &
           rust: 429496729601i64 &
     - input:
           javascript: Long(1, 100).or
@@ -458,6 +500,7 @@ tests:
           csharp: 429496729601L |
           shell: new NumberLong(429496729601) |
           ruby: 429496729601 |
+          go: int64(429496729601) |
           rust: 429496729601i64 |
     - input:
           javascript: Long(1, 100).xor
@@ -468,6 +511,7 @@ tests:
           csharp: 429496729601L ^
           shell: new NumberLong(429496729601) ^
           ruby: 429496729601 ^
+          go: int64(429496729601) ^
           rust: 429496729601i64 ^
     - input:
           javascript: Long(1, 100).shiftLeft
@@ -478,6 +522,7 @@ tests:
           csharp: 429496729601L <<
           shell: new NumberLong(429496729601) <<
           ruby: 429496729601 <<
+          go: int64(429496729601) <<
           rust: 429496729601i64 <<
     - input:
           javascript: Long(1, 100).shiftRight
@@ -488,6 +533,7 @@ tests:
           csharp: 429496729601L >>
           shell: new NumberLong(429496729601) >>
           ruby: 429496729601 >>
+          go: int64(429496729601) >>
           rust: 429496729601i64 >>
     - input:
           javascript: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0')).toString
@@ -498,6 +544,16 @@ tests:
           csharp: Decimal128.Parse("5.3E-6175").ToString
           shell: new NumberDecimal(5.3E-6175).toString
           ruby: BSON::Decimal128.new('5.3E-6175').to_s
+          go: |-
+            var parseDecimal128 = func(str string) primitive.Decimal128 {
+              d128, err := primitive.ParseDecimal128(str)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return d128
+            }
+
+            parseDecimal128("5.3E-6175").String()
     - input:
           javascript: Timestamp(1, 100).toString
       output:
@@ -507,6 +563,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).ToString
           shell: new Timestamp(1, 100).toString
           ruby: BSON::Timestamp.new(1, 100).to_s
+          go: "time.Unix(primitive.Timestamp{T: 1, I: 100}.T, 0).String"
           rust: "Timestamp { time: 1, increment: 100 }.to_string()"
     - input:
           javascript: Timestamp(1, 100).equals
@@ -517,6 +574,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).Equals
           shell: new Timestamp(1, 100) ===
           ruby: BSON::Timestamp.new(1, 100) ==
+          go: "primitive.Timestamp{T: 1, I: 100}.Equal"
           rust: "Timestamp { time: 1, increment: 100 } =="
     - input:
           javascript: Timestamp(1, 100).compare
@@ -527,6 +585,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).CompareTo
           shell: new Timestamp(1, 100) -
           ruby: BSON::Timestamp.new(1, 100) <=>
+          go: primitive.CompareTimestamp
           rust: "Timestamp { time: 1, increment: 100 }.cmp"
     - input:
           javascript: Timestamp(1, 100).notEquals
@@ -537,6 +596,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) !=
           shell: new Timestamp(1, 100) !==
           ruby: BSON::Timestamp.new(1, 100) !=
+          go: "!primitive.Timestamp{T: 1, I: 100}.Equal"
           rust: "Timestamp { time: 1, increment: 100 } !="
     - input:
           javascript: Timestamp(1, 100).greaterThan
@@ -547,6 +607,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) >
           shell: new Timestamp(1, 100) >
           ruby: BSON::Timestamp.new(1, 100) >
+          go: ''
           rust: "Timestamp { time: 1, increment: 100 } >"
     - input:
           javascript: Timestamp(1, 100).greaterThanOrEqual
@@ -557,6 +618,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) >=
           shell: new Timestamp(1, 100) >=
           ruby: BSON::Timestamp.new(1, 100) >=
+          go: ''
           rust: "Timestamp { time: 1, increment: 100 } >="
     - input:
           javascript: Timestamp(1, 100).lessThan
@@ -567,6 +629,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) <
           shell: new Timestamp(1, 100) <
           ruby: BSON::Timestamp.new(1, 100) <
+          go: ''
           rust: "Timestamp { time: 1, increment: 100 } <"
     - input:
           javascript: Timestamp(1, 100).lessThanOrEqual
@@ -577,6 +640,7 @@ tests:
           csharp: new BsonTimestamp(1, 100) <=
           shell: new Timestamp(1, 100) <=
           ruby: BSON::Timestamp.new(1, 100) <=
+          go: ''
           rust: "Timestamp { time: 1, increment: 100 } <="
     - input:
           javascript: Timestamp(1, 100).getLowBits
@@ -587,6 +651,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).ToUniversalTime
           shell: new Timestamp(1, 100).getTime
           ruby: BSON::Timestamp.new(1, 100).seconds
+          go: "primitive.Timestamp{T: 1, I: 100}.T"
           rust: "Timestamp { time: 1, increment: 100 }.time"
     - input:
           javascript: Timestamp(1, 100).getHighBits
@@ -597,6 +662,7 @@ tests:
           csharp: new BsonTimestamp(1, 100).Increment
           shell: new Timestamp(1, 100).getInc
           ruby: BSON::Timestamp.new(1, 100).increment
+          go: "primitive.Timestamp{T: 1, I: 100}.I"
           rust: "Timestamp { time: 1, increment: 100 }.increment"
     - input:
           javascript: BSONSymbol('2').valueOf
@@ -607,6 +673,7 @@ tests:
           csharp: '"2"'
           shell: "'2'"
           ruby: ":'2'"
+          go: ''
           rust: Bson::Symbol("2").as_symbol().unwrap()
     - input:
           javascript: BSONSymbol('2').toString
@@ -617,6 +684,7 @@ tests:
           csharp: '"2"'
           shell: "'2'"
           ruby: "'2'"
+          go: ''
           rust: Bson::Symbol("2").as_symbol().unwrap()
     - input:
           javascript: BSONSymbol('2').inspect
@@ -627,4 +695,5 @@ tests:
           csharp: '"2"'
           shell: "'2'"
           ruby: ":'2'.inspect"
+          go: ''
           rust: format!("{:?}", Bson::Symbol("2"))
