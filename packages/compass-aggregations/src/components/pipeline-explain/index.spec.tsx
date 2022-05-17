@@ -43,7 +43,7 @@ describe('PipelineExplain', function () {
     }, 'does not show footer in loading state').to.throw;
   });
 
-  it('renders error state - non-network error', function () {
+  it('renders error state', function () {
     renderPipelineExplain({
       error: 'Error occurred',
     });
