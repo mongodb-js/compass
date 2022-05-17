@@ -1,6 +1,6 @@
 import React from 'react';
 import { css, spacing, Card } from '@mongodb-js/compass-components';
-import { DocumentListView } from '@mongodb-js/compass-crud';
+import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 
 import type { ExplainData } from '../../modules/explain';
@@ -26,6 +26,7 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
   plan,
   stats,
 }) => {
+  const doc = new HadronDocument(plan);
   return (
     <div className={containerStyles} data-testid="pipeline-explain-results">
       {stats && (
@@ -36,12 +37,11 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
         />
       )}
       <Card className={cardStyles} data-testid="pipeline-explain-results-json">
-        <DocumentListView
-          docs={[new HadronDocument(plan)]}
-          isEditable={false}
-          copyToClipboard={(doc) => {
-            const str = doc.toEJSON();
-            void navigator.clipboard.writeText(str);
+        <Document
+          doc={doc}
+          editable={false}
+          copyToClipboard={() => {
+            void navigator.clipboard.writeText(doc.toEJSON());
           }}
         />
       </Card>

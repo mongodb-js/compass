@@ -14,21 +14,11 @@ const { log, mongoLogId } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
 );
 export enum ActionTypes {
-  ModalOpened = 'compass-aggregations/modalOpened',
-  ModalClosed = 'compass-aggregations/modalClosed',
   ExplainStarted = 'compass-aggregations/explainStarted',
   ExplainFinished = 'compass-aggregations/explainFinished',
   ExplainFailed = 'compass-aggregations/explainFailed',
   ExplainCancelled = 'compass-aggregations/explainCancelled',
 }
-
-type ModalOpenedAction = {
-  type: ActionTypes.ModalOpened;
-};
-
-type ModalClosedAction = {
-  type: ActionTypes.ModalClosed;
-};
 
 type ExplainStartedAction = {
   type: ActionTypes.ExplainStarted;
@@ -50,8 +40,6 @@ type ExplainCancelledAction = {
 };
 
 export type Actions =
-  | ModalOpenedAction
-  | ModalClosedAction
   | ExplainStartedAction
   | ExplainFinishedAction
   | ExplainFailedAction
@@ -81,53 +69,47 @@ export const INITIAL_STATE: State = {
 
 const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case ActionTypes.ModalOpened:
-      return {
-        isLoading: false,
-        abortController: undefined,
-        error: undefined,
-        explain: undefined,
-        isModalOpen: true,
-      };
-    case ActionTypes.ModalClosed:
-    case ActionTypes.ExplainCancelled:
-      return INITIAL_STATE;
     case ActionTypes.ExplainStarted:
       return {
-        ...state,
+        isModalOpen: true,
+        isLoading: true,
         explain: undefined,
         error: undefined,
-        isLoading: true,
         abortController: action.abortController,
       };
     case ActionTypes.ExplainFinished:
       return {
-        ...state,
+        isModalOpen: true,
+        isLoading: false,
         explain: action.explain,
         error: undefined,
-        isLoading: false,
         abortController: undefined,
       };
     case ActionTypes.ExplainFailed:
       return {
-        ...state,
+        isModalOpen: true,
+        isLoading: false,
         explain: undefined,
         error: action.error,
-        isLoading: false,
         abortController: undefined,
       };
+    case ActionTypes.ExplainCancelled:
+      return INITIAL_STATE;
     default:
       return state;
   }
 };
 
-export const openExplainModal = (): ModalOpenedAction => ({
-  type: ActionTypes.ModalOpened,
-});
-
-export const closeExplainModal = (): ModalClosedAction => ({
-  type: ActionTypes.ModalClosed,
-});
+export const closeExplainModal = (): ThunkAction<
+  void,
+  RootState,
+  void,
+  Actions
+> => {
+  return (dispatch) => {
+    dispatch(cancelExplain());
+  };
+};
 
 export const cancelExplain = (): ThunkAction<
   void,
@@ -135,9 +117,12 @@ export const cancelExplain = (): ThunkAction<
   void,
   Actions
 > => {
-  return (_dispatch, getState) => {
+  return (dispatch, getState) => {
     const { explain: { abortController } } = getState();
     abortController?.abort();
+    dispatch({
+      type: ActionTypes.ExplainCancelled
+    });
   };
 };
 
@@ -212,22 +197,19 @@ export const explainAggregation = (): ThunkAction<
         });
       }
     } catch (e) {
-      if ((e as Error).name === PROMISE_CANCELLED_ERROR) {
+      // Cancellation is handled in cancelExplain
+      if ((e as Error).name !== PROMISE_CANCELLED_ERROR) {
         dispatch({
-          type: ActionTypes.ExplainCancelled
+          type: ActionTypes.ExplainFailed,
+          error: (e as Error).message,
         });
-        return;
+        log.error(
+          mongoLogId(1_001_000_138),
+          'Explain',
+          'Failed to run aggregation explain',
+          { message: (e as Error).message }
+        );
       }
-      dispatch({
-        type: ActionTypes.ExplainFailed,
-        error: (e as Error).message,
-      });
-      log.error(
-        mongoLogId(1_001_000_138),
-        'Explain',
-        'Failed to run aggregation explain',
-        { message: (e as Error).message }
-      );
     }
   }
 };

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   css,
   spacing,
@@ -13,11 +13,7 @@ import { connect } from 'react-redux';
 
 import type { RootState } from '../../modules';
 import type { ExplainData } from '../../modules/explain';
-import {
-  explainAggregation,
-  closeExplainModal,
-  cancelExplain,
-} from '../../modules/explain';
+import { closeExplainModal, cancelExplain } from '../../modules/explain';
 import { ExplainResults } from './explain-results';
 
 type PipelineExplainProps = {
@@ -26,7 +22,6 @@ type PipelineExplainProps = {
   error?: string;
   explain?: ExplainData;
   onCloseModal: () => void;
-  onRunExplain: () => void;
   onCancelExplain: () => void;
 };
 
@@ -46,13 +41,8 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   error,
   explain,
   onCloseModal,
-  onRunExplain,
   onCancelExplain,
 }) => {
-  useEffect(() => {
-    isModalOpen && onRunExplain();
-  }, [isModalOpen, onRunExplain]);
-
   let content = null;
   if (isLoading) {
     content = (
@@ -65,22 +55,15 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
     );
   } else if (error) {
     content = (
-      <ErrorSummary data-testid="pipeline-explain-error" errors={[error]} />
+      <ErrorSummary data-testid="pipeline-explain-error" errors={error} />
     );
   } else if (explain) {
     content = <ExplainResults plan={explain.plan} stats={explain.stats} />;
   }
 
-  const modalFooter = (
-    <ModalFooter className={footerStyles}>
-      <Button
-        onClick={onCloseModal}
-        data-testid="pipeline-explain-footer-close-button"
-      >
-        Close
-      </Button>
-    </ModalFooter>
-  );
+  if (!content) {
+    return null;
+  }
 
   return (
     <Modal
@@ -90,7 +73,16 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
     >
       <H3>Explain</H3>
       <div className={contentStyles}>{content}</div>
-      {!isLoading && modalFooter}
+      {!isLoading && (
+        <ModalFooter className={footerStyles}>
+          <Button
+            onClick={onCloseModal}
+            data-testid="pipeline-explain-footer-close-button"
+          >
+            Close
+          </Button>
+        </ModalFooter>
+      )}
     </Modal>
   );
 };
@@ -106,7 +98,6 @@ const mapState = ({
 
 const mapDispatch = {
   onCloseModal: closeExplainModal,
-  onRunExplain: explainAggregation,
   onCancelExplain: cancelExplain,
 };
 export default connect(mapState, mapDispatch)(PipelineExplain);
