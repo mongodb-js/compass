@@ -46,10 +46,10 @@
     "@leafygreen-ui/code": "^9.4.0",
     "@mongodb-js/compass-logging": "^0.12.0",
     "@mongodb-js/mongodb-redux-common": "^1.12.0",
-    "@mongosh/browser-repl": "^1.2.3",
-    "@mongosh/logging": "^1.2.3",
-    "@mongosh/node-runtime-worker-thread": "^1.2.3",
-    "@mongosh/service-provider-core": "^1.2.3"
+    "@mongosh/browser-repl": "^1.4.1",
+    "@mongosh/logging": "^1.4.1",
+    "@mongosh/node-runtime-worker-thread": "^1.4.1",
+    "@mongosh/service-provider-core": "^1.4.1"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.15.0",
@@ -106,7 +106,7 @@
     "karma-webpack": "^4.0.2",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "^4.4.0",
+    "mongodb": "^4.6.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^13.1.0",

@@ -1,0 +1,140 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "airbnb.reviews",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "8B3D4AB8",
+          "planCacheKey": "D542626C",
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "LIMIT",
+            "limitAmount": 100,
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "direction": "forward"
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 100,
+          "executionTimeMillis": 4,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 100,
+          "executionStages": {
+            "stage": "LIMIT",
+            "nReturned": 100,
+            "executionTimeMillisEstimate": 0,
+            "works": 102,
+            "advanced": 100,
+            "needTime": 1,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "limitAmount": 100,
+            "inputStage": {
+              "stage": "COLLSCAN",
+              "nReturned": 100,
+              "executionTimeMillisEstimate": 0,
+              "works": 101,
+              "advanced": 100,
+              "needTime": 1,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 0,
+              "direction": "forward",
+              "docsExamined": 100
+            }
+          },
+          "allPlansExecution": []
+        }
+      },
+      "nReturned": 100,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$match": {
+        "comments": {
+          "$regex": "good",
+          "$options": "i"
+        }
+      },
+      "nReturned": 20,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$lookup": {
+        "from": "listings",
+        "as": "listing",
+        "localField": "listing_id",
+        "foreignField": "id",
+        "unwinding": {
+          "preserveNullAndEmptyArrays": false
+        }
+      },
+      "nReturned": 20,
+      "executionTimeMillisEstimate": 5
+    }
+  ],
+  "serverInfo": {
+    "host": "e2f43dc8d2c8",
+    "port": 27017,
+    "version": "5.0.3",
+    "gitVersion": "657fea5a61a74d7a79df7aff8e4bcf0bc742b748"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "command": {
+    "aggregate": "reviews",
+    "pipeline": [
+      {
+        "$lookup": {
+          "from": "listings",
+          "localField": "listing_id",
+          "foreignField": "id",
+          "as": "listing"
+        }
+      },
+      {
+        "$limit": 100
+      },
+      {
+        "$unwind": {
+          "path": "$listing"
+        }
+      },
+      {
+        "$match": {
+          "comments": {
+            "$regularExpression": {
+              "pattern": "good",
+              "options": "i"
+            }
+          }
+        }
+      }
+    ],
+    "allowDiskUse": true,
+    "cursor": {},
+    "maxTimeMS": 60000,
+    "$db": "airbnb"
+  },
+  "ok": 1
+}

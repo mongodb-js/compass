@@ -17,9 +17,9 @@ const FLEBadge = (): React.ReactElement => (
     className={collectionHeaderBadgeStyles}
     variant={BadgeVariant.DarkGray}
   >
-    {/* TODO(COMPASS-5626): use proper name instead of FLE2 */}
-    <Icon glyph="Key" title="FLE2" size="small" />
-    &nbsp;FLE2
+    {/* Queryable Encryption is the user-facing name of FLE2 */}
+    <Icon glyph="Key" title="Queryable Encryption" size="small" />
+    &nbsp;Queryable Encryption
   </Badge>
 );
 

@@ -104,7 +104,7 @@
     "leaflet-defaulticon-compatibility": "^0.1.1",
     "lodash": "^4.17.21",
     "mocha": "^8.4.0",
-    "mongodb": "^4.4.0",
+    "mongodb": "^4.6.0",
     "mongodb-ns": "^2.4.0",
     "node-fetch": "^2.6.1",
     "nyc": "^15.1.0",

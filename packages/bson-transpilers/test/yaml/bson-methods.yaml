@@ -35,6 +35,8 @@ tests:
                 BSON::CodeWithScope.new('test code', {
                   'x' => 1
                 }).scope
+            go: |-
+                primitive.CodeWithScope{Code: primitive.JavaScript("test code"), Scope: bson.D{{"x", 1}}}
             rust: |-
                 JavaScriptCodeWithScope { code: "test code".to_string(), scope: doc! {
                     "x": 1
@@ -51,10 +53,9 @@ tests:
             shell: new Code('test code').code
             object: "'test code'"
             ruby: BSON::Code.new('test code').javascript
+            go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"test code\")}.Code"
             # Rust doesn't have a code attribute
-    ObjectId-methods:
     -   input:
-            javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             python: ObjectId('5ab901c29ee65f5c8550c5b9').binary
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').toString()
         output:
@@ -65,10 +66,19 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             object: "'5ab901c29ee65f5c8550c5b9'"
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9").String()
             rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?.to_hex()
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
-            python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
             shell: ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
         output:
             python: ObjectId('5ab901c29ee65f5c8550c5b9').generation_time
@@ -77,6 +87,16 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             object: new Date('2018-03-26T14:20:50.000Z')
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9").Timestamp()
             rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?.timestamp()
     -   input:
             javascript: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
@@ -88,11 +108,59 @@ tests:
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             object: true
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9') == BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
-            rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")? == ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+    -   input:
+            javascript: new ObjectId('6ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
+            shell: ObjectId('6ab901c29ee65f5c8550c5b9').equals(ObjectId('5ab901c29ee65f5c8550c5b9'))
+        output:
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("6ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+            rust: ObjectId::parse_str("6ab901c29ee65f5c8550c5b9")? == ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
     -   input:
             python: ObjectId('5ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
         output:
             object: true
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("5ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
+    -   input:
+            python: ObjectId('6ab901c29ee65f5c8550c5b9') == ObjectId('5ab901c29ee65f5c8550c5b9')
+        output:
+            object: false
+            go: |-
+                var objectIDFromHex = func(hex string) primitive.ObjectID {
+                  objectID, err := primitive.ObjectIDFromHex(hex)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return objectID
+                }
+
+                objectIDFromHex("6ab901c29ee65f5c8550c5b9") == objectIDFromHex("5ab901c29ee65f5c8550c5b9")
     -   input:
             javascript: new ObjectId().equals(new ObjectId())
             shell: ObjectId().equals(ObjectId())
@@ -204,6 +272,7 @@ tests:
             python: Int64(429496729601) >> 32
             object: '100'
             ruby: 429496729601 >> 32
+            go: int64(429496729601) >> 32
             rust: 429496729601i64 >> 32
     -   input:
             shell: NumberLong(429496729601).bottom
@@ -214,6 +283,7 @@ tests:
             python: Int64(429496729601) & 0x0000ffff
             object: '1'
             ruby: 429496729601 & 0x0000ffff
+            go: int64(429496729601) & 0x0000ffff
             rust: 429496729601i64 & 0x0000ffff
     -  input:
             shell: NumberLong(429496729601).floatApprox
@@ -224,6 +294,7 @@ tests:
             python: float(Int64(429496729601))
             object: '429496729601'
             ruby: 429496729601.to_f
+            go: float64(int64(429496729601))
             rust: 429496729601i64 as f32
     -   input:
             javascript: new Long(1, 100).toInt()
@@ -234,6 +305,7 @@ tests:
             shell: new NumberLong(429496729601).valueOf()
             object: '1'
             ruby: '429496729601'
+            go: int(int64(429496729601))
             rust: 429496729601i64 as i32
     -   input:
             javascript: new Long(1, 100).toNumber()
@@ -244,6 +316,7 @@ tests:
             shell: new NumberLong(429496729601).floatApprox
             object: '429496729601'
             ruby: 429496729601.to_f
+            go: float64(int64(429496729601))
             rust: 429496729601i64 as f64
     -   input:
             javascript: new Long(1, 100).toString()
@@ -255,6 +328,7 @@ tests:
             shell: "'429496729601'"
             object: "'429496729601'"
             ruby: "'429496729601'"
+            go:  '"429496729601"'
             rust: '"429496729601"'
     -   input:
             javascript: new Long(1, 100).toString(10)
@@ -265,6 +339,7 @@ tests:
             shell: "'429496729601'"
             object: "'429496729601'"
             ruby: "'429496729601'"
+            go:  '"429496729601"'
             rust: '"429496729601"'
     -   input:
             javascript: new Long(1, 100).isZero()
@@ -275,6 +350,7 @@ tests:
             shell: new NumberLong(429496729601) === 0
             object: 'false'
             ruby: 429496729601 == 0
+            go: int64(429496729601) == int64(0)
             rust: 429496729601i64 == 0
     -   input:
             javascript: new Long(1, 100).isNegative()
@@ -285,6 +361,7 @@ tests:
             shell: new NumberLong(429496729601) < 0
             object: 'false'
             ruby: 429496729601 < 0
+            go: int64(429496729601) < int64(0)
             rust: 429496729601i64 < 0
     -   input:
             javascript: new Long(1, 100).isOdd()
@@ -295,6 +372,7 @@ tests:
             shell: "(new NumberLong(429496729601) % 2) === 1"
             object: 'true'
             ruby: "(429496729601 % 2) == 1"
+            go: int64(429496729601) % 2 == 1
             rust: 429496729601i64 % 2 == 1
     -   input:
             javascript: new Long(1, 100).equals(new Long(9, 1))
@@ -305,6 +383,7 @@ tests:
             shell: new NumberLong(429496729601) === new NumberLong(4294967305)
             object: 'false'
             ruby: 429496729601 == 4294967305
+            go: int64(429496729601) == int64(4294967305)
             rust: 429496729601i64 == 4294967305i64
     -   input:
             javascript: new Long(1, 100).notEquals(Long(9, 1))
@@ -315,6 +394,7 @@ tests:
             shell: new NumberLong(429496729601) !== new NumberLong(4294967305)
             object: 'true'
             ruby: 429496729601 != 4294967305
+            go: int64(429496729601) != int64(4294967305)
             rust: 429496729601i64 != 4294967305i64
     -   input:
             javascript: new Long(1, 100).compare(new Long(9, 1))
@@ -325,6 +405,7 @@ tests:
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: "1"
             ruby: 429496729601 - 4294967305
+            go: int64(429496729601) - int64(4294967305)
             rust: 429496729601i64 - 4294967305i64
     -   input:
             javascript: new Long(1, 100).greaterThan(new Long(9, 1))
@@ -335,6 +416,7 @@ tests:
             shell: new NumberLong(429496729601) > new NumberLong(4294967305)
             object: 'true'
             ruby: 429496729601 > 4294967305
+            go: int64(429496729601) > int64(4294967305)
             rust: 429496729601i64 > 4294967305i64
     -   input:
             javascript: new Long(1, 100).greaterThanOrEqual(new Long(9, 1))
@@ -345,6 +427,7 @@ tests:
             shell: new NumberLong(429496729601) >= new NumberLong(4294967305)
             object: 'true'
             ruby: 429496729601 >= 4294967305
+            go: int64(429496729601) >= int64(4294967305)
             rust: 429496729601i64 >= 4294967305i64
     -   input:
             javascript: new Long(1, 100).lessThan(new Long(9, 1))
@@ -355,6 +438,7 @@ tests:
             shell: new NumberLong(429496729601) < new NumberLong(4294967305)
             object: 'false'
             ruby: 429496729601 < 4294967305
+            go: int64(429496729601) < int64(4294967305)
             rust: 429496729601i64 < 4294967305i64
     -   input:
             javascript: new Long(1, 100).lessThanOrEqual(new Long(9, 1))
@@ -365,6 +449,7 @@ tests:
             shell: new NumberLong(429496729601) <= new NumberLong(4294967305)
             object: 'false'
             ruby: 429496729601 <= 4294967305
+            go: int64(429496729601) <= int64(4294967305)
             rust: 429496729601i64 <= 4294967305i64
     -   input:
             javascript: new Long(1, 100).negate()
@@ -375,6 +460,7 @@ tests:
             shell: "-new NumberLong(429496729601)"
             output: "-429496729601"
             ruby: "-429496729601"
+            go: "-int64(429496729601)"
             rust: "-429496729601i64"
     -   input:
             javascript: new Long(1, 100).add(new Long(9, 1))
@@ -385,6 +471,7 @@ tests:
             shell: new NumberLong(429496729601) + new NumberLong(4294967305)
             object: new Long(10, 101)
             ruby: 429496729601 + 4294967305
+            go: int64(429496729601) + int64(4294967305)
             rust: 429496729601i64 + 4294967305i64
     -   input:
             javascript: new Long(1, 100).subtract(new Long(9, 1))
@@ -395,6 +482,7 @@ tests:
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: new Long(-8, 98)
             ruby: 429496729601 - 4294967305
+            go: int64(429496729601) - int64(4294967305)
             rust: 429496729601i64 - 4294967305i64
     -   input:
             javascript: new Long(1, 100).multiply(new Long(9, 1))
@@ -405,6 +493,7 @@ tests:
             shell: new NumberLong(429496729601) * new NumberLong(4294967305)
             object: new Long(9, 901)
             ruby: 429496729601 * 4294967305
+            go: int64(429496729601) * int64(4294967305)
             rust: 429496729601i64 * 4294967305i64
     -   input:
             javascript: new Long(1, 100).div(new Long(9, 1))
@@ -415,6 +504,7 @@ tests:
             shell: new NumberLong(429496729601) / new NumberLong(4294967305)
             object: new Long(99, 0)
             ruby: 429496729601 / 4294967305
+            go: int64(429496729601) / int64(4294967305)
             rust: 429496729601i64 / 4294967305i64
     -   input:
             javascript: new Long(1, 100).modulo(new Long(9, 1))
@@ -425,6 +515,7 @@ tests:
             shell: new NumberLong(429496729601) % new NumberLong(4294967305)
             object: new Long(-890, 0)
             ruby: 429496729601 % 4294967305
+            go: int64(429496729601) % int64(4294967305)
             rust: 429496729601i64 % 4294967305i64
     -   input:
             javascript: new Long(1, 100).not()
@@ -435,6 +526,7 @@ tests:
             shell: "~new NumberLong(429496729601)"
             object: new Long(-1, -101)
             ruby: "~429496729601"
+            go: "^int64(429496729601)"
             rust: "~429496729601i64"
     -   input:
             javascript: new Long(1, 100).and(new Long(9, 1))
@@ -445,6 +537,7 @@ tests:
             shell: new NumberLong(429496729601) & new NumberLong(4294967305)
             object: new Long(1, 0)
             ruby: 429496729601 & 4294967305
+            go: int64(429496729601) & int64(4294967305)
             rust: 429496729601i64 & 4294967305i64
     -   input:
             javascript: new Long(1, 100).or(new Long(9, 1))
@@ -455,6 +548,7 @@ tests:
             shell: new NumberLong(429496729601) | new NumberLong(4294967305)
             object: new Long(9, 101)
             ruby: 429496729601 | 4294967305
+            go: int64(429496729601) | int64(4294967305)
             rust: 429496729601i64 | 4294967305i64
     -   input:
             javascript: new Long(1, 100).xor(new Long(9, 1))
@@ -465,6 +559,7 @@ tests:
             shell: new NumberLong(429496729601) ^ new NumberLong(4294967305)
             object: new Long(8, 101)
             ruby: 429496729601 ^ 4294967305
+            go: int64(429496729601) ^ int64(4294967305)
             rust: 429496729601i64 ^ 4294967305i64
     -   input:
             javascript: new Long(1, 100).shiftLeft(10)
@@ -475,6 +570,7 @@ tests:
             shell: new NumberLong(429496729601) << 10
             object: new Long(1024, 102400)
             ruby: 429496729601 << 10
+            go: int64(429496729601) << 10
             rust: 429496729601i64 << 10
     -   input:
             javascript: new Long(1, 100).shiftRight(10)
@@ -485,6 +581,7 @@ tests:
             shell: new NumberLong(429496729601) >> 10
             object: new Long(419430400, 0)
             ruby: 429496729601 >> 10
+            go: int64(429496729601) >> 10
             rust: 429496729601i64 >> 10
     Decimal128-methods:
     -   input:
@@ -496,6 +593,16 @@ tests:
             shell: new NumberDecimal(5.3E-6175).toString()
             output: "'5.3E-6175'"
             ruby: BSON::Decimal128.new('5.3E-6175').to_s
+            go: |-
+                var parseDecimal128 = func(str string) primitive.Decimal128 {
+                  d128, err := primitive.ParseDecimal128(str)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return d128
+                }
+
+                parseDecimal128("5.3E-6175").String()
     Timestamp-methods:
     -   input:
             javascript: Timestamp(1, 100).toString()
@@ -517,6 +624,7 @@ tests:
             shell: new Timestamp(1, 100) === new Timestamp(2, 99)
             object: 'false'
             ruby: BSON::Timestamp.new(1, 100) == BSON::Timestamp.new(2, 99)
+            go: "primitive.Timestamp{T: 1, I: 100}.Equal(primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 } == Timestamp { time: 2, increment: 99 }"
     -   input:
             javascript: Timestamp(1, 100).compare(Timestamp(2, 99))
@@ -527,6 +635,7 @@ tests:
             shell: new Timestamp(1, 100) - new Timestamp(2, 99)
             object: '1'
             ruby: BSON::Timestamp.new(1, 100) <=> BSON::Timestamp.new(2, 99)
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 }.cmp(Timestamp { time: 2, increment: 99 })"
     -   input:
             javascript: Timestamp(1, 100).notEquals(Timestamp(2, 99))
@@ -537,6 +646,7 @@ tests:
             shell: new Timestamp(1, 100) !== new Timestamp(2, 99)
             object: 'true'
             ruby: BSON::Timestamp.new(1, 100) != BSON::Timestamp.new(2, 99)
+            go: "!primitive.Timestamp{T: 1, I: 100}.Equal(primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 } != Timestamp { time: 2, increment: 99 }"
     -   input:
             javascript: Timestamp(1, 100).greaterThan(Timestamp(2, 99))
@@ -547,6 +657,7 @@ tests:
             shell: new Timestamp(1, 100) > new Timestamp(2, 99)
             object: 'true'
             ruby: BSON::Timestamp.new(1, 100) > BSON::Timestamp.new(2, 99)
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == 1"
             rust: "Timestamp { time: 1, increment: 100 } > Timestamp { time: 2, increment: 99 }"
     -   input:
             javascript: Timestamp(1, 100).greaterThanOrEqual(Timestamp(2, 99))
@@ -557,6 +668,7 @@ tests:
             shell: new Timestamp(1, 100) >= new Timestamp(2, 99)
             object: 'true'
             ruby: BSON::Timestamp.new(1, 100) >= BSON::Timestamp.new(2, 99)
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) >= 0"
             rust: "Timestamp { time: 1, increment: 100 } >= Timestamp { time: 2, increment: 99 }"
     -   input:
             javascript: Timestamp(1, 100).lessThan(Timestamp(2, 99))
@@ -567,6 +679,7 @@ tests:
             shell: new Timestamp(1, 100) < new Timestamp(2, 99)
             object: 'false'
             ruby: BSON::Timestamp.new(1, 100) < BSON::Timestamp.new(2, 99)
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == -1"
             rust: "Timestamp { time: 1, increment: 100 } < Timestamp { time: 2, increment: 99 }"
     -   input:
             javascript: Timestamp(1, 100).lessThanOrEqual(Timestamp(2, 99))
@@ -577,6 +690,7 @@ tests:
             shell: new Timestamp(1, 100) <= new Timestamp(2, 99)
             object: 'false'
             ruby: BSON::Timestamp.new(1, 100) <= BSON::Timestamp.new(2, 99)
+            go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) <= 0"
             rust: "Timestamp { time: 1, increment: 100 } <= Timestamp { time: 2, increment: 99 }"
     -   input:
             javascript: Timestamp(1, 100).getLowBits()
@@ -589,6 +703,7 @@ tests:
             shell: new Timestamp(1, 100).getTime()
             object: '1'
             ruby: BSON::Timestamp.new(1, 100).seconds
+            go: "primitive.Timestamp{T: 1, I: 100}.T"
             rust: "Timestamp { time: 1, increment: 100 }.time"
     -   input:
             javascript: Timestamp(1, 100).getHighBits()
@@ -601,6 +716,7 @@ tests:
             shell: new Timestamp(1, 100).getInc()
             object: '100'
             ruby: BSON::Timestamp.new(1, 100).increment
+            go: "primitive.Timestamp{T: 1, I: 100}.I"
             rust: "Timestamp { time: 1, increment: 100 }.increment"
     -   input:
             shell: Timestamp(1, 100).t
@@ -611,6 +727,7 @@ tests:
             shell: new Timestamp(1, 100).getTime()
             object: '1'
             ruby: BSON::Timestamp.new(1, 100).seconds
+            go: "primitive.Timestamp{T: 1, I: 100}.T"
             rust: "Timestamp { time: 1, increment: 100 }.time"
     -   input:
             shell: Timestamp(1, 100).i
@@ -621,6 +738,7 @@ tests:
             shell: new Timestamp(1, 100).getInc()
             object: '100'
             ruby: BSON::Timestamp.new(1, 100).increment
+            go: "primitive.Timestamp{T: 1, I: 100}.I"
             rust: "Timestamp { time: 1, increment: 100 }.increment"
     - input:
           python: Timestamp(1, 100).as_datetime
@@ -631,6 +749,7 @@ tests:
           shell: new Date(new Timestamp(1, 100).getHighBits() * 1000)
           object: "new Date('1970-01-01T00:01:40.000Z')"
           ruby: Time.at(BSON::Timestamp.new(1, 100).increment).utc
+          go: "time.Unix(primitive.Timestamp{T: 1, I: 100}.T, 0)"
           rust: "DateTime::from_millis(Timestamp { time: 1, increment: 100 }.time)"
     Symbol-methods:
     -   input:
@@ -642,6 +761,7 @@ tests:
             shell: "'2'"
             object: "'2'"
             ruby: ":'2'"
+            go: primitive.Symbol("2")
             rust: Bson::Symbol("2").as_symbol().unwrap()
     -   input:
             javascript: new BSONSymbol('2').toString()
@@ -652,6 +772,7 @@ tests:
             shell: "'2'"
             output: "'2'"
             ruby: "'2'"
+            go: string(primitive.Symbol("2"))
             rust: Bson::Symbol("2").as_symbol().unwrap()
     -   input:
             javascript: new BSONSymbol('2').inspect()
@@ -662,6 +783,7 @@ tests:
             shell: "'2'"
             output: "'2'"
             ruby: ":'2'.inspect"
+            go: primitive.Symbol("2")
             rust: format!("{:?}", Bson::Symbol("2"))
     ObjectId-utils:
     - input:
@@ -674,6 +796,16 @@ tests:
           object: new ObjectId('5ab901c29ee65f5c8550c5b9')
           ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
           rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
+          go: |-
+            var objectIDFromHex = func(hex string) primitive.ObjectID {
+              objectID, err := primitive.ObjectIDFromHex(hex)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return objectID
+            }
+
+            objectIDFromHex("5ab901c29ee65f5c8550c5b9")
     - input:
           python: ObjectId.from_datetime(datetime(1972, 2, 3))
           shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT')) # TODO: just takes in number?
@@ -695,6 +827,7 @@ tests:
           python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031))
           object: new ObjectId('62bdd85a0000000000000000')
           ruby: BSON::ObjectId.from_time(Time.at(1522075031))
+          go: primitive.NewObjectIDFromTimestamp(time.Unix(1522075031, int64(0)))
     - input:
           javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9')
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
@@ -705,6 +838,7 @@ tests:
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
           object: 'true'
           ruby: BSON::ObjectId.legal?('5ab901c29ee65f5c8550c5b9')
+          go: primitive.IsValidObjectID("5ab901c29ee65f5c8550c5b9")
 #    Binary-utils:
 #    - input:
 #          javascript: Binary.SUBTYPE_DEFAULT
@@ -766,6 +900,7 @@ tests:
           object: new Long(-1, 2147483647)
           ruby: '9223372036854775807'
           rust: i64::MAX
+          go: int(^uint(0) >> 1)
     - input:
           javascript: Long.MIN_VALUE
       output:
@@ -776,6 +911,7 @@ tests:
           object: new Long(0, -2147483648)
           ruby: '-9223372036854775808'
           rust: i64::MIN
+          go: -(1+int(^uint(0) >> 1))
     - input:
           javascript: Long.ZERO
       output:
@@ -786,6 +922,7 @@ tests:
           object: new Long(0, 0)
           ruby: '0'
           rust: 0i64
+          go: int64(0)
     - input:
           javascript: Long.ONE
       output:
@@ -796,6 +933,7 @@ tests:
           object: new Long(1, 0)
           ruby: '1'
           rust: 1i64
+          go: int64(1)
     - input:
           javascript: Long.NEG_ONE
       output:
@@ -806,6 +944,7 @@ tests:
           object: new Long(-1, -1)
           ruby: '-1'
           rust: -1i64
+          go: int64(-1)
     - input:
           javascript: Long.fromInt(5)
       output:
@@ -816,6 +955,7 @@ tests:
           object: new Long(5, 0)
           ruby: '5'
           rust: 5i64
+          go: int64(5)
     - input:
           javascript: Long.fromString('5')
       output:
@@ -826,6 +966,16 @@ tests:
           object: new Long(5, 0)
           ruby: "'5'.to_i"
           rust: '"5".parse::<i64>()?'
+          go: |-
+            var int64FromString = func(str string) int64 {
+              f64, err := strconv.Atoi(str)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return f64
+            }
+
+            int64FromString("5")
     - input:
           javascript: Long.fromString('5', 10)
       output:
@@ -836,6 +986,16 @@ tests:
           object: new Long(5, 0)
           ruby: "'5'.to_i"
           rust: i64::from_str_radix("5", 10)?
+          go: |-
+            var int64FromString = func(str string) int64 {
+              f64, err := strconv.Atoi(str)
+              if err != nil {
+                log.Fatal(err)
+              }
+              return f64
+            }
+
+            int64FromString("5")
     - input:
           javascript: Long.fromBits(-1, 2147483647)
       output:
@@ -846,21 +1006,52 @@ tests:
           object: new Long(-1, 2147483647)
           ruby: '9223372036854775807'
           rust: 9223372036854775807i64
+          go: int64(9223372036854775807)
     - input:
           javascript: Long.fromNumber(429496729601)
       output:
           object: new Long(1, 100)
     Decimal128-utils:
-    - input:
-          javascript: Decimal128.fromString("5")
-      output:
-          shell: new NumberDecimal('5')
-          java: Decimal128.parse("5")
-          csharp: Decimal128.Parse("5")
-          python: Decimal128('5')
-          object: Decimal128.fromString("5")
-          ruby: BSON::Decimal128.new('5')
+    -   input:
+            javascript: Decimal128.fromString("5")
+        output:
+            shell: new NumberDecimal('5')
+            java: Decimal128.parse("5")
+            csharp: Decimal128.Parse("5")
+            python: Decimal128('5')
+            object: Decimal128.fromString("5")
+            ruby: BSON::Decimal128.new('5')
+            go: |-
+                var parseDecimal128 = func(str string) primitive.Decimal128 {
+                  d128, err := primitive.ParseDecimal128(str)
+                  if err != nil {
+                    log.Fatal(err)
+                  }
+                  return d128
+                }
+
+                parseDecimal128("5")
     BSONRegex-utils:
+    -   input:
+            python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L))
+        output:
+            javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
+            shell: new RegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
+            java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
+            csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
+            object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
+            ruby: /^[a-z0-9_-]{3,16}$/imx
+            go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsux")'
+    -   input:
+            python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L | re.A))
+        output:
+            javascript: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
+            shell: new RegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
+            java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
+            csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
+            object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
+            ruby: /^[a-z0-9_-]{3,16}$/imx
+            go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsx")'
     - input:
           python: Regex.from_native(re.compile('^[a-z0-9_-]{3,16}$', re.I | re.M | re.X | re.S | re.L))
       output:

@@ -3,7 +3,7 @@ import type { Document } from 'bson';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
 import type { Sort } from 'mongodb';
-import { MongoClient } from 'mongodb-fle';
+import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
 
@@ -1423,7 +1423,6 @@ describe('DataService', function () {
           autoEncryption: {
             keyVaultNamespace: 'abc.def',
             schemaMap: { 'a.b': {} },
-            // @ts-expect-error next driver release will have types
             encryptedFieldsMap: { 'a.c': {} },
             kmsProviders: {
               aws: { accessKeyId: 'id', secretAccessKey: 'secret' },
