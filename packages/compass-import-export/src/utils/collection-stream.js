@@ -49,7 +49,7 @@ class WritableCollectionStream extends Writable {
   _write(document, _encoding, next) {
     this.batch.push(document);
 
-    if (this.batch.length === this.BATCH_SIZE) {
+    if (this.batch.length >= this.BATCH_SIZE) {
       return this._executeBatch(next);
     }
 
