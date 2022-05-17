@@ -1,6 +1,6 @@
-@import (reference) "mongodb-compass/src/app/styles/index.less";
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
 
-@font-family-monospace: Menlo, Monaco, Consolas, "Courier New", monospace;
+@font-family-monospace: Menlo, Monaco, Consolas, 'Courier New', monospace;
 
 .component {
   display: flex;
@@ -45,7 +45,7 @@
   margin-right: 5px;
   text-transform: uppercase;
   font-weight: bold;
-  font-family: "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 11px;
   flex-grow: 0;
   display: table;
@@ -70,21 +70,21 @@
 .input {
   flex-grow: 10;
   width: 0;
-  border: none;  
+  border: none;
   font-family: @font-family-monospace;
   font-size: 12px;
   outline: none;
 
   &.has-toggle {
     padding-right: 85px;
-    width: calc(~"100% - 60px") !important;
+    width: calc(~'100% - 60px') !important;
   }
 
   // TODO: CSS-modules Code-Mirror styles in dependency repo
   :global {
     .CodeMirror {
       height: auto;
-      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
     }
 
     ul.CodeMirror-hints {
@@ -109,7 +109,7 @@
     }
 
     li.CodeMirror-hint-active {
-      background: #E7EEEC;
+      background: #e7eeec;
       border-radius: 2px;
       outline: none;
     }

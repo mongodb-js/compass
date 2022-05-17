@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import {InfoSprinkle} from 'hadron-react-components';
+import { InfoSprinkle } from 'hadron-react-components';
 import OptionEditor from '../option-editor';
 
 import styles from './query-option.module.less';
@@ -34,18 +34,18 @@ class QueryOption extends Component {
   };
 
   _getInnerClassName() {
-    const {label, inputType, hasToggle} = this.props;
+    const { label, inputType, hasToggle } = this.props;
 
     return classnames(
       styles.input,
-      {[styles[`input-${label}`]]: label},
-      {[styles[`input-${inputType}`]]: inputType},
-      {[styles['has-toggle']]: hasToggle},
+      { [styles[`input-${label}`]]: label },
+      { [styles[`input-${inputType}`]]: inputType },
+      { [styles['has-toggle']]: hasToggle }
     );
   }
 
   _renderCheckboxInput() {
-    const {label, value, onChange} = this.props;
+    const { label, value, onChange } = this.props;
 
     return (
       <input
@@ -63,7 +63,7 @@ class QueryOption extends Component {
     const userAgent = navigator.userAgent.toLowerCase();
 
     if (userAgent.indexOf('electron') > -1) {
-      const {shell} = require('electron');
+      const { shell } = require('electron');
 
       shell.openExternal(href);
     } else {
@@ -102,7 +102,7 @@ class QueryOption extends Component {
   }
 
   render() {
-    const {inputType, hasError, link, label, hasToggle} = this.props;
+    const { inputType, hasError, link, label, hasToggle } = this.props;
     let input = null;
 
     if (['filter', 'project', 'sort', 'collation'].includes(label)) {
@@ -115,19 +115,15 @@ class QueryOption extends Component {
 
     const _className = classnames(
       styles.component,
-      {[styles[`is-${inputType}-type`]]: true},
-      {[styles['has-error']]: hasError},
-      {[styles['has-toggle']]: hasToggle},
+      { [styles[`is-${inputType}-type`]]: true },
+      { [styles['has-error']]: hasError },
+      { [styles['has-toggle']]: hasToggle }
     );
 
     return (
-      <div
-        className={_className}
-        data-test-id="query-bar-option">
-        <div
-          className={styles.label}
-          data-test-id="query-bar-option-label">
-          <InfoSprinkle helpLink={link} onClickHandler={this._openLink}/>
+      <div className={_className} data-test-id="query-bar-option">
+        <div className={styles.label} data-test-id="query-bar-option-label">
+          <InfoSprinkle helpLink={link} onClickHandler={this._openLink} />
           {label}
         </div>
         {input}
@@ -137,4 +133,4 @@ class QueryOption extends Component {
 }
 
 export default QueryOption;
-export {QueryOption};
+export { QueryOption };

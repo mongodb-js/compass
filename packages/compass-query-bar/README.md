@@ -9,7 +9,10 @@
 Setting values via configure:
 
 ```js
-import Plugin, { configureStore, configureActions } from '@mongodb-js/compass-query-bar';
+import Plugin, {
+  configureStore,
+  configureActions,
+} from '@mongodb-js/compass-query-bar';
 
 const actions = configureActions();
 const store = configureStore({
@@ -20,7 +23,7 @@ const store = configureStore({
   fields: [],
 });
 
-<Plugin store={store} actions={actions} />
+<Plugin store={store} actions={actions} />;
 ```
 
 ### Hadron/Electron
@@ -38,10 +41,10 @@ const store = configureStore({
   actions: actions,
   namespace: 'db.coll',
   serverVersion: '4.2.0',
-  fields: []
+  fields: [],
 });
 
-<Plugin store={store} actions={actions} />
+<Plugin store={store} actions={actions} />;
 ```
 
 ### Fields

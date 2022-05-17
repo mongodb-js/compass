@@ -88,7 +88,7 @@ const configureActions = () => {
      */
     exportToLanguage: { sync: true },
     toggleQueryHistory: { sync: true },
-    refreshEditor: { sync: true }
+    refreshEditor: { sync: true },
   });
 
   return actions;

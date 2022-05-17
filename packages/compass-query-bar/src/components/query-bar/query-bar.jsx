@@ -2,14 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Dropdown, MenuItem } from 'react-bootstrap';
-import {
-  isFunction,
-  pick,
-  isEqual,
-  isString,
-  isArray,
-  map
-} from 'lodash';
+import { isFunction, pick, isEqual, isString, isArray, map } from 'lodash';
 import FontAwesome from 'react-fontawesome';
 
 import QueryOption from '../query-option';
@@ -25,45 +18,44 @@ const OPTION_DEFINITION = {
   filter: {
     type: 'document',
     placeholder: "{ field: 'value' }",
-    link: 'https://docs.mongodb.com/compass/current/query/filter/'
+    link: 'https://docs.mongodb.com/compass/current/query/filter/',
   },
   project: {
     type: 'document',
     placeholder: '{ field: 0 }',
-    link:
-      'https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/'
+    link: 'https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/',
   },
   sort: {
     type: 'document',
     placeholder: "{ field: -1 } or [['field', -1]]",
-    link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort/'
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort/',
   },
   collation: {
     type: 'document',
     placeholder: "{ locale: 'simple' }",
-    link: 'https://docs.mongodb.com/master/reference/collation/'
+    link: 'https://docs.mongodb.com/master/reference/collation/',
   },
   skip: {
     type: 'numeric',
     placeholder: '0',
-    link: 'https://docs.mongodb.com/manual/reference/method/cursor.skip/'
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.skip/',
   },
   limit: {
     type: 'numeric',
     placeholder: '0',
-    link: 'https://docs.mongodb.com/manual/reference/method/cursor.limit/'
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.limit/',
   },
   maxTimeMS: {
     label: 'Max Time MS',
     type: 'numeric',
     placeholder: '60000',
-    link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/'
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/',
   },
   sample: {
     type: 'boolean',
     placeholder: null,
-    link: 'https://docs.mongodb.com/TBD'
-  }
+    link: 'https://docs.mongodb.com/TBD',
+  },
 };
 
 class QueryBar extends Component {
@@ -123,16 +115,21 @@ class QueryBar extends Component {
   static defaultProps = {
     expanded: false,
     buttonLabel: 'Apply',
-    layout: ['filter', 'project', ['sort', 'maxTimeMS'], ['collation', 'skip', 'limit']],
+    layout: [
+      'filter',
+      'project',
+      ['sort', 'maxTimeMS'],
+      ['collation', 'skip', 'limit'],
+    ],
     schemaFields: [],
     showQueryHistoryButton: true,
     showExportToLanguageButton: true,
-    resultId: 0
+    resultId: 0,
   };
 
   state = {
-    hasFocus: false
-  }
+    hasFocus: false,
+  };
 
   onChange(label, evt) {
     const type = OPTION_DEFINITION[label].type;
@@ -174,7 +171,16 @@ class QueryBar extends Component {
     }
   };
 
-  getQueryOption(label, autoPopulated, hasToggle, hasError, id, value, placeholder, option) {
+  getQueryOption(
+    label,
+    autoPopulated,
+    hasToggle,
+    hasError,
+    id,
+    value,
+    placeholder,
+    option
+  ) {
     return (
       <QueryOption
         label={label}
@@ -221,9 +227,9 @@ class QueryBar extends Component {
   renderToggle() {
     const { expanded, actions } = this.props;
 
-    return this._showToggle()
-      ? <OptionsToggle expanded={expanded} actions={actions} />
-      : null;
+    return this._showToggle() ? (
+      <OptionsToggle expanded={expanded} actions={actions} />
+    ) : null;
   }
 
   /**
@@ -240,19 +246,33 @@ class QueryBar extends Component {
     const { filterValid, featureFlag, autoPopulated } = this.props;
 
     // for filter only, also validate feature flag directives
-    const hasError = option === 'filter'
-      ? !(filterValid || featureFlag)
-      : !this.props[`${option}Valid`];
+    const hasError =
+      option === 'filter'
+        ? !(filterValid || featureFlag)
+        : !this.props[`${option}Valid`];
 
     // checkbox options use the value directly, text inputs use the
     // `<option>String` prop.
-    const value = OPTION_DEFINITION[option].type === 'boolean' ?
-      this.props[option] : this.props[`${option}String`];
+    const value =
+      OPTION_DEFINITION[option].type === 'boolean'
+        ? this.props[option]
+        : this.props[`${option}String`];
 
     const label = OPTION_DEFINITION[option].label || option;
-    const placeholder = this.props[`${option}Placeholder`] || OPTION_DEFINITION[option].placeholder;
+    const placeholder =
+      this.props[`${option}Placeholder`] ||
+      OPTION_DEFINITION[option].placeholder;
 
-    const queryOption = this.getQueryOption(label, autoPopulated, hasToggle, hasError, id, value, placeholder, option);
+    const queryOption = this.getQueryOption(
+      label,
+      autoPopulated,
+      hasToggle,
+      hasError,
+      id,
+      value,
+      placeholder,
+      option
+    );
 
     if (hasToggle) {
       return (
@@ -286,7 +306,8 @@ class QueryBar extends Component {
     return (
       <div
         className={classnames(styles['option-group'])}
-        key={`option-group-${id}`}>
+        key={`option-group-${id}`}
+      >
         {options}
       </div>
     );
@@ -302,7 +323,9 @@ class QueryBar extends Component {
 
     // for multi-line layouts, the first option must be stand-alone
     if (this._showToggle() && !isString(layout[0])) {
-      throw new Error(`First item in multi-line layout must be single option, found ${layout[0]}`);
+      throw new Error(
+        `First item in multi-line layout must be single option, found ${layout[0]}`
+      );
     }
 
     const rows = map(layout, (row, id) => {
@@ -330,7 +353,14 @@ class QueryBar extends Component {
    * @returns {React.Component} The Query Bar view.
    */
   renderForm = () => {
-    const { valid, featureFlag, queryState, buttonLabel, showQueryHistoryButton, showExportToLanguageButton } = this.props;
+    const {
+      valid,
+      featureFlag,
+      queryState,
+      buttonLabel,
+      showQueryHistoryButton,
+      showExportToLanguageButton,
+    } = this.props;
     const { hasFocus } = this.state;
 
     const _inputGroupClassName = classnames(
@@ -341,10 +371,9 @@ class QueryBar extends Component {
 
     const applyDisabled = !(valid || featureFlag);
 
-    const _queryOptionClassName = classnames(
-      styles['option-container'],
-      { [ styles['has-focus'] ]: hasFocus }
-    );
+    const _queryOptionClassName = classnames(styles['option-container'], {
+      [styles['has-focus']]: hasFocus,
+    });
 
     const _applyButtonClassName = classnames(
       'btn',
@@ -358,7 +387,7 @@ class QueryBar extends Component {
       'btn-default',
       'btn-sm',
       styles['reset-button'],
-      { disabled: queryState !== 'apply'}
+      { disabled: queryState !== 'apply' }
     );
 
     const _queryHistoryClassName = classnames(
@@ -373,7 +402,8 @@ class QueryBar extends Component {
         <div
           onBlur={this._onBlur}
           onFocus={this._onFocus}
-          className={_queryOptionClassName}>
+          className={_queryOptionClassName}
+        >
           {this.renderOptionRows()}
         </div>
         <div className={styles['button-group']}>
@@ -383,7 +413,8 @@ class QueryBar extends Component {
             className={_applyButtonClassName}
             type="button"
             onClick={this.onApplyButtonClicked}
-            disabled={applyDisabled}>
+            disabled={applyDisabled}
+          >
             {buttonLabel}
           </button>
           <button
@@ -391,44 +422,51 @@ class QueryBar extends Component {
             key="reset-button"
             className={_resetButtonClassName}
             type="button"
-            onClick={this.onResetButtonClicked}>
+            onClick={this.onResetButtonClicked}
+          >
             Reset
           </button>
-          {showQueryHistoryButton &&
-              <button
-                id="query_history_button"
-                key="query-history-button"
-                className={_queryHistoryClassName}
-                data-test-id="query-history-button"
-                type="button"
-                onClick={this.props.actions.toggleQueryHistory}
-                title="Toggle Query History"
-              >
-                <FontAwesome
-                  data-test-id="query-history-button-icon"
-                  name="history"
-                />
-              </button>
-          }
+          {showQueryHistoryButton && (
+            <button
+              id="query_history_button"
+              key="query-history-button"
+              className={_queryHistoryClassName}
+              data-test-id="query-history-button"
+              type="button"
+              onClick={this.props.actions.toggleQueryHistory}
+              title="Toggle Query History"
+            >
+              <FontAwesome
+                data-test-id="query-history-button-icon"
+                name="history"
+              />
+            </button>
+          )}
         </div>
 
-        {showExportToLanguageButton &&
+        {showExportToLanguageButton && (
           <Dropdown pullRight id="query-bar-menu-actions">
             <Dropdown.Toggle noCaret>
               <i className="mms-icon-ellipsis" aria-hidden />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <MenuItem onClick={this.props.actions.exportToLanguage}>Export To Language</MenuItem>
+              <MenuItem onClick={this.props.actions.exportToLanguage}>
+                Export To Language
+              </MenuItem>
             </Dropdown.Menu>
           </Dropdown>
-        }
+        )}
       </div>
     );
-  }
+  };
 
   render() {
     return (
-      <div className={classnames(styles.component)} data-test-id="query-bar" data-result-id={this.props.resultId}>
+      <div
+        className={classnames(styles.component)}
+        data-test-id="query-bar"
+        data-result-id={this.props.resultId}
+      >
         <div className={classnames(styles['input-container'])}>
           {this.renderForm()}
         </div>

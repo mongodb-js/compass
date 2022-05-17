@@ -8,23 +8,23 @@ import configureActions from '../../actions';
 
 import styles from './option-editor.module.less';
 
-describe('OptionEditor [Component]', function() {
+describe('OptionEditor [Component]', function () {
   let onChangeSpy;
   let onApplySpy;
   let component;
 
-  beforeEach(function() {
+  beforeEach(function () {
     onChangeSpy = sinon.spy();
     onApplySpy = sinon.spy();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     onChangeSpy = null;
     onApplySpy = null;
   });
 
-  context('when rendering the component', function() {
-    before(function() {
+  context('when rendering the component', function () {
+    before(function () {
       component = mount(
         <OptionEditor
           label="Apply"
@@ -34,19 +34,20 @@ describe('OptionEditor [Component]', function() {
           value="{ name: 'testing' }"
           onChange={onChangeSpy}
           onApply={onApplySpy}
-          schemaFields={[]} />
+          schemaFields={[]}
+        />
       );
     });
 
-    after(function() {
+    after(function () {
       component = null;
     });
 
-    it('renders the editor', function() {
+    it('renders the editor', function () {
       expect(component.find('#query-bar-option-input-Apply')).to.be.present();
     });
 
-    it('has the correct class', function() {
+    it('has the correct class', function () {
       expect(component.find(`.${styles['option-editor']}`)).to.be.present();
     });
   });

@@ -21,8 +21,7 @@ import {
   pick,
   pull,
   values,
-  without
-
+  without,
 } from 'lodash';
 
 import { bsonEqual, hasDistinctValue } from 'mongodb-query-util';
@@ -41,7 +40,7 @@ import {
   DEFAULT_SAMPLE,
   DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
-  DEFAULT_STATE
+  DEFAULT_STATE,
 } from '../constants/query-bar-store';
 import configureQueryChangedStore from './query-changed-store';
 
@@ -86,21 +85,18 @@ const configureStore = (options = {}) => {
      * Open the export to language dialog.
      */
     exportToLanguage() {
-      this.localAppRegistry.emit('open-query-export-to-language',
-        {
-          filter: this.state.filterString,
-          project: this.state.projectString,
-          sort: this.state.sortString,
-          collation: this.state.collationString,
-          skip: this.state.skipString,
-          limit: this.state.limitString,
-          maxTimeMS: this.state.maxTimeMSString
-        }
-      );
-      this.globalAppRegistry.emit(
-        'compass:export-to-language:opened',
-        { source: 'Query' }
-      );
+      this.localAppRegistry.emit('open-query-export-to-language', {
+        filter: this.state.filterString,
+        project: this.state.projectString,
+        sort: this.state.sortString,
+        collation: this.state.collationString,
+        skip: this.state.skipString,
+        limit: this.state.limitString,
+        maxTimeMS: this.state.maxTimeMSString,
+      });
+      this.globalAppRegistry.emit('compass:export-to-language:opened', {
+        source: 'Query',
+      });
     },
 
     /**
@@ -173,7 +169,7 @@ const configureStore = (options = {}) => {
         serverVersion: '3.6.0',
 
         // Schema fields to use for filter autocompletion
-        schemaFields: []
+        schemaFields: [],
       };
     },
 
@@ -183,7 +179,7 @@ const configureStore = (options = {}) => {
     _stoppedTyping() {
       this.userTypingTimer = null;
       this.setState({
-        userTyping: false
+        userTyping: false,
       });
     },
 
@@ -197,7 +193,7 @@ const configureStore = (options = {}) => {
      */
     toggleQueryOptions(force) {
       this.setState({
-        expanded: isBoolean(force) ? force : !this.state.expanded
+        expanded: isBoolean(force) ? force : !this.state.expanded,
       });
     },
 
@@ -212,7 +208,7 @@ const configureStore = (options = {}) => {
      */
     toggleSample(force) {
       const newState = {
-        sample: isBoolean(force) ? force : !this.state.sample
+        sample: isBoolean(force) ? force : !this.state.sample,
       };
       if (newState.sample && this.state.limit === 0) {
         newState.limit = DEFAULT_SAMPLE_SIZE;
@@ -257,7 +253,7 @@ const configureStore = (options = {}) => {
       const validatedInput = this._validateInput(label, input);
 
       const state = {
-        userTyping: Boolean(userTyping)
+        userTyping: Boolean(userTyping),
       };
       state[`${label}String`] = input;
       state[`${label}Valid`] = validatedInput !== false;
@@ -272,7 +268,7 @@ const configureStore = (options = {}) => {
           collation: this.state.collationValid,
           skip: this.state.skipValid,
           limit: this.state.limitValid,
-          maxTimeMS: this.state.maxTimeMSValid
+          maxTimeMS: this.state.maxTimeMSValid,
         };
         valid[label] = validatedInput !== false;
         state.valid = every(values(valid));
@@ -319,7 +315,10 @@ const configureStore = (options = {}) => {
       }
       // convert all query inputs into their string values and validate them
       const stringProperties = without(QUERY_PROPERTIES, 'sample');
-      let inputStrings = mapValues(pick(query, stringProperties), queryParser.stringify);
+      let inputStrings = mapValues(
+        pick(query, stringProperties),
+        queryParser.stringify
+      );
       let inputValids = mapValues(inputStrings, (val, label) => {
         return this._validateInput(label, val) !== false;
       });
@@ -341,7 +340,7 @@ const configureStore = (options = {}) => {
               collation: this.state.collationValid,
               skip: this.state.skipValid,
               limit: this.state.limitValid,
-              maxTimeMS: this.state.maxTimeMSValid
+              maxTimeMS: this.state.maxTimeMSValid,
             },
             inputValids
           )
@@ -357,7 +356,12 @@ const configureStore = (options = {}) => {
       });
 
       // merge query, query strings, valid flags into state object
-      const state = Object.assign({}, pick(query, validKeys), inputStrings, inputValids);
+      const state = Object.assign(
+        {},
+        pick(query, validKeys),
+        inputStrings,
+        inputValids
+      );
 
       // add sample state if available
       if (has(query, 'sample')) {
@@ -415,7 +419,9 @@ const configureStore = (options = {}) => {
      */
     _validateQuery() {
       return (
-        queryParser.isFilterValid(this.state.filterString, { validate: false }) !== false &&
+        queryParser.isFilterValid(this.state.filterString, {
+          validate: false,
+        }) !== false &&
         queryParser.isProjectValid(this.state.projectString) !== false &&
         queryParser.isSortValid(this.state.sortString) !== false &&
         queryParser.isCollationValid(this.state.collationString) !== false &&
@@ -648,7 +654,7 @@ const configureStore = (options = {}) => {
 
       if (radius && center) {
         value.$geoWithin = {
-          $centerSphere: [[center[0], center[1]], radius]
+          $centerSphere: [[center[0], center[1]], radius],
         };
         filter[args.field] = value;
         this.setQuery({ filter: filter }, true);
@@ -664,13 +670,18 @@ const configureStore = (options = {}) => {
     apply() {
       if (this._validateQuery()) {
         track('Query Executed', {
-          has_projection: !!this.state.project && Object.keys(this.state.project).length > 0,
+          has_projection:
+            !!this.state.project && Object.keys(this.state.project).length > 0,
           has_skip: this.state.skip > 0,
           has_limit: this.state.limit > 0,
           has_collation: !!this.state.collation,
           changed_maxtimems: this.state.maxTimeMS !== DEFAULT_MAX_TIME_MS,
-          collection_type: this.state.isTimeSeries ? 'time-series' : this.state.isReadonly ? 'readonly' : 'collection',
-          used_regex: objectContainsRegularExpression(this.state.filter)
+          collection_type: this.state.isTimeSeries
+            ? 'time-series'
+            : this.state.isReadonly
+            ? 'readonly'
+            : 'collection',
+          used_regex: objectContainsRegularExpression(this.state.filter),
         });
         const registry = this.localAppRegistry;
         if (registry) {
@@ -682,7 +693,7 @@ const configureStore = (options = {}) => {
             skip: this.state.skip,
             limit: this.state.limit,
             ns: this.state.ns,
-            maxTimeMS: this.state.maxTimeMS
+            maxTimeMS: this.state.maxTimeMS,
           };
           registry.emit('query-applied', newState);
         }
@@ -690,7 +701,7 @@ const configureStore = (options = {}) => {
         this.setState({
           valid: true,
           queryState: APPLY_STATE,
-          lastExecutedQuery: this._cloneQuery()
+          lastExecutedQuery: this._cloneQuery(),
         });
       }
     },
@@ -731,7 +742,7 @@ const configureStore = (options = {}) => {
 
     storeDidUpdate(prevState) {
       debug('query store changed', diff(prevState, this.state));
-    }
+    },
   });
 
   // Set the app registry if preset. This must happen first.
@@ -760,7 +771,10 @@ const configureStore = (options = {}) => {
     const queryChangedStore = localAppRegistry.getStore(QUERY_CHANGED_STORE);
     if (!queryChangedStore.onQueryBarStoreChanged) {
       options.store = store;
-      localAppRegistry.registerStore(QUERY_CHANGED_STORE, configureQueryChangedStore(options));
+      localAppRegistry.registerStore(
+        QUERY_CHANGED_STORE,
+        configureQueryChangedStore(options)
+      );
     }
   }
 
@@ -769,7 +783,11 @@ const configureStore = (options = {}) => {
   }
 
   if (options.namespace) {
-    store.onCollectionChanged(options.namespace, options.isTimeSeries, options.isReadonly);
+    store.onCollectionChanged(
+      options.namespace,
+      options.isTimeSeries,
+      options.isReadonly
+    );
   }
 
   if (options.serverVersion) {

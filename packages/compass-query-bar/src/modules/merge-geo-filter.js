@@ -1,17 +1,19 @@
-import {
-  intersection,
-  isPlainObject
-} from 'lodash';
-
+import { intersection, isPlainObject } from 'lodash';
 
 // https://docs.mongodb.com/manual/reference/operator/query-geospatial/
-const GEOSPATIAL_QUERY_OPERATORS = ['$geoIntersects', '$geoWithin', '$near', '$nearSphere'];
-
+const GEOSPATIAL_QUERY_OPERATORS = [
+  '$geoIntersects',
+  '$geoWithin',
+  '$near',
+  '$nearSphere',
+];
 
 function isGeoCondition(value) {
   // Checking if value matches something like { $geoXXX: YYY }
   if (isPlainObject(value)) {
-    return intersection(Object.keys(value), GEOSPATIAL_QUERY_OPERATORS).length !== 0;
+    return (
+      intersection(Object.keys(value), GEOSPATIAL_QUERY_OPERATORS).length !== 0
+    );
   }
 
   return false;
@@ -38,7 +40,9 @@ function mergeGeoFilter(oldFilter, newGeoQueryFilter) {
 
   // delete expressions from the old $or operator which contain fields with geo conditions
   if (Array.isArray(filter.$or)) {
-    filter.$or = filter.$or.filter((expression) => !containsGeoConditions(expression));
+    filter.$or = filter.$or.filter(
+      (expression) => !containsGeoConditions(expression)
+    );
 
     // if at this point the $or is empty we just drop it
     if (!filter.$or.length) {
@@ -57,7 +61,7 @@ function mergeGeoFilter(oldFilter, newGeoQueryFilter) {
   if (newGeoQueryFilter.$or) {
     filter.$or = [
       ...(Array.isArray(filter.$or) ? filter.$or : []),
-      ...newGeoQueryFilter.$or
+      ...newGeoQueryFilter.$or,
     ];
   }
 
