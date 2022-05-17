@@ -125,6 +125,10 @@ class WritableCollectionStream extends Writable {
       }
     }
 
+    // Driver seems to return null instead of undefined in some rare cases
+    // when the operation ends in error, instead of relying on
+    // `_mergeBulkOpResult` default argument substitution, we need to keep
+    // this OR expression here
     this._mergeBulkOpResult(result);
 
     this.docsWritten = this._stats.nInserted;
@@ -148,10 +152,6 @@ class WritableCollectionStream extends Writable {
     return callback();
   }
 
-  // Driver seems to return null instead of undefined in some rare cases
-  // when the operation ends in error, instead of relying on
-  // `_mergeBulkOpResult` default argument substitution, we need to keep
-  // this OR expression here
   _mergeBulkOpResult(result = {}) {
     const numKeys = [
       'nInserted',
