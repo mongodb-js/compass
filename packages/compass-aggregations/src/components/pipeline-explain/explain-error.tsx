@@ -36,12 +36,12 @@ export const ExplainError: React.FunctionComponent<ExplainErrorProps> = ({
 }) => {
   if (!isNetworkError) {
     return (
-      <ErrorSummary data-testId="pipeline-explain-error" errors={[message]} />
+      <ErrorSummary data-testid="pipeline-explain-error" errors={[message]} />
     );
   }
 
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="pipeline-explain-error">
       <Subtitle className={textStyles}>
         Oops! Looks like we hit a network issue. <br />
         Let&apos;s try that again.

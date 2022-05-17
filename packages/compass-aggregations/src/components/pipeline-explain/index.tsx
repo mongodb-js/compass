@@ -77,7 +77,12 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
 
   const modalFooter = (
     <ModalFooter className={footerStyles}>
-      <Button onClick={onCloseModal}>Close</Button>
+      <Button
+        onClick={onCloseModal}
+        data-testid="pipeline-explain-footer-close-button"
+      >
+        Close
+      </Button>
     </ModalFooter>
   );
 

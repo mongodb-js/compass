@@ -34,7 +34,10 @@ const statTitleStyles = css({
 export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerformanceProps> =
   ({ nReturned, executionTimeMillis, usedIndexes }) => {
     return (
-      <div className={containerStyles}>
+      <div
+        className={containerStyles}
+        data-testid="pipeline-explain-results-summary"
+      >
         <Subtitle>Query Performance Summary</Subtitle>
         <div className={statsStyles}>
           <div className={statItemStyles}>
@@ -42,7 +45,7 @@ export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerfor
             <Body weight="medium">{nReturned}</Body>
           </div>
           <div className={statItemStyles}>
-            <Body>Actual Query Execution time(ms):</Body>
+            <Body>Actual query execution time(ms):</Body>
             <Body weight="medium">{executionTimeMillis}</Body>
           </div>
           <div className={statItemStyles}>

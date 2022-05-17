@@ -27,7 +27,7 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
   stats,
 }) => {
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="pipeline-explain-results">
       {stats && (
         <ExplainQueryPerformance
           nReturned={stats.nReturned}
@@ -35,7 +35,7 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
           usedIndexes={stats.usedIndexes}
         />
       )}
-      <Card className={cardStyles}>
+      <Card className={cardStyles} data-testid="pipeline-explain-results-json">
         <DocumentListView
           docs={[new HadronDocument(plan)]}
           isEditable={false}
