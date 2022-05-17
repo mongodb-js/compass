@@ -150,7 +150,7 @@ describe('Document', function () {
     };
     doc = new HadronDocument(obj);
     render(<Document value={doc}></Document>);
-    expect(screen.getAllByTitle('Encrypted with CSFLE')).to.have.lengthOf(2);
+    expect(screen.getAllByTitle('Encrypted Field')).to.have.lengthOf(2);
   });
 
   it('should allow editing the null value (COMPASS-5697)', function () {

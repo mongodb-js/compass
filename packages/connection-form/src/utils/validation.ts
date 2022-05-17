@@ -363,7 +363,8 @@ function validateCSFLEWarnings(
   const warnings: ConnectionFormWarning[] = [];
   if (connectionOptions.fleOptions?.storeCredentials) {
     warnings.push({
-      message: 'In-Use Encryption KMS provider credentials will be stored to disk.',
+      message:
+        'In-Use Encryption KMS provider credentials will be stored to disk.',
     });
   }
 
