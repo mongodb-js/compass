@@ -1,19 +1,11 @@
-ignores: [
-  "@babel/cli",
-  "@babel/register",
-  "core-js",
-  "electron-rebuild",
-  "font-awesome",
-  "htmlhint",
-  "karma-electron",
-  "karma-sourcemap-loader",
-  "karma-webpack",
-  "mongodb-connection-model",
-  "mongodb-schema",
-  "numeral",
-  "pluralize",
-  "resolve",
-  "webpack-bundle-analyzer",
-  "webpack-cli",
-  "mongodb-compass"
-]
+ignores:
+  - '@mongodb-js/prettier-config-compass'
+  - '@mongodb-js/tsconfig-compass'
+  - '@types/chai'
+  - '@types/sinon-chai'
+  - 'electron'
+  - '@types/chai-dom'
+  - '@types/react'
+  - '@types/react-dom'
+ignore-patterns:
+  - 'dist'
