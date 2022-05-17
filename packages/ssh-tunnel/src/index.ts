@@ -232,7 +232,7 @@ export class SshTunnel extends EventEmitter {
         // process of disconnecting. Either way try and reconnect once then try
         // and open the channel again. There are multiple different errors that
         // can occur and rather than try and match exact messages it is probably
-        // safer to asume that any error is a worthy of a retry.
+        // safer to asume that any error is worthy of a retry.
         this.connected = false;
         debug('error forwarding. retrying..', info, err);
         await this.connectSsh();
