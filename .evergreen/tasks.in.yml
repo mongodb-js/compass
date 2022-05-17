@@ -124,11 +124,9 @@ tasks:
         variants: [ubuntu]
 
   - name: test-connectivity
-    tags: ['required-for-publish']
+    tags: ['required-for-publish', 'run-on-pr']
     commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
+      - func: clone
       - func: test-connectivity
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'

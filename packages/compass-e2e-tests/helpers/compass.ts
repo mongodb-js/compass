@@ -628,18 +628,32 @@ export async function afterTests(
     await compass.capturePage(filename);
   }
 
-  try {
-    await compass.stop(test);
-  } catch (err) {
-    debug('An error occurred while stopping compass:');
-    debug(err);
+  let timeoutId;
+  const timeoutPromise = new Promise<void>((resolve) => {
+    timeoutId = setTimeout(() => {
+      console.error('It took too long to close compass');
+      resolve();
+    }, 30000);
+  });
+
+  const closePromise = (async function close(): Promise<void> {
     try {
-      // make sure the process can exit
-      await compass.browser.deleteSession();
-    } catch (_) {
-      debug('browser already closed');
+      await compass.stop(test);
+    } catch (err) {
+      debug('An error occurred while stopping compass:');
+      debug(err);
+      try {
+        // make sure the process can exit
+        await compass.browser.deleteSession();
+      } catch (_) {
+        debug('browser already closed');
+      }
     }
-  }
+    clearTimeout(timeoutId);
+    return;
+  })();
+
+  return Promise.race([timeoutPromise, closePromise]);
 }
 
 function pathName(text: string) {
