@@ -14,6 +14,7 @@ echo running connectivity tests image
 
 docker run \
   --rm \
+  -e DEBUG="${DEBUG}" \
   -e E2E_TESTS_ATLAS_HOST="${E2E_TESTS_ATLAS_HOST}" \
   -e E2E_TESTS_DATA_LAKE_HOST="${E2E_TESTS_DATA_LAKE_HOST}" \
   -e E2E_TESTS_ANALYTICS_NODE_HOST="${E2E_TESTS_ANALYTICS_NODE_HOST}" \
