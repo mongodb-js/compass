@@ -96,7 +96,7 @@ export async function explainPipeline({
       dataService.killSessions(session)
     ]).catch((err) => {
       log.warn(
-        mongoLogId(1001000139),
+        mongoLogId(1_001_000_139),
         'Aggregation explain',
         'Attempting to kill the session failed',
         { error: err.message }
