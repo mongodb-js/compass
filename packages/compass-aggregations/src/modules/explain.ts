@@ -93,13 +93,11 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         abortController: undefined,
         error: undefined,
         explain: undefined,
-        isModalOpen: !state.isModalOpen,
+        isModalOpen: true,
       };
     case ActionTypes.ModalClosed:
-      return {
-        ...state,
-        isModalOpen: false,
-      };
+    case ActionTypes.ExplainCancelled:
+      return INITIAL_STATE;
     case ActionTypes.ExplainStarted:
       return {
         ...state,
@@ -124,8 +122,6 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
         isLoading: false,
         abortController: undefined,
       };
-    case ActionTypes.ExplainCancelled:
-      return INITIAL_STATE;
     default:
       return state;
   }

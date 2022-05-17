@@ -2,7 +2,6 @@ import React from 'react';
 import {
   css,
   spacing,
-  uiColors,
   Subtitle,
   ErrorSummary,
   Button,
@@ -20,11 +19,14 @@ const containerStyles = css({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
+  marginTop: spacing[4],
+  marginBottom: spacing[4],
 });
 
 const textStyles = css({
-  color: uiColors.green.dark2,
   textAlign: 'center',
+  marginTop: spacing[4],
+  marginBottom: spacing[4],
 });
 
 export const ExplainError: React.FunctionComponent<ExplainErrorProps> = ({
@@ -41,9 +43,9 @@ export const ExplainError: React.FunctionComponent<ExplainErrorProps> = ({
   return (
     <div className={containerStyles}>
       <Subtitle className={textStyles}>
-        Oops! Looks like we hit a network issue.
+        Oops! Looks like we hit a network issue. <br />
+        Let&apos;s try that again.
       </Subtitle>
-      <Subtitle className={textStyles}>Let&apos;s try that again.</Subtitle>
       <Button
         variant="primaryOutline"
         onClick={onRetry}

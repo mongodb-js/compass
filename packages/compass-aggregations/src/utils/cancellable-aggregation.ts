@@ -96,7 +96,7 @@ export async function explainPipeline({
       dataService.killSessions(session)
     ]).catch((err) => {
       log.warn(
-        mongoLogId(1_001_000_107),
+        mongoLogId(1_001_000_126),
         'Aggregation explain',
         'Attempting to kill the session failed',
         { error: err.message }
@@ -106,8 +106,9 @@ export async function explainPipeline({
   signal.addEventListener('abort', abort, { once: true });
   let result = {};
   try {
-    // todo: support ADL
-    result = await raceWithAbort(cursor.explain(), signal);
+    const { dataLake: { isDataLake } } = await dataService.instance();
+    const verbosity = isDataLake ? 'queryPlannerExtended' : 'allPlansExecution';
+    result = await raceWithAbort(cursor.explain(verbosity), signal);
   } finally {
     signal.removeEventListener('abort', abort);
   }

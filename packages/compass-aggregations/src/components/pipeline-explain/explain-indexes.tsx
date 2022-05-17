@@ -1,14 +1,10 @@
 import React from 'react';
-import { Badge, BadgeVariant, Body, css } from '@mongodb-js/compass-components';
+import { Badge, BadgeVariant, Body } from '@mongodb-js/compass-components';
 import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
 
 type ExplainIndexesProps = {
   indexes: IndexInformation[];
 };
-
-const containerStyles = css({
-  display: 'flex',
-});
 
 export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   indexes,
@@ -18,7 +14,7 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   }
 
   return (
-    <div className={containerStyles}>
+    <div>
       {indexes.map((info, idx) => (
         <Badge key={idx} variant={BadgeVariant.LightGray}>
           {info.index} {info.shard && <>({info.shard})</>}
