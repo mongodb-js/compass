@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { Writable } from 'stream';
 import { createDebug } from './logger';
+
 const debug = createDebug('collection-stream');
 
 function mongodbServerErrorToJSError({ index, code, errmsg, op, errInfo }) {
@@ -48,7 +49,7 @@ class WritableCollectionStream extends Writable {
   _write(document, _encoding, next) {
     this.batch.push(document);
 
-    if (this.batch.length === this.BATCH_SIZE) {
+    if (this.batch.length >= this.BATCH_SIZE) {
       return this._executeBatch(next);
     }
 
@@ -69,57 +70,80 @@ class WritableCollectionStream extends Writable {
     this._executeBatch(callback);
   }
 
-  _executeBatch(callback) {
+  async _executeBatch(callback) {
     const documents = this.batch;
 
     this.batch = [];
 
-    this._collection().bulkWrite(
-      documents.map((doc) => ({ insertOne: doc })),
-      {
-        ordered: this.stopOnErrors,
-        retryWrites: false,
-        checkKeys: false,
-      },
-      (err, res) => {
+    let result;
+    let error;
+
+    try {
+      result = await this._collection().bulkWrite(
+        documents.map((doc) => ({ insertOne: doc })),
+        {
+          ordered: this.stopOnErrors,
+          retryWrites: false,
+          checkKeys: false,
+        }
+      );
+    } catch (bulkWriteError) {
+      // Currently, the server does not support batched inserts for FLE2:
+      // https://jira.mongodb.org/browse/SERVER-66315
+      // We check for this specific error and re-try inserting documents one by one.
+      if (bulkWriteError.code === 6371202) {
+        this.BATCH_SIZE = 1;
+
+        let nInserted = 0;
+
+        for (const doc of documents) {
+          try {
+            await this._collection().insertOne(doc, {});
+            nInserted += 1;
+          } catch (insertOneByOneError) {
+            this._errors.push(insertOneByOneError);
+
+            if (this.stopOnErrors) {
+              break;
+            }
+          }
+        }
+
+        result = { ok: 1, nInserted };
+      } else {
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
         // result can still be accessed on the error instance
-        const result = (err && err.result && err.result.result) || res;
-
-        // Driver seems to return null instead of undefined in some rare cases
-        // when the operation ends in error, instead of relying on
-        // `_mergeBulkOpResult` default argument substitution, we need to keep
-        // this OR expression here
-        this._mergeBulkOpResult(result || {});
-
-        this.docsProcessed += documents.length;
-
-        this.docsWritten = this._stats.nInserted;
-
-        this._batchCounter++;
-
-        if (err) {
-          this._errors.push(err);
-        }
-
-        this.printJobStats();
-
-        this.emit('progress', {
-          docsWritten: this.docsWritten,
-          docsProcessed: this.docsProcessed,
-          errors: this._errors
-            .concat(this._stats.writeErrors)
-            .concat(this._stats.writeConcernErrors),
-        });
-
-        if (this.stopOnErrors) {
-          return callback(err);
-        }
-
-        return callback();
+        result = bulkWriteError.result && bulkWriteError.result.result;
+        this._errors.push(bulkWriteError);
       }
-    );
+    }
+
+    // Driver seems to return null instead of undefined in some rare cases
+    // when the operation ends in error, instead of relying on
+    // `_mergeBulkOpResult` default argument substitution, we need to keep
+    // this OR expression here
+    this._mergeBulkOpResult(result || {});
+
+    this.docsWritten = this._stats.nInserted;
+    this.docsProcessed += documents.length;
+    this._batchCounter++;
+
+    this.printJobStats();
+
+    this.emit('progress', {
+      docsWritten: this.docsWritten,
+      docsProcessed: this.docsProcessed,
+      errors: this._errors
+        .concat(this._stats.writeErrors)
+        .concat(this._stats.writeConcernErrors),
+    });
+
+    if (this.stopOnErrors) {
+      return callback(error);
+    }
+
+    return callback();
   }
 
   _mergeBulkOpResult(result = {}) {
