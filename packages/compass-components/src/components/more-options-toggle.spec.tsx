@@ -4,13 +4,13 @@ import sinon from 'sinon';
 
 import { fireEvent, render, screen, cleanup } from '@testing-library/react';
 
-import { OptionsDropdownButton } from './options-dropdown-button';
+import { MoreOptionsToggle } from './more-options-toggle';
 
-function renderOptionsDropdown(
-  props?: Partial<React.ComponentProps<typeof OptionsDropdownButton>>
+function renderMoreOptionsToggle(
+  props?: Partial<React.ComponentProps<typeof MoreOptionsToggle>>
 ) {
   return render(
-    <OptionsDropdownButton
+    <MoreOptionsToggle
       isExpanded={false}
       aria-controls="test"
       onToggleOptions={() => {}}
@@ -19,14 +19,14 @@ function renderOptionsDropdown(
   );
 }
 
-describe('OptionsDropdownButton Component', function () {
+describe('MoreOptionsToggle Component', function () {
   afterEach(function () {
     cleanup();
   });
 
   it('should call to open the options dropdown on click', function () {
     const onToggleOptionsSpy = sinon.spy();
-    renderOptionsDropdown({
+    renderMoreOptionsToggle({
       isExpanded: false,
       onToggleOptions: onToggleOptionsSpy,
     });
@@ -39,7 +39,7 @@ describe('OptionsDropdownButton Component', function () {
 
   it('should call to close the options dropdown on click', function () {
     const onToggleOptionsSpy = sinon.spy();
-    renderOptionsDropdown({
+    renderMoreOptionsToggle({
       isExpanded: true,
       onToggleOptions: onToggleOptionsSpy,
     });
@@ -51,7 +51,7 @@ describe('OptionsDropdownButton Component', function () {
   });
 
   it('should the test id', function () {
-    renderOptionsDropdown({
+    renderMoreOptionsToggle({
       'data-testid': 'pineapple',
     });
 

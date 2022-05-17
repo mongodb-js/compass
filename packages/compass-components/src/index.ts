@@ -19,7 +19,7 @@ import FileInput from './components/file-input';
 import { Modal } from './components/modal';
 import { ModalTitle } from './components/modal-title';
 import { Toolbar } from './components/toolbar';
-import { OptionsDropdownButton } from './components/options-dropdown-button';
+import { MoreOptionsToggle } from './components/more-options-toggle';
 import {
   ErrorSummary,
   WarningSummary,
@@ -68,7 +68,7 @@ export {
   FileInput,
   Modal,
   ModalTitle,
-  OptionsDropdownButton,
+  MoreOptionsToggle,
   RadioBoxGroup,
   SpinLoader,
   ResizeHandle,

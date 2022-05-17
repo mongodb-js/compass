@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
-  OptionsDropdownButton,
+  MoreOptionsToggle,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -111,7 +111,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Run
         </Button>
       )}
-      <OptionsDropdownButton
+      <MoreOptionsToggle
         isExpanded={isOptionsVisible}
         onClick={onToggleOptions}
         aria-controls="pipeline-options"
