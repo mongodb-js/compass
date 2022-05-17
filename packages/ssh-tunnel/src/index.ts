@@ -176,6 +176,7 @@ export class SshTunnel extends EventEmitter {
       await this.connectingPromise;
     } catch (err) {
       debug('failed to establish SSH connection', err);
+      delete this.connectingPromise;
       await this.serverClose();
       throw err;
     }
