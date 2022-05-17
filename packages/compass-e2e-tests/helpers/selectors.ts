@@ -601,8 +601,10 @@ export const SavePipelineActionsSaveAs = '[data-testid="save-pipeline-as"]';
 
 // New Aggregation Toolbar Specific
 export const AggregationToolbarCreateMenu = '[data-testid="create-new-menu"]';
-export const AggregationToolbarCreateNewPipeline = '[data-testid="create-new-menu-content"]  > li:nth-child(1)';
-export const AggregationExplainButton = '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
+export const AggregationToolbarCreateNewPipeline =
+  '[data-testid="create-new-menu-content"]  > li:nth-child(1)';
+export const AggregationExplainButton =
+  '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
 
 // Create view from pipeline modal

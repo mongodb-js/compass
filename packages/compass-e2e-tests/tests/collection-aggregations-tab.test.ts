@@ -19,8 +19,10 @@ async function waitForAnyText(
     return text !== '';
   });
 }
-const initialAggregationToolbarValue = process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
-const initialAggregationExplainValue = process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
+const initialAggregationToolbarValue =
+  process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
+const initialAggregationExplainValue =
+  process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
 
 describe('Collection aggregations tab', function () {
   let compass: Compass;
@@ -505,7 +507,9 @@ describe('Collection aggregations tab', function () {
 
     beforeEach(async function () {
       await createNumbersCollection();
-      await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+      await browser.connectWithConnectionString(
+        'mongodb://localhost:27018/test'
+      );
       // Some tests navigate away from the numbers collection aggregations tab
       await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
       // Get us back to the empty stage every time. Also test the Create New
@@ -514,13 +518,17 @@ describe('Collection aggregations tab', function () {
       await browser.clickVisible(Selectors.AggregationToolbarCreateNewPipeline);
       const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
       await modalElement.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
+      await browser.clickVisible(
+        Selectors.ConfirmNewPipelineModalConfirmButton
+      );
       await modalElement.waitForDisplayed({ reverse: true });
     });
 
     after(async function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = initialAggregationToolbarValue;
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = initialAggregationExplainValue;
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR =
+        initialAggregationToolbarValue;
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN =
+        initialAggregationExplainValue;
       await afterTests(compass, this.currentTest);
     });
 
