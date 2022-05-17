@@ -52,7 +52,7 @@ function getSshTunnelConfig(config: Partial<SshTunnelConfig>): SshTunnelConfig {
 export class SshTunnel extends EventEmitter {
   private connected = false;
   private closed = false;
-  private connectingPromise?: Promise<void>
+  private connectingPromise?: Promise<void>;
   private connections: Set<Socket> = new Set();
   private server: any;
   private rawConfig: SshTunnelConfig;
@@ -94,8 +94,7 @@ export class SshTunnel extends EventEmitter {
           }
         )
       );
-    }
-    else {
+    } else {
       debug('skipping auth setup for this server');
       this.server.useAuth(socks5AuthNone());
     }
@@ -168,7 +167,10 @@ export class SshTunnel extends EventEmitter {
         throw err;
       }),
       (() => {
-        const waitForReady = once(this.sshClient, 'ready', { signal: ac.signal }).then(() => { return; });
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        const waitForReady = once(this.sshClient, 'ready', {
+          signal: ac.signal,
+        }).then(() => {});
         this.sshClient.connect(getConnectConfig(this.rawConfig));
         return waitForReady;
       })(),
@@ -190,7 +192,13 @@ export class SshTunnel extends EventEmitter {
   }
 
   private async closeSshClient() {
+    if (!this.connected) {
+      return;
+    }
+
+    // don't automatically reconnect if another request comes in
     this.closed = true;
+
     try {
       return once(this.sshClient, 'close');
     } finally {
