@@ -292,7 +292,7 @@ function validateCSFLEErrors(
       fieldTab: 'csfle',
       fieldName: 'keyVaultNamespace',
       message:
-        'Key Vault namespace must be specified for CSFLE-enabled connections',
+        'Key Vault namespace must be specified for In-Use-Encryption-enabled connections',
     });
   }
   const kmsProviders = autoEncryptionOptions.kmsProviders ?? {};
@@ -363,7 +363,7 @@ function validateCSFLEWarnings(
   const warnings: ConnectionFormWarning[] = [];
   if (connectionOptions.fleOptions?.storeCredentials) {
     warnings.push({
-      message: 'CSFLE KMS provider credentials will be stored to disk.',
+      message: 'In-Use Encryption KMS provider credentials will be stored to disk.',
     });
   }
 

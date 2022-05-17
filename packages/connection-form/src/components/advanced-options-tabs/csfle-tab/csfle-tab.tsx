@@ -117,8 +117,9 @@ function CSFLETab({
   return (
     <div className={containerStyles}>
       <Banner>
-        Client-side Field-Level Encryption is an Enterprise/Atlas-only feature
+        In-Use Encryption is an Enterprise/Atlas-only feature
         of MongoDB.&nbsp;
+        {/* TODO(COMPASS-5777): Use generic In-Use Encryption documentation URL instead of FLE1-specific one */}
         <Link href="https://www.mongodb.com/docs/drivers/security/client-side-field-level-encryption-guide/">
           Learn More
         </Link>

@@ -77,7 +77,7 @@ function AdvancedOptionsTabs({
 
   if (csfleFeatureFlag) {
     // Add before advanced
-    tabs.splice(-1, 0, { name: 'CSFLE', id: 'csfle', component: CSFLETab });
+    tabs.splice(-1, 0, { name: 'In-Use Encryption', id: 'csfle', component: CSFLETab });
     // TODO(COMPASS-5634): Figure out the exact spacing properties
     // for fitting all the tabs in here.
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
