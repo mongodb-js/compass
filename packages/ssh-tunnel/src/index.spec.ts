@@ -112,12 +112,10 @@ async function stopTestSshTunnel() {
   }
 }
 
-async function breakSshTunnelConnection() {
-  try {
-    return once(sshTunnel.sshClient, 'close');
-  } finally {
-    sshTunnel.sshClient.end();
-  }
+function breakSshTunnelConnection() {
+  const promise = once(sshTunnel.sshClient, 'close');
+  sshTunnel.sshClient.end();
+  return promise;
 }
 
 interface Socks5ProxyOptions {
