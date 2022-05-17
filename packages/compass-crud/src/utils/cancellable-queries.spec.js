@@ -1,4 +1,5 @@
 import util from 'util';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import Connection from 'mongodb-connection-model';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
@@ -98,7 +99,7 @@ describe('cancellable-queries', function() {
       expect(docs).to.deep.equal([{ i: 11 }, { i: 12 }, { i: 13 }, { i: 14 }, { i: 15 }]);
     });
 
-    it('can be aborted', async() => {
+    it('can be aborted', async function() {
       // make sure there are no operations in progress before we start
       let ops = await currentOpsByNS('cancel.numbers');
       expect(ops).to.be.empty;

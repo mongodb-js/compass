@@ -4,11 +4,13 @@ import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { once } from 'events';
+import sinon from 'sinon';
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+
 import configureStore, { findAndModifyWithFLEFallback } from './crud-store';
 import configureActions from '../actions';
 
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
 const TEST_TIMESERIES = false; // TODO: base this off an env var once we have it
@@ -95,7 +97,7 @@ describe('store', function() {
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
 
-  before(async() => {
+  before(async function() {
     const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect(info.connectionOptions);
 
@@ -126,25 +128,25 @@ describe('store', function() {
     });
   });
 
-  after(async() => {
+  after(async function() {
     if (dataService) {
       await dataService.disconnect();
     }
   });
 
-  beforeEach(() => {
+  beforeEach(function() {
     sinon.restore();
   });
 
-  afterEach(() => {
+  afterEach(function() {
     sinon.restore();
   });
 
-  describe('#getInitialState', () => {
+  describe('#getInitialState', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -153,7 +155,7 @@ describe('store', function() {
       });
     });
 
-    it('sets the initial state', () => {
+    it('sets the initial state', function() {
       expect(store.state.resultId).to.be.a('number');
       delete store.state.resultId; // always different
 
@@ -208,11 +210,11 @@ describe('store', function() {
     });
   });
 
-  describe('#toggleInsertDocument', () => {
+  describe('#toggleInsertDocument', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -222,7 +224,7 @@ describe('store', function() {
       store.openInsertDocumentDialog({ foo: 1 });
     });
 
-    it('switches between JSON and Document view', async() => {
+    it('switches between JSON and Document view', async function() {
       let listener;
 
       listener = waitForState(store, (state) => {
@@ -243,11 +245,11 @@ describe('store', function() {
     });
   });
 
-  describe('#onCollectionChanged', () => {
+  describe('#onCollectionChanged', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -261,15 +263,15 @@ describe('store', function() {
       });
     });
 
-    context('when the collection is not readonly', () => {
-      beforeEach(() => {
+    context('when the collection is not readonly', function() {
+      beforeEach(function() {
         store.state.table.path = [ 'test-path' ];
         store.state.table.types = [ 'test-types' ];
         store.state.table.doc = {};
         store.state.table.editParams = {};
       });
 
-      it('resets the state for the new editable collection', async() => {
+      it('resets the state for the new editable collection', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
@@ -286,8 +288,8 @@ describe('store', function() {
       });
     });
 
-    context('when the collection is readonly', () => {
-      beforeEach(() => {
+    context('when the collection is readonly', function() {
+      beforeEach(function() {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -306,7 +308,7 @@ describe('store', function() {
         store.state.table.editParams = {};
       });
 
-      it('resets the state for the new readonly collection', async() => {
+      it('resets the state for the new readonly collection', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
@@ -323,8 +325,8 @@ describe('store', function() {
       });
     });
 
-    context('when running in a readonly context', () => {
-      beforeEach(() => {
+    context('when running in a readonly context', function() {
+      beforeEach(function() {
         process.env.HADRON_READONLY = 'true';
         actions = configureActions();
         store = configureStore({
@@ -343,11 +345,11 @@ describe('store', function() {
         store.state.table.editParams = {};
       });
 
-      afterEach(() => {
+      afterEach(function() {
         process.env.HADRON_READONLY = 'false';
       });
 
-      it('resets the state for the new readonly collection', async() => {
+      it('resets the state for the new readonly collection', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.table.path).to.deep.equal([]);
           expect(state.table.types).to.deep.equal([]);
@@ -365,11 +367,11 @@ describe('store', function() {
     });
   });
 
-  describe('#onQueryChanged', () => {
+  describe('#onQueryChanged', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -391,7 +393,7 @@ describe('store', function() {
       skip: 5
     };
 
-    it('resets the state', async() => {
+    it('resets the state', async function() {
       const listener = waitForState(store, (state) => {
         expect(state.error).to.equal(null);
         expect(state.docs).to.deep.equal([]);
@@ -404,11 +406,11 @@ describe('store', function() {
     });
   });
 
-  describe('#removeDocument', () => {
+  describe('#removeDocument', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -422,17 +424,17 @@ describe('store', function() {
       });
     });
 
-    context('when there is no error', () => {
+    context('when there is no error', function() {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         store.state.docs = [ hadronDoc ];
         store.state.count = 1;
         store.state.end = 1;
       });
 
-      it('deletes the document from the collection', async() => {
+      it('deletes the document from the collection', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
@@ -445,17 +447,17 @@ describe('store', function() {
       });
     });
 
-    context('when the _id is null', () => {
+    context('when the _id is null', function() {
       const doc = { _id: null, name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         store.state.docs = [ hadronDoc ];
         store.state.count = 1;
         store.state.end = 1;
       });
 
-      it('deletes the document from the collection', async() => {
+      it('deletes the document from the collection', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
@@ -468,15 +470,15 @@ describe('store', function() {
       });
     });
 
-    context('when the deletion errors', () => {
+    context('when the deletion errors', function() {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         sinon.stub(dataService, 'deleteOne').yields({ message: 'error happened' });
       });
 
-      it('sets the error for the document', (done) => {
+      it('sets the error for the document', function(done) {
         hadronDoc.on('remove-error', (message) => {
           expect(message).to.equal('error happened');
           done();
@@ -487,11 +489,11 @@ describe('store', function() {
     });
   });
 
-  describe('#updateDocument', () => {
+  describe('#updateDocument', function() {
     let store;
     let actions;
 
-    beforeEach((done) => {
+    beforeEach(function(done) {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -509,20 +511,20 @@ describe('store', function() {
       }, {}, done);
     });
 
-    afterEach((done) => {
+    afterEach(function(done) {
       dataService.deleteMany('compass-crud.test', {}, {}, done);
     });
 
-    context('when there is no error', () => {
+    context('when there is no error', function() {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         store.state.docs = [ hadronDoc ];
         hadronDoc.elements.at(1).rename('new name');
       });
 
-      it('replaces the document in the list', (done) => {
+      it('replaces the document in the list', function(done) {
         const unsubscribe = store.listen((state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
           expect(state.docs[0].elements.at(1).key === 'new name');
@@ -535,23 +537,23 @@ describe('store', function() {
         });
 
         hadronDoc.on('update-error', (errorMessage) => {
-          done(new Error(`Didn\'t expect update to error. Errored with message: ${errorMessage}`));
+          done(new Error(`Didn't expect update to error. Errored with message: ${errorMessage}`));
         });
 
         store.updateDocument(hadronDoc);
       });
     });
 
-    context('when a new field is added and there is no error', () => {
+    context('when a new field is added and there is no error', function() {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         store.state.docs = [ hadronDoc ];
         hadronDoc.insertAfter(hadronDoc.elements.at(1), 'new field', 'new field value');
       });
 
-      it('updates the document in the list', (done) => {
+      it('updates the document in the list', function(done) {
         const unsubscribe = store.listen((state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
           expect(state.docs[0]).to.have.property('elements');
@@ -566,22 +568,22 @@ describe('store', function() {
         });
 
         hadronDoc.on('update-error', (errorMessage) => {
-          done(new Error(`Didn\'t expect update to error. Errored with message: ${errorMessage}`));
+          done(new Error(`Didn't expect update to error. Errored with message: ${errorMessage}`));
         });
 
         store.updateDocument(hadronDoc);
       });
     });
 
-    context('when there is no update to make', () => {
+    context('when there is no update to make', function() {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
       });
 
-      it('sets the error for the document', (done) => {
+      it('sets the error for the document', function(done) {
         hadronDoc.on('update-error', (message) => {
           expect(message).to.equal('Unable to update, no changes have been made.');
           done();
@@ -591,16 +593,16 @@ describe('store', function() {
       });
     });
 
-    context('when the update errors', () => {
+    context('when the update errors', function() {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         hadronDoc.elements.at(1).rename('new name');
         sinon.stub(dataService, 'findOneAndUpdate').yields({ message: 'error happened' });
       });
 
-      it('sets the error for the document', (done) => {
+      it('sets the error for the document', function(done) {
         hadronDoc.on('update-error', (message) => {
           expect(message).to.equal('error happened');
           done();
@@ -610,16 +612,16 @@ describe('store', function() {
       });
     });
 
-    context('when the update fails', () => {
+    context('when the update fails', function() {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         hadronDoc.elements.at(1).rename('new name');
         sinon.stub(dataService, 'findOneAndUpdate').yields(null, null);
       });
 
-      it('sets the update blocked for the document', (done) => {
+      it('sets the update blocked for the document', function(done) {
         hadronDoc.on('update-blocked', () => {
           done();
         });
@@ -628,17 +630,17 @@ describe('store', function() {
       });
     });
 
-    context('when update is called on an edited doc', () => {
+    context('when update is called on an edited doc', function() {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
       let stub;
 
-      beforeEach(() => {
+      beforeEach(function() {
         hadronDoc.get('name').edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
       });
 
-      it('has the original value for the edited value in the query', async() => {
+      it('has the original value for the edited value in the query', async function() {
         await store.updateDocument(hadronDoc);
 
         expect(stub.getCall(0).args[1]).to.deep.equal({
@@ -653,22 +655,22 @@ describe('store', function() {
       });
     });
 
-    context('when update is called on an edited doc in sharded collection', () => {
+    context('when update is called on an edited doc in sharded collection', function() {
       const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
       const hadronDoc = new HadronDocument(doc);
       let stub;
 
-      beforeEach(() => {
+      beforeEach(function() {
         store.state.shardKeys = { yes: 1 };
         hadronDoc.get('name').edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
       });
 
-      afterEach(() => {
+      afterEach(function() {
         store.state.shardKeys = null;
       });
 
-      it('has the shard key in the query', async() => {
+      it('has the shard key in the query', async function() {
         await store.updateDocument(hadronDoc);
 
         expect(stub.getCall(0).args[1]).to.deep.equal({
@@ -684,8 +686,8 @@ describe('store', function() {
       });
     });
 
-    context('when passed an invalid document', () => {
-      it('should emit an error to the state', (done) => {
+    context('when passed an invalid document', function() {
+      it('should emit an error to the state', function(done) {
         const doc = { _id: 'testing', name: 'Beach Sand' };
         const invalidHadronDoc = new HadronDocument(doc);
         invalidHadronDoc.getId = null;
@@ -700,14 +702,14 @@ describe('store', function() {
       });
     });
 
-    context('when csfle is enabled and the data-service says that updating would be unsafe', () => {
+    context('when csfle is enabled and the data-service says that updating would be unsafe', function() {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
       let findOneAndReplaceStub;
       let findOneAndUpdateStub;
       let isUpdateAllowedStub;
 
-      beforeEach(() => {
+      beforeEach(function() {
         hadronDoc.get('name').edit('Desert Sand');
         findOneAndReplaceStub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
         findOneAndUpdateStub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
@@ -718,7 +720,7 @@ describe('store', function() {
         });
       });
 
-      it('rejects the update and emits update-error', async() => {
+      it('rejects the update and emits update-error', async function() {
         const updateErrorEvent = once(hadronDoc, 'update-error');
 
         await store.updateDocument(hadronDoc);
@@ -734,11 +736,11 @@ describe('store', function() {
     });
   });
 
-  describe('#replaceDocument', () => {
+  describe('#replaceDocument', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -752,15 +754,15 @@ describe('store', function() {
       });
     });
 
-    context('when there is no error', () => {
+    context('when there is no error', function() {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         store.state.docs = [ hadronDoc ];
       });
 
-      it('replaces the document in the list', async() => {
+      it('replaces the document in the list', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
         });
@@ -771,15 +773,15 @@ describe('store', function() {
       });
     });
 
-    context('when the replace errors', () => {
+    context('when the replace errors', function() {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(() => {
+      beforeEach(function() {
         sinon.stub(dataService, 'findOneAndReplace').yields({ message: 'error happened' });
       });
 
-      it('sets the error for the document', (done) => {
+      it('sets the error for the document', function(done) {
         hadronDoc.on('update-error', (message) => {
           expect(message).to.equal('error happened');
           done();
@@ -789,17 +791,17 @@ describe('store', function() {
       });
     });
 
-    context('when replace is called on an edited doc', () => {
+    context('when replace is called on an edited doc', function() {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
       let stub;
 
-      beforeEach(() => {
+      beforeEach(function() {
         hadronDoc.get('name').edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
       });
 
-      it('has the original value for the edited value in the query', async() => {
+      it('has the original value for the edited value in the query', async function() {
         await store.replaceDocument(hadronDoc);
 
         expect(stub.getCall(0).args[2]).to.deep.equal({
@@ -809,22 +811,22 @@ describe('store', function() {
       });
     });
 
-    context('when update is called on an edited doc in sharded collection', () => {
+    context('when update is called on an edited doc in sharded collection', function() {
       const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
       const hadronDoc = new HadronDocument(doc);
       let stub;
 
-      beforeEach(() => {
+      beforeEach(function() {
         store.state.shardKeys = { yes: 1 };
         hadronDoc.get('name').edit('Desert Sand');
         stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
       });
 
-      afterEach(() => {
+      afterEach(function() {
         store.state.shardKeys = null;
       });
 
-      it('has the shard key in the query', async() => {
+      it('has the shard key in the query', async function() {
         await store.replaceDocument(hadronDoc);
 
         expect(stub.getCall(0).args[1]).to.deep.equal({
@@ -839,14 +841,14 @@ describe('store', function() {
       });
     });
 
-    context('when csfle is enabled and the data-service says that updating would be unsafe', () => {
+    context('when csfle is enabled and the data-service says that updating would be unsafe', function() {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
       let findOneAndReplaceStub;
       let findOneAndUpdateStub;
       let isUpdateAllowedStub;
 
-      beforeEach(() => {
+      beforeEach(function() {
         hadronDoc.get('name').edit('Desert Sand');
         findOneAndReplaceStub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
         findOneAndUpdateStub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
@@ -857,7 +859,7 @@ describe('store', function() {
         });
       });
 
-      it('rejects the update and emits update-error', async() => {
+      it('rejects the update and emits update-error', async function() {
         const updateErrorEvent = once(hadronDoc, 'update-error');
 
         await store.replaceDocument(hadronDoc);
@@ -873,11 +875,11 @@ describe('store', function() {
     });
   });
 
-  describe('#insertOneDocument', () => {
+  describe('#insertOneDocument', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -892,15 +894,15 @@ describe('store', function() {
       });
     });
 
-    context('when there is no error', () => {
-      afterEach((done) => {
+    context('when there is no error', function() {
+      afterEach(function(done) {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      context('when the document matches the filter', () => {
+      context('when the document matches the filter', function() {
         const doc = new HadronDocument({ name: 'testing' });
 
-        it('inserts the document', async() => {
+        it('inserts the document', async function() {
           const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(1);
             expect(state.count).to.equal(1);
@@ -919,15 +921,15 @@ describe('store', function() {
         });
       });
 
-      context('when the document does not match the filter', () => {
+      context('when the document does not match the filter', function() {
         const doc = new HadronDocument({ name: 'testing' });
 
-        beforeEach(() => {
+        beforeEach(function() {
           store.state.insert.doc = doc;
           store.state.query.filter = { name: 'something' };
         });
 
-        it('inserts the document but does not add to the list', async() => {
+        it('inserts the document but does not add to the list', async function() {
           const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(1);
@@ -945,23 +947,23 @@ describe('store', function() {
       });
     });
 
-    context('when there is an error', () => {
-      context('when it is a json mode', () => {
+    context('when there is an error', function() {
+      context('when it is a json mode', function() {
         const doc = {};
         // this should be invalid according to the validation rules
         const jsonDoc = '{ "status": "testing" }';
 
-        beforeEach(() => {
+        beforeEach(function() {
           store.state.insert.jsonView = true;
           store.state.insert.doc = doc;
           store.state.insert.jsonDoc = jsonDoc;
         });
 
-        afterEach((done) => {
+        afterEach(function(done) {
           dataService.deleteMany('compass-crud.test', {}, {}, done);
         });
 
-        it('does not insert the document', async() => {
+        it('does not insert the document', async function() {
           const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
@@ -978,20 +980,20 @@ describe('store', function() {
         });
       });
 
-      context('when it is not a json mode', () => {
+      context('when it is not a json mode', function() {
         const doc = new HadronDocument({ 'status': 'testing' });
         const jsonDoc = '';
 
-        beforeEach(() => {
+        beforeEach(function() {
           store.state.insert.doc = doc;
           store.state.insert.jsonDoc = jsonDoc;
         });
 
-        afterEach((done) => {
+        afterEach(function(done) {
           dataService.deleteMany('compass-crud.test', {}, {}, done);
         });
 
-        it('does not insert the document', async() => {
+        it('does not insert the document', async function() {
           const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
@@ -1011,11 +1013,11 @@ describe('store', function() {
     });
   });
 
-  describe('#insertManyDocuments', () => {
+  describe('#insertManyDocuments', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1030,15 +1032,15 @@ describe('store', function() {
       });
     });
 
-    context('when there is no error', () => {
-      afterEach((done) => {
+    context('when there is no error', function() {
+      afterEach(function(done) {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      context('when the documents match the filter', () => {
+      context('when the documents match the filter', function() {
         const docs = '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
 
-        it('inserts the document', async() => {
+        it('inserts the document', async function() {
           const resultId = store.state.resultId;
 
           const listener = waitForStates(store, [
@@ -1094,15 +1096,15 @@ describe('store', function() {
         });
       });
 
-      context('when none of the documents match the filter', () => {
+      context('when none of the documents match the filter', function() {
         const docs = '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
 
-        beforeEach(() => {
+        beforeEach(function() {
           store.state.query.filter = { name: 'something' };
         });
 
 
-        it('inserts both documents but does not add to the list', async() => {
+        it('inserts both documents but does not add to the list', async function() {
           const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
@@ -1121,14 +1123,14 @@ describe('store', function() {
         });
       });
 
-      context('when only one of the documents match the filter', () => {
+      context('when only one of the documents match the filter', function() {
         const docs = '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
 
-        beforeEach(() => {
+        beforeEach(function() {
           store.state.query.filter = { name: 'Rey' };
         });
 
-        it('inserts both documents but only adds the matching one to the list', async() => {
+        it('inserts both documents but only adds the matching one to the list', async function() {
           const listener = waitForState(store, (state) => {
             expect(state.error).to.be.null;
             expect(state.docs).to.have.lengthOf(1);
@@ -1146,18 +1148,18 @@ describe('store', function() {
       });
     });
 
-    context('when there is an error', () => {
+    context('when there is an error', function() {
       const docs = '[ { "name": "Chashu", "type": "Norwegian Forest", "status": "invalid" }, { "name": "Rey", "type": "Viszla" } ]';
 
-      beforeEach(() => {
+      beforeEach(function() {
         store.state.insert.jsonDoc = JSON.stringify(docs);
       });
 
-      afterEach((done) => {
+      afterEach(function(done) {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      it('does not insert the document', async() => {
+      it('does not insert the document', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.docs.length).to.equal(0);
           expect(state.count).to.equal(0);
@@ -1176,12 +1178,12 @@ describe('store', function() {
     });
   });
 
-  describe('#openInsertDocumentDialog', () => {
+  describe('#openInsertDocumentDialog', function() {
     const doc = { _id: 1, name: 'test' };
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1195,8 +1197,8 @@ describe('store', function() {
       });
     });
 
-    context('when clone is true', () => {
-      it('removes _id from the document', async() => {
+    context('when clone is true', function() {
+      it('removes _id from the document', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.insert.doc.elements.at(0).key).to.equal('name');
         });
@@ -1207,8 +1209,8 @@ describe('store', function() {
       });
     });
 
-    context('when clone is false', () => {
-      it('does not remove _id from the document', async() => {
+    context('when clone is false', function() {
+      it('does not remove _id from the document', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.insert.doc.elements.at(0).key).to.equal('_id');
         });
@@ -1219,12 +1221,12 @@ describe('store', function() {
       });
     });
 
-    context('with CSFLE connection', () => {
+    context('with CSFLE connection', function() {
       let getCSFLEMode;
       let knownSchemaForCollection;
       let isUpdateAllowed;
 
-      beforeEach(() => {
+      beforeEach(function() {
         knownSchemaForCollection = sinon.stub();
         isUpdateAllowed = sinon.stub();
         const csfleCollectionTracker = {
@@ -1235,11 +1237,11 @@ describe('store', function() {
         sinon.stub(dataService, 'getCSFLECollectionTracker').returns(csfleCollectionTracker);
       });
 
-      afterEach(() => {
+      afterEach(function() {
         sinon.restore();
       });
 
-      it('does not set csfle state if csfle is unavailable', async() => {
+      it('does not set csfle state if csfle is unavailable', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.insert.csfleState).to.deep.equal({ state: 'none' });
         });
@@ -1255,7 +1257,7 @@ describe('store', function() {
         expect(isUpdateAllowed).to.not.have.been.called;
       });
 
-      it('sets csfle state appropiately if the collection has no known schema', async() => {
+      it('sets csfle state appropiately if the collection has no known schema', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.insert.csfleState).to.deep.equal({ state: 'no-known-schema' });
         });
@@ -1272,7 +1274,7 @@ describe('store', function() {
         expect(isUpdateAllowed).to.not.have.been.called;
       });
 
-      it('sets csfle state appropiately if cloned document does not fully match schema', async() => {
+      it('sets csfle state appropiately if cloned document does not fully match schema', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.insert.csfleState).to.deep.equal({
             state: 'incomplete-schema-for-cloned-doc',
@@ -1293,7 +1295,7 @@ describe('store', function() {
         expect(isUpdateAllowed).to.have.been.calledOnce;
       });
 
-      it('sets csfle state appropiately if collection has full schema', async() => {
+      it('sets csfle state appropiately if collection has full schema', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.insert.csfleState).to.deep.equal({
             state: 'has-known-schema',
@@ -1314,7 +1316,7 @@ describe('store', function() {
         expect(isUpdateAllowed).to.have.been.calledOnce;
       });
 
-      it('sets csfle state appropiately if csfle is temporarily disabled', async() => {
+      it('sets csfle state appropiately if csfle is temporarily disabled', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.insert.csfleState).to.deep.equal({ state: 'csfle-disabled' });
         });
@@ -1334,11 +1336,11 @@ describe('store', function() {
     });
   });
 
-  describe('#drillDown', () => {
+  describe('#drillDown', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1356,7 +1358,7 @@ describe('store', function() {
     const element = new Element('field3', 'value');
     const editParams = { colId: 1, rowIndex: 0 };
 
-    it('sets the drill down state', async() => {
+    it('sets the drill down state', async function() {
       const listener = waitForState(store, (state) => {
         expect(state.table.doc).to.deep.equal(doc);
         expect(state.table.path).to.deep.equal([ 'field3' ]);
@@ -1370,11 +1372,11 @@ describe('store', function() {
     });
   });
 
-  describe('#pathChanged', () => {
+  describe('#pathChanged', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1391,7 +1393,7 @@ describe('store', function() {
     const path = ['field1', 'field2'];
     const types = ['Object', 'Array'];
 
-    it('sets the path and types state', async() => {
+    it('sets the path and types state', async function() {
       const listener = waitForState(store, (state) => {
         expect(state.table.path).to.deep.equal(path);
         expect(state.table.types).to.deep.equal(types);
@@ -1403,11 +1405,11 @@ describe('store', function() {
     });
   });
 
-  describe('#viewChanged', () => {
+  describe('#viewChanged', function() {
     let store;
     let actions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1421,7 +1423,7 @@ describe('store', function() {
       });
     });
 
-    it('sets the view', async() => {
+    it('sets the view', async function() {
       const listener = waitForState(store, (state) => {
         expect(state.view).to.equal('Table');
       });
@@ -1432,12 +1434,12 @@ describe('store', function() {
     });
   });
 
-  describe('#refreshDocuments', () => {
-    context('when there is no shard key', () => {
+  describe('#refreshDocuments', function() {
+    context('when there is no shard key', function() {
       let store;
       let actions;
 
-      beforeEach((done) => {
+      beforeEach(function(done) {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1453,12 +1455,12 @@ describe('store', function() {
         dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
       });
 
-      afterEach((done) => {
+      afterEach(function(done) {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      context('when there is no error', () => {
-        it('resets the documents to the first page', async() => {
+      context('when there is no error', function() {
+        it('resets the documents to the first page', async function() {
           const listener = waitForStates(store, [
             (state) => {
               expect(state.debouncingLoad).to.equal(true);
@@ -1481,16 +1483,16 @@ describe('store', function() {
         });
       });
 
-      context('when there is an error', () => {
-        beforeEach(() => {
+      context('when there is an error', function() {
+        beforeEach(function() {
           store.state.query.filter = { '$iamnotanoperator': 1 };
         });
 
-        afterEach(() => {
+        afterEach(function() {
           store.state.query.filter = {};
         });
 
-        it('resets the documents to the first page', async() => {
+        it('resets the documents to the first page', async function() {
           const listener = waitForState(store, (state) => {
             expect(state.error).to.not.equal(null);
             expect(state.docs).to.have.length(0);
@@ -1505,11 +1507,11 @@ describe('store', function() {
       });
     });
 
-    context('when there is a shard key', () => {
+    context('when there is a shard key', function() {
       let store;
       let actions;
 
-      beforeEach((done) => {
+      beforeEach(function(done) {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1525,11 +1527,11 @@ describe('store', function() {
         dataService.insertOne('config.collections', { _id: 'compass-crud.test', key: { a: 1 } }, {}, done);
       });
 
-      afterEach((done) => {
+      afterEach(function(done) {
         dataService.deleteMany('config.collections', { _id: 'compass-crud.test' }, {}, done);
       });
 
-      it('looks up the shard keys', async() => {
+      it('looks up the shard keys', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.error).to.equal(null);
           expect(state.shardKeys).to.deep.equal({ a: 1 });
@@ -1541,11 +1543,11 @@ describe('store', function() {
       });
     });
 
-    context('with a projection', () => {
+    context('with a projection', function() {
       let store;
       let actions;
 
-      beforeEach((done) => {
+      beforeEach(function(done) {
         actions = configureActions();
         store = configureStore({
           query: { project: {_id: 0} },
@@ -1564,11 +1566,11 @@ describe('store', function() {
         dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
       });
 
-      afterEach((done) => {
+      afterEach(function(done) {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      it('sets the state as not editable', async() => {
+      it('sets the state as not editable', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.isEditable).to.equal(false);
         });
@@ -1579,11 +1581,11 @@ describe('store', function() {
       });
     });
 
-    context('without a projection', () => {
+    context('without a projection', function() {
       let store;
       let actions;
 
-      beforeEach((done) => {
+      beforeEach(function(done) {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1601,11 +1603,11 @@ describe('store', function() {
         dataService.insertOne('compass-crud.test', { name: 'testing' }, {}, done);
       });
 
-      afterEach((done) => {
+      afterEach(function(done) {
         dataService.deleteMany('compass-crud.test', {}, {}, done);
       });
 
-      it('resets the state as editable', async() => {
+      it('resets the state as editable', async function() {
         const listener = waitForState(store, (state) => {
           expect(state.isEditable).to.equal(true);
         });
@@ -1616,7 +1618,7 @@ describe('store', function() {
       });
     });
 
-    context('when the collection is a timeseries', () => {
+    context('when the collection is a timeseries', function() {
       if (!TEST_TIMESERIES) {
         return;
       }
@@ -1624,7 +1626,7 @@ describe('store', function() {
       let store;
       let actions;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1666,11 +1668,11 @@ describe('store', function() {
       });
     });
 
-    context('when cancelling the operation', () => {
+    context('when cancelling the operation', function() {
       let store;
       let actions;
 
-      beforeEach(() => {
+      beforeEach(function() {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1685,7 +1687,7 @@ describe('store', function() {
         });
       });
 
-      it('aborts the queries and kills the sessions', async() => {
+      it('aborts the queries and kills the sessions', async function() {
         const spy = sinon.spy(dataService, 'aggregate');
 
         const listener = waitForStates(store, [
@@ -1733,12 +1735,12 @@ describe('store', function() {
     });
   });
 
-  describe('#getPage', () => {
+  describe('#getPage', function() {
     let store;
     let actions;
     let fetchSpy;
 
-    beforeEach((done) => {
+    beforeEach(function(done) {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1758,28 +1760,28 @@ describe('store', function() {
       dataService.insertMany('compass-crud.test', docs, {}, done);
     });
 
-    afterEach((done) => {
+    afterEach(function(done) {
       dataService.deleteMany('compass-crud.test', {}, {}, done);
     });
 
-    it('does nothing for negative page numbers', async() => {
+    it('does nothing for negative page numbers', async function() {
       await store.getPage(-1);
       expect(fetchSpy.called).to.be.false;
     });
 
-    it('does nothing if documents are already being fetched', async() => {
+    it('does nothing if documents are already being fetched', async function() {
       store.state.status = 'fetching';
       await store.getPage(1);
       expect(fetchSpy.called).to.be.false;
     });
 
-    it('does nothing if the page being requested is past the end', async() => {
+    it('does nothing if the page being requested is past the end', async function() {
       store.state.query.limit = 20;
       await store.getPage(1); // there is only one page of 20
       expect(fetchSpy.called).to.be.false;
     });
 
-    it('does not ask for documents past the end', async() => {
+    it('does not ask for documents past the end', async function() {
       store.state.query.limit = 21;
       await store.getPage(1); // there is only one page of 20
       expect(fetchSpy.called).to.be.true;
@@ -1788,20 +1790,20 @@ describe('store', function() {
       expect(opts.limit).to.equal(1);
     });
 
-    it('sets status fetchedPagination if it succeeds with no filter', async() => {
+    it('sets status fetchedPagination if it succeeds with no filter', async function() {
       await store.getPage(1); // there is only one page of 20
       expect(fetchSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
     });
 
-    it('sets status fetchedPagination if it succeeds with a filter', async() => {
+    it('sets status fetchedPagination if it succeeds with a filter', async function() {
       store.state.query.filter = { i: { $gt: 1 }};
       await store.getPage(1); // there is only one page of 20
       expect(fetchSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
     });
 
-    it('sets status error if it fails', async() => {
+    it('sets status error if it fails', async function() {
       // remove the spy and replace it with a stub
       fetchSpy.restore();
       const fetchStub = sinon.stub(store.dataService, 'fetch').returns(({
@@ -1823,7 +1825,7 @@ describe('store', function() {
       expect(fetchStub.called).to.be.true;
     });
 
-    it('allows the operation to be cancelled', async() => {
+    it('allows the operation to be cancelled', async function() {
       expect(store.state.abortController).to.be.null;
       expect(store.state.sessions).to.be.null;
 
@@ -1843,11 +1845,11 @@ describe('store', function() {
     });
   });
 
-  describe('default query for view with own sort order', () => {
+  describe('default query for view with own sort order', function() {
     let store;
     let actions;
 
-    beforeEach((done) => {
+    beforeEach(function(done) {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1871,14 +1873,14 @@ describe('store', function() {
       });
     });
 
-    afterEach((done) => {
+    afterEach(function(done) {
       dataService.deleteMany('compass-crud.test', {}, {}, (err) => {
         if (err) return done(err);
         dataService.dropView('compass-crud.testview', done);
       });
     });
 
-    it('returns documents in view order', async() => {
+    it('returns documents in view order', async function() {
       const listener = waitForState(store, (state) => {
         expect(state.docs).to.have.lengthOf(4);
         expect(state.docs.map(doc => doc.generateObject())).to.deep.equal([
@@ -1895,16 +1897,16 @@ describe('store', function() {
     });
   });
 
-  describe('#findAndModifyWithFLEFallback', () => {
+  describe('#findAndModifyWithFLEFallback', function() {
     let dataServiceStub;
 
-    beforeEach(() => {
+    beforeEach(function() {
       dataServiceStub = {
         find: sinon.stub().callsFake((ns, query, opts, cb) => cb(undefined, [query]))
       };
     });
 
-    it('does the original findAndModify operation and nothing more if it succeeds', async() => {
+    it('does the original findAndModify operation and nothing more if it succeeds', async function() {
       const document = { _id: 1234 };
       const stub = sinon.stub().callsFake((ds, ns, opts, cb) => { cb(undefined, document); });
       const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
@@ -1916,7 +1918,7 @@ describe('store', function() {
       expect(stub.firstCall.args[2]).to.deep.equal({ returnDocument: 'after', promoteValues: false });
     });
 
-    it('does the original findAndModify operation and nothing more if it fails with a non-FLE error', async() => {
+    it('does the original findAndModify operation and nothing more if it fails with a non-FLE error', async function() {
       const err = new Error('failed');
       const stub = sinon.stub().callsFake((ds, ns, opts, cb) => { cb(err); });
       const [ error, d ] = await findAndModifyWithFLEFallback(dataServiceStub, 'db.coll', stub);
@@ -1928,7 +1930,7 @@ describe('store', function() {
       expect(stub.firstCall.args[2]).to.deep.equal({ returnDocument: 'after', promoteValues: false });
     });
 
-    it('retries findAndModify with FLE returnDocument: "after"', async() => {
+    it('retries findAndModify with FLE returnDocument: "after"', async function() {
       const document = { _id: 1234 };
       const err = Object.assign(new Error('failed'), { code: 6371402 });
       const stub = sinon.stub();
@@ -1950,7 +1952,7 @@ describe('store', function() {
       expect(dataServiceStub.find.firstCall.args[2]).to.deep.equal({ returnDocument: 'before', promoteValues: false });
     });
 
-    it('returns the original error if the fallback find operation fails', async() => {
+    it('returns the original error if the fallback find operation fails', async function() {
       dataServiceStub.find.yields(new Error('find failed'));
       const document = { _id: 1234 };
       const err = Object.assign(new Error('failed'), { code: 6371402 });

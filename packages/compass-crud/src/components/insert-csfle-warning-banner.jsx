@@ -9,7 +9,9 @@ function InsertCSFLEWarningBanner({ csfleState }) {
       The following fields will be encrypted according to the collection schema:&nbsp;
 
       <ul className={css({listStyle: 'inherit'})}>
-        {csfleState.encryptedFields.map(fieldName => <li>{fieldName}</li>)}
+        {csfleState.encryptedFields.map(fieldName => (
+          <li key={fieldName}>{fieldName}</li>
+        ))}
       </ul>
     </div>);
   }
