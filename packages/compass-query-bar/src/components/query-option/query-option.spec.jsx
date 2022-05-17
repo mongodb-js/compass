@@ -6,22 +6,22 @@ import sinon from 'sinon';
 
 import { QueryOption } from './query-option';
 
-describe('QueryOption [Component]', function() {
+describe('QueryOption [Component]', function () {
   let validationFuncStub;
   let onChangeStub;
 
-  beforeEach(function() {
+  beforeEach(function () {
     validationFuncStub = sinon.stub();
     onChangeStub = sinon.stub();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     validationFuncStub = null;
     onChangeStub = null;
   });
 
-  describe('#rendering', function() {
-    it('should render a label and an input as children', function() {
+  describe('#rendering', function () {
+    it('should render a label and an input as children', function () {
       const component = shallow(
         <QueryOption
           label="Test"
@@ -36,15 +36,22 @@ describe('QueryOption [Component]', function() {
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
-          schemaFields={[]} />
+          schemaFields={[]}
+        />
       );
 
-      expect(component.find('[data-test-id="query-bar-option"]').children()).to.have.length(2);
-      expect(component.find('[data-test-id="query-bar-option"]').childAt(0)).to.have.prop('data-test-id', 'query-bar-option-label');
-      expect(component.find('[data-test-id="query-bar-option"]').childAt(1)).to.have.prop('data-test-id', 'query-bar-option-input');
+      expect(
+        component.find('[data-test-id="query-bar-option"]').children()
+      ).to.have.length(2);
+      expect(
+        component.find('[data-test-id="query-bar-option"]').childAt(0)
+      ).to.have.prop('data-test-id', 'query-bar-option-label');
+      expect(
+        component.find('[data-test-id="query-bar-option"]').childAt(1)
+      ).to.have.prop('data-test-id', 'query-bar-option-input');
     });
 
-    it('should render the correct label text', function() {
+    it('should render the correct label text', function () {
       const component = shallow(
         <QueryOption
           label="Test"
@@ -59,13 +66,16 @@ describe('QueryOption [Component]', function() {
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
-          schemaFields={[]} />
+          schemaFields={[]}
+        />
       );
 
-      expect(component.find('[data-test-id="query-bar-option-label"]')).to.have.text('<InfoSprinkle />Test');
+      expect(
+        component.find('[data-test-id="query-bar-option-label"]')
+      ).to.have.text('<InfoSprinkle />Test');
     });
 
-    it('should render an InfoSprinkle with the correct help link', function() {
+    it('should render an InfoSprinkle with the correct help link', function () {
       const component = shallow(
         <QueryOption
           label="Test"
@@ -80,7 +90,8 @@ describe('QueryOption [Component]', function() {
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
-          schemaFields={[]} />
+          schemaFields={[]}
+        />
       );
 
       expect(component.find(InfoSprinkle)).to.have.prop('helpLink', '#');

@@ -11,11 +11,11 @@ class OptionsToggle extends PureComponent {
   static propTypes = {
     actions: PropTypes.object.isRequired,
     className: PropTypes.string,
-    expanded: PropTypes.bool.isRequired
+    expanded: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
   };
 
   onClick = () => {
@@ -31,7 +31,7 @@ class OptionsToggle extends PureComponent {
       'btn-default',
       'btn-xs',
       styles.component,
-      { [ styles['is-open'] ]: expanded },
+      { [styles['is-open']]: expanded },
       className
     );
 
