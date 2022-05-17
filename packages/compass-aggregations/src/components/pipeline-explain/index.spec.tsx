@@ -45,10 +45,7 @@ describe('PipelineExplain', function () {
 
   it('renders error state - non-network error', function () {
     renderPipelineExplain({
-      error: {
-        isNetworkError: false,
-        message: 'Error occurred',
-      },
+      error: 'Error occurred',
     });
     const modal = screen.getByTestId('pipeline-explain-modal');
     expect(within(modal).getByTestId('pipeline-explain-error')).to.exist;
@@ -59,32 +56,6 @@ describe('PipelineExplain', function () {
 
     expect(within(modal).getByTestId('pipeline-explain-footer-close-button')).to
       .exist;
-  });
-
-  it('renders error state - network error', function () {
-    const onRunExplainSpy = spy();
-    renderPipelineExplain({
-      error: {
-        isNetworkError: true,
-        message: 'Error occurred',
-      },
-      onRunExplain: onRunExplainSpy,
-    });
-    const modal = screen.getByTestId('pipeline-explain-modal');
-    expect(within(modal).getByTestId('pipeline-explain-error')).to.exist;
-    expect(within(modal).findByText('Oops! Looks like we hit a network issue.'))
-      .to.exist;
-    // when the modal is open, onRunExplain is called to fetch the explain
-    expect(onRunExplainSpy.callCount).to.equal(1);
-
-    expect(within(modal).getByTestId('pipeline-explain-retry-button')).to.exist;
-    userEvent.click(within(modal).getByTestId('pipeline-explain-retry-button'));
-    expect(onRunExplainSpy.callCount).to.equal(2);
-
-    expect(() => {
-      within(modal).getByTestId('pipeline-explain-footer-close-button'),
-        'does not render footer in network error state';
-    }).to.throw;
   });
 
   it('renders explain results - without stats', function () {

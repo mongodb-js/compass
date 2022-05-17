@@ -1,6 +1,5 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
-import { MongoNetworkError, MongoServerSelectionError } from 'mongodb';
 import type { ThunkAction } from 'redux-thunk';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
@@ -43,7 +42,7 @@ type ExplainFinishedAction = {
 
 type ExplainFailedAction = {
   type: ActionTypes.ExplainFailed;
-  error: ExplainError;
+  error: string;
 };
 
 type ExplainCancelledAction = {
@@ -67,17 +66,12 @@ export type ExplainData = {
   };
 };
 
-type ExplainError = {
-  message: string;
-  isNetworkError: boolean;
-}
-
 export type State = {
   isLoading: boolean;
   isModalOpen: boolean;
   explain?: ExplainData;
   abortController?: AbortController;
-  error?: ExplainError;
+  error?: string;
 };
 
 export const INITIAL_STATE: State = {
@@ -226,14 +220,9 @@ export const explainAggregation = (): ThunkAction<
       }
       dispatch({
         type: ActionTypes.ExplainFailed,
-        error: {
-          message: (e as Error).message,
-          isNetworkError:
-            e instanceof MongoNetworkError ||
-            e instanceof MongoServerSelectionError,
-        },
+        error: (e as Error).message,
       });
-      log.warn(
+      log.error(
         mongoLogId(1_001_000_138),
         'Explain',
         'Failed to run aggregation explain',

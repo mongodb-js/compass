@@ -7,6 +7,7 @@ import {
   H3,
   ModalFooter,
   Button,
+  ErrorSummary,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
@@ -18,12 +19,11 @@ import {
   cancelExplain,
 } from '../../modules/explain';
 import { ExplainResults } from './explain-results';
-import { ExplainError } from './explain-error';
 
 type PipelineExplainProps = {
   isModalOpen: boolean;
   isLoading: boolean;
-  error?: RootState['explain']['error'];
+  error?: string;
   explain?: ExplainData;
   onCloseModal: () => void;
   onRunExplain: () => void;
@@ -65,11 +65,7 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
     );
   } else if (error) {
     content = (
-      <ExplainError
-        message={error.message}
-        isNetworkError={error.isNetworkError}
-        onRetry={onRunExplain}
-      />
+      <ErrorSummary data-testid="pipeline-explain-error" errors={[error]} />
     );
   } else if (explain) {
     content = <ExplainResults plan={explain.plan} stats={explain.stats} />;
@@ -86,8 +82,6 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
     </ModalFooter>
   );
 
-  const isFooterHidden = isLoading || error?.isNetworkError;
-
   return (
     <Modal
       setOpen={onCloseModal}
@@ -96,7 +90,7 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
     >
       <H3>Explain</H3>
       <div className={contentStyles}>{content}</div>
-      {!isFooterHidden && modalFooter}
+      {!isLoading && modalFooter}
     </Modal>
   );
 };
