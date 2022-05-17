@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
 
-import configureStore from '../../src/stores/grid-store';
-import configureActions from '../../src/actions';
+import configureStore from './grid-store';
+import configureActions from '../actions';
 
 describe('store', function() {
   let store;

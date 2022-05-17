@@ -210,6 +210,55 @@ describe('store', function() {
     });
   });
 
+  describe('#copyToClipboard', function() {
+    let store;
+    let actions;
+    let mockCopyToClipboard;
+
+    beforeEach(function() {
+      actions = configureActions();
+      store = configureStore({
+        localAppRegistry: localAppRegistry,
+        globalAppRegistry: globalAppRegistry,
+        actions: actions
+      });
+
+      mockCopyToClipboard = sinon.fake.resolves(null);
+
+      try {
+        sinon.replace(global, 'navigator', {
+          clipboard: {
+            writeText: mockCopyToClipboard,
+          },
+        });
+      } catch (e) {
+        // Electron has the global navigator as a getter.
+        sinon.replaceGetter(
+          global,
+          'navigator',
+          () =>
+            ({
+              clipboard: {
+                writeText: mockCopyToClipboard,
+              },
+            })
+        );
+      }
+    });
+
+    it('copies the document to the clipboard', function() {
+      expect(mockCopyToClipboard.called).to.equal(false);
+
+      const doc = { _id: 'testing', name: 'heart 5' };
+      const hadronDoc = new HadronDocument(doc);
+
+      store.copyToClipboard(hadronDoc);
+      expect(mockCopyToClipboard).to.have.been.calledOnceWithExactly(
+        '{\n  "_id": "testing",\n  "name": "heart 5"\n}'
+      );
+    });
+  });
+
   describe('#toggleInsertDocument', function() {
     let store;
     let actions;

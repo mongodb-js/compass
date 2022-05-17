@@ -141,7 +141,6 @@ class Types extends React.Component {
           <span
             className={`editable-element-type-${type.toLowerCase()}`}
             onMouseDown={this.handleTypeChange.bind(this)}
-            role="button"
           >
             {type}
           </span>
