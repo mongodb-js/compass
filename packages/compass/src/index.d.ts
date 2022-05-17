@@ -47,11 +47,15 @@ declare module 'process' {
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
 
         /**
-         * Enable new aggregation pipeline toolbar
+         * Enable aggregation explain feature
          */
-        COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
-        COMPASS_ENABLE_AGGREGATION_EXPORT?: 'true' | 'false';
         COMPASS_ENABLE_AGGREGATION_EXPLAIN?: 'true' | 'false';
+
+        /**
+         * Enable columnstore index creation and viewing (6.1 feature)
+         * COMPASS-5665
+         */
+        COMPASS_COLUMNSTORE_INDEXES?: 'true';
 
         /**
          * Permanent feature flag for debugging.

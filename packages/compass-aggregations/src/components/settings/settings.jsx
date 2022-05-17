@@ -4,11 +4,7 @@ import classnames from 'classnames';
 import { Label, Description } from '@mongodb-js/compass-components';
 
 import { TextButton } from 'hadron-react-buttons';
-import {
-  DEFAULT_MAX_TIME_MS,
-  DEFAULT_SAMPLE_SIZE,
-  DEFAULT_LARGE_LIMIT
-} from '../../constants';
+import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 
 import styles from './settings.module.less';
 
@@ -78,19 +74,16 @@ class Settings extends PureComponent {
         <div className={classnames(styles['input-group'])}>
           <div className={classnames(styles['input-meta'])}>
             <Label htmlFor='aggregation-limit'>Limit</Label>
-            <Description id="aggregation-limit-description">
-              {global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !==
-              'true' ? (
-                  'Limits input documents before $group, $bucket, and $bucketAuto stages. Set a limit to make the collection run faster.'
-              ) : (
-                <>
-                  Limits input documents before $group, $bucket, and $bucketAuto
-                  stages. Set a limit to make the preview run faster.
-                  <br />
-                  Note: this setting is only applied for the document previews, it is not applied when the pipeline is run.
-                </>
-              )}
-            </Description>
+            <div id="aggregation-limit-description">
+              <Description>
+                Limits input documents before $group, $bucket, and $bucketAuto
+                stages. Set a limit to make the preview run faster.
+              </Description>
+              <Description>
+                Note: this setting is only applied for the document previews, it
+                is not applied when the pipeline is run.
+              </Description>
+            </div>
           </div>
           <div className={classnames(styles['input-control'])}>
             <input
@@ -105,42 +98,6 @@ class Settings extends PureComponent {
         </div>
       );
     }
-  }
-
-  renderMaxTimeMs() {
-    const isNewToolbar =
-      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true';
-    if (isNewToolbar) {
-      return null;
-    }
-
-    const maxTimeMS = this.props.settings.isDirty
-      ? this.props.settings.maxTimeMS
-      : this.props.maxTimeMS;
-
-    return (
-      <div className={classnames(styles['input-group'])}>
-        <div className={classnames(styles['input-meta'])}>
-          <Label htmlFor="aggregation-max-time-ms">Max Time</Label>
-          <Description id="aggregation-max-time-ms-description">
-            Specifies a cumulative time limit in milliseconds for processing
-            operations on a cursor. Max timeout prevents long hang times.
-          </Description>
-        </div>
-        <div className={classnames(styles['input-control'])}>
-          <input
-            id="aggregation-max-time-ms"
-            aria-describedby="aggregation-max-time-ms-description"
-            type="number"
-            placeholder={DEFAULT_MAX_TIME_MS}
-            min="0"
-            step="1000"
-            value={maxTimeMS}
-            onChange={this.onMaxTimeoutChanged.bind(this)}
-          />
-        </div>
-      </div>
-    );
   }
 
   renderFields() {
@@ -189,7 +146,6 @@ class Settings extends PureComponent {
             />
           </div>
         </div>
-        {this.renderMaxTimeMs()}
         {this.renderLargeLimit()}
       </div>
     );

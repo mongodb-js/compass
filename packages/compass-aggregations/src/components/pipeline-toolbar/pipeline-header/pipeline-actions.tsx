@@ -63,7 +63,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isOptionsVisible,
   showRunButton,
   isRunButtonDisabled,
-  showExportButton: _showExportButton,
+  showExportButton,
   isExportButtonDisabled,
   showUpdateViewButton,
   isUpdateViewButtonDisabled,
@@ -75,9 +75,6 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onExplainAggregation,
 }) => {
   const optionsIcon = isOptionsVisible ? 'CaretDown' : 'CaretRight';
-  const showExportButton =
-    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true' &&
-    _showExportButton;
   const showExplainButton =
     process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true';
   const optionsLabel = isOptionsVisible ? 'Less Options' : 'More Options';

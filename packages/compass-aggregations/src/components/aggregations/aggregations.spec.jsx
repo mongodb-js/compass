@@ -5,15 +5,21 @@ import { expect } from 'chai';
 import Aggregations from '../aggregations';
 import configureStore from '../../stores';
 import styles from './aggregations.module.less';
+import { Provider } from 'react-redux';
 
 describe('Aggregations [Component]', function() {
   let component;
 
-  beforeEach(function() {
-    component = mount(<Aggregations store={configureStore()} />);
+  beforeEach(function () {
+    component = mount(
+      <Provider store={configureStore()}>
+        <Aggregations />
+      </Provider>
+    );
   });
 
   afterEach(function() {
+    component.unmount();
     component = null;
   });
 
