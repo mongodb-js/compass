@@ -71,11 +71,11 @@ function FLE2Fields({
       toggled={isFLE2}
       disabled={isTimeSeries || isCapped}
       onToggle={checked => onChangeIsFLE2(checked)}
-      // TODO(COMPASS-5626): Use proper name instead of FLE2
-      label="FLE2"
+      // Queryable Encryption is the user-facing name of FLE2
+      label="Queryable Encryption"
       dataTestId="fle2-fields"
       helpUrl={HELP_URL_FLE2}
-      description="FLE2 collections encrypt a subset of the fields using client-side encryption."
+      description="Encrypt a subset of the fields using Queryable Encryption."
     >
       <FieldSet>
         <Label htmlFor="TODO(COMPASS-5653)">Encrypted fields</Label>
