@@ -167,10 +167,9 @@ export class SshTunnel extends EventEmitter {
         throw err;
       }),
       (() => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         const waitForReady = once(this.sshClient, 'ready', {
           signal: ac.signal,
-        }).then(() => {});
+        }).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
         this.sshClient.connect(getConnectConfig(this.rawConfig));
         return waitForReady;
       })(),
