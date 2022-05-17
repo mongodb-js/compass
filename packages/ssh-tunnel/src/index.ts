@@ -193,11 +193,9 @@ export class SshTunnel extends EventEmitter {
     // don't automatically reconnect if another request comes in
     this.closed = true;
 
-    try {
-      return once(this.sshClient, 'close');
-    } finally {
-      this.sshClient.end();
-    }
+    const promise = once(this.sshClient, 'close');
+    this.sshClient.end();
+    return promise;
   }
 
   private async closeOpenConnections() {
