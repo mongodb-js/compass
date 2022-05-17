@@ -112,8 +112,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         </Button>
       )}
       <MoreOptionsToggle
-        isExpanded={isOptionsVisible}
-        onClick={onToggleOptions}
+        isExpanded={!!isOptionsVisible}
         aria-controls="pipeline-options"
         id="pipeline-toolbar-options"
         data-testid="pipeline-toolbar-options-button"
