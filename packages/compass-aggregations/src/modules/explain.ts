@@ -205,7 +205,7 @@ export const explainAggregation = (): ThunkAction<
         explain.stats = stats;
       } catch (e) {
         log.warn(
-          mongoLogId(1_001_000_125),
+          mongoLogId(1_001_000_137),
           'Explain',
           'Failed to parse aggregation explain',
           { message: (e as Error).message }
@@ -234,7 +234,7 @@ export const explainAggregation = (): ThunkAction<
         },
       });
       log.warn(
-        mongoLogId(1_001_000_124),
+        mongoLogId(1_001_000_138),
         'Explain',
         'Failed to run aggregation explain',
         { message: (e as Error).message }
