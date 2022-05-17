@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { createIndex, createName } from '../create-index';
+import { createIndex } from '../create-index';
 import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
@@ -148,7 +148,7 @@ describe('create index is background module', function () {
       );
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
-    it('generates name if empty', function () {
+    it('does not generate name if empty', function () {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           switch (res.type) {
@@ -195,7 +195,6 @@ describe('create index is background module', function () {
               background: true,
               collation: 'coll',
               expireAfterSeconds: 100,
-              name: 'abc_1',
               partialFilterExpression: { a: 1 },
               unique: true,
             });
@@ -264,26 +263,6 @@ describe('create index is background module', function () {
         'toggleInProgress not called'
       );
       expect(errorSpy.calledOnce).to.equal(true, 'error should be called');
-    });
-  });
-
-  describe('#createName', function () {
-    context('when the index is not a wildcard index', function () {
-      const fields = [{ name: 'name' }, { name: 'age' }];
-      const spec = { name: 1, age: -1 };
-      it('generates a name with all fields and directions', function () {
-        expect(createName(fields, spec)).to.equal('name_1_age_-1');
-      });
-    });
-
-    context('when the index is a wildcard', function () {
-      const fields = [{ name: 'name' }, { name: 'age' }];
-      const spec = { name: '$**name.first', age: '$**age.years' };
-      it('generates a name with all fields and wilcard replacement', function () {
-        expect(createName(fields, spec)).to.equal(
-          'name_wildcardname.first_age_wildcardage.years'
-        );
-      });
     });
   });
 });
