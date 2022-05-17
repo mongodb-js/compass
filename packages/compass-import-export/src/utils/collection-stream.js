@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { Writable } from 'stream';
 import { createDebug } from './logger';
-import { promisify } from 'util';
 
 const debug = createDebug('collection-stream');
 
@@ -76,14 +75,11 @@ class WritableCollectionStream extends Writable {
 
     this.batch = [];
 
-    const bulkWrite = promisify(
-      this._collection().bulkWrite.bind(this._collection())
-    );
     let result;
     let error;
 
     try {
-      result = await bulkWrite(
+      result = await this._collection().bulkWrite(
         documents.map((doc) => ({ insertOne: doc })),
         {
           ordered: this.stopOnErrors,
@@ -96,26 +92,24 @@ class WritableCollectionStream extends Writable {
       // https://jira.mongodb.org/browse/SERVER-66315
       // We check for this specific error and re-try inserting documents one by one.
       if (bulkWriteError.code === 6371202) {
-        const insertOne = promisify(
-          this._collection().insertOne.bind(this._collection())
-        );
+        this.BATCH_SIZE = 1;
 
-        try {
-          let nInserted = 0;
-          await Promise.allSettled(
-            documents.map(async (doc) => {
-              try {
-                await insertOne(doc, {});
-                nInserted += 1;
-              } catch (error) {
-                this._errors.push(error);
-              }
-            })
-          );
-          result = { ok: 1, nInserted };
-        } catch (insertOneByOneError) {
-          error = insertOneByOneError;
+        let nInserted = 0;
+
+        for (const doc of documents) {
+          try {
+            await this._collection().insertOne(doc, {});
+            nInserted += 1;
+          } catch (insertOneByOneError) {
+            this._errors.push(insertOneByOneError);
+
+            if (this.stopOnErrors) {
+              break;
+            }
+          }
         }
+
+        result = { ok: 1, nInserted };
       } else {
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
@@ -129,7 +123,7 @@ class WritableCollectionStream extends Writable {
     // when the operation ends in error, instead of relying on
     // `_mergeBulkOpResult` default argument substitution, we need to keep
     // this OR expression here
-    this._mergeBulkOpResult(result);
+    this._mergeBulkOpResult(result || {});
 
     this.docsWritten = this._stats.nInserted;
     this.docsProcessed += documents.length;
