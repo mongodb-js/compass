@@ -598,6 +598,8 @@ export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
 export const SavePipelineActions = '#save-pipeline-actions';
 export const SavePipelineActionsCreateView = '[data-testid="create-a-view"]';
 export const SavePipelineActionsSaveAs = '[data-testid="save-pipeline-as"]';
+export const AggregationExplainButton = '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
+export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';

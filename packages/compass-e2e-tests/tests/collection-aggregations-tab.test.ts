@@ -19,6 +19,8 @@ async function waitForAnyText(
     return text !== '';
   });
 }
+const initialAggregationToolbarValue = process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
+const initialAggregationExplainValue = process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
 
 describe('Collection aggregations tab', function () {
   let compass: Compass;
@@ -486,6 +488,48 @@ describe('Collection aggregations tab', function () {
       );
       const text = await textElement.getText();
       return text === '(Sample of 1 document)';
+    });
+  });
+
+  describe('Aggregation Explain', function () {
+    let compass: Compass;
+    let browser: CompassBrowser;
+
+    before(async function () {
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
+
+      compass = await beforeTests();
+      browser = compass.browser;
+    });
+
+    beforeEach(async function () {
+      await createNumbersCollection();
+      await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+      // Some tests navigate away from the numbers collection aggregations tab
+      await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+      // Get us back to the empty stage every time. Also test the Create New
+      // Pipeline flow while at it.
+      await browser.clickVisible(Selectors.CreateNewPipelineButton);
+      const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
+      await modalElement.waitForDisplayed();
+      await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
+      await modalElement.waitForDisplayed({ reverse: true });
+    });
+
+    after(async function () {
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = initialAggregationToolbarValue;
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = initialAggregationExplainValue;
+      await afterTests(compass, this.currentTest);
+    });
+
+    afterEach(async function () {
+      await afterTest(compass, this.currentTest);
+    });
+
+    it('shows the explain for a pipeline', async function () {
+      await browser.clickVisible(Selectors.AggregationExplainButton);
+      await browser.waitForAnimations(Selectors.AggregationExplainModal);
     });
   });
 
