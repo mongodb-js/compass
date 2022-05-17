@@ -510,7 +510,8 @@ describe('Collection aggregations tab', function () {
       await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
       // Get us back to the empty stage every time. Also test the Create New
       // Pipeline flow while at it.
-      await browser.clickVisible(Selectors.CreateNewPipelineButton);
+      await browser.clickVisible(Selectors.AggregationToolbarCreateMenu);
+      await browser.clickVisible(Selectors.AggregationToolbarCreateNewPipeline);
       const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
       await modalElement.waitForDisplayed();
       await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
@@ -530,6 +531,9 @@ describe('Collection aggregations tab', function () {
     it('shows the explain for a pipeline', async function () {
       await browser.clickVisible(Selectors.AggregationExplainButton);
       await browser.waitForAnimations(Selectors.AggregationExplainModal);
+
+      const modal = await browser.$(Selectors.AggregationExplainModal);
+      expect(await modal.getText()).to.contain('Query Performance Summary');
     });
   });
 
