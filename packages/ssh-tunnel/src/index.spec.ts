@@ -177,13 +177,9 @@ describe('SSHTunnel', function () {
   });
 
   afterEach(async function () {
-    console.log('stopping ssh tunnel');
     await stopTestSshTunnel();
-    console.log('stopping ssh server');
     await stopTestSshServer();
-    console.log('stopping http server');
     await stopTestHttpServer();
-    console.log('done');
   });
 
   it('should be main export', function () {
@@ -378,5 +374,42 @@ describe('SSHTunnel', function () {
     );
 
     expect(sshTunnel.sshClient.connect.callCount).to.equal(1);
+  });
+
+  it('reconnects if the ssh connection times out while we try and open the channel', async function () {
+    await createTestSshTunnel();
+
+    const forwardOut = sshTunnel.forwardOut;
+    sinon
+      .stub(sshTunnel, 'forwardOut')
+      .callsFake(async function (
+        srcAddr: string,
+        srcPort: number,
+        dstAddr: string,
+        dstPort: number
+      ) {
+        await breakSshTunnelConnection();
+        const promise = forwardOut.call(
+          this,
+          srcAddr,
+          srcPort,
+          dstAddr,
+          dstPort
+        );
+        sshTunnel.forwardOut.restore();
+        return promise;
+      });
+
+    const address = `http://localhost:${httpServer.address().port}/`;
+    const options = {
+      proxyHost: sshTunnel.config.localAddr,
+      proxyPort: sshTunnel.config.localPort,
+    };
+    const expected = 'Hello from http server';
+
+    const res = await httpFetchWithSocks5(address, options);
+    expect(await res.text()).to.equal(expected);
+
+    expect(sshTunnel.sshClient.connect.callCount).to.equal(2);
   });
 });

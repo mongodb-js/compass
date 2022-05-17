@@ -160,16 +160,13 @@ export class SshTunnel extends EventEmitter {
     }
 
     debug('creating SSH connection');
-    const ac = new AbortController();
 
     this.connectingPromise = Promise.race([
-      once(this.sshClient, 'error', { signal: ac.signal }).then(([err]) => {
+      once(this.sshClient, 'error').then(([err]) => {
         throw err;
       }),
       (() => {
-        const waitForReady = once(this.sshClient, 'ready', {
-          signal: ac.signal,
-        }).then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        const waitForReady = once(this.sshClient, 'ready').then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
         this.sshClient.connect(getConnectConfig(this.rawConfig));
         return waitForReady;
       })(),
@@ -178,7 +175,6 @@ export class SshTunnel extends EventEmitter {
     try {
       await this.connectingPromise;
     } catch (err) {
-      ac.abort(); // stop listening for 'ready'
       debug('failed to establish SSH connection', err);
       await this.serverClose();
       throw err;
@@ -186,7 +182,6 @@ export class SshTunnel extends EventEmitter {
 
     delete this.connectingPromise;
     this.connected = true;
-    ac.abort(); // stop listening for 'error'
     debug('created SSH connection');
   }
 
@@ -226,12 +221,31 @@ export class SshTunnel extends EventEmitter {
     try {
       await this.connectSsh();
 
-      const channel = await this.forwardOut(
-        info.srcAddr,
-        info.srcPort,
-        info.dstAddr,
-        info.dstPort
-      );
+      let channel;
+      try {
+        channel = await this.forwardOut(
+          info.srcAddr,
+          info.srcPort,
+          info.dstAddr,
+          info.dstPort
+        );
+      } catch (err) {
+        // Assume that either we were already disconnected or we were in the process of
+        // disconnecting. Either way try and reconnect once then try and open
+        // the channel again. There are multiple different errors that can occur
+        // and rather than try and match exact messages it is probably safer to
+        // asume that any error is a worthy of a retry.
+        this.connected = false;
+        debug('error forwarding. retrying..', info, err);
+        await this.connectSsh();
+        channel = await this.forwardOut(
+          info.srcAddr,
+          info.srcPort,
+          info.dstAddr,
+          info.dstPort
+        );
+      }
+
       debug('channel opened, accepting socks5 request', info);
 
       socket = accept(true);
