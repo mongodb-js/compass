@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import { Writable } from 'stream';
 import { createDebug } from './logger';
+import { promisify } from 'util';
+
 const debug = createDebug('collection-stream');
 
 function mongodbServerErrorToJSError({ index, code, errmsg, op, errInfo }) {
@@ -69,59 +71,87 @@ class WritableCollectionStream extends Writable {
     this._executeBatch(callback);
   }
 
-  _executeBatch(callback) {
+  async _executeBatch(callback) {
     const documents = this.batch;
 
     this.batch = [];
 
-    this._collection().bulkWrite(
-      documents.map((doc) => ({ insertOne: doc })),
-      {
-        ordered: this.stopOnErrors,
-        retryWrites: false,
-        checkKeys: false,
-      },
-      (err, res) => {
+    const bulkWrite = promisify(
+      this._collection().bulkWrite.bind(this._collection())
+    );
+    let result;
+    let error;
+
+    try {
+      result = await bulkWrite(
+        documents.map((doc) => ({ insertOne: doc })),
+        {
+          ordered: this.stopOnErrors,
+          retryWrites: false,
+          checkKeys: false,
+        }
+      );
+    } catch (bulkWriteError) {
+      // Currently, the server does not support batched inserts for FLE2:
+      // https://jira.mongodb.org/browse/SERVER-66315
+      // We check for this specific error and re-try inserting documents one by one.
+      if (bulkWriteError.code === 6371202) {
+        const insertOne = promisify(
+          this._collection().insertOne.bind(this._collection())
+        );
+
+        try {
+          let nInserted = 0;
+          await Promise.allSettled(
+            documents.map(async (doc) => {
+              try {
+                await insertOne(doc, {});
+                nInserted += 1;
+              } catch (error) {
+                this._errors.push(error);
+              }
+            })
+          );
+          result = { ok: 1, nInserted };
+        } catch (insertOneByOneError) {
+          error = insertOneByOneError;
+        }
+      } else {
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
         // result can still be accessed on the error instance
-        const result = (err && err.result && err.result.result) || res;
-
-        // Driver seems to return null instead of undefined in some rare cases
-        // when the operation ends in error, instead of relying on
-        // `_mergeBulkOpResult` default argument substitution, we need to keep
-        // this OR expression here
-        this._mergeBulkOpResult(result || {});
-
-        this.docsProcessed += documents.length;
-
-        this.docsWritten = this._stats.nInserted;
-
-        this._batchCounter++;
-
-        if (err) {
-          this._errors.push(err);
-        }
-
-        this.printJobStats();
-
-        this.emit('progress', {
-          docsWritten: this.docsWritten,
-          docsProcessed: this.docsProcessed,
-          errors: this._errors
-            .concat(this._stats.writeErrors)
-            .concat(this._stats.writeConcernErrors),
-        });
-
-        if (this.stopOnErrors) {
-          return callback(err);
-        }
-
-        return callback();
+        result = bulkWriteError.result && bulkWriteError.result.result;
+        this._errors.push(bulkWriteError);
       }
-    );
+    }
+
+    this._mergeBulkOpResult(result);
+
+    this.docsWritten = this._stats.nInserted;
+    this.docsProcessed += documents.length;
+    this._batchCounter++;
+
+    this.printJobStats();
+
+    this.emit('progress', {
+      docsWritten: this.docsWritten,
+      docsProcessed: this.docsProcessed,
+      errors: this._errors
+        .concat(this._stats.writeErrors)
+        .concat(this._stats.writeConcernErrors),
+    });
+
+    if (this.stopOnErrors) {
+      return callback(error);
+    }
+
+    return callback();
   }
 
+  // Driver seems to return null instead of undefined in some rare cases
+  // when the operation ends in error, instead of relying on
+  // `_mergeBulkOpResult` default argument substitution, we need to keep
+  // this OR expression here
   _mergeBulkOpResult(result = {}) {
     const numKeys = [
       'nInserted',
