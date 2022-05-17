@@ -36,13 +36,14 @@ class OptionsToggle extends PureComponent {
     );
 
     return (
-      <div
+      <button
         className={_className}
         onClick={this.onClick}
-        data-test-id="query-bar-options-toggle">
+        data-test-id="query-bar-options-toggle"
+      >
         <FontAwesome fixedWidth name={symbol} />
         <span data-test-id="query-bar-options-toggle-text">Options</span>
-      </div>
+      </button>
     );
   }
 }

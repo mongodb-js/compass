@@ -50,6 +50,9 @@ function getSshTunnelConfig(config: Partial<SshTunnelConfig>): SshTunnelConfig {
 }
 
 export class SshTunnel extends EventEmitter {
+  private connected = false;
+  private closed = false;
+  private connectingPromise?: Promise<void>;
   private connections: Set<Socket> = new Set();
   private server: any;
   private rawConfig: SshTunnelConfig;
@@ -70,57 +73,16 @@ export class SshTunnel extends EventEmitter {
 
     this.sshClient = new SshClient();
 
+    this.sshClient.on('close', () => {
+      debug('sshClient closed');
+      this.connected = false;
+    });
+
     this.forwardOut = promisify(this.sshClient.forwardOut.bind(this.sshClient));
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    this.server = socks5Server.createServer(
-      async (
-        info: any,
-        accept: (intercept: true) => Socket,
-        deny: () => void
-      ) => {
-        debug('receiving socks5 forwarding request', info);
-        let socket: Socket | null = null;
+    this.server = socks5Server.createServer(this.socks5Request.bind(this));
 
-        try {
-          const channel = await this.forwardOut(
-            info.srcAddr,
-            info.srcPort,
-            info.dstAddr,
-            info.dstPort
-          );
-          debug('channel opened, accepting socks5 request', info);
-
-          socket = accept(true);
-          this.connections.add(socket);
-
-          socket.on('error', (err: ErrorWithOrigin) => {
-            debug('error on socksv5 socket', info, err);
-            err.origin = err.origin ?? 'connection';
-            this.server.emit('error', err);
-          });
-
-          socket.once('close', () => {
-            debug('socksv5 socket closed, removing from set');
-            this.connections.delete(socket as Socket);
-          });
-
-          socket.pipe(channel).pipe(socket);
-        } catch (err) {
-          debug('caught error, rejecting socks5 request', info, err);
-          deny();
-          if (socket) {
-            (err as any).origin = 'ssh-client';
-            socket.destroy(err as any);
-          }
-        }
-      }
-    );
-
-    if (!this.rawConfig.socks5Username) {
-      debug('skipping auth setup for this server');
-      this.server.useAuth(socks5AuthNone());
-    } else {
+    if (this.rawConfig.socks5Username) {
       this.server.useAuth(
         socks5AuthUserPassword(
           (user: string, pass: string, cb: (success: boolean) => void) => {
@@ -132,6 +94,9 @@ export class SshTunnel extends EventEmitter {
           }
         )
       );
+    } else {
+      debug('skipping auth setup for this server');
+      this.server.useAuth(socks5AuthNone());
     }
 
     this.serverListen = promisify(this.server.listen.bind(this.server));
@@ -159,24 +124,7 @@ export class SshTunnel extends EventEmitter {
     debug('starting to listen', { localAddr, localPort });
     await this.serverListen(localPort, localAddr);
 
-    try {
-      debug('creating SSH connection');
-      await Promise.race([
-        once(this.sshClient, 'error').then(([err]) => {
-          throw err;
-        }),
-        (() => {
-          const waitForReady = once(this.sshClient, 'ready') as Promise<[void]>;
-          this.sshClient.connect(getConnectConfig(this.rawConfig));
-          return waitForReady;
-        })(),
-      ]);
-      debug('created SSH connection');
-    } catch (err) {
-      debug('failed to establish SSH connection', err);
-      await this.serverClose();
-      throw err;
-    }
+    await this.connectSsh();
   }
 
   async close(): Promise<void> {
@@ -195,12 +143,60 @@ export class SshTunnel extends EventEmitter {
     }
   }
 
-  private async closeSshClient() {
-    try {
-      return once(this.sshClient, 'close');
-    } finally {
-      this.sshClient.end();
+  private async connectSsh(): Promise<void> {
+    if (this.connected) {
+      debug('already connected');
+      return;
     }
+
+    if (this.connectingPromise) {
+      debug('reusing connectingPromise');
+      return this.connectingPromise;
+    }
+
+    if (this.closed) {
+      // A socks5 request could come in after we deliberately closed the connection. Don't reconnect in that case.
+      throw new Error('Disconnected.');
+    }
+
+    debug('creating SSH connection');
+
+    this.connectingPromise = Promise.race([
+      once(this.sshClient, 'error').then(([err]) => {
+        throw err;
+      }),
+      (() => {
+        const waitForReady = once(this.sshClient, 'ready').then(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
+        this.sshClient.connect(getConnectConfig(this.rawConfig));
+        return waitForReady;
+      })(),
+    ]);
+
+    try {
+      await this.connectingPromise;
+    } catch (err) {
+      debug('failed to establish SSH connection', err);
+      delete this.connectingPromise;
+      await this.serverClose();
+      throw err;
+    }
+
+    delete this.connectingPromise;
+    this.connected = true;
+    debug('created SSH connection');
+  }
+
+  private async closeSshClient() {
+    if (!this.connected) {
+      return;
+    }
+
+    // don't automatically reconnect if another request comes in
+    this.closed = true;
+
+    const promise = once(this.sshClient, 'close');
+    this.sshClient.end();
+    return promise;
   }
 
   private async closeOpenConnections() {
@@ -211,6 +207,68 @@ export class SshTunnel extends EventEmitter {
     });
     await Promise.all(waitForClose);
     this.connections.clear();
+  }
+
+  private async socks5Request(
+    info: any,
+    accept: (intercept: true) => Socket,
+    deny: () => void
+  ): Promise<void> {
+    debug('receiving socks5 forwarding request', info);
+    let socket: Socket | null = null;
+
+    try {
+      await this.connectSsh();
+
+      let channel;
+      try {
+        channel = await this.forwardOut(
+          info.srcAddr,
+          info.srcPort,
+          info.dstAddr,
+          info.dstPort
+        );
+      } catch (err) {
+        if ((err as Error).message === 'Not connected') {
+          this.connected = false;
+          debug('error forwarding. retrying..', info, err);
+          await this.connectSsh();
+          channel = await this.forwardOut(
+            info.srcAddr,
+            info.srcPort,
+            info.dstAddr,
+            info.dstPort
+          );
+        } else {
+          throw err;
+        }
+      }
+
+      debug('channel opened, accepting socks5 request', info);
+
+      socket = accept(true);
+      this.connections.add(socket);
+
+      socket.on('error', (err: ErrorWithOrigin) => {
+        debug('error on socksv5 socket', info, err);
+        err.origin = err.origin ?? 'connection';
+        this.server.emit('error', err);
+      });
+
+      socket.once('close', () => {
+        debug('socksv5 socket closed, removing from set');
+        this.connections.delete(socket as Socket);
+      });
+
+      socket.pipe(channel).pipe(socket);
+    } catch (err) {
+      debug('caught error, rejecting socks5 request', info, err);
+      deny();
+      if (socket) {
+        (err as any).origin = 'ssh-client';
+        socket.destroy(err as any);
+      }
+    }
   }
 }
 

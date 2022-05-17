@@ -65,7 +65,7 @@ const configureStore = (options = {}) => {
         const copyable = state.lastExecutedQuery || this.getInitialState();
 
         for (const key in copyable) {
-          if (copyable.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(copyable, key)) {
             newState[key] = copyable[key];
           }
         }
