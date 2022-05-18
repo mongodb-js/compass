@@ -2,8 +2,8 @@ import { expect } from 'chai';
 
 import { objectContainsRegularExpression } from './utils';
 
-describe('objectContainsRegularExpression', function() {
-  it('tells whether an object contains a regular expression', function() {
+describe('objectContainsRegularExpression', function () {
+  it('tells whether an object contains a regular expression', function () {
     expect(objectContainsRegularExpression(null)).to.equal(false);
     expect(objectContainsRegularExpression(undefined)).to.equal(false);
     expect(objectContainsRegularExpression(1)).to.equal(false);

@@ -128,14 +128,15 @@ var IndexModel = Model.extend({
         if (this.text) {
           return 'text';
         }
+        // Columnstore is before wildcard as it is a special case of wildcard.
+        if (this.columnstore) {
+          return 'columnstore';
+        }
         if (this.wildcard) {
           return 'wildcard';
         }
         if (this.clustered) {
           return 'clustered';
-        }
-        if (this.columnstore) {
-          return 'columnstore';
         }
         return 'regular';
       }

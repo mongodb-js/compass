@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
-import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
+import {
+  Editor,
+  EditorVariant,
+  EditorTextCompleter,
+} from '@mongodb-js/compass-components';
 
 import styles from './option-editor.module.less';
 class OptionEditor extends Component {
@@ -16,7 +20,7 @@ class OptionEditor extends Component {
     onChange: PropTypes.func,
     onApply: PropTypes.func,
     placeholder: PropTypes.string,
-    schemaFields: PropTypes.array
+    schemaFields: PropTypes.array,
   };
 
   static defaultProps = {
@@ -24,7 +28,7 @@ class OptionEditor extends Component {
     value: '',
     serverVersion: '3.6.0',
     autoPopulated: false,
-    schemaFields: []
+    schemaFields: [],
   };
 
   /**
@@ -34,7 +38,11 @@ class OptionEditor extends Component {
    */
   constructor(props) {
     super(props);
-    this.completer = new QueryAutoCompleter(props.serverVersion, EditorTextCompleter, props.schemaFields);
+    this.completer = new QueryAutoCompleter(
+      props.serverVersion,
+      EditorTextCompleter,
+      props.schemaFields
+    );
     this.boundOnFieldsChanged = this.onFieldsChanged.bind(this);
   }
 
@@ -55,7 +63,10 @@ class OptionEditor extends Component {
    */
   shouldComponentUpdate(nextProps) {
     this.boundOnFieldsChanged(nextProps.schemaFields);
-    return nextProps.autoPopulated || nextProps.serverVersion !== this.props.serverVersion;
+    return (
+      nextProps.autoPopulated ||
+      nextProps.serverVersion !== this.props.serverVersion
+    );
   }
 
   /**
@@ -77,8 +88,8 @@ class OptionEditor extends Component {
   onChangeQuery = (newCode) => {
     this.props.onChange({
       target: {
-        value: newCode
-      }
+        value: newCode,
+      },
     });
   };
 
@@ -96,14 +107,14 @@ class OptionEditor extends Component {
         text={this.props.value}
         onChangeText={this.onChangeQuery}
         name={`query-bar-option-input-${this.props.label}`}
-        options={({
+        options={{
           useSoftTabs: true,
           minLines: 1,
           maxLines: 10,
           highlightActiveLine: false,
           showPrintMargin: false,
-          showGutter: false
-        })}
+          showGutter: false,
+        }}
         completer={this.completer}
         placeholder={this.props.placeholder}
         onLoad={(editor) => {
@@ -112,13 +123,15 @@ class OptionEditor extends Component {
           this.editor.commands.addCommand({
             name: 'executeQuery',
             bindKey: {
-              win: 'Enter', mac: 'Enter'
+              win: 'Enter',
+              mac: 'Enter',
             },
             exec: () => {
               this.props.onApply();
-            }
+            },
           });
-        }} />
+        }}
+      />
     );
   }
 }
