@@ -251,13 +251,15 @@ store.onActivated = (appRegistry: AppRegistry) => {
   /**
    * Set the data service in the store when connected.
    */
-  appRegistry.on('data-service-connected', (error, dataService: DataService) => {
-    store.dispatch(dataServiceConnected(error, dataService));
-    void dataService.instance()
-      .then(({ dataLake: { isDataLake } }) => {
+  appRegistry.on(
+    'data-service-connected',
+    (error, dataService: DataService) => {
+      store.dispatch(dataServiceConnected(error, dataService));
+      void dataService.instance().then(({ dataLake: { isDataLake } }) => {
         store.dispatch(dataLakeChanged(isDataLake));
       });
-  });
+    }
+  );
 
   /**
    * When the instance is loaded, set our server version.
