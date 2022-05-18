@@ -26,7 +26,6 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
   plan,
   stats,
 }) => {
-  const doc = new HadronDocument(plan);
   return (
     <div className={containerStyles} data-testid="pipeline-explain-results">
       {stats && (
@@ -38,10 +37,12 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
       )}
       <Card className={cardStyles} data-testid="pipeline-explain-results-json">
         <Document
-          doc={doc}
+          doc={plan}
           editable={false}
           copyToClipboard={() => {
-            void navigator.clipboard.writeText(doc.toEJSON());
+            void navigator.clipboard.writeText(
+              new HadronDocument(plan).toEJSON()
+            );
           }}
         />
       </Card>
