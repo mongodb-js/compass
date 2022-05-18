@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StoreConnector } from 'hadron-react-components';
-import QueryBar from './components/query-bar';
+import LegacyQueryBar from './components/legacy-query-bar';
+import { QueryBar } from './components/query-bar/query-bar';
 
 class Plugin extends Component {
   static displayName = 'QueryBarPlugin';
@@ -16,9 +17,15 @@ class Plugin extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const useNewQueryBar = process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true';
+
     return (
       <StoreConnector store={this.props.store}>
-        <QueryBar actions={this.props.actions} {...this.props} />
+        {useNewQueryBar ? (
+          <QueryBar actions={this.props.actions} {...this.props} />
+        ) : (
+          <LegacyQueryBar actions={this.props.actions} {...this.props} />
+        )}
       </StoreConnector>
     );
   }
