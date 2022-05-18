@@ -18,7 +18,7 @@ const containerStyles = css({
 });
 
 const cardStyles = css({
-  height: '350px',
+  height: `calc(100vh - 450px)`,
   overflowY: 'scroll',
 });
 

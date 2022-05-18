@@ -40,14 +40,18 @@ export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerfor
       >
         <Subtitle>Query Performance Summary</Subtitle>
         <div className={statsStyles}>
-          <div className={statItemStyles}>
-            <Body>Documents returned:</Body>
-            <Body weight="medium">{nReturned}</Body>
-          </div>
-          <div className={statItemStyles}>
-            <Body>Actual query execution time(ms):</Body>
-            <Body weight="medium">{executionTimeMillis}</Body>
-          </div>
+          {nReturned > 0 && (
+            <div className={statItemStyles}>
+              <Body>Documents returned:</Body>
+              <Body weight="medium">{nReturned}</Body>
+            </div>
+          )}
+          {executionTimeMillis > 0 && (
+            <div className={statItemStyles}>
+              <Body>Actual query execution time(ms):</Body>
+              <Body weight="medium">{executionTimeMillis}</Body>
+            </div>
+          )}
           <div className={statItemStyles}>
             <Body className={statTitleStyles}>
               Query used the following indexes:
