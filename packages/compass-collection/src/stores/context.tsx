@@ -373,6 +373,7 @@ const createContext = ({
       ...(role.name === 'Aggregations' && {
         showExportButton: true,
         showRunButton: true,
+        showExplainButton: true,
       }),
     };
 

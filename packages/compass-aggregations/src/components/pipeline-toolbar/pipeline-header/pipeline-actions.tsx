@@ -52,6 +52,7 @@ type PipelineActionsProps = {
   isUpdateViewButtonDisabled?: boolean;
   onUpdateView: () => void;
 
+  showExplainButton?: boolean;
   isExplainButtonDisabled?: boolean;
   onExplainAggregation: () => void;
 
@@ -68,6 +69,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   showUpdateViewButton,
   isUpdateViewButtonDisabled,
   isExplainButtonDisabled,
+  showExplainButton: _showExplainButton,
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
@@ -79,7 +81,8 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true' &&
     _showExportButton;
   const showExplainButton =
-    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true';
+    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true' &&
+    _showExplainButton;
   const optionsLabel = isOptionsVisible ? 'Less Options' : 'More Options';
   return (
     <div className={containerStyles}>

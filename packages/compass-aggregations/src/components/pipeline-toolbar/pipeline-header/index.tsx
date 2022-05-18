@@ -40,6 +40,7 @@ type PipelineHeaderProps = {
   isOptionsVisible: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
+  showExplainButton: boolean;
   onShowSavedPipelines: () => void;
   onToggleOptions: () => void;
   isOpenPipelineVisible: boolean;
@@ -49,6 +50,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   onShowSavedPipelines,
   showRunButton,
   showExportButton,
+  showExplainButton,
   onToggleOptions,
   isOptionsVisible,
   isOpenPipelineVisible,
@@ -78,6 +80,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           isOptionsVisible={isOptionsVisible}
           showRunButton={showRunButton}
           showExportButton={showExportButton}
+          showExplainButton={showExplainButton}
         />
       </div>
     </div>
