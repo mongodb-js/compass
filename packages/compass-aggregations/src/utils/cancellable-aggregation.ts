@@ -108,7 +108,14 @@ export async function explainPipeline({
   signal.addEventListener('abort', abort, { once: true });
   let result = {};
   try {
-    const verbosity = isDataLake ? 'queryPlannerExtended' : 'allPlansExecution';
+    const lastStage = pipeline[pipeline.length - 1] ?? {};
+    const isOutOrMergePipeline =
+      Object.prototype.hasOwnProperty.call(lastStage, '$out') ||
+      Object.prototype.hasOwnProperty.call(lastStage, '$merge');
+    const verbosity = isDataLake
+      ? 'queryPlannerExtended'
+      : isOutOrMergePipeline ? 'queryPlanner' // $out & $merge only work with queryPlanner
+        : 'allPlansExecution';
     result = await raceWithAbort(cursor.explain(verbosity), signal);
   } finally {
     signal.removeEventListener('abort', abort);
