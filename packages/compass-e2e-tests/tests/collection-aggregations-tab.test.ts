@@ -36,7 +36,10 @@ describe('Collection aggregations tab', function () {
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     // Get us back to the empty stage every time. Also test the Create New
     // Pipeline flow while at it.
-    await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    await browser.clickVisible(Selectors.CreateNewPipelineMenuButton);
+    const menuElement = await browser.$(Selectors.CreateNewPipelineMenuContent);
+    await menuElement.waitForDisplayed();
+    await browser.clickVisible(Selectors.CreateNewEmptyPipelineAction);
     const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
     await modalElement.waitForDisplayed();
     await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
@@ -157,7 +160,7 @@ describe('Collection aggregations tab', function () {
 
   it('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
     // set a collation
-    await browser.clickVisible(Selectors.ToggleAggregationCollation);
+    await browser.clickVisible(Selectors.AggregationAdditionalOptionsButton);
     const collationInput = await browser.$(Selectors.AggregationCollationInput);
     await collationInput.waitForDisplayed();
     await collationInput.setValue('{ locale: "af" }');
@@ -256,10 +259,11 @@ describe('Collection aggregations tab', function () {
     });
 
     // open actions
-    await browser.clickVisible(Selectors.SavePipelineActions);
-
+    await browser.clickVisible(Selectors.SavePipelineMenuButton);
+    const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
+    await menuElement.waitForDisplayed();
     // select create view
-    await browser.clickVisible(Selectors.SavePipelineActionsCreateView);
+    await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
 
     // wait for the modal to appear
     const createViewModal = await browser.$(Selectors.CreateViewModal);
@@ -292,14 +296,13 @@ describe('Collection aggregations tab', function () {
 
   it('supports maxTimeMS', async function () {
     // open settings
-    await browser.clickVisible(Selectors.AggregationSettingsButton);
+    await browser.clickVisible(Selectors.AggregationAdditionalOptionsButton);
 
     // set maxTimeMS
-    const sampleSizeElement = await browser.$(Selectors.AggregationMaxTimeMS);
+    const sampleSizeElement = await browser.$(
+      Selectors.AggregationMaxTimeMSInput
+    );
     await sampleSizeElement.setValue('1');
-
-    // apply settings
-    await browser.clickVisible(Selectors.AggregationSettingsApplyButton);
 
     // run a projection that will take lots of time
     await browser.focusStageOperator(0);
@@ -365,10 +368,13 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.stageDelete(1));
 
     // run the $out stage
-    await browser.clickVisible(Selectors.stageOutSaveButton(0));
-
+    await browser.clickVisible(Selectors.RunPipelineButton);
+    const goToCollectionButton = await browser.$(
+      Selectors.GoToCollectionButton
+    );
+    await goToCollectionButton.waitForDisplayed();
     // go to the new collection
-    await browser.clickVisible(Selectors.stageOutCollectionLink(0));
+    await browser.clickVisible(Selectors.GoToCollectionButton);
 
     await browser.waitUntil(
       async function () {
@@ -425,11 +431,14 @@ describe('Collection aggregations tab', function () {
     // delete the stage after $out
     await browser.clickVisible(Selectors.stageDelete(1));
 
-    // run the $out stage
-    await browser.clickVisible(Selectors.stageMergeSaveButton(0));
-
+    // run the $merge stage
+    await browser.clickVisible(Selectors.RunPipelineButton);
+    const goToCollectionButton = await browser.$(
+      Selectors.GoToCollectionButton
+    );
+    await goToCollectionButton.waitForDisplayed();
     // go to the new collection
-    await browser.clickVisible(Selectors.stageMergeCollectionLink(0));
+    await browser.clickVisible(Selectors.GoToCollectionButton);
 
     await browser.waitUntil(
       async function () {
@@ -444,11 +453,10 @@ describe('Collection aggregations tab', function () {
   });
 
   it('allows creating a new pipeline from text', async function () {
-    await browser.clickVisible(Selectors.NewPipelineActions);
-    const menuElement = await browser.$(Selectors.NewPipelineActionsMenu);
+    await browser.clickVisible(Selectors.CreateNewPipelineMenuButton);
+    const menuElement = await browser.$(Selectors.CreateNewPipelineMenuContent);
     await menuElement.waitForDisplayed();
-    const linkElement = await menuElement.$('a=New Pipeline From Text');
-    await linkElement.click();
+    await browser.clickVisible(Selectors.CreateNewPipelineFromTextAction);
 
     const createModal = await browser.$(Selectors.NewPipelineFromTextModal);
     await createModal.waitForDisplayed();

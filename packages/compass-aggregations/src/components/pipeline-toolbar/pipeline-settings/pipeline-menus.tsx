@@ -11,19 +11,20 @@ import { savingPipelineOpen } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 import { VIEWS_MIN_SERVER_VERSION } from '../../../constants';
 
-type PipelineActionMenuProp<ActionType> = {
+type PipelineActionMenuProp<ActionType extends string> = {
   onAction: (action: ActionType) => void;
   title: string;
   glyph: string;
   menuItems: { title: string; action: ActionType }[];
-  dataTestId: string;
+  ['data-testid']: string;
 };
-function PipelineActionMenu<T>({
+
+function PipelineActionMenu<T extends string>({
   onAction,
   title,
   glyph,
   menuItems,
-  dataTestId,
+  ['data-testid']: dataTestId,
 }: PipelineActionMenuProp<T>) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -70,6 +71,7 @@ function PipelineActionMenu<T>({
         <MenuItem
           key={item.title}
           data-action={item.action}
+          data-testid={`${dataTestId}-${item.action}`}
           onClick={onMenuItemClick}
           aria-label={item.title}
         >
@@ -107,7 +109,7 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
   };
   return (
     <PipelineActionMenu<SaveMenuActions>
-      dataTestId="save-menu"
+      data-testid="save-menu"
       title="Save"
       glyph="Save"
       onAction={onAction}
@@ -165,7 +167,7 @@ export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
   };
   return (
     <PipelineActionMenu<CreateMenuActions>
-      dataTestId="create-new-menu"
+      data-testid="create-new-menu"
       title="Create new"
       glyph="Plus"
       onAction={onAction}

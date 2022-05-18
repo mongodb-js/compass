@@ -53,23 +53,9 @@ describe('CollationToolbar [Component]', function() {
     ).to.be.present();
   });
 
-  it('does not render the maxTimeMS label by default', function() {
-    expect(
-      component.find('[data-testid="maxtimems-toolbar-input-label"]')
-    ).not.be.present();
-  });
-
-  it('does not render the maxTimeMS input by default', function() {
-    expect(
-      component.find('[data-testid="max-time-ms"]')
-    ).not.be.present();
-  });
-
   describe('CollationToolbar [Component] with maxTimeMS', function() {
-    const showNewAggregationInitialValue = process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
     let component;
     beforeEach(function() {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
       component = mount(
         <CollationToolbar
           maxTimeMS={1000}
@@ -84,7 +70,6 @@ describe('CollationToolbar [Component]', function() {
 
     afterEach(function() {
       component = null;
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = showNewAggregationInitialValue;
     });
 
     it('renders the maxTimeMS label', function() {
