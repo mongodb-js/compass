@@ -101,7 +101,7 @@ class DocumentList extends React.Component {
     return (
       <div className="loader">
         <CancelLoader
-          dataTestId="fetching-documents"
+          data-testid="fetching-documents"
           progressText="Fetching Documents"
           cancelText="Stop"
           onCancel={this.onCancelClicked.bind(this)}

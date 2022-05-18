@@ -177,7 +177,7 @@ class Schema extends Component {
     return (
       <div className={styles.loader}>
         <CancelLoader
-          dataTestId="analyzing-documents"
+          data-testid="analyzing-documents"
           progressText="Analyzing Documents"
           cancelText="Stop"
           onCancel={this.onCancelClicked.bind(this)}

@@ -152,7 +152,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
       results = (
         <ResultsContainer center>
           <CancelLoader
-            dataTestId="pipeline-results-loader"
+            data-testid="pipeline-results-loader"
             progressText={
               isMergeOrOutPipeline
                 ? `Persisting documents${
