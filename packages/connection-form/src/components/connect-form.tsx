@@ -27,11 +27,13 @@ import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
 
+const csfleFeatureFlag = process?.env?.COMPASS_CSFLE_SUPPORT === 'true';
+
 const formContainerStyles = css({
   margin: 0,
   padding: 0,
   height: 'fit-content',
-  width: spacing[6] * 10,
+  width: spacing[6] * 10 + (csfleFeatureFlag ? 2 : 0),
   position: 'relative',
   display: 'inline-block',
 });

@@ -462,7 +462,7 @@ tests:
             ]
           go: |-
             bson.A{
-                primitive.Undefined,
+                primitive.Undefined{},
                 "1",
                 "2",
             }
@@ -483,7 +483,7 @@ tests:
             ]
           go: |-
             bson.A{
-                primitive.Undefined,
+                primitive.Undefined{},
             }
     - input:
           javascript: "[,,]"
@@ -503,8 +503,8 @@ tests:
             ]
           go: |-
             bson.A{
-                primitive.Undefined,
-                primitive.Undefined,
+                primitive.Undefined{},
+                primitive.Undefined{},
             }
     - input:
           javascript: "['1',,,,'2']"
@@ -528,9 +528,9 @@ tests:
           go: |-
             bson.A{
                 "1",
-                primitive.Undefined,
-                primitive.Undefined,
-                primitive.Undefined,
+                primitive.Undefined{},
+                primitive.Undefined{},
+                primitive.Undefined{},
                 "2",
             }
     Tuple:
@@ -1001,7 +1001,7 @@ tests:
           object: 'null'
           ruby: 'nil'
           rust: 'Bson::Null'
-          go: primitive.Null
+          go: primitive.Null{}
     - input:
           javascript: 'undefined'
           shell: 'undefined'
@@ -1014,7 +1014,7 @@ tests:
           object: 'undefined'
           ruby: 'nil'
           rust: 'Bson::Undefined'
-          go: primitive.Undefined
+          go: primitive.Undefined{}
     string_literals:
     - input:
           javascript: "'string'"
