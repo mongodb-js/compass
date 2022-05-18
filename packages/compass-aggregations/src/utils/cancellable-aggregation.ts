@@ -74,12 +74,14 @@ export async function explainPipeline({
   namespace,
   pipeline,
   options,
+  isDataLake,
 }: {
   dataService: DataService;
   signal: AbortSignal;
   namespace: string;
   pipeline: Document[];
   options: AggregateOptions;
+    isDataLake: boolean;
 }): Promise<Document> {
   if (signal.aborted) {
     return Promise.reject(createCancelError());
@@ -106,7 +108,6 @@ export async function explainPipeline({
   signal.addEventListener('abort', abort, { once: true });
   let result = {};
   try {
-    const { dataLake: { isDataLake } } = await dataService.instance();
     const verbosity = isDataLake ? 'queryPlannerExtended' : 'allPlansExecution';
     result = await raceWithAbort(cursor.explain(verbosity), signal);
   } finally {

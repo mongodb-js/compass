@@ -134,6 +134,7 @@ export const explainAggregation = (): ThunkAction<
 > => {
   return async (dispatch, getState) => {
     const {
+      isDataLake,
       pipeline,
       namespace,
       maxTimeMS,
@@ -164,7 +165,8 @@ export const explainAggregation = (): ThunkAction<
         signal,
         namespace,
         pipeline: pipeline.map(generateStage).filter(x => Object.keys(x).length > 0),
-        options
+        options,
+        isDataLake,
       });
 
       const explain: ExplainData = {

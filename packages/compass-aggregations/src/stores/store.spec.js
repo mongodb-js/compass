@@ -263,6 +263,7 @@ describe('Aggregation Store', function() {
             workspace: INITIAL_STATE.workspace,
             countDocuments: INITIAL_STATE.countDocuments,
             explain: INITIAL_STATE.explain,
+            isDataLake: INITIAL_STATE.isDataLake,
           });
         });
       });
