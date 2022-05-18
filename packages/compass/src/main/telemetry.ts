@@ -41,12 +41,19 @@ class CompassTelemetry {
 
   private static initPromise: Promise<void> | null = null;
 
-  private static _track(info: EventInfo) {
-    const commonProperties = {
-      compass_version: app.getVersion().split('.').slice(0, 2).join('.'), // only major.minor
+  private static _getCommonProperties() {
+    // Used in both track and identify to add common traits
+    // to any event that we send to segment
+    return {
+      compass_version: app.getVersion().split('.').slice(0, 2).join('.'),
+      compass_full_version: app.getVersion(),
       compass_distribution: process.env.HADRON_DISTRIBUTION,
       compass_channel: process.env.HADRON_CHANNEL,
     };
+  }
+
+  private static _track(info: EventInfo) {
+    const commonProperties = this._getCommonProperties();
 
     if (
       this.state === 'waiting-for-user-config' ||
@@ -95,14 +102,13 @@ class CompassTelemetry {
       this.telemetryAnonymousId
     ) {
       void getOsInfo()
-        .catch(() => ({}))
+        .catch(() => ({})) // still identify even if getOsInfo fails
         .then((osInfo) => {
           this.analytics?.identify({
             userId: this.currentUserId,
             anonymousId: this.telemetryAnonymousId,
             traits: {
-              channel: process.env.HADRON_CHANNEL,
-              distribution: process.env.HADRON_DISTRIBUTION,
+              ...this._getCommonProperties(),
               platform: process.platform,
               arch: process.arch,
               ...osInfo,
@@ -182,7 +188,8 @@ class CompassTelemetry {
   }
 
   static init(app: typeof CompassApplication): Promise<void> {
-    return (this.initPromise ??= this._init(app));
+    this.initPromise ??= Promise.resolve(this._init(app));
+    return this.initPromise;
   }
 
   static track(info: EventInfo): void {
