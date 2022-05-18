@@ -908,7 +908,7 @@ const aggregate = (
   index: number
 ) => {
   const options: AggregateOptions = {
-    maxTimeMS: getState().maxTimeMS || DEFAULT_MAX_TIME_MS,
+    maxTimeMS: getState().maxTimeMS ?? DEFAULT_MAX_TIME_MS,
     allowDiskUse: true,
     collation: getState().collation || undefined
   };

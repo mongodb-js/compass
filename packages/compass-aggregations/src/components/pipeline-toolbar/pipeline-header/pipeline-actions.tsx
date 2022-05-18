@@ -45,7 +45,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isOptionsVisible,
   showRunButton,
   isRunButtonDisabled,
-  showExportButton: _showExportButton,
+  showExportButton,
   isExportButtonDisabled,
   showUpdateViewButton,
   isUpdateViewButtonDisabled,
@@ -56,9 +56,6 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onExportAggregationResults,
   onExplainAggregation,
 }) => {
-  const showExportButton =
-    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPORT === 'true' &&
-    _showExportButton;
   const showExplainButton =
     process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true';
   return (

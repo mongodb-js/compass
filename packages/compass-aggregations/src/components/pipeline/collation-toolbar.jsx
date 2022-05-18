@@ -69,8 +69,6 @@ class CollationToolbar extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
-    const isNewToolbar =
-      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true';
     return (
       <div
         data-testid="legacy-collation-toolbar"
@@ -100,30 +98,28 @@ class CollationToolbar extends PureComponent {
             onChange={this.onCollationChange}
             value={this.props.collationString}
           />
-          {isNewToolbar && (
-            <div className={classnames(styles['max-time-ms'])}>
-              <div
-                className={classnames(styles['toolbar-input-label'])}
-                data-testid="maxtimems-toolbar-input-label"
-              >
-                <InfoSprinkle
-                  helpLink={HELP_URL_MAX_TIME_MS}
-                  onClickHandler={this.props.openLink}
-                />
-                Max Time MS
-              </div>
-              <input
-                data-testid="max-time-ms"
-                id="max-time-limit"
-                aria-describedby="max-time-limit"
-                type="number"
-                min="0"
-                placeholder={DEFAULT_MAX_TIME_MS}
-                value={this.props.maxTimeMS}
-                onChange={this.onMaxTimeMsChanged}
+          <div className={classnames(styles['max-time-ms'])}>
+            <div
+              className={classnames(styles['toolbar-input-label'])}
+              data-testid="maxtimems-toolbar-input-label"
+            >
+              <InfoSprinkle
+                helpLink={HELP_URL_MAX_TIME_MS}
+                onClickHandler={this.props.openLink}
               />
+              Max Time MS
             </div>
-          )}
+            <input
+              data-testid="max-time-ms"
+              id="max-time-limit"
+              aria-describedby="max-time-limit"
+              type="number"
+              min="0"
+              placeholder={DEFAULT_MAX_TIME_MS}
+              value={this.props.maxTimeMS ?? ''}
+              onChange={this.onMaxTimeMsChanged}
+            />
+          </div>
         </div>
       </div>
     );

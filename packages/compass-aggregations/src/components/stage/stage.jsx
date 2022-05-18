@@ -168,10 +168,7 @@ class Stage extends Component {
   renderResizableEditor() {
     const { isAutoPreviewing } = this.props;
     const editor = this.renderEditor();
-    if (
-      !isAutoPreviewing &&
-      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true'
-    ) {
+    if (!isAutoPreviewing) {
       return <div className={styles['stage-editor-no-preview']}>{editor}</div>;
     }
     return (
@@ -237,8 +234,6 @@ class Stage extends Component {
    */
   render() {
     const opacity = this.getOpacity();
-    const isPreviewHidden = !this.props.isAutoPreviewing
-      && global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR ==='true';
     return (
       <div
         data-test-id="stage-container"
@@ -251,7 +246,7 @@ class Stage extends Component {
           [styles['stage-errored']]: this.props.error
         })} style={{ opacity }}>
           {this.renderResizableEditor()}
-          {!isPreviewHidden && this.renderPreview()}
+          {this.props.isAutoPreviewing && this.renderPreview()}
         </div>
       </div>
     );

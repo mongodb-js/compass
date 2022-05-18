@@ -8,17 +8,11 @@ import { DATA_SERVICE_CONNECTED } from './data-service';
 import { spy } from 'sinon';
 import { stageOperatorSelected, stageChanged, stageAddedAfter } from './pipeline';
 
-const initialToolbarValue = process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
 
 describe('auto preview module', function () {
   let store: Store<RootState>;
   beforeEach(function () {
     store = configureStore({});
-    process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
-  });
-
-  afterEach(function() {
-    process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = initialToolbarValue;
   });
 
   it('returns the default state', function () {
