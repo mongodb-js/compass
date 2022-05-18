@@ -47,10 +47,8 @@ declare module 'process' {
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
 
         /**
-         * Enable new aggregation pipeline toolbar
+         * Enable aggregation explain feature
          */
-        COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR?: 'true';
-        COMPASS_ENABLE_AGGREGATION_EXPORT?: 'true' | 'false';
         COMPASS_ENABLE_AGGREGATION_EXPLAIN?: 'true' | 'false';
 
         /**

@@ -1,9 +1,7 @@
-import { DEFAULT_MAX_TIME_MS } from '../constants';
-
 export const MAX_TIME_MS_CHANGED =
   'aggregations/max-time-ms/MAX_TIME_MS_CHANGED';
 
-export const INITIAL_STATE = DEFAULT_MAX_TIME_MS;
+export const INITIAL_STATE = null;
 
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === MAX_TIME_MS_CHANGED) {
@@ -14,5 +12,5 @@ export default function reducer(state = INITIAL_STATE, action) {
 
 export const maxTimeMSChanged = value => ({
   type: MAX_TIME_MS_CHANGED,
-  maxTimeMS: value
+  maxTimeMS: isNaN(value) ? null : value
 });

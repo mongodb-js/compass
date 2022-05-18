@@ -264,7 +264,7 @@ const fetchAggregationData = (
         .filter((stage) => Object.keys(stage).length > 0);
 
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS || DEFAULT_MAX_TIME_MS,
+        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collation || undefined
       };
 

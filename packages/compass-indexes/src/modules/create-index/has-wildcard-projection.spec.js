@@ -2,15 +2,17 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  toggleIsWildcard,
-  TOGGLE_IS_WILDCARD,
-} from '../create-index/is-wildcard';
+  toggleHasWildcardProjection,
+  TOGGLE_HAS_WILDCARD_PROJECTION,
+} from '../create-index/has-wildcard-projection';
 
-describe('create index is wildcard module', function () {
+describe('create index has wildcard projection module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, toggleIsWildcard(true))).to.equal(true);
+        expect(reducer(undefined, toggleHasWildcardProjection(true))).to.equal(
+          true
+        );
       });
     });
 
@@ -21,11 +23,11 @@ describe('create index is wildcard module', function () {
     });
   });
 
-  describe('#toggleIsWildcard', function () {
+  describe('#toggleHasWildcardProjection', function () {
     it('returns the action', function () {
-      expect(toggleIsWildcard(false)).to.deep.equal({
-        type: TOGGLE_IS_WILDCARD,
-        isWildcard: false,
+      expect(toggleHasWildcardProjection(false)).to.deep.equal({
+        type: TOGGLE_HAS_WILDCARD_PROJECTION,
+        hasWildcardProjection: false,
       });
     });
   });

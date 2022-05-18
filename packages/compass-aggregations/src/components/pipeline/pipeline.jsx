@@ -8,8 +8,6 @@ import { Banner } from '@mongodb-js/compass-components';
 
 import SavePipeline from '../save-pipeline';
 import Settings from '../settings';
-import LegacyPipelineToolbar from '../legacy-pipeline-toolbar';
-import CollationToolbar from './collation-toolbar';
 import RestorePipelineModal from './modals/restore-pipeline-modal';
 import ImportPipeline from './modals/import-pipeline';
 import ConfirmImportPipeline from './modals/confirm-import-pipeline';
@@ -138,33 +136,6 @@ class Pipeline extends PureComponent {
     largeLimit: DEFAULT_LARGE_LIMIT,
   };
 
-  /**
-   * Render the collation toolbar if neccessary.
-   *
-   * @returns {Component} The component.
-   */
-  renderCollationToolbar() {
-    // We don't show collation outside toolbar in new implementation.
-    // We are using the component in new implementation as well, but inside Toolbar
-    if (
-      this.props.isCollationExpanded &&
-      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true'
-    ) {
-      return (
-        <div className={styles['pipeline-collation-toolbar-container']}>
-          <CollationToolbar
-            collation={this.props.collation}
-            collationChanged={this.props.collationChanged}
-            collationString={this.props.collationString}
-            collationStringChanged={this.props.collationStringChanged}
-            openLink={this.props.openLink}
-          />
-        </div>
-      );
-    }
-    return null;
-  }
-
   renderModifyingViewSourceError() {
     if (this.props.updateViewError) {
       return (
@@ -219,43 +190,6 @@ class Pipeline extends PureComponent {
   }
 
   renderPipelineToolbar() {
-    if (global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR !== 'true') {
-      return (
-        <LegacyPipelineToolbar
-          isAtlasDeployed={this.props.isAtlasDeployed}
-          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
-          updateView={this.props.updateView}
-          getSavedPipelines={this.props.getSavedPipelines}
-          exportToLanguage={this.props.exportToLanguage}
-          saveCurrentPipeline={this.props.saveCurrentPipeline}
-          savedPipeline={this.props.savedPipeline}
-          newPipelineFromText={this.props.newPipelineFromText}
-          clonePipeline={this.props.clonePipeline}
-          toggleComments={this.props.toggleComments}
-          toggleSample={this.props.toggleSample}
-          toggleAutoPreview={this.props.toggleAutoPreview}
-          nameChanged={this.props.nameChanged}
-          setIsModified={this.props.setIsModified}
-          editViewName={this.props.editViewName}
-          isModified={this.props.isModified}
-          isCommenting={this.props.isCommenting}
-          isSampling={this.props.isSampling}
-          isAutoPreviewing={this.props.isAutoPreviewing}
-          collationCollapseToggled={this.props.collationCollapseToggled}
-          isCollationExpanded={this.props.isCollationExpanded}
-          name={this.props.name}
-          isOverviewOn={this.props.isOverviewOn}
-          toggleOverview={this.props.toggleOverview}
-          toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
-          isFullscreenOn={this.props.isFullscreenOn}
-          toggleFullscreen={this.props.toggleFullscreen}
-          savingPipelineOpen={this.props.savingPipelineOpen}
-          serverVersion={this.props.serverVersion}
-          openCreateView={this.props.openCreateView}
-          setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
-        />
-      );
-    }
     return (
       <PipelineToolbar
         showRunButton={this.props.showRunButton}
@@ -361,7 +295,6 @@ class Pipeline extends PureComponent {
         )}
       >
         {this.renderPipelineToolbar()}
-        {this.renderCollationToolbar()}
         {this.renderModifyingViewSourceError()}
         {this.renderPipelineWorkspace()}
         {this.renderSavePipeline()}
