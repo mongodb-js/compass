@@ -47,6 +47,7 @@ Templates:
     DriverTemplate: &DriverTemplate !!js/function >
         (spec) => {
             const options = spec.options;
+            const uri = spec.options.uri
             const filter = spec.filter || {};
             delete spec.options;
             delete spec.filter;
@@ -62,7 +63,7 @@ Templates:
                 .concat('ctx := context.TODO()')
                 .concat(this.declarations.length() > 0 ? `\n${this.declarations.toString()}\n` : '')
                 .concat('// Set client options')
-                .concat('clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")')
+                .concat(`clientOptions := options.Client().ApplyURI("${uri}")`)
                 .concat('')
                 .concat('// Connect to MongoDB')
                 .concat('client, err := mongo.Connect(ctx, clientOptions)')
@@ -240,9 +241,9 @@ Templates:
             return `${indent}${arg},`;
         }
     NullTypeTemplate: &NullTypeTemplate !!js/function >
-        () => 'primitive.Null'
+        () => 'primitive.Null{}'
     UndefinedTypeTemplate: &UndefinedTypeTemplate !!js/function >
-        () => 'primitive.Undefined'
+        () => 'primitive.Undefined{}'
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) =>  `bson.D{${literal}}`
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
@@ -934,6 +935,7 @@ Templates:
         (args) => {
             return [
                     "go.mongodb.org/mongo-driver/mongo",
+                    "go.mongodb.org/mongo-driver/mongo/options",
                     "context",
                     "log"
             ]

@@ -22,14 +22,14 @@ const csfleBannerStyles = css({
 function CSFLEConnectionModal({ csfleMode, open, setOpen, setConnectionIsCSFLEEnabled }) {
   return (<Modal
     open={open}
-    title="Client-Side Field-Level Encryption"
+    title="In-Use Encryption"
     trackingId="csfle_connection_modal"
     setOpen={setOpen}
   >
     <div>
-      <ModalTitle>CSFLE Connection Options</ModalTitle>
+      <ModalTitle>In-Use Encryption Connection Options</ModalTitle>
       <Body>
-          This connection is configured with Client-Side Field-Level Encryption enabled.
+          This connection is configured with In-Use Encryption enabled.
       </Body>
       <div className={toggleContainerStyles}>
         <Toggle
@@ -47,18 +47,19 @@ function CSFLEConnectionModal({ csfleMode, open, setOpen, setConnectionIsCSFLEEn
           id="set-csfle-enabled-label"
           htmlFor="set-csfle-enabled"
         >
-            Enable CSFLE for this connection
+            Enable In-Use Encryption for this connection
         </Label>
       </div>
       <Description>
-          Disabling CSFLE only affects how Compass accesses data.
+          Disabling In-Use Encryption only affects how Compass accesses data.
           In order to make Compass forget KMS credentials, the
           connection must be fully closed.
       </Description>
     </div>
     <Banner className={csfleBannerStyles}>
-        Client-side Field-Level Encryption is an Enterprise/Atlas-only feature
+        In-Use Encryption is an Enterprise/Atlas-only feature
         of MongoDB.&nbsp;
+      {/* TODO(COMPASS-5777): Use generic In-Use Encryption documentation URL instead of FLE1-specific one */}
       <Link href="https://www.mongodb.com/docs/drivers/security/client-side-field-level-encryption-guide/">
           Learn More
       </Link>
