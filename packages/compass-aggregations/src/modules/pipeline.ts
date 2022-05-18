@@ -348,7 +348,7 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
   );
 
   const { isValid } = validateStage(newState[action.index]);
-  newState[action.index].isValid = false;
+  newState[action.index].isValid = isValid;
   // Clear the error message because the user just changed the operator. Even
   // though the text wouldn't have changed if the user has edited it.
   newState[action.index].syntaxError = null;
