@@ -34,8 +34,8 @@ function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
   const buttonProps = mergeProps(
     {
       type: 'button',
-      'aria-label': 'Open connection CSFLE configuration',
-      title: 'Connection CSFLE configuration',
+      'aria-label': 'Open connection In-Use Encryption configuration',
+      title: 'Connection In-Use Encryption configuration',
       className: badgeButtonStyles,
       onClick: () => toggleCSFLEModalVisible()
     },
@@ -47,7 +47,7 @@ function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
       <button {...buttonProps}>
         <Badge variant={csfleMode === 'enabled' ? BadgeVariant.DarkGray : BadgeVariant.LightGray}>
           <Icon glyph="Key" />
-          CSFLE
+          In-Use Encryption
         </Badge>
       </button>
     </div>
