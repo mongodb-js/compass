@@ -52,12 +52,6 @@ declare module 'process' {
         COMPASS_ENABLE_AGGREGATION_EXPLAIN?: 'true' | 'false';
 
         /**
-         * Enable columnstore index creation and viewing (6.1 feature)
-         * COMPASS-5665
-         */
-        COMPASS_COLUMNSTORE_INDEXES?: 'true';
-
-        /**
          * Permanent feature flag for debugging.
          */
         COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';
