@@ -320,33 +320,43 @@ const moveStage = (state: State, action: AnyAction): State => {
 const selectStageOperator = (state: State, action: AnyAction): State => {
   const operatorName = action.stageOperator;
   const oldStage = state[action.index];
-  if (operatorName !== oldStage.stageOperator) {
-    const newState = copyState(state);
-    // if the value of the existing state operator has not been modified by user,
-    // we can easily replace it or else persist the one user changed
-    let value = getStageDefaultValue(operatorName, action.isCommenting, action.env);
-    if (hasUserChangedStage(oldStage, action.env)) {
-      value = oldStage.stage;
-    }
-    newState[action.index].stageOperator = operatorName;
-    newState[action.index].stage = value;
-    newState[action.index].isExpanded = true;
-    newState[action.index].isComplete = false;
-    newState[action.index].previewDocuments = [];
-    if (
-      [SEARCH, SEARCH_META, DOCUMENTS].includes(newState[action.index].stageOperator) &&
-      action.env !== ADL && action.env !== ATLAS
-    ) {
-      newState[action.index].isMissingAtlasOnlyStageSupport = true;
-    } else {
-      newState[action.index].isMissingAtlasOnlyStageSupport = false;
-    }
-    const { isValid, syntaxError } = validateStage(newState[action.index]);
-    newState[action.index].isValid = isValid;
-    newState[action.index].syntaxError = syntaxError;
-    return newState;
+
+  if (operatorName === oldStage.stageOperator) {
+    return state;
   }
-  return state;
+
+  // If the value of the existing state operator has not been modified by user,
+  // we can easily replace it or else persist the one user changed
+  let value;
+  if (hasUserChangedStage(oldStage, action.env)) {
+    value = oldStage.stage;
+  }
+  else {
+    value = getStageDefaultValue(operatorName, action.isCommenting, action.env);
+  }
+
+  const newState = copyState(state);
+
+  newState[action.index].stageOperator = operatorName;
+  newState[action.index].stage = value;
+  newState[action.index].isExpanded = true;
+  newState[action.index].isComplete = false;
+  newState[action.index].previewDocuments = [];
+  newState[action.index].isMissingAtlasOnlyStageSupport = !!(
+    [SEARCH, SEARCH_META, DOCUMENTS].includes(operatorName) &&
+    action.env !== ADL && action.env !== ATLAS
+  );
+
+  // Re-validate the stage according to the new operator
+  const { isValid, syntaxError } = validateStage(newState[action.index]);
+  newState[action.index].isValid = isValid;
+  newState[action.index].syntaxError = syntaxError;
+
+  // Clear the server error when we change the stage operator because it isn't
+  // relevant anymore
+  newState[action.index].error = null;
+
+  return newState;
 };
 
 export const replaceOperatorSnippetTokens = (str: string): string => {

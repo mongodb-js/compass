@@ -124,6 +124,10 @@ import explain, {
   INITIAL_STATE as EXPLAIN_INITIAL_STATE
 } from './explain';
 
+import isDataLake, {
+  INITIAL_STATE as DATALAKE_INITIAL_STATE
+} from './is-datalake';
+
 import workspace, {
   INITIAL_STATE as WORKSPACE_INITIAL_STATE
 } from './workspace';
@@ -182,6 +186,7 @@ export const INITIAL_STATE = {
   workspace: WORKSPACE_INITIAL_STATE,
   countDocuments: COUNT_INITIAL_STATE,
   explain: EXPLAIN_INITIAL_STATE,
+  isDataLake: DATALAKE_INITIAL_STATE,
 };
 
 /**
@@ -263,6 +268,7 @@ const appReducer = combineReducers({
   countDocuments,
   aggregationWorkspaceId,
   explain,
+  isDataLake,
 });
 
 export type RootState = ReturnType<typeof appReducer>;

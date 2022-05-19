@@ -13,7 +13,7 @@ import {
 } from '../../../modules/aggregation';
 import { isEmptyishStage } from '../../../modules/stage';
 import { updateView } from '../../../modules/update-view';
-import { openExplainModal } from '../../../modules/explain';
+import { explainAggregation } from '../../../modules/explain';
 
 const containerStyles = css({
   display: 'flex',
@@ -34,6 +34,7 @@ type PipelineActionsProps = {
   isUpdateViewButtonDisabled?: boolean;
   onUpdateView: () => void;
 
+  showExplainButton?: boolean;
   isExplainButtonDisabled?: boolean;
   onExplainAggregation: () => void;
 
@@ -50,6 +51,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   showUpdateViewButton,
   isUpdateViewButtonDisabled,
   isExplainButtonDisabled,
+  showExplainButton: _showExplainButton,
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
@@ -57,7 +59,8 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onExplainAggregation,
 }) => {
   const showExplainButton =
-    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true';
+    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true' &&
+    _showExplainButton;
   return (
     <div className={containerStyles}>
       {showUpdateViewButton && (
@@ -147,7 +150,7 @@ const mapDispatch = {
   onUpdateView: updateView,
   onRunAggregation: runAggregation,
   onExportAggregationResults: exportAggregationResults,
-  onExplainAggregation: openExplainModal,
+  onExplainAggregation: explainAggregation,
 };
 
 export default connect(mapState, mapDispatch)(PipelineActions);
