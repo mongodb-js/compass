@@ -12,6 +12,7 @@ import {
 
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { setEditorValue } from '@mongodb-js/compass-components';
+import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';
 
@@ -48,13 +49,13 @@ describe('In-Use Encryption', function () {
 
   beforeEach(async function () {
     if (process?.env?.COMPASS_CSFLE_SUPPORT !== 'true') {
-      this.skip();
+      return this.skip();
     }
 
     const connectSpy = sinon.spy();
 
     expectToConnectWith = async (
-      expected: ConnectionOptions
+      expected: ConnectionOptions | ((ConnectionOptions) => void)
     ): Promise<void> => {
       connectSpy.resetHistory();
       fireEvent.click(screen.getByTestId('connect-button'));
@@ -67,7 +68,11 @@ describe('In-Use Encryption', function () {
         throw new Error(`connect was not called: errors = ${errors ?? ''}`);
       }
 
-      expect(connectSpy.getCall(0).args[0]).to.be.deep.equal(expected);
+      if (typeof expected === 'function') {
+        expected(connectSpy.getCall(0).args[0]);
+      } else {
+        expect(connectSpy.getCall(0).args[0]).to.be.deep.equal(expected);
+      }
     };
 
     expectConnectionError = async (expectedErrorText: string) => {
@@ -138,7 +143,7 @@ describe('In-Use Encryption', function () {
   it('allows to set encrypted fields map', async function () {
     setEditorValue(
       screen.getByTestId('encrypted-fields-map-editor'),
-      '{ "db.coll": { fields: [] } }'
+      '{ "db.coll": { fields: [{path: "foo", bsonType: "string", keyId: UUID("11d58b8a-0c6c-4d69-a0bd-70c6d9befae9") }] } }'
     );
 
     await expectToConnectWith({
@@ -149,8 +154,20 @@ describe('In-Use Encryption', function () {
           keyVaultNamespace: 'db.coll',
           encryptedFieldsMap: {
             '$compass.error': null,
-            '$compass.rawText': '{ "db.coll": { fields: [] } }',
-            'db.coll': { fields: [] },
+            '$compass.rawText':
+              '{ "db.coll": { fields: [{path: "foo", bsonType: "string", keyId: UUID("11d58b8a-0c6c-4d69-a0bd-70c6d9befae9") }] } }',
+            'db.coll': {
+              fields: [
+                {
+                  bsonType: 'string',
+                  keyId: new Binary(
+                    Buffer.from('11d58b8a0c6c4d69a0bd70c6d9befae9', 'hex'),
+                    4
+                  ),
+                  path: 'foo',
+                },
+              ],
+            },
           },
         },
       },
