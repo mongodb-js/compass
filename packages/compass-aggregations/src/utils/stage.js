@@ -103,6 +103,17 @@ const isSearchOnView = ({ oName, isTimeSeries, isReadonly, sourceName }) =>
   [SEARCH, SEARCH_META, DOCUMENTS].includes(oName) &&
   (isTimeSeries || (isReadonly && !!sourceName));
 
+
+/**
+ * Some stages only work with db.aggregate and not coll.aggregate
+ *
+ * @param {Object} options
+ * @property {String} oName - The stage name.
+ *
+ * @returns {boolean} If the stage is only works on db aggregations.
+ */
+const isDbOnly = ({ oName }) => [DOCUMENTS].includes(oName);
+
 /**
  * Filters stage operators by server version.
  *
@@ -125,6 +136,7 @@ export const filterStageOperators = ({ serverVersion, allowWrites, env, isTimeSe
   return STAGE_OPERATORS.filter((o) => {
     if (isNotWritable({ oName: o.name, allowWrites })) return false;
     if (isSearchOnView({ oName: o.name, isTimeSeries, isReadonly, sourceName })) return false;
+    if (isDbOnly({ oName: o.name })) return false;
 
     return isSupportedVersion({ oVersion: o.version, version: cleanVersion }) &&
       isSupportedEnv({ oEnv: o.env, env }) ||
