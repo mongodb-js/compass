@@ -325,7 +325,7 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
     return state;
   }
 
-  // if the value of the existing state operator has not been modified by user,
+  // If the value of the existing state operator has not been modified by user,
   // we can easily replace it or else persist the one user changed
   let value;
   if (hasUserChangedStage(oldStage, action.env)) {
@@ -347,11 +347,14 @@ const selectStageOperator = (state: State, action: AnyAction): State => {
     action.env !== ADL && action.env !== ATLAS
   );
 
-  const { isValid } = validateStage(newState[action.index]);
+  // Re-validate the stage according to the new operator
+  const { isValid, syntaxError } = validateStage(newState[action.index]);
   newState[action.index].isValid = isValid;
-  // Clear the error message because the user just changed the operator. Even
-  // though the text wouldn't have changed if the user has edited it.
-  newState[action.index].syntaxError = null;
+  newState[action.index].syntaxError = syntaxError;
+
+  // Clear the server error when we change the stage operator because it isn't
+  // relevant anymore
+  newState[action.index].error = null;
 
   return newState;
 };
