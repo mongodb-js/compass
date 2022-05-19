@@ -42,7 +42,7 @@ const setFileInputValue = (testId: string, value: string) =>
     },
   });
 
-describe.only('<Connections />', function () {
+describe('<Connections />', function () {
   let expectToConnectWith;
   let expectConnectionError;
 
@@ -54,7 +54,15 @@ describe.only('<Connections />', function () {
     ): Promise<void> => {
       connectSpy.resetHistory();
       fireEvent.click(screen.getByTestId('connect-button'));
-      await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
+      try {
+        await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
+      } catch (e) {
+        const errors = screen.getByTestId(
+          'connection-error-summary'
+        ).textContent;
+        throw new Error(`connect was not called: errors = ${errors ?? ''}`);
+      }
+
       expect(connectSpy.getCall(0).args[0]).to.be.deep.equal(expected);
     };
 
@@ -110,6 +118,18 @@ describe.only('<Connections />', function () {
         connectionString: 'mongodb://localhost:27017/?appName=Test+App',
         fleOptions: {
           storeCredentials: false,
+          autoEncryption: { keyVaultNamespace: 'db.coll' },
+        },
+      });
+    });
+
+    it('sets storeCredentials', async function () {
+      fireEvent.click(screen.getByTestId('csfle-storeCredentials-input'));
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017/?appName=Test+App',
+        fleOptions: {
+          storeCredentials: true,
           autoEncryption: { keyVaultNamespace: 'db.coll' },
         },
       });
@@ -193,6 +213,7 @@ describe.only('<Connections />', function () {
       setInputValue('sessionToken', 'sessionToken');
       setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
       setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
+      setInputValue('tlsCertificateKeyFilePassword-input', 'password');
 
       await expectToConnectWith({
         connectionString: 'mongodb://localhost:27017/?appName=Test+App',
@@ -211,6 +232,7 @@ describe.only('<Connections />', function () {
               aws: {
                 tlsCAFile: 'my/ca/file.pem',
                 tlsCertificateKeyFile: 'my/certkey/file.pem',
+                tlsCertificateKeyFilePassword: 'password',
               },
             },
           },
@@ -226,6 +248,7 @@ describe.only('<Connections />', function () {
       setInputValue('endpoint', 'endpoint');
       setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
       setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
+      setInputValue('tlsCertificateKeyFilePassword-input', 'password');
 
       await expectToConnectWith({
         connectionString: 'mongodb://localhost:27017/?appName=Test+App',
@@ -244,6 +267,75 @@ describe.only('<Connections />', function () {
               gcp: {
                 tlsCAFile: 'my/ca/file.pem',
                 tlsCertificateKeyFile: 'my/certkey/file.pem',
+                tlsCertificateKeyFilePassword: 'password',
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('allows to setup an Azure key store', async function () {
+      fireEvent.click(screen.getByText('Azure'));
+
+      setInputValue('tenantId', 'tenantId');
+      setInputValue('clientId', 'clientId');
+      setInputValue('clientSecret', 'clientSecret');
+      setInputValue('identityPlatformEndpoint', 'identityPlatformEndpoint');
+      setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
+      setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
+      setInputValue('tlsCertificateKeyFilePassword-input', 'password');
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017/?appName=Test+App',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders: {
+              azure: {
+                tenantId: 'tenantId',
+                clientId: 'clientId',
+                clientSecret: 'clientSecret',
+                identityPlatformEndpoint: 'identityPlatformEndpoint',
+              },
+            },
+            tlsOptions: {
+              azure: {
+                tlsCAFile: 'my/ca/file.pem',
+                tlsCertificateKeyFile: 'my/certkey/file.pem',
+                tlsCertificateKeyFilePassword: 'password',
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('allows to setup a KMIP key store', async function () {
+      fireEvent.click(screen.getByText('KMIP'));
+
+      setInputValue('endpoint', 'endpoint:1000');
+      setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
+      setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
+      setInputValue('tlsCertificateKeyFilePassword-input', 'password');
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017/?appName=Test+App',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders: {
+              kmip: {
+                endpoint: 'endpoint:1000',
+              },
+            },
+            tlsOptions: {
+              kmip: {
+                tlsCAFile: 'my/ca/file.pem',
+                tlsCertificateKeyFile: 'my/certkey/file.pem',
+                tlsCertificateKeyFilePassword: 'password',
               },
             },
           },
