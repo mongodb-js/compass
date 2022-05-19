@@ -55,7 +55,7 @@ export interface ConnectFormState {
   // FLE2
   fleKeyVaultNamespace?: string;
   fleKey?: string;
-  fleEncryptedFieldsMap?: any;
+  fleEncryptedFieldsMap?: string;
 
   // - SSH with Password
   sshPasswordHost?: string;
