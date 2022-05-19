@@ -50,8 +50,6 @@ describe('<Connections />', function () {
     expectConnectionError = async (expectedErrorText: string) => {
       fireEvent.click(screen.getByTestId('connect-button'));
       await waitFor(() => screen.getByTestId('connection-error-summary'));
-      console.log(screen.getByTestId('connection-error-summary').textContent);
-
       expect(
         screen.getByTestId('connection-error-summary').textContent
       ).to.contain(expectedErrorText);
@@ -122,7 +120,7 @@ describe('<Connections />', function () {
           autoEncryption: {
             keyVaultNamespace: 'db.coll',
             encryptedFieldsMap: {
-              '$compass.error': [null],
+              '$compass.error': null,
               '$compass.rawText': '{ "db.coll": { fields: [] } }',
               'db.coll': { fields: [] },
             },
@@ -135,7 +133,9 @@ describe('<Connections />', function () {
       await openAdvancedTab('csfle');
       fillTextInput('csfle-keyvault', 'db.coll');
 
-      await expectConnectionError('bla');
+      setEditorValue(screen.getByTestId('encrypted-fields-map-editor'), '{');
+
+      await expectConnectionError('EncryptedFieldConfig is invalid');
     });
   });
 });
