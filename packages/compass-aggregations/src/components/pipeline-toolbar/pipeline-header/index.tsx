@@ -23,6 +23,9 @@ const openSavedPipelinesStyles = css({
   lineHeight: 1,
   display: 'flex',
   alignItems: 'center',
+  '&:hover': {
+    cursor: 'pointer',
+  },
 });
 
 const pipelineStagesStyles = css({
