@@ -217,5 +217,38 @@ describe.only('<Connections />', function () {
         },
       });
     });
+
+    it('allows to setup a GCP key store', async function () {
+      fireEvent.click(screen.getByText('GCP'));
+
+      setInputValue('email', 'email');
+      setInputValue('privateKey', 'privateKey');
+      setInputValue('endpoint', 'endpoint');
+      setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
+      setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017/?appName=Test+App',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders: {
+              gcp: {
+                email: 'email',
+                privateKey: 'privateKey',
+                endpoint: 'endpoint',
+              },
+            },
+            tlsOptions: {
+              gcp: {
+                tlsCAFile: 'my/ca/file.pem',
+                tlsCertificateKeyFile: 'my/certkey/file.pem',
+              },
+            },
+          },
+        },
+      });
+    });
   });
 });
