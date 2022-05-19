@@ -592,6 +592,23 @@ export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';
 export const AggregationMaxTimeMSInput = '[data-testid="max-time-ms"]';
+export const AggregationBuilderWorkspace =
+  '[data-testid="pipeline-builder-workspace"]';
+export const AggregationResultsWorkspace =
+  '[data-testid="pipeline-results-workspace"]';
+export const AggregationResultsDocumentListSwitchButton =
+  '[aria-label="Document list"] button';
+export const AggregationResultsJSONListSwitchButton =
+  '[aria-label="JSON list"] button';
+export const AggregationRestultsPaginationDescription =
+  '[data-testid="pipeline-pagination-desc"]';
+export const AggregationRestultsNextPageButton =
+  '[data-testid="pipeline-pagination-next-action"]';
+export const AggregationRestultsPrevPageButton =
+  '[data-testid="pipeline-pagination-prev-action"]';
+export const AggregationResultsCancelButton =
+  '[data-testid="pipeline-results-loader-button"]';
+export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
 
 export const AggregationSettingsButton =
   '[data-testid="pipeline-toolbar-settings-button"]';
@@ -610,6 +627,7 @@ export const SavePipelineCreateViewAction =
 export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';
 
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
+export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
 
 // New Aggregation Toolbar Specific
