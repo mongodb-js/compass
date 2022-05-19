@@ -610,7 +610,13 @@ describe('Collection aggregations tab', function () {
     await editPipeline();
   });
 
-  it('supports cancelling a long-running aggregations', async function () {
+  it('supports cancelling long-running aggregations', async function () {
+    if (semver.lt(MONGODB_VERSION, '4.4.0')) {
+      // $function expression that we use to simulate slow aggregation is only
+      // supported since server 4.4
+      this.skip();
+    }
+
     const slowQuery = `{
       sleep: {
         $function: {
