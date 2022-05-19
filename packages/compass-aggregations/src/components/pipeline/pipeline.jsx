@@ -126,6 +126,7 @@ class Pipeline extends PureComponent {
     refreshInputDocuments: PropTypes.func.isRequired,
     showExportButton: PropTypes.bool.isRequired,
     showRunButton: PropTypes.bool.isRequired,
+    showExplainButton: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
@@ -193,6 +194,7 @@ class Pipeline extends PureComponent {
       <PipelineToolbar
         showRunButton={this.props.showRunButton}
         showExportButton={this.props.showExportButton}
+        showExplainButton={this.props.showExplainButton}
       />
     );
   }
