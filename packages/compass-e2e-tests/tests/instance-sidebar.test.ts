@@ -30,13 +30,13 @@ describe('Instance sidebar', function () {
   });
 
   it('contains cluster info', async function () {
-    const topologySingleHostAddressElement = await browser.$(
-      Selectors.TopologySingleHostAddress
+    const topologyReplicaSetHostAddressElement = await browser.$(
+      Selectors.TopologyReplicaSetHostAddress
     );
 
-    const topologySingleHostAddress =
-      await topologySingleHostAddressElement.getText();
-    expect(topologySingleHostAddress).to.equal('localhost:27091');
+    const topologyReplicaSetHostAddressAddress =
+      await topologyReplicaSetHostAddressElement.getText();
+    expect(topologyReplicaSetHostAddressAddress).to.equal('localhost:27091');
 
     const singleClusterTypeElement = await browser.$(
       Selectors.SingleClusterType

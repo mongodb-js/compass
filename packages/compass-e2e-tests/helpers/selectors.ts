@@ -195,8 +195,8 @@ export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="tree
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
-export const TopologySingleHostAddress =
-  '[data-test-id="topology-single-host-address"]';
+export const TopologyReplicaSetHostAddress =
+  '[data-test-id="topology-replica-set-host-address"]';
 export const SingleClusterType =
   '[data-test-id="topology-single-cluster-type"]';
 export const ServerVersionText = '[data-test-id="server-version-text"]';

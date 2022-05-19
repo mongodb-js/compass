@@ -264,7 +264,7 @@ describe('Logging and Telemetry integration', function () {
           attr: {
             address: 'localhost:27091',
             error: null,
-            newType: 'Standalone',
+            newType: 'RSPrimary',
             previousType: 'Unknown',
           },
         },
@@ -277,7 +277,7 @@ describe('Logging and Telemetry integration', function () {
           attr: {
             isMongos: false,
             isWritable: true,
-            newType: 'Single',
+            newType: 'ReplicaSetWithPrimary',
             previousType: 'Unknown',
           },
         },
