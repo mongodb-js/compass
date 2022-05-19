@@ -625,10 +625,14 @@ export const SavePipelineMenuContent = '[data-testid="save-menu-content"]';
 export const SavePipelineCreateViewAction =
   '[data-testid="save-menu-createView"]';
 export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';
+export const AggregationAutoPreviewToggle =
+  '[data-testid="pipeline-toolbar-preview-toggle"]';
+export const AggregationErrorBanner = '[data-testid="pipeline-results-error"]';
 
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
+export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';
