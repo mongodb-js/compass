@@ -143,6 +143,12 @@ store.onActivated = (appRegistry: AppRegistry) => {
           }
         }
       );
+      instance.dataLake.on(
+        'change:isDataLake',
+        (_model: unknown, value: boolean) => {
+          store.dispatch(dataLakeChanged(value));
+        }
+      );
     }
   });
 
@@ -255,9 +261,6 @@ store.onActivated = (appRegistry: AppRegistry) => {
     'data-service-connected',
     (error, dataService: DataService) => {
       store.dispatch(dataServiceConnected(error, dataService));
-      void dataService.instance().then(({ dataLake: { isDataLake } }) => {
-        store.dispatch(dataLakeChanged(isDataLake));
-      });
     }
   );
 

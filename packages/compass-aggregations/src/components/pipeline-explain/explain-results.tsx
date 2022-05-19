@@ -18,7 +18,9 @@ const containerStyles = css({
 });
 
 const cardStyles = css({
-  height: `calc(100vh - 450px)`,
+  // 170px works with minimum-height of compass
+  // todo: handle height for bigger sized compass
+  height: '170px',
   overflowY: 'scroll',
 });
 
