@@ -154,7 +154,9 @@ export async function setConnectFormState(
       state.fleKey
     );
     // set the text in the editor
-    await browser.setAceValue(Selectors.ConnectionFormInputFLEEncryptedFieldsMap, `{
+    await browser.setAceValue(
+      Selectors.ConnectionFormInputFLEEncryptedFieldsMap,
+      `{
       'alena.coll': {
         fields: [
           {
@@ -164,7 +166,8 @@ export async function setConnectFormState(
           }
         ]
       }
-    }`);
+    }`
+    );
   }
 
   if (state.awsSessionToken) {

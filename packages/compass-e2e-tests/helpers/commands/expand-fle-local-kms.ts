@@ -4,7 +4,9 @@ import * as Selectors from '../selectors';
 export async function expandFLELocalKMS(
   browser: CompassBrowser
 ): Promise<boolean> {
-  const localKMSButton = await browser.$(Selectors.ConnectionFormInputFLELocalKMS);
+  const localKMSButton = await browser.$(
+    Selectors.ConnectionFormInputFLELocalKMS
+  );
   await localKMSButton.waitForDisplayed();
 
   if ((await localKMSButton.getAttribute('aria-expanded')) === 'false') {

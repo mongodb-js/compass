@@ -700,7 +700,7 @@ describe('FLE2', function () {
   after(async function () {
     await afterTests(compass, this.currentTest);
   });
-  
+
   it('can connect using local KMS', async function () {
     if (
       semver.lt(MONGODB_VERSION, '6.0.0-rc4') &&
@@ -723,13 +723,10 @@ describe('FLE2', function () {
             }
           ]
         }
-      }`
+      }`,
     });
 
-    const result = await browser.shellEval(
-      'db.getName()',
-      true
-    );
+    const result = await browser.shellEval('db.getName()', true);
     expect(result).to.be.equal('test');
   });
 });
