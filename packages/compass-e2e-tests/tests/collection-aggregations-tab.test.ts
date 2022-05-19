@@ -19,6 +19,10 @@ async function waitForAnyText(
     return text !== '';
   });
 }
+const initialAggregationToolbarValue =
+  process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
+const initialAggregationExplainValue =
+  process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
 
 describe('Collection aggregations tab', function () {
   let compass: Compass;
@@ -36,7 +40,10 @@ describe('Collection aggregations tab', function () {
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     // Get us back to the empty stage every time. Also test the Create New
     // Pipeline flow while at it.
-    await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    await browser.clickVisible(Selectors.CreateNewPipelineMenuButton);
+    const menuElement = await browser.$(Selectors.CreateNewPipelineMenuContent);
+    await menuElement.waitForDisplayed();
+    await browser.clickVisible(Selectors.CreateNewEmptyPipelineAction);
     const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
     await modalElement.waitForDisplayed();
     await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
@@ -157,7 +164,7 @@ describe('Collection aggregations tab', function () {
 
   it('supports tweaking settings of an aggregation and saving aggregation as a view', async function () {
     // set a collation
-    await browser.clickVisible(Selectors.ToggleAggregationCollation);
+    await browser.clickVisible(Selectors.AggregationAdditionalOptionsButton);
     const collationInput = await browser.$(Selectors.AggregationCollationInput);
     await collationInput.waitForDisplayed();
     await collationInput.setValue('{ locale: "af" }');
@@ -256,10 +263,11 @@ describe('Collection aggregations tab', function () {
     });
 
     // open actions
-    await browser.clickVisible(Selectors.SavePipelineActions);
-
+    await browser.clickVisible(Selectors.SavePipelineMenuButton);
+    const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
+    await menuElement.waitForDisplayed();
     // select create view
-    await browser.clickVisible(Selectors.SavePipelineActionsCreateView);
+    await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
 
     // wait for the modal to appear
     const createViewModal = await browser.$(Selectors.CreateViewModal);
@@ -292,14 +300,13 @@ describe('Collection aggregations tab', function () {
 
   it('supports maxTimeMS', async function () {
     // open settings
-    await browser.clickVisible(Selectors.AggregationSettingsButton);
+    await browser.clickVisible(Selectors.AggregationAdditionalOptionsButton);
 
     // set maxTimeMS
-    const sampleSizeElement = await browser.$(Selectors.AggregationMaxTimeMS);
+    const sampleSizeElement = await browser.$(
+      Selectors.AggregationMaxTimeMSInput
+    );
     await sampleSizeElement.setValue('1');
-
-    // apply settings
-    await browser.clickVisible(Selectors.AggregationSettingsApplyButton);
 
     // run a projection that will take lots of time
     await browser.focusStageOperator(0);
@@ -365,10 +372,13 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.stageDelete(1));
 
     // run the $out stage
-    await browser.clickVisible(Selectors.stageOutSaveButton(0));
-
+    await browser.clickVisible(Selectors.RunPipelineButton);
+    const goToCollectionButton = await browser.$(
+      Selectors.GoToCollectionButton
+    );
+    await goToCollectionButton.waitForDisplayed();
     // go to the new collection
-    await browser.clickVisible(Selectors.stageOutCollectionLink(0));
+    await browser.clickVisible(Selectors.GoToCollectionButton);
 
     await browser.waitUntil(
       async function () {
@@ -425,11 +435,14 @@ describe('Collection aggregations tab', function () {
     // delete the stage after $out
     await browser.clickVisible(Selectors.stageDelete(1));
 
-    // run the $out stage
-    await browser.clickVisible(Selectors.stageMergeSaveButton(0));
-
+    // run the $merge stage
+    await browser.clickVisible(Selectors.RunPipelineButton);
+    const goToCollectionButton = await browser.$(
+      Selectors.GoToCollectionButton
+    );
+    await goToCollectionButton.waitForDisplayed();
     // go to the new collection
-    await browser.clickVisible(Selectors.stageMergeCollectionLink(0));
+    await browser.clickVisible(Selectors.GoToCollectionButton);
 
     await browser.waitUntil(
       async function () {
@@ -444,11 +457,10 @@ describe('Collection aggregations tab', function () {
   });
 
   it('allows creating a new pipeline from text', async function () {
-    await browser.clickVisible(Selectors.NewPipelineActions);
-    const menuElement = await browser.$(Selectors.NewPipelineActionsMenu);
+    await browser.clickVisible(Selectors.CreateNewPipelineMenuButton);
+    const menuElement = await browser.$(Selectors.CreateNewPipelineMenuContent);
     await menuElement.waitForDisplayed();
-    const linkElement = await menuElement.$('a=New Pipeline From Text');
-    await linkElement.click();
+    await browser.clickVisible(Selectors.CreateNewPipelineFromTextAction);
 
     const createModal = await browser.$(Selectors.NewPipelineFromTextModal);
     await createModal.waitForDisplayed();
@@ -487,6 +499,208 @@ describe('Collection aggregations tab', function () {
       const text = await textElement.getText();
       return text === '(Sample of 1 document)';
     });
+  });
+
+  describe('Aggregation Explain', function () {
+    let compass: Compass;
+    let browser: CompassBrowser;
+
+    before(async function () {
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
+
+      compass = await beforeTests();
+      browser = compass.browser;
+    });
+
+    beforeEach(async function () {
+      await createNumbersCollection();
+      await browser.connectWithConnectionString(
+        'mongodb://localhost:27018/test'
+      );
+      // Some tests navigate away from the numbers collection aggregations tab
+      await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+      // Get us back to the empty stage every time. Also test the Create New
+      // Pipeline flow while at it.
+      await browser.clickVisible(Selectors.AggregationToolbarCreateMenu);
+      await browser.clickVisible(Selectors.AggregationToolbarCreateNewPipeline);
+      const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
+      await modalElement.waitForDisplayed();
+      await browser.clickVisible(
+        Selectors.ConfirmNewPipelineModalConfirmButton
+      );
+      await modalElement.waitForDisplayed({ reverse: true });
+    });
+
+    after(async function () {
+      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR =
+        initialAggregationToolbarValue;
+      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN =
+        initialAggregationExplainValue;
+      await afterTests(compass, this.currentTest);
+    });
+
+    afterEach(async function () {
+      await afterTest(compass, this.currentTest);
+    });
+
+    it('shows the explain for a pipeline', async function () {
+      await browser.clickVisible(Selectors.AggregationExplainButton);
+      await browser.waitForAnimations(Selectors.AggregationExplainModal);
+
+      const modal = await browser.$(Selectors.AggregationExplainModal);
+      await modal.waitForDisplayed();
+      await browser.waitForAnimations(Selectors.AggregationExplainModal);
+      expect(await modal.getText()).to.contain('Query Performance Summary');
+    });
+  });
+
+  async function goToRunAggregation() {
+    if (await browser.$(Selectors.AggregationBuilderWorkspace).isDisplayed()) {
+      await browser.clickVisible(Selectors.RunPipelineButton);
+    }
+    const resultsWorkspace = await browser.$(
+      Selectors.AggregationResultsWorkspace
+    );
+    await resultsWorkspace.waitForDisplayed();
+  }
+
+  async function goToEditPipeline() {
+    if (await browser.$(Selectors.AggregationResultsWorkspace).isDisplayed()) {
+      await browser.clickVisible(Selectors.EditPipelineButton);
+    }
+    const builderWorkspace = await browser.$(
+      Selectors.AggregationBuilderWorkspace
+    );
+    await builderWorkspace.waitForDisplayed();
+  }
+
+  async function getDocuments() {
+    // Switch to JSON view so it's easier to get document value
+    await browser.clickVisible(
+      Selectors.AggregationResultsJSONListSwitchButton
+    );
+    // Get all visible documents
+    const documents = await browser.$$(Selectors.DocumentJSONEntry);
+    // Get ace editor content and parse it
+    const parsed = await Promise.all(
+      documents.map(async (doc) => {
+        const aceEditor = await doc.$('.ace_content');
+        return JSON.parse(await aceEditor.getText());
+      })
+    );
+    return parsed;
+  }
+
+  it('supports running and editing aggregation', async function () {
+    // Set first stage to match
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$match');
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+    // Run and wait for results
+    await goToRunAggregation();
+
+    // Get all documents from the current results page
+    const docs = await getDocuments();
+
+    expect(docs).to.have.lengthOf(1);
+    expect(docs[0]).to.have.property('_id');
+    expect(docs[0]).to.have.property('i', 5);
+    expect(docs[0]).to.have.property('j', 0);
+
+    // Go back to the pipeline builder
+    await goToEditPipeline();
+
+    // Change match filter
+    await browser.setAceValue(
+      Selectors.stageEditor(0),
+      '{ i: { $gte: 5, $lte: 10 } }'
+    );
+
+    // Run and wait for results
+    await goToRunAggregation();
+
+    // Get all documents from the current results page
+    const updatedDocs = await getDocuments();
+
+    // Check that the documents are matching pipeline
+    expect(updatedDocs).to.have.lengthOf(6);
+    expect(updatedDocs[0]).to.have.property('i', 5);
+    expect(updatedDocs[1]).to.have.property('i', 6);
+    expect(updatedDocs[2]).to.have.property('i', 7);
+    expect(updatedDocs[3]).to.have.property('i', 8);
+    expect(updatedDocs[4]).to.have.property('i', 9);
+    expect(updatedDocs[5]).to.have.property('i', 10);
+  });
+
+  it('supports paginating aggregation results', async function () {
+    // Set first stage to $match
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$match');
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gte: 5 } }');
+
+    // Add second $limit stage
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$limit');
+    await browser.setAceValue(Selectors.stageEditor(1), '25');
+
+    // Run and wait for results
+    await goToRunAggregation();
+
+    const page1 = await getDocuments();
+    expect(page1).to.have.lengthOf(20);
+    expect(page1[0]).to.have.property('i', 5);
+
+    await browser.clickVisible(Selectors.AggregationRestultsNextPageButton);
+    await browser.waitUntil(async () => {
+      const paginationDescription = await browser.$(
+        Selectors.AggregationRestultsPaginationDescription
+      );
+      return (await paginationDescription.getText()) === 'Showing 21 – 25';
+    });
+
+    const page2 = await getDocuments();
+    expect(page2).to.have.lengthOf(5);
+    expect(page2[0]).to.have.property('i', 25);
+  });
+
+  it('supports cancelling long-running aggregations', async function () {
+    if (semver.lt(MONGODB_VERSION, '4.4.0')) {
+      // $function expression that we use to simulate slow aggregation is only
+      // supported since server 4.4
+      this.skip();
+    }
+
+    const slowQuery = `{
+      sleep: {
+        $function: {
+          body: function () {
+            return sleep(10000) || true;
+          },
+          args: [],
+          lang: "js",
+        },
+      },
+    }`;
+
+    // Set first stage to a very slow $addFields
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$addFields');
+    await browser.setAceValue(Selectors.stageEditor(0), slowQuery);
+
+    // Run and wait for results
+    await goToRunAggregation();
+
+    // Cancel aggregation run
+    await browser.clickVisible(Selectors.AggregationResultsCancelButton);
+    // Wait for the empty results banner (this is our indicator that we didn't
+    // load anything and dismissed "Loading" banner)
+    const emptyResultsBanner = await browser.$(
+      Selectors.AggregationEmptyResults
+    );
+    await emptyResultsBanner.waitForDisplayed();
   });
 
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them

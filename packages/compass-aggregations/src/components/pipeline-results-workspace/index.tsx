@@ -94,7 +94,11 @@ const OutResultBanner: React.FunctionComponent<{
         {namespace ? ` in ${namespace} namespace` : ''}
       </Subtitle>
       {namespace && (
-        <Button variant="primaryOutline" onClick={onClick}>
+        <Button
+          data-testid="pipeline-results-go-to-collection"
+          variant="primaryOutline"
+          onClick={onClick}
+        >
           Go to collection
         </Button>
       )}
@@ -148,7 +152,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
       results = (
         <ResultsContainer center>
           <CancelLoader
-            dataTestId="pipeline-results-loader"
+            data-testid="pipeline-results-loader"
             progressText={
               isMergeOrOutPipeline
                 ? `Persisting documents${

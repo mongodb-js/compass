@@ -581,23 +581,62 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 
 // Aggregations tab
 export const StageContainer = '[data-test-id="stage-container"]';
-export const CreateNewPipelineButton = 'button#create-new-pipeline';
-export const ToggleAggregationCollation = '[data-test-id="toggle-collation"]';
+export const CreateNewPipelineMenuButton = '[data-testid="create-new-menu"]';
+export const CreateNewPipelineMenuContent =
+  '[data-testid="create-new-menu-content"]';
+export const CreateNewEmptyPipelineAction =
+  '[data-testid="create-new-menu-createPipleine"]';
+export const CreateNewPipelineFromTextAction =
+  '[data-testid="create-new-menu-createPipleineFromText"]';
+export const AggregationAdditionalOptionsButton =
+  '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';
+export const AggregationMaxTimeMSInput = '[data-testid="max-time-ms"]';
+export const AggregationBuilderWorkspace =
+  '[data-testid="pipeline-builder-workspace"]';
+export const AggregationResultsWorkspace =
+  '[data-testid="pipeline-results-workspace"]';
+export const AggregationResultsDocumentListSwitchButton =
+  '[aria-label="Document list"] button';
+export const AggregationResultsJSONListSwitchButton =
+  '[aria-label="JSON list"] button';
+export const AggregationRestultsPaginationDescription =
+  '[data-testid="pipeline-pagination-desc"]';
+export const AggregationRestultsNextPageButton =
+  '[data-testid="pipeline-pagination-next-action"]';
+export const AggregationRestultsPrevPageButton =
+  '[data-testid="pipeline-pagination-prev-action"]';
+export const AggregationResultsCancelButton =
+  '[data-testid="pipeline-results-loader-button"]';
+export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
+
 export const AggregationSettingsButton =
-  '[data-test-id="aggregation-settings"]';
+  '[data-testid="pipeline-toolbar-settings-button"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
 export const AggregationSampleSizeInput = '#aggregation-sample-size';
-export const AggregationMaxTimeMS = '#aggregation-max-time-ms';
 export const AggregationSettingsApplyButton = '#aggregation-settings-apply';
 export const AddStageButton = '[data-test-id="add-stage"]';
 export const ExportAggregationToLanguage =
-  '[data-test-id="aggregations-content"] [data-test-id="export-to-language"]';
+  '[data-testid="pipeline-toolbar-export-button"]';
 export const NewPipelineActions = '#new-pipeline-actions';
 export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
-export const SavePipelineActions = '#save-pipeline-actions';
-export const SavePipelineActionsCreateView = '[data-testid="create-a-view"]';
-export const SavePipelineActionsSaveAs = '[data-testid="save-pipeline-as"]';
+export const SavePipelineMenuButton = '[data-testid="save-menu"]';
+export const SavePipelineMenuContent = '[data-testid="save-menu-content"]';
+export const SavePipelineCreateViewAction =
+  '[data-testid="save-menu-createView"]';
+export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';
+
+export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
+export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
+export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
+
+// New Aggregation Toolbar Specific
+export const AggregationToolbarCreateMenu = '[data-testid="create-new-menu"]';
+export const AggregationToolbarCreateNewPipeline =
+  '[data-testid="create-new-menu-content"]  > li:nth-child(1)';
+export const AggregationExplainButton =
+  '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
+export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import { once } from 'events';
 import type { ServerConfig } from 'ssh2';
 import { Server as SSHServer } from 'ssh2';
 import type { Server as HttpServer } from 'http';
@@ -7,12 +8,16 @@ import { promisify } from 'util';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { Socket } from 'net';
-import fetch from 'node-fetch';
+import fetch, { FetchError } from 'node-fetch';
 import { expect } from 'chai';
 import { SocksClient } from 'socks';
-
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import type { SshTunnelConfig } from './index';
 import SSHTunnel from './index';
+import sinon from 'sinon';
+
+chai.use(chaiAsPromised);
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -94,6 +99,7 @@ async function createTestSshTunnel(config: Partial<SshTunnelConfig> = {}) {
     localPort: 0,
     ...config,
   });
+  sinon.spy(sshTunnel.sshClient, 'connect');
   await sshTunnel.listen();
 }
 
@@ -104,6 +110,12 @@ async function stopTestSshTunnel() {
   } catch {
     // noop
   }
+}
+
+function breakSshTunnelConnection() {
+  const promise = once(sshTunnel.sshClient, 'close');
+  sshTunnel.sshClient.end();
+  return promise;
 }
 
 interface Socks5ProxyOptions {
@@ -272,5 +284,130 @@ describe('SSHTunnel', function () {
     } catch {
       expect(sshTunnel.server.address()).to.equal(null);
     }
+  });
+
+  it('does not reconnect if the tunnel is already connected', async function () {
+    await createTestSshTunnel();
+
+    const address = `http://localhost:${httpServer.address().port}/`;
+    const options = {
+      proxyHost: sshTunnel.config.localAddr,
+      proxyPort: sshTunnel.config.localPort,
+    };
+    const expected = 'Hello from http server';
+
+    const res1 = await httpFetchWithSocks5(address, options);
+    expect(await res1.text()).to.equal(expected);
+
+    const res2 = await httpFetchWithSocks5(address, options);
+    expect(await res2.text()).to.equal(expected);
+
+    expect(sshTunnel.sshClient.connect.callCount).to.equal(1);
+  });
+
+  it('reconnects tunnel if it got accidentally disconnected', async function () {
+    await createTestSshTunnel();
+
+    await breakSshTunnelConnection();
+
+    const address = `http://localhost:${httpServer.address().port}/`;
+    const options = {
+      proxyHost: sshTunnel.config.localAddr,
+      proxyPort: sshTunnel.config.localPort,
+    };
+    const expected = 'Hello from http server';
+
+    const res1 = await httpFetchWithSocks5(address, options);
+    expect(await res1.text()).to.equal(expected);
+
+    const res2 = await httpFetchWithSocks5(address, options);
+    expect(await res2.text()).to.equal(expected);
+
+    expect(sshTunnel.sshClient.connect.callCount).to.equal(2);
+  });
+
+  it('reuses the connection promise if a request comes in before the tunnel connects', async function () {
+    await createTestSshTunnel();
+
+    await breakSshTunnelConnection();
+
+    const address = `http://localhost:${httpServer.address().port}/`;
+    const options = {
+      proxyHost: sshTunnel.config.localAddr,
+      proxyPort: sshTunnel.config.localPort,
+    };
+    const expected = 'Hello from http server';
+
+    const [res1, res2] = await Promise.all([
+      httpFetchWithSocks5(address, options),
+      httpFetchWithSocks5(address, options),
+    ]);
+    expect(await res1.text()).to.equal(expected);
+    expect(await res2.text()).to.equal(expected);
+
+    expect(sshTunnel.sshClient.connect.callCount).to.equal(2);
+  });
+
+  it('does not reconnect the tunnel after it was deliberately closed', async function () {
+    await createTestSshTunnel();
+
+    // NOTE: normally you'd call close(), but that also closes the server so
+    // you'd get a different error first. Trying to trigger the race condition
+    // where the request made it to the socks5 server in time.
+    await sshTunnel.closeSshClient();
+
+    const remotePort = httpServer.address().port;
+    const address = `http://localhost:${remotePort}/`;
+
+    const options = {
+      proxyHost: sshTunnel.config.localAddr,
+      proxyPort: sshTunnel.config.localPort,
+    };
+
+    const promise = httpFetchWithSocks5(address, options);
+
+    await expect(promise).to.be.rejectedWith(
+      FetchError,
+      `request to http://localhost:${remotePort}/ failed, reason: Socket closed`
+    );
+
+    expect(sshTunnel.sshClient.connect.callCount).to.equal(1);
+  });
+
+  it('reconnects if the ssh connection times out while we try and open the channel', async function () {
+    await createTestSshTunnel();
+
+    const forwardOut = sshTunnel.forwardOut;
+    sinon
+      .stub(sshTunnel, 'forwardOut')
+      .callsFake(async function (
+        srcAddr: string,
+        srcPort: number,
+        dstAddr: string,
+        dstPort: number
+      ) {
+        await breakSshTunnelConnection();
+        const promise = forwardOut.call(
+          this,
+          srcAddr,
+          srcPort,
+          dstAddr,
+          dstPort
+        );
+        sshTunnel.forwardOut.restore();
+        return promise;
+      });
+
+    const address = `http://localhost:${httpServer.address().port}/`;
+    const options = {
+      proxyHost: sshTunnel.config.localAddr,
+      proxyPort: sshTunnel.config.localPort,
+    };
+    const expected = 'Hello from http server';
+
+    const res = await httpFetchWithSocks5(address, options);
+    expect(await res.text()).to.equal(expected);
+
+    expect(sshTunnel.sshClient.connect.callCount).to.equal(2);
   });
 });

@@ -30,10 +30,7 @@ export const toggleAutoPreview = (
       value: newVal
     });
 
-    if (
-      newVal &&
-      global?.process?.env?.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR === 'true'
-    ) {
+    if (newVal) {
       dispatch(runStage(0, true /* force execute */));
     }
   };

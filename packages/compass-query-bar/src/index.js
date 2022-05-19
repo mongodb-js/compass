@@ -11,7 +11,7 @@ const ROLE = {
   configureStore: configureStore,
   configureActions: configureActions,
   storeName: 'Query.Store',
-  actionName: 'Query.Actions'
+  actionName: 'Query.Actions',
 };
 
 /**

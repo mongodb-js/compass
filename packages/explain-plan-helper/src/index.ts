@@ -9,7 +9,7 @@ export type Stage = Record<string, any> & {
   stage: string;
   [kParent]: Stage | null;
 };
-type IndexInformation =
+export type IndexInformation =
   | { shard: string; index: string }
   | { shard: string; index: null }
   | { shard: null; index: string };

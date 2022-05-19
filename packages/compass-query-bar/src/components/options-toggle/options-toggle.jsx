@@ -11,11 +11,11 @@ class OptionsToggle extends PureComponent {
   static propTypes = {
     actions: PropTypes.object.isRequired,
     className: PropTypes.string,
-    expanded: PropTypes.bool.isRequired
+    expanded: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
   };
 
   onClick = () => {
@@ -31,18 +31,19 @@ class OptionsToggle extends PureComponent {
       'btn-default',
       'btn-xs',
       styles.component,
-      { [ styles['is-open'] ]: expanded },
+      { [styles['is-open']]: expanded },
       className
     );
 
     return (
-      <div
+      <button
         className={_className}
         onClick={this.onClick}
-        data-test-id="query-bar-options-toggle">
+        data-test-id="query-bar-options-toggle"
+      >
         <FontAwesome fixedWidth name={symbol} />
         <span data-test-id="query-bar-options-toggle-text">Options</span>
-      </div>
+      </button>
     );
   }
 }

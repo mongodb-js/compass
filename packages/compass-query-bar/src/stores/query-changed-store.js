@@ -6,10 +6,7 @@ import QUERY_PROPERTIES from '../constants/query-properties';
 
 const debug = require('debug')('mongodb-compass:stores:query-changed-store');
 
-const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat([
-  'queryState',
-  'ns'
-]);
+const EXTENDED_QUERY_PROPERTIES = QUERY_PROPERTIES.concat(['queryState', 'ns']);
 
 /**
  * This is a convenience store that only triggers when the actual query
@@ -24,7 +21,7 @@ const configureStore = (options = {}) => {
     /**
      * listen to QueryBarStore for any changes.
      */
-    init: function() {
+    init: function () {
       this.queryBarStore = options.store;
       this.queryBarStore.listen(this.onQueryBarStoreChanged.bind(this));
       this.lastExecutedQuery = this.queryBarStore.state.lastExecutedQuery;
@@ -65,7 +62,7 @@ const configureStore = (options = {}) => {
         const copyable = state.lastExecutedQuery || this.getInitialState();
 
         for (const key in copyable) {
-          if (copyable.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(copyable, key)) {
             newState[key] = copyable[key];
           }
         }
@@ -82,13 +79,18 @@ const configureStore = (options = {}) => {
           debug('Error: AppRegistry not available for query-changed-store');
         }
         if (globalRegistry) {
-          const collectionType = this.queryBarStore.state.isTimeSeries ? 'time-series' : 'collection';
+          const collectionType = this.queryBarStore.state.isTimeSeries
+            ? 'time-series'
+            : 'collection';
 
-          globalRegistry.emit('compass:query-bar:query-changed', { ...newState, collectionType });
+          globalRegistry.emit('compass:query-bar:query-changed', {
+            ...newState,
+            collectionType,
+          });
         }
         this.setState(newState);
       }
-    }
+    },
   });
 
   if (options.localAppRegistry) {

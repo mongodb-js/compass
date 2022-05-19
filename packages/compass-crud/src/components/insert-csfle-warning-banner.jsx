@@ -24,7 +24,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
       return (
         <Banner variant={BannerVariant.Warning}>
           This insert operation will not encrypt any document fields because
-          no schema or CSFLE configuration is associated with the collection.
+          no schema or In-Use Encryption configuration is associated with the collection.
         </Banner>
       );
 
@@ -42,7 +42,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
       return (
         <Banner variant={BannerVariant.Info}>
           This insert operation will encrypt all fields that are specified in the schema
-          or CSFLE configuration associated with the collection.
+          or In-Use Encryption configuration associated with the collection.
 
           {fieldsNotice}
         </Banner>
@@ -52,7 +52,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
       return (
         <Banner variant={BannerVariant.Warning}>
           This insert operation will not encrypt any document fields because
-          CSFLE support was explicitly disabled.
+          In-Use Encryption support was explicitly disabled.
         </Banner>
       );
 

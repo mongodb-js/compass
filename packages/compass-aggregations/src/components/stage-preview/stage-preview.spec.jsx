@@ -108,10 +108,6 @@ describe('StagePreview [Component]', function() {
       it('renders the out text', function() {
         expect(component.find(`.${styles['stage-preview-out-text']}`)).to.be.present();
       });
-
-      it('renders the save button', function() {
-        expect(component.find(`.${styles['stage-preview-out-button']}`)).to.be.present();
-      });
     });
 
     context('when the execution is complete', function() {

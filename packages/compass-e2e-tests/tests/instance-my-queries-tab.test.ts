@@ -63,8 +63,11 @@ describe('Instance my queries tab', function () {
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gt: 10 } }');
 
-    await browser.clickVisible(Selectors.SavePipelineActions);
-    await browser.clickVisible(Selectors.SavePipelineActionsSaveAs);
+    await browser.clickVisible(Selectors.SavePipelineMenuButton);
+    const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
+    await menuElement.waitForDisplayed();
+    await browser.clickVisible(Selectors.SavePipelineSaveAsAction);
+
     // wait for the modal to appear
     const savePipelineModal = await browser.$(Selectors.SavePipelineModal);
     await savePipelineModal.waitForDisplayed();

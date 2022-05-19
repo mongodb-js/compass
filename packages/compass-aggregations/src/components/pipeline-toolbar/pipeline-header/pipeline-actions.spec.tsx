@@ -7,7 +7,6 @@ import type { SinonSpy } from 'sinon';
 
 import { PipelineActions } from './pipeline-actions';
 
-const initialEnableExport = process.env.COMPASS_ENABLE_AGGREGATION_EXPORT;
 const initialEnableExplain = process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
 
 describe('PipelineActions', function () {
@@ -16,18 +15,20 @@ describe('PipelineActions', function () {
     let onToggleOptionsSpy: SinonSpy;
     let onExportAggregationResultsSpy: SinonSpy;
     let onExplainAggregationSpy: SinonSpy;
+
     beforeEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
       process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
       onExportAggregationResultsSpy = spy();
       onExplainAggregationSpy = spy();
+
       render(
         <PipelineActions
           isOptionsVisible={true}
           showRunButton={true}
           showExportButton={true}
+          showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
           onExportAggregationResults={onExportAggregationResultsSpy}
@@ -39,7 +40,6 @@ describe('PipelineActions', function () {
     });
 
     afterEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
       process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = initialEnableExplain;
     });
 
@@ -95,6 +95,7 @@ describe('PipelineActions', function () {
           isOptionsVisible={false}
           showRunButton={true}
           showExportButton={true}
+          showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
           onExportAggregationResults={() => {}}
@@ -120,8 +121,8 @@ describe('PipelineActions', function () {
     let onRunAggregationSpy: SinonSpy;
     let onExportAggregationResultsSpy: SinonSpy;
     let onExplainAggregationSpy: SinonSpy;
+
     beforeEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
       process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
       onRunAggregationSpy = spy();
       onExportAggregationResultsSpy = spy();
@@ -134,6 +135,7 @@ describe('PipelineActions', function () {
           isOptionsVisible={true}
           showRunButton={true}
           showExportButton={true}
+          showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={() => {}}
           onExportAggregationResults={onExportAggregationResultsSpy}
@@ -144,7 +146,6 @@ describe('PipelineActions', function () {
     });
 
     afterEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = initialEnableExport;
       process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = initialEnableExplain;
     });
 

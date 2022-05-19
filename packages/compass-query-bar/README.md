@@ -1,4 +1,4 @@
-# Compass Query Bar [![][workflow_img]][workflow_url]
+# Compass Query Bar
 
 > Renders a component for executing MongoDB queries through a GUI.
 
@@ -9,7 +9,10 @@
 Setting values via configure:
 
 ```js
-import Plugin, { configureStore, configureActions } from '@mongodb-js/compass-query-bar';
+import Plugin, {
+  configureStore,
+  configureActions,
+} from '@mongodb-js/compass-query-bar';
 
 const actions = configureActions();
 const store = configureStore({
@@ -20,7 +23,7 @@ const store = configureStore({
   fields: [],
 });
 
-<Plugin store={store} actions={actions} />
+<Plugin store={store} actions={actions} />;
 ```
 
 ### Hadron/Electron
@@ -38,10 +41,10 @@ const store = configureStore({
   actions: actions,
   namespace: 'db.coll',
   serverVersion: '4.2.0',
-  fields: []
+  fields: [],
 });
 
-<Plugin store={store} actions={actions} />
+<Plugin store={store} actions={actions} />;
 ```
 
 ### Fields
@@ -49,6 +52,3 @@ const store = configureStore({
 The fields array must be an array of objects that the ACE editor autocompleter understands. See
 [This example](https://github.com/mongodb-js/ace-autocompleter/blob/master/lib/constants/accumulators.js)
 for what that array looks like.
-
-[workflow_img]: https://github.com/mongodb-js/compass-query-bar/workflows/Check%20and%20Test/badge.svg?event=push
-[workflow_url]: https://github.com/mongodb-js/compass-query-bar/actions?query=workflow%3A%22Check+and+Test%22

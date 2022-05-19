@@ -41,12 +41,12 @@ import isUnique, {
 import isTtl, {
   INITIAL_STATE as IS_TTL_INITIAL_STATE,
 } from '../create-index/is-ttl';
-import isWildcard, {
-  INITIAL_STATE as IS_WILDCARD_INITIAL_STATE,
-} from '../create-index/is-wildcard';
-import isColumnstore, {
-  INITIAL_STATE as IS_COLUMNSTORE_INITIAL_STATE,
-} from '../create-index/is-columnstore';
+import hasWildcardProjection, {
+  INITIAL_STATE as HAS_WILDCARD_PROJECTION_INITIAL_STATE,
+} from './has-wildcard-projection';
+import hasColumnstoreProjection, {
+  INITIAL_STATE as HAS_COLUMNSTORE_PROJECTION_INITIAL_STATE,
+} from '../create-index/has-columnstore-projection';
 import isPartialFilterExpression, {
   INITIAL_STATE as IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
 } from '../create-index/is-partial-filter-expression';
@@ -90,8 +90,8 @@ const reducer = combineReducers({
   isBackground,
   isUnique,
   isTtl,
-  isWildcard,
-  isColumnstore,
+  hasWildcardProjection,
+  hasColumnstoreProjection,
   isPartialFilterExpression,
   ttl,
   wildcardProjection,
@@ -124,8 +124,8 @@ const rootReducer = (state, action) => {
       isBackground: IS_BACKGROUND_INITIAL_STATE,
       isUnique: IS_UNIQUE_INITIAL_STATE,
       isTtl: IS_TTL_INITIAL_STATE,
-      isWildcard: IS_WILDCARD_INITIAL_STATE,
-      isColumnstore: IS_COLUMNSTORE_INITIAL_STATE,
+      hasWildcardProjection: HAS_WILDCARD_PROJECTION_INITIAL_STATE,
+      hasColumnstoreProjection: HAS_COLUMNSTORE_PROJECTION_INITIAL_STATE,
       isPartialFilterExpression: IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       ttl: TTL_INITIAL_STATE,
       columnstoreProjection: COLUMNSTORE_PROJECTION_INITIAL_STATE,
@@ -138,11 +138,6 @@ const rootReducer = (state, action) => {
 };
 
 export default rootReducer;
-
-export const createName = (f, spec) => {
-  const n = f.map((field) => `${field.name}_${spec[field.name]}`).join('_');
-  return n.replace(/\$\*\*/gi, 'wildcard');
-};
 
 /**
  * The create index action.
@@ -170,9 +165,9 @@ export const createIndex = () => {
     const options = {};
     options.background = state.isBackground;
     options.unique = state.isUnique;
-    options.name = state.name;
-    if (state.name === '') {
-      options.name = createName(state.fields, spec);
+    // The server will generate a name when we don't provide one.
+    if (state.name !== '') {
+      options.name = state.name;
     }
     if (state.isCustomCollation) {
       options.collation = state.collation;
@@ -184,7 +179,7 @@ export const createIndex = () => {
         return;
       }
     }
-    if (state.isWildcard) {
+    if (state.hasWildcardProjection) {
       try {
         options.wildcardProjection = EJSON.parse(state.wildcardProjection);
       } catch (err) {
@@ -192,7 +187,16 @@ export const createIndex = () => {
         return;
       }
     }
-    if (state.isColumnstore) {
+
+    const hasColumnstoreIndex = state.fields.some(
+      (field) => field.type === 'columnstore'
+    );
+    if (hasColumnstoreIndex) {
+      // Index type 'columnstore' does not support the 'unique' option.
+      delete options.unique;
+    }
+
+    if (state.hasColumnstoreProjection) {
       try {
         options.columnstoreProjection = EJSON.parse(
           state.columnstoreProjection
@@ -221,8 +225,9 @@ export const createIndex = () => {
           background: state.isBackground,
           unique: state.isUnique,
           ttl: state.isTtl,
-          columnstore: state.isColumnstore,
-          wildcard: state.isWildcard,
+          columnstore_index: hasColumnstoreIndex,
+          has_columnstore_projection: state.hasColumnstoreProjection,
+          has_wildcard_projection: state.hasWildcardProjection,
           custom_collation: state.isCustomCollation,
           geo:
             state.fields.filter(({ type }) => type === '2dsphere').length > 0,
@@ -237,8 +242,9 @@ export const createIndex = () => {
             isPartialFilterExpression: state.isPartialFilterExpression,
             isTTL: state.isTtl,
             isUnique: state.isUnique,
-            isColumnstore: state.isColumnstore,
-            isWildcard: state.isWildcard,
+            hasColumnstoreIndex,
+            hasColumnstoreProjection: state.hasColumnstoreProjection,
+            hasWildcardProjection: state.hasWildcardProjection,
             collation: state.collation,
             ttl: state.ttl,
           })
