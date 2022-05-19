@@ -1,4 +1,5 @@
 import React from 'react';
+import { useId } from '@react-aria/utils';
 
 if (typeof window === 'undefined' && typeof globalThis !== 'undefined') {
   // ace-builds wants to install itself on `window`, which
@@ -51,7 +52,7 @@ type EditorProps = {
   options?: Omit<IAceOptions, 'readOnly'>;
   readOnly?: boolean;
   completer?: unknown;
-  dataTestId?: string;
+  'data-testid'?: string;
   onChangeText?: (text: string, event?: any) => void;
 } & Omit<IAceEditorProps, 'onChange' | 'value'>;
 
@@ -63,7 +64,7 @@ function Editor({
   onChangeText,
   completer,
   onFocus,
-  dataTestId,
+  'data-testid': dataTestId,
   ...aceProps
 }: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
@@ -73,6 +74,8 @@ function Editor({
     ...(variant === 'Shell' && { mode: 'ace/mode/mongodb' }),
     ...(!!completer && { enableLiveAutocompletion: true }),
   };
+
+  const editorId = useId('ace-editor-');
 
   return (
     <div data-testid={dataTestId}>
@@ -92,7 +95,7 @@ function Editor({
         setOptions={setOptions}
         readOnly={readOnly}
         // name should be unique since it gets translated to an id
-        name={aceProps.name ?? `ace-editor-${Date.now()}`}
+        name={aceProps.name ?? editorId}
         {...aceProps}
         onFocus={(ev: any) => {
           if (completer) {
