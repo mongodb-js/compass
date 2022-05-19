@@ -82,7 +82,6 @@ buildvariants:
       - name: test-packaged-app-42x-enterprise
       - name: test-packaged-app-44x-community
       - name: test-packaged-app-44x-enterprise
-      - name: test-packaged-app-60x-enterprise
 
   - name: rhel
     display_name: RHEL (Test and Package)

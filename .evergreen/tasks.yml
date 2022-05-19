@@ -295,7 +295,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 4.0.x
+          mongodb_version: '4.0.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   
@@ -318,8 +318,8 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 4.0.x
-          mongodb_use_enterprise: yes
+          mongodb_version: '4.0.x'
+          mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   
@@ -342,7 +342,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 4.2.x
+          mongodb_version: '4.2.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   
@@ -365,8 +365,8 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 4.2.x
-          mongodb_use_enterprise: yes
+          mongodb_version: '4.2.x'
+          mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   
@@ -389,7 +389,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 4.4.x
+          mongodb_version: '4.4.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   
@@ -412,8 +412,8 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 4.4.x
-          mongodb_use_enterprise: yes
+          mongodb_version: '4.4.x'
+          mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   
@@ -436,7 +436,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 5.x.x
+          mongodb_version: '5.x.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   
@@ -459,8 +459,8 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 5.x.x
-          mongodb_use_enterprise: yes
+          mongodb_version: '5.x.x'
+          mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   
@@ -484,7 +484,7 @@ tasks:
       - func: test-packaged-app
         vars: 
           mongodb_version: '>6.0.0-rc0'
-          mongodb_use_enterprise: yes
+          mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   

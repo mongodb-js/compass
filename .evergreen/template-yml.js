@@ -136,7 +136,10 @@ for (const buildVariant of buildVariants) {
     // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
     // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
     // we can remove this.
-    if (task.name.startsWith('test-packaged-app-5x') && buildVariant.name === 'ubuntu') {
+    if (
+      (task.name.startsWith('test-packaged-app-5x') || task.name.startsWith('test-packaged-app-60x')) &&
+      buildVariant.name === 'ubuntu'
+    ) {
       continue;
     }
     buildVariant.tasks.push(task);
