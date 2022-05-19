@@ -497,16 +497,20 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  async function runAggregation() {
-    await browser.clickVisible(Selectors.RunPipelineButton);
+  async function goToRunAggregation() {
+    if (await browser.$(Selectors.AggregationBuilderWorkspace).isDisplayed()) {
+      await browser.clickVisible(Selectors.RunPipelineButton);
+    }
     const resultsWorkspace = await browser.$(
       Selectors.AggregationResultsWorkspace
     );
     await resultsWorkspace.waitForDisplayed();
   }
 
-  async function editPipeline() {
-    await browser.clickVisible(Selectors.EditPipelineButton);
+  async function goToEditPipeline() {
+    if (await browser.$(Selectors.AggregationResultsWorkspace).isDisplayed()) {
+      await browser.clickVisible(Selectors.EditPipelineButton);
+    }
     const builderWorkspace = await browser.$(
       Selectors.AggregationBuilderWorkspace
     );
@@ -537,7 +541,7 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
     // Run and wait for results
-    await runAggregation();
+    await goToRunAggregation();
 
     // Get all documents from the current results page
     const docs = await getDocuments();
@@ -548,7 +552,7 @@ describe('Collection aggregations tab', function () {
     expect(docs[0]).to.have.property('j', 0);
 
     // Go back to the pipeline builder
-    await editPipeline();
+    await goToEditPipeline();
 
     // Change match filter
     await browser.setAceValue(
@@ -557,7 +561,7 @@ describe('Collection aggregations tab', function () {
     );
 
     // Run and wait for results
-    await runAggregation();
+    await goToRunAggregation();
 
     // Get all documents from the current results page
     const updatedDocs = await getDocuments();
@@ -570,9 +574,6 @@ describe('Collection aggregations tab', function () {
     expect(updatedDocs[3]).to.have.property('i', 8);
     expect(updatedDocs[4]).to.have.property('i', 9);
     expect(updatedDocs[5]).to.have.property('i', 10);
-
-    // Go back to the pipeline builder because that's what beforeEach expects
-    await editPipeline();
   });
 
   it('supports paginating aggregation results', async function () {
@@ -588,7 +589,7 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(1), '25');
 
     // Run and wait for results
-    await runAggregation();
+    await goToRunAggregation();
 
     const page1 = await getDocuments();
     expect(page1).to.have.lengthOf(20);
@@ -605,9 +606,6 @@ describe('Collection aggregations tab', function () {
     const page2 = await getDocuments();
     expect(page2).to.have.lengthOf(5);
     expect(page2[0]).to.have.property('i', 25);
-
-    // Go back to the pipeline builder because that's what beforeEach expects
-    await editPipeline();
   });
 
   it('supports cancelling long-running aggregations', async function () {
@@ -635,7 +633,7 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(0), slowQuery);
 
     // Run and wait for results
-    await runAggregation();
+    await goToRunAggregation();
 
     // Cancel aggregation run
     await browser.clickVisible(Selectors.AggregationResultsCancelButton);
@@ -645,9 +643,6 @@ describe('Collection aggregations tab', function () {
       Selectors.AggregationEmptyResults
     );
     await emptyResultsBanner.waitForDisplayed();
-
-    // Go back to the pipeline builder because that's what beforeEach expects
-    await editPipeline();
   });
 
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
