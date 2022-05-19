@@ -668,7 +668,7 @@ describe('Collection aggregations tab', function () {
     const errorText = await errorBanner.getText();
 
     expect(errorText).to.match(
-      /Invalid \$project .+? specification must have at least one field/
+      /(\$project )?specification must have at least one field/
     );
   });
 
