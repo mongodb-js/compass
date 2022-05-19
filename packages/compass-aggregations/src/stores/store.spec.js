@@ -6,7 +6,8 @@ import {
   stageDeleted,
   stageAdded,
   stageAddedAfter,
-  stageToggled
+  stageToggled,
+  stageOperatorSelected
 } from '../modules/pipeline';
 import { INITIAL_STATE } from '../modules/index';
 import { expect } from 'chai';
@@ -424,6 +425,35 @@ describe('Aggregation Store', function() {
           done();
         });
         store.dispatch(stageCollapseToggled(0));
+      });
+    });
+
+    context('when the action is STAGE_OPERATOR_SELECTED', function() {
+      it('clears the error', function(done) {
+        const unsubscribe = store.subscribe(() => {
+          unsubscribe();
+          const pipeline = store.getState().pipeline[0];
+          delete pipeline.id;
+          expect(pipeline).to.deep.equal({
+            stageOperator: '$match',
+            stage: '{\n  query\n}',
+            isMissingAtlasOnlyStageSupport: false,
+            isValid: false,
+            isEnabled: true,
+            isExpanded: true,
+            isLoading: false,
+            isComplete: false,
+            previewDocuments: [],
+            syntaxError: 'Stage must be a properly formatted document.',
+            error: null,
+            projections: []
+          });
+          done();
+        });
+
+        store.getState().pipeline[0].error = 'foo';
+
+        store.dispatch(stageOperatorSelected(0, '$match', false, 'on-prem'));
       });
     });
   });
