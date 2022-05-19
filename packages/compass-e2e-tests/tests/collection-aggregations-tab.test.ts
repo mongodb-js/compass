@@ -668,7 +668,7 @@ describe('Collection aggregations tab', function () {
     const errorText = await errorBanner.getText();
 
     expect(errorText).to.match(
-      /Invalid \$project :: caused by :: projection specification must have at least one field/
+      /Invalid \$project .+? specification must have at least one field/
     );
   });
 
