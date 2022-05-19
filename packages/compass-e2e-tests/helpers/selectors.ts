@@ -634,6 +634,14 @@ export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
 export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
 
+// New Aggregation Toolbar Specific
+export const AggregationToolbarCreateMenu = '[data-testid="create-new-menu"]';
+export const AggregationToolbarCreateNewPipeline =
+  '[data-testid="create-new-menu-content"]  > li:nth-child(1)';
+export const AggregationExplainButton =
+  '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
+export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
+
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';
 export const CreateViewNameInput = '#create-view-name';

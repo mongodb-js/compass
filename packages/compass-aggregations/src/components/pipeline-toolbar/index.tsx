@@ -52,12 +52,14 @@ type PipelineToolbarProps = {
   isSettingsVisible: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
+  showExplainButton: boolean;
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isSettingsVisible,
   showRunButton,
-  showExportButton
+  showExportButton,
+  showExplainButton,
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
@@ -76,6 +78,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
             showRunButton={showRunButton}
             showExportButton={showExportButton}
+            showExplainButton={showExplainButton}
           />
           {isOptionsVisible && (
             <div className={optionsStyles}>

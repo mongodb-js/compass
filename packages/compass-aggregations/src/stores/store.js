@@ -20,6 +20,7 @@ import {
   localAppRegistryActivated,
   globalAppRegistryActivated
 } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { setDataLake } from '../modules/is-datalake';
 
 /**
  * Refresh the input documents.
@@ -304,6 +305,10 @@ const configureStore = (options = {}) => {
 
   if (options.aggregation) {
     getPipelineFromIndexedDB(options.aggregation.id)(store.dispatch);
+  }
+
+  if (options.isDataLake) {
+    store.dispatch(setDataLake(options.isDataLake));
   }
 
   return store;

@@ -32,3 +32,8 @@ export default function reducer(
   }
   return state;
 }
+
+export const dataLakeChanged = (isDataLake: boolean): AnyAction => ({
+  type: IS_DATA_LAKE_CHANGED,
+  isDataLake,
+});

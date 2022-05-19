@@ -1,7 +1,9 @@
 import type HadronDocument from "hadron-document";
 
+type Doc = HadronDocument | Record<string, any>;
+
 export const Document: React.ComponentClass<{
-  doc: HadronDocument;
+  doc: Doc;
   editable?: boolean;
   isTimeSeries?: boolean;
   removeDocument?: () => void;
@@ -12,7 +14,7 @@ export const Document: React.ComponentClass<{
 }>;
 
 type ListViewProps = {
-  docs: HadronDocument[];
+  docs: Doc[];
   isEditable?: boolean;
   isTimeSeries?: boolean;
   removeDocument?: (doc: HadronDocument) => void;

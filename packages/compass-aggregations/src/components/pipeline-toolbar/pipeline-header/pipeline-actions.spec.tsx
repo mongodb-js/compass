@@ -28,6 +28,7 @@ describe('PipelineActions', function () {
           isOptionsVisible={true}
           showRunButton={true}
           showExportButton={true}
+          showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
           onExportAggregationResults={onExportAggregationResultsSpy}
@@ -94,6 +95,7 @@ describe('PipelineActions', function () {
           isOptionsVisible={false}
           showRunButton={true}
           showExportButton={true}
+          showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
           onExportAggregationResults={() => {}}
@@ -121,7 +123,6 @@ describe('PipelineActions', function () {
     let onExplainAggregationSpy: SinonSpy;
 
     beforeEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPORT = 'true';
       process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
       onRunAggregationSpy = spy();
       onExportAggregationResultsSpy = spy();
@@ -134,6 +135,7 @@ describe('PipelineActions', function () {
           isOptionsVisible={true}
           showRunButton={true}
           showExportButton={true}
+          showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={() => {}}
           onExportAggregationResults={onExportAggregationResultsSpy}
