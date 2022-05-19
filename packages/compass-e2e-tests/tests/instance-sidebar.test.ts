@@ -18,7 +18,7 @@ describe('Instance sidebar', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
 
   after(async function () {
@@ -36,7 +36,7 @@ describe('Instance sidebar', function () {
 
     const topologySingleHostAddress =
       await topologySingleHostAddressElement.getText();
-    expect(topologySingleHostAddress).to.equal('localhost:27018');
+    expect(topologySingleHostAddress).to.equal('localhost:27091');
 
     const singleClusterTypeElement = await browser.$(
       Selectors.SingleClusterType

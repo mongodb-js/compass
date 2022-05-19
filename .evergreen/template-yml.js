@@ -100,6 +100,15 @@ const testPackagedAppVariations = [
         mongodb_use_enterprise: 'yes'
       }
     }
+  },
+  {
+    name: 'test-packaged-app-60x-enterprise',
+    'test-packaged-app': {
+      vars: {
+        mongodb_version: '6.0.x',
+        mongodb_use_enterprise: 'yes'
+      }
+    }
   }
 ];
 

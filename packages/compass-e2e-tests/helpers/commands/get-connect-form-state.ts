@@ -12,7 +12,7 @@ export async function getConnectFormState(
     .getValue();
 
   // General
-  const initialTab = await browser.navigateToConnecTab('General');
+  const initialTab = await browser.navigateToConnectTab('General');
 
   const defaultState = await promiseMap({
     scheme: getCheckedRadioValue(browser, Selectors.ConnectionFormSchemeRadios),
@@ -24,7 +24,7 @@ export async function getConnectFormState(
   });
 
   // Authentication
-  await browser.navigateToConnecTab('Authentication');
+  await browser.navigateToConnectTab('Authentication');
   const authenticationState = await promiseMap({
     authMethod: getCheckedRadioValue(
       browser,
@@ -89,7 +89,7 @@ export async function getConnectFormState(
   });
 
   // TLS/SSL
-  await browser.navigateToConnecTab('TLS/SSL');
+  await browser.navigateToConnectTab('TLS/SSL');
   const tlsState = await promiseMap({
     sslConnection: getCheckedRadioValue(
       browser,
@@ -125,8 +125,8 @@ export async function getConnectFormState(
     ),
   });
 
-  // Proxy/SSH Tunnel
-  await browser.navigateToConnecTab('Proxy/SSH Tunnel');
+  // Proxy/SSH
+  await browser.navigateToConnectTab('Proxy/SSH');
 
   const proxyState = await promiseMap({
     proxyMethod: getCheckedRadioValue(
@@ -190,7 +190,7 @@ export async function getConnectFormState(
   });
 
   // Advanced
-  await browser.navigateToConnecTab('Advanced');
+  await browser.navigateToConnectTab('Advanced');
   const advancedState = await promiseMap({
     readPreference: getCheckedRadioValue(
       browser,
@@ -235,7 +235,7 @@ export async function getConnectFormState(
   // restore the initial state
   if (wasExpanded) {
     // get back to the tab it was on
-    await browser.navigateToConnecTab(initialTab);
+    await browser.navigateToConnectTab(initialTab);
   } else {
     // collapse it again
     await browser.clickVisible(Selectors.ShowConnectionFormButton);

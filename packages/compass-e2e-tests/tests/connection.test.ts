@@ -10,6 +10,8 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
+import semver from 'semver';
+import { MONGODB_VERSION } from '../helpers/compass';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -258,7 +260,7 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection string', async function () {
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -268,7 +270,7 @@ describe('Connection screen', function () {
 
   it('can connect using connection form', async function () {
     await browser.connectWithConnectionForm({
-      hosts: ['localhost:27018'],
+      hosts: ['localhost:27091'],
     });
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -616,7 +618,7 @@ describe('SRV connectivity', function () {
       'mongodb+srv://test1.test.build.10gen.cc/test?tls=false'
     );
     expect(toCS.href).to.equal(
-      'mongodb://localhost.test.build.10gen.cc,localhost.test.build.10gen.cc:27018/test?tls=false'
+      'mongodb://localhost.test.build.10gen.cc,localhost.test.build.10gen.cc:27091/test?tls=false'
     );
 
     expect(resolutionDetails).to.have.lengthOf(2);
@@ -646,7 +648,7 @@ describe('System CA access', function () {
 
     try {
       await browser.connectWithConnectionForm({
-        hosts: ['localhost:27018'],
+        hosts: ['localhost:27091'],
         sslConnection: 'DEFAULT',
         useSystemCA: true,
       });
@@ -683,5 +685,51 @@ describe('System CA access', function () {
         expect(systemCALogs[i].attr.asyncFallbackError).to.equal(null);
       }
     }
+  });
+});
+
+describe('FLE2', function () {
+  let compass: Compass;
+  let browser: CompassBrowser;
+
+  before(async function () {
+    compass = await beforeTests();
+    browser = compass.browser;
+  });
+
+  after(async function () {
+    await afterTests(compass, this.currentTest);
+  });
+  
+  it('can connect using local KMS', async function () {
+    if (
+      semver.lt(MONGODB_VERSION, '6.0.0-rc4') &&
+      process.env.COMPASS_CSFLE_SUPPORT !== 'true'
+    ) {
+      return this.skip();
+    }
+
+    await browser.connectWithConnectionForm({
+      hosts: ['localhost:27091'],
+      fleKeyVaultNamespace: 'alena.keyvault',
+      fleKey: 'A'.repeat(128),
+      fleEncryptedFieldsMap: `{
+        'alena.coll': {
+          fields: [
+            {
+              path: 'phoneNumber',
+              keyId: 'UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a")',
+              bsonType: 'string'
+            }
+          ]
+        }
+      }`
+    });
+
+    const result = await browser.shellEval(
+      'db.getName()',
+      true
+    );
+    expect(result).to.be.equal('test');
   });
 });

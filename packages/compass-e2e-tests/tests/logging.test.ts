@@ -16,7 +16,7 @@ describe('Logging and Telemetry integration', function () {
       const { browser } = compass;
       try {
         await browser.connectWithConnectionString(
-          'mongodb://localhost:27018/test'
+          'mongodb://localhost:27091/test'
         );
 
         await browser.shellEval('use test');
@@ -217,7 +217,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Connection 0',
           msg: 'Connecting',
           attr: (actual: any) => {
-            expect(actual.url).to.match(/^mongodb:\/\/localhost:27018/);
+            expect(actual.url).to.match(/^mongodb:\/\/localhost:27091/);
             expect(actual.csfle).to.equal(null);
           },
         },
@@ -228,7 +228,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'compass-connect',
           msg: 'Initiating connection attempt',
           attr: (actual: any) => {
-            expect(actual.uri).to.match(/^mongodb:\/\/localhost:27018/);
+            expect(actual.uri).to.match(/^mongodb:\/\/localhost:27091/);
             expect(actual.driver.name).to.equal('nodejs');
           },
         },
@@ -252,7 +252,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Connection 0',
           msg: 'Server opening',
           attr: {
-            address: 'localhost:27018',
+            address: 'localhost:27091',
           },
         },
         {
@@ -262,7 +262,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Connection 0',
           msg: 'Server description changed',
           attr: {
-            address: 'localhost:27018',
+            address: 'localhost:27091',
             error: null,
             newType: 'Standalone',
             previousType: 'Unknown',

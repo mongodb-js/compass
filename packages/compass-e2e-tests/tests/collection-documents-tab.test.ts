@@ -96,7 +96,7 @@ describe('Collection documents tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
   });
 
@@ -318,7 +318,7 @@ Bson filter = eq("i", 5L);
 
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
-        "mongodb://localhost:27018/test"
+        "mongodb://localhost:27091/test"
     )
 );
 MongoDatabase database = mongoClient.getDatabase("test");

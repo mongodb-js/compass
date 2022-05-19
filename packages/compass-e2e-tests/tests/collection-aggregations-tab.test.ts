@@ -31,7 +31,7 @@ describe('Collection aggregations tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     // Get us back to the empty stage every time. Also test the Create New

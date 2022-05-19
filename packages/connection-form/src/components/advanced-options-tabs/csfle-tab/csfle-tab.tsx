@@ -184,7 +184,7 @@ function CSFLETab({
             </span>
           );
           return (
-            <Accordion key={kmsProvider} text={accordionTitle}>
+            <Accordion data-testid={`csfle-kms-provider-${kmsProvider}`} key={kmsProvider} text={accordionTitle}>
               <div className={kmsProviderComponentWrapperStyles}>
                 <KMSProviderFieldsForm
                   errors={errors}

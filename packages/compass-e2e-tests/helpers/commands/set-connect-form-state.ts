@@ -12,7 +12,7 @@ export async function setConnectFormState(
   await browser.expandConnectFormOptions();
 
   // General
-  await browser.navigateToConnecTab('General');
+  await browser.navigateToConnectTab('General');
 
   if (state.scheme) {
     await browser.clickParent(
@@ -39,7 +39,7 @@ export async function setConnectFormState(
   }
 
   // Authentication
-  await browser.navigateToConnecTab('Authentication');
+  await browser.navigateToConnectTab('Authentication');
 
   if (state.authMethod) {
     await browser.clickParent(
@@ -136,8 +136,46 @@ export async function setConnectFormState(
     );
   }
 
+  // FLE2
+  if (
+    process.env.COMPASS_CSFLE_SUPPORT === 'true' &&
+    state.fleKeyVaultNamespace &&
+    state.fleKey &&
+    state.fleEncryptedFieldsMap
+  ) {
+    await browser.navigateToConnectTab('In-Use Encryption');
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputFLEKeyVaultNamespace,
+      state.fleKeyVaultNamespace
+    );
+    await browser.expandFLELocalKMS();
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputFLEKey,
+      state.fleKey
+    );
+    // set the text in the editor
+    await browser.setAceValue(Selectors.ConnectionFormInputFLEEncryptedFieldsMap, `{
+      'alena.coll': {
+        fields: [
+          {
+            path: 'phoneNumber',
+            keyId: UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a"),
+            bsonType: 'string'
+          }
+        ]
+      }
+    }`);
+  }
+
+  if (state.awsSessionToken) {
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputAWSSessionToken,
+      state.awsSessionToken
+    );
+  }
+
   // TLS/SSL
-  await browser.navigateToConnecTab('TLS/SSL');
+  await browser.navigateToConnectTab('TLS/SSL');
 
   if (state.sslConnection) {
     await browser.clickParent(
@@ -180,8 +218,8 @@ export async function setConnectFormState(
     await browser.clickParent(Selectors.ConnectionFormTlsUseSystemCACheckbox);
   }
 
-  // Proxy/SSH Tunnel
-  await browser.navigateToConnecTab('Proxy/SSH Tunnel');
+  // Proxy/SSH
+  await browser.navigateToConnectTab('Proxy/SSH');
 
   //proxyMethod
   if (state.proxyMethod) {
@@ -273,7 +311,7 @@ export async function setConnectFormState(
   }
 
   // Advanced
-  await browser.navigateToConnecTab('Advanced');
+  await browser.navigateToConnectTab('Advanced');
 
   if (state.readPreference) {
     await browser.clickParent(
