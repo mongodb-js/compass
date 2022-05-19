@@ -55,7 +55,7 @@ type QueryBarProps = {
   isQueryOptionsExpanded?: boolean;
   valid: boolean;
   queryState: 'apply' | 'reset';
-  showQueryHistoryButton: boolean;
+  showQueryHistoryButton?: boolean;
   toggleExpandQueryOptions: () => void;
   toggleQueryHistory: () => void;
 };
@@ -80,7 +80,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             Query
           </Label>
           <button
-            data-testid="pipeline-toolbar-open-pipelines-button"
+            data-test-id="query-history-button"
             onClick={toggleQueryHistory}
             className={openQueryHistoryStyles}
             id="open-query-history"
@@ -115,10 +115,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         aria-controls="query-options-container"
         data-testid="query-bar-options-toggle"
         isExpanded={isQueryOptionsExpanded}
-        onToggleOptions={() => {
-          console.log('toggle expand');
-          toggleExpandQueryOptions();
-        }}
+        onToggleOptions={toggleExpandQueryOptions}
       />
     </div>
   );
