@@ -549,8 +549,8 @@ describe('Collection aggregations tab', function () {
       await browser.waitForAnimations(Selectors.AggregationExplainModal);
 
       const modal = await browser.$(Selectors.AggregationExplainModal);
-      await browser.waitForAnimations(Selectors.AggregationExplainModal);
       await modal.waitForDisplayed();
+      await browser.waitForAnimations(Selectors.AggregationExplainModal);
       expect(await modal.getText()).to.contain('Query Performance Summary');
     });
   });
