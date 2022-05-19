@@ -26,12 +26,23 @@ const openAdvancedTab = async (
   fireEvent.click(screen.getAllByTestId(tabTestId)[0]);
 };
 
-const fillTextInput = (testId: string, value: string) =>
+const setInputValue = (testId: string, value: string) =>
   fireEvent.change(screen.getByTestId(testId), {
     target: { value },
   });
 
-describe('<Connections />', function () {
+const setFileInputValue = (testId: string, value: string) =>
+  fireEvent.change(screen.getByTestId(testId), {
+    target: {
+      files: [
+        {
+          path: value,
+        },
+      ],
+    },
+  });
+
+describe.only('<Connections />', function () {
   let expectToConnectWith;
   let expectConnectionError;
 
@@ -85,16 +96,16 @@ describe('<Connections />', function () {
   });
 
   describe('In-Use Encryption', function () {
-    beforeEach(function () {
+    beforeEach(async function () {
       if (process?.env?.COMPASS_CSFLE_SUPPORT !== 'true') {
         this.skip();
       }
+
+      await openAdvancedTab('csfle');
+      setInputValue('csfle-keyvault', 'db.coll');
     });
 
     it('passes the FLE options if csfle-keyvault is set', async function () {
-      await openAdvancedTab('csfle');
-      fillTextInput('csfle-keyvault', 'db.coll');
-
       await expectToConnectWith({
         connectionString: 'mongodb://localhost:27017/?appName=Test+App',
         fleOptions: {
@@ -104,10 +115,20 @@ describe('<Connections />', function () {
       });
     });
 
-    it('allows to set encrypted fields map', async function () {
-      await openAdvancedTab('csfle');
-      fillTextInput('csfle-keyvault', 'db.coll');
+    it('reports an error if the key vault namespace is not set', async function () {
+      setInputValue('csfle-keyvault', '');
 
+      setEditorValue(
+        screen.getByTestId('encrypted-fields-map-editor'),
+        '{ "db.coll": { fields: [] } }'
+      );
+
+      await expectConnectionError(
+        'Key Vault namespace must be specified for In-Use-Encryption-enabled connections'
+      );
+    });
+
+    it('allows to set encrypted fields map', async function () {
       setEditorValue(
         screen.getByTestId('encrypted-fields-map-editor'),
         '{ "db.coll": { fields: [] } }'
@@ -130,12 +151,71 @@ describe('<Connections />', function () {
     });
 
     it('reports an error if the encrypted fields map is not well formed', async function () {
-      await openAdvancedTab('csfle');
-      fillTextInput('csfle-keyvault', 'db.coll');
-
       setEditorValue(screen.getByTestId('encrypted-fields-map-editor'), '{');
 
       await expectConnectionError('EncryptedFieldConfig is invalid');
+    });
+
+    it('generates and uses a valid local random key', async function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+
+      expect(screen.getByTestId('key').closest('input').value).to.equal('');
+
+      fireEvent.click(screen.getByTestId('generate-local-key-button'));
+
+      const generatedLocalKey = screen
+        .getByTestId('key')
+        .closest('input').value;
+
+      expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017/?appName=Test+App',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders: {
+              local: {
+                key: generatedLocalKey,
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('allows to setup an AWS key store', async function () {
+      fireEvent.click(screen.getByText('AWS'));
+
+      setInputValue('accessKeyId', 'accessKeyId');
+      setInputValue('secretAccessKey', 'secretAccessKey');
+      setInputValue('sessionToken', 'sessionToken');
+      setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
+      setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017/?appName=Test+App',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders: {
+              aws: {
+                accessKeyId: 'accessKeyId',
+                secretAccessKey: 'secretAccessKey',
+                sessionToken: 'sessionToken',
+              },
+            },
+            tlsOptions: {
+              aws: {
+                tlsCAFile: 'my/ca/file.pem',
+                tlsCertificateKeyFile: 'my/certkey/file.pem',
+              },
+            },
+          },
+        },
+      });
     });
   });
 });
