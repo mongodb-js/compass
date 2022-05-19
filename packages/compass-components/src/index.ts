@@ -33,6 +33,7 @@ export {
   Editor,
   EditorVariant,
   EditorTextCompleter,
+  setEditorValue,
 } from './components/editor';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';

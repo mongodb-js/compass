@@ -51,6 +51,7 @@ type EditorProps = {
   options?: Omit<IAceOptions, 'readOnly'>;
   readOnly?: boolean;
   completer?: unknown;
+  dataTestId?: string;
   onChangeText?: (text: string, event?: any) => void;
 } & Omit<IAceEditorProps, 'onChange' | 'value'>;
 
@@ -62,6 +63,7 @@ function Editor({
   onChangeText,
   completer,
   onFocus,
+  dataTestId,
   ...aceProps
 }: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
@@ -73,31 +75,51 @@ function Editor({
   };
 
   return (
-    <AceEditor
-      mode={
-        variant === 'Generic'
-          ? undefined
-          : variant === 'EJSON'
-          ? 'json'
-          : 'javascript' // set to 'mongodb' as part of setOptions
-      }
-      theme="mongodb"
-      width="100%"
-      value={text}
-      onChange={onChangeText}
-      editorProps={{ $blockScrolling: Infinity }}
-      setOptions={setOptions}
-      readOnly={readOnly}
-      {...aceProps}
-      onFocus={(ev: any) => {
-        if (completer) {
-          tools.setCompleters([completer]);
+    <div data-testid={dataTestId}>
+      <AceEditor
+        mode={
+          variant === 'Generic'
+            ? undefined
+            : variant === 'EJSON'
+            ? 'json'
+            : 'javascript' // set to 'mongodb' as part of setOptions
         }
-        onFocus?.(ev);
-      }}
-    />
+        theme="mongodb"
+        width="100%"
+        value={text}
+        onChange={onChangeText}
+        editorProps={{ $blockScrolling: Infinity }}
+        setOptions={setOptions}
+        readOnly={readOnly}
+        // name should be unique since it gets translated to an id
+        name={aceProps.name ?? `ace-editor-${Date.now()}`}
+        {...aceProps}
+        onFocus={(ev: any) => {
+          if (completer) {
+            tools.setCompleters([completer]);
+          }
+          onFocus?.(ev);
+        }}
+      />
+    </div>
   );
 }
 
+/**
+ * Sets the editor value, use this with RTL like this:
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * setEditorValue(screen.getByTestId('editor-test-id'), 'my text');
+ * ```
+ */
+function setEditorValue(element: HTMLElement, value: string): void {
+  const container = element.querySelector('.ace_editor');
+  if (!container) {
+    throw new Error('Cannot find editor container');
+  }
+  (window as any).ace.edit(container.id).setValue(value);
+}
+
 const EditorTextCompleter = tools.textCompleter;
-export { Editor, EditorVariant, EditorTextCompleter };
+export { Editor, EditorVariant, EditorTextCompleter, setEditorValue };
