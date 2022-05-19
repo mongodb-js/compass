@@ -9,7 +9,7 @@ import CancelLoader from './cancel-loader';
 function renderLoader(spy) {
   return render(
     <CancelLoader
-      dataTestId="my-test-id"
+      data-testid="my-test-id"
       progressText="Doing something"
       cancelText="Stop doing it"
       onCancel={spy}

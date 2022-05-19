@@ -481,17 +481,16 @@ export const HadronElement: React.FunctionComponent<{
         </div>
         <div className={elementDivider} role="presentation">
           :&nbsp;
-          {
-            /* TODO(COMPASS-5706): figure out exact placement */
-            value.decrypted && (
-              <span
-                data-test-id="hadron-document-element-decrypted-icon"
-                title="Encrypted Field"
-              >
-                <Icon glyph="Key" size="small" />
-              </span>
-            )
-          }
+        </div>
+        <div className={elementDivider} role="presentation">
+          {value.decrypted && (
+            <span
+              data-test-id="hadron-document-element-decrypted-icon"
+              title="Encrypted Field"
+            >
+              <Icon glyph="Key" size="small" />
+            </span>
+          )}
         </div>
         <div
           className={elementValue}
