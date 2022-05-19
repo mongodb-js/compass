@@ -40,7 +40,7 @@ export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerfor
       >
         <Subtitle>Query Performance Summary</Subtitle>
         <div className={statsStyles}>
-          {nReturned && (
+          {typeof nReturned === 'number' && (
             <div className={statItemStyles}>
               <Body>Documents returned:</Body>
               <Body weight="medium">{nReturned}</Body>
