@@ -23,6 +23,7 @@ describe('PipelineHeader', function () {
           isOptionsVisible
           showRunButton
           showExportButton
+          showExplainButton
           onShowSavedPipelines={onShowSavedPipelinesSpy}
           onToggleOptions={onToggleOptionsSpy}
         />
