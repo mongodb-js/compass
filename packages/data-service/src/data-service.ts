@@ -87,6 +87,11 @@ import type {
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
 } from 'mongodb-client-encryption';
+import {
+  raceWithAbort,
+  createCancelPromiseError,
+  PROMISE_CANCELLED_ERROR
+} from './cancellable-promise';
 // mongodb-client-encryption only works properly in a packaged
 // environment with dependency injection
 const ClientEncryption: typeof ClientEncryptionType =
@@ -116,6 +121,12 @@ type ClientType = 'CRUD' | 'META';
 const kSessionClientType = Symbol('kSessionClientType');
 interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
+}
+
+type BSONServerExplainResults = Document;
+type ExplainExecuteOptions = {
+  abortSignal?: AbortSignal;
+  explainVerbosity?: keyof typeof mongodb.ExplainVerbosity;
 }
 
 export interface DataServiceEventMap {
@@ -495,6 +506,13 @@ export interface DataService {
     options: FindOptions,
     callback: Callback<Document>
   ): void;
+
+  explainAggregate(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions,
+    executionOptions?: ExplainExecuteOptions,
+  ): Promise<BSONServerExplainResults>;
 
   /**
    * Get the indexes for the collection.
@@ -1595,6 +1613,66 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         }
         callback(null, explanation);
       });
+  }
+
+  explainAggregate(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions,
+    executionOptions?: ExplainExecuteOptions,
+  ): Promise<BSONServerExplainResults> {
+    const verbosity = executionOptions?.explainVerbosity ?? 'queryPlanner';
+    const cursor = this.aggregate(
+      ns,
+      pipeline,
+      options
+    );
+    return this.cancellableOperation(
+      () => cursor.explain(verbosity),
+      () => cursor.close(),
+      executionOptions?.abortSignal,
+    );
+  };
+
+  private async cancellableOperation<T>(
+    start: () => Promise<T>,
+    stop: () => Promise<void>,
+    abortSignal?: AbortSignal
+  ): Promise<T> {
+    if (!abortSignal) {
+      return await start();
+    }
+
+    if (abortSignal?.aborted) {
+      return Promise.reject(createCancelPromiseError());
+    }
+
+    const session = this.startSession('CRUD');
+    const abort = () => {
+      Promise.all([
+        stop(),
+        this.killSessions(session)
+      ]).catch((err) => {
+        log.warn(
+          mongoLogId(1_001_000_140),
+          'CancelOp',
+          'Attempting to kill the session failed',
+          { error: err.message }
+        );
+      });
+    };
+    abortSignal?.addEventListener('abort', abort, { once: true });
+    let result: T;
+    try {
+      result = await raceWithAbort(start(), abortSignal);
+    } finally {
+      abortSignal?.removeEventListener('abort', abort);
+    }
+    return result;
+  }
+
+  isPromiseCancelledError(error: Error): boolean {
+    return error.name === PROMISE_CANCELLED_ERROR;
   }
 
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
