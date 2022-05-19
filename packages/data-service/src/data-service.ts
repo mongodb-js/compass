@@ -1634,47 +1634,6 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     );
   };
 
-  private async cancellableOperation<T>(
-    start: () => Promise<T>,
-    stop: () => Promise<void>,
-    abortSignal?: AbortSignal
-  ): Promise<T> {
-    if (!abortSignal) {
-      return await start();
-    }
-
-    if (abortSignal?.aborted) {
-      return Promise.reject(createCancelPromiseError());
-    }
-
-    const session = this.startSession('CRUD');
-    const abort = () => {
-      Promise.all([
-        stop(),
-        this.killSessions(session)
-      ]).catch((err) => {
-        log.warn(
-          mongoLogId(1_001_000_140),
-          'CancelOp',
-          'Attempting to kill the session failed',
-          { error: err.message }
-        );
-      });
-    };
-    abortSignal?.addEventListener('abort', abort, { once: true });
-    let result: T;
-    try {
-      result = await raceWithAbort(start(), abortSignal);
-    } finally {
-      abortSignal?.removeEventListener('abort', abort);
-    }
-    return result;
-  }
-
-  isPromiseCancelledError(error: Error): boolean {
-    return error.name === PROMISE_CANCELLED_ERROR;
-  }
-
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_047),
@@ -2072,6 +2031,47 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     // actually shows when the client is available on the NativeClient instance
     // and connected
     return !!this._metadataClient;
+  }
+
+  isPromiseCancelledError(error: Error): boolean {
+    return error.name === PROMISE_CANCELLED_ERROR;
+  }
+
+  private async cancellableOperation<T>(
+    start: () => Promise<T>,
+    stop: () => Promise<void>,
+    abortSignal?: AbortSignal
+  ): Promise<T> {
+    if (!abortSignal) {
+      return await start();
+    }
+
+    if (abortSignal?.aborted) {
+      return Promise.reject(createCancelPromiseError());
+    }
+
+    const session = this.startSession('CRUD');
+    const abort = () => {
+      Promise.all([
+        stop(),
+        this.killSessions(session)
+      ]).catch((err) => {
+        log.warn(
+          mongoLogId(1_001_000_140),
+          'CancelOp',
+          'Attempting to kill the session failed',
+          { error: err.message }
+        );
+      });
+    };
+    abortSignal?.addEventListener('abort', abort, { once: true });
+    let result: T;
+    try {
+      result = await raceWithAbort(start(), abortSignal);
+    } finally {
+      abortSignal?.removeEventListener('abort', abort);
+    }
+    return result;
   }
 
   /**

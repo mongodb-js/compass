@@ -1477,6 +1477,24 @@ describe('DataService', function () {
         expect(uuid).to.deep.equal(keyDoc._id);
       });
     });
+
+    describe('#explainAggregate', function () {
+      it('returns an explain object', async function () {
+        const explain = await dataService.explainAggregate(
+          testNamespace,
+          [
+            {
+              $match: {
+                a: 1,
+              },
+            }
+          ],
+          {},
+          {}
+        );
+        expect(explain).to.be.an('object');
+      });
+    });
   });
 
   context('with mocked client', function () {
