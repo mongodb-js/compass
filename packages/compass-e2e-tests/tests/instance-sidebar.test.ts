@@ -38,12 +38,12 @@ describe('Instance sidebar', function () {
       await topologyReplicaSetHostAddressElement.getText();
     expect(topologyReplicaSetHostAddressAddress).to.equal('localhost:27091');
 
-    const singleClusterTypeElement = await browser.$(
-      Selectors.SingleClusterType
+    const replicaSetTypeElement = await browser.$(
+      Selectors.ReplicaSetType
     );
 
-    const singleClusterType = await singleClusterTypeElement.getText();
-    expect(singleClusterType).to.equal('Standalone');
+    const replicaSetType = await replicaSetTypeElement.getText();
+    expect(replicaSetType).to.equal('Replica Set (replicaset)');
 
     const serverVersionTextElement = await browser.$(
       Selectors.ServerVersionText

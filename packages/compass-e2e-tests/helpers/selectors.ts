@@ -196,9 +196,9 @@ export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
 export const TopologyReplicaSetHostAddress =
-  '[data-test-id="topology-replica-set-host-address"]';
-export const SingleClusterType =
-  '[data-test-id="topology-single-cluster-type"]';
+  '[data-test-id="topology-replica-set-host-address-0"]';
+export const ReplicaSetType =
+  '[data-test-id="topology-replica-set-type"]';
 export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
 export const SidebarCreateDatabaseButton =
