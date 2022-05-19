@@ -47,7 +47,7 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   if (isLoading) {
     content = (
       <CancelLoader
-        dataTestId="pipeline-explain-cancel"
+        data-testid="pipeline-explain-cancel"
         cancelText="Cancel"
         onCancel={() => onCancelExplain()}
         progressText="Running explain"
