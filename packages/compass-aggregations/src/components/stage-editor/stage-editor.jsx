@@ -136,7 +136,7 @@ class StageEditor extends Component {
   }
 
   renderSyntaxError() {
-    if (!this.props.isValid) {
+    if (!this.props.isValid && this.props.syntaxError) {
       return (
         <div
           className={styles['stage-editor-syntax-error']}
