@@ -1,127 +1,125 @@
 import React from 'react';
+import {
+  Button,
+  Icon,
+  Label,
+  MoreOptionsToggle,
+  css,
+  cx,
+  focusRingStyles,
+  focusRingVisibleStyles,
+  spacing,
+  uiColors,
+} from '@mongodb-js/compass-components';
 
-type QueryBarProps = {};
+const queryBarStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+  padding: spacing[2],
+  border: `1px solid ${uiColors.gray.light2}`,
+  borderRadius: '6px',
 
-export const QueryBar: React.FunctionComponent<QueryBarProps> = ({}) => {
-  return <div>QueryBar</div>;
+  // TODO: This margin will go away when the query bar is wrapped in the
+  // Toolbar component in each of the plugins. COMPASS-5484
+  margin: spacing[3],
+});
 
-  // return (
-  //   <div className={_inputGroupClassName}>
-  //     <div
-  //       onBlur={this._onBlur}
-  //       onFocus={this._onFocus}
-  //       className={_queryOptionClassName}
-  //     >
-  //       {this.renderOptionRows()}
-  //     </div>
-  //     <div className={styles['button-group']}>
-  //       {/* <button
-  //         data-test-id="query-bar-apply-filter-button"
-  //         key="apply-button"
-  //         className={_applyButtonClassName}
-  //         type="button"
-  //         onClick={this.onApplyButtonClicked}
-  //         disabled={applyDisabled}
-  //       >
-  //         {buttonLabel}
-  //       </button> */}
-  //       <Button
-  //         data-test-id="query-bar-apply-filter-button"
-  //         // key="apply-button"
-  //         // className={_applyButtonClassName}
-  //         // styles['apply-button']
-  //         // type="button"
-  //         onClick={this.onApplyButtonClicked}
-  //         disabled={applyDisabled}
-  //         variant="primary"
-  //         size="small"
-  //       >
-  //         {buttonLabel}
-  //       </Button>
-  //       <Button
-  //         aria-label="Reset query"
-  //         data-test-id="query-bar-reset-filter-button"
-  //         onClick={this.onResetButtonClicked}
-  //         // styles['reset-button']
-  //         disabled={queryState !== 'apply'}
-  //         size="small"
-  //       >
-  //         Reset
-  //       </Button>
-  //       {/* <button
-  //         data-test-id="query-bar-reset-filter-button"
-  //         key="reset-button"
-  //         className={_resetButtonClassName}
-  //         type="button"
-  //         onClick={this.onResetButtonClicked}
-  //       >
-  //         Reset
-  //       </button> */}
-  //       {showQueryHistoryButton && (
-  //         <Button
-  //           id="query_history_button"
-  //           // key="query-history-button"
-  //           // className={_queryHistoryClassName}
-  //           // styles['query-history-button']
-  //           data-test-id="query-history-button"
-  //           onClick={this.props.actions.toggleQueryHistory}
-  //           title="Toggle Query History"
-  //           size="small"
-  //         >
-  //           <FontAwesome
-  //             data-test-id="query-history-button-icon"
-  //             name="history"
-  //           />
-  //         </Button>
-  //       )}
-  //     </div>
+const queryAreaStyles = css({
+  flexGrow: 1,
+});
 
-  //     {showExportToLanguageButton && (
-  //       <Menu
-  //         data-testid="connection-menu"
-  //         align="bottom"
-  //         justify="start"
-  //         id="query-bar-menu-actions"
-  //         trigger={
-  //           <Button
-  //             // className={cx(
-  //             //   dropdownButtonStyles,
-  //             //   css({
-  //             //     color: iconColor,
-  //             //   })
-  //             // )}
-  //             size="small"
-  //             aria-label="Query Options Menu"
-  //           >
-  //             <Icon glyph="Ellipsis" />
-  //           </Button>
-  //         }
-  //         open={this.state.menuIsOpen}
-  //         setOpen={() =>
-  //           this.setState({ menuIsOpen: !this.state.menuIsOpen })
-  //         }
-  //       >
-  //         <MenuItem
-  //           data-testid="export-to-language"
-  //           onClick={this.props.actions.exportToLanguage}
-  //         >
-  //           Export To Language
-  //         </MenuItem>
-  //       </Menu>
-  //     )}
+const openQueryHistoryLabelStyles = css({
+  display: 'inline-block',
+  padding: 0,
+});
 
-  //     {/* {showExportToLanguageButton && (
-  //       <Dropdown pullRight id="query-bar-menu-actions">
-  //         <Dropdown.Toggle noCaret>
-  //           <i className="mms-icon-ellipsis" aria-hidden />
-  //         </Dropdown.Toggle>
-  //         <Dropdown.Menu>
-  //           <MenuItem onClick={this.props.actions.exportToLanguage}>
-  //             Export To Language
-  //           </MenuItem>
-  //         </Dropdown.Menu>
-  //       </Dropdown>
-  //     )} */}
-  //   </div>
-  // );
+const openQueryHistoryStyles = cx(
+  css({
+    border: 'none',
+    backgroundColor: 'transparent',
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: `${spacing[1]}px ${spacing[1]}px`,
+    '&:hover': {
+      cursor: 'pointer',
+    },
+    '&:focus': focusRingVisibleStyles,
+  }),
+  focusRingStyles
+);
+
+type QueryBarProps = {
+  buttonLabel?: string;
+  expanded: boolean;
+  isQueryOptionsExpanded?: boolean;
+  valid: boolean;
+  queryState: 'apply' | 'reset';
+  showQueryHistoryButton: boolean;
+  toggleExpandQueryOptions: () => void;
+  toggleQueryHistory: () => void;
+};
+
+export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
+  buttonLabel = 'Apply',
+  expanded: isQueryOptionsExpanded = false,
+  valid: isQueryValid,
+  queryState,
+  showQueryHistoryButton = true,
+  toggleExpandQueryOptions,
+  toggleQueryHistory,
+}) => {
+  return (
+    <div className={queryBarStyles}>
+      {showQueryHistoryButton && (
+        <>
+          <Label
+            className={openQueryHistoryLabelStyles}
+            htmlFor="open-query-history"
+          >
+            Query
+          </Label>
+          <button
+            data-testid="pipeline-toolbar-open-pipelines-button"
+            onClick={toggleQueryHistory}
+            className={openQueryHistoryStyles}
+            id="open-query-history"
+            aria-label="Open query history"
+          >
+            <Icon glyph="Clock" />
+            <Icon glyph="CaretDown" />
+          </button>
+        </>
+      )}
+      <div className={queryAreaStyles}>Query Area (coming soon)</div>
+      {isQueryOptionsExpanded && <div id="aria-controls">Query Options</div>}
+      <Button
+        data-test-id="query-bar-apply-filter-button"
+        onClick={() => alert('coming soon')}
+        disabled={!isQueryValid}
+        variant="primary"
+        size="small"
+      >
+        {buttonLabel}
+      </Button>
+      <Button
+        aria-label="Reset query"
+        data-test-id="query-bar-reset-filter-button"
+        onClick={() => alert('coming soon')}
+        disabled={queryState !== 'apply'}
+        size="small"
+      >
+        Reset
+      </Button>
+      <MoreOptionsToggle
+        aria-controls="query-options-container"
+        data-testid="query-bar-options-toggle"
+        isExpanded={isQueryOptionsExpanded}
+        onToggleOptions={() => {
+          console.log('toggle expand');
+          toggleExpandQueryOptions();
+        }}
+      />
+    </div>
+  );
 };

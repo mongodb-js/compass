@@ -8,7 +8,7 @@ import OptionsToggle from '../options-toggle';
 import configureStore from '../../stores';
 import configureActions from '../../actions';
 
-import styles from '../query-bar/query-bar.module.less';
+import styles from './query-bar.module.less';
 
 describe('QueryBar [Component]', function () {
   let actions;

@@ -22,7 +22,10 @@ class Plugin extends Component {
     return (
       <StoreConnector store={this.props.store}>
         {useNewQueryBar ? (
-          <QueryBar actions={this.props.actions} {...this.props} />
+          <QueryBar
+            toggleExpandQueryOptions={this.props.actions.toggleQueryOptions}
+            toggleQueryHistory={this.props.actions.toggleQueryHistory}
+          />
         ) : (
           <LegacyQueryBar actions={this.props.actions} {...this.props} />
         )}
