@@ -691,14 +691,18 @@ describe('System CA access', function () {
 describe('FLE2', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let initialEnvVars: NodeJS.ProcessEnv;
 
   before(async function () {
+    initialEnvVars = Object.assign({}, process.env);
+    process.env.COMPASS_CSFLE_SUPPORT = 'true';
     compass = await beforeTests();
     browser = compass.browser;
   });
 
   after(async function () {
     await afterTests(compass, this.currentTest);
+    process.env = initialEnvVars;
   });
 
   it('can connect using local KMS', async function () {
