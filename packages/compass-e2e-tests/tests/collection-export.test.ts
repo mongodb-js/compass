@@ -1,6 +1,5 @@
 import { promises as fs } from 'fs';
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
@@ -14,10 +13,6 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
-chai.use(chaiAsPromised);
-
-const { expect } = chai;
-
 async function selectExportFileTypeCSV(browser: CompassBrowser) {
   // select csv (unselected at first, selected by the end)
   await browser.clickVisible(
@@ -27,25 +22,6 @@ async function selectExportFileTypeCSV(browser: CompassBrowser) {
     Selectors.selectExportFileTypeButton('csv', true)
   );
   await selectExportFileTypeButtonElement.waitForDisplayed();
-}
-
-async function setExportFilename(browser: CompassBrowser, filename: string) {
-  // make sure the file doesn't already exist
-  await expect(fs.stat(filename)).to.be.rejected;
-
-  await browser.execute(function (f) {
-    // eslint-disable-next-line no-undef
-    document.dispatchEvent(
-      // eslint-disable-next-line no-undef
-      new CustomEvent('selectExportFileName', { detail: f })
-    );
-  }, filename);
-
-  await browser.waitUntil(async () => {
-    const exportModalFileText = await browser.$(Selectors.ExportModalFileText);
-    const value = await exportModalFileText.getValue();
-    return value === filename;
-  });
 }
 
 describe('Collection export', function () {
@@ -103,7 +79,7 @@ describe('Collection export', function () {
     // select CSV
     await selectExportFileTypeCSV(browser);
     const filename = outputFilename('filtered-numbers.csv');
-    await setExportFilename(browser, filename);
+    await browser.setExportFilename(filename);
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
     // wait for it to finish
@@ -176,7 +152,7 @@ describe('Collection export', function () {
     // CSV file type
     await selectExportFileTypeCSV(browser);
     const filename = outputFilename('all-numbers.csv');
-    await setExportFilename(browser, filename);
+    await browser.setExportFilename(filename);
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
     // wait for it to finish, then close the modal
@@ -236,7 +212,7 @@ describe('Collection export', function () {
     // CSV file type
     await selectExportFileTypeCSV(browser);
     const filename = outputFilename('numbers-only.csv');
-    await setExportFilename(browser, filename);
+    await browser.setExportFilename(filename);
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
     // wait for it to finish
@@ -303,7 +279,7 @@ describe('Collection export', function () {
 
     // leave the file type on the default (JSON)
     const filename = outputFilename('filtered-numbers.json');
-    await setExportFilename(browser, filename);
+    await browser.setExportFilename(filename);
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
     // wait for it to finish
@@ -374,7 +350,7 @@ describe('Collection export', function () {
 
     // go with the default file type (JSON)
     const filename = outputFilename('all-numbers.json');
-    await setExportFilename(browser, filename);
+    await browser.setExportFilename(filename);
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
     // wait for it to finish, then close the modal
@@ -432,7 +408,7 @@ describe('Collection export', function () {
 
     // go with the default file type (JSON)
     const filename = outputFilename('numbers-only.json');
-    await setExportFilename(browser, filename);
+    await browser.setExportFilename(filename);
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
     // wait for it to finish

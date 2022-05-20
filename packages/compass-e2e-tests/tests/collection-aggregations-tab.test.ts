@@ -1,8 +1,14 @@
 import chai from 'chai';
 import semver from 'semver';
 import type { Element } from 'webdriverio';
+import { promises as fs } from 'fs';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  outputFilename,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -701,6 +707,64 @@ describe('Collection aggregations tab', function () {
       Selectors.AggregationEmptyResults
     );
     await emptyResultsBanner.waitForDisplayed();
+  });
+
+  it('handles errors in aggregations', async function () {
+    // Disable autopreview so we can run an aggregation that will cause an error
+    await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
+
+    // Set first stage to an invalid $project stage to trigger server error
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$project');
+    await browser.setAceValue(Selectors.stageEditor(0), '{}');
+
+    // Run and wait for results
+    await goToRunAggregation();
+
+    const errorBanner = await browser.$(Selectors.AggregationErrorBanner);
+    await errorBanner.waitForDisplayed();
+    const errorText = await errorBanner.getText();
+
+    expect(errorText).to.match(
+      /(\$project )?specification must have at least one field/
+    );
+  });
+
+  it('supports exporting aggregation results', async function () {
+    // Set first stage to $match
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$match');
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+    // Open the modal
+    await browser.clickVisible(Selectors.ExportAggregationResultsButton);
+    const exportModal = await browser.$(Selectors.ExportModal);
+    await exportModal.waitForDisplayed();
+
+    // Set filename
+    const filename = outputFilename('aggregated-numbers.json');
+    await browser.setExportFilename(filename);
+
+    // Start export and wait for results
+    await browser.clickVisible(Selectors.ExportModalExportButton);
+    const exportModalShowFileButtonElement = await browser.$(
+      Selectors.ExportModalShowFileButton
+    );
+    await exportModalShowFileButtonElement.waitForDisplayed();
+
+    // Close modal
+    await browser.clickVisible(Selectors.ExportModalCloseButton);
+    const exportModalElement = await browser.$(Selectors.ExportModal);
+    await exportModalElement.waitForDisplayed({ reverse: true });
+
+    // Confirm that we exported what we expected to export
+    const text = await fs.readFile(filename, 'utf-8');
+    const docs = JSON.parse(text);
+
+    expect(docs).to.have.lengthOf(1);
+    expect(docs[0]).to.have.property('_id');
+    expect(docs[0]).to.have.property('i', 5);
+    expect(docs[0]).to.have.property('j', 0);
   });
 
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
