@@ -24,6 +24,41 @@ const initialAggregationToolbarValue =
 const initialAggregationExplainValue =
   process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
 
+async function goToRunAggregation(browser: CompassBrowser) {
+  if (await browser.$(Selectors.AggregationBuilderWorkspace).isDisplayed()) {
+    await browser.clickVisible(Selectors.RunPipelineButton);
+  }
+  const resultsWorkspace = await browser.$(
+    Selectors.AggregationResultsWorkspace
+  );
+  await resultsWorkspace.waitForDisplayed();
+}
+
+async function goToEditPipeline(browser: CompassBrowser) {
+  if (await browser.$(Selectors.AggregationResultsWorkspace).isDisplayed()) {
+    await browser.clickVisible(Selectors.EditPipelineButton);
+  }
+  const builderWorkspace = await browser.$(
+    Selectors.AggregationBuilderWorkspace
+  );
+  await builderWorkspace.waitForDisplayed();
+}
+
+async function getDocuments(browser: CompassBrowser) {
+  // Switch to JSON view so it's easier to get document value
+  await browser.clickVisible(Selectors.AggregationResultsJSONListSwitchButton);
+  // Get all visible documents
+  const documents = await browser.$$(Selectors.DocumentJSONEntry);
+  // Get ace editor content and parse it
+  const parsed = await Promise.all(
+    documents.map(async (doc) => {
+      const aceEditor = await doc.$('.ace_content');
+      return JSON.parse(await aceEditor.getText());
+    })
+  );
+  return parsed;
+}
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -501,97 +536,6 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  describe('Aggregation Explain', function () {
-    let compass: Compass;
-    let browser: CompassBrowser;
-
-    before(async function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
-
-      compass = await beforeTests();
-      browser = compass.browser;
-    });
-
-    beforeEach(async function () {
-      await createNumbersCollection();
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27018/test'
-      );
-      // Some tests navigate away from the numbers collection aggregations tab
-      await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
-      // Get us back to the empty stage every time. Also test the Create New
-      // Pipeline flow while at it.
-      await browser.clickVisible(Selectors.AggregationToolbarCreateMenu);
-      await browser.clickVisible(Selectors.AggregationToolbarCreateNewPipeline);
-      const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
-      await modalElement.waitForDisplayed();
-      await browser.clickVisible(
-        Selectors.ConfirmNewPipelineModalConfirmButton
-      );
-      await modalElement.waitForDisplayed({ reverse: true });
-    });
-
-    after(async function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR =
-        initialAggregationToolbarValue;
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN =
-        initialAggregationExplainValue;
-      await afterTests(compass, this.currentTest);
-    });
-
-    afterEach(async function () {
-      await afterTest(compass, this.currentTest);
-    });
-
-    it('shows the explain for a pipeline', async function () {
-      await browser.clickVisible(Selectors.AggregationExplainButton);
-      await browser.waitForAnimations(Selectors.AggregationExplainModal);
-
-      const modal = await browser.$(Selectors.AggregationExplainModal);
-      await modal.waitForDisplayed();
-      await browser.waitForAnimations(Selectors.AggregationExplainModal);
-      expect(await modal.getText()).to.contain('Query Performance Summary');
-    });
-  });
-
-  async function goToRunAggregation() {
-    if (await browser.$(Selectors.AggregationBuilderWorkspace).isDisplayed()) {
-      await browser.clickVisible(Selectors.RunPipelineButton);
-    }
-    const resultsWorkspace = await browser.$(
-      Selectors.AggregationResultsWorkspace
-    );
-    await resultsWorkspace.waitForDisplayed();
-  }
-
-  async function goToEditPipeline() {
-    if (await browser.$(Selectors.AggregationResultsWorkspace).isDisplayed()) {
-      await browser.clickVisible(Selectors.EditPipelineButton);
-    }
-    const builderWorkspace = await browser.$(
-      Selectors.AggregationBuilderWorkspace
-    );
-    await builderWorkspace.waitForDisplayed();
-  }
-
-  async function getDocuments() {
-    // Switch to JSON view so it's easier to get document value
-    await browser.clickVisible(
-      Selectors.AggregationResultsJSONListSwitchButton
-    );
-    // Get all visible documents
-    const documents = await browser.$$(Selectors.DocumentJSONEntry);
-    // Get ace editor content and parse it
-    const parsed = await Promise.all(
-      documents.map(async (doc) => {
-        const aceEditor = await doc.$('.ace_content');
-        return JSON.parse(await aceEditor.getText());
-      })
-    );
-    return parsed;
-  }
-
   it('supports running and editing aggregation', async function () {
     // Set first stage to match
     await browser.focusStageOperator(0);
@@ -599,10 +543,10 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
     // Run and wait for results
-    await goToRunAggregation();
+    await goToRunAggregation(browser);
 
     // Get all documents from the current results page
-    const docs = await getDocuments();
+    const docs = await getDocuments(browser);
 
     expect(docs).to.have.lengthOf(1);
     expect(docs[0]).to.have.property('_id');
@@ -610,7 +554,7 @@ describe('Collection aggregations tab', function () {
     expect(docs[0]).to.have.property('j', 0);
 
     // Go back to the pipeline builder
-    await goToEditPipeline();
+    await goToEditPipeline(browser);
 
     // Change match filter
     await browser.setAceValue(
@@ -619,10 +563,10 @@ describe('Collection aggregations tab', function () {
     );
 
     // Run and wait for results
-    await goToRunAggregation();
+    await goToRunAggregation(browser);
 
     // Get all documents from the current results page
-    const updatedDocs = await getDocuments();
+    const updatedDocs = await getDocuments(browser);
 
     // Check that the documents are matching pipeline
     expect(updatedDocs).to.have.lengthOf(6);
@@ -647,9 +591,9 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(1), '25');
 
     // Run and wait for results
-    await goToRunAggregation();
+    await goToRunAggregation(browser);
 
-    const page1 = await getDocuments();
+    const page1 = await getDocuments(browser);
     expect(page1).to.have.lengthOf(20);
     expect(page1[0]).to.have.property('i', 5);
 
@@ -661,7 +605,7 @@ describe('Collection aggregations tab', function () {
       return (await paginationDescription.getText()) === 'Showing 21 – 25';
     });
 
-    const page2 = await getDocuments();
+    const page2 = await getDocuments(browser);
     expect(page2).to.have.lengthOf(5);
     expect(page2[0]).to.have.property('i', 25);
   });
@@ -691,7 +635,7 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(0), slowQuery);
 
     // Run and wait for results
-    await goToRunAggregation();
+    await goToRunAggregation(browser);
 
     // Cancel aggregation run
     await browser.clickVisible(Selectors.AggregationResultsCancelButton);
@@ -707,4 +651,55 @@ describe('Collection aggregations tab', function () {
   // TODO: test auto-preview and limit
   // TODO: save a pipeline, close compass, re-open compass, load the pipeline
   // TODO: test Collapse/Expand all stages button (currently broken)
+});
+
+// eslint-disable-next-line mocha/max-top-level-suites
+describe('Aggregation Explain', function () {
+  let compass: Compass;
+  let browser: CompassBrowser;
+
+  before(async function () {
+    process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
+    process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
+
+    compass = await beforeTests();
+    browser = compass.browser;
+  });
+
+  beforeEach(async function () {
+    await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    // Some tests navigate away from the numbers collection aggregations tab
+    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+    // Get us back to the empty stage every time. Also test the Create New
+    // Pipeline flow while at it.
+    await browser.clickVisible(Selectors.AggregationToolbarCreateMenu);
+    await browser.clickVisible(Selectors.AggregationToolbarCreateNewPipeline);
+    const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
+    await modalElement.waitForDisplayed();
+    await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
+    await modalElement.waitForDisplayed({ reverse: true });
+  });
+
+  after(async function () {
+    process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR =
+      initialAggregationToolbarValue;
+    process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN =
+      initialAggregationExplainValue;
+    await afterTests(compass, this.currentTest);
+  });
+
+  afterEach(async function () {
+    await afterTest(compass, this.currentTest);
+  });
+
+  it('shows the explain for a pipeline', async function () {
+    await browser.clickVisible(Selectors.AggregationExplainButton);
+    await browser.waitForAnimations(Selectors.AggregationExplainModal);
+
+    const modal = await browser.$(Selectors.AggregationExplainModal);
+    await modal.waitForDisplayed();
+    await browser.waitForAnimations(Selectors.AggregationExplainModal);
+    expect(await modal.getText()).to.contain('Query Performance Summary');
+  });
 });
