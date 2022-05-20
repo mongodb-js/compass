@@ -138,6 +138,8 @@ class Types extends React.Component {
     return TypeChecker.castableTypes(this.isHighPrecision()).map((type) => {
       return (
         <li key={type}>
+          {/* TODO: COMPASS-5847 Remove eslint disables: */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
           <span
             className={`editable-element-type-${type.toLowerCase()}`}
             onMouseDown={this.handleTypeChange.bind(this)}

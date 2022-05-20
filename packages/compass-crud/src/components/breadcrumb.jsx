@@ -32,10 +32,10 @@ class BreadcrumbComponent extends React.PureComponent {
   render() {
     return (
       <div className={`${BEM_BASE}-container`}>
-        <div onClick={this.onHomeClicked.bind(this)} className={`${BEM_BASE}-tab`}>
+        <button onClick={this.onHomeClicked.bind(this)} className={`${BEM_BASE}-tab`}>
           <FontAwesome name="home" className={`${BEM_BASE}-home-icon`}/>
           {this.props.collection}
-        </div>
+        </button>
         {this.props.path.map((name, i) => {
           let displayName = '';
           if (typeof name === 'number' && i > 0) {
@@ -43,12 +43,12 @@ class BreadcrumbComponent extends React.PureComponent {
           }
           displayName = displayName.concat(name);
           return (
-            <span
+            <button
               key={i}
               onClick={() => this.onTabClicked(i)}
               className={this.getPathClassName(i)}>
               {displayName} {ICON_TYPE[this.props.types[i]]}
-            </span>
+            </button>
           );
         })}
       </div>
