@@ -75,37 +75,40 @@ function Editor({
     ...(!!completer && { enableLiveAutocompletion: true }),
   };
 
-  const editorId = useId('ace-editor-');
+  const editorId = useId();
 
-  return (
-    <div data-testid={dataTestId}>
-      <AceEditor
-        mode={
-          variant === 'Generic'
-            ? undefined
-            : variant === 'EJSON'
-            ? 'json'
-            : 'javascript' // set to 'mongodb' as part of setOptions
+  const editor = (
+    <AceEditor
+      mode={
+        variant === 'Generic'
+          ? undefined
+          : variant === 'EJSON'
+          ? 'json'
+          : 'javascript' // set to 'mongodb' as part of setOptions
+      }
+      theme="mongodb"
+      width="100%"
+      value={text}
+      onChange={onChangeText}
+      editorProps={{ $blockScrolling: Infinity }}
+      setOptions={setOptions}
+      readOnly={readOnly}
+      // name should be unique since it gets translated to an id
+      name={aceProps.name ?? editorId}
+      {...aceProps}
+      onFocus={(ev: any) => {
+        if (completer) {
+          tools.setCompleters([completer]);
         }
-        theme="mongodb"
-        width="100%"
-        value={text}
-        onChange={onChangeText}
-        editorProps={{ $blockScrolling: Infinity }}
-        setOptions={setOptions}
-        readOnly={readOnly}
-        // name should be unique since it gets translated to an id
-        name={aceProps.name ?? editorId}
-        {...aceProps}
-        onFocus={(ev: any) => {
-          if (completer) {
-            tools.setCompleters([completer]);
-          }
-          onFocus?.(ev);
-        }}
-      />
-    </div>
+        onFocus?.(ev);
+      }}
+    />
   );
+
+  // NOTE: we wrap the editor in a div only to add data-testid.
+  // Doing so everywhere caused the styles to break in the query bar,
+  // and so we add the div conditionally based on the data-testid prop.
+  return dataTestId ? <div data-testid={dataTestId}>{editor}</div> : editor;
 }
 
 /**
