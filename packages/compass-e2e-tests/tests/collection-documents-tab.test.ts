@@ -379,7 +379,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
     await browser.setAceValue(
-      '[data-test-id="editable-json"] #ace-editor',
+      '[data-test-id="editable-json"] .ace_editor',
       newjson
     );
 
@@ -426,7 +426,7 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     await browser.setAceValue(
-      '[data-test-id="editable-json"] #ace-editor',
+      '[data-test-id="editable-json"] .ace_editor',
       newjson
     );
 
