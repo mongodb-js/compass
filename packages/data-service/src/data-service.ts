@@ -90,7 +90,7 @@ import type {
 import {
   raceWithAbort,
   createCancelPromiseError,
-  PROMISE_CANCELLED_ERROR
+  OPERATION_CANCELLED_ERROR
 } from './cancellable-promise';
 // mongodb-client-encryption only works properly in a packaged
 // environment with dependency injection
@@ -717,6 +717,8 @@ export interface DataService {
   ): Promise<Document>;
 
   isConnected(): boolean;
+
+  isOperationCancelledError(error: Error): boolean;
 
   /**
    * Get the stats for a database.
@@ -2033,8 +2035,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return !!this._metadataClient;
   }
 
-  isPromiseCancelledError(error: Error): boolean {
-    return error.name === PROMISE_CANCELLED_ERROR;
+  isOperationCancelledError(error: Error): boolean {
+    return error.name === OPERATION_CANCELLED_ERROR;
   }
 
   private async cancellableOperation<T>(
@@ -2064,7 +2066,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         );
       });
     };
-    abortSignal?.addEventListener('abort', abort, { once: true });
+    abortSignal.addEventListener?.('abort', abort, { once: true });
     let result: T;
     try {
       result = await raceWithAbort(start(), abortSignal);

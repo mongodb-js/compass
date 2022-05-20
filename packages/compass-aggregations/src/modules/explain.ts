@@ -1,5 +1,6 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
+import { ExplainVerbosity } from 'mongodb';
 import type { ThunkAction } from 'redux-thunk';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
@@ -7,8 +8,6 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
-import { PROMISE_CANCELLED_ERROR } from '../utils/cancellable-promise';
-import { explainPipeline } from '../utils/cancellable-aggregation';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -135,7 +134,7 @@ export const explainAggregation = (): ThunkAction<
   return async (dispatch, getState) => {
     const {
       isDataLake,
-      pipeline,
+      pipeline: _pipeline,
       namespace,
       maxTimeMS,
       collation,
@@ -148,7 +147,7 @@ export const explainAggregation = (): ThunkAction<
 
     try {
       const abortController = new AbortController();
-      const signal = abortController.signal;
+      const abortSignal = abortController.signal;
       dispatch({
         type: ActionTypes.ExplainStarted,
         abortController,
@@ -160,14 +159,19 @@ export const explainAggregation = (): ThunkAction<
         collation: collation || undefined,
       };
 
-      const rawExplain = await explainPipeline({
-        dataService,
-        signal,
+      const pipeline = _pipeline.map(generateStage)
+        .filter(x => Object.keys(x).length > 0);
+
+      const explainVerbosity = _getExplainVerbosity(pipeline, isDataLake);
+      const rawExplain = await dataService.explainAggregate(
         namespace,
-        pipeline: pipeline.map(generateStage).filter(x => Object.keys(x).length > 0),
+        pipeline,
         options,
-        isDataLake,
-      });
+        {
+          abortSignal,
+          explainVerbosity,
+        }
+      );
 
       const explain: ExplainData = {
         plan: rawExplain,
@@ -200,7 +204,7 @@ export const explainAggregation = (): ThunkAction<
       }
     } catch (e) {
       // Cancellation is handled in cancelExplain
-      if ((e as Error).name !== PROMISE_CANCELLED_ERROR) {
+      if (!dataService.isOperationCancelledError(e)) {
         dispatch({
           type: ActionTypes.ExplainFailed,
           error: (e as Error).message,
@@ -214,6 +218,23 @@ export const explainAggregation = (): ThunkAction<
       }
     }
   }
+};
+
+const _getExplainVerbosity = (
+  pipeline: Document[],
+  isDataLake: boolean
+): keyof typeof ExplainVerbosity => {
+  // dataLake does not have $out/$merge operators
+  if (isDataLake) {
+    return ExplainVerbosity.queryPlannerExtended;
+  }
+  const lastStage = pipeline[pipeline.length - 1] ?? {};
+  const isOutOrMergePipeline =
+    Object.prototype.hasOwnProperty.call(lastStage, '$out') ||
+    Object.prototype.hasOwnProperty.call(lastStage, '$merge');
+  return isOutOrMergePipeline
+    ? ExplainVerbosity.queryPlanner // $out & $merge only work with queryPlanner
+    : ExplainVerbosity.allPlansExecution;
 };
 
 export default reducer;

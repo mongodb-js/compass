@@ -1,9 +1,9 @@
-export const PROMISE_CANCELLED_ERROR = 'PromiseCancelledError';
+export const OPERATION_CANCELLED_ERROR = 'OperationCancelledError';
 
 const OPERATION_CANCELLED_MESSAGE = 'The operation was cancelled.';
 
 class PromiseCancelledError extends Error {
-  name = PROMISE_CANCELLED_ERROR;
+  name = OPERATION_CANCELLED_ERROR;
 }
 
 export const createCancelPromiseError = (): Error => {
