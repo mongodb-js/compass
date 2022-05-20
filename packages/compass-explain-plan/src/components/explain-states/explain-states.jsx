@@ -15,6 +15,7 @@ import EXPLAIN_STATES from '../../constants/explain-states';
 import EXPLAIN_VIEWS from '../../constants/explain-views';
 
 import styles from './explain-states.module.less';
+import { ExplainToolbar } from '../explain-toolbar/explain-toolbar';
 
 /**
  * Readonly warning for the status row.
@@ -106,9 +107,17 @@ class ExplainStates extends Component {
   /**
    * Executes the explain plan.
    */
-  onExecuteExplainClicked() {
+  onExecuteExplainLegacyClicked() {
     this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
     this.props.fetchExplainPlan(this.queryBarStore.state);
+  }
+
+  /**
+   * Executes the explain plan.
+   */
+  onExecuteExplainClicked(queryBarStoreState) {
+    this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
+    this.props.fetchExplainPlan(queryBarStoreState);
   }
 
   /**
@@ -157,7 +166,7 @@ class ExplainStates extends Component {
           <ZeroState header={HEADER} subtext={SUBTEXT}>
             <div>
               <Button
-                onClick={this.onExecuteExplainClicked.bind(this)}
+                onClick={this.onExecuteExplainLegacyClicked.bind(this)}
                 disabled={!this.props.isEditable}
                 data-test-id="execute-explain-button"
                 variant={ButtonVariant.Primary}
@@ -202,8 +211,8 @@ class ExplainStates extends Component {
         actions={this.queryBarActions}
         buttonLabel="Explain"
         resultId={this.props.explain.resultId}
-        onApply={this.onExecuteExplainClicked.bind(this)}
-        onReset={this.onExecuteExplainClicked.bind(this)}
+        onApply={this.onExecuteExplainLegacyClicked.bind(this)}
+        onReset={this.onExecuteExplainLegacyClicked.bind(this)}
       />
     );
   }
@@ -239,15 +248,31 @@ class ExplainStates extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return [
-      <div key="controls-container" className={styles['controls-container']}>
-        {this.renderBanner()}
-        {this.renderQueryBar()}
-        {this.renderViewSwitcher()}
-      </div>,
-      this.renderZeroState(),
-      this.renderContent(),
-    ];
+    const useNewToolbars = process?.env?.COMPASS_SHOW_NEW_TOOLBARS;
+    return (
+      <>
+        {useNewToolbars ? (
+          <ExplainToolbar
+            localAppRegistry={this.props.appRegistry.localAppRegistry}
+            onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
+            switchToTreeView={this.props.switchToTreeView}
+            switchToJSONView={this.props.switchToJSONView}
+            viewType={this.props.explain.viewType}
+          />
+        ) : (
+          <div
+            key="controls-container"
+            className={styles['controls-container']}
+          >
+            {this.renderBanner()}
+            {this.renderQueryBar()}
+            {this.renderViewSwitcher()}
+          </div>
+        )}
+        {this.renderZeroState()}
+        {this.renderContent()}
+      </>
+    );
   }
 }
 
