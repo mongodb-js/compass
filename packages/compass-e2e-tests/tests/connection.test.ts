@@ -703,8 +703,9 @@ describe('FLE2', function () {
 
   it('can connect using local KMS', async function () {
     if (
-      semver.lt(MONGODB_VERSION, '6.0.0-rc4') &&
-      process.env.COMPASS_CSFLE_SUPPORT !== 'true'
+      semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
+      process.env.COMPASS_CSFLE_SUPPORT !== 'true' ||
+      process.env.MONGODB_USE_ENTERPRISE !== 'true'
     ) {
       return this.skip();
     }

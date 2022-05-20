@@ -36,7 +36,6 @@ export * from './click-parent';
 export * from './get-connect-form-state';
 export * from './set-connect-form-state';
 export * from './navigate-to-connect-tab';
-export * from './expand-connect-form-options';
-export * from './expand-fle-local-kms';
+export * from './expand-accordion';
 export * from './reset-connect-form';
 export * from './scroll-to-virtual-item';

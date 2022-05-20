@@ -5,7 +5,7 @@ import type { ConnectFormState } from '../connect-form-state';
 export async function getConnectFormState(
   browser: CompassBrowser
 ): Promise<ConnectFormState> {
-  const wasExpanded = await browser.expandConnectFormOptions();
+  const wasExpanded = await browser.expandAccordion(Selectors.ShowConnectionFormButton);
 
   const connectionString = await browser
     .$(Selectors.ConnectionStringInput)

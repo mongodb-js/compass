@@ -9,7 +9,7 @@ export async function setConnectFormState(
 ): Promise<void> {
   await browser.resetConnectForm();
 
-  await browser.expandConnectFormOptions();
+  await browser.expandAccordion(Selectors.ShowConnectionFormButton);
 
   // General
   await browser.navigateToConnectTab('General');
@@ -148,7 +148,7 @@ export async function setConnectFormState(
       Selectors.ConnectionFormInputFLEKeyVaultNamespace,
       state.fleKeyVaultNamespace
     );
-    await browser.expandFLELocalKMS();
+    await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
     await browser.setValueVisible(
       Selectors.ConnectionFormInputFLEKey,
       state.fleKey
