@@ -15,6 +15,7 @@ import type {
 } from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
+import { AbortController } from '../test/mocks';
 
 const TEST_DOCS = [
   {
@@ -1479,6 +1480,13 @@ describe('DataService', function () {
     });
 
     describe('#explainAggregate', function () {
+      const initialAbortController = global.AbortController;
+      before(function () {
+        (global as any).AbortController = AbortController;
+      });
+      after(function () {
+        global.AbortController = initialAbortController;
+      });
       it('returns an explain object', async function () {
         const explain = await dataService.explainAggregate(
           testNamespace,
@@ -1493,6 +1501,40 @@ describe('DataService', function () {
           {}
         );
         expect(explain).to.be.an('object');
+      });
+      it('returns an explain object - cancellable', function (done) {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const pipeline = [
+          {
+            $addFields: {
+              lazy: {
+                $function: {
+                  body: `function () {
+                    return sleep(1000);
+                  }`,
+                  args: [],
+                  lang: "js"
+                }
+              }
+            },
+          }
+        ];
+        const executionOptions = {
+          abortSignal,
+        };
+
+        dataService.explainAggregate(
+          testNamespace,
+          pipeline,
+          {},
+          executionOptions as any
+        )
+          .catch((error) => {
+            expect(dataService.isOperationCancelledError(error)).to.true;
+            done();
+          });
+        abortController.abort();
       });
     });
   });

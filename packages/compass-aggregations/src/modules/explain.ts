@@ -204,7 +204,7 @@ export const explainAggregation = (): ThunkAction<
       }
     } catch (e) {
       // Cancellation is handled in cancelExplain
-      if (!dataService.isOperationCancelledError(e)) {
+      if (!dataService.isOperationCancelledError(e as Error)) {
         dispatch({
           type: ActionTypes.ExplainFailed,
           error: (e as Error).message,

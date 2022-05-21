@@ -1623,7 +1623,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     options: AggregateOptions,
     executionOptions?: ExplainExecuteOptions,
   ): Promise<BSONServerExplainResults> {
-    const verbosity = executionOptions?.explainVerbosity ?? 'queryPlanner';
+    const verbosity = executionOptions?.explainVerbosity || mongodb.ExplainVerbosity.queryPlanner;
     const cursor = this.aggregate(
       ns,
       pipeline,
@@ -2066,12 +2066,12 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         );
       });
     };
-    abortSignal.addEventListener?.('abort', abort, { once: true });
+    abortSignal.addEventListener('abort', abort, { once: true });
     let result: T;
     try {
       result = await raceWithAbort(start(), abortSignal);
     } finally {
-      abortSignal?.removeEventListener('abort', abort);
+      abortSignal.removeEventListener('abort', abort);
     }
     return result;
   }
