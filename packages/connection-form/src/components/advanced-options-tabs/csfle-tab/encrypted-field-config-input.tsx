@@ -63,6 +63,7 @@ function EncryptedFieldConfigInput({
         <Label htmlFor="TODO(COMPASS-5653)">{label}</Label>
         <Description>{description}</Description>
         <Editor
+          data-testid="encrypted-fields-map-editor"
           variant="Shell"
           text={encryptedFieldConfigToText(encryptedFieldsMap)}
           onChangeText={(newText) => {
