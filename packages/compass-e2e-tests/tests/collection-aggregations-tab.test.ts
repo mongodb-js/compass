@@ -663,7 +663,7 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(0), '{}');
 
     // Run and wait for results
-    await goToRunAggregation();
+    await goToRunAggregation(browser);
 
     const errorBanner = await browser.$(Selectors.AggregationErrorBanner);
     await errorBanner.waitForDisplayed();
@@ -717,6 +717,9 @@ describe('Collection aggregations tab', function () {
   // TODO: test Collapse/Expand all stages button (currently broken)
 });
 
+// TODO: Move this test back to a single describe block to avoid a massive
+// duplication of the setup code
+//
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('Aggregation Explain', function () {
   let compass: Compass;
