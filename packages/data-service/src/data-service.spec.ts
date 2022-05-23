@@ -1495,7 +1495,7 @@ describe('DataService', function () {
               $match: {
                 a: 1,
               },
-            }
+            },
           ],
           {},
           {}
@@ -1514,22 +1514,23 @@ describe('DataService', function () {
                     return sleep(1000);
                   }`,
                   args: [],
-                  lang: "js"
-                }
-              }
+                  lang: 'js',
+                },
+              },
             },
-          }
+          },
         ];
         const executionOptions = {
           abortSignal,
         };
 
-        dataService.explainAggregate(
-          testNamespace,
-          pipeline,
-          {},
-          executionOptions as any
-        )
+        dataService
+          .explainAggregate(
+            testNamespace,
+            pipeline,
+            {},
+            executionOptions as any
+          )
           .catch((error) => {
             expect(dataService.isOperationCancelledError(error)).to.true;
             done();

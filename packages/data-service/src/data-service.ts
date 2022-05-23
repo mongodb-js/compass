@@ -90,7 +90,7 @@ import type {
 import {
   raceWithAbort,
   createCancelPromiseError,
-  OPERATION_CANCELLED_ERROR
+  OPERATION_CANCELLED_ERROR,
 } from './cancellable-promise';
 // mongodb-client-encryption only works properly in a packaged
 // environment with dependency injection
@@ -127,7 +127,7 @@ type BSONServerExplainResults = Document;
 type ExplainExecuteOptions = {
   abortSignal?: AbortSignal;
   explainVerbosity?: keyof typeof mongodb.ExplainVerbosity;
-}
+};
 
 export interface DataServiceEventMap {
   serverDescriptionChanged: (evt: ServerDescriptionChangedEvent) => void;
@@ -511,7 +511,7 @@ export interface DataService {
     ns: string,
     pipeline: Document[],
     options: AggregateOptions,
-    executionOptions?: ExplainExecuteOptions,
+    executionOptions?: ExplainExecuteOptions
   ): Promise<BSONServerExplainResults>;
 
   /**
@@ -1621,20 +1621,18 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     ns: string,
     pipeline: Document[],
     options: AggregateOptions,
-    executionOptions?: ExplainExecuteOptions,
+    executionOptions?: ExplainExecuteOptions
   ): Promise<BSONServerExplainResults> {
-    const verbosity = executionOptions?.explainVerbosity || mongodb.ExplainVerbosity.queryPlanner;
-    const cursor = this.aggregate(
-      ns,
-      pipeline,
-      options
-    );
+    const verbosity =
+      executionOptions?.explainVerbosity ||
+      mongodb.ExplainVerbosity.queryPlanner;
+    const cursor = this.aggregate(ns, pipeline, options);
     return this.cancellableOperation(
       () => cursor.explain(verbosity),
       () => cursor.close(),
-      executionOptions?.abortSignal,
+      executionOptions?.abortSignal
     );
-  };
+  }
 
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
     const logop = this._startLogOp(
@@ -2054,10 +2052,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
 
     const session = this.startSession('CRUD');
     const abort = () => {
-      Promise.all([
-        stop(),
-        this.killSessions(session)
-      ]).catch((err) => {
+      Promise.all([stop(), this.killSessions(session)]).catch((err) => {
         log.warn(
           mongoLogId(1_001_000_140),
           'CancelOp',
