@@ -79,6 +79,15 @@ export const ConnectionFormInputAWSSecretAccessKey =
   '[data-testid="connection-form-aws-secret-access-key-input"]';
 export const ConnectionFormInputAWSSessionToken =
   '[data-testid="connection-form-aws-secret-token-input"]';
+
+export const ConnectionFormInputFLEKeyVaultNamespace =
+  '[data-testid="csfle-keyvault"]';
+export const ConnectionFormInputFLELocalKMS =
+  '[data-testid="csfle-kms-provider-local"]';
+export const ConnectionFormInputFLEKey = '[data-testid="csfle-kms-key"]';
+export const ConnectionFormInputFLEEncryptedFieldsMap =
+  '[data-testid="csfle-encrypted-fields-map"]';
+
 export const ConnectionFormSSLConnectionRadios =
   '#tls-radio-box-group input[type="radio"]';
 export const ConnectionFormTlsCaButton = '#tlsCAFile';
@@ -186,10 +195,9 @@ export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="tree
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
-export const TopologySingleHostAddress =
-  '[data-test-id="topology-single-host-address"]';
-export const SingleClusterType =
-  '[data-test-id="topology-single-cluster-type"]';
+export const TopologyReplicaSetHostAddress =
+  '[data-test-id="topology-replica-set-host-address-0"]';
+export const ReplicaSetType = '[data-test-id="topology-replica-set-type"]';
 export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
 export const SidebarCreateDatabaseButton =
