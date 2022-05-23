@@ -15,7 +15,7 @@ describe('Instance my queries tab', function () {
   });
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
   after(async function () {
     await afterTests(compass, this.currentTest);
