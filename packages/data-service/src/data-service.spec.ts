@@ -1502,7 +1502,7 @@ describe('DataService', function () {
         );
         expect(explain).to.be.an('object');
       });
-      it.only('returns an explain object - cancellable', async function () {
+      it('returns an explain object - cancellable', async function () {
         const abortController = new AbortController();
         const abortSignal = abortController.signal;
         const pipeline = [

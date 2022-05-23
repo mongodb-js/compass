@@ -1,8 +1,10 @@
 import { EventEmitter } from 'events';
 type Listener = (...args: any[]) => void;
 class AbortSignal {
-  private eventEmitter: EventEmitter = new EventEmitter();
-  public aborted = false;
+  constructor(
+    public aborted = false,
+    private eventEmitter = new EventEmitter(),
+  ) { }
 
   onabort() {
     return;
@@ -22,7 +24,9 @@ class AbortSignal {
   }
 }
 export class AbortController {
-  constructor(public signal: AbortSignal = new AbortSignal()) {}
+  constructor(
+    public signal = new AbortSignal()
+  ) { }
   abort(): void {
     if (this.signal.aborted) return;
     this.signal.aborted = true;

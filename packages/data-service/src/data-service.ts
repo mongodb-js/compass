@@ -2079,10 +2079,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
 
     let result: T;
     let abortListener;
-    const aborted = new Promise<T>((_resolve, reject) => {
-      abortListener = () => {
-        reject(new OperationCancelledError());
-      };
+    const pendingPromise = new Promise<never>((_resolve, reject) => {
+      abortListener = () => reject(new OperationCancelledError());
       abortSignal.addEventListener('abort', abortListener, { once: true });
     });
 
@@ -2104,7 +2102,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     };
 
     try {
-      result = await Promise.race([aborted, start(session)]);
+      result = await Promise.race([pendingPromise, start(session)]);
     } catch (err) {
       if (this.isOperationCancelledError(err as Error)) {
         void abort();
