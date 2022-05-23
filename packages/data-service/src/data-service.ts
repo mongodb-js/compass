@@ -139,10 +139,7 @@ type AbortSignal = {
     listener: (event: Event) => void,
     options: Record<string, unknown>
   ) => void;
-  removeEventListener: (
-    type: string,
-    listener: (event: Event) => void
-  ) => void;
+  removeEventListener: (type: string, listener: (event: Event) => void) => void;
 };
 
 type BSONServerExplainResults = Document;
@@ -2096,7 +2093,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         } catch (e) {
           // ignore
         }
-      }
+      };
       await stop().catch(logAbortError);
       await this.killSessions(session).catch(logAbortError);
     };

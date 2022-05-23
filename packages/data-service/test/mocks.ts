@@ -3,8 +3,8 @@ type Listener = (...args: any[]) => void;
 class AbortSignal {
   constructor(
     public aborted = false,
-    private eventEmitter = new EventEmitter(),
-  ) { }
+    private eventEmitter = new EventEmitter()
+  ) {}
 
   onabort() {
     return;
@@ -24,9 +24,7 @@ class AbortSignal {
   }
 }
 export class AbortController {
-  constructor(
-    public signal = new AbortSignal()
-  ) { }
+  constructor(public signal = new AbortSignal()) {}
   abort(): void {
     if (this.signal.aborted) return;
     this.signal.aborted = true;

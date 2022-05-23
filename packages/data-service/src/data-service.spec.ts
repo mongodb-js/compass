@@ -1525,12 +1525,14 @@ describe('DataService', function () {
         };
 
         // cancellable explain
-        const promise = dataService.explainAggregate(
-          testNamespace,
-          pipeline,
-          {},
-          executionOptions as any
-        ).catch(err => err);
+        const promise = dataService
+          .explainAggregate(
+            testNamespace,
+            pipeline,
+            {},
+            executionOptions as any
+          )
+          .catch((err) => err);
         // cancel the operation
         abortController.abort();
         const error = await promise;
