@@ -2048,7 +2048,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       return await start();
     }
 
-    if (abortSignal?.aborted) {
+    if (abortSignal.aborted) {
       return Promise.reject(createCancelPromiseError());
     }
 
