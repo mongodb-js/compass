@@ -89,7 +89,7 @@ import type {
 } from 'mongodb-client-encryption';
 import {
   raceWithAbort,
-  createCancelPromiseError,
+  PromiseCancelledError,
   OPERATION_CANCELLED_ERROR,
 } from './cancellable-promise';
 // mongodb-client-encryption only works properly in a packaged
@@ -2047,7 +2047,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     if (abortSignal.aborted) {
-      return Promise.reject(createCancelPromiseError());
+      return Promise.reject(new PromiseCancelledError());
     }
 
     const session = this.startSession('CRUD');

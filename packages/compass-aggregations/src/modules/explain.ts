@@ -162,7 +162,7 @@ export const explainAggregation = (): ThunkAction<
       const pipeline = _pipeline.map(generateStage)
         .filter(x => Object.keys(x).length > 0);
 
-      const explainVerbosity = _getExplainVerbosity(pipeline, isDataLake);
+      const explainVerbosity = getExplainVerbosity(pipeline, isDataLake);
       const rawExplain = await dataService.explainAggregate(
         namespace,
         pipeline,
@@ -220,7 +220,7 @@ export const explainAggregation = (): ThunkAction<
   }
 };
 
-const _getExplainVerbosity = (
+const getExplainVerbosity = (
   pipeline: Document[],
   isDataLake: boolean
 ): keyof typeof ExplainVerbosity => {
