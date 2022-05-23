@@ -4,9 +4,9 @@ import { ipcMain } from 'hadron-ipc';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
+import { getOsInfo } from './get-os-info';
 
-const { log, mongoLogId } =
-  createLoggerAndTelemetry('COMPASS-TELEMETRY');
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-TELEMETRY');
 
 interface EventInfo {
   event: string;
@@ -41,14 +41,24 @@ class CompassTelemetry {
 
   private static initPromise: Promise<void> | null = null;
 
-  private static _track(info: EventInfo) {
-    const commonProperties = {
-      compass_version: app.getVersion().split('.').slice(0, 2).join('.'), // only major.minor
+  private static _getCommonProperties() {
+    // Used in both track and identify to add common traits
+    // to any event that we send to segment
+    return {
+      compass_version: app.getVersion().split('.').slice(0, 2).join('.'),
+      compass_full_version: app.getVersion(),
       compass_distribution: process.env.HADRON_DISTRIBUTION,
       compass_channel: process.env.HADRON_CHANNEL,
     };
+  }
 
-    if (this.state === 'waiting-for-user-config' || !this.telemetryAnonymousId) {
+  private static _track(info: EventInfo) {
+    const commonProperties = this._getCommonProperties();
+
+    if (
+      this.state === 'waiting-for-user-config' ||
+      !this.telemetryAnonymousId
+    ) {
       this.queuedEvents.push(info);
       return;
     }
@@ -86,15 +96,28 @@ class CompassTelemetry {
         queuedEvents: this.queuedEvents.length,
       }
     );
-    if (this.state === 'enabled' && this.analytics && this.telemetryAnonymousId) {
-      this.analytics.identify({
-        userId: this.currentUserId,
-        anonymousId: this.telemetryAnonymousId,
-        traits: {
-          platform: process.platform,
-          arch: process.arch,
-        },
-      });
+    if (
+      this.state === 'enabled' &&
+      this.analytics &&
+      this.telemetryAnonymousId
+    ) {
+      void getOsInfo()
+        .catch(() => ({})) // still identify even if getOsInfo fails
+        .then((osInfo) => {
+          this.analytics?.identify({
+            userId: this.currentUserId,
+            anonymousId: this.telemetryAnonymousId,
+            traits: {
+              ...this._getCommonProperties(),
+              platform: process.platform,
+              arch: process.arch,
+              ...osInfo,
+            },
+          });
+        })
+        .catch(() => {
+          //
+        });
     }
 
     let event: EventInfo | undefined;
@@ -114,7 +137,7 @@ class CompassTelemetry {
 
     ipcMain.respondTo(
       'compass:usage:identify',
-      (evt, meta: { currentUserId?: string, telemetryAnonymousId: string }) => {
+      (evt, meta: { currentUserId?: string; telemetryAnonymousId: string }) => {
         // This always happens after the first enable/disable call.
         this.currentUserId = meta.currentUserId;
         this.telemetryAnonymousId = meta.telemetryAnonymousId;
@@ -165,7 +188,8 @@ class CompassTelemetry {
   }
 
   static init(app: typeof CompassApplication): Promise<void> {
-    return (this.initPromise ??= this._init(app));
+    this.initPromise ??= Promise.resolve(this._init(app));
+    return this.initPromise;
   }
 
   static track(info: EventInfo): void {

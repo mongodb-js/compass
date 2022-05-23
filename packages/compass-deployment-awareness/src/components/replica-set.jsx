@@ -39,6 +39,7 @@ class ReplicaSet extends React.Component {
       return (
         <div
           className={classnames(styles['topology-replica-set-host-address'])}
+          data-test-id={`topology-replica-set-host-address-${i}`}
           key={i}
           title={server.address}>
           {server.address}
@@ -65,7 +66,10 @@ class ReplicaSet extends React.Component {
           <div className={classnames(styles['topology-replica-set-cluster-title'])}>
             CLUSTER
           </div>
-          <div className={classnames(styles['topology-replica-set-cluster-name'])}>
+          <div
+            className={classnames(styles['topology-replica-set-cluster-name'])}
+            data-test-id="topology-replica-set-type"
+          >
             Replica Set ({this.props.setName})
           </div>
           <div className={classnames(styles['topology-replica-set-cluster-nodes'])}>
