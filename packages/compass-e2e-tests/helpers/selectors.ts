@@ -649,6 +649,7 @@ export const AggregationToolbarCreateNewPipeline =
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
+export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [aria-label*="Close"]`;
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';
