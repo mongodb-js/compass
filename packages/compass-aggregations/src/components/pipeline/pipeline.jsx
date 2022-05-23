@@ -101,7 +101,7 @@ class Pipeline extends PureComponent {
     setSettingsLimit: PropTypes.func.isRequired,
     limit: PropTypes.number.isRequired,
     largeLimit: PropTypes.number.isRequired,
-    maxTimeMS: PropTypes.number.isRequired,
+    maxTimeMS: PropTypes.number,
     applySettings: PropTypes.func.isRequired,
     isFullscreenOn: PropTypes.bool.isRequired,
     toggleFullscreen: PropTypes.func.isRequired,
