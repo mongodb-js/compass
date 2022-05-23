@@ -51,16 +51,13 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   showUpdateViewButton,
   isUpdateViewButtonDisabled,
   isExplainButtonDisabled,
-  showExplainButton: _showExplainButton,
+  showExplainButton,
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
   onExportAggregationResults,
   onExplainAggregation,
 }) => {
-  const showExplainButton =
-    process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true' &&
-    _showExplainButton;
   return (
     <div className={containerStyles}>
       {showUpdateViewButton && (
