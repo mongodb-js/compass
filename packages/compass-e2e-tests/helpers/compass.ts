@@ -41,6 +41,7 @@ export const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
   // semver interprets these suffixes like a prerelease (ie. alpha or rc) and it
   // is irrelevant for our version comparisons anyway
   .replace('-community', '')
+  .replace('>', '')
   // HACK: comparisons don't allow X-Ranges and 5.x or 5.x.x installs 5.2.1 so
   // we can't just map it to 5.0.0
   .replace(/x/g, '999');

@@ -1,7 +1,7 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-export async function navigateToConnecTab(
+export async function navigateToConnectTab(
   browser: CompassBrowser,
   tabName: string
 ): Promise<string> {
