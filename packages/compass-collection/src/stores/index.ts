@@ -5,6 +5,7 @@ import { createStore, applyMiddleware } from 'redux';
 import type { AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
+import type { DataService } from 'mongodb-data-service';
 
 import appRegistry, {
   appRegistryActivated,
@@ -19,6 +20,7 @@ import serverVersion, {
   INITIAL_STATE as SERVER_VERSION_INITIAL_STATE,
 } from '../modules/server-version';
 import isDataLake, {
+  dataLakeChanged,
   INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE,
 } from '../modules/is-data-lake';
 import stats, {
@@ -141,6 +143,12 @@ store.onActivated = (appRegistry: AppRegistry) => {
           }
         }
       );
+      instance.dataLake.on(
+        'change:isDataLake',
+        (_model: unknown, value: boolean) => {
+          store.dispatch(dataLakeChanged(value));
+        }
+      );
     }
   });
 
@@ -248,13 +256,13 @@ store.onActivated = (appRegistry: AppRegistry) => {
 
   /**
    * Set the data service in the store when connected.
-   *
-   * @param {Error} error - The error.
-   * @param {DataService} dataService - The data service.
    */
-  appRegistry.on('data-service-connected', (error, dataService) => {
-    store.dispatch(dataServiceConnected(error, dataService));
-  });
+  appRegistry.on(
+    'data-service-connected',
+    (error, dataService: DataService) => {
+      store.dispatch(dataServiceConnected(error, dataService));
+    }
+  );
 
   /**
    * When the instance is loaded, set our server version.

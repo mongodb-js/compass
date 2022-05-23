@@ -14,7 +14,7 @@ const tabs = [
     id: 'authentication',
   },
   { name: 'TLS/SSL', id: 'tls' },
-  { name: 'Proxy/SSH Tunnel', id: 'proxy' },
+  { name: 'Proxy/SSH', id: 'proxy' },
   { name: 'Advanced', id: 'advanced' },
 ];
 

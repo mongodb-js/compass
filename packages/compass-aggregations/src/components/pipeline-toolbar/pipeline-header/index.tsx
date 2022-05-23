@@ -23,6 +23,9 @@ const openSavedPipelinesStyles = css({
   lineHeight: 1,
   display: 'flex',
   alignItems: 'center',
+  '&:hover': {
+    cursor: 'pointer',
+  },
 });
 
 const pipelineStagesStyles = css({
@@ -40,6 +43,7 @@ type PipelineHeaderProps = {
   isOptionsVisible: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
+  showExplainButton: boolean;
   onShowSavedPipelines: () => void;
   onToggleOptions: () => void;
   isOpenPipelineVisible: boolean;
@@ -49,6 +53,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   onShowSavedPipelines,
   showRunButton,
   showExportButton,
+  showExplainButton,
   onToggleOptions,
   isOptionsVisible,
   isOpenPipelineVisible,
@@ -78,6 +83,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           isOptionsVisible={isOptionsVisible}
           showRunButton={showRunButton}
           showExportButton={showExportButton}
+          showExplainButton={showExplainButton}
         />
       </div>
     </div>

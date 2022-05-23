@@ -101,7 +101,7 @@ class Pipeline extends PureComponent {
     setSettingsLimit: PropTypes.func.isRequired,
     limit: PropTypes.number.isRequired,
     largeLimit: PropTypes.number.isRequired,
-    maxTimeMS: PropTypes.number.isRequired,
+    maxTimeMS: PropTypes.number,
     applySettings: PropTypes.func.isRequired,
     isFullscreenOn: PropTypes.bool.isRequired,
     toggleFullscreen: PropTypes.func.isRequired,
@@ -126,6 +126,7 @@ class Pipeline extends PureComponent {
     refreshInputDocuments: PropTypes.func.isRequired,
     showExportButton: PropTypes.bool.isRequired,
     showRunButton: PropTypes.bool.isRequired,
+    showExplainButton: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
@@ -193,6 +194,7 @@ class Pipeline extends PureComponent {
       <PipelineToolbar
         showRunButton={this.props.showRunButton}
         showExportButton={this.props.showExportButton}
+        showExplainButton={this.props.showExplainButton}
       />
     );
   }
@@ -296,9 +298,7 @@ class Pipeline extends PureComponent {
         {this.renderModifyingViewSourceError()}
         {this.renderPipelineWorkspace()}
         {this.renderSavePipeline()}
-        {process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true' && (
-          <PipelineExplain />
-        )}
+        <PipelineExplain />
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}
           isExpanded={this.props.settings.isExpanded}

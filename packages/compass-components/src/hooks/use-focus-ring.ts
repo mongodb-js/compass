@@ -4,7 +4,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { FocusState, useFocusState } from './use-focus-hover';
 
-export const focusRing = css({
+export const focusRingStyles = css({
   position: 'relative',
   outline: 'none',
   '&::after': {
@@ -21,7 +21,7 @@ export const focusRing = css({
   },
 });
 
-export const focusRingVisible = css({
+export const focusRingVisibleStyles = css({
   '&::after': {
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
     transitionTimingFunction: 'ease-out',
@@ -34,8 +34,8 @@ export function useFocusRing<T extends HTMLElement>(): React.HTMLProps<T> {
   return {
     ...focusProps,
     className: cx(
-      focusRing,
-      focusState === FocusState.FocusVisible && focusRingVisible
+      focusRingStyles,
+      focusState === FocusState.FocusVisible && focusRingVisibleStyles
     ),
   };
 }

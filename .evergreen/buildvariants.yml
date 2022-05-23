@@ -64,6 +64,7 @@ buildvariants:
       - name: test-packaged-app-44x-enterprise
       - name: test-packaged-app-5x-community
       - name: test-packaged-app-5x-enterprise
+      - name: test-packaged-app-60x-enterprise
 
   - name: ubuntu
     display_name: Ubuntu (Test and Package)
@@ -100,3 +101,4 @@ buildvariants:
       - name: test-packaged-app-44x-enterprise
       - name: test-packaged-app-5x-community
       - name: test-packaged-app-5x-enterprise
+      - name: test-packaged-app-60x-enterprise

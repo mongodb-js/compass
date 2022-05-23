@@ -14,9 +14,10 @@ describe('PipelineToolbar', function () {
       render(
         <Provider store={configureStore({})}>
           <PipelineToolbar
-            isSettingsVisible={true}
-            showExportButton={true}
-            showRunButton={true}
+            isSettingsVisible
+            showExportButton
+            showRunButton
+            showExplainButton
           />
         </Provider>
       );
@@ -130,7 +131,12 @@ describe('PipelineToolbar', function () {
     it('does not render toolbar settings', function () {
       render(
         <Provider store={configureStore({})}>
-          <PipelineToolbar isSettingsVisible={false} />
+          <PipelineToolbar
+            isSettingsVisible={false}
+            showExplainButton
+            showExportButton
+            showRunButton
+          />
         </Provider>
       );
       const toolbar = screen.getByTestId('pipeline-toolbar');

@@ -200,8 +200,8 @@ functions:
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4.4.x} \
-            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            MONGODB_VERSION="${mongodb_version|4.4.x}" \
+            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
             npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
@@ -225,8 +225,8 @@ functions:
           npm run --unsafe-perm electron-rebuild
 
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4.4.x} \
-            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            MONGODB_VERSION="${mongodb_version|4.4.x}" \
+            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
             npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
@@ -335,8 +335,8 @@ functions:
 
 
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4.4.x} \
-            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            MONGODB_VERSION="${mongodb_version|4.4.x}" \
+            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
             npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
@@ -359,8 +359,8 @@ functions:
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4.4.x} \
-            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            MONGODB_VERSION="${mongodb_version|4.4.x}" \
+            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
             npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:

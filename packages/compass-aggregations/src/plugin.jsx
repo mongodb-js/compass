@@ -18,13 +18,15 @@ class Plugin extends Component {
   static propTypes = {
     store: PropTypes.object.isRequired,
     showExportButton: PropTypes.bool,
-    showRunButton: PropTypes.bool
-  }
+    showRunButton: PropTypes.bool,
+    showExplainButton: PropTypes.bool,
+  };
 
   static defaultProps = {
     showExportButton: false,
     showRunButton: false,
-  }
+    showExplainButton: false,
+  };
 
   /**
    * Connect the Plugin to the store and render.
@@ -37,6 +39,7 @@ class Plugin extends Component {
         <Aggregations
           showExportButton={this.props.showExportButton}
           showRunButton={this.props.showRunButton}
+          showExplainButton={this.props.showExplainButton}
         />
       </Provider>
     );

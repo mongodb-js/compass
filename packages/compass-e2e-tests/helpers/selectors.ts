@@ -79,6 +79,15 @@ export const ConnectionFormInputAWSSecretAccessKey =
   '[data-testid="connection-form-aws-secret-access-key-input"]';
 export const ConnectionFormInputAWSSessionToken =
   '[data-testid="connection-form-aws-secret-token-input"]';
+
+export const ConnectionFormInputFLEKeyVaultNamespace =
+  '[data-testid="csfle-keyvault"]';
+export const ConnectionFormInputFLELocalKMS =
+  '[data-testid="csfle-kms-provider-local"]';
+export const ConnectionFormInputFLEKey = '[data-testid="csfle-kms-key"]';
+export const ConnectionFormInputFLEEncryptedFieldsMap =
+  '[data-testid="csfle-encrypted-fields-map"]';
+
 export const ConnectionFormSSLConnectionRadios =
   '#tls-radio-box-group input[type="radio"]';
 export const ConnectionFormTlsCaButton = '#tlsCAFile';
@@ -186,10 +195,9 @@ export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="tree
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
-export const TopologySingleHostAddress =
-  '[data-test-id="topology-single-host-address"]';
-export const SingleClusterType =
-  '[data-test-id="topology-single-cluster-type"]';
+export const TopologyReplicaSetHostAddress =
+  '[data-test-id="topology-replica-set-host-address-0"]';
+export const ReplicaSetType = '[data-test-id="topology-replica-set-type"]';
 export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
 export const SidebarCreateDatabaseButton =
@@ -490,7 +498,7 @@ export const ConfirmDeleteDocumentButton =
 export const InsertDialog = '.insert-document-dialog';
 export const InsertDialogErrorMessage =
   '[data-testid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
-export const InsertJSONEditor = '.insert-document-dialog #ace-editor';
+export const InsertJSONEditor = '.insert-document-dialog .ace_editor';
 export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
 export const InsertCancel =
@@ -592,6 +600,23 @@ export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';
 export const AggregationMaxTimeMSInput = '[data-testid="max-time-ms"]';
+export const AggregationBuilderWorkspace =
+  '[data-testid="pipeline-builder-workspace"]';
+export const AggregationResultsWorkspace =
+  '[data-testid="pipeline-results-workspace"]';
+export const AggregationResultsDocumentListSwitchButton =
+  '[aria-label="Document list"] button';
+export const AggregationResultsJSONListSwitchButton =
+  '[aria-label="JSON list"] button';
+export const AggregationRestultsPaginationDescription =
+  '[data-testid="pipeline-pagination-desc"]';
+export const AggregationRestultsNextPageButton =
+  '[data-testid="pipeline-pagination-next-action"]';
+export const AggregationRestultsPrevPageButton =
+  '[data-testid="pipeline-pagination-prev-action"]';
+export const AggregationResultsCancelButton =
+  '[data-testid="pipeline-results-loader-button"]';
+export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
 
 export const AggregationSettingsButton =
   '[data-testid="pipeline-toolbar-settings-button"]';
@@ -608,9 +633,22 @@ export const SavePipelineMenuContent = '[data-testid="save-menu-content"]';
 export const SavePipelineCreateViewAction =
   '[data-testid="save-menu-createView"]';
 export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';
+export const AggregationAutoPreviewToggle =
+  '[data-testid="pipeline-toolbar-preview-toggle"]';
+export const AggregationErrorBanner = '[data-testid="pipeline-results-error"]';
 
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
+export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
+export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
+
+// New Aggregation Toolbar Specific
+export const AggregationToolbarCreateMenu = '[data-testid="create-new-menu"]';
+export const AggregationToolbarCreateNewPipeline =
+  '[data-testid="create-new-menu-content"]  > li:nth-child(1)';
+export const AggregationExplainButton =
+  '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
+export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';

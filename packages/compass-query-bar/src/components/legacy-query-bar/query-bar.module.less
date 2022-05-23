@@ -1,0 +1,103 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.component {
+  position: relative;
+  z-index: 1;
+}
+
+.input-container {
+  // TODO: When migrating to CSS-modules use the commented out padding below and leave this padding in place for dev mode
+  padding: 12px 10px;
+  //padding: 12px 0px 10px 12px;
+  background: @gray8;
+  border-bottom: 1px solid @gray7;
+
+  .is-feature-flag .form-control {
+    border: 1px solid @chart1;
+  }
+
+  .syntax-help {
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    z-index: 2;
+  }
+
+  :global {
+    .dropdown {
+      margin-left: 5px;
+      height: 28px;
+
+      i {
+        top: 1px;
+      }
+
+      &-toggle {
+        height: 28px;
+      }
+
+      &-menu {
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+.input-group {
+  display: flex;
+  align-items: flex-start;
+}
+
+.option-container {
+  flex-grow: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  border: 1px solid @gray5;
+  background: @pw;
+  margin-right: 10px;
+  overflow: hidden;
+
+  // & > .option:first-child,
+  > .option:first-child {
+    border: none;
+  }
+
+  .CodeMirror-placeholder {
+    color: #999999;
+  }
+}
+
+.has-focus {
+  border-color: @alertBlue;
+}
+
+//TODO has-error
+//TODO is-feature-flag
+
+.option-group {
+  display: flex;
+  flex-direction: row;
+}
+
+.button-group {
+  display: flex;
+  flex-grow: 0;
+}
+
+.reset-button {
+  margin-left: 5px;
+}
+
+.query-history-button {
+  padding: 0;
+  margin-left: 5px;
+  width: 28px;
+}
+
+.query-option-toggle-row {
+  display: flex;
+  flex-direction: row;
+  border-top: 1px solid @gray7;
+}
