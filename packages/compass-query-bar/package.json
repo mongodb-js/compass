@@ -24,13 +24,13 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "compass:main": "src/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
     "require": "./dist/index.js",
     "browser": "./dist/browser.js"
   },
   "compass:exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
@@ -81,6 +81,7 @@
     "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
+    "hadron-app-registry": "^8.12.0",
     "hadron-react-components": "^5.15.0",
     "mocha": "^7.0.1",
     "mongodb-ace-autocompleter": "^0.13.0",
