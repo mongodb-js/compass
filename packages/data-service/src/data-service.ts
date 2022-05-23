@@ -133,13 +133,14 @@ interface CompassClientSession extends ClientSession {
 // type definition to avoid including DOM compiler options in tsconfig.
 type AbortSignal = {
   aborted: boolean;
-  onabort: (() => void) | null;
+  onabort: ((this: AbortSignal, event: Event) => void) | null;
   addEventListener: (
     type: string,
     listener: (event: Event) => void,
     options: Record<string, unknown>
   ) => void;
   removeEventListener: (type: string, listener: (event: Event) => void) => void;
+  dispatchEvent: (event: Event) => boolean;
 };
 
 type BSONServerExplainResults = Document;
