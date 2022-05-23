@@ -115,9 +115,6 @@ const QueryChangedStore = Reflux.createStore({
       // query history view.
       autoPopulated: false,
 
-      // was a feature flag recognised in the input
-      featureFlag: false,
-
       // is the query bar component expanded or collapsed?
       expanded: false,
 
