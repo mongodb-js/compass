@@ -25,10 +25,6 @@ async function waitForAnyText(
     return text !== '';
   });
 }
-const initialAggregationToolbarValue =
-  process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR;
-const initialAggregationExplainValue =
-  process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
 
 describe('Collection aggregations tab', function () {
   let compass: Compass;
@@ -512,9 +508,6 @@ describe('Collection aggregations tab', function () {
     let browser: CompassBrowser;
 
     before(async function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR = 'true';
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
-
       compass = await beforeTests();
       browser = compass.browser;
     });
@@ -539,10 +532,6 @@ describe('Collection aggregations tab', function () {
     });
 
     after(async function () {
-      process.env.COMPASS_SHOW_NEW_AGGREGATION_TOOLBAR =
-        initialAggregationToolbarValue;
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN =
-        initialAggregationExplainValue;
       await afterTests(compass, this.currentTest);
     });
 

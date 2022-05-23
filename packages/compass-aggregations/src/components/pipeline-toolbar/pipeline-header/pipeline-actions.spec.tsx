@@ -7,8 +7,6 @@ import type { SinonSpy } from 'sinon';
 
 import { PipelineActions } from './pipeline-actions';
 
-const initialEnableExplain = process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN;
-
 describe('PipelineActions', function () {
   describe('options visible', function () {
     let onRunAggregationSpy: SinonSpy;
@@ -17,7 +15,6 @@ describe('PipelineActions', function () {
     let onExplainAggregationSpy: SinonSpy;
 
     beforeEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
       onExportAggregationResultsSpy = spy();
@@ -37,10 +34,6 @@ describe('PipelineActions', function () {
           onUpdateView={() => {}}
         />
       );
-    });
-
-    afterEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = initialEnableExplain;
     });
 
     it('calls onRunAggregation callback on click', function () {
@@ -123,7 +116,6 @@ describe('PipelineActions', function () {
     let onExplainAggregationSpy: SinonSpy;
 
     beforeEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = 'true';
       onRunAggregationSpy = spy();
       onExportAggregationResultsSpy = spy();
       onExplainAggregationSpy = spy();
@@ -143,10 +135,6 @@ describe('PipelineActions', function () {
           onUpdateView={() => {}}
         />
       );
-    });
-
-    afterEach(function () {
-      process.env.COMPASS_ENABLE_AGGREGATION_EXPLAIN = initialEnableExplain;
     });
 
     it('run action disabled', function () {

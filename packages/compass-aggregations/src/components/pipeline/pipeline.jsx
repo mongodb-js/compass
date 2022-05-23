@@ -298,9 +298,7 @@ class Pipeline extends PureComponent {
         {this.renderModifyingViewSourceError()}
         {this.renderPipelineWorkspace()}
         {this.renderSavePipeline()}
-        {process?.env?.COMPASS_ENABLE_AGGREGATION_EXPLAIN === 'true' && (
-          <PipelineExplain />
-        )}
+        <PipelineExplain />
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}
           isExpanded={this.props.settings.isExpanded}
