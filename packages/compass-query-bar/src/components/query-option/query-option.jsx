@@ -14,7 +14,6 @@ class QueryOption extends Component {
     label: PropTypes.string.isRequired,
     serverVersion: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
-    actions: PropTypes.object.isRequired,
     inputType: PropTypes.oneOf(['numeric', 'boolean', 'document']).isRequired,
     value: PropTypes.any,
     autoPopulated: PropTypes.bool,
@@ -23,6 +22,7 @@ class QueryOption extends Component {
     validationFunc: PropTypes.func,
     onChange: PropTypes.func,
     onApply: PropTypes.func,
+    refreshEditorAction: PropTypes.func.isRequired,
     schemaFields: PropTypes.array,
   };
 
@@ -80,7 +80,7 @@ class QueryOption extends Component {
         onChange={this.props.onChange}
         onApply={this.props.onApply}
         autoPopulated={this.props.autoPopulated}
-        actions={this.props.actions}
+        refreshEditorAction={this.props.refreshEditorAction}
         schemaFields={this.props.schemaFields}
         placeholder={this.props.placeholder}
       />

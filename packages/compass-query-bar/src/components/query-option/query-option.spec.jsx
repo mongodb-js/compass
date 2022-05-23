@@ -32,7 +32,7 @@ describe('QueryOption [Component]', function () {
           placeholder=""
           value=""
           serverVersion="3.4.0"
-          actions={{}}
+          refreshEditorAction={() => {}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
@@ -62,7 +62,7 @@ describe('QueryOption [Component]', function () {
           placeholder=""
           serverVersion="3.4.0"
           value=""
-          actions={{}}
+          refreshEditorAction={() => {}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
@@ -86,7 +86,7 @@ describe('QueryOption [Component]', function () {
           serverVersion="3.4.0"
           placeholder=""
           value=""
-          actions={{}}
+          refreshEditorAction={() => {}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}

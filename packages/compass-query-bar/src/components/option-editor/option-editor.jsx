@@ -15,7 +15,7 @@ class OptionEditor extends Component {
     label: PropTypes.string.isRequired,
     serverVersion: PropTypes.string.isRequired,
     autoPopulated: PropTypes.bool.isRequired,
-    actions: PropTypes.object.isRequired,
+    refreshEditorAction: PropTypes.func.isRequired,
     value: PropTypes.any,
     onChange: PropTypes.func,
     onApply: PropTypes.func,
@@ -50,7 +50,7 @@ class OptionEditor extends Component {
    * Subscribe on mount.
    */
   componentDidMount() {
-    this.unsub = this.props.actions.refreshEditor.listen(() => {
+    this.unsub = this.props.refreshEditorAction.listen(() => {
       this.editor.setValue(this.props.value);
       this.editor.clearSelection();
     });

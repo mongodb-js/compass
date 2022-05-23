@@ -62,7 +62,6 @@ class QueryBar extends Component {
   static displayName = 'QueryBar';
 
   static propTypes = {
-    store: PropTypes.object.isRequired,
     filter: PropTypes.object,
     project: PropTypes.object,
     sort: PropTypes.object,
@@ -190,7 +189,7 @@ class QueryBar extends Component {
         hasError={hasError}
         key={`query-option-${id}`}
         value={value}
-        actions={this.props.actions}
+        refreshEditorAction={this.props.actions.refreshEditor}
         placeholder={placeholder}
         link={OPTION_DEFINITION[option].link}
         inputType={OPTION_DEFINITION[option].type}

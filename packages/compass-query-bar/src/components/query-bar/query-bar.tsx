@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Button,
   Icon,
@@ -12,11 +12,19 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 
-const queryBarStyles = css({
+import type {
+  QueryOption,
+  QueryBarLayout,
+} from '../../constants/query-option-definition';
+import { OPTION_DEFINITION } from '../../constants/query-option-definition';
+import QueryOptionComponent from '../query-option';
+
+const queryBarFormStyles = css({
   display: 'flex',
-  alignItems: 'center',
-  gap: spacing[2],
-  padding: spacing[2],
+  flexDirection: 'column',
+
+  flexGrow: 1,
+
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
 
@@ -25,8 +33,11 @@ const queryBarStyles = css({
   margin: spacing[3],
 });
 
-const queryAreaStyles = css({
-  flexGrow: 1,
+const queryBarFirstRowStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+  padding: spacing[2],
 });
 
 const openQueryHistoryLabelStyles = css({
@@ -49,74 +60,218 @@ const openQueryHistoryStyles = cx(
   focusRingStyles
 );
 
+const rowStyles = css({
+  display: 'flex',
+  flexGrow: 1,
+});
+
 type QueryBarProps = {
+  autoPopulated: boolean;
   buttonLabel?: string;
   expanded: boolean;
-  isQueryOptionsExpanded?: boolean;
-  valid: boolean;
+  filterValid: boolean;
+  layout?: QueryBarLayout;
+  onApply: () => void;
+  onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
+  onReset: () => void;
   queryState: 'apply' | 'reset';
+  refreshEditorAction: () => void;
+  schemaFields: string[];
+  serverVersion: string;
   showQueryHistoryButton?: boolean;
   toggleExpandQueryOptions: () => void;
   toggleQueryHistory: () => void;
+  valid: boolean;
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
+  autoPopulated,
   buttonLabel = 'Apply',
   expanded: isQueryOptionsExpanded = false,
-  valid: isQueryValid,
+  filterValid: isFilterValid,
+  layout = [
+    'filter',
+    'project',
+    ['sort', 'maxTimeMS'],
+    ['collation', 'skip', 'limit'],
+  ],
+  onApply: _onApply,
+  onChangeQueryOption,
+  onReset: _onReset,
   queryState,
+  refreshEditorAction,
+  schemaFields,
+  serverVersion,
   showQueryHistoryButton = true,
   toggleExpandQueryOptions,
-  toggleQueryHistory,
+  toggleQueryHistory: _toggleQueryHistory,
+  valid: isQueryValid,
+
+  // This form uses extra props from the store for placeholders and
+  // input values for the query options. `filterValue`, `sortValue`, etc.
+  ...props
 }) => {
+  const onReset = useCallback(
+    (evt: React.MouseEvent) => {
+      // Prevent form submission.
+      evt.preventDefault();
+
+      _onReset();
+    },
+    [_onReset]
+  );
+
+  const toggleQueryHistory = useCallback(
+    (evt: React.MouseEvent) => {
+      // Prevent form submission.
+      evt.preventDefault();
+
+      _toggleQueryHistory();
+    },
+    [_toggleQueryHistory]
+  );
+
+  const onApply = useCallback(() => {
+    if (isQueryValid) {
+      _onApply();
+    }
+  }, [_onApply, isQueryValid]);
+
+  const renderQueryOption = useCallback(
+    (queryOption: QueryOption) => {
+      const hasError =
+        queryOption === 'filter'
+          ? !isFilterValid
+          : !(props as any)[`${queryOption}Valid`];
+
+      const placeholder =
+        (props as any)[`${queryOption}Placeholder`] ||
+        OPTION_DEFINITION[queryOption].placeholder;
+
+      return (
+        <QueryOptionComponent
+          autoPopulated={autoPopulated}
+          hasError={hasError}
+          inputType={OPTION_DEFINITION[queryOption].type}
+          key={`query-option-${queryOption}`}
+          label={queryOption}
+          link={OPTION_DEFINITION[queryOption].link}
+          onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+            onChangeQueryOption(queryOption, evt.target.value)
+          }
+          onApply={onApply}
+          placeholder={placeholder}
+          refreshEditorAction={refreshEditorAction}
+          schemaFields={schemaFields}
+          serverVersion={serverVersion}
+          value={(props as any)[`${queryOption}String`]}
+        />
+      );
+    },
+    [
+      autoPopulated,
+      isFilterValid,
+      onApply,
+      onChangeQueryOption,
+      props,
+      refreshEditorAction,
+      schemaFields,
+      serverVersion,
+    ]
+  );
+
+  const renderQueryOptionRow = useCallback(
+    (queryOption: string | string[], key: number) => (
+      <div className={rowStyles} key={key}>
+        {typeof queryOption === 'string'
+          ? renderQueryOption(queryOption as QueryOption)
+          : queryOption.map((optionName: string) =>
+              renderQueryOption(optionName as QueryOption)
+            )}
+      </div>
+    ),
+    [renderQueryOption]
+  );
+
+  const firstRowQueryOptions = useMemo(
+    () =>
+      layout.map((queryOption: string | string[], index: number) =>
+        index === 0 ? renderQueryOptionRow(queryOption, index) : null
+      ),
+    [layout, renderQueryOptionRow]
+  );
+
+  const additionalQueryOptions = useMemo(
+    () =>
+      layout.map((queryOption: string | string[], index: number) =>
+        isQueryOptionsExpanded && index > 0
+          ? renderQueryOptionRow(queryOption, index)
+          : null
+      ),
+    [isQueryOptionsExpanded, layout, renderQueryOptionRow]
+  );
+
+  const onFormSubmit = useCallback(
+    (evt: React.FormEvent) => {
+      evt.preventDefault();
+
+      onApply();
+    },
+    [onApply]
+  );
+
   return (
-    <div className={queryBarStyles}>
-      {showQueryHistoryButton && (
-        <>
-          <Label
-            className={openQueryHistoryLabelStyles}
-            htmlFor="open-query-history"
-          >
-            Query
-          </Label>
-          <button
-            data-test-id="query-history-button"
-            onClick={toggleQueryHistory}
-            className={openQueryHistoryStyles}
-            id="open-query-history"
-            aria-label="Open query history"
-          >
-            <Icon glyph="Clock" />
-            <Icon glyph="CaretDown" />
-          </button>
-        </>
-      )}
-      <div className={queryAreaStyles}>Query Area (coming soon)</div>
-      {isQueryOptionsExpanded && <div id="aria-controls">Query Options</div>}
-      <Button
-        data-test-id="query-bar-apply-filter-button"
-        onClick={() => alert('coming soon')}
-        disabled={!isQueryValid}
-        variant="primary"
-        size="small"
-      >
-        {buttonLabel}
-      </Button>
-      <Button
-        aria-label="Reset query"
-        data-test-id="query-bar-reset-filter-button"
-        onClick={() => alert('coming soon')}
-        disabled={queryState !== 'apply'}
-        size="small"
-      >
-        Reset
-      </Button>
-      <MoreOptionsToggle
-        aria-controls="query-options-container"
-        data-testid="query-bar-options-toggle"
-        isExpanded={isQueryOptionsExpanded}
-        onToggleOptions={toggleExpandQueryOptions}
-      />
-    </div>
+    <form className={queryBarFormStyles} onSubmit={onFormSubmit}>
+      <div className={queryBarFirstRowStyles}>
+        {showQueryHistoryButton && (
+          <>
+            <Label
+              className={openQueryHistoryLabelStyles}
+              htmlFor="open-query-history"
+            >
+              Query
+            </Label>
+            <button
+              data-test-id="query-history-button"
+              onClick={toggleQueryHistory}
+              className={openQueryHistoryStyles}
+              id="open-query-history"
+              aria-label="Open query history"
+            >
+              <Icon glyph="Clock" />
+              <Icon glyph="CaretDown" />
+            </button>
+          </>
+        )}
+        {firstRowQueryOptions}
+        <Button
+          data-test-id="query-bar-apply-filter-button"
+          disabled={!isQueryValid}
+          variant="primary"
+          size="small"
+          type="submit"
+        >
+          {buttonLabel}
+        </Button>
+        <Button
+          aria-label="Reset query"
+          data-test-id="query-bar-reset-filter-button"
+          onClick={onReset}
+          disabled={queryState !== 'apply'}
+          size="small"
+        >
+          Reset
+        </Button>
+        <MoreOptionsToggle
+          aria-controls="additional-query-options-container"
+          data-testid="query-bar-options-toggle"
+          isExpanded={isQueryOptionsExpanded}
+          onToggleOptions={toggleExpandQueryOptions}
+        />
+      </div>
+      <div id="additional-query-options-container">
+        {additionalQueryOptions}
+      </div>
+    </form>
   );
 };
