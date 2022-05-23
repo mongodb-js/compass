@@ -87,11 +87,6 @@ import type {
   ClientEncryptionDataKeyProvider,
   ClientEncryptionCreateDataKeyProviderOptions,
 } from 'mongodb-client-encryption';
-import {
-  raceWithAbort,
-  PromiseCancelledError,
-  OPERATION_CANCELLED_ERROR,
-} from './cancellable-promise';
 // mongodb-client-encryption only works properly in a packaged
 // environment with dependency injection
 const ClientEncryption: typeof ClientEncryptionType =
@@ -115,6 +110,16 @@ function isEmptyObject(obj: Record<string, unknown>) {
   return Object.keys(obj).length === 0;
 }
 
+class OperationCancelledError extends Error {
+  name = 'OperationCancelledError';
+  constructor() {
+    super('The operation was cancelled.');
+  }
+  static isOperationCancelledError(error: Error) {
+    return error.name === 'OperationCancelledError';
+  }
+}
+
 let id = 0;
 
 type ClientType = 'CRUD' | 'META';
@@ -122,6 +127,23 @@ const kSessionClientType = Symbol('kSessionClientType');
 interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
 }
+
+// In nodejs, AbortController support is from 15.x and we are currently on 14.x.
+// With the implementation of cancellable actions using AbortSignal, we have custom AbortSignal
+// type definition to avoid including DOM compiler options in tsconfig.
+type AbortSignal = {
+  aborted: boolean;
+  onabort: (() => void) | null;
+  addEventListener: (
+    type: string,
+    listener: (event: Event) => void,
+    options: Record<string, unknown>
+  ) => void;
+  removeEventListener: (
+    type: string,
+    listener: (event: Event) => void
+  ) => void;
+};
 
 type BSONServerExplainResults = Document;
 type ExplainExecuteOptions = {
@@ -1626,10 +1648,13 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     const verbosity =
       executionOptions?.explainVerbosity ||
       mongodb.ExplainVerbosity.queryPlanner;
-    const cursor = this.aggregate(ns, pipeline, options);
+    let cursor: AggregationCursor;
     return this.cancellableOperation(
-      () => cursor.explain(verbosity),
-      () => cursor.close(),
+      (session?: ClientSession) => {
+        cursor = this.aggregate(ns, pipeline, { ...options, session });
+        return cursor.explain(verbosity);
+      },
+      () => cursor?.close(),
       executionOptions?.abortSignal
     );
   }
@@ -2034,12 +2059,12 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   isOperationCancelledError(error: Error): boolean {
-    return error.name === OPERATION_CANCELLED_ERROR;
+    return OperationCancelledError.isOperationCancelledError(error);
   }
 
   private async cancellableOperation<T>(
-    start: () => Promise<T>,
-    stop: () => Promise<void>,
+    start: (session?: ClientSession) => Promise<T>,
+    stop: () => Promise<void> = () => Promise.resolve(),
     abortSignal?: AbortSignal
   ): Promise<T> {
     if (!abortSignal) {
@@ -2047,27 +2072,48 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     if (abortSignal.aborted) {
-      return Promise.reject(new PromiseCancelledError());
+      throw new OperationCancelledError();
     }
 
     const session = this.startSession('CRUD');
-    const abort = () => {
-      Promise.all([stop(), this.killSessions(session)]).catch((err) => {
-        log.warn(
-          mongoLogId(1_001_000_140),
-          'CancelOp',
-          'Attempting to kill the session failed',
-          { error: err.message }
-        );
-      });
-    };
-    abortSignal.addEventListener('abort', abort, { once: true });
+
     let result: T;
+    let abortListener;
+    const aborted = new Promise<T>((_resolve, reject) => {
+      abortListener = () => {
+        reject(new OperationCancelledError());
+      };
+      abortSignal.addEventListener('abort', abortListener, { once: true });
+    });
+
+    const abort = async () => {
+      const logAbortError = (error: Error) => {
+        try {
+          log.warn(
+            mongoLogId(1_001_000_140),
+            'CancelOp',
+            'Attempting to kill the operation failed',
+            { error: error.message }
+          );
+        } catch (e) {
+          // ignore
+        }
+      }
+      await stop().catch(logAbortError);
+      await this.killSessions(session).catch(logAbortError);
+    };
+
     try {
-      result = await raceWithAbort(start(), abortSignal);
+      result = await Promise.race([aborted, start(session)]);
+    } catch (err) {
+      if (this.isOperationCancelledError(err as Error)) {
+        void abort();
+      }
+      throw err;
     } finally {
-      abortSignal.removeEventListener('abort', abort);
+      abortListener && abortSignal.removeEventListener('abort', abortListener);
     }
+
     return result;
   }
 

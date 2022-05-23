@@ -2,12 +2,7 @@
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
   "compilerOptions": {
     "allowJs": true,
-    "lib": [
-      "ES2020",
-      // With the implementation of cancellable actions using AbortController, we need to include DOM for types.
-      // In nodejs, AbortController support is from 15.x and we are currently on 14.x.
-      "DOM"
-    ],
+    "lib": ["ES2020"],
     "outDir": "lib"
   },
   "include": ["src/**/*"],

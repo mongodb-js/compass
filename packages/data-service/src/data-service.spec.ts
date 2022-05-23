@@ -1502,7 +1502,7 @@ describe('DataService', function () {
         );
         expect(explain).to.be.an('object');
       });
-      it('returns an explain object - cancellable', function (done) {
+      it.only('returns an explain object - cancellable', async function () {
         const abortController = new AbortController();
         const abortSignal = abortController.signal;
         const pipeline = [
@@ -1524,18 +1524,19 @@ describe('DataService', function () {
           abortSignal,
         };
 
-        dataService
-          .explainAggregate(
-            testNamespace,
-            pipeline,
-            {},
-            executionOptions as any
-          )
-          .catch((error) => {
-            expect(dataService.isOperationCancelledError(error)).to.true;
-            done();
-          });
+        // cancellable explain
+        const promise = dataService.explainAggregate(
+          testNamespace,
+          pipeline,
+          {},
+          executionOptions as any
+        ).catch(err => err);
+        // cancel the operation
         abortController.abort();
+        const error = await promise;
+
+        expect(error).to.be.instanceOf(Error);
+        expect(dataService.isOperationCancelledError(error)).to.true;
       });
     });
   });
