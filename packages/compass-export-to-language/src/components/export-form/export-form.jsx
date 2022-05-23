@@ -112,7 +112,10 @@ class ExportForm extends PureComponent {
                 iconClassName="fa fa-copy"/>
             </div>
           </div>
-          <div className={classnames(styles['export-to-lang-query-output'])}>
+          <div
+            data-testid="export-to-lang-query-output-container"
+            className={classnames(styles['export-to-lang-query-output'])}
+          >
             <Editor language={this.props.outputLang} value={this.getOutput()}/>
             {outputBubbleDiv}
             <div className={classnames(styles['export-to-lang-copy-output-container'])}>

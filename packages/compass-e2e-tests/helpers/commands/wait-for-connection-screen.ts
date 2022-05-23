@@ -5,5 +5,5 @@ export async function waitForConnectionScreen(
   browser: CompassBrowser
 ): Promise<void> {
   const connectScreenElement = await browser.$(Selectors.ConnectSection);
-  await connectScreenElement.waitForDisplayed({ timeout: 60_000 });
+  await connectScreenElement.waitForDisplayed();
 }

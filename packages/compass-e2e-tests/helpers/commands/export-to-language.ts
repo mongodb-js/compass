@@ -56,9 +56,25 @@ export async function exportToLanguage(
     }
   }
 
-  // copy the text to and from the clipboard so we can return it later
-  await browser.clickVisible(Selectors.ExportToLanguageCopyOutputButton);
-  const text = await clipboard.read();
+  let text = '';
+
+  if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE === 'true') {
+    text = await browser.execute((_selector) => {
+      const aceEditorContainer = document.querySelector(
+        `${_selector} .ace_editor`
+      );
+      if (!aceEditorContainer) {
+        throw new Error(
+          `Cannot find ace-editor container for selector ${_selector}`
+        );
+      }
+      return (window as any).ace.edit(aceEditorContainer.id).getValue();
+    }, Selectors.ExportToLanguageQueryOutput);
+  } else {
+    // copy the text to and from the clipboard so we can return it later
+    await browser.clickVisible(Selectors.ExportToLanguageCopyOutputButton);
+    text = await clipboard.read();
+  }
 
   // close the modal again
   await browser.clickVisible(Selectors.ExportToLanguageCloseButton);

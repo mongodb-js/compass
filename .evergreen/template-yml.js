@@ -3,7 +3,6 @@
 
 const fs = require('fs');
 
-
 function template(input) {
   // PHP-like syntax, except it's JS.
   // foo: <% for (let i = 0; i < 10; i++) { %>
@@ -27,10 +26,9 @@ function template(input) {
 
     i = closing + 2;
   }
-  asJs += '; return result; })()'
+  asJs += '; return result; })()';
   return eval(asJs);
 }
-
 
 const testPackagedAppVariations = [
   {
@@ -137,7 +135,8 @@ for (const buildVariant of buildVariants) {
     // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
     // we can remove this.
     if (
-      (task.name.startsWith('test-packaged-app-5x') || task.name.startsWith('test-packaged-app-60x')) &&
+      (task.name.startsWith('test-packaged-app-5x') ||
+        task.name.startsWith('test-packaged-app-60x')) &&
       buildVariant.name === 'ubuntu'
     ) {
       continue;

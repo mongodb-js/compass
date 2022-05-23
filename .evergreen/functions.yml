@@ -159,7 +159,10 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
 
           # Prepare workspaces in provided scope
-          npx lerna run bootstrap --stream --scope "${scope}"
+          npx lerna run bootstrap \
+            --stream \
+            --scope "${scope}" \
+            --include-dependencies
 
   check:
     command: shell.exec
@@ -306,11 +309,20 @@ functions:
 
           # Unpack the app archive
           if [[ "${app_archive_name}" == *.zip ]]; then
-            mkdir -p "$COMPASS_APP_PATH"
-            unzip "packages/compass/dist/${app_archive_name}" -d "$COMPASS_APP_PATH"
+            COMPASS_OUTDIR="$COMPASS_APP_PATH"
+            if [[ "$IS_OSX" == "true" ]]; then
+              # unzip on macos needs a different path to avoid nesting the .app
+              # inside another .app dir
+              COMPASS_OUTDIR=$(dirname "$COMPASS_APP_PATH")
+            fi
+            echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
+            mkdir -p "$COMPASS_OUTDIR"
+            unzip "packages/compass/dist/${app_archive_name}" -d "$COMPASS_OUTDIR"
           else
-            mkdir -p "packages/compass/dist"
-            tar -xzf "packages/compass/dist/${app_archive_name}" -C "packages/compass/dist"
+            COMPASS_OUTDIR="packages/compass/dist"
+            echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
+            mkdir -p "$COMPASS_OUTDIR"
+            tar -xzf "packages/compass/dist/${app_archive_name}" -C "$COMPASS_OUTDIR"
           fi
 
           # Print folder content to confirm that it worked
@@ -332,7 +344,6 @@ functions:
           source .evergreen/start-docker-envs.sh
 
           echo "Running E2E tests while collecting coverage..."
-
 
           DEBUG=${debug} \
             MONGODB_VERSION="${mongodb_version|4.4.x}" \
@@ -357,6 +368,13 @@ functions:
           source .evergreen/start-docker-envs.sh
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
+
+          if [[ "$IS_OSX" == "true" ]]; then
+            echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/BUILD-14458)"
+            export COMPASS_E2E_DISABLE_KEYCHAIN_USAGE="true"
+            echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
+            export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
+          fi
 
           DEBUG=${debug} \
             MONGODB_VERSION="${mongodb_version|4.4.x}" \
