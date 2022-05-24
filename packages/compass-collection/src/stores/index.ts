@@ -71,11 +71,10 @@ export const INITIAL_STATE = {
 
 /**
  * Handle the reset.
- *
- * @returns {Object} The new state.
  */
-const doReset = () => ({
+const doReset = ({ appRegistry }) => ({
   ...INITIAL_STATE,
+  appRegistry,
 });
 
 /**
@@ -157,6 +156,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
    */
   appRegistry.on('instance-destroyed', () => {
     store[kInstance] = null;
+    store.dispatch(reset());
   });
 
   /**
