@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   css,
   cx,
@@ -9,6 +9,7 @@ import {
   ModalFooter,
   Button,
   ErrorSummary,
+  breakpoints,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
@@ -60,6 +61,21 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   onCloseModal,
   onCancelExplain,
 }) => {
+  const [modalSize, setModalSize] = useState<'large' | 'default'>('default');
+  useEffect(() => {
+    const resizeListener = () => {
+      if (window.innerWidth <= breakpoints.XLDesktop) {
+        setModalSize('default');
+      } else {
+        setModalSize('large');
+      }
+    };
+    window.addEventListener('resize', resizeListener);
+    return () => {
+      window.removeEventListener('resize', resizeListener);
+    };
+  }, [isModalOpen]);
+
   let content = null;
   if (isLoading) {
     content = (
@@ -94,6 +110,7 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
 
   return (
     <Modal
+      size={modalSize}
       setOpen={onCloseModal}
       open={isModalOpen}
       data-testid="pipeline-explain-modal"

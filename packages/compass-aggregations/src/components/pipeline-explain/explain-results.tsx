@@ -24,7 +24,7 @@ const summaryStyles = css({
 
 const cardStyles = css({
   gridArea: 'card',
-  maxHeight: '450px',
+  maxHeight: '50vh',
   overflowY: 'scroll',
 });
 
