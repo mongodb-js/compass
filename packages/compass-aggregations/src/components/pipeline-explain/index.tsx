@@ -33,6 +33,21 @@ const modalStyles = css({
   gridTemplateRows: 'auto 1fr auto',
 });
 
+const gridWithFooter = css({
+  gridTemplateAreas: `
+    'header'
+    'content'
+    'footer'
+  `,
+});
+
+const gridWithoutFooter = css({
+  gridTemplateAreas: `
+    'header'
+    'content'
+  `,
+});
+
 const headerStyles = css({
   gridArea: 'header',
 });
@@ -104,21 +119,16 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
     return null;
   }
 
-  const gridAreaStyles = css({
-    gridTemplateAreas: `
-      'header'
-      'content'
-      ${!isLoading ? '"footer"' : ''}
-    `,
-  });
-
   return (
     <Modal
       size={modalSize}
       setOpen={onCloseModal}
       open={isModalOpen}
       data-testid="pipeline-explain-modal"
-      contentClassName={cx(gridAreaStyles, modalStyles)}
+      contentClassName={cx(
+        isLoading ? gridWithoutFooter : gridWithFooter,
+        modalStyles
+      )}
     >
       <H3 className={headerStyles}>Explain</H3>
       <div className={contentStyles}>{content}</div>

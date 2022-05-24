@@ -18,8 +18,21 @@ const containerStyles = css({
   height: '100%',
 });
 
-const summaryStyles = css({
-  gridArea: 'summary',
+const withStatsGrid = css({
+  gridTemplateAreas: `
+      'stats'
+      'card'
+    `,
+});
+
+const withoutStatsGrid = css({
+  gridTemplateAreas: `
+      'card'
+    `,
+});
+
+const statsStyles = css({
+  gridArea: 'stats',
 });
 
 const cardStyles = css({
@@ -32,19 +45,13 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
   plan,
   stats,
 }) => {
-  const gridAreaStyles = css({
-    gridTemplateAreas: `
-      ${stats ? '"summary"' : ''}
-      'card'
-    `,
-  });
   return (
     <div
-      className={cx(gridAreaStyles, containerStyles)}
+      className={cx(stats ? withStatsGrid : withoutStatsGrid, containerStyles)}
       data-testid="pipeline-explain-results"
     >
       {stats && (
-        <div className={summaryStyles}>
+        <div className={statsStyles}>
           <ExplainQueryPerformance
             nReturned={stats.nReturned}
             executionTimeMillis={stats.executionTimeMillis}
