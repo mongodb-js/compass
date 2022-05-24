@@ -19,7 +19,6 @@ class QueryOption extends Component {
     autoPopulated: PropTypes.bool,
     hasToggle: PropTypes.bool,
     hasError: PropTypes.bool,
-    validationFunc: PropTypes.func,
     onChange: PropTypes.func,
     onApply: PropTypes.func,
     refreshEditorAction: PropTypes.func.isRequired,

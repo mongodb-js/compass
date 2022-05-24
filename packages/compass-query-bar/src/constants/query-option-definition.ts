@@ -9,7 +9,7 @@ export type QueryOption =
 
 export const OPTION_DEFINITION: {
   [optionName in QueryOption]: {
-    type: 'document' | 'numeric' | 'boolean';
+    type: 'document' | 'numeric';
     placeholder: string | null;
     link: string;
     label?: string;
@@ -17,7 +17,7 @@ export const OPTION_DEFINITION: {
 } = {
   filter: {
     type: 'document',
-    placeholder: "{ field: 'value' }",
+    placeholder: "Type a query { field: 'value' }",
     link: 'https://docs.mongodb.com/compass/current/query/filter/',
   },
   project: {

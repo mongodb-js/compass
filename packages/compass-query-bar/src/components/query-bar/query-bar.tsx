@@ -17,20 +17,24 @@ import type {
   QueryBarLayout,
 } from '../../constants/query-option-definition';
 import { OPTION_DEFINITION } from '../../constants/query-option-definition';
-import QueryOptionComponent from '../query-option';
+import { QueryOption as QueryOptionComponent } from '../query-option/query-option';
 
 const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
-
   flexGrow: 1,
-
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
+  
+  // ':focus-within': {
+  //   boxShadow: `0px 2px 6px 2px rgb(6 22 33 / 22%)`,
+  //   borderColor: '#9fa1a2'
+  // },
 
-  // TODO: This margin will go away when the query bar is wrapped in the
-  // Toolbar component in each of the plugins. COMPASS-5484
+  // TODO: This margin and background will go away when the query bar is
+  // wrapped in the Toolbar component in each of the plugins. COMPASS-5484
   margin: spacing[3],
+  background: uiColors.white
 });
 
 const queryBarFirstRowStyles = css({
@@ -61,8 +65,11 @@ const openQueryHistoryStyles = cx(
 );
 
 const rowStyles = css({
+  alignItems: 'center',
   display: 'flex',
   flexGrow: 1,
+  position: 'relative',
+  padding: spacing[2],
 });
 
 type QueryBarProps = {
@@ -89,11 +96,16 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
   expanded: isQueryOptionsExpanded = false,
   filterValid: isFilterValid,
+  // layout = [
+  //   'filter',
+  //   'project',
+  //   ['sort', 'maxTimeMS'],
+  //   ['collation', 'skip', 'limit'],
+  // ],
   layout = [
     'filter',
-    'project',
-    ['sort', 'maxTimeMS'],
-    ['collation', 'skip', 'limit'],
+    ['project', 'sort'],
+    ['collation', 'skip', 'limit', 'maxTimeMS'],
   ],
   onApply: _onApply,
   onChangeQueryOption,
@@ -152,10 +164,8 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         <QueryOptionComponent
           autoPopulated={autoPopulated}
           hasError={hasError}
-          inputType={OPTION_DEFINITION[queryOption].type}
           key={`query-option-${queryOption}`}
-          label={queryOption}
-          link={OPTION_DEFINITION[queryOption].link}
+          queryOption={queryOption}
           onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
             onChangeQueryOption(queryOption, evt.target.value)
           }

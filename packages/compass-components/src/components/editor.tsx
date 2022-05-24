@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 if (typeof window === 'undefined' && typeof globalThis !== 'undefined') {
   // ace-builds wants to install itself on `window`, which
@@ -48,6 +48,7 @@ const EditorVariant = {
 type EditorProps = {
   variant: keyof typeof EditorVariant;
   text?: string;
+  id?: string;
   options?: Omit<IAceOptions, 'readOnly'>;
   readOnly?: boolean;
   completer?: unknown;
@@ -59,6 +60,7 @@ function Editor({
   variant,
   options,
   readOnly,
+  id,
   onChangeText,
   completer,
   onFocus,
@@ -72,8 +74,23 @@ function Editor({
     ...(!!completer && { enableLiveAutocompletion: true }),
   };
 
+  const editorRef = useRef<AceEditor | null>(null);
+
+  useEffect(() => {
+    if (id && editorRef.current) {
+      // After initial load, assign the id to the text area used by ace.
+      // This is so labels can `htmlFor` the input.
+      editorRef.current.editor.textInput.getElement().id = id;
+
+      // editorRef.current.editor.renderer.set(16);
+      // editorRef.current.editor.renderer.setPadding(16);
+      // editorRef.current.editor.renderer.setScrollMargin(16, 16, 16, 16);
+    }
+  }, [id]);
+
   return (
     <AceEditor
+      ref={ref => editorRef.current = ref}
       mode={
         variant === 'Generic'
           ? undefined

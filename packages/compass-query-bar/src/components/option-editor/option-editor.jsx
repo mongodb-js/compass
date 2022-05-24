@@ -5,9 +5,32 @@ import {
   Editor,
   EditorVariant,
   EditorTextCompleter,
+  css,
+  cx,
+  focusRingStyles,
+  focusRingVisibleStyles,
+  uiColors,
+  spacing
 } from '@mongodb-js/compass-components';
 
 import styles from './option-editor.module.less';
+
+const editorStyles = cx(css({
+  // padding: `${spacing[2]}px !important`,
+
+  // Maybe used for placeholder alignment?
+  alignSelf: 'center',
+  textAlign: 'center',
+
+  '&:hover': {
+    '&::after': {
+      boxShadow: `0 0 0 3px ${uiColors.gray.light1}`,
+      transitionTimingFunction: 'ease-out',
+    }
+  },
+  '&:focus-within': focusRingVisibleStyles,
+}), focusRingStyles);
+
 class OptionEditor extends Component {
   static displayName = 'OptionEditor';
 
@@ -16,6 +39,7 @@ class OptionEditor extends Component {
     serverVersion: PropTypes.string.isRequired,
     autoPopulated: PropTypes.bool.isRequired,
     refreshEditorAction: PropTypes.func.isRequired,
+    id: PropTypes.string,
     value: PropTypes.any,
     onChange: PropTypes.func,
     onApply: PropTypes.func,
@@ -102,7 +126,7 @@ class OptionEditor extends Component {
     return (
       <Editor
         variant={EditorVariant.Shell}
-        className={styles['option-editor']}
+        className={editorStyles}//={styles['option-editor']}
         theme="mongodb-query"
         text={this.props.value}
         onChangeText={this.onChangeQuery}
@@ -111,10 +135,12 @@ class OptionEditor extends Component {
           useSoftTabs: true,
           minLines: 1,
           maxLines: 10,
+          fontSize: 13,
           highlightActiveLine: false,
           showPrintMargin: false,
           showGutter: false,
         }}
+        id={this.props.id}
         completer={this.completer}
         placeholder={this.props.placeholder}
         onLoad={(editor) => {
