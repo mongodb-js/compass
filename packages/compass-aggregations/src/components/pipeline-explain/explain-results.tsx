@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, spacing, Card } from '@mongodb-js/compass-components';
+import { css, cx, spacing, Card } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 
@@ -12,15 +12,19 @@ type ExplainResultsProps = {
 };
 
 const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
   gap: spacing[4],
+  display: 'grid',
+  gridTemplateRows: 'auto 1fr',
+  height: '100%',
+});
+
+const summaryStyles = css({
+  gridArea: 'summary',
 });
 
 const cardStyles = css({
-  // 170px works with minimum-height of compass
-  // todo: handle height for bigger sized compass
-  height: '170px',
+  gridArea: 'card',
+  maxHeight: '450px',
   overflowY: 'scroll',
 });
 
@@ -28,14 +32,25 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
   plan,
   stats,
 }) => {
+  const gridAreaStyles = css({
+    gridTemplateAreas: `
+      ${stats ? '"summary"' : ''}
+      'card'
+    `,
+  });
   return (
-    <div className={containerStyles} data-testid="pipeline-explain-results">
+    <div
+      className={cx(gridAreaStyles, containerStyles)}
+      data-testid="pipeline-explain-results"
+    >
       {stats && (
-        <ExplainQueryPerformance
-          nReturned={stats.nReturned}
-          executionTimeMillis={stats.executionTimeMillis}
-          usedIndexes={stats.usedIndexes}
-        />
+        <div className={summaryStyles}>
+          <ExplainQueryPerformance
+            nReturned={stats.nReturned}
+            executionTimeMillis={stats.executionTimeMillis}
+            usedIndexes={stats.usedIndexes}
+          />
+        </div>
       )}
       <Card className={cardStyles} data-testid="pipeline-explain-results-json">
         <Document

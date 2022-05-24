@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   css,
+  cx,
   spacing,
   Modal,
   CancelLoader,
@@ -25,14 +26,30 @@ type PipelineExplainProps = {
   onCancelExplain: () => void;
 };
 
+const modalStyles = css({
+  display: 'grid',
+  gap: spacing[3],
+  gridTemplateRows: 'auto 1fr auto',
+});
+
+const headerStyles = css({
+  gridArea: 'header',
+});
+
 const contentStyles = css({
-  marginTop: spacing[3],
-  marginBottom: spacing[3],
+  gridArea: 'content',
 });
 
 const footerStyles = css({
+  gridArea: 'footer',
   paddingRight: 0,
   paddingBottom: 0,
+});
+
+const loadingStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  height: '100%',
 });
 
 export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
@@ -46,12 +63,14 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   let content = null;
   if (isLoading) {
     content = (
-      <CancelLoader
-        data-testid="pipeline-explain-cancel"
-        cancelText="Cancel"
-        onCancel={() => onCancelExplain()}
-        progressText="Running explain"
-      />
+      <div className={loadingStyles}>
+        <CancelLoader
+          data-testid="pipeline-explain-cancel"
+          cancelText="Cancel"
+          onCancel={() => onCancelExplain()}
+          progressText="Running explain"
+        />
+      </div>
     );
   } else if (error) {
     content = (
@@ -65,13 +84,22 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
     return null;
   }
 
+  const gridAreaStyles = css({
+    gridTemplateAreas: `
+      'header'
+      'content'
+      ${!isLoading ? '"footer"' : ''}
+    `,
+  });
+
   return (
     <Modal
       setOpen={onCloseModal}
       open={isModalOpen}
       data-testid="pipeline-explain-modal"
+      contentClassName={cx(gridAreaStyles, modalStyles)}
     >
-      <H3>Explain</H3>
+      <H3 className={headerStyles}>Explain</H3>
       <div className={contentStyles}>{content}</div>
       {!isLoading && (
         <ModalFooter className={footerStyles}>
