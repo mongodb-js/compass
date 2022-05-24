@@ -1547,7 +1547,7 @@ describe('DataService', function () {
         const stop = sinon.spy();
         const response = await (dataService as any).cancellableOperation(
           () => Promise.resolve(10),
-          () => stop(),
+          () => stop()
         );
         expect(response).to.equal(10);
         expect(stop.callCount).to.equal(0);
@@ -1558,7 +1558,7 @@ describe('DataService', function () {
         const response = await (dataService as any).cancellableOperation(
           () => Promise.resolve(10),
           () => stop(),
-          abortSignal,
+          abortSignal
         );
         expect(response).to.equal(10);
         expect(stop.callCount).to.equal(0);
@@ -1568,11 +1568,13 @@ describe('DataService', function () {
         const abortSignal = abortController.signal;
 
         const stop = sinon.spy();
-        const promise = (dataService as any).cancellableOperation(
-          () => new Promise(() => { }),
-          () => stop(),
-          abortSignal
-        ).catch(error => error);
+        const promise = (dataService as any)
+          .cancellableOperation(
+            () => new Promise(() => {}),
+            () => stop(),
+            abortSignal
+          )
+          .catch((error) => error);
 
         abortController.abort();
         await promise;
