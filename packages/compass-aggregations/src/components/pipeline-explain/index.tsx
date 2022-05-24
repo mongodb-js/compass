@@ -61,7 +61,11 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   onCloseModal,
   onCancelExplain,
 }) => {
-  const [modalSize, setModalSize] = useState<'large' | 'default'>('default');
+  const initialModalSize =
+    window.innerWidth <= breakpoints.XLDesktop ? 'default' : 'large';
+  const [modalSize, setModalSize] = useState<'large' | 'default'>(
+    initialModalSize
+  );
   useEffect(() => {
     const resizeListener = () => {
       if (window.innerWidth <= breakpoints.XLDesktop) {
