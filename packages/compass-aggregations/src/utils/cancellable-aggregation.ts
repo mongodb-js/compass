@@ -37,7 +37,7 @@ export async function aggregatePipeline({
     pipeline
       .concat(skip ? [{ $skip: skip }] : [])
       .concat(limit ? [{ $limit: limit }] : []),
-    { ...defaultOptions, ...options }
+    { ...defaultOptions, ...options, session }
   );
   const abort = () => {
     Promise.all([
