@@ -81,10 +81,6 @@ function Editor({
       // After initial load, assign the id to the text area used by ace.
       // This is so labels can `htmlFor` the input.
       editorRef.current.editor.textInput.getElement().id = id;
-
-      // editorRef.current.editor.renderer.set(16);
-      // editorRef.current.editor.renderer.setPadding(16);
-      // editorRef.current.editor.renderer.setScrollMargin(16, 16, 16, 16);
     }
   }, [id]);
 

@@ -10,7 +10,7 @@ export type QueryOption =
 export const OPTION_DEFINITION: {
   [optionName in QueryOption]: {
     type: 'document' | 'numeric';
-    placeholder: string | null;
+    placeholder: string;
     link: string;
     label?: string;
   };

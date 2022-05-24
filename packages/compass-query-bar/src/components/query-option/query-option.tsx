@@ -20,7 +20,6 @@ import {
 import { OPTION_DEFINITION, QueryOption as QueryOptionType } from '../../constants/query-option-definition';
 
 const queryOptionStyles = css({
-  margin: spacing[2],
   display: 'flex',
   width: '100%',
   position: 'relative',
@@ -36,9 +35,14 @@ const numericOptionStyles = css({
   flexBasis: spacing[7] * 5
 });
 
-const autocompleteOptionInputStyles = cx(css({
+const queryOptionLabelStyles = css({
+  padding: 0
+});
+
+const autocompleteOptionInputStyles = css({
   display: 'flex',
   flexGrow: 1,
+  border: `1px solid transparent`,
   // '&:hover': {
   //   '&::after': {
   //     boxShadow: `0 0 0 3px ${uiColors.gray.light1}`,
@@ -46,7 +50,19 @@ const autocompleteOptionInputStyles = cx(css({
   //   }
   // },
   // '&:focus-within': focusRingVisibleStyles,
-}), focusRingStyles);
+}, focusRingStyles);
+
+const autocompleteOptionInvalidStyles = css({
+  borderColor: uiColors.red.base,
+  '&:hover, &:focus-within': {
+    '&::after': {
+      boxShadow: `0 0 0 3px violet`,//`0 0 0 3px ${uiColors.red.light2}`,
+      transitionTimingFunction: 'ease-out',
+    }
+  },
+  // '&:focus-within': focusRingVisibleStyles,
+});//, focusRingStyles);
+
 
 const numericTextInputStyles = css({
   'input': {
@@ -54,12 +70,20 @@ const numericTextInputStyles = css({
   }
 });
 
+const optionInputWithErrorStyles = css({
+  'input': {
+    borderColor: uiColors.red.base,
+  },
+})
+
 const queryOptionLabelContainerStyles = css({
   whiteSpace: 'nowrap',
   textTransform: 'capitalize',
   alignItems: 'center',
   display: 'flex',
-  margin: `0 ${spacing[2]}px`,
+  // margin: `0 ${spacing[2]}px`,
+  margin: 0,
+  marginRight: spacing[2],
 });
 
 type QueryOptionProps = {
@@ -76,6 +100,7 @@ type QueryOptionProps = {
 
 function QueryOption({
   autoPopulated,
+  hasError,
   onApply,
   onChange,
   placeholder = '',
@@ -112,6 +137,8 @@ function QueryOption({
   //   hoverProps
   // );
 
+  console.log('QueryOption', queryOption, hasError);
+
   return (
     <div
       className={cx(
@@ -134,7 +161,7 @@ function QueryOption({
         <Label
           htmlFor={`querybar-option-input-${queryOption}`}
           id={`querybar-option-input-${queryOption}-label`}
-          // className={queryOptionLabelStyles}
+          className={queryOptionLabelStyles}
         >
           {queryOption}
         </Label>
@@ -142,7 +169,9 @@ function QueryOption({
       <div
         className={cx(
           // queryOptionStyles,
-          isAutoCompleteInput && autocompleteOptionInputStyles// : numericOptionStyles,
+          isAutoCompleteInput && autocompleteOptionInputStyles,// : numericOptionStyles,
+          
+
           // isHovered && css({ color: 'red !important' }),
           // (isFocusedWithin || isFocused) && css({ borderColor: 'purple !important', border: '3px solid purple !important' }),
         )}
@@ -150,23 +179,27 @@ function QueryOption({
         {isAutoCompleteInput
           ? (
             <OptionEditor
-              label={queryOption}
-              value={value}
-              id={`querybar-option-input-${queryOption}`}
-              serverVersion={serverVersion}
-              onChange={onChange}
-              onApply={onApply}
               autoPopulated={autoPopulated}
+              hasError={hasError}
+              id={`querybar-option-input-${queryOption}`}
+              label={queryOption}
+              onApply={onApply}
+              onChange={onChange}
+
+              placeholder={placeholder}      
               refreshEditorAction={refreshEditorAction}
-              schemaFields={schemaFields}
-              placeholder={placeholder}
+                          schemaFields={schemaFields}
+                          serverVersion={serverVersion}
+
+                        value={value}
+
             />
           ) : (
             <TextInput
               aria-labelledby={`querybar-option-input-${queryOption}-label`}
               id={`querybar-option-input-${queryOption}`}
               data-test-id="query-bar-option-input"
-              className={numericTextInputStyles}
+              className={cx(numericTextInputStyles, hasError && optionInputWithErrorStyles)}
               type="text"
               value={`${value}`}
               onChange={onChange}

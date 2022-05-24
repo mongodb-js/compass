@@ -16,12 +16,9 @@ import {
 import styles from './option-editor.module.less';
 
 const editorStyles = cx(css({
-  // padding: `${spacing[2]}px !important`,
-
-  // Maybe used for placeholder alignment?
-  alignSelf: 'center',
-  textAlign: 'center',
-
+  border: `1px solid transparent`,
+  // boxShadow: 'inset 0px 0px 0px 1px transparent',
+  borderRadius: '6px',
   '&:hover': {
     '&::after': {
       boxShadow: `0 0 0 3px ${uiColors.gray.light1}`,
@@ -31,6 +28,17 @@ const editorStyles = cx(css({
   '&:focus-within': focusRingVisibleStyles,
 }), focusRingStyles);
 
+const editorWithErrorStyles = css({
+  borderColor: uiColors.red.base,
+  // boxShadow: `inset 0px 0px 0px 1px ${uiColors.red.base}`,
+  '&:hover, &:focus-within': {
+    '&::after': {
+      boxShadow: `0 0 0 3px ${uiColors.red.light2}`,
+      transitionTimingFunction: 'ease-out',
+    }
+  },
+});
+
 class OptionEditor extends Component {
   static displayName = 'OptionEditor';
 
@@ -38,6 +46,7 @@ class OptionEditor extends Component {
     label: PropTypes.string.isRequired,
     serverVersion: PropTypes.string.isRequired,
     autoPopulated: PropTypes.bool.isRequired,
+    hasError: PropTypes.bool.isRequired,
     refreshEditorAction: PropTypes.func.isRequired,
     id: PropTypes.string,
     value: PropTypes.any,
@@ -89,7 +98,8 @@ class OptionEditor extends Component {
     this.boundOnFieldsChanged(nextProps.schemaFields);
     return (
       nextProps.autoPopulated ||
-      nextProps.serverVersion !== this.props.serverVersion
+      nextProps.serverVersion !== this.props.serverVersion,
+      nextProps.hasError !== this.props.hasError
     );
   }
 
@@ -123,12 +133,15 @@ class OptionEditor extends Component {
    * @returns {Component} The component.
    */
   render() {
+    console.log('label', this.props.label, 'has error', this.props.hasError);
+    
     return (
       <Editor
         variant={EditorVariant.Shell}
-        className={editorStyles}//={styles['option-editor']}
+        className={cx(editorStyles, this.props.hasError && editorWithErrorStyles)}//={styles['option-editor']}
         theme="mongodb-query"
         text={this.props.value}
+        hasError={this.props.hasError}
         onChangeText={this.onChangeQuery}
         name={`query-bar-option-input-${this.props.label}`}
         options={{
@@ -143,6 +156,7 @@ class OptionEditor extends Component {
         id={this.props.id}
         completer={this.completer}
         placeholder={this.props.placeholder}
+        scrollMargin={[14, 14, 0, 0]}
         onLoad={(editor) => {
           this.editor = editor;
           this.editor.setBehavioursEnabled(true);
