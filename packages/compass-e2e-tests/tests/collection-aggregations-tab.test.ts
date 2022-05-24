@@ -707,48 +707,6 @@ describe('Collection aggregations tab', function () {
     expect(docs[0]).to.have.property('j', 0);
   });
 
-  // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
-  // TODO: test auto-preview and limit
-  // TODO: save a pipeline, close compass, re-open compass, load the pipeline
-  // TODO: test Collapse/Expand all stages button (currently broken)
-});
-
-// TODO: Move this test back to a single describe block to avoid a massive
-// duplication of the setup code
-//
-// eslint-disable-next-line mocha/max-top-level-suites
-describe('Aggregation Explain', function () {
-  let compass: Compass;
-  let browser: CompassBrowser;
-
-  before(async function () {
-    compass = await beforeTests();
-    browser = compass.browser;
-  });
-
-  beforeEach(async function () {
-    await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
-    // Some tests navigate away from the numbers collection aggregations tab
-    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
-    // Get us back to the empty stage every time. Also test the Create New
-    // Pipeline flow while at it.
-    await browser.clickVisible(Selectors.AggregationToolbarCreateMenu);
-    await browser.clickVisible(Selectors.AggregationToolbarCreateNewPipeline);
-    const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
-    await modalElement.waitForDisplayed();
-    await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
-    await modalElement.waitForDisplayed({ reverse: true });
-  });
-
-  after(async function () {
-    await afterTests(compass, this.currentTest);
-  });
-
-  afterEach(async function () {
-    await afterTest(compass, this.currentTest);
-  });
-
   it('shows the explain for a pipeline', async function () {
     await browser.clickVisible(Selectors.AggregationExplainButton);
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
@@ -756,6 +714,15 @@ describe('Aggregation Explain', function () {
     const modal = await browser.$(Selectors.AggregationExplainModal);
     await modal.waitForDisplayed();
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
+
     expect(await modal.getText()).to.contain('Query Performance Summary');
+
+    await browser.clickVisible(Selectors.AggregationExplainModalCloseButton);
+    await modal.waitForDisplayed({ reverse: true });
   });
+
+  // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them
+  // TODO: test auto-preview and limit
+  // TODO: save a pipeline, close compass, re-open compass, load the pipeline
+  // TODO: test Collapse/Expand all stages button (currently broken)
 });
