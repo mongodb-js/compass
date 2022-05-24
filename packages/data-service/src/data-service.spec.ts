@@ -1541,6 +1541,45 @@ describe('DataService', function () {
         expect(dataService.isOperationCancelledError(error)).to.true;
       });
     });
+
+    describe('#cancellableOperation', function () {
+      it('does not call stop when signal is not set', async function () {
+        const stop = sinon.spy();
+        const response = await (dataService as any).cancellableOperation(
+          () => Promise.resolve(10),
+          () => stop(),
+        );
+        expect(response).to.equal(10);
+        expect(stop.callCount).to.equal(0);
+      });
+      it('does not call stop when signal is set and operation succeeds', async function () {
+        const abortSignal = new AbortController().signal;
+        const stop = sinon.spy();
+        const response = await (dataService as any).cancellableOperation(
+          () => Promise.resolve(10),
+          () => stop(),
+          abortSignal,
+        );
+        expect(response).to.equal(10);
+        expect(stop.callCount).to.equal(0);
+      });
+      it('calls stop when operation fails', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+
+        const stop = sinon.spy();
+        const promise = (dataService as any).cancellableOperation(
+          () => new Promise(() => { }),
+          () => stop(),
+          abortSignal
+        ).catch(error => error);
+
+        abortController.abort();
+        await promise;
+
+        expect(stop.callCount).to.equal(1);
+      });
+    });
   });
 
   context('with mocked client', function () {
