@@ -110,13 +110,13 @@ function isEmptyObject(obj: Record<string, unknown>) {
   return Object.keys(obj).length === 0;
 }
 
-class OperationCancelledError extends Error {
-  name = 'OperationCancelledError';
+class DataServiceOperationCancelledError extends Error {
+  name = 'DataServiceOperationCancelledError';
   constructor() {
     super('The operation was cancelled.');
   }
   static isOperationCancelledError(error: Error) {
-    return error.name === 'OperationCancelledError';
+    return error.name === 'DataServiceOperationCancelledError';
   }
 }
 
@@ -133,14 +133,14 @@ interface CompassClientSession extends ClientSession {
 // type definition to avoid including DOM compiler options in tsconfig.
 type AbortSignal = {
   aborted: boolean;
-  onabort: ((this: AbortSignal, event: Event) => void) | null;
+  onabort: ((this: AbortSignal, event: any) => void) | null;
   addEventListener: (
     type: string,
-    listener: (event: Event) => void,
+    listener: (event: any) => void,
     options: Record<string, unknown>
   ) => void;
-  removeEventListener: (type: string, listener: (event: Event) => void) => void;
-  dispatchEvent: (event: Event) => boolean;
+  removeEventListener: (type: string, listener: (event: any) => void) => void;
+  dispatchEvent: (event: any) => boolean;
 };
 
 type BSONServerExplainResults = Document;
@@ -2057,7 +2057,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   isOperationCancelledError(error: Error): boolean {
-    return OperationCancelledError.isOperationCancelledError(error);
+    return DataServiceOperationCancelledError.isOperationCancelledError(error);
   }
 
   private async cancellableOperation<T>(
@@ -2070,7 +2070,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     if (abortSignal.aborted) {
-      throw new OperationCancelledError();
+      throw new DataServiceOperationCancelledError();
     }
 
     const session = this.startSession('CRUD');
@@ -2078,7 +2078,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     let result: T;
     let abortListener;
     const pendingPromise = new Promise<never>((_resolve, reject) => {
-      abortListener = () => reject(new OperationCancelledError());
+      abortListener = () => reject(new DataServiceOperationCancelledError());
       abortSignal.addEventListener('abort', abortListener, { once: true });
     });
 
