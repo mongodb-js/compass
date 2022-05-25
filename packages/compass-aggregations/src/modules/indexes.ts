@@ -5,7 +5,7 @@ export enum ActionTypes {
   IndexesFetched = 'compass-aggregations/indexesFetched',
 }
 
-type IndexInfo = {
+export type IndexInfo = {
   ns: string;
   name: string;
   key: Record<string, IndexDirection>;

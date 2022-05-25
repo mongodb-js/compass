@@ -34,7 +34,7 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
         <ExplainQueryPerformance
           nReturned={stats.nReturned}
           executionTimeMillis={stats.executionTimeMillis}
-          usedIndexes={stats.usedIndexes}
+          indexes={stats.indexes}
         />
       )}
       <Card className={cardStyles} data-testid="pipeline-explain-results-json">

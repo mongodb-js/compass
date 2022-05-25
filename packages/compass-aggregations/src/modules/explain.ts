@@ -8,6 +8,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { generateStage } from './stage';
+import type { IndexInfo } from './indexes';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -44,12 +45,19 @@ export type Actions =
   | ExplainFailedAction
   | ExplainCancelledAction;
 
+
+export type ExplainIndex = {
+  name: string;
+  shard?: string;
+  key: IndexInfo['key'];
+}
+
 export type ExplainData = {
   plan: Document;
   stats?: {
     executionTimeMillis: number;
     nReturned: number;
-    usedIndexes: IndexInformation[];
+    indexes: ExplainIndex[];
   };
 };
 
@@ -139,6 +147,7 @@ export const explainAggregation = (): ThunkAction<
       maxTimeMS,
       collation,
       dataService: { dataService },
+      indexes: collectionIndexes,
     } = getState();
 
     if (!dataService) {
@@ -182,10 +191,11 @@ export const explainAggregation = (): ThunkAction<
           executionTimeMillis,
           usedIndexes
         } = new ExplainPlan(rawExplain as any);
+        const indexes = mapIndexesInformation(collectionIndexes, usedIndexes);
         const stats = {
           executionTimeMillis,
           nReturned,
-          usedIndexes,
+          indexes,
         }
         explain.stats = stats;
       } catch (e) {
@@ -236,5 +246,27 @@ const getExplainVerbosity = (
     ? ExplainVerbosity.queryPlanner // $out & $merge only work with queryPlanner
     : ExplainVerbosity.allPlansExecution;
 };
+
+const mapIndexesInformation = function (
+  collectionIndexes: IndexInfo[],
+  explainIndexes: IndexInformation[]
+): ExplainIndex[] {
+  return explainIndexes
+    .filter(x => x.index)
+    .map((explainIndex) => {
+      const index = collectionIndexes.find(
+        (collectionIndex) => collectionIndex.name === explainIndex.index
+      );
+      if (!index) {
+        return null;
+      }
+      return {
+        name: index.name,
+        shard: explainIndex.shard,
+        key: index.key,
+      };
+    })
+    .filter(Boolean);
+}
 
 export default reducer;
