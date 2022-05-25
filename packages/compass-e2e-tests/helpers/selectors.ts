@@ -79,6 +79,15 @@ export const ConnectionFormInputAWSSecretAccessKey =
   '[data-testid="connection-form-aws-secret-access-key-input"]';
 export const ConnectionFormInputAWSSessionToken =
   '[data-testid="connection-form-aws-secret-token-input"]';
+
+export const ConnectionFormInputFLEKeyVaultNamespace =
+  '[data-testid="csfle-keyvault"]';
+export const ConnectionFormInputFLELocalKMS =
+  '[data-testid="csfle-kms-provider-local"]';
+export const ConnectionFormInputFLEKey = '[data-testid="csfle-kms-key"]';
+export const ConnectionFormInputFLEEncryptedFieldsMap =
+  '[data-testid="csfle-encrypted-fields-map"]';
+
 export const ConnectionFormSSLConnectionRadios =
   '#tls-radio-box-group input[type="radio"]';
 export const ConnectionFormTlsCaButton = '#tlsCAFile';
@@ -186,10 +195,9 @@ export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="tree
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
-export const TopologySingleHostAddress =
-  '[data-test-id="topology-single-host-address"]';
-export const SingleClusterType =
-  '[data-test-id="topology-single-cluster-type"]';
+export const TopologyReplicaSetHostAddress =
+  '[data-test-id="topology-replica-set-host-address-0"]';
+export const ReplicaSetType = '[data-test-id="topology-replica-set-type"]';
 export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
 export const SidebarCreateDatabaseButton =
@@ -490,7 +498,7 @@ export const ConfirmDeleteDocumentButton =
 export const InsertDialog = '.insert-document-dialog';
 export const InsertDialogErrorMessage =
   '[data-testid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
-export const InsertJSONEditor = '.insert-document-dialog #ace-editor';
+export const InsertJSONEditor = '.insert-document-dialog .ace_editor';
 export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
 export const InsertCancel =
@@ -641,6 +649,7 @@ export const AggregationToolbarCreateNewPipeline =
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
+export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [aria-label*="Close"]`;
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';

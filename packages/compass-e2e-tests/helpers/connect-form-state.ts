@@ -49,8 +49,13 @@ export interface ConnectFormState {
   tlsAllowInvalidCertificates?: boolean;
   useSystemCA?: boolean;
 
-  // Proxy/SSH Tunnel
+  // Proxy/SSH
   proxyMethod?: 'none' | 'password' | 'identity' | 'socks';
+
+  // FLE2
+  fleKeyVaultNamespace?: string;
+  fleKey?: string;
+  fleEncryptedFieldsMap?: string;
 
   // - SSH with Password
   sshPasswordHost?: string;

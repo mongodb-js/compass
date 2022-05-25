@@ -29,6 +29,7 @@ export async function listenForTelemetryEvents(
     const ev = lookupNewEvent(eventName);
     const properties = { ...ev.properties };
     delete properties.compass_version;
+    delete properties.compass_full_version;
     delete properties.compass_distribution;
     delete properties.compass_channel;
     return properties;
