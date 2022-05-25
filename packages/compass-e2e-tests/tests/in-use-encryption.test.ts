@@ -30,17 +30,6 @@ describe('FLE2', function () {
       hosts: ['localhost:27091'],
       fleKeyVaultNamespace: 'alena.keyvault',
       fleKey: 'A'.repeat(128),
-      fleEncryptedFieldsMap: `{
-          'alena.coll': {
-            fields: [
-              {
-                path: 'phoneNumber',
-                keyId: 'UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a")',
-                bsonType: 'string'
-              }
-            ]
-          }
-        }`,
     });
   });
 
