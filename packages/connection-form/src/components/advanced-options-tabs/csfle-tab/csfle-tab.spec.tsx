@@ -46,18 +46,6 @@ const setFileInputValue = (testId: string, value: string) =>
 describe('In-Use Encryption', function () {
   let expectToConnectWith;
   let expectConnectionError;
-  let initialEnvVars;
-
-  before(function () {
-    initialEnvVars = Object.assign({}, process.env);
-    process.env.COMPASS_CSFLE_SUPPORT = 'true';
-  });
-
-  after(function () {
-    if (initialEnvVars) {
-      process.env = initialEnvVars;
-    }
-  });
 
   beforeEach(async function () {
     const connectSpy = sinon.spy();
@@ -191,11 +179,15 @@ describe('In-Use Encryption', function () {
   it('generates and uses a valid local random key', async function () {
     fireEvent.click(screen.getByText('Local KMS'));
 
-    expect(screen.getByTestId('csfle-kms-local-key').closest('input').value).to.equal('');
+    expect(
+      screen.getByTestId('csfle-kms-local-key').closest('input').value
+    ).to.equal('');
 
     fireEvent.click(screen.getByTestId('generate-local-key-button'));
 
-    const generatedLocalKey = screen.getByTestId('csfle-kms-local-key').closest('input').value;
+    const generatedLocalKey = screen
+      .getByTestId('csfle-kms-local-key')
+      .closest('input').value;
 
     expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
 

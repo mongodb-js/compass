@@ -38,7 +38,7 @@
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "test": "mocha",
+    "test": "cross-env COMPASS_CSFLE_SUPPORT='true' mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
