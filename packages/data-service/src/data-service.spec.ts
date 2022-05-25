@@ -15,6 +15,7 @@ import type {
 } from './connection-options';
 import EventEmitter from 'events';
 import { createMongoClientMock } from '../test/helpers';
+import { AbortController } from '../test/mocks';
 
 const TEST_DOCS = [
   {
@@ -1475,6 +1476,110 @@ describe('DataService', function () {
           .fetch(`${testDatabaseName}.keyvault`, {}, {})
           .next();
         expect(uuid).to.deep.equal(keyDoc._id);
+      });
+    });
+
+    describe('#explainAggregate', function () {
+      const initialAbortController = global.AbortController;
+      before(function () {
+        (global as any).AbortController = AbortController;
+      });
+      after(function () {
+        global.AbortController = initialAbortController;
+      });
+      it('returns an explain object', async function () {
+        const explain = await dataService.explainAggregate(
+          testNamespace,
+          [
+            {
+              $match: {
+                a: 1,
+              },
+            },
+          ],
+          {},
+          {}
+        );
+        expect(explain).to.be.an('object');
+      });
+      it('returns an explain object - cancellable', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const pipeline = [
+          {
+            $addFields: {
+              lazy: {
+                $function: {
+                  body: `function () {
+                    return sleep(1000);
+                  }`,
+                  args: [],
+                  lang: 'js',
+                },
+              },
+            },
+          },
+        ];
+        const executionOptions = {
+          abortSignal,
+        };
+
+        // cancellable explain
+        const promise = dataService
+          .explainAggregate(
+            testNamespace,
+            pipeline,
+            {},
+            executionOptions as any
+          )
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+
+        expect(error).to.be.instanceOf(Error);
+        expect(dataService.isOperationCancelledError(error)).to.true;
+      });
+    });
+
+    describe('#cancellableOperation', function () {
+      it('does not call stop when signal is not set', async function () {
+        const stop = sinon.spy();
+        const response = await (dataService as any).cancellableOperation(
+          () => Promise.resolve(10),
+          () => stop()
+        );
+        expect(response).to.equal(10);
+        expect(stop.callCount).to.equal(0);
+      });
+      it('does not call stop when signal is set and operation succeeds', async function () {
+        const abortSignal = new AbortController().signal;
+        const stop = sinon.spy();
+        const response = await (dataService as any).cancellableOperation(
+          () => Promise.resolve(10),
+          () => stop(),
+          abortSignal
+        );
+        expect(response).to.equal(10);
+        expect(stop.callCount).to.equal(0);
+      });
+      it('calls stop when operation fails', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+
+        const stop = sinon.spy();
+        const promise = (dataService as any)
+          .cancellableOperation(
+            () => new Promise(() => {}),
+            () => stop(),
+            abortSignal
+          )
+          .catch((error) => error);
+
+        abortController.abort();
+        await promise;
+
+        expect(stop.callCount).to.equal(1);
       });
     });
   });
