@@ -71,7 +71,7 @@ function KMSProviderFieldsForm<KMSProvider extends keyof KMSProviders>({
                   handleFieldChanged(name, value);
                 }}
                 name={name}
-                data-testid={`csfle-kms-${name}`}
+                data-testid={`csfle-kms-${kmsProvider}-${name}`}
                 label={label}
                 type={type === 'textarea' ? undefined : type}
                 optional={type === 'textarea' ? undefined : optional}

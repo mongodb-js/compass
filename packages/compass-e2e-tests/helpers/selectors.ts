@@ -84,7 +84,7 @@ export const ConnectionFormInputFLEKeyVaultNamespace =
   '[data-testid="csfle-keyvault"]';
 export const ConnectionFormInputFLELocalKMS =
   '[data-testid="csfle-kms-provider-local"]';
-export const ConnectionFormInputFLEKey = '[data-testid="csfle-kms-key"]';
+export const ConnectionFormInputFLELocalKey = '[data-testid="csfle-kms-local-key"]';
 export const ConnectionFormInputFLEEncryptedFieldsMap =
   '[data-testid="connection-csfle-encrypted-fields-map"]';
 

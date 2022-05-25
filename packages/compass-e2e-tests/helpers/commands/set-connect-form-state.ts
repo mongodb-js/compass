@@ -148,7 +148,7 @@ export async function setConnectFormState(
     if (state.fleKey) {
       await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
       await browser.setValueVisible(
-        Selectors.ConnectionFormInputFLEKey,
+        Selectors.ConnectionFormInputFLELocalKey,
         state.fleKey
       );
     }

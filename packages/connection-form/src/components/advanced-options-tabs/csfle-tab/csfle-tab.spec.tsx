@@ -46,12 +46,20 @@ const setFileInputValue = (testId: string, value: string) =>
 describe('In-Use Encryption', function () {
   let expectToConnectWith;
   let expectConnectionError;
+  let initialEnvVars;
+
+  before(function () {
+    initialEnvVars = Object.assign({}, process.env);
+    process.env.COMPASS_CSFLE_SUPPORT = 'true';
+  });
+
+  after(function () {
+    if (initialEnvVars) {
+      process.env = initialEnvVars;
+    }
+  });
 
   beforeEach(async function () {
-    if (process?.env?.COMPASS_CSFLE_SUPPORT !== 'true') {
-      return this.skip();
-    }
-
     const connectSpy = sinon.spy();
 
     expectToConnectWith = async (
@@ -128,7 +136,7 @@ describe('In-Use Encryption', function () {
   });
 
   it('reports an error if the key vault namespace is not set', async function () {
-    setInputValue('csfle-kms-csfle-keyvault', '');
+    setInputValue('csfle-keyvault', '');
 
     setEditorValue(
       screen.getByTestId('encrypted-fields-map-editor'),
@@ -183,11 +191,11 @@ describe('In-Use Encryption', function () {
   it('generates and uses a valid local random key', async function () {
     fireEvent.click(screen.getByText('Local KMS'));
 
-    expect(screen.getByTestId('key').closest('input').value).to.equal('');
+    expect(screen.getByTestId('csfle-kms-local-key').closest('input').value).to.equal('');
 
     fireEvent.click(screen.getByTestId('generate-local-key-button'));
 
-    const generatedLocalKey = screen.getByTestId('key').closest('input').value;
+    const generatedLocalKey = screen.getByTestId('csfle-kms-local-key').closest('input').value;
 
     expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
 
@@ -210,9 +218,9 @@ describe('In-Use Encryption', function () {
   it('allows to setup an AWS key store', async function () {
     fireEvent.click(screen.getByText('AWS'));
 
-    setInputValue('csfle-kms-accessKeyId', 'accessKeyId');
-    setInputValue('csfle-kms-secretAccessKey', 'secretAccessKey');
-    setInputValue('csfle-kms-sessionToken', 'sessionToken');
+    setInputValue('csfle-kms-aws-accessKeyId', 'accessKeyId');
+    setInputValue('csfle-kms-aws-secretAccessKey', 'secretAccessKey');
+    setInputValue('csfle-kms-aws-sessionToken', 'sessionToken');
     setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
     setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
     setInputValue('tlsCertificateKeyFilePassword-input', 'password');
@@ -245,9 +253,9 @@ describe('In-Use Encryption', function () {
   it('allows to setup a GCP key store', async function () {
     fireEvent.click(screen.getByText('GCP'));
 
-    setInputValue('csfle-kms-email', 'email');
-    setInputValue('csfle-kms-privateKey', 'privateKey');
-    setInputValue('csfle-kms-endpoint', 'endpoint');
+    setInputValue('csfle-kms-gcp-email', 'email');
+    setInputValue('csfle-kms-gcp-privateKey', 'privateKey');
+    setInputValue('csfle-kms-gcp-endpoint', 'endpoint');
     setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
     setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
     setInputValue('tlsCertificateKeyFilePassword-input', 'password');
@@ -280,11 +288,11 @@ describe('In-Use Encryption', function () {
   it('allows to setup an Azure key store', async function () {
     fireEvent.click(screen.getByText('Azure'));
 
-    setInputValue('csfle-kms-tenantId', 'tenantId');
-    setInputValue('csfle-kms-clientId', 'clientId');
-    setInputValue('csfle-kms-clientSecret', 'clientSecret');
+    setInputValue('csfle-kms-azure-tenantId', 'tenantId');
+    setInputValue('csfle-kms-azure-clientId', 'clientId');
+    setInputValue('csfle-kms-azure-clientSecret', 'clientSecret');
     setInputValue(
-      'csfle-kms-identityPlatformEndpoint',
+      'csfle-kms-azure-identityPlatformEndpoint',
       'identityPlatformEndpoint'
     );
     setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
@@ -320,7 +328,7 @@ describe('In-Use Encryption', function () {
   it('allows to setup a KMIP key store', async function () {
     fireEvent.click(screen.getByText('KMIP'));
 
-    setInputValue('csfle-kms-endpoint', 'endpoint:1000');
+    setInputValue('csfle-kms-kmip-endpoint', 'endpoint:1000');
     setFileInputValue('tlsCAFile-input', 'my/ca/file.pem');
     setFileInputValue('tlsCertificateKeyFile-input', 'my/certkey/file.pem');
     setInputValue('tlsCertificateKeyFilePassword-input', 'password');

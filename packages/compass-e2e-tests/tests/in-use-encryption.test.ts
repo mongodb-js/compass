@@ -8,8 +8,6 @@ import * as Selectors from '../helpers/selectors';
 import { createDummyCollections } from '../helpers/insert-data';
 
 describe('FLE2', function () {
-  let compass: Compass;
-  let browser: CompassBrowser;
   let initialEnvVars: NodeJS.ProcessEnv;
 
   before(async function () {
@@ -22,65 +20,141 @@ describe('FLE2', function () {
 
     initialEnvVars = Object.assign({}, process.env);
     process.env.COMPASS_CSFLE_SUPPORT = 'true';
-    compass = await beforeTests();
-    browser = compass.browser;
 
     await createDummyCollections();
-    await browser.connectWithConnectionForm({
-      hosts: ['localhost:27091'],
-      fleKeyVaultNamespace: 'alena.keyvault',
-      fleKey: 'A'.repeat(128),
-    });
   });
 
-  after(async function () {
-    if (compass) {
-      await afterTests(compass, this.currentTest);
-    }
-
+  after(function () {
     if (initialEnvVars) {
       process.env = initialEnvVars;
     }
   });
 
-  it('can create a fle2 collection', async function () {
+  describe('when fleEncryptedFieldsMap is not specified while connecting', function () {
     const databaseName = 'test';
     const collectionName = 'my-encrypted-collection';
-    await browser.navigateToDatabaseTab(databaseName, 'Collections');
+    let compass: Compass;
+    let browser: CompassBrowser;
 
-    // open the create collection modal from the button at the top
-    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
-    await browser.addCollection(collectionName, {
-      encryptedFields: `{
-          fields: [{
-            path: 'phoneNumber',
-            keyId: UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a"),
-            bsonType: 'string',
-            queries: { queryType: 'equality' }
-          }]
-        }`,
+    before(async function () { 
+      compass = await beforeTests();
+      browser = compass.browser;
+  
+      await browser.connectWithConnectionForm({
+        hosts: ['localhost:27091'],
+        fleKeyVaultNamespace: `${databaseName}.keyvault`,
+        fleKey: 'A'.repeat(128),
+      });
     });
+  
+    after(async function () {
+      if (compass) {
+        await afterTests(compass, this.currentTest);
+      }
+    });
+  
+    it('can create a fle2 collection with encryptedFields specified', async function () {
+      await browser.navigateToDatabaseTab(databaseName, 'Collections');
+  
+      // open the create collection modal from the button at the top
+      await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+      await browser.addCollection(collectionName, {
+        encryptedFields: `{
+            fields: [{
+              path: 'phoneNumber',
+              keyId: UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a"),
+              bsonType: 'string',
+              queries: { queryType: 'equality' }
+            }]
+          }`,
+      });
+  
+      const collectionListFLE2BadgeElement = await browser.$(
+        Selectors.CollectionListFLE2Badge
+      );
+      const collectionListFLE2BadgeElementText =
+        await collectionListFLE2BadgeElement.getText();
+      expect(collectionListFLE2BadgeElementText).to.equal('QUERYABLE ENCRYPTION');
+  
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+  
+      const collectionHeaderLE2BadgeElement = await browser.$(
+        Selectors.CollectionHeaderFLE2Badge
+      );
+      const collectionHeaderLE2BadgeElementText =
+        await collectionHeaderLE2BadgeElement.getText();
+      expect(collectionHeaderLE2BadgeElementText).to.include(
+        'QUERYABLE ENCRYPTION'
+      );
+    });
+  });
 
-    const collectionListFLE2BadgeElement = await browser.$(
-      Selectors.CollectionListFLE2Badge
-    );
-    const collectionListFLE2BadgeElementText =
-      await collectionListFLE2BadgeElement.getText();
-    expect(collectionListFLE2BadgeElementText).to.equal('QUERYABLE ENCRYPTION');
+  describe('when fleEncryptedFieldsMap is specified while connecting', function () {
+    const databaseName = 'test';
+    const collectionName = 'my-another-collection';
+    let compass: Compass;
+    let browser: CompassBrowser;
 
-    await browser.navigateToCollectionTab(
-      databaseName,
-      collectionName,
-      'Documents'
-    );
-
-    const collectionHeaderLE2BadgeElement = await browser.$(
-      Selectors.CollectionHeaderFLE2Badge
-    );
-    const collectionHeaderLE2BadgeElementText =
-      await collectionHeaderLE2BadgeElement.getText();
-    expect(collectionHeaderLE2BadgeElementText).to.include(
-      'QUERYABLE ENCRYPTION'
-    );
+    before(async function () { 
+      compass = await beforeTests();
+      browser = compass.browser;
+  
+      await browser.connectWithConnectionForm({
+        hosts: ['localhost:27091'],
+        fleKeyVaultNamespace: `${databaseName}.keyvault`,
+        fleKey: 'A'.repeat(128),
+        fleEncryptedFieldsMap: `{
+          '${databaseName}.${collectionName}': {
+            fields: [
+              {
+                path: 'phoneNumber',
+                keyId: UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a"),
+                bsonType: 'string'
+              }
+            ]
+          }
+        }`,
+      });
+    });
+  
+    after(async function () {
+      if (compass) {
+        await afterTests(compass, this.currentTest);
+      }
+    });
+  
+    it('can create a fle2 collection with encryptedFields specified', async function () {
+      await browser.navigateToDatabaseTab(databaseName, 'Collections');
+  
+      // open the create collection modal from the button at the top
+      await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+      await browser.addCollection(collectionName);
+  
+      const collectionListFLE2BadgeElement = await browser.$(
+        Selectors.CollectionListFLE2Badge
+      );
+      const collectionListFLE2BadgeElementText =
+        await collectionListFLE2BadgeElement.getText();
+      expect(collectionListFLE2BadgeElementText).to.equal('QUERYABLE ENCRYPTION');
+  
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+  
+      const collectionHeaderLE2BadgeElement = await browser.$(
+        Selectors.CollectionHeaderFLE2Badge
+      );
+      const collectionHeaderLE2BadgeElementText =
+        await collectionHeaderLE2BadgeElement.getText();
+      expect(collectionHeaderLE2BadgeElementText).to.include(
+        'QUERYABLE ENCRYPTION'
+      );
+    });
   });
 });
