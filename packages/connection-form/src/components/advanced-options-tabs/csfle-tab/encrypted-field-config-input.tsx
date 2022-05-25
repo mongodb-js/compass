@@ -58,7 +58,7 @@ function EncryptedFieldConfigInput({
   }
 
   return (
-    <div data-testid="csfle-encrypted-fields-map">
+    <div data-testid="connection-csfle-encrypted-fields-map">
       <FormFieldContainer>
         <Label htmlFor="TODO(COMPASS-5653)">{label}</Label>
         <Description>{description}</Description>

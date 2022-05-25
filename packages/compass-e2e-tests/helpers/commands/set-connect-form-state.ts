@@ -156,17 +156,7 @@ export async function setConnectFormState(
     // set the text in the editor
     await browser.setAceValue(
       Selectors.ConnectionFormInputFLEEncryptedFieldsMap,
-      `{
-      'alena.coll': {
-        fields: [
-          {
-            path: 'phoneNumber',
-            keyId: UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a"),
-            bsonType: 'string'
-          }
-        ]
-      }
-    }`
+      state.fleEncryptedFieldsMap
     );
   }
 

@@ -86,7 +86,7 @@ export const ConnectionFormInputFLELocalKMS =
   '[data-testid="csfle-kms-provider-local"]';
 export const ConnectionFormInputFLEKey = '[data-testid="csfle-kms-key"]';
 export const ConnectionFormInputFLEEncryptedFieldsMap =
-  '[data-testid="csfle-encrypted-fields-map"]';
+  '[data-testid="connection-csfle-encrypted-fields-map"]';
 
 export const ConnectionFormSSLConnectionRadios =
   '#tls-radio-box-group input[type="radio"]';
@@ -289,6 +289,13 @@ export const CreateCollectionCollectionOptionsAccordion =
   '[data-testid="create_collection_modal"] [data-testid="advanced-collection-options"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
   '[data-testid="use-custom-collation-fields"] #toggle-use-custom-collation-fields-label';
+
+export const CreateCollectionFLE2CheckboxLabel =
+  '[data-testid="fle2-fields"] #toggle-fle2-fields-label';
+export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
+export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
+export const CollectionHeaderFLE2Badge =
+  '[data-testid="collection-header-badge-fle2"]';
 
 export const CreateCollectionTimeseriesCheckboxLabel =
   '[data-testid="time-series-fields"] #toggle-time-series-fields-label';

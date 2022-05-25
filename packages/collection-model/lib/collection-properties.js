@@ -11,44 +11,44 @@ function getProperties(coll) {
 
   if (coll.collation) {
     properties.push({
-      name: PROPERTIES_COLLATION,
+      id: PROPERTIES_COLLATION,
       options: coll.collation,
     });
   }
 
   if (coll.type === 'timeseries') {
     properties.push({
-      name: PROPERTIES_TIME_SERIES,
+      id: PROPERTIES_TIME_SERIES,
     });
   }
 
   if (coll.type === 'view') {
     properties.push({
-      name: PROPERTIES_VIEW,
+      id: PROPERTIES_VIEW,
     });
   }
 
   if (coll.capped) {
     properties.push({
-      name: PROPERTIES_CAPPED,
+      id: PROPERTIES_CAPPED,
     });
   }
 
   if (coll.clustered) {
     properties.push({
-      name: PROPERTIES_CLUSTERED,
+      id: PROPERTIES_CLUSTERED,
     });
   }
 
   if (coll.readonly) {
     properties.push({
-      name: PROPERTIES_READ_ONLY,
+      id: PROPERTIES_READ_ONLY,
     });
   }
 
   if (coll.fle2) {
     properties.push({
-      name: PROPERTIES_FLE2,
+      id: PROPERTIES_FLE2,
     });
   }
 
