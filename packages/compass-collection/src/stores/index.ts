@@ -72,7 +72,7 @@ export const INITIAL_STATE = {
 /**
  * Handle the reset.
  */
-const doReset = ({ appRegistry }) => ({
+const doReset = ({ appRegistry }: RootState) => ({
   ...INITIAL_STATE,
   appRegistry,
 });
@@ -93,6 +93,8 @@ const appReducer = combineReducers({
   stats,
   namespace,
 });
+
+type RootState = ReturnType<typeof appReducer>;
 
 /**
  * The root reducer.
