@@ -150,6 +150,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
           store.dispatch(dataLakeChanged(value));
         }
       );
+      store.dispatch(dataLakeChanged(instance.dataLake.isDataLake));
     }
   });
 
