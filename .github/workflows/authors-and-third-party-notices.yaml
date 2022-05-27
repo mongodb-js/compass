@@ -44,9 +44,9 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          add-paths:
-            - THIRD-PARTY-NOTICES.md
-            - AUTHORS
+          add-paths: |
+            THIRD-PARTY-NOTICES.md
+            AUTHORS
           commit-message: Update report
           committer: "github-actions[bot]"
           author: "41898282+github-actions[bot]@users.noreply.github.com"
