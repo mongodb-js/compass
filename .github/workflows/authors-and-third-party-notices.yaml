@@ -53,8 +53,7 @@ jobs:
           branch: ci/update-3rd-party-notices-and-authors
           title: 'chore: update THIRD-PARTY-NOTICES.md and AUTHORS'
           body: |
-            - Update THIRD-PARTY-NOTICES.md
-            - Update AUTHORS
+            - Update `THIRD-PARTY-NOTICES.md` and `AUTHORS`
           labels: |
             automated
           draft: false
