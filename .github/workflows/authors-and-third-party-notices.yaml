@@ -14,43 +14,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          # don't checkout a detatched HEAD
+          # this is important so git log can pick up on
+          # the whole history to generate the list of AUTHORS
+          ref: ${{ github.head_ref }}
+
       - uses: actions/setup-node@v2
         with:
           node-version: ^14.17.5
           cache: 'npm'
 
-      - name: Install Deps Ubuntu
-        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
-
       - name: Install npm@8.3.1
         run: |
           npm install -g npm@8.3.1
-
-      - name: Run node-gyp bug workaround script
-        run: |
-          bash .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
         run: |
           npm -v
           npm ci
 
-      - name: Update THIRD-PARTY-NOTICES.md
-        run: npm run update-third-party-notices
-
       - name: Update AUTHORS
         run: npm run update-authors
+
+      - name: Update THIRD-PARTY-NOTICES.md
+        run: npm run update-third-party-notices
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          add-paths: |
-            THIRD-PARTY-NOTICES.md
-            AUTHORS
           commit-message: Update report
           branch: ci/update-3rd-party-notices-and-authors
-          title: 'chore: update THIRD-PARTY-NOTICES.md and AUTHORS'
+          title: 'chore: update AUTHORS and THIRD-PARTY-NOTICES'
+          add-paths:
+            - THIRD-PARTY-NOTICES.md
+            - AUTHORS
           body: |
-            - Update `THIRD-PARTY-NOTICES.md` and `AUTHORS`
-          draft: false
-
+            - Update `AUTHORS` and `THIRD-PARTY-NOTICES`
