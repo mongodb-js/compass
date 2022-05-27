@@ -22,6 +22,7 @@ jobs:
           # the whole history to generate the list of AUTHORS
           fetch-depth: '0'
 
+
       - uses: actions/setup-node@v2
         with:
           node-version: ^14.17.5
