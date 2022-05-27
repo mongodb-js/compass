@@ -48,13 +48,9 @@ jobs:
             THIRD-PARTY-NOTICES.md
             AUTHORS
           commit-message: Update report
-          committer: "github-actions[bot]"
-          author: "41898282+github-actions[bot]@users.noreply.github.com"
           branch: ci/update-3rd-party-notices-and-authors
           title: 'chore: update THIRD-PARTY-NOTICES.md and AUTHORS'
           body: |
             - Update `THIRD-PARTY-NOTICES.md` and `AUTHORS`
-          labels: |
-            automated
           draft: false
 
