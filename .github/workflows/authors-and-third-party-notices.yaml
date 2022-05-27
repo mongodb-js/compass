@@ -20,8 +20,7 @@ jobs:
 
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
-          with:
-            fetch-depth: '0'
+          fetch-depth: '0'
 
       - uses: actions/setup-node@v2
         with:
