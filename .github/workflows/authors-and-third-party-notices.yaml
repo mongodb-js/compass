@@ -46,8 +46,8 @@ jobs:
           commit-message: Update report
           branch: ci/update-3rd-party-notices-and-authors
           title: 'chore: update AUTHORS and THIRD-PARTY-NOTICES'
-          add-paths:
-            - THIRD-PARTY-NOTICES.md
-            - AUTHORS
+          add-paths: |
+            THIRD-PARTY-NOTICES.md
+            AUTHORS
           body: |
             - Update `AUTHORS` and `THIRD-PARTY-NOTICES`
