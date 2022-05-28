@@ -511,6 +511,7 @@ export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
 export const InsertCancel =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
+export const insertCSFLEHasKnownSchemaMsg = '[data-test-id="insert-csfle-has-known-schema"]';
 
 // Import File modal
 
