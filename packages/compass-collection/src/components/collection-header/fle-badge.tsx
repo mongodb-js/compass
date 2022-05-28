@@ -13,7 +13,7 @@ const collectionHeaderBadgeStyles = css({
 
 const FLEBadge = (): React.ReactElement => (
   <Badge
-    data-testid="collection-badge-fle"
+    data-testid="collection-header-badge-fle2"
     className={collectionHeaderBadgeStyles}
     variant={BadgeVariant.DarkGray}
   >
