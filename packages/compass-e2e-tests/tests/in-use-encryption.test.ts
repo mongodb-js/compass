@@ -54,7 +54,7 @@ describe('FLE2', function () {
       }
     });
 
-    it('can create a fle2 collection with encryptedFields specified', async function () {
+    it('can create a fle2 collection with encryptedFields', async function () {
       await browser.navigateToDatabaseTab(databaseName, 'Collections');
 
       // open the create collection modal from the button at the top
@@ -105,7 +105,9 @@ describe('FLE2', function () {
     before(async function () {
       compass = await beforeTests();
       browser = compass.browser;
+    });
 
+    beforeEach(async function () {
       await browser.connectWithConnectionForm({
         hosts: ['localhost:27091'],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
@@ -122,6 +124,18 @@ describe('FLE2', function () {
           }
         }`,
       });
+      await browser.shellEval(`use ${databaseName}`);
+      await browser.shellEval(
+        'db.keyvault.insertOne({' +
+          '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
+          '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
+          '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+          '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+          '"status": 0,' +
+          '"masterKey": { "provider" : "local" }' +
+          '})'
+      );
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
     });
 
     after(async function () {
@@ -130,22 +144,26 @@ describe('FLE2', function () {
       }
     });
 
-    it('can create a fle2 collection without encryptedFields specified', async function () {
-      await browser.navigateToInstanceTab('Databases');
-      // open the create database modal from the button at the top
-      await browser.clickVisible(Selectors.InstanceCreateDatabaseButton);
-      await browser.addDatabase(databaseName, collectionName);
+    afterEach(async function () {
+      await browser.shellEval(
+        `db.getMongo().getDB('${databaseName}').dropDatabase()`
+      );
+    });
 
-      const selector = Selectors.databaseCard(databaseName);
+    it('can create a fle2 collection without encryptedFields', async function () {
+      await browser.navigateToDatabaseTab(databaseName, 'Collections');
+      await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+      await browser.addCollection(collectionName);
+
+      const selector = Selectors.collectionCard(databaseName, collectionName);
       await browser.scrollToVirtualItem(
-        Selectors.DatabasesTable,
+        Selectors.CollectionsGrid,
         selector,
         'grid'
       );
-      const databaseCard = await browser.$(selector);
-      await databaseCard.waitForDisplayed();
 
-      await browser.clickVisible(`${selector} [title="${databaseName}"]`);
+      const collectionCard = await browser.$(selector);
+      await collectionCard.waitForDisplayed();
 
       const collectionListFLE2BadgeElement = await browser.$(
         Selectors.CollectionListFLE2Badge
@@ -170,36 +188,18 @@ describe('FLE2', function () {
       expect(collectionHeaderLE2BadgeElementText).to.include(
         'QUERYABLE ENCRYPTION'
       );
-
-      let dbs = await browser.shellEval('show dbs');
-      expect(dbs).to.include(databaseName);
-      
-      // open the drop database modal from the sidebar
-      await browser.hover(Selectors.sidebarDatabase(databaseName));
-      await browser.clickVisible(Selectors.DropDatabaseButton);
-      await browser.dropDatabase(databaseName);
-
-      dbs = await browser.shellEval('show dbs');
-      expect(dbs).to.not.include(databaseName);
     });
 
     it('can insert a document with an encrypted field and a non-encrypted field', async function () {
-      await browser.shellEval(`use ${databaseName}`);
-      await browser.shellEval(
-        'db.keyvault.insertOne({' +
-        '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
-        '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
-        '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
-        '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
-        '"status": 0,' +
-        '"masterKey": { "provider" : "local" }' +
-        '})'
-      );
       await browser.shellEval(`db.createCollection('${collectionName}')`);
 
       await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
 
-      await browser.navigateToCollectionTab(databaseName, collectionName, 'Documents');
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
 
       // browse to the "Insert to Collection" modal
       await browser.clickVisible(Selectors.AddDataButton);
@@ -233,6 +233,7 @@ describe('FLE2', function () {
 
       // wait for the modal to go away
       await insertDialog.waitForDisplayed({ reverse: true });
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
 
       const result = await getFirstListDocument(browser);
 
@@ -243,6 +244,39 @@ describe('FLE2', function () {
         phoneNumber: '"30303030"',
         name: '"Person X"',
       });
+    });
+
+    it('shows decrypted field icon', async function () {
+      await browser.shellEval(`db.createCollection('${collectionName}')`);
+      await browser.shellEval(
+        `db['${collectionName}'].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+      );
+
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      const result = await getFirstListDocument(browser);
+
+      expect(result._id).to.exist;
+      delete result._id;
+
+      expect(result).to.deep.equal({
+        phoneNumber: '"30303030"',
+        name: '"Person X"',
+      });
+
+      const decryptedIconElemets = await browser.$$(
+        Selectors.documentListDocumentIcon(1)
+      );
+      const decryptedIcons = await Promise.all(
+        decryptedIconElemets.map((el) => el.getAttribute('title'))
+      );
+
+      expect(decryptedIcons).to.have.lengthOf(1);
+      expect(decryptedIcons[0]).to.be.equal('Encrypted Field');
     });
   });
 });

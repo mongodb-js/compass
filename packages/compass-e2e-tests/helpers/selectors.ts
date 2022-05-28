@@ -511,7 +511,8 @@ export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
 export const InsertCancel =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
-export const insertCSFLEHasKnownSchemaMsg = '[data-test-id="insert-csfle-has-known-schema"]';
+export const insertCSFLEHasKnownSchemaMsg =
+  '[data-test-id="insert-csfle-has-known-schema"]';
 
 // Import File modal
 
@@ -563,6 +564,8 @@ export const HadronDocumentRevertElement =
   '[data-testid="hadron-document-revert"]';
 export const HadronDocumentRemoveElement =
   '[data-testid="hadron-document-remove"]';
+export const HadronDocumentElementDecryptedIcon =
+  '[data-test-id="hadron-document-element-decrypted-icon"]';
 
 // Document list view
 
@@ -575,6 +578,9 @@ export const documentListDocumentKey = (n: number): string => {
 };
 export const documentListDocumentValue = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
+};
+export const documentListDocumentIcon = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentElementDecryptedIcon}`;
 };
 
 // Query bar history

@@ -10,17 +10,17 @@ export async function getFirstListDocument(browser: CompassBrowser) {
   // and their values are what we expected.
 
   const fieldNameElements = await browser.$$(
-      Selectors.documentListDocumentKey(1)
+    Selectors.documentListDocumentKey(1)
   );
   const fieldNames = await Promise.all(
-      fieldNameElements.map((el) => el.getText())
+    fieldNameElements.map((el) => el.getText())
   );
 
   const fieldValueElements = await browser.$$(
-      Selectors.documentListDocumentValue(1)
+    Selectors.documentListDocumentValue(1)
   );
   const fieldValues = await Promise.all(
-      fieldValueElements.map((el) => el.getText())
+    fieldValueElements.map((el) => el.getText())
   );
 
   expect(fieldValues).to.have.lengthOf(fieldNames.length);
