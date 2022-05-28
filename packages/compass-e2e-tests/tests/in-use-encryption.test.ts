@@ -118,7 +118,8 @@ describe('FLE2', function () {
               {
                 path: 'phoneNumber',
                 keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
-                bsonType: 'string'
+                bsonType: 'string',
+                queries: { queryType: 'equality' }
               }
             ]
           }
@@ -238,7 +239,9 @@ describe('FLE2', function () {
       const result = await getFirstListDocument(browser);
 
       expect(result._id).to.exist;
+      expect(result.__safeContent__).to.exist;
       delete result._id;
+      delete result.__safeContent__;
 
       expect(result).to.deep.equal({
         phoneNumber: '"30303030"',
@@ -258,16 +261,6 @@ describe('FLE2', function () {
         'Documents'
       );
 
-      const result = await getFirstListDocument(browser);
-
-      expect(result._id).to.exist;
-      delete result._id;
-
-      expect(result).to.deep.equal({
-        phoneNumber: '"30303030"',
-        name: '"Person X"',
-      });
-
       const decryptedIconElemets = await browser.$$(
         Selectors.documentListDocumentIcon(1)
       );
@@ -277,6 +270,48 @@ describe('FLE2', function () {
 
       expect(decryptedIcons).to.have.lengthOf(1);
       expect(decryptedIcons[0]).to.be.equal('Encrypted Field');
+    });
+
+    it('can edit and query the encrypted field', async function () {
+      await browser.shellEval(`db.createCollection('${collectionName}')`);
+      await browser.shellEval(
+        `db['${collectionName}'].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+      );
+
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      const result = await getFirstListDocument(browser);
+      expect(result.phoneNumber).to.be.equal('"30303030"');
+
+      const document = await browser.$(Selectors.DocumentListEntry);
+      const value = await document.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+      );
+      await value.doubleClick();
+
+      const input = await document.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
+      );
+      await input.setValue('10101010');
+
+      const footer = await document.$(Selectors.DocumentFooterMessage);
+      expect(await footer.getText()).to.equal('Document Modified.');
+
+      const button = await document.$(
+        '[data-test-id="update-document-button"]'
+      );
+      await button.click();
+      await footer.waitForDisplayed({ reverse: true });
+
+      await browser.runFindOperation('Documents', '{ name: "Person X" }');
+
+      const modifiedResult = await getFirstListDocument(browser);
+      expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
+      expect(modifiedResult.name).to.be.equal('"Person X"');
     });
   });
 });
