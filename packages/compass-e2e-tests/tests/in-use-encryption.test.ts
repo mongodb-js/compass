@@ -53,7 +53,7 @@ describe('FLE2', function () {
       }
     });
 
-    it('can create a fle2 collection with encryptedFields specified', async function () {
+    it('can create a fle2 collection with encryptedFields', async function () {
       await browser.navigateToDatabaseTab(databaseName, 'Collections');
 
       // open the create collection modal from the button at the top
@@ -129,7 +129,7 @@ describe('FLE2', function () {
       }
     });
 
-    it('can create a fle2 collection with encryptedFields specified', async function () {
+    it('can create a fle2 collection without encryptedFields', async function () {
       await browser.navigateToDatabaseTab(databaseName, 'Collections');
 
       // open the create collection modal from the button at the top
