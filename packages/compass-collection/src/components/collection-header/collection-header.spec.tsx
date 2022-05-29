@@ -253,7 +253,7 @@ describe('CollectionHeader [Component]', function () {
     afterEach(cleanup);
 
     it('renders the clustered badge', function () {
-      expect(screen.getByTestId('collection-badge-fle')).to.exist;
+      expect(screen.getByTestId('collection-header-badge-fle2')).to.exist;
     });
   });
 
