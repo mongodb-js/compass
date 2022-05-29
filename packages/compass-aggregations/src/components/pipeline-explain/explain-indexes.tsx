@@ -3,6 +3,7 @@ import {
   Badge,
   BadgeVariant,
   Body,
+  css,
   Icon,
 } from '@mongodb-js/compass-components';
 import type { ExplainIndex } from '../../modules/explain';
@@ -32,14 +33,28 @@ const IndexType = ({ indexKeys }: { indexKeys: ExplainIndex['key'] }) => {
     return <IndexDirectionIcon direction={Object.values(indexKeys)[0]} />;
   }
 
-  return Object.entries(indexKeys).map(([indexKey, indexDirection]) => (
-    <>
-      {indexKey}
-      &nbsp;(
-      <IndexDirectionIcon direction={indexDirection} />)
-    </>
-  ));
+  const content = Object.entries(indexKeys).map(
+    ([indexKey, indexDirection]) => (
+      <>
+        {indexKey}
+        &nbsp;(
+        <IndexDirectionIcon direction={indexDirection} />)
+      </>
+    )
+  );
+
+  return <span>{content}</span>;
 };
+
+const containerStyles = css({
+  flexShrink: 0,
+  flexDirection: 'column',
+  gap: '4px',
+});
+
+const indexStyles = css({
+  display: 'flex',
+});
 
 export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   indexes,
@@ -49,12 +64,16 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   }
 
   return (
-    <div>
-      {indexes.map((info, idx) => (
-        <Badge key={idx} variant={BadgeVariant.LightGray}>
-          {info.name}
-          <IndexType indexKeys={info.key} />
-          {info.shard && <>({info.shard})</>}
+    <div className={containerStyles}>
+      {indexes.map((index, arrIndex) => (
+        <Badge
+          className={indexStyles}
+          key={arrIndex}
+          variant={BadgeVariant.LightGray}
+        >
+          <span>{index.name}</span>
+          <IndexType indexKeys={index.key} />
+          {index.shard && <span>({index.shard})</span>}
         </Badge>
       ))}
     </div>
