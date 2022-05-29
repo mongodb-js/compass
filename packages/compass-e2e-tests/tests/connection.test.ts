@@ -130,6 +130,7 @@ async function assertCanReadData(
     return /Displaying documents \d+ - \d+ of \d+/.test(text);
   });
 }
+
 async function assertCannotInsertData(
   browser: CompassBrowser,
   dbName: string,

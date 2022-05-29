@@ -13,49 +13,44 @@ jobs:
     name: Update automatically generated files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+        with:
+          # don't checkout a detatched HEAD
+          ref: ${{ github.head_ref }}
+
+          # this is important so git log can pick up on
+          # the whole history to generate the list of AUTHORS
+          fetch-depth: '0'
+
+
       - uses: actions/setup-node@v2
         with:
           node-version: ^14.17.5
           cache: 'npm'
 
-      - name: Install Deps Ubuntu
-        run: sudo apt-get -y install libkrb5-dev libsecret-1-dev net-tools libstdc++6 gnome-keyring
-
       - name: Install npm@8.3.1
         run: |
           npm install -g npm@8.3.1
-
-      - name: Run node-gyp bug workaround script
-        run: |
-          bash .evergreen/node-gyp-bug-workaround.sh
 
       - name: Install Dependencies
         run: |
           npm -v
           npm ci
 
-      - name: Set up Git
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+      - name: Update AUTHORS
+        run: npm run update-authors
 
       - name: Update THIRD-PARTY-NOTICES.md
         run: npm run update-third-party-notices
 
-      - name: Commit THIRD-PARTY-NOTICES changes
-        run: |
-          git add THIRD-PARTY-NOTICES.md
-          git commit --no-allow-empty -m "chore: update THIRD-PARTY-NOTICES" THIRD-PARTY-NOTICES.md || true
-
-      - name: Update AUTHORS
-        run: npm run update-authors
-      - name: Commit AUTHORS changes
-        run: |
-          git add AUTHORS
-          git commit --no-allow-empty -m "chore: update AUTHORS" AUTHORS || true
-      - name: Push updates
-        uses: ad-m/github-push-action@v0.6.0
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          commit-message: Update report
+          branch: ci/update-3rd-party-notices-and-authors
+          title: 'chore: update AUTHORS and THIRD-PARTY-NOTICES'
+          add-paths: |
+            THIRD-PARTY-NOTICES.md
+            AUTHORS
+          body: |
+            - Update `AUTHORS` and `THIRD-PARTY-NOTICES`
