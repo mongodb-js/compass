@@ -137,37 +137,28 @@ export async function setConnectFormState(
   }
 
   // FLE2
-  if (
-    process.env.COMPASS_CSFLE_SUPPORT === 'true' &&
-    state.fleKeyVaultNamespace &&
-    state.fleKey &&
-    state.fleEncryptedFieldsMap
-  ) {
+  if (process.env.COMPASS_CSFLE_SUPPORT === 'true') {
     await browser.navigateToConnectTab('In-Use Encryption');
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputFLEKeyVaultNamespace,
-      state.fleKeyVaultNamespace
-    );
-    await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputFLEKey,
-      state.fleKey
-    );
-    // set the text in the editor
-    await browser.setAceValue(
-      Selectors.ConnectionFormInputFLEEncryptedFieldsMap,
-      `{
-      'alena.coll': {
-        fields: [
-          {
-            path: 'phoneNumber',
-            keyId: UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a"),
-            bsonType: 'string'
-          }
-        ]
-      }
-    }`
-    );
+    if (state.fleKeyVaultNamespace) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputFLEKeyVaultNamespace,
+        state.fleKeyVaultNamespace
+      );
+    }
+    if (state.fleKey) {
+      await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputFLELocalKey,
+        state.fleKey
+      );
+    }
+    if (state.fleEncryptedFieldsMap) {
+      // set the text in the editor
+      await browser.setAceValue(
+        Selectors.ConnectionFormInputFLEEncryptedFieldsMap,
+        state.fleEncryptedFieldsMap
+      );
+    }
   }
 
   if (state.awsSessionToken) {
