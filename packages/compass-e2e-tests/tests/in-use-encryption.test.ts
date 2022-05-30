@@ -8,8 +8,6 @@ import * as Selectors from '../helpers/selectors';
 import { createDummyCollections } from '../helpers/insert-data';
 
 describe('FLE2', function () {
-  let initialEnvVars: NodeJS.ProcessEnv;
-
   before(async function () {
     if (
       semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
@@ -18,16 +16,7 @@ describe('FLE2', function () {
       return this.skip();
     }
 
-    initialEnvVars = Object.assign({}, process.env);
-    process.env.COMPASS_CSFLE_SUPPORT = 'true';
-
     await createDummyCollections();
-  });
-
-  after(function () {
-    if (initialEnvVars) {
-      process.env = initialEnvVars;
-    }
   });
 
   describe('when fleEncryptedFieldsMap is not specified while connecting', function () {

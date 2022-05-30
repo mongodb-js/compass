@@ -19,7 +19,6 @@ export async function setConnectFormState(
       Selectors.connectionFormSchemeRadio(state.scheme)
     );
   }
-
   if (state.hosts) {
     for (let i = 0; i < state.hosts.length; ++i) {
       if (i > 0) {
@@ -33,7 +32,6 @@ export async function setConnectFormState(
       );
     }
   }
-
   if (state.directConnection) {
     await browser.clickParent(Selectors.ConnectionFormDirectConnectionCheckbox);
   }
@@ -135,36 +133,34 @@ export async function setConnectFormState(
       state.awsSessionToken
     );
   }
-
-  // FLE2
-  if (process.env.COMPASS_CSFLE_SUPPORT === 'true') {
-    await browser.navigateToConnectTab('In-Use Encryption');
-    if (state.fleKeyVaultNamespace) {
-      await browser.setValueVisible(
-        Selectors.ConnectionFormInputFLEKeyVaultNamespace,
-        state.fleKeyVaultNamespace
-      );
-    }
-    if (state.fleKey) {
-      await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
-      await browser.setValueVisible(
-        Selectors.ConnectionFormInputFLELocalKey,
-        state.fleKey
-      );
-    }
-    if (state.fleEncryptedFieldsMap) {
-      // set the text in the editor
-      await browser.setAceValue(
-        Selectors.ConnectionFormInputFLEEncryptedFieldsMap,
-        state.fleEncryptedFieldsMap
-      );
-    }
-  }
-
   if (state.awsSessionToken) {
     await browser.setValueVisible(
       Selectors.ConnectionFormInputAWSSessionToken,
       state.awsSessionToken
+    );
+  }
+
+  // FLE2
+  await browser.navigateToConnectTab('In-Use Encryption');
+
+  if (state.fleKeyVaultNamespace) {
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputFLEKeyVaultNamespace,
+      state.fleKeyVaultNamespace
+    );
+  }
+  if (state.fleKey) {
+    await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputFLELocalKey,
+      state.fleKey
+    );
+  }
+  if (state.fleEncryptedFieldsMap) {
+    // set the text in the editor
+    await browser.setAceValue(
+      Selectors.ConnectionFormInputFLEEncryptedFieldsMap,
+      state.fleEncryptedFieldsMap
     );
   }
 
@@ -176,7 +172,6 @@ export async function setConnectFormState(
       Selectors.connectionFormSSLConnectionRadio(state.sslConnection)
     );
   }
-
   if (state.tlsCAFile) {
     await browser.selectFile(
       Selectors.ConnectionFormTlsCaFile,

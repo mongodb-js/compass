@@ -141,8 +141,7 @@ export async function addCollection(
 
   if (
     options &&
-    options.encryptedFields &&
-    process.env.COMPASS_CSFLE_SUPPORT === 'true'
+    options.encryptedFields
   ) {
     await browser.clickVisible(Selectors.CreateCollectionFLE2CheckboxLabel);
     await browser.setAceValue(
