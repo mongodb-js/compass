@@ -6,7 +6,7 @@ import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createDummyCollections } from '../helpers/insert-data';
-import { getFirstListDocument } from '../helpers/read-data';
+import { getFirstListDocument } from '../helpers/read-first-document-content';
 
 describe('FLE2', function () {
   let initialEnvVars: NodeJS.ProcessEnv;
@@ -261,11 +261,11 @@ describe('FLE2', function () {
         'Documents'
       );
 
-      const decryptedIconElemets = await browser.$$(
-        Selectors.documentListDocumentIcon(1)
+      const decryptedIconElements = await browser.$$(
+        Selectors.documentListDecryptedIcon(1)
       );
       const decryptedIcons = await Promise.all(
-        decryptedIconElemets.map((el) => el.getAttribute('title'))
+        decryptedIconElements.map((el) => el.getAttribute('title'))
       );
 
       expect(decryptedIcons).to.have.lengthOf(1);

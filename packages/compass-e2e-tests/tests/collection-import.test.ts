@@ -2,7 +2,7 @@ import path from 'path';
 import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
-import { getFirstListDocument } from '../helpers/read-data';
+import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {

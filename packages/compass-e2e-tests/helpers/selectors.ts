@@ -579,7 +579,7 @@ export const documentListDocumentKey = (n: number): string => {
 export const documentListDocumentValue = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
 };
-export const documentListDocumentIcon = (n: number): string => {
+export const documentListDecryptedIcon = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentElementDecryptedIcon}`;
 };
 
