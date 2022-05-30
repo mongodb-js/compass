@@ -96,6 +96,7 @@ const cardBadge = css({
 const cardBadgeLabel = css({});
 
 export type BadgeProp = {
+  id: string;
   name: string;
   variant?: BadgeVariant;
   icon?: IconGlyph;
@@ -103,6 +104,7 @@ export type BadgeProp = {
 };
 
 const CardBadge: React.FunctionComponent<BadgeProp> = ({
+  id,
   name,
   icon,
   variant,
@@ -112,7 +114,7 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
     ({ className, children, ...props } = {}) => {
       return (
         <Badge
-          data-testid={`collection-badge-${name}`}
+          data-testid={`collection-badge-${id}`}
           className={cx(cardBadge, className)}
           variant={variant}
           {...props}
@@ -124,7 +126,7 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
         </Badge>
       );
     },
-    [icon, name, variant]
+    [id, icon, name, variant]
   );
 
   if (hint) {
@@ -210,7 +212,7 @@ export const NamespaceItemCard: React.FunctionComponent<
   const badgesGroup = badges && (
     <CardBadges>
       {badges.map((badge) => {
-        return <CardBadge key={badge.name} {...badge}></CardBadge>;
+        return <CardBadge key={badge.id} {...badge}></CardBadge>;
       })}
     </CardBadges>
   );
