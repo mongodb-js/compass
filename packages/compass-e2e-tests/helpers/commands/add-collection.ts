@@ -139,10 +139,7 @@ export async function addCollection(
     await expireField.setValue(options.clustered.expireAfterSeconds.toString());
   }
 
-  if (
-    options &&
-    options.encryptedFields
-  ) {
+  if (options && options.encryptedFields) {
     await browser.clickVisible(Selectors.CreateCollectionFLE2CheckboxLabel);
     await browser.setAceValue(
       Selectors.CreateCollectionFLE2,
