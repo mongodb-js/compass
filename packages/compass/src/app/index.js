@@ -126,6 +126,12 @@ var Application = View.extend({
     'click a': 'onLinkClick'
   },
   initialize: function() {
+    /**
+     * @see NODE-4281
+     * @todo: remove when NODE-4281 is merged.
+     */
+    Number.prototype.unref = () => {};
+
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
     ipc.on('window:show-security-panel', this.showSecurity.bind(this));
