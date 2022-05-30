@@ -307,11 +307,14 @@ describe('FLE2', function () {
       await button.click();
       await footer.waitForDisplayed({ reverse: true });
 
-      await browser.runFindOperation('Documents', '{ name: "Person X" }');
+      await browser.runFindOperation(
+        'Documents',
+        "{ phoneNumber: '10101010' }"
+      );
 
       const modifiedResult = await getFirstListDocument(browser);
       expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
-      expect(modifiedResult.name).to.be.equal('"Person X"');
+      expect(modifiedResult._id).to.be.equal(result._id);
     });
   });
 });
