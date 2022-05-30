@@ -218,7 +218,7 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
       ...(info.clientEnforcedEncryptedFields ?? []),
       ...(info.serverEnforcedEncryptedFields ?? []),
     ].map((fieldPath) => fieldPath.join('.'));
-    return { hasSchema, encryptedFields };
+    return { hasSchema, encryptedFields: [...new Set(encryptedFields)] };
   }
 
   _processClientSchemaDefinitions(): void {
