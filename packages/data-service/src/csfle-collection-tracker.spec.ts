@@ -21,7 +21,7 @@ describe('CSFLECollectionTracker', function () {
   let dbName: string;
 
   before(function () {
-    if (!process.env.COMPASS_CSFLE_LIBRARY_PATH) {
+    if (!process.env.COMPASS_CRYPT_LIBRARY_PATH) {
       return this.skip();
     }
     dbName = `test-${Date.now()}-${(Math.random() * 10000) | 0}`;
@@ -43,7 +43,7 @@ describe('CSFLECollectionTracker', function () {
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           keyVaultNamespace: `${dbName}.kv`,
           extraOptions: {
-            csflePath: process.env.COMPASS_CSFLE_LIBRARY_PATH,
+            csflePath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
           },
           ...autoEncryption,
         },
