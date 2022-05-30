@@ -5,7 +5,7 @@
 #   `feature flagged` or `release notes` label, PRs that have the `feature flagged`
 #   label will not be included in the release notes.
 #
-name: Release Notes
+name: Release Notes - Labels
 on:
   pull_request:
     types: [opened, edited, labeled, unlabeled, synchronize]
