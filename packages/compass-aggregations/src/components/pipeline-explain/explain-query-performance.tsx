@@ -24,6 +24,7 @@ const statsStyles = css({
 const statItemStyles = css({
   display: 'flex',
   gap: spacing[1],
+  alignItems: 'baseline',
 });
 
 const statTitleStyles = css({

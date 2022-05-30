@@ -417,4 +417,30 @@ describe('CSFLECollectionTracker', function () {
       });
     });
   });
+
+  context('with client-side and server-side FLE2 schema info', function () {
+    beforeEach(async function () {
+      [tracker, dataService] = await createTracker({
+        encryptedFieldsMap: {
+          [`${dbName}.test3`]: {
+            fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
+          },
+        },
+      });
+      const crudClient: MongoClient = (dataService as any)._initializedClient(
+        'CRUD'
+      );
+      await crudClient.db(dbName).createCollection('test3', {
+        encryptedFields: {
+          fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
+        },
+      });
+    });
+
+    it('does not return duplicates of encrypted fields', async function () {
+      expect(
+        await tracker.knownSchemaForCollection(`${dbName}.test3`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
+    });
+  });
 });
