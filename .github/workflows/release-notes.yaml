@@ -1,0 +1,56 @@
+# Prepare and validate a PR for auto-generated release notes:
+# - if the title starts with `feat` or `fix` adds the label (`feat`, `fix`) used
+#   by the release notes to include the PR in the appropriate section.
+# - each PR that is a `feat` or `fix` must also include either a
+#   `feature flagged` or `release notes` label, PRs that have the `feature flagged`
+#   label will not be included in the release notes.
+#
+name: Release Notes
+on:
+  pull_request:
+    types: [opened, edited, labeled, unlabeled, synchronize]
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: remove label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          labels: |
+            fix
+            feat
+
+      - name: add label based on title - fix
+        if: |
+          startsWith(github.event.pull_request.title, 'fix:') ||
+          startsWith(github.event.pull_request.title, 'fix(')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: fix
+
+      - name: add label based on title - feat
+        if: |
+          startsWith(github.event.pull_request.title, 'feat:') ||
+          startsWith(github.event.pull_request.title, 'feat(')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: feat
+
+      - uses: mheap/github-action-required-labels@v1
+        with:
+          mode: maximum
+          count: 0
+          labels: "wip, work in progress, work-in-progress"
+
+      - uses: mheap/github-action-required-labels@v1
+        if: |
+          startsWith(github.event.pull_request.title, 'fix:') ||
+          startsWith(github.event.pull_request.title, 'fix(') ||
+          startsWith(github.event.pull_request.title, 'feat:') ||
+          startsWith(github.event.pull_request.title, 'feat(')
+        with:
+          mode: minimum
+          count: 1
+          labels: "feature flagged, release notes"

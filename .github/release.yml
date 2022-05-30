@@ -1,0 +1,11 @@
+changelog:
+  exclude:
+    labels:
+      - feature flagged
+  categories:
+    - title: New Features
+      labels:
+        - feat
+    - title: Bug Fixes
+      labels:
+        - fix
