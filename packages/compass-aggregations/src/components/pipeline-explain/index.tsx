@@ -68,6 +68,10 @@ const loadingStyles = css({
   height: '100%',
 });
 
+const getInitialModalSize = (): 'default' | 'large' => {
+  return window.innerWidth <= breakpoints.Desktop ? 'default' : 'large';
+};
+
 export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   isModalOpen,
   isLoading,
@@ -76,14 +80,13 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   onCloseModal,
   onCancelExplain,
 }) => {
-  const initialModalSize =
-    window.innerWidth <= breakpoints.XLDesktop ? 'default' : 'large';
-  const [modalSize, setModalSize] = useState<'large' | 'default'>(
-    initialModalSize
-  );
+  const [modalSize, setModalSize] = useState(getInitialModalSize());
   useEffect(() => {
+    if (!isModalOpen) {
+      return;
+    }
     const resizeListener = () => {
-      if (window.innerWidth <= breakpoints.XLDesktop) {
+      if (window.innerWidth <= breakpoints.Desktop) {
         setModalSize('default');
       } else {
         setModalSize('large');
@@ -93,6 +96,14 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
     return () => {
       window.removeEventListener('resize', resizeListener);
     };
+  }, [isModalOpen]);
+
+  // The resize listener is only added when the modal is open.
+  // As the modal closes, the state persists the last value.
+  // If the user changes window size while the modal is closed,
+  // upon next open it uses the last known value. So we reset it here.
+  useEffect(() => {
+    setModalSize(getInitialModalSize());
   }, [isModalOpen]);
 
   let content = null;
