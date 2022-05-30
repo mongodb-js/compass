@@ -137,7 +137,7 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
         modalStyles
       )}
     >
-      <H3 className={headerStyles}>Explain</H3>
+      <H3 className={headerStyles}>Explain Plan</H3>
       <div className={contentStyles}>{content}</div>
       {!isLoading && (
         <ModalFooter className={footerStyles}>

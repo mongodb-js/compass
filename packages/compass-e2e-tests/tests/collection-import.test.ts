@@ -2,6 +2,7 @@ import path from 'path';
 import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
@@ -62,30 +63,6 @@ async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
   expect(await checkboxElement.isSelected()).to.be.true;
   await checkboxElement.click();
   expect(await checkboxElement.isSelected()).to.be.false;
-}
-
-async function getFirstListDocument(browser: CompassBrowser) {
-  // We check the total from the header area so it is probably good enough to
-  // just check the first document on screen to make sure the included fields
-  // and their values are what we expected.
-
-  const fieldNameElements = await browser.$$(
-    Selectors.documentListDocumentKey(1)
-  );
-  const fieldNames = await Promise.all(
-    fieldNameElements.map((el) => el.getText())
-  );
-
-  const fieldValueElements = await browser.$$(
-    Selectors.documentListDocumentValue(1)
-  );
-  const fieldValues = await Promise.all(
-    fieldValueElements.map((el) => el.getText())
-  );
-
-  expect(fieldValues).to.have.lengthOf(fieldNames.length);
-
-  return Object.fromEntries(fieldNames.map((k, i) => [k, fieldValues[i]]));
 }
 
 describe('Collection import', function () {
