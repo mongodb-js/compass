@@ -16,9 +16,12 @@ jobs:
       - uses: actions/checkout@v3
         with:
           # don't checkout a detatched HEAD
+          ref: ${{ github.head_ref }}
+
           # this is important so git log can pick up on
           # the whole history to generate the list of AUTHORS
-          ref: ${{ github.head_ref }}
+          fetch-depth: '0'
+
 
       - uses: actions/setup-node@v2
         with:
@@ -46,8 +49,8 @@ jobs:
           commit-message: Update report
           branch: ci/update-3rd-party-notices-and-authors
           title: 'chore: update AUTHORS and THIRD-PARTY-NOTICES'
-          add-paths:
-            - THIRD-PARTY-NOTICES.md
-            - AUTHORS
+          add-paths: |
+            THIRD-PARTY-NOTICES.md
+            AUTHORS
           body: |
             - Update `AUTHORS` and `THIRD-PARTY-NOTICES`
