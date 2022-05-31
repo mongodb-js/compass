@@ -5,6 +5,7 @@ import {
   Body,
   css,
   Icon,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type { ExplainIndex } from '../../modules/explain';
 import type { IndexDirection } from 'mongodb';
@@ -19,41 +20,19 @@ const IndexDirectionIcon = ({ direction }: { direction: IndexDirection }) => {
   ) : direction === -1 ? (
     <Icon glyph="ArrowDown" />
   ) : (
-    <>{direction.toString()}</>
+    <>({direction.toString()})</>
   );
-};
-
-const IndexType = ({ indexKeys }: { indexKeys: ExplainIndex['key'] }) => {
-  const keyLength = Object.keys(indexKeys).length;
-  if (keyLength === 0) {
-    return null;
-  }
-
-  if (keyLength === 1) {
-    return <IndexDirectionIcon direction={Object.values(indexKeys)[0]} />;
-  }
-
-  const content = Object.entries(indexKeys).map(
-    ([indexKey, indexDirection]) => (
-      <>
-        {indexKey}
-        &nbsp;(
-        <IndexDirectionIcon direction={indexDirection} />)
-      </>
-    )
-  );
-
-  return <span>{content}</span>;
 };
 
 const containerStyles = css({
-  flexShrink: 0,
-  flexDirection: 'column',
-  gap: '4px',
+  // flexShrink: 0,
+  // flexDirection: 'column',
+  // gap: '4px',
 });
 
 const indexStyles = css({
   display: 'flex',
+  gap: spacing[1],
 });
 
 export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
@@ -66,15 +45,19 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   return (
     <div className={containerStyles}>
       {indexes.map((index, arrIndex) => (
-        <Badge
-          className={indexStyles}
-          key={arrIndex}
-          variant={BadgeVariant.LightGray}
-        >
+        <Body key={arrIndex} className={indexStyles}>
           <span>{index.name}</span>
-          <IndexType indexKeys={index.key} />
           {index.shard && <span>({index.shard})</span>}
-        </Badge>
+          {Object.entries(index.key).map(
+            ([indexKey, indexDirection], keyIndex) => (
+              <Badge variant={BadgeVariant.LightGray} key={keyIndex}>
+                {indexKey}
+                &nbsp;
+                <IndexDirectionIcon direction={indexDirection} />
+              </Badge>
+            )
+          )}
+        </Body>
       ))}
     </div>
   );
