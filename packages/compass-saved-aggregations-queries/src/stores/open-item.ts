@@ -237,23 +237,15 @@ const openItem =
       }
     );
 
-    const overrrides: Record<string, string> = {};
-
-    if (item.type === 'aggregation') {
-      overrrides.namespace = metadata.namespace;
-    } else {
-      overrrides._ns = metadata.namespace;
-    };
-
-    const data = item.type === 'aggregation'
-      ? item.aggregation
-      : item.query;
-
     const emitData = {
       ...metadata,
-      [item.type]: {
-        ...data,
-        ...overrrides
+      [item.type]: (item.type === 'aggregation')
+        ? {
+          ...item.aggregation,
+          namespace: metadata.namespace,
+        } : {
+          ...item.query,
+          _ns: metadata.namespace,
       }
     };
 
