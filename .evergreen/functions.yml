@@ -200,8 +200,8 @@ functions:
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4.4.x} \
-            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            MONGODB_VERSION="${mongodb_version|4.4.x}" \
+            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
             npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
@@ -225,8 +225,8 @@ functions:
           npm run --unsafe-perm electron-rebuild
 
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4.4.x} \
-            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            MONGODB_VERSION="${mongodb_version|4.4.x}" \
+            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
             npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
@@ -335,8 +335,8 @@ functions:
 
 
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4.4.x} \
-            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            MONGODB_VERSION="${mongodb_version|4.4.x}" \
+            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
             npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
@@ -359,8 +359,8 @@ functions:
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
           DEBUG=${debug} \
-            MONGODB_VERSION=${mongodb_version|4.4.x} \
-            MONGODB_USE_ENTERPRISE=${mongodb_use_enterprise|} \
+            MONGODB_VERSION="${mongodb_version|4.4.x}" \
+            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
             npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
@@ -396,11 +396,11 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          rm -rf mongodb-csfle && mkdir -p mongodb-csfle
-          (cd mongodb-csfle && \
-            curl -sSfL $(npx -y mongodb-download-url --enterprise --csfle --version '>= 6.0.0-rc1') | \
+          rm -rf mongodb-crypt && mkdir -p mongodb-crypt
+          (cd mongodb-crypt && \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 6.0.0-rc1') | \
             tar -xvz)
-          export COMPASS_CSFLE_LIBRARY_PATH=$(echo $PWD/mongodb-csfle/lib/mongo_csfle_v1.*)
+          export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service
 
   save-windows-artifacts:

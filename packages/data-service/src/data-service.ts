@@ -110,6 +110,16 @@ function isEmptyObject(obj: Record<string, unknown>) {
   return Object.keys(obj).length === 0;
 }
 
+class DataServiceOperationCancelledError extends Error {
+  name = 'DataServiceOperationCancelledError';
+  constructor() {
+    super('The operation was cancelled.');
+  }
+  static isOperationCancelledError(error: Error) {
+    return error.name === 'DataServiceOperationCancelledError';
+  }
+}
+
 let id = 0;
 
 type ClientType = 'CRUD' | 'META';
@@ -117,6 +127,27 @@ const kSessionClientType = Symbol('kSessionClientType');
 interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
 }
+
+// In nodejs, AbortController support is from 15.x and we are currently on 14.x.
+// With the implementation of cancellable actions using AbortSignal, we have custom AbortSignal
+// type definition to avoid including DOM compiler options in tsconfig.
+type AbortSignal = {
+  aborted: boolean;
+  onabort: ((this: AbortSignal, event: any) => void) | null;
+  addEventListener: (
+    type: string,
+    listener: (event: any) => void,
+    options: Record<string, unknown>
+  ) => void;
+  removeEventListener: (type: string, listener: (event: any) => void) => void;
+  dispatchEvent: (event: any) => boolean;
+};
+
+type BSONServerExplainResults = Document;
+type ExplainExecuteOptions = {
+  abortSignal?: AbortSignal;
+  explainVerbosity?: keyof typeof mongodb.ExplainVerbosity;
+};
 
 export interface DataServiceEventMap {
   serverDescriptionChanged: (evt: ServerDescriptionChangedEvent) => void;
@@ -496,6 +527,13 @@ export interface DataService {
     callback: Callback<Document>
   ): void;
 
+  explainAggregate(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions,
+    executionOptions?: ExplainExecuteOptions
+  ): Promise<BSONServerExplainResults>;
+
   /**
    * Get the indexes for the collection.
    *
@@ -699,6 +737,8 @@ export interface DataService {
   ): Promise<Document>;
 
   isConnected(): boolean;
+
+  isOperationCancelledError(error: Error): boolean;
 
   /**
    * Get the stats for a database.
@@ -1597,6 +1637,26 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       });
   }
 
+  explainAggregate(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions,
+    executionOptions?: ExplainExecuteOptions
+  ): Promise<BSONServerExplainResults> {
+    const verbosity =
+      executionOptions?.explainVerbosity ||
+      mongodb.ExplainVerbosity.queryPlanner;
+    let cursor: AggregationCursor;
+    return this.cancellableOperation(
+      (session?: ClientSession) => {
+        cursor = this.aggregate(ns, pipeline, { ...options, session });
+        return cursor.explain(verbosity);
+      },
+      () => cursor?.close(),
+      executionOptions?.abortSignal
+    );
+  }
+
   indexes(ns: string, options: unknown, callback: Callback<Document>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_047),
@@ -1994,6 +2054,63 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     // actually shows when the client is available on the NativeClient instance
     // and connected
     return !!this._metadataClient;
+  }
+
+  isOperationCancelledError(error: Error): boolean {
+    return DataServiceOperationCancelledError.isOperationCancelledError(error);
+  }
+
+  private async cancellableOperation<T>(
+    start: (session?: ClientSession) => Promise<T>,
+    stop: () => Promise<void> = () => Promise.resolve(),
+    abortSignal?: AbortSignal
+  ): Promise<T> {
+    if (!abortSignal) {
+      return await start();
+    }
+
+    if (abortSignal.aborted) {
+      throw new DataServiceOperationCancelledError();
+    }
+
+    const session = this.startSession('CRUD');
+
+    let result: T;
+    let abortListener;
+    const pendingPromise = new Promise<never>((_resolve, reject) => {
+      abortListener = () => reject(new DataServiceOperationCancelledError());
+      abortSignal.addEventListener('abort', abortListener, { once: true });
+    });
+
+    const abort = async () => {
+      const logAbortError = (error: Error) => {
+        try {
+          log.warn(
+            mongoLogId(1_001_000_140),
+            'CancelOp',
+            'Attempting to kill the operation failed',
+            { error: error.message }
+          );
+        } catch (e) {
+          // ignore
+        }
+      };
+      await stop().catch(logAbortError);
+      await this.killSessions(session).catch(logAbortError);
+    };
+
+    try {
+      result = await Promise.race([pendingPromise, start(session)]);
+    } catch (err) {
+      if (this.isOperationCancelledError(err as Error)) {
+        void abort();
+      }
+      throw err;
+    } finally {
+      abortListener && abortSignal.removeEventListener('abort', abortListener);
+    }
+
+    return result;
   }
 
   /**

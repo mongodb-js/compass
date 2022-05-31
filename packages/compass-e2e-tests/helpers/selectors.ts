@@ -79,6 +79,16 @@ export const ConnectionFormInputAWSSecretAccessKey =
   '[data-testid="connection-form-aws-secret-access-key-input"]';
 export const ConnectionFormInputAWSSessionToken =
   '[data-testid="connection-form-aws-secret-token-input"]';
+
+export const ConnectionFormInputFLEKeyVaultNamespace =
+  '[data-testid="csfle-keyvault"]';
+export const ConnectionFormInputFLELocalKMS =
+  '[data-testid="csfle-kms-provider-local"]';
+export const ConnectionFormInputFLELocalKey =
+  '[data-testid="csfle-kms-local-key"]';
+export const ConnectionFormInputFLEEncryptedFieldsMap =
+  '[data-testid="connection-csfle-encrypted-fields-map"]';
+
 export const ConnectionFormSSLConnectionRadios =
   '#tls-radio-box-group input[type="radio"]';
 export const ConnectionFormTlsCaButton = '#tlsCAFile';
@@ -186,10 +196,9 @@ export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="tree
 export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
-export const TopologySingleHostAddress =
-  '[data-test-id="topology-single-host-address"]';
-export const SingleClusterType =
-  '[data-test-id="topology-single-cluster-type"]';
+export const TopologyReplicaSetHostAddress =
+  '[data-test-id="topology-replica-set-host-address-0"]';
+export const ReplicaSetType = '[data-test-id="topology-replica-set-type"]';
 export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
 export const SidebarCreateDatabaseButton =
@@ -281,6 +290,13 @@ export const CreateCollectionCollectionOptionsAccordion =
   '[data-testid="create_collection_modal"] [data-testid="advanced-collection-options"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
   '[data-testid="use-custom-collation-fields"] #toggle-use-custom-collation-fields-label';
+
+export const CreateCollectionFLE2CheckboxLabel =
+  '[data-testid="fle2-fields"] #toggle-fle2-fields-label';
+export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
+export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
+export const CollectionHeaderFLE2Badge =
+  '[data-testid="collection-header-badge-fle2"]';
 
 export const CreateCollectionTimeseriesCheckboxLabel =
   '[data-testid="time-series-fields"] #toggle-time-series-fields-label';
@@ -490,11 +506,13 @@ export const ConfirmDeleteDocumentButton =
 export const InsertDialog = '.insert-document-dialog';
 export const InsertDialogErrorMessage =
   '[data-testid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
-export const InsertJSONEditor = '.insert-document-dialog #ace-editor';
+export const InsertJSONEditor = '.insert-document-dialog .ace_editor';
 export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
 export const InsertCancel =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
+export const insertCSFLEHasKnownSchemaMsg =
+  '[data-test-id="insert-csfle-has-known-schema"]';
 
 // Import File modal
 
@@ -546,6 +564,8 @@ export const HadronDocumentRevertElement =
   '[data-testid="hadron-document-revert"]';
 export const HadronDocumentRemoveElement =
   '[data-testid="hadron-document-remove"]';
+export const HadronDocumentElementDecryptedIcon =
+  '[data-test-id="hadron-document-element-decrypted-icon"]';
 
 // Document list view
 
@@ -558,6 +578,9 @@ export const documentListDocumentKey = (n: number): string => {
 };
 export const documentListDocumentValue = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
+};
+export const documentListDecryptedIcon = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentElementDecryptedIcon}`;
 };
 
 // Query bar history
@@ -625,10 +648,14 @@ export const SavePipelineMenuContent = '[data-testid="save-menu-content"]';
 export const SavePipelineCreateViewAction =
   '[data-testid="save-menu-createView"]';
 export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';
+export const AggregationAutoPreviewToggle =
+  '[data-testid="pipeline-toolbar-preview-toggle"]';
+export const AggregationErrorBanner = '[data-testid="pipeline-results-error"]';
 
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
+export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
 
 // New Aggregation Toolbar Specific
 export const AggregationToolbarCreateMenu = '[data-testid="create-new-menu"]';
@@ -637,6 +664,7 @@ export const AggregationToolbarCreateNewPipeline =
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
+export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [aria-label*="Close"]`;
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create_view_modal"]';

@@ -71,10 +71,10 @@ function KMSProviderFieldsForm<KMSProvider extends keyof KMSProviders>({
                   handleFieldChanged(name, value);
                 }}
                 name={name}
-                data-testid={name}
+                data-testid={`csfle-kms-${kmsProvider}-${name}`}
                 label={label}
                 type={type === 'textarea' ? undefined : type}
-                optional={optional}
+                optional={type === 'textarea' ? undefined : optional}
                 value={value(autoEncryptionOptions)}
                 errorMessage={errorMessage?.(errors)}
                 state={typeof state === 'string' ? state : state(errors)}

@@ -1,0 +1,40 @@
+# Release Notes are meant to be
+# displayed to users as part of the
+# auto-update process.
+#
+# The following workflow:
+# - removes the "by @username" and PR info
+# - removes the contributors section
+# - turn COMPASS-* and MONGOSH-* into links
+#
+name: Release Notes - Cleanup
+on:
+  release:
+    types: [published, edited]
+
+jobs:
+  cleanup_notes:
+    name: Cleanup Notes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean up notes
+        run: |
+          cat $GITHUB_EVENT_PATH | \
+            jq -r .release.body | \
+            sed 's/ by @.*//' | \
+            grep -v 'New Contributors' | \
+            grep -v '* @' | \
+            grep -v '<!--' | \
+            sed 's/COMPASS-[0-9]\{1,5\}/[&](https:\/\/jira.mongodb.org\/browse\/&)/g' | \
+            sed 's/MONGOSH-[0-9]\{1,5\}/[&](https:\/\/jira.mongodb.org\/browse\/&)/g' \
+            > RELEASE_NOTES.md
+
+      - name: Update release
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${RELEASE_TAG}" \
+            --repo "${GITHUB_REPO}" \
+            --notes-file RELEASE_NOTES.md
