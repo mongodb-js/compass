@@ -3,8 +3,6 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import type { Item } from './aggregations-queries-items';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { Query } from '@mongodb-js/compass-query-history';
-import type { Aggregation } from '@mongodb-js/compass-aggregations';
 
 const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
@@ -239,7 +237,7 @@ const openItem =
       }
     );
 
-    const overrrides: any = {};
+    const overrrides: Record<string, string> = {};
 
     if (item.type === 'aggregation') {
       overrrides.namespace = metadata.namespace;
