@@ -3,6 +3,8 @@ import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import type { Item } from './aggregations-queries-items';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Query } from '@mongodb-js/compass-query-history';
+import type { Aggregation } from '@mongodb-js/compass-aggregations';
 
 const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
@@ -237,11 +239,27 @@ const openItem =
       }
     );
 
-    appRegistry.emit('open-namespace-in-new-tab', {
+    const overrrides: any = {};
+
+    if (item.type === 'aggregation') {
+      overrrides.namespace = metadata.namespace;
+    } else {
+      overrrides._ns = metadata.namespace;
+    };
+
+    const data = item.type === 'aggregation'
+      ? item.aggregation
+      : item.query;
+
+    const emitData = {
       ...metadata,
-      aggregation: item.type === 'aggregation' ? item.aggregation : null,
-      query: item.type === 'query' ? item.query : null,
-    });
+      [item.type]: {
+        ...data,
+        ...overrrides
+      }
+    };
+
+    appRegistry.emit('open-namespace-in-new-tab', emitData);
   };
 
 export const openSavedItem =

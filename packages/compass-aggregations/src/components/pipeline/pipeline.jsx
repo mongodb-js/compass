@@ -35,7 +35,7 @@ class Pipeline extends PureComponent {
     allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
-    getPipelineFromIndexedDB: PropTypes.func.isRequired,
+    openPipelineById: PropTypes.func.isRequired,
     savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
     toggleComments: PropTypes.func.isRequired,
@@ -162,7 +162,7 @@ class Pipeline extends PureComponent {
       return (
         <RestorePipelineModal
           restorePipelineModalToggle={this.props.restorePipelineModalToggle}
-          getPipelineFromIndexedDB={this.props.getPipelineFromIndexedDB}
+          openPipelineById={this.props.openPipelineById}
           restorePipeline={this.props.restorePipeline}
         />
       );
