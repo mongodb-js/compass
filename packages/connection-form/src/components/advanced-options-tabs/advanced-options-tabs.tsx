@@ -71,7 +71,7 @@ function AdvancedOptionsTabs({
       component: AuthenticationTab,
     },
     { name: 'TLS/SSL', id: 'tls', component: TLSTab },
-    { name: 'Proxy/SSH Tunnel', id: 'proxy', component: ProxyAndSshTunnelTab },
+    { name: 'Proxy/SSH', id: 'proxy', component: ProxyAndSshTunnelTab },
     { name: 'Advanced', id: 'advanced', component: AdvancedTab },
   ];
 

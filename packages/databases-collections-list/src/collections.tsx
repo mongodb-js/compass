@@ -19,7 +19,7 @@ type Collection = {
   index_count: number;
   index_size: number;
   size: number;
-  properties: { name: string }[];
+  properties: { id: string }[];
   source?: Collection;
 };
 
@@ -30,16 +30,17 @@ const COLLECTION_CARD_HEIGHT = 238;
 const COLLECTION_CARD_LIST_HEIGHT = 118;
 
 function collectionPropertyToBadge({
-  name,
+  id,
   options,
 }: {
-  name: string;
+  id: string;
   options?: Record<string, unknown>;
 }): BadgeProp {
-  switch (name) {
+  switch (id) {
     case 'collation':
       return {
-        name,
+        id,
+        name: id,
         variant: 'darkgray',
         hint: (
           <>
@@ -55,17 +56,22 @@ function collectionPropertyToBadge({
         ),
       };
     case 'view':
-      return { name, variant: 'darkgray', icon: 'Visibility' };
+      return { id, name: id, variant: 'darkgray', icon: 'Visibility' };
     case 'capped':
-      return { name, variant: 'darkgray' };
+      return { id, name: id, variant: 'darkgray' };
     case 'timeseries':
-      return { name, variant: 'darkgray', icon: 'TimeSeries' };
+      return { id, name: id, variant: 'darkgray', icon: 'TimeSeries' };
     case 'fle2':
-      return { name: 'Queryable Encryption', variant: 'darkgray', icon: 'Key' };
+      return {
+        id,
+        name: 'Queryable Encryption',
+        variant: 'darkgray',
+        icon: 'Key',
+      };
     case 'clustered':
-      return { name, variant: 'darkgray' };
+      return { id, name: id, variant: 'darkgray' };
     default:
-      return { name };
+      return { id, name: id };
   }
 }
 

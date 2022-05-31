@@ -79,7 +79,7 @@ describe('Connection form', function () {
   });
 
   it('parses and formats a URI for multiple hosts', async function () {
-    const connectionString = 'mongodb://localhost:27017,localhost:27018/';
+    const connectionString = 'mongodb://localhost:27017,localhost:27091/';
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
       connectionString
@@ -88,7 +88,7 @@ describe('Connection form', function () {
     const expectedState: ConnectFormState = {
       connectionString,
       scheme: 'MONGODB',
-      hosts: ['localhost:27017', 'localhost:27018'],
+      hosts: ['localhost:27017', 'localhost:27091'],
       authMethod: 'AUTH_NONE',
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',

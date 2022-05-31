@@ -40,7 +40,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
 
     case 'has-known-schema':
       return (
-        <Banner variant={BannerVariant.Info}>
+        <Banner data-test-id="insert-csfle-has-known-schema" variant={BannerVariant.Info}>
           This insert operation will encrypt all fields that are specified in the schema
           or In-Use Encryption configuration associated with the collection.
 
