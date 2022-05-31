@@ -8,14 +8,15 @@ import {
 } from '@mongodb-js/compass-components';
 
 import styles from './option-editor.module.less';
-class OptionEditor extends Component {
+
+class LegacyOptionEditor extends Component {
   static displayName = 'OptionEditor';
 
   static propTypes = {
     label: PropTypes.string.isRequired,
     serverVersion: PropTypes.string.isRequired,
     autoPopulated: PropTypes.bool.isRequired,
-    actions: PropTypes.object.isRequired,
+    refreshEditorAction: PropTypes.func.isRequired,
     value: PropTypes.any,
     onChange: PropTypes.func,
     onApply: PropTypes.func,
@@ -50,7 +51,7 @@ class OptionEditor extends Component {
    * Subscribe on mount.
    */
   componentDidMount() {
-    this.unsub = this.props.actions.refreshEditor.listen(() => {
+    this.unsub = this.props.refreshEditorAction.listen(() => {
       this.editor.setValue(this.props.value);
       this.editor.clearSelection();
     });
@@ -106,7 +107,6 @@ class OptionEditor extends Component {
         theme="mongodb-query"
         text={this.props.value}
         onChangeText={this.onChangeQuery}
-        name={`query-bar-option-input-${this.props.label}`}
         options={{
           useSoftTabs: true,
           minLines: 1,
@@ -115,6 +115,7 @@ class OptionEditor extends Component {
           showPrintMargin: false,
           showGutter: false,
         }}
+        id={`query-bar-option-input-${this.props.label}`}
         completer={this.completer}
         placeholder={this.props.placeholder}
         onLoad={(editor) => {
@@ -136,4 +137,4 @@ class OptionEditor extends Component {
   }
 }
 
-export default OptionEditor;
+export default LegacyOptionEditor;

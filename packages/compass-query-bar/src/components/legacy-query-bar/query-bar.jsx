@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Dropdown, MenuItem } from 'react-bootstrap';
-import { isFunction, pick, isEqual, isString, isArray, map } from 'lodash';
+import { pick, isEqual, isString, isArray, map } from 'lodash';
 import FontAwesome from 'react-fontawesome';
 
 import QueryOption from '../query-option';
@@ -62,7 +62,6 @@ class QueryBar extends Component {
   static displayName = 'QueryBar';
 
   static propTypes = {
-    store: PropTypes.object.isRequired,
     filter: PropTypes.object,
     project: PropTypes.object,
     sort: PropTypes.object,
@@ -80,7 +79,6 @@ class QueryBar extends Component {
     skipValid: PropTypes.bool,
     limitValid: PropTypes.bool,
 
-    featureFlag: PropTypes.bool,
     autoPopulated: PropTypes.bool,
     filterString: PropTypes.string,
     projectString: PropTypes.string,
@@ -151,24 +149,11 @@ class QueryBar extends Component {
       evt.stopPropagation();
     }
 
-    const { actions, valid, featureFlag, onApply } = this.props;
-
-    if (valid || featureFlag) {
-      actions.apply();
-
-      if (isFunction(onApply)) {
-        onApply();
-      }
-    }
+    this.props.onApply();
   };
 
   onResetButtonClicked = () => {
-    const { actions, onReset } = this.props;
-    actions.reset();
-
-    if (isFunction(onReset)) {
-      onReset();
-    }
+    this.props.onReset();
   };
 
   getQueryOption(
@@ -190,7 +175,7 @@ class QueryBar extends Component {
         hasError={hasError}
         key={`query-option-${id}`}
         value={value}
-        actions={this.props.actions}
+        refreshEditorAction={this.props.actions.refreshEditor}
         placeholder={placeholder}
         link={OPTION_DEFINITION[option].link}
         inputType={OPTION_DEFINITION[option].type}
@@ -243,13 +228,11 @@ class QueryBar extends Component {
    * @return {Component}          the option component
    */
   renderOption(option, id, hasToggle) {
-    const { filterValid, featureFlag, autoPopulated } = this.props;
+    const { filterValid, autoPopulated } = this.props;
 
     // for filter only, also validate feature flag directives
     const hasError =
-      option === 'filter'
-        ? !(filterValid || featureFlag)
-        : !this.props[`${option}Valid`];
+      option === 'filter' ? !filterValid : !this.props[`${option}Valid`];
 
     // checkbox options use the value directly, text inputs use the
     // `<option>String` prop.
@@ -355,7 +338,6 @@ class QueryBar extends Component {
   renderForm = () => {
     const {
       valid,
-      featureFlag,
       queryState,
       buttonLabel,
       showQueryHistoryButton,
@@ -363,13 +345,11 @@ class QueryBar extends Component {
     } = this.props;
     const { hasFocus } = this.state;
 
-    const _inputGroupClassName = classnames(
-      styles['input-group'],
-      { ['has-error']: !valid },
-      { ['is-feature-flag']: featureFlag }
-    );
+    const _inputGroupClassName = classnames(styles['input-group'], {
+      ['has-error']: !valid,
+    });
 
-    const applyDisabled = !(valid || featureFlag);
+    const applyDisabled = !valid;
 
     const _queryOptionClassName = classnames(styles['option-container'], {
       [styles['has-focus']]: hasFocus,

@@ -4,19 +4,16 @@ import { InfoSprinkle } from 'hadron-react-components';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { QueryOption } from './query-option';
+import { QueryOption } from './legacy-query-option';
 
 describe('QueryOption [Component]', function () {
-  let validationFuncStub;
   let onChangeStub;
 
   beforeEach(function () {
-    validationFuncStub = sinon.stub();
     onChangeStub = sinon.stub();
   });
 
   afterEach(function () {
-    validationFuncStub = null;
     onChangeStub = null;
   });
 
@@ -27,12 +24,11 @@ describe('QueryOption [Component]', function () {
           label="Test"
           link="#"
           inputType="numeric"
-          validationFunc={validationFuncStub}
           onChange={onChangeStub}
           placeholder=""
           value=""
           serverVersion="3.4.0"
-          actions={{}}
+          refreshEditorAction={() => {}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
@@ -57,12 +53,11 @@ describe('QueryOption [Component]', function () {
           label="Test"
           link="#"
           inputType="numeric"
-          validationFunc={validationFuncStub}
           onChange={onChangeStub}
           placeholder=""
           serverVersion="3.4.0"
           value=""
-          actions={{}}
+          refreshEditorAction={() => {}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}
@@ -81,12 +76,11 @@ describe('QueryOption [Component]', function () {
           label="Test"
           link="#"
           inputType="numeric"
-          validationFunc={validationFuncStub}
           onChange={onChangeStub}
           serverVersion="3.4.0"
           placeholder=""
           value=""
-          actions={{}}
+          refreshEditorAction={() => {}}
           autoPopulated={false}
           hasToggle={false}
           hasError={false}

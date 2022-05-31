@@ -20,7 +20,7 @@ const ROLE = {
  * Activate all the components in the Query Bar package.
  * @param {Object} appRegistry - The global appRegisrty to activate this plugin with.
  **/
-function activate(appRegistry: AppRegistry) {
+function activate(appRegistry: AppRegistry): void {
   appRegistry.registerRole('Query.QueryBar', ROLE);
 }
 
@@ -28,7 +28,7 @@ function activate(appRegistry: AppRegistry) {
  * Deactivate all the components in the Query Bar package.
  * @param {Object} appRegistry - The global appRegisrty to deactivate this plugin with.
  **/
-function deactivate(appRegistry: AppRegistry) {
+function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('Query.QueryBar', ROLE);
 }
 

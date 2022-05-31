@@ -2,14 +2,12 @@ const React = require('react');
 const PropTypes = require('prop-types');
 
 class QueryBar extends React.Component {
-
   render() {
     return (
       <div className="querybar-container">
         <div className="querybar-input-container">
           <div className="row">
-            <div className="col-md-12">
-            </div>
+            <div className="col-md-12" />
           </div>
         </div>
       </div>
@@ -32,7 +30,6 @@ QueryBar.propTypes = {
   skipValid: PropTypes.bool,
   limitValid: PropTypes.bool,
 
-  featureFlag: PropTypes.bool,
   autoPopulated: PropTypes.bool,
   filterString: PropTypes.string,
   projectString: PropTypes.string,
