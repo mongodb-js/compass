@@ -106,6 +106,7 @@ class LegacyOptionEditor extends Component {
         className={styles['option-editor']}
         theme="mongodb-query"
         text={this.props.value}
+        name={`query-bar-option-input-${this.props.label}`}
         onChangeText={this.onChangeQuery}
         options={{
           useSoftTabs: true,
@@ -115,7 +116,6 @@ class LegacyOptionEditor extends Component {
           showPrintMargin: false,
           showGutter: false,
         }}
-        id={`query-bar-option-input-${this.props.label}`}
         completer={this.completer}
         placeholder={this.props.placeholder}
         onLoad={(editor) => {
