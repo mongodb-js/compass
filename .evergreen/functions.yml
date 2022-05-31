@@ -396,11 +396,11 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          rm -rf mongodb-csfle && mkdir -p mongodb-csfle
-          (cd mongodb-csfle && \
-            curl -sSfL $(npx -y mongodb-download-url --enterprise --csfle --version '>= 6.0.0-rc1') | \
+          rm -rf mongodb-crypt && mkdir -p mongodb-crypt
+          (cd mongodb-crypt && \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 6.0.0-rc1') | \
             tar -xvz)
-          export COMPASS_CSFLE_LIBRARY_PATH=$(echo $PWD/mongodb-csfle/lib/mongo_csfle_v1.*)
+          export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service
 
   save-windows-artifacts:
