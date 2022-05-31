@@ -1,12 +1,8 @@
 /* eslint-disable */
 ace.define("ace/theme/mongodb-query",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
-
 exports.isDark = false;
 exports.cssClass = "ace-mongodb-query";
 exports.cssText = "\
-.ace-mongodb-query .ace_scroller {\
-padding: 0px 14px;\
-}\
 .ace-mongodb-query .ace_gutter {\
 background: #ffffff;\
 color: #999999;\
@@ -20,7 +16,6 @@ font-family: inherit;\
 transform: none;\
 opacity: 1;\
 margin: 0;\
-padding: 14px 8px !important;\
 }\
 .ace-mongodb-query .ace_keyword {\
 color: #999999;\
@@ -54,6 +49,7 @@ color: #0086B3;\
 }\
 .ace-mongodb-query .ace_comment {\
 color: #998;\
+font-style: italic;\
 }\
 .ace-mongodb-query .ace_variable.ace_language  {\
 color: #0086B3;\
