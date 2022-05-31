@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useId } from '@react-aria/utils';
 
 if (typeof window === 'undefined' && typeof globalThis !== 'undefined') {
   // ace-builds wants to install itself on `window`, which
@@ -52,6 +53,7 @@ type EditorProps = {
   options?: Omit<IAceOptions, 'readOnly'>;
   readOnly?: boolean;
   completer?: unknown;
+  'data-testid'?: string;
   onChangeText?: (text: string, event?: any) => void;
 } & Omit<IAceEditorProps, 'onChange' | 'value'>;
 
@@ -64,6 +66,7 @@ function Editor({
   onChangeText,
   completer,
   onFocus,
+  'data-testid': dataTestId,
   ...aceProps
 }: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
@@ -84,7 +87,9 @@ function Editor({
     }
   }, [id]);
 
-  return (
+  const editorId = useId();
+
+  const editor = (
     <AceEditor
       ref={(ref) => (editorRef.current = ref)}
       mode={
@@ -101,6 +106,8 @@ function Editor({
       editorProps={{ $blockScrolling: Infinity }}
       setOptions={setOptions}
       readOnly={readOnly}
+      // name should be unique since it gets translated to an id
+      name={aceProps.name ?? editorId}
       {...aceProps}
       onFocus={(ev: any) => {
         if (completer) {
@@ -110,7 +117,28 @@ function Editor({
       }}
     />
   );
+
+  // NOTE: we wrap the editor in a div only to add data-testid.
+  // Doing so everywhere caused the styles to break in the query bar,
+  // and so we add the div conditionally based on the data-testid prop.
+  return dataTestId ? <div data-testid={dataTestId}>{editor}</div> : editor;
+}
+
+/**
+ * Sets the editor value, use this with RTL like this:
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * setEditorValue(screen.getByTestId('editor-test-id'), 'my text');
+ * ```
+ */
+function setEditorValue(element: HTMLElement, value: string): void {
+  const container = element.querySelector('.ace_editor');
+  if (!container) {
+    throw new Error('Cannot find editor container');
+  }
+  (window as any).ace.edit(container.id).setValue(value);
 }
 
 const EditorTextCompleter = tools.textCompleter;
-export { Editor, EditorVariant, EditorTextCompleter };
+export { Editor, EditorVariant, EditorTextCompleter, setEditorValue };

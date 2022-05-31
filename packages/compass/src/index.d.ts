@@ -53,11 +53,6 @@ declare module 'process' {
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
 
         /**
-         * Enable aggregation explain feature
-         */
-        COMPASS_ENABLE_AGGREGATION_EXPLAIN?: 'true' | 'false';
-
-        /**
          * Permanent feature flag for debugging.
          */
         COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';

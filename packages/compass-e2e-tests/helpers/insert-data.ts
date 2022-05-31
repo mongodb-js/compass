@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
 
-const CONNECTION_URI = 'mongodb://localhost:27018';
+const CONNECTION_URI = 'mongodb://localhost:27091';
 
 async function dropDatabase(db: Db) {
   try {
