@@ -246,6 +246,7 @@ const openItem =
         } : {
           ...item.query,
           _ns: metadata.namespace,
+          ns: metadata.namespace,
       }
     };
 
