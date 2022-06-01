@@ -25,14 +25,15 @@ const IndexDirectionIcon = ({ direction }: { direction: IndexDirection }) => {
 };
 
 const containerStyles = css({
-  // flexShrink: 0,
-  // flexDirection: 'column',
-  // gap: '4px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[1],
 });
 
-const indexStyles = css({
-  display: 'flex',
-  gap: spacing[1],
+const indexItemStyles = css({
+  '*:not(:last-child)': {
+    marginRight: spacing[1],
+  },
 });
 
 export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
@@ -45,18 +46,16 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   return (
     <div className={containerStyles}>
       {indexes.map((index, arrIndex) => (
-        <Body key={arrIndex} className={indexStyles}>
+        <Body key={arrIndex} className={indexItemStyles}>
           <span>{index.name}</span>
           {index.shard && <span>({index.shard})</span>}
-          {Object.entries(index.key).map(
-            ([indexKey, indexDirection], keyIndex) => (
-              <Badge variant={BadgeVariant.LightGray} key={keyIndex}>
-                {indexKey}
-                &nbsp;
-                <IndexDirectionIcon direction={indexDirection} />
-              </Badge>
-            )
-          )}
+          {Object.entries(index.key).map(([keyName, direction], listIndex) => (
+            <Badge variant={BadgeVariant.LightGray} key={listIndex}>
+              {keyName}
+              &nbsp;
+              <IndexDirectionIcon direction={direction} />
+            </Badge>
+          ))}
         </Body>
       ))}
     </div>
