@@ -74,6 +74,12 @@ describe('cancellable-queries', function() {
     await insertOne('config.collections', { _id: 'cancel.sharded', key: { a: 1 } }, {});
   });
 
+  after(async function() {
+    if (dataService) {
+      await dataService.disconnect();
+    }
+  });
+
   beforeEach(function() {
     sinon.restore();
 
