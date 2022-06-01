@@ -1,6 +1,5 @@
 import React from 'react';
 import { expect } from 'chai';
-import sinon from 'sinon';
 
 import { fireEvent, render, screen, cleanup } from '@testing-library/react';
 
@@ -47,37 +46,5 @@ describe('Accordion Component', function () {
     });
 
     expect(screen.getByText('hint test')).to.be.visible;
-  });
-
-  it('should call the onOpen prop when opened', function () {
-    const onOpenFake = sinon.fake();
-    renderAccordion({
-      onOpen: onOpenFake,
-    });
-
-    expect(onOpenFake.calledOnce).to.be.false;
-
-    const button = screen.getByText('Accordion Test');
-    fireEvent.click(button);
-    expect(onOpenFake.calledOnce).to.be.true;
-    fireEvent.click(button);
-
-    expect(onOpenFake.calledOnce).to.be.true;
-  });
-
-  it('should call the onClose prop when closed', function () {
-    const onCloseFake = sinon.fake();
-    renderAccordion({
-      onClose: onCloseFake,
-    });
-
-    expect(onCloseFake.calledOnce).to.be.false;
-
-    const button = screen.getByText('Accordion Test');
-    fireEvent.click(button);
-    expect(onCloseFake.calledOnce).to.be.false;
-    fireEvent.click(button);
-
-    expect(onCloseFake.calledOnce).to.be.true;
   });
 });
