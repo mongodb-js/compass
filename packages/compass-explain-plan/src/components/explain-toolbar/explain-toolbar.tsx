@@ -112,15 +112,7 @@ function UnthemedExplainToolbar({
     } else {
       switchToJSONView();
     }
-  }, [viewType]);
-
-  const onExecuteExplainClickedCallback = useCallback(() => {
-    onExecuteExplainClicked(queryBarRef.current!.store.state);
-  }, [onExecuteExplainClicked]);
-
-  const onExportToLanguageClickedCallback = useCallback(() => {
-    onExportToLanguageClicked(queryBarRef.current!.store.state);
-  }, [onExportToLanguageClicked]);
+  }, [viewType, switchToJSONView, switchToTreeView]);
 
   const QueryBarComponent = queryBarLoaded
     ? queryBarRef.current!.component
@@ -135,8 +127,8 @@ function UnthemedExplainToolbar({
             actions={queryBarRef.current!.actions}
             buttonLabel="Explain"
             resultId={explainResultId}
-            onApply={onExecuteExplainClickedCallback}
-            onReset={onExecuteExplainClickedCallback}
+            onApply={onExecuteExplainClicked}
+            onReset={onExecuteExplainClicked}
           />
         )}
       </div>
@@ -145,7 +137,7 @@ function UnthemedExplainToolbar({
           variant="primaryOutline"
           size="xsmall"
           leftGlyph={<Icon glyph={'Export'} />}
-          onClick={onExportToLanguageClickedCallback}
+          onClick={onExportToLanguageClicked}
           data-testid="explain-toolbar-export-button"
         >
           Export to language

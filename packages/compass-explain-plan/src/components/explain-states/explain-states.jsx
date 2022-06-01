@@ -108,24 +108,16 @@ class ExplainStates extends Component {
   /**
    * Executes the explain plan.
    */
-  onExecuteExplainLegacyClicked() {
+  onExecuteExplainClicked() {
     this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
     this.props.fetchExplainPlan(this.queryBarStore.state);
   }
 
   /**
-   * Executes the explain plan.
-   */
-  onExecuteExplainClicked(queryBarStoreState) {
-    this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
-    this.props.fetchExplainPlan(queryBarStoreState);
-  }
-
-  /**
    * Opens export to language with the current query.
    */
-  onExportToLanguageClicked(queryBarStoreState) {
-    this.props.exportToLanguage(queryBarStoreState);
+  onExportToLanguageClicked() {
+    this.props.exportToLanguage(this.queryBarStore.state);
   }
 
   /**
@@ -174,7 +166,7 @@ class ExplainStates extends Component {
           <ZeroState header={HEADER} subtext={SUBTEXT}>
             <div>
               <Button
-                onClick={this.onExecuteExplainLegacyClicked.bind(this)}
+                onClick={this.onExecuteExplainClicked.bind(this)}
                 disabled={!this.props.isEditable}
                 data-test-id="execute-explain-button"
                 variant={ButtonVariant.Primary}
@@ -219,8 +211,8 @@ class ExplainStates extends Component {
         actions={this.queryBarActions}
         buttonLabel="Explain"
         resultId={this.props.explain.resultId}
-        onApply={this.onExecuteExplainLegacyClicked.bind(this)}
-        onReset={this.onExecuteExplainLegacyClicked.bind(this)}
+        onApply={this.onExecuteExplainClicked.bind(this)}
+        onReset={this.onExecuteExplainClicked.bind(this)}
       />
     );
   }
