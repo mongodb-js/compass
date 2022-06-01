@@ -14,8 +14,8 @@ const Document = (props) => {
   } = props;
 
   const doc = useMemo(() => {
-    // COMPASS-5872 If _doc is a plain js object, it can have isRoot prop,
-    // which would cause the isRoot() to throw an error. So an extended check.
+    // COMPASS-5872 If _doc is a plain js object rather than an instance of hadron-document Document
+    // it will not have an isRoot prop, which would cause the isRoot() to throw an error.
     const { isRoot } = _doc;
     if (typeof isRoot === 'function' && isRoot()) {
       return _doc;
