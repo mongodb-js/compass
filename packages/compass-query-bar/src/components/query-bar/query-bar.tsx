@@ -18,7 +18,7 @@ const queryBarStyles = css({
   gap: spacing[2],
   padding: spacing[2],
   border: `1px solid ${uiColors.gray.light2}`,
-  borderRadius: '6px'
+  borderRadius: '6px',
 });
 
 const queryAreaStyles = css({
