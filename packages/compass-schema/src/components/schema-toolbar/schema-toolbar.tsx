@@ -125,15 +125,6 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           />
         )}
       </div>
-      {analysisState === ANALYSIS_STATE_ERROR && (
-        <ErrorSummary errors={[`${ERROR_WARNING}: ${errorMessage}`]} />
-      )}
-      {analysisState === ANALYSIS_STATE_TIMEOUT && (
-        <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
-      )}
-      {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
-        <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />
-      )}
       <div className={schemaToolbarActionBarStyles}>
         <Button
           variant="primaryOutline"
@@ -160,6 +151,15 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           </div>
         )}
       </div>
+      {analysisState === ANALYSIS_STATE_ERROR && (
+        <ErrorSummary errors={[`${ERROR_WARNING}: ${errorMessage}`]} />
+      )}
+      {analysisState === ANALYSIS_STATE_TIMEOUT && (
+        <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
+      )}
+      {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
+        <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />
+      )}
     </Toolbar>
   );
 };
