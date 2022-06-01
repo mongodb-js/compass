@@ -22,6 +22,7 @@ import {
   ANALYSIS_STATE_COMPLETE,
   ANALYSIS_STATE_TIMEOUT,
 } from '../../constants/analysis-states';
+import { SchemaToolbar } from '../schema-toolbar/schema-toolbar';
 
 const ERROR_WARNING = 'An error occurred during schema analysis';
 const OUTDATED_WARNING =
@@ -95,6 +96,10 @@ class Schema extends Component {
 
   onCancelClicked() {
     this.props.actions.stopAnalysis();
+  }
+
+  onExportToLanguageClicked() {
+    this.props.actions.exportToLanguage(this.queryBarStore.state);
   }
 
   onResetClicked() {
@@ -208,19 +213,37 @@ class Schema extends Component {
    * @returns {React.Component} The schema view.
    */
   render() {
+    const useNewToolbar = process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true';
+
     return (
       <div className={styles.root}>
-        <div className="controls-container">
-          <this.queryBar
-            store={this.queryBarStore}
-            actions={this.queryBarActions}
-            buttonLabel="Analyze"
-            resultId={this.props.resultId}
-            onApply={this.onApplyClicked.bind(this)}
-            onReset={this.onResetClicked.bind(this)}
+        {useNewToolbar ? (
+          <SchemaToolbar
+            localAppRegistry={this.props.store.localAppRegistry}
+            onAnalyzeSchemaClicked={this.onApplyClicked.bind(this)}
+            onExportToLanguageClicked={this.onExportToLanguageClicked.bind(
+              this
+            )}
+            onResetClicked={this.onResetClicked.bind(this)}
+            analysisState={this.props.analysisState}
+            errorMessage={this.props.errorMessage}
+            isOutdated={this.props.outdated}
+            sampleSize={this.props.schema ? this.props.schema.count : 0}
+            schemaResultId={this.props.resultId}
           />
-          {this.renderBanner()}
-        </div>
+        ) : (
+          <div className="controls-container">
+            <this.queryBar
+              store={this.queryBarStore}
+              actions={this.queryBarActions}
+              buttonLabel="Analyze"
+              resultId={this.props.resultId}
+              onApply={this.onApplyClicked.bind(this)}
+              onReset={this.onResetClicked.bind(this)}
+            />
+            {this.renderBanner()}
+          </div>
+        )}
         <div className={styles.schema}>{this.renderContent()}</div>
       </div>
     );

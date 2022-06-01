@@ -1,3 +1,5 @@
+import type AppRegistry from 'hadron-app-registry';
+
 import CompassSchemaPlugin from './plugin';
 import configureStore from './stores';
 import configureActions from './actions';
@@ -19,7 +21,7 @@ const ROLE = {
  * Activate all the components in the Compass Schema package.
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
-function activate(appRegistry) {
+function activate(appRegistry: AppRegistry): void {
   appRegistry.registerRole('Collection.Tab', ROLE);
 }
 
@@ -27,7 +29,7 @@ function activate(appRegistry) {
  * Deactivate all the components in the Compass Schema package.
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
-function deactivate(appRegistry) {
+function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
 }
 
