@@ -89,11 +89,6 @@ function UnthemedExplainToolbar({
 
   const [queryBarLoaded, setQueryBarLoaded] = useState(false);
 
-  // TODO: Move query bar up a level so it's usable by other things
-  // but stays in state.
-  // Maybe just have this component in explain states, but break
-  // out the segmented control.
-
   useEffect(() => {
     const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
 
