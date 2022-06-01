@@ -48,7 +48,7 @@ export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerfor
           )}
           {executionTimeMillis > 0 && (
             <div className={statItemStyles}>
-              <Body>Actual query execution time(ms):</Body>
+              <Body>Actual query execution time (ms):</Body>
               <Body weight="medium">{executionTimeMillis}</Body>
             </div>
           )}
@@ -56,8 +56,13 @@ export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerfor
             <Body className={statTitleStyles}>
               Query used the following indexes:
             </Body>
-            <ExplainIndexes indexes={indexes} />
+            <Body weight="medium">
+              {indexes.length === 0
+                ? 'No index available for this query.'
+                : indexes.length}
+            </Body>
           </div>
+          <ExplainIndexes indexes={indexes} />
         </div>
       </div>
     );

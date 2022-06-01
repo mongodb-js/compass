@@ -266,7 +266,7 @@ const mapIndexesInformation = function (
         key: index.key,
       };
     })
-    .filter(Boolean);
+    .filter(Boolean) as ExplainIndex[];
 }
 
 export default reducer;
