@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import {
   Button,
   Icon,
-  Label,
+  Link,
   MoreOptionsToggle,
   css,
   cx,
@@ -46,18 +46,13 @@ const queryBarFirstRowOpenedStyles = css({
   paddingBottom: 0,
 });
 
-const openQueryHistoryLabelStyles = css({
-  display: 'inline-block',
-  padding: `${spacing[2]}px 0`,
-});
-
 const openQueryHistoryStyles = cx(
   css({
     border: 'none',
     backgroundColor: 'transparent',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: `${spacing[1]}px ${spacing[1]}px`,
+    padding: spacing[2],
     '&:hover': {
       cursor: 'pointer',
     },
@@ -74,6 +69,16 @@ const rowStyles = css({
   margin: spacing[1],
   padding: `0 ${spacing[2]}px`,
   gap: spacing[3],
+});
+
+const firstQueryOptionsRowStyles = css({
+  margin: `${spacing[1]}px 0px`,
+  padding: 0,
+});
+
+const queryDocsLinkStyles = css({
+  flexShrink: 0,
+  marginRight: spacing[1],
 });
 
 type QueryBarOptionProps = {
@@ -209,12 +214,24 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
   const renderQueryOptionRow = useCallback(
     (queryOption: string | string[], key: number) => (
-      <div className={rowStyles} key={key}>
+      <div
+        className={cx(rowStyles, key === 0 && firstQueryOptionsRowStyles)}
+        key={key}
+      >
         {typeof queryOption === 'string'
           ? renderQueryOption(queryOption as QueryOption)
           : queryOption.map((optionName: string) =>
               renderQueryOption(optionName as QueryOption)
             )}
+        {key === layout.length - 1 && (
+          <Link
+            className={queryDocsLinkStyles}
+            href="https://docs.mongodb.com/compass/current/query/filter/"
+            target="_blank"
+          >
+            Learn more
+          </Link>
+        )}
       </div>
     ),
     [renderQueryOption]
@@ -256,36 +273,19 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         )}
       >
         {showQueryHistoryButton && (
-          <>
-            <Label
-              className={openQueryHistoryLabelStyles}
-              htmlFor="open-query-history"
-            >
-              Query
-            </Label>
-            <button
-              data-test-id="query-history-button"
-              onClick={toggleQueryHistory}
-              className={openQueryHistoryStyles}
-              id="open-query-history"
-              aria-label="Open query history"
-              type="button"
-            >
-              <Icon glyph="Clock" />
-              <Icon glyph="CaretDown" />
-            </button>
-          </>
+          <button
+            data-test-id="query-history-button"
+            onClick={toggleQueryHistory}
+            className={openQueryHistoryStyles}
+            id="open-query-history"
+            aria-label="Open query history"
+            type="button"
+          >
+            <Icon glyph="Clock" />
+            <Icon glyph="CaretDown" />
+          </button>
         )}
         {firstRowQueryOptions}
-        <Button
-          data-test-id="query-bar-apply-filter-button"
-          disabled={!isQueryValid}
-          variant="primary"
-          size="small"
-          type="submit"
-        >
-          {buttonLabel}
-        </Button>
         <Button
           aria-label="Reset query"
           data-test-id="query-bar-reset-filter-button"
@@ -295,6 +295,16 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         >
           Reset
         </Button>
+        <Button
+          data-test-id="query-bar-apply-filter-button"
+          disabled={!isQueryValid}
+          variant="primary"
+          size="small"
+          type="submit"
+        >
+          {buttonLabel}
+        </Button>
+
         <MoreOptionsToggle
           aria-controls="additional-query-options-container"
           data-testid="query-bar-options-toggle"

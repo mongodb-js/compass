@@ -17,7 +17,7 @@ export const OPTION_DEFINITION: {
 } = {
   filter: {
     type: 'document',
-    placeholder: "Type a query { field: 'value' }",
+    placeholder: "Type a query: { field: 'value' }",
     link: 'https://docs.mongodb.com/compass/current/query/filter/',
   },
   project: {

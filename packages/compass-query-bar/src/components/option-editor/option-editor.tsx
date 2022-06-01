@@ -115,7 +115,8 @@ export class OptionEditor extends Component<OptionEditorProps> {
     this.boundOnFieldsChanged(nextProps.schemaFields);
     return (
       nextProps.autoPopulated ||
-      nextProps.serverVersion !== this.props.serverVersion
+      nextProps.serverVersion !== this.props.serverVersion ||
+      nextProps.hasError !== this.props.hasError
     );
   }
 

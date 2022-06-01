@@ -26,7 +26,7 @@ const autocompleteOptionStyles = css({
 });
 
 const numericOptionStyles = css({
-  flexBasis: spacing[7] * 5,
+  flexBasis: spacing[7] * 6,
 });
 
 const queryOptionLabelStyles = css({
@@ -101,18 +101,20 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
       )}
       data-test-id="query-bar-option"
     >
-      <div
-        className={queryOptionLabelContainerStyles}
-        data-test-id="query-bar-option-label"
-      >
-        <Label
-          htmlFor={`query-bar-option-input-${queryOption}`}
-          id={`query-bar-option-input-${queryOption}-label`}
-          className={queryOptionLabelStyles}
+      {queryOption !== 'filter' && (
+        <div
+          className={queryOptionLabelContainerStyles}
+          data-test-id="query-bar-option-label"
         >
-          {queryOption}
-        </Label>
-      </div>
+          <Label
+            htmlFor={`query-bar-option-input-${queryOption}`}
+            id={`query-bar-option-input-${queryOption}-label`}
+            className={queryOptionLabelStyles}
+          >
+            {queryOption}
+          </Label>
+        </div>
+      )}
       <div className={cx(isAutoCompleteInput && autocompleteOptionInputStyles)}>
         {isAutoCompleteInput ? (
           <OptionEditor
