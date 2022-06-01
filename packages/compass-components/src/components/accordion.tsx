@@ -50,11 +50,15 @@ interface AccordionProps {
   'data-testid'?: string;
   text: string | React.ReactNode;
   hintText?: string;
+  onOpen?: () => void;
+  onClose?: () => void;
 }
 function UnthemedAccordion({
   text,
   darkMode,
   hintText,
+  onOpen,
+  onClose,
   ...props
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const [open, setOpen] = useState(false);
@@ -75,6 +79,11 @@ function UnthemedAccordion({
           aria-controls={regionId}
           onClick={() => {
             setOpen((currentOpen) => !currentOpen);
+            if (open) {
+              onClose?.();
+            } else {
+              onOpen?.();
+            }
           }}
         >
           <Icon
