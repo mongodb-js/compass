@@ -6,6 +6,7 @@ import {
   css,
   Icon,
   spacing,
+  uiColors,
 } from '@mongodb-js/compass-components';
 import type { ExplainIndex } from '../../modules/explain';
 import type { IndexDirection } from 'mongodb';
@@ -36,6 +37,10 @@ const indexItemStyles = css({
   },
 });
 
+const shardStyles = css({
+  color: uiColors.gray.dark1,
+});
+
 export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   indexes,
 }) => {
@@ -48,7 +53,7 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
       {indexes.map((index, arrIndex) => (
         <Body key={arrIndex} className={indexItemStyles}>
           <span>{index.name}</span>
-          {index.shard && <span>({index.shard})</span>}
+          {index.shard && <span className={shardStyles}>({index.shard})</span>}
           {Object.entries(index.key).map(([keyName, direction], listIndex) => (
             <Badge variant={BadgeVariant.LightGray} key={listIndex}>
               {keyName}
