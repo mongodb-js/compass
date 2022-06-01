@@ -12,7 +12,7 @@ class RestorePipelineModal extends Component {
 
   static propTypes = {
     restorePipelineModalToggle: PropTypes.func.isRequired,
-    getPipelineFromIndexedDB: PropTypes.func.isRequired,
+    openPipelineById: PropTypes.func.isRequired,
     restorePipeline: PropTypes.object.isRequired
   }
 
@@ -24,7 +24,7 @@ class RestorePipelineModal extends Component {
   openPipeline = () => {
     const id = this.props.restorePipeline.pipelineObjectID;
     track('Aggregation Opened', { id, screen: 'aggregations' });
-    this.props.getPipelineFromIndexedDB(id);
+    this.props.openPipelineById(id);
   }
 
   /**
