@@ -68,6 +68,7 @@ class ExplainStates extends Component {
       error: PropTypes.object,
       resultId: PropTypes.number.isRequired,
     }),
+    exportToLanguage: PropTypes.func.isRequired,
     fetchExplainPlan: PropTypes.func.isRequired,
     changeExplainPlanState: PropTypes.func.isRequired,
     switchToTreeView: PropTypes.func.isRequired,
@@ -118,6 +119,13 @@ class ExplainStates extends Component {
   onExecuteExplainClicked(queryBarStoreState) {
     this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
     this.props.fetchExplainPlan(queryBarStoreState);
+  }
+
+  /**
+   * Opens export to language with the current query.
+   */
+  onExportToLanguageClicked(queryBarStoreState) {
+    this.props.exportToLanguage(queryBarStoreState);
   }
 
   /**
@@ -253,8 +261,16 @@ class ExplainStates extends Component {
       <>
         {useNewToolbars ? (
           <ExplainToolbar
+            explainErrorMessage={this.props.explain.error?.message}
             localAppRegistry={this.props.appRegistry.localAppRegistry}
             onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
+            onExportToLanguageClicked={this.onExportToLanguageClicked.bind(
+              this
+            )}
+            showOutdatedWarning={
+              this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
+            }
+            showReadonlyWarning={!this.props.isEditable}
             switchToTreeView={this.props.switchToTreeView}
             switchToJSONView={this.props.switchToJSONView}
             viewType={this.props.explain.viewType}

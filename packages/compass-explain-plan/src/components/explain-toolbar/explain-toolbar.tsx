@@ -2,6 +2,8 @@ import type AppRegistry from 'hadron-app-registry';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Button,
+  Icon,
   SegmentedControl,
   SegmentedControlOption,
   Overline,
@@ -9,10 +11,12 @@ import {
   css,
   spacing,
   withTheme,
+  WarningSummary,
+  ErrorSummary,
 } from '@mongodb-js/compass-components';
 import { useId } from '@react-aria/utils';
 
-const ExplainToolbarStyles = css({
+const explainToolbarStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -22,24 +26,40 @@ const ExplainToolbarStyles = css({
   zIndex: 10,
 });
 
-const ExplainQueryBarStyles = css({
+const explainQueryBarStyles = css({
   width: '100%',
   position: 'relative',
 });
 
-const ExplainActionsToolbarStyles = css({
+const explainActionsToolbarStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+});
+
+const explainActionsToolbarRightStyles = css({
+  flexGrow: 1,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  width: '100%',
   gap: spacing[2],
 });
+
+const READ_ONLY_WARNING_MESSAGE =
+  'Explain plans on readonly views are not supported.';
+const OUTDATED_WARNING_MESSAGE = `The explain content is outdated and no longer in sync
+ with the documents view. Press "Explain" again to see the explain plan for
+ the current query.`;
 
 type ExplainToolbarProps = {
   localAppRegistry: AppRegistry;
   darkMode?: boolean;
+  explainErrorMessage?: string;
   explainResultId: string;
   onExecuteExplainClicked: (queryBarStoreState: any) => void;
+  onExportToLanguageClicked: (queryBarStoreState: any) => void;
+  showOutdatedWarning: boolean;
+  showReadonlyWarning: boolean;
   switchToTreeView: () => void;
   switchToJSONView: () => void;
   viewType: 'json' | 'tree';
@@ -49,7 +69,11 @@ function UnthemedExplainToolbar({
   localAppRegistry,
   darkMode,
   explainResultId,
+  explainErrorMessage,
   onExecuteExplainClicked,
+  onExportToLanguageClicked,
+  showOutdatedWarning,
+  showReadonlyWarning,
   switchToTreeView,
   switchToJSONView,
   viewType,
@@ -75,12 +99,12 @@ function UnthemedExplainToolbar({
 
     queryBarRef.current = {
       component: queryBarRole.component,
-      store: localAppRegistry.getStore(queryBarRole.storeName),
-      actions: localAppRegistry.getAction(queryBarRole.actionName),
+      store: localAppRegistry.getStore(queryBarRole.storeName!),
+      actions: localAppRegistry.getAction(queryBarRole.actionName!),
     };
 
     setQueryBarLoaded(true);
-  }, []);
+  }, [localAppRegistry]);
 
   const toggleView = useCallback(() => {
     if (viewType === 'json') {
@@ -94,13 +118,17 @@ function UnthemedExplainToolbar({
     onExecuteExplainClicked(queryBarRef.current!.store.state);
   }, [onExecuteExplainClicked]);
 
+  const onExportToLanguageClickedCallback = useCallback(() => {
+    onExportToLanguageClicked(queryBarRef.current!.store.state);
+  }, [onExportToLanguageClicked]);
+
   const QueryBarComponent = queryBarLoaded
     ? queryBarRef.current!.component
     : null;
 
   return (
-    <Toolbar className={ExplainToolbarStyles}>
-      <div className={ExplainQueryBarStyles}>
+    <Toolbar className={explainToolbarStyles}>
+      <div className={explainQueryBarStyles}>
         {queryBarLoaded && QueryBarComponent && (
           <QueryBarComponent
             store={queryBarRef.current!.store}
@@ -112,31 +140,51 @@ function UnthemedExplainToolbar({
           />
         )}
       </div>
-      <div className={ExplainActionsToolbarStyles}>
-        <Overline
-          as="label"
-          id={labelId}
-          htmlFor={controlId}
-          aria-label="Show explain as"
+      <div className={explainActionsToolbarStyles}>
+        <Button
+          variant="primaryOutline"
+          size="xsmall"
+          leftGlyph={<Icon glyph={'Export'} />}
+          onClick={onExportToLanguageClickedCallback}
+          data-testid="explain-toolbar-export-button"
         >
-          View
-        </Overline>
-        <SegmentedControl
-          darkMode={darkMode}
-          id={controlId}
-          aria-labelledby={labelId}
-          size="small"
-          value={viewType}
-          onChange={toggleView}
-        >
-          <SegmentedControlOption aria-label="Visual Tree View" value="tree">
-            Visual Tree
-          </SegmentedControlOption>
-          <SegmentedControlOption aria-label="Raw Json View" value="json">
-            Raw Json
-          </SegmentedControlOption>
-        </SegmentedControl>
+          Export to language
+        </Button>
+        <div className={explainActionsToolbarRightStyles}>
+          <Overline
+            as="label"
+            id={labelId}
+            htmlFor={controlId}
+            aria-label="Show explain as"
+          >
+            View
+          </Overline>
+          <SegmentedControl
+            darkMode={darkMode}
+            id={controlId}
+            aria-labelledby={labelId}
+            size="small"
+            value={viewType}
+            onChange={toggleView}
+          >
+            <SegmentedControlOption aria-label="Visual Tree View" value="tree">
+              Visual Tree
+            </SegmentedControlOption>
+            <SegmentedControlOption aria-label="Raw Json View" value="json">
+              Raw Json
+            </SegmentedControlOption>
+          </SegmentedControl>
+        </div>
       </div>
+      {(showOutdatedWarning || showReadonlyWarning) && (
+        <WarningSummary
+          warnings={[
+            ...(showReadonlyWarning ? [READ_ONLY_WARNING_MESSAGE] : []),
+            ...(showOutdatedWarning ? [OUTDATED_WARNING_MESSAGE] : []),
+          ]}
+        />
+      )}
+      {explainErrorMessage && <ErrorSummary errors={[explainErrorMessage]} />}
     </Toolbar>
   );
 }
