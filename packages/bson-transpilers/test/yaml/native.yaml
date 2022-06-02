@@ -1604,7 +1604,7 @@ tests:
           java: "Pattern.compile(\"(?:)\")"
           csharp: "new Regex(\"(?:)\")"
           object: "RegExp('')"
-          php: "/(?:)/"
+          php: "'/(?:)/'"
           ruby: "/(?:)/"
           rust: "Regex { pattern: \"(?:)\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "(?:)"}'
@@ -1620,7 +1620,7 @@ tests:
           csharp: "new Regex(\"abc\")"
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
-          php: "/abc/"
+          php: "'/abc/'"
           ruby: "/abc/"
           rust: "Regex { pattern: \"abc\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "abc"}'
@@ -1633,7 +1633,7 @@ tests:
           csharp: "new Regex(\"abc\")"
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
-          php: "/abc/"
+          php: "'/abc/'"
           ruby: "/abc/"
           rust: "Regex { pattern: \"abc\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "abc"}'
@@ -1649,7 +1649,7 @@ tests:
           csharp: "new Regex(\"(?im)ab+c\")"
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
-          php: "/ab+c/im"
+          php: "'/ab+c/im'"
           ruby: "/ab+c/im"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"im\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "im"}'
@@ -1662,7 +1662,7 @@ tests:
           csharp: "new Regex(\"(?im)ab+c\")"
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
-          php: "/ab+c/im"
+          php: "'/ab+c/im'"
           ruby: "/ab+c/im"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"im\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "im"}'
@@ -1677,7 +1677,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
-          php: "/ab+c/i"
+          php: "'/ab+c/i'"
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "gi"}'
@@ -1693,7 +1693,7 @@ tests:
           csharp: "new Regex(\"ab\\/cd\")"
           shell: "new RegExp('ab\\/cd')"
           object: "new RegExp('ab\\/cd')"
-          php: "/ab\\/cd/"
+          php: "'/ab\\/cd/'"
           ruby: "/ab\\/cd/"
           rust: "Regex { pattern: \"ab\\/cd\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab\/cd"}'
@@ -1709,7 +1709,7 @@ tests:
           csharp: "new Regex(\"ab\\\"ab\")"
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
-          php: "/ab\"ab/"
+          php: "'/ab\"ab/'"
           ruby: "/ab\"ab/"
           rust: "Regex { pattern: \"ab\\\"ab\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab\"ab"}'
@@ -1725,7 +1725,7 @@ tests:
           csharp: "new Regex(\"ab\\\"ab\")"
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
-          php: "/ab\"ab/"
+          php: "'/ab\"ab/'"
           ruby: "/ab\"ab/"
           rust: "Regex { pattern: \"ab\\\"ab\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab\"ab"}'
@@ -1741,7 +1741,7 @@ tests:
           csharp: "new Regex(\"ab'ab\")"
           shell: "new RegExp('ab\\'ab')"
           object: "new RegExp('ab\\'ab')"
-          php: "/ab'ab/"
+          php: "'/ab\\'ab/'"
           ruby: "/ab'ab/"
           rust: "Regex { pattern: \"ab'ab\".to_string(), options: \"\".to_string() }"
           go: "primitive.Regex{Pattern: \"ab'ab\"}"
@@ -1757,7 +1757,7 @@ tests:
           java: "Pattern.compile(\"ab'ab\")"
           csharp: "new Regex(\"ab'ab\")"
           object: "new RegExp('ab\\'ab')"
-          php: "/ab'ab/"
+          php: "'/ab\\'ab/'"
           ruby: "/ab'ab/"
           rust: "Regex { pattern: \"ab'ab\".to_string(), options: \"\".to_string() }"
           go: "primitive.Regex{Pattern: \"ab'ab\"}"
@@ -1773,7 +1773,7 @@ tests:
           java: "Pattern.compile(\"\\\\n\")"
           csharp: "new Regex(\"\\n\")"
           object: /\n/
-          php: /\n/
+          php: "'/\\n/'"
           ruby: /\n/
           rust: "Regex { pattern: \"\\n\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "\n"}'
@@ -1788,7 +1788,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
-          php: "/ab+c/i"
+          php: "'/ab+c/i'"
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "gi"}'
@@ -1804,7 +1804,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'i')"
           object: "new RegExp('ab+c', 'i')"
-          php: "/ab+c/i"
+          php: "'/ab+c/i'"
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "i"}'
@@ -1818,7 +1818,7 @@ tests:
           csharp: "new Regex(\"ab+c\")"
           shell: "new RegExp('ab+c', 'u')"
           object: "new RegExp('ab+c', 'u')"
-          php: "/ab+c/"
+          php: "'/ab+c/'"
           ruby: "/ab+c/"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"u\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "u"}'

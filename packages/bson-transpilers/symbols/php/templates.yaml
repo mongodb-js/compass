@@ -44,7 +44,49 @@ Templates:
     #                                           #
     #############################################
 
-    DriverTemplate: &DriverTemplate null
+    DriverTemplate: &DriverTemplate !!js/function >
+        (spec) => {
+            const getKey = k => {
+                let translateKey = {
+                    project: 'projection',
+                    maxTimeMS: 'max_time_ms'
+                }
+                return k in translateKey ? translateKey[k] : k
+            };
+        
+            const options = spec.options;
+            const filter = spec.filter || {}
+            delete spec.options;
+            delete spec.filter
+
+            comment = '// Requires the MongoDB PHP Driver\n// https://www.mongodb.com/docs/drivers/php/';
+            const connect = `$client = new \\MongoDB\\Client('${options.uri}')`;
+            const dtb = `$db = $client->selectDatabase('${options.database}')`;
+            const coll = `$db->selectCollection('${options.collection}')`;
+
+            if ('aggregation' in spec) {
+                return `${comment}\n\n${connect}\n${dtb}\n$result = ${coll}->aggregate((array) (${spec.aggregation}))`;
+            }
+
+            const vars = Object.keys(spec).reduce(
+                (result, k) => {
+                    return `${result}\n${getKey(k)} = ${spec[k]}`;
+                },
+                connect
+            );
+
+            const args = Object.keys(spec).reduce(
+                (result, k) => {
+                    const divider = result === '' ? '' : ',\n';
+                    return `${result}${divider}  ${getKey(k)}: ${getKey(k)}`;
+                },
+                ''
+            );
+
+            const cmd = `result = ${coll}.find(${filter}${args ? `, {\n${args}\n}` : ''})`;
+
+            return `${comment}\n\n${vars}\n\n${cmd}`;
+        }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
             // Not equal
@@ -177,8 +219,8 @@ Templates:
                 (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
                 newStr = str.substr(1, str.length - 2);
             }
-            pattern = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-            return `"/${pattern}/${flags ? flags : ''}"`;
+            pattern = `${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}`;
+            return `'/${pattern}/${flags ? flags : ''}'`;
         }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
@@ -270,7 +312,7 @@ Templates:
     #############################################
     CodeSymbolTemplate: &CodeSymbolTemplate !!js/function >
         () => {
-            return '';
+            return 'new \\MongoDB\\BSON\\Javascript';
         }
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
@@ -284,16 +326,16 @@ Templates:
                 return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
             }
             if (code === undefined) {
-                return `new \\MongoDB\\BSON\\Javascript('')`;
+                return `('')`;
             }
             return !scope 
-                ? `new \\MongoDB\\BSON\\Javascript(${singleStringify(code)})` 
-                : `new \\MongoDB\\BSON\\Javascript(${singleStringify(code)}, ${scope})`
+                ? `(${singleStringify(code)})` 
+                : `(${singleStringify(code)}, ${scope})`
             ;
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
         () => {
-            return '';
+            return 'new \\MongoDB\\BSON\\ObjectId';
         }
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (lhs, id) => {
@@ -307,8 +349,8 @@ Templates:
                 return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
             }
             return !id 
-                ? `new \\MongoDB\\BSON\\ObjectId()` 
-                : `new \\MongoDB\\BSON\\ObjectId(${singleStringify(id)})`
+                ? `()` 
+                : `(${singleStringify(id)})`
             ;
         }
     BinarySymbolTemplate: &BinarySymbolTemplate null # TODO: unsupported type
@@ -373,7 +415,7 @@ Templates:
         }
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
         () => {
-            return '';
+            return 'new \\MongoDB\\BSON\\Regex';
         }
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (lhs, pattern, flags) => {
@@ -395,46 +437,46 @@ Templates:
                 }
                 return `${newStr.replace(/\\([\s\S])/g, '\\$1')}`;
             }
-            return `new \\MongoDB\\BSON\\Regex("${singleQuoStringify(pattern)}", "${flags ? singleStringify(flags) : ''}")`;
+            return `("${singleQuoStringify(pattern)}", "${flags ? singleStringify(flags) : ''}")`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
         () => {
-            return '';
+            return 'new \\MongoDB\\BSON\\Decimal128';
         }
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (lhs, arg) => {
             arg = arg === undefined ? '0' : arg.toString();
             if (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') {
-                return `new \\MongoDB\\BSON\\Decimal128(${arg})`;
+                return `(${arg})`;
             }
             if (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"') {
-                return `new \\MongoDB\\BSON\\Decimal128(${arg})`;
+                return `(${arg})`;
             }
-            return `new \\MongoDB\\BSON\\Decimal128('${arg}')`;
+            return `('${arg}')`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
         () => {
-            return '';
+            return 'new \\MongoDB\\BSON\\MinKey';
         }
     MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate !!js/function >
         () => {
-            return `new \\MongoDB\\BSON\\MinKey()`;
+            return `()`;
         }
     MaxKeySymbolTemplate: &MaxKeySymbolTemplate !!js/function >
         () => {
-            return '';
+            return 'new \\MongoDB\\BSON\\MaxKey';
         }
     MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate !!js/function >
         () => {
-            return `new \\MongoDB\\BSON\\MaxKey()`;
+            return `()`;
         }
     TimestampSymbolTemplate: &TimestampSymbolTemplate !!js/function >
         () => {
-            return '';
+            return 'new \\MongoDB\\BSON\\Timestamp';
         }
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
         (lhs, arg1, arg2) => {
-            return `new \\MongoDB\\BSON\\Timestamp(${arg2 === undefined ? 0 : arg2}, ${arg1 === undefined ? 0 : arg1})`;
+            return `(${arg2 === undefined ? 0 : arg2}, ${arg1 === undefined ? 0 : arg1})`;
         }
     # non bson-specific
     NumberSymbolTemplate: &NumberSymbolTemplate !!js/function >
@@ -549,8 +591,36 @@ Templates:
         () => {
             return '';
         }
-    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate null # TODO: MISSINGS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate null # TODO: MISSINGS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ObjectIdIsValidTemplate: &ObjectIdIsValidTemplate !!js/function >
+        (lhs) => {
+            return ``;
+        }
+    ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate !!js/function >
+        (lhs, arg) => {
+            const singleStringify = (str) => {
+                let newStr = str;
+                if (
+                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
+            }
+        
+            this.declarations.addFunc([]
+                .concat('$isValidBSONObjectId = function ($objectId) {')
+                .concat('    $valid = true;')
+                .concat('    try {')
+                .concat('        $obj = new \\MongoDB\\BSON\\ObjectId($objectId);')
+                .concat('    } catch (\\MongoDB\\Driver\\Exception\\InvalidArgumentException $e) {')
+                .concat('        $valid = false;')
+                .concat('    }')
+                .concat('    return $valid;')
+                .concat('};')
+                .join('\n'));
+        
+            return `$isValidBSONObjectId(${singleStringify(arg)})`;
+        }
     BinaryValueTemplate: &BinaryValueTemplate null # TODO: unsupported type
     BinaryValueArgsTemplate: &BinaryValueArgsTemplate null # TODO: unsupported type
     BinaryLengthTemplate: &BinaryLengthTemplate null # TODO: unsupported type

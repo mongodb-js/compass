@@ -173,10 +173,10 @@ tests:
         output:
             object: false
     DBRef-methods:
-    # TODO: NEED TO INSERT PHP
     -   input:
             shell: new DBRef('coll', new ObjectId(), 'db').$db
         output:
+        # TODO: NEED TO INSERT PHP
             python: DBRef('coll', ObjectId(), 'db').database
             java: new DBRef("db", "coll", new ObjectId()).getDatabaseName()
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
@@ -887,12 +887,23 @@ tests:
           javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9')
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
       output:
-      # TODO: NEED TO INSERT PHP
           shell: new ObjectId('5ab901c29ee65f5c8550c5b9')
           java: ObjectId.isValid("5ab901c29ee65f5c8550c5b9")
           csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
           object: 'true'
+          php:  |-
+              $isValidBSONObjectId = function ($objectId) {
+                  $valid = true;
+                  try {
+                      $obj = new \MongoDB\BSON\ObjectId($objectId);
+                  } catch (\MongoDB\Driver\Exception\InvalidArgumentException $e) {
+                      $valid = false;
+                  }
+                  return $valid;
+              };
+              
+              $isValidBSONObjectId('5ab901c29ee65f5c8550c5b9')
           ruby: BSON::ObjectId.legal?('5ab901c29ee65f5c8550c5b9')
           go: primitive.IsValidObjectID("5ab901c29ee65f5c8550c5b9")
 #    Binary-utils:

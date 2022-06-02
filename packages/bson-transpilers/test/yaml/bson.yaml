@@ -189,6 +189,7 @@ tests:
           javascript: new DBRef('coll', new ObjectId())
           shell: new DBRef('coll', new ObjectId())
       output:
+      # TODO: NEED TO INSERT PHP
           javascript: new DBRef('coll', new ObjectId())
           shell: new DBRef('coll', new ObjectId())
           python: DBRef('coll', ObjectId())
@@ -206,6 +207,7 @@ tests:
           shell: DBRef('coll', new ObjectId())
           python: DBRef('coll', ObjectId())
       output:
+      # TODO: NEED TO INSERT PHP
           javascript: new DBRef('coll', new ObjectId())
           shell: new DBRef('coll', new ObjectId())
           python: DBRef('coll', ObjectId())
@@ -223,6 +225,7 @@ tests:
           shell: new DBRef('coll', new ObjectId(), 'db')
           python: DBRef('coll', ObjectId(), 'db')
       output:
+      # TODO: NEED TO INSERT PHP
           javascript: new DBRef('coll', new ObjectId(), 'db')
           shell: new DBRef('coll', new ObjectId(), 'db')
           python: DBRef('coll', ObjectId(), 'db')
@@ -239,6 +242,7 @@ tests:
       input:
           python: DBRef('coll', ObjectId(), database='db')
       output:
+      # TODO: NEED TO INSERT PHP
           javascript: new DBRef('coll', new ObjectId(), 'db')
           shell: new DBRef('coll', new ObjectId(), 'db')
           python: DBRef('coll', ObjectId(), 'db')
@@ -610,6 +614,7 @@ tests:
           java: Decimal128.parse("0")
           csharp: Decimal128.Parse("0")
           object: Decimal128.fromString('0')
+          php: new \MongoDB\BSON\Decimal128('0')
           ruby: BSON::Decimal128.new('0')
     MinKey/MaxKey:
     - description: 'MinKey'

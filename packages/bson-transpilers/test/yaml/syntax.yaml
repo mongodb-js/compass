@@ -156,6 +156,7 @@ tests:
           csharp: "1 > 2 < 3 >= 4 <= 6"
           object: "true"
           go: 1 > 2 < 3 >= 4 <= 6
+          # php: this is invalid syntax in php
           # ruby: this is invalid syntax in ruby
           # rust: this is invalid syntax in rust
     - input:

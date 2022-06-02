@@ -72,6 +72,13 @@ tests:
                       'x': new NumberLong(0), 
                       'y': new ObjectId()
                     });"
+                php: |-
+                    // Requires the MongoDB PHP Driver
+                    // https://www.mongodb.com/docs/drivers/php/
+
+                    $client = new \MongoDB\Client('mongodb://localhost:27017')
+                    $db = $client->selectDatabase('db')
+                    $result = $db->selectCollection('collection')->aggregate((array) ((object) ['x' => 0, 'y' => new \MongoDB\BSON\ObjectId()]))
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/
@@ -142,6 +149,7 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
+                php: ''
                 ruby: require 'mongo'
                 go: |-
                   import (
