@@ -24,9 +24,7 @@ jobs:
             sed 's/ by @.*//' | \
             grep -v 'New Contributors' | \
             grep -v '* @' | \
-            grep -v '<!--' | \
-            sed 's/COMPASS-[0-9]\{1,5\}/[&](https:\/\/jira.mongodb.org\/browse\/&)/g' | \
-            sed 's/MONGOSH-[0-9]\{1,5\}/[&](https:\/\/jira.mongodb.org\/browse\/&)/g' \
+            grep -v '<!--' \
             > RELEASE_NOTES.md
 
       - name: Update release
