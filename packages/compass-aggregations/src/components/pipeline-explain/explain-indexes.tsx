@@ -1,25 +1,96 @@
 import React from 'react';
-import { Badge, BadgeVariant, Body } from '@mongodb-js/compass-components';
-import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
+import {
+  Badge,
+  BadgeVariant,
+  css,
+  Icon,
+  spacing,
+  uiColors,
+  Accordion,
+} from '@mongodb-js/compass-components';
+import type { ExplainIndex } from '../../modules/explain';
+import type { IndexDirection } from 'mongodb';
 
 type ExplainIndexesProps = {
-  indexes: IndexInformation[];
+  indexes: ExplainIndex[];
 };
+
+const IndexDirectionIcon = ({ direction }: { direction: IndexDirection }) => {
+  return direction === 1 ? (
+    <Icon glyph="ArrowUp" />
+  ) : direction === -1 ? (
+    <Icon glyph="ArrowDown" />
+  ) : (
+    <>({String(direction)})</>
+  );
+};
+
+const containerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[1],
+});
+
+const accordianContainerStyles = css({
+  marginTop: spacing[1],
+  marginBottom: spacing[1],
+});
+
+const accordianContentStyles = css({
+  marginTop: spacing[1],
+  '*:not(:last-child)': {
+    marginRight: spacing[1],
+  },
+});
+
+const shardStyles = css({
+  color: uiColors.gray.dark1,
+});
 
 export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   indexes,
 }) => {
-  if (indexes.filter(({ index }) => index).length === 0) {
-    return <Body weight="medium">No index available for this query.</Body>;
+  if (indexes.length === 0) {
+    return null;
   }
 
   return (
-    <div>
-      {indexes.map((info, idx) => (
-        <Badge key={idx} variant={BadgeVariant.LightGray}>
-          {info.index} {info.shard && <>({info.shard})</>}
-        </Badge>
-      ))}
+    <div className={containerStyles}>
+      {indexes.map(
+        ({ name, shard, key: indexKeys }: ExplainIndex, arrIndex) => {
+          const title = shard ? (
+            <>
+              {name}&nbsp;
+              <span className={shardStyles}>({shard})</span>
+            </>
+          ) : (
+            name
+          );
+          return (
+            <div className={accordianContainerStyles} key={arrIndex}>
+              <Accordion
+                text={title}
+                data-testid={`explain-index-button-${name}-${shard ?? ''}`}
+              >
+                <div
+                  className={accordianContentStyles}
+                  data-testid={`explain-index-content-${name}-${shard ?? ''}`}
+                >
+                  {Object.entries(indexKeys).map(
+                    ([keyName, direction], listIndex) => (
+                      <Badge variant={BadgeVariant.LightGray} key={listIndex}>
+                        {keyName}
+                        &nbsp;
+                        <IndexDirectionIcon direction={direction} />
+                      </Badge>
+                    )
+                  )}
+                </div>
+              </Accordion>
+            </div>
+          );
+        }
+      )}
     </div>
   );
 };
