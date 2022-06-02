@@ -21,7 +21,7 @@ describe('CSFLECollectionTracker', function () {
   let dbName: string;
 
   before(function () {
-    if (!process.env.COMPASS_CSFLE_LIBRARY_PATH) {
+    if (!process.env.COMPASS_CRYPT_LIBRARY_PATH) {
       return this.skip();
     }
     dbName = `test-${Date.now()}-${(Math.random() * 10000) | 0}`;
@@ -43,7 +43,7 @@ describe('CSFLECollectionTracker', function () {
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           keyVaultNamespace: `${dbName}.kv`,
           extraOptions: {
-            csflePath: process.env.COMPASS_CSFLE_LIBRARY_PATH,
+            csflePath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
           },
           ...autoEncryption,
         },
@@ -415,6 +415,32 @@ describe('CSFLECollectionTracker', function () {
           .findOne();
         expect(result.a).to.equal(2);
       });
+    });
+  });
+
+  context('with client-side and server-side FLE2 schema info', function () {
+    beforeEach(async function () {
+      [tracker, dataService] = await createTracker({
+        encryptedFieldsMap: {
+          [`${dbName}.test3`]: {
+            fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
+          },
+        },
+      });
+      const crudClient: MongoClient = (dataService as any)._initializedClient(
+        'CRUD'
+      );
+      await crudClient.db(dbName).createCollection('test3', {
+        encryptedFields: {
+          fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
+        },
+      });
+    });
+
+    it('does not return duplicates of encrypted fields', async function () {
+      expect(
+        await tracker.knownSchemaForCollection(`${dbName}.test3`)
+      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
     });
   });
 });

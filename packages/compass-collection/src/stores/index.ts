@@ -71,11 +71,10 @@ export const INITIAL_STATE = {
 
 /**
  * Handle the reset.
- *
- * @returns {Object} The new state.
  */
-const doReset = () => ({
+const doReset = ({ appRegistry }: RootState) => ({
   ...INITIAL_STATE,
+  appRegistry,
 });
 
 /**
@@ -94,6 +93,8 @@ const appReducer = combineReducers({
   stats,
   namespace,
 });
+
+type RootState = ReturnType<typeof appReducer>;
 
 /**
  * The root reducer.
@@ -149,6 +150,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
           store.dispatch(dataLakeChanged(value));
         }
       );
+      store.dispatch(dataLakeChanged(instance.dataLake.isDataLake));
     }
   });
 
@@ -157,6 +159,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
    */
   appRegistry.on('instance-destroyed', () => {
     store[kInstance] = null;
+    store.dispatch(reset());
   });
 
   /**

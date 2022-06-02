@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   css,
+  cx,
   spacing,
   Modal,
   CancelLoader,
@@ -8,6 +9,7 @@ import {
   ModalFooter,
   Button,
   ErrorSummary,
+  breakpoints,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
@@ -25,15 +27,50 @@ type PipelineExplainProps = {
   onCancelExplain: () => void;
 };
 
+const modalStyles = css({
+  display: 'grid',
+  gap: spacing[3],
+  gridTemplateRows: 'auto 1fr auto',
+});
+
+const gridWithFooter = css({
+  gridTemplateAreas: `
+    'header'
+    'content'
+    'footer'
+  `,
+});
+
+const gridWithoutFooter = css({
+  gridTemplateAreas: `
+    'header'
+    'content'
+  `,
+});
+
+const headerStyles = css({
+  gridArea: 'header',
+});
+
 const contentStyles = css({
-  marginTop: spacing[3],
-  marginBottom: spacing[3],
+  gridArea: 'content',
 });
 
 const footerStyles = css({
+  gridArea: 'footer',
   paddingRight: 0,
   paddingBottom: 0,
 });
+
+const loadingStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  height: '100%',
+});
+
+const getModalSize = (): 'default' | 'large' => {
+  return window.innerWidth <= breakpoints.XLDesktop ? 'default' : 'large';
+};
 
 export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   isModalOpen,
@@ -43,15 +80,39 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   onCloseModal,
   onCancelExplain,
 }) => {
+  const [modalSize, setModalSize] = useState(getModalSize());
+  useEffect(() => {
+    if (!isModalOpen) {
+      return;
+    }
+    const resizeListener = () => {
+      setModalSize(getModalSize());
+    };
+    window.addEventListener('resize', resizeListener);
+    return () => {
+      window.removeEventListener('resize', resizeListener);
+    };
+  }, [isModalOpen]);
+
+  // The resize listener is only added when the modal is open.
+  // As the modal closes, the state persists the last value.
+  // If the user changes window size while the modal is closed,
+  // upon next open it uses the last known value. So we reset it here.
+  useEffect(() => {
+    setModalSize(getModalSize());
+  }, [isModalOpen]);
+
   let content = null;
   if (isLoading) {
     content = (
-      <CancelLoader
-        data-testid="pipeline-explain-cancel"
-        cancelText="Cancel"
-        onCancel={() => onCancelExplain()}
-        progressText="Running explain"
-      />
+      <div className={loadingStyles}>
+        <CancelLoader
+          data-testid="pipeline-explain-cancel"
+          cancelText="Cancel"
+          onCancel={() => onCancelExplain()}
+          progressText="Running explain"
+        />
+      </div>
     );
   } else if (error) {
     content = (
@@ -67,11 +128,16 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
 
   return (
     <Modal
+      size={modalSize}
       setOpen={onCloseModal}
       open={isModalOpen}
       data-testid="pipeline-explain-modal"
+      contentClassName={cx(
+        isLoading ? gridWithoutFooter : gridWithFooter,
+        modalStyles
+      )}
     >
-      <H3>Explain</H3>
+      <H3 className={headerStyles}>Explain Plan</H3>
       <div className={contentStyles}>{content}</div>
       {!isLoading && (
         <ModalFooter className={footerStyles}>

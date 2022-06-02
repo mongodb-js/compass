@@ -84,9 +84,10 @@ export const ConnectionFormInputFLEKeyVaultNamespace =
   '[data-testid="csfle-keyvault"]';
 export const ConnectionFormInputFLELocalKMS =
   '[data-testid="csfle-kms-provider-local"]';
-export const ConnectionFormInputFLEKey = '[data-testid="csfle-kms-key"]';
+export const ConnectionFormInputFLELocalKey =
+  '[data-testid="csfle-kms-local-key"]';
 export const ConnectionFormInputFLEEncryptedFieldsMap =
-  '[data-testid="csfle-encrypted-fields-map"]';
+  '[data-testid="connection-csfle-encrypted-fields-map"]';
 
 export const ConnectionFormSSLConnectionRadios =
   '#tls-radio-box-group input[type="radio"]';
@@ -289,6 +290,13 @@ export const CreateCollectionCollectionOptionsAccordion =
   '[data-testid="create_collection_modal"] [data-testid="advanced-collection-options"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
   '[data-testid="use-custom-collation-fields"] #toggle-use-custom-collation-fields-label';
+
+export const CreateCollectionFLE2CheckboxLabel =
+  '[data-testid="fle2-fields"] #toggle-fle2-fields-label';
+export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
+export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
+export const CollectionHeaderFLE2Badge =
+  '[data-testid="collection-header-badge-fle2"]';
 
 export const CreateCollectionTimeseriesCheckboxLabel =
   '[data-testid="time-series-fields"] #toggle-time-series-fields-label';
@@ -503,6 +511,8 @@ export const InsertConfirm =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
 export const InsertCancel =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
+export const insertCSFLEHasKnownSchemaMsg =
+  '[data-test-id="insert-csfle-has-known-schema"]';
 
 // Import File modal
 
@@ -554,6 +564,8 @@ export const HadronDocumentRevertElement =
   '[data-testid="hadron-document-revert"]';
 export const HadronDocumentRemoveElement =
   '[data-testid="hadron-document-remove"]';
+export const HadronDocumentElementDecryptedIcon =
+  '[data-test-id="hadron-document-element-decrypted-icon"]';
 
 // Document list view
 
@@ -566,6 +578,9 @@ export const documentListDocumentKey = (n: number): string => {
 };
 export const documentListDocumentValue = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
+};
+export const documentListDecryptedIcon = (n: number): string => {
+  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentElementDecryptedIcon}`;
 };
 
 // Query bar history

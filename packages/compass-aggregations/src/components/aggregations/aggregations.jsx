@@ -50,7 +50,7 @@ import { setIsModified } from '../../modules/is-modified';
 import {
   newPipelineFromPaste,
   restoreSavedPipeline,
-  getPipelineFromIndexedDB
+  openPipelineById
 } from '../../modules/index';
 import {
   restorePipelineModalToggle,
@@ -206,7 +206,7 @@ const MappedAggregations = connect(
     createNew,
     confirmNew,
     openLink,
-    getPipelineFromIndexedDB,
+    openPipelineById,
     applySettings,
     setIsModified,
     limitChanged,

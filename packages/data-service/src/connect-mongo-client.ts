@@ -40,12 +40,12 @@ export default async function connectMongoClientCompass(
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
   };
 
-  if (options.autoEncryption && process.env.COMPASS_CSFLE_LIBRARY_PATH) {
+  if (options.autoEncryption && process.env.COMPASS_CRYPT_LIBRARY_PATH) {
     options.autoEncryption = {
       ...options.autoEncryption,
       extraOptions: {
         ...options.autoEncryption?.extraOptions,
-        csflePath: process.env.COMPASS_CSFLE_LIBRARY_PATH,
+        csflePath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
       },
     };
   }
