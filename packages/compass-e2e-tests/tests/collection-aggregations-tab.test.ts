@@ -117,7 +117,6 @@ describe('Collection aggregations tab', function () {
       '$bucketAuto',
       '$collStats',
       '$count',
-      '$documents',
       '$facet',
       '$geoNear',
       '$graphLookup',
