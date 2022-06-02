@@ -87,7 +87,6 @@ const isNotWritable = ({ oName, allowWrites }) => [OUT, MERGE].includes(oName) &
  */
 const isSupportedVersion = ({ oVersion, version }) => semver.gte(version, oVersion);
 
-
 /**
  * Is search on a view, time-series, or regular collection?
  *
@@ -125,6 +124,7 @@ export const filterStageOperators = ({ serverVersion, allowWrites, env, isTimeSe
   return STAGE_OPERATORS.filter((o) => {
     if (isNotWritable({ oName: o.name, allowWrites })) return false;
     if (isSearchOnView({ oName: o.name, isTimeSeries, isReadonly, sourceName })) return false;
+    if (o.dbOnly) return false;
 
     return isSupportedVersion({ oVersion: o.version, version: cleanVersion }) &&
       isSupportedEnv({ oEnv: o.env, env }) ||
