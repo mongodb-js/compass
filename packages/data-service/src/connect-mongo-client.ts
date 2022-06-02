@@ -45,7 +45,8 @@ export default async function connectMongoClientCompass(
       ...options.autoEncryption,
       extraOptions: {
         ...options.autoEncryption?.extraOptions,
-        csflePath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
+        // @ts-expect-error next driver release has types
+        cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
       },
     };
   }

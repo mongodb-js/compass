@@ -139,11 +139,7 @@ export async function addCollection(
     await expireField.setValue(options.clustered.expireAfterSeconds.toString());
   }
 
-  if (
-    options &&
-    options.encryptedFields &&
-    process.env.COMPASS_CSFLE_SUPPORT === 'true'
-  ) {
+  if (options && options.encryptedFields) {
     await browser.clickVisible(Selectors.CreateCollectionFLE2CheckboxLabel);
     await browser.setAceValue(
       Selectors.CreateCollectionFLE2,
