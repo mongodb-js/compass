@@ -21,7 +21,7 @@ const IndexDirectionIcon = ({ direction }: { direction: IndexDirection }) => {
   ) : direction === -1 ? (
     <Icon glyph="ArrowDown" />
   ) : (
-    <>({direction.toString()})</>
+    <>({String(direction)})</>
   );
 };
 
