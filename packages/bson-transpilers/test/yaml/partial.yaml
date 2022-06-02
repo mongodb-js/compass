@@ -18,6 +18,7 @@ tests:
           java: ''
           csharp: ''
           shell: NumberLong
+          php: ''
           ruby: ''
           go: ''
           rust: ''
@@ -30,6 +31,7 @@ tests:
           java: Decimal128
           csharp: Decimal128
           shell: NumberDecimal
+          php: \MongoDB\BSON\Decimal128
           ruby: BSON::Decimal128
           go: ''
     - input:
@@ -41,6 +43,7 @@ tests:
           java: ''
           csharp: ''
           shell: ''
+          php: ''
           ruby: ''
           go: ''
           rust: ''
@@ -53,6 +56,7 @@ tests:
           java: ''
           csharp: ''
           shell: NumberInt
+          php: ''
           ruby: ''
           go: ''
           rust: ''
@@ -64,6 +68,7 @@ tests:
           java: ''
           csharp: ''
           shell: NumberLong
+          php: ''
           ruby: ''
           go: ''
           rust: ''
@@ -75,6 +80,7 @@ tests:
           java: Decimal128
           csharp: Decimal128
           shell: NumberDecimal
+          php: \MongoDB\BSON\Decimal128
           ruby: BSON::Decimal128
           go: ''
     - input:
@@ -86,6 +92,7 @@ tests:
           java: ObjectId
           csharp: ObjectId
           shell: ObjectId
+          php: \MongoDB\BSON\ObjectId
           ruby: BSON::ObjectId
           go: ''
           rust: ObjectId

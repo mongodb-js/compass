@@ -19,6 +19,7 @@ tests:
           java: "1L + 2L"
           csharp: "1 + 2"
           object: "3"
+          php: "1 + 2"
           ruby: "1 + 2"
           go: 1 + 2
           rust: "1 + 2"
@@ -33,6 +34,7 @@ tests:
           java: "1L + 2L"
           csharp: "1 + 2"
           object: "3"
+          php: "1 + 2"
           ruby: "1 + 2"
           go: 1 + 2
           rust: "1 + 2"
@@ -48,6 +50,7 @@ tests:
           java: "1L == 2L"
           csharp: "1 == 2"
           object: "false"
+          php: "1 == 2"
           ruby: "1 == 2"
           go: 1 == 2
           rust: "1 == 2"
@@ -62,6 +65,7 @@ tests:
           java: "1L != 2L"
           csharp: "1 != 2"
           object: "true"
+          php: "1 != 2"
           ruby: "1 != 2"
           go: 1 != 2
           rust: "1 != 2"
@@ -76,6 +80,7 @@ tests:
           java: "true || false"
           csharp: "true || false"
           object: "true"
+          php: "true || false"
           ruby: "true || false"
           go: true || false
           rust: "true || false"
@@ -90,6 +95,7 @@ tests:
           java: "true || false || true"
           csharp: "true || false || true"
           object: "true"
+          php: "true || false || true"
           ruby: "true || false || true"
           go: true || false || true
           rust: "true || false || true"
@@ -104,6 +110,7 @@ tests:
           java: "true && false"
           csharp: "true && false"
           object: "false"
+          php: "true && false"
           ruby: "true && false"
           go: true && false
           rust: "true && false"
@@ -118,6 +125,7 @@ tests:
           java: "true && false && true"
           csharp: "true && false && true"
           object: "false"
+          php: "true && false && true"
           ruby: "true && false && true"
           go: true && false && true
           rust: "true && false && true"
@@ -132,6 +140,7 @@ tests:
           java: "!true"
           csharp: "!true"
           object: "false"
+          php: "!true"
           ruby: "!true"
           go: "!true"
           rust: "!true"
@@ -158,6 +167,7 @@ tests:
           java: "4L == 5L"
           csharp: "4 == 5"
           object: "false"
+          php: "4 == 5"
           ruby: "4.equal?(5)"
           go: 4 == 5
           rust: "4 == 5"
@@ -170,6 +180,7 @@ tests:
           java: "4L != 5L"
           csharp: "4 != 5"
           object: "true"
+          php: "4 != 5"
           ruby: "!4.equal?(5)"
           go: 4 != 5
           rust: "4 != 5"
@@ -182,6 +193,7 @@ tests:
           java: "Arrays.asList(1L, 2L).contains(4L)"
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) != -1"
           object: "false"
+          php: "in_array(4, [1, 2])"
           ruby: "[\n  1, 2\n].include?(4)"
           go: |-
             var contains = func(elems bson.A, v interface{}) bool {
@@ -211,6 +223,7 @@ tests:
           java: "!Arrays.asList(1L, 2L).contains(4L)"
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) == -1"
           object: "true"
+          php: "!in_array(4, [1, 2])"
           ruby: "![\n  1, 2\n].include?(4)"
           go: |-
             var contains = func(elems bson.A, v interface{}) bool {
@@ -243,6 +256,7 @@ tests:
           java: "1L"
           csharp: "1"
           object: "1"
+          php: "1"
           ruby: "1"
           go: "1"
           rust: "1"
@@ -256,6 +270,7 @@ tests:
           java: "1L"
           csharp: "1"
           object: "1"
+          php: "1"
           ruby: "1"
           go: "1"
           rust: "1"
@@ -269,6 +284,7 @@ tests:
           java: "1L + 2L"
           csharp: "1 + 2"
           object: "3"
+          php: "1 + 2"
           ruby: "1 + 2"
           go: 1 + 2
           rust: "1 + 2"
@@ -282,6 +298,7 @@ tests:
           java: "1L"
           csharp: "1"
           object: "1"
+          php: "1"
           ruby: "1"
           go: "1"
           rust: "1"
@@ -295,6 +312,7 @@ tests:
           java: "1L + 2L"
           csharp: "1 + 2"
           object: "3"
+          php: "1 + 2"
           ruby: "1 + 2"
           go: 1 + 2
           rust: "1 + 2"
@@ -310,6 +328,7 @@ tests:
           java: "(1L == 1L)"
           csharp: "(1 == 1)"
           object: "true"
+          php: "(1 == 1)"
           ruby: "(1 == 1)"
           go: (1 == 1)
           rust: "(1 == 1)"
@@ -324,6 +343,7 @@ tests:
           java: "((1L == (1L)))"
           csharp: "((1 == (1)))"
           object: "true"
+          php: "((1 == (1)))"
           ruby: "((1 == (1)))"
           go: ((1 == (1)))
           rust: "((1 == (1)))"

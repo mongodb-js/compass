@@ -31,6 +31,7 @@ tests:
                   'x': 1
                 }).scope
             object: "{'x': 1}"
+            php: (new \MongoDB\BSON\Javascript('test code', (object) ['x' => 1]))->getScope()
             ruby: |-
                 BSON::CodeWithScope.new('test code', {
                   'x' => 1
@@ -52,6 +53,7 @@ tests:
             csharp: new BsonJavaScript("test code").Code
             shell: new Code('test code').code
             object: "'test code'"
+            php: (new \MongoDB\BSON\Javascript('test code'))->getCode()
             ruby: BSON::Code.new('test code').javascript
             go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"test code\")}.Code"
             # Rust doesn't have a code attribute
@@ -65,6 +67,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").ToString()
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             object: "'5ab901c29ee65f5c8550c5b9'"
+            php: (string) new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9')
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
             go: |-
                 var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -86,6 +89,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Timestamp
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             object: new Date('2018-03-26T14:20:50.000Z')
+            php: (new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9'))->getTimestamp()
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time
             go: |-
                 var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -107,6 +111,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Equals(new ObjectId("5ab901c29ee65f5c8550c5b9"))
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             object: true
+            php: new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9') == new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9')
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9') == BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
             go: |-
                 var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -168,6 +173,7 @@ tests:
         output:
             object: false
     DBRef-methods:
+    # TODO: NEED TO INSERT PHP
     -   input:
             shell: new DBRef('coll', new ObjectId(), 'db').$db
         output:
@@ -271,6 +277,7 @@ tests:
             csharp: 429496729601L >> 32
             python: Int64(429496729601) >> 32
             object: '100'
+            php: 429496729601 >> 32
             ruby: 429496729601 >> 32
             go: int64(429496729601) >> 32
             rust: 429496729601i64 >> 32
@@ -282,6 +289,7 @@ tests:
             csharp: 429496729601L & 0x0000ffff
             python: Int64(429496729601) & 0x0000ffff
             object: '1'
+            php: 429496729601 & 0x0000ffff
             ruby: 429496729601 & 0x0000ffff
             go: int64(429496729601) & 0x0000ffff
             rust: 429496729601i64 & 0x0000ffff
@@ -293,6 +301,7 @@ tests:
             csharp: "(float) 429496729601L"
             python: float(Int64(429496729601))
             object: '429496729601'
+            php: (float) 429496729601
             ruby: 429496729601.to_f
             go: float64(int64(429496729601))
             rust: 429496729601i64 as f32
@@ -304,6 +313,7 @@ tests:
             csharp: "(int) 429496729601L"
             shell: new NumberLong(429496729601).valueOf()
             object: '1'
+            php: '429496729601'
             ruby: '429496729601'
             go: int(int64(429496729601))
             rust: 429496729601i64 as i32
@@ -315,6 +325,7 @@ tests:
             csharp: "(double) 429496729601L"
             shell: new NumberLong(429496729601).floatApprox
             object: '429496729601'
+            php: (float) 429496729601
             ruby: 429496729601.to_f
             go: float64(int64(429496729601))
             rust: 429496729601i64 as f64
@@ -327,6 +338,7 @@ tests:
             csharp: '"429496729601"'
             shell: "'429496729601'"
             object: "'429496729601'"
+            php: "'429496729601'"
             ruby: "'429496729601'"
             go:  '"429496729601"'
             rust: '"429496729601"'
@@ -338,6 +350,7 @@ tests:
             csharp: '"429496729601"'
             shell: "'429496729601'"
             object: "'429496729601'"
+            php: "'429496729601'"
             ruby: "'429496729601'"
             go:  '"429496729601"'
             rust: '"429496729601"'
@@ -349,6 +362,7 @@ tests:
             csharp: 429496729601L == 0
             shell: new NumberLong(429496729601) === 0
             object: 'false'
+            php: 429496729601 == 0
             ruby: 429496729601 == 0
             go: int64(429496729601) == int64(0)
             rust: 429496729601i64 == 0
@@ -360,6 +374,7 @@ tests:
             csharp: 429496729601L < 0
             shell: new NumberLong(429496729601) < 0
             object: 'false'
+            php: 429496729601 < 0
             ruby: 429496729601 < 0
             go: int64(429496729601) < int64(0)
             rust: 429496729601i64 < 0
@@ -371,6 +386,7 @@ tests:
             csharp: 429496729601L % 2 == 1
             shell: "(new NumberLong(429496729601) % 2) === 1"
             object: 'true'
+            php: "(429496729601 % 2) == 1"
             ruby: "(429496729601 % 2) == 1"
             go: int64(429496729601) % 2 == 1
             rust: 429496729601i64 % 2 == 1
@@ -382,6 +398,7 @@ tests:
             csharp: 429496729601L == 4294967305L
             shell: new NumberLong(429496729601) === new NumberLong(4294967305)
             object: 'false'
+            php: 429496729601 == 4294967305
             ruby: 429496729601 == 4294967305
             go: int64(429496729601) == int64(4294967305)
             rust: 429496729601i64 == 4294967305i64
@@ -393,6 +410,7 @@ tests:
             csharp: 429496729601L != 4294967305L
             shell: new NumberLong(429496729601) !== new NumberLong(4294967305)
             object: 'true'
+            php: 429496729601 != 4294967305
             ruby: 429496729601 != 4294967305
             go: int64(429496729601) != int64(4294967305)
             rust: 429496729601i64 != 4294967305i64
@@ -404,6 +422,7 @@ tests:
             csharp: 429496729601L - 4294967305L
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: "1"
+            php: 429496729601 - 4294967305
             ruby: 429496729601 - 4294967305
             go: int64(429496729601) - int64(4294967305)
             rust: 429496729601i64 - 4294967305i64
@@ -415,6 +434,7 @@ tests:
             csharp: 429496729601L > 4294967305L
             shell: new NumberLong(429496729601) > new NumberLong(4294967305)
             object: 'true'
+            php: 429496729601 > 4294967305
             ruby: 429496729601 > 4294967305
             go: int64(429496729601) > int64(4294967305)
             rust: 429496729601i64 > 4294967305i64
@@ -426,6 +446,7 @@ tests:
             csharp: 429496729601L >= 4294967305L
             shell: new NumberLong(429496729601) >= new NumberLong(4294967305)
             object: 'true'
+            php: 429496729601 >= 4294967305
             ruby: 429496729601 >= 4294967305
             go: int64(429496729601) >= int64(4294967305)
             rust: 429496729601i64 >= 4294967305i64
@@ -437,6 +458,7 @@ tests:
             csharp: 429496729601L < 4294967305L
             shell: new NumberLong(429496729601) < new NumberLong(4294967305)
             object: 'false'
+            php: 429496729601 < 4294967305
             ruby: 429496729601 < 4294967305
             go: int64(429496729601) < int64(4294967305)
             rust: 429496729601i64 < 4294967305i64
@@ -448,6 +470,7 @@ tests:
             csharp: 429496729601L <= 4294967305L
             shell: new NumberLong(429496729601) <= new NumberLong(4294967305)
             object: 'false'
+            php: 429496729601 <= 4294967305
             ruby: 429496729601 <= 4294967305
             go: int64(429496729601) <= int64(4294967305)
             rust: 429496729601i64 <= 4294967305i64
@@ -459,6 +482,7 @@ tests:
             csharp: "-429496729601L"
             shell: "-new NumberLong(429496729601)"
             output: "-429496729601"
+            php: "-429496729601"
             ruby: "-429496729601"
             go: "-int64(429496729601)"
             rust: "-429496729601i64"
@@ -470,6 +494,7 @@ tests:
             csharp: 429496729601L + 4294967305L
             shell: new NumberLong(429496729601) + new NumberLong(4294967305)
             object: new Long(10, 101)
+            php: 429496729601 + 4294967305
             ruby: 429496729601 + 4294967305
             go: int64(429496729601) + int64(4294967305)
             rust: 429496729601i64 + 4294967305i64
@@ -481,6 +506,7 @@ tests:
             csharp: 429496729601L - 4294967305L
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: new Long(-8, 98)
+            php: 429496729601 - 4294967305
             ruby: 429496729601 - 4294967305
             go: int64(429496729601) - int64(4294967305)
             rust: 429496729601i64 - 4294967305i64
@@ -492,6 +518,7 @@ tests:
             csharp: 429496729601L * 4294967305L
             shell: new NumberLong(429496729601) * new NumberLong(4294967305)
             object: new Long(9, 901)
+            php: 429496729601 * 4294967305
             ruby: 429496729601 * 4294967305
             go: int64(429496729601) * int64(4294967305)
             rust: 429496729601i64 * 4294967305i64
@@ -503,6 +530,7 @@ tests:
             csharp: 429496729601L / 4294967305L
             shell: new NumberLong(429496729601) / new NumberLong(4294967305)
             object: new Long(99, 0)
+            php: 429496729601 / 4294967305
             ruby: 429496729601 / 4294967305
             go: int64(429496729601) / int64(4294967305)
             rust: 429496729601i64 / 4294967305i64
@@ -514,6 +542,7 @@ tests:
             csharp: 429496729601L % 4294967305L
             shell: new NumberLong(429496729601) % new NumberLong(4294967305)
             object: new Long(-890, 0)
+            php: 429496729601 % 4294967305
             ruby: 429496729601 % 4294967305
             go: int64(429496729601) % int64(4294967305)
             rust: 429496729601i64 % 4294967305i64
@@ -525,6 +554,7 @@ tests:
             csharp: "~429496729601L"
             shell: "~new NumberLong(429496729601)"
             object: new Long(-1, -101)
+            php: "~429496729601"
             ruby: "~429496729601"
             go: "^int64(429496729601)"
             rust: "~429496729601i64"
@@ -536,6 +566,7 @@ tests:
             csharp: 429496729601L & 4294967305L
             shell: new NumberLong(429496729601) & new NumberLong(4294967305)
             object: new Long(1, 0)
+            php: 429496729601 & 4294967305
             ruby: 429496729601 & 4294967305
             go: int64(429496729601) & int64(4294967305)
             rust: 429496729601i64 & 4294967305i64
@@ -547,6 +578,7 @@ tests:
             csharp: 429496729601L | 4294967305L
             shell: new NumberLong(429496729601) | new NumberLong(4294967305)
             object: new Long(9, 101)
+            php: 429496729601 | 4294967305
             ruby: 429496729601 | 4294967305
             go: int64(429496729601) | int64(4294967305)
             rust: 429496729601i64 | 4294967305i64
@@ -558,6 +590,7 @@ tests:
             csharp: 429496729601L ^ 4294967305L
             shell: new NumberLong(429496729601) ^ new NumberLong(4294967305)
             object: new Long(8, 101)
+            php: 429496729601 ^ 4294967305
             ruby: 429496729601 ^ 4294967305
             go: int64(429496729601) ^ int64(4294967305)
             rust: 429496729601i64 ^ 4294967305i64
@@ -569,6 +602,7 @@ tests:
             csharp: 429496729601L << 10
             shell: new NumberLong(429496729601) << 10
             object: new Long(1024, 102400)
+            php: 429496729601 << 10
             ruby: 429496729601 << 10
             go: int64(429496729601) << 10
             rust: 429496729601i64 << 10
@@ -580,6 +614,7 @@ tests:
             csharp: 429496729601L >> 10
             shell: new NumberLong(429496729601) >> 10
             object: new Long(419430400, 0)
+            php: 429496729601 >> 10
             ruby: 429496729601 >> 10
             go: int64(429496729601) >> 10
             rust: 429496729601i64 >> 10
@@ -592,6 +627,7 @@ tests:
             csharp: Decimal128.Parse("5.3E-6175").ToString()
             shell: new NumberDecimal(5.3E-6175).toString()
             output: "'5.3E-6175'"
+            php: (string) new \MongoDB\BSON\Decimal128('5.3E-6175')
             ruby: BSON::Decimal128.new('5.3E-6175').to_s
             go: |-
                 var parseDecimal128 = func(str string) primitive.Decimal128 {
@@ -613,6 +649,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToString()
             shell: new Timestamp(1, 100).toString()
             object: "'429496729601'"
+            php: (string) new \MongoDB\BSON\Timestamp(100, 1)
             ruby: BSON::Timestamp.new(1, 100).to_s
             rust: "Timestamp { time: 1, increment: 100 }.to_string()"
     -   input:
@@ -623,6 +660,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Equals(new BsonTimestamp(2, 99))
             shell: new Timestamp(1, 100) === new Timestamp(2, 99)
             object: 'false'
+            php: new \MongoDB\BSON\Timestamp(100, 1) == new \MongoDB\BSON\Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) == BSON::Timestamp.new(2, 99)
             go: "primitive.Timestamp{T: 1, I: 100}.Equal(primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 } == Timestamp { time: 2, increment: 99 }"
@@ -634,6 +672,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).CompareTo(new BsonTimestamp(2, 99))
             shell: new Timestamp(1, 100) - new Timestamp(2, 99)
             object: '1'
+            php: new \MongoDB\BSON\Timestamp(100, 1) <=> new \MongoDB\BSON\Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) <=> BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 }.cmp(Timestamp { time: 2, increment: 99 })"
@@ -645,6 +684,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) != new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) !== new Timestamp(2, 99)
             object: 'true'
+            php: new \MongoDB\BSON\Timestamp(100, 1) != new \MongoDB\BSON\Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) != BSON::Timestamp.new(2, 99)
             go: "!primitive.Timestamp{T: 1, I: 100}.Equal(primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 } != Timestamp { time: 2, increment: 99 }"
@@ -656,6 +696,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) > new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) > new Timestamp(2, 99)
             object: 'true'
+            php: new \MongoDB\BSON\Timestamp(100, 1) > new \MongoDB\BSON\Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) > BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == 1"
             rust: "Timestamp { time: 1, increment: 100 } > Timestamp { time: 2, increment: 99 }"
@@ -667,6 +708,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) >= new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) >= new Timestamp(2, 99)
             object: 'true'
+            php: new \MongoDB\BSON\Timestamp(100, 1) >= new \MongoDB\BSON\Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) >= BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) >= 0"
             rust: "Timestamp { time: 1, increment: 100 } >= Timestamp { time: 2, increment: 99 }"
@@ -678,6 +720,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) < new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) < new Timestamp(2, 99)
             object: 'false'
+            php: new \MongoDB\BSON\Timestamp(100, 1) < new \MongoDB\BSON\Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) < BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == -1"
             rust: "Timestamp { time: 1, increment: 100 } < Timestamp { time: 2, increment: 99 }"
@@ -689,6 +732,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) <= new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) <= new Timestamp(2, 99)
             object: 'false'
+            php: new \MongoDB\BSON\Timestamp(100, 1) <= new \MongoDB\BSON\Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) <= BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) <= 0"
             rust: "Timestamp { time: 1, increment: 100 } <= Timestamp { time: 2, increment: 99 }"
@@ -702,6 +746,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToUniversalTime()
             shell: new Timestamp(1, 100).getTime()
             object: '1'
+            php: (new \MongoDB\BSON\Timestamp(100, 1))->getTimestamp()
             ruby: BSON::Timestamp.new(1, 100).seconds
             go: "primitive.Timestamp{T: 1, I: 100}.T"
             rust: "Timestamp { time: 1, increment: 100 }.time"
@@ -715,6 +760,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Increment
             shell: new Timestamp(1, 100).getInc()
             object: '100'
+            php: (new \MongoDB\BSON\Timestamp(100, 1))->getIncrement()
             ruby: BSON::Timestamp.new(1, 100).increment
             go: "primitive.Timestamp{T: 1, I: 100}.I"
             rust: "Timestamp { time: 1, increment: 100 }.increment"
@@ -726,6 +772,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToUniversalTime()
             shell: new Timestamp(1, 100).getTime()
             object: '1'
+            php: (new \MongoDB\BSON\Timestamp(100, 1))->getTimestamp()
             ruby: BSON::Timestamp.new(1, 100).seconds
             go: "primitive.Timestamp{T: 1, I: 100}.T"
             rust: "Timestamp { time: 1, increment: 100 }.time"
@@ -737,6 +784,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Increment
             shell: new Timestamp(1, 100).getInc()
             object: '100'
+            php: (new \MongoDB\BSON\Timestamp(100, 1))->getIncrement()
             ruby: BSON::Timestamp.new(1, 100).increment
             go: "primitive.Timestamp{T: 1, I: 100}.I"
             rust: "Timestamp { time: 1, increment: 100 }.increment"
@@ -748,6 +796,7 @@ tests:
           csharp: new DateTime(1970, 1, 1).AddSeconds(new BsonTimestamp(1, 100).Timestamp)
           shell: new Date(new Timestamp(1, 100).getHighBits() * 1000)
           object: "new Date('1970-01-01T00:01:40.000Z')"
+          php: (new \DateTime('1970-1-1', new \DateTimeZone('UTC')))->setTimestamp((new \MongoDB\BSON\Timestamp(100, 1))->getTimestamp())
           ruby: Time.at(BSON::Timestamp.new(1, 100).increment).utc
           go: "time.Unix(primitive.Timestamp{T: 1, I: 100}.T, 0)"
           rust: "DateTime::from_millis(Timestamp { time: 1, increment: 100 }.time)"
@@ -760,6 +809,7 @@ tests:
             csharp: '"2"'
             shell: "'2'"
             object: "'2'"
+            php: "'2'"
             ruby: ":'2'"
             go: primitive.Symbol("2")
             rust: Bson::Symbol("2").as_symbol().unwrap()
@@ -771,6 +821,7 @@ tests:
             csharp: '"2"'
             shell: "'2'"
             output: "'2'"
+            php: "'2'"
             ruby: "'2'"
             go: string(primitive.Symbol("2"))
             rust: Bson::Symbol("2").as_symbol().unwrap()
@@ -782,6 +833,7 @@ tests:
             csharp: '"2"'
             shell: "'2'"
             output: "'2'"
+            php: "'2'"
             ruby: ":'2'.inspect"
             go: primitive.Symbol("2")
             rust: format!("{:?}", Bson::Symbol("2"))
@@ -794,6 +846,7 @@ tests:
           csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
           python: ObjectId('5ab901c29ee65f5c8550c5b9')
           object: new ObjectId('5ab901c29ee65f5c8550c5b9')
+          php: new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9')
           ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
           rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
           go: |-
@@ -816,6 +869,7 @@ tests:
           shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))
           # TODO: fix? this previously called ObjectId.createFromTime with a Date, but that function does not actually take a Date argument
           # object: new ObjectId('03ede8800000000000000000')
+          php: new \MongoDB\BSON\ObjectId(str_pad(dechex((new \DateTime('1972-02-03 00:00:00', new \DateTimeZone('UTC')))->getTimestamp()), 24, '0'))
           ruby: BSON::ObjectId.from_time(Time.utc(1972, 2, 3, 0, 0, 0))
     - input:
           javascript: ObjectId.createFromTime(1522075031)
@@ -826,12 +880,14 @@ tests:
           csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031))
           python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031))
           object: new ObjectId('62bdd85a0000000000000000')
+          php: new \MongoDB\BSON\ObjectId(str_pad(dechex(1522075031), 24, '0'))
           ruby: BSON::ObjectId.from_time(Time.at(1522075031))
           go: primitive.NewObjectIDFromTimestamp(time.Unix(1522075031, int64(0)))
     - input:
           javascript: ObjectId.isValid('5ab901c29ee65f5c8550c5b9')
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
       output:
+      # TODO: NEED TO INSERT PHP
           shell: new ObjectId('5ab901c29ee65f5c8550c5b9')
           java: ObjectId.isValid("5ab901c29ee65f5c8550c5b9")
           csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
@@ -898,6 +954,7 @@ tests:
           csharp: Int64.MaxValue
           python: sys.maxsize
           object: new Long(-1, 2147483647)
+          php: PHP_INT_MAX
           ruby: '9223372036854775807'
           rust: i64::MAX
           go: int(^uint(0) >> 1)
@@ -909,6 +966,7 @@ tests:
           csharp: Int64.MinValue
           python: "-sys.maxsize -1"
           object: new Long(0, -2147483648)
+          php: PHP_INT_MIN
           ruby: '-9223372036854775808'
           rust: i64::MIN
           go: -(1+int(^uint(0) >> 1))
@@ -920,6 +978,7 @@ tests:
           csharp: 0L
           python: Int64(0)
           object: new Long(0, 0)
+          php: '0'
           ruby: '0'
           rust: 0i64
           go: int64(0)
@@ -931,6 +990,7 @@ tests:
           csharp: 1L
           python: Int64(1)
           object: new Long(1, 0)
+          php: '1'
           ruby: '1'
           rust: 1i64
           go: int64(1)
@@ -942,6 +1002,7 @@ tests:
           csharp: "-1L"
           python: Int64(-1)
           object: new Long(-1, -1)
+          php: '-1'
           ruby: '-1'
           rust: -1i64
           go: int64(-1)
@@ -953,6 +1014,7 @@ tests:
           csharp: 5L
           python: Int64(5)
           object: new Long(5, 0)
+          php: '5'
           ruby: '5'
           rust: 5i64
           go: int64(5)
@@ -964,6 +1026,7 @@ tests:
           csharp: Convert.ToInt64("5", 10)
           python: Int64(int('5'))
           object: new Long(5, 0)
+          php: (int) '5'
           ruby: "'5'.to_i"
           rust: '"5".parse::<i64>()?'
           go: |-
@@ -984,6 +1047,7 @@ tests:
           csharp: Convert.ToInt64("5", 10)
           python: Int64(int('5'))
           object: new Long(5, 0)
+          php: (int) '5'
           ruby: "'5'.to_i"
           rust: i64::from_str_radix("5", 10)?
           go: |-
@@ -1004,6 +1068,7 @@ tests:
           csharp: 9223372036854775807L
           python: Int64(9223372036854775807)
           object: new Long(-1, 2147483647)
+          php: '9223372036854775807'
           ruby: '9223372036854775807'
           rust: 9223372036854775807i64
           go: int64(9223372036854775807)
@@ -1020,6 +1085,7 @@ tests:
             csharp: Decimal128.Parse("5")
             python: Decimal128('5')
             object: Decimal128.fromString("5")
+            php: new \MongoDB\BSON\Decimal128('5')
             ruby: BSON::Decimal128.new('5')
             go: |-
                 var parseDecimal128 = func(str string) primitive.Decimal128 {
@@ -1040,6 +1106,7 @@ tests:
             java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
             csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
             object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
+            php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
             ruby: /^[a-z0-9_-]{3,16}$/imx
             go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsux")'
     -   input:
@@ -1050,6 +1117,7 @@ tests:
             java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
             csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
             object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
+            php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
             ruby: /^[a-z0-9_-]{3,16}$/imx
             go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsx")'
     - input:
@@ -1060,6 +1128,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
+          php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsux" }'
     - input:
@@ -1070,6 +1139,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
+          php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsx" }'
 
