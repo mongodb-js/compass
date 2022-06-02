@@ -110,7 +110,7 @@
           "**/win-export-certificate-and-key/**",
           "**/macos-export-certificate-and-key/**",
           "**/system-ca/**",
-          "**/mongo_csfle_v1.*"
+          "**/mongo_crypt_v1.*"
         ]
       },
       "rebuild": {
@@ -160,11 +160,11 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongosh/node-runtime-worker-thread": "^1.4.2",
+    "@mongosh/node-runtime-worker-thread": "^1.5.0",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
-    "mongodb-client-encryption": "^2.2.0-alpha.0",
+    "mongodb-client-encryption": "^2.2.0-alpha.1",
     "os-dns-native": "^1.2.0",
     "system-ca": "^1.0.2"
   },
@@ -251,7 +251,7 @@
     "mongodb": "^4.6.0",
     "mongodb-connection-model": "^21.17.0",
     "mongodb-data-service": "^21.21.0",
-    "mongodb-download-url": "^1.2.0",
+    "mongodb-download-url": "^1.2.2",
     "mongodb-instance-model": "^11.23.0",
     "mongodb-log-writer": "^1.1.4",
     "mongodb-url": "^3.0.3",

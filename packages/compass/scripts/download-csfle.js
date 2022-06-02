@@ -66,7 +66,7 @@ const download = async(url, destDir) => {
 
   const downloadOptions = {
     enterprise: true,
-    csfle: true
+    crypt_shared: true
   };
   if (process.platform === 'linux') {
     // The CSFLE shared library is built for different distros,
@@ -84,7 +84,7 @@ const download = async(url, destDir) => {
   } catch {
     artifactInfo = await getDownloadURL({
       ...downloadOptions,
-      version: '>= 6.0.0-rc4'
+      version: '>= 6.0.0-rc8'
     });
   }
 

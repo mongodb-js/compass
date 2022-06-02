@@ -265,6 +265,7 @@ describe('Aggregation Store', function() {
             countDocuments: INITIAL_STATE.countDocuments,
             explain: INITIAL_STATE.explain,
             isDataLake: INITIAL_STATE.isDataLake,
+            indexes: INITIAL_STATE.indexes,
           });
         });
       });

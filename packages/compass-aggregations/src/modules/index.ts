@@ -132,6 +132,9 @@ import workspace, {
   INITIAL_STATE as WORKSPACE_INITIAL_STATE
 } from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
+import indexes, {
+  INITIAL_STATE as INDEXES_INITIAL_STATE,
+} from './indexes';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -187,6 +190,7 @@ export const INITIAL_STATE = {
   countDocuments: COUNT_INITIAL_STATE,
   explain: EXPLAIN_INITIAL_STATE,
   isDataLake: DATALAKE_INITIAL_STATE,
+  indexes: INDEXES_INITIAL_STATE,
 };
 
 /**
@@ -269,6 +273,7 @@ const appReducer = combineReducers({
   aggregationWorkspaceId,
   explain,
   isDataLake,
+  indexes,
 });
 
 export type RootState = ReturnType<typeof appReducer>;
@@ -711,28 +716,31 @@ export const deletePipeline = (pipelineId: string): ThunkAction<void, RootState,
 };
 
 /**
- * Get a pipeline from the db.
- *
- * @param {String} pipelineId - The id.
- *
- * @returns {Function} The thunk function.
+ * Restore pipeline by an ID
  */
-export const getPipelineFromIndexedDB = (pipelineId: string): ThunkAction<void, RootState, void, AnyAction> => {
+export const openPipelineById = (id: string): ThunkAction<void, RootState, void, AnyAction> => {
   return async (dispatch) => {
-    const file = path.join(getDirectory(), `${pipelineId}.json`);
+    const file = path.join(getDirectory(), `${id}.json`);
     try {
       const data = await fs.promises.readFile(file, 'utf8')
-      const pipe = JSON.parse(data);
-      dispatch(clearPipeline());
-      dispatch(restoreSavedPipeline(pipe));
-      dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));
-      dispatch(runStage(0, true /* force execute */));
+      dispatch(openPipeline(JSON.parse(data)));
     } catch (e: unknown) {
       console.log(e);
     }
   };
 };
 
+/**
+ * Restore pipeline
+ */
+export const openPipeline = (pipeline: any): ThunkAction<void, RootState, void, AnyAction> => {
+  return (dispatch) => {
+    dispatch(clearPipeline());
+    dispatch(restoreSavedPipeline(pipeline));
+    dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-opened'));
+    dispatch(runStage(0, true /* force execute */));
+  };
+}
 
 /**
  * Make view pipeline.

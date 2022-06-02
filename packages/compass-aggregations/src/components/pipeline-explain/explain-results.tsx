@@ -55,7 +55,7 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
           <ExplainQueryPerformance
             nReturned={stats.nReturned}
             executionTimeMillis={stats.executionTimeMillis}
-            usedIndexes={stats.usedIndexes}
+            indexes={stats.indexes}
           />
         </div>
       )}

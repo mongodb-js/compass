@@ -1,7 +1,7 @@
 /* eslint complexity: 0 */
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer, { getPipelineFromIndexedDB } from '../modules';
+import reducer, { openPipeline } from '../modules';
 import toNS from 'mongodb-ns';
 import { namespaceChanged } from '../modules/namespace';
 import { dataServiceConnected } from '../modules/data-service';
@@ -21,6 +21,7 @@ import {
   globalAppRegistryActivated
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setDataLake } from '../modules/is-datalake';
+import { indexesFetched } from '../modules/indexes';
 
 /**
  * Refresh the input documents.
@@ -104,6 +105,14 @@ export const setServerVersion = (store, version) => {
  */
 export const setFields = (store, fields) => {
   store.dispatch(fieldsChanged(fields));
+};
+
+export const setIndexes = (store, indexes) => {
+  store.dispatch(
+    indexesFetched(
+      indexes.map((index) => index.getAttributes({ props: true }, true))
+    )
+  );
 };
 
 /**
@@ -210,6 +219,10 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('fields-changed', (fields) => {
       setFields(store, fields.aceFields);
     });
+
+    localAppRegistry.on('indexes-changed', (ixs) => {
+      setIndexes(store, ixs);
+    });
   }
 
   if (options.globalAppRegistry) {
@@ -304,7 +317,7 @@ const configureStore = (options = {}) => {
   }
 
   if (options.aggregation) {
-    getPipelineFromIndexedDB(options.aggregation.id)(store.dispatch);
+    openPipeline(options.aggregation)(store.dispatch);
   }
 
   if (options.isDataLake) {
