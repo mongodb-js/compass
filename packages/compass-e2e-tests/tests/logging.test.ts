@@ -147,11 +147,11 @@ describe('Logging and Telemetry integration', function () {
           s: 'I',
           c: 'COMPASS-MAIN',
           id: 1_001_000_125,
-          ctx: 'CSFLE',
-          msg: 'Found CSFLE library',
+          ctx: 'AutoEncryption',
+          msg: 'Found MongoDB Crypt library',
           attr: (actual: any) => {
-            expect(actual.csfleLibraryPath).to.be.a('string');
-            expect(actual.csfleLibraryPath).to.include('mongo_csfle_v1');
+            expect(actual.cryptSharedLibPath).to.be.a('string');
+            expect(actual.cryptSharedLibPath).to.include('mongo_crypt_v1');
           },
         },
         {

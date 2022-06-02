@@ -1,19 +1,12 @@
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
-import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 import { expect } from 'chai';
-import type { DataService } from './data-service';
+import type { DataService, DataServiceImpl } from './data-service';
 import type { AutoEncryptionOptions, MongoClient } from 'mongodb';
-import { UUID } from 'bson';
+import type { Binary } from 'bson';
 import connect from './connect';
 
 describe('CSFLECollectionTracker', function () {
   const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
-  const SOME_UUID1 = new UUID(
-    '00000000-0000-4000-8000-000000000001'
-  ).toBinary();
-  const SOME_UUID2 = new UUID(
-    '00000000-0000-4000-8000-000000000002'
-  ).toBinary();
   const ALGO_DET = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
 
   let dataService: DataService;
@@ -33,8 +26,22 @@ describe('CSFLECollectionTracker', function () {
   });
 
   async function createTracker(
-    autoEncryption: AutoEncryptionOptions = {}
-  ): Promise<[CSFLECollectionTracker, DataService]> {
+    autoEncryption:
+      | AutoEncryptionOptions
+      | ((keys: [Binary, Binary]) => AutoEncryptionOptions) = {}
+  ): Promise<[CSFLECollectionTracker, DataService, Binary, Binary]> {
+    if (typeof autoEncryption === 'function') {
+      // This autoEncryption config depends on the keys, so we first need
+      // to set up the keys with one DataService instance,
+      // then create the 'real' DataService instance.
+      const [, tempDataService, someKey1, someKey2] = await createTracker({});
+      await tempDataService.disconnect();
+      const [tracker, dataService] = await createTracker(
+        autoEncryption([someKey1, someKey2])
+      );
+      return [tracker, dataService, someKey1, someKey2];
+    }
+
     const dataService = await connect({
       connectionString: 'mongodb://localhost:27018',
       fleOptions: {
@@ -43,16 +50,21 @@ describe('CSFLECollectionTracker', function () {
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           keyVaultNamespace: `${dbName}.kv`,
           extraOptions: {
-            csflePath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
+            // @ts-expect-error next driver release has types
+            cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
           },
           ...autoEncryption,
         },
       },
     });
-    const crudClient = (dataService as any)._initializedClient('CRUD');
+    // It can be useful to have one or two pre-defined keys in the key vault.
+    const someKey1 = (await dataService.createDataKey('local')) as Binary;
+    const someKey2 = (await dataService.createDataKey('local')) as Binary;
     return [
-      new CSFLECollectionTrackerImpl(dataService, crudClient),
+      (dataService as DataServiceImpl).getCSFLECollectionTracker(),
       dataService,
+      someKey1,
+      someKey2,
     ];
   }
 
@@ -134,7 +146,7 @@ describe('CSFLECollectionTracker', function () {
 
   context('with client-side FLE1 schema info', function () {
     beforeEach(async function () {
-      [tracker, dataService] = await createTracker({
+      [tracker, dataService] = await createTracker(([SOME_UUID1]) => ({
         schemaMap: {
           [`${dbName}.test1`]: {
             properties: {
@@ -168,7 +180,7 @@ describe('CSFLECollectionTracker', function () {
             },
           },
         },
-      });
+      }));
     });
 
     it('correctly returns whether updates are allowed', async function () {
@@ -190,16 +202,18 @@ describe('CSFLECollectionTracker', function () {
 
   context('with client-side FLE2 schema info', function () {
     beforeEach(async function () {
-      [tracker, dataService] = await createTracker({
-        encryptedFieldsMap: {
-          [`${dbName}.test2`]: {
-            fields: [{ path: 'a', keyId: SOME_UUID1, bsonType: 'string' }],
+      [tracker, dataService] = await createTracker(
+        ([SOME_UUID1, SOME_UUID2]) => ({
+          encryptedFieldsMap: {
+            [`${dbName}.test2`]: {
+              fields: [{ path: 'a', keyId: SOME_UUID1, bsonType: 'string' }],
+            },
+            [`${dbName}.test3`]: {
+              fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
+            },
           },
-          [`${dbName}.test3`]: {
-            fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
-          },
-        },
-      });
+        })
+      );
     });
 
     it('correctly returns whether updates are allowed', async function () {
@@ -220,12 +234,15 @@ describe('CSFLECollectionTracker', function () {
   });
 
   context('with server-side FLE1 schema info', function () {
+    let SOME_UUID1;
     beforeEach(async function () {
-      [tracker, dataService] = await createTracker();
-      const crudClient: MongoClient = (dataService as any)._initializedClient(
-        'CRUD'
-      );
-      await crudClient.db(dbName).createCollection('test1', {
+      [tracker, dataService, SOME_UUID1] = await createTracker();
+      // TODO: This might/should be the CRUD client, but that doesn't
+      // work -- https://jira.mongodb.org/browse/MONGOCRYPT-436 tracks this.
+      const metadataClient: MongoClient = (
+        dataService as any
+      )._initializedClient('META');
+      await metadataClient.db(dbName).createCollection('test1', {
         validator: {
           $jsonSchema: {
             properties: {
@@ -235,7 +252,7 @@ describe('CSFLECollectionTracker', function () {
         },
       });
 
-      await crudClient.db(dbName).createCollection('test2', {
+      await metadataClient.db(dbName).createCollection('test2', {
         validator: {
           $jsonSchema: {
             properties: {
@@ -251,7 +268,7 @@ describe('CSFLECollectionTracker', function () {
         },
       });
 
-      await crudClient.db(dbName).createCollection('test3', {
+      await metadataClient.db(dbName).createCollection('test3', {
         validator: {
           $jsonSchema: {
             properties: {
@@ -290,18 +307,22 @@ describe('CSFLECollectionTracker', function () {
   });
 
   context('with server-side FLE2 schema info', function () {
+    let SOME_UUID1, SOME_UUID2;
     beforeEach(async function () {
-      [tracker, dataService] = await createTracker();
-      const crudClient: MongoClient = (dataService as any)._initializedClient(
-        'CRUD'
-      );
-      await crudClient.db(dbName).createCollection('test2', {
+      [tracker, dataService, SOME_UUID1, SOME_UUID2] = await createTracker();
+      // Creating the collections needs to be done through the non-FLE-aware
+      // client here, because newer libmongocrypt versions also fetch
+      // collection infos when doing createCollection commands.
+      const metaDataClient: MongoClient = (
+        dataService as any
+      )._initializedClient('META');
+      await metaDataClient.db(dbName).createCollection('test2', {
         encryptedFields: {
           fields: [{ path: 'a', keyId: SOME_UUID1, bsonType: 'string' }],
         },
       });
 
-      await crudClient.db(dbName).createCollection('test3', {
+      await metaDataClient.db(dbName).createCollection('test3', {
         encryptedFields: {
           fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
         },
@@ -360,7 +381,7 @@ describe('CSFLECollectionTracker', function () {
           dataService.findOneAndUpdate(
             `${dbName}.test2`,
             {},
-            { $set: { a: 2 } },
+            { $set: { a: '2' } },
             {},
             resolve
           );
@@ -384,7 +405,7 @@ describe('CSFLECollectionTracker', function () {
           dataService.findOneAndUpdate(
             `${dbName}.test2`,
             {},
-            { $set: { a: 2 } },
+            { $set: { a: '2' } },
             {},
             resolve
           );
@@ -419,14 +440,18 @@ describe('CSFLECollectionTracker', function () {
   });
 
   context('with client-side and server-side FLE2 schema info', function () {
+    let SOME_UUID2;
+
     beforeEach(async function () {
-      [tracker, dataService] = await createTracker({
-        encryptedFieldsMap: {
-          [`${dbName}.test3`]: {
-            fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
+      [tracker, dataService, SOME_UUID2] = await createTracker(
+        ([SOME_UUID2]) => ({
+          encryptedFieldsMap: {
+            [`${dbName}.test3`]: {
+              fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
+            },
           },
-        },
-      });
+        })
+      );
       const crudClient: MongoClient = (dataService as any)._initializedClient(
         'CRUD'
       );
