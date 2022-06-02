@@ -16,7 +16,8 @@ const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}`;
 describe('FLE2', function () {
   before(async function () {
     if (
-      semver.lt(MONGODB_VERSION, '6.0.0-rc0')
+      semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
+      process.env.MONGODB_USE_ENTERPRISE !== 'yes'
     ) {
       return this.skip();
     }
