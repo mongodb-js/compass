@@ -68,8 +68,14 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
           );
           return (
             <div className={accordianContainerStyles} key={arrIndex}>
-              <Accordion text={title}>
-                <div className={accordianContentStyles}>
+              <Accordion
+                text={title}
+                data-testid={`explain-index-button-${name}-${shard ?? ''}`}
+              >
+                <div
+                  className={accordianContentStyles}
+                  data-testid={`explain-index-content-${name}-${shard ?? ''}`}
+                >
                   {Object.entries(indexKeys).map(
                     ([keyName, direction], listIndex) => (
                       <Badge variant={BadgeVariant.LightGray} key={listIndex}>
