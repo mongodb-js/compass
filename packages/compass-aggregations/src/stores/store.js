@@ -1,7 +1,7 @@
 /* eslint complexity: 0 */
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer, { getPipelineFromIndexedDB } from '../modules';
+import reducer, { openPipeline } from '../modules';
 import toNS from 'mongodb-ns';
 import { namespaceChanged } from '../modules/namespace';
 import { dataServiceConnected } from '../modules/data-service';
@@ -304,7 +304,7 @@ const configureStore = (options = {}) => {
   }
 
   if (options.aggregation) {
-    getPipelineFromIndexedDB(options.aggregation.id)(store.dispatch);
+    openPipeline(options.aggregation)(store.dispatch);
   }
 
   if (options.isDataLake) {

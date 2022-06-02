@@ -110,11 +110,12 @@ describe('utils', function() {
         expect(searchMeta.length).to.be.equal(1);
       });
 
-      it('returns $documents stage for a regular collection', function() {
+      // $documents only works for db.aggregate, not coll.aggregate
+      it('does not return $documents stage for a regular collection', function() {
         const documents = filterStageOperators({ ...filter })
           .filter((o) => (o.name === '$documents'));
 
-        expect(documents.length).to.be.equal(1);
+        expect(documents.length).to.be.equal(0);
       });
 
       it('does not return full-text search stages for time-series on-prem', function() {
