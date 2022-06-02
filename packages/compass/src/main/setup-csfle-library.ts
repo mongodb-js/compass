@@ -20,63 +20,41 @@ function processPath(p: string): string {
 
 export async function setupCSFLELibrary(): Promise<void> {
   const errors: Error[] = [];
-  let csfleLibraryPath;
-  if (!csfleLibraryPath) {
+  let cryptSharedLibPath;
+  if (!cryptSharedLibPath) {
     // This is not a loop so that the require() parts receive literal strings
     // in order for webpack to process them properly
     try {
       const candidate = processPath(require('../deps/csfle/bin/mongo_crypt_v1.dll'));
       await fs.access(candidate);
-      csfleLibraryPath = candidate;
+      cryptSharedLibPath = candidate;
     } catch (err: any) {
       errors.push(err);
     }
     try {
       const candidate = processPath(require('../deps/csfle/lib/mongo_crypt_v1.so'));
       await fs.access(candidate);
-      csfleLibraryPath = candidate;
+      cryptSharedLibPath = candidate;
     } catch (err: any) {
       errors.push(err);
     }
     try {
       const candidate = processPath(require('../deps/csfle/lib/mongo_crypt_v1.dylib'));
       await fs.access(candidate);
-      csfleLibraryPath = candidate;
-    } catch (err: any) {
-      errors.push(err);
-    }
-    // Drop these as soon as the rename has been completed.
-    try {
-      const candidate = processPath(require('../deps/csfle/bin/mongo_csfle_v1.dll'));
-      await fs.access(candidate);
-      csfleLibraryPath = candidate;
-    } catch (err: any) {
-      errors.push(err);
-    }
-    try {
-      const candidate = processPath(require('../deps/csfle/lib/mongo_csfle_v1.so'));
-      await fs.access(candidate);
-      csfleLibraryPath = candidate;
-    } catch (err: any) {
-      errors.push(err);
-    }
-    try {
-      const candidate = processPath(require('../deps/csfle/lib/mongo_csfle_v1.dylib'));
-      await fs.access(candidate);
-      csfleLibraryPath = candidate;
+      cryptSharedLibPath = candidate;
     } catch (err: any) {
       errors.push(err);
     }
   }
-  if (!csfleLibraryPath) {
-    log.error(mongoLogId(1_001_000_124), 'CSFLE', 'No CSFLE library available', {
+  if (!cryptSharedLibPath) {
+    log.error(mongoLogId(1_001_000_124), 'AutoEncryption', 'No MongoDB Crypt library available', {
       errors: errors.map(err => err.message)
     });
   } else {
-    log.info(mongoLogId(1_001_000_125), 'CSFLE', 'Found CSFLE library', {
-      csfleLibraryPath,
+    log.info(mongoLogId(1_001_000_125), 'AutoEncryption', 'Found MongoDB Crypt library', {
+      cryptSharedLibPath,
       externalOverride: process.env.COMPASS_CRYPT_LIBRARY_PATH
     });
-    process.env.COMPASS_CRYPT_LIBRARY_PATH ??= csfleLibraryPath;
+    process.env.COMPASS_CRYPT_LIBRARY_PATH ??= cryptSharedLibPath;
   }
 }

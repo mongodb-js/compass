@@ -244,8 +244,7 @@ describe('DataService', function () {
         });
         if (
           (buildInfo.versionArray?.[0] ?? 0) <= 5 ||
-          dataService.currentTopologyType() === 'Single' ||
-          process.env.COMPASS_CSFLE_SUPPORT !== 'true'
+          dataService.currentTopologyType() === 'Single'
         ) {
           return this.skip(); // FLE2 requires 6.0+ replset
         }
