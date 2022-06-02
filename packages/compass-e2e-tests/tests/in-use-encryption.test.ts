@@ -484,17 +484,17 @@ describe('FLE2', function () {
       );
       await value.doubleClick();
 
-      const faxNumberEditor = await document.$(
+      const phoneNumberditor = await document.$(
         `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
       );
-      const isFaxNumberEditorExisting = await faxNumberEditor.isExisting();
-      expect(isFaxNumberEditorExisting).to.be.equal(true);
+      const isPhoneNumberEditorExisting = await phoneNumberditor.isExisting();
+      expect(isPhoneNumberEditorExisting).to.be.equal(true);
 
-      const locationEditor = await document.$(
+      const faxNumberEditor = await document.$(
         `${Selectors.HadronDocumentElement}:nth-child(3) ${Selectors.HadronDocumentValueEditor}`
       );
-      const isLocationEditorExisting = await locationEditor.isExisting();
-      expect(isLocationEditorExisting).to.be.equal(false);
+      const isFaxNumberEditorExisting = await faxNumberEditor.isExisting();
+      expect(isFaxNumberEditorExisting).to.be.equal(false);
     });
   });
 });
