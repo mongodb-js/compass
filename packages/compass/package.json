@@ -110,7 +110,7 @@
           "**/win-export-certificate-and-key/**",
           "**/macos-export-certificate-and-key/**",
           "**/system-ca/**",
-          "**/mongo_csfle_v1.*"
+          "**/mongo_crypt_v1.*"
         ]
       },
       "rebuild": {
