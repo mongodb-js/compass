@@ -43,7 +43,8 @@ describe('CSFLECollectionTracker', function () {
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           keyVaultNamespace: `${dbName}.kv`,
           extraOptions: {
-            csflePath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
+            // @ts-expect-error next driver release has types
+            cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
           },
           ...autoEncryption,
         },
