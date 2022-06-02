@@ -284,6 +284,96 @@ describe('ConnectionStorage', function () {
 
       expect(error.message).to.be.equal('id must be a uuid');
     });
+
+    it('does not save fle secrets if fleOptions.storeCredentials is false', async function () {
+      const connectionStorage = new ConnectionStorage();
+      const id = uuid();
+      await connectionStorage.save({
+        id,
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+          fleOptions: {
+            storeCredentials: false,
+            autoEncryption: {
+              keyVaultNamespace: 'db.coll',
+              kmsProviders: {
+                local: {
+                  key: 'my-key',
+                },
+              },
+            },
+          },
+        },
+      });
+
+      await eventually(() => {
+        const { secrets, connectionInfo } = JSON.parse(
+          fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+        );
+
+        expect(connectionInfo.connectionOptions.fleOptions).to.deep.equal({
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders: {
+              local: {},
+            },
+          },
+        });
+
+        // NOTE: this would be available in the file only during tests cause
+        // we disable extracting secrets to keytar
+        expect(secrets.autoEncryption).to.be.undefined;
+      });
+    });
+
+    it('saves fle secrets if fleOptions.storeCredentials is true', async function () {
+      const connectionStorage = new ConnectionStorage();
+      const id = uuid();
+      await connectionStorage.save({
+        id,
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+          fleOptions: {
+            storeCredentials: true,
+            autoEncryption: {
+              keyVaultNamespace: 'db.coll',
+              kmsProviders: {
+                local: {
+                  key: 'my-key',
+                },
+              },
+            },
+          },
+        },
+      });
+
+      await eventually(() => {
+        const { secrets, connectionInfo } = JSON.parse(
+          fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+        );
+
+        expect(connectionInfo.connectionOptions.fleOptions).to.deep.equal({
+          storeCredentials: true,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders: {
+              local: {},
+            },
+          },
+        });
+
+        // NOTE: this is available in the file only during tests cause
+        // we disable extracting secrets to keytar
+        expect(secrets.autoEncryption).to.deep.equal({
+          kmsProviders: {
+            local: {
+              key: 'my-key',
+            },
+          },
+        });
+      });
+    });
   });
 
   describe('destroy', function () {

@@ -5,6 +5,7 @@ import { createStore, applyMiddleware } from 'redux';
 import type { AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
+import type { DataService } from 'mongodb-data-service';
 
 import appRegistry, {
   appRegistryActivated,
@@ -19,6 +20,7 @@ import serverVersion, {
   INITIAL_STATE as SERVER_VERSION_INITIAL_STATE,
 } from '../modules/server-version';
 import isDataLake, {
+  dataLakeChanged,
   INITIAL_STATE as IS_DATA_LAKE_INITIAL_STATE,
 } from '../modules/is-data-lake';
 import stats, {
@@ -69,11 +71,10 @@ export const INITIAL_STATE = {
 
 /**
  * Handle the reset.
- *
- * @returns {Object} The new state.
  */
-const doReset = () => ({
+const doReset = ({ appRegistry }: RootState) => ({
   ...INITIAL_STATE,
+  appRegistry,
 });
 
 /**
@@ -92,6 +93,8 @@ const appReducer = combineReducers({
   stats,
   namespace,
 });
+
+type RootState = ReturnType<typeof appReducer>;
 
 /**
  * The root reducer.
@@ -141,6 +144,13 @@ store.onActivated = (appRegistry: AppRegistry) => {
           }
         }
       );
+      instance.dataLake.on(
+        'change:isDataLake',
+        (_model: unknown, value: boolean) => {
+          store.dispatch(dataLakeChanged(value));
+        }
+      );
+      store.dispatch(dataLakeChanged(instance.dataLake.isDataLake));
     }
   });
 
@@ -149,6 +159,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
    */
   appRegistry.on('instance-destroyed', () => {
     store[kInstance] = null;
+    store.dispatch(reset());
   });
 
   /**
@@ -248,13 +259,13 @@ store.onActivated = (appRegistry: AppRegistry) => {
 
   /**
    * Set the data service in the store when connected.
-   *
-   * @param {Error} error - The error.
-   * @param {DataService} dataService - The data service.
    */
-  appRegistry.on('data-service-connected', (error, dataService) => {
-    store.dispatch(dataServiceConnected(error, dataService));
-  });
+  appRegistry.on(
+    'data-service-connected',
+    (error, dataService: DataService) => {
+      store.dispatch(dataServiceConnected(error, dataService));
+    }
+  );
 
   /**
    * When the instance is loaded, set our server version.

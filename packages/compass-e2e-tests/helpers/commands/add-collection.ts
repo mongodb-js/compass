@@ -26,6 +26,7 @@ type AddCollectionOptions = {
     name: string;
     expireAfterSeconds: number;
   };
+  encryptedFields?: string;
 };
 
 export async function addCollection(
@@ -136,6 +137,14 @@ export async function addCollection(
     );
     await expireField.waitForDisplayed();
     await expireField.setValue(options.clustered.expireAfterSeconds.toString());
+  }
+
+  if (options && options.encryptedFields) {
+    await browser.clickVisible(Selectors.CreateCollectionFLE2CheckboxLabel);
+    await browser.setAceValue(
+      Selectors.CreateCollectionFLE2,
+      options.encryptedFields
+    );
   }
 
   await browser.clickVisible(Selectors.CreateCollectionCreateButton);

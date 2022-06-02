@@ -1,3 +1,5 @@
+import type AppRegistry from 'hadron-app-registry';
+
 import QueryBarPlugin from './plugin';
 import configureActions from './actions';
 import configureStore from './stores';
@@ -18,7 +20,7 @@ const ROLE = {
  * Activate all the components in the Query Bar package.
  * @param {Object} appRegistry - The global appRegisrty to activate this plugin with.
  **/
-function activate(appRegistry) {
+function activate(appRegistry: AppRegistry) {
   appRegistry.registerRole('Query.QueryBar', ROLE);
 }
 
@@ -26,7 +28,7 @@ function activate(appRegistry) {
  * Deactivate all the components in the Query Bar package.
  * @param {Object} appRegistry - The global appRegisrty to deactivate this plugin with.
  **/
-function deactivate(appRegistry) {
+function deactivate(appRegistry: AppRegistry) {
   appRegistry.deregisterRole('Query.QueryBar', ROLE);
 }
 

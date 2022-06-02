@@ -18,7 +18,7 @@ describe('Instance sidebar', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
 
   after(async function () {
@@ -30,20 +30,18 @@ describe('Instance sidebar', function () {
   });
 
   it('contains cluster info', async function () {
-    const topologySingleHostAddressElement = await browser.$(
-      Selectors.TopologySingleHostAddress
+    const topologyReplicaSetHostAddressElement = await browser.$(
+      Selectors.TopologyReplicaSetHostAddress
     );
 
-    const topologySingleHostAddress =
-      await topologySingleHostAddressElement.getText();
-    expect(topologySingleHostAddress).to.equal('localhost:27018');
+    const topologyReplicaSetHostAddressAddress =
+      await topologyReplicaSetHostAddressElement.getText();
+    expect(topologyReplicaSetHostAddressAddress).to.equal('localhost:27091');
 
-    const singleClusterTypeElement = await browser.$(
-      Selectors.SingleClusterType
-    );
+    const replicaSetTypeElement = await browser.$(Selectors.ReplicaSetType);
 
-    const singleClusterType = await singleClusterTypeElement.getText();
-    expect(singleClusterType).to.equal('Standalone');
+    const replicaSetType = await replicaSetTypeElement.getText();
+    expect(replicaSetType).to.equal('Replica Set (replicaset)');
 
     const serverVersionTextElement = await browser.$(
       Selectors.ServerVersionText

@@ -9,17 +9,16 @@ export async function setConnectFormState(
 ): Promise<void> {
   await browser.resetConnectForm();
 
-  await browser.expandConnectFormOptions();
+  await browser.expandAccordion(Selectors.ShowConnectionFormButton);
 
   // General
-  await browser.navigateToConnecTab('General');
+  await browser.navigateToConnectTab('General');
 
   if (state.scheme) {
     await browser.clickParent(
       Selectors.connectionFormSchemeRadio(state.scheme)
     );
   }
-
   if (state.hosts) {
     for (let i = 0; i < state.hosts.length; ++i) {
       if (i > 0) {
@@ -33,13 +32,12 @@ export async function setConnectFormState(
       );
     }
   }
-
   if (state.directConnection) {
     await browser.clickParent(Selectors.ConnectionFormDirectConnectionCheckbox);
   }
 
   // Authentication
-  await browser.navigateToConnecTab('Authentication');
+  await browser.navigateToConnectTab('Authentication');
 
   if (state.authMethod) {
     await browser.clickParent(
@@ -135,16 +133,45 @@ export async function setConnectFormState(
       state.awsSessionToken
     );
   }
+  if (state.awsSessionToken) {
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputAWSSessionToken,
+      state.awsSessionToken
+    );
+  }
+
+  // FLE2
+  await browser.navigateToConnectTab('In-Use Encryption');
+
+  if (state.fleKeyVaultNamespace) {
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputFLEKeyVaultNamespace,
+      state.fleKeyVaultNamespace
+    );
+  }
+  if (state.fleKey) {
+    await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputFLELocalKey,
+      state.fleKey
+    );
+  }
+  if (state.fleEncryptedFieldsMap) {
+    // set the text in the editor
+    await browser.setAceValue(
+      Selectors.ConnectionFormInputFLEEncryptedFieldsMap,
+      state.fleEncryptedFieldsMap
+    );
+  }
 
   // TLS/SSL
-  await browser.navigateToConnecTab('TLS/SSL');
+  await browser.navigateToConnectTab('TLS/SSL');
 
   if (state.sslConnection) {
     await browser.clickParent(
       Selectors.connectionFormSSLConnectionRadio(state.sslConnection)
     );
   }
-
   if (state.tlsCAFile) {
     await browser.selectFile(
       Selectors.ConnectionFormTlsCaFile,
@@ -180,8 +207,8 @@ export async function setConnectFormState(
     await browser.clickParent(Selectors.ConnectionFormTlsUseSystemCACheckbox);
   }
 
-  // Proxy/SSH Tunnel
-  await browser.navigateToConnecTab('Proxy/SSH Tunnel');
+  // Proxy/SSH
+  await browser.navigateToConnectTab('Proxy/SSH');
 
   //proxyMethod
   if (state.proxyMethod) {
@@ -273,7 +300,7 @@ export async function setConnectFormState(
   }
 
   // Advanced
-  await browser.navigateToConnecTab('Advanced');
+  await browser.navigateToConnectTab('Advanced');
 
   if (state.readPreference) {
     await browser.clickParent(

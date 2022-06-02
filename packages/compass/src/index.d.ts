@@ -42,14 +42,13 @@ declare module 'process' {
          */
         COMPASS_LG_DARKMODE?: 'true' | 'false';
 
-        COMPASS_CSFLE_SUPPORT?: 'true' | 'false';
+        /**
+         * Set to true to enable the new toolbars with leafygreen components.
+         * https://jira.mongodb.org/browse/COMPASS-5484
+         */
+        COMPASS_SHOW_NEW_TOOLBARS?: 'true' | 'false';
 
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
-
-        /**
-         * Enable aggregation explain feature
-         */
-        COMPASS_ENABLE_AGGREGATION_EXPLAIN?: 'true' | 'false';
 
         /**
          * Permanent feature flag for debugging.

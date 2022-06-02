@@ -21,12 +21,12 @@ const textStyles = css({
 });
 
 function CancelLoader({
-  dataTestId,
+  ['data-testid']: dataTestId = 'cancel-loader',
   progressText,
   cancelText,
   onCancel,
 }: {
-  dataTestId: string;
+  'data-testid'?: string;
   progressText: string;
   cancelText: string;
   onCancel: () => void;
@@ -35,7 +35,11 @@ function CancelLoader({
     <div className={containerStyles} data-testid={dataTestId}>
       <SpinLoader size={`${spacing[4]}px`} />
       <Subtitle className={textStyles}>{progressText}</Subtitle>
-      <Button variant="primaryOutline" onClick={onCancel}>
+      <Button
+        variant="primaryOutline"
+        onClick={onCancel}
+        data-testid={`${dataTestId}-button`}
+      >
         {cancelText}
       </Button>
     </div>

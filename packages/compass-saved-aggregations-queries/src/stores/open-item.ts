@@ -237,11 +237,22 @@ const openItem =
       }
     );
 
-    appRegistry.emit('open-namespace-in-new-tab', {
+    const emitData = {
       ...metadata,
-      aggregation: item.type === 'aggregation' ? item.aggregation : null,
-      query: item.type === 'query' ? item.query : null,
-    });
+      [item.type]:
+        item.type === 'aggregation'
+          ? {
+              ...item.aggregation,
+              namespace: metadata.namespace,
+            }
+          : {
+              ...item.query,
+              _ns: metadata.namespace,
+              ns: metadata.namespace,
+            },
+    };
+
+    appRegistry.emit('open-namespace-in-new-tab', emitData);
   };
 
 export const openSavedItem =

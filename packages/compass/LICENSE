@@ -556,5 +556,5 @@
 
                         END OF TERMS AND CONDITIONS
 
-This product also includes the MongoDB Client-Side Field-Level Encryption library
-(mongodb_csfle_v1) which is covered by the MongoDB Enterprise Agreement.
+This product also includes the MongoDB Crypt library (mongodb_crypt_v1)
+which is covered by the MongoDB Enterprise Agreement.

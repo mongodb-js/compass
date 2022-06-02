@@ -14,7 +14,7 @@ describe('Collection validation tab', function () {
     compass = await beforeTests();
     browser = compass.browser;
 
-    await browser.connectWithConnectionString('mongodb://localhost:27018/test');
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
 
   beforeEach(async function () {
