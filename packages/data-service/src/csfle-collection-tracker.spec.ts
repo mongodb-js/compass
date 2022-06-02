@@ -238,7 +238,7 @@ describe('CSFLECollectionTracker', function () {
     beforeEach(async function () {
       [tracker, dataService, SOME_UUID1] = await createTracker();
       // TODO: This might/should be the CRUD client, but that doesn't
-      // work -- checking with the FLE team about this.
+      // work -- https://jira.mongodb.org/browse/MONGOCRYPT-436 tracks this.
       const metadataClient: MongoClient = (
         dataService as any
       )._initializedClient('META');
