@@ -58,7 +58,6 @@ describe('utils', function() {
 
   describe('#filterStageOperators', function() {
     const defaultFilter = {
-      allowWrites: true,
       env: 'on-prem',
       isTimeSeries: false,
       isReadonly: false,
