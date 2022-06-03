@@ -9,7 +9,8 @@ import configureStore, {
   setIsAtlas,
   setAllowWrites,
   setOutResultsFn,
-  setViewSource
+  setViewSource,
+  setIndexes,
 } from './store';
 export default configureStore;
 export {
@@ -23,5 +24,6 @@ export {
   setIsAtlas,
   setAllowWrites,
   setOutResultsFn,
-  setViewSource
+  setViewSource,
+  setIndexes,
 };

@@ -82,7 +82,7 @@ describe('PipelineExplain', function () {
         stats: {
           executionTimeMillis: 20,
           nReturned: 100,
-          usedIndexes: [{ index: 'name', shard: 'shard1' }],
+          indexes: [],
         },
         plan: {
           stages: [],
@@ -103,7 +103,70 @@ describe('PipelineExplain', function () {
     expect(within(summary).getByText(/actual query execution time/gi)).to.exist;
     expect(within(summary).getByText(/query used the following indexes/gi)).to
       .exist;
+    expect(within(summary).getByText(/no index available for this query./gi)).to
+      .exist;
 
     expect(screen.getByTestId('pipeline-explain-footer-close-button')).to.exist;
+  });
+
+  it('renders explain results - indexes', function () {
+    renderPipelineExplain({
+      explain: {
+        stats: {
+          executionTimeMillis: 20,
+          nReturned: 100,
+          indexes: [
+            {
+              name: 'compound_index',
+              shard: 'shard1',
+              key: { host_id: 1, location: '2dsphere' },
+            },
+            {
+              name: 'compound_index',
+              shard: 'shard2',
+              key: { city_id: -1, title: 'text' },
+            },
+          ],
+        },
+        plan: {
+          stages: [],
+        },
+      },
+    });
+    const summary = screen.getByTestId('pipeline-explain-results-summary');
+
+    // Toggle first accordian
+    userEvent.click(
+      within(summary).getByTestId('explain-index-button-compound_index-shard1')
+    );
+    const indexContent1 = within(summary).getByTestId(
+      'explain-index-content-compound_index-shard1'
+    );
+    expect(indexContent1).to.exist;
+
+    expect(within(indexContent1).getByText(/host_id/gi)).to.exist;
+    expect(
+      within(indexContent1).getByRole('img', {
+        name: /arrow up icon/i, // host_id index direction 1
+      })
+    ).to.exist;
+    expect(within(indexContent1).getByText(/location \(2dsphere\)/i)).to.exist;
+
+    // Toggle second accordian
+    userEvent.click(
+      within(summary).getByTestId('explain-index-button-compound_index-shard2')
+    );
+    const indexContent2 = within(summary).getByTestId(
+      'explain-index-content-compound_index-shard2'
+    );
+    expect(indexContent2).to.exist;
+
+    expect(within(indexContent2).getByText(/city_id/gi)).to.exist;
+    expect(
+      within(indexContent2).getByRole('img', {
+        name: /arrow down icon/i, // city_id index direction -1
+      })
+    ).to.exist;
+    expect(within(indexContent2).getByText(/title \(text\)/i)).to.exist;
   });
 });
