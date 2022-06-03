@@ -335,7 +335,7 @@ const createContext = ({
     isClustered,
     isFLE,
     actions: queryBarActions,
-    allowWrites: isDataLake,
+    allowWrites: !isDataLake,
     query,
     aggregation,
   });
@@ -358,7 +358,7 @@ const createContext = ({
       isClustered,
       isFLE,
       actions,
-      allowWrites: isDataLake,
+      allowWrites: !isDataLake,
       sourceName,
       editViewName,
       sourcePipeline,
@@ -416,7 +416,7 @@ const createContext = ({
     isClustered,
     isFLE,
     sourceName,
-    allowWrites: isDataLake,
+    allowWrites: !isDataLake,
     connectionString: getCurrentlyConnectedUri(state.dataService.dataService),
   });
 

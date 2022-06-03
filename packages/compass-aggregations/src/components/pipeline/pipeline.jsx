@@ -32,6 +32,7 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
+    allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
     openPipelineById: PropTypes.func.isRequired,
@@ -203,6 +204,7 @@ class Pipeline extends PureComponent {
       <PipelineResultsWorkspace />
     ) : (
       <PipelineBuilderWorkspace
+        allowWrites={this.props.allowWrites}
         editViewName={this.props.editViewName}
         env={this.props.env}
         isTimeSeries={this.props.isTimeSeries}
