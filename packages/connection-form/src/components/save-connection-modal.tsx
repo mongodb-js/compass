@@ -10,11 +10,13 @@ function SaveConnectionModal({
   onCancelClicked,
   onSaveClicked,
   open,
+  saveText = 'Save',
 }: {
   initialFavoriteInfo?: ConnectionFavoriteOptions;
   onCancelClicked: () => void;
   onSaveClicked: (favoriteInfo: ConnectionFavoriteOptions) => Promise<void>;
   open: boolean;
+  saveText?: string;
 }): React.ReactElement {
   const [editingFavorite, setEditingFavorite] = useState({
     name: '',
@@ -34,7 +36,7 @@ function SaveConnectionModal({
       }}
       submitDisabled={(editingFavorite.name || '').trim() ? false : true}
       onCancel={onCancelClicked}
-      buttonText="Save"
+      buttonText={saveText}
       data-testid="favorite_modal"
     >
       <FormFieldContainer>

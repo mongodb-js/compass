@@ -33,18 +33,28 @@ const formActionButtonsStyles = css({
   gap: spacing[2],
 });
 
+const saveAndConnectStyles = css({
+  flexGrow: 1,
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
 function ConnectFormActions({
   errors,
   warnings,
   onConnectClicked,
   onSaveClicked,
+  onSaveAndConnectClicked,
   saveButton,
+  saveAndConnectButton,
 }: {
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
   onConnectClicked: () => void;
   onSaveClicked: () => void;
+  onSaveAndConnectClicked: () => void;
   saveButton: 'enabled' | 'disabled' | 'hidden';
+  saveAndConnectButton: 'enabled' | 'disabled' | 'hidden';
 }): React.ReactElement {
   return (
     <div className={formActionStyles}>
@@ -73,6 +83,19 @@ function ConnectFormActions({
           >
             Save
           </Button>
+        )}
+
+        {saveAndConnectButton !== 'hidden' && (
+          <div className={cx(saveAndConnectStyles)}>
+            <Button
+              data-testid="save-and-connect-button"
+              variant={ButtonVariant.PrimaryOutline}
+              disabled={saveAndConnectButton === 'disabled'}
+              onClick={onSaveAndConnectClicked}
+            >
+              Save &amp; Connect
+            </Button>
+          </div>
         )}
 
         <Button
