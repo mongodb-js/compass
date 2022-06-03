@@ -40,53 +40,53 @@ export const parseNamespace = (currentDb, stage) => {
 /**
  * Does this list of environments indicate Atlas-Cluster-only support?
  *
- * @param {Array} oEnv - The operation-supported environments.
+ * @param {Array} operatorEnv - The operation-supported environments.
  *
  * @returns {boolean} If the env is atlas-only.
  */
-export const isAtlasOnly = (oEnv) => {
-  if (!oEnv) return false;
-  return oEnv.every(env => env === ATLAS);
+export const isAtlasOnly = (operatorEnv) => {
+  if (!operatorEnv) return false;
+  return operatorEnv.every(env => env === ATLAS);
 };
 
 /**
  * Is the env supported?
  *
  * @param {Object} options - The stage supported env and the server env to compare.
- * @property {Array} oEnv - The operation-supported environments.
+ * @property {Array} operatorEnv - The operation-supported environments.
  * @property {String} env - The current env.
  *
  * @returns {boolean} If the env is supported.
  */
-const isSupportedEnv = ({ oEnv, env }) => {
-  if (!oEnv || !env) return true;
-  return oEnv.includes(env);
+const isSupportedEnv = ({ operatorEnv, env }) => {
+  if (!operatorEnv || !env) return true;
+  return operatorEnv.includes(env);
 };
 
 /**
  * Is the stage supported by the server?
  *
  * @param {Object} options - The stage min supported version and the server version to compare.
- * @property {Number} oVersion - The min version of the server that the stage supports.
+ * @property {Number} operatorVersion - The min version of the server that the stage supports.
  * @property {Number} version - The current server version.
  *
  * @returns {boolean} If the stage is supported by the server.
  */
-const isSupportedVersion = ({ oVersion, version }) => semver.gte(version, oVersion);
+const isSupportedVersion = ({ operatorVersion, version }) => semver.gte(version, operatorVersion);
 
 /**
  * Is search on a view, time-series, or regular collection?
  *
  * @param {Object} options - The options to exclude the full-text search stages on views.
- * @property {String} oName - The stage name.
+ * @property {String} operatorName - The stage name.
  * @property {Boolean} isTimeSeries - The isTimeSeries flag.
  * @property {Boolean} isReadonly - The isReadonly flag.
  * @property {String} sourceName - The namespace on which created the view.
  *
  * @returns {boolean} If search on a view, time-series, or regular collection.
  */
-const isSearchOnView = ({ oName, isTimeSeries, isReadonly, sourceName }) =>
-  [SEARCH, SEARCH_META, DOCUMENTS].includes(oName) &&
+const isSearchOnView = ({ operatorName, isTimeSeries, isReadonly, sourceName }) =>
+  [SEARCH, SEARCH_META, DOCUMENTS].includes(operatorName) &&
   (isTimeSeries || (isReadonly && !!sourceName));
 
 /**
@@ -107,12 +107,18 @@ export const filterStageOperators = ({ serverVersion, env, isTimeSeries, isReado
     ? [parsedVersion.major, parsedVersion.minor, parsedVersion.patch].join('.')
     : serverVersion;
 
-  return STAGE_OPERATORS.filter((o) => {
-    if (isSearchOnView({ oName: o.name, isTimeSeries, isReadonly, sourceName })) return false;
-    if (o.dbOnly) return false;
+  return STAGE_OPERATORS.filter((operator) => {
+    console.log(JSON.stringify(operator));
+    if (isSearchOnView({
+      operatorName: operator.name,
+      isTimeSeries,
+      isReadonly,
+      sourceName
+    })) return false;
+    if (operator.dbOnly) return false;
 
-    return isSupportedVersion({ oVersion: o.version, version: cleanVersion }) &&
-      isSupportedEnv({ oEnv: o.env, env }) ||
-      isAtlasOnly(o.env);
+    return isSupportedVersion({ operatorVersion: operator.version, version: cleanVersion }) &&
+      isSupportedEnv({ operatorEnv: operator.env, env }) ||
+      isAtlasOnly(operator.env);
   });
 };
