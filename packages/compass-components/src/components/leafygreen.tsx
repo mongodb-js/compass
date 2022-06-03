@@ -11,6 +11,7 @@ import { default as Banner } from '@leafygreen-ui/banner';
 import { default as LeafyGreenButton } from '@leafygreen-ui/button';
 import { default as LeafyGreenCheckbox } from '@leafygreen-ui/checkbox';
 import { default as LeafyGreenCard } from '@leafygreen-ui/card';
+import { default as LeafyGreenCode } from '@leafygreen-ui/code';
 import { default as LeafyGreenConfirmationModal } from '@leafygreen-ui/confirmation-modal';
 import { default as Icon } from '@leafygreen-ui/icon';
 import { default as LeafyGreenIconButton } from '@leafygreen-ui/icon-button';
@@ -81,6 +82,11 @@ const Checkbox = withTheme(
     React.ComponentProps<typeof LeafyGreenCheckbox>
   >
 ) as typeof LeafyGreenCheckbox;
+const Code = withTheme(
+  LeafyGreenCode as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenCode>
+  >
+) as typeof LeafyGreenCode;
 const ConfirmationModal: typeof LeafyGreenConfirmationModal = withTheme(
   LeafyGreenConfirmationModal as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenConfirmationModal>
@@ -143,6 +149,7 @@ export {
   Button,
   Card,
   Checkbox,
+  Code,
   ConfirmationModal,
   Icon,
   IconButton,
