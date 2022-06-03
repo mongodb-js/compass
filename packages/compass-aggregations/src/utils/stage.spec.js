@@ -138,5 +138,37 @@ describe('utils', function() {
         expect(searchStages.length).to.be.equal(0);
       });
     });
+
+    context('when on-prem', function() {
+      it('returns "atlas only" stages', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'on-prem', serverVersion: '6.0.0' })
+          .filter((o) => (['$search', '$searchMeta'].includes(o.name)));
+
+        expect(searchStages.length).to.be.equal(2);
+      });
+
+      it('only returns "atlas only" stages matching version', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'on-prem', serverVersion: '4.2.0' })
+          .filter((o) => (['$search', '$searchMeta'].includes(o.name)));
+
+        expect(searchStages.length).to.be.equal(1);
+      });
+
+      it('returns $out and $merge', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'on-prem', serverVersion: '6.0.0' })
+          .filter((o) => (['$out', '$merge'].includes(o.name)));
+
+        expect(searchStages.length).to.be.equal(2);
+      });
+    });
+
+    context('when on ADL', function() {
+      it('returns $out and $merge', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+          .filter((o) => (['$out', '$merge'].includes(o.name)));
+
+        expect(searchStages.length).to.be.equal(2);
+      });
+    });
   });
 });

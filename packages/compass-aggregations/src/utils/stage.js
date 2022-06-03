@@ -60,6 +60,14 @@ export const isAtlasOnly = (operatorEnv) => {
  */
 const isSupportedEnv = ({ operatorEnv, env }) => {
   if (!operatorEnv || !env) return true;
+
+  // we want to always display Atlas only stages
+  // even on other environments to improve their
+  // discoverability.
+  if (isAtlasOnly(operatorEnv)) {
+    return true;
+  }
+
   return operatorEnv.includes(env);
 };
 
@@ -72,7 +80,8 @@ const isSupportedEnv = ({ operatorEnv, env }) => {
  *
  * @returns {boolean} If the stage is supported by the server.
  */
-const isSupportedVersion = ({ operatorVersion, version }) => semver.gte(version, operatorVersion);
+const isSupportedVersion = ({ operatorVersion, serverVersion }) =>
+  semver.gte(serverVersion, operatorVersion);
 
 /**
  * Is search on a view, time-series, or regular collection?
@@ -102,13 +111,12 @@ const isSearchOnView = ({ operatorName, isTimeSeries, isReadonly, sourceName }) 
  * @returns {Array} Stage operators supported by the current version of the server.
  */
 export const filterStageOperators = ({ serverVersion, env, isTimeSeries, isReadonly, sourceName }) => {
-  const parsedVersion = semver.parse(serverVersion);
-  const cleanVersion = parsedVersion
-    ? [parsedVersion.major, parsedVersion.minor, parsedVersion.patch].join('.')
+  const serverSemver = semver.parse(serverVersion);
+  const cleanServerVersion = serverSemver
+    ? [serverSemver.major, serverSemver.minor, serverSemver.patch].join('.')
     : serverVersion;
 
   return STAGE_OPERATORS.filter((operator) => {
-    console.log(JSON.stringify(operator));
     if (isSearchOnView({
       operatorName: operator.name,
       isTimeSeries,
@@ -117,8 +125,13 @@ export const filterStageOperators = ({ serverVersion, env, isTimeSeries, isReado
     })) return false;
     if (operator.dbOnly) return false;
 
-    return isSupportedVersion({ operatorVersion: operator.version, version: cleanVersion }) &&
-      isSupportedEnv({ operatorEnv: operator.env, env }) ||
-      isAtlasOnly(operator.env);
+    return isSupportedVersion({
+      operatorVersion: operator.version,
+      serverVersion: cleanServerVersion
+    }) &&
+      isSupportedEnv({
+        operatorEnv: operator.env,
+        env
+      });
   });
 };
