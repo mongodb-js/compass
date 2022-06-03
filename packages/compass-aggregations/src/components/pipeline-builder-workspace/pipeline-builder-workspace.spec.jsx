@@ -45,6 +45,7 @@ const PIPELINE_1 = [
 
 /* eslint react/prop-types: 0 */
 function createPipelineWorkspace({
+  allowWrites = false,
   pipeline = [],
   env = 'atlas',
   isTimeSeries = false,
@@ -77,6 +78,7 @@ function createPipelineWorkspace({
   newPipelineFromPaste = () => {},
 } = {}) {
   return (<PipelineBuilderWorkspace
+    allowWrites={allowWrites}
     pipeline={pipeline}
     env={env}
     isTimeSeries={isTimeSeries}

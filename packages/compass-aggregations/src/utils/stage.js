@@ -5,6 +5,8 @@ import { generateStage } from '../modules/stage';
 import { emptyStage } from '../modules/pipeline';
 import { STAGE_OPERATORS, ATLAS } from 'mongodb-ace-autocompleter';
 
+const OUT = '$out';
+const MERGE = '$merge';
 const SEARCH = '$search';
 const SEARCH_META = '$searchMeta';
 const DOCUMENTS = '$documents';
@@ -64,6 +66,17 @@ const isSupportedEnv = ({ oEnv, env }) => {
 };
 
 /**
+ * Are writes allowed?
+ *
+ * @param {Object} options - The allowWrites flag should be true to work with $out and $merge stages.
+ * @property {String} oName - The stage name.
+ * @property {Boolean} allowWrites - The allowWrites flag.
+ *
+ * @returns {boolean} If the stage is writable and allowed.
+ */
+const isNotWritable = ({ oName, allowWrites }) => [OUT, MERGE].includes(oName) && !allowWrites;
+
+/**
  * Is the stage supported by the server?
  *
  * @param {Object} options - The stage min supported version and the server version to compare.
@@ -94,6 +107,7 @@ const isSearchOnView = ({ oName, isTimeSeries, isReadonly, sourceName }) =>
  *
  * @param {Object} options - Info about the server and the collection to filter agg stages.
  * @property {String} version - The current server version.
+ * @property {boolean} allowWrites - If writes are allowed.
  * @property {String} env - The current env.
  * @property {boolean} isTimeSeries - The isTimeSeries flag.
  * @property {boolean} isReadonly - The isReadonly flag.
@@ -101,13 +115,14 @@ const isSearchOnView = ({ oName, isTimeSeries, isReadonly, sourceName }) =>
  *
  * @returns {Array} Stage operators supported by the current version of the server.
  */
-export const filterStageOperators = ({ serverVersion, env, isTimeSeries, isReadonly, sourceName }) => {
+export const filterStageOperators = ({ serverVersion, allowWrites, env, isTimeSeries, isReadonly, sourceName }) => {
   const parsedVersion = semver.parse(serverVersion);
   const cleanVersion = parsedVersion
     ? [parsedVersion.major, parsedVersion.minor, parsedVersion.patch].join('.')
     : serverVersion;
 
   return STAGE_OPERATORS.filter((o) => {
+    if (isNotWritable({ oName: o.name, allowWrites })) return false;
     if (isSearchOnView({ oName: o.name, isTimeSeries, isReadonly, sourceName })) return false;
     if (o.dbOnly) return false;
 

@@ -11,6 +11,7 @@ import { Tooltip, Body, Icon } from '@mongodb-js/compass-components';
 
 import styles from './stage-editor-toolbar.module.less';
 
+
 const STAGE_TOOLTIP_MESSAGE = {
   $out: 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.',
   $merge: 'The $merge operator will cause the pipeline to persist the results to the specified location.'
@@ -46,6 +47,7 @@ StageEditorOutMergeTooltip.propTypes = {
 class StageEditorToolbar extends PureComponent {
   static displayName = 'StageEditorToolbar';
   static propTypes = {
+    allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
@@ -85,6 +87,7 @@ class StageEditorToolbar extends PureComponent {
           stageCollapseToggled={this.props.stageCollapseToggled}
         />
         <StageOperatorSelect
+          allowWrites={this.props.allowWrites}
           env={this.props.env}
           isTimeSeries={this.props.isTimeSeries}
           isReadonly={this.props.isReadonly}

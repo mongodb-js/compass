@@ -25,6 +25,7 @@ class PipelineWorkspace extends PureComponent {
   static displayName = 'PipelineWorkspace';
 
   static propTypes = {
+    allowWrites: PropTypes.bool.isRequired,
     editViewName: PropTypes.string,
     env: PropTypes.string.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
@@ -96,6 +97,7 @@ class PipelineWorkspace extends PureComponent {
       key={stage.id}
       idx={i}
       index={i}
+      allowWrites={this.props.allowWrites}
       env={this.props.env}
       isTimeSeries={this.props.isTimeSeries}
       isReadonly={this.props.isReadonly}

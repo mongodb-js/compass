@@ -9,6 +9,7 @@ import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { serverVersionChanged } from '../modules/server-version';
 import { setIsAtlasDeployed } from '../modules/is-atlas-deployed';
+import { allowWrites } from '../modules/allow-writes';
 import { outResultsFnChanged } from '../modules/out-results-fn';
 import { envChanged } from '../modules/env';
 import { isTimeSeriesChanged } from '../modules/is-time-series';
@@ -39,6 +40,16 @@ export const refreshInput = (store) => {
  */
 export const setIsAtlas = (store, isAtlas) => {
   store.dispatch(setIsAtlasDeployed(isAtlas));
+};
+
+/**
+ * Set if the plugin allows writes.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} allow - If the plugin allows writes.
+ */
+export const setAllowWrites = (store, allow) => {
+  store.dispatch(allowWrites(allow));
 };
 
 /**
@@ -251,6 +262,10 @@ const configureStore = (options = {}) => {
 
   if (options.isAtlasDeployed !== null && options.isAtlasDeployed !== undefined) {
     setIsAtlas(store, options.isAtlasDeployed);
+  }
+
+  if (options.allowWrites !== null && options.allowWrites !== undefined) {
+    setAllowWrites(store, options.allowWrites);
   }
 
   // Set the namespace - must happen third.
