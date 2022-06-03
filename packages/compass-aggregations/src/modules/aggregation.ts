@@ -153,12 +153,12 @@ export const runAggregation = (): ThunkAction<
 > => {
   return (dispatch, getState) => {
     const { pipeline } = getState();
-    track('Aggregation Executed', {
+    track('Aggregation Executed', () => ({
       num_stages: pipeline
         .map(generateStage)
         .filter((stage) => Object.keys(stage).length > 0)
         .length,
-    });
+    }));
     return dispatch(fetchAggregationData());
   };
 };
