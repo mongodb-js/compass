@@ -29,7 +29,6 @@ describe('FLE2', function () {
     let browser: CompassBrowser;
     let plainMongo: MongoClient;
     let autoMongo: MongoClient;
-    let encryptedFields: any;
 
     before(async function () {
       compass = await beforeTests();
@@ -40,19 +39,13 @@ describe('FLE2', function () {
       try {
         const keyVaultNamespace = `${databaseName}.keyvault`;
         const kmsProviders = { local: { key: 'A'.repeat(128) } };
-        const keyMongo = await MongoClient.connect(CONNECTION_STRING, {
-          autoEncryption: {
-            keyVaultNamespace,
-            kmsProviders,
-          },
-        });
+        const keyMongo = await MongoClient.connect(CONNECTION_STRING);
         const clientEncryption = new ClientEncryption(keyMongo, {
           kmsProviders,
           keyVaultNamespace,
         });
         const keyId = await clientEncryption.createDataKey('local');
-
-        encryptedFields = {
+        const encryptedFields = {
           fields: [
             {
               path: 'phoneNumber',
@@ -108,15 +101,13 @@ describe('FLE2', function () {
     });
 
     afterEach(async function () {
-      await autoMongo.db(databaseName).dropDatabase();
+      await autoMongo?.db(databaseName).dropDatabase();
     });
 
     it('plainMongo shows the original and the copied fileds as encrypted', async function () {
       await browser.connectWithConnectionForm({
         hosts: [CONNECTION_HOSTS],
       });
-      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
-
       await browser.navigateToCollectionTab(
         databaseName,
         collectionName,
@@ -140,8 +131,6 @@ describe('FLE2', function () {
       await browser.connectWithConnectionForm({
         hosts: [CONNECTION_HOSTS],
       });
-      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
-
       await browser.navigateToCollectionTab(
         databaseName,
         collectionName,
@@ -195,8 +184,6 @@ describe('FLE2', function () {
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
         fleKey: 'A'.repeat(128),
       });
-      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
-
       await browser.navigateToCollectionTab(
         databaseName,
         collectionName,
