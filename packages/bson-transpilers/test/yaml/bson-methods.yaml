@@ -181,7 +181,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
             shell: new DBRef('coll', new ObjectId(), "db").getDb()
             object: "'db'"
-            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => 'db'], \ArrayObject::ARRAY_AS_PROPS))->databaseName
+            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => 'db']['databaseName']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -198,7 +198,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
             shell: new DBRef('coll', new ObjectId(), 'db').getDb()
             object: "'db'"
-            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => 'db'], \ArrayObject::ARRAY_AS_PROPS))->databaseName
+            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => 'db']['databaseName']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -213,7 +213,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
             object: "'coll'"
-            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->collectionName
+            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null]['collectionName']"
     -   input:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$ref
         output:
@@ -222,7 +222,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
             object: "'coll'"
-            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->collectionName
+            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null]['collectionName']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -238,7 +238,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId()).CollectionName
             shell: new DBRef('coll', new ObjectId()).getCollection()
             object: "'coll'"
-            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->collectionName
+            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => null]['collectionName']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -252,7 +252,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
-            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->id
+            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null]['id']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -268,7 +268,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
-            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->id
+            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null]['id']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',

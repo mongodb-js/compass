@@ -118,7 +118,7 @@ tests:
           java: DBRef
           csharp: MongoDBRef
           shell: DBRef
-          php: new \ArrayObject
+          php: ''
           ruby: BSON::DBRef
     - input:
           javascript: Timestamp

@@ -195,7 +195,7 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
-          php: new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS)
+          php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => null]"
           ruby: |-
             BSON::DBRef.new(
               '$ref' => 'coll',
@@ -213,7 +213,7 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
-          php: new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS)
+          php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => null]"
           ruby: |-
             BSON::DBRef.new(
               '$ref' => 'coll',
@@ -231,7 +231,7 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
-          php: new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => 'db'], \ArrayObject::ARRAY_AS_PROPS)
+          php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => 'db']"
           ruby: |-
             BSON::DBRef.new(
               '$ref' => 'coll',
@@ -248,7 +248,7 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
-          php: new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => 'db'], \ArrayObject::ARRAY_AS_PROPS)
+          php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => 'db']"
           ruby: |-
             BSON::DBRef.new(
               '$ref' => 'coll',

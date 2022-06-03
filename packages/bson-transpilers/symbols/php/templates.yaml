@@ -421,7 +421,7 @@ Templates:
         }
     DBRefSymbolTemplate: &DBRefSymbolTemplate !!js/function >
         () => {
-            return 'new \\ArrayObject'
+            return ''
         }
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate !!js/function >
         (lhs, coll, id, db) => {
@@ -439,7 +439,7 @@ Templates:
             let id_string = `, 'id' => ${id}`;
             let db_string = db ? `, 'databaseName' => ${singleStringify(db)}` : `, 'databaseName' => null`;
         
-            return `([${coll_string}${id_string}${db_string}], \\ArrayObject::ARRAY_AS_PROPS)`;
+            return `[${coll_string}${id_string}${db_string}]`;
         }
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
         () => {
@@ -732,15 +732,15 @@ Templates:
         }
     DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
         (lhs) => {
-            return `(${lhs})->databaseName`;
+            return `${lhs}['databaseName']`;
         }
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
         (lhs) => {
-            return `(${lhs})->collectionName`;
+            return `${lhs}['collectionName']`;
         }
     DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
         (lhs) => {
-            return `(${lhs})->id`;
+            return `${lhs}['id']`;
         }
     DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
         (lhs) => {
