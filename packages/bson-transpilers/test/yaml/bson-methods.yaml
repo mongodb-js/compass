@@ -176,12 +176,12 @@ tests:
     -   input:
             shell: new DBRef('coll', new ObjectId(), 'db').$db
         output:
-        # TODO: NEED TO INSERT PHP
             python: DBRef('coll', ObjectId(), 'db').database
             java: new DBRef("db", "coll", new ObjectId()).getDatabaseName()
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
             shell: new DBRef('coll', new ObjectId(), "db").getDb()
             object: "'db'"
+            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => 'db'], \ArrayObject::ARRAY_AS_PROPS))->databaseName
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -198,6 +198,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
             shell: new DBRef('coll', new ObjectId(), 'db').getDb()
             object: "'db'"
+            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => 'db'], \ArrayObject::ARRAY_AS_PROPS))->databaseName
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -212,6 +213,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
             object: "'coll'"
+            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->collectionName
     -   input:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$ref
         output:
@@ -220,6 +222,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
             object: "'coll'"
+            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->collectionName
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -235,6 +238,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId()).CollectionName
             shell: new DBRef('coll', new ObjectId()).getCollection()
             object: "'coll'"
+            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId(), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->collectionName
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -248,6 +252,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
+            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->id
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -263,6 +268,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
+            php: (new \ArrayObject(['collectionName' => 'coll', 'id' => new \MongoDB\BSON\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null], \ArrayObject::ARRAY_AS_PROPS))->id
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -914,6 +920,7 @@ tests:
 #          java: BsonBinarySubType.BINARY
 #          csharp: BsonBinarySubType.Binary
 #          python: binary.BINARY_SUBTYPE
+#          php: \MongoDB\BSON\Binary::TYPE_GENERIC
 #    - input:
 #          javascript: Binary.SUBTYPE_FUNCTION
 #      output:
@@ -921,6 +928,7 @@ tests:
 #          java: BsonBinarySubType.FUNCTION
 #          csharp: BsonBinarySubType.Function
 #          python: binary.FUNCTION_SUBTYPE
+#          php: \MongoDB\BSON\Binary::TYPE_FUNCTION
 #    - input:
 #          javascript: Binary.SUBTYPE_BYTE_ARRAY
 #      output:
@@ -928,6 +936,7 @@ tests:
 #          java: BsonBinarySubType.BINARY
 #          csharp: BsonBinarySubType.OldBinary
 #          python: binary.BINARY_SUBTYPE
+#          php: \MongoDB\BSON\Binary::TYPE_OLD_BINARY
 #    - input:
 #          javascript: Binary.SUBTYPE_UUID_OLD
 #      output:
@@ -935,6 +944,7 @@ tests:
 #          java: BsonBinarySubType.UUID_LEGACY
 #          csharp: BsonBinarySubType.UuidLegacy
 #          python: binary.OLD_UUID_SUBTYPE
+#          php: \MongoDB\BSON\Binary::TYPE_OLD_UUID
 #    - input:
 #          javascript: Binary.SUBTYPE_UUID
 #      output:
@@ -942,6 +952,7 @@ tests:
 #          java: BsonBinarySubType.UUID_STANDARD
 #          csharp: BsonBinarySubType.UuidStandard
 #          python: binary.UUID_SUBTYPE
+#          php: \MongoDB\BSON\Binary::TYPE_UUID
 #    - input:
 #          javascript: Binary.SUBTYPE_MD5
 #      output:
@@ -949,6 +960,7 @@ tests:
 #          java: BsonBinarySubType.MD5
 #          csharp: BsonBinarySubType.MD5
 #          python: binary.MD5_SUBTYPE
+#          php: \MongoDB\BSON\Binary::TYPE_MD5
 #    - input:
 #          javascript: Binary.SUBTYPE_USER_DEFINED
 #      output:
@@ -956,6 +968,7 @@ tests:
 #          java: BsonBinarySubType.USER_DEFINED
 #          csharp: BsonBinarySubType.UserDefined
 #          python: binary.USER_DEFINED_SUBTYPE
+#          php: \MongoDB\BSON\Binary::TYPE_USER_DEFINED
     Long-utils:
     - input:
           javascript: Long.MAX_VALUE

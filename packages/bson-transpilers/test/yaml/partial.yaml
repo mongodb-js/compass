@@ -113,12 +113,12 @@ tests:
           javascript: DBRef
           python: DBRef
       output:
-      # TODO: NEED TO INSERT PHP
           javascript: DBRef
           python: DBRef
           java: DBRef
           csharp: MongoDBRef
           shell: DBRef
+          php: new \ArrayObject
           ruby: BSON::DBRef
     - input:
           javascript: Timestamp

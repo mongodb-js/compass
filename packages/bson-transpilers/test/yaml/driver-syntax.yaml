@@ -76,9 +76,19 @@ tests:
                     // Requires the MongoDB PHP Driver
                     // https://www.mongodb.com/docs/drivers/php/
 
-                    $client = new \MongoDB\Client('mongodb://localhost:27017')
-                    $db = $client->selectDatabase('db')
-                    $result = $db->selectCollection('collection')->aggregate((array) ((object) ['x' => 0, 'y' => new \MongoDB\BSON\ObjectId()]))
+                    $client = new \MongoDB\Client('mongodb://localhost:27017');
+                    $db = $client->selectDatabase('db');
+                    
+                    $convertPipelineArray = function ($aggregationData) {
+                        return array_map(function ($key, $value) {
+                                return [$key => $value];
+                            },
+                            array_keys($aggregationData),
+                            $aggregationData
+                        );
+                    };
+
+                    $result = $db->selectCollection('collection')->aggregate($convertPipelineArray(['x' => 0, 'y' => new \MongoDB\BSON\ObjectId()]));
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/
@@ -227,6 +237,14 @@ tests:
                     db.collection.find({
                       'x': new NumberLong(0)
                     });"
+                php: |-
+                    // Requires the MongoDB PHP Driver
+                    // https://www.mongodb.com/docs/drivers/php/
+
+                    $client = new \MongoDB\Client('mongodb://localhost:27017');
+                    $db = $client->selectDatabase('db');
+                    
+                    $result = $db->selectCollection('collection')->find(['x' => 0]);
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/
@@ -290,6 +308,7 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
+                php: ''
                 ruby: require 'mongo'
                 go: |-
                   import (
@@ -442,6 +461,27 @@ tests:
                     }).skip(5).limit(10).maxTimeMS(100).collation({
                       'locale': 'zh'
                     });"
+                php: |-
+                    // Requires the MongoDB PHP Driver
+                    // https://www.mongodb.com/docs/drivers/php/
+
+                    $client = new \MongoDB\Client('mongodb://localhost:27017');
+                    $db = $client->selectDatabase('db');
+                    $projection = ['y' => new \MongoDB\BSON\ObjectId()];
+                    $sort = ['name' => 1];
+                    $skip = 5;
+                    $limit = 10;
+                    $maxTimeMS = 100;
+                    $collation = ['locale' => 'zh'];
+        
+                    $result = $db->selectCollection('collection')->find(['x' => 0], [
+                        'projection' => $projection,
+                        'sort' => $sort,
+                        'skip' => $skip,
+                        'limit' => $limit,
+                        'maxTimeMS' => $maxTimeMS,
+                        'collation' => $collation
+                    ]);
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/
@@ -542,6 +582,7 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
+                php: ''
                 ruby: require 'mongo'
                 go: |-
                   import (

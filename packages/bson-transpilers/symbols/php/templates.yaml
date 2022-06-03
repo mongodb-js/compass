@@ -49,10 +49,16 @@ Templates:
             const getKey = k => {
                 let translateKey = {
                     project: 'projection',
-                    maxTimeMS: 'max_time_ms'
                 }
                 return k in translateKey ? translateKey[k] : k
             };
+            const unObjectize = (str) => {
+                if (str.indexOf('(object) ') === 0) {
+                    str = str.slice(9);
+                }        
+                return str;
+            }
+        
         
             const options = spec.options;
             const filter = spec.filter || {}
@@ -60,17 +66,29 @@ Templates:
             delete spec.filter
 
             comment = '// Requires the MongoDB PHP Driver\n// https://www.mongodb.com/docs/drivers/php/';
-            const connect = `$client = new \\MongoDB\\Client('${options.uri}')`;
-            const dtb = `$db = $client->selectDatabase('${options.database}')`;
+            const connect = `$client = new \\MongoDB\\Client('${options.uri}');\n$db = $client->selectDatabase('${options.database}');`;
             const coll = `$db->selectCollection('${options.collection}')`;
 
             if ('aggregation' in spec) {
-                return `${comment}\n\n${connect}\n${dtb}\n$result = ${coll}->aggregate((array) (${spec.aggregation}))`;
+                let convertFunction = []
+                    .concat('$convertPipelineArray = function ($aggregationData) {')
+                    .concat('    return array_map(function ($key, $value) {')
+                    .concat('            return [$key => $value];')
+                    .concat('        },')
+                    .concat('        array_keys($aggregationData),')
+                    .concat('        $aggregationData')
+                    .concat('    );')
+                    .concat('};')
+                    .concat('')
+                    .join('\n')
+                ;
+                return `${comment}\n\n${connect}\n\n${convertFunction}\n$result = ${coll}->aggregate($convertPipelineArray(${unObjectize(spec.aggregation)}));`;
             }
 
             const vars = Object.keys(spec).reduce(
                 (result, k) => {
-                    return `${result}\n${getKey(k)} = ${spec[k]}`;
+                    let val = unObjectize(spec[k]);
+                    return `${result}\n$${getKey(k)} = ${val};`;
                 },
                 connect
             );
@@ -78,12 +96,12 @@ Templates:
             const args = Object.keys(spec).reduce(
                 (result, k) => {
                     const divider = result === '' ? '' : ',\n';
-                    return `${result}${divider}  ${getKey(k)}: ${getKey(k)}`;
+                    return `${result}${divider}    '${getKey(k)}' => $${getKey(k)}`;
                 },
                 ''
             );
 
-            const cmd = `result = ${coll}.find(${filter}${args ? `, {\n${args}\n}` : ''})`;
+            const cmd = `$result = ${coll}->find(${unObjectize(filter)}${args ? `, [\n${args}\n]` : ''});`;
 
             return `${comment}\n\n${vars}\n\n${cmd}`;
         }
@@ -353,17 +371,76 @@ Templates:
                 : `(${singleStringify(id)})`
             ;
         }
-    BinarySymbolTemplate: &BinarySymbolTemplate null # TODO: unsupported type
-    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate null # TODO: unsupported type
-    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate null # TODO: unsupported type
-    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate null # TODO: unsupported type
-    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate null # TODO: unsupported type
-    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate null # TODO: unsupported type
-    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate null # TODO: unsupported type
-    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template null # TODO: unsupported type
-    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate null # TODO: unsupported type
-    DBRefSymbolTemplate: &DBRefSymbolTemplate null # No args # TODO: unsupported type
-    DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate null # Args: lhs, coll, id, db # TODO: unsupported type
+    BinarySymbolTemplate: &BinarySymbolTemplate  !!js/function >
+        () => {
+            return 'new \\MongoDB\\BSON\\Binary';
+        }
+    BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
+        (lhs, bytes, type) => {
+            const str = bytes;
+            let newStr = str;
+            if (
+              (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+              (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                newStr = str.substr(1, str.length - 2);
+            }
+            bytes = `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
+
+            if (type === null) {
+                type = '0';
+            }
+            return `(${bytes}, ${type})`;
+        }
+    BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
+        () => {
+            return '\\MongoDB\\BSON\\Binary::TYPE_GENERIC';
+        }
+    BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate !!js/function >
+        () => {
+            return '\\MongoDB\\BSON\\Binary::TYPE_FUNCTION';
+        }
+    BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate !!js/function >
+        () => {
+            return '\\MongoDB\\BSON\\Binary::TYPE_OLD_BINARY';
+        }
+    BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate !!js/function >
+        () => {
+            return '\\MongoDB\\BSON\\Binary::TYPE_OLD_UUID';
+        }
+    BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate !!js/function >
+        () => {
+            return '\\MongoDB\\BSON\\Binary::TYPE_UUID';
+        }
+    BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template !!js/function >
+        () => {
+            return '\\MongoDB\\BSON\\Binary::TYPE_MD5';
+        }
+    BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate !!js/function >
+        () => {
+            return '\\MongoDB\\BSON\\Binary::TYPE_USER_DEFINED';
+        }
+    DBRefSymbolTemplate: &DBRefSymbolTemplate !!js/function >
+        () => {
+            return 'new \\ArrayObject'
+        }
+    DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate !!js/function >
+        (lhs, coll, id, db) => {
+            const singleStringify = (str) => {
+                let newStr = str;
+                if (
+                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
+                    newStr = str.substr(1, str.length - 2);
+                }
+                return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
+            }
+
+            let coll_string = `'collectionName' => ${singleStringify(coll)}`;
+            let id_string = `, 'id' => ${id}`;
+            let db_string = db ? `, 'databaseName' => ${singleStringify(db)}` : `, 'databaseName' => null`;
+        
+            return `([${coll_string}${id_string}${db_string}], \\ArrayObject::ARRAY_AS_PROPS)`;
+        }
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
         () => {
             return '';
@@ -388,11 +465,11 @@ Templates:
             }
             return `(int) ${arg}`;
         }
-    LongSymbolTemplate: &LongSymbolTemplate !!js/function > # TODO: unsupported type MongoDB\BSON\Int64
+    LongSymbolTemplate: &LongSymbolTemplate !!js/function >
         () => {
             return ''
         }
-    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function > # TODO: unsupported type MongoDB\BSON\Int64
+    LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
             if (type === '_integer' || type === '_long') {
@@ -621,22 +698,71 @@ Templates:
         
             return `$isValidBSONObjectId(${singleStringify(arg)})`;
         }
-    BinaryValueTemplate: &BinaryValueTemplate null # TODO: unsupported type
-    BinaryValueArgsTemplate: &BinaryValueArgsTemplate null # TODO: unsupported type
-    BinaryLengthTemplate: &BinaryLengthTemplate null # TODO: unsupported type
-    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate null # TODO: unsupported type
-    BinaryToStringTemplate: &BinaryToStringTemplate null # TODO: unsupported type
-    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate null # TODO: unsupported type
-    BinarySubtypeTemplate: &BinarySubtypeTemplate null # TODO: unsupported type
-    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate null # TODO: unsupported type
-    DBRefGetDBTemplate: &DBRefGetDBTemplate null # TODO: unsupported type
-    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate null # TODO: unsupported type
-    DBRefGetIdTemplate: &DBRefGetIdTemplate null # TODO: unsupported type
-    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate null # TODO: unsupported type
-    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate null # TODO: unsupported type
-    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate null # TODO: unsupported type
-    DBRefToStringTemplate: &DBRefToStringTemplate null # TODO: unsupported type
-    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null # TODO: unsupported type
+    BinaryValueTemplate: &BinaryValueTemplate !!js/function >
+        (lhs) => {
+            return `(${lhs})->getData()`;
+        }
+    BinaryValueArgsTemplate: &BinaryValueArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    BinaryLengthTemplate: &BinaryLengthTemplate !!js/function >
+        (lhs) => {
+            return `strlen((${lhs})->getData())`;
+        }
+    BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    BinaryToStringTemplate: &BinaryToStringTemplate !!js/function >
+        (lhs) => {
+            return `(${lhs})->getData()`;
+        }
+    BinaryToStringArgsTemplate: &BinaryToStringArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    BinarySubtypeTemplate: &BinarySubtypeTemplate !!js/function >
+        (lhs) => {
+            return `(${lhs})->getType()`;
+        }
+    BinarySubtypeArgsTemplate: &BinarySubtypeArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
+    DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
+        (lhs) => {
+            return `(${lhs})->databaseName`;
+        }
+    DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
+        (lhs) => {
+            return `(${lhs})->collectionName`;
+        }
+    DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
+        (lhs) => {
+            return `(${lhs})->id`;
+        }
+    DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
+        (lhs) => {
+            return '';
+        }
+    DBRefGetCollectionArgsTemplate: &DBRefGetCollectionArgsTemplate !!js/function >
+        (lhs) => {
+            return '';
+        }
+    DBRefGetIdArgsTemplate: &DBRefGetIdArgsTemplate !!js/function >
+        (lhs) => {
+            return '';
+        }
+    DBRefToStringTemplate: &DBRefToStringTemplate !!js/function >
+        () => {
+            // Can't be converted to string
+            return `''`;
+        }
+    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate !!js/function >
+        () => {
+            return '';
+        }
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate null
