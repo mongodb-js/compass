@@ -5,7 +5,6 @@ import { beforeTests, afterTests } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { createDummyCollections } from '../helpers/insert-data';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
 import { ClientEncryption } from 'mongodb-client-encryption';
@@ -14,15 +13,13 @@ const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}`;
 
 describe('FLE2', function () {
-  before(async function () {
+  before(function () {
     if (
       semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
       process.env.MONGODB_USE_ENTERPRISE !== 'yes'
     ) {
       return this.skip();
     }
-
-    await createDummyCollections();
   });
 
   describe('when no encryption options are specified while connecting', function () {
@@ -30,7 +27,9 @@ describe('FLE2', function () {
     const collectionName = 'my-collection';
     let compass: Compass;
     let browser: CompassBrowser;
+    let plainMongo: MongoClient;
     let autoMongo: MongoClient;
+    let encryptedFields: any;
 
     before(async function () {
       compass = await beforeTests();
@@ -52,7 +51,8 @@ describe('FLE2', function () {
           keyVaultNamespace,
         });
         const keyId = await clientEncryption.createDataKey('local');
-        const encryptedFields = {
+
+        encryptedFields = {
           fields: [
             {
               path: 'phoneNumber',
@@ -62,6 +62,8 @@ describe('FLE2', function () {
             },
           ],
         };
+
+        plainMongo = await MongoClient.connect(CONNECTION_STRING);
         autoMongo = await MongoClient.connect(CONNECTION_STRING, {
           autoEncryption: {
             keyVaultNamespace,
@@ -69,6 +71,7 @@ describe('FLE2', function () {
             encryptedFieldsMap: encryptedFields,
           },
         });
+
         await autoMongo.db(databaseName).createCollection(collectionName, {
           encryptedFields,
         });
@@ -76,13 +79,26 @@ describe('FLE2', function () {
           phoneNumber: '727272',
           name: 'Person Z',
         });
-      } catch (error) {
-        /* ignore */
-      }
 
-      await browser.connectWithConnectionForm({
-        hosts: [CONNECTION_HOSTS],
-      });
+        const doc: any = await plainMongo
+          .db(databaseName)
+          .collection(collectionName)
+          .findOne();
+
+        if (doc) {
+          await plainMongo
+            .db(databaseName)
+            .collection(collectionName)
+            .insertOne({
+              phoneNumber: doc.phoneNumber,
+              faxNumber: doc.phoneNumber,
+              name: 'La La',
+            });
+        }
+      } catch (error) {
+        console.error('Error during seeding documents:');
+        console.error(error);
+      }
     });
 
     after(async function () {
@@ -95,80 +111,148 @@ describe('FLE2', function () {
       await autoMongo.db(databaseName).dropDatabase();
     });
 
-    it('can not edit encrypted fields', async function () {
+    it('plainMongo shows the original and the copied fileds as encrypted', async function () {
+      await browser.connectWithConnectionForm({
+        hosts: [CONNECTION_HOSTS],
+      });
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+
       await browser.navigateToCollectionTab(
         databaseName,
         collectionName,
         'Documents'
       );
 
-      const result = await getFirstListDocument(browser);
-      expect(result.phoneNumber).to.be.equal('*********');
-
-      // browse to the "Insert to Collection" modal
-      await browser.clickVisible(Selectors.AddDataButton);
-      const insertDocumentOption = await browser.$(
-        Selectors.InsertDocumentOption
-      );
-      await insertDocumentOption.waitForDisplayed();
-      await browser.clickVisible(Selectors.InsertDocumentOption);
-
-      // wait for the modal to appear
-      const insertDialog = await browser.$(Selectors.InsertDialog);
-      await insertDialog.waitForDisplayed();
-
-      // set the text in the editor
-      await browser.setAceValue(
-        Selectors.InsertJSONEditor,
-        '{' +
-          '  "faxNumber": {' +
-          '    "$binary": {' +
-          '      "base64": "B0y10j06hEHblOCkZWG56BICR2xXyMD/njKep+2KWfZ3xlMze+mSk1LXNoGi+9GxQMCQKT3Uv/8SAx4+d/PyJUIvMV5k9eagWeyOiUFXb9mGHqhUbRA58InRYzf6NODBl1JTHqqrYk8yt13Qfdfpv0TvUarSrGpLtqUJagRpi9+mV0bFOPlunq6fAHWQJXplPuL+APTwP0/t4SMYOXt7pzXrDwwl9feoR6yYgeZK5S56BnFUF/3ljW+s14CoKypinndbXXOoQuA7AKo8Q5SMBpOug19ajy88TKQJf2E=",' +
-          '      "subType": "06"' +
-          '    }' +
-          '  },' +
-          '  "name": "La La",' +
-          '  "location": "Berlin"' +
-          '}'
-      );
-
-      // confirm
-      const insertConfirm = await browser.$(Selectors.InsertConfirm);
-      await insertConfirm.waitForEnabled();
-      await browser.clickVisible(Selectors.InsertConfirm);
-
-      // wait for the modal to go away
-      await insertDialog.waitForDisplayed({ reverse: true });
-      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+      const originalDocumentResult = await getFirstListDocument(browser);
+      expect(originalDocumentResult.phoneNumber).to.be.equal('*********');
 
       await browser.runFindOperation('Documents', "{ name: 'La La' }");
 
-      const newDocumenResult = await getFirstListDocument(browser);
-      expect(newDocumenResult.faxNumber).to.be.equal('*********');
-      expect(newDocumenResult._id).to.be.not.equal(result._id);
-
-      const document = await browser.$(Selectors.DocumentListEntry);
-      const value = await document.$(
-        `${Selectors.HadronDocumentElement}:nth-child(4) ${Selectors.HadronDocumentClickableValue}`
+      const copiedDocumenResult = await getFirstListDocument(browser);
+      expect(copiedDocumenResult.phoneNumber).to.be.equal('*********');
+      expect(copiedDocumenResult.faxNumber).to.be.equal('*********');
+      expect(copiedDocumenResult._id).to.be.not.equal(
+        originalDocumentResult._id
       );
-      await value.doubleClick();
+    });
 
-      const faxNumberEditor = await document.$(
+    it('plainMongo can not edit encrypted fields', async function () {
+      await browser.connectWithConnectionForm({
+        hosts: [CONNECTION_HOSTS],
+      });
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      await browser.runFindOperation('Documents', "{ name: 'Person Z' }");
+
+      const originalDocument = await browser.$(Selectors.DocumentListEntry);
+      const originalValue = await originalDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+      );
+      await originalValue.doubleClick();
+      const originalDocumentPhoneNumberEditor = await originalDocument.$(
         `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
       );
-      const isFaxNumberEditorExisting = await faxNumberEditor.isExisting();
-      expect(isFaxNumberEditorExisting).to.be.equal(false);
+      const isOriginalDocumentPhoneNumberEditorExisting =
+        await originalDocumentPhoneNumberEditor.isExisting();
+      expect(isOriginalDocumentPhoneNumberEditorExisting).to.be.equal(false);
 
-      const locationEditor = await document.$(
+      await browser.runFindOperation('Documents', "{ name: 'La La' }");
+
+      const copiedDocument = await browser.$(Selectors.DocumentListEntry);
+      const copiedlValue = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+      );
+      await copiedlValue.doubleClick();
+      const copiedDocumentPhoneNumberEditor = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
+      );
+      const isCopiedDocumentPhoneNumberEditorExisting =
+        await copiedDocumentPhoneNumberEditor.isExisting();
+      expect(isCopiedDocumentPhoneNumberEditorExisting).to.be.equal(false);
+      const copiedDocumentFaxNumberEditor = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(3) ${Selectors.HadronDocumentValueEditor}`
+      );
+      const isCopiedDocumentFaxNumberEditorExisting =
+        await copiedDocumentFaxNumberEditor.isExisting();
+      expect(isCopiedDocumentFaxNumberEditorExisting).to.be.equal(false);
+      const copiedDocumentNameEditor = await copiedDocument.$(
         `${Selectors.HadronDocumentElement}:nth-child(4) ${Selectors.HadronDocumentValueEditor}`
       );
-      const isLocationEditorExisting = await locationEditor.isExisting();
-      expect(isLocationEditorExisting).to.be.equal(true);
+      const isCopiedDocumentNameEditorExisting =
+        await copiedDocumentNameEditor.isExisting();
+      expect(isCopiedDocumentNameEditorExisting).to.be.equal(true);
+    });
+
+    it('autoMongo can not edit the copied encrypted field', async function () {
+      await browser.connectWithConnectionForm({
+        hosts: [CONNECTION_HOSTS],
+        fleKeyVaultNamespace: `${databaseName}.keyvault`,
+        fleKey: 'A'.repeat(128),
+      });
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      await browser.runFindOperation('Documents', "{ name: 'Person Z' }");
+
+      const originalDocument = await browser.$(Selectors.DocumentListEntry);
+      const originalValue = await originalDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+      );
+      await originalValue.doubleClick();
+      const originalDocumentPhoneNumberEditor = await originalDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
+      );
+      const isOriginalDocumentPhoneNumberEditorExisting =
+        await originalDocumentPhoneNumberEditor.isExisting();
+      expect(isOriginalDocumentPhoneNumberEditorExisting).to.be.equal(true);
+
+      await browser.runFindOperation('Documents', "{ name: 'La La' }");
+
+      const copiedDocument = await browser.$(Selectors.DocumentListEntry);
+      const copiedValue = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+      );
+      await copiedValue.doubleClick();
+      const copiedDocumentPhoneNumberEditor = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
+      );
+      const isCopiedDocumentPhoneNumberEditorExisting =
+        await copiedDocumentPhoneNumberEditor.isExisting();
+      expect(isCopiedDocumentPhoneNumberEditorExisting).to.be.equal(true);
+      const copiedDocumentFaxNumberEditor = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}:nth-child(3) ${Selectors.HadronDocumentValueEditor}`
+      );
+      const isCopiedDocumentFaxNumberEditorExisting =
+        await copiedDocumentFaxNumberEditor.isExisting();
+      expect(isCopiedDocumentFaxNumberEditorExisting).to.be.equal(true);
+
+      await copiedDocumentFaxNumberEditor.setValue('0');
+
+      const button = await copiedDocument.$(
+        '[data-test-id="update-document-button"]'
+      );
+      await button.click();
+
+      const footer = await copiedDocument.$(Selectors.DocumentFooterMessage);
+      expect(await footer.getText()).to.equal(
+        'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+      );
     });
   });
 
   describe('when fleEncryptedFieldsMap is not specified while connecting', function () {
-    const databaseName = 'test';
+    const databaseName = 'db-to-test-fle';
     const collectionName = 'my-encrypted-collection';
     let compass: Compass;
     let browser: CompassBrowser;
@@ -188,6 +272,13 @@ describe('FLE2', function () {
       if (compass) {
         await afterTests(compass, this.currentTest);
       }
+    });
+
+    beforeEach(async function () {
+      await browser.shellEval(
+        `db.getMongo().getDB('${databaseName}').createCollection('default')`
+      );
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
     });
 
     it('can create a fle2 collection with encryptedFields', async function () {
@@ -385,7 +476,7 @@ describe('FLE2', function () {
       });
     });
 
-    it('shows decrypted field icon', async function () {
+    it('shows a decrypted field icon', async function () {
       await browser.shellEval(`db.createCollection('${collectionName}')`);
       await browser.shellEval(
         `db['${collectionName}'].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
@@ -451,50 +542,6 @@ describe('FLE2', function () {
       const modifiedResult = await getFirstListDocument(browser);
       expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       expect(modifiedResult._id).to.be.equal(result._id);
-    });
-
-    it('allows editing not encrypted fields and those that listed in encryptedFields', async function () {
-      await browser.shellEval(`db.createCollection('${collectionName}')`);
-      await browser.shellEval(
-        'db["' +
-          collectionName +
-          '"].insertOne({' +
-          '"phoneNumber": "30303030",' +
-          '"faxNumber": {' +
-          '  "$binary": {' +
-          '    "base64": "B0y10j06hEHblOCkZWG56BICR2xXyMD/njKep+2KWfZ3xlMze+mSk1LXNoGi+9GxQMCQKT3Uv/8SAx4+d/PyJUIvMV5k9eagWeyOiUFXb9mGHqhUbRA58InRYzf6NODBl1JTHqqrYk8yt13Qfdfpv0TvUarSrGpLtqUJagRpi9+mV0bFOPlunq6fAHWQJXplPuL+APTwP0/t4SMYOXt7pzXrDwwl9feoR6yYgeZK5S56BnFUF/3ljW+s14CoKypinndbXXOoQuA7AKo8Q5SMBpOug19ajy88TKQJf2E=",' +
-          '    "subType": "06"' +
-          '  }' +
-          '},' +
-          '"name": "Person X",' +
-          '"location": "Paris"' +
-          '})'
-      );
-
-      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
-      await browser.navigateToCollectionTab(
-        databaseName,
-        collectionName,
-        'Documents'
-      );
-
-      const document = await browser.$(Selectors.DocumentListEntry);
-      const value = await document.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
-      );
-      await value.doubleClick();
-
-      const phoneNumberditor = await document.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
-      );
-      const isPhoneNumberEditorExisting = await phoneNumberditor.isExisting();
-      expect(isPhoneNumberEditorExisting).to.be.equal(true);
-
-      const faxNumberEditor = await document.$(
-        `${Selectors.HadronDocumentElement}:nth-child(3) ${Selectors.HadronDocumentValueEditor}`
-      );
-      const isFaxNumberEditorExisting = await faxNumberEditor.isExisting();
-      expect(isFaxNumberEditorExisting).to.be.equal(false);
     });
   });
 });
