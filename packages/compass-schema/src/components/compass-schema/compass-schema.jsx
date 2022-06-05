@@ -219,6 +219,7 @@ class Schema extends Component {
       <div className={styles.root}>
         {useNewToolbar ? (
           <SchemaToolbar
+            globalAppRegistry={this.props.store.globalAppRegistry}
             localAppRegistry={this.props.store.localAppRegistry}
             onAnalyzeSchemaClicked={this.onApplyClicked.bind(this)}
             onExportToLanguageClicked={this.onExportToLanguageClicked.bind(

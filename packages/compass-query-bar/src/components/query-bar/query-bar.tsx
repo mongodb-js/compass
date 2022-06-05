@@ -18,11 +18,7 @@ const queryBarStyles = css({
   gap: spacing[2],
   padding: spacing[2],
   border: `1px solid ${uiColors.gray.light2}`,
-  borderRadius: '6px',
-
-  // TODO: This margin will go away when the query bar is wrapped in the
-  // Toolbar component in each of the plugins. COMPASS-5484
-  margin: spacing[3],
+  borderRadius: '6px'
 });
 
 const queryAreaStyles = css({

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Body,
   Button,
@@ -41,11 +41,17 @@ const schemaToolbarActionBarStyles = css({
 });
 
 const schemaToolbarActionBarRightStyles = css({
+  flexShrink: 0,
   flexGrow: 1,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
   gap: spacing[2],
+  paddingLeft: spacing[2],
+});
+
+const exportToLanguageButtonStyles = css({
+  flexShrink: 0,
 });
 
 const ERROR_WARNING = 'An error occurred during schema analysis';
@@ -62,10 +68,10 @@ const SCHEMA_ANALYSIS_DOCS_LINK =
 type SchemaToolbarProps = {
   analysisState: AnalysisState;
   errorMessage: string;
+  globalAppRegistry: AppRegistry;
   isOutdated: boolean;
   localAppRegistry: AppRegistry;
   onAnalyzeSchemaClicked: () => void;
-  onExportToLanguageClicked: () => void;
   onResetClicked: () => void;
   sampleSize: number;
   schemaResultId: string;
@@ -74,10 +80,10 @@ type SchemaToolbarProps = {
 const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   analysisState,
   errorMessage,
+  globalAppRegistry,
   isOutdated,
   localAppRegistry,
   onAnalyzeSchemaClicked,
-  onExportToLanguageClicked,
   onResetClicked,
   sampleSize,
   schemaResultId,
@@ -111,6 +117,22 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
     [sampleSize]
   );
 
+  const onExportToLanguageClicked = useCallback(() => {
+    const queryState = queryBarRef.current!.store.state;
+    localAppRegistry.emit('open-query-export-to-language', {
+      filter: queryState.filterString,
+      project: queryState.projectString,
+      sort: queryState.sortString,
+      collation: queryState.collationString,
+      skip: queryState.skipString,
+      limit: queryState.limitString,
+      maxTimeMS: queryState.maxTimeMSString,
+    });
+    globalAppRegistry.emit('compass:export-to-language:opened', {
+      source: 'Schema',
+    });
+  }, [ localAppRegistry, globalAppRegistry ]);
+
   return (
     <Toolbar className={schemaToolbarStyles}>
       <div className={schemaQueryBarStyles}>
@@ -127,6 +149,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       </div>
       <div className={schemaToolbarActionBarStyles}>
         <Button
+          className={exportToLanguageButtonStyles}
           variant="primaryOutline"
           size="xsmall"
           leftGlyph={<Icon glyph={'Export'} />}
