@@ -10,7 +10,7 @@ import {
   explainStateChanged,
 } from '../../modules/explain';
 import ExplainStates from '../explain-states';
-import { queryExecuted, exportToLanguage } from '../../modules/query';
+import { queryExecuted } from '../../modules/query';
 
 import styles from './explain-plan.module.less';
 
@@ -58,7 +58,6 @@ const MappedExplainPlan = connect(mapStateToProps, {
   switchToTreeView,
   switchToJSONView,
   fetchExplainPlan,
-  exportToLanguage,
   changeExplainPlanState,
   explainStateChanged,
   queryExecuted,

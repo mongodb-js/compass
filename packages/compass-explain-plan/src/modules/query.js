@@ -67,31 +67,3 @@ export const queryChanged = (query) => ({ type: QUERY_CHANGED, query });
  * @returns {Object} The query executed action.
  */
 export const queryExecuted = () => ({ type: QUERY_EXECUTED });
-
-/**
- * Fetches the explain plan.
- *
- * @param {Object} query - The query.
- *
- * @returns {Function} The function.
- */
-export const exportToLanguage = (queryState) => {
-  return (dispatch) => {
-    dispatch(
-      localAppRegistryEmit('open-query-export-to-language', {
-        filter: queryState.filterString,
-        project: queryState.projectString,
-        sort: queryState.sortString,
-        collation: queryState.collationString,
-        skip: queryState.skipString,
-        limit: queryState.limitString,
-        maxTimeMS: queryState.maxTimeMSString,
-      })
-    );
-    dispatch(
-      globalAppRegistryEmit('compass:export-to-language:opened', {
-        source: 'Explain',
-      })
-    );
-  };
-};
