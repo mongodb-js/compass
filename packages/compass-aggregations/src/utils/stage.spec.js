@@ -170,5 +170,54 @@ describe('utils', function() {
         expect(searchStages.length).to.be.equal(2);
       });
     });
+
+    context('when is not a read-only distribution of Compass', function() {
+      let envBkp;
+      beforeEach(function() {
+        envBkp = process.env.HADRON_READONLY;
+      });
+
+      afterEach(function() {
+        process.env.HADRON_READONLY = envBkp;
+      });
+
+      it('returns output stages if process.env.HADRON_READONLY === "false"', function() {
+        process.env.HADRON_READONLY = 'false';
+
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+          .filter((o) => (['$out', '$merge'].includes(o.name)));
+
+        expect(searchStages.length).to.be.equal(2);
+      });
+
+      it('returns output stages if process.env.HADRON_READONLY is undefined', function() {
+        process.env.HADRON_READONLY = undefined;
+
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+          .filter((o) => (['$out', '$merge'].includes(o.name)));
+
+        expect(searchStages.length).to.be.equal(2);
+      });
+    });
+
+    context('when is a read-only distribution of Compass', function() {
+      let envBkp;
+      beforeEach(function() {
+        envBkp = process.env.HADRON_READONLY;
+      });
+
+      afterEach(function() {
+        process.env.HADRON_READONLY = envBkp;
+      });
+
+      it('filters out output stages if process.env.HADRON_READONLY === "true"', function() {
+        process.env.HADRON_READONLY = 'true';
+
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+          .filter((o) => (['$out', '$merge'].includes(o.name)));
+
+        expect(searchStages.length).to.be.equal(0);
+      });
+    });
   });
 });

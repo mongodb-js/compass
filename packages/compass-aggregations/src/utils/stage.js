@@ -3,11 +3,13 @@ import semver from 'semver';
 
 import { generateStage } from '../modules/stage';
 import { emptyStage } from '../modules/pipeline';
-import { STAGE_OPERATORS, ATLAS } from 'mongodb-ace-autocompleter';
-
-const SEARCH = '$search';
-const SEARCH_META = '$searchMeta';
-const DOCUMENTS = '$documents';
+import {
+  STAGE_OPERATORS,
+  ATLAS,
+  TIME_SERIES,
+  VIEW,
+  COLLECTION
+} from 'mongodb-ace-autocompleter';
 
 export const generateStageWithDefaults = (props = {}) => {
   return {
@@ -37,66 +39,32 @@ export const parseNamespace = (currentDb, stage) => {
   return `${into.db || currentDb}.${into.coll}`;
 };
 
-/**
- * Does this list of environments indicate Atlas-Cluster-only support?
- *
- * @param {Array} operatorEnv - The operation-supported environments.
- *
- * @returns {boolean} If the env is atlas-only.
- */
-export const isAtlasOnly = (operatorEnv) => {
-  if (!operatorEnv) return false;
-  return operatorEnv.every(env => env === ATLAS);
-};
+function supportsVersion(operator, serverVersion) {
+  const versionWithoutPrerelease = semver.coerce(serverVersion);
+  return semver.gte(versionWithoutPrerelease, operator?.version);
+}
 
-/**
- * Is the env supported?
- *
- * @param {Object} options - The stage supported env and the server env to compare.
- * @property {Array} operatorEnv - The operation-supported environments.
- * @property {String} env - The current env.
- *
- * @returns {boolean} If the env is supported.
- */
-const isSupportedEnv = ({ operatorEnv, env }) => {
-  if (!operatorEnv || !env) return true;
+function supportsNamespace(operator, namespaceType) {
+  return operator?.namespaces?.includes(namespaceType);
+}
 
-  // we want to always display Atlas only stages
-  // even on other environments to improve their
-  // discoverability.
-  if (isAtlasOnly(operatorEnv)) {
-    return true;
+function supportsEnv(operator, env) {
+  return operator?.env?.includes(env);
+}
+
+export function isAtlasOnly(operatorEnv) {
+  return operatorEnv?.every(env => env === ATLAS);
+}
+
+function disallowOutputStagesOnCompassReadonly(operator) {
+  if (operator?.outputStage) {
+    // NOTE: this should be innocuous in Data Explorer / Web
+    // and just always return `false`
+    return process?.env?.HADRON_READONLY !== 'true';
   }
 
-  return operatorEnv.includes(env);
-};
-
-/**
- * Is the stage supported by the server?
- *
- * @param {Object} options - The stage min supported version and the server version to compare.
- * @property {Number} operatorVersion - The min version of the server that the stage supports.
- * @property {Number} version - The current server version.
- *
- * @returns {boolean} If the stage is supported by the server.
- */
-const isSupportedVersion = ({ operatorVersion, serverVersion }) =>
-  semver.gte(serverVersion, operatorVersion);
-
-/**
- * Is search on a view, time-series, or regular collection?
- *
- * @param {Object} options - The options to exclude the full-text search stages on views.
- * @property {String} operatorName - The stage name.
- * @property {Boolean} isTimeSeries - The isTimeSeries flag.
- * @property {Boolean} isReadonly - The isReadonly flag.
- * @property {String} sourceName - The namespace on which created the view.
- *
- * @returns {boolean} If search on a view, time-series, or regular collection.
- */
-const isSearchOnView = ({ operatorName, isTimeSeries, isReadonly, sourceName }) =>
-  [SEARCH, SEARCH_META, DOCUMENTS].includes(operatorName) &&
-  (isTimeSeries || (isReadonly && !!sourceName));
+  return true;
+}
 
 /**
  * Filters stage operators by server version.
@@ -105,33 +73,27 @@ const isSearchOnView = ({ operatorName, isTimeSeries, isReadonly, sourceName }) 
  * @property {String} version - The current server version.
  * @property {String} env - The current env.
  * @property {boolean} isTimeSeries - The isTimeSeries flag.
- * @property {boolean} isReadonly - The isReadonly flag.
  * @property {String} sourceName - The namespace on which created the view.
  *
  * @returns {Array} Stage operators supported by the current version of the server.
  */
-export const filterStageOperators = ({ serverVersion, env, isTimeSeries, isReadonly, sourceName }) => {
-  const serverSemver = semver.parse(serverVersion);
-  const cleanServerVersion = serverSemver
-    ? [serverSemver.major, serverSemver.minor, serverSemver.patch].join('.')
-    : serverVersion;
+export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceName }) => {
+  const namespaceType =
+    isTimeSeries ? TIME_SERIES :
 
-  return STAGE_OPERATORS.filter((operator) => {
-    if (isSearchOnView({
-      operatorName: operator.name,
-      isTimeSeries,
-      isReadonly,
-      sourceName
-    })) return false;
-    if (operator.dbOnly) return false;
+    // we identify a view looking for a source
+    // namespace (sourceName) in collstats
+    sourceName ? VIEW :
+    COLLECTION;
 
-    return isSupportedVersion({
-      operatorVersion: operator.version,
-      serverVersion: cleanServerVersion
-    }) &&
-      isSupportedEnv({
-        operatorEnv: operator.env,
-        env
-      });
-  });
+  return STAGE_OPERATORS
+    .filter(disallowOutputStagesOnCompassReadonly)
+    .filter((op) => supportsVersion(op, serverVersion))
+    .filter((op) => supportsNamespace(op, namespaceType))
+
+    // we want to display Atlas-only stages
+    // also when connected to on-prem / localhost
+    // in order to improve their discoverability:
+    .filter((op) => isAtlasOnly(op.env) || supportsEnv(op, env))
+    .map(obj => ({ ...obj }))
 };
