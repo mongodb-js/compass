@@ -1,8 +1,3 @@
-import {
-  localAppRegistryEmit,
-  globalAppRegistryEmit,
-} from '@mongodb-js/mongodb-redux-common/app-registry';
-
 /**
  * The prefix.
  */
