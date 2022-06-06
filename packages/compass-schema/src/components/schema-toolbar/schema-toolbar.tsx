@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Body,
   Button,
@@ -11,8 +17,8 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
+import type { AnalysisState } from '../../constants/analysis-states';
 import {
-  AnalysisState,
   ANALYSIS_STATE_ERROR,
   ANALYSIS_STATE_TIMEOUT,
   ANALYSIS_STATE_COMPLETE,
@@ -131,7 +137,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
     globalAppRegistry.emit('compass:export-to-language:opened', {
       source: 'Schema',
     });
-  }, [ localAppRegistry, globalAppRegistry ]);
+  }, [localAppRegistry, globalAppRegistry]);
 
   return (
     <Toolbar className={schemaToolbarStyles}>
@@ -159,7 +165,10 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           Export to language
         </Button>
         {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
-          <div className={schemaToolbarActionBarRightStyles}>
+          <div
+            className={schemaToolbarActionBarRightStyles}
+            data-testid="schema-document-count"
+          >
             <Body>
               This report is based on a sample of&nbsp;<b>{sampleSize}</b>&nbsp;
               {documentsNoun}.
