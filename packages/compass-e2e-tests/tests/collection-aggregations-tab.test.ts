@@ -130,19 +130,23 @@ describe('Collection aggregations tab', function () {
       '$redact',
       '$replaceRoot',
       '$sample',
-      '$search',
-      '$searchMeta',
       '$skip',
       '$sort',
       '$sortByCount',
       '$unwind',
     ];
 
+    if (semver.gte(MONGODB_VERSION, '4.1.11')) {
+      expectedAggregations.push('$search');
+    }
     if (semver.gte(MONGODB_VERSION, '4.2.0')) {
       expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
     }
     if (semver.gte(MONGODB_VERSION, '4.4.0')) {
       expectedAggregations.push('$unionWith');
+    }
+    if (semver.gte(MONGODB_VERSION, '4.4.9')) {
+      expectedAggregations.push('$searchMeta');
     }
     if (semver.gte(MONGODB_VERSION, '5.0.0')) {
       expectedAggregations.push('$setWindowFields');
