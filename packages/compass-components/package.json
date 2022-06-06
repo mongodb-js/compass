@@ -76,8 +76,6 @@
     "ace-builds": "^1.4.3",
     "mongodb-ace-autocompleter": "*",
     "mongodb-ace-mode": "^1.7.0",
-    "mongodb-ace-theme": "^1.7.0",
-    "mongodb-ace-theme-query": "^1.7.0",
     "react": "^16.14.0",
     "react-ace": "^9.5.0"
   },
@@ -100,8 +98,6 @@
     "mocha": "^8.4.0",
     "mongodb-ace-autocompleter": "*",
     "mongodb-ace-mode": "^1.7.0",
-    "mongodb-ace-theme": "^1.7.0",
-    "mongodb-ace-theme-query": "^1.7.0",
     "nyc": "^15.0.0",
     "prettier": "2.3.2",
     "react": "^16.14.0",
