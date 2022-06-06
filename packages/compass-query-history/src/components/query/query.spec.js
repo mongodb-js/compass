@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+import { Code } from '@mongodb-js/compass-components';
 
 import Query from '../query';
-import Code from '../code';
 
 describe('Query [Component]', () => {
   const title = 'Testing';

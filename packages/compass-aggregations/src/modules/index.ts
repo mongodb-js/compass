@@ -132,6 +132,9 @@ import workspace, {
   INITIAL_STATE as WORKSPACE_INITIAL_STATE
 } from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
+import indexes, {
+  INITIAL_STATE as INDEXES_INITIAL_STATE,
+} from './indexes';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -187,6 +190,7 @@ export const INITIAL_STATE = {
   countDocuments: COUNT_INITIAL_STATE,
   explain: EXPLAIN_INITIAL_STATE,
   isDataLake: DATALAKE_INITIAL_STATE,
+  indexes: INDEXES_INITIAL_STATE,
 };
 
 /**
@@ -269,6 +273,7 @@ const appReducer = combineReducers({
   aggregationWorkspaceId,
   explain,
   isDataLake,
+  indexes,
 });
 
 export type RootState = ReturnType<typeof appReducer>;

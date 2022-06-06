@@ -73,6 +73,10 @@ const containerStyles = css({
   marginTop: spacing[3],
 });
 
+const accordionContainerStyles = css({
+  marginTop: spacing[3],
+});
+
 function CSFLETab({
   connectionOptions,
   updateConnectionFormField,
@@ -184,26 +188,27 @@ function CSFLETab({
             </span>
           );
           return (
-            <Accordion
-              data-testid={`csfle-kms-provider-${kmsProvider}`}
-              key={kmsProvider}
-              text={accordionTitle}
-            >
-              <div className={kmsProviderComponentWrapperStyles}>
-                <KMSProviderFieldsForm
-                  errors={errors}
-                  connectionOptions={connectionOptions}
-                  updateConnectionFormField={updateConnectionFormField}
-                  kmsProvider={kmsProvider}
-                  fields={
-                    KMSProviderFields[
-                      kmsProvider
-                    ] as KMSField<KMSProviderName>[]
-                  }
-                  {...kmsFieldComponentOptions}
-                />
-              </div>
-            </Accordion>
+            <div className={accordionContainerStyles} key={kmsProvider}>
+              <Accordion
+                data-testid={`csfle-kms-provider-${kmsProvider}`}
+                text={accordionTitle}
+              >
+                <div className={kmsProviderComponentWrapperStyles}>
+                  <KMSProviderFieldsForm
+                    errors={errors}
+                    connectionOptions={connectionOptions}
+                    updateConnectionFormField={updateConnectionFormField}
+                    kmsProvider={kmsProvider}
+                    fields={
+                      KMSProviderFields[
+                        kmsProvider
+                      ] as KMSField<KMSProviderName>[]
+                    }
+                    {...kmsFieldComponentOptions}
+                  />
+                </div>
+              </Accordion>
+            </div>
           );
         })}
       </FormFieldContainer>

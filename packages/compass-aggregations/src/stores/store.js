@@ -21,6 +21,7 @@ import {
   globalAppRegistryActivated
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setDataLake } from '../modules/is-datalake';
+import { indexesFetched } from '../modules/indexes';
 
 /**
  * Refresh the input documents.
@@ -104,6 +105,14 @@ export const setServerVersion = (store, version) => {
  */
 export const setFields = (store, fields) => {
   store.dispatch(fieldsChanged(fields));
+};
+
+export const setIndexes = (store, indexes) => {
+  store.dispatch(
+    indexesFetched(
+      indexes.map((index) => index.getAttributes({ props: true }, true))
+    )
+  );
 };
 
 /**
@@ -209,6 +218,10 @@ const configureStore = (options = {}) => {
      */
     localAppRegistry.on('fields-changed', (fields) => {
       setFields(store, fields.aceFields);
+    });
+
+    localAppRegistry.on('indexes-changed', (ixs) => {
+      setIndexes(store, ixs);
     });
   }
 
