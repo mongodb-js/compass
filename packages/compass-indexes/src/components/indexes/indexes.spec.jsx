@@ -187,7 +187,7 @@ describe('indexes [Component]', function () {
           indexes={[]}
           sortColumn="Name and Definition"
           sortOrder="asc"
-          error="a test error"
+          errorMessage="a test error"
           sortIndexes={sortIndexesSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy}

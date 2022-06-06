@@ -2,7 +2,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { StatusRow } from 'hadron-react-components';
 
 import { writeStateChanged } from '../../modules/is-writable';
 import { getDescription } from '../../modules/description';
@@ -17,6 +16,7 @@ import IndexHeader from '../index-header';
 import IndexList from '../index-list';
 
 import styles from './indexes.module.less';
+import { ErrorSummary, Toolbar, WarningSummary } from '@mongodb-js/compass-components';
 
 class Indexes extends PureComponent {
   static displayName = 'IndexesComponent';
@@ -32,7 +32,7 @@ class Indexes extends PureComponent {
     sortIndexes: PropTypes.func.isRequired,
     localAppRegistry: PropTypes.object.isRequired,
     reset: PropTypes.func.isRequired,
-    error: PropTypes.string,
+    errorMessage: PropTypes.string,
     changeName: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
   };
@@ -65,25 +65,23 @@ class Indexes extends PureComponent {
   renderBanner() {
     if (this.props.isReadonlyView) {
       return (
-        <StatusRow style="warning">
-          Readonly views may not contain indexes.
-        </StatusRow>
+        <WarningSummary warnings={['Readonly views may not contain indexes.']} />
       );
     }
-    return <StatusRow style="error">{this.props.error}</StatusRow>;
+    return <ErrorSummary errors={[this.props.errorMessage]} />;
   }
 
   renderCreateIndexButton() {
     if (
       !this.props.isReadonly &&
       !this.props.isReadonlyView &&
-      (this.props.error === null || this.props.error === undefined)
+      !this.props.errorMessage
     ) {
       return (
         <CreateIndexButton localAppRegistry={this.props.localAppRegistry} />
       );
     }
-    return <div className="create-index-btn action-bar" />;
+    return <div data-test-id="indexes-toolbar-empty" />;
   }
 
   /**
@@ -94,13 +92,14 @@ class Indexes extends PureComponent {
   render() {
     return (
       <div className={styles['indexes-container']}>
-        <div className="controls-container">
+        <Toolbar>
           {this.renderCreateIndexButton()}
-        </div>
-        {this.props.isReadonlyView ||
-        !(this.props.error === null || this.props.error === undefined)
+        </Toolbar>
+
+        {this.props.isReadonlyView || !!this.props.errorMessage
           ? this.renderBanner()
-          : this.renderComponent()}
+          : this.renderComponent()
+        }
       </div>
     );
   }
@@ -119,7 +118,7 @@ const mapStateToProps = (state) => ({
   isReadonly: state.isReadonly,
   isReadonlyView: state.isReadonlyView,
   description: state.description,
-  error: state.error,
+  errorMessage: state.error,
   dataService: state.dataService,
   sortColumn: state.sortColumn,
   sortOrder: state.sortOrder,
