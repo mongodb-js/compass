@@ -98,10 +98,6 @@ class Schema extends Component {
     this.props.actions.stopAnalysis();
   }
 
-  onExportToLanguageClicked() {
-    this.props.actions.exportToLanguage(this.queryBarStore.state);
-  }
-
   onResetClicked() {
     this.props.actions.startAnalysis();
   }
@@ -222,9 +218,6 @@ class Schema extends Component {
             globalAppRegistry={this.props.store.globalAppRegistry}
             localAppRegistry={this.props.store.localAppRegistry}
             onAnalyzeSchemaClicked={this.onApplyClicked.bind(this)}
-            onExportToLanguageClicked={this.onExportToLanguageClicked.bind(
-              this
-            )}
             onResetClicked={this.onResetClicked.bind(this)}
             analysisState={this.props.analysisState}
             errorMessage={this.props.errorMessage}
