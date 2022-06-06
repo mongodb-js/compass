@@ -43,7 +43,6 @@ class Stage extends Component {
   static displayName = 'StageComponent';
 
   static propTypes = {
-    allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
@@ -122,7 +121,6 @@ class Stage extends Component {
     return (
       <>
         <DragHandleToolbar
-          allowWrites={this.props.allowWrites}
           env={this.props.env}
           isTimeSeries={this.props.isTimeSeries}
           isReadonly={this.props.isReadonly}
