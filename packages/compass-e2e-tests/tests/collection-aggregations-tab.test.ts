@@ -179,6 +179,10 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
+    if (semver.lt(MONGODB_VERSION, '4.1.11')) {
+      this.skip();
+    }
+
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$search');
 
