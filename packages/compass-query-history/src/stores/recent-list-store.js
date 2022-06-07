@@ -12,6 +12,17 @@ const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit', 'collation'];
 
+function comparableQuery(item) {
+  const query = {};
+  for (const [k, v] of Object.entries(item.serialize())) {
+    if (k.startsWith('_')) {
+      continue;
+    }
+    query[k] = v;
+  }
+  return query;
+}
+
 /**
  * Query History Recent List store.
  */
@@ -66,6 +77,12 @@ const configureStore = (options = {}) => {
       const filtered = this.state.items.filter((r) => {
         return r._ns === ns;
       });
+
+      /* Ignore duplicate queries */
+      const existingQuery = this.state.items.find((item) => _.isEqual(comparableQuery(item), recent));
+      if (existingQuery) {
+        return;
+      }
 
       /* Keep length of each recent list to TOTAL_RECENTS */
       if (filtered.length >= TOTAL_RECENTS) {

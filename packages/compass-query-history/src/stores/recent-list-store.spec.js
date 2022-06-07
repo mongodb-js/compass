@@ -89,4 +89,18 @@ describe('RecentListStore [Store]', () => {
       });
     });
   });
+
+  describe('#addRecent', () => {
+    it('ignores duplicate queries', () => {
+      expect(store.state.items.length).to.equal(0);
+
+      const recent = { ns: 'foo', filter: { foo: 1 } };
+
+      store.addRecent(recent);
+      expect(store.state.items.length).to.equal(1);
+
+      store.addRecent(recent);
+      expect(store.state.items.length).to.equal(1);
+    });
+  });
 });
