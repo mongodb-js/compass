@@ -256,16 +256,13 @@ const mapIndexesInformation = function (
   return explainIndexes
     .filter(x => x.index)
     .map((explainIndex) => {
-      const index = collectionIndexes.find(
+      const collectionIndex = collectionIndexes.find(
         (collectionIndex) => collectionIndex.name === explainIndex.index
       );
-      if (!index) {
-        return null;
-      }
       return {
-        name: index.name,
+        name: explainIndex.index,
         shard: explainIndex.shard,
-        key: index.key,
+        key: collectionIndex?.key ?? {},
       };
     })
     .filter(Boolean) as ExplainIndex[];
