@@ -43,7 +43,7 @@ const _getUnshardedAggregationStats = (explain: Stage): ExecutionStats => {
     explain.stages,
     'executionTimeMillisEstimate'
   );
-  stats.stageIndexes = getIndexesFromStages(explain.stages); 
+  stats.stageIndexes = getIndexesFromStages(explain.stages);
   return stats;
 };
 const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
@@ -58,7 +58,9 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
       shardName,
       ...stats,
     });
-    stageIndexes = stageIndexes.concat(getIndexesFromStages(explain.shards[shardName].stages ?? [], shardName));
+    stageIndexes = stageIndexes.concat(
+      getIndexesFromStages(explain.shards[shardName].stages ?? [], shardName)
+    );
   }
 
   const nReturned = sumArrayProp(shardStats, 'nReturned');
@@ -94,12 +96,15 @@ function sumArrayProp<T>(arr: T[], prop: keyof T): number {
 }
 
 /**
- * 
+ *
  * @param stages List of all stages in the explain plan
  * @param shard Shard name
  * @returns Indexes used in the stages
  */
-function getIndexesFromStages(stages: Stage[], shard?: string): IndexInformation[] {
+function getIndexesFromStages(
+  stages: Stage[],
+  shard?: string
+): IndexInformation[] {
   return stages
     .reduce((acc: string[], x: Stage) => acc.concat(x?.indexesUsed ?? []), [])
     .map((index: string) => ({ index, shard: shard ?? null }));

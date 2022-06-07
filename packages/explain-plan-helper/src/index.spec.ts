@@ -290,11 +290,15 @@ describe('explain-plan-plan', function () {
 
       describe('stages with indexesUsed', function () {
         beforeEach(async function () {
-          plan = await loadExplainFixture('aggregate_$lookup_with_indexes.json');
+          plan = await loadExplainFixture(
+            'aggregate_$lookup_with_indexes.json'
+          );
         });
 
         it('should have usedIndexes in executionStats object', function () {
-          expect(plan.executionStats.stageIndexes).to.deep.equal([{ index: "_id_", shard: null }]);
+          expect(plan.executionStats.stageIndexes).to.deep.equal([
+            { index: '_id_', shard: null },
+          ]);
         });
       });
     });
@@ -507,11 +511,15 @@ describe('explain-plan-plan', function () {
       describe('stages with indexesUsed', function () {
         let plan: ExplainPlan;
         beforeEach(async function () {
-          plan = await loadExplainFixture('sharded_aggregate_$lookup_with_indexes.json');
+          plan = await loadExplainFixture(
+            'sharded_aggregate_$lookup_with_indexes.json'
+          );
         });
 
         it('should have usedIndexes in executionStats object', function () {
-          expect(plan.executionStats.stageIndexes).to.deep.equal([{ index: "_id_", shard: "shard2" }]);
+          expect(plan.executionStats.stageIndexes).to.deep.equal([
+            { index: '_id_', shard: 'shard2' },
+          ]);
         });
       });
     });
