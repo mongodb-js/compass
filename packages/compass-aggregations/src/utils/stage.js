@@ -97,3 +97,9 @@ export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceN
     .filter((op) => isAtlasOnly(op.env) || supportsEnv(op, env))
     .map(obj => ({ ...obj }))
 };
+
+export const mapPipelineToStages = (pipeline) => {
+  return pipeline
+    .map(generateStage)
+    .filter((stage) => Object.keys(stage).length > 0);
+};

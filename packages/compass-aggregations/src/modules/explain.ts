@@ -7,10 +7,10 @@ import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { generateStage } from './stage';
+import { mapPipelineToStages } from '../utils/stage';
 import type { IndexInfo } from './indexes';
 
-const { log, mongoLogId } = createLoggerAndTelemetry(
+const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
 );
 export enum ActionTypes {
@@ -168,9 +168,7 @@ export const explainAggregation = (): ThunkAction<
         collation: collation || undefined,
       };
 
-      const pipeline = _pipeline.map(generateStage)
-        .filter(x => Object.keys(x).length > 0);
-
+      const pipeline = mapPipelineToStages(_pipeline);
       const explainVerbosity = getExplainVerbosity(pipeline, isDataLake);
       const rawExplain = await dataService.explainAggregate(
         namespace,
@@ -206,6 +204,10 @@ export const explainAggregation = (): ThunkAction<
           { message: (e as Error).message }
         );
       } finally {
+        track('Aggregation Explained', {
+          num_stages: pipeline.length,
+          index_used: explain.stats?.indexes?.length ?? 0,
+        });
         // If parsing fails, we still show raw explain json.
         dispatch({
           type: ActionTypes.ExplainFinished,
