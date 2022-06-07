@@ -22,7 +22,7 @@ const renderPipelineExplain = (
   );
 };
 
-describe.only('PipelineExplain', function () {
+describe('PipelineExplain', function () {
   it('renders loading state', function () {
     const onCancelExplainSpy = spy();
     renderPipelineExplain({
