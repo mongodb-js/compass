@@ -4,7 +4,7 @@ import {
   getStageCursorKey,
 } from 'mongodb-explain-compat';
 
-import type { Stage } from './index';
+import type { Stage, IndexInformation } from './index';
 
 export type ExecutionStats = {
   executionSuccess: boolean;
@@ -14,6 +14,7 @@ export type ExecutionStats = {
   totalDocsExamined: number;
   executionStages: Stage;
   allPlansExecution: unknown[];
+  stageIndexes?: IndexInformation[];
 };
 
 export const getExecutionStats = (explain: Stage): ExecutionStats => {
@@ -42,10 +43,12 @@ const _getUnshardedAggregationStats = (explain: Stage): ExecutionStats => {
     explain.stages,
     'executionTimeMillisEstimate'
   );
+  stats.stageIndexes = getIndexesFromStages(explain.stages); 
   return stats;
 };
 const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
   const shardStats = [];
+  let stageIndexes: IndexInformation[] = [];
   for (const shardName in explain.shards) {
     const stats = explain.shards[shardName].stages
       ? _getUnshardedAggregationStats(explain.shards[shardName])
@@ -55,6 +58,7 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
       shardName,
       ...stats,
     });
+    stageIndexes = stageIndexes.concat(getIndexesFromStages(explain.shards[shardName].stages ?? [], shardName));
   }
 
   const nReturned = sumArrayProp(shardStats, 'nReturned');
@@ -68,6 +72,7 @@ const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
     totalDocsExamined,
     allPlansExecution: [],
     executionSuccess: true,
+    stageIndexes,
     executionStages: {
       stage: shardStats.length === 1 ? 'SINGLE_SHARD' : 'SHARD_MERGE',
       nReturned,
@@ -86,4 +91,16 @@ const _getFindStats = (explain: Stage): ExecutionStats => {
 
 function sumArrayProp<T>(arr: T[], prop: keyof T): number {
   return arr.reduce((acc, x) => acc + Number(x[prop] ?? 0), 0);
+}
+
+/**
+ * 
+ * @param stages List of all stages in the explain plan
+ * @param shard Shard name
+ * @returns Indexes used in the stages
+ */
+function getIndexesFromStages(stages: Stage[], shard?: string): IndexInformation[] {
+  return stages
+    .reduce((acc: string[], x: Stage) => acc.concat(x?.indexesUsed ?? []), [])
+    .map((index: string) => ({ index, shard: shard ?? null }));
 }

@@ -287,6 +287,16 @@ describe('explain-plan-plan', function () {
           expect(plan.usedIndexes).to.deep.equal([]);
         });
       });
+
+      describe('stages with indexesUsed', function () {
+        beforeEach(async function () {
+          plan = await loadExplainFixture('aggregate_$lookup_with_indexes.json');
+        });
+
+        it('should have usedIndexes in executionStats object', function () {
+          expect(plan.executionStats.stageIndexes).to.deep.equal([{ index: "_id_", shard: null }]);
+        });
+      });
     });
     context('Sharded aggregation', function () {
       describe('single shard with stages', function () {
@@ -492,6 +502,16 @@ describe('explain-plan-plan', function () {
           const stage1 = plan.findStageByName('SHARD_MERGE');
           const stage2 = plan.findStageByName('SHARD_MERGE', stage1);
           expect(stage1).to.equal(stage2);
+        });
+      });
+      describe('stages with indexesUsed', function () {
+        let plan: ExplainPlan;
+        beforeEach(async function () {
+          plan = await loadExplainFixture('sharded_aggregate_$lookup_with_indexes.json');
+        });
+
+        it('should have usedIndexes in executionStats object', function () {
+          expect(plan.executionStats.stageIndexes).to.deep.equal([{ index: "_id_", shard: "shard2" }]);
         });
       });
     });
