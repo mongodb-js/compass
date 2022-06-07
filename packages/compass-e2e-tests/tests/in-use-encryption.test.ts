@@ -7,7 +7,6 @@ import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
-import { ClientEncryption } from 'mongodb-client-encryption';
 
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}`;
