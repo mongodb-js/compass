@@ -249,7 +249,9 @@ describe('FLE2', function () {
     it('shows a decrypted field icon', async function () {
       await browser.shellEval(`db.createCollection('${collectionName}')`);
       await browser.shellEval(
-        `db['${collectionName}'].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
       );
 
       await browser.navigateToCollectionTab(
@@ -272,7 +274,9 @@ describe('FLE2', function () {
     it('can edit and query the encrypted field', async function () {
       await browser.shellEval(`db.createCollection('${collectionName}')`);
       await browser.shellEval(
-        `db['${collectionName}'].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
       );
 
       await browser.navigateToCollectionTab(
@@ -317,22 +321,22 @@ describe('FLE2', function () {
     it('can not edit the copied encrypted field', async function () {
       await browser.shellEval(`db.createCollection('${collectionName}')`);
       await browser.shellEval(
-        `db['${collectionName}'].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
       );
 
       const plainMongo = await MongoClient.connect(CONNECTION_STRING);
-      const doc: any = await plainMongo
+      const doc = await plainMongo
         .db(databaseName)
         .collection(collectionName)
         .findOne();
 
-      if (doc) {
-        await plainMongo.db(databaseName).collection(collectionName).insertOne({
-          phoneNumber: doc.phoneNumber,
-          faxNumber: doc.phoneNumber,
-          name: 'La La',
-        });
-      }
+      await plainMongo.db(databaseName).collection(collectionName).insertOne({
+        phoneNumber: doc?.phoneNumber,
+        faxNumber: doc?.phoneNumber,
+        name: 'La La',
+      });
 
       await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
       await browser.navigateToCollectionTab(
@@ -374,6 +378,16 @@ describe('FLE2', function () {
       const isCopiedDocumentFaxNumberEditorExisting =
         await copiedDocumentFaxNumberEditor.isExisting();
       expect(isCopiedDocumentFaxNumberEditorExisting).to.be.equal(true);
+
+      const decryptedIconElements = await browser.$$(
+        Selectors.documentListDecryptedIcon(1)
+      );
+      const decryptedIcons = await Promise.all(
+        decryptedIconElements.map((el) => el.getAttribute('title'))
+      );
+
+      expect(decryptedIcons).to.have.lengthOf(2);
+      expect(decryptedIcons[1]).to.be.equal('Encrypted Field');
 
       await copiedDocumentFaxNumberEditor.setValue('0');
 

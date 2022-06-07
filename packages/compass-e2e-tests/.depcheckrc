@@ -4,5 +4,4 @@ ignores:
     '@mongodb-js/tsconfig-compass',
     '@wdio/types',
     'mongodb-compass',
-    'mongodb-client-encryption',
   ]
