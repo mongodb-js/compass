@@ -19,7 +19,6 @@ describe('StageOperatorSelect [Component]', function() {
         isReadonly={false}
         index={0}
         isEnabled
-        allowWrites
         isCommenting
         serverVersion="3.4.0"
         setIsModified={setIsModifiedSpy}

@@ -1,3 +1,5 @@
 ignores: [
-  "mongodb-compass"
+  "mongodb-compass",
+  # webpack always externalizes 'clipboard' for legacy reasons
+  "clipboard"
 ]
