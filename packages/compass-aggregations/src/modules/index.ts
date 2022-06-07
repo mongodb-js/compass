@@ -11,6 +11,7 @@ import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import editViewName, { INITIAL_STATE as EDIT_VIEW_NAME_INITIAL_STATE } from './edit-view-name';
 import sourceName, { INITIAL_STATE as SOURCE_NAME_INITIAL_STATE } from './source-name';
 
+
 import inputDocuments, {
   INITIAL_STATE as INPUT_INITIAL_STATE
 } from './input-documents';
@@ -45,9 +46,6 @@ import isAtlasDeployed, {
 import isReadonly, {
   INITIAL_STATE as IS_READONLY_INITIAL_STATE
 } from './is-readonly';
-import allowWrites, {
-  INITIAL_STATE as ALLOW_WRITES_INITIAL_STATE
-} from './allow-writes';
 import maxTimeMS, {
   INITIAL_STATE as MAX_TIME_MS_INITIAL_STATE
 } from './max-time-ms';
@@ -149,7 +147,6 @@ import type { Pipeline, Projection } from './pipeline';
  */
 export const INITIAL_STATE = {
   appRegistry: APP_REGISTRY_STATE,
-  allowWrites: ALLOW_WRITES_INITIAL_STATE,
   dataService: DS_INITIAL_STATE,
   fields: FIELDS_INITIAL_STATE,
   inputDocuments: INPUT_INITIAL_STATE,
@@ -231,7 +228,6 @@ export const MODIFY_VIEW = 'aggregations/MODIFY_VIEW';
  */
 const appReducer = combineReducers({
   appRegistry,
-  allowWrites,
   comments,
   sample,
   autoPreview,
@@ -287,6 +283,7 @@ export type RootState = ReturnType<typeof appReducer>;
  * @returns {Object} The new state.
  */
 const doNamespaceChanged = (state: RootState, action: AnyAction) => {
+
   const newState = {
     ...INITIAL_STATE,
     aggregationWorkspaceId: state.aggregationWorkspaceId,
@@ -296,7 +293,6 @@ const doNamespaceChanged = (state: RootState, action: AnyAction) => {
     sourceName: state.sourceName,
     isAtlasDeployed: state.isAtlasDeployed,
     outResultsFn: state.outResultsFn,
-    allowWrites: state.allowWrites,
     serverVersion: state.serverVersion,
     dataService: state.dataService,
     appRegistry: state.appRegistry
@@ -364,7 +360,6 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     dataService: state.dataService,
     inputDocuments: state.inputDocuments,
     isAtlasDeployed: state.isAtlasDeployed,
-    allowWrites: state.allowWrites,
     outResultsFn: state.outResultsFn,
     savedPipeline: {
       ...state.savedPipeline,
@@ -391,7 +386,6 @@ const doClearPipeline = (state: RootState): RootState => ({
   largeLimit: LARGE_LIMIT_INITIAL_STATE,
   maxTimeMS: MAX_TIME_MS_INITIAL_STATE,
   isAtlasDeployed: state.isAtlasDeployed,
-  allowWrites: state.allowWrites,
   outResultsFn: state.outResultsFn,
   savedPipeline: {
     ...state.savedPipeline,
@@ -419,7 +413,6 @@ const createNewPipeline = (state: RootState): RootState => ({
   serverVersion: state.serverVersion,
   dataService: state.dataService,
   isAtlasDeployed: state.isAtlasDeployed,
-  allowWrites: state.allowWrites,
   outResultsFn: state.outResultsFn,
   inputDocuments: state.inputDocuments
 });
@@ -725,7 +718,7 @@ export const openPipelineById = (id: string): ThunkAction<void, RootState, void,
       const data = await fs.promises.readFile(file, 'utf8')
       dispatch(openPipeline(JSON.parse(data)));
     } catch (e: unknown) {
-      console.log(e);
+      debug(e);
     }
   };
 };
