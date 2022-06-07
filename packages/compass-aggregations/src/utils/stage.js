@@ -131,3 +131,9 @@ export const filterStageOperators = ({ serverVersion, allowWrites, env, isTimeSe
       isAtlasOnly(o.env);
   });
 };
+
+export const mapPipelineToStages = (pipeline) => {
+  return pipeline
+    .map(generateStage)
+    .filter((stage) => Object.keys(stage).length > 0);
+};

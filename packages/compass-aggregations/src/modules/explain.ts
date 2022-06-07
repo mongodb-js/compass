@@ -7,7 +7,7 @@ import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { generateStage } from './stage';
+import { mapPipelineToStages } from '../utils/stage';
 import type { IndexInfo } from './indexes';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
@@ -168,9 +168,7 @@ export const explainAggregation = (): ThunkAction<
         collation: collation || undefined,
       };
 
-      const pipeline = _pipeline.map(generateStage)
-        .filter(x => Object.keys(x).length > 0);
-
+      const pipeline = mapPipelineToStages(_pipeline);
       const explainVerbosity = getExplainVerbosity(pipeline, isDataLake);
       const rawExplain = await dataService.explainAggregate(
         namespace,
