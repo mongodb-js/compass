@@ -15,7 +15,6 @@ class StageOperatorSelect extends PureComponent {
   static displayName = 'StageOperatorSelectComponent';
 
   static propTypes = {
-    allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
     isTimeSeries: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
@@ -52,7 +51,6 @@ class StageOperatorSelect extends PureComponent {
   render() {
     const operators = filterStageOperators({
       serverVersion: this.props.serverVersion,
-      allowWrites: this.props.allowWrites,
       env: this.props.env,
       isTimeSeries: this.props.isTimeSeries,
       isReadonly: this.props.isReadonly,

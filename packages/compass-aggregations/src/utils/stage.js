@@ -3,13 +3,13 @@ import semver from 'semver';
 
 import { generateStage } from '../modules/stage';
 import { emptyStage } from '../modules/pipeline';
-import { STAGE_OPERATORS, ATLAS } from 'mongodb-ace-autocompleter';
-
-const OUT = '$out';
-const MERGE = '$merge';
-const SEARCH = '$search';
-const SEARCH_META = '$searchMeta';
-const DOCUMENTS = '$documents';
+import {
+  STAGE_OPERATORS,
+  ATLAS,
+  TIME_SERIES,
+  VIEW,
+  COLLECTION
+} from 'mongodb-ace-autocompleter';
 
 export const generateStageWithDefaults = (props = {}) => {
   return {
@@ -39,95 +39,61 @@ export const parseNamespace = (currentDb, stage) => {
   return `${into.db || currentDb}.${into.coll}`;
 };
 
-/**
- * Does this list of environments indicate Atlas-Cluster-only support?
- *
- * @param {Array} oEnv - The operation-supported environments.
- *
- * @returns {boolean} If the env is atlas-only.
- */
-export const isAtlasOnly = (oEnv) => {
-  if (!oEnv) return false;
-  return oEnv.every(env => env === ATLAS);
-};
+function supportsVersion(operator, serverVersion) {
+  const versionWithoutPrerelease = semver.coerce(serverVersion);
+  return semver.gte(versionWithoutPrerelease, operator?.version);
+}
 
-/**
- * Is the env supported?
- *
- * @param {Object} options - The stage supported env and the server env to compare.
- * @property {Array} oEnv - The operation-supported environments.
- * @property {String} env - The current env.
- *
- * @returns {boolean} If the env is supported.
- */
-const isSupportedEnv = ({ oEnv, env }) => {
-  if (!oEnv || !env) return true;
-  return oEnv.includes(env);
-};
+function supportsNamespace(operator, namespaceType) {
+  return operator?.namespaces?.includes(namespaceType);
+}
 
-/**
- * Are writes allowed?
- *
- * @param {Object} options - The allowWrites flag should be true to work with $out and $merge stages.
- * @property {String} oName - The stage name.
- * @property {Boolean} allowWrites - The allowWrites flag.
- *
- * @returns {boolean} If the stage is writable and allowed.
- */
-const isNotWritable = ({ oName, allowWrites }) => [OUT, MERGE].includes(oName) && !allowWrites;
+function supportsEnv(operator, env) {
+  return operator?.env?.includes(env);
+}
 
-/**
- * Is the stage supported by the server?
- *
- * @param {Object} options - The stage min supported version and the server version to compare.
- * @property {Number} oVersion - The min version of the server that the stage supports.
- * @property {Number} version - The current server version.
- *
- * @returns {boolean} If the stage is supported by the server.
- */
-const isSupportedVersion = ({ oVersion, version }) => semver.gte(version, oVersion);
+export function isAtlasOnly(operatorEnv) {
+  return operatorEnv?.every(env => env === ATLAS);
+}
 
-/**
- * Is search on a view, time-series, or regular collection?
- *
- * @param {Object} options - The options to exclude the full-text search stages on views.
- * @property {String} oName - The stage name.
- * @property {Boolean} isTimeSeries - The isTimeSeries flag.
- * @property {Boolean} isReadonly - The isReadonly flag.
- * @property {String} sourceName - The namespace on which created the view.
- *
- * @returns {boolean} If search on a view, time-series, or regular collection.
- */
-const isSearchOnView = ({ oName, isTimeSeries, isReadonly, sourceName }) =>
-  [SEARCH, SEARCH_META, DOCUMENTS].includes(oName) &&
-  (isTimeSeries || (isReadonly && !!sourceName));
+function disallowOutputStagesOnCompassReadonly(operator) {
+  if (operator?.outputStage) {
+    // NOTE: this should be innocuous in Data Explorer / Web
+    // and just always return `false`
+    return process?.env?.HADRON_READONLY !== 'true';
+  }
+
+  return true;
+}
 
 /**
  * Filters stage operators by server version.
  *
  * @param {Object} options - Info about the server and the collection to filter agg stages.
  * @property {String} version - The current server version.
- * @property {boolean} allowWrites - If writes are allowed.
  * @property {String} env - The current env.
  * @property {boolean} isTimeSeries - The isTimeSeries flag.
- * @property {boolean} isReadonly - The isReadonly flag.
  * @property {String} sourceName - The namespace on which created the view.
  *
  * @returns {Array} Stage operators supported by the current version of the server.
  */
-export const filterStageOperators = ({ serverVersion, allowWrites, env, isTimeSeries, isReadonly, sourceName }) => {
-  const parsedVersion = semver.parse(serverVersion);
-  const cleanVersion = parsedVersion
-    ? [parsedVersion.major, parsedVersion.minor, parsedVersion.patch].join('.')
-    : serverVersion;
+export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceName }) => {
+  const namespaceType =
+    isTimeSeries ? TIME_SERIES :
 
-  return STAGE_OPERATORS.filter((o) => {
-    if (isNotWritable({ oName: o.name, allowWrites })) return false;
-    if (isSearchOnView({ oName: o.name, isTimeSeries, isReadonly, sourceName })) return false;
-    if (o.dbOnly) return false;
+    // we identify a view looking for a source
+    // namespace (sourceName) in collstats
+    sourceName ? VIEW :
+    COLLECTION;
 
-    return isSupportedVersion({ oVersion: o.version, version: cleanVersion }) &&
-      isSupportedEnv({ oEnv: o.env, env }) ||
-      isAtlasOnly(o.env);
-  });
+  return STAGE_OPERATORS
+    .filter(disallowOutputStagesOnCompassReadonly)
+    .filter((op) => supportsVersion(op, serverVersion))
+    .filter((op) => supportsNamespace(op, namespaceType))
+
+    // we want to display Atlas-only stages
+    // also when connected to on-prem / localhost
+    // in order to improve their discoverability:
+    .filter((op) => isAtlasOnly(op.env) || supportsEnv(op, env))
+    .map(obj => ({ ...obj }))
 };
