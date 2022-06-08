@@ -97,7 +97,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
         queryOptionStyles,
         isAutoCompleteInput ? autocompleteOptionStyles : numericOptionStyles
       )}
-      data-test-id="query-bar-option"
+      data-testid="query-bar-option"
     >
       {queryOption !== 'filter' && (
         <div
