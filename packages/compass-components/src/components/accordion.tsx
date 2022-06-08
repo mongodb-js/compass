@@ -33,7 +33,6 @@ const buttonDarkThemeStyles = css({
   color: uiColors.white,
 });
 const containerStyles = css({
-  marginTop: spacing[3],
   display: 'flex',
   alignItems: 'center',
 });

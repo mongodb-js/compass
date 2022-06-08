@@ -42,7 +42,6 @@ describe('StageEditorToolbar [Component]', function() {
         sourceName={null}
         isEnabled
         isExpanded
-        allowWrites
         index={0}
         stageCollapseToggled={stageCollapseToggledSpy}
         stageOperatorSelected={stageOperatorSelectedSpy}

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { map, isBoolean, camelCase } from 'lodash';
 import d3 from 'd3';
 import { Button } from 'react-bootstrap';
+import { Code } from '@mongodb-js/compass-components';
 
 import styles from './explain-stage.module.less';
 
@@ -79,27 +80,6 @@ class ExplainStage extends Component {
    */
   getNewZIndex() {
     return zIndexCounter++;
-  }
-
-  /**
-   * Gets details.
-   *
-   * @returns {React.Component}
-   */
-  getDetails() {
-    if (!this.state.detailsOpen) {
-      return null;
-    }
-
-    const detailsJSON = JSON.stringify(this.props.details, null, ' ') || '{}';
-
-    return (
-      <div className={classnames(styles['details-output'])}>
-        <pre>
-          <code>{detailsJSON}</code>
-        </pre>
-      </div>
-    );
   }
 
   /**
@@ -291,7 +271,7 @@ class ExplainStage extends Component {
         <ul className={classnames(styles.highlighted)}>
           {this.getHighlightSections()}
         </ul>
-        <div className={classnames(styles.details)}>
+        <div className={styles.details}>
           <Button
             bsSize="xsmall"
             bsStyle="default"
@@ -300,7 +280,15 @@ class ExplainStage extends Component {
           >
             Details
           </Button>
-          {this.getDetails()}
+          {this.state.detailsOpen && (
+            <Code
+              className={styles['details-output']}
+              copyable={false}
+              language="json"
+            >
+              {JSON.stringify(this.props.details, null, ' ') || '{}'}
+            </Code>
+          )}
         </div>
       </div>
     );

@@ -66,7 +66,6 @@ type ContextProps = {
   isClustered?: boolean;
   isFLE?: boolean;
   actions?: any;
-  allowWrites?: boolean;
   sourceName?: string;
   editViewName?: string;
   sourcePipeline?: Document[];
@@ -92,7 +91,6 @@ type ContextProps = {
  * @property {String} options.serverVersion - The server version.
  * @property {Boolean} options.isReadonly - If the collection is a readonly view.
  * @property {Object} options.actions - The actions for the store.
- * @property {Boolean} options.allowWrites - If writes are allowed.
  * @property {String} options.sourceName - The source namespace for the view.
  * @property {String} options.editViewName - The name of the view we are editing.
  *
@@ -111,7 +109,6 @@ const setupStore = ({
   isClustered,
   isFLE,
   actions,
-  allowWrites,
   sourceName,
   editViewName,
   sourcePipeline,
@@ -134,7 +131,6 @@ const setupStore = ({
     isClustered,
     isFLE,
     actions: actions,
-    allowWrites,
     sourceName,
     editViewName,
     sourcePipeline,
@@ -161,7 +157,6 @@ const setupStore = ({
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series collection.
  * @property {Boolean} options.isClustered - If the collection is a clustered index collection.
  * @property {Boolean} options.isFLE - If the collection is a FLE collection.
- * @property {Boolean} options.allowWrites - If writes are allowed.
  * @property {String} options.key - The plugin key.
  *
  * @returns {Component} The plugin.
@@ -179,7 +174,6 @@ const setupPlugin = ({
   isClustered,
   isFLE,
   sourceName,
-  allowWrites,
   connectionString,
   key,
 }: ContextProps) => {
@@ -198,7 +192,6 @@ const setupPlugin = ({
     isFLE,
     sourceName,
     actions,
-    allowWrites,
     connectionString,
   });
   const plugin = role.component;
@@ -223,7 +216,6 @@ const setupPlugin = ({
  * @property {Boolean} options.isTimeSeries - If the collection is a time-series.
  * @property {Boolean} options.isClustered - If the collection is a time-series.
  * @property {Boolean} options.isFLE - If the collection is a FLE collection.
- * @property {Boolean} options.allowWrites - If we allow writes.
  *
  * @returns {Array} The components.
  */
@@ -239,7 +231,6 @@ const setupScopedModals = ({
   isClustered,
   isFLE,
   sourceName,
-  allowWrites,
   connectionString,
 }: ContextProps) => {
   const roles = globalAppRegistry?.getRole('Collection.ScopedModal');
@@ -258,7 +249,6 @@ const setupScopedModals = ({
         isClustered,
         isFLE,
         sourceName,
-        allowWrites,
         connectionString,
         key: i,
       });
@@ -335,7 +325,6 @@ const createContext = ({
     isClustered,
     isFLE,
     actions: queryBarActions,
-    allowWrites: !isDataLake,
     query,
     aggregation,
   });
@@ -358,7 +347,6 @@ const createContext = ({
       isClustered,
       isFLE,
       actions,
-      allowWrites: !isDataLake,
       sourceName,
       editViewName,
       sourcePipeline,
@@ -416,7 +404,6 @@ const createContext = ({
     isClustered,
     isFLE,
     sourceName,
-    allowWrites: !isDataLake,
     connectionString: getCurrentlyConnectedUri(state.dataService.dataService),
   });
 
