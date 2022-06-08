@@ -1,6 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   Button,
   Icon,
@@ -51,6 +51,8 @@ const OUTDATED_WARNING_MESSAGE = `The explain content is outdated and no longer 
  with the documents view. Press "Explain" again to see the explain plan for
  the current query.`;
 
+type ExplainView = 'json' | 'tree';
+
 type ExplainToolbarProps = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
@@ -62,7 +64,7 @@ type ExplainToolbarProps = {
   showReadonlyWarning: boolean;
   switchToTreeView: () => void;
   switchToJSONView: () => void;
-  viewType: 'json' | 'tree';
+  viewType: ExplainView;
 };
 
 function UnthemedExplainToolbar({
@@ -81,37 +83,30 @@ function UnthemedExplainToolbar({
   const labelId = useId();
   const controlId = useId();
 
+  const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
+
   const queryBarRef = useRef<{
     component: React.ComponentType<any>;
     store: any; // Query bar store is not currently typed.
     actions: any; // Query bar actions are not typed.
-  } | null>(null);
+  } | null>({
+    component: queryBarRole.component,
+    store: localAppRegistry.getStore(queryBarRole.storeName!),
+    actions: localAppRegistry.getAction(queryBarRole.actionName!),
+  });
 
-  const [queryBarLoaded, setQueryBarLoaded] = useState(false);
+  const toggleView = useCallback(
+    (newViewType: ExplainView) => {
+      if (newViewType === 'tree') {
+        switchToTreeView();
+      } else {
+        switchToJSONView();
+      }
+    },
+    [switchToJSONView, switchToTreeView]
+  );
 
-  useEffect(() => {
-    const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
-
-    queryBarRef.current = {
-      component: queryBarRole.component,
-      store: localAppRegistry.getStore(queryBarRole.storeName!),
-      actions: localAppRegistry.getAction(queryBarRole.actionName!),
-    };
-
-    setQueryBarLoaded(true);
-  }, [localAppRegistry]);
-
-  const toggleView = useCallback(() => {
-    if (viewType === 'json') {
-      switchToTreeView();
-    } else {
-      switchToJSONView();
-    }
-  }, [viewType, switchToJSONView, switchToTreeView]);
-
-  const QueryBarComponent = queryBarLoaded
-    ? queryBarRef.current!.component
-    : null;
+  const QueryBarComponent = queryBarRef.current!.component;
 
   const onExportToLanguageClicked = useCallback(() => {
     const queryState = queryBarRef.current!.store.state;
@@ -133,7 +128,7 @@ function UnthemedExplainToolbar({
   return (
     <Toolbar className={explainToolbarStyles}>
       <div className={explainQueryBarStyles}>
-        {queryBarLoaded && QueryBarComponent && (
+        {
           <QueryBarComponent
             store={queryBarRef.current!.store}
             actions={queryBarRef.current!.actions}
@@ -142,7 +137,7 @@ function UnthemedExplainToolbar({
             onApply={onExecuteExplainClicked}
             onReset={onExecuteExplainClicked}
           />
-        )}
+        }
       </div>
       <div className={explainActionsToolbarStyles}>
         <Button
@@ -169,7 +164,7 @@ function UnthemedExplainToolbar({
             aria-labelledby={labelId}
             size="small"
             value={viewType}
-            onChange={toggleView}
+            onChange={(value) => toggleView(value as ExplainView)}
           >
             <SegmentedControlOption aria-label="Visual Tree View" value="tree">
               Visual Tree
