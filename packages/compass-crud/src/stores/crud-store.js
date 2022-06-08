@@ -289,13 +289,19 @@ const configureStore = (options = {}) => {
      * @param {Object} instance - MongoDB instance model.
      */
     onInstanceCreated(instance) {
+      this.setState({ version: instance.build.version });
+
       instance.build.on('change:version', (model, version) => {
         this.setState({ version });
       });
 
+      if (instance.dataLake.isDataLake) {
+        this.setState({ isDataLake: true, isEditable: false });
+      }
+
       instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
         if (isDataLake) {
-          this.setState({ isDataLake, isEditable: false });
+          this.setState({ isDataLake: true, isEditable: false });
         }
       });
     },

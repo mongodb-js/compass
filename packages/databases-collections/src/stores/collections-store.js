@@ -21,6 +21,51 @@ store.onActivated = (appRegistry) => {
     }
   }, 300);
 
+  const onDatabaseCollectionStatusChange = (dbModel) => {
+    store.dispatch(collectionsStatusChanged(dbModel));
+    onCollectionsChange(dbModel.collections);
+  };
+
+  const onDatabaseCollectionsChange = (collModel) => {
+    // This is not a typo. Here `collection` is a reference to the ampersand
+    // collection that holds references to all collection models on the
+    // database. Above `collections` is a reference the collections property
+    // on the database model
+    onCollectionsChange(collModel.collection);
+  };
+
+  const onSelectDatabase = (ns) => {
+    const { databaseName } = store.getState();
+
+    if (ns === databaseName) {
+      return;
+    }
+
+    const prevDb = store.instance?.databases.get(databaseName);
+    const nextDb = store.instance?.databases.get(ns);
+
+    if (!nextDb) {
+      throw new Error(`Database ${ns} does not exist`);
+    }
+
+    /* eslint-disable chai-friendly/no-unused-expressions */
+    // Clean up listeners from previous database model (if exists) and set up
+    // new ones
+    prevDb?.off('change:collectionsStatus', onDatabaseCollectionStatusChange);
+    nextDb.on('change:collectionsStatus', onDatabaseCollectionStatusChange);
+    prevDb?.off('change:collections.status', onDatabaseCollectionsChange);
+    nextDb.on('change:collections.status', onDatabaseCollectionsChange);
+    /* eslint-enable chai-friendly/no-unused-expressions */
+
+    // Cancel any pending collection change handlers as they are definitely from
+    // the previous db
+    onCollectionsChange.cancel();
+    // Set initial collections based on the current database model state and
+    // update the collections collection status
+    store.dispatch(changeDatabaseName(ns, nextDb.collections.toJSON() ?? []));
+    onDatabaseCollectionStatusChange(nextDb);
+  };
+
   appRegistry.on('instance-destroyed', () => {
     onCollectionsChange.cancel();
     store.dispatch(reset());
@@ -35,18 +80,7 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('instance-created', ({ instance }) => {
     store.instance = instance;
 
-    instance.on('change:databases.collectionsStatus', (model) => {
-      collectionsStatusChanged(model);
-      onCollectionsChange(model.collections);
-    });
-
-    instance.on('change:collections.status', (model) => {
-      // This is not a typo. Here `collection` is a reference to the ampersand
-      // collection that holds references to all collection models on the
-      // database. Above `collections` is a reference the collections property
-      // on the database model
-      onCollectionsChange(model.collection);
-    });
+    store.dispatch(toggleIsDataLake(instance.dataLake.isDataLake));
 
     instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
       store.dispatch(toggleIsDataLake(isDataLake));
@@ -58,17 +92,7 @@ store.onActivated = (appRegistry) => {
    *
    * @param {String} ns - The namespace.
    */
-  appRegistry.on('select-database', (ns) => {
-    const { databaseName } = store.getState();
-    if (ns !== databaseName) {
-      store.dispatch(
-        changeDatabaseName(
-          ns,
-          store.instance?.databases.get(ns)?.collections.toJSON() ?? []
-        )
-      );
-    }
-  });
+  appRegistry.on('select-database', onSelectDatabase);
 
   /**
    * When write state changes based on SDAM events we change the store state.
