@@ -30,6 +30,7 @@ const DeploymentAwarenessStore = Reflux.createStore({
     this.appRegistry = appRegistry;
     appRegistry.on('data-service-connected', this.onDataServiceConnected.bind(this));
     appRegistry.on('instance-created', ({ instance }) => {
+      this.onInstanceStatusChange(instance, instance.status);
       instance.on('change:status', this.onInstanceStatusChange.bind(this));
     });
   },

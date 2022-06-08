@@ -45,11 +45,11 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.12.0",
     "bson": "^4.4.1",
-    "highlight.js": "^9.12.0",
     "lodash": "^4.17.15",
     "mongodb-data-service": "^21.21.0"
   },
   "peerDependencies": {
+    "@mongodb-js/compass-components": "^0.15.0",
     "bson": "^4.4.1",
     "debug": "*",
     "hadron-react-components": "^5.15.0",
@@ -71,6 +71,7 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
+    "@mongodb-js/compass-components": "^0.15.0",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "autoprefixer": "^9.4.6",

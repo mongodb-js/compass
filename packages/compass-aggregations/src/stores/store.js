@@ -9,7 +9,6 @@ import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { serverVersionChanged } from '../modules/server-version';
 import { setIsAtlasDeployed } from '../modules/is-atlas-deployed';
-import { allowWrites } from '../modules/allow-writes';
 import { outResultsFnChanged } from '../modules/out-results-fn';
 import { envChanged } from '../modules/env';
 import { isTimeSeriesChanged } from '../modules/is-time-series';
@@ -21,6 +20,7 @@ import {
   globalAppRegistryActivated
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setDataLake } from '../modules/is-datalake';
+import { indexesFetched } from '../modules/indexes';
 
 /**
  * Refresh the input documents.
@@ -39,16 +39,6 @@ export const refreshInput = (store) => {
  */
 export const setIsAtlas = (store, isAtlas) => {
   store.dispatch(setIsAtlasDeployed(isAtlas));
-};
-
-/**
- * Set if the plugin allows writes.
- *
- * @param {Store} store - The store.
- * @param {Boolean} allow - If the plugin allows writes.
- */
-export const setAllowWrites = (store, allow) => {
-  store.dispatch(allowWrites(allow));
 };
 
 /**
@@ -104,6 +94,14 @@ export const setServerVersion = (store, version) => {
  */
 export const setFields = (store, fields) => {
   store.dispatch(fieldsChanged(fields));
+};
+
+export const setIndexes = (store, indexes) => {
+  store.dispatch(
+    indexesFetched(
+      indexes.map((index) => index.getAttributes({ props: true }, true))
+    )
+  );
 };
 
 /**
@@ -210,6 +208,10 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('fields-changed', (fields) => {
       setFields(store, fields.aceFields);
     });
+
+    localAppRegistry.on('indexes-changed', (ixs) => {
+      setIndexes(store, ixs);
+    });
   }
 
   if (options.globalAppRegistry) {
@@ -249,10 +251,6 @@ const configureStore = (options = {}) => {
 
   if (options.isAtlasDeployed !== null && options.isAtlasDeployed !== undefined) {
     setIsAtlas(store, options.isAtlasDeployed);
-  }
-
-  if (options.allowWrites !== null && options.allowWrites !== undefined) {
-    setAllowWrites(store, options.allowWrites);
   }
 
   // Set the namespace - must happen third.
