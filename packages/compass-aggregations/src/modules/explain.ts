@@ -169,7 +169,7 @@ export const explainAggregation = (): ThunkAction<
       };
 
       const pipeline = mapPipelineToStages(_pipeline);
-      const explainVerbosity = getExplainVerbosity(pipeline, isDataLake);
+      const explainVerbosity = _getExplainVerbosity(pipeline, isDataLake);
       const rawExplain = await dataService.explainAggregate(
         namespace,
         pipeline,
@@ -189,7 +189,7 @@ export const explainAggregation = (): ThunkAction<
           executionTimeMillis,
           usedIndexes
         } = new ExplainPlan(rawExplain as any);
-        const indexes = mapIndexesInformation(collectionIndexes, usedIndexes);
+        const indexes = _mapIndexesInformation(collectionIndexes, usedIndexes);
         const stats = {
           executionTimeMillis,
           nReturned,
@@ -232,7 +232,7 @@ export const explainAggregation = (): ThunkAction<
   }
 };
 
-const getExplainVerbosity = (
+export const _getExplainVerbosity = (
   pipeline: Document[],
   isDataLake: boolean
 ): keyof typeof ExplainVerbosity => {
@@ -249,23 +249,20 @@ const getExplainVerbosity = (
     : ExplainVerbosity.allPlansExecution;
 };
 
-const mapIndexesInformation = function (
+export const _mapIndexesInformation = function (
   collectionIndexes: IndexInfo[],
   explainIndexes: IndexInformation[]
 ): ExplainIndex[] {
   return explainIndexes
     .filter(x => x.index)
     .map((explainIndex) => {
-      const index = collectionIndexes.find(
+      const collectionIndex = collectionIndexes.find(
         (collectionIndex) => collectionIndex.name === explainIndex.index
       );
-      if (!index) {
-        return null;
-      }
       return {
-        name: index.name,
+        name: explainIndex.index,
         shard: explainIndex.shard,
-        key: index.key,
+        key: collectionIndex?.key ?? {},
       };
     })
     .filter(Boolean) as ExplainIndex[];
