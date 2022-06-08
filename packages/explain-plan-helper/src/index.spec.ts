@@ -296,9 +296,11 @@ describe('explain-plan-plan', function () {
         });
 
         it('should have usedIndexes in executionStats object', function () {
-          expect(plan.executionStats.stageIndexes).to.deep.equal([
-            { index: '_id_', shard: null },
-          ]);
+          const expectedIndexes = [{ index: '_id_', shard: null }];
+          expect(plan.executionStats.stageIndexes).to.deep.equal(
+            expectedIndexes
+          );
+          expect(plan.usedIndexes).to.deep.equal(expectedIndexes);
         });
       });
 
