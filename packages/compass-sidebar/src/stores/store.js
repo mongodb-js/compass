@@ -106,6 +106,8 @@ store.onActivated = (appRegistry) => {
       store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
     }
 
+    onIsGenuineChange(instance.genuineMongoDB.isGenuine);
+
     instance.genuineMongoDB.on('change:isGenuine', (model, isGenuine) => {
       onIsGenuineChange(isGenuine);
     });
@@ -113,6 +115,8 @@ store.onActivated = (appRegistry) => {
     function onIsDataLakeChange(isDataLake) {
       store.dispatch(toggleIsDataLake(isDataLake));
     }
+
+    onIsDataLakeChange(instance.dataLake.isDataLake);
 
     instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
       onIsDataLakeChange(isDataLake);
