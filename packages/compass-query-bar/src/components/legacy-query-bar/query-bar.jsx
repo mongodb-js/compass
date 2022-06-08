@@ -5,8 +5,8 @@ import { Dropdown, MenuItem } from 'react-bootstrap';
 import { pick, isEqual, isString, isArray, map } from 'lodash';
 import FontAwesome from 'react-fontawesome';
 
-import QueryOption from '../query-option';
-import OptionsToggle from '../options-toggle';
+import QueryOption from '../legacy-query-option';
+import OptionsToggle from '../legacy-options-toggle';
 import QUERY_PROPERTIES from '../../constants/query-properties';
 
 import styles from './query-bar.module.less';

@@ -6,7 +6,7 @@ import { expect } from 'chai';
 import QueryBarPlugin from './plugin';
 import configureStore from './stores';
 import configureActions from './actions';
-import OptionEditor from './components/option-editor';
+import OptionEditor from './components/legacy-option-editor';
 
 describe('QueryBar [Plugin]', function () {
   let store;

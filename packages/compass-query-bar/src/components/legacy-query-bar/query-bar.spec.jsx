@@ -3,8 +3,8 @@ import { shallow, mount } from 'enzyme';
 import { expect } from 'chai';
 
 import QueryBar from '.';
-import QueryOption from '../query-option';
-import OptionsToggle from '../options-toggle';
+import QueryOption from '../legacy-query-option';
+import OptionsToggle from '../legacy-options-toggle';
 import configureActions from '../../actions';
 
 import styles from './query-bar.module.less';

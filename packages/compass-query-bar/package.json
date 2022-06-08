@@ -74,6 +74,7 @@
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^0.6.0",
     "@mongodb-js/webpack-config-compass": "^0.9.0",
+    "ace-builds": "^1.4.3",
     "chai": "^4.2.0",
     "classnames": "^2.2.6",
     "debug": "4.3.0",

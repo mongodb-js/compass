@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { useId } from '@react-aria/utils';
 
 if (typeof window === 'undefined' && typeof globalThis !== 'undefined') {
@@ -79,7 +79,7 @@ function Editor({
 
   const editorRef = useRef<AceEditor | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (id && editorRef.current) {
       // After initial load, assign the id to the text area used by ace.
       // This is so labels can `htmlFor` the input.
@@ -87,7 +87,7 @@ function Editor({
     }
   }, [id]);
 
-  const editorId = useId();
+  const editorName = useId();
 
   const editor = (
     <AceEditor
@@ -107,7 +107,7 @@ function Editor({
       setOptions={setOptions}
       readOnly={readOnly}
       // name should be unique since it gets translated to an id
-      name={aceProps.name ?? editorId}
+      name={aceProps.name ?? editorName}
       {...aceProps}
       onFocus={(ev: any) => {
         if (completer) {

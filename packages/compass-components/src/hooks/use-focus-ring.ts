@@ -16,7 +16,7 @@ export const focusRingStyles = css({
     bottom: 3,
     left: 3,
     borderRadius: spacing[1],
-    boxShadow: '0 0 0 0 transparent',
+    boxShadow: `0 0 0 0 ${uiColors.focus}`,
     transition: 'box-shadow .16s ease-in',
   },
 });

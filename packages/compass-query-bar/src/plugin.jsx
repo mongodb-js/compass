@@ -4,7 +4,7 @@ import { StoreConnector } from 'hadron-react-components';
 import { isFunction } from 'lodash';
 
 import LegacyQueryBar from './components/legacy-query-bar';
-import { QueryBar } from './components/query-bar/query-bar';
+import { QueryBar } from './components/query-bar';
 
 function Plugin({
   actions,
