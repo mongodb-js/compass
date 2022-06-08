@@ -54,3 +54,11 @@ jobs:
             AUTHORS
           body: |
             - Update `AUTHORS` and `THIRD-PARTY-NOTICES`
+
+      - name: Merge PR
+        if: ${{steps.cpr.outputs.pull-request-operation == 'created'}}
+        env:
+          PULL_REQUEST_NUMBER: ${{steps.cpr.outputs.pull-request-number}}
+          GITHUB_TOKEN: ${{secrets.SVC_DEVTOOLSBOT_TOKEN}}
+        run: |
+          gh pr merge $PULL_REQUEST_NUMBER --squash --delete-branch
