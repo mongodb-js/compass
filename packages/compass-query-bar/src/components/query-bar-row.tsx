@@ -1,5 +1,11 @@
 import React from 'react';
-import { Link, css, cx, spacing } from '@mongodb-js/compass-components';
+import {
+  Link,
+  css,
+  cx,
+  spacing,
+  breakpoints,
+} from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
 import type {
@@ -12,12 +18,13 @@ import { QueryOption as QueryOptionComponent } from './query-option';
 
 const rowStyles = css({
   alignItems: 'center',
-  display: 'flex',
+  display: 'grid',
   flexGrow: 1,
   position: 'relative',
   margin: spacing[1],
   padding: `0 ${spacing[2]}px`,
-  gap: spacing[3],
+  gap: `0 ${spacing[3]}px`,
+  gridTemplateColumns: '50% repeat(auto-fit, minmax(150px, 1fr))',
 });
 
 const firstQueryOptionsRowStyles = css({
@@ -25,8 +32,17 @@ const firstQueryOptionsRowStyles = css({
   padding: 0,
 });
 
+const multiOptionRowStyles = css({
+  [`@media (max-width: ${breakpoints.XLDesktop}px)`]: {
+    // !important to override the inline gridTemplateColumns styles on
+    // smaller displays or window sizes.
+    gridTemplateColumns: '50% repeat(auto-fit, minmax(150px, 1fr)) !important',
+  },
+});
+
 const queryDocsLinkStyles = css({
   flexShrink: 0,
+  width: 'fit-content',
   marginRight: spacing[2],
 });
 
@@ -53,9 +69,29 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
   schemaFields,
   serverVersion,
 }) => {
+  const isSingleOptionRow = typeof layout === 'string';
+
   return (
-    <div className={cx(rowStyles, isFirstRow && firstQueryOptionsRowStyles)}>
-      {typeof layout === 'string' ? (
+    <div
+      className={cx(
+        rowStyles,
+        isFirstRow && firstQueryOptionsRowStyles,
+        !isSingleOptionRow && multiOptionRowStyles
+      )}
+      style={
+        isSingleOptionRow
+          ? {
+              // Cloud has a instances where the last row is a single option row.
+              gridTemplateColumns: `1fr${isLastRow ? ' max-content' : ''}`,
+            }
+          : {
+              gridTemplateColumns: `50% repeat(${layout.length - 1}, 1fr)${
+                isLastRow ? ' max-content' : ''
+              }`,
+            }
+      }
+    >
+      {isSingleOptionRow ? (
         <QueryOptionComponent
           hasError={!queryOptionProps[`${layout}Valid`]}
           key={`query-option-${layout}`}
@@ -76,13 +112,13 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
           <QueryOptionComponent
             hasError={!queryOptionProps[`${optionName}Valid`]}
             key={`query-option-${optionName}`}
-            queryOption={optionName}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
             onApply={onApply}
             placeholder={
               queryOptionProps[`${optionName}Placeholder`] ||
               OPTION_DEFINITION[optionName].placeholder
             }
+            queryOption={optionName}
             refreshEditorAction={refreshEditorAction}
             schemaFields={schemaFields}
             serverVersion={serverVersion}

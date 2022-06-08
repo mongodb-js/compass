@@ -26,6 +26,7 @@ const queryBarFormStyles = css({
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
   padding: `0 ${spacing[1]}px`,
+  minWidth: spacing[7] * 6,
 
   // TODO: This margin and background will go away when the query bar is
   // wrapped in the Toolbar component in each of the plugins. COMPASS-5484
@@ -186,12 +187,14 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           {buttonLabel}
         </Button>
 
-        <MoreOptionsToggle
-          aria-controls="additional-query-options-container"
-          data-testid="query-bar-options-toggle"
-          isExpanded={isQueryOptionsExpanded}
-          onToggleOptions={toggleExpandQueryOptions}
-        />
+        {layout.length > 1 && (
+          <MoreOptionsToggle
+            aria-controls="additional-query-options-container"
+            data-testid="query-bar-options-toggle"
+            isExpanded={isQueryOptionsExpanded}
+            onToggleOptions={toggleExpandQueryOptions}
+          />
+        )}
       </div>
       <div id="additional-query-options-container">
         {isQueryOptionsExpanded &&
