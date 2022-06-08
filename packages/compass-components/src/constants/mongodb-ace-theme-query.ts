@@ -125,7 +125,7 @@ font-family: inherit;
 transform: none;
 opacity: 1;
 margin: 0;
-padding: 14px 8px !important;
+padding: 10px 8px !important;
 }
 .ace-mongodb-query .ace_keyword {
 color: #999999;

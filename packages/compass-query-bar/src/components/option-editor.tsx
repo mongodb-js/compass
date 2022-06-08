@@ -148,7 +148,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       options={editorSettings}
       completer={completer.current}
       placeholder={placeholder}
-      scrollMargin={[14, 14, 0, 0]}
+      scrollMargin={[10, 10, 0, 0]}
       onLoad={onLoadEditor}
     />
   );

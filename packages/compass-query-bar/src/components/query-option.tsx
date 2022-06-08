@@ -137,6 +137,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
               hasError && optionInputWithErrorStyles
             )}
             type="text"
+            sizeVariant="small"
             state={hasError ? 'error' : 'none'}
             value={`${value}`}
             onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
