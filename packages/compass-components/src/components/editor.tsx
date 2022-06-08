@@ -23,8 +23,8 @@ import 'ace-builds/src-noconflict/mode-ruby';
 import 'ace-builds/src-noconflict/mode-rust';
 import 'ace-builds/src-noconflict/mode-golang';
 import 'mongodb-ace-mode';
-import 'mongodb-ace-theme';
-import 'mongodb-ace-theme-query';
+import '../constants/mongodb-ace-theme';
+import '../constants/mongodb-ace-theme-query';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
 
 /**

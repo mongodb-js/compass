@@ -8,7 +8,7 @@
   margin: 0 auto;
   position: absolute;
   border-radius: 3px;
-  padding: 18px 12px 12px;
+  padding: 18px 12px 6px 12px;
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.06);
 
   &:hover {
@@ -131,27 +131,12 @@
     button {
       pointer-events: all;
       margin: 0;
+      margin-bottom: 6px;
     }
   }
 
   .details-output {
     pointer-events: all;
-    padding: 6px;
-    margin-top: 6px;
-    background: @gray8;
-    border-radius: 3px;
-  }
-
-  .details-output pre {
-    background: none;
-    word-break: break-word;
-    border: none;
-    margin: 0;
-    font-size: 11px;
-  }
-
-  .details-output pre code {
-    background: none;
-    margin: 0;
+    max-height: 40vh;
   }
 }

@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
+import { Code } from '@mongodb-js/compass-components';
+
 import { formatQuery } from '../../utils';
 
-import Code from '../code';
 import styles from './query.module.less';
 
 class Query extends PureComponent {
@@ -21,7 +21,7 @@ class Query extends PureComponent {
    *
    * @note:
    * Durran/Jessica: Don't default the attributes as the empty
-   * projection will cause the document list to go into readony mode.
+   * projection will cause the document list to go into readonly mode.
    * We don't allow editing of documents if there is a projection
    * and there's no need for an empty projection in the query bar
    * as the default placeholder will not display.
@@ -37,11 +37,15 @@ class Query extends PureComponent {
       <li key={index}>
         <label
           data-test-id="query-history-query-label"
-          className={classnames(styles.label)}>{attrKey}</label>
+          className={styles.label}>{attrKey}</label>
         <Code
+          className={styles.code}
           data-test-id="query-history-query-code"
-          code={formatQuery(attributes[attrKey])}
-          language="js" />
+          language="javascript"
+          copyable={false}
+        >
+          {formatQuery(attributes[attrKey])}
+        </Code>
       </li>
     );
   };
@@ -52,7 +56,7 @@ class Query extends PureComponent {
     return (
       <ul
         onClick={this.populateQuery}
-        className={classnames(styles.component)}
+        className={styles.component}
         data-test-id="query-history-query-attributes">
         { Object.keys(attributes).map(this.renderAttr) }
       </ul>

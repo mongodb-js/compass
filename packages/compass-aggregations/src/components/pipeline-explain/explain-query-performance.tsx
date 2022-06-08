@@ -1,13 +1,12 @@
 import React from 'react';
 import { Body, Subtitle, css, spacing } from '@mongodb-js/compass-components';
-import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
-
+import type { ExplainIndex } from '../../modules/explain';
 import { ExplainIndexes } from './explain-indexes';
 
 type ExplainQueryPerformanceProps = {
   executionTimeMillis: number;
   nReturned: number;
-  usedIndexes: IndexInformation[];
+  indexes: ExplainIndex[];
 };
 
 const containerStyles = css({
@@ -33,7 +32,7 @@ const statTitleStyles = css({
 });
 
 export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerformanceProps> =
-  ({ nReturned, executionTimeMillis, usedIndexes }) => {
+  ({ nReturned, executionTimeMillis, indexes }) => {
     return (
       <div
         className={containerStyles}
@@ -49,16 +48,19 @@ export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerfor
           )}
           {executionTimeMillis > 0 && (
             <div className={statItemStyles}>
-              <Body>Actual query execution time(ms):</Body>
+              <Body>Actual query execution time (ms):</Body>
               <Body weight="medium">{executionTimeMillis}</Body>
             </div>
           )}
-          <div className={statItemStyles}>
-            <Body className={statTitleStyles}>
-              Query used the following indexes:
-            </Body>
-            <ExplainIndexes indexes={usedIndexes} />
-          </div>
+          {indexes.length > 0 && (
+            <div className={statItemStyles}>
+              <Body className={statTitleStyles}>
+                Query used the following indexes:
+              </Body>
+              <Body weight="medium">{indexes.length}</Body>
+            </div>
+          )}
+          <ExplainIndexes indexes={indexes} />
         </div>
       </div>
     );

@@ -223,7 +223,6 @@ describe('Aggregation Store', function() {
           // eslint-disable-next-line no-unused-vars
           const { aggregationWorkspaceId, ...state } = store.getState();
           expect(state).to.deep.equal({
-            allowWrites: INITIAL_STATE.allowWrites,
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
             env: INITIAL_STATE.env,
@@ -265,6 +264,7 @@ describe('Aggregation Store', function() {
             countDocuments: INITIAL_STATE.countDocuments,
             explain: INITIAL_STATE.explain,
             isDataLake: INITIAL_STATE.isDataLake,
+            indexes: INITIAL_STATE.indexes,
           });
         });
       });

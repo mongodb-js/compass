@@ -7,9 +7,9 @@ import configureStore, {
   setGlobalAppRegistry,
   setLocalAppRegistry,
   setIsAtlas,
-  setAllowWrites,
   setOutResultsFn,
-  setViewSource
+  setViewSource,
+  setIndexes,
 } from './store';
 export default configureStore;
 export {
@@ -21,7 +21,7 @@ export {
   setGlobalAppRegistry,
   setLocalAppRegistry,
   setIsAtlas,
-  setAllowWrites,
   setOutResultsFn,
-  setViewSource
+  setViewSource,
+  setIndexes,
 };
