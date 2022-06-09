@@ -259,16 +259,14 @@ describe('FLE2', function () {
         collectionName,
         'Documents'
       );
+      const document = await browser.$(Selectors.DocumentListEntry);
 
-      const decryptedIconElements = await browser.$$(
-        Selectors.documentListDecryptedIcon(1)
+      const documentPhoneNumberDecryptedIcon = await document.$(
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
       );
-      const decryptedIcons = await Promise.all(
-        decryptedIconElements.map((el) => el.getAttribute('title'))
-      );
-
-      expect(decryptedIcons).to.have.lengthOf(1);
-      expect(decryptedIcons[0]).to.be.equal('Encrypted Field');
+      const isDocumentPhoneNumberDecryptedIconExisting =
+        await documentPhoneNumberDecryptedIcon.isExisting();
+      expect(isDocumentPhoneNumberDecryptedIconExisting).to.be.equal(true);
     });
 
     it('can edit and query the encrypted field', async function () {
@@ -290,12 +288,12 @@ describe('FLE2', function () {
 
       const document = await browser.$(Selectors.DocumentListEntry);
       const value = await document.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
       );
       await value.doubleClick();
 
       const input = await document.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
       );
       await input.setValue('10101010');
 
@@ -349,11 +347,11 @@ describe('FLE2', function () {
 
       const originalDocument = await browser.$(Selectors.DocumentListEntry);
       const originalValue = await originalDocument.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
       );
       await originalValue.doubleClick();
       const originalDocumentPhoneNumberEditor = await originalDocument.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
       );
       const isOriginalDocumentPhoneNumberEditorExisting =
         await originalDocumentPhoneNumberEditor.isExisting();
@@ -363,31 +361,28 @@ describe('FLE2', function () {
 
       const copiedDocument = await browser.$(Selectors.DocumentListEntry);
       const copiedValue = await copiedDocument.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
       );
       await copiedValue.doubleClick();
       const copiedDocumentPhoneNumberEditor = await copiedDocument.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
       );
       const isCopiedDocumentPhoneNumberEditorExisting =
         await copiedDocumentPhoneNumberEditor.isExisting();
       expect(isCopiedDocumentPhoneNumberEditorExisting).to.be.equal(true);
       const copiedDocumentFaxNumberEditor = await copiedDocument.$(
-        `${Selectors.HadronDocumentElement}:nth-child(3) ${Selectors.HadronDocumentValueEditor}`
+        `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentValueEditor}`
       );
       const isCopiedDocumentFaxNumberEditorExisting =
         await copiedDocumentFaxNumberEditor.isExisting();
       expect(isCopiedDocumentFaxNumberEditorExisting).to.be.equal(true);
 
-      const decryptedIconElements = await browser.$$(
-        Selectors.documentListDecryptedIcon(1)
+      const copiedDocumentFaxNumberDecryptedIcon = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
       );
-      const decryptedIcons = await Promise.all(
-        decryptedIconElements.map((el) => el.getAttribute('title'))
-      );
-
-      expect(decryptedIcons).to.have.lengthOf(2);
-      expect(decryptedIcons[1]).to.be.equal('Encrypted Field');
+      const isCopiedDocumentFaxNumberDecryptedIconExisting =
+        await copiedDocumentFaxNumberDecryptedIcon.isExisting();
+      expect(isCopiedDocumentFaxNumberDecryptedIconExisting).to.be.equal(true);
 
       await copiedDocumentFaxNumberEditor.setValue('0');
 
@@ -400,6 +395,87 @@ describe('FLE2', function () {
       expect(await footer.getText()).to.equal(
         'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
       );
+    });
+
+    it('shows incomplete schema for cloned document banner', async function () {
+      await browser.shellEval(`db.createCollection('${collectionName}')`);
+      await browser.shellEval(
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
+      );
+
+      const plainMongo = await MongoClient.connect(CONNECTION_STRING);
+      const doc = await plainMongo
+        .db(databaseName)
+        .collection(collectionName)
+        .findOne();
+
+      await plainMongo.db(databaseName).collection(collectionName).insertOne({
+        phoneNumber: doc?.phoneNumber,
+        faxNumber: doc?.phoneNumber,
+        name: 'La La',
+      });
+
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      await browser.runFindOperation('Documents', "{ name: 'La La' }");
+
+      const document = await browser.$(Selectors.DocumentListEntry);
+      await document.waitForDisplayed();
+
+      await browser.hover(Selectors.DocumentListEntry);
+      await browser.clickVisible(Selectors.CloneDocumentButton);
+
+      // wait for the modal to appear
+      const insertDialog = await browser.$(Selectors.InsertDialog);
+      await insertDialog.waitForDisplayed();
+
+      // set the text in the editor
+      await browser.setAceValue(
+        Selectors.InsertJSONEditor,
+        '{ "phoneNumber": "30303030", "name": "Copy" }'
+      );
+
+      const incompleteSchemaForClonedDocMsg = await browser.$(
+        Selectors.incompleteSchemaForClonedDocMsg
+      );
+      const incompleteSchemaForClonedDocMsgText =
+        await incompleteSchemaForClonedDocMsg.getText();
+      expect(incompleteSchemaForClonedDocMsgText).to.include('phoneNumber');
+
+      // confirm
+      const insertConfirm = await browser.$(Selectors.InsertConfirm);
+      await insertConfirm.waitForEnabled();
+      await browser.clickVisible(Selectors.InsertConfirm);
+
+      // wait for the modal to go away
+      await insertDialog.waitForDisplayed({ reverse: true });
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+
+      await browser.runFindOperation('Documents', "{ name: 'Copy' }");
+      const clonedDocument = await browser.$(Selectors.DocumentListEntry);
+
+      const clonedDocumentPhoneNumberDecryptedIcon = await clonedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
+      );
+      const isClonedDocumentPhoneNumberDecryptedIconExisting =
+        await clonedDocumentPhoneNumberDecryptedIcon.isExisting();
+      expect(isClonedDocumentPhoneNumberDecryptedIconExisting).to.be.equal(
+        true
+      );
+
+      const clonedDocumentFaxNumberDecryptedIcon = await clonedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
+      );
+      const isClonedDocumentFaxNumberDecryptedIconExisting =
+        await clonedDocumentFaxNumberDecryptedIcon.isExisting();
+      expect(isClonedDocumentFaxNumberDecryptedIconExisting).to.be.equal(false);
     });
   });
 });

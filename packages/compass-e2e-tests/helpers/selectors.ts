@@ -513,6 +513,8 @@ export const InsertCancel =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
 export const insertCSFLEHasKnownSchemaMsg =
   '[data-test-id="insert-csfle-has-known-schema"]';
+export const incompleteSchemaForClonedDocMsg =
+  '[data-test-id="incomplete-schema-for-cloned-doc"]';
 
 // Import File modal
 
@@ -578,9 +580,6 @@ export const documentListDocumentKey = (n: number): string => {
 };
 export const documentListDocumentValue = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
-};
-export const documentListDecryptedIcon = (n: number): string => {
-  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentElementDecryptedIcon}`;
 };
 
 // Query bar history
