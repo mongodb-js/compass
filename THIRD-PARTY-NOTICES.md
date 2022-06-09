@@ -1,11 +1,11 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Sun May 29 2022.
+This document was automatically generated on Wed Jun 08 2022.
 
 ## List of dependencies
 
 Package|Version|License
 -------|-------|-------
-**[@mongosh/node-runtime-worker-thread](#a6bb0ef94d23be6a4fa97911ad327592d92eb01e95fad59d65e0fa414a03a7ed)**|1.4.2|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#02f32d028a7ac3493c4eea8ba6c60dcff1a126572d96569699ba741b7f35b49b)**|1.5.0|Apache-2.0
 **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
 **[ansi-regex](#f4a8a360dfe3cdd0cbb8fcfa0cff23bb22eafa4225343577912ddf831d670411)**|3.0.0|MIT
 **[aproba](#b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e)**|1.2.0|ISC
@@ -48,7 +48,7 @@ Package|Version|License
 **[mimic-response](#0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e)**|2.1.0|MIT
 **[minimist](#837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d)**|1.2.6|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb-client-encryption](#d09845a17cabede7eb49e7e01aca775f6733fea49340672a485d6160fb7c7f70)**|2.2.0-alpha.0|Apache-2.0
+**[mongodb-client-encryption](#a091cc6779e7a303fbcad4a63b23d47f132e1ecf39f39faaabc259e1af811960)**|2.2.0-alpha.1|Apache-2.0
 **[mongodb-compass](#83bc011aa472d9fe55460f83c3fcfc98ca134ed763686df7a4bc080171ccb917)**|0.0.1-dev.0|SSPL
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
@@ -100,8 +100,8 @@ Package|Version|License
 
 ## Package details
 
-<a id="a6bb0ef94d23be6a4fa97911ad327592d92eb01e95fad59d65e0fa414a03a7ed"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.4.2)
+<a id="02f32d028a7ac3493c4eea8ba6c60dcff1a126572d96569699ba741b7f35b49b"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.5.0)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
@@ -2275,8 +2275,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="d09845a17cabede7eb49e7e01aca775f6733fea49340672a485d6160fb7c7f70"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.0-alpha.0)
+<a id="a091cc6779e7a303fbcad4a63b23d47f132e1ecf39f39faaabc259e1af811960"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.0-alpha.1)
 <!-- initially found at node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
@@ -3060,8 +3060,8 @@ License files:
       
                               END OF TERMS AND CONDITIONS
       
-      This product also includes the MongoDB Client-Side Field-Level Encryption library
-      (mongodb_csfle_v1) which is covered by the MongoDB Enterprise Agreement.
+      This product also includes the MongoDB Crypt library (mongodb_crypt_v1)
+      which is covered by the MongoDB Enterprise Agreement.
       
 
 Authors:
