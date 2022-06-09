@@ -477,5 +477,70 @@ describe('FLE2', function () {
         await clonedDocumentFaxNumberDecryptedIcon.isExisting();
       expect(isClonedDocumentFaxNumberDecryptedIconExisting).to.be.equal(false);
     });
+
+    it('can enable and disable in-use encryption from the sidebar', async function () {
+      await browser.shellEval(`db.createCollection('${collectionName}')`);
+      await browser.shellEval(
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
+      );
+
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      let decryptedResult = await getFirstListDocument(browser);
+
+      delete decryptedResult._id;
+      delete decryptedResult.__safeContent__;
+
+      expect(decryptedResult).to.deep.equal({
+        phoneNumber: '"30303030"',
+        name: '"Person Z"',
+      });
+
+      await browser.clickVisible(Selectors.FleConnectionConfigurationBanner);
+
+      let modal = await browser.$(Selectors.CSFLEConnectionModal);
+      await modal.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
+
+      await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
+      await modal.waitForDisplayed({ reverse: true });
+
+      const encryptedResult = await getFirstListDocument(browser);
+
+      delete encryptedResult._id;
+      delete encryptedResult.__safeContent__;
+
+      expect(encryptedResult).to.deep.equal({
+        phoneNumber: '*********',
+        name: '"Person Z"',
+      });
+
+      await browser.clickVisible(Selectors.FleConnectionConfigurationBanner);
+
+      modal = await browser.$(Selectors.CSFLEConnectionModal);
+      await modal.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
+
+      await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
+      await modal.waitForDisplayed({ reverse: true });
+
+      decryptedResult = await getFirstListDocument(browser);
+
+      delete decryptedResult._id;
+      delete decryptedResult.__safeContent__;
+
+      expect(decryptedResult).to.deep.equal({
+        phoneNumber: '"30303030"',
+        name: '"Person Z"',
+      });
+    });
   });
 });

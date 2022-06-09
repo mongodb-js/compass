@@ -218,6 +218,11 @@ export const SidebarInstanceRefreshSpinning =
   '[data-test-id="sidebar-instance-stats-refresh-spinning"]';
 export const SidebarInstanceRefreshIdle =
   '[data-test-id="sidebar-instance-stats-refresh-idle"]';
+export const FleConnectionConfigurationBanner =
+  '[data-test-id="fle-connection-configuration"]';
+export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
+export const CSFLEConnectionModal = '[data-test-id="csfle-connection-modal"]';
+export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
