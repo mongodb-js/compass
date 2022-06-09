@@ -22,7 +22,7 @@ describe('FLE2', function () {
   });
 
   describe('when fleEncryptedFieldsMap is not specified while connecting', function () {
-    const databaseName = 'db-to-test-fle';
+    const databaseName = 'db-for-fle';
     const collectionName = 'my-encrypted-collection';
     let compass: Compass;
     let browser: CompassBrowser;
@@ -98,6 +98,7 @@ describe('FLE2', function () {
     const collectionName = 'my-another-collection';
     let compass: Compass;
     let browser: CompassBrowser;
+    let plainMongo: MongoClient;
 
     before(async function () {
       compass = await beforeTests();
@@ -134,9 +135,11 @@ describe('FLE2', function () {
           '})'
       );
       await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+      plainMongo = await MongoClient.connect(CONNECTION_STRING);
     });
 
     after(async function () {
+      await plainMongo.close();
       if (compass) {
         await afterTests(compass, this.currentTest);
       }
@@ -324,7 +327,6 @@ describe('FLE2', function () {
         )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
       );
 
-      const plainMongo = await MongoClient.connect(CONNECTION_STRING);
       const doc = await plainMongo
         .db(databaseName)
         .collection(collectionName)
@@ -405,7 +407,6 @@ describe('FLE2', function () {
         )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
       );
 
-      const plainMongo = await MongoClient.connect(CONNECTION_STRING);
       const doc = await plainMongo
         .db(databaseName)
         .collection(collectionName)
