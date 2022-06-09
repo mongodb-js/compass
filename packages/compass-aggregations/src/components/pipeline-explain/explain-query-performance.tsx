@@ -52,16 +52,14 @@ export const ExplainQueryPerformance: React.FunctionComponent<ExplainQueryPerfor
               <Body weight="medium">{executionTimeMillis}</Body>
             </div>
           )}
-          <div className={statItemStyles}>
-            <Body className={statTitleStyles}>
-              Query used the following indexes:
-            </Body>
-            <Body weight="medium">
-              {indexes.length === 0
-                ? 'No index available for this query.'
-                : indexes.length}
-            </Body>
-          </div>
+          {indexes.length > 0 && (
+            <div className={statItemStyles}>
+              <Body className={statTitleStyles}>
+                Query used the following indexes:
+              </Body>
+              <Body weight="medium">{indexes.length}</Body>
+            </div>
+          )}
           <ExplainIndexes indexes={indexes} />
         </div>
       </div>

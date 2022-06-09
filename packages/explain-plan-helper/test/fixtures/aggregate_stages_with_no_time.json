@@ -1,0 +1,84 @@
+{
+  "stages": [
+    {
+      "$cursor": {
+        "query": {},
+        "queryPlanner": {
+          "plannerVersion": 1,
+          "namespace": "Corporate-Registrations.corporations",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "8B3D4AB8",
+          "planCacheKey": "8B3D4AB8",
+          "winningPlan": {
+            "stage": "COLLSCAN",
+            "direction": "forward"
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 1454504,
+          "executionTimeMillis": 21317,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 1454504,
+          "executionStages": {
+            "stage": "COLLSCAN",
+            "nReturned": 1454504,
+            "executionTimeMillisEstimate": 2907,
+            "works": 1454506,
+            "advanced": 1454504,
+            "needTime": 1,
+            "needYield": 0,
+            "saveState": 12965,
+            "restoreState": 12965,
+            "isEOF": 1,
+            "direction": "forward",
+            "docsExamined": 1454504
+          },
+          "allPlansExecution": []
+        }
+      }
+    },
+    {
+      "$sort": {
+        "sortKey": {
+          "name": -1
+        },
+        "limit": 100
+      }
+    }
+  ],
+  "serverInfo": {
+    "host": "compass-data-sets-shard-00-02-e06dc.mongodb.net",
+    "port": 27017,
+    "version": "4.2.20",
+    "gitVersion": "15c0712952c356cb711c13a42cb3bca8617d4ebc"
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": {
+        "t": 1654600046,
+        "i": 1
+      }
+    },
+    "signature": {
+      "hash": {
+        "$binary": {
+          "base64": "fZvzeYr8VLiaudW20Gm/bfaOdT0=",
+          "subType": "00"
+        }
+      },
+      "keyId": {
+        "$numberLong": "7065695976194834434"
+      }
+    }
+  },
+  "operationTime": {
+    "$timestamp": {
+      "t": 1654600046,
+      "i": 1
+    }
+  }
+}
