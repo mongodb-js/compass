@@ -404,7 +404,7 @@ describe('FLE2', function () {
       await browser.shellEval(
         `db[${JSON.stringify(
           collectionName
-        )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
+        )}].insertOne({ "phoneNumber": "30303030", "name": "First" })`
       );
 
       const doc = await plainMongo
@@ -415,7 +415,7 @@ describe('FLE2', function () {
       await plainMongo.db(databaseName).collection(collectionName).insertOne({
         phoneNumber: doc?.phoneNumber,
         faxNumber: doc?.phoneNumber,
-        name: 'La La',
+        name: 'Second',
       });
 
       await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
@@ -425,7 +425,7 @@ describe('FLE2', function () {
         'Documents'
       );
 
-      await browser.runFindOperation('Documents', "{ name: 'La La' }");
+      await browser.runFindOperation('Documents', "{ name: 'Second' }");
 
       const document = await browser.$(Selectors.DocumentListEntry);
       await document.waitForDisplayed();
@@ -440,7 +440,7 @@ describe('FLE2', function () {
       // set the text in the editor
       await browser.setAceValue(
         Selectors.InsertJSONEditor,
-        '{ "phoneNumber": "30303030", "name": "Copy" }'
+        '{ "phoneNumber": "30303030", "faxNumber": "30303030", "name": "Third" }'
       );
 
       const incompleteSchemaForClonedDocMsg = await browser.$(
@@ -459,7 +459,19 @@ describe('FLE2', function () {
       await insertDialog.waitForDisplayed({ reverse: true });
       await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
 
-      await browser.runFindOperation('Documents', "{ name: 'Copy' }");
+      await browser.runFindOperation('Documents', "{ name: 'Third' }");
+
+      const result = await getFirstListDocument(browser);
+
+      delete result._id;
+      delete result.__safeContent__;
+
+      expect(result).to.deep.equal({
+        phoneNumber: '"30303030"',
+        faxNumber: '"30303030"',
+        name: '"Third"',
+      });
+
       const clonedDocument = await browser.$(Selectors.DocumentListEntry);
 
       const clonedDocumentPhoneNumberDecryptedIcon = await clonedDocument.$(
