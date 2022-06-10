@@ -2,15 +2,14 @@ import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
 import { remote } from 'electron';
 import _ from 'lodash';
-import { isDeepStrictEqual } from 'util';
-
-import { formatQuery } from '../utils';
+import { formatQuery, comparableQuery } from '../utils';
 import { RecentQuery, RecentQueryCollection } from '../models';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit', 'collation'];
+
 
 /**
  * Query History Recent List store.
@@ -25,7 +24,9 @@ const configureStore = (options = {}) => {
      * Filter attributes that aren't query fields or have default/empty values.
      * @param {object} attributes
      */
-    _filterDefaults(attributes) {
+    _filterDefaults(_attributes) {
+      // don't mutate the passed in parameter
+      const attributes = _.clone(_attributes);
       for (const key in attributes) {
         if (attributes.hasOwnProperty(key)) {
           if (!attributes[key] || ALLOWED.indexOf(key) === -1) {
@@ -35,6 +36,7 @@ const configureStore = (options = {}) => {
           }
         }
       }
+      return attributes;
     },
 
     onConnected() {
@@ -58,7 +60,7 @@ const configureStore = (options = {}) => {
       const ns = recent.ns;
 
       /* Ignore empty or default queries */
-      this._filterDefaults(recent);
+      recent = this._filterDefaults(recent);
       if (_.isEmpty(recent)) {
         return;
       }
@@ -66,6 +68,15 @@ const configureStore = (options = {}) => {
       const filtered = this.state.items.filter((r) => {
         return r._ns === ns;
       });
+
+      /* Ignore duplicate queries */
+      const existingQuery = this.state.items.find((item) => _.isEqual(comparableQuery(item), recent));
+      if (existingQuery) {
+        // update the existing query's lastExecuted to move it to the top
+        existingQuery._lastExecuted = Date.now();
+        existingQuery.save();
+        return;
+      }
 
       /* Keep length of each recent list to TOTAL_RECENTS */
       if (filtered.length >= TOTAL_RECENTS) {
@@ -92,14 +103,8 @@ const configureStore = (options = {}) => {
     },
 
     runQuery(query) {
-      // Loosely match queries against known history entries, because
-      // currently we do not distinguish between favorites and recents
-      // when running queries. This way, we do track some queries twice
-      // (because there are more options than just .filter), but that
-      // is probably fine as a temporary measure.
-      // https://jira.mongodb.org/browse/COMPASS-5243
       if (this.state.items.map(item => item.serialize()).some(item => {
-        return isDeepStrictEqual(item.filter, query.filter);
+        return _.isEqual(comparableQuery(item), query);
       })) {
         track('Query History Recent Used');
       }
