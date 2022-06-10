@@ -288,6 +288,22 @@ describe('explain-plan-plan', function () {
         });
       });
 
+      describe('stages with indexesUsed', function () {
+        beforeEach(async function () {
+          plan = await loadExplainFixture(
+            'aggregate_$lookup_with_indexes.json'
+          );
+        });
+
+        it('should have usedIndexes in executionStats object', function () {
+          const expectedIndexes = [{ index: '_id_', shard: null }];
+          expect(plan.executionStats.stageIndexes).to.deep.equal(
+            expectedIndexes
+          );
+          expect(plan.usedIndexes).to.deep.equal(expectedIndexes);
+        });
+      });
+
       describe('execution time', function () {
         beforeEach(async function () {
           plan = await loadExplainFixture('aggregate_stages_with_no_time.json');
@@ -504,6 +520,20 @@ describe('explain-plan-plan', function () {
           const stage1 = plan.findStageByName('SHARD_MERGE');
           const stage2 = plan.findStageByName('SHARD_MERGE', stage1);
           expect(stage1).to.equal(stage2);
+        });
+      });
+      describe('stages with indexesUsed', function () {
+        let plan: ExplainPlan;
+        beforeEach(async function () {
+          plan = await loadExplainFixture(
+            'sharded_aggregate_$lookup_with_indexes.json'
+          );
+        });
+
+        it('should have usedIndexes in executionStats object', function () {
+          expect(plan.executionStats.stageIndexes).to.deep.equal([
+            { index: '_id_', shard: 'shard2' },
+          ]);
         });
       });
     });
