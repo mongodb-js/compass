@@ -7,6 +7,7 @@ const Reflux = require('reflux');
  */
 const configureActions = () => {
   return Reflux.createActions({
+    onExportToLanguage: { sync: true },
     /**
      * starts schema analysis with the current query
      */

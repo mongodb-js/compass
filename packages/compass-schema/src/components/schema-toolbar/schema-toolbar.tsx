@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   Body,
   Button,
@@ -74,10 +68,10 @@ const SCHEMA_ANALYSIS_DOCS_LINK =
 type SchemaToolbarProps = {
   analysisState: AnalysisState;
   errorMessage: string;
-  globalAppRegistry: AppRegistry;
   isOutdated: boolean;
   localAppRegistry: AppRegistry;
   onAnalyzeSchemaClicked: () => void;
+  onExportToLanguageClicked: (queryState: any) => void;
   onResetClicked: () => void;
   sampleSize: number;
   schemaResultId: string;
@@ -86,72 +80,44 @@ type SchemaToolbarProps = {
 const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   analysisState,
   errorMessage,
-  globalAppRegistry,
   isOutdated,
   localAppRegistry,
   onAnalyzeSchemaClicked,
+  onExportToLanguageClicked,
   onResetClicked,
   sampleSize,
   schemaResultId,
 }) => {
+  const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
+
   const queryBarRef = useRef<{
     component: React.ComponentType<any>;
     store: any; // Query bar store is not currently typed.
     actions: any; // Query bar actions are not typed.
-  } | null>(null);
+  }>({
+    component: queryBarRole.component,
+    store: localAppRegistry.getStore(queryBarRole.storeName!),
+    actions: localAppRegistry.getAction(queryBarRole.actionName!),
+  });
 
-  const [queryBarLoaded, setQueryBarLoaded] = useState(false);
-
-  const QueryBarComponent = queryBarLoaded
-    ? queryBarRef.current!.component
-    : null;
-
-  useEffect(() => {
-    const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
-
-    queryBarRef.current = {
-      component: queryBarRole.component,
-      store: localAppRegistry.getStore(queryBarRole.storeName!),
-      actions: localAppRegistry.getAction(queryBarRole.actionName!),
-    };
-
-    setQueryBarLoaded(true);
-  }, [localAppRegistry]);
+  const QueryBarComponent = queryBarRef.current.component;
 
   const documentsNoun = useMemo(
     () => (sampleSize === 1 ? 'document' : 'documents'),
     [sampleSize]
   );
 
-  const onExportToLanguageClicked = useCallback(() => {
-    const queryState = queryBarRef.current!.store.state;
-    localAppRegistry.emit('open-query-export-to-language', {
-      filter: queryState.filterString,
-      project: queryState.projectString,
-      sort: queryState.sortString,
-      collation: queryState.collationString,
-      skip: queryState.skipString,
-      limit: queryState.limitString,
-      maxTimeMS: queryState.maxTimeMSString,
-    });
-    globalAppRegistry.emit('compass:export-to-language:opened', {
-      source: 'Schema',
-    });
-  }, [localAppRegistry, globalAppRegistry]);
-
   return (
     <Toolbar className={schemaToolbarStyles}>
       <div className={schemaQueryBarStyles}>
-        {queryBarLoaded && QueryBarComponent && (
-          <QueryBarComponent
-            store={queryBarRef.current!.store}
-            actions={queryBarRef.current!.actions}
-            buttonLabel="Analyze"
-            resultId={schemaResultId}
-            onApply={onAnalyzeSchemaClicked}
-            onReset={onResetClicked}
-          />
-        )}
+        <QueryBarComponent
+          store={queryBarRef.current.store}
+          actions={queryBarRef.current.actions}
+          buttonLabel="Analyze"
+          resultId={schemaResultId}
+          onApply={onAnalyzeSchemaClicked}
+          onReset={onResetClicked}
+        />
       </div>
       <div className={schemaToolbarActionBarStyles}>
         <Button
@@ -159,7 +125,9 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           variant="primaryOutline"
           size="xsmall"
           leftGlyph={<Icon glyph={'Export'} />}
-          onClick={onExportToLanguageClicked}
+          onClick={() =>
+            onExportToLanguageClicked(queryBarRef.current.store.state)
+          }
           data-testid="schema-toolbar-export-button"
         >
           Export to language

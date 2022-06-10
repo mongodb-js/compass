@@ -1,6 +1,7 @@
 import configureStore from '.';
 import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
+import sinon from 'sinon';
 
 import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
 
@@ -91,6 +92,70 @@ describe('Schema Store', function () {
 
     it('sets the project', function () {
       expect(store.query.project).to.deep.equal(project);
+    });
+  });
+
+  context('#onExportToLanguage', function () {
+    let store;
+    let localAppRegistryEmitSpy;
+    let globalAppRegistryEmitSpy;
+
+    beforeEach(function () {
+      const globalAppRegistry = new AppRegistry();
+      const localAppRegistry = new AppRegistry();
+      globalAppRegistryEmitSpy = sinon.spy();
+      localAppRegistryEmitSpy = sinon.spy();
+      sinon.replace(globalAppRegistry, 'emit', globalAppRegistryEmitSpy);
+      sinon.replace(localAppRegistry, 'emit', localAppRegistryEmitSpy);
+
+      store = configureStore({
+        globalAppRegistry,
+        localAppRegistry,
+      });
+
+      expect(globalAppRegistryEmitSpy.called).to.be.false;
+      expect(localAppRegistryEmitSpy.called).to.be.false;
+
+      store.onExportToLanguage({
+        filterString: '123',
+        projectString: 'abc',
+        sortString: '',
+        collationString: '',
+        skipString: '',
+        limitString: '',
+        maxTimeMSString: '',
+      });
+    });
+
+    afterEach(function () {
+      store = null;
+      sinon.restore();
+    });
+
+    it('emits the event with the query options to the local app registry', function () {
+      expect(localAppRegistryEmitSpy.calledOnce).to.be.true;
+      expect(localAppRegistryEmitSpy.firstCall.args[0]).to.equal(
+        'open-query-export-to-language'
+      );
+      expect(localAppRegistryEmitSpy.firstCall.args[1]).to.deep.equal({
+        filter: '123',
+        project: 'abc',
+        sort: '',
+        collation: '',
+        skip: '',
+        limit: '',
+        maxTimeMS: '',
+      });
+    });
+
+    it('emits the event with the schema tag to the global app registry', function () {
+      expect(globalAppRegistryEmitSpy.calledOnce).to.be.true;
+      expect(globalAppRegistryEmitSpy.firstCall.args[0]).to.equal(
+        'compass:export-to-language:opened'
+      );
+      expect(globalAppRegistryEmitSpy.firstCall.args[1]).to.deep.equal({
+        source: 'Schema',
+      });
     });
   });
 

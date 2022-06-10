@@ -20,7 +20,7 @@ const mockQueryBarRole = {
 
 const mockQueryBarStore = {
   state: {
-    filterString: '',
+    filterString: '123',
     projectString: '',
     sortString: '',
     collationString: '',
@@ -39,7 +39,7 @@ const renderSchemaToolbar = (
 
   render(
     <SchemaToolbar
-      globalAppRegistry={new AppRegistry()}
+      onExportToLanguageClicked={() => {}}
       localAppRegistry={localAppRegistry}
       analysisState="complete"
       errorMessage={''}
@@ -58,13 +58,9 @@ describe('SchemaToolbar', function () {
     sinon.restore();
   });
 
-  it('emits an app registry event when the export to language is clicked', function () {
-    const globalAppRegistry = new AppRegistry();
+  it('calls onExportToLanguage with the query state when the export to language is clicked', function () {
     const localAppRegistry = new AppRegistry();
-    const globalAppRegistrySpy = sinon.spy();
-    const localAppRegistrySpy = sinon.spy();
-    sinon.replace(globalAppRegistry, 'emit', globalAppRegistrySpy);
-    sinon.replace(localAppRegistry, 'emit', localAppRegistrySpy);
+    const onExportToLanguageClickedSpy = sinon.spy();
 
     localAppRegistry.registerRole('Query.QueryBar', mockQueryBarRole);
     localAppRegistry.registerStore(
@@ -73,35 +69,22 @@ describe('SchemaToolbar', function () {
     );
 
     renderSchemaToolbar({
-      globalAppRegistry,
+      onExportToLanguageClicked: onExportToLanguageClickedSpy,
       localAppRegistry,
     });
 
-    expect(globalAppRegistrySpy.called).to.be.false;
-    expect(localAppRegistrySpy.called).to.be.false;
+    expect(onExportToLanguageClickedSpy.called).to.be.false;
     userEvent.click(screen.getByRole('button'));
 
-    expect(globalAppRegistrySpy.calledOnce).to.be.true;
-    expect(localAppRegistrySpy.calledOnce).to.be.true;
-
-    expect(localAppRegistrySpy.firstCall.args[0]).to.equal(
-      'open-query-export-to-language'
-    );
-    expect(localAppRegistrySpy.firstCall.args[1]).to.deep.equal({
-      filter: '',
-      project: '',
-      sort: '',
-      collation: '',
-      skip: '',
-      limit: '',
-      maxTimeMS: '',
-    });
-
-    expect(globalAppRegistrySpy.firstCall.args[0]).to.equal(
-      'compass:export-to-language:opened'
-    );
-    expect(globalAppRegistrySpy.firstCall.args[1]).to.deep.equal({
-      source: 'Schema',
+    expect(onExportToLanguageClickedSpy.calledOnce).to.be.true;
+    expect(onExportToLanguageClickedSpy.firstCall.args[0]).to.deep.equal({
+      filterString: '123',
+      projectString: '',
+      sortString: '',
+      collationString: '',
+      skipString: '',
+      limitString: '',
+      maxTimeMSString: '',
     });
   });
 
