@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Document from '../src/';
 import SharedExamples from './shared-examples';
-import { ObjectId, Long } from 'bson';
+import { ObjectId, Long, Int32 } from 'bson';
 
 describe('Document', function () {
   describe('#get', function () {
@@ -325,7 +325,7 @@ describe('Document', function () {
     });
   });
 
-  describe('#getOriginalKeysAndValuesForSpecifiedKeys', function () {
+  describe('#getQueryForOriginalKeysAndValuesForSpecifiedFields', function () {
     context('when an element is removed', function () {
       const object = { name: 'test', ignored: 'ignored' };
       const doc = new Document(object);
@@ -336,7 +336,7 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForSpecifiedKeys({ name: 1 })
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -347,7 +347,7 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForSpecifiedKeys({ name: 1 })
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -362,7 +362,7 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForSpecifiedKeys({ name: 1 })
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -377,7 +377,7 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForSpecifiedKeys({ name: 1 })
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -392,7 +392,7 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForSpecifiedKeys({ name: 1 })
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -693,7 +693,7 @@ describe('Document', function () {
     });
   });
 
-  describe('#generateUpdateUnlessChangedInBackgroundQuery', function () {
+  describe('#generateUpdateUnlessChangedInBackgroundQuery: query', function () {
     context('when called with an edited document', function () {
       const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
       const hadronDoc = new Document(doc);
@@ -711,7 +711,7 @@ describe('Document', function () {
 
       it('contains keys that were explicitly requested', function () {
         const { query } =
-          hadronDoc.generateUpdateUnlessChangedInBackgroundQuery({ yes: 1 });
+          hadronDoc.generateUpdateUnlessChangedInBackgroundQuery(['yes']);
 
         expect(query).to.deep.equal({
           _id: 'testing',
@@ -745,6 +745,7 @@ describe('Document', function () {
         expect(query).to.deep.equal({
           _id: 'testing',
           name: 'Beach Sand',
+          newname: { $exists: false },
         });
       });
 
@@ -779,7 +780,7 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 'abc', nestedField2: 'aaa' },
+            'a.nestedField1': 'abc',
           });
         });
 
@@ -789,7 +790,7 @@ describe('Document', function () {
 
           expect(updateDoc).to.deep.equal({
             $set: {
-              a: { nestedField1: 'cba', nestedField2: 'aaa' },
+              'a.nestedField1': 'cba',
             },
           });
         });
@@ -809,7 +810,8 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 'abc', bbb: 'vvv' },
+            'a.nestedField1': 'abc',
+            'a.newname': { $exists: false },
           });
         });
 
@@ -819,7 +821,10 @@ describe('Document', function () {
 
           expect(updateDoc).to.deep.equal({
             $set: {
-              a: { newname: 'abc', bbb: 'vvv' },
+              'a.newname': 'abc',
+            },
+            $unset: {
+              'a.nestedField1': true,
             },
           });
         });
@@ -842,7 +847,7 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 'abc', nestedField2: 'aaa' },
+            'a.nestedField1': 'abc',
           });
         });
 
@@ -851,8 +856,8 @@ describe('Document', function () {
             hadronDoc.generateUpdateUnlessChangedInBackgroundQuery();
 
           expect(updateDoc).to.deep.equal({
-            $set: {
-              a: { nestedField2: 'aaa' },
+            $unset: {
+              'a.nestedField1': true,
             },
           });
         });
@@ -892,8 +897,9 @@ describe('Document', function () {
 
       it('includes the key in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
         ).to.deep.equal({
+          _id: null,
           name: 'test',
         });
       });
@@ -905,8 +911,10 @@ describe('Document', function () {
 
       it('returns an empty object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
-        ).to.deep.equal({});
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
+        ).to.deep.equal({
+          _id: null,
+        });
       });
     });
 
@@ -920,8 +928,9 @@ describe('Document', function () {
 
       it('includes the original in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
         ).to.deep.equal({
+          _id: null,
           name: 'test',
         });
       });
@@ -937,9 +946,11 @@ describe('Document', function () {
 
       it('includes the original in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
         ).to.deep.equal({
+          _id: null,
           name: 'test',
+          aa: { $exists: false },
         });
       });
     });
@@ -960,12 +971,10 @@ describe('Document', function () {
 
       it('returns the original element in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
         ).to.deep.equal({
-          name: {
-            first: 'jimmy',
-            last: 'hendrix',
-          },
+          _id: null,
+          'name.last': 'hendrix',
         });
       });
     });
@@ -980,8 +989,9 @@ describe('Document', function () {
 
       it('includes the change in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
         ).to.deep.equal({
+          _id: null,
           name: 'test',
         });
       });
@@ -998,8 +1008,10 @@ describe('Document', function () {
 
       it('does not have any element in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
-        ).to.deep.equal({});
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
+        ).to.deep.equal({
+          _id: null,
+        });
       });
     });
 
@@ -1013,8 +1025,9 @@ describe('Document', function () {
 
       it('includes a check that the new element doesnt exist or exists with the same value', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
         ).to.deep.equal({
+          _id: null,
           pineapple: {
             $exists: false,
           },
@@ -1038,18 +1051,16 @@ describe('Document', function () {
 
       it('returns the original element in the object', function () {
         expect(
-          doc.getOriginalKeysAndValuesForFieldsThatWereUpdated()
+          doc.generateUpdateUnlessChangedInBackgroundQuery().query
         ).to.deep.equal({
-          name: {
-            first: 'jimmy',
-            last: 'hendrix',
-          },
+          _id: null,
+          'name.last': 'hendrix',
         });
       });
     });
   });
 
-  describe('#getSetUpdateForDocumentChanges', function () {
+  describe('#generateUpdateUnlessChangedInBackgroundQuery: $set', function () {
     context('when an element is removed', function () {
       const object = { name: 'test' };
       const doc = new Document(object);
@@ -1059,7 +1070,9 @@ describe('Document', function () {
       });
 
       it('does not include the element in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({});
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.equal(undefined);
       });
     });
 
@@ -1068,7 +1081,9 @@ describe('Document', function () {
       const doc = new Document(object);
 
       it('returns an empty object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({});
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.equal(undefined);
       });
     });
 
@@ -1081,7 +1096,9 @@ describe('Document', function () {
       });
 
       it('does not include the element in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({});
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.equal(undefined);
       });
     });
 
@@ -1094,7 +1111,9 @@ describe('Document', function () {
       });
 
       it('includes the element in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.deep.equal({
           aa: 'test',
         });
       });
@@ -1114,11 +1133,10 @@ describe('Document', function () {
       });
 
       it('includes the element in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({
-          name: {
-            first: 'jimmy',
-            last: 'aa',
-          },
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.deep.equal({
+          'name.last': 'aa',
         });
       });
     });
@@ -1137,10 +1155,84 @@ describe('Document', function () {
       });
 
       it('includes the element in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({
-          name: {
-            first: 'jimmy',
-            aa: 'hendrix',
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            'name.aa': { $exists: false },
+            'name.last': 'hendrix',
+          },
+          updateDoc: {
+            $set: {
+              'name.aa': 'hendrix',
+            },
+            $unset: {
+              'name.last': true,
+            },
+          },
+        });
+      });
+    });
+
+    context('when an element is changed to a nested document', function () {
+      const object = {
+        name: 42,
+      };
+      const doc = new Document(object);
+
+      before(function () {
+        doc.get('name')?.changeType('Object');
+        doc.get('name')?.insertEnd('first', 'jimmy');
+        doc.get('name')?.insertEnd('last', 'hendrix');
+      });
+
+      it('includes the element in the object', function () {
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            name: new Int32(42),
+          },
+          updateDoc: {
+            $set: {
+              name: { first: 'jimmy', last: 'hendrix' },
+            },
+          },
+        });
+      });
+    });
+
+    context('when an element is changed from nested document', function () {
+      const object = {
+        name: {
+          first: 'jimmy',
+          last: 'hendrix',
+        },
+      };
+      const doc = new Document(object);
+
+      before(function () {
+        doc.get('name')?.changeType('Int32');
+        doc.get('name')?.edit(new Int32(42));
+      });
+
+      it('includes the element in the object', function () {
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            name: {
+              first: 'jimmy',
+              last: 'hendrix',
+            },
+          },
+          updateDoc: {
+            $set: {
+              name: new Int32(42),
+            },
           },
         });
       });
@@ -1155,7 +1247,9 @@ describe('Document', function () {
       });
 
       it('does not include the change in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({});
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.equal(undefined);
       });
     });
 
@@ -1169,7 +1263,9 @@ describe('Document', function () {
       });
 
       it('does not include the change in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({});
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.equal(undefined);
       });
     });
 
@@ -1182,7 +1278,9 @@ describe('Document', function () {
       });
 
       it('includes the change in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.deep.equal({
           pineapple: 'hat',
         });
       });
@@ -1202,16 +1300,22 @@ describe('Document', function () {
       });
 
       it('does includes the top level element in the object', function () {
-        expect(doc.getSetUpdateForDocumentChanges()).to.deep.equal({
-          name: {
-            first: 'jimmy',
-          },
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
+        ).to.equal(undefined);
+      });
+
+      it('includes it in the unset part of the query', function () {
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.deep.equal({
+          'name.last': true,
         });
       });
     });
   });
 
-  describe('#getUnsetUpdateForDocumentChanges', function () {
+  describe('#generateUpdateUnlessChangedInBackgroundQuery: $unset', function () {
     context('when an element is removed', function () {
       const object = { name: 'test' };
       const doc = new Document(object);
@@ -1221,7 +1325,9 @@ describe('Document', function () {
       });
 
       it('includes the key in the object', function () {
-        expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.deep.equal({
           name: true,
         });
       });
@@ -1231,8 +1337,10 @@ describe('Document', function () {
       const object = { name: 'test' };
       const doc = new Document(object);
 
-      it('returns an empty object', function () {
-        expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({});
+      it('returns undefined', function () {
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.equal(undefined);
       });
     });
 
@@ -1245,7 +1353,9 @@ describe('Document', function () {
       });
 
       it('has the original key in the object', function () {
-        expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.deep.equal({
           name: true,
         });
       });
@@ -1261,7 +1371,9 @@ describe('Document', function () {
       });
 
       it('does not include the change in the object', function () {
-        expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({});
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.equal(undefined);
       });
     });
 
@@ -1274,7 +1386,9 @@ describe('Document', function () {
       });
 
       it('does not have any change in the object', function () {
-        expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({});
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.equal(undefined);
       });
     });
 
@@ -1287,11 +1401,60 @@ describe('Document', function () {
       });
 
       it('includes the original key in the object', function () {
-        expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.deep.equal({
           name: true,
         });
       });
     });
+
+    context('when two elements is renamed in a circular manner', function () {
+      const object = { a: 'test1', b: 'test2' };
+      const doc = new Document(object);
+
+      before(function () {
+        doc.elements.get('b')?.rename('c');
+        doc.elements.get('a')?.rename('b');
+      });
+
+      it('generates the proper query and update for that situation', function () {
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: { _id: null, b: 'test2', a: 'test1', c: { $exists: false } },
+          updateDoc: {
+            $set: { b: 'test1', c: 'test2' },
+            $unset: { a: true },
+          },
+        });
+      });
+    });
+
+    context(
+      'when an element is renamed to the name of a removed element',
+      function () {
+        const object = { a: 'test1', b: 'test2' };
+        const doc = new Document(object);
+
+        before(function () {
+          doc.elements.get('b')?.remove();
+          doc.elements.get('a')?.rename('b');
+        });
+
+        it('generates the proper query and update for that situation', function () {
+          expect(
+            doc.generateUpdateUnlessChangedInBackgroundQuery()
+          ).to.deep.equal({
+            query: { _id: null, b: 'test2', a: 'test1' },
+            updateDoc: {
+              $set: { b: 'test1' },
+              $unset: { a: true },
+            },
+          });
+        });
+      }
+    );
 
     context('when a nested element is edited', function () {
       const object = {
@@ -1306,8 +1469,10 @@ describe('Document', function () {
         doc.get('name')?.get('last')?.edit('aa');
       });
 
-      it('returns empty object', function () {
-        expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({});
+      it('returns undefined', function () {
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.equal(undefined);
       });
     });
 
@@ -1325,7 +1490,283 @@ describe('Document', function () {
       });
 
       it('does not include the element in the object', function () {
-        expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({});
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
+        ).to.deep.equal({
+          'name.last': true,
+        });
+      });
+    });
+  });
+
+  describe('array modifications', function () {
+    it('can add array elements', function () {
+      const doc = new Document({
+        a: [1, 2, 3],
+      });
+      doc.get('a')?.insertEnd(3, new Int32(4));
+      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
+        query: { _id: null, 'a.3': { $exists: false } },
+        updateDoc: { $set: { 'a.3': new Int32(4) } },
+      });
+    });
+    it('can edit array elements', function () {
+      const doc = new Document({
+        a: [1, 2, 3],
+      });
+      doc.get('a')?.get(2)?.edit(new Int32(4));
+      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
+        query: { _id: null, 'a.2': new Int32(3) },
+        updateDoc: { $set: { 'a.2': new Int32(4) } },
+      });
+    });
+    it('can insert array elements', function () {
+      const doc = new Document({
+        a: [1, 2, 3],
+      });
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      doc.get('a')?.insertAfter(doc.get('a')!.get(1)!, 2, new Int32(4));
+      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
+        query: { _id: null, 'a.2': new Int32(3), 'a.3': { $exists: false } },
+        updateDoc: { $set: { 'a.2': new Int32(4), 'a.3': new Int32(3) } },
+      });
+    });
+    it('can remove array elements in the middle of the array', function () {
+      const doc = new Document({
+        a: [1, 2, 3],
+      });
+      doc.get('a')?.get(1)?.remove();
+      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
+        query: {
+          _id: null,
+          a: [new Int32(1), new Int32(2), new Int32(3)],
+        },
+        updateDoc: {
+          $set: { a: [new Int32(1), new Int32(3)] },
+        },
+      });
+    });
+    it('can remove array elements at the end of the array', function () {
+      const doc = new Document({
+        a: [1, 2, 3],
+      });
+      doc.get('a')?.get(2)?.remove();
+      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
+        query: {
+          _id: null,
+          a: [new Int32(1), new Int32(2), new Int32(3)],
+        },
+        updateDoc: {
+          $set: { a: [new Int32(1), new Int32(2)] },
+        },
+      });
+    });
+  });
+
+  describe('dots & dollars', function () {
+    it('can perform updates on fields containing dots', function () {
+      const doc = new Document({
+        'a.b': { 'c.d': 'x' },
+      });
+
+      doc.get('a.b')?.get('c.d')?.edit('y');
+
+      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
+        query: {
+          _id: null,
+          $expr: {
+            $and: [
+              {
+                $eq: [
+                  {
+                    $getField: {
+                      field: { $literal: 'c.d' },
+                      input: {
+                        $getField: {
+                          field: { $literal: 'a.b' },
+                          input: '$$ROOT',
+                        },
+                      },
+                    },
+                  },
+                  { $literal: 'x' },
+                ],
+              },
+            ],
+          },
+        },
+        updateDoc: [
+          {
+            $replaceWith: {
+              $setField: {
+                field: { $literal: 'a.b' },
+                input: '$$ROOT',
+                value: {
+                  $setField: {
+                    field: { $literal: 'c.d' },
+                    input: {
+                      $getField: {
+                        field: { $literal: 'a.b' },
+                        input: '$$ROOT',
+                      },
+                    },
+                    value: { $literal: 'y' },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      });
+    });
+
+    it('can perform updates on fields containing dollars', function () {
+      const doc = new Document({
+        'a.b': { $foo: 'x' },
+      });
+
+      doc.get('a.b')?.get('$foo')?.edit('y');
+
+      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
+        query: {
+          _id: null,
+          $expr: {
+            $and: [
+              {
+                $eq: [
+                  {
+                    $getField: {
+                      field: { $literal: '$foo' },
+                      input: {
+                        $getField: {
+                          field: { $literal: 'a.b' },
+                          input: '$$ROOT',
+                        },
+                      },
+                    },
+                  },
+                  { $literal: 'x' },
+                ],
+              },
+            ],
+          },
+        },
+        updateDoc: [
+          {
+            $replaceWith: {
+              $setField: {
+                field: { $literal: 'a.b' },
+                input: '$$ROOT',
+                value: {
+                  $setField: {
+                    field: { $literal: '$foo' },
+                    input: {
+                      $getField: {
+                        field: { $literal: 'a.b' },
+                        input: '$$ROOT',
+                      },
+                    },
+                    value: { $literal: 'y' },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      });
+    });
+
+    it('can rename fields containing dots and dollars', function () {
+      const doc = new Document({
+        'a.b': { $foo: 'x' },
+      });
+
+      doc.get('a.b')?.get('$foo')?.rename('$bar');
+
+      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
+        query: {
+          _id: null,
+          $expr: {
+            $and: [
+              {
+                $eq: [
+                  {
+                    $type: {
+                      $getField: {
+                        field: { $literal: '$bar' },
+                        input: {
+                          $getField: {
+                            field: { $literal: 'a.b' },
+                            input: '$$ROOT',
+                          },
+                        },
+                      },
+                    },
+                  },
+                  'missing',
+                ],
+              },
+              {
+                $eq: [
+                  {
+                    $getField: {
+                      field: { $literal: '$foo' },
+                      input: {
+                        $getField: {
+                          field: { $literal: 'a.b' },
+                          input: '$$ROOT',
+                        },
+                      },
+                    },
+                  },
+                  { $literal: 'x' },
+                ],
+              },
+            ],
+          },
+        },
+        updateDoc: [
+          {
+            $replaceWith: {
+              $setField: {
+                field: { $literal: 'a.b' },
+                input: '$$ROOT',
+                value: {
+                  $setField: {
+                    field: { $literal: '$bar' },
+                    input: {
+                      $getField: {
+                        field: { $literal: 'a.b' },
+                        input: '$$ROOT',
+                      },
+                    },
+                    value: { $literal: 'x' },
+                  },
+                },
+              },
+            },
+          },
+          {
+            $replaceWith: {
+              $setField: {
+                field: { $literal: 'a.b' },
+                input: '$$ROOT',
+                value: {
+                  $setField: {
+                    field: { $literal: '$foo' },
+                    input: {
+                      $getField: {
+                        field: { $literal: 'a.b' },
+                        input: '$$ROOT',
+                      },
+                    },
+                    value: '$$REMOVE',
+                  },
+                },
+              },
+            },
+          },
+        ],
       });
     });
   });
