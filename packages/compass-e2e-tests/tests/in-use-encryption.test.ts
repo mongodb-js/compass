@@ -139,7 +139,6 @@ describe('FLE2', function () {
     });
 
     after(async function () {
-      await plainMongo.close();
       if (compass) {
         await afterTests(compass, this.currentTest);
       }
@@ -149,6 +148,7 @@ describe('FLE2', function () {
       await browser.shellEval(
         `db.getMongo().getDB('${databaseName}').dropDatabase()`
       );
+      await plainMongo.close();
     });
 
     it('can create a fle2 collection without encryptedFields', async function () {
