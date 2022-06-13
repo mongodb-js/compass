@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { flatten, unflatten } from 'flat';
 import { getTypeDescriptorForValue } from './bson-csv';
 /**
@@ -16,8 +17,8 @@ import { getTypeDescriptorForValue } from './bson-csv';
  * @param {Object} obj
  * @returns {Object}
  */
-export function serialize(obj) {
-  return flatten(obj, {
+export function serialize(obj, { includeObjects = false } = {}) {
+  const flattened = flatten(obj, {
     safe: true, // preserve arrays and their contents
     /**
      * @param {any} value
@@ -32,6 +33,27 @@ export function serialize(obj) {
       }
     },
   });
+
+  if (includeObjects) {
+    const withObjects = {};
+    const knownParents = {};
+    for (const [path, value] of Object.entries(flattened)) {
+      const parentPath = path.includes('.')
+        ? path.slice(0, path.lastIndexOf('.'))
+        : null;
+      if (parentPath && !knownParents[parentPath]) {
+        knownParents[parentPath] = true;
+        if (Array.isArray(_.get(obj, parentPath))) {
+          continue;
+        }
+        withObjects[parentPath] = {};
+      }
+      withObjects[path] = value;
+    }
+    return withObjects;
+  }
+
+  return flattened;
 }
 
 /**
