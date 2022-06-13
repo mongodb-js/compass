@@ -5,23 +5,24 @@ import { beforeTests, afterTests } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { createDummyCollections } from '../helpers/insert-data';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
+import { MongoClient } from 'mongodb';
+
+const CONNECTION_HOSTS = 'localhost:27091';
+const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}`;
 
 describe('FLE2', function () {
-  before(async function () {
+  before(function () {
     if (
       semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
       process.env.MONGODB_USE_ENTERPRISE !== 'yes'
     ) {
       return this.skip();
     }
-
-    await createDummyCollections();
   });
 
   describe('when fleEncryptedFieldsMap is not specified while connecting', function () {
-    const databaseName = 'test';
+    const databaseName = 'db-for-fle';
     const collectionName = 'my-encrypted-collection';
     let compass: Compass;
     let browser: CompassBrowser;
@@ -31,7 +32,7 @@ describe('FLE2', function () {
       browser = compass.browser;
 
       await browser.connectWithConnectionForm({
-        hosts: ['localhost:27091'],
+        hosts: [CONNECTION_HOSTS],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
         fleKey: 'A'.repeat(128),
       });
@@ -41,6 +42,13 @@ describe('FLE2', function () {
       if (compass) {
         await afterTests(compass, this.currentTest);
       }
+    });
+
+    beforeEach(async function () {
+      await browser.shellEval(
+        `db.getMongo().getDB('${databaseName}').createCollection('default')`
+      );
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
     });
 
     it('can create a fle2 collection with encryptedFields', async function () {
@@ -90,6 +98,7 @@ describe('FLE2', function () {
     const collectionName = 'my-another-collection';
     let compass: Compass;
     let browser: CompassBrowser;
+    let plainMongo: MongoClient;
 
     before(async function () {
       compass = await beforeTests();
@@ -98,7 +107,7 @@ describe('FLE2', function () {
 
     beforeEach(async function () {
       await browser.connectWithConnectionForm({
-        hosts: ['localhost:27091'],
+        hosts: [CONNECTION_HOSTS],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
         fleKey: 'A'.repeat(128),
         fleEncryptedFieldsMap: `{
@@ -126,6 +135,7 @@ describe('FLE2', function () {
           '})'
       );
       await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+      plainMongo = await MongoClient.connect(CONNECTION_STRING);
     });
 
     after(async function () {
@@ -138,6 +148,7 @@ describe('FLE2', function () {
       await browser.shellEval(
         `db.getMongo().getDB('${databaseName}').dropDatabase()`
       );
+      await plainMongo.close();
     });
 
     it('can create a fle2 collection without encryptedFields', async function () {
@@ -238,10 +249,12 @@ describe('FLE2', function () {
       });
     });
 
-    it('shows decrypted field icon', async function () {
+    it('shows a decrypted field icon', async function () {
       await browser.shellEval(`db.createCollection('${collectionName}')`);
       await browser.shellEval(
-        `db['${collectionName}'].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
       );
 
       await browser.navigateToCollectionTab(
@@ -249,22 +262,22 @@ describe('FLE2', function () {
         collectionName,
         'Documents'
       );
+      const document = await browser.$(Selectors.DocumentListEntry);
 
-      const decryptedIconElements = await browser.$$(
-        Selectors.documentListDecryptedIcon(1)
+      const documentPhoneNumberDecryptedIcon = await document.$(
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
       );
-      const decryptedIcons = await Promise.all(
-        decryptedIconElements.map((el) => el.getAttribute('title'))
-      );
-
-      expect(decryptedIcons).to.have.lengthOf(1);
-      expect(decryptedIcons[0]).to.be.equal('Encrypted Field');
+      const isDocumentPhoneNumberDecryptedIconExisting =
+        await documentPhoneNumberDecryptedIcon.isExisting();
+      expect(isDocumentPhoneNumberDecryptedIconExisting).to.be.equal(true);
     });
 
     it('can edit and query the encrypted field', async function () {
       await browser.shellEval(`db.createCollection('${collectionName}')`);
       await browser.shellEval(
-        `db['${collectionName}'].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
       );
 
       await browser.navigateToCollectionTab(
@@ -278,12 +291,12 @@ describe('FLE2', function () {
 
       const document = await browser.$(Selectors.DocumentListEntry);
       const value = await document.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentClickableValue}`
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
       );
       await value.doubleClick();
 
       const input = await document.$(
-        `${Selectors.HadronDocumentElement}:nth-child(2) ${Selectors.HadronDocumentValueEditor}`
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
       );
       await input.setValue('10101010');
 
@@ -304,6 +317,243 @@ describe('FLE2', function () {
       const modifiedResult = await getFirstListDocument(browser);
       expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       expect(modifiedResult._id).to.be.equal(result._id);
+    });
+
+    it('can not edit the copied encrypted field', async function () {
+      await browser.shellEval(`db.createCollection('${collectionName}')`);
+      await browser.shellEval(
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
+      );
+
+      const doc = await plainMongo
+        .db(databaseName)
+        .collection(collectionName)
+        .findOne();
+
+      await plainMongo.db(databaseName).collection(collectionName).insertOne({
+        phoneNumber: doc?.phoneNumber,
+        faxNumber: doc?.phoneNumber,
+        name: 'La La',
+      });
+
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      await browser.runFindOperation('Documents', "{ name: 'Person Z' }");
+
+      const originalDocument = await browser.$(Selectors.DocumentListEntry);
+      const originalValue = await originalDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
+      );
+      await originalValue.doubleClick();
+      const originalDocumentPhoneNumberEditor = await originalDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
+      );
+      const isOriginalDocumentPhoneNumberEditorExisting =
+        await originalDocumentPhoneNumberEditor.isExisting();
+      expect(isOriginalDocumentPhoneNumberEditorExisting).to.be.equal(true);
+
+      await browser.runFindOperation('Documents', "{ name: 'La La' }");
+
+      const copiedDocument = await browser.$(Selectors.DocumentListEntry);
+      const copiedValue = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
+      );
+      await copiedValue.doubleClick();
+      const copiedDocumentPhoneNumberEditor = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
+      );
+      const isCopiedDocumentPhoneNumberEditorExisting =
+        await copiedDocumentPhoneNumberEditor.isExisting();
+      expect(isCopiedDocumentPhoneNumberEditorExisting).to.be.equal(true);
+      const copiedDocumentFaxNumberEditor = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentValueEditor}`
+      );
+      const isCopiedDocumentFaxNumberEditorExisting =
+        await copiedDocumentFaxNumberEditor.isExisting();
+      expect(isCopiedDocumentFaxNumberEditorExisting).to.be.equal(true);
+
+      const copiedDocumentFaxNumberDecryptedIcon = await copiedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
+      );
+      const isCopiedDocumentFaxNumberDecryptedIconExisting =
+        await copiedDocumentFaxNumberDecryptedIcon.isExisting();
+      expect(isCopiedDocumentFaxNumberDecryptedIconExisting).to.be.equal(true);
+
+      await copiedDocumentFaxNumberEditor.setValue('0');
+
+      const button = await copiedDocument.$(
+        '[data-test-id="update-document-button"]'
+      );
+      await button.click();
+
+      const footer = await copiedDocument.$(Selectors.DocumentFooterMessage);
+      expect(await footer.getText()).to.equal(
+        'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+      );
+    });
+
+    it('shows incomplete schema for cloned document banner', async function () {
+      await browser.shellEval(`db.createCollection('${collectionName}')`);
+      await browser.shellEval(
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "First" })`
+      );
+
+      const doc = await plainMongo
+        .db(databaseName)
+        .collection(collectionName)
+        .findOne();
+
+      await plainMongo.db(databaseName).collection(collectionName).insertOne({
+        phoneNumber: doc?.phoneNumber,
+        faxNumber: doc?.phoneNumber,
+        name: 'Second',
+      });
+
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      await browser.runFindOperation('Documents', "{ name: 'Second' }");
+
+      const document = await browser.$(Selectors.DocumentListEntry);
+      await document.waitForDisplayed();
+
+      await browser.hover(Selectors.DocumentListEntry);
+      await browser.clickVisible(Selectors.CloneDocumentButton);
+
+      // wait for the modal to appear
+      const insertDialog = await browser.$(Selectors.InsertDialog);
+      await insertDialog.waitForDisplayed();
+
+      // set the text in the editor
+      await browser.setAceValue(
+        Selectors.InsertJSONEditor,
+        '{ "phoneNumber": "30303030", "faxNumber": "30303030", "name": "Third" }'
+      );
+
+      const incompleteSchemaForClonedDocMsg = await browser.$(
+        Selectors.incompleteSchemaForClonedDocMsg
+      );
+      const incompleteSchemaForClonedDocMsgText =
+        await incompleteSchemaForClonedDocMsg.getText();
+      expect(incompleteSchemaForClonedDocMsgText).to.include('phoneNumber');
+
+      // confirm
+      const insertConfirm = await browser.$(Selectors.InsertConfirm);
+      await insertConfirm.waitForEnabled();
+      await browser.clickVisible(Selectors.InsertConfirm);
+
+      // wait for the modal to go away
+      await insertDialog.waitForDisplayed({ reverse: true });
+      await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+
+      await browser.runFindOperation('Documents', "{ name: 'Third' }");
+
+      const result = await getFirstListDocument(browser);
+
+      delete result._id;
+      delete result.__safeContent__;
+
+      expect(result).to.deep.equal({
+        phoneNumber: '"30303030"',
+        faxNumber: '"30303030"',
+        name: '"Third"',
+      });
+
+      const clonedDocument = await browser.$(Selectors.DocumentListEntry);
+
+      const clonedDocumentPhoneNumberDecryptedIcon = await clonedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
+      );
+      const isClonedDocumentPhoneNumberDecryptedIconExisting =
+        await clonedDocumentPhoneNumberDecryptedIcon.isExisting();
+      expect(isClonedDocumentPhoneNumberDecryptedIconExisting).to.be.equal(
+        true
+      );
+
+      const clonedDocumentFaxNumberDecryptedIcon = await clonedDocument.$(
+        `${Selectors.HadronDocumentElement}[data-field="faxNumber"] ${Selectors.HadronDocumentElementDecryptedIcon}`
+      );
+      const isClonedDocumentFaxNumberDecryptedIconExisting =
+        await clonedDocumentFaxNumberDecryptedIcon.isExisting();
+      expect(isClonedDocumentFaxNumberDecryptedIconExisting).to.be.equal(false);
+    });
+
+    it('can enable and disable in-use encryption from the sidebar', async function () {
+      await browser.shellEval(`db.createCollection('${collectionName}')`);
+      await browser.shellEval(
+        `db[${JSON.stringify(
+          collectionName
+        )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
+      );
+
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      let decryptedResult = await getFirstListDocument(browser);
+
+      delete decryptedResult._id;
+      delete decryptedResult.__safeContent__;
+
+      expect(decryptedResult).to.deep.equal({
+        phoneNumber: '"30303030"',
+        name: '"Person Z"',
+      });
+
+      await browser.clickVisible(Selectors.FleConnectionConfigurationBanner);
+
+      let modal = await browser.$(Selectors.CSFLEConnectionModal);
+      await modal.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
+
+      await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
+      await modal.waitForDisplayed({ reverse: true });
+
+      const encryptedResult = await getFirstListDocument(browser);
+
+      delete encryptedResult._id;
+      delete encryptedResult.__safeContent__;
+
+      expect(encryptedResult).to.deep.equal({
+        phoneNumber: '*********',
+        name: '"Person Z"',
+      });
+
+      await browser.clickVisible(Selectors.FleConnectionConfigurationBanner);
+
+      modal = await browser.$(Selectors.CSFLEConnectionModal);
+      await modal.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
+
+      await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
+      await modal.waitForDisplayed({ reverse: true });
+
+      decryptedResult = await getFirstListDocument(browser);
+
+      delete decryptedResult._id;
+      delete decryptedResult.__safeContent__;
+
+      expect(decryptedResult).to.deep.equal({
+        phoneNumber: '"30303030"',
+        name: '"Person Z"',
+      });
     });
   });
 });
