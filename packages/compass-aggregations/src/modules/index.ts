@@ -319,48 +319,33 @@ const doReset = (state: RootState) => ({
  * @returns {Object} The new state.
  */
 const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
-  const savedState = action.restoreState;
-  const commenting =
-    savedState.comments === null || savedState.comments === undefined
-      ? true
-      : savedState.comments;
-  const sampling =
-    savedState.sample === null || savedState.sample === undefined
-      ? true
-      : savedState.sample;
-  const autoPreviewing =
-    savedState.autoPreview === null || savedState.autoPreview === undefined
-      ? true
-      : savedState.autoPreview;
+  const {
+    id,
+    name,
+    comments,
+    sample,
+    autoPreview,
+    collation,
+    collationString,
+    pipeline
+  } = action.restoreState;
 
   return {
-    ...INITIAL_STATE,
-    aggregationWorkspaceId: state.aggregationWorkspaceId,
-    appRegistry: state.appRegistry,
-    namespace: savedState.namespace,
-    env: savedState.env,
-    isTimeSeries: savedState.isTimeSeries,
-    isReadonly: savedState.isReadonly,
-    sourceName: savedState.sourceName,
-    pipeline: savedState.pipeline,
-    name: savedState.name,
-    collation: savedState.collation,
-    collationString: savedState.collationString,
-    isCollationExpanded: savedState.collationString ? true : false,
-    id: savedState.id,
-    comments: commenting,
-    limit: savedState.limit,
-    largeLimit: savedState.largeLimit,
-    maxTimeMS: savedState.maxTimeMS,
-    projections: savedState.projections,
-    sample: sampling,
-    autoPreview: autoPreviewing,
-    fields: state.fields,
-    serverVersion: state.serverVersion,
-    dataService: state.dataService,
-    inputDocuments: state.inputDocuments,
-    isAtlasDeployed: state.isAtlasDeployed,
-    outResultsFn: state.outResultsFn,
+    // Current state will be mostly preserved (i.e, namespace, isTimeSeries, etc)
+    ...state,
+    // Everything that is stored as a pipeline is applied next
+    id,
+    name,
+    comments,
+    sample,
+    autoPreview,
+    collation,
+    collationString,
+    pipeline,
+    // Relevant state that depens on the pipeline state is updated (NB: this
+    // whole thing should be happening in the relevant slice reducers instead,
+    // but changing how this plugin works is way too big of a task for this
+    // particular patch)
     savedPipeline: {
       ...state.savedPipeline,
       isListVisible: false
@@ -368,7 +353,8 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     restorePipeline: {
       isModalVisible: false,
       pipelineObjectID: ''
-    }
+    },
+    isCollationExpanded: Boolean(collationString)
   };
 };
 

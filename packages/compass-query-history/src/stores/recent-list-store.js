@@ -72,6 +72,9 @@ const configureStore = (options = {}) => {
       /* Ignore duplicate queries */
       const existingQuery = this.state.items.find((item) => _.isEqual(comparableQuery(item), recent));
       if (existingQuery) {
+        if (!existingQuery._host) {
+          existingQuery._host = this.state.currentHost;
+        }
         // update the existing query's lastExecuted to move it to the top
         existingQuery._lastExecuted = Date.now();
         existingQuery.save();
@@ -85,7 +88,12 @@ const configureStore = (options = {}) => {
         lastRecent.destroy();
       }
 
-      const query = new RecentQuery(recent);
+      const query = new RecentQuery({
+        ...recent,
+        _lastExecuted: Date.now(),
+        _ns: ns,
+        _host: this.state.currentHost,
+      });
       query._lastExecuted = Date.now();
       query._ns = ns;
       this.state.items.add(query);
@@ -123,7 +131,11 @@ const configureStore = (options = {}) => {
 
     getInitialState() {
       return {
-        items: new RecentQueryCollection()
+        items: new RecentQueryCollection(),
+        currentHost:
+          options.dataProvider?.dataProvider
+            .getConnectionString()
+            .hosts.join(',') ?? null,
       };
     }
   });
