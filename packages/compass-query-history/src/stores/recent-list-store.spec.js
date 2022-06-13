@@ -90,7 +90,8 @@ describe('RecentListStore [Store]', () => {
     });
   });
 
-  describe('#addRecent', () => {
+  // TODO: this writes files to the current folder
+  describe.skip('#addRecent', () => {
     it('ignores duplicate queries', () => {
       expect(store.state.items.length).to.equal(0);
 
