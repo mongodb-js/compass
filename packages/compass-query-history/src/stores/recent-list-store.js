@@ -103,8 +103,8 @@ const configureStore = (options = {}) => {
     },
 
     runQuery(query) {
-      if (this.state.items.map(item => item.serialize()).some(item => {
-        return _.isEqual(comparableQuery(item), query);
+      if (this.state.items.map(item => comparableQuery(item)).some(item => {
+        return _.isEqual(item, query);
       })) {
         track('Query History Recent Used');
       }
