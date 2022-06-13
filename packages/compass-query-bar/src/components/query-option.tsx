@@ -21,10 +21,6 @@ const queryOptionStyles = css({
   alignItems: 'center',
 });
 
-// const autocompleteOptionStyles = css({
-//   flexGrow: 1,
-// });
-
 const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
   padding: `${spacing[2]}px 0`,
@@ -88,13 +84,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   );
 
   return (
-    <div
-      className={cx(
-        queryOptionStyles
-        // isAutoCompleteInput ? autocompleteOptionStyles : numericOptionStyles
-      )}
-      data-testid="query-bar-option"
-    >
+    <div className={queryOptionStyles} data-testid="query-bar-option">
       {queryOption !== 'filter' && (
         <div
           className={queryOptionLabelContainerStyles}
