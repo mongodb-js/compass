@@ -24,13 +24,13 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "compass:main": "src/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
     "require": "./dist/index.js",
     "browser": "./dist/browser.js"
   },
   "compass:exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
