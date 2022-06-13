@@ -25,6 +25,7 @@ function CSFLEConnectionModal({ csfleMode, open, setOpen, setConnectionIsCSFLEEn
     title="In-Use Encryption"
     trackingId="csfle_connection_modal"
     setOpen={setOpen}
+    data-test-id="csfle-connection-modal"
   >
     <div>
       <ModalTitle>In-Use Encryption Connection Options</ModalTitle>

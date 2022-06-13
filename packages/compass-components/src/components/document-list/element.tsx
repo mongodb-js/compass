@@ -372,6 +372,7 @@ export const HadronElement: React.FunctionComponent<{
       <div
         data-document-element="true"
         data-testid="hadron-document-element"
+        data-field={key.value}
         data-id={element.uuid}
         {...elementProps}
       >

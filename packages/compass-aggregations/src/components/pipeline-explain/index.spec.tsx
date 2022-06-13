@@ -101,11 +101,9 @@ describe('PipelineExplain', function () {
 
     expect(within(summary).getByText(/documents returned/gi)).to.exist;
     expect(within(summary).getByText(/actual query execution time/gi)).to.exist;
-    expect(within(summary).getByText(/query used the following indexes/gi)).to
-      .exist;
-    expect(within(summary).getByText(/no index available for this query./gi)).to
-      .exist;
-
+    expect(() => {
+      within(summary).getByText(/query used the following indexes/gi);
+    }).to.throw;
     expect(screen.getByTestId('pipeline-explain-footer-close-button')).to.exist;
   });
 

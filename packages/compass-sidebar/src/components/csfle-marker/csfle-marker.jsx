@@ -36,6 +36,7 @@ function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
       type: 'button',
       'aria-label': 'Open connection In-Use Encryption configuration',
       title: 'Connection In-Use Encryption configuration',
+      'data-test-id': 'fle-connection-configuration',
       className: badgeButtonStyles,
       onClick: () => toggleCSFLEModalVisible()
     },
