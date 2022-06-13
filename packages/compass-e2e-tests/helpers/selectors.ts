@@ -218,6 +218,11 @@ export const SidebarInstanceRefreshSpinning =
   '[data-test-id="sidebar-instance-stats-refresh-spinning"]';
 export const SidebarInstanceRefreshIdle =
   '[data-test-id="sidebar-instance-stats-refresh-idle"]';
+export const FleConnectionConfigurationBanner =
+  '[data-test-id="fle-connection-configuration"]';
+export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
+export const CSFLEConnectionModal = '[data-test-id="csfle-connection-modal"]';
+export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -513,6 +518,8 @@ export const InsertCancel =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
 export const insertCSFLEHasKnownSchemaMsg =
   '[data-test-id="insert-csfle-has-known-schema"]';
+export const incompleteSchemaForClonedDocMsg =
+  '[data-test-id="incomplete-schema-for-cloned-doc"]';
 
 // Import File modal
 
@@ -578,9 +585,6 @@ export const documentListDocumentKey = (n: number): string => {
 };
 export const documentListDocumentValue = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
-};
-export const documentListDecryptedIcon = (n: number): string => {
-  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentElementDecryptedIcon}`;
 };
 
 // Query bar history
