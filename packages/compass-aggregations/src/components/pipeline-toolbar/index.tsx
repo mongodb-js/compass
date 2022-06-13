@@ -12,17 +12,18 @@ const containerStyles = css({
   paddingTop: spacing[3],
   paddingRight: spacing[5],
   paddingBottom: spacing[3],
-  paddingLeft: spacing[3]
+  paddingLeft: spacing[3],
+  boxShadow: 'rgb(0 30 43 / 10%) 0px 4px 4px 0px',
 });
 
-const containerDisplayStyles = css({
+const toolbarDisplayStyles = css({
   display: 'grid',
   gap: spacing[3],
   gridTemplateAreas: `
   "headerAndOptionsRow"
   `,
-  marginLeft: spacing[1],
-  marginRight: spacing[1]
+  paddingLeft: spacing[1],
+  paddingRight: spacing[1]
 });
 
 const displaySettings = css({
@@ -66,12 +67,13 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
     <Toolbar
       className={cx(
         containerStyles,
-        containerDisplayStyles,
-        isSettingsVisible && displaySettings
       )}
       data-testid="pipeline-toolbar"
     >
-      <>
+      <div className={cx(
+        toolbarDisplayStyles,
+        isSettingsVisible && displaySettings
+      )}>
         <div className={headerAndOptionsRowStyles}>
           <PipelineHeader
             isOptionsVisible={isOptionsVisible}
@@ -91,7 +93,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineSettings />
           </div>
         )}
-      </>
+      </div>
     </Toolbar>
   );
 };
