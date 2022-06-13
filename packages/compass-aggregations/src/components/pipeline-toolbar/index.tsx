@@ -13,7 +13,6 @@ const containerStyles = css({
   paddingRight: spacing[5],
   paddingBottom: spacing[3],
   paddingLeft: spacing[3],
-  boxShadow: 'rgb(0 30 43 / 10%) 0px 4px 4px 0px',
 });
 
 const toolbarDisplayStyles = css({
