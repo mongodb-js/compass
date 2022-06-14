@@ -39,6 +39,7 @@ store.onActivated = function onActivated(globalAppRegistry) {
   });
 
   globalAppRegistry.on('instance-created', ({ instance }) => {
+    store.dispatch({ type: 'instance-status-change', instance });
     instance.on('change:status', () => {
       store.dispatch({ type: 'instance-status-change', instance });
     });

@@ -3,7 +3,7 @@ import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { generateStage } from './stage';
+import { mapPipelineToStages } from '../utils/stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { PROMISE_CANCELLED_ERROR } from '../utils/cancellable-promise';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
@@ -151,8 +151,11 @@ export const runAggregation = (): ThunkAction<
   void,
   Actions
 > => {
-  return (dispatch) => {
-    track('Aggregation Executed');
+  return (dispatch, getState) => {
+    const { pipeline } = getState();
+    track('Aggregation Executed', () => ({
+      num_stages: mapPipelineToStages(pipeline).length,
+    }));
     return dispatch(fetchAggregationData());
   };
 };
@@ -259,9 +262,7 @@ const fetchAggregationData = (
         abortController
       });
 
-      const nonEmptyStages = pipeline
-        .map(generateStage)
-        .filter((stage) => Object.keys(stage).length > 0);
+      const nonEmptyStages = mapPipelineToStages(pipeline);
 
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
@@ -344,9 +345,7 @@ export const exportAggregationResults = (): ThunkAction<
       countDocuments: { count }
     } = getState();
 
-    const stages = pipeline
-      .map(generateStage)
-      .filter((stage) => Object.keys(stage).length > 0);
+    const stages = mapPipelineToStages(pipeline);
 
     const options: AggregateOptions = {
       maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,

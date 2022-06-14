@@ -15,12 +15,21 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: remove label
+      - name: remove label not matching title - fix
+        if: |
+          startsWith(github.event.pull_request.title, 'fix:') ||
+          startsWith(github.event.pull_request.title, 'fix(')
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          labels: |
-            fix
-            feat
+          labels: feat
+
+      - name: remove label not matching title - feat
+        if: |
+          startsWith(github.event.pull_request.title, 'feat:') ||
+          startsWith(github.event.pull_request.title, 'feat(')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          labels: fix
 
       - name: add label based on title - fix
         if: |

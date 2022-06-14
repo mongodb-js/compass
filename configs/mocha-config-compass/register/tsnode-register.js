@@ -19,6 +19,10 @@ require('ts-node').register({
 // There is no way to disable it through the library configuration so the only
 // thing we can do is to manually uninstall it after registering ts-node if we
 // can detect that we are in the electron renderer / web runtime
-if (typeof process === 'undefined' || process.type === 'renderer') {
+if (
+  process.env.COMPASS_TEST_DISABLE_SOURCEMAPS === 'true' ||
+  typeof process === 'undefined' ||
+  process.type === 'renderer'
+) {
   require('@cspotcode/source-map-support').uninstall();
 }
