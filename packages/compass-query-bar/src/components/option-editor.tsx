@@ -19,6 +19,7 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 const editorStyles = cx(
   focusRingStyles,
   css({
+    minWidth: spacing[7],
     '&::before': {
       position: 'absolute',
       content: '""',

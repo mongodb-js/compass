@@ -9,15 +9,17 @@ import {
   focusRingVisibleStyles,
   spacing,
   uiColors,
+  breakpoints,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
 import type {
   QueryOption,
-  QueryBarLayout,
   QueryBarOptionProps,
 } from '../constants/query-option-definition';
-import { QueryBarRow } from './query-bar-row';
+import { OPTION_DEFINITION } from '../constants/query-option-definition';
+import { QueryOption as QueryOptionComponent } from './query-option';
+import { QueryOptionsGrid } from './query-options-grid';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -25,8 +27,9 @@ const queryBarFormStyles = css({
   flexGrow: 1,
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
-  padding: `0 ${spacing[1]}px`,
-  minWidth: spacing[7] * 6,
+  // padding: `0 ${spacing[1]}px`,
+  padding: spacing[1],
+  minWidth: breakpoints.Tablet,
 
   // TODO: This margin and background will go away when the query bar is
   // wrapped in the Toolbar component in each of the plugins. COMPASS-5484
@@ -64,7 +67,15 @@ const openQueryHistoryStyles = cx(
 type QueryBarProps = {
   buttonLabel?: string;
   expanded: boolean;
-  layout?: QueryBarLayout;
+  queryOptions?: (
+    | 'project'
+    | 'sort'
+    | 'collation'
+    | 'skip'
+    | 'limit'
+    | 'maxTimeMS'
+  )[];
+  // Omit<QueryOption, 'filter'>[];
   onApply: () => void;
   onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
   onReset: () => void;
@@ -81,11 +92,7 @@ type QueryBarProps = {
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
   expanded: isQueryOptionsExpanded = false,
-  layout = [
-    'filter',
-    ['project', 'sort'],
-    ['collation', 'skip', 'limit', 'maxTimeMS'],
-  ],
+  queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
   onApply: _onApply,
   onChangeQueryOption,
   onReset: _onReset,
@@ -134,8 +141,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     [onApply]
   );
 
-  const [firstRowQueryOption, ...additionalQueryOptionRows] = layout;
-
   return (
     <form className={queryBarFormStyles} onSubmit={onFormSubmit} noValidate>
       <div
@@ -157,16 +162,19 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             <Icon glyph="CaretDown" />
           </button>
         )}
-        <QueryBarRow
-          isFirstRow
-          isLastRow={false}
-          layout={firstRowQueryOption}
-          queryOptionProps={queryOptionProps}
-          onChangeQueryOption={onChangeQueryOption}
+        <QueryOptionComponent
+          hasError={!queryOptionProps.filterValid}
+          queryOption="filter"
+          onChange={(value: string) => onChangeQueryOption('filter', value)}
           onApply={onApply}
+          placeholder={
+            queryOptionProps.filterPlaceholder ||
+            OPTION_DEFINITION.filter.placeholder
+          }
           refreshEditorAction={refreshEditorAction}
           schemaFields={schemaFields}
           serverVersion={serverVersion}
+          value={queryOptionProps.filterString}
         />
         <Button
           aria-label="Reset query"
@@ -187,7 +195,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           {buttonLabel}
         </Button>
 
-        {layout.length > 1 && (
+        {queryOptions && queryOptions.length > 1 && (
           <MoreOptionsToggle
             aria-controls="additional-query-options-container"
             data-testid="query-bar-options-toggle"
@@ -197,21 +205,17 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         )}
       </div>
       <div id="additional-query-options-container">
-        {isQueryOptionsExpanded &&
-          additionalQueryOptionRows.map((layout, rowIndex) => (
-            <QueryBarRow
-              layout={layout}
-              isLastRow={rowIndex === additionalQueryOptionRows.length - 1}
-              key={`query-bar-row-${rowIndex}`}
-              isFirstRow={false}
-              queryOptionProps={queryOptionProps}
-              onChangeQueryOption={onChangeQueryOption}
-              onApply={onApply}
-              refreshEditorAction={refreshEditorAction}
-              schemaFields={schemaFields}
-              serverVersion={serverVersion}
-            />
-          ))}
+        {isQueryOptionsExpanded && (
+          <QueryOptionsGrid
+            queryOptions={queryOptions}
+            queryOptionProps={queryOptionProps}
+            onChangeQueryOption={onChangeQueryOption}
+            onApply={onApply}
+            refreshEditorAction={refreshEditorAction}
+            schemaFields={schemaFields}
+            serverVersion={serverVersion}
+          />
+        )}
       </div>
     </form>
   );

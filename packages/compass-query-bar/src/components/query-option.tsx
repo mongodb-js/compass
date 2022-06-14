@@ -21,13 +21,22 @@ const queryOptionStyles = css({
   alignItems: 'center',
 });
 
+const documentEditorGridStyles = css({
+  // gridArea: 'document'
+});
+
+const numericEditorGridStyles = css({
+  // gridArea: 'numeric'
+});
+
 const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
   padding: `${spacing[2]}px 0`,
 });
 
-const autocompleteOptionInputStyles = css(
+const documentEditorOptionStyles = css(
   {
+    minWidth: spacing[7],
     display: 'flex',
     flexGrow: 1,
   },
@@ -78,13 +87,22 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   serverVersion,
   value = '',
 }) => {
-  const isAutoCompleteInput = useMemo(
+  const isDocumentEditor = useMemo(
     () => OPTION_DEFINITION[queryOption].type === 'document',
     [queryOption]
   );
 
   return (
-    <div className={queryOptionStyles} data-testid="query-bar-option">
+    <div
+      className={cx(
+        queryOptionStyles,
+        isDocumentEditor ? documentEditorGridStyles : numericEditorGridStyles
+      )}
+      data-testid="query-bar-option"
+      style={{
+        gridArea: queryOption,
+      }}
+    >
       {queryOption !== 'filter' && (
         <div
           className={queryOptionLabelContainerStyles}
@@ -99,8 +117,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
           </Label>
         </div>
       )}
-      <div className={cx(isAutoCompleteInput && autocompleteOptionInputStyles)}>
-        {isAutoCompleteInput ? (
+      <div className={cx(isDocumentEditor && documentEditorOptionStyles)}>
+        {isDocumentEditor ? (
           <OptionEditor
             hasError={hasError}
             id={`query-bar-option-input-${queryOption}`}
