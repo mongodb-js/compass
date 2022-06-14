@@ -86,8 +86,6 @@ class Pipeline extends PureComponent {
     collationString: PropTypes.object,
     collationStringChanged: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
-    collationCollapseToggled: PropTypes.func.isRequired,
-    isCollationExpanded: PropTypes.bool.isRequired,
     isOverviewOn: PropTypes.bool.isRequired,
     toggleOverview: PropTypes.func.isRequired,
     settings: PropTypes.object.isRequired,

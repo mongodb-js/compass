@@ -175,10 +175,6 @@ describe('Aggregation Store', function() {
           expect(state.collationString).to.equal(INITIAL_STATE.collationString);
         });
 
-        it('resets is collation expanded', function() {
-          expect(state.isCollationExpanded).to.equal(INITIAL_STATE.isCollationExpanded);
-        });
-
         it('resets is overview on', function() {
           expect(state.isOverviewOn).to.equal(INITIAL_STATE.isOverviewOn);
         });
@@ -247,7 +243,6 @@ describe('Aggregation Store', function() {
             isReadonly: INITIAL_STATE.isReadonly,
             importPipeline: INITIAL_STATE.importPipeline,
             collationString: INITIAL_STATE.collationString,
-            isCollationExpanded: INITIAL_STATE.isCollationExpanded,
             isOverviewOn: INITIAL_STATE.isOverviewOn,
             settings: INITIAL_STATE.settings,
             limit: INITIAL_STATE.limit,

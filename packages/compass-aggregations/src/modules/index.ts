@@ -53,9 +53,6 @@ import collationString, {
   getCollationStateFromString,
   INITIAL_STATE as COLLATION_STRING_INITIAL_STATE
 } from './collation-string';
-import isCollationExpanded, {
-  INITIAL_STATE as COLLATION_COLLAPSER_INITIAL_STATE
-} from './collation-collapser';
 import comments, { INITIAL_STATE as COMMENTS_INITIAL_STATE } from './comments';
 import sample, { INITIAL_STATE as SAMPLE_INITIAL_STATE } from './sample';
 import autoPreview, {
@@ -157,7 +154,6 @@ export const INITIAL_STATE = {
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
   collationString: COLLATION_STRING_INITIAL_STATE,
-  isCollationExpanded: COLLATION_COLLAPSER_INITIAL_STATE,
   isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
   isReadonly: IS_READONLY_INITIAL_STATE,
   isOverviewOn: OVERVIEW_INITIAL_STATE,
@@ -240,7 +236,6 @@ const appReducer = combineReducers({
   pipeline,
   name,
   collationString,
-  isCollationExpanded,
   id,
   isModified,
   isAtlasDeployed,
@@ -347,8 +342,7 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     restorePipeline: {
       isModalVisible: false,
       pipelineObjectID: ''
-    },
-    isCollationExpanded: Boolean(collationString)
+    }
   };
 };
 
@@ -428,7 +422,6 @@ const doConfirmNewFromText = (state: RootState): RootState => {
     ...state,
     name: '',
     collationString: COLLATION_STRING_INITIAL_STATE,
-    isCollationExpanded: false,
     id: new ObjectId().toHexString(),
     pipeline: error ? [] : pipe,
     importPipeline: {
@@ -448,7 +441,6 @@ const doModifyView = (state: RootState, action: AnyAction): RootState => {
     isReadonly: action.isReadonly,
     sourceName: action.sourceName,
     collationString: COLLATION_STRING_INITIAL_STATE,
-    isCollationExpanded: false,
     id: new ObjectId().toHexString(),
     pipeline: pipe,
     importPipeline: {
@@ -490,7 +482,6 @@ const doNewFromPastedText = (state: RootState, action: AnyAction): RootState => 
     ...state,
     name: '',
     collationString: COLLATION_STRING_INITIAL_STATE,
-    isCollationExpanded: false,
     id: new ObjectId().toHexString(),
     pipeline: pipe,
     importPipeline: {
