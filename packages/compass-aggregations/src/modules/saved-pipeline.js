@@ -119,8 +119,7 @@ export const saveCurrentPipeline = () => {
       comments,
       sample,
       autoPreview,
-      collation,
-      collationString,
+      collationString: { text },
       dataService
     } = getState();
 
@@ -131,8 +130,7 @@ export const saveCurrentPipeline = () => {
       comments,
       sample,
       autoPreview,
-      collation,
-      collationString,
+      collationString: text,
       pipeline,
       host: dataService.dataService.getConnectionString().hosts.join(',')
     };

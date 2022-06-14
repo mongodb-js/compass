@@ -920,7 +920,7 @@ const aggregate = (
   const options: AggregateOptions = {
     maxTimeMS: getState().maxTimeMS ?? DEFAULT_MAX_TIME_MS,
     allowDiskUse: true,
-    collation: getState().collation || undefined
+    collation: getState().collationString.value ?? undefined
   };
   dataService.aggregate(ns, pipeline, options, (err, cursor) => {
     if (err) {

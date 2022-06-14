@@ -49,10 +49,8 @@ import isReadonly, {
 import maxTimeMS, {
   INITIAL_STATE as MAX_TIME_MS_INITIAL_STATE
 } from './max-time-ms';
-import collation, {
-  INITIAL_STATE as COLLATION_INITIAL_STATE
-} from './collation';
 import collationString, {
+  getCollationStateFromString,
   INITIAL_STATE as COLLATION_STRING_INITIAL_STATE
 } from './collation-string';
 import isCollationExpanded, {
@@ -158,7 +156,6 @@ export const INITIAL_STATE = {
   savedPipeline: SP_INITIAL_STATE,
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
-  collation: COLLATION_INITIAL_STATE,
   collationString: COLLATION_STRING_INITIAL_STATE,
   isCollationExpanded: COLLATION_COLLAPSER_INITIAL_STATE,
   isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
@@ -242,7 +239,6 @@ const appReducer = combineReducers({
   restorePipeline,
   pipeline,
   name,
-  collation,
   collationString,
   isCollationExpanded,
   id,
@@ -325,7 +321,6 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     comments,
     sample,
     autoPreview,
-    collation,
     collationString,
     pipeline
   } = action.restoreState;
@@ -339,8 +334,7 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     comments,
     sample,
     autoPreview,
-    collation,
-    collationString,
+    collationString: getCollationStateFromString(collationString),
     pipeline,
     // Relevant state that depens on the pipeline state is updated (NB: this
     // whole thing should be happening in the relevant slice reducers instead,
@@ -433,8 +427,7 @@ const doConfirmNewFromText = (state: RootState): RootState => {
   return {
     ...state,
     name: '',
-    collation: null,
-    collationString: '',
+    collationString: COLLATION_STRING_INITIAL_STATE,
     isCollationExpanded: false,
     id: new ObjectId().toHexString(),
     pipeline: error ? [] : pipe,
@@ -454,8 +447,7 @@ const doModifyView = (state: RootState, action: AnyAction): RootState => {
     editViewName: action.name,
     isReadonly: action.isReadonly,
     sourceName: action.sourceName,
-    collation: null,
-    collationString: '',
+    collationString: COLLATION_STRING_INITIAL_STATE,
     isCollationExpanded: false,
     id: new ObjectId().toHexString(),
     pipeline: pipe,
@@ -497,8 +489,7 @@ const doNewFromPastedText = (state: RootState, action: AnyAction): RootState => 
   return {
     ...state,
     name: '',
-    collation: null,
-    collationString: '',
+    collationString: COLLATION_STRING_INITIAL_STATE,
     isCollationExpanded: false,
     id: new ObjectId().toHexString(),
     pipeline: pipe,

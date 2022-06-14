@@ -246,7 +246,6 @@ describe('Aggregation Store', function() {
             isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
             isReadonly: INITIAL_STATE.isReadonly,
             importPipeline: INITIAL_STATE.importPipeline,
-            collation: INITIAL_STATE.collation,
             collationString: INITIAL_STATE.collationString,
             isCollationExpanded: INITIAL_STATE.isCollationExpanded,
             isOverviewOn: INITIAL_STATE.isOverviewOn,

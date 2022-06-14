@@ -7,7 +7,6 @@ import { limitChanged } from '../../modules/limit';
 import { largeLimitChanged } from '../../modules/large-limit';
 import { maxTimeMSChanged } from '../../modules/max-time-ms';
 import { collationCollapseToggled } from '../../modules/collation-collapser';
-import { collationChanged } from '../../modules/collation';
 import { collationStringChanged } from '../../modules/collation-string';
 import { toggleComments } from '../../modules/comments';
 import { toggleSample } from '../../modules/sample';
@@ -127,7 +126,6 @@ const mapStateToProps = (state) => ({
   restorePipeline: state.restorePipeline,
   name: state.name,
   isCollationExpanded: state.isCollationExpanded,
-  collation: state.collation,
   collationString: state.collationString,
   isModified: state.isModified,
   isCommenting: state.comments,
@@ -162,7 +160,6 @@ const MappedAggregations = connect(
   {
     namespaceChanged,
     nameChanged,
-    collationChanged,
     collationStringChanged,
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
