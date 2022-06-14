@@ -134,7 +134,7 @@ const configureStore = (options = {}) => {
         items: new RecentQueryCollection(),
         currentHost:
           options.dataProvider?.dataProvider
-            .getConnectionString()
+            ?.getConnectionString?.()
             .hosts.join(',') ?? null,
       };
     }

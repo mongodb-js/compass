@@ -84,7 +84,7 @@ const configureStore = (options = {}) => {
         current: null,
         currentHost:
           options.dataProvider?.dataProvider
-            .getConnectionString()
+            ?.getConnectionString?.()
             .hosts.join(',') ?? null,
       };
     }

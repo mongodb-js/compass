@@ -132,7 +132,9 @@ export const saveCurrentPipeline = () => {
       autoPreview,
       collationString: text,
       pipeline,
-      host: dataService.dataService.getConnectionString().hosts.join(',')
+      host:
+        dataService?.dataService?.getConnectionString?.().hosts.join(',') ??
+        null
     };
 
     track('Aggregation Saved', {
