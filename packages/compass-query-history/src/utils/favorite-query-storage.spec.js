@@ -1,4 +1,3 @@
-/* eslint-disable no-sync */
 const { TestBackend } = require('storage-mixin');
 import { expect } from 'chai';
 import fs from 'fs';

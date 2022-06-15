@@ -37,7 +37,8 @@ class Query extends PureComponent {
       <li key={index}>
         <label
           data-test-id="query-history-query-label"
-          className={styles.label}>{attrKey}</label>
+          className={styles.label}
+        >{attrKey}</label>
         <Code
           className={styles.code}
           data-test-id="query-history-query-code"
@@ -57,7 +58,8 @@ class Query extends PureComponent {
       <ul
         onClick={this.populateQuery}
         className={styles.component}
-        data-test-id="query-history-query-attributes">
+        data-test-id="query-history-query-attributes"
+      >
         { Object.keys(attributes).map(this.renderAttr) }
       </ul>
     );

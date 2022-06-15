@@ -16,22 +16,11 @@ The RecentListStore contains the RecentQueryCollection, which saves the queries
 
 ## Features
 
-#### Electron
-
-Because the default view is "collapsed", running in Electron will not show anything
-initially. If you want to view queries in Electron, you should change the default
-`collapsed` value to be false.
-
-#### Enzyme
-
-The test environment is configured to test components with [Enzyme][enzyme] (including full `mount` mode through [jsdom][jsdom]) and [enzyme-chai][enzyme-chai]. See the test folder for examples. Run `npm test` to execute the test suite.
-
 #### Directory Structure
 
 For completeness, below is a list of directories present in this module:
 
-- `electron` code to start electron, open a browser window and load the source.
-- `lib` compiled version of your components (plain javascript instead of `jsx`) and styles (`css` instead of `less`).
+- `dist` compiled version of the plugin
 - `src` components, actions and stores source code, as well as style files.
   - Components
     - `favorite-componet` - the wrapper around `QueryComponent` that supplies interactions for favorite queries (copy, delete).
@@ -69,11 +58,7 @@ For completeness, below is a list of directories present in this module:
     - `cancelSave` - the user has pressed 'cancel' on the currently being saved query.
     - `runQuery` - the user has clicked on the query card and wants to populate the query bar with the contents of this saved query. This action is listened to by Compass.
     - `namespaceChanged` - the namespace has changed so new queries will be saved with the new namespace and the queries being shown should be limited to the current namespace.
-- `test`
 
 
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-query-history.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-query-history
-[enzyme]: http://airbnb.io/enzyme/
-[enzyme-chai]: https://github.com/producthunt/chai-enzyme
-[jsdom]: https://github.com/tmpvar/jsdom

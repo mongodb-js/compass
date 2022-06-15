@@ -28,7 +28,7 @@ const configureStore = (options = {}) => {
       // don't mutate the passed in parameter
       const attributes = _.clone(_attributes);
       for (const key in attributes) {
-        if (attributes.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(attributes, key)) {
           if (!attributes[key] || ALLOWED.indexOf(key) === -1) {
             delete attributes[key];
           } else if (_.isObject(attributes[key]) && _.isEmpty(attributes[key])) {

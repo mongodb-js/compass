@@ -1,17 +1,19 @@
+import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
+
 import configureStore from '../../src/stores/recent-list-store';
 import { comparableQuery } from './';
 
-describe('comparableQuery', () => {
+describe('comparableQuery', function() {
   let store;
   let appRegistry;
 
-  beforeEach(() => {
+  beforeEach(function() {
     appRegistry = new AppRegistry();
     store = configureStore({ localAppRegistry: appRegistry });
   });
 
-  it('strips ampersand properties', () => {
+  it('strips ampersand properties', function() {
     const recent = { ns: 'foo', filter: { foo: 1 } };
 
     store.addRecent(recent);
