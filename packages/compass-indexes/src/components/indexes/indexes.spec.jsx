@@ -11,7 +11,6 @@ import { Indexes } from '../indexes';
 import IndexHeader from '../index-header';
 import IndexList from '../index-list';
 
-/* eslint react/jsx-boolean-value: 0 */
 describe('indexes [Component]', function () {
   let component;
   const sortIndexesSpy = sinon.spy();
