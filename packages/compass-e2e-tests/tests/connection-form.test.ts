@@ -500,6 +500,9 @@ describe('Connection form', function () {
       `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color1"]`
     );
     await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
+    expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
+      'Save'
+    );
     await browser.clickVisible(Selectors.FavoriteSaveButton);
     await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
 
@@ -545,6 +548,37 @@ describe('Connection form', function () {
     await browser
       .$(Selectors.sidebarFavorite(newFavoriteName))
       .waitForDisplayed();
+  });
+
+  it('can save & connect', async function () {
+    // Fill in a valid URI
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      'mongodb://localhost:27091/test'
+    );
+
+    // Save & Connect
+    await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
+    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
+    await browser.$(Selectors.FavoriteNameInput).setValue('My New Favorite');
+    await browser.clickVisible(
+      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
+    );
+
+    // The modal's button text should read Save & Connect and not the default Save
+    expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
+      'Save & Connect'
+    );
+
+    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
+    await browser.clickVisible(Selectors.FavoriteSaveButton);
+    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+
+    // Wait for it to connect
+    const element = await browser.$(Selectors.MyQueriesList);
+    await element.waitForDisplayed({
+      timeout: 30_000,
+    });
   });
 });
 

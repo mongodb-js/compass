@@ -138,7 +138,10 @@ function ConnectForm({
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
-  const [showSaveConnectionModal, setShowSaveConnectionModal] = useState(false);
+  type SaveConnectionModalState = 'hidden' | 'save' | 'saveAndConnect';
+
+  const [saveConnectionModal, setSaveConnectionModal] =
+    useState<SaveConnectionModalState>('hidden');
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'
@@ -206,7 +209,7 @@ function ConnectForm({
                     data-testid="edit-favorite-name-button"
                     className={editFavoriteButtonStyles}
                     onClick={() => {
-                      setShowSaveConnectionModal(true);
+                      setSaveConnectionModal('save');
                     }}
                   >
                     <Icon glyph="Edit" />
@@ -224,7 +227,7 @@ function ConnectForm({
                   className={favoriteButtonStyles}
                   size="large"
                   onClick={() => {
-                    setShowSaveConnectionModal(true);
+                    setSaveConnectionModal('save');
                   }}
                 >
                   <div className={favoriteButtonContentStyles}>
@@ -262,17 +265,25 @@ function ConnectForm({
                 errors={connectionStringInvalidError ? [] : errors}
                 warnings={connectionStringInvalidError ? [] : warnings}
                 saveButton={
-                  initialConnectionInfo.favorite
-                    ? isDirty
-                      ? 'enabled'
-                      : 'disabled'
-                    : 'hidden'
+                  isDirty || !initialConnectionInfo.favorite
+                    ? 'enabled'
+                    : 'disabled'
+                }
+                saveAndConnectButton={
+                  initialConnectionInfo.favorite ? 'hidden' : 'enabled'
                 }
                 onSaveClicked={async () => {
-                  await callOnSaveConnectionClickedAndStoreErrors({
-                    ...cloneDeep(initialConnectionInfo),
-                    connectionOptions: cloneDeep(connectionOptions),
-                  });
+                  if (initialConnectionInfo.favorite) {
+                    await callOnSaveConnectionClickedAndStoreErrors({
+                      ...cloneDeep(initialConnectionInfo),
+                      connectionOptions: cloneDeep(connectionOptions),
+                    });
+                  } else {
+                    setSaveConnectionModal('save');
+                  }
+                }}
+                onSaveAndConnectClicked={() => {
+                  setSaveConnectionModal('saveAndConnect');
                 }}
                 onConnectClicked={onSubmitForm}
               />
@@ -282,12 +293,15 @@ function ConnectForm({
       </div>
       {!!onSaveConnectionClicked && (
         <SaveConnectionModal
-          open={showSaveConnectionModal}
+          open={saveConnectionModal !== 'hidden'}
+          saveText={
+            saveConnectionModal === 'saveAndConnect' ? 'Save & Connect' : 'Save'
+          }
           onCancelClicked={() => {
-            setShowSaveConnectionModal(false);
+            setSaveConnectionModal('hidden');
           }}
           onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
-            setShowSaveConnectionModal(false);
+            setSaveConnectionModal('hidden');
 
             await callOnSaveConnectionClickedAndStoreErrors({
               ...cloneDeep(initialConnectionInfo),
@@ -296,6 +310,10 @@ function ConnectForm({
                 ...favoriteInfo,
               },
             });
+
+            if (saveConnectionModal === 'saveAndConnect') {
+              onSubmitForm();
+            }
           }}
           key={initialConnectionInfo.id}
           initialFavoriteInfo={initialConnectionInfo.favorite}

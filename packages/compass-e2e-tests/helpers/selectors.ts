@@ -10,6 +10,8 @@ export const CloseFeatureTourModal = '[data-test-id="close-tour-button"]';
 // Connection screen
 export const ConnectSection = '[data-testid="connections-disconnected"]';
 export const ConnectButton = '[data-testid="connect-button"]';
+export const ConnectionFormSaveAndConnectButton =
+  '[data-testid="save-and-connect-button"]';
 export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
 export const ConnectionFormEditFavouriteButton =
   '[data-testid="edit-favorite-icon-button"]';
