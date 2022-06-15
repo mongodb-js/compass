@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DropdownButton, MenuItem } from 'react-bootstrap';
-import classnames from 'classnames';
 
 import styles from './validation-selector.module.less';
 
@@ -30,7 +29,7 @@ class ValidationSelector extends Component {
 
   static renderLabel(label, id) {
     return label
-      ? <label className={classnames(styles['option-selector-label'])} htmlFor={id}>{label}</label>
+      ? <label className={styles['option-selector-label']} htmlFor={id}>{label}</label>
       : null;
   }
 
@@ -44,7 +43,7 @@ class ValidationSelector extends Component {
     const menuItems = [];
 
     for (const key in this.props.options) {
-      if (this.props.options.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(this.props.options, key)) {
         const label = this.props.options[key];
 
         menuItems.push(<MenuItem key={key} eventKey={key} href="#">{label}</MenuItem>);
@@ -52,7 +51,7 @@ class ValidationSelector extends Component {
     }
 
     return (
-      <div className={classnames(styles['option-selector'])}>
+      <div className={styles['option-selector']}>
         {htmlLabel}
         <DropdownButton
           bsSize={this.props.bsSize}

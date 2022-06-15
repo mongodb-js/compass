@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import CheckCircle from '../check-circle';
 import CrossCircle from '../cross-circle';
 import DocumentPreview from '../document-preview';

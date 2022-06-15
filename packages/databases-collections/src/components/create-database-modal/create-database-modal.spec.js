@@ -12,12 +12,10 @@ describe('CreateDatabaseModal [Component]', () => {
   context('when the modal is visible', () => {
     let component;
     let toggleIsVisibleSpy;
-    let openLinkSpy;
     let createDatabaseSpy;
     let clearErrorSpy;
 
     beforeEach(() => {
-      openLinkSpy = sinon.spy();
       toggleIsVisibleSpy = sinon.spy();
       createDatabaseSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
@@ -27,7 +25,6 @@ describe('CreateDatabaseModal [Component]', () => {
           isVisible
           isRunning={false}
           error={{message: 'A testing error occurred.'}}
-          openLink={openLinkSpy}
           createDatabase={createDatabaseSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           clearError={clearErrorSpy}
@@ -36,7 +33,6 @@ describe('CreateDatabaseModal [Component]', () => {
     });
 
     afterEach(() => {
-      openLinkSpy = null;
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       createDatabaseSpy = null;
@@ -68,7 +64,6 @@ describe('CreateDatabaseModal [Component]', () => {
         <CreateDatabaseModal
           isVisible
           isRunning={false}
-          openLink={() => {}}
           createDatabase={() => {}}
           toggleIsVisible={() => {}}
           clearError={() => {}}
@@ -96,12 +91,10 @@ describe('CreateDatabaseModal [Component]', () => {
   context('when the modal is not visible', () => {
     let component;
     let toggleIsVisibleSpy;
-    let openLinkSpy;
     let createDatabaseSpy;
     let clearErrorSpy;
 
     beforeEach(() => {
-      openLinkSpy = sinon.spy();
       toggleIsVisibleSpy = sinon.spy();
       createDatabaseSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
@@ -110,7 +103,6 @@ describe('CreateDatabaseModal [Component]', () => {
         <CreateDatabaseModal
           isVisible={false}
           isRunning={false}
-          openLink={openLinkSpy}
           createDatabase={createDatabaseSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           clearError={clearErrorSpy}
@@ -119,7 +111,6 @@ describe('CreateDatabaseModal [Component]', () => {
     });
 
     afterEach(() => {
-      openLinkSpy = null;
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       createDatabaseSpy = null;

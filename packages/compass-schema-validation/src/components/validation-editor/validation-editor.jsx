@@ -4,14 +4,13 @@ import classnames from 'classnames';
 import { debounce } from 'lodash';
 import { ValidationAutoCompleter } from 'mongodb-ace-autocompleter';
 import { TextButton } from 'hadron-react-buttons';
-import { InfoSprinkle } from 'hadron-react-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { Editor, EditorVariant, EditorTextCompleter, IconButton, Icon } from '@mongodb-js/compass-components';
+
 import { checkValidator } from '../../modules/validation';
 import ValidationSelector from '../validation-selector';
 
 import styles from './validation-editor.module.less';
-
-import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
 
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
@@ -58,7 +57,6 @@ class ValidationEditor extends Component {
       syntaxError: PropTypes.object,
       error: PropTypes.object
     }),
-    openLink: PropTypes.func.isRequired,
     isEditable: PropTypes.bool.isRequired
   };
 
@@ -158,25 +156,28 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderActionSelector() {
-    const label = [
-      <span key="validation-action-label">Validation Action</span>,
-      <InfoSprinkle
-        key="validation-action-sprinkle"
-        helpLink={ACTION_HELP_URL}
-        onClickHandler={this.props.openLink}
-      />
-    ];
-
     return (
-      <div className={classnames(styles['validation-option'])}>
+      <div className={styles['validation-option']}>
         <ValidationSelector
           id="validation-action-selector"
           bsSize="xs"
           options={ACTION_OPTIONS}
           title={ACTION_OPTIONS[this.props.validation.validationAction]}
-          label={label}
+          label={(
+            <>
+              <span>Validation Action</span>
+              <IconButton
+                href={ACTION_HELP_URL}
+                target="_blank"
+                aria-label="More information on validation actions"
+              >
+                <Icon glyph="InfoWithCircle" size="small" />
+              </IconButton>
+            </>
+          )}
           disabled={!this.props.isEditable}
-          onSelect={this.props.validationActionChanged} />
+          onSelect={this.props.validationActionChanged}
+        />
       </div>
     );
   }
@@ -187,25 +188,28 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderLevelSelector() {
-    const label = [
-      <span key="validation-level-span">Validation Level</span>,
-      <InfoSprinkle
-        key="validation-level-sprinkle"
-        helpLink={LEVEL_HELP_URL}
-        onClickHandler={this.props.openLink}
-      />
-    ];
-
     return (
-      <div className={classnames(styles['validation-option'])}>
+      <div className={styles['validation-option']}>
         <ValidationSelector
           id="validation-level-selector"
           bsSize="xs"
           options={LEVEL_OPTIONS}
           title={LEVEL_OPTIONS[this.props.validation.validationLevel]}
-          label={label}
+          label={(
+            <>
+              <span>Validation Level</span>
+              <IconButton
+                href={LEVEL_HELP_URL}
+                target="_blank"
+                aria-label="More information on validation levels"
+              >
+                <Icon glyph="InfoWithCircle" size="small" />
+              </IconButton>
+            </>
+          )}
           disabled={!this.props.isEditable}
-          onSelect={this.props.validationLevelChanged} />
+          onSelect={this.props.validationLevelChanged}
+        />
       </div>
     );
   }

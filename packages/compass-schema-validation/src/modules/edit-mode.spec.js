@@ -1,11 +1,13 @@
+import { expect } from 'chai';
+
 import reducer, {
   editModeChanged,
   EDIT_MODE_CHANGED
 } from './edit-mode';
 
-describe('edit-mode module', () => {
-  describe('#editModeChanged', () => {
-    it('returns the EDIT_MODE_CHANGED action', () => {
+describe('edit-mode module', function() {
+  describe('#editModeChanged', function() {
+    it('returns the EDIT_MODE_CHANGED action', function() {
       const editMode = {
         collectionReadOnly: true,
         hadronReadOnly: false,
@@ -20,9 +22,9 @@ describe('edit-mode module', () => {
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is not presented in edit-mode module', () => {
-      it('returns the default state', () => {
+  describe('#reducer', function() {
+    context('when the action is not presented in edit-mode module', function() {
+      it('returns the default state', function() {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           collectionReadOnly: false,
           hadronReadOnly: false,
@@ -32,8 +34,8 @@ describe('edit-mode module', () => {
       });
     });
 
-    context('when the action is editModeChanged', () => {
-      it('returns the new state', () => {
+    context('when the action is editModeChanged', function() {
+      it('returns the new state', function() {
         const editMode = {
           collectionReadOnly: false,
           hadronReadOnly: false,

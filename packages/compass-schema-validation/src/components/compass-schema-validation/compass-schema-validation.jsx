@@ -10,7 +10,6 @@ import {
   validationLevelChanged
 } from '../../modules/validation';
 import { namespaceChanged } from '../../modules/namespace';
-import { openLink } from '../../modules/link';
 import { fetchSampleDocuments } from '../../modules/sample-documents';
 import { changeZeroState, zeroStateChanged } from '../../modules/zero-state';
 
@@ -70,7 +69,6 @@ const MappedCompassSchemaValidation = connect(
     namespaceChanged,
     validationActionChanged,
     validationLevelChanged,
-    openLink,
     zeroStateChanged,
     changeZeroState
   },

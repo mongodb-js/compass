@@ -1,8 +1,10 @@
+import { expect } from 'chai';
+
 import reducer, { dataServiceConnected, DATA_SERVICE_CONNECTED } from './data-service';
 
-describe('data service module', () => {
-  describe('#dataServiceConnected', () => {
-    it('returns the DATA_SERVICE_CONNECTED action', () => {
+describe('data service module', function() {
+  describe('#dataServiceConnected', function() {
+    it('returns the DATA_SERVICE_CONNECTED action', function() {
       expect(dataServiceConnected('test', 'ds')).to.deep.equal({
         type: DATA_SERVICE_CONNECTED,
         error: 'test',
@@ -11,9 +13,9 @@ describe('data service module', () => {
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is not data service connected', () => {
-      it('returns the default state', () => {
+  describe('#reducer', function() {
+    context('when the action is not data service connected', function() {
+      it('returns the default state', function() {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           error: null,
           dataService: null
@@ -21,8 +23,8 @@ describe('data service module', () => {
       });
     });
 
-    context('when the action is data service connected', () => {
-      it('returns the new state', () => {
+    context('when the action is data service connected', function() {
+      it('returns the new state', function() {
         expect(reducer(undefined, dataServiceConnected('err', 'ds'))).to.deep.equal({
           error: 'err',
           dataService: 'ds'

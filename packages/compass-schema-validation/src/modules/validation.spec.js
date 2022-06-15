@@ -1,4 +1,6 @@
-import {stringify as javascriptStringify } from 'javascript-stringify';
+import { expect } from 'chai';
+import { stringify as javascriptStringify } from 'javascript-stringify';
+
 import reducer, {
   checkValidator,
   validationActionChanged,
@@ -18,9 +20,9 @@ import reducer, {
   SYNTAX_ERROR_OCCURRED
 } from './validation';
 
-describe('validation module', () => {
-  describe('#checkValidator', () => {
-    it('returns parsed JS validation query and error information', () => {
+describe('validation module', function() {
+  describe('#checkValidator', function() {
+    it('returns parsed JS validation query and error information', function() {
       expect(checkValidator('{ $jsonSchema: { bsonType: \'object\' } }')).to.deep.equal({
         syntaxError: null,
         validator: { $jsonSchema: { bsonType: 'object' } }
@@ -28,8 +30,8 @@ describe('validation module', () => {
     });
   });
 
-  describe('#validationActionChanged', () => {
-    it('returns the VALIDATION_ACTION_CHANGED action', () => {
+  describe('#validationActionChanged', function() {
+    it('returns the VALIDATION_ACTION_CHANGED action', function() {
       expect(validationActionChanged('warn')).to.deep.equal({
         type: VALIDATION_ACTION_CHANGED,
         validationAction: 'warn'
@@ -37,8 +39,8 @@ describe('validation module', () => {
     });
   });
 
-  describe('#validationLevelChanged', () => {
-    it('returns the VALIDATION_LEVEL_CHANGED action', () => {
+  describe('#validationLevelChanged', function() {
+    it('returns the VALIDATION_LEVEL_CHANGED action', function() {
       expect(validationLevelChanged('moderate')).to.deep.equal({
         type: VALIDATION_LEVEL_CHANGED,
         validationLevel: 'moderate'
@@ -46,8 +48,8 @@ describe('validation module', () => {
     });
   });
 
-  describe('#validatorChanged', () => {
-    it('returns the VALIDATOR_CHANGED action', () => {
+  describe('#validatorChanged', function() {
+    it('returns the VALIDATOR_CHANGED action', function() {
       expect(
         validatorChanged('{ $jsonSchema: { bsonType: \'object\', required: [ \'name\' ] } }')
       ).to.deep.equal({
@@ -57,8 +59,8 @@ describe('validation module', () => {
     });
   });
 
-  describe('#validationFetched', () => {
-    it('returns the VALIDATION_FETCHED action', () => {
+  describe('#validationFetched', function() {
+    it('returns the VALIDATION_FETCHED action', function() {
       expect(validationFetched({
         validator: { name: { $exists: true } },
         validationAction: 'warning',
@@ -74,8 +76,8 @@ describe('validation module', () => {
     });
   });
 
-  describe('#validationCanceled', () => {
-    it('returns the VALIDATION_CANCELED action', () => {
+  describe('#validationCanceled', function() {
+    it('returns the VALIDATION_CANCELED action', function() {
       expect(validationCanceled({
         isChanged: false,
         validator: { name: { $exists: true } },
@@ -97,8 +99,8 @@ describe('validation module', () => {
     });
   });
 
-  describe('#validationSaveFailed', () => {
-    it('returns the VALIDATION_SAVE_FAILED action', () => {
+  describe('#validationSaveFailed', function() {
+    it('returns the VALIDATION_SAVE_FAILED action', function() {
       expect(validationSaveFailed({
         message: 'Validation save failed!'
       })).to.deep.equal({
@@ -108,8 +110,8 @@ describe('validation module', () => {
     });
   });
 
-  describe('#syntaxErrorOccurred', () => {
-    it('returns the SYNTAX_ERROR_OCCURRED action', () => {
+  describe('#syntaxErrorOccurred', function() {
+    it('returns the SYNTAX_ERROR_OCCURRED action', function() {
       expect(syntaxErrorOccurred({ message: 'Syntax Error!' })).to.deep.equal({
         type: SYNTAX_ERROR_OCCURRED,
         syntaxError: { message: 'Syntax Error!' }
@@ -117,9 +119,9 @@ describe('validation module', () => {
     });
   });
 
-  describe('validationFromCollection', () => {
-    context('when an error occurs listing the collection', () => {
-      it('includes the error', () => {
+  describe('validationFromCollection', function() {
+    context('when an error occurs listing the collection', function() {
+      it('includes the error', function() {
         const error = new Error('Fake error');
         expect(validationFromCollection(error)).to.deep.equal({
           validationAction: 'error',
@@ -129,8 +131,8 @@ describe('validation module', () => {
       });
     });
 
-    context('when the options contains no options', () => {
-      it('returns defaults', () => {
+    context('when the options contains no options', function() {
+      it('returns defaults', function() {
         const data = {};
         expect(validationFromCollection(null, data)).to.deep.equal({
           validationAction: 'error',
@@ -139,8 +141,8 @@ describe('validation module', () => {
       });
     });
 
-    context('when the options contains no validation-related options', () => {
-      it('returns defaults', () => {
+    context('when the options contains no validation-related options', function() {
+      it('returns defaults', function() {
         const data = { validation: {} };
         expect(validationFromCollection(null, data)).to.deep.equal({
           validationAction: 'error',
@@ -149,8 +151,8 @@ describe('validation module', () => {
       });
     });
 
-    context('when the options contains validation-related options', () => {
-      it('overrides the defaults', () => {
+    context('when the options contains validation-related options', function() {
+      it('overrides the defaults', function() {
         const data = {
           validation: {
             validationAction: 'new-validationAction',
@@ -167,9 +169,9 @@ describe('validation module', () => {
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is not presented in validation module', () => {
-      it('returns the default state', () => {
+  describe('#reducer', function() {
+    context('when the action is not presented in validation module', function() {
+      it('returns the default state', function() {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           validator: '',
           validationAction: 'error',
@@ -181,24 +183,24 @@ describe('validation module', () => {
       });
     });
 
-    context('when the action is validationActionChanged', () => {
-      it('returns the new state', () => {
+    context('when the action is validationActionChanged', function() {
+      it('returns the new state', function() {
         const validation = reducer(undefined, validationActionChanged('warn'));
 
         expect(validation.validationAction).to.equal('warn');
       });
     });
 
-    context('when the action is validationLevelChanged', () => {
-      it('returns the new state', () => {
+    context('when the action is validationLevelChanged', function() {
+      it('returns the new state', function() {
         const validation = reducer(undefined, validationLevelChanged('moderate'));
 
         expect(validation.validationLevel).to.equal('moderate');
       });
     });
 
-    context('when the action is validatorChanged', () => {
-      it('returns the new state for the simple object', () => {
+    context('when the action is validatorChanged', function() {
+      it('returns the new state for the simple object', function() {
         const validation = reducer(undefined, validatorChanged(`{
           $jsonSchema: { bsonType: 'object', required: [ 'name' ] }
         }`));
@@ -208,7 +210,7 @@ describe('validation module', () => {
         }`);
       });
 
-      it('returns the new state for the object with regex', () => {
+      it('returns the new state for the object with regex', function() {
         const validation = reducer(undefined, validatorChanged(`{
           'name': 'test',
           'options': {
@@ -243,8 +245,8 @@ describe('validation module', () => {
       });
     });
 
-    context('when the action is validationFetched', () => {
-      it('returns the new state', () => {
+    context('when the action is validationFetched', function() {
+      it('returns the new state', function() {
         const validation = reducer(undefined, validationFetched({
           validator: { name: { $exists: true } },
           validationAction: 'warning',
@@ -269,8 +271,8 @@ describe('validation module', () => {
       });
     });
 
-    context('when the action is validationSaveFailed', () => {
-      it('returns the new state', () => {
+    context('when the action is validationSaveFailed', function() {
+      it('returns the new state', function() {
         const validation = reducer(undefined, validationSaveFailed({
           message: 'Validation save failed!'
         }));
@@ -286,8 +288,8 @@ describe('validation module', () => {
       });
     });
 
-    context('when the action is syntaxErrorOccurred', () => {
-      it('returns the new state', () => {
+    context('when the action is syntaxErrorOccurred', function() {
+      it('returns the new state', function() {
         const validation = reducer(undefined, syntaxErrorOccurred({ message: 'Syntax Error!' }));
 
         expect(validation).to.deep.equal({

@@ -50,7 +50,6 @@ class ValidationStates extends Component {
     changeZeroState: PropTypes.func.isRequired,
     zeroStateChanged: PropTypes.func.isRequired,
     editMode: PropTypes.object.isRequired,
-    openLink: PropTypes.func.isRequired,
     serverVersion: PropTypes.string
   }
 
@@ -112,12 +111,13 @@ class ValidationStates extends Component {
             <div id="oldServerReadOnly">
               {READ_ONLY_WARNING.oldServerReadOnly}
               <div>&nbsp;</div>
-              <a
+              <Link
                 className={styles['upgrade-link']}
-                onClick={this.props.openLink.bind(this, DOC_UPGRADE_REVISION)}
+                target="_blank"
+                href={DOC_UPGRADE_REVISION}
               >
                 upgrade to MongoDB 3.2.
-              </a>
+              </Link>
             </div>
           </StatusRow>
         );
@@ -157,7 +157,8 @@ class ValidationStates extends Component {
           </div>
           <Link
             className={styles['zero-state-link']}
-            onClick={this.props.openLink.bind(this, DOC_SCHEMA_VALIDATION)}
+            href={DOC_SCHEMA_VALIDATION}
+            target="_blank"
           >
             Learn more about validations
           </Link>
